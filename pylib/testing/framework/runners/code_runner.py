@@ -1,5 +1,6 @@
 import tempfile
 from abc import ABC, abstractmethod
+from typing import Dict
 
 from testing.framework.runners.console_logger import ConsoleLogger
 
@@ -15,5 +16,5 @@ class CodeRunner(ABC):
         return workdir, javasrc
 
     @abstractmethod
-    def run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
+    def run(self, src: str, logger: ConsoleLogger, messages: Dict[str, str]):
         pass

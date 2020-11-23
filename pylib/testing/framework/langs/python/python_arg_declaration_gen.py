@@ -1,12 +1,8 @@
-from typing import Tuple, List
-
-from testing.framework.dto.test_arg import TestArg
-from testing.framework.generators.test_arg_gen import TestArgGenerator
+from testing.framework.generators.arg_declaration_gen import ArgDeclarationGenerator
 from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
-class PythonTestArgGenerator(TestArgGenerator):
-
+class PythonArgDeclarationGenerator(ArgDeclarationGenerator):
     def visit_array(self, node: SyntaxTree, data_item):
         if len(node.nodes) != 1:
             raise Exception('Array can have only 1 inner-type')

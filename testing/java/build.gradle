@@ -28,7 +28,7 @@ jar {
 }
 
 dependencies {
-//    compile 'org.codehaus.groovy:groovy-all:3.0.6'
+    compile 'org.codehaus.groovy:groovy-all:3.0.6'
     //compile 'org.codehaus.groovy:groovy-all:2.5.5'
     compile 'org.slf4j:slf4j-api:1.6.1'
     compile 'ch.qos.logback:logback-classic:0.9.28'

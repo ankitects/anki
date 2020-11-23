@@ -1,17 +1,17 @@
 from typing import Dict
 
-from testing.framework.generators.test_arg_gen import TestArgGenerator
-from testing.framework.generators.user_type_gen import UserTypeGenerator
+from testing.framework.generators.arg_declaration_gen import ArgDeclarationGenerator
+from testing.framework.generators.user_type_declaration_gen import UserTypeDeclarationGenerator
 from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
-class PythonUserTypeGenerator(UserTypeGenerator):
+class PythonUserTypeGenerator(UserTypeDeclarationGenerator):
 
     TEMPLATE_SRC = '''class {}:
    def __init__(self, {}):
 {}'''
 
-    def __init__(self, arg_generator: TestArgGenerator):
+    def __init__(self, arg_generator: ArgDeclarationGenerator):
         self.arg_generator = arg_generator
 
     def visit_array(self, node: SyntaxTree, data):

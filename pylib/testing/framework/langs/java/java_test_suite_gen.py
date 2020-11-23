@@ -1,68 +1,81 @@
-from typing import List
+from typing import Dict
 
 from testing.framework.dto.test_suite import TestSuite
 from testing.framework.generators.test_suite_gen import TestSuiteGenerator
+from testing.framework.langs.java.java_converter_gen import JavaConverterGenerator
+from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
 class JavaTestSuiteGenerator(TestSuiteGenerator):
+    IMPORTS = '''
+    import static test_engine.Verifier.verify;
+    import static test_engine.Converters.*;
+    import test_engine.TestRunner;
+    
+    import java.io.File;
+    import java.io.IOException;
+    import java.nio.file.Files;
+    import java.nio.file.Path;
+    import java.util.concurrent.TimeUnit;
+    import java.util.stream.Stream;
+    import java.lang.reflect.Method;
+    import java.util.Arrays;
+    import java.util.List;
+    import test_engine.TestCaseParser;
+    import test_engine.TestCase;
+    import test_engine.Verifier;
+    import java.util.concurrent.atomic.AtomicInteger;'''
 
-    def inject_imports(self, solution_src: str, test_suite: TestSuite) -> str:
-        return '''import static test_engine.Verifier.verify;
-import java.util.concurrent.TimeUnit;
+    MAIN_FUNCTION_TEMPLATE = '''
+    public static void main(String[] args) throws Exception {
+        List<BaseConverter> converters = Arrays.asList(%(converters_src)s);
+        AtomicInteger index = new AtomicInteger(1);
+        Solution solution = new Solution();
+        Method method = Stream.of(Solution.class.getDeclaredMethods())
+           .filter(m -> !m.isSynthetic() && m.getName().equals("%(function_name)s"))
+           .findFirst()
+           .orElseThrow(() -> new IllegalStateException("Cannot find method %(function_name)s"));
+        method.setAccessible(true);
 
-{}'''.format(solution_src)
+        Files.lines(Path.of("%(file_path)s")).forEach(line -> {
+            TestCase tc = TestCaseParser.parseTestCase(converters, line);
+            long start = System.nanoTime();
+            Object result = null;
+            try {
+                result = method.invoke(solution, (Object[]) tc.getArgs());
+            } catch(Exception exc) {
+                throw new RuntimeException(exc);
+            }
+            long end = System.nanoTime();
+            long duration = TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS);
+            if (Verifier.verify(result, tc.getExpected())) {
+                System.out.println("%(pass_msg)s"); 
+            } else {
+                System.out.println("%(fail_msg)s"); 
+            }
+        });
+    }
+    '''
 
-    def inject_test_suite_invocation(self,
-                                     solution_src: str,
-                                     test_cases_src: List[str],
-                                     test_suite: TestSuite) -> str:
+    def __init__(self):
+        self.converter_generator = JavaConverterGenerator()
+
+    def generate_testing_src(self, solution_src: str, ts: TestSuite, tree: SyntaxTree, messages: Dict[str, str]) -> str:
+        test_passed_msg = messages['passed_msg'] % dict(
+            index='" + index.incrementAndGet() + "',
+            total="total",
+            duration='" + duration + "')
+        test_failed_msg = messages['failed_msg'] % dict(
+            index='" + index.incrementAndGet() + "',
+            total="total",
+            expected='',
+            result='" + result + "')
+        solution_src = self.IMPORTS + '\n' + solution_src
+        main_src = self.MAIN_FUNCTION_TEMPLATE % dict(
+            converters_src=self.converter_generator.generate_initializers(tree),
+            function_name=ts.func_name,
+            file_path=ts.test_cases_file,
+            pass_msg=test_passed_msg,
+            fail_msg=test_failed_msg)
         i = solution_src.rindex('}')
-        main_function_src = '''   public static void main(String[] args) {{
-      Solution solution = new Solution();
-      long start, end;
-      long duration;
-      String msg;
-      Object result;
-      boolean ok;
-{}
-   }}'''.format('\n'.join([' ' * 6 + x for x in test_cases_src]))
-        return solution_src[:i] + '\n' + main_function_src + '\n' + solution_src[i:]
-
-    def generate_test_case_invocations(self,
-                                       ts: TestSuite,
-                                       test_passed_msg_format: str,
-                                       test_failed_msg_format: str) -> List[str]:
-        src = []
-        total_count = len(ts.test_cases)
-
-        for index, tc in enumerate(ts.test_cases):
-            test_passed_msg = test_passed_msg_format % dict(
-                index=index + 1,
-                total=total_count,
-                duration='"+duration+"')
-
-            test_failed_msg = test_failed_msg_format % dict(
-                index=index + 1,
-                total=total_count,
-                expected=tc.result,
-                result='"+result+"')
-
-            src.append('''
-        start = System.nanoTime();
-        result = solution.%(func_name)s(%(func_args)s);
-        end = System.nanoTime();
-        duration = TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS);
-        ok = verify(result, %(result)s);
-        if (ok) {{
-           System.out.println("%(pass_msg)s");
-        }} else {{
-           System.out.println("%(fail_msg)s");
-           return;
-        }}''' % dict(
-                func_name=ts.func_name,
-                func_args=','.join(tc.args),
-                result=tc.result,
-                pass_msg=test_passed_msg,
-                fail_msg=test_failed_msg))
-
-        return src
+        return solution_src[:i] + main_src + solution_src[i:]

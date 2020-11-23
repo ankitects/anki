@@ -1,19 +1,22 @@
 from testing.framework.dto.test_suite import TestSuite
-from testing.framework.generators.template_gen import TemplateGenerator
+from testing.framework.generators.solution_template_gen import SolutionTemplateGenerator
+from testing.framework.syntax.utils import trim_indent
 
 
-class JavaTemplateGenerator(TemplateGenerator):
-    SOLUTION_TEMPLATE = '''public class Solution {{
-{}   {} {}({}) {{
-      //Add code here
-   }}
-}}'''
+class JavaTemplateGenerator(SolutionTemplateGenerator):
+    SOLUTION_TEMPLATE = '''
+    public class Solution {
+        %(user_types)s
+        public %(result_type)s %(func_name)s(%(arg_declarations)s) {
+          //Add code here
+        }
+    }'''
 
-    def generate_template_src(self, test_suite: TestSuite) -> str:
-        args_src = ', '.join([arg.arg_type + ' ' + arg.arg_name for arg in test_suite.test_args])
-        types_src = ''
-        for type_name in test_suite.user_types:
-            if type_name != '':
-                types_src += 3 * ' ' + test_suite.user_types[type_name] + '\n'
-
-        return self.SOLUTION_TEMPLATE.format(types_src, test_suite.result_type, test_suite.func_name, args_src)
+    def generate_solution_template(self, ts: TestSuite) -> str:
+        user_types_src = '\n'.join(ts.user_types) if len(ts.user_types) > 0 else ''
+        return trim_indent(self.SOLUTION_TEMPLATE % dict(
+            user_types=user_types_src,
+            result_type=ts.result_type,
+            func_name=ts.func_name,
+            arg_declarations=','.join([x.arg_type + ' ' + x.arg_name for x in ts.test_args])
+        ))

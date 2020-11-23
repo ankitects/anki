@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+import typing
 from testing.framework.dto.test_arg import TestArg
 from testing.framework.dto.test_case import TestCase
 
@@ -11,6 +12,7 @@ class TestSuite:
     test_cases: List[TestCase]
     result_type: str
     user_types: Dict[str, str]
+    test_cases_file: str
 
     def __init__(self, func_name: str):
         self.func_name = func_name

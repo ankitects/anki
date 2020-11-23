@@ -1,20 +1,20 @@
 from testing.framework.dto.test_suite import TestSuite
-from testing.framework.generators.template_gen import TemplateGenerator
+from testing.framework.generators.solution_template_gen import SolutionTemplateGenerator
+from testing.framework.syntax.utils import trim_indent
 
 
-class PythonTemplateGenerator(TemplateGenerator):
-    SOLUTION_TEMPLATE = '''{}def {}({}) -> {}:
-   #Add code here'''
+class PythonTemplateGenerator(SolutionTemplateGenerator):
+    SOLUTION_TEMPLATE = '''
+    %(user_types)s
+    def %(func_name)s(%(arg_declarations)s):
+        #Add code here
+    '''
 
-    def generate_template_src(self, ts: TestSuite) -> str:
-        args_src = ', '.join([arg.arg_name + ': ' + arg.arg_type for arg in ts.test_args])
+    def generate_solution_template(self, ts: TestSuite) -> str:
+        user_types_src = '\n'.join(ts.user_types) if len(ts.user_types) > 0 else ''
+        return trim_indent(self.SOLUTION_TEMPLATE % dict(
+            user_types=user_types_src,
+            result_type=ts.result_type,
+            func_name=ts.func_name,
+            arg_declarations=','.join([x.arg_name + ': ' + x.arg_type for x in ts.test_args])))
 
-        user_types = []
-        for type_name in ts.user_types:
-            if type_name != '':
-                user_types.append(ts.user_types[type_name])
-        user_types_src = '\n'.join(user_types)
-        if len(user_types) > 0:
-            user_types_src += '\n'
-
-        return self.SOLUTION_TEMPLATE.format(user_types_src, ts.func_name, args_src, ts.result_type)

@@ -5,7 +5,7 @@ from testing.framework.dto.test_arg import TestArg
 from testing.framework.syntax.syntax_tree import SyntaxTree, SyntaxTreeVisitor
 
 
-class VarNameGenerator:
+class ArgNameGenerator:
     def __init__(self):
         self.n = 0
 
@@ -14,12 +14,12 @@ class VarNameGenerator:
         return 'var' + str(self.n)
 
 
-class TestArgGenerator(SyntaxTreeVisitor, ABC):
+class ArgDeclarationGenerator(SyntaxTreeVisitor, ABC):
 
     def __init__(self):
-        self.name_generator = VarNameGenerator()
+        self.name_generator = ArgNameGenerator()
 
-    def get_args(self, tree: SyntaxTree) -> Tuple[List[TestArg], str]:
+    def get_arg_declarations(self, tree: SyntaxTree) -> Tuple[List[TestArg], str]:
         args = []
         for node in tree.nodes:
             name = node.name

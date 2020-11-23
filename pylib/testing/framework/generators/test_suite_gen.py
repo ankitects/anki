@@ -1,25 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 
 from testing.framework.dto.test_suite import TestSuite
+from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
 class TestSuiteGenerator(ABC):
 
     @abstractmethod
-    def inject_imports(self, solution_src: str, test_suite: TestSuite) -> str:
+    def generate_testing_src(self, solution_src: str, ts: TestSuite, tree: SyntaxTree, msg: Dict[str, str]) -> str:
         pass
 
-    @abstractmethod
-    def inject_test_suite_invocation(self,
-                                     solution_src: str,
-                                     test_cases_src: List[str],
-                                     test_suite: TestSuite) -> str:
-        pass
-
-    @abstractmethod
-    def generate_test_case_invocations(self,
-                                       test_suite: TestSuite,
-                                       test_passed_msg_format: str,
-                                       test_failed_msg_format: str) -> List[str]:
-        pass

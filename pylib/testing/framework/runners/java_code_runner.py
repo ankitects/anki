@@ -1,9 +1,8 @@
-import os
 import subprocess
-import tempfile
 
 from testing.framework.runners.code_runner import CodeRunner
 from testing.framework.runners.console_logger import ConsoleLogger
+
 
 def strip_compile_error(error, file_name):
     lines = error.split(file_name)
@@ -14,9 +13,10 @@ def strip_compile_error(error, file_name):
         text += str(line_number) + ':' + ''.join(splitted[2:])
     return text.replace('\n', '<br>')
 
+
 class JavaCodeRunner(CodeRunner):
-    #todo: fix paths
-    COMPILE_CMD = '{}/Users/aleksandr.zakshevskii/Library/Java/JavaVirtualMachines/corretto-11.0.7/Contents/Home/bin/javac {} -cp /opt/dev/dave8/anki/testing/java/build/libs/java.jar'
+    # todo: fix paths
+    COMPILE_CMD = '{}/Users/aleksandr.zakshevskii/Library/Java/JavaVirtualMachines/corretto-11.0.7/Contents/Home/bin/javac {} -cp /opt/dev/dave8/anki/testing/java/build/libs/java.jar -Xlint:unchecked'
     RUN_CMD = '{}/Users/aleksandr.zakshevskii/Library/Java/JavaVirtualMachines/corretto-11.0.7/Contents/Home/bin/java -classpath {}:/opt/dev/dave8/anki/testing/java/build/libs/java.jar {}'
     # COMPILE_CMD = '{}/libs/jdk/bin/javac {} -cp {}/libs/jdk/lib/java.jar'
     # RUN_CMD = '{}/libs/jdk/bin/java -classpath {}:{}/libs/jdk/lib/java.jar {}'
@@ -27,15 +27,17 @@ class JavaCodeRunner(CodeRunner):
         workdir, javasrc = self._create_src_file(src, self.CLASS_NAME + '.java')
         # resource_path = os.environ['RESOURCEPATH']
         resource_path = ''
+        logger.log('Compiling...')
 
         cmd = self.COMPILE_CMD.format(resource_path, javasrc.name, resource_path)
         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = proc.communicate()
-        if err != '':
+        if len(err) != 0:
             logger.log('<span class="error">' + strip_compile_error(err.decode('utf-8'), javasrc.name) + '</span>')
         if len(err) > 0:
             return err
 
+        logger.log('Running Tests...')
         cmd = self.RUN_CMD.format(resource_path, workdir.name, self.CLASS_NAME)
         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         for line in proc.stdout:
