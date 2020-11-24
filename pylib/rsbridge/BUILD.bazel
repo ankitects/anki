@@ -27,7 +27,7 @@ rust_library(
     ],
     deps = [
         ":build_script",
-        "//cargo:pyo3",
+        "//pylib/rsbridge/cargo:pyo3",
         "//rslib:anki",
     ],
 )

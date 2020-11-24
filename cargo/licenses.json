@@ -36,6 +36,24 @@
     "description": "Fast multiple substring searching."
   },
   {
+    "name": "anki",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": "Anki's Rust library code"
+  },
+  {
+    "name": "anki_workspace",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": null
+  },
+  {
     "name": "anyhow",
     "version": "1.0.34",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -412,15 +430,6 @@
     "license": "MIT OR Apache-2.0",
     "license_file": null,
     "description": "Fast functions for printing floating-point primitives to an io::Write"
-  },
-  {
-    "name": "dummy",
-    "version": "0.0.0",
-    "authors": null,
-    "repository": null,
-    "license": null,
-    "license_file": null,
-    "description": null
   },
   {
     "name": "either",
@@ -1672,6 +1681,15 @@
     "license": null,
     "license_file": "LICENSE",
     "description": "Safe, fast, small crypto using Rust."
+  },
+  {
+    "name": "rsbridge",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": "Anki's Rust library code Python bindings"
   },
   {
     "name": "rusqlite",
