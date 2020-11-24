@@ -14,7 +14,7 @@ build:windows --build_python_zip=false
 build --workspace_status_command='bash ./scripts/status.sh'
 
 # run clippy when compiling rust in test mode
-test --aspects=@io_bazel_rules_rust//rust:rust.bzl%rust_clippy_aspect --output_groups=clippy_checks
+test --aspects=@io_bazel_rules_rust//rust:rust.bzl%rust_clippy_aspect --output_groups=+clippy_checks
 
 # print output when test fails
 test --test_output=errors
