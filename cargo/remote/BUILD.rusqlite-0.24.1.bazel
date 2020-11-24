@@ -63,7 +63,7 @@ rust_library(
         "@raze__hashlink__0_6_0//:hashlink",
         "@raze__libsqlite3_sys__0_20_1//:libsqlite3_sys",
         "@raze__memchr__2_3_4//:memchr",
-        "@raze__smallvec__1_4_2//:smallvec",
+        "@raze__smallvec__1_5_0//:smallvec",
     ],
 )
 

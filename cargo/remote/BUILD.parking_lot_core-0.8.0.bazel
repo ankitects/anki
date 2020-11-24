@@ -51,8 +51,8 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__cfg_if__0_1_10//:cfg_if",
-        "@raze__instant__0_1_8//:instant",
-        "@raze__smallvec__1_4_2//:smallvec",
+        "@raze__instant__0_1_9//:instant",
+        "@raze__smallvec__1_5_0//:smallvec",
     ] + selects.with_or({
         # cfg(unix)
         (

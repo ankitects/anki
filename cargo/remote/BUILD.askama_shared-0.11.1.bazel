@@ -29,50 +29,21 @@ licenses([
 ])
 
 # Generated Targets
-# buildifier: disable=load-on-top
-load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
-    "cargo_build_script",
-)
-
-cargo_build_script(
-    name = "inventory_build_script",
-    srcs = glob(["**/*.rs"]),
-    build_script_env = {
-    },
-    crate_features = [
-    ],
-    crate_root = "build.rs",
-    data = glob(["**"]),
-    edition = "2018",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    version = "0.1.9",
-    visibility = ["//visibility:private"],
-    deps = [
-    ],
-)
-
-# Unsupported target "flags" with type "example" omitted
 
 rust_library(
-    name = "inventory",
+    name = "askama_shared",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "config",
+        "humansize",
+        "num-traits",
+        "percent-encoding",
+        "serde",
+        "toml",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__ctor__0_1_16//:ctor",
-        "@raze__ghost__0_1_2//:ghost",
-        "@raze__inventory_impl__0_1_9//:inventory_impl",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -80,9 +51,18 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.9",
+    version = "0.11.1",
     # buildifier: leave-alone
     deps = [
-        ":inventory_build_script",
+        "@raze__askama_escape__0_10_1//:askama_escape",
+        "@raze__humansize__1_1_0//:humansize",
+        "@raze__nom__6_0_0//:nom",
+        "@raze__num_traits__0_2_14//:num_traits",
+        "@raze__percent_encoding__2_1_0//:percent_encoding",
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__quote__1_0_7//:quote",
+        "@raze__serde__1_0_117//:serde",
+        "@raze__syn__1_0_51//:syn",
+        "@raze__toml__0_5_7//:toml",
     ],
 )

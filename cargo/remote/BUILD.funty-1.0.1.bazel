@@ -25,27 +25,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "askama",
+    name = "funty",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "config",
-        "default",
-        "humansize",
-        "num-traits",
-        "urlencode",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__askama_derive__0_10_3//:askama_derive",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -53,10 +45,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.3",
+    version = "1.0.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__askama_escape__0_10_1//:askama_escape",
-        "@raze__askama_shared__0_10_4//:askama_shared",
     ],
 )
