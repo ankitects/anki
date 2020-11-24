@@ -21,7 +21,7 @@ def setup_deps():
     rust_repositories(
         edition = "2018",
         # use_worker = True,
-        version = "1.47.0",
+        version = "1.48.0",
     )
 
     bazel_version(name = "io_bazel_rules_rust_bazel_version")
