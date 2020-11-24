@@ -4,6 +4,7 @@ Dependencies required to build Anki.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def register_repos():
     "Register required dependency repos."
@@ -11,7 +12,8 @@ def register_repos():
     # bazel
     ##########
 
-    http_archive(
+    maybe(
+        http_archive,
         name = "bazel_skylib",
         sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
         urls = [
@@ -23,7 +25,8 @@ def register_repos():
     # protobuf
     ############
 
-    http_archive(
+    maybe(
+        http_archive,
         name = "com_google_protobuf",
         sha256 = "465fd9367992a9b9c4fba34a549773735da200903678b81b25f367982e8df376",
         strip_prefix = "protobuf-3.13.0",
@@ -35,7 +38,8 @@ def register_repos():
     # rust
     ########
 
-    git_repository(
+    maybe(
+        git_repository,
         name = "io_bazel_rules_rust",
         commit = "504cde54248f518d5c98eb9f1e8db3546904ecb2",
         remote = "https://github.com/ankitects/rules_rust",
@@ -50,7 +54,8 @@ def register_repos():
     # python
     ##########
 
-    git_repository(
+    maybe(
+        git_repository,
         name = "rules_python",
         commit = "3927c9bce90f629eb5ab08bbc99a3d3bda1d95c0",
         remote = "https://github.com/ankitects/rules_python",
@@ -62,7 +67,8 @@ def register_repos():
     #     path = "../rules_python",
     # )
 
-    git_repository(
+    maybe(
+        git_repository,
         name = "com_github_ali5h_rules_pip",
         commit = "5d1d7ae1b24f869062ff6bb490110a2e5a229988",
         remote = "https://github.com/ankitects/rules_pip",
@@ -77,13 +83,15 @@ def register_repos():
     # javascript
     ##############
 
-    http_archive(
+    maybe(
+        http_archive,
         name = "build_bazel_rules_nodejs",
         sha256 = "cd6c9880292fc83f1fd16ba33000974544b0fe0fccf3d5e15b2e3071ba011266",
         urls = ["https://github.com/ankitects/rules_nodejs/releases/download/runfiles-fix-release/release.tar.gz"],
     )
 
-    # http_archive(
+    # maybe(
+    #     http_archive,
     #     name = "build_bazel_rules_nodejs",
     #     #        sha256 = "64a71a64ac58b8969bb19b1c9258a973b6433913e958964da698943fb5521d98",
     #     urls = [
@@ -95,7 +103,8 @@ def register_repos():
     # sass
     ############
 
-    http_archive(
+    maybe(
+        http_archive,
         name = "io_bazel_rules_sass",
         sha256 = "6e60fc1cf0805af2cdcce727a5eed3f238fb4df41b35ce581c57996947c0202c",
         strip_prefix = "rules_sass-1.26.12",
@@ -105,7 +114,8 @@ def register_repos():
     # svelte
     ##########
 
-    git_repository(
+    maybe(
+        git_repository,
         name = "build_bazel_rules_svelte",
         commit = "c28cd9e5d251a0ce47c68a6a2a11b075f3df8899",
         remote = "https://github.com/ankitects/rules_svelte",
@@ -135,7 +145,8 @@ filegroup(
 exports_files(["l10n.toml"])
 """
 
-    new_git_repository(
+    maybe(
+        new_git_repository,
         name = "rslib_ftl",
         build_file_content = i18n_build_content,
         commit = core_i18n_commit,
@@ -143,11 +154,11 @@ exports_files(["l10n.toml"])
         remote = "https://github.com/ankitects/anki-core-i18n",
     )
 
-    if not native.existing_rule("extra_ftl"):
-        new_git_repository(
-            name = "extra_ftl",
-            build_file_content = i18n_build_content,
-            commit = qtftl_i18n_commit,
-            shallow_since = qtftl_i18n_shallow_since,
-            remote = "https://github.com/ankitects/anki-desktop-ftl",
-        )
+    maybe(
+        new_git_repository,
+        name = "extra_ftl",
+        build_file_content = i18n_build_content,
+        commit = qtftl_i18n_commit,
+        shallow_since = qtftl_i18n_shallow_since,
+        remote = "https://github.com/ankitects/anki-desktop-ftl",
+    )
