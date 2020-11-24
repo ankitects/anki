@@ -79,10 +79,15 @@ fn service_generator() -> Box<dyn prost_build::ServiceGenerator> {
 
 pub fn write_backend_proto_rs() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let backend_proto = PathBuf::from(
-        env::var("BACKEND_PROTO").unwrap_or_else(|_| "../proto/backend.proto".to_string()),
-    );
-    let proto_dir = backend_proto.parent().unwrap().to_owned();
+    let backend_proto;
+    let proto_dir;
+    if let Ok(proto) = env::var("BACKEND_PROTO") {
+        backend_proto = PathBuf::from(proto);
+        proto_dir = backend_proto.parent().unwrap().to_owned();
+    } else {
+        backend_proto = PathBuf::from("backend.proto");
+        proto_dir = PathBuf::from(".");
+    }
     let fluent_proto = out_dir.join("fluent.proto");
 
     let mut config = prost_build::Config::new();
