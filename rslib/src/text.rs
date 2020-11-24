@@ -298,7 +298,7 @@ pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
 }
 
 /// Convert to SQL respecting Anki wildcards.
-pub(crate) fn to_sql<'a>(txt: &'a str) -> Cow<'a, str> {
+pub(crate) fn to_sql(txt: &str) -> Cow<str> {
     // escape sequences and unescaped special characters which need conversion
     lazy_static! {
         static ref RE: Regex = Regex::new(r"\\[\\*]|[*%]").unwrap();

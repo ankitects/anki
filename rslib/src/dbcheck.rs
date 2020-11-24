@@ -330,7 +330,7 @@ impl Collection {
                     Ok(self.storage.get_note(nid)?.unwrap())
                 }
                 // other errors are unhandled
-                _ => return Err(err),
+                _ => Err(err),
             },
         }
     }

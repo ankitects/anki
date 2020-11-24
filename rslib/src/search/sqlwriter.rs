@@ -133,9 +133,7 @@ impl SqlWriter<'_> {
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
             SearchNode::CardTemplate(template) => match template {
                 TemplateKind::Ordinal(_) => self.write_template(template)?,
-                TemplateKind::Name(name) => {
-                    self.write_template(&TemplateKind::Name(norm(name).into()))?
-                }
+                TemplateKind::Name(name) => self.write_template(&TemplateKind::Name(norm(name)))?,
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NoteTypeID(ntid) => {
@@ -191,7 +189,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_tag(&mut self, text: &str) -> Result<()> {
-        if text.contains(" ") {
+        if text.contains(' ') {
             write!(self.sql, "false").unwrap();
         } else {
             match text {
