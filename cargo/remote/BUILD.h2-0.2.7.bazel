@@ -64,7 +64,7 @@ rust_library(
         "@raze__slab__0_4_2//:slab",
         "@raze__tokio__0_2_23//:tokio",
         "@raze__tokio_util__0_3_1//:tokio_util",
-        "@raze__tracing__0_1_21//:tracing",
+        "@raze__tracing__0_1_22//:tracing",
         "@raze__tracing_futures__0_2_4//:tracing_futures",
     ],
 )

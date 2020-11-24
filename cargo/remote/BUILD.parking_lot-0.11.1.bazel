@@ -25,17 +25,16 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "smallvec",
+    name = "parking_lot",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -47,10 +46,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.2",
+    version = "0.11.1",
     # buildifier: leave-alone
     deps = [
+        "@raze__instant__0_1_9//:instant",
+        "@raze__lock_api__0_4_2//:lock_api",
+        "@raze__parking_lot_core__0_8_0//:parking_lot_core",
     ],
 )
 
-# Unsupported target "macro" with type "test" omitted
+# Unsupported target "issue_203" with type "test" omitted

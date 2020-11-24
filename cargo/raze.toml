@@ -9,6 +9,7 @@ path = "src/lib.rs"
 
 [package.metadata.raze]
 workspace_path = "//cargo"
+workspace_member_dir = "."
 targets = [
     "i686-apple-darwin",
     "i686-pc-windows-msvc",

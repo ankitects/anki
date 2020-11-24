@@ -28,7 +28,8 @@ licenses([
     "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",

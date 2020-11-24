@@ -25,16 +25,43 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
+# buildifier: disable=load-on-top
+load(
+    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "radium_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.5.3",
+    visibility = ["//visibility:private"],
+    deps = [
+    ],
+)
 
 rust_library(
-    name = "parking_lot",
+    name = "radium",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -46,13 +73,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.11.0",
+    version = "0.5.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__instant__0_1_8//:instant",
-        "@raze__lock_api__0_4_1//:lock_api",
-        "@raze__parking_lot_core__0_8_0//:parking_lot_core",
+        ":radium_build_script",
     ],
 )
-
-# Unsupported target "issue_203" with type "test" omitted

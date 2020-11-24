@@ -25,19 +25,27 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # BSD-3-Clause from expression "BSD-3-Clause"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "instant",
+    name = "askama",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "config",
+        "default",
+        "humansize",
+        "num-traits",
+        "urlencode",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__askama_derive__0_10_5//:askama_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -45,11 +53,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.8",
+    version = "0.10.5",
     # buildifier: leave-alone
     deps = [
-        "@raze__cfg_if__1_0_0//:cfg_if",
+        "@raze__askama_escape__0_10_1//:askama_escape",
+        "@raze__askama_shared__0_11_1//:askama_shared",
     ],
 )
-
-# Unsupported target "wasm" with type "test" omitted

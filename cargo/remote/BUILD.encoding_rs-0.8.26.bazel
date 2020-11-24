@@ -28,7 +28,8 @@ licenses([
     "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",

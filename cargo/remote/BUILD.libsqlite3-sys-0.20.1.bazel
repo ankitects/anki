@@ -28,7 +28,8 @@ licenses([
     "notice",  # MIT from expression "MIT"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
@@ -63,7 +64,7 @@ cargo_build_script(
     version = "0.20.1",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_62//:cc",
+        "@raze__cc__1_0_65//:cc",
         "@raze__pkg_config__0_3_19//:pkg_config",
     ] + selects.with_or({
         # cfg(target_env = "msvc")

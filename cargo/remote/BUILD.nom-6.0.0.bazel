@@ -42,6 +42,7 @@ cargo_build_script(
     },
     crate_features = [
         "alloc",
+        "bitvec",
         "default",
         "lexical",
         "lexical-core",
@@ -57,7 +58,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "5.1.2",
+    version = "6.0.0",
     visibility = ["//visibility:private"],
     deps = [
         "@raze__version_check__0_9_2//:version_check",
@@ -76,6 +77,8 @@ cargo_build_script(
 
 # Unsupported target "json" with type "bench" omitted
 
+# Unsupported target "number" with type "bench" omitted
+
 # Unsupported target "json" with type "example" omitted
 
 # Unsupported target "s_expression" with type "example" omitted
@@ -87,6 +90,7 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "alloc",
+        "bitvec",
         "default",
         "lexical",
         "lexical-core",
@@ -102,10 +106,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "5.1.2",
+    version = "6.0.0",
     # buildifier: leave-alone
     deps = [
         ":nom_build_script",
+        "@raze__bitvec__0_19_4//:bitvec",
         "@raze__lexical_core__0_7_4//:lexical_core",
         "@raze__memchr__2_3_4//:memchr",
     ],
@@ -114,6 +119,8 @@ rust_library(
 # Unsupported target "arithmetic" with type "test" omitted
 
 # Unsupported target "arithmetic_ast" with type "test" omitted
+
+# Unsupported target "bitstream" with type "test" omitted
 
 # Unsupported target "blockbuf-arithmetic" with type "test" omitted
 
@@ -124,6 +131,8 @@ rust_library(
 # Unsupported target "escaped" with type "test" omitted
 
 # Unsupported target "float" with type "test" omitted
+
+# Unsupported target "fnmut" with type "test" omitted
 
 # Unsupported target "inference" with type "test" omitted
 

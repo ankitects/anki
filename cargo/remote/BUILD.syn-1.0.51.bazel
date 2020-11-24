@@ -28,7 +28,8 @@ licenses([
     "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
@@ -63,7 +64,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.48",
+    version = "1.0.51",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -100,7 +101,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.48",
+    version = "1.0.51",
     # buildifier: leave-alone
     deps = [
         ":syn_build_script",

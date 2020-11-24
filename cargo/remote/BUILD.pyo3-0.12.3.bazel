@@ -28,7 +28,8 @@ licenses([
     "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
@@ -114,7 +115,7 @@ rust_library(
         "@raze__indoc__0_3_6//:indoc",
         "@raze__inventory__0_1_9//:inventory",
         "@raze__libc__0_2_80//:libc",
-        "@raze__parking_lot__0_11_0//:parking_lot",
+        "@raze__parking_lot__0_11_1//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",
     ],

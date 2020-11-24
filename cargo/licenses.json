@@ -82,7 +82,7 @@
   },
   {
     "name": "askama",
-    "version": "0.10.3",
+    "version": "0.10.5",
     "authors": "Dirkjan Ochtman <dirkjan@ochtman.nl>",
     "repository": "https://github.com/djc/askama",
     "license": "MIT OR Apache-2.0",
@@ -91,7 +91,7 @@
   },
   {
     "name": "askama_derive",
-    "version": "0.10.3",
+    "version": "0.10.5",
     "authors": "Dirkjan Ochtman <dirkjan@ochtman.nl>",
     "repository": "https://github.com/djc/askama",
     "license": "Apache-2.0/MIT",
@@ -109,7 +109,7 @@
   },
   {
     "name": "askama_shared",
-    "version": "0.10.4",
+    "version": "0.11.1",
     "authors": "Dirkjan Ochtman <dirkjan@ochtman.nl>",
     "repository": "https://github.com/djc/askama",
     "license": "Apache-2.0/MIT",
@@ -145,7 +145,7 @@
   },
   {
     "name": "backtrace",
-    "version": "0.3.54",
+    "version": "0.3.55",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/backtrace-rs",
     "license": "Apache-2.0/MIT",
@@ -178,6 +178,15 @@
     "license": "Apache-2.0/MIT",
     "license_file": null,
     "description": "A macro to generate structures which behave like bitflags."
+  },
+  {
+    "name": "bitvec",
+    "version": "0.19.4",
+    "authors": "myrrlyn <self@myrrlyn.dev>",
+    "repository": "https://github.com/myrrlyn/bitvec",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A crate for manipulating memory, bit by bit"
   },
   {
     "name": "blake2b_simd",
@@ -235,7 +244,7 @@
   },
   {
     "name": "cc",
-    "version": "1.0.62",
+    "version": "1.0.65",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/cc-rs",
     "license": "Apache-2.0/MIT",
@@ -433,7 +442,7 @@
   },
   {
     "name": "env_logger",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/env-logger-rs/env_logger/",
     "license": "Apache-2.0/MIT",
@@ -583,6 +592,15 @@
     "license": "BSD-3-Clause",
     "license_file": null,
     "description": "Low-level Rust bindings for the Zircon kernel"
+  },
+  {
+    "name": "funty",
+    "version": "1.0.1",
+    "authors": "myrrlyn <self@myrrlyn.dev>",
+    "repository": "https://github.com/myrrlyn/funty",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Trait generalization over the primitive types"
   },
   {
     "name": "futures",
@@ -901,7 +919,7 @@
   },
   {
     "name": "instant",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "authors": "sebcrozet <developer@crozet.re>",
     "repository": "https://github.com/sebcrozet/instant",
     "license": "BSD-3-Clause",
@@ -1036,7 +1054,7 @@
   },
   {
     "name": "lock_api",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/parking_lot",
     "license": "Apache-2.0/MIT",
@@ -1170,6 +1188,15 @@
     "description": "A byte-oriented, zero-copy, parser combinators library"
   },
   {
+    "name": "nom",
+    "version": "6.0.0",
+    "authors": "contact@geoffroycouprie.com",
+    "repository": "https://github.com/Geal/nom",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A byte-oriented, zero-copy, parser combinators library"
+  },
+  {
     "name": "num-format",
     "version": "0.4.0",
     "authors": "Brian Myers <brian.carl.myers@gmail.com>",
@@ -1270,7 +1297,7 @@
   },
   {
     "name": "parking_lot",
-    "version": "0.11.0",
+    "version": "0.11.1",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/parking_lot",
     "license": "Apache-2.0/MIT",
@@ -1333,7 +1360,7 @@
   },
   {
     "name": "pin-project",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": "Taiki Endo <te316e89@gmail.com>",
     "repository": "https://github.com/taiki-e/pin-project",
     "license": "Apache-2.0 OR MIT",
@@ -1351,7 +1378,7 @@
   },
   {
     "name": "pin-project-internal",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": "Taiki Endo <te316e89@gmail.com>",
     "repository": "https://github.com/taiki-e/pin-project",
     "license": "Apache-2.0 OR MIT",
@@ -1361,6 +1388,15 @@
   {
     "name": "pin-project-lite",
     "version": "0.1.11",
+    "authors": "Taiki Endo <te316e89@gmail.com>",
+    "repository": "https://github.com/taiki-e/pin-project-lite",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A lightweight version of pin-project written with declarative macros."
+  },
+  {
+    "name": "pin-project-lite",
+    "version": "0.2.0",
     "authors": "Taiki Endo <te316e89@gmail.com>",
     "repository": "https://github.com/taiki-e/pin-project-lite",
     "license": "Apache-2.0 OR MIT",
@@ -1512,6 +1548,15 @@
     "description": "Quasi-quoting macro quote!(...)"
   },
   {
+    "name": "radium",
+    "version": "0.5.3",
+    "authors": "Nika Layzell <nika@thelayzells.com>|myrrlyn <self@myrrlyn.dev>",
+    "repository": "https://github.com/mystor/radium",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Helper traits for working with maybe-atomic values"
+  },
+  {
     "name": "rand",
     "version": "0.7.3",
     "authors": "The Rand Project Developers|The Rust Project Developers",
@@ -1621,7 +1666,7 @@
   },
   {
     "name": "ring",
-    "version": "0.16.15",
+    "version": "0.16.17",
     "authors": "Brian Smith <brian@briansmith.org>",
     "repository": "https://github.com/briansmith/ring",
     "license": null,
@@ -1864,7 +1909,7 @@
   },
   {
     "name": "smallvec",
-    "version": "1.4.2",
+    "version": "1.5.0",
     "authors": "The Servo Project Developers",
     "repository": "https://github.com/servo/rust-smallvec",
     "license": "Apache-2.0/MIT",
@@ -1873,7 +1918,7 @@
   },
   {
     "name": "socket2",
-    "version": "0.3.16",
+    "version": "0.3.17",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/socket2-rs",
     "license": "Apache-2.0/MIT",
@@ -1918,7 +1963,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.48",
+    "version": "1.0.51",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "MIT OR Apache-2.0",
@@ -1944,6 +1989,15 @@
     "description": "Take a T from a &mut T temporarily"
   },
   {
+    "name": "tap",
+    "version": "1.0.0",
+    "authors": "Elliott Linder <elliott.darfink@gmail.com>|myrrlyn <self@myrrlyn.dev>",
+    "repository": "https://github.com/myrrlyn/tap",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Generic extensions for tapping values in Rust"
+  },
+  {
     "name": "tempfile",
     "version": "3.1.0",
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <jasonaw0@gmail.com>",
@@ -1963,7 +2017,7 @@
   },
   {
     "name": "termcolor",
-    "version": "1.1.0",
+    "version": "1.1.2",
     "authors": "Andrew Gallant <jamslam@gmail.com>",
     "repository": "https://github.com/BurntSushi/termcolor",
     "license": "Unlicense OR MIT",
@@ -2017,7 +2071,7 @@
   },
   {
     "name": "tinyvec",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "authors": "Lokathor <zefria@gmail.com>",
     "repository": "https://github.com/Lokathor/tinyvec",
     "license": "Zlib OR Apache-2.0 OR MIT",
@@ -2107,7 +2161,7 @@
   },
   {
     "name": "tracing",
-    "version": "0.1.21",
+    "version": "0.1.22",
     "authors": "Eliza Weisman <eliza@buoyant.io>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tracing",
     "license": "MIT",
@@ -2215,8 +2269,8 @@
   },
   {
     "name": "unicode-normalization",
-    "version": "0.1.14",
-    "authors": "kwantam <kwantam@gmail.com>",
+    "version": "0.1.16",
+    "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
     "repository": "https://github.com/unicode-rs/unicode-normalization",
     "license": "Apache-2.0/MIT",
     "license_file": null,
@@ -2482,6 +2536,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "Contains function definitions for the Windows API library ws2_32. See winapi for types and constants."
+  },
+  {
+    "name": "wyz",
+    "version": "0.2.0",
+    "authors": "myrrlyn <self@myrrlyn.dev>",
+    "repository": "https://github.com/myrrlyn/wyz",
+    "license": "MIT",
+    "license_file": null,
+    "description": "myrrlyn’s utility collection"
   },
   {
     "name": "zip",

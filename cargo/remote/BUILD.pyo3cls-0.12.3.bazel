@@ -50,6 +50,6 @@ rust_library(
     deps = [
         "@raze__pyo3_derive_backend__0_12_3//:pyo3_derive_backend",
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_48//:syn",
+        "@raze__syn__1_0_51//:syn",
     ],
 )

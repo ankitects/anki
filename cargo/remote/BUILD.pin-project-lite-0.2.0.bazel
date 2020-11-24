@@ -25,18 +25,18 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "askama_derive",
+    name = "pin_project_lite",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_type = "lib",
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -45,12 +45,16 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.3",
+    version = "0.2.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__askama_shared__0_10_4//:askama_shared",
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_48//:syn",
     ],
 )
+
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "lint" with type "test" omitted
+
+# Unsupported target "proper_unpin" with type "test" omitted
+
+# Unsupported target "test" with type "test" omitted

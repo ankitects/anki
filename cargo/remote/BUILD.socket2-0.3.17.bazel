@@ -30,24 +30,12 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "benchmarks" with type "bench" omitted
-
-# Unsupported target "backtrace" with type "example" omitted
-
-# Unsupported target "raw" with type "example" omitted
-
 rust_library(
-    name = "backtrace",
+    name = "socket2",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "addr2line",
-        "default",
-        "gimli-symbolize",
-        "miniz_oxide",
-        "object",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -59,32 +47,31 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.54",
+    version = "0.3.17",
     # buildifier: leave-alone
     deps = [
-        "@raze__addr2line__0_14_0//:addr2line",
-        "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__libc__0_2_80//:libc",
-        "@raze__miniz_oxide__0_4_3//:miniz_oxide",
-        "@raze__object__0_22_0//:object",
-        "@raze__rustc_demangle__0_1_18//:rustc_demangle",
     ] + selects.with_or({
+        # cfg(any(unix, target_os = "redox"))
+        (
+            "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
+            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
+            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
+            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
+            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
+            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+        ): [
+            "@raze__cfg_if__1_0_0//:cfg_if",
+            "@raze__libc__0_2_80//:libc",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
         # cfg(windows)
         (
             "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
+            "@raze__winapi__0_3_9//:winapi",
         ],
         "//conditions:default": [],
     }),
 )
-
-# Unsupported target "accuracy" with type "test" omitted
-
-# Unsupported target "concurrent-panics" with type "test" omitted
-
-# Unsupported target "long_fn_name" with type "test" omitted
-
-# Unsupported target "skip_inner_frames" with type "test" omitted
-
-# Unsupported target "smoke" with type "test" omitted

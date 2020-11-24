@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "askama",
-    actual = "@raze__askama__0_10_3//:askama",
+    actual = "@raze__askama__0_10_5//:askama",
     tags = [
         "cargo-raze",
         "manual",
@@ -68,7 +68,7 @@ alias(
 
 alias(
     name = "env_logger",
-    actual = "@raze__env_logger__0_8_1//:env_logger",
+    actual = "@raze__env_logger__0_8_2//:env_logger",
     tags = [
         "cargo-raze",
         "manual",
@@ -212,7 +212,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_1//:pin_project",
+    actual = "@raze__pin_project__1_0_2//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -428,7 +428,7 @@ alias(
 
 alias(
     name = "unicode_normalization",
-    actual = "@raze__unicode_normalization__0_1_14//:unicode_normalization",
+    actual = "@raze__unicode_normalization__0_1_16//:unicode_normalization",
     tags = [
         "cargo-raze",
         "manual",

@@ -28,7 +28,8 @@ licenses([
     "unencumbered",  # CC0-1.0 from expression "CC0-1.0 OR Apache-2.0"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
@@ -56,7 +57,7 @@ cargo_build_script(
     version = "0.3.7",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_62//:cc",
+        "@raze__cc__1_0_65//:cc",
     ],
 )
 

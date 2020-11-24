@@ -51,12 +51,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.21",
+    version = "0.1.22",
     # buildifier: leave-alone
     deps = [
-        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__log__0_4_11//:log",
-        "@raze__pin_project_lite__0_1_11//:pin_project_lite",
+        "@raze__pin_project_lite__0_2_0//:pin_project_lite",
         "@raze__tracing_core__0_1_17//:tracing_core",
     ],
 )
