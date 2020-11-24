@@ -2,10 +2,6 @@
 #
 # See README.md
 
-EXTRA_DEPS = [
-    'pyo3 = { git = "https://github.com/PyO3/pyo3.git", rev = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1", features = ["extension-module", "abi3"] }'
-]
-
 # If you get a message like the following during a build:
 #
 # DEBUG: Rule 'raze__reqwest__0_10_8' indicated that a canonical reproducible
@@ -39,33 +35,6 @@ if os.getcwd() != os.path.abspath(os.path.dirname(__file__)):
     sys.exit(1)
 
 
-def write_cargo_toml():
-    with open("raze.toml") as file:
-        header = file.read()
-
-    deps = []
-    with open("../rslib/Cargo.toml") as file:
-        started = False
-        for line in file.readlines():
-            if line.startswith("# BEGIN DEPENDENCIES"):
-                started = True
-                continue
-            if not started:
-                continue
-            deps.append(line.strip())
-
-    deps.extend(EXTRA_DEPS)
-
-    # write out Cargo.toml
-    with open("Cargo.toml", "w") as file:
-        file.write(header)
-        file.write("\n".join(deps))
-
-
-def remove_cargo_toml():
-    os.remove("Cargo.toml")
-
-
 def update_cargo_lock():
     # update Cargo.lock
     subprocess.run(["cargo", "update"], check=True)
@@ -73,14 +42,12 @@ def update_cargo_lock():
 
 def run_cargo_raze():
     # generate cargo-raze files
-    if os.path.exists("remote"):
-        shutil.rmtree("remote")
-    subprocess.run(["cargo-raze"], check=True)
+    subprocess.run(["cargo-raze"], cwd="..", check=True)
 
 
 def write_licenses():
     # dump licenses
-    result = subprocess.check_output(["cargo", "license", "-j"])
+    result = subprocess.check_output(["cargo", "license", "-j"], cwd="../rslib")
     with open("licenses.json", "wb") as file:
         file.write(result)
 
@@ -147,10 +114,8 @@ def update_reqwest_deps():
         file.write(data)
 
 
-write_cargo_toml()
 update_cargo_lock()
 run_cargo_raze()
 write_licenses()
 update_crates_bzl()
 update_reqwest_deps()
-remove_cargo_toml()

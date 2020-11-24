@@ -31,6 +31,64 @@ dependencies = [
 ]
 
 [[package]]
+name = "anki"
+version = "0.0.0"
+dependencies = [
+ "askama",
+ "async-compression",
+ "blake3",
+ "bytes 0.5.6",
+ "chrono",
+ "coarsetime",
+ "env_logger",
+ "failure",
+ "flate2",
+ "fluent",
+ "fluent-syntax",
+ "futures",
+ "hex",
+ "htmlescape",
+ "intl-memoizer",
+ "itertools",
+ "lazy_static",
+ "nom 5.1.2",
+ "num-format",
+ "num-integer",
+ "num_enum",
+ "once_cell",
+ "pin-project 1.0.2",
+ "prost",
+ "prost-build",
+ "rand",
+ "regex",
+ "reqwest",
+ "rusqlite",
+ "scopeguard",
+ "serde",
+ "serde-aux",
+ "serde_derive",
+ "serde_json",
+ "serde_repr",
+ "serde_tuple",
+ "sha1",
+ "slog",
+ "slog-async",
+ "slog-envlogger",
+ "slog-term",
+ "tempfile",
+ "tokio",
+ "unic-langid",
+ "unicase",
+ "unicode-normalization",
+ "utime",
+ "zip",
+]
+
+[[package]]
+name = "anki_workspace"
+version = "0.0.0"
+
+[[package]]
 name = "anyhow"
 version = "1.0.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -406,61 +464,6 @@ name = "dtoa"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "134951f4028bdadb9b84baf4232681efbf277da25144b9b0ad65df75946c422b"
-
-[[package]]
-name = "dummy"
-version = "0.0.0"
-dependencies = [
- "askama",
- "async-compression",
- "blake3",
- "bytes 0.5.6",
- "chrono",
- "coarsetime",
- "env_logger",
- "failure",
- "flate2",
- "fluent",
- "fluent-syntax",
- "futures",
- "hex",
- "htmlescape",
- "intl-memoizer",
- "itertools",
- "lazy_static",
- "nom 5.1.2",
- "num-format",
- "num-integer",
- "num_enum",
- "once_cell",
- "pin-project 1.0.2",
- "prost",
- "prost-build",
- "pyo3",
- "rand",
- "regex",
- "reqwest",
- "rusqlite",
- "scopeguard",
- "serde",
- "serde-aux",
- "serde_derive",
- "serde_json",
- "serde_repr",
- "serde_tuple",
- "sha1",
- "slog",
- "slog-async",
- "slog-envlogger",
- "slog-term",
- "tempfile",
- "tokio",
- "unic-langid",
- "unicase",
- "unicode-normalization",
- "utime",
- "zip",
-]
 
 [[package]]
 name = "either"
@@ -1821,6 +1824,14 @@ dependencies = [
  "untrusted",
  "web-sys",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "rsbridge"
+version = "0.0.0"
+dependencies = [
+ "anki",
+ "pyo3",
 ]
 
 [[package]]

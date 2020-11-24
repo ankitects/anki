@@ -9,8 +9,7 @@ description = "Anki's Rust library code Python bindings"
 [dependencies]
 anki = { path = "../../rslib" }
 
-# WARNING: if changing the version number here, the version in ../../cargo/update.py
-# needs to be updated as well
+# /cargo/update.py needs to be run if updating the version below
 [dependencies.pyo3]
 git = "https://github.com/PyO3/pyo3.git"
 rev = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1"

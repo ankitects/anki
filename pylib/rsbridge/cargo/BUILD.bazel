@@ -11,6 +11,12 @@ licenses([
     "notice",  # See individual crates for specific licenses
 ])
 
-# No targets defined
-
-exports_files(["licenses.json"])
+# Aliased targets
+alias(
+    name = "pyo3",
+    actual = "@raze__pyo3__0_12_3//:pyo3",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
