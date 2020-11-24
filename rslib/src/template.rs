@@ -90,12 +90,12 @@ fn classify_handle(s: &str) -> Token {
     if start.len() < 2 {
         return Token::Replacement(start);
     }
-    if start.starts_with('#') {
-        Token::OpenConditional(&start[1..].trim_start())
-    } else if start.starts_with('/') {
-        Token::CloseConditional(&start[1..].trim_start())
-    } else if start.starts_with('^') {
-        Token::OpenNegated(&start[1..].trim_start())
+    if let Some(stripped) = start.strip_prefix('#') {
+        Token::OpenConditional(stripped.trim_start())
+    } else if let Some(stripped) = start.strip_prefix('/') {
+        Token::CloseConditional(stripped.trim_start())
+    } else if let Some(stripped) = start.strip_prefix('^') {
+        Token::OpenNegated(stripped.trim_start())
     } else {
         Token::Replacement(start)
     }
@@ -116,9 +116,9 @@ fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
     // if we locate a starting normal or alternate handlebar, use
     // whichever one we found first
     let normal_result: nom::IResult<&str, &str> = take_until("{{")(s);
-    let (normal_remaining, normal_span) = normal_result.unwrap_or_else(|_e| ("", s));
+    let (normal_remaining, normal_span) = normal_result.unwrap_or(("", s));
     let alt_result: nom::IResult<&str, &str> = take_until("<%")(s);
-    let (alt_remaining, alt_span) = alt_result.unwrap_or_else(|_e| ("", s));
+    let (alt_remaining, alt_span) = alt_result.unwrap_or(("", s));
     match (normal_span.len(), alt_span.len()) {
         (0, 0) => {
             // neither handlebar kind found
