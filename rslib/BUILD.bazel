@@ -35,7 +35,7 @@ cargo_build_script(
 # Library
 #######################
 
-_anki_deps = glob([
+_anki_data = glob([
     "src/**/*.sql",
     "src/**/*.html",
     "src/**/*.css",
@@ -43,9 +43,7 @@ _anki_deps = glob([
 ]) + [
     "Cargo.toml",  # prevents a warning about num_enum
     "//:buildinfo.txt",
-    "templates/.empty",  # required for askama,
-    # ":mergeftl",
-    # ":protobuf_gen",
+    "templates/.empty",  # required for askama
 ]
 
 _anki_features = [
@@ -58,12 +56,11 @@ rust_library(
         "src/**/*.rs",
     ]),
     crate_features = _anki_features,
-    data = _anki_deps,
+    data = _anki_data,
     proc_macro_deps = [
         "//rslib/cargo:serde_derive",
         "//rslib/cargo:serde_repr",
     ],
-    tags = ["manual"],
     visibility = ["//visibility:public"],
     deps = [
         ":build_script",
@@ -120,7 +117,7 @@ rust_test(
     name = "unit_tests",
     crate = ":anki",
     crate_features = _anki_features,
-    data = _anki_deps + glob([
+    data = _anki_data + glob([
         "tests/support/**",
     ]),
     deps = ["//rslib/cargo:env_logger"],
