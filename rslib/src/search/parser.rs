@@ -414,16 +414,16 @@ fn parse_template(val: &str) -> ParseResult<SearchNode> {
 }
 
 fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<SearchNode<'a>> {
-    Ok(if val.starts_with("re:") {
+    Ok(if let Some(stripped) = val.strip_prefix("re:") {
         SearchNode::SingleField {
             field: unescape(key)?,
-            text: unescape_quotes(&val[3..]),
+            text: unescape_quotes(stripped),
             is_re: true,
         }
-    } else if val.starts_with("r:") {
+    } else if let Some(stripped) = val.strip_prefix("r:") {
         SearchNode::SingleField {
             field: unescape(key)?,
-            text: unescape_raw(&val[2..]),
+            text: unescape_raw(stripped),
             is_re: false,
         }
     } else {
