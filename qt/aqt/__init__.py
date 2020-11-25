@@ -3,6 +3,7 @@
 
 import argparse
 import builtins
+import cProfile
 import getpass
 import locale
 import os
@@ -38,7 +39,7 @@ appHelpSite = HELP_SITE
 from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager, AnkiRestart  # isort:skip
 
-profiler = None
+profiler: Optional[cProfile.Profile] = None
 mw: Optional[AnkiQt] = None  # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -387,9 +388,7 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
 def write_profile_results():
-    import cProfile
 
-    profiler: cProfile.Profile
     profiler.disable()
     profiler.dump_stats("anki.prof")
     print("profile stats written to anki.prof")
@@ -431,7 +430,6 @@ def _run(argv=None, exec=True):
         return
 
     if PROFILE_CODE:
-        import cProfile
 
         profiler = cProfile.Profile()
         profiler.enable()
