@@ -50,8 +50,8 @@ def test_solution(card: Card, src: str, lang: str, logger: ConsoleLogger):
         test_suite_src = test_suite_gen.generate_testing_src(src, ts, tree, dict(
             passed_msg='''Test <span class='passed'>PASSED</span> (%(index)s/%(total)s) - %(duration)s ms''',
             failed_msg='''Test <span class='failed'>FAILED</span> (%(index)s/%(total)s)\\n" +
-                "expected: %(expected)s\\n" +
-                "result: %(result)s'''
+                "&nbsp;&nbsp;&nbsp;&nbsp;expected: %(expected)s\\n" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;result: %(result)s<br>'''
         ))
 
         factory.get_code_runner().run(test_suite_src, logger, dict(

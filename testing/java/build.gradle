@@ -29,10 +29,10 @@ jar {
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:3.0.6'
-    //compile 'org.codehaus.groovy:groovy-all:2.5.5'
     compile 'org.slf4j:slf4j-api:1.6.1'
     compile 'ch.qos.logback:logback-classic:0.9.28'
     compile 'org.apache.commons:commons-lang3:3.11'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
     compile group: 'org.unitils', name: 'unitils-core', version: '3.4.6'
     testCompile(
         'junit:junit:4.12',

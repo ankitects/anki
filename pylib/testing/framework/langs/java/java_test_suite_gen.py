@@ -14,6 +14,7 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
     
     import java.io.File;
     import java.io.IOException;
+    import java.util.stream.Collectors;
     import java.nio.file.Files;
     import java.nio.file.Path;
     import java.util.concurrent.TimeUnit;
@@ -24,9 +25,12 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
     import test_engine.TestCaseParser;
     import test_engine.TestCase;
     import test_engine.Verifier;
+    import com.fasterxml.jackson.databind.ObjectMapper;
     import java.util.concurrent.atomic.AtomicInteger;'''
 
     MAIN_FUNCTION_TEMPLATE = '''
+    private static final ObjectMapper mapper = new ObjectMapper(); 
+    
     public static void main(String[] args) throws Exception {
         List<BaseConverter> converters = Arrays.asList(%(converters_src)s);
         AtomicInteger index = new AtomicInteger(1);
@@ -36,8 +40,12 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
            .findFirst()
            .orElseThrow(() -> new IllegalStateException("Cannot find method %(function_name)s"));
         method.setAccessible(true);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        
+        List<String> lines = Files.lines(Path.of("%(file_path)s")).collect(Collectors.toList());
 
-        Files.lines(Path.of("%(file_path)s")).forEach(line -> {
+        for (String line : lines) {
             TestCase tc = TestCaseParser.parseTestCase(converters, line);
             long start = System.nanoTime();
             Object result = null;
@@ -52,8 +60,17 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
                 System.out.println("%(pass_msg)s"); 
             } else {
                 System.out.println("%(fail_msg)s"); 
+                return;
             }
-        });
+        }
+    }
+    
+    public static String getJson(Object obj) {
+        try {
+            return mapper.writeValueAsString(obj);
+        } catch(Exception exc) {
+            throw new RuntimeException(exc);
+        }
     }
     '''
 
@@ -68,8 +85,8 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
         test_failed_msg = messages['failed_msg'] % dict(
             index='" + index.incrementAndGet() + "',
             total="total",
-            expected='',
-            result='" + result + "')
+            expected='" + getJson(tc.getExpected()) + "',
+            result='" + getJson(result) + "')
         solution_src = self.IMPORTS + '\n' + solution_src
         main_src = self.MAIN_FUNCTION_TEMPLATE % dict(
             converters_src=self.converter_generator.generate_initializers(tree),

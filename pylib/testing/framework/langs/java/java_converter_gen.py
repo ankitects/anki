@@ -21,8 +21,8 @@ class JavaConverterGenerator(SyntaxTreeVisitor):
         return 'new StringConverter()'
 
     def visit_obj(self, node: SyntaxTree, data):
-        return 'new UserTypeConverter(' + ', '.join([self.render(node) for node in node.nodes]) + \
-               ',' + node.node_type + '.class)'
+        return 'new UserTypeConverter(Arrays.asList(' + ', '.join([self.render(node) for node in node.nodes]) + \
+               '),' + node.node_type + '.class)'
 
     def render(self, tree: SyntaxTree, data_item=None):
         return tree.accept(self, data_item)
