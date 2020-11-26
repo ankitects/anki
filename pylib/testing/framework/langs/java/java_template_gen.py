@@ -17,5 +17,5 @@ class JavaTemplateGenerator(SolutionTemplateGenerator):
             user_types=user_types_src,
             result_type=ts.result_type,
             func_name=to_camel_case(ts.func_name),
-            arg_declarations=','.join([x.arg_type + ' ' + x.arg_name for x in ts.test_args])
+            arg_declarations=', '.join([x.arg_type + ' ' + x.arg_name for x in ts.test_args])
         ))

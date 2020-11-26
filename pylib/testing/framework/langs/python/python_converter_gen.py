@@ -17,6 +17,9 @@ class PythonConverterGenerator(SyntaxTreeVisitor):
     def visit_float(self, node: SyntaxTree, data):
         return 'FloatConverter()'
 
+    def visit_bool(self, node: SyntaxTree, data):
+        return 'BoolConverter()'
+
     def visit_string(self, node: SyntaxTree, data):
         return 'StringConverter()'
 

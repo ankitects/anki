@@ -282,9 +282,6 @@ class Reviewer:
             gui_hooks.reviewer_will_play_answer_sounds(c, sounds)
             av_player.play_tags(sounds)
         a = self._mungeQA(a)
-
-        # check question type is coding
-
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s, '', %s);" % (json.dumps(a), json.dumps(self._isCodeQuestion).lower()))
@@ -453,7 +450,7 @@ class Reviewer:
                 selLanguageLabel="Language",
                 language=self._getCurrentLang(),
                 downArrow=downArrow(),
-                template=get_solution_template(self.card, self._getCurrentLang()),
+                template=html.escape(get_solution_template(self.card, self._getCurrentLang())),
             ),
             buf,
         )
@@ -839,88 +836,19 @@ time = %(time)d;
     # Context menu
     ##########################################################################
 
+    THEMES = ['dracula', 'github', 'solarized-dark', 'solarized-light', 'railcasts', 'monokai-sublime',
+        'mono-blue', 'zenburn', 'androidstudio', 'atom-one-light', 'rainbow', 'atom-one-dark']
+
     def _skinContextMenu(self):
-        theme = 'dracule'
+        curr = self.THEMES[0]
         if 'defaultCodeTheme' in self.mw.pm.meta:
-            theme = self.mw.pm.meta['defaultCodeTheme']
-        return [
-            [
-                "dracula",
-                "",
-                lambda: self.onThemeSelected("dracula"),
-                dict(checked=theme == "dracula"),
-            ],
-            [
-                "github",
-                "",
-                lambda: self.onThemeSelected("github"),
-                dict(checked=theme == "github"),
-            ],
-            [
-                "solarized-dark",
-                "",
-                lambda: self.onThemeSelected("solarized-dark"),
-                dict(checked=theme == "solarized-dark"),
-            ],
-            [
-                "solarized-light",
-                "",
-                lambda: self.onThemeSelected("solarized-light"),
-                dict(checked=theme == "solarized-light"),
-            ],
-            [
-                "railscasts",
-                "",
-                lambda: self.onThemeSelected("railcasts"),
-                dict(checked=theme == "monokai-sublime"),
-            ],
-            [
-                "monokai-sublime",
-                "",
-                lambda: self.onThemeSelected("monokai-sublime"),
-                dict(checked=theme == "mono-blue"),
-            ],
-            [
-                "mono-blue",
-                "",
-                lambda: self.onThemeSelected("mono-blue"),
-                dict(checked=theme == "dracula"),
-            ],
-            # ["tomorrow", "", lambda: self.onThemeSelected('tomorrow')],
-            # ["color-brewer", "", lambda: self.onThemeSelected('color-brewer')],
-            [
-                "zenburn",
-                "",
-                lambda: self.onThemeSelected("zenburn"),
-                dict(checked=theme == "zenburn"),
-            ],
-            # ["agate", "", lambda: self.onThemeSelected('agate')],
-            [
-                "androidstudio",
-                "",
-                lambda: self.onThemeSelected("androidstudio"),
-                dict(checked=theme == "androidstudio"),
-            ],
-            [
-                "atom-one-light",
-                "",
-                lambda: self.onThemeSelected("atom-one-light"),
-                dict(checked=theme == "atom-one-light"),
-            ],
-            [
-                "rainbow",
-                "",
-                lambda: self.onThemeSelected("rainbow"),
-                dict(checked=theme == "rainbow"),
-            ],
-            ["vs", "", lambda: self.onThemeSelected("vs"), dict(checked=theme == "vs")],
-            [
-                "atom-one-dark",
-                "",
-                lambda: self.onThemeSelected("atom-one-dark"),
-                dict(checked=theme == "atom-one-dark"),
-            ],
-        ]
+            curr = self.mw.pm.meta['defaultCodeTheme']
+        menu = []
+        for theme in self.THEMES:
+            def addThemMenuItem(t=theme):
+                return [t, '', lambda: self.onThemeSelected(t), dict(checked=curr==t)]
+            menu.append(addThemMenuItem(theme))
+        return menu
 
     def _langContextMenu(self):
         lang = self._getCurrentLang()

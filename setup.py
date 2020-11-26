@@ -1,8 +1,7 @@
 from setuptools import setup
 APP = ['qt/runanki']
 DATA_FILES = [('images/pig.icns')]
-# RESOURCES = ['qt/aqt_data', 'testing/libs']
-RESOURCES = []
+RESOURCES = ['qt/aqt_data', 'testing/libs']
 OPTIONS = {
     'argv_emulation': False,
     'site_packages': True,

@@ -33,6 +33,8 @@ class SyntaxTree:
             return visitor.visit_map(self, data_item)
         elif self.node_type == 'int':
             return visitor.visit_int(self, data_item)
+        elif self.node_type == 'bool':
+            return visitor.visit_bool(self, data_item)
         elif self.node_type == 'float':
             return visitor.visit_float(self, data_item)
         elif self.node_type == 'string':
@@ -115,6 +117,10 @@ class SyntaxTreeVisitor(ABC):
 
     @abstractmethod
     def visit_string(self, node: SyntaxTree, data):
+        pass
+
+    @abstractmethod
+    def visit_bool(self, node: SyntaxTree, data):
         pass
 
     @abstractmethod

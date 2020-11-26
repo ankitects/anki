@@ -16,9 +16,6 @@ def strip_compile_error(error, file_name):
 
 
 class JavaCodeRunner(CodeRunner):
-    # todo: uncomment for debug
-    # COMPILE_CMD = '{}/Users/aleksandr.zakshevskii/Library/Java/JavaVirtualMachines/corretto-11.0.7/Contents/Home/bin/javac {} -cp /opt/dev/dave8/anki/testing/java/build/libs/java.jar -Xlint:unchecked'
-    # RUN_CMD = '{}/Users/aleksandr.zakshevskii/Library/Java/JavaVirtualMachines/corretto-11.0.7/Contents/Home/bin/java -classpath {}:/opt/dev/dave8/anki/testing/java/build/libs/java.jar {}'
     COMPILE_CMD = '{}/libs/jdk/bin/javac {} -cp {}/libs/jdk/lib/java.jar'
     RUN_CMD = '{}/libs/jdk/bin/java -classpath {}:{}/libs/jdk/lib/java.jar {}'
     CLASS_NAME = 'Solution'
@@ -27,8 +24,6 @@ class JavaCodeRunner(CodeRunner):
     def run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
         workdir, javasrc = self._create_src_file(src, self.CLASS_NAME + '.java')
         resource_path = os.environ['RESOURCEPATH']
-        #todo: uncomment for debug
-        # resource_path = ''
         logger.log('Compiling...')
 
         cmd = self.COMPILE_CMD.format(resource_path, javasrc.name, resource_path)

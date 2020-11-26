@@ -101,12 +101,9 @@ function _initalizeCodeEditor() {
         return;
     }
     log = document.getElementById("log");
-
     let options = {
         tab: " ".repeat(4), // default is '\t'
         indentOn: /[(\[]$/, // default is /{$/
-
-
     };
     codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
 }

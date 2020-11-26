@@ -21,6 +21,9 @@ class PythonArgDeclarationGenerator(ArgDeclarationGenerator):
     def visit_int(self, node, data):
         return 'int'
 
+    def visit_bool(self, node, data):
+        return 'bool'
+
     def visit_float(self, node, data):
         return 'float'
 

@@ -32,6 +32,9 @@ class PythonUserTypeGenerator(UserTypeDeclarationGenerator):
     def visit_int(self, node, data):
         return self.arg_generator.visit_int(node, data)
 
+    def visit_bool(self, node, data):
+        return self.arg_generator.visit_bool(node, data)
+
     def visit_obj(self, node: SyntaxTree, type_registry: Dict[str, str]):
         fields = []
         for child in node.nodes:

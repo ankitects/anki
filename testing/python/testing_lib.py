@@ -16,6 +16,9 @@ class FloatConverter:
     def convert(self, obj):
         return float(obj)
 
+class BoolConverter:
+    def convert(self, obj):
+        return bool(obj)
 
 class ListConverter:
     def __init__(self, converter):

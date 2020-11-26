@@ -24,6 +24,9 @@ class JavaUserTypeGenerator(UserTypeDeclarationGenerator):
     def visit_string(self, node, data):
         return self.arg_generator.visit_string(node, data)
 
+    def visit_bool(self, node, data):
+        return self.arg_generator.visit_bool(node, data)
+
     def visit_float(self, node, data):
         return self.arg_generator.visit_float(node, data)
 

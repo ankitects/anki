@@ -17,6 +17,9 @@ class JavaConverterGenerator(SyntaxTreeVisitor):
     def visit_float(self, node: SyntaxTree, data):
         return 'new DoubleConverter()'
 
+    def visit_bool(self, node: SyntaxTree, data):
+        return 'new BoolConverter()'
+
     def visit_string(self, node: SyntaxTree, data):
         return 'new StringConverter()'
 

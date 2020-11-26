@@ -18,6 +18,14 @@ class JavaArgDeclarationGenerator(ArgDeclarationGenerator):
             raise Exception('Invalid inner-type of map count, must be 2')
         return 'Map<' + self.render(node.first_child()) + ', ' + self.render(node.second_child()) + '>'
 
+    def visit_bool(self, node, data_item):
+        if node.parent.is_root() or node.parent.is_array_type() or node.parent.is_user_type:
+            return 'boolean'
+        elif node.parent.is_container_type():
+            return 'Boolean'
+        else:
+            raise Exception('not supported parent type for int')
+
     def visit_int(self, node, data_item):
         if node.parent.is_root() or node.parent.is_array_type() or node.parent.is_user_type:
             return 'int'
@@ -28,9 +36,9 @@ class JavaArgDeclarationGenerator(ArgDeclarationGenerator):
 
     def visit_float(self, node, data_item):
         if node.parent.is_array_type() or node.parent.is_user_type:
-            return 'float'
+            return 'double'
         elif node.parent.is_container_type():
-            return 'Float'
+            return 'Double'
         else:
             raise Exception('not supported parent type for float')
 
