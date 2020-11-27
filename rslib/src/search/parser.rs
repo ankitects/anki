@@ -477,7 +477,7 @@ fn is_invalid_escape(txt: &str) -> bool {
     RE.is_match(txt)
 }
 
-/// Check string for escape sequences handled by the parser: ":()
+/// Check string for escape sequences handled by the parser: ":()-
 fn is_parser_escape(txt: &str) -> bool {
     // odd number of \s followed by a char with special meaning to the parser
     lazy_static! {
