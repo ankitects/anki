@@ -287,7 +287,6 @@ fn search_node_for_text_with_argument<'a>(
         "dupe" => parse_dupes(val)?,
         "prop" => parse_prop(val)?,
         "re" => SearchNode::Regex(unescape_quotes(val)),
-        "r" => SearchNode::UnqualifiedText(unescape_raw(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
         // anything else is a field search
@@ -420,12 +419,6 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<SearchNode<
             text: unescape_quotes(stripped),
             is_re: true,
         }
-    } else if let Some(stripped) = val.strip_prefix("r:") {
-        SearchNode::SingleField {
-            field: unescape(key)?,
-            text: unescape_raw(stripped),
-            is_re: false,
-        }
     } else {
         SearchNode::SingleField {
             field: unescape(key)?,
@@ -442,20 +435,6 @@ fn unescape_quotes(s: &str) -> Cow<str> {
     } else {
         s.into()
     }
-}
-
-/// Unescape quotes but escape wildcards and \s.
-fn unescape_raw(s: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r#"\\"?|\*|_"#).unwrap();
-    }
-    RE.replace_all(&s, |caps: &Captures| match &caps[0] {
-        r"\" => r"\\",
-        "\\\"" => "\"",
-        r"*" => r"\*",
-        r"_" => r"\_",
-        _ => unreachable!(),
-    })
 }
 
 /// Unescape chars with special meaning to the parser.
@@ -498,7 +477,7 @@ fn is_invalid_escape(txt: &str) -> bool {
     RE.is_match(txt)
 }
 
-/// Check string for escape sequences handled by the parser: ":()
+/// Check string for escape sequences handled by the parser: ":()-
 fn is_parser_escape(txt: &str) -> bool {
     // odd number of \s followed by a char with special meaning to the parser
     lazy_static! {
@@ -633,21 +612,12 @@ mod test {
             vec![Search(Regex(r"\btest\%".into()))]
         );
 
-        // treat all chars as literals in raw searches
-        assert_eq!(parse(r"r:\*_"), parse(r"\\\*\_"));
-        assert_eq!(parse(r"field:r:\*_"), parse(r"field:\\\*\_"));
-
         // no exceptions for escaping "
         assert_eq!(
             parse(r#"re:te\"st"#)?,
             vec![Search(Regex(r#"te"st"#.into()))]
         );
         assert!(parse(r#"re:te"st"#).is_err());
-        assert_eq!(
-            parse(r#"r:te\"st"#)?,
-            vec![Search(UnqualifiedText(r#"te"st"#.into()))]
-        );
-        assert!(parse(r#"r:te"st"#).is_err());
 
         // spaces are optional if node separation is clear
         assert_eq!(parse(r#"a"b"(c)"#)?, parse("a b (c)")?);
