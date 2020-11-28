@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::config::schema11_config_as_string;
-use crate::err::Result;
-use crate::err::{AnkiError, DBErrorKind};
+use crate::err::{AnkiError, DBErrorKind, Result};
+use crate::text::{strip_html_preserving_media_filenames, without_combining};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining};
+use crate::{i18n::I18n, sched::cutoff::v1_creation_date};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
@@ -48,6 +48,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
     add_without_combining_function(&db)?;
+    add_strip_html_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -111,6 +112,19 @@ fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
             };
 
             Ok(is_match)
+        },
+    )
+}
+
+/// Adds sql function to strip HTML while preserving media filenames
+fn add_strip_html_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "strip_html",
+        1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        |ctx| {
+            let text_nohtml = strip_html_preserving_media_filenames(ctx.get_raw(0).as_str()?);
+            Ok(text_nohtml.to_string())
         },
     )
 }
