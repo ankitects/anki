@@ -434,15 +434,19 @@ impl Collection {
                 Ok(DuplicateState::Empty)
             } else {
                 let csum = field_checksum(&stripped);
-                for field in
-                    self.storage
-                        .note_fields_by_checksum(note.id, note.notetype_id, csum)?
-                {
-                    if strip_html_preserving_media_filenames(&field) == stripped {
-                        return Ok(DuplicateState::Duplicate);
-                    }
+                let have_dupe = self
+                    .storage
+                    .note_fields_by_checksum(note.notetype_id, csum)?
+                    .into_iter()
+                    .any(|(nid, field)| {
+                        nid != note.id && strip_html_preserving_media_filenames(&field) == stripped
+                    });
+
+                if have_dupe {
+                    Ok(DuplicateState::Duplicate)
+                } else {
+                    Ok(DuplicateState::Normal)
                 }
-                Ok(DuplicateState::Normal)
             }
         } else {
             Ok(DuplicateState::Empty)

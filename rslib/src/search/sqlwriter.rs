@@ -9,6 +9,7 @@ use crate::{
     err::Result,
     notes::field_checksum,
     notetype::NoteTypeID,
+    storage::ids_to_string,
     text::{
         escape_sql, is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
         to_custom_re, to_re, to_sql, to_text, without_combining,
@@ -122,7 +123,7 @@ impl SqlWriter<'_> {
                 self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
             }
             SearchNode::Duplicates { note_type_id, text } => {
-                self.write_dupes(*note_type_id, &self.norm_note(text))
+                self.write_dupes(*note_type_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
             SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
@@ -422,16 +423,28 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) {
+    fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
-        write!(
-            self.sql,
-            "(n.mid = {} and n.csum = {} and n.sfld = ?)",
-            ntid, csum
-        )
-        .unwrap();
-        self.args.push(text_nohtml.to_string());
+
+        let nids: Vec<_> = self
+            .col
+            .storage
+            .note_fields_by_checksum(ntid, csum)?
+            .into_iter()
+            .filter_map(|(nid, field)| {
+                if strip_html_preserving_media_filenames(&field) == text_nohtml {
+                    Some(nid)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        self.sql += "n.id in ";
+        ids_to_string(&mut self.sql, &nids);
+
+        Ok(())
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {
@@ -644,13 +657,7 @@ mod test {
         assert_eq!(s(ctx, "flag:0"), ("((c.flags & 7) == 0)".into(), vec![]));
 
         // dupes
-        assert_eq!(
-            s(ctx, "dupe:123,test"),
-            (
-                "((n.mid = 123 and n.csum = 2840236005 and n.sfld = ?))".into(),
-                vec!["test".into()]
-            )
-        );
+        assert_eq!(s(ctx, "dupe:123,test"), ("(n.id in ())".into(), vec![]));
 
         // if registered, searches with canonical
         ctx.transact(None, |col| col.register_tag("One", Usn(-1)))
