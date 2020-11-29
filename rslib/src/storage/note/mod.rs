@@ -135,17 +135,17 @@ impl super::SqliteStorage {
             .map(|_| ())
     }
 
-    /// Returns the first field of other notes with the same checksum.
-    /// The field of the provided note ID is not returned.
+    /// Returns [(nid, field 0)] of notes with the same checksum.
+    /// The caller should strip the fields and compare to see if they actually
+    /// match.
     pub(crate) fn note_fields_by_checksum(
         &self,
-        nid: NoteID,
         ntid: NoteTypeID,
         csum: u32,
-    ) -> Result<Vec<String>> {
+    ) -> Result<Vec<(NoteID, String)>> {
         self.db
-            .prepare("select field_at_index(flds, 0) from notes where csum=? and mid=? and id !=?")?
-            .query_and_then(params![csum, ntid, nid], |r| r.get(0).map_err(Into::into))?
+            .prepare("select id, field_at_index(flds, 0) from notes where csum=? and mid=?")?
+            .query_and_then(params![csum, ntid], |r| Ok((r.get(0)?, r.get(1)?)))?
             .collect()
     }
 
