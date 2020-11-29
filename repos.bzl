@@ -70,9 +70,9 @@ def register_repos():
     maybe(
         git_repository,
         name = "com_github_ali5h_rules_pip",
-        commit = "5d1d7ae1b24f869062ff6bb490110a2e5a229988",
+        commit = "73953e06fdacb565f224c66f0683a7d8d0ede223",
         remote = "https://github.com/ankitects/rules_pip",
-        shallow_since = "1604116387 +1000",
+        shallow_since = "1606453171 +1000",
     )
 
     # native.local_repository(
