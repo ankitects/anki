@@ -33,12 +33,3 @@
     font-style: italic
 }
 
-.hljs .passed {
-    color: #05e758;
-}
-
-.hljs .failed {
-    color: #e7055f;
-}
-
-

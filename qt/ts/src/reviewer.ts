@@ -175,7 +175,7 @@ function _initializeCodeAnswers() {
         const lang = match[1]
         const src = match[3].replace(/<br>/g, '\n')
         const height = src.split('\n').length
-        html += `<div class="editor language-${lang}" style="height:${height*20}px;">${src}</div><br><br>`
+        html += `<h4>${lang.replace(lang[0], lang[0].toUpperCase())}</h4><div class="editor language-${lang}" style="height:${height*20}px;">${src}</div><br><br>`
     }
     $qa.html(html)
     $qa.find('.editor').each(function() {
@@ -229,3 +229,4 @@ function _emulateMobile(enabled: boolean) {
         list.remove("mobile");
     }
 }
+

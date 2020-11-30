@@ -1,4 +1,4 @@
-pyqt5==5.15.0
-pyqtwebengine==5.15.0
+pyqt5==5.12.1
+pyqtwebengine==5.12.1
 
 

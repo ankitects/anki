@@ -6,7 +6,7 @@ from testing.framework.syntax.utils import trim_indent, to_snake_case
 class PythonTemplateGenerator(SolutionTemplateGenerator):
     SOLUTION_TEMPLATE = '''
     %(user_types)sdef %(func_name)s(%(arg_declarations)s):
-        #Add code here
+        pass #Add code here
     '''
 
     def generate_solution_template(self, ts: TestSuite) -> str:

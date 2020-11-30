@@ -1,8 +1,10 @@
+from abc import ABC
+
 from testing.framework.generators.arg_declaration_gen import ArgDeclarationGenerator
 from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
-class PythonArgDeclarationGenerator(ArgDeclarationGenerator):
+class PythonArgDeclarationGenerator(ArgDeclarationGenerator, ABC):
     def visit_array(self, node: SyntaxTree, data_item):
         if len(node.nodes) != 1:
             raise Exception('Array can have only 1 inner-type')
@@ -32,3 +34,6 @@ class PythonArgDeclarationGenerator(ArgDeclarationGenerator):
 
     def visit_obj(self, node, data):
         return node.node_type
+
+    def visit_void(self, node: SyntaxTree, data):
+        return ''

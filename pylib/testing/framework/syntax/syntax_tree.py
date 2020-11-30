@@ -127,5 +127,8 @@ class SyntaxTreeVisitor(ABC):
     def visit_obj(self, node: SyntaxTree, data):
         pass
 
+    def visit_void(self, node: SyntaxTree, data):
+        return None
+
     def render(self, tree: SyntaxTree, data_item=None):
         return tree.accept(self, data_item)

@@ -4,20 +4,17 @@
 
 from __future__ import annotations
 
-import asyncio
 import difflib
 import html
 import json
 import re
 import threading
 import unicodedata as ucd
-from time import sleep
-from typing import Callable, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from PyQt5.QtCore import Qt
 
-# from testing.framework.test_runner import run_tests, generate_solution_template
-from testing.framework.anki_testing_api import get_solution_template, test_solution
+from testing.framework.anki_testing_api import get_solution_template, run_tests, stop_tests
 from testing.framework.runners.console_logger import ConsoleLogger
 
 from anki import hooks
@@ -33,7 +30,6 @@ from aqt.utils import (
     askUserDialog,
     downArrow,
     qtMenuShortcutWorkaround,
-    run_async,
     tooltip,
 )
 
@@ -43,25 +39,8 @@ class ReviewerBottomBar:
         self.reviewer = reviewer
 
 
-THEMES = [
-    "dracula",
-    "github",
-    "solarized-dark",
-    "solarized-light",
-    "railscasts",
-    "monokai-sublime",
-    "mono-blue",
-    # "tomorrow",
-    # "color-brewer",
-    "zenburn",
-    # "agate",
-    "androidstudio",
-    "atom-one-light",
-    "rainbow",
-    "vs",
-    "atom-one-dark",
-]
-
+THEMES = ['dracula', 'agate', 'github', 'solarized-dark', 'code-brewer', 'solarized-light', 'railscasts', 'monokai-sublime',
+          'mono-blue', 'zenburn', 'androidstudio', 'atom-one-light', 'rainbow', 'atom-one-dark', 'tommorow', 'vs']
 
 def replay_audio(card: Card, question_side: bool) -> None:
     if question_side:
@@ -87,11 +66,10 @@ class Reviewer:
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
-        self._isCodeQuestion = False
         self.synchronizer = threading.Event()
-        self.codingBuffer = {}
-        self.activeLanguage = None
+        self.logger = ConsoleLogger(lambda txt: self.web.eval("_showConsoleLog(%s);" % json.dumps(txt + "<br/>")))
         hooks.card_did_leech.append(self.onLeech)
+        self._isCodeQuestion = False
 
     def show(self) -> None:
         self.mw.col.reset()
@@ -99,6 +77,7 @@ class Reviewer:
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._reps: int = None
+        self._codingBuffer = {}
         self.nextCard()
 
     def lastCard(self) -> Optional[Card]:
@@ -189,7 +168,7 @@ class Reviewer:
             theme = self.mw.pm.meta['defaultCodeTheme']
         self.web.stdHtml(
             self.revHtml(),
-            css=["reviewer.css", "highlight/" + theme + ".css"],
+            css=["font.css", "reviewer.css", "highlight/" + theme + ".css"],
             inactive_css=["highlight/" + t + ".css" for t in THEMES if t != theme],
             js=[
                 "jquery.js",
@@ -388,10 +367,10 @@ class Reviewer:
             self.showSelectSkinContextMenu()
         elif url == "more":
             self.showContextMenu()
-        elif url == "test":
-            self.web.evalWithCallback(
-                "codeansJar ? codeansJar.toString() : null", self._runTests
-            )
+        elif url == "run":
+            self.web.evalWithCallback("codeansJar ? codeansJar.toString() : null", self._runTests)
+        elif url == "stop":
+            self.stopTests()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
         elif url.startswith("lang:"):
@@ -433,14 +412,15 @@ class Reviewer:
         return re.sub(
             self.codeAnsPat,
             """<br>
-            <div style="margin: 0 auto;box-sizing:border-box;">
-                <div class="test-toolbar">
+            <div id="test-pannel">
+                <div class="inner">
+                    <button id="start-testing" class="run" onclick="pycmd('run')">Run <div class="icon"></div></button>
+                    <button id="stop-testing" class="stop" onclick="pycmd('stop')" class="stop">Stop <div class="icon"></div></button>
                     <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
                     <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
-                    <button onclick="pycmd('test')">Run</button>
                 </div>
-                <div id="codeans" style="height:60vh;text-align:left;" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
-                <div id="log" style="height:20vh; margin-top: 10px;" class="editor hljs"></div>
+                <div id="codeans" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
+                <div id="log" class="editor hljs"></div>
             </div>
             """
             % dict(
@@ -450,29 +430,23 @@ class Reviewer:
                 selLanguageLabel="Language",
                 language=self._getCurrentLang(),
                 downArrow=downArrow(),
-                template=html.escape(get_solution_template(self.card, self._getCurrentLang())),
-            ),
+                template=html.escape(get_solution_template(self.card, self._getCurrentLang()))),
             buf,
         )
 
     def _runTests(self, src):
         self._cleanConsole()
-        logger = ConsoleLogger(
-            lambda txt: self.web.eval(
-                "_showConsoleLog(%s);" % json.dumps(txt + "<br/>")
-            )
-        )
-        test_solution(self.card, src, self._getCurrentLang(), logger)
+        run_tests(self.card, src, self._getCurrentLang(), self.logger)
         pass
 
     def _cleanConsole(self):
         self.web.eval("_cleanConsoleLog();")
 
     def _switchLang(self, lang, src):
-        self.codingBuffer[self._getCurrentLang()] = src
+        self._codingBuffer[self._getCurrentLang()] = src
         self.mw.pm.setCodeLang(lang)
-        if lang in self.codingBuffer:
-            src = self.codingBuffer[lang]
+        if lang in self._codingBuffer:
+            src = self._codingBuffer[lang]
         else:
             src = get_solution_template(self.card, lang)
         self.web.eval("_reloadCode(%s, %s);" % (json.dumps(src), json.dumps(lang)))
@@ -836,15 +810,12 @@ time = %(time)d;
     # Context menu
     ##########################################################################
 
-    THEMES = ['dracula', 'github', 'solarized-dark', 'solarized-light', 'railcasts', 'monokai-sublime',
-        'mono-blue', 'zenburn', 'androidstudio', 'atom-one-light', 'rainbow', 'atom-one-dark']
-
     def _skinContextMenu(self):
-        curr = self.THEMES[0]
+        curr = THEMES[0]
         if 'defaultCodeTheme' in self.mw.pm.meta:
             curr = self.mw.pm.meta['defaultCodeTheme']
         menu = []
-        for theme in self.THEMES:
+        for theme in THEMES:
             def addThemMenuItem(t=theme):
                 return [t, '', lambda: self.onThemeSelected(t), dict(checked=curr==t)]
             menu.append(addThemMenuItem(theme))
@@ -1052,3 +1023,9 @@ time = %(time)d;
             tooltip(_("You haven't recorded your voice yet."))
             return
         av_player.play_file(self._recordedAudio)
+
+    def stopTests(self):
+        lang = self._getCurrentLang()
+        self.logger.log('Stopping...')
+        stop_tests(lang)
+        self._cleanConsole()

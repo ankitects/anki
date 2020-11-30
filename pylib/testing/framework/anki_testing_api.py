@@ -32,7 +32,7 @@ def get_solution_template(card: Card, lang: str):
 
 
 @run_async
-def test_solution(card: Card, src: str, lang: str, logger: ConsoleLogger):
+def run_tests(card: Card, src: str, lang: str, logger: ConsoleLogger):
     name, rows = parse_anki_card(card)
     factory = get_lang_factory(lang)
     if factory is None:
@@ -58,3 +58,7 @@ def test_solution(card: Card, src: str, lang: str, logger: ConsoleLogger):
             compilation_failed='''Compilation Error: <span class='failed'>$error</span>'''))
     finally:
         os.remove(ts.test_cases_file)
+
+def stop_tests(lang: str):
+    factory = get_lang_factory(lang)
+    factory.get_code_runner().stop()

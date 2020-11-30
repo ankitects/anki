@@ -104,7 +104,6 @@ img {
   text-align: left;
   letter-spacing: normal;
   line-height: 20px;
-  //padding: 10px !important;
   resize: none !important;
   tab-size: 4;
 
@@ -113,12 +112,74 @@ img {
   }
 }
 
-.test-toolbar {
+
+.hljs {
+  .passed {
+    color: #38c172;
+  }
+
+  .failed {
+    color: #e3342f;
+  }
+}
+
+.error {
+  color: #e3342f;
+}
+
+#test-panel {
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.inner {
   text-align: right;
   margin-bottom: 10px;
+}
 
-  button {
-    display: inline-block;
-    // margin-left: 5px;
-  }
+.inner button {
+  margin: 0;
+  display: inline;
+  overflow: hidden;
+  line-height: 18px;
+}
+
+.inner button.run {
+  padding-right: 18px;
+  position: relative;
+}
+
+.inner button.run .icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent #38c172;
+}
+
+.inner button.stop {
+  padding-right: 18px;
+  position: relative;
+}
+
+.inner button.stop .icon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #e3342f;
+}
+
+#codeans {
+  height:60vh;
+  text-align:left;
+}
+
+#log {
+  height:20vh;
+  margin-top: 10px;
 }

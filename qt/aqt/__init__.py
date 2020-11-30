@@ -244,7 +244,7 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = "anki" + checksum(getpass.getuser())
+    KEY = "bobs" + checksum(getpass.getuser())
     TMOUT = 30000
 
     def __init__(self, argv):

@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import List
 
 from testing.framework.dto.test_case import TestCase

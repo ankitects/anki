@@ -3,6 +3,9 @@ from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
 class JavaArgDeclarationGenerator(ArgDeclarationGenerator):
+    def visit_void(self, node: SyntaxTree, data):
+        return 'void'
+
     def visit_array(self, node: SyntaxTree, data_item):
         if len(node.nodes) != 1:
             raise Exception('Array can have only 1 inner-type')

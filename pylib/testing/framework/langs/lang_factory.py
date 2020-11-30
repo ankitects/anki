@@ -18,65 +18,55 @@ from testing.framework.runners.python_code_runner import PythonCodeRunner
 
 
 class AbstractLangFactory(ABC):
-    @abstractmethod
+    def __init__(self, template_gen, arg_declaration_gen, test_suite_gen, user_type_gen, code_runner):
+        self.template_gen = template_gen
+        self.arg_declaration_gen = arg_declaration_gen
+        self.test_suite_gen = test_suite_gen
+        self.user_type_gen = user_type_gen
+        self.code_runner = code_runner
+
     def get_template_generator(self) -> SolutionTemplateGenerator:
-        pass
+        return self.template_gen
 
-    @abstractmethod
     def get_test_arg_generator(self) -> ArgDeclarationGenerator:
-        pass
+        return self.arg_declaration_gen
 
-    @abstractmethod
     def get_test_suite_generator(self) -> TestSuiteGenerator:
-        pass
+        return self.test_suite_gen
 
-    @abstractmethod
     def get_user_type_generator(self) -> UserTypeDeclarationGenerator:
-        pass
+        return self.user_type_gen
 
-    @abstractmethod
     def get_code_runner(self) -> CodeRunner:
-        pass
+        return self.code_runner
 
 
 class JavaLangFactory(AbstractLangFactory):
-    def get_template_generator(self) -> SolutionTemplateGenerator:
-        return JavaTemplateGenerator()
-
-    def get_test_arg_generator(self) -> ArgDeclarationGenerator:
-        return JavaArgDeclarationGenerator()
-
-    def get_test_suite_generator(self) -> TestSuiteGenerator:
-        return JavaTestSuiteGenerator()
-
-    def get_user_type_generator(self) -> UserTypeDeclarationGenerator:
-        return JavaUserTypeGenerator(self.get_test_arg_generator())
-
-    def get_code_runner(self) -> CodeRunner:
-        return JavaCodeRunner()
+    def __init__(self):
+        super().__init__(JavaTemplateGenerator(),
+                         JavaArgDeclarationGenerator(),
+                         JavaTestSuiteGenerator(),
+                         JavaUserTypeGenerator(JavaArgDeclarationGenerator()),
+                         JavaCodeRunner())
 
 
 class PythonLangFactory(AbstractLangFactory):
-    def get_template_generator(self) -> SolutionTemplateGenerator:
-        return PythonTemplateGenerator()
+    def __init__(self):
+        super().__init__(PythonTemplateGenerator(),
+                         PythonArgDeclarationGenerator(),
+                         PythonTestSuiteGenerator(),
+                         PythonUserTypeGenerator(PythonArgDeclarationGenerator()),
+                         PythonCodeRunner())
 
-    def get_test_arg_generator(self) -> ArgDeclarationGenerator:
-        return PythonArgDeclarationGenerator()
 
-    def get_test_suite_generator(self) -> TestSuiteGenerator:
-        return PythonTestSuiteGenerator()
-
-    def get_user_type_generator(self) -> UserTypeDeclarationGenerator:
-        return PythonUserTypeGenerator(self.get_test_arg_generator())
-
-    def get_code_runner(self) -> CodeRunner:
-        return PythonCodeRunner()
+java_lang_factory = JavaLangFactory()
+python_lang_factory = PythonLangFactory()
 
 
 def get_lang_factory(lang: str) -> AbstractLangFactory:
     if lang == 'java':
-        return JavaLangFactory()
+        return java_lang_factory
     elif lang == 'python':
-        return PythonLangFactory()
+        return python_lang_factory
     else:
         raise Exception('language is not supported ' + lang)
