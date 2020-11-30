@@ -261,12 +261,20 @@ impl Collection {
     }
 
     fn update_renamed_deck(&mut self, existing: Deck, updated: &mut Deck, usn: Usn) -> Result<()> {
+        self.state.deck_cache.clear();
+        // ensure name normalized
+        if let Cow::Owned(name) = normalize_native_name(&updated.name) {
+            updated.name = name;
+        }
         // match closest parent name
         self.match_or_create_parents(updated, usn)?;
+        // ensure new name is unique
+        self.ensure_deck_name_unique(updated, usn)?;
         // rename children
         self.rename_child_decks(&existing, &updated.name, usn)?;
-        // update deck
-        self.add_or_update_single_deck(updated, usn)?;
+        // save deck
+        updated.set_modified(usn);
+        self.storage.update_deck(updated)?;
         // after updating, we need to ensure all grandparents exist, which may not be the case
         // in the parent->child case
         self.create_missing_parents(&updated.name, usn)
