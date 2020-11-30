@@ -46,3 +46,5 @@ prettier_test(
 #     name = "eslint",
 #     srcs = glob(["*.ts"]),
 # )
+
+exports_files(["mathjax.js"])
