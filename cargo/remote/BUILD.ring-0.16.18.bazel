@@ -119,7 +119,7 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
-    data = glob(["src/**/*.der"]),
+    compile_data = glob(["src/**/*.der"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
