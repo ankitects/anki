@@ -4,7 +4,6 @@ function withLineNumbers(highlight, options = {}) {
 
     function init(editor, opts) {
         const css = getComputedStyle(editor);
-        console.log(css.paddingLeft)
         const wrap = document.createElement("div");
         wrap.className = opts.wrapClass;
         wrap.style.position = "relative";
@@ -30,7 +29,6 @@ function withLineNumbers(highlight, options = {}) {
         lineNumbers.style.borderTopLeftRadius = css.borderTopLeftRadius;
         lineNumbers.style.borderBottomLeftRadius = css.borderBottomLeftRadius;
         // Tweak editor styles
-        // console.log(`calc(${opts.width} + ${lineNumbers.style.paddingLeft})`)
         editor.style.paddingLeft = `calc(${opts.width} + ${lineNumbers.style.paddingLeft})`;
         editor.style.whiteSpace = "pre";
         // Swap editor with a wrap
