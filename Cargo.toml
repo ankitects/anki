@@ -28,10 +28,10 @@ genmode = "Remote"
 default_gen_buildrs = true
 
 [package.metadata.raze.crates.pyo3.'*']
-data_attr = "glob([\"**\"])"
+data_attr = "glob([\"**/*.md\"])"
 
 [package.metadata.raze.crates.ring.'*']
-data_attr = "glob([\"src/**\"])"
+data_attr = "glob([\"src/**/*.der\"])"
 
 [package.metadata.raze.crates.webpki.'*']
-data_attr = "glob([\"src/**\"])"
+data_attr = "glob([\"src/**/*.der\"])"

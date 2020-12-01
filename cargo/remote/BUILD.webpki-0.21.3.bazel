@@ -40,7 +40,7 @@ rust_library(
     ],
     crate_root = "src/webpki.rs",
     crate_type = "lib",
-    data = glob(["src/**"]),
+    data = glob(["src/**/*.der"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
