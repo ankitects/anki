@@ -108,8 +108,8 @@ def main():
     base = sys.argv[1]
 
     packages = [
-       ("pyqt5", "pyqt5==5.15.1"),
-       ("pyqtwebengine", "pyqtwebengine==5.15.1"),
+       ("pyqt5", "pyqt5==5.15.2"),
+       ("pyqtwebengine", "pyqtwebengine==5.15.2"),
        ("pyqt5-sip", "pyqt5_sip==12.8.1"),
     ]
 
@@ -124,7 +124,7 @@ def main():
     # add missing py.typed file
     with open(os.path.join(base, "py.typed"), "w") as file:
         pass
-    
+
     result = """
 load("@rules_python//python:defs.bzl", "py_library")
 
