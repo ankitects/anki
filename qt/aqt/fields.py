@@ -100,9 +100,10 @@ class FieldDialog(QDialog):
         if not name:
             return
 
+        old_name = f["name"]
         self.change_tracker.mark_basic()
         self.mm.rename_field(self.model, f, name)
-        gui_hooks.fields_did_rename_field(self, f, f["name"])
+        gui_hooks.fields_did_rename_field(self, f, old_name)
 
         self.saveField()
         self.fillFields()
