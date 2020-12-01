@@ -41,9 +41,9 @@ def register_repos():
     maybe(
         git_repository,
         name = "io_bazel_rules_rust",
-        commit = "504cde54248f518d5c98eb9f1e8db3546904ecb2",
+        commit = "b610a69466c12bd3740398f1bf0c766df6951eff",
         remote = "https://github.com/ankitects/rules_rust",
-        shallow_since = "1606199575 +1000",
+        shallow_since = "1606797881 +1000",
     )
 
     # native.local_repository(
