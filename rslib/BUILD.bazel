@@ -35,7 +35,7 @@ cargo_build_script(
 # Library
 #######################
 
-_anki_data = glob([
+_anki_compile_data = glob([
     "src/**/*.sql",
     "src/**/*.html",
     "src/**/*.css",
@@ -55,8 +55,8 @@ rust_library(
     srcs = glob([
         "src/**/*.rs",
     ]),
+    compile_data = _anki_compile_data,
     crate_features = _anki_features,
-    data = _anki_data,
     proc_macro_deps = [
         "//rslib/cargo:serde_derive",
         "//rslib/cargo:serde_repr",
@@ -115,9 +115,10 @@ rust_library(
 
 rust_test(
     name = "unit_tests",
+    compile_data = _anki_compile_data,
     crate = ":anki",
     crate_features = _anki_features,
-    data = _anki_data + glob([
+    data = glob([
         "tests/support/**",
     ]),
     deps = ["//rslib/cargo:env_logger"],
