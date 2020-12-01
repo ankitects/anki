@@ -31,16 +31,14 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "paste_impl",
+    name = "wasm_bindgen_macro_support",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "spans",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_type = "lib",
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,8 +46,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.18",
+    version = "0.2.69",
     # buildifier: leave-alone
     deps = [
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__quote__1_0_7//:quote",
+        "@raze__syn__1_0_53//:syn",
+        "@raze__wasm_bindgen_backend__0_2_69//:wasm_bindgen_backend",
+        "@raze__wasm_bindgen_shared__0_2_69//:wasm_bindgen_shared",
     ],
 )

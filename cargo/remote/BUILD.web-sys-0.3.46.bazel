@@ -31,13 +31,27 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "miow",
+    name = "web_sys",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "Blob",
+        "BlobPropertyBag",
+        "Crypto",
+        "Event",
+        "EventTarget",
+        "FormData",
+        "Headers",
+        "MessageEvent",
+        "Request",
+        "RequestInit",
+        "RequestMode",
+        "Response",
+        "Window",
+        "Worker",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -45,12 +59,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.1",
+    version = "0.3.46",
     # buildifier: leave-alone
     deps = [
-        "@raze__kernel32_sys__0_2_2//:kernel32_sys",
-        "@raze__net2__0_2_35//:net2",
-        "@raze__winapi__0_2_8//:winapi",
-        "@raze__ws2_32_sys__0_2_1//:ws2_32_sys",
+        "@raze__js_sys__0_3_46//:js_sys",
+        "@raze__wasm_bindgen__0_2_69//:wasm_bindgen",
     ],
 )
+
+# Unsupported target "wasm" with type "test" omitted

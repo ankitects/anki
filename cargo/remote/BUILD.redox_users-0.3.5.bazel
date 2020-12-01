@@ -53,6 +53,6 @@ rust_library(
     deps = [
         "@raze__getrandom__0_1_15//:getrandom",
         "@raze__redox_syscall__0_1_57//:redox_syscall",
-        "@raze__rust_argon2__0_8_2//:rust_argon2",
+        "@raze__rust_argon2__0_8_3//:rust_argon2",
     ],
 )

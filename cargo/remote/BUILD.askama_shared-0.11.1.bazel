@@ -56,13 +56,13 @@ rust_library(
     deps = [
         "@raze__askama_escape__0_10_1//:askama_escape",
         "@raze__humansize__1_1_0//:humansize",
-        "@raze__nom__6_0_0//:nom",
+        "@raze__nom__6_0_1//:nom",
         "@raze__num_traits__0_2_14//:num_traits",
         "@raze__percent_encoding__2_1_0//:percent_encoding",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__quote__1_0_7//:quote",
         "@raze__serde__1_0_117//:serde",
-        "@raze__syn__1_0_51//:syn",
+        "@raze__syn__1_0_53//:syn",
         "@raze__toml__0_5_7//:toml",
     ],
 )

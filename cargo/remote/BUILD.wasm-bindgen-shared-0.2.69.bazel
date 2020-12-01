@@ -29,15 +29,21 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=load-on-top
+load(
+    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
 
-rust_library(
-    name = "wasm_bindgen_macro",
+cargo_build_script(
+    name = "wasm_bindgen_shared_build_script",
     srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
     crate_features = [
-        "spans",
     ],
-    crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_root = "build.rs",
+    data = glob(["**"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -46,12 +52,30 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.68",
-    # buildifier: leave-alone
+    version = "0.2.69",
+    visibility = ["//visibility:private"],
     deps = [
-        "@raze__quote__1_0_7//:quote",
-        "@raze__wasm_bindgen_macro_support__0_2_68//:wasm_bindgen_macro_support",
     ],
 )
 
-# Unsupported target "ui" with type "test" omitted
+rust_library(
+    name = "wasm_bindgen_shared",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.2.69",
+    # buildifier: leave-alone
+    deps = [
+        ":wasm_bindgen_shared_build_script",
+    ],
+)
