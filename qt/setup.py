@@ -35,6 +35,7 @@ install_requires = [
     'psutil; sys.platform == "win32"',
     'pywin32; sys.platform == "win32"',
     "anki==2.1.35",  # automatically updated 1
+    "bintrees"
 ]
 
 

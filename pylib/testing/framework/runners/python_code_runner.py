@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 
@@ -19,13 +20,15 @@ def log_runtime_error(error_log, logger):
         logger.log('<span class="error">Error</span> ' + line)
 
 class PythonCodeRunner(CodeRunner):
-    RUN_CMD = 'PYTHONPATH={} {}/pyenv/bin/python {}'
+    # RUN_CMD = '{}/pyenv/bin/python3 {}'
+    RUN_CMD = 'PYTHONPATH={}/libs/python {}/libs/python/python3 {}'
 
     def _run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
         workdir, pythonsrc = self._create_src_file(src, 'test.py')
-        # resource_path = os.environ['RESOURCEPATH']
-        resource_path = '/opt/dev/dave8/anki'
+        resource_path = os.environ['RESOURCEPATH']
+        # resource_path = '/opt/dev/dave8/anki'
 
+        # cmd = self.RUN_CMD.format(resource_path, pythonsrc.name)
         cmd = self.RUN_CMD.format(resource_path, resource_path, pythonsrc.name)
         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.pid = proc.pid

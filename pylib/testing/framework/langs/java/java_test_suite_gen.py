@@ -10,7 +10,6 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
     IMPORTS = '''
     import static test_engine.Verifier.verify;
     import static test_engine.Converters.*;
-    import test_engine.TestRunner;
     
     import java.io.File;
     import java.io.IOException;

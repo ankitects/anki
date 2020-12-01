@@ -10,7 +10,7 @@ from testing.framework.syntax.utils import trim_indent, to_snake_case
 class PythonTestSuiteGenerator(TestSuiteGenerator):
     IMPORTS = '''
     import datetime
-    from testing.python.testing_lib import *'''
+    from testing_lib import *'''
 
     MAIN_FUNCTION_TEMPLATE = '''
     converters = [%(converters_src)s]

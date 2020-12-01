@@ -77,7 +77,6 @@ class Reviewer:
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._reps: int = None
-        self._codingBuffer = {}
         self.nextCard()
 
     def lastCard(self) -> Optional[Card]:
@@ -224,6 +223,7 @@ class Reviewer:
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
+        self._codingBuffer = {}
         # if we have a type answer field, focus main web
         if self.typeCorrect:
             self.mw.web.setFocus()
@@ -1028,4 +1028,3 @@ time = %(time)d;
         lang = self._getCurrentLang()
         self.logger.log('Stopping...')
         stop_tests(lang)
-        self._cleanConsole()

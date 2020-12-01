@@ -38,7 +38,7 @@ class JavaArgDeclarationGenerator(ArgDeclarationGenerator):
             raise Exception('not supported parent type for int')
 
     def visit_float(self, node, data_item):
-        if node.parent.is_array_type() or node.parent.is_user_type:
+        if node.parent.is_root() or node.parent.is_array_type() or node.parent.is_user_type:
             return 'double'
         elif node.parent.is_container_type():
             return 'Double'

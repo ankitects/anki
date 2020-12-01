@@ -15,5 +15,5 @@ class PythonTemplateGenerator(SolutionTemplateGenerator):
             user_types=user_types_src,
             result_type=ts.result_type,
             func_name=to_snake_case(ts.func_name),
-            arg_declarations=','.join([x.arg_name + ': ' + x.arg_type for x in ts.test_args])))
+            arg_declarations=', '.join([x.arg_name + ': ' + x.arg_type for x in ts.test_args])))
 

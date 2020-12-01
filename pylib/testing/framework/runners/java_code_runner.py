@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from testing.framework.runners.code_runner import CodeRunner
@@ -23,8 +24,8 @@ class JavaCodeRunner(CodeRunner):
 
     def _run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
         workdir, javasrc = self._create_src_file(src, self.CLASS_NAME + '.java')
-        # resource_path = os.environ['RESOURCEPATH']
-        resource_path = '/opt/dev/dave8/anki/testing'
+        resource_path = os.environ['RESOURCEPATH']
+        # resource_path = '/opt/dev/dave8/anki/testing'
         logger.log('Compiling...')
 
         cmd = self.COMPILE_CMD.format(resource_path, javasrc.name, resource_path)
