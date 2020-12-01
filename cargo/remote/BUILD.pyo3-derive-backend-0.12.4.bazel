@@ -25,17 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "js_sys",
+    name = "pyo3_derive_backend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "pyo3-derive-backend/src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [
@@ -45,13 +45,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.45",
+    version = "0.12.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__wasm_bindgen__0_2_68//:wasm_bindgen",
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__quote__1_0_7//:quote",
+        "@raze__syn__1_0_53//:syn",
     ],
 )
-
-# Unsupported target "headless" with type "test" omitted
-
-# Unsupported target "wasm" with type "test" omitted

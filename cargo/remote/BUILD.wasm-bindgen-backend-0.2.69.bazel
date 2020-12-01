@@ -31,9 +31,10 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasm_bindgen_futures",
+    name = "wasm_bindgen_backend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "spans",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -45,13 +46,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.4.18",
+    version = "0.2.69",
     # buildifier: leave-alone
     deps = [
-        "@raze__cfg_if__0_1_10//:cfg_if",
-        "@raze__js_sys__0_3_45//:js_sys",
-        "@raze__wasm_bindgen__0_2_68//:wasm_bindgen",
+        "@raze__bumpalo__3_4_0//:bumpalo",
+        "@raze__lazy_static__1_4_0//:lazy_static",
+        "@raze__log__0_4_11//:log",
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__quote__1_0_7//:quote",
+        "@raze__syn__1_0_53//:syn",
+        "@raze__wasm_bindgen_shared__0_2_69//:wasm_bindgen_shared",
     ],
 )
-
-# Unsupported target "tests" with type "test" omitted

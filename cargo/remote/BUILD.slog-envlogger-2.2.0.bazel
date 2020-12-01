@@ -58,7 +58,7 @@ rust_library(
     deps = [
         "@raze__log__0_4_11//:log",
         "@raze__regex__1_4_2//:regex",
-        "@raze__slog__2_5_2//:slog",
+        "@raze__slog__2_7_0//:slog",
         "@raze__slog_async__2_5_0//:slog_async",
         "@raze__slog_scope__4_3_0//:slog_scope",
         "@raze__slog_stdlog__4_1_0//:slog_stdlog",

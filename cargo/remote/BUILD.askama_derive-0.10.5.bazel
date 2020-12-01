@@ -50,6 +50,6 @@ rust_library(
     deps = [
         "@raze__askama_shared__0_11_1//:askama_shared",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__syn__1_0_51//:syn",
+        "@raze__syn__1_0_53//:syn",
     ],
 )

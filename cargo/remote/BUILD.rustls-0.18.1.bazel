@@ -68,7 +68,7 @@ rust_library(
     deps = [
         "@raze__base64__0_12_3//:base64",
         "@raze__log__0_4_11//:log",
-        "@raze__ring__0_16_17//:ring",
+        "@raze__ring__0_16_18//:ring",
         "@raze__sct__0_6_0//:sct",
         "@raze__webpki__0_21_3//:webpki",
     ],

@@ -58,7 +58,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.68",
+    version = "0.2.69",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -79,7 +79,7 @@ rust_library(
     crate_type = "lib",
     edition = "2018",
     proc_macro_deps = [
-        "@raze__wasm_bindgen_macro__0_2_68//:wasm_bindgen_macro",
+        "@raze__wasm_bindgen_macro__0_2_69//:wasm_bindgen_macro",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -88,11 +88,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.68",
+    version = "0.2.69",
     # buildifier: leave-alone
     deps = [
         ":wasm_bindgen_build_script",
-        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__serde__1_0_117//:serde",
         "@raze__serde_json__1_0_59//:serde_json",
     ],

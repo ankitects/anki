@@ -25,17 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "pyo3cls",
+    name = "paste",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "pyo3cls/src/lib.rs",
+    crate_root = "src/lib.rs",
     crate_type = "proc-macro",
     edition = "2018",
     rustc_flags = [
@@ -45,11 +45,18 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.12.3",
+    version = "1.0.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__pyo3_derive_backend__0_12_3//:pyo3_derive_backend",
-        "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_51//:syn",
     ],
 )
+
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test_attr" with type "test" omitted
+
+# Unsupported target "test_doc" with type "test" omitted
+
+# Unsupported target "test_expr" with type "test" omitted
+
+# Unsupported target "test_item" with type "test" omitted

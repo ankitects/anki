@@ -30,11 +30,21 @@ licenses([
 
 # Generated Targets
 
+alias(
+    name = "rust_argon2",
+    actual = ":argon2",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
 rust_library(
-    name = "wasm_bindgen_macro_support",
+    name = "argon2",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "spans",
+        "crossbeam-utils",
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -46,13 +56,14 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.68",
+    version = "0.8.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_51//:syn",
-        "@raze__wasm_bindgen_backend__0_2_68//:wasm_bindgen_backend",
-        "@raze__wasm_bindgen_shared__0_2_68//:wasm_bindgen_shared",
+        "@raze__base64__0_13_0//:base64",
+        "@raze__blake2b_simd__0_5_11//:blake2b_simd",
+        "@raze__constant_time_eq__0_1_5//:constant_time_eq",
+        "@raze__crossbeam_utils__0_8_1//:crossbeam_utils",
     ],
 )
+
+# Unsupported target "integration_test" with type "test" omitted

@@ -307,7 +307,7 @@
   },
   {
     "name": "coarsetime",
-    "version": "0.1.16",
+    "version": "0.1.18",
     "authors": "Frank Denis <github@pureftpd.org>",
     "repository": "https://github.com/jedisct1/rust-coarsetime",
     "license": "ISC",
@@ -365,6 +365,15 @@
     "authors": "The Crossbeam Project Developers",
     "repository": "https://github.com/crossbeam-rs/crossbeam",
     "license": "Apache-2.0/MIT",
+    "license_file": null,
+    "description": "Utilities for concurrent programming"
+  },
+  {
+    "name": "crossbeam-utils",
+    "version": "0.8.1",
+    "authors": "The Crossbeam Project Developers",
+    "repository": "https://github.com/crossbeam-rs/crossbeam",
+    "license": "MIT OR Apache-2.0",
     "license_file": null,
     "description": "Utilities for concurrent programming"
   },
@@ -910,16 +919,7 @@
   },
   {
     "name": "indoc",
-    "version": "0.3.6",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/indoc",
-    "license": "MIT OR Apache-2.0",
-    "license_file": null,
-    "description": "Indented document literals"
-  },
-  {
-    "name": "indoc-impl",
-    "version": "0.3.6",
+    "version": "1.0.3",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/indoc",
     "license": "MIT OR Apache-2.0",
@@ -1009,7 +1009,7 @@
   },
   {
     "name": "js-sys",
-    "version": "0.3.45",
+    "version": "0.3.46",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/js-sys",
     "license": "Apache-2.0/MIT",
@@ -1144,7 +1144,7 @@
   },
   {
     "name": "miow",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/miow",
     "license": "Apache-2.0/MIT",
@@ -1171,7 +1171,7 @@
   },
   {
     "name": "net2",
-    "version": "0.2.35",
+    "version": "0.2.36",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/deprecrated/net2-rs",
     "license": "Apache-2.0/MIT",
@@ -1198,7 +1198,7 @@
   },
   {
     "name": "nom",
-    "version": "6.0.0",
+    "version": "6.0.1",
     "authors": "contact@geoffroycouprie.com",
     "repository": "https://github.com/Geal/nom",
     "license": "MIT",
@@ -1324,21 +1324,12 @@
   },
   {
     "name": "paste",
-    "version": "0.1.18",
+    "version": "1.0.3",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/paste",
     "license": "MIT OR Apache-2.0",
     "license_file": null,
     "description": "Macros for all your token pasting needs"
-  },
-  {
-    "name": "paste-impl",
-    "version": "0.1.18",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/paste",
-    "license": "MIT OR Apache-2.0",
-    "license_file": null,
-    "description": "Implementation detail of the `paste` crate"
   },
   {
     "name": "percent-encoding",
@@ -1522,7 +1513,7 @@
   },
   {
     "name": "pyo3",
-    "version": "0.12.3",
+    "version": "0.12.4",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
@@ -1531,7 +1522,7 @@
   },
   {
     "name": "pyo3-derive-backend",
-    "version": "0.12.3",
+    "version": "0.12.4",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
@@ -1540,7 +1531,7 @@
   },
   {
     "name": "pyo3cls",
-    "version": "0.12.3",
+    "version": "0.12.4",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
@@ -1675,7 +1666,7 @@
   },
   {
     "name": "ring",
-    "version": "0.16.17",
+    "version": "0.16.18",
     "authors": "Brian Smith <brian@briansmith.org>",
     "repository": "https://github.com/briansmith/ring",
     "license": null,
@@ -1702,7 +1693,7 @@
   },
   {
     "name": "rust-argon2",
-    "version": "0.8.2",
+    "version": "0.8.3",
     "authors": "Martijn Rijkeboer <mrr@sru-systems.com>",
     "repository": "https://github.com/sru-systems/rust-argon2",
     "license": "Apache-2.0/MIT",
@@ -1873,7 +1864,7 @@
   },
   {
     "name": "slog",
-    "version": "2.5.2",
+    "version": "2.7.0",
     "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
     "repository": "https://github.com/slog-rs/slog",
     "license": "MPL-2.0 OR MIT OR Apache-2.0",
@@ -1981,7 +1972,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.51",
+    "version": "1.0.53",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "MIT OR Apache-2.0",
@@ -2296,7 +2287,7 @@
   },
   {
     "name": "unicode-segmentation",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
     "repository": "https://github.com/unicode-rs/unicode-segmentation",
     "license": "Apache-2.0/MIT",
@@ -2395,7 +2386,7 @@
   },
   {
     "name": "wasm-bindgen",
-    "version": "0.2.68",
+    "version": "0.2.69",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen",
     "license": "Apache-2.0/MIT",
@@ -2404,7 +2395,7 @@
   },
   {
     "name": "wasm-bindgen-backend",
-    "version": "0.2.68",
+    "version": "0.2.69",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/backend",
     "license": "Apache-2.0/MIT",
@@ -2413,7 +2404,7 @@
   },
   {
     "name": "wasm-bindgen-futures",
-    "version": "0.4.18",
+    "version": "0.4.19",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/futures",
     "license": "Apache-2.0/MIT",
@@ -2422,7 +2413,7 @@
   },
   {
     "name": "wasm-bindgen-macro",
-    "version": "0.2.68",
+    "version": "0.2.69",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/macro",
     "license": "Apache-2.0/MIT",
@@ -2431,7 +2422,7 @@
   },
   {
     "name": "wasm-bindgen-macro-support",
-    "version": "0.2.68",
+    "version": "0.2.69",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/macro-support",
     "license": "Apache-2.0/MIT",
@@ -2440,7 +2431,7 @@
   },
   {
     "name": "wasm-bindgen-shared",
-    "version": "0.2.68",
+    "version": "0.2.69",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/shared",
     "license": "Apache-2.0/MIT",
@@ -2449,7 +2440,7 @@
   },
   {
     "name": "web-sys",
-    "version": "0.3.45",
+    "version": "0.3.46",
     "authors": "The wasm-bindgen Developers",
     "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/web-sys",
     "license": "Apache-2.0/MIT",

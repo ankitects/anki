@@ -55,7 +55,7 @@ rust_library(
         "@raze__cfg_if__0_1_10//:cfg_if",
         "@raze__iovec__0_1_4//:iovec",
         "@raze__log__0_4_11//:log",
-        "@raze__net2__0_2_35//:net2",
+        "@raze__net2__0_2_36//:net2",
         "@raze__slab__0_4_2//:slab",
     ] + selects.with_or({
         # cfg(unix)
@@ -77,7 +77,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__kernel32_sys__0_2_2//:kernel32_sys",
-            "@raze__miow__0_2_1//:miow",
+            "@raze__miow__0_2_2//:miow",
             "@raze__winapi__0_2_8//:winapi",
         ],
         "//conditions:default": [],

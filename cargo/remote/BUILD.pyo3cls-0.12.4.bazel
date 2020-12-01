@@ -25,22 +25,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "indoc_impl",
+    name = "pyo3cls",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "pyo3cls/src/lib.rs",
     crate_type = "proc-macro",
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,12 +45,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.6",
+    version = "0.12.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__pyo3_derive_backend__0_12_4//:pyo3_derive_backend",
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_51//:syn",
-        "@raze__unindent__0_1_7//:unindent",
+        "@raze__syn__1_0_53//:syn",
     ],
 )

@@ -52,6 +52,6 @@ rust_library(
     deps = [
         "@raze__arc_swap__0_4_7//:arc_swap",
         "@raze__lazy_static__1_4_0//:lazy_static",
-        "@raze__slog__2_5_2//:slog",
+        "@raze__slog__2_7_0//:slog",
     ],
 )

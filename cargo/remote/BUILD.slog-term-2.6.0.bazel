@@ -62,7 +62,7 @@ rust_library(
     deps = [
         "@raze__atty__0_2_14//:atty",
         "@raze__chrono__0_4_19//:chrono",
-        "@raze__slog__2_5_2//:slog",
+        "@raze__slog__2_7_0//:slog",
         "@raze__term__0_6_1//:term",
         "@raze__thread_local__1_0_1//:thread_local",
     ],

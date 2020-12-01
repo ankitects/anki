@@ -51,6 +51,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_51//:syn",
+        "@raze__syn__1_0_53//:syn",
     ],
 )

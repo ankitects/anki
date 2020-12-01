@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__crossbeam_channel__0_4_4//:crossbeam_channel",
-        "@raze__slog__2_5_2//:slog",
+        "@raze__slog__2_7_0//:slog",
         "@raze__take_mut__0_2_2//:take_mut",
         "@raze__thread_local__1_0_1//:thread_local",
     ],

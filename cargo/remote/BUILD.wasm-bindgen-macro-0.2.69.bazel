@@ -31,17 +31,14 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "indoc",
+    name = "wasm_bindgen_macro",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "spans",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
+    crate_type = "proc-macro",
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__indoc_impl__0_3_6//:indoc_impl",
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -49,12 +46,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.6",
+    version = "0.2.69",
     # buildifier: leave-alone
     deps = [
+        "@raze__quote__1_0_7//:quote",
+        "@raze__wasm_bindgen_macro_support__0_2_69//:wasm_bindgen_macro_support",
     ],
 )
 
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "run-pass" with type "test" omitted
+# Unsupported target "ui" with type "test" omitted

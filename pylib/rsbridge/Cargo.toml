@@ -12,7 +12,7 @@ anki = { path = "../../rslib" }
 # /cargo/update.py needs to be run if updating the version below
 [dependencies.pyo3]
 git = "https://github.com/PyO3/pyo3.git"
-rev = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1"
+rev = "92b7a9736c9585883df5ec5bc01004caa7f65106"
 features = ["extension-module", "abi3"]
 
 [lib]

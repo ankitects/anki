@@ -49,7 +49,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.35",
+    version = "0.2.36",
     # buildifier: leave-alone
     deps = [
         "@raze__cfg_if__0_1_10//:cfg_if",

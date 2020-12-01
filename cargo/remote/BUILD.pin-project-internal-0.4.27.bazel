@@ -79,6 +79,6 @@ rust_library(
         ":pin_project_internal_build_script",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_51//:syn",
+        "@raze__syn__1_0_53//:syn",
     ],
 )
