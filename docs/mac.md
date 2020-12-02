@@ -22,6 +22,8 @@ $ brew install rsync bazelisk
 Install Python 3.8 from <https://python.org>. You may be able to use
 the Homebrew version instead, but this is untested.
 
+Python 3.9 is not currently recommended, as pylint does not support it yet.
+
 You do not need to set up a Python venv prior to building Anki.
 
 When you run "python" in a shell, if it shows Python 2.x, you may get a
@@ -31,6 +33,9 @@ pointing python to python3.8:
 ```
 $ ln -sf /usr/local/bin/{python3.8,python}
 ```
+
+This linking will not work if you're using the system Python from Big Sur,
+which is one of the reasons why we recommend using Python from python.org.
 
 ## Running Anki during development
 
@@ -42,7 +47,7 @@ From the top level of Anki's source folder:
 
 This will build Anki and run it in place.
 
-The first build will take while, as it downloads and builds a bunch of
+The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
 To play audio, use Homebrew to install mpv. At the time of writing, recording is

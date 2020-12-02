@@ -24,6 +24,8 @@ Python to be installed in that location.
 
 When the install is done, click on the "remove the path limit" button.
 
+Python 3.9 is not currently recommended, as pylint does not support it yet.
+
 **MSYS**:
 
 Install [msys2](https://www.msys2.org/) into the default folder location.

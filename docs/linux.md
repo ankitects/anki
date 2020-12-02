@@ -20,13 +20,14 @@ If you're on a modern distribution, you may be able to install Python from the r
 $  sudo apt install python3.8
 ```
 
-If python3.8 is not available in your distro, you can download it from python.org.
+If Python 3.8 is not available in your distro, you can download it from python.org,
+compile it, and install in in /usr/local.
 
-Notes:
+If your system only has Python 3.9, you should be able to build Anki with it,
+but the pylint tests will currently fail, as pylint does not yet support Python 3.9.
 
-- The build scripts expect to find 'python3.8' on your path, so Python 3.7 or 3.9 will
-  not work.
-- An active Python venv is not required, and may cause problems.
+Anki's build system will not place packages in system locations, so you do not
+need to build with an active Python virtual environmental.
 
 **Install Bazelisk**:
 
