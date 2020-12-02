@@ -1,10 +1,14 @@
 def _impl(rctx):
     # locate python on path, and export it
-    path = rctx.which("python3.8")
+    names = ["python3.9", "python3.8", "python3", "python.exe"]
+    path = None
+    for name in names:
+        path = rctx.which(name)
+        if path:
+            break
+
     if not path:
-        path = rctx.which("python.exe")
-    if not path:
-        fail("python3.8 or python.exe not found on path")
+        fail("python3 or python.exe not found on path")
 
     rctx.symlink(path, "python")
     rctx.file("BUILD.bazel", """
