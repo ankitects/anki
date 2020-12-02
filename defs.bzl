@@ -20,7 +20,7 @@ def setup_deps():
 
     rust_repositories(
         edition = "2018",
-        # use_worker = True,
+        use_worker = True,
         version = "1.48.0",
     )
 

@@ -38,18 +38,18 @@ def register_repos():
     # rust
     ########
 
-    maybe(
-        git_repository,
-        name = "io_bazel_rules_rust",
-        commit = "b610a69466c12bd3740398f1bf0c766df6951eff",
-        remote = "https://github.com/ankitects/rules_rust",
-        shallow_since = "1606797881 +1000",
-    )
-
     # native.local_repository(
     #     name = "io_bazel_rules_rust",
     #     path = "../rules_rust",
     # )
+
+    maybe(
+        git_repository,
+        name = "io_bazel_rules_rust",
+        commit = "18608544c831f6c999f216bb23ca52cf97c04480",
+        remote = "https://github.com/ankitects/rules_rust",
+        shallow_since = "1606951450 +1000",
+    )
 
     # python
     ##########
