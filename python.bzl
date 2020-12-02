@@ -1,6 +1,12 @@
 def _impl(rctx):
     # locate python on path, and export it
-    names = ["python3.9", "python3.8", "python3", "python.exe"]
+    names = [
+        # prefer 3.8 over 3.9, as pylint currently fails on 3.9
+        # (due to issues like https://github.com/PyCQA/pylint/pull/3890)
+        "python3.8",
+        "python3",
+        "python.exe",
+    ]
     path = None
     for name in names:
         path = rctx.which(name)

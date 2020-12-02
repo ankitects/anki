@@ -26,11 +26,9 @@ $ pyenv/bin/python -c 'import aqt; aqt.run()'
 
 From Anki 2.1.36 onwards:
 
-- Make sure your pip version is 20 or later (pip install --upgrade pip).
-- Then:
-
 ```
 $ python -m venv pyenv
+$ pyenv/bin/pip install --upgrade pip
 $ pyenv/bin/pip install aqt
 $ pyenv/bin/python -c 'import aqt; aqt.run()'
 ```
@@ -58,6 +56,8 @@ From inside the source folder:
 bazel test //...
 ```
 
+Pylint will currently fail if you're using Python 3.9.
+
 ## Fixing formatting
 
 If the format tests fail, most can be fixed by running `format`
@@ -84,8 +84,8 @@ bazel build -c opt //pylib/anki:wheel
 bazel build -c opt //qt/aqt:wheel
 ```
 
-The generated wheel paths will be printed as the build completes. To install
-them, see earlier in this document.
+The generated wheel paths will be printed as the build completes. You can install
+them with pip.
 
 ## Audio
 
