@@ -161,7 +161,8 @@ function _cleanConsoleLog() {
 }
 
 function _showConsoleLog(html) {
-    $("#log").append(html);
+    const $log = $('#log')
+    $log.append(html).scrollTop($log.prop("scrollHeight"));
 }
 
 function _initializeCodeAnswers() {

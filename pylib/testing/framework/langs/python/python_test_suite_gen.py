@@ -23,7 +23,7 @@ class PythonTestSuiteGenerator(TestSuiteGenerator):
         result = %(function_name)s(*test_case.args)
         end = datetime.datetime.now()
         duration = (end - start).microseconds/1000
-        if result == test_case.expected:
+        if compare(result, test_case.expected):
             print("%(pass_msg)s")
         else:
             print("%(fail_msg)s")

@@ -13,6 +13,7 @@ for file in repo/desktop/*/anki.po
 do
     outdir=$(echo "$file" | \
         perl -pe "s%repo/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
+    outdir=`echo $outdir | sed 's/\\r//g'`
     outfile="$outdir/anki.mo"
     mkdir -p $outdir
     if ! msgmerge -q "$file" repo/desktop/anki.pot | msgfmt - --output-file="$outfile"; then

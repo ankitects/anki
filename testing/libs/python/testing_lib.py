@@ -1,5 +1,7 @@
 import json
 from typing import List
+from deepdiff import DeepDiff
+import numbers
 
 
 class IntegerConverter:
@@ -49,3 +51,17 @@ def parse_test_case(converters, line):
     for i, col in enumerate(cols):
         values.append(converters[i].convert(json.loads(col)))
     return TestCase(values[:-1], values[-1])
+
+def compare(obj1, obj2):
+    are_equal = True
+    ddiff = DeepDiff(obj1, obj2, ignore_order=True)
+    if 'values_changed' in ddiff:
+        for key in ddiff['values_changed']:
+            new_val = ddiff['values_changed'][key]['new_value']
+            old_val = ddiff['values_changed'][key]['old_value']
+            if isinstance(new_val, numbers.Number) and isinstance(old_val, numbers.Number):
+                if abs(old_val - new_val) < 0.0001:
+                    continue
+            are_equal = False
+            break
+    return are_equal
