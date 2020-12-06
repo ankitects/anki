@@ -1,7 +1,7 @@
 # Contributing Code
 
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see http://ankisrs.net/docs/manual.html#contributing
+and add-ons, please see https://docs.ankiweb.net/#/contrib
 
 With most users now on 2.1, it's time to start paying down some of the
 technical debt that Anki's codebase has built up over the years. This is
