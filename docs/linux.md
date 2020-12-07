@@ -20,14 +20,30 @@ If you're on a modern distribution, you may be able to install Python from the r
 $  sudo apt install python3.8
 ```
 
+If you are using a packaged Python version that is installed in /usr/bin, you can jump
+immediately to the next section.
+
 If Python 3.8 is not available in your distro, you can download it from python.org,
 compile it, and install in in /usr/local.
+
+Bazel does not look in /usr/local by default. If you've installed Python somewhere
+other than /usr/bin, you'll need to put the following into a file called user.bazelrc
+at the top of this repo before proceeding:
+
+```
+build --action_env=PYTHON_SYS_EXECUTABLE=/usr/local/bin/python
+```
+
+If you're building Anki from a docker container or distro that has no `python` command in
+/usr/bin, you'll need to symlink `python` to `/usr/bin/python`. `/usr/bin/python` does not
+need to be Python 3.8; any version will do.
 
 If your system only has Python 3.9, you should be able to build Anki with it,
 but the pylint tests will currently fail, as pylint does not yet support Python 3.9.
 
 Anki's build system will not place packages in system locations, so you do not
-need to build with an active Python virtual environmental.
+need to build with an active Python virtual environment, and building outside
+of one is recommended.
 
 **Install Bazelisk**:
 
