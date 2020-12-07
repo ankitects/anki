@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+set -x
+
+BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
+BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
+
+# move existing node_modules into tree
+test -e /state/node_modules && mv /state/node_modules ts/
+
+$BAZEL build $BUILDARGS ...
+$BAZEL test $BUILDARGS ...
+
+# if tests succeed, back up node_modules folder
+mv ts/node_modules /state/
+
