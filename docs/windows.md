@@ -78,7 +78,7 @@ then run
 
 This will build Anki and run it in place.
 
-The first build will take while, as it downloads and builds a bunch of
+The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
 To play audio, mpv.exe or mplayer.exe must be on the path. At the time
