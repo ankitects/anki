@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+
+BUILDARGS="-c opt" $(dirname $0)/../run

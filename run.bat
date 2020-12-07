@@ -1,1 +1,1 @@
-call .\bazel.bat run //qt:runanki -k -- %*
+call .\bazel.bat run %BUILDARGS% //qt:runanki -k -- %*
