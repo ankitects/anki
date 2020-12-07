@@ -69,7 +69,7 @@ From the top level of Anki's source folder:
 
 This will build Anki and run it in place.
 
-The first build will take while, as it downloads and builds a bunch of
+The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
 To play audio, install mpv. At the time of writing, recording is
