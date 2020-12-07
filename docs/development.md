@@ -39,7 +39,6 @@ $ ~/pyenv/bin/anki
 
 ```
 c:\> python -m venv \pyenv
-c:\> \pyenv\scripts\activate
 c:\> \pyenv\scripts\pip install --upgrade pip
 c:\> \pyenv\scripts\pip install aqt
 ```
