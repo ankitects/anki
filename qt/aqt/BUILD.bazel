@@ -87,6 +87,9 @@ py_wheel(
     name = "wheel",
     description_file = "wheel_description.txt",
     distribution = "aqt",
+    entry_points = {
+        "console_scripts": ["anki = aqt:run"],
+    },
     homepage = "https://apps.ankiweb.net",
     license = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     python_tag = "py3",

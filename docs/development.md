@@ -2,35 +2,52 @@
 
 ## Packaged betas
 
-For non-developers who want to try this development code, the easiest way is
-to use a packaged version - please see:
+For non-developers who want to try beta versions, the easiest way is to use a
+packaged version - please see:
 
 https://betas.ankiweb.net/#/
 
-You are welcome to run Anki from source instead, but it is expected that you can
-sort out issues by yourself - we are not able to provide support for problems
-you encounter when running from source.
-
 ## Pre-built Python wheels
 
-If you want to run Anki from a local Python installation but don't want
-to make changes to the source code, you can install pre-built packages from PyPI.
+Pre-built Python packages are available on PyPI. They are useful if you wish to:
 
-For older versions:
+- Run Anki from a local Python installation without building it yourself
+- Get code completion when developing add-ons
+- Make command line scripts that modify .anki2 files via Anki's Python libraries
+
+You will need Python 3.8 or 3.9 installed. If you do not have Python yet, please
+see the platform-specific instructions in the "Building from source" section below
+for more info.
+
+The instructions below are for Anki 2.1.36+.
+
+**Mac/Linux**:
 
 ```
-$ python -m venv pyenv
-$ pyenv/bin/pip install aqt anki ankirspy pyqt5 pyqtwebengine
-$ pyenv/bin/python -c 'import aqt; aqt.run()'
+$ python3.8 -m venv ~/pyenv
+$ ~/pyenv/bin/pip install --upgrade pip
+$ ~/pyenv/bin/pip install aqt
 ```
 
-From Anki 2.1.36 onwards:
+Then to run Anki:
 
 ```
-$ python -m venv pyenv
-$ pyenv/bin/pip install --upgrade pip
-$ pyenv/bin/pip install aqt
-$ pyenv/bin/python -c 'import aqt; aqt.run()'
+$ ~/pyenv/bin/anki
+```
+
+**Windows**:
+
+```
+c:\> python -m venv \pyenv
+c:\> \pyenv\scripts\activate
+c:\> \pyenv\scripts\pip install --upgrade pip
+c:\> \pyenv\scripts\pip install aqt
+```
+
+Then to run Anki:
+
+```
+c:\> \pyenv\scripts\anki
 ```
 
 ## Building from source
@@ -47,6 +64,26 @@ were used on old Anki versions and will be automatically moved.
 Before contributing code, please see [Contributing](./contributing.md).
 
 If you'd like to contribute translations, please see <https://translating.ankiweb.net/#/>.
+
+## Building redistributable wheels
+
+Run the following commands to create Python packages that can be redistributed
+and installed:
+
+```
+bazel build -c opt //pylib/anki:wheel
+bazel build -c opt //qt/aqt:wheel
+```
+
+The generated wheel paths will be printed as the build completes.
+
+You can then install them by copying the paths into a pip install command.
+Follow the steps in the "Pre-built Python wheels" section above, but replace the
+"pip install aqt" line with something like:
+
+```
+pip install /path/to/anki.whl /path/to/aqt.whl
+```
 
 ## Running tests
 
@@ -76,16 +113,6 @@ If you're in one of those folders, you can use the short form:
 ```
 bazel run format
 ```
-
-## Building redistributable wheels
-
-```
-bazel build -c opt //pylib/anki:wheel
-bazel build -c opt //qt/aqt:wheel
-```
-
-The generated wheel paths will be printed as the build completes. You can install
-them with pip.
 
 ## Audio
 
