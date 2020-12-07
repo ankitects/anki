@@ -85,6 +85,17 @@ To play audio, mpv.exe or mplayer.exe must be on the path. At the time
 of writing, recording is not yet supported, as currently pyaudio is
 not being installed.
 
+## Optimized builds
+
+The `.\run` command will create a non-optimized build by default. This is faster
+to compile, but will mean Anki will run considerably slower.
+
+To run Anki in optimized mode, use:
+
+```
+.\scripts\runopt
+```
+
 ## More
 
 For info on running tests, building wheels and so on, please see
