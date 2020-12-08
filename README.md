@@ -8,3 +8,5 @@ building the code, please see https://betas.ankiweb.net/#/
 For more information on building, please see [Development](./docs/development.md).
 
 [![](../../workflows/Checks/badge.svg)](../../actions)
+
+PR test.
