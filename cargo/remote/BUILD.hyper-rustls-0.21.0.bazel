@@ -59,7 +59,7 @@ rust_library(
         "@raze__rustls__0_18_1//:rustls",
         "@raze__tokio__0_2_23//:tokio",
         "@raze__tokio_rustls__0_14_1//:tokio_rustls",
-        "@raze__webpki__0_21_3//:webpki",
+        "@raze__webpki__0_21_4//:webpki",
     ],
 )
 

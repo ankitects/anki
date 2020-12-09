@@ -50,7 +50,7 @@ rust_library(
     deps = [
         "@raze__dtoa__0_4_6//:dtoa",
         "@raze__itoa__0_4_6//:itoa",
-        "@raze__serde__1_0_117//:serde",
+        "@raze__serde__1_0_118//:serde",
         "@raze__url__2_2_0//:url",
     ],
 )

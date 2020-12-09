@@ -41,7 +41,7 @@ rust_library(
     crate_type = "lib",
     edition = "2015",
     proc_macro_deps = [
-        "@raze__serde_derive__1_0_117//:serde_derive",
+        "@raze__serde_derive__1_0_118//:serde_derive",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -54,7 +54,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__chrono__0_4_19//:chrono",
-        "@raze__serde__1_0_117//:serde",
-        "@raze__serde_json__1_0_59//:serde_json",
+        "@raze__serde__1_0_118//:serde",
+        "@raze__serde_json__1_0_60//:serde_json",
     ],
 )

@@ -56,7 +56,7 @@ cargo_build_script(
     visibility = ["//visibility:private"],
     deps = [
         "@raze__autocfg__1_0_1//:autocfg",
-        "@raze__cc__1_0_65//:cc",
+        "@raze__cc__1_0_66//:cc",
         "@raze__pkg_config__0_3_19//:pkg_config",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
@@ -91,7 +91,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":openssl_sys_build_script",
-        "@raze__libc__0_2_80//:libc",
+        "@raze__libc__0_2_81//:libc",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (

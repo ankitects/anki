@@ -51,7 +51,7 @@ rust_binary(
     deps = [
         # Binaries get an implicit dependency on their crate's lib
         ":webpki_roots",
-        "@raze__webpki__0_21_3//:webpki",
+        "@raze__webpki__0_21_4//:webpki",
     ],
 )
 
@@ -73,6 +73,6 @@ rust_library(
     version = "0.20.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__webpki__0_21_3//:webpki",
+        "@raze__webpki__0_21_4//:webpki",
     ],
 )
