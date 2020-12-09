@@ -3,6 +3,9 @@
 set -e
 set -x
 
+# check author has added themselves to CONTRIBUTORS
+.buildkite/linux/check_contributors
+
 BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
 
@@ -14,6 +17,3 @@ $BAZEL test $BUILDARGS ...
 
 # if tests succeed, back up node_modules folder
 mv ts/node_modules /state/
-
-# check author has added themselves to CONTRIBUTORS
-.buildkite/linux/check_contributors
