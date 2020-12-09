@@ -7,4 +7,4 @@ building the code, please see https://betas.ankiweb.net/#/
 
 For more information on building, please see [Development](./docs/development.md).
 
-[![](../../workflows/Checks/badge.svg)](../../actions)
+[![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg)](https://buildkite.com/ankitects/anki-ci)
