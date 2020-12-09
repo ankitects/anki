@@ -1,4 +1,4 @@
-set BAZEL=\bazel\bazel.exe --output_user_root=\bazel\anki --output_base=\bazel\anki\base 
+set BAZEL=\bazel\bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base 
 set BUILDARGS=--config=ci
 
 if exist \bazel\node_modules (
