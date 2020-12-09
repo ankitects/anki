@@ -36,9 +36,9 @@ using automated tools. At the moment, large parts of the codebase are still
 missing type hints, and some of the hints that do exist are incorrect or too
 general.
 
-When running 'make check', Anki uses mypy to typecheck the code. Mypy mostly
-only checks functions that have type signatures, so adding more type signatures
-to the code increases the amount of code that mypy is able to analyze.
+When running 'bazel test', Anki uses mypy to typecheck the code. Mypy is able to
+infer some types by itself, but adding more type signatures to the code
+increases the amount of code that mypy is able to analyze.
 
 Patches that improve the type hints would be appreciated. And if you're
 adding new functionality, please use type hints in the new code you write
@@ -113,7 +113,7 @@ If you'd like to keep them up to date, you need to run 'make pull-i18n'
 periodically.
 
 For information on adding new translatable strings to Anki, please see
-https://ankitects.github.io/translating/#/anki/developers
+https://translating.ankiweb.net/#/anki/developers
 
 ## Tests Must Pass
 
@@ -124,7 +124,7 @@ You can do this automatically by adding the following into
 #!/bin/bash
 bazel test //...
 
-If your change is to anki/ and not covered by the existing unit tests, please
+If your change is non-trivial and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
 
 ## Code Style

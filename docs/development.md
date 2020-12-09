@@ -19,8 +19,6 @@ You will need Python 3.8 or 3.9 installed. If you do not have Python yet, please
 see the platform-specific instructions in the "Building from source" section below
 for more info.
 
-The instructions below are for Anki 2.1.36+.
-
 **Mac/Linux**:
 
 ```
