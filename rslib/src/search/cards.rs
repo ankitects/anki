@@ -94,11 +94,17 @@ impl Collection {
     pub(crate) fn search_cards_into_table(&mut self, search: &str, mode: SortMode) -> Result<()> {
         let top_node = Node::Group(parse(search)?);
         let writer = SqlWriter::new(self);
+        let want_order = mode != SortMode::NoOrder;
 
         let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
         self.add_order(&mut sql, mode)?;
 
-        self.storage.setup_searched_cards_table()?;
+        if want_order {
+            self.storage
+                .setup_searched_cards_table_to_preserve_order()?;
+        } else {
+            self.storage.setup_searched_cards_table()?;
+        }
         let sql = format!("insert into search_cids {}", sql);
 
         self.storage.db.prepare(&sql)?.execute(&args)?;

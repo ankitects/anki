@@ -273,6 +273,16 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn all_searched_cards_in_search_order(&self) -> Result<Vec<Card>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                ", search_cids where cards.id = search_cids.cid order by search_cids.rowid"
+            ))?
+            .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
+            .collect()
+    }
+
     pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
     where
         F: FnMut(Card) -> Result<()>,
@@ -330,6 +340,12 @@ impl super::SqliteStorage {
     pub(crate) fn setup_searched_cards_table(&self) -> Result<()> {
         self.db
             .execute_batch(include_str!("search_cids_setup.sql"))?;
+        Ok(())
+    }
+
+    pub(crate) fn setup_searched_cards_table_to_preserve_order(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("search_cids_setup_ordered.sql"))?;
         Ok(())
     }
 
