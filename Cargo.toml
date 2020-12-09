@@ -13,11 +13,10 @@ path = "src/lib.rs"
 
 [package.metadata.raze]
 workspace_path = "//cargo"
-#workspace_member_dir = "."
+# pull requests that add other targets (eg Arm Linux, FreeBSD) welcome - you'll
+# need to update platforms/, BUILD.request.bazel and pylib/anki/BUILD.bazel as
+# well.
 targets = [
-    "i686-apple-darwin",
-    "i686-pc-windows-msvc",
-    "i686-unknown-linux-gnu",
     "x86_64-apple-darwin",
     "x86_64-apple-ios",
     "x86_64-pc-windows-msvc",

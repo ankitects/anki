@@ -59,7 +59,6 @@ alias(
     actual = selects.with_or({
         (
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
         ): ":rsbridge_win",
         "//conditions:default": ":rsbridge_unix",
     }),
@@ -109,7 +108,6 @@ py_wheel(
         "//platforms:windows_x86_64": "win_amd64",
         "//platforms:macos_x86_64": "macosx_10_7_x86_64",
         "//platforms:linux_x86_64": "manylinux2014_x86_64",
-        "//platforms:linux_x86_32": "manylinux2014_i686",
     }),
     python_tag = "cp38",
     python_version = ">=3.8",

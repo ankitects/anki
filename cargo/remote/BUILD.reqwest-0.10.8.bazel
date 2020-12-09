@@ -93,9 +93,6 @@ rust_library(
         # cfg(not(target_arch = "wasm32"))
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -127,7 +124,6 @@ rust_library(
     }) + selects.with_or({
         # cfg(windows)
         (
-            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__winreg__0_7_0//:winreg",

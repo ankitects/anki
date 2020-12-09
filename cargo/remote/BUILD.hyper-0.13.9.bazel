@@ -113,8 +113,6 @@ rust_library(
     ] + selects.with_or({
         # cfg(any(target_os = "linux", target_os = "macos"))
         (
-            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [

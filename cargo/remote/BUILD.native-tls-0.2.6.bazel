@@ -59,7 +59,6 @@ cargo_build_script(
         # cfg(any(target_os = "macos", target_os = "ios"))
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
         ): [
@@ -69,7 +68,6 @@ cargo_build_script(
     }) + selects.with_or({
         # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         (
-            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__openssl_sys__0_9_58//:openssl_sys",
@@ -78,7 +76,6 @@ cargo_build_script(
     }) + selects.with_or({
         # cfg(target_os = "windows")
         (
-            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
         ],
@@ -115,7 +112,6 @@ rust_library(
         # cfg(any(target_os = "macos", target_os = "ios"))
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
         ): [
@@ -129,7 +125,6 @@ rust_library(
     }) + selects.with_or({
         # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         (
-            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__log__0_4_11//:log",
@@ -141,7 +136,6 @@ rust_library(
     }) + selects.with_or({
         # cfg(target_os = "windows")
         (
-            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__schannel__0_1_19//:schannel",
