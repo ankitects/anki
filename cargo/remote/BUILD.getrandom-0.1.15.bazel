@@ -60,8 +60,6 @@ cargo_build_script(
         # cfg(unix)
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
@@ -100,8 +98,6 @@ rust_library(
         # cfg(unix)
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:i686-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
