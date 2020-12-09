@@ -93,13 +93,13 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/node@13.13.30": {
+    "@types/node@13.13.35": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
-    "d3-array@2.8.0": {
+    "d3-array@2.9.1": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-array",
         "publisher": "Mike Bostock",
@@ -285,7 +285,13 @@
         "path": "node_modules/long",
         "licenseFile": "node_modules/long/LICENSE"
     },
-    "protobufjs@6.10.1": {
+    "mathjax@3.1.2": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/mathjax/MathJax",
+        "path": "node_modules/mathjax",
+        "licenseFile": "node_modules/mathjax/LICENSE"
+    },
+    "protobufjs@6.10.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/protobufjs/protobuf.js",
         "publisher": "Daniel Wirtz",
