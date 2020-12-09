@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.34",
+    "version": "1.0.35",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "MIT OR Apache-2.0",
@@ -262,7 +262,7 @@
   },
   {
     "name": "cc",
-    "version": "1.0.65",
+    "version": "1.0.66",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/cc-rs",
     "license": "Apache-2.0/MIT",
@@ -295,15 +295,6 @@
     "license": "Apache-2.0/MIT",
     "license_file": null,
     "description": "Date and time library for Rust"
-  },
-  {
-    "name": "cloudabi",
-    "version": "0.1.0",
-    "authors": "Nuxi (https://nuxi.nl/) and contributors",
-    "repository": "https://github.com/nuxinl/cloudabi",
-    "license": "BSD-2-Clause",
-    "license_file": null,
-    "description": "Low level interface to CloudABI. Contains all syscalls and related types."
   },
   {
     "name": "coarsetime",
@@ -1045,7 +1036,7 @@
   },
   {
     "name": "libc",
-    "version": "0.2.80",
+    "version": "0.2.81",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/libc",
     "license": "MIT OR Apache-2.0",
@@ -1135,7 +1126,7 @@
   },
   {
     "name": "mio",
-    "version": "0.6.22",
+    "version": "0.6.23",
     "authors": "Carl Lerche <me@carllerche.com>",
     "repository": "https://github.com/tokio-rs/mio",
     "license": "MIT",
@@ -1315,7 +1306,7 @@
   },
   {
     "name": "parking_lot_core",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/parking_lot",
     "license": "Apache-2.0/MIT",
@@ -1666,7 +1657,7 @@
   },
   {
     "name": "ring",
-    "version": "0.16.18",
+    "version": "0.16.19",
     "authors": "Brian Smith <brian@briansmith.org>",
     "repository": "https://github.com/briansmith/ring",
     "license": null,
@@ -1684,7 +1675,7 @@
   },
   {
     "name": "rusqlite",
-    "version": "0.24.1",
+    "version": "0.24.2",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1774,7 +1765,7 @@
   },
   {
     "name": "serde",
-    "version": "1.0.117",
+    "version": "1.0.118",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "MIT OR Apache-2.0",
@@ -1792,7 +1783,7 @@
   },
   {
     "name": "serde_derive",
-    "version": "1.0.117",
+    "version": "1.0.118",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "MIT OR Apache-2.0",
@@ -1801,7 +1792,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.59",
+    "version": "1.0.60",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "MIT OR Apache-2.0",
@@ -1918,7 +1909,7 @@
   },
   {
     "name": "smallvec",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "authors": "The Servo Project Developers",
     "repository": "https://github.com/servo/rust-smallvec",
     "license": "Apache-2.0/MIT",
@@ -1972,7 +1963,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.53",
+    "version": "1.0.54",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "MIT OR Apache-2.0",
@@ -2449,7 +2440,7 @@
   },
   {
     "name": "webpki",
-    "version": "0.21.3",
+    "version": "0.21.4",
     "authors": "Brian Smith <brian@briansmith.org>",
     "repository": "https://github.com/briansmith/webpki",
     "license": null,

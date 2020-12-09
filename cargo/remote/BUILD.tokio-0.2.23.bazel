@@ -75,7 +75,7 @@ rust_library(
         "@raze__iovec__0_1_4//:iovec",
         "@raze__lazy_static__1_4_0//:lazy_static",
         "@raze__memchr__2_3_4//:memchr",
-        "@raze__mio__0_6_22//:mio",
+        "@raze__mio__0_6_23//:mio",
         "@raze__num_cpus__1_13_0//:num_cpus",
         "@raze__pin_project_lite__0_1_11//:pin_project_lite",
         "@raze__slab__0_4_2//:slab",

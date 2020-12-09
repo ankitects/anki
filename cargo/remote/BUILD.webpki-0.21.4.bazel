@@ -25,20 +25,22 @@ package(default_visibility = [
 ])
 
 licenses([
-    "restricted",  # BSD-2-Clause from expression "BSD-2-Clause"
+    "restricted",  # no license
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "cloudabi",
+    name = "webpki",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "bitflags",
         "default",
+        "std",
+        "trust_anchor_util",
     ],
-    crate_root = "cloudabi.rs",
+    crate_root = "src/webpki.rs",
     crate_type = "lib",
+    compile_data = glob(["src/**/*.der"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -47,9 +49,14 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.0",
+    version = "0.21.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__ring__0_16_19//:ring",
+        "@raze__untrusted__0_7_1//:untrusted",
     ],
 )
+
+# Unsupported target "dns_name_tests" with type "test" omitted
+
+# Unsupported target "integration" with type "test" omitted

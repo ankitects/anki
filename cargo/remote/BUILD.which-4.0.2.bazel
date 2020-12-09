@@ -48,7 +48,7 @@ rust_library(
     version = "4.0.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__libc__0_2_80//:libc",
+        "@raze__libc__0_2_81//:libc",
         "@raze__thiserror__1_0_22//:thiserror",
     ],
 )

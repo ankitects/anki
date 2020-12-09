@@ -56,10 +56,10 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.16.18",
+    version = "0.16.19",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_65//:cc",
+        "@raze__cc__1_0_66//:cc",
     ] + selects.with_or({
         # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux"))))
         (
@@ -128,7 +128,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.16.18",
+    version = "0.16.19",
     # buildifier: leave-alone
     deps = [
         ":ring_build_script",
@@ -153,7 +153,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_80//:libc",
+            "@raze__libc__0_2_81//:libc",
             "@raze__once_cell__1_5_2//:once_cell",
         ],
         "//conditions:default": [],
