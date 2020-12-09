@@ -5,6 +5,8 @@ from testing.framework.syntax.utils import trim_indent, to_camel_case
 
 class JavaTemplateGenerator(SolutionTemplateGenerator):
     SOLUTION_TEMPLATE = '''
+    /** %(comments)s
+    */
     public class Solution {
         %(user_types)spublic %(result_type)s %(func_name)s(%(arg_declarations)s) {
             //Add code here
@@ -17,5 +19,6 @@ class JavaTemplateGenerator(SolutionTemplateGenerator):
             user_types=user_types_src,
             result_type=ts.result_type,
             func_name=to_camel_case(ts.func_name),
+            comments='\n' + '\n'.join(['    * ' + line for line in ts.description.split('\n')]),
             arg_declarations=', '.join([x.arg_type + ' ' + x.arg_name for x in ts.test_args])
         ))

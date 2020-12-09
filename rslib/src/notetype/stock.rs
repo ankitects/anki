@@ -111,17 +111,19 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
 pub(crate) fn basic_coding_task(i18n: &I18n) -> NoteType {
     let mut nt = NoteType::default();
     nt.name = "Coding Challenge".to_string();
-    let task_description = "Task";
+    let title = "Title";
+    let description = "Description";
     let function_name = "Function Name";
     let solution = "Solution";
     let test_cases = "Test Cases (.tsv)";
-    nt.add_field(task_description);
+    nt.add_field(title);
+    nt.add_field(description);
     nt.add_field(function_name);
     nt.add_field(solution);
     nt.add_field(test_cases);
     let q_format = format!(
         "{}\n\n{{{{code:{}}}}}",
-        fieldref(task_description),
+        fieldref(title),
         solution
     );
     let a_format = format!(

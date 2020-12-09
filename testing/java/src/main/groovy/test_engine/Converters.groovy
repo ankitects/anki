@@ -40,9 +40,15 @@ class Converters {
     }
   }
 
+  static class BoolConverter extends PrimitiveConverter<Boolean> {
+    BoolConverter() {
+      super(Boolean.class)
+    }
+  }
+
   static class DoubleConverter extends PrimitiveConverter<Double> {
     DoubleConverter() {
-      super(Double.class)
+      super(Double.classjava.jar)
     }
   }
 

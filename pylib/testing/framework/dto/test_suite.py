@@ -8,6 +8,7 @@ from testing.framework.dto.test_case import TestCase
 class TestSuite:
 
     func_name: str
+    description: str
     test_args: List[TestArg]
     test_cases: List[TestCase]
     result_type: str
