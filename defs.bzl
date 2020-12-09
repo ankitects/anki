@@ -11,7 +11,7 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 
-anki_version = "2.1.36"
+anki_version = "2.1.37"
 
 def setup_deps():
     bazel_skylib_workspace()
