@@ -111,7 +111,7 @@ py_wheel(
         "anki==" + anki_version,
     ],
     strip_path_prefixes = [
-        "qt",
+        "qt/",
     ],
     version = anki_version,
     visibility = ["//visibility:public"],

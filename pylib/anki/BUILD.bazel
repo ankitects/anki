@@ -121,7 +121,7 @@ py_wheel(
         'distro; sys_platform != "darwin" and sys_platform != "win32"',
     ],
     strip_path_prefixes = [
-        "pylib",
+        "pylib/",
     ],
     version = anki_version,
     visibility = ["//visibility:public"],
