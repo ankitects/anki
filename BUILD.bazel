@@ -1,3 +1,5 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+
 config_setting(
     name = "release",
     values = {
@@ -24,6 +26,17 @@ alias(
     name = "tsconfig.json",
     actual = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "dist",
+    srcs = [
+        "//pylib/anki:wheel",
+        "//qt/aqt:wheel",
+    ],
+    mode = "0644",
+    package_dir = "bazel-dist",
+    tags = ["manual"],
 )
 
 # for version info

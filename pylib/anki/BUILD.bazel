@@ -124,6 +124,7 @@ py_wheel(
         "pylib",
     ],
     version = anki_version,
+    visibility = ["//visibility:public"],
     deps = [":anki_pkg"],
 )
 

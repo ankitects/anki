@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+test -e WORKSPACE || (
+    echo "Run from project root"
+    exit 1
+)
+
+rm -rf bazel-dist
+bazel build -c opt dist
+tar xvf bazel-bin/dist.tar
