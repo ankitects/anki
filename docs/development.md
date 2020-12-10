@@ -64,12 +64,19 @@ If you'd like to contribute translations, please see <https://translating.ankiwe
 
 ## Building redistributable wheels
 
-Run the following commands to create Python packages that can be redistributed
+Run the following command to create Python packages that can be redistributed
 and installed:
 
+On Mac/Linux:
+
 ```
-bazel build -c opt //pylib/anki:wheel
-bazel build -c opt //qt/aqt:wheel
+./scripts/build
+```
+
+On Windows:
+
+```
+.\scripts\build.bat
 ```
 
 The generated wheel paths will be printed as the build completes.
@@ -79,8 +86,10 @@ Follow the steps in the "Pre-built Python wheels" section above, but replace the
 "pip install aqt" line with something like:
 
 ```
-pip install /path/to/anki.whl /path/to/aqt.whl
+pip install --upgrade bazel-dist/*.whl
 ```
+
+On Windows you'll need to list out the filenames manually.
 
 ## Running tests
 

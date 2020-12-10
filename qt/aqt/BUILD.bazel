@@ -114,6 +114,7 @@ py_wheel(
         "qt",
     ],
     version = anki_version,
+    visibility = ["//visibility:public"],
     deps = [
         ":aqt_pkg",
     ],
