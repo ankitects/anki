@@ -1,15 +1,5 @@
-*.mo
-*.pyc
-*\#
-*~
-.*.swp
-.build
-.coverage
-.DS_Store
-dist
-pyenv
-.mypy_cache
 __pycache__
-anki.prof
+.DS_Store
 /bazel-*
+anki.prof
 user.bazelrc
