@@ -1,7 +1,6 @@
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
-load("@io_bazel_rules_rust//:workspace.bzl", "bazel_version")
 load("@net_ankiweb_anki//cargo:crates.bzl", "raze_fetch_remote_crates")
 load(":python.bzl", "setup_local_python")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
@@ -20,11 +19,8 @@ def setup_deps():
 
     rust_repositories(
         edition = "2018",
-        use_worker = True,
         version = "1.48.0",
     )
-
-    bazel_version(name = "io_bazel_rules_rust_bazel_version")
 
     raze_fetch_remote_crates()
 
