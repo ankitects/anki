@@ -76,7 +76,8 @@ To play audio, install mpv. At the time of writing, recording is
 not yet supported, as currently pyaudio is not being installed.
 
 If you or your distro has made ccache the standard compiler, you will need to
-set CC and CXX to point directly to gcc/g++ prior to building Anki.
+set CC and CXX to point directly to gcc/g++ or clang/clang++ prior to building
+Anki.
 
 ## Optimized builds
 
