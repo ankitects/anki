@@ -48,7 +48,7 @@ class Converters {
 
   static class DoubleConverter extends PrimitiveConverter<Double> {
     DoubleConverter() {
-      super(Double.classjava.jar)
+      super(Double.class)
     }
   }
 

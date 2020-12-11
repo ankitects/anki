@@ -32,7 +32,7 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
     
     public static void main(String[] args) throws Exception {
         List<BaseConverter> converters = Arrays.asList(%(converters_src)s);
-        AtomicInteger index = new AtomicInteger(1);
+        AtomicInteger index = new AtomicInteger(0);
         Solution solution = new Solution();
         Method method = Stream.of(Solution.class.getDeclaredMethods())
            .filter(m -> !m.isSynthetic() && m.getName().equals("%(function_name)s"))
@@ -79,7 +79,7 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
     def generate_testing_src(self, solution_src: str, ts: TestSuite, tree: SyntaxTree, messages: Dict[str, str]) -> str:
         test_passed_msg = messages['passed_msg'] % dict(
             index='" + index.incrementAndGet() + "',
-            total="total",
+            total=ts.test_case_count,
             duration='" + duration + "')
         test_failed_msg = messages['failed_msg'] % dict(
             index='" + index.incrementAndGet() + "',

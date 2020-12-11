@@ -38,11 +38,9 @@ dependencies {
     compile 'commons-collections:commons-collections:3.2'
     compile 'ognl:ognl:2.6.9'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
-
-//    compile group: 'org.unitils', name: 'unitils-core', version: '3.4.6'
+    compile 'org.unitils:unitils-core:3.4.6'
     testCompile(
         'junit:junit:4.12',
         'org.spockframework:spock-core:2.0-M3-groovy-3.0'
-        //'org.spockframework:spock-core:1.2-groovy-2.5',
     )
 }

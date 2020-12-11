@@ -14,7 +14,7 @@ class PythonTestSuiteGenerator(TestSuiteGenerator):
 
     MAIN_FUNCTION_TEMPLATE = '''
     converters = [%(converters_src)s]
-    i = 0
+    i = 1
     file = open('%(file_path)s', 'r')
     lines = file.readlines()
     for line in lines:
@@ -37,11 +37,11 @@ class PythonTestSuiteGenerator(TestSuiteGenerator):
     def generate_testing_src(self, solution_src: str, ts: TestSuite, tree: SyntaxTree, msg: Dict[str, str]) -> str:
         test_passed_msg = msg['passed_msg'] % dict(
             index='" + str(i) + "',
-            total="total",
+            total=ts.test_case_count,
             duration='" + str(duration) + "')
         test_failed_msg = msg['failed_msg'] % dict(
             index='" + str(i) + "',
-            total="total",
+            total=ts.test_case_count,
             expected='" + str(test_case.expected) + "',
             result='" + str(result) + "')
         src = trim_indent(self.IMPORTS) + '\n'

@@ -17,7 +17,7 @@ def strip_compile_error(error, file_name):
 
 class JavaCodeRunner(CodeRunner):
     COMPILE_CMD = '{}/libs/jdk/bin/javac {} -cp {}/libs/jdk/lib/java.jar'
-    RUN_CMD = '{}/libs/jdk/bin/java -classpath {}:{}/libs/jdk/lib/java.jar {}'
+    RUN_CMD = '{}/libs/jdk/bin/java -Xss10m -classpath {}:{}/libs/jdk/lib/java.jar {}'
     CLASS_NAME = 'Solution'
     PKG_NAME = 'test_engine'
     pid = None

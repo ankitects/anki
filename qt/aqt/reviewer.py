@@ -67,7 +67,7 @@ class Reviewer:
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.synchronizer = threading.Event()
-        self.logger = ConsoleLogger(lambda txt: self.web.eval("_showConsoleLog(%s);" % json.dumps(txt + "<br/>")))
+        self.logger = ConsoleLogger(mw.web)
         hooks.card_did_leech.append(self.onLeech)
         self._isCodeQuestion = False
 
@@ -176,6 +176,7 @@ class Reviewer:
                 "mathjax/MathJax.js",
                 "prism.js",
                 "highlight.js",
+                "jqmeter.js",
                 "codejar.js",
                 "reviewer.js",
             ],
@@ -419,8 +420,9 @@ class Reviewer:
                     <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
                     <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
                 </div>
-                <div id="codeans" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
+                <div id="codeans" class="editor language-%(language)s" data-gramm="false" contenteditable=true>%(template)s</div>
                 <div id="log" class="editor hljs"></div>
+                <div id="progressbar"></div>
             </div>
             """
             % dict(

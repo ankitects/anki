@@ -1,0 +1,11 @@
+/*
+
+Title:		jQMeter: a jQuery Progress Meter Plugin
+Author:		Gerardo Larios
+Version:	0.1
+Website:	http://www.gerardolarios.com/plugins-and-tools/jqmeter
+License: 	Dual licensed under the MIT and GPL licenses.
+
+*/
+
+!function(t){t.fn.extend({jQMeter:function(e){e&&"object"==typeof e&&(e=t.extend({},t.jQMeter.defaults,e)),this.each(function(){new t.jQMeter(this,e)})}}),t.jQMeter=function(e,r){if(goal=parseInt(r.goal.replace(/\D/g,"")),raised=parseInt(r.raised.replace(/\D/g,"")),width=r.width,height=r.height,bgColor=r.bgColor,barColor=r.barColor,orientation=r.orientation,animationSpeed=r.animationSpeed,displayTotal=r.displayTotal,total=raised/goal*100,total>=100&&(total=100),"vertical"==orientation?(t(e).html('<div class="therm outer-therm vertical"><div class="therm inner-therm vertical"></div></div>'),t(e).children(".outer-therm").attr("style","width:"+width+";height:"+height+";background-color:"+bgColor),t(e).children(".outer-therm").children(".inner-therm").attr("style","background-color:"+barColor+";height:0;width:"+width),t(e).children(".outer-therm").children(".inner-therm").animate({height:total+"%"},animationSpeed)):(t(e).html('<div class="therm outer-therm"><div class="therm inner-therm"></div></div>'),t(e).children(".outer-therm").attr("style","width:"+width+";height:"+height+";background-color:"+bgColor),t(e).children(".outer-therm").children(".inner-therm").attr("style","background-color:"+barColor+";height:"+height+";width:0"),t(e).children(".outer-therm").children(".inner-therm").animate({width:total+"%"},animationSpeed)),displayTotal){var i=parseInt(height),o=i/2-13+"px 10px";"horizontal"!=orientation&&(o="10px 0"),t(e).children(".outer-therm").children(".inner-therm").html('<span style="padding:'+o+';">'+total+"%</span>")}t(e).append("<style>.therm{height:30px;border-radius:5px;}.outer-therm{margin:20px 0;}.inner-therm span {color: #fff;display: inline-block;float: right;font-family: Trebuchet MS;font-size: 20px;font-weight: bold;}.vertical.inner-therm span{width:100%;text-align:center;}.vertical.outer-therm{position:relative;}.vertical.inner-therm{position:absolute;bottom:0;}</style>")},t.jQMeter.defaults={width:"100%",height:"50px",bgColor:"#444",barColor:"#bfd255",orientation:"horizontal",animationSpeed:2e3,displayTotal:!0}}(jQuery);

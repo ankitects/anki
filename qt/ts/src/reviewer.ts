@@ -5,6 +5,7 @@ declare var CodeJar: any;
 declare var withLineNumbers: any;
 declare var Prism: any;
 declare var hljs: any;
+declare var console: Console;
 
 var ankiPlatform = "desktop";
 var typeans;
@@ -77,7 +78,7 @@ function _showQuestion(q, bodyclass) {
         function () {
             // return to top of window
             window.scrollTo(0, 0);
-
+            _initializeProgress()
             document.body.className = bodyclass;
         },
         function () {
@@ -91,8 +92,31 @@ function _showQuestion(q, bodyclass) {
 }
 
 function highlight(editor: HTMLElement) {
-    editor.textContent = editor.textContent;
     hljs.highlightBlock(editor);
+}
+
+function _initializeProgress() {
+    _setProgress('0');
+}
+
+function _setProgress(raise) {
+    _displayProgressBar(raise, '#38c172')
+}
+
+function _setProgressError() {
+    _displayProgressBar('100', '#e3342f')
+}
+
+function _displayProgressBar(raise, bgColor) {
+    (<any>$('#progressbar')).jQMeter({
+        goal: '100',
+        raised: raise,
+        height: '5px',
+        barColor: bgColor,
+        bgColor:'#dadada',
+        animationSpeed: 0,
+        displayTotal: false
+    });
 }
 
 function _initalizeCodeEditor() {
@@ -106,6 +130,7 @@ function _initalizeCodeEditor() {
         indentOn: /[(\[]$/, // default is /{$/
     };
     codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
+    _initializeProgress()
 }
 
 function _switchSkin(name) {
@@ -216,7 +241,6 @@ function _drawMark(mark) {
 }
 
 function _typeAnsPress() {
-    alert("type ans press");
     if ((window.event as KeyboardEvent).keyCode === 13) {
         pycmd("ans");
     }

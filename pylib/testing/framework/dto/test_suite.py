@@ -10,7 +10,7 @@ class TestSuite:
     func_name: str
     description: str
     test_args: List[TestArg]
-    test_cases: List[TestCase]
+    test_case_count: int
     result_type: str
     user_types: Dict[str, str]
     test_cases_file: str

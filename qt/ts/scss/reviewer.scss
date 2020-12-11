@@ -97,7 +97,7 @@ img {
 }
 
 .editor {
-  border: solid 1px #ccc;
+  border: solid 1px #dadada;
   font-family: 'Source Code Pro', monospace;
   font-size: 14px;
   font-weight: 400;
@@ -179,7 +179,27 @@ img {
   text-align:left;
 }
 
+#progressbar {
+  width: 100%;
+  padding: 0;
+  height: 5px;
+  overflow: hidden;
+  padding: 0 1px 0 1px;
+  display: block;
+  box-sizing: border-box;
+}
+
+#progressbar .inner-therm, #progressbar .outer-therm {
+  box-sizing: border-box;
+  border-radius: 0 !important;
+}
+
+#progressbar .outer-therm {
+  margin: 0 !important;
+}
+
 #log {
   height:20vh;
   margin-top: 10px;
+  padding-bottom: 10px;
 }
