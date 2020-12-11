@@ -120,6 +120,27 @@ If you're in one of those folders, you can use the short form:
 bazel run format
 ```
 
+## Development speedups
+
+If you're frequently switching between Anki versions, you can create
+a user.bazelrc file in the top level folder with the following, which will
+cache build products and downloads:
+
+```
+build --disk_cache=~/bazel/ankidisk --repository_cache=~/bazel/ankirepo
+```
+
+If you're frequently modifying the Rust parts of Anki, you can place the
+following in your user.bazelrc file to enable incremental compilation:
+
+```
+build --@io_bazel_rules_rust//worker:use_worker=True
+build:windows --worker_quit_after_build
+```
+
+The worker support is experimental, so you may need to remove it in future
+updates.
+
 ## Audio
 
 Audio playing requires `mpv` or `mplayer` to be in your system path.
