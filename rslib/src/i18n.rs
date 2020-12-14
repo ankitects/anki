@@ -36,15 +36,15 @@ pub use tr_strs;
 /// If a fully qualified folder exists (eg, en_GB), return that.
 /// Otherwise, try the language alone (eg en).
 /// If neither folder exists, return None.
-fn lang_folder(lang: Option<&LanguageIdentifier>, ftl_folder: &Path) -> Option<PathBuf> {
+fn lang_folder(lang: &Option<LanguageIdentifier>, ftl_root_folder: &Path) -> Option<PathBuf> {
     if let Some(lang) = lang {
         if let Some(region) = lang.region {
-            let path = ftl_folder.join(format!("{}_{}", lang.language, region));
+            let path = ftl_root_folder.join(format!("{}_{}", lang.language, region));
             if fs::metadata(&path).is_ok() {
                 return Some(path);
             }
         }
-        let path = ftl_folder.join(lang.language.to_string());
+        let path = ftl_root_folder.join(lang.language.to_string());
         if fs::metadata(&path).is_ok() {
             Some(path)
         } else {
@@ -52,7 +52,7 @@ fn lang_folder(lang: Option<&LanguageIdentifier>, ftl_folder: &Path) -> Option<P
         }
     } else {
         // fallback folder
-        let path = ftl_folder.join("templates");
+        let path = ftl_root_folder.join("templates");
         if fs::metadata(&path).is_ok() {
             Some(path)
         } else {
@@ -193,6 +193,12 @@ two-args-key = {$one}と{$two}
 "
 }
 
+fn test_pl_text() -> &'static str {
+    "
+one-arg-key = fake Polish {$one}
+"
+}
+
 /// Parse resource text into an AST for inclusion in a bundle.
 /// Returns None if text contains errors.
 /// extra_text may contain resources loaded from the filesystem
@@ -239,12 +245,11 @@ fn get_bundle(
 /// Get a bundle that includes any filesystem overrides.
 fn get_bundle_with_extra(
     text: &str,
-    lang: Option<&LanguageIdentifier>,
-    ftl_folder: &Path,
-    locales: &[LanguageIdentifier],
+    lang: Option<LanguageIdentifier>,
+    ftl_root_folder: &Path,
     log: &Logger,
 ) -> Option<FluentBundle<FluentResource>> {
-    let mut extra_text = if let Some(path) = lang_folder(lang, &ftl_folder) {
+    let mut extra_text = if let Some(path) = lang_folder(&lang, &ftl_root_folder) {
         match ftl_external_text(&path) {
             Ok(text) => text,
             Err(e) => {
@@ -258,18 +263,28 @@ fn get_bundle_with_extra(
 
     if cfg!(test) {
         // inject some test strings in test mode
-        match lang {
+        match &lang {
             None => {
                 extra_text += test_en_text();
             }
             Some(lang) if lang.language == "ja" => {
                 extra_text += test_jp_text();
             }
+            Some(lang) if lang.language == "pl" => {
+                extra_text += test_pl_text();
+            }
             _ => {}
         }
     }
 
-    get_bundle(text, extra_text, locales, log)
+    let mut locales = if let Some(lang) = lang {
+        vec![lang]
+    } else {
+        vec![]
+    };
+    locales.push("en-US".parse().unwrap());
+
+    get_bundle(text, extra_text, &locales, log)
 }
 
 #[derive(Clone)]
@@ -281,18 +296,18 @@ pub struct I18n {
 impl I18n {
     pub fn new<S: AsRef<str>, P: Into<PathBuf>>(
         locale_codes: &[S],
-        ftl_folder: P,
+        ftl_root_folder: P,
         log: Logger,
     ) -> Self {
-        let ftl_folder = ftl_folder.into();
-        let mut langs = vec![];
+        let ftl_root_folder = ftl_root_folder.into();
+        let mut input_langs = vec![];
         let mut bundles = Vec::with_capacity(locale_codes.len() + 1);
         let mut resource_text = vec![];
 
         for code in locale_codes {
             let code = code.as_ref();
             if let Ok(lang) = code.parse::<LanguageIdentifier>() {
-                langs.push(lang.clone());
+                input_langs.push(lang.clone());
                 if lang.language == "en" {
                     // if English was listed, any further preferences are skipped,
                     // as the template has 100% coverage, and we need to ensure
@@ -301,17 +316,17 @@ impl I18n {
                 }
             }
         }
-        // add fallback date/time
-        langs.push("en_US".parse().unwrap());
 
-        for lang in &langs {
+        let mut output_langs = vec![];
+        for lang in input_langs {
             // if the language is bundled in the binary
-            if let Some(text) = ftl_localized_text(lang) {
+            if let Some(text) = ftl_localized_text(&lang) {
                 if let Some(bundle) =
-                    get_bundle_with_extra(text, Some(lang), &ftl_folder, &langs, &log)
+                    get_bundle_with_extra(text, Some(lang.clone()), &ftl_root_folder, &log)
                 {
                     resource_text.push(text);
                     bundles.push(bundle);
+                    output_langs.push(lang);
                 } else {
                     error!(log, "Failed to create bundle for {:?}", lang.language)
                 }
@@ -320,15 +335,17 @@ impl I18n {
 
         // add English templates
         let template_text = ftl_template_text();
+        let template_lang = "en-US".parse().unwrap();
         let template_bundle =
-            get_bundle_with_extra(template_text, None, &ftl_folder, &langs, &log).unwrap();
+            get_bundle_with_extra(template_text, None, &ftl_root_folder, &log).unwrap();
         resource_text.push(template_text);
         bundles.push(template_bundle);
+        output_langs.push(template_lang);
 
         Self {
             inner: Arc::new(Mutex::new(I18nInner {
                 bundles,
-                langs,
+                langs: output_langs,
                 resource_text,
             })),
             log,
@@ -551,10 +568,16 @@ mod test {
 
         // Decimal separator
         let i18n = I18n::new(&["pl-PL"], &ftl_dir, log.clone());
-        // falls back on English, but with Polish separators
+        // Polish will use a comma if the string is translated
+        assert_eq!(
+            i18n.tr_("one-arg-key", Some(tr_args!["one"=>2.07])),
+            "fake Polish 2,07"
+        );
+
+        // but if it falls back on English, it will use an English separator
         assert_eq!(
             i18n.tr_("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),
-            "two args: 1 and 2,07"
+            "two args: 1 and 2.07"
         );
     }
 }
