@@ -22,11 +22,11 @@ class CodeRunner(ABC):
 
     def run(self, src: str, logger: ConsoleLogger, messages: Dict[str, str]):
         if self.pid is not None:
-            return
+            raise Exception('Another test is already running')
         try:
             self._run(src, logger, messages)
         finally:
-            self.pid = None
+            self.stop()
 
     @abstractmethod
     def _run(self, src: str, logger: ConsoleLogger, messages: Dict[str, str]):
@@ -34,6 +34,10 @@ class CodeRunner(ABC):
 
     def stop(self):
         if self.pid is not None:
-            os.kill(self.pid, 9)
-            self.pid = None
+            try:
+                os.kill(self.pid, 9)
+            except:
+                pass
+            finally:
+                self.pid = None
 

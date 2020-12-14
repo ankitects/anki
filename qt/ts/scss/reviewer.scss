@@ -132,6 +132,11 @@ img {
   box-sizing: border-box;
 }
 
+button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .inner {
   text-align: right;
   margin-bottom: 10px;
@@ -172,6 +177,14 @@ img {
   width: 8px;
   height: 8px;
   background-color: #e3342f;
+}
+
+.inner button.run.disabled .icon {
+  border-color: #a0a0a0;
+}
+
+.inner button.stop.disabled .icon {
+  background-color: #a0a0a0;
 }
 
 #codeans {

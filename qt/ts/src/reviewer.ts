@@ -92,6 +92,10 @@ function _showQuestion(q, bodyclass) {
 }
 
 function highlight(editor: HTMLElement) {
+    // highlight.js does not trims old tags,
+    // let's do it by this hack.
+    // console.log(editor.textContent)
+    editor.textContent = editor.textContent;
     hljs.highlightBlock(editor);
 }
 
@@ -117,6 +121,20 @@ function _displayProgressBar(raise, bgColor) {
         animationSpeed: 0,
         displayTotal: false
     });
+}
+
+function _activateRunButton() {
+    var $runBtn = $('#start-testing');
+    var $stopBtn = $('#stop-testing');
+    $stopBtn.addClass('disabled').attr('disabled', 'disabled')
+    $runBtn.removeClass('disabled').removeAttr('disabled')
+}
+
+function _activateStopButton() {
+    var $runBtn = $('#start-testing');
+    var $stopBtn = $('#stop-testing');
+    $runBtn.addClass('disabled').attr('disabled', 'disabled')
+    $stopBtn.removeClass('disabled').removeAttr('disabled')
 }
 
 function _initalizeCodeEditor() {

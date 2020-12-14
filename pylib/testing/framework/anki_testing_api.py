@@ -1,5 +1,6 @@
 import os
 import tempfile
+import sys
 
 from anki.cards import Card
 from aqt.utils import run_async
@@ -60,6 +61,8 @@ def run_tests(card: Card, src: str, lang: str, logger: ConsoleLogger):
         logger.setTotalCount(ts.test_case_count)
         factory.get_code_runner().run(test_suite_src, logger, dict(
             compilation_failed='''Compilation Error: <span class='failed'>$error</span>'''))
+    except:
+        logger.log("<span class='failed'>Unexpected runtime error</span>")
     finally:
         os.remove(ts.test_cases_file)
 

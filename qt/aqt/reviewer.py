@@ -416,7 +416,7 @@ class Reviewer:
             <div id="test-pannel">
                 <div class="inner">
                     <button id="start-testing" class="run" onclick="pycmd('run')">Run <div class="icon"></div></button>
-                    <button id="stop-testing" class="stop" onclick="pycmd('stop')" class="stop">Stop <div class="icon"></div></button>
+                    <button id="stop-testing" class="stop disabled" onclick="pycmd('stop')" disabled="disabled">Stop <div class="icon"></div></button>
                     <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
                     <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
                 </div>
@@ -428,8 +428,8 @@ class Reviewer:
             % dict(
                 typeFont=self.typeFont,
                 typeSize=self.typeSize,
-                selSkinLabel="Skin",
-                selLanguageLabel="Language",
+                selSkinLabel='Skin',
+                selLanguageLabel='Language',
                 language=self._getCurrentLang(),
                 downArrow=downArrow(),
                 template=html.escape(get_solution_template(self.card, self._getCurrentLang()))),
@@ -437,9 +437,10 @@ class Reviewer:
         )
 
     def _runTests(self, src):
+        self.web.eval("_activateStopButton()")
         self._cleanConsole()
         run_tests(self.card, src, self._getCurrentLang(), self.logger)
-        pass
+        self.web.eval("_activateRunButton()")
 
     def _cleanConsole(self):
         self.web.eval("_cleanConsoleLog();")
@@ -1030,3 +1031,6 @@ time = %(time)d;
         lang = self._getCurrentLang()
         self.logger.log('Stopping...')
         stop_tests(lang)
+        self.web.eval("_activateRunButton()")
+        self.web.eval("_initializeProgress()")
+        self._cleanConsole()
