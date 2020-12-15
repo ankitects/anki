@@ -171,7 +171,7 @@ statistics-elapsed-time-years = { $amount }y
 
 ##
 
-statistics-error-fetching = Invalid data found - please use Check Database to fix the problem.
+statistics-error-fetching = Error searching - please check your search is correct, or use the Check Database feature.
 statistics-average-for-days-studied = Average for days studied
 statistics-total = Total
 statistics-days-studied = Days studied
