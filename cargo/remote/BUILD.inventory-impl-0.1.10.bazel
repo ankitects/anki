@@ -37,6 +37,7 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     crate_type = "proc-macro",
+    data = [],
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",

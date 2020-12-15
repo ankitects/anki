@@ -38,6 +38,7 @@ rust_binary(
     crate_features = [
     ],
     crate_root = "src/bin/gcc-shim.rs",
+    data = [],
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -61,6 +62,7 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
