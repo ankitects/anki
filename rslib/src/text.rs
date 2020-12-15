@@ -215,7 +215,7 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
 
 pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
     let without_fnames = HTML_MEDIA_TAGS.replace_all(html, r" ${1}${2}${3} ");
-    let without_html = HTML.replace_all(&without_fnames, "");
+    let without_html = strip_html(&without_fnames);
     // no changes?
     if let Cow::Borrowed(b) = without_html {
         if ptr::eq(b, html) {
