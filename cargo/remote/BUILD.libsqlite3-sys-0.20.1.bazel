@@ -71,7 +71,7 @@ cargo_build_script(
         (
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__vcpkg__0_2_10//:vcpkg",
+            "@raze__vcpkg__0_2_11//:vcpkg",
         ],
         "//conditions:default": [],
     }),

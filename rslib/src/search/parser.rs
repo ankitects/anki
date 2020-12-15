@@ -12,6 +12,7 @@ use nom::{
     bytes::complete::{escaped, is_not, tag},
     character::complete::{anychar, char, none_of, one_of},
     combinator::{all_consuming, map, map_res, verify},
+    error::{Error, ErrorKind},
     sequence::{delimited, preceded, separated_pair},
     {multi::many0, IResult},
 };
@@ -32,8 +33,8 @@ impl From<num::ParseFloatError> for ParseError {
     }
 }
 
-impl<I> From<nom::Err<(I, nom::error::ErrorKind)>> for ParseError {
-    fn from(_: nom::Err<(I, nom::error::ErrorKind)>) -> Self {
+impl<I> From<nom::Err<(I, ErrorKind)>> for ParseError {
+    fn from(_: nom::Err<(I, ErrorKind)>) -> Self {
         ParseError {}
     }
 }
@@ -149,7 +150,7 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
                     // before adding the node, if the length is even then the node
                     // must not be a boolean
                     if matches!(node, Node::And | Node::Or) {
-                        return Err(nom::Err::Failure(("", nom::error::ErrorKind::NoneOf)));
+                        return Err(nom::Err::Failure(Error::new("", ErrorKind::NoneOf)));
                     }
                 } else {
                     // if the length is odd, the next item must be a boolean. if it's
@@ -168,10 +169,10 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
     }
 
     if nodes.is_empty() {
-        Err(nom::Err::Error((remaining, nom::error::ErrorKind::Many1)))
+        Err(nom::Err::Error(Error::new(remaining, ErrorKind::Many1)))
     } else if matches!(nodes.last().unwrap(), Node::And | Node::Or) {
         // no trailing and/or
-        Err(nom::Err::Failure(("", nom::error::ErrorKind::NoneOf)))
+        Err(nom::Err::Failure(Error::new("", ErrorKind::NoneOf)))
     } else {
         // chomp any trailing whitespace
         let (remaining, _) = whitespace0(remaining)?;

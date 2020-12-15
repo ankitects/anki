@@ -82,7 +82,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__bytes__0_5_6//:bytes",
-        "@raze__http__0_2_1//:http",
+        "@raze__http__0_2_2//:http",
         "@raze__hyper_timeout__0_3_1//:hyper_timeout",
         "@raze__mime_guess__2_0_3//:mime_guess",
         "@raze__serde__1_0_118//:serde",
@@ -114,7 +114,7 @@ rust_library(
             "@raze__percent_encoding__2_1_0//:percent_encoding",
             "@raze__pin_project_lite__0_1_11//:pin_project_lite",
             "@raze__rustls__0_18_1//:rustls",
-            "@raze__tokio__0_2_23//:tokio",
+            "@raze__tokio__0_2_24//:tokio",
             "@raze__tokio_rustls__0_14_1//:tokio_rustls",
             "@raze__tokio_socks__0_3_0//:tokio_socks",
             "@raze__tokio_tls__0_3_1//:tokio_tls",

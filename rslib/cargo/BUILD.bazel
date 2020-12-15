@@ -167,7 +167,7 @@ alias(
 
 alias(
     name = "nom",
-    actual = "@raze__nom__5_1_2//:nom",
+    actual = "@raze__nom__6_0_1//:nom",
     tags = [
         "cargo-raze",
         "manual",
@@ -392,7 +392,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__0_2_23//:tokio",
+    actual = "@raze__tokio__0_2_24//:tokio",
     tags = [
         "cargo-raze",
         "manual",
