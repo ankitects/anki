@@ -47,7 +47,7 @@ def run_cargo_raze():
 
 def write_licenses():
     # dump licenses
-    result = subprocess.check_output(["cargo", "license", "-j"], cwd="../rslib")
+    result = subprocess.check_output(["cargo-license", "-j"], cwd="../rslib")
     with open("licenses.json", "wb") as file:
         file.write(result)
 
@@ -62,7 +62,7 @@ exports_files(["licenses.json"])
 
 def update_crates_bzl():
     output_lines = []
-    commit_re = re.compile('\s+commit = "([0-9a-f]+)",')
+    commit_re = re.compile(r'\s+commit = "([0-9a-f]+)",')
     reqwest_build_prefix = re.compile(r"/remote:BUILD.reqwest-\d+\.\d+\.\d+")
 
     with open("crates.bzl") as file:
