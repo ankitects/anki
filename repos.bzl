@@ -28,10 +28,10 @@ def register_repos():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "465fd9367992a9b9c4fba34a549773735da200903678b81b25f367982e8df376",
-        strip_prefix = "protobuf-3.13.0",
+	sha256 = "6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf",
+        strip_prefix = "protobuf-3.14.0",
         urls = [
-            "https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-all-3.13.0.tar.gz",
+            "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protobuf-all-3.14.0.tar.gz",
         ],
     )
 
