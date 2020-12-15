@@ -25,7 +25,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -36,7 +36,7 @@ load(
 )
 
 cargo_build_script(
-    name = "indexmap_build_script",
+    name = "inventory_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
@@ -52,25 +52,27 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.6.0",
+    version = "0.1.10",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__autocfg__1_0_1//:autocfg",
     ],
 )
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "faststring" with type "bench" omitted
+# Unsupported target "flags" with type "example" omitted
 
 rust_library(
-    name = "indexmap",
+    name = "inventory",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__ctor__0_1_16//:ctor",
+        "@raze__ghost__0_1_2//:ghost",
+        "@raze__inventory_impl__0_1_10//:inventory_impl",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -78,18 +80,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.6.0",
+    version = "0.1.10",
     # buildifier: leave-alone
     deps = [
-        ":indexmap_build_script",
-        "@raze__hashbrown__0_9_1//:hashbrown",
+        ":inventory_build_script",
     ],
 )
-
-# Unsupported target "equivalent_trait" with type "test" omitted
-
-# Unsupported target "macros_full_path" with type "test" omitted
-
-# Unsupported target "quick" with type "test" omitted
-
-# Unsupported target "tests" with type "test" omitted
