@@ -7,8 +7,6 @@ def fix_pywin32_in_bazel(force=False):
     if not force and "BAZEL_SH" not in os.environ:
         return
 
-    import imp
-
     # get path to pywin32 package
     path = None
     for path in sys.path:
@@ -26,9 +24,14 @@ def fix_pywin32_in_bazel(force=False):
     os.environ["PATH"] += ";" + path
 
     # import pythoncom module
+    import importlib
+    import importlib.machinery
+
+    name = "pythoncom"
     filename = os.path.join(path, "pythoncom38.dll")
-    mod = imp.load_module("pythoncom", None, filename,
-                          ('.dll', 'rb', imp.C_EXTENSION))
+    loader = importlib.machinery.ExtensionFileLoader(name, filename)
+    spec = importlib.machinery.ModuleSpec(name=name, loader=loader, origin=filename)
+    _mod = importlib._bootstrap._load(spec)
 
 
 def fix_extraneous_path_in_bazel():
