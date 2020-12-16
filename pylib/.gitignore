@@ -10,8 +10,5 @@
 .pytype
 __pycache__
 anki.egg-info
-anki/backend_pb2.*
-anki/fluent_pb2.*
-anki/rsbackend_gen.py
 build
 dist

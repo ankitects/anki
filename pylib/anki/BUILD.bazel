@@ -65,11 +65,17 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+_py_srcs = glob(
+    ["**/*.py"],
+    exclude = [
+        "rsbackend_gen.py",
+        "hooks_gen.py",
+    ],
+)
+
 py_library(
     name = "anki",
-    srcs = glob([
-        "**/*.py",
-    ]),
+    srcs = _py_srcs,
     data = [
         "py.typed",
         ":backend_pb2",
@@ -130,7 +136,7 @@ py_wheel(
 
 filegroup(
     name = "py_source_files",
-    srcs = glob(["**/*.py"]),
+    srcs = _py_srcs,
     visibility = [
         "//pylib:__subpackages__",
         "//qt/po:__pkg__",

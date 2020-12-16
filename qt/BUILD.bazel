@@ -83,9 +83,9 @@ py_test(
 
 py_test(
     name = "format_check",
-    srcs = glob([
-        "**/*.py",
-    ]),
+    srcs = glob(["**/*.py"]) + [
+        "//qt/aqt:py_source_files",
+    ],
     args = [
         "$(location .isort.cfg)",
     ],
