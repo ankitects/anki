@@ -514,7 +514,7 @@ class RecordDialog(QDialog):
         self.setWindowTitle("Anki")
         icon = QLabel()
         icon.setPixmap(QPixmap(":/icons/media-record.png"))
-        self.label = QLabel("")
+        self.label = QLabel("...")
         hbox = QHBoxLayout()
         hbox.addWidget(icon)
         hbox.addWidget(self.label)
@@ -556,14 +556,16 @@ class RecordDialog(QDialog):
         self._timer = t = QTimer(self._parent)
         t.timeout.connect(self._on_timer)
         t.setSingleShot(False)
-        t.start(300)
+        t.start(100)
 
     def _on_timer(self):
         duration = self._recorder.duration()
         # disable mute after recording starts to avoid clicks/pops
-        if duration > 0 and self._recorder.isMuted():
+        if duration < 300:
+            return
+        if self._recorder.isMuted():
             self._recorder.setMuted(False)
-        self.label.setText(tr(TR.MEDIA_RECORDINGTIME) % (duration/1000.0))
+        self.label.setText(tr(TR.MEDIA_RECORDINGTIME, secs="%0.1f" % (duration/1000.0)))
 
     def accept(self):
         try:

@@ -835,7 +835,6 @@ time = %(time)d;
     def onRecordVoice(self) -> None:
         def after_record(path: str):
             self._recordedAudio = path
-            print(path)
             self.onReplayRecorded()
 
         record_audio(self.mw, self.mw.taskman, False, after_record)
