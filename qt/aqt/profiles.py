@@ -240,8 +240,8 @@ class ProfileManager:
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()
 
-    def _pickle(self, obj) -> Any:
-        return pickle.dumps(obj, protocol=0)
+    def _pickle(self, obj) -> bytes:
+        return pickle.dumps(obj, protocol=4)
 
     def load(self, name) -> bool:
         assert name != "_global"
@@ -433,7 +433,7 @@ class ProfileManager:
             self.db.execute(
                 """
 create table if not exists profiles
-(name text primary key, data text not null);"""
+(name text primary key, data blob not null);"""
             )
             data = self.db.scalar(
                 "select cast(data as blob) from profiles where name = '_global'"
