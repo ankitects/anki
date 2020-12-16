@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 # check author has added themselves to CONTRIBUTORS
 echo "--- Checking CONTRIBUTORS"
