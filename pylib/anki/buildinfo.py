@@ -20,11 +20,12 @@ def _build_info_path() -> str:
 
 def _get_build_info() -> Dict[str, str]:
     info = {}
-    for line in open(_build_info_path()).readlines():
-        elems = line.split()
-        if len(elems) == 2:
-            k, v = elems
-            info[k] = v
+    with open(_build_info_path()) as file:
+        for line in file.readlines():
+            elems = line.split()
+            if len(elems) == 2:
+                k, v = elems
+                info[k] = v
 
     return info
 
