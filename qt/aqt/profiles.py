@@ -7,6 +7,7 @@ import pickle
 import random
 import shutil
 import traceback
+import warnings
 from typing import Any, Dict, List, Optional
 
 from send2trash import send2trash
@@ -241,7 +242,12 @@ class ProfileManager:
         return up.load()
 
     def _pickle(self, obj) -> bytes:
-        return pickle.dumps(obj, protocol=4)
+        # pyqt needs to be updated to fix
+        # 'PY_SSIZE_T_CLEAN will be required for '#' formats' warning
+        # check if this is still required for pyqt6
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            return pickle.dumps(obj, protocol=4)
 
     def load(self, name) -> bool:
         assert name != "_global"
