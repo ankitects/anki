@@ -72,6 +72,8 @@ class ErrorHandler(QObject):
         self.mw.progress.clear()
         if "abortSchemaMod" in error:
             return
+        if "DeprecationWarning" in error:
+            return
         if "10013" in error:
             return showWarning(tr(TR.QT_MISC_YOUR_FIREWALL_OR_ANTIVIRUS_PROGRAM_IS))
         if "no default input" in error.lower():
