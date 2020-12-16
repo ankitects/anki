@@ -267,7 +267,7 @@ impl super::SqliteStorage {
         self.db
             .prepare_cached(concat!(
                 include_str!("get_card.sql"),
-                " where id in (select id from search_cids)"
+                " where id in (select cid from search_cids)"
             ))?
             .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
             .collect()
@@ -283,13 +283,14 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// Cards will arrive in card id order, not search order.
     pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
     where
         F: FnMut(Card) -> Result<()>,
     {
         let mut stmt = self.db.prepare_cached(concat!(
             include_str!("get_card.sql"),
-            " where id in (select id from search_cids)"
+            " where id in (select cid from search_cids)"
         ))?;
         let mut rows = stmt.query(NO_PARAMS)?;
         while let Some(row) = rows.next()? {
@@ -358,8 +359,16 @@ impl super::SqliteStorage {
     /// Injects the provided card IDs into the search_cids table, for
     /// when ids have arrived outside of a search.
     /// Clear with clear_searched_cards().
-    pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
-        self.setup_searched_cards_table()?;
+    pub(crate) fn set_search_table_to_card_ids(
+        &mut self,
+        cards: &[CardID],
+        preserve_order: bool,
+    ) -> Result<()> {
+        if preserve_order {
+            self.setup_searched_cards_table_to_preserve_order()?;
+        } else {
+            self.setup_searched_cards_table()?;
+        }
         let mut stmt = self
             .db
             .prepare_cached("insert into search_cids values (?)")?;

@@ -98,7 +98,7 @@ impl SqliteStorage {
         self.db
             .prepare_cached(concat!(
                 include_str!("get.sql"),
-                " where cid in (select id from search_cids) and id >= ?"
+                " where cid in (select cid from search_cids) and id >= ?"
             ))?
             .query_and_then(&[after.0 * 1000], |r| {
                 row_to_revlog_entry(r).map(Into::into)

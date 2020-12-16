@@ -36,7 +36,7 @@ impl Collection {
         let mut rng = rand::thread_rng();
         let distribution = Uniform::from(min_days..=max_days);
         self.transact(None, |col| {
-            col.storage.set_search_table_to_card_ids(cids)?;
+            col.storage.set_search_table_to_card_ids(cids, false)?;
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
                 let interval = distribution.sample(&mut rng);
