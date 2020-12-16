@@ -202,7 +202,7 @@ impl Collection {
         if deck.is_filtered() {
             return Err(AnkiError::DeckIsFiltered);
         }
-        self.storage.set_search_table_to_card_ids(cards)?;
+        self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.sched_ver();
         let usn = self.usn()?;
         self.transact(None, |col| {

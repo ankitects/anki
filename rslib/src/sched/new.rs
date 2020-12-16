@@ -72,8 +72,8 @@ impl Collection {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(None, |col| {
-            col.storage.set_search_table_to_card_ids(cids)?;
-            let cards = col.storage.all_searched_cards()?;
+            col.storage.set_search_table_to_card_ids(cids, true)?;
+            let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
                 let original = card.clone();
                 col.log_manually_scheduled_review(&card, usn, 0)?;
@@ -113,8 +113,8 @@ impl Collection {
         if shift {
             self.shift_existing_cards(starting_from, step * cids.len() as u32, usn)?;
         }
-        self.storage.set_search_table_to_card_ids(cids)?;
-        let cards = self.storage.all_searched_cards()?;
+        self.storage.set_search_table_to_card_ids(cids, true)?;
+        let cards = self.storage.all_searched_cards_in_search_order()?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, random);
         for mut card in cards {
             let original = card.clone();
@@ -138,6 +138,7 @@ impl Collection {
             card.set_new_position(card.due as u32 + by);
             self.update_card(&mut card, &original, usn)?;
         }
+        self.storage.clear_searched_cards_table()?;
         Ok(())
     }
 }
