@@ -101,6 +101,12 @@ bazel test //...
 
 Pylint will currently fail if you're using Python 3.9.
 
+To run a single Python library test, eg test_bury:
+
+```
+bazel test //pylib:pytest --test_env=PYTEST=test_bury
+```
+
 ## Fixing formatting
 
 If the format tests fail, most can be fixed by running `format`
@@ -141,6 +147,36 @@ build:windows --worker_quit_after_build
 The worker support is experimental, so you may need to remove it in future
 updates.
 
+## Python editing
+
+PyCharm or IntelliJ IDEA seems to give the best Python editing experience. Make sure
+you build/run Anki first, as code completion depends on the build process to generate
+a bunch of files.
+
+Visual Studio Code + the Python extension does support code completion, but
+currently seems to frequently freeze for multiple seconds while pinning the CPU
+at 100%. Switching from the default Jedi language server to Pylance improves the
+CPU usage, but Pylance doesn't do a great job understanding the type annotations.
+
+## Rust editing
+
+Rust editor support is still fairly new, but currently Visual Studio Code + Rust
+Analyzer seems to be the least-bad option. Once Rust Analyzer is installed,
+you'll want to enable the options to expand proc macros, and run cargo check on
+startup.
+
+After running 'code rslib' from the project root, it may take Rust Analyzer a
+while to become ready - if you check the running processes on your machine you should
+see it running in the background for a while.
+
+## TypeScript editing
+
+Visual Studio Code seems to give the best experience. Use 'code ts' from the project
+root to start it up.
+
+IntelliJ IDEA works reasonably well, but doesn't seem to do as good a job at offering
+useful completions for things like i18n.TR.
+
 ## Audio
 
 Audio playing requires `mpv` or `mplayer` to be in your system path.
@@ -166,12 +202,14 @@ You can run bazel with '-s' to print the commands that are being executed.
   and a bridge to the Rust code.
 - qt contains the Qt GUI implementation (aqt).
 - rslib contains the parts of the code implemented in Rust.
-- ts contains Anki's typescript and sass files.
+- ts and qt/aqt/data/web contain Anki's typescript and sass files.
 
 ## Environmental Variables
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
 and automatic backups will be disabled - so please don't use this except on a test profile.
+
+If TRACESQL is set, all sql statements will be printed as they are executed.
 
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.
