@@ -17,7 +17,7 @@ from anki.cards import Card
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.sound import av_player, getAudio, play_clicked_audio
+from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import (
@@ -833,8 +833,12 @@ time = %(time)d;
         tooltip(tr(TR.STUDYING_NOTE_BURIED))
 
     def onRecordVoice(self) -> None:
-        self._recordedAudio = getAudio(self.mw, encode=False)
-        self.onReplayRecorded()
+        def after_record(path: str):
+            self._recordedAudio = path
+            print(path)
+            self.onReplayRecorded()
+
+        record_audio(self.mw, self.mw.taskman, False, after_record)
 
     def onReplayRecorded(self) -> None:
         if not self._recordedAudio:

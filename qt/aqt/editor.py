@@ -27,7 +27,7 @@ from anki.utils import checksum, isLin, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.sound import av_player, getAudio
+from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
@@ -751,17 +751,12 @@ class Editor:
         return self.mw.col.media.writeData(fname, data)
 
     def onRecSound(self):
-        try:
-            file = getAudio(self.widget)
-        except Exception as e:
-            showWarning(
-                tr(TR.EDITING_COULDNT_RECORD_AUDIO_HAVE_YOU_INSTALLED)
-                + "\n\n"
-                + repr(str(e))
-            )
-            return
-        if file:
-            self.addMedia(file)
+        aqt.sound.record_audio(
+            self.parentWindow,
+            self.mw,
+            True,
+            lambda file: self.addMedia(file, canDelete=True),
+        )
 
     # Media downloads
     ######################################################################

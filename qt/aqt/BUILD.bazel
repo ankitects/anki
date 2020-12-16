@@ -100,7 +100,6 @@ py_wheel(
     python_tag = "py3",
     python_version = ">=3.8",
     requires = [
-        # "pyaudio", # currently off as a pain to install on Windows for code completion
         "beautifulsoup4",
         "requests",
         "send2trash",

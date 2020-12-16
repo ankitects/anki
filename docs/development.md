@@ -186,15 +186,6 @@ useful completions for things like i18n.TR.
 
 Audio playing requires `mpv` or `mplayer` to be in your system path.
 
-Currently pyaudio is not included as part of the build or the generated wheel
-requirements, so audio recording will not work when running in place. When installing
-the wheels, you can optionally install pyaudio as well.
-
-On Linux/Mac, install the portaudio libs: (`apt install portaudio19-dev` / `brew install portaudio`), then `pip install pyaudio`.
-
-On Windows, install the Python 3.8 wheel from
-https://github.com/ankitects/windows-ci-tools.
-
 Recording also requires `lame` to be in your system path.
 
 ## Tracing build problems
