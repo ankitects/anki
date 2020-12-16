@@ -4,8 +4,10 @@ set -e
 set -x
 
 # check author has added themselves to CONTRIBUTORS
+echo "--- Checking CONTRIBUTORS"
 .buildkite/linux/check_contributors
 
+echo "--- Building"
 BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
 
@@ -13,7 +15,10 @@ BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore --disk_cache=/
 test -e /state/node_modules && mv /state/node_modules ts/
 
 $BAZEL build $BUILDARGS ...
+
+echo "+++ Running tests"
 $BAZEL test $BUILDARGS ...
 
+echo "--- Cleanup"
 # if tests succeed, back up node_modules folder
 mv ts/node_modules /state/
