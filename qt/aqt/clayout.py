@@ -630,7 +630,7 @@ class CardLayout(QDialog):
     def _newCardName(self):
         n = len(self.templates) + 1
         while 1:
-            name = tr(TR.CARD_TEMPLATES_CARD, val=n)
+            name = without_unicode_isolation(tr(TR.CARD_TEMPLATES_CARD, val=n))
             if name not in [t["name"] for t in self.templates]:
                 break
             n += 1
