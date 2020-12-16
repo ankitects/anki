@@ -19,7 +19,7 @@ function withLineNumbers(highlight, options = {}) {
         lineNumbers.style.overflow = "hidden";
         lineNumbers.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
         lineNumbers.style.color = "#fff";
-        lineNumbers.style.setProperty("mix-blend-mode", "difference");
+        // lineNumbers.style.setProperty("mix-blend-mode", "difference");
         // Copy editor styles
         lineNumbers.style.fontFamily = css.fontFamily;
         lineNumbers.style.fontSize = css.fontSize;

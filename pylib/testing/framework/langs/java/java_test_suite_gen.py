@@ -16,11 +16,10 @@ class JavaTestSuiteGenerator(TestSuiteGenerator):
     import java.util.stream.Collectors;
     import java.nio.file.Files;
     import java.nio.file.Path;
-    import java.util.concurrent.TimeUnit;
-    import java.util.stream.Stream;
+    import java.util.concurrent.*;
+    import java.util.*;
+    import java.util.stream.*;
     import java.lang.reflect.Method;
-    import java.util.Arrays;
-    import java.util.List;
     import test_engine.TestCaseParser;
     import test_engine.TestCase;
     import test_engine.Verifier;

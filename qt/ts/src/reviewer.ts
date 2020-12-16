@@ -94,7 +94,6 @@ function _showQuestion(q, bodyclass) {
 function highlight(editor: HTMLElement) {
     // highlight.js does not trims old tags,
     // let's do it by this hack.
-    // console.log(editor.textContent)
     editor.textContent = editor.textContent;
     hljs.highlightBlock(editor);
 }
@@ -148,6 +147,7 @@ function _initalizeCodeEditor() {
         indentOn: /[(\[]$/, // default is /{$/
     };
     codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
+    // codeansJar = CodeJar(codeans, highlight, options);
     _initializeProgress()
 }
 
