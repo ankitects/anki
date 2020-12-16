@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
-from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
+from typing import Callable, List, Optional, Sequence, Tuple, Union, Dict, Any, cast
 
 import anki
 import aqt
