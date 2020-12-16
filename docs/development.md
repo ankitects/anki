@@ -153,6 +153,11 @@ PyCharm or IntelliJ IDEA seems to give the best Python editing experience. Make 
 you build/run Anki first, as code completion depends on the build process to generate
 a bunch of files.
 
+After telling PyCharm to create a new virtual environment for your project, locate
+pip in the virtual environment, and run `pip install -r pip/requirements.txt` to install
+all of Anki's dependencies into the environment, so that code completion works for them.
+Then run `pip install pyqt5 pyqtwebengine` to install PyQt.
+
 Visual Studio Code + the Python extension does support code completion, but
 currently seems to frequently freeze for multiple seconds while pinning the CPU
 at 100%. Switching from the default Jedi language server to Pylance improves the
