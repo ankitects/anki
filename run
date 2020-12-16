@@ -16,6 +16,7 @@ run_mac() {
         $workspace/bazel-copy/runanki $*
 }
 
+export PYTHONWARNINGS=default
 if [[ "$OSTYPE" == "darwin"* ]]; then
     run_mac $*
 else
