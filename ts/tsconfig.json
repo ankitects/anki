@@ -1,29 +1,14 @@
 {
     "exclude": ["node_modules", "dist"],
-    //    "include": ["pages/congrats/*.d.ts"],
     "compilerOptions": {
         "target": "es6",
         "module": "es6",
         "lib": ["es2016", "dom"],
         "baseUrl": ".",
         "paths": {
-            "anki/*": ["../bazel-bin/*"]
+            "anki/*": ["../bazel-bin/ts/lib/*"]
         },
-        //     "*": [
-        //         // generated anki lib
-        //         "node_modules/*"
-        //     ]
-        // },
-
         "importsNotUsedAsValues": "error",
-        // "isolatedModules": true,
-        // "skipLibCheck": true,
-        // "forceConsistentCasingInFileNames": true,
-        // "noResolve": true,
-
-        // "rootDir": ".",
-        //        "declaration": false /* Generates corresponding '.d.ts' file. */,
-        //        "rootDir": "src",
         "outDir": "dist",
         /* Strict Type-Checking Options */
         "strict": true /* Enable all strict type-checking options. */,
@@ -40,9 +25,7 @@
         "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
         "jsx": "react",
         "types": ["svelte", "long"],
-
         "noEmitHelpers": true,
         "importHelpers": true
-        // "jsxFactory": "svelte.JSX.createElement",
     }
 }
