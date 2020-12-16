@@ -2,7 +2,7 @@
 
 set -e
 
-echo "-- Building"
+echo "--- Building"
 BAZEL="bazel --output_user_root=~/bazel --output_base=~/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
 
