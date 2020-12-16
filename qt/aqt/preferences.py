@@ -90,8 +90,8 @@ class Preferences(QDialog):
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 
         s = self.prefs
-        f.lrnCutoff.setValue(s.learn_ahead_secs / 60.0)
-        f.timeLimit.setValue(s.time_limit_secs / 60.0)
+        f.lrnCutoff.setValue(int(s.learn_ahead_secs / 60.0))
+        f.timeLimit.setValue(int(s.time_limit_secs / 60.0))
         f.showEstimates.setChecked(s.show_intervals_on_buttons)
         f.showProgress.setChecked(s.show_remaining_due_counts)
         f.newSpread.setCurrentIndex(s.new_review_mix)
@@ -215,7 +215,7 @@ class Preferences(QDialog):
 
     def setupOptions(self):
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
-        self.form.uiScale.setValue(self.mw.pm.uiScale() * 100)
+        self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
