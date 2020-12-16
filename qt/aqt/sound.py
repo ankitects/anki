@@ -554,7 +554,7 @@ class RecordDialog(QDialog):
         self._recorder.record()
 
         self._timer = t = QTimer(self._parent)
-        t.timeout.connect(self._on_timer)
+        t.timeout.connect(self._on_timer)  # type: ignore
         t.setSingleShot(False)
         t.start(100)
 
@@ -565,7 +565,9 @@ class RecordDialog(QDialog):
             return
         if self._recorder.isMuted():
             self._recorder.setMuted(False)
-        self.label.setText(tr(TR.MEDIA_RECORDINGTIME, secs="%0.1f" % (duration/1000.0)))
+        self.label.setText(
+            tr(TR.MEDIA_RECORDINGTIME, secs="%0.1f" % (duration / 1000.0))
+        )
 
     def accept(self):
         try:
