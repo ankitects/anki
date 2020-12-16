@@ -1,3 +1,4 @@
+echo --- Building
 set BAZEL=\bazel\bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base 
 set BUILDARGS=--config=ci
 
@@ -5,12 +6,11 @@ if exist \bazel\node_modules (
     move \bazel\node_modules ts\node_modules
 )
 
-echo Building...
 :: rollup may fail on the first build, so we build once without checking return code
 call %BAZEL% build %BUILDARGS% ... -k
 
 :: now build/test
-echo Running tests...
+echo +++ Running tests
 call %BAZEL% test %BUILDARGS% ...
 IF %ERRORLEVEL% NEQ 0 exit /B 1
 
@@ -36,6 +36,5 @@ IF %ERRORLEVEL% NEQ 0 exit /B 1
 @REM IF %ERRORLEVEL% NEQ 0 exit /B 1
 @REM echo Import succesful.
 
+echo --- Cleanup
 move ts\node_modules \bazel\node_modules
-
-echo All tests pass.
