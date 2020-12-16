@@ -72,8 +72,7 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
-To play audio, install mpv. At the time of writing, recording is
-not yet supported, as currently pyaudio is not being installed.
+To play and record audio, install mpv and lame.
 
 If you or your distro has made ccache the standard compiler, you will need to
 set CC and CXX to point directly to gcc/g++ or clang/clang++ prior to building

@@ -50,8 +50,7 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
-To play audio, use Homebrew to install mpv. At the time of writing, recording is
-not yet supported, as currently pyaudio is not being installed.
+To play audio, use Homebrew to install mpv and lame.
 
 ## Optimized builds
 
