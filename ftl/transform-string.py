@@ -21,28 +21,7 @@ translation_files = glob.glob(
 )
 
 target_repls = [
-    ["addons-downloaded-fnames", "%(fname)s", "{ $fname }"],
-    ["addons-downloading-adbd-kb02fkb", "%(a)d", "{ $part }"],
-    ["addons-downloading-adbd-kb02fkb", "%(b)d", "{ $total }"],
-    ["addons-downloading-adbd-kb02fkb", "%(kb)0.2f", "{ $kilobytes }"],
-    ["addons-error-downloading-ids-errors", "%(id)s", "{ $id }"],
-    ["addons-error-downloading-ids-errors", "%(error)s", "{ $error }"],
-    ["addons-error-installing-bases-errors", "%(base)s", "{ $base }"],
-    ["addons-error-installing-bases-errors", "%(error)s", "{ $error }"],
-    ["addons-important-as-addons-are-programs-downloaded", "%(name)s", "{ $name }"],
-    ["addons-installed-names", "%(name)s", "{ $name }"],
-    ["addons-the-following-addons-are-incompatible-with", "%(name)s", "{ $name }"],
-    ["addons-the-following-addons-are-incompatible-with", "%(found)s", "{ $found }"],
-    ["about-written-by-damien-elmes-with-patches", "%(cont)s", "{ $cont }"],
-    ["importing-rows-had-num1d-fields-expected-num2d", "%(row)s", "{ $row }"],
-    ["importing-rows-had-num1d-fields-expected-num2d", "%(num1)d", "{ $found }"],
-    ["importing-rows-had-num1d-fields-expected-num2d", "%(num2)d", "{ $expected }"],
-    ["card-templates-delete-the-as-card-type-and", "%(a)s", "{ $template }"],
-    ["card-templates-delete-the-as-card-type-and", "%(b)s", "{ $cards }"],
-    ["browsing-found-as-across-bs", "%(a)s", "{ $part }"],
-    ["browsing-found-as-across-bs", "%(b)s", "{ $whole }"],
-    ["browsing-nd-names", "%(n)d", "{ $num }"],
-    ["browsing-nd-names", "%(name)s", "{ $name }"],
+    ["media-recordingtime", "%0.1f", "{ $secs }"],
 ]
 
 
