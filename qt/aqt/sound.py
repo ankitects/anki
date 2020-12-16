@@ -544,8 +544,11 @@ class RecordDialog(QDialog):
         # start recording
         self._recorder = QAudioRecorder(self._parent)
         self._output = namedtmp("rec.wav")
+        audio = self._recorder.audioSettings()
+        audio.setSampleRate(44100)
+        audio.setChannelCount(1)
         self._recorder.setEncodingSettings(
-            self._recorder.audioSettings(),
+            audio,
             self._recorder.videoSettings(),
             "audio/x-wav",
         )
