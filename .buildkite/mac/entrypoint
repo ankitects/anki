@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 echo "-- Building"
 BAZEL="bazel --output_user_root=~/bazel --output_base=~/bazel/anki"
