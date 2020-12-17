@@ -17,6 +17,7 @@ pylint
 pytest
 requests[socks]
 send2trash
+snakeviz
 stringcase
 waitress
 fluent-syntax

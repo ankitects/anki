@@ -128,3 +128,12 @@ py_binary(
         "//qt/aqt:aqt_with_data",
     ],
 )
+
+py_binary(
+    name = "profile",
+    srcs = ["tools/profile.py"],
+    tags = ["manual"],
+    deps = [
+        requirement("snakeviz"),
+    ],
+)

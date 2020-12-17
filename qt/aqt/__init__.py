@@ -392,6 +392,7 @@ def write_profile_results():
     profiler.disable()
     profiler.dump_stats("anki.prof")
     print("profile stats written to anki.prof")
+    print("use 'bazel run qt:profile' to explore")
 
 
 def run():

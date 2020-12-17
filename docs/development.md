@@ -210,6 +210,8 @@ If TRACESQL is set, all sql statements will be printed as they are executed.
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.
 
+If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
+
 ## Cleaning
 
 Unlike the old Make system, a "clean build" should almost never be required
