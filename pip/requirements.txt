@@ -47,9 +47,11 @@ regex==2020.11.13         # via black
 requests[socks]==2.25.1   # via -r requirements.in
 send2trash==1.5.0         # via -r requirements.in
 six==1.15.0               # via astroid, flask-cors, jsonschema, pip-tools, protobuf
+snakeviz==2.1.0           # via -r requirements.in
 soupsieve==2.1            # via beautifulsoup4
 stringcase==1.2.0         # via -r requirements.in
 toml==0.10.2              # via black, pylint, pytest
+tornado==6.1              # via snakeviz
 typed-ast==1.4.1          # via black, mypy
 typing-extensions==3.7.4.3  # via black, mypy
 urllib3==1.26.2           # via requests
@@ -59,4 +61,4 @@ wrapt==1.12.1             # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==20.3.3               # via pip-tools
-setuptools==51.0.0        # via jsonsch
+setuptools==51.0.0        # via jsonschema
