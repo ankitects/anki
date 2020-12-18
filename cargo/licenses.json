@@ -1909,7 +1909,7 @@
   },
   {
     "name": "socket2",
-    "version": "0.3.17",
+    "version": "0.3.18",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/socket2-rs",
     "license": "Apache-2.0 OR MIT",
@@ -1945,7 +1945,7 @@
   },
   {
     "name": "subtle",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "authors": "Isis Lovecruft <isis@patternsinthevoid.net>|Henry de Valence <hdevalence@hdevalence.ca>",
     "repository": "https://github.com/dalek-cryptography/subtle",
     "license": "BSD-3-Clause",

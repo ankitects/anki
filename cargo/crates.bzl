@@ -2103,12 +2103,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__socket2__0_3_17",
-        url = "https://crates.io/api/v1/crates/socket2/0.3.17/download",
+        name = "raze__socket2__0_3_18",
+        url = "https://crates.io/api/v1/crates/socket2/0.3.18/download",
         type = "tar.gz",
-        sha256 = "2c29947abdee2a218277abeca306f25789c938e500ea5a9d4b12a5a504466902",
-        strip_prefix = "socket2-0.3.17",
-        build_file = Label("//cargo/remote:BUILD.socket2-0.3.17.bazel"),
+        sha256 = "97e0e9fd577458a4f61fb91fcb559ea2afecc54c934119421f9f5d3d5b1a1057",
+        strip_prefix = "socket2-0.3.18",
+        build_file = Label("//cargo/remote:BUILD.socket2-0.3.18.bazel"),
     )
 
     maybe(
@@ -2143,12 +2143,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__subtle__2_3_0",
-        url = "https://crates.io/api/v1/crates/subtle/2.3.0/download",
+        name = "raze__subtle__2_4_0",
+        url = "https://crates.io/api/v1/crates/subtle/2.4.0/download",
         type = "tar.gz",
-        sha256 = "343f3f510c2915908f155e94f17220b19ccfacf2a64a2a5d8004f2c3e311e7fd",
-        strip_prefix = "subtle-2.3.0",
-        build_file = Label("//cargo/remote:BUILD.subtle-2.3.0.bazel"),
+        sha256 = "1e81da0851ada1f3e9d4312c704aa4f8806f0f9d69faaf8df2f3464b4a9437c2",
+        strip_prefix = "subtle-2.4.0",
+        build_file = Label("//cargo/remote:BUILD.subtle-2.4.0.bazel"),
     )
 
     maybe(
