@@ -6,7 +6,7 @@ media-check-window-title = Check Media
 # "Trash folder: 3 files, 3.47MB"
 media-check-trash-count =
     Trash folder: { $count ->
-        [one] 1 file, { $megs }MB
+        [one] { $count } file, { $megs }MB
        *[other] { $count } files, { $megs }MB
     }
 media-check-missing-count = Missing files: { $count }
@@ -40,12 +40,12 @@ media-check-checked = Checked { $count }...
 media-check-delete-unused-confirm = Delete unused media?
 media-check-files-remaining =
     { $count ->
-        [one] 1 file
+        [one] { $count } file
        *[other] { $count } files
     } remaining.
 media-check-delete-unused-complete =
     { $count ->
-        [one] 1 file
+        [one] { $count } file
        *[other] { $count } files
     } moved to the trash.
 media-check-trash-emptied = The trash folder is now empty.
