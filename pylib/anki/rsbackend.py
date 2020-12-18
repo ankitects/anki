@@ -32,7 +32,6 @@ from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.fluent_pb2 import FluentString as TR
 from anki.rsbackend_gen import RustBackendGenerated
-from anki.types import assert_impossible_literal
 
 if TYPE_CHECKING:
     from anki.fluent_pb2 import FluentStringValue as TRValue

@@ -16,7 +16,7 @@ from anki.rsbackend import (
     NetworkError,
     ProgressKind,
 )
-from anki.types import assert_impossible
+from anki.types import assert_exhaustive
 from anki.utils import intTime
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
@@ -206,7 +206,7 @@ class MediaSyncDialog(QDialog):
         elif isinstance(entry.entry, MediaSyncProgress):
             txt = self._logentry_to_text(entry.entry)
         else:
-            assert_impossible(entry.entry)
+            assert_exhaustive(entry.entry)
         return self._time_and_text(entry.time, txt)
 
     def _logentry_to_text(self, e: MediaSyncProgress) -> str:
