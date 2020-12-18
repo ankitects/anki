@@ -51,7 +51,7 @@ statistics-cards =
 # a count of how many cards have been answered, eg "Total: 34 reviews"
 statistics-reviews =
     { $reviews ->
-        [one] 1 review
+        [one] { $reviews } review
        *[other] { $reviews } reviews
     }
 # Shown at the bottom of the deck list, and in the statistics screen.
@@ -98,7 +98,7 @@ statistics-card-ease-subtitle = The lower the ease, the more frequently a card w
 # eg "3 cards with 150-170% ease"
 statistics-card-ease-tooltip =
     { $cards ->
-        [one] 1 card with { $percent } ease
+        [one] { $cards } card with { $percent } ease
        *[other] { $cards } cards with { $percent } ease
     }
 statistics-future-due-title = Future Due
@@ -131,7 +131,7 @@ statistics-days-ago-range = { $daysStart }-{ $daysEnd } days ago
 statistics-running-total = Running total
 statistics-cards-due =
     { $cards ->
-        [one] 1 card due
+        [one] { $cards } card due
        *[other] { $cards } cards due
     }
 statistics-backlog-checkbox = Backlog
@@ -139,12 +139,12 @@ statistics-intervals-title = Review Intervals
 statistics-intervals-subtitle = Delays until reviews are shown again.
 statistics-intervals-day-range =
     { $cards ->
-        [one] 1 card with a { $daysStart }~{ $daysEnd } day interval
+        [one] { $cards } card with a { $daysStart }~{ $daysEnd } day interval
        *[other] { $cards } cards with a { $daysStart }~{ $daysEnd } day interval
     }
 statistics-intervals-day-single =
     { $cards ->
-        [one] 1 card with a { $day } day interval
+        [one] { $cards } card with a { $day } day interval
        *[other] { $cards } cards with a { $day } day interval
     }
 # hour range, eg "From 14:00-15:00"
