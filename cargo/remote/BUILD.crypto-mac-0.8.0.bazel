@@ -50,6 +50,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__generic_array__0_14_4//:generic_array",
-        "@raze__subtle__2_3_0//:subtle",
+        "@raze__subtle__2_4_0//:subtle",
     ],
 )
