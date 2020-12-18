@@ -4,6 +4,7 @@
 import anki.lang
 import aqt
 from aqt import AnkiQt
+from aqt.profiles import RecordingDriver
 from aqt.qt import *
 from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr
 
@@ -220,6 +221,21 @@ class Preferences(QDialog):
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
         self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
+        self._recording_drivers = [
+            RecordingDriver.QtAudioInput,
+            RecordingDriver.QtRecorder,
+            RecordingDriver.PyAudio,
+        ]
+        # fixme: i18n
+        self.form.recording_driver.addItems(
+            [
+                f"Voice recording driver: {driver.value}"
+                for driver in self._recording_drivers
+            ]
+        )
+        self.form.recording_driver.setCurrentIndex(
+            self._recording_drivers.index(self.mw.pm.recording_driver())
+        )
 
     def updateOptions(self):
         restart_required = False
@@ -237,6 +253,9 @@ class Preferences(QDialog):
             restart_required = True
 
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
+        self.mw.pm.set_recording_driver(
+            self._recording_drivers[self.form.recording_driver.currentIndex()]
+        )
 
         if restart_required:
             showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
