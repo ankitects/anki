@@ -558,6 +558,79 @@ class QtRecorder(Recorder):
                 self._recorder.setMuted(False)
 
 
+# QAudioInput recording
+##########################################################################
+
+
+class QtAudioInputRecorder(Recorder):
+    def __init__(self, output_path: str, mw: aqt.AnkiQt, parent: QWidget):
+        super().__init__(output_path)
+
+        self.mw = mw
+
+        from PyQt5.QtMultimedia import (
+            QAudio,
+            QAudioDeviceInfo,
+            QAudioFormat,
+            QAudioInput,
+        )
+
+        format = QAudioFormat()
+        format.setChannelCount(1)
+        format.setSampleRate(44100)
+        format.setSampleSize(16)
+        format.setCodec("audio/pcm")
+        format.setByteOrder(QAudioFormat.LittleEndian)
+        format.setSampleType(QAudioFormat.SignedInt)
+
+        device = QAudioDeviceInfo.defaultInputDevice()
+        if not device.isFormatSupported(format):
+            format = device.nearestFormat(format)
+            print("format changed")
+            print("channels", format.channelCount())
+            print("rate", format.sampleRate())
+            print("size", format.sampleSize())
+        self._format = format
+
+        self._audio_input = QAudioInput(device, format, parent)
+
+    def start(self, on_done: Callable[[], None]) -> None:
+        self._iodevice = self._audio_input.start()
+        self._buffer = b""
+        self._iodevice.readyRead.connect(self._on_read_ready)  # type: ignore
+        super().start(on_done)
+
+    def _on_read_ready(self):
+        self._buffer += self._iodevice.readAll()
+
+    def stop(self, on_done: Callable[[str], None]):
+        self._audio_input.stop()
+
+        if err := self._audio_input.error():
+            showWarning(f"recording failed: {err}")
+            return
+
+        # read anything remaining in buffer & close
+        self._on_read_ready()
+        self._iodevice.close()
+
+        # swallow the first 300ms to allow audio device to quiesce
+        wait = int(44100 * self.STARTUP_DELAY)
+        if len(self._buffer) <= wait:
+            return
+        self._buffer = self._buffer[wait:]
+
+        # write out the wave file
+        wf = wave.open(self.output_path, "wb")
+        wf.setnchannels(self._format.channelCount())
+        wf.setsampwidth(self._format.sampleSize() // 8)
+        wf.setframerate(self._format.sampleRate())
+        wf.writeframes(self._buffer)
+        wf.close()
+
+        super().stop(on_done)
+
+
 # PyAudio recording
 ##########################################################################
 
@@ -697,6 +770,10 @@ class RecordDialog(QDialog):
             self._recorder = QtRecorder(namedtmp("rec.wav"), self._parent)
         elif driver is RecordingDriver.PyAudio:
             self._recorder = PyAudioRecorder(self.mw, namedtmp("rec.wav"))
+        elif driver is RecordingDriver.QtAudioInput:
+            self._recorder = QtAudioInputRecorder(
+                namedtmp("rec.wav"), self.mw, self._parent
+            )
         else:
             assert_exhaustive(driver)
         self._recorder.start(self._start_timer)
