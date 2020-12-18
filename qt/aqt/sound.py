@@ -604,15 +604,13 @@ class QtAudioInputRecorder(Recorder):
         self._buffer += self._iodevice.readAll()
 
     def stop(self, on_done: Callable[[str], None]):
+        # read anything remaining in buffer & stop
+        self._on_read_ready()
         self._audio_input.stop()
 
         if err := self._audio_input.error():
             showWarning(f"recording failed: {err}")
             return
-
-        # read anything remaining in buffer & close
-        self._on_read_ready()
-        self._iodevice.close()
 
         # swallow the first 300ms to allow audio device to quiesce
         wait = int(44100 * self.STARTUP_DELAY)
