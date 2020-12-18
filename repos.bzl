@@ -130,11 +130,11 @@ def register_repos():
     # translations
     ################
 
-    core_i18n_commit = "ec33dad8cbe55823350ff23ba5048a3492aae4dd"
-    core_i18n_shallow_since = "1608111951 +1000"
+    core_i18n_commit = "8d10e26bd363001d1119147eef8b7aa1cecfa137"
+    core_i18n_shallow_since = "1608250325 +1000"
 
-    qtftl_i18n_commit = "19e28768f4e5ce5ec0cfb8639236a155de7224cf"
-    qtftl_i18n_shallow_since = "1607126485 +0000"
+    qtftl_i18n_commit = "50f55f232b3cae3f113ba5a94497a7da76137156"
+    qtftl_i18n_shallow_since = "1608120047 +0000"
 
     i18n_build_content = """
 filegroup(
