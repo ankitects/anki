@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>632</width>
+    <width>640</width>
     <height>374</height>
    </rect>
   </property>
@@ -109,6 +109,13 @@
            <string>PREFERENCES_CHANGE_DECK_DEPENDING_ON_NOTE_TYPE</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="recording_driver">
+         <property name="currentText">
+          <string notr="true"/>
+         </property>
         </widget>
        </item>
        <item>
@@ -596,6 +603,7 @@
   <tabstop>pasteInvert</tabstop>
   <tabstop>nightMode</tabstop>
   <tabstop>useCurrent</tabstop>
+  <tabstop>recording_driver</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>

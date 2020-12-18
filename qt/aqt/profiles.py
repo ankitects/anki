@@ -641,11 +641,11 @@ create table if not exists profiles
 
     def recording_driver(self) -> RecordingDriver:
         if driver := self.profile.get("recordingDriver"):
-            return driver
+            return RecordingDriver(driver)
         return RecordingDriver.QtAudioInput
 
     def set_recording_driver(self, driver: RecordingDriver):
-        self.profile["recordingDriver"] = driver.value()
+        self.profile["recordingDriver"] = driver.value
 
     ######################################################################
 
