@@ -612,21 +612,26 @@ class QtAudioInputRecorder(Recorder):
             showWarning(f"recording failed: {err}")
             return
 
-        # swallow the first 300ms to allow audio device to quiesce
-        wait = int(44100 * self.STARTUP_DELAY)
-        if len(self._buffer) <= wait:
-            return
-        self._buffer = self._buffer[wait:]
+        def write_file():
+            # swallow the first 300ms to allow audio device to quiesce
+            wait = int(44100 * self.STARTUP_DELAY)
+            if len(self._buffer) <= wait:
+                return
+            self._buffer = self._buffer[wait:]
 
-        # write out the wave file
-        wf = wave.open(self.output_path, "wb")
-        wf.setnchannels(self._format.channelCount())
-        wf.setsampwidth(self._format.sampleSize() // 8)
-        wf.setframerate(self._format.sampleRate())
-        wf.writeframes(self._buffer)
-        wf.close()
+            # write out the wave file
+            wf = wave.open(self.output_path, "wb")
+            wf.setnchannels(self._format.channelCount())
+            wf.setsampwidth(self._format.sampleSize() // 8)
+            wf.setframerate(self._format.sampleRate())
+            wf.writeframes(self._buffer)
+            wf.close()
 
-        super().stop(on_done)
+        def and_then(fut):
+            fut.result()
+            Recorder.stop(self, on_done)
+
+        self.mw.taskman.run_in_background(write_file, and_then)
 
 
 # PyAudio recording
