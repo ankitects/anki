@@ -837,7 +837,7 @@ time = %(time)d;
             self._recordedAudio = path
             self.onReplayRecorded()
 
-        record_audio(self.mw, self.mw.taskman, False, after_record)
+        record_audio(self.mw, self.mw, False, after_record)
 
     def onReplayRecorded(self) -> None:
         if not self._recordedAudio:

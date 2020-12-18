@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import enum
 import io
 import locale
 import pickle
@@ -8,6 +9,7 @@ import random
 import shutil
 import traceback
 import warnings
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from send2trash import send2trash
@@ -28,6 +30,11 @@ from aqt.utils import TR, locale_dir, showWarning, tr
 ##########################################################################
 # - Saves in pickles rather than json to easily store Qt window state.
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
+
+
+class RecordingDriver(Enum):
+    QtRecorder = "qtrecorder"
+    PyAudio = "pyaudio"
 
 
 metaConf = dict(
@@ -630,6 +637,14 @@ create table if not exists profiles
 
     def set_auto_sync_media_minutes(self, val: int) -> None:
         self.profile["autoSyncMediaMinutes"] = val
+
+    def recording_driver(self) -> RecordingDriver:
+        if driver := self.profile.get("recordingDriver"):
+            return driver
+        return RecordingDriver.QtRecorder
+
+    def set_recording_driver(self, driver: RecordingDriver):
+        self.profile["recordingDriver"] = driver.value()
 
     ######################################################################
 
