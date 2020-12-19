@@ -278,13 +278,9 @@ class DeckBrowser:
         self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
         deck = self.mw.col.decks.get(did)
         if not deck["dyn"]:
-            dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
-            cnt = self.mw.col.db.scalar(
-                "select count() from cards where did in {0} or "
-                "odid in {0}".format(ids2str(dids))
-            )
-            if cnt:
-                extra = tr(TR.DECKS_IT_HAS_CARD, count=cnt)
+            count = self.mw.col.card_count_from_did(did, recursive=True)
+            if count:
+                extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
             else:
                 extra = None
         if (
