@@ -379,9 +379,9 @@ class Collection:
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def card_count_from_did(self, did, recursive=False):
-        dids = [did]
-        if recursive:
+    def card_count_from_did(self, did: int, count_subdecks: bool = False) -> Any:
+        dids: List[int] = [did]
+        if count_subdecks:
             dids += [r[1] for r in self.decks.children(did)]
         count = self.db.scalar(
             "select count() from cards where did in {0} or "
