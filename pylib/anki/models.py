@@ -278,7 +278,7 @@ class ModelManager:
 
     def fieldMap(self, m: NoteType) -> Dict[str, Tuple[int, Field]]:
         "Mapping of field name -> (ord, field)."
-        return dict((f["name"], (f["ord"], f)) for f in m["flds"])
+        return {f["name"]: (f["ord"], f) for f in m["flds"]}
 
     def fieldNames(self, m: NoteType) -> List[str]:
         return [f["name"] for f in m["flds"]]
