@@ -25,11 +25,11 @@ expose the name of the engine, which would mean the user could write
 
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 import subprocess
 import threading
-import asyncio
 from concurrent.futures import Future
 from dataclasses import dataclass
 from operator import attrgetter
@@ -470,6 +470,7 @@ if isWin:
         return LCIDS.get(dec_str, "unknown")
 
     class WindowsTTSPlayer(TTSProcessPlayer):
+        default_rank = -1
         try:
             speaker = win32com.client.Dispatch("SAPI.SpVoice")
         except:
@@ -529,14 +530,22 @@ if isWin:
 
         def import_voices(self) -> None:
             import winrt.windows.media.speechsynthesis as speechsynthesis
+
             self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
+
         def get_available_voices(self) -> List[TTSVoice]:
             t = threading.Thread(target=self.import_voices)
             t.start()
             t.join()
             return list(map(self._voice_to_object, self.voice_list))
+
         def _voice_to_object(self, voice: Any) -> TTSVoice:
-            return WindowsRTVoice(id=voice.id, name=voice.display_name.replace(" ", "_"), lang=voice.language.replace("-", "_"))
+            return WindowsRTVoice(
+                id=voice.id,
+                name=voice.display_name.replace(" ", "_"),
+                lang=voice.language.replace("-", "_"),
+            )
+
         def _play(self, tag: AVTag) -> None:
             assert isinstance(tag, TTSTag)
             match = self.voice_for_tag(tag)
@@ -547,6 +556,7 @@ if isWin:
                 lambda: gui_hooks.av_player_did_begin_playing(self, tag)
             )
             asyncio.run(self.speakText(tag, voice.id))
+
         def _on_done(self, ret: Future, cb: OnDoneCallback):
             ret.result()
 
@@ -557,9 +567,11 @@ if isWin:
 
             # then tell player to advance, which will cause the file to be played
             cb()
+
         async def speakText(self, tag: TTSTag, voice_id):
             import winrt.windows.media.speechsynthesis as speechsynthesis
             import winrt.windows.storage.streams as streams
+
             synthesizer = speechsynthesis.SpeechSynthesizer()
 
             voices = speechsynthesis.SpeechSynthesizer.get_all_voices()
@@ -574,7 +586,7 @@ if isWin:
             inputStream = stream.get_input_stream_at(0)
             dataReader = streams.DataReader(inputStream)
             dataReader.load_async(stream.size)
-            f = open(self.tmppath, 'wb')
+            f = open(self.tmppath, "wb")
             for x in range(stream.size):
                 f.write(bytes([dataReader.read_byte()]))
             f.close()
