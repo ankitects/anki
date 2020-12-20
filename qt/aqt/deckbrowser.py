@@ -277,12 +277,11 @@ class DeckBrowser:
     def _delete(self, did: int):
         self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
         deck = self.mw.col.decks.get(did)
+        extra = None
         if not deck["dyn"]:
-            count = self.mw.col.card_count_from_did(did, count_subdecks=True)
+            count = self.mw.col.decks.card_count(did, include_subdecks=True)
             if count:
                 extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
-            else:
-                extra = None
         if (
             deck["dyn"]
             or not extra

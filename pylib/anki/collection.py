@@ -379,16 +379,6 @@ class Collection:
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def card_count_from_did(self, did: int, count_subdecks: bool = False) -> Any:
-        dids: List[int] = [did]
-        if count_subdecks:
-            dids += [r[1] for r in self.decks.children(did)]
-        count = self.db.scalar(
-            "select count() from cards where did in {0} or "
-            "odid in {0}".format(ids2str(dids))
-        )
-        return count
-
     def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]):
         "You probably want .remove_notes_by_card() instead."
         self.backend.remove_cards(card_ids=card_ids)
