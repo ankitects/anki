@@ -1,5 +1,8 @@
 filegroup(
     name = "vendor",
-    srcs = glob(["*.js"]) + ["//qt/aqt/data/web/js/vendor/mathjax"],
+    srcs = glob(["*.js"]) + [
+        "//qt/aqt/data/web/js/vendor/mathjax",
+        "//qt/aqt/data/web/js/vendor/jquery",
+    ],
     visibility = ["//qt:__subpackages__"],
 )

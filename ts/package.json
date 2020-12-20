@@ -64,6 +64,7 @@
         "intl-pluralrules": "^1.2.2",
         "lodash.debounce": "^4.0.8",
         "lodash.throttle": "^4.1.1",
+        "jquery": "^3.5.1",
         "mathjax": "^3.1.2",
         "protobufjs": "^6.10.1"
     },

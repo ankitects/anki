@@ -1,0 +1,6 @@
+load("//ts:jquery.bzl", "copy_jquery")
+
+copy_jquery(
+    name = "jquery",
+    visibility = ["//visibility:public"],
+)
