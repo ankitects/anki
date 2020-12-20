@@ -57,6 +57,7 @@ aqt_deps = [
     "@bazel_tools//src/conditions:host_windows": [
         requirement("psutil"),
         requirement("pywin32"),
+        requirement("winrt"),
     ],
     "//conditions:default": [],
 })
@@ -112,6 +113,7 @@ py_wheel(
         "pyqtwebengine",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
+        'winrt==1.0.20239.1 ; sys_platform == "win32" and platform_release == "10"',
         "anki==" + anki_version,
     ],
     strip_path_prefixes = [
