@@ -148,6 +148,6 @@ class TextImporter(NoteImporter):
 
     def noteFromFields(self, fields: List[str]) -> ForeignNote:
         note = ForeignNote()
-        note.fields.extend([x for x in fields])
+        note.fields.extend(list(fields))
         note.tags.extend(self.tagsToAdd)
         return note
