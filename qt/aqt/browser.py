@@ -1564,7 +1564,7 @@ where id in %s"""
             newRow = min(selectedRows) - 1
         self.col.remove_notes(nids)
         self.search()
-        if len(self.model.cards):
+        if self.model.cards:
             newRow = min(newRow, len(self.model.cards) - 1)
             newRow = max(newRow, 0)
             self.model.focusedCard = self.model.cards[newRow]
