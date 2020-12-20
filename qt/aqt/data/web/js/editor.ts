@@ -351,7 +351,9 @@ function setFields(fields) {
         }
         txt += `
         <tr>
-            <td class=fname id="name${i}">${n}</td>
+            <td class=fname id="name${i}">
+                <span class="fieldname">${n}</span>
+            </td>
         </tr>
         <tr>
             <td width=100%>
