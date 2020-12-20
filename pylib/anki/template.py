@@ -177,7 +177,7 @@ class TemplateRenderContext:
             else:
                 fields["Card"] = ""
             flag = self._card.userFlag()
-            fields["CardFlag"] = flag and f"flag{flag}" or ""
+            fields["CardFlag"] = f"flag{flag}" if flag else ""
             self._fields = fields
 
         return self._fields

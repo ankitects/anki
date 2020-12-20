@@ -711,7 +711,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         self, card: Card, conf: QueueConfig, early: bool, fuzz: bool = True
     ) -> Any:
         if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):
-            bonus = early and 1 or 0
+            bonus = 1 if early else 0
             return card.ivl + bonus
         if not early:
             # graduate
@@ -886,7 +886,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def _answerRevCard(self, card: Card, ease: int) -> None:
         delay = 0
         early = bool(card.odid and (card.odue > self.today))
-        type = early and REVLOG_CRAM or REVLOG_REV
+        type = REVLOG_CRAM if early else REVLOG_REV
 
         if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)

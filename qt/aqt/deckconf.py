@@ -310,7 +310,7 @@ class DeckConf(QDialog):
         # general
         c = self.conf
         c["maxTaken"] = f.maxTaken.value()
-        c["timer"] = f.showTimer.isChecked() and 1 or 0
+        c["timer"] = 1 if f.showTimer.isChecked() else 0
         c["autoplay"] = f.autoplaySounds.isChecked()
         c["replayq"] = f.replayQuestion.isChecked()
         # description
