@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import atexit
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -916,10 +917,14 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
 
         av_player.players.append(MacTTSPlayer(taskman))
     elif isWin:
-        from aqt.tts import WindowsTTSPlayer, WindowsRTTTSFilePlayer
+        from aqt.tts import WindowsRTTTSFilePlayer, WindowsTTSPlayer
 
         av_player.players.append(WindowsTTSPlayer(taskman))
-        av_player.players.append(WindowsRTTTSFilePlayer(taskman))
+
+        if platform.release() == "10":
+            # If Windows 10, ensure it's October 2018 update or later
+            if int(platform.version().split(".")[-1]) >= 17763:
+                av_player.players.append(WindowsRTTTSFilePlayer(taskman))
 
     # cleanup at shutdown
     atexit.register(av_player.shutdown)
