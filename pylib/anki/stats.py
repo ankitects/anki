@@ -600,7 +600,7 @@ group by day order by day)"""
             ],
             conf=dict(
                 xaxis=dict(min=-0.5, max=ivlmax + 0.5),
-                yaxes=[dict(), dict(position="right", max=105)],
+                yaxes=[{}, dict(position="right", max=105)],
             ),
         )
         i: List[str] = []
