@@ -217,7 +217,7 @@ class Editor:
         self.web.stdHtml(
             _html % (bgcol, bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
             css=["css/editor.css"],
-            js=["js/vendor/jquery.js", "js/editor.js"],
+            js=["js/vendor/jquery/jquery.min.js", "js/editor.js"],
             context=self,
         )
 

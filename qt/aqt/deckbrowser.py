@@ -123,7 +123,11 @@ class DeckBrowser:
         self.web.stdHtml(
             self._body % content.__dict__,
             css=["css/deckbrowser.css"],
-            js=["js/vendor/jquery.js", "js/vendor/jquery-ui.js", "js/deckbrowser.js"],
+            js=[
+                "js/vendor/jquery/jquery.min.js",
+                "js/vendor/jquery-ui.js",
+                "js/deckbrowser.js",
+            ],
             context=self,
         )
         self.web.key = "deckBrowser"

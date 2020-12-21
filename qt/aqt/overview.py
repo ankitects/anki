@@ -173,7 +173,7 @@ class Overview:
         self.web.stdHtml(
             self._body % content.__dict__,
             css=["css/overview.css"],
-            js=["js/vendor/jquery.js", "js/overview.js"],
+            js=["js/vendor/jquery/jquery.min.js", "js/overview.js"],
             context=self,
         )
 

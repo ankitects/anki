@@ -308,7 +308,7 @@ class CardLayout(QDialog):
         qconnect(pform.preview_settings.clicked, self.on_preview_settings)
 
         jsinc = [
-            "js/vendor/jquery.js",
+            "js/vendor/jquery/jquery.min.js",
             "js/vendor/browsersel.js",
             "js/mathjax.js",
             "js/vendor/mathjax/tex-chtml.js",
