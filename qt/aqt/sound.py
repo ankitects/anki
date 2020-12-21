@@ -530,6 +530,7 @@ class QtAudioInputRecorder(Recorder):
         super().__init__(output_path)
 
         self.mw = mw
+        self._parent = parent
 
         from PyQt5.QtMultimedia import (
             QAudio,
@@ -567,34 +568,42 @@ class QtAudioInputRecorder(Recorder):
         self._buffer += self._iodevice.readAll()
 
     def stop(self, on_done: Callable[[str], None]):
-        # read anything remaining in buffer & stop
-        self._on_read_ready()
-        self._audio_input.stop()
+        def on_stop_timer():
+            # read anything remaining in buffer & stop
+            self._on_read_ready()
+            self._audio_input.stop()
 
-        if err := self._audio_input.error():
-            showWarning(f"recording failed: {err}")
-            return
-
-        def write_file():
-            # swallow the first 300ms to allow audio device to quiesce
-            wait = int(44100 * self.STARTUP_DELAY)
-            if len(self._buffer) <= wait:
+            if err := self._audio_input.error():
+                showWarning(f"recording failed: {err}")
                 return
-            self._buffer = self._buffer[wait:]
 
-            # write out the wave file
-            wf = wave.open(self.output_path, "wb")
-            wf.setnchannels(self._format.channelCount())
-            wf.setsampwidth(self._format.sampleSize() // 8)
-            wf.setframerate(self._format.sampleRate())
-            wf.writeframes(self._buffer)
-            wf.close()
+            def write_file():
+                # swallow the first 300ms to allow audio device to quiesce
+                wait = int(44100 * self.STARTUP_DELAY)
+                if len(self._buffer) <= wait:
+                    return
+                self._buffer = self._buffer[wait:]
 
-        def and_then(fut):
-            fut.result()
-            Recorder.stop(self, on_done)
+                # write out the wave file
+                wf = wave.open(self.output_path, "wb")
+                wf.setnchannels(self._format.channelCount())
+                wf.setsampwidth(self._format.sampleSize() // 8)
+                wf.setframerate(self._format.sampleRate())
+                wf.writeframes(self._buffer)
+                wf.close()
 
-        self.mw.taskman.run_in_background(write_file, and_then)
+            def and_then(fut):
+                fut.result()
+                Recorder.stop(self, on_done)
+
+            self.mw.taskman.run_in_background(write_file, and_then)
+
+        # schedule the stop for half a second in the future,
+        # to avoid truncating the end of the recording
+        self._stop_timer = t = QTimer(self._parent)
+        t.timeout.connect(on_stop_timer)  # type: ignore
+        t.setSingleShot(True)
+        t.start(500)
 
 
 # PyAudio recording
