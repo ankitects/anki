@@ -343,6 +343,11 @@ function onCutOrCopy() {
 
 function setFields(fields) {
     let txt = "";
+    // webengine will include the variable after enter+backspace
+    // if we don't convert it to a literal colour
+    const color = window
+        .getComputedStyle(document.documentElement)
+        .getPropertyValue("--text-fg");
     for (let i = 0; i < fields.length; i++) {
         const n = fields[i][0];
         let f = fields[i][1];
@@ -369,6 +374,7 @@ function setFields(fields) {
                      oncut='onCutOrCopy(this);'
                      contentEditable=true
                      class=field
+                     style='color: ${color}'
                 >${f}</div>
             </td>
         </tr>`;
