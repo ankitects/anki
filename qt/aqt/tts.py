@@ -531,7 +531,11 @@ if isWin:
         def import_voices(self) -> None:
             import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
 
-            self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
+            try:
+                self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
+            except Exception as e:
+                print("winrt tts voices unavailable:", e)
+                self.voice_list = []
 
         def get_available_voices(self) -> List[TTSVoice]:
             t = threading.Thread(target=self.import_voices)
