@@ -19,7 +19,7 @@ requests[socks]
 send2trash
 snakeviz
 stringcase
-waitress
+waitress>=2.0.0b1
 fluent-syntax
 
 # windows only
