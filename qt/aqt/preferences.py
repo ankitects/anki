@@ -225,7 +225,8 @@ class Preferences(QDialog):
             RecordingDriver.QtAudioInput,
             RecordingDriver.PyAudio,
         ]
-        # fixme: i18n
+        # The plan is to phase out PyAudio soon, so will hold off on
+        # making this string translatable for now.
         self.form.recording_driver.addItems(
             [
                 f"Voice recording driver: {driver.value}"
