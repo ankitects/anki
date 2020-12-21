@@ -53,7 +53,7 @@ tornado==6.1              # via snakeviz
 typed-ast==1.4.1          # via black, mypy
 typing-extensions==3.7.4.3  # via black, mypy
 urllib3==1.26.2           # via requests
-waitress==1.4.4           # via -r requirements.in
+waitress==2.0.0b1         # via -r requirements.in
 werkzeug==1.0.1           # via flask
 winrt==1.0.20239.1 ; sys_platform == "win32" and platform_release == "10"  # via -r requirements.in
 wrapt==1.12.1             # via astroid
