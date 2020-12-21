@@ -48,7 +48,7 @@ class Toolbar:
         self.web.stdHtml(
             self._body % self._centerLinks(),
             css=["css/toolbar.css"],
-            js=["js/webview.js", "js/vendor/jquery.js", "js/toolbar.js"],
+            js=["js/webview.js", "js/vendor/jquery/jquery.min.js", "js/toolbar.js"],
             context=web_context,
         )
         self.web.adjustHeightToFit()
