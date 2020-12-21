@@ -129,6 +129,7 @@ py_wheel(
     strip_path_prefixes = [
         "pylib/",
     ],
+    tags = ["manual"],
     version = anki_version,
     visibility = ["//visibility:public"],
     deps = [":anki_pkg"],

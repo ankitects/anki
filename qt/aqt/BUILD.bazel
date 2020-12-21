@@ -119,6 +119,7 @@ py_wheel(
     strip_path_prefixes = [
         "qt/",
     ],
+    tags = ["manual"],
     version = anki_version,
     visibility = ["//visibility:public"],
     deps = [
