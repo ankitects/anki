@@ -252,9 +252,18 @@ class Preferences(QDialog):
             restart_required = True
 
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
-        self.mw.pm.set_recording_driver(
-            self._recording_drivers[self.form.recording_driver.currentIndex()]
-        )
+
+        new_audio_driver = self._recording_drivers[
+            self.form.recording_driver.currentIndex()
+        ]
+        if self.mw.pm.recording_driver() != new_audio_driver:
+            self.mw.pm.set_recording_driver(new_audio_driver)
+            if new_audio_driver == RecordingDriver.PyAudio:
+                showInfo(
+                    """\
+The PyAudio driver will likely be removed in a future update. If you find it works better \
+for you than the default driver, please let us know on the Anki forums."""
+                )
 
         if restart_required:
             showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
