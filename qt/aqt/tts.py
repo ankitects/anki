@@ -529,7 +529,7 @@ if isWin:
         tmppath = os.path.join(tmpdir(), "tts.wav")
 
         def import_voices(self) -> None:
-            import winrt.windows.media.speechsynthesis as speechsynthesis
+            import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
 
             self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
 
@@ -569,8 +569,8 @@ if isWin:
             cb()
 
         async def speakText(self, tag: TTSTag, voice_id):
-            import winrt.windows.media.speechsynthesis as speechsynthesis
-            import winrt.windows.storage.streams as streams
+            import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
+            import winrt.windows.storage.streams as streams  # type: ignore
 
             synthesizer = speechsynthesis.SpeechSynthesizer()
 

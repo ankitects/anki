@@ -917,11 +917,13 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
 
         av_player.players.append(MacTTSPlayer(taskman))
     elif isWin:
-        from aqt.tts import WindowsRTTTSFilePlayer, WindowsTTSPlayer
+        from aqt.tts import WindowsTTSPlayer
 
         av_player.players.append(WindowsTTSPlayer(taskman))
 
         if platform.release() == "10":
+            from aqt.tts import WindowsRTTTSFilePlayer
+
             # If Windows 10, ensure it's October 2018 update or later
             if int(platform.version().split(".")[-1]) >= 17763:
                 av_player.players.append(WindowsRTTTSFilePlayer(taskman))
