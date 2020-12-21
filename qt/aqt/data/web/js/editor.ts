@@ -54,12 +54,6 @@ function onKey(evt: KeyboardEvent) {
         currentField.blur();
         return;
     }
-    // shift+tab goes to previous field
-    if (navigator.platform === "MacIntel" && evt.which === 9 && evt.shiftKey) {
-        evt.preventDefault();
-        focusPrevious();
-        return;
-    }
 
     // fix Ctrl+right/left handling in RTL fields
     if (currentField.dir === "rtl") {
@@ -204,16 +198,6 @@ function focusField(n) {
         return;
     }
     $("#f" + n).focus();
-}
-
-function focusPrevious() {
-    if (!currentField) {
-        return;
-    }
-    const previous = currentFieldOrdinal() - 1;
-    if (previous >= 0) {
-        focusField(previous);
-    }
 }
 
 function focusIfField(x, y) {
