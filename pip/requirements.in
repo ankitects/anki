@@ -25,6 +25,8 @@ fluent-syntax
 # windows only
 psutil; sys.platform == "win32"
 pywin32; sys.platform == "win32"
+# pinned due to https://github.com/microsoft/xlang/issues/717
+# the latest version apparently works on python3.9
 winrt==1.0.20239.1; sys.platform == "win32" and platform_release == "10"
 
 # transitive windows dependencies
