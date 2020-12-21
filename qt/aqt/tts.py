@@ -25,9 +25,11 @@ expose the name of the engine, which would mean the user could write
 
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 import subprocess
+import threading
 from concurrent.futures import Future
 from dataclasses import dataclass
 from operator import attrgetter
@@ -468,6 +470,7 @@ if isWin:
         return LCIDS.get(dec_str, "unknown")
 
     class WindowsTTSPlayer(TTSProcessPlayer):
+        default_rank = -1
         try:
             speaker = win32com.client.Dispatch("SAPI.SpVoice")
         except:
@@ -516,3 +519,74 @@ if isWin:
             "eg. 1.5 -> 15, 0.5 -> -5"
             speed = (speed * 10) - 10
             return int(max(-10, min(10, speed)))
+
+    @dataclass
+    class WindowsRTVoice(TTSVoice):
+        id: Any
+
+    class WindowsRTTTSFilePlayer(TTSProcessPlayer):
+        voice_list = None
+        tmppath = os.path.join(tmpdir(), "tts.wav")
+
+        def import_voices(self) -> None:
+            import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
+
+            self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
+
+        def get_available_voices(self) -> List[TTSVoice]:
+            t = threading.Thread(target=self.import_voices)
+            t.start()
+            t.join()
+            return list(map(self._voice_to_object, self.voice_list))
+
+        def _voice_to_object(self, voice: Any) -> TTSVoice:
+            return WindowsRTVoice(
+                id=voice.id,
+                name=voice.display_name.replace(" ", "_"),
+                lang=voice.language.replace("-", "_"),
+            )
+
+        def _play(self, tag: AVTag) -> None:
+            assert isinstance(tag, TTSTag)
+            match = self.voice_for_tag(tag)
+            assert match
+            voice = cast(WindowsRTVoice, match.voice)
+
+            self._taskman.run_on_main(
+                lambda: gui_hooks.av_player_did_begin_playing(self, tag)
+            )
+            asyncio.run(self.speakText(tag, voice.id))
+
+        def _on_done(self, ret: Future, cb: OnDoneCallback):
+            ret.result()
+
+            # inject file into the top of the audio queue
+            from aqt.sound import av_player
+
+            av_player.insert_file(self.tmppath)
+
+            # then tell player to advance, which will cause the file to be played
+            cb()
+
+        async def speakText(self, tag: TTSTag, voice_id):
+            import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
+            import winrt.windows.storage.streams as streams  # type: ignore
+
+            synthesizer = speechsynthesis.SpeechSynthesizer()
+
+            voices = speechsynthesis.SpeechSynthesizer.get_all_voices()
+            voice_match = next(filter(lambda v: v.id == voice_id, voices))
+
+            assert voice_match
+
+            synthesizer.voice = voice_match
+            synthesizer.options.speaking_rate = tag.speed
+
+            stream = await synthesizer.synthesize_text_to_stream_async(tag.field_text)
+            inputStream = stream.get_input_stream_at(0)
+            dataReader = streams.DataReader(inputStream)
+            dataReader.load_async(stream.size)
+            f = open(self.tmppath, "wb")
+            for x in range(stream.size):
+                f.write(bytes([dataReader.read_byte()]))
+            f.close()
