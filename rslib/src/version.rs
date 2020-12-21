@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use std::env;
 
 fn buildinfo(key: &str) -> &'static str {
-    let buildinfo = include_str!(concat!(env!("OUT_DIR"), "/buildinfo.txt"));
+    let buildinfo = include_str!(env!("BUILDINFO"));
     for line in buildinfo.split('\n') {
         let mut it = line.split(' ');
         if it.next().unwrap() == key {
