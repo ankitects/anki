@@ -130,8 +130,8 @@ def register_repos():
     # translations
     ################
 
-    core_i18n_commit = "8d10e26bd363001d1119147eef8b7aa1cecfa137"
-    core_i18n_shallow_since = "1608250325 +1000"
+    core_i18n_commit = "8e844100cfb0af6e20bd2b8f2520a93ac9c4afc6"
+    core_i18n_shallow_since = "1608469231 +0000"
 
     qtftl_i18n_commit = "50f55f232b3cae3f113ba5a94497a7da76137156"
     qtftl_i18n_shallow_since = "1608120047 +0000"
