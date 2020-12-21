@@ -196,7 +196,7 @@ class Collection:
         # Until we can move away from long-running transactions, the Python
         # code needs to know if transaction should be committed, so we need
         # to check if the backend updated the modification time.
-        return self.db.last_begin_at <= self.mod
+        return self.db.last_begin_at != self.mod
 
     def save(
         self, name: Optional[str] = None, mod: Optional[int] = None, trx: bool = True
