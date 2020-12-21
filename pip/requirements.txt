@@ -1,5 +1,3 @@
-# See README.md
-
 appdirs==1.4.4            # via black
 astroid==2.4.2            # via pylint
 atomicwrites==1.4.0 ; sys_platform == "win32"  # via -r requirements.in, pytest
@@ -62,4 +60,4 @@ wrapt==1.12.1             # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==20.3.3               # via pip-tools
-setuptools==51.0.0        # via jsonschema
+setuptools==51.1.0.post20201221  # via jsonschema
