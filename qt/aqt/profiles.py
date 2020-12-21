@@ -33,9 +33,8 @@ from aqt.utils import TR, locale_dir, showWarning, tr
 
 
 class RecordingDriver(Enum):
-    QtRecorder = "qtrecorder"
-    PyAudio = "pyaudio"
-    QtAudioInput = "qtaudioinput"
+    PyAudio = "PyAudio"
+    QtAudioInput = "Qt"
 
 
 metaConf = dict(
@@ -641,7 +640,11 @@ create table if not exists profiles
 
     def recording_driver(self) -> RecordingDriver:
         if driver := self.profile.get("recordingDriver"):
-            return RecordingDriver(driver)
+            try:
+                return RecordingDriver(driver)
+            except ValueError:
+                # revert to default
+                pass
         return RecordingDriver.QtAudioInput
 
     def set_recording_driver(self, driver: RecordingDriver):

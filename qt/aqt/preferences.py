@@ -223,7 +223,6 @@ class Preferences(QDialog):
         self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
         self._recording_drivers = [
             RecordingDriver.QtAudioInput,
-            RecordingDriver.QtRecorder,
             RecordingDriver.PyAudio,
         ]
         # fixme: i18n

@@ -521,44 +521,6 @@ class Recorder(ABC):
         pass
 
 
-# Qt recording
-##########################################################################
-
-
-class QtRecorder(Recorder):
-    def __init__(self, output_path: str, parent: QWidget):
-        super().__init__(output_path)
-
-        from PyQt5.QtMultimedia import QAudioRecorder
-
-        self._recorder = QAudioRecorder(parent)
-        audio = self._recorder.audioSettings()
-        audio.setSampleRate(44100)
-        audio.setChannelCount(1)
-        self._recorder.setEncodingSettings(
-            audio,
-            self._recorder.videoSettings(),
-            "audio/x-wav",
-        )
-        self._recorder.setOutputLocation(QUrl.fromLocalFile(self.output_path))
-        self._recorder.setMuted(True)
-
-    def start(self, on_done: Callable[[], None]) -> None:
-        self._recorder.record()
-        super().start(on_done)
-
-    def stop(self, on_done: Callable[[str], None]):
-        self._recorder.stop()
-        super().stop(on_done)
-
-    def on_timer(self):
-        duration = self._recorder.duration()
-        if duration >= 300:
-            # disable mute after recording starts to avoid clicks/pops
-            if self._recorder.isMuted():
-                self._recorder.setMuted(False)
-
-
 # QAudioInput recording
 ##########################################################################
 
@@ -770,9 +732,7 @@ class RecordDialog(QDialog):
 
     def _start_recording(self):
         driver = self.mw.pm.recording_driver()
-        if driver is RecordingDriver.QtRecorder:
-            self._recorder = QtRecorder(namedtmp("rec.wav"), self._parent)
-        elif driver is RecordingDriver.PyAudio:
+        if driver is RecordingDriver.PyAudio:
             self._recorder = PyAudioRecorder(self.mw, namedtmp("rec.wav"))
         elif driver is RecordingDriver.QtAudioInput:
             self._recorder = QtAudioInputRecorder(
