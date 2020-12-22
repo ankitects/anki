@@ -84,6 +84,7 @@ service BackendService {
 
     // searching
 
+    rpc NormSearch (String) returns (String);
     rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
     rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
     rpc FindAndReplace (FindAndReplaceIn) returns (UInt32);
