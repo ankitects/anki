@@ -13,6 +13,7 @@
 
     export let search: string;
     export let days: number;
+    export let withRangeBox: boolean;
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -95,44 +96,46 @@
     }
 </style>
 
-<div class="range-box">
-    <div class="spin {refreshing ? 'active' : ''}">◐</div>
+{#if withRangeBox}
+    <div class="range-box">
+        <div class="spin {refreshing ? 'active' : ''}">◐</div>
 
-    <div class="range-box-inner">
-        <label>
-            <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
-            {deck}
-        </label>
-        <label>
+        <div class="range-box-inner">
+            <label>
+                <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
+                {deck}
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    bind:group={searchRange}
+                    value={SearchRange.Collection} />
+                {collection}
+            </label>
+
             <input
-                type="radio"
-                bind:group={searchRange}
-                value={SearchRange.Collection} />
-            {collection}
-        </label>
-
-        <input
-            type="text"
-            bind:value={displayedSearch}
-            on:keyup={searchKeyUp}
-            on:focus={() => {
+                type="text"
+                bind:value={displayedSearch}
+                on:keyup={searchKeyUp}
+                on:focus={() => {
                 searchRange = SearchRange.Custom;
-            }}
-            placeholder={searchLabel} />
-    </div>
+                }}
+                placeholder={searchLabel} />
+        </div>
 
-    <div class="range-box-inner">
-        <label>
-            <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
-            {year}
-        </label>
-        <label>
-            <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
-            {all}
-        </label>
+        <div class="range-box-inner">
+            <label>
+                <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
+                {year}
+            </label>
+            <label>
+                <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
+                {all}
+            </label>
+        </div>
     </div>
-</div>
-<div class="range-box-pad" />
+    <div class="range-box-pad" />
+{/if}
 
 <div tabindex="-1" class="no-focus-outline">
     {#if sourceData}
