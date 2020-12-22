@@ -5,7 +5,7 @@ var ankiPlatform = "desktop";
 var typeans;
 var _updatingQA = false;
 
-var qFade = 100;
+var qFade = 50;
 var aFade = 0;
 
 var onUpdateHook;
