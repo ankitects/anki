@@ -32,7 +32,7 @@ use crate::{
     },
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, time_span},
-    search::SortMode,
+    search::{SortMode, norm_search},
     stats::studied_today,
     sync::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
@@ -392,6 +392,10 @@ impl BackendService for Backend {
 
     // searching
     //-----------------------------------------------
+
+    fn norm_search(&self, input: pb::String) -> Result<pb::String> {
+        Ok(norm_search(&input.val)?.into())
+    }
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
