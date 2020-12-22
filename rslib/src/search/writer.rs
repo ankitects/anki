@@ -60,7 +60,7 @@ fn escape(txt: &str) -> String {
     let txt = txt.replace("\"", "\\\"").replace(":", "\\:");
     if txt.chars().any(|c| " \u{3000}()".contains(c)) {
         format!(r#""{}""#, txt)
-    } else if txt.starts_with('-') {
+    } else if txt.len() > 1 && txt.starts_with('-') {
         format!("\\{}", txt)
     } else {
         txt
@@ -82,7 +82,7 @@ fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
     let txt = format!("{}:{}{}", field, re, text).replace("\"", "\\\"");
     if txt.chars().any(|c| " \u{3000}()".contains(c)) {
         format!(r#""{}""#, txt)
-    } else if txt.starts_with('-') {
+    } else if txt.len() > 1 && txt.starts_with('-') {
         format!("\\{}", txt)
     } else {
         txt
