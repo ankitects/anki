@@ -6,19 +6,10 @@
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange } from "./graph-helpers";
-    import IntervalsGraph from "./IntervalsGraph.svelte";
-    import EaseGraph from "./EaseGraph.svelte";
-    import AddedGraph from "./AddedGraph.svelte";
-    import TodayStats from "./TodayStats.svelte";
-    import ButtonsGraph from "./ButtonsGraph.svelte";
-    import CardCounts from "./CardCounts.svelte";
-    import HourGraph from "./HourGraph.svelte";
-    import FutureDue from "./FutureDue.svelte";
-    import ReviewsGraph from "./ReviewsGraph.svelte";
-    import CalendarGraph from "./CalendarGraph.svelte";
 
     export let i18n: I18n;
     export let nightMode: boolean;
+    export let graphs: any[];
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -144,15 +135,8 @@
 
 <div tabindex="-1" class="no-focus-outline">
     {#if sourceData}
-        <TodayStats {sourceData} {i18n} />
-        <FutureDue {sourceData} {i18n} />
-        <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
-        <ReviewsGraph {sourceData} {revlogRange} {i18n} />
-        <CardCounts {sourceData} {i18n} />
-        <IntervalsGraph {sourceData} {i18n} />
-        <EaseGraph {sourceData} {i18n} />
-        <HourGraph {sourceData} {revlogRange} {i18n} />
-        <ButtonsGraph {sourceData} {revlogRange} {i18n} />
-        <AddedGraph {sourceData} {i18n} />
+        {#each graphs as Graph}
+            <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
+        {/each}
     {/if}
 </div>

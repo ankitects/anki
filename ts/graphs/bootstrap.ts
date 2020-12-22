@@ -5,11 +5,28 @@ import { setupI18n } from "anki/i18n";
 import GraphsPage from "./GraphsPage.svelte";
 import { checkNightMode } from "anki/nightmode";
 
-export function graphs(target: HTMLDivElement): void {
+export { default as IntervalsGraph } from "./IntervalsGraph.svelte";
+export { default as EaseGraph } from "./EaseGraph.svelte";
+export { default as AddedGraph } from "./AddedGraph.svelte";
+export { default as TodayStats } from "./TodayStats.svelte";
+export { default as ButtonsGraph } from "./ButtonsGraph.svelte";
+export { default as CardCounts } from "./CardCounts.svelte";
+export { default as HourGraph } from "./HourGraph.svelte";
+export { default as FutureDue } from "./FutureDue.svelte";
+export { default as ReviewsGraph } from "./ReviewsGraph.svelte";
+export { default as CalendarGraph } from "./CalendarGraph.svelte";
+
+export function graphs(target: HTMLDivElement, graphs: any[]): void {
+    const nightMode = checkNightMode();
+
     setupI18n().then((i18n) => {
         new GraphsPage({
             target,
-            props: { i18n, nightMode: checkNightMode() },
+            props: {
+                i18n,
+                graphs,
+                nightMode,
+            },
         });
     });
 }
