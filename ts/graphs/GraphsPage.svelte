@@ -90,12 +90,6 @@
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
 </script>
 
-<style>
-    .no-focus-outline:focus {
-        outline: 0;
-    }
-</style>
-
 {#if withRangeBox}
     <div class="range-box">
         <div class="spin {refreshing ? 'active' : ''}">◐</div>
