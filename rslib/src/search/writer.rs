@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    err::Result,
     decks::DeckID as DeckIDType,
+    err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
     search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
@@ -12,8 +12,8 @@ pub fn norm_search(input: &str) -> Result<String> {
     Ok(write_nodes(&parse(input)?))
 }
 
-fn write_nodes(nodes: &Vec<Node>) -> String {
-    nodes.into_iter().map(|node| write_node(node)).collect()
+fn write_nodes(nodes: &[Node]) -> String {
+    nodes.iter().map(|node| write_node(node)).collect()
 }
 
 fn write_node(node: &Node) -> String {
@@ -41,7 +41,9 @@ fn write_search_node(node: &SearchNode) -> String {
         NoteType(s) => format!("note:{}", &escape_suffix(s)),
         Rated { days, ease } => write_rated(days, ease),
         Tag(s) => format!("tag:{}", &escape_suffix(s)),
-        Duplicates { note_type_id, text } => format!("dupes:{},{}", note_type_id, escape_suffix(text)),
+        Duplicates { note_type_id, text } => {
+            format!("dupes:{},{}", note_type_id, escape_suffix(text))
+        }
         State(k) => write_state(k),
         Flag(u) => format!("flag:{}", u),
         NoteIDs(s) => format!("nid:{}", s),
@@ -58,7 +60,7 @@ fn escape(txt: &str) -> String {
     let txt = txt.replace("\"", "\\\"").replace(":", "\\:");
     if txt.chars().any(|c| " \u{3000}()".contains(c)) {
         format!(r#""{}""#, txt)
-    } else if txt.chars().next() == Some('-') {
+    } else if txt.starts_with('-') {
         format!("\\{}", txt)
     } else {
         txt
@@ -80,7 +82,7 @@ fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
     let txt = format!("{}:{}{}", field, re, text).replace("\"", "\\\"");
     if txt.chars().any(|c| " \u{3000}()".contains(c)) {
         format!(r#""{}""#, txt)
-    } else if txt.chars().next() == Some('-') {
+    } else if txt.starts_with('-') {
         format!("\\{}", txt)
     } else {
         txt
