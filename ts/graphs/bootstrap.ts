@@ -16,7 +16,13 @@ export { default as FutureDue } from "./FutureDue.svelte";
 export { default as ReviewsGraph } from "./ReviewsGraph.svelte";
 export { default as CalendarGraph } from "./CalendarGraph.svelte";
 
-export function graphs(target: HTMLDivElement, graphs: any[]): void {
+export function graphs(
+    target: HTMLDivElement,
+    graphs: any[], {
+        search = "deck:current",
+        days = 31,
+    } = {},
+): void {
     const nightMode = checkNightMode();
 
     setupI18n().then((i18n) => {
@@ -26,6 +32,8 @@ export function graphs(target: HTMLDivElement, graphs: any[]): void {
                 i18n,
                 graphs,
                 nightMode,
+                search,
+                days,
             },
         });
     });

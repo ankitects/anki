@@ -11,6 +11,9 @@
     export let nightMode: boolean;
     export let graphs: any[];
 
+    export let search: string;
+    export let days: number;
+
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
     enum SearchRange {
@@ -21,10 +24,8 @@
 
     let searchRange: SearchRange = SearchRange.Deck;
     let revlogRange: RevlogRange = RevlogRange.Year;
-    let days: number = 31;
     let refreshing = false;
 
-    let search = "deck:current";
     let displayedSearch = search;
 
     const refresh = async () => {
