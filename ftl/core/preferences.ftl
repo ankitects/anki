@@ -6,7 +6,6 @@ preferences-backupsanki-will-create-a-backup-of = <html><head/><body><p><span st
 preferences-basic = Basic
 preferences-change-deck-depending-on-note-type = Change deck depending on note type
 preferences-changes-will-take-effect-when-you = Changes will take effect when you restart Anki.
-preferences-hardware-acceleration-faster-may-cause-display = Hardware acceleration (faster, may cause display issues)
 preferences-hours-past-midnight = hours past midnight
 preferences-interface-language = Interface language:
 preferences-interrupt-current-audio-when-answering = Interrupt current audio when answering

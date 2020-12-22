@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import enum
 import io
 import locale
@@ -35,6 +37,40 @@ from aqt.utils import TR, locale_dir, showWarning, tr
 class RecordingDriver(Enum):
     PyAudio = "PyAudio"
     QtAudioInput = "Qt"
+
+
+class VideoDriver(Enum):
+    OpenGL = "auto"
+    ANGLE = "angle"
+    Software = "software"
+
+    @staticmethod
+    def default_for_platform() -> VideoDriver:
+        if isMac:
+            return VideoDriver.OpenGL
+        else:
+            return VideoDriver.Software
+
+    def constrained_to_platform(self) -> VideoDriver:
+        if self == VideoDriver.ANGLE and not isWin:
+            return VideoDriver.Software
+        return self
+
+    def next(self) -> VideoDriver:
+        if self == VideoDriver.Software:
+            return VideoDriver.OpenGL
+        elif self == VideoDriver.OpenGL and isWin:
+            return VideoDriver.ANGLE
+        else:
+            return VideoDriver.Software
+
+    @staticmethod
+    def all_for_platform() -> List[VideoDriver]:
+        all = [VideoDriver.OpenGL]
+        if isWin:
+            all.append(VideoDriver.ANGLE)
+        all.append(VideoDriver.Software)
+        return all
 
 
 metaConf = dict(
@@ -535,41 +571,24 @@ create table if not exists profiles
     # OpenGL
     ######################################################################
 
-    def _glPath(self) -> str:
+    def _gldriver_path(self) -> str:
         return os.path.join(self.base, "gldriver")
 
-    def glMode(self) -> str:
-        if isMac:
-            return "auto"
+    def video_driver(self) -> VideoDriver:
+        path = self._gldriver_path()
+        try:
+            with open(path) as file:
+                text = file.read().strip()
+                return VideoDriver(text).constrained_to_platform()
+        except (ValueError, OSError):
+            return VideoDriver.default_for_platform()
 
-        path = self._glPath()
-        if not os.path.exists(path):
-            return "software"
+    def set_video_driver(self, driver: VideoDriver) -> None:
+        with open(self._gldriver_path(), "w") as file:
+            file.write(driver.value)
 
-        with open(path, "r") as file:
-            mode = file.read().strip()
-
-        if mode == "angle" and isWin:
-            return mode
-        elif mode == "software":
-            return mode
-        return "auto"
-
-    def setGlMode(self, mode) -> None:
-        with open(self._glPath(), "w") as file:
-            file.write(mode)
-
-    def nextGlMode(self) -> None:
-        mode = self.glMode()
-        if mode == "software":
-            self.setGlMode("auto")
-        elif mode == "auto":
-            if isWin:
-                self.setGlMode("angle")
-            else:
-                self.setGlMode("software")
-        elif mode == "angle":
-            self.setGlMode("software")
+    def set_next_video_driver(self) -> None:
+        self.set_video_driver(self.video_driver().next())
 
     # Shared options
     ######################################################################
