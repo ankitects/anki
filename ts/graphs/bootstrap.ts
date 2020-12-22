@@ -21,6 +21,7 @@ export function graphs(
     graphs: any[], {
         search = "deck:current",
         days = 31,
+        withRangeBox = true,
     } = {},
 ): void {
     const nightMode = checkNightMode();
@@ -34,6 +35,7 @@ export function graphs(
                 nightMode,
                 search,
                 days,
+                withRangeBox,
             },
         });
     });
