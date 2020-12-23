@@ -31,23 +31,17 @@ def register_repos():
     # )
 
     maybe(
-        git_repository,
+        http_archive,
         name = "io_bazel_rules_rust",
-        commit = "dfd1200fcdcc0d56d725818ed3a66316517f20a6",
-        remote = "https://github.com/ankitects/rules_rust",
-        shallow_since = "1607578413 +1000",
+        strip_prefix = "rules_rust-anki-2020-12-10",
+        urls = [
+            "https://github.com/ankitects/rules_rust/archive/anki-2020-12-10.tar.gz",
+        ],
+        sha256 = "80a7647c3c1992c434a462bf424b9138c3c9af6c794ac112f636ca7c8c53180e",
     )
 
     # python
     ##########
-
-    maybe(
-        git_repository,
-        name = "rules_python",
-        commit = "3927c9bce90f629eb5ab08bbc99a3d3bda1d95c0",
-        remote = "https://github.com/ankitects/rules_python",
-        shallow_since = "1604408056 +1000",
-    )
 
     # native.local_repository(
     #     name = "rules_python",
@@ -55,11 +49,13 @@ def register_repos():
     # )
 
     maybe(
-        git_repository,
-        name = "com_github_ali5h_rules_pip",
-        commit = "73953e06fdacb565f224c66f0683a7d8d0ede223",
-        remote = "https://github.com/ankitects/rules_pip",
-        shallow_since = "1606453171 +1000",
+        http_archive,
+        name = "rules_python",
+        strip_prefix = "rules_python-anki-2020-11-04",
+        urls = [
+            "https://github.com/ankitects/rules_python/archive/anki-2020-11-04.tar.gz",
+        ],
+        sha256 = "00e444dc3872a87838c2cb0cf50a15d92ca669385b72998f796d2fd6814356a3",
     )
 
     # native.local_repository(
@@ -67,8 +63,27 @@ def register_repos():
     #     path = "../rules_pip",
     # )
 
+    maybe(
+        http_archive,
+        name = "com_github_ali5h_rules_pip",
+        strip_prefix = "rules_pip-anki-2020-11-30",
+        urls = [
+            "https://github.com/ankitects/rules_pip/archive/anki-2020-11-30.tar.gz",
+        ],
+        sha256 = "ab4f10967eb87985383a4172d4533dde568b3ff502aa550239eeccead249325b",
+    )
+
     # javascript
     ##############
+
+    # maybe(
+    #     http_archive,
+    #     name = "build_bazel_rules_nodejs",
+    #     urls = [
+    #         "file:///c:/anki/release.tar.gz",
+    #         "file:///Users/dae/Work/code/dtop/release.tar.gz",
+    #     ],
+    # )
 
     maybe(
         http_archive,
@@ -76,16 +91,6 @@ def register_repos():
         sha256 = "6142e9586162b179fdd570a55e50d1332e7d9c030efd853453438d607569721d",
         urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0/rules_nodejs-3.0.0.tar.gz"],
     )
-
-    # maybe(
-    #     http_archive,
-    #     name = "build_bazel_rules_nodejs",
-    #     #        sha256 = "64a71a64ac58b8969bb19b1c9258a973b6433913e958964da698943fb5521d98",
-    #     urls = [
-    #         "file:///c:/anki/release.tar.gz",
-    #         "file:///Users/dae/Work/code/dtop/release.tar.gz",
-    #     ],
-    # )
 
     # sass
     ############
