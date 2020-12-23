@@ -22,19 +22,6 @@ def register_repos():
         ],
     )
 
-    # protobuf
-    ############
-
-    maybe(
-        http_archive,
-        name = "com_google_protobuf",
-        sha256 = "6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf",
-        strip_prefix = "protobuf-3.14.0",
-        urls = [
-            "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protobuf-all-3.14.0.tar.gz",
-        ],
-    )
-
     # rust
     ########
 
