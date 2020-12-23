@@ -30,17 +30,12 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "decode" with type "example" omitted
-
-# Unsupported target "enum_external" with type "example" omitted
-
-# Unsupported target "toml2json" with type "example" omitted
-
 rust_library(
-    name = "toml",
+    name = "quote",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -53,11 +48,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.5.7",
+    version = "1.0.8",
     # buildifier: leave-alone
     deps = [
-        "@raze__serde__1_0_118//:serde",
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
     ],
 )
 
-# Unsupported target "enum_external_deserialize" with type "test" omitted
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test" with type "test" omitted

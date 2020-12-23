@@ -49,6 +49,6 @@ rust_library(
     version = "0.1.5",
     # buildifier: leave-alone
     deps = [
-        "@raze__toml__0_5_7//:toml",
+        "@raze__toml__0_5_8//:toml",
     ],
 )

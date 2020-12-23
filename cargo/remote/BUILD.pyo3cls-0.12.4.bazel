@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__pyo3_derive_backend__0_12_4//:pyo3_derive_backend",
-        "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_54//:syn",
+        "@raze__quote__1_0_8//:quote",
+        "@raze__syn__1_0_55//:syn",
     ],
 )

@@ -106,7 +106,7 @@ rust_library(
         "@raze__httpdate__0_3_2//:httpdate",
         "@raze__itoa__0_4_6//:itoa",
         "@raze__pin_project__1_0_2//:pin_project",
-        "@raze__socket2__0_3_18//:socket2",
+        "@raze__socket2__0_3_19//:socket2",
         "@raze__tokio__0_2_24//:tokio",
         "@raze__tower_service__0_3_0//:tower_service",
         "@raze__tracing__0_1_22//:tracing",
