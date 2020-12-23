@@ -15,7 +15,7 @@
     export let revlogRange: RevlogRange;
     export let withRangeBox: boolean;
 
-    let sourceData: pb.BackendProto.GraphsOut | null = null;
+    let dataPromise;
     let days;
 
     enum SearchRange {
@@ -24,27 +24,24 @@
         Custom = 3,
     }
 
-    let searchRange: SearchRange = SearchRange.Deck;
-    let refreshing = false;
-
     let displayedSearch = search;
+    let searchRange: SearchRange = SearchRange.Deck;
 
-    const refresh = async () => {
-        refreshing = true;
-        try {
-            sourceData = await getGraphData(search, days);
-        } catch (e) {
-            sourceData = null;
-            alert(i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING));
+    let refreshing = true;
+
+    $: {
+        if (refreshing) {
+            dataPromise = getGraphData(search, days);
+            console.log(dataPromise)
+            refreshing = false;
         }
-        refreshing = false;
-    };
+    }
 
     $: {
         // refresh if either of these change
         search;
         days;
-        refresh();
+        refreshing = true;
     }
 
     $: {
@@ -78,7 +75,7 @@
             search = displayedSearch;
             if (wasSame) {
                 //  force a refresh (user may have changed current deck, etc)
-                refresh();
+                refreshing = true;
             }
         }
     };
@@ -92,8 +89,6 @@
 
 {#if withRangeBox}
     <div class="range-box">
-        <div class="spin {refreshing ? 'active' : ''}">◐</div>
-
         <div class="range-box-inner">
             <label>
                 <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
@@ -131,10 +126,16 @@
     <div class="range-box-pad" />
 {/if}
 
-<div tabindex="-1" class="no-focus-outline">
-    {#if sourceData}
+{#await dataPromise}
+    <div class="spin {refreshing ? 'active' : ''}">◐</div>
+{:then sourceData}
+    <div tabindex="-1" class="no-focus-outline">
         {#each graphs as Graph}
             <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
         {/each}
-    {/if}
-</div>
+    </div>
+{:catch error}
+    <script>
+        alert({i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING)});
+    </script>
+{/await}
