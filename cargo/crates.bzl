@@ -1652,33 +1652,33 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
-        new_git_repository,
-        name = "raze__pyo3__0_12_4",
-        remote = "https://github.com/PyO3/pyo3.git",
-        shallow_since = "1606725379 +0000",
-        commit = "92b7a9736c9585883df5ec5bc01004caa7f65106",
-        build_file = Label("//cargo/remote:BUILD.pyo3-0.12.4.bazel"),
-        init_submodules = True,
+        http_archive,
+        name = "raze__pyo3__0_13_0",
+        url = "https://crates.io/api/v1/crates/pyo3/0.13.0/download",
+        type = "tar.gz",
+        sha256 = "5cdd01a4c2719dd1f3ceab0875fa1a2c2cd3c619477349d78f43cd716b345436",
+        strip_prefix = "pyo3-0.13.0",
+        build_file = Label("//cargo/remote:BUILD.pyo3-0.13.0.bazel"),
     )
 
     maybe(
-        new_git_repository,
-        name = "raze__pyo3_derive_backend__0_12_4",
-        remote = "https://github.com/PyO3/pyo3.git",
-        shallow_since = "1606725379 +0000",
-        commit = "92b7a9736c9585883df5ec5bc01004caa7f65106",
-        build_file = Label("//cargo/remote:BUILD.pyo3-derive-backend-0.12.4.bazel"),
-        init_submodules = True,
+        http_archive,
+        name = "raze__pyo3_macros__0_13_0",
+        url = "https://crates.io/api/v1/crates/pyo3-macros/0.13.0/download",
+        type = "tar.gz",
+        sha256 = "7f8218769d13e354f841d559a19b0cf22cfd55959c7046ef594e5f34dbe46d16",
+        strip_prefix = "pyo3-macros-0.13.0",
+        build_file = Label("//cargo/remote:BUILD.pyo3-macros-0.13.0.bazel"),
     )
 
     maybe(
-        new_git_repository,
-        name = "raze__pyo3cls__0_12_4",
-        remote = "https://github.com/PyO3/pyo3.git",
-        shallow_since = "1606725379 +0000",
-        commit = "92b7a9736c9585883df5ec5bc01004caa7f65106",
-        build_file = Label("//cargo/remote:BUILD.pyo3cls-0.12.4.bazel"),
-        init_submodules = True,
+        http_archive,
+        name = "raze__pyo3_macros_backend__0_13_0",
+        url = "https://crates.io/api/v1/crates/pyo3-macros-backend/0.13.0/download",
+        type = "tar.gz",
+        sha256 = "fc4da0bfdf76f0a5971c698f2cb6b3f832a6f80f16dedeeb3f123eb0431ecce2",
+        strip_prefix = "pyo3-macros-backend-0.13.0",
+        build_file = Label("//cargo/remote:BUILD.pyo3-macros-backend-0.13.0.bazel"),
     )
 
     maybe(

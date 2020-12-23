@@ -19,8 +19,6 @@ COMMITS_SHALLOW_SINCE = {
     "96e1358555c49905de89170f2b1102a7d8b6c4c2": "1598411535 +1000",
     # prost
     "4ded4a98ef339da0b7babd4efee3fbe8adaf746b": "1598739849 -0700",
-    # pyo3
-    "92b7a9736c9585883df5ec5bc01004caa7f65106": "1606725379 +0000",
 }
 
 import os

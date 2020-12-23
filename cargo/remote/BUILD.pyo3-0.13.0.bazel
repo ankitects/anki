@@ -49,7 +49,7 @@ cargo_build_script(
         "inventory",
         "macros",
         "paste",
-        "pyo3cls",
+        "pyo3-macros",
         "unindent",
     ],
     crate_root = "build.rs",
@@ -62,7 +62,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.12.4",
+    version = "0.13.0",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -92,7 +92,7 @@ rust_library(
         "inventory",
         "macros",
         "paste",
-        "pyo3cls",
+        "pyo3-macros",
         "unindent",
     ],
     crate_root = "src/lib.rs",
@@ -104,7 +104,7 @@ rust_library(
         "@raze__ctor__0_1_16//:ctor",
         "@raze__indoc__1_0_3//:indoc",
         "@raze__paste__1_0_4//:paste",
-        "@raze__pyo3cls__0_12_4//:pyo3cls",
+        "@raze__pyo3_macros__0_13_0//:pyo3_macros",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -113,7 +113,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.12.4",
+    version = "0.13.0",
     # buildifier: leave-alone
     deps = [
         ":pyo3_build_script",
