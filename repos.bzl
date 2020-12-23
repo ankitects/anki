@@ -28,7 +28,7 @@ def register_repos():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-	sha256 = "6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf",
+        sha256 = "6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf",
         strip_prefix = "protobuf-3.14.0",
         urls = [
             "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protobuf-all-3.14.0.tar.gz",
@@ -86,8 +86,8 @@ def register_repos():
     maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        sha256 = "cd6c9880292fc83f1fd16ba33000974544b0fe0fccf3d5e15b2e3071ba011266",
-        urls = ["https://github.com/ankitects/rules_nodejs/releases/download/runfiles-fix-release/release.tar.gz"],
+        sha256 = "6142e9586162b179fdd570a55e50d1332e7d9c030efd853453438d607569721d",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0/rules_nodejs-3.0.0.tar.gz"],
     )
 
     # maybe(
@@ -103,29 +103,38 @@ def register_repos():
     # sass
     ############
 
+    # native.local_repository(
+    #     name = "io_bazel_rules_sass",
+    #     path = "../rules_sass",
+    # )
+
     maybe(
         http_archive,
         name = "io_bazel_rules_sass",
-        sha256 = "6e60fc1cf0805af2cdcce727a5eed3f238fb4df41b35ce581c57996947c0202c",
-        strip_prefix = "rules_sass-1.26.12",
-        url = "https://github.com/bazelbuild/rules_sass/archive/1.26.12.zip",
+        strip_prefix = "rules_sass-anki-2020-12-23",
+        urls = [
+            "https://github.com/ankitects/rules_sass/archive/anki-2020-12-23.tar.gz",
+        ],
+        sha256 = "224ae14b8d2166b3ab4c5fa9b2ae1828f30620ac628dc152e6c0859c7853bb97",
     )
 
     # svelte
     ##########
 
-    maybe(
-        git_repository,
-        name = "build_bazel_rules_svelte",
-        commit = "c28cd9e5d251a0ce47c68a6a2a11b075f3df8899",
-        remote = "https://github.com/ankitects/rules_svelte",
-        shallow_since = "1603950453 +1000",
-    )
-
     # native.local_repository(
     #     name = "build_bazel_rules_svelte",
     #     path = "../rules_svelte",
     # )
+
+    maybe(
+        http_archive,
+        name = "build_bazel_rules_svelte",
+        strip_prefix = "rules_svelte-anki-2020-12-23",
+        urls = [
+            "https://github.com/ankitects/rules_svelte/archive/anki-2020-12-23.tar.gz",
+        ],
+        sha256 = "eb0e910579b71242b44480b5dcc34c63d9a530d6fb7913139759ef397ff30bb2",
+    )
 
     # translations
     ################
