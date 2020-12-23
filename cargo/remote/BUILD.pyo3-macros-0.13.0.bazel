@@ -31,12 +31,12 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "pyo3_derive_backend",
+    name = "pyo3_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "pyo3-derive-backend/src/lib.rs",
-    crate_type = "lib",
+    crate_root = "src/lib.rs",
+    crate_type = "proc-macro",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -46,10 +46,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.12.4",
+    version = "0.13.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__pyo3_macros_backend__0_13_0//:pyo3_macros_backend",
         "@raze__quote__1_0_8//:quote",
         "@raze__syn__1_0_55//:syn",
     ],

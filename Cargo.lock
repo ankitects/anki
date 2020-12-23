@@ -1580,8 +1580,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3"
-version = "0.12.4"
-source = "git+https://github.com/PyO3/pyo3.git?rev=92b7a9736c9585883df5ec5bc01004caa7f65106#92b7a9736c9585883df5ec5bc01004caa7f65106"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5cdd01a4c2719dd1f3ceab0875fa1a2c2cd3c619477349d78f43cd716b345436"
 dependencies = [
  "cfg-if 1.0.0",
  "ctor",
@@ -1590,26 +1591,28 @@ dependencies = [
  "libc",
  "parking_lot",
  "paste",
- "pyo3cls",
+ "pyo3-macros",
  "unindent",
 ]
 
 [[package]]
-name = "pyo3-derive-backend"
-version = "0.12.4"
-source = "git+https://github.com/PyO3/pyo3.git?rev=92b7a9736c9585883df5ec5bc01004caa7f65106#92b7a9736c9585883df5ec5bc01004caa7f65106"
+name = "pyo3-macros"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f8218769d13e354f841d559a19b0cf22cfd55959c7046ef594e5f34dbe46d16"
 dependencies = [
- "proc-macro2",
+ "pyo3-macros-backend",
  "quote",
  "syn",
 ]
 
 [[package]]
-name = "pyo3cls"
-version = "0.12.4"
-source = "git+https://github.com/PyO3/pyo3.git?rev=92b7a9736c9585883df5ec5bc01004caa7f65106#92b7a9736c9585883df5ec5bc01004caa7f65106"
+name = "pyo3-macros-backend"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc4da0bfdf76f0a5971c698f2cb6b3f832a6f80f16dedeeb3f123eb0431ecce2"
 dependencies = [
- "pyo3-derive-backend",
+ "proc-macro2",
  "quote",
  "syn",
 ]

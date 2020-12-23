@@ -1495,7 +1495,7 @@
   },
   {
     "name": "pyo3",
-    "version": "0.12.4",
+    "version": "0.13.0",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
@@ -1503,22 +1503,22 @@
     "description": "Bindings to Python interpreter"
   },
   {
-    "name": "pyo3-derive-backend",
-    "version": "0.12.4",
-    "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
-    "repository": "https://github.com/pyo3/pyo3",
-    "license": "Apache-2.0",
-    "license_file": null,
-    "description": "Code generation for PyO3 package"
-  },
-  {
-    "name": "pyo3cls",
-    "version": "0.12.4",
+    "name": "pyo3-macros",
+    "version": "0.13.0",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
     "license_file": null,
     "description": "Proc macros for PyO3 package"
+  },
+  {
+    "name": "pyo3-macros-backend",
+    "version": "0.13.0",
+    "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
+    "repository": "https://github.com/pyo3/pyo3",
+    "license": "Apache-2.0",
+    "license_file": null,
+    "description": "Code generation for PyO3 package"
   },
   {
     "name": "quote",
