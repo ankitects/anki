@@ -31,7 +31,7 @@ other than /usr/bin, you'll need to put the following into a file called user.ba
 at the top of this repo before proceeding:
 
 ```
-build --action_env=PYTHON_SYS_EXECUTABLE=/usr/local/bin/python
+build --action_env=PYTHON_SYS_EXECUTABLE=/usr/local/bin/python3.8
 ```
 
 If you're building Anki from a docker container or distro that has no `python` command in
