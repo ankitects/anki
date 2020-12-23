@@ -55,9 +55,12 @@ typing-extensions==3.7.4.3  # via black, mypy
 urllib3==1.26.2           # via requests
 waitress==2.0.0b1         # via -r requirements.in
 werkzeug==1.0.1           # via flask
-winrt==1.0.20239.1 ; sys_platform == "win32" and platform_release == "10"  # via -r requirements.in
+winrt==1.0.20239.1 ; sys_platform == "win32" and platform_release == "10" and python_version == "3.8"  # via -r requirements.in
 wrapt==1.12.1             # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==20.3.3               # via pip-tools
-setuptools==51.1.0.post20201221  # via jsonschema
+setuptools==51.1.0        # via jsonschema
+
+# manually added for now; ensure it and the earlier winrt are not removed on update
+winrt==1.0.20330.1; sys.platform == "win32" and platform_release == "10" and python_version >= "3.9"
