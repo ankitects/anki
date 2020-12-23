@@ -12,10 +12,11 @@
     export let graphs: any[];
 
     export let search: string;
-    export let days: number;
+    export let revlogRange: RevlogRange;
     export let withRangeBox: boolean;
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
+    let days;
 
     enum SearchRange {
         Deck = 1,
@@ -24,7 +25,6 @@
     }
 
     let searchRange: SearchRange = SearchRange.Deck;
-    let revlogRange: RevlogRange = RevlogRange.Year;
     let refreshing = false;
 
     let displayedSearch = search;

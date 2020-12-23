@@ -4,6 +4,7 @@
 import { setupI18n } from "anki/i18n";
 import GraphsPage from "./GraphsPage.svelte";
 import { checkNightMode } from "anki/nightmode";
+import { RevlogRange } from "./graph-helpers";
 
 export { default as IntervalsGraph } from "./IntervalsGraph.svelte";
 export { default as EaseGraph } from "./EaseGraph.svelte";
@@ -15,12 +16,13 @@ export { default as HourGraph } from "./HourGraph.svelte";
 export { default as FutureDue } from "./FutureDue.svelte";
 export { default as ReviewsGraph } from "./ReviewsGraph.svelte";
 export { default as CalendarGraph } from "./CalendarGraph.svelte";
+export { RevlogRange } from "./graph-helpers";
 
 export function graphs(
     target: HTMLDivElement,
     graphs: any[], {
         search = "deck:current",
-        days = 31,
+        revlogRange = RevlogRange.Year,
         withRangeBox = true,
     } = {},
 ): void {
@@ -34,7 +36,7 @@ export function graphs(
                 graphs,
                 nightMode,
                 search,
-                days,
+                revlogRange,
                 withRangeBox,
             },
         });
