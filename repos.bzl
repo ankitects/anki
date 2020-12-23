@@ -131,11 +131,13 @@ def register_repos():
     # translations
     ################
 
+    core_i18n_repo = "anki-core-i18n"
     core_i18n_commit = "b1c03cebb554e8568529e293756ac36cdf62341a"
-    core_i18n_shallow_since = "1608607833 +1000"
+    core_i18n_zip_csum = "ce9c846e6985af9bda2d51390df4dd8a65e91ce9f8f217a0ef46565271303e43"
 
-    qtftl_i18n_commit = "e7dda1058c0510665f2ea8d8ffd74e506e578f7a"
-    qtftl_i18n_shallow_since = "1608607833 +1000"
+    qtftl_i18n_repo = "anki-desktop-ftl"
+    qtftl_i18n_commit = "e8fa8cb9a9a5eb4d6f9b4c14111aa2c48ac62cc9"
+    qtftl_i18n_zip_csum = "557b7ae01324e38d23009805c7bef87d32413682a8bb68726df8724fbb9424c7"
 
     i18n_build_content = """
 filegroup(
@@ -147,19 +149,29 @@ exports_files(["l10n.toml"])
 """
 
     maybe(
-        new_git_repository,
+        http_archive,
         name = "rslib_ftl",
         build_file_content = i18n_build_content,
-        commit = core_i18n_commit,
-        shallow_since = core_i18n_shallow_since,
-        remote = "https://github.com/ankitects/anki-core-i18n",
+        strip_prefix = core_i18n_repo + "-" + core_i18n_commit,
+        urls = [
+            "https://github.com/ankitects/{}/archive/{}.zip".format(
+                core_i18n_repo,
+                core_i18n_commit,
+            ),
+        ],
+        sha256 = core_i18n_zip_csum,
     )
 
     maybe(
-        new_git_repository,
+        http_archive,
         name = "extra_ftl",
         build_file_content = i18n_build_content,
-        commit = qtftl_i18n_commit,
-        shallow_since = qtftl_i18n_shallow_since,
-        remote = "https://github.com/ankitects/anki-desktop-ftl",
+        strip_prefix = qtftl_i18n_repo + "-" + qtftl_i18n_commit,
+        urls = [
+            "https://github.com/ankitects/{}/archive/{}.zip".format(
+                qtftl_i18n_repo,
+                qtftl_i18n_commit,
+            ),
+        ],
+        sha256 = qtftl_i18n_zip_csum,
     )
