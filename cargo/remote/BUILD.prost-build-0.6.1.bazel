@@ -80,7 +80,7 @@ rust_library(
     deps = [
         ":prost_build_build_script",
         "@raze__bytes__0_5_6//:bytes",
-        "@raze__heck__0_3_1//:heck",
+        "@raze__heck__0_3_2//:heck",
         "@raze__itertools__0_9_0//:itertools",
         "@raze__log__0_4_11//:log",
         "@raze__multimap__0_8_2//:multimap",

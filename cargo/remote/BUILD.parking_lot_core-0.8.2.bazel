@@ -25,13 +25,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "socket2",
+    name = "parking_lot_core",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
@@ -48,9 +48,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.18",
+    version = "0.8.2",
     # buildifier: leave-alone
     deps = [
+        "@raze__cfg_if__1_0_0//:cfg_if",
+        "@raze__instant__0_1_9//:instant",
+        "@raze__smallvec__1_5_1//:smallvec",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -59,7 +62,6 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__cfg_if__1_0_0//:cfg_if",
             "@raze__libc__0_2_81//:libc",
         ],
         "//conditions:default": [],

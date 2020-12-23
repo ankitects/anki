@@ -54,8 +54,8 @@ rust_library(
         "@raze__lazy_static__1_4_0//:lazy_static",
         "@raze__log__0_4_11//:log",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_54//:syn",
+        "@raze__quote__1_0_8//:quote",
+        "@raze__syn__1_0_55//:syn",
         "@raze__wasm_bindgen_shared__0_2_69//:wasm_bindgen_shared",
     ],
 )

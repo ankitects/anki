@@ -31,11 +31,9 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "quote",
+    name = "heck",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,13 +46,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.7",
+    version = "0.3.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__unicode_segmentation__1_7_1//:unicode_segmentation",
     ],
 )
-
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test" with type "test" omitted

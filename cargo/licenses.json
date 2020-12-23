@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.35",
+    "version": "1.0.36",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -766,7 +766,7 @@
   },
   {
     "name": "heck",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "authors": "Without Boats <woboats@gmail.com>",
     "repository": "https://github.com/withoutboats/heck",
     "license": "Apache-2.0 OR MIT",
@@ -1297,7 +1297,7 @@
   },
   {
     "name": "parking_lot_core",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/parking_lot",
     "license": "Apache-2.0 OR MIT",
@@ -1522,7 +1522,7 @@
   },
   {
     "name": "quote",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/quote",
     "license": "Apache-2.0 OR MIT",
@@ -1909,7 +1909,7 @@
   },
   {
     "name": "socket2",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/socket2-rs",
     "license": "Apache-2.0 OR MIT",
@@ -1954,7 +1954,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.54",
+    "version": "1.0.55",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -2134,7 +2134,7 @@
   },
   {
     "name": "toml",
-    "version": "0.5.7",
+    "version": "0.5.8",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/toml-rs",
     "license": "Apache-2.0 OR MIT",

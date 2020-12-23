@@ -50,7 +50,7 @@ rust_library(
     version = "0.2.69",
     # buildifier: leave-alone
     deps = [
-        "@raze__quote__1_0_7//:quote",
+        "@raze__quote__1_0_8//:quote",
         "@raze__wasm_bindgen_macro_support__0_2_69//:wasm_bindgen_macro_support",
     ],
 )

@@ -54,7 +54,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.35",
+    version = "1.0.36",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -78,7 +78,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.35",
+    version = "1.0.36",
     # buildifier: leave-alone
     deps = [
         ":anyhow_build_script",
@@ -100,6 +100,8 @@ rust_library(
 # Unsupported target "test_convert" with type "test" omitted
 
 # Unsupported target "test_downcast" with type "test" omitted
+
+# Unsupported target "test_ffi" with type "test" omitted
 
 # Unsupported target "test_fmt" with type "test" omitted
 
