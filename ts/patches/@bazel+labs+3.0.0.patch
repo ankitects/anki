@@ -1,5 +1,5 @@
 diff --git a/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl b/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl
-index 3de013c..2ef1c84 100755
+index fec29b6..fc77192 100755
 --- a/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl
 +++ b/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl
 @@ -15,7 +15,16 @@

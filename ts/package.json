@@ -6,9 +6,9 @@
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
     "devDependencies": {
-        "@bazel/labs": "=2.2.2",
-        "@bazel/rollup": "=2.2.2",
-        "@bazel/typescript": "=2.2.2",
+        "@bazel/labs": "^3.0.0",
+        "@bazel/rollup": "^3.0.0",
+        "@bazel/typescript": "^3.0.0",
         "@pyoner/svelte-types": "^3.4.4-2",
         "@rollup/plugin-commonjs": "^15.1.0",
         "@rollup/plugin-node-resolve": "^9.0.0",

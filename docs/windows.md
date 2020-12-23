@@ -63,9 +63,9 @@ problems.
 
 ## Build failures
 
-The Javascript bundling on Windows is currently a bit flaky, so the initial
-build will likely fail with an error about a missing rollup module. If you
-get an error when running the commands below, try repeating them once or twice.
+The Javascript rules have been a bit flaky on Windows in the past. If you
+experience a build failure, try running the same command again, as there's
+a good chance the build will succeed the second time.
 
 ## Running Anki during development
 
