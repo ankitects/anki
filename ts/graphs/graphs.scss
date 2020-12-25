@@ -150,12 +150,7 @@
     animation-iteration-count: infinite;
     display: inline-block;
     font-size: 2em;
-    opacity: 0;
-}
-
-.spin.active {
     opacity: 0.5;
-    transition: opacity 1s;
 }
 
 .legend-outer {
