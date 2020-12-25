@@ -23,7 +23,7 @@
     const refreshWith = async (search: string, days: number) => {
         try {
             sourceData = await getGraphData(search, days);
-            revlogRange = days > 365
+            revlogRange = days > 365 || days === 0
                 ? RevlogRange.All
                 : RevlogRange.Year;
         } catch (e) {

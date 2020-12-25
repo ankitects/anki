@@ -18,7 +18,7 @@
 
     const dispatch = createEventDispatcher();
 
-    let revlogRange: RevlogRange = days <= 365
+    let revlogRange: RevlogRange = days > 365 || days === 0
         ? RevlogRange.Year
         : RevlogRange.All;
 
