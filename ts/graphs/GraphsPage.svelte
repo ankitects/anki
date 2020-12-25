@@ -127,7 +127,7 @@
 {/if}
 
 {#await dataPromise}
-    <div class="spin {refreshing ? 'active' : ''}">◐</div>
+    <div class="spin">◐</div>
 {:then sourceData}
     <div tabindex="-1" class="no-focus-outline">
         {#each graphs as Graph}
