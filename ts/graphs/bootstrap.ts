@@ -22,7 +22,7 @@ export function graphs(
     target: HTMLDivElement,
     graphs: any[], {
         search = "deck:current",
-        revlogRange = RevlogRange.Year,
+        days = 365,
         withRangeBox = true,
     } = {},
 ): void {
@@ -36,7 +36,7 @@ export function graphs(
                 graphs,
                 nightMode,
                 search,
-                revlogRange,
+                days,
                 withRangeBox,
             },
         });
