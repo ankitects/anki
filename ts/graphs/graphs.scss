@@ -144,7 +144,10 @@
 }
 
 .spin {
-    position: absolute;
+    position: sticky;
+    left: 50%;
+    top: 50%;
+
     animation: spin;
     animation-duration: 1s;
     animation-iteration-count: infinite;
