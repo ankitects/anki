@@ -17,10 +17,12 @@
     export let days: number;
     export let withRangeBox: boolean;
 
+    let active = false;
     let sourceData: pb.BackendProto.GraphsOut | null = null;
     let revlogRange: RevlogRange;
 
     const refreshWith = async (search: string, days: number) => {
+        active = true;
         try {
             sourceData = await getGraphData(search, days);
             revlogRange = days > 365 || days === 0
@@ -30,14 +32,11 @@
             sourceData = null;
             alert(i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING));
         }
+        active = false;
     }
 
-    let active = false;
-
     const refresh = (event: CustomEvent) => {
-        active = true;
         refreshWith(event.detail.search, event.detail.days)
-        active = false;
     }
 
     refreshWith(search, days)
