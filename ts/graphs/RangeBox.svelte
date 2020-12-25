@@ -1,6 +1,7 @@
 <script lang="typescript">
     import { createEventDispatcher } from 'svelte';
 
+    import type { I18n } from "anki/i18n";
     import { RevlogRange } from "./graph-helpers";
 
     enum SearchRange {
@@ -10,14 +11,23 @@
     }
 
     export let i18n: I18n;
+    export let active: boolean;
+
+    export let days: number;
+    export let search: string;
 
     const dispatch = createEventDispatcher();
 
-    let revlogRange: RevlogRange = RevlogRange.Year;
-    let searchRange: SearchRange = SearchRange.Deck;
+    let revlogRange: RevlogRange = days <= 365
+        ? RevlogRange.Year
+        : RevlogRange.All;
 
-    let days;
-    let search;
+    let searchRange: SearchRange = search === "deck:current"
+        ? SearchRange.Deck
+        : search === ""
+        ? SearchRange.Collection
+        : SearchRange.Custom;
+
     let displayedSearch = search;
 
     const update = () => {
@@ -71,6 +81,8 @@
 
 
 <div class="range-box">
+    <div class="spin" class:active>◐</div>
+
     <div class="range-box-inner">
         <label>
             <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
