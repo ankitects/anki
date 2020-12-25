@@ -4,7 +4,6 @@
 
 <script lang="typescript">
     import RangeBox from './RangeBox.svelte'
-    import { afterUpdate } from 'svelte';
 
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
@@ -18,50 +17,40 @@
     export let days: number;
     export let withRangeBox: boolean;
 
-    let dataPromise: Promise<pb.backend.GraphsOut>;
+    let sourceData: pb.BackendProto.GraphsOut | null = null;
     let revlogRange: RevlogRange;
 
-    const refreshWith = (search, days, revlogRange) => {
-        dataPromise = getGraphData(search, days);
-        revlogRange = days > 365
+    const refreshWith = async (search: string, days: number) => {
+        try {
+            sourceData = await getGraphData(search, days);
+            revlogRange = days > 365
                 ? RevlogRange.All
                 : RevlogRange.Year;
+        } catch (e) {
+            sourceData = null;
+            alert(i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING));
+        }
     }
 
-    const refresh = (event) => {
+    let active = false;
+
+    const refresh = (event: CustomEvent) => {
+        active = true;
         refreshWith(event.detail.search, event.detail.days)
+        active = false;
     }
 
     refreshWith(search, days)
-
-    let spinner: HTMLDivElement;
-    let graphsContainer: HTMLDivElement;
-
-    afterUpdate(() => {
-        // make sure graph container retains its size for spinner
-        if (spinner) {
-            graphsContainer.style.minHeight = `${document.documentElement.scrollHeight}px`;
-        }
-        else {
-            graphsContainer.style.minHeight = '';
-        }
-    })
 </script>
 
 {#if withRangeBox}
-    <RangeBox {i18n} {search} {days} on:update={refresh} />
+    <RangeBox {i18n} {search} {days} {active} on:update={refresh} />
 {/if}
 
-<div bind:this={graphsContainer} tabindex="-1" class="no-focus-outline">
-    {#await dataPromise}
-        <div bind:this={spinner} class="spin">◐</div>
-    {:then sourceData}
-            {#each graphs as Graph}
-                <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
-            {/each}
-    {:catch error}
-        <script>
-            alert({i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING)});
-        </script>
-    {/await}
-</div>
+{#if sourceData}
+    <div tabindex="-1" class="no-focus-outline">
+        {#each graphs as Graph}
+            <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
+        {/each}
+    </div>
+{/if}

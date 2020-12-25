@@ -144,16 +144,18 @@
 }
 
 .spin {
-    position: sticky;
-    left: 50%;
-    top: 50%;
-
+    position: absolute;
     animation: spin;
     animation-duration: 1s;
     animation-iteration-count: infinite;
     display: inline-block;
     font-size: 2em;
+    opacity: 0;
+}
+
+.spin.active {
     opacity: 0.5;
+    transition: opacity 1s;
 }
 
 .legend-outer {
