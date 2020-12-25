@@ -3,7 +3,8 @@
 </script>
 
 <script lang="typescript">
-    import { fade } from 'svelte/transition';
+    import { afterUpdate } from 'svelte';
+
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange } from "./graph-helpers";
@@ -81,6 +82,19 @@
         }
     };
 
+    let spinner: HTMLDivElement;
+    let graphsContainer: HTMLDivElement;
+
+    afterUpdate(() => {
+        // make sure graph container retains its size for spinner
+        if (spinner) {
+            graphsContainer.style.minHeight = `${document.documentElement.scrollHeight}px`;
+        }
+        else {
+            graphsContainer.style.minHeight = '';
+        }
+    })
+
     const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
     const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
     const collection = i18n.tr(i18n.TR.STATISTICS_RANGE_COLLECTION);
@@ -127,16 +141,16 @@
     <div class="range-box-pad" />
 {/if}
 
-{#await dataPromise}
-    <div class="spin" transition:fade="{{duration=50}}">◐</div>
-{:then sourceData}
-    <div tabindex="-1" class="no-focus-outline">
-        {#each graphs as Graph}
-            <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
-        {/each}
-    </div>
-{:catch error}
-    <script>
-        alert({i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING)});
-    </script>
-{/await}
+<div bind:this={graphsContainer} tabindex="-1" class="no-focus-outline">
+    {#await dataPromise}
+        <div bind:this={spinner} class="spin">◐</div>
+    {:then sourceData}
+            {#each graphs as Graph}
+                <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
+            {/each}
+    {:catch error}
+        <script>
+            alert({i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING)});
+        </script>
+    {/await}
+</div>
