@@ -3,6 +3,7 @@
 </script>
 
 <script lang="typescript">
+    import { fade } from 'svelte/transition';
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange } from "./graph-helpers";
@@ -127,7 +128,7 @@
 {/if}
 
 {#await dataPromise}
-    <div class="spin">◐</div>
+    <div class="spin" transition:fade="{{duration=50}}">◐</div>
 {:then sourceData}
     <div tabindex="-1" class="no-focus-outline">
         {#each graphs as Graph}
