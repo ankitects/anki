@@ -17,6 +17,10 @@
     --area-stroke-opacity: 0.18;
 }
 
+* {
+    overscroll-behavior: none;
+}
+
 .graph-tooltip {
     position: absolute;
     padding: 15px;
