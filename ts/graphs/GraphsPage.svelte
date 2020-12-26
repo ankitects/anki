@@ -3,19 +3,18 @@
 </script>
 
 <script lang="typescript">
-    import RangeBox from './RangeBox.svelte'
-
+    import type { SvelteComnponent } from 'svelte/internal';
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange } from "./graph-helpers";
 
     export let i18n: I18n;
     export let nightMode: boolean;
-    export let graphs: any[];
+    export let graphs: SvelteComponent[];
 
     export let search: string;
     export let days: number;
-    export let withRangeBox: boolean;
+    export let controller: SvelteComponent;
 
     let active = false;
     let sourceData: pb.BackendProto.GraphsOut | null = null;
@@ -42,14 +41,14 @@
     refreshWith(search, days)
 </script>
 
-{#if withRangeBox}
-    <RangeBox {i18n} {search} {days} {active} on:update={refresh} />
+{#if controller}
+    <svelte:component this={controller} {i18n} {search} {days} {active} on:update={refresh} />
 {/if}
 
 {#if sourceData}
     <div tabindex="-1" class="no-focus-outline">
-        {#each graphs as Graph}
-            <Graph {sourceData} {revlogRange} {i18n} {nightMode} />
+        {#each graphs as graph}
+            <svelte:component this={graph} {sourceData} {revlogRange} {i18n} {nightMode} />
         {/each}
     </div>
 {/if}
