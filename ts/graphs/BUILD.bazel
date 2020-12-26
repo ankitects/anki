@@ -30,6 +30,7 @@ ts_library(
         "GraphsPage",
         "lib",
         "//ts/lib",
+        "@npm//svelte",
         "@npm//svelte2tsx",
     ],
 )
