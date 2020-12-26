@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from "svelte";
 
     import type { I18n } from "anki/i18n";
     import { RevlogRange } from "./graph-helpers";
@@ -18,20 +18,20 @@
 
     const dispatch = createEventDispatcher();
 
-    let revlogRange: RevlogRange = days > 365 || days === 0
-        ? RevlogRange.Year
-        : RevlogRange.All;
+    let revlogRange: RevlogRange =
+        days > 365 || days === 0 ? RevlogRange.Year : RevlogRange.All;
 
-    let searchRange: SearchRange = search === "deck:current"
-        ? SearchRange.Deck
-        : search === ""
-        ? SearchRange.Collection
-        : SearchRange.Custom;
+    let searchRange: SearchRange =
+        search === "deck:current"
+            ? SearchRange.Deck
+            : search === ""
+            ? SearchRange.Collection
+            : SearchRange.Custom;
 
     let displayedSearch = search;
 
     const update = () => {
-        dispatch('update', {
+        dispatch("update", {
             days: days,
             search: search,
             searchRange: searchRange,
@@ -42,11 +42,11 @@
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
                 search = displayedSearch = "deck:current";
-                update()
+                update();
                 break;
             case SearchRange.Collection:
                 search = displayedSearch = "";
-                update()
+                update();
                 break;
         }
     }
@@ -55,11 +55,11 @@
         switch (revlogRange as RevlogRange) {
             case RevlogRange.Year:
                 days = 365;
-                update()
+                update();
                 break;
             case RevlogRange.All:
                 days = 0;
-                update()
+                update();
                 break;
         }
     }
@@ -68,7 +68,7 @@
         // fetch data on enter
         if (e.key == "Enter") {
             search = displayedSearch;
-            update()
+            update();
         }
     };
 
@@ -78,7 +78,6 @@
     const searchLabel = i18n.tr(i18n.TR.STATISTICS_RANGE_SEARCH);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
 </script>
-
 
 <div class="range-box">
     <div class="spin" class:active>◐</div>
@@ -101,7 +100,7 @@
             bind:value={displayedSearch}
             on:keyup={searchKeyUp}
             on:focus={() => {
-            searchRange = SearchRange.Custom;
+                searchRange = SearchRange.Custom;
             }}
             placeholder={searchLabel} />
     </div>
