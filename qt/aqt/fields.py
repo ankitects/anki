@@ -88,6 +88,10 @@ class FieldDialog(QDialog):
         if txt[0] in "#^/":
             showWarning(tr(TR.FIELDS_NAME_FIRST_LETTER_NOT_VALID))
             return
+        for letter in """:{"}""":
+            if letter in txt:
+                showWarning(tr(TR.FIELDS_NAME_INVALID_LETTER))
+                return
         for f in self.model["flds"]:
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
