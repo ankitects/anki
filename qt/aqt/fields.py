@@ -85,6 +85,9 @@ class FieldDialog(QDialog):
         txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
             return
+        if txt[0] in "#^/":
+            showWarning(tr(TR.FIELDS_NAME_FIRST_LETTER_NOT_VALID))
+            return
         for f in self.model["flds"]:
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
