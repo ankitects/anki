@@ -82,7 +82,7 @@ class FieldDialog(QDialog):
         self.loadField(idx)
 
     def _uniqueName(self, prompt, ignoreOrd=None, old=""):
-        txt = getOnlyText(prompt, default=old).replace('"', "")
+        txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
             return
         for f in self.model["flds"]:
