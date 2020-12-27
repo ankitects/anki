@@ -121,8 +121,10 @@ Please make sure 'bazel test //...' completes successfully before submitting cod
 You can do this automatically by adding the following into
 .git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
+```sh
 #!/bin/bash
 bazel test //...
+```
 
 If your change is non-trivial and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
