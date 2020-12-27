@@ -108,10 +108,6 @@ in one of those files will update the generated files.
 
 ## Translations
 
-The translations into other languages will be fetched on the first build.
-If you'd like to keep them up to date, you need to run 'make pull-i18n'
-periodically.
-
 For information on adding new translatable strings to Anki, please see
 https://translating.ankiweb.net/#/anki/developers
 
