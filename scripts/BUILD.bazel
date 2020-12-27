@@ -3,7 +3,7 @@ load("@py_deps//:requirements.bzl", "requirement")
 py_binary(
     name = "buildinfo",
     srcs = ["buildinfo.py"],
-    data = ["//:defs.bzl"],
+    data = ["//:pylib_defs.bzl"],
     stamp = 1,
     visibility = ["//visibility:public"],
 )

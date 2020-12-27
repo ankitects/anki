@@ -1,17 +1,14 @@
-"""
-Dependencies required to build Anki.
-"""
+"""Load dependencies needed to compile the pylib library as a 3rd-party consumer."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
-def register_repos():
-    "Register required dependency repos."
+def pylib_deps():
+    """Loads common dependencies needed to compile the pylib library."""
 
     # bazel
     ##########
-
     maybe(
         http_archive,
         name = "bazel_skylib",
@@ -29,7 +26,6 @@ def register_repos():
     #     name = "io_bazel_rules_rust",
     #     path = "../rules_rust",
     # )
-
     maybe(
         http_archive,
         name = "io_bazel_rules_rust",
@@ -71,43 +67,6 @@ def register_repos():
             "https://github.com/ankitects/rules_pip/archive/anki-2020-11-30.tar.gz",
         ],
         sha256 = "ab4f10967eb87985383a4172d4533dde568b3ff502aa550239eeccead249325b",
-    )
-
-    # javascript
-    ##############
-
-    # maybe(
-    #     http_archive,
-    #     name = "build_bazel_rules_nodejs",
-    #     urls = [
-    #         "file:///c:/anki/release.tar.gz",
-    #         "file:///Users/dae/Work/code/dtop/release.tar.gz",
-    #     ],
-    # )
-
-    maybe(
-        http_archive,
-        name = "build_bazel_rules_nodejs",
-        sha256 = "6142e9586162b179fdd570a55e50d1332e7d9c030efd853453438d607569721d",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0/rules_nodejs-3.0.0.tar.gz"],
-    )
-
-    # sass
-    ############
-
-    # native.local_repository(
-    #     name = "io_bazel_rules_sass",
-    #     path = "../rules_sass",
-    # )
-
-    maybe(
-        http_archive,
-        name = "io_bazel_rules_sass",
-        strip_prefix = "rules_sass-anki-2020-12-23",
-        urls = [
-            "https://github.com/ankitects/rules_sass/archive/anki-2020-12-23.tar.gz",
-        ],
-        sha256 = "224ae14b8d2166b3ab4c5fa9b2ae1828f30620ac628dc152e6c0859c7853bb97",
     )
 
     # svelte
@@ -175,3 +134,4 @@ exports_files(["l10n.toml"])
         ],
         sha256 = qtftl_i18n_zip_csum,
     )
+

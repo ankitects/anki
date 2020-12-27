@@ -5,14 +5,21 @@ workspace(
     ]},
 )
 
-load(":repos.bzl", "register_repos")
+load(":pylib_deps.bzl", "pylib_deps")
+pylib_deps()
 
-register_repos()
+load(":desktop_extradeps.bzl", desktop_extradeps = "register_repos")
+desktop_extradeps()
 
-load(":defs.bzl", "setup_deps")
+load(":pylib_defs.bzl", pylib_setup_deps = "setup_deps")
+pylib_setup_deps()
 
-setup_deps()
+load(":desktop_extradefs.bzl", desktop_extradefs = "setup_deps")
+desktop_extradefs()
 
-load(":late_deps.bzl", "setup_late_deps")
 
+load(":pylib_late_deps.bzl", pylib_setup_late_deps = "setup_late_deps")
+pylib_setup_late_deps()
+
+load(":desktop_late_deps.bzl", "setup_late_deps")
 setup_late_deps()
