@@ -3,7 +3,7 @@
 </script>
 
 <script lang="typescript">
-    import type { SvelteComnponent } from "svelte/internal";
+    import type { SvelteComponent } from "svelte/internal";
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange } from "./graph-helpers";
