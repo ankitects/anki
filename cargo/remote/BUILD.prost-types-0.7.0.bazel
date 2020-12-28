@@ -31,12 +31,12 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "prost_derive",
+    name = "prost_types",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "prost-derive/src/lib.rs",
-    crate_type = "proc-macro",
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -46,13 +46,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.6.1",
+    version = "0.7.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_36//:anyhow",
-        "@raze__itertools__0_9_0//:itertools",
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_8//:quote",
-        "@raze__syn__1_0_55//:syn",
+        "@raze__bytes__1_0_0//:bytes",
+        "@raze__prost__0_7_0//:prost",
     ],
 )

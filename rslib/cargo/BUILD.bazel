@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "async_compression",
-    actual = "@raze__async_compression__0_3_6//:async_compression",
+    actual = "@raze__async_compression__0_3_7//:async_compression",
     tags = [
         "cargo-raze",
         "manual",
@@ -221,7 +221,7 @@ alias(
 
 alias(
     name = "prost",
-    actual = "@raze__prost__0_6_1//:prost",
+    actual = "@raze__prost__0_7_0//:prost",
     tags = [
         "cargo-raze",
         "manual",
@@ -230,7 +230,7 @@ alias(
 
 alias(
     name = "prost_build",
-    actual = "@raze__prost_build__0_6_1//:prost_build",
+    actual = "@raze__prost_build__0_7_0//:prost_build",
     tags = [
         "cargo-raze",
         "manual",

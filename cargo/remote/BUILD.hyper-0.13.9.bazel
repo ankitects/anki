@@ -104,7 +104,7 @@ rust_library(
         "@raze__http_body__0_3_1//:http_body",
         "@raze__httparse__1_3_4//:httparse",
         "@raze__httpdate__0_3_2//:httpdate",
-        "@raze__itoa__0_4_6//:itoa",
+        "@raze__itoa__0_4_7//:itoa",
         "@raze__pin_project__1_0_2//:pin_project",
         "@raze__socket2__0_3_19//:socket2",
         "@raze__tokio__0_2_24//:tokio",
