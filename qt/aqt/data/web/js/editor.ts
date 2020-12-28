@@ -115,11 +115,6 @@ function inPreEnvironment() {
 }
 
 function onInput() {
-    // empty field?
-    if (currentField.innerHTML === "") {
-        currentField.innerHTML = "<br>";
-    }
-
     // make sure IME changes get saved
     triggerKeyTimer();
 }
@@ -335,9 +330,6 @@ function setFields(fields) {
     for (let i = 0; i < fields.length; i++) {
         const n = fields[i][0];
         let f = fields[i][1];
-        if (!f) {
-            f = "<br>";
-        }
         txt += `
         <tr>
             <td class=fname id="name${i}">
@@ -400,20 +392,12 @@ function hideDupes() {
     $("#dupes").hide();
 }
 
-/// If the field has only an empty br, remove it first.
-let insertHtmlRemovingInitialBR = function (html: string) {
-    if (html !== "") {
-        // remove <br> in empty field
-        if (currentField && currentField.innerHTML === "<br>") {
-            currentField.innerHTML = "";
-        }
-        setFormat("inserthtml", html);
-    }
-};
-
 let pasteHTML = function (html, internal, extendedMode) {
     html = filterHTML(html, internal, extendedMode);
-    insertHtmlRemovingInitialBR(html);
+
+    if (html !== "") {
+        setFormat("inserthtml", html);
+    }
 };
 
 let filterHTML = function (html, internal, extendedMode) {
