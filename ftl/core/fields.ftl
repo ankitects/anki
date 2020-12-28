@@ -12,3 +12,5 @@ fields-reverse-text-direction-rtl = Reverse text direction (RTL)
 fields-size = Size:
 fields-sort-by-this-field-in-the = Sort by this field in the browser
 fields-that-field-name-is-already-used = That field name is already used.
+fields-name-first-letter-not-valid = The field name should not start with #, ^ or /.
+fields-name-invalid-letter = The field name should not contain :, ", { or }.
