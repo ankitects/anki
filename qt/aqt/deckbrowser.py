@@ -124,7 +124,7 @@ class DeckBrowser:
             self._body % content.__dict__,
             css=["css/deckbrowser.css"],
             js=[
-                "js/vendor/jquery/jquery.min.js",
+                "js/vendor/jquery.min.js",
                 "js/vendor/jquery-ui.js",
                 "js/deckbrowser.js",
             ],
