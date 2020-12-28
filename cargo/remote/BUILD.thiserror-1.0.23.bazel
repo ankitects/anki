@@ -25,27 +25,22 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "varint" with type "bench" omitted
-
 rust_library(
-    name = "prost",
+    name = "thiserror",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "prost-derive",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__prost_derive__0_6_1//:prost_derive",
+        "@raze__thiserror_impl__1_0_23//:thiserror_impl",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -54,9 +49,32 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.6.1",
+    version = "1.0.23",
     # buildifier: leave-alone
     deps = [
-        "@raze__bytes__0_5_6//:bytes",
     ],
 )
+
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test_backtrace" with type "test" omitted
+
+# Unsupported target "test_deprecated" with type "test" omitted
+
+# Unsupported target "test_display" with type "test" omitted
+
+# Unsupported target "test_error" with type "test" omitted
+
+# Unsupported target "test_expr" with type "test" omitted
+
+# Unsupported target "test_from" with type "test" omitted
+
+# Unsupported target "test_lints" with type "test" omitted
+
+# Unsupported target "test_option" with type "test" omitted
+
+# Unsupported target "test_path" with type "test" omitted
+
+# Unsupported target "test_source" with type "test" omitted
+
+# Unsupported target "test_transparent" with type "test" omitted
