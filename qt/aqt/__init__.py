@@ -69,7 +69,7 @@ except ImportError as e:
 # - make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, browser, editcurrent  # isort:skip
+from aqt import addcards, addons, browser, editcurrent  # isort:skip
 from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
@@ -77,6 +77,7 @@ class DialogManager:
 
     _dialogs: Dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
+        "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
         "DeckStats": [stats.DeckStats, None],

@@ -218,7 +218,7 @@ class AddonManager:
                 )
 
     def onAddonsDialog(self) -> None:
-        AddonsDialog(self)
+        aqt.dialogs.open("AddonsDialog", self)
 
     # Metadata
     ######################################################################
@@ -731,6 +731,8 @@ class AddonsDialog(QDialog):
 
     def reject(self) -> None:
         saveGeom(self, "addons")
+        aqt.dialogs.markClosed("AddonsDialog")
+
         return QDialog.reject(self)
 
     def name_for_addon_list(self, addon: AddonMeta) -> str:
