@@ -56,8 +56,8 @@ mod test {
 
     #[test]
     fn name() {
-        let mut field = NoteField::new("  # /^ t:e{s\"t}  ");
+        let mut field = NoteField::new("  # /^ t:e{s\"t} field name #/^  ");
         field.fix_name();
-        assert_eq!(&field.name, "test");
+        assert_eq!(&field.name, "test field name #/^");
     }
 }
