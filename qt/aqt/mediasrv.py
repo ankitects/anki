@@ -186,7 +186,7 @@ def _redirectWebExports(path):
                 addprefix = "css/"
             elif ext == ".js":
                 if base in ("browsersel", "jquery-ui", "jquery", "plot"):
-                    addprefix = "js/js/vendor/"
+                    addprefix = "js/vendor/"
                 else:
                     addprefix = "js/"
 
