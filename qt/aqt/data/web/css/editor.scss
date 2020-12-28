@@ -7,9 +7,14 @@
     padding: 5px;
     overflow-wrap: break-word;
     overflow: auto;
+
+    &:empty::after {
+        content: "\A";
+        white-space: pre;
+    }
 }
 
-.clearfix:after {
+.clearfix::after {
     content: "";
     display: table;
     clear: both;
