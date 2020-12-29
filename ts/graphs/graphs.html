@@ -11,6 +11,23 @@
     <script src="../js/vendor/protobuf.min.js"></script>
     <script src="graphs.js"></script>
     <script>
-        anki.graphs(document.getElementById("main"));
+        anki.graphs(
+            document.getElementById("main"),
+            [
+                anki.TodayStats,
+                anki.FutureDue,
+                anki.CalendarGraph,
+                anki.ReviewsGraph,
+                anki.CardCounts,
+                anki.IntervalsGraph,
+                anki.EaseGraph,
+                anki.HourGraph,
+                anki.ButtonsGraph,
+                anki.AddedGraph,
+            ],
+            {
+                controller: anki.RangeBox,
+            }
+        );
     </script>
 </html>

@@ -193,3 +193,7 @@
 .align-start {
     text-align: start;
 }
+
+.no-focus-outline:focus {
+    outline: 0;
+}
