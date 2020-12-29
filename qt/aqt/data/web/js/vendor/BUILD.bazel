@@ -1,5 +1,23 @@
+load("//ts:jquery.bzl", "copy_jquery")
+
+copy_jquery(
+    name = "jquery",
+    visibility = ["//visibility:public"],
+)
+
+
+files = [
+    "jquery",
+]
+
+directories = [
+    "mathjax",
+]
+
 filegroup(
     name = "vendor",
-    srcs = glob(["*.js"]) + ["//qt/aqt/data/web/js/vendor/mathjax"],
+    srcs = glob(["*.js"])
+        + ["//qt/aqt/data/web/js/vendor:{}".format(file) for file in files]
+        + ["//qt/aqt/data/web/js/vendor/{}".format(dir) for dir in directories],
     visibility = ["//qt:__subpackages__"],
 )
