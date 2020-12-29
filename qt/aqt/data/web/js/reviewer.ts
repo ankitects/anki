@@ -53,7 +53,7 @@ async function _updateQA(html, fadeTime, onupdate, onshown) {
                 String(err.stack).substring(0, 2000)
             ).replace(/\n/g, "<br />")
         );
-    };
+    }
     await _runHook(onUpdateHook);
 
     // wait for mathjax to ready
