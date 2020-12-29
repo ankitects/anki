@@ -8,7 +8,9 @@ use crate::{
     search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
 
-pub fn norm_search(input: &str) -> Result<String> {
+/// Take an Anki-style search string and convert it into an equivalent
+/// search string with normalized syntax.
+pub fn normalize_search(input: &str) -> Result<String> {
     Ok(write_nodes(&parse(input)?))
 }
 
@@ -48,7 +50,7 @@ fn write_search_node(node: &SearchNode) -> String {
         Flag(u) => format!("\"flag:{}\"", u),
         NoteIDs(s) => format!("\"nid:{}\"", s),
         CardIDs(s) => format!("\"cid:{}\"", s),
-        Property { operator, kind } => write_prop(operator, kind),
+        Property { operator, kind } => write_property(operator, kind),
         WholeCollection => "".to_string(),
         Regex(s) => quote(&format!("re:{}", s)),
         NoCombining(s) => quote(&format!("nc:{}", s)),
@@ -97,7 +99,7 @@ fn write_state(kind: &StateKind) -> String {
     )
 }
 
-fn write_prop(operator: &str, kind: &PropertyKind) -> String {
+fn write_property(operator: &str, kind: &PropertyKind) -> String {
     use PropertyKind::*;
     match kind {
         Due(i) => format!("\"prop:due{}{}\"", operator, i),
