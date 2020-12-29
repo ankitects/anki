@@ -188,7 +188,7 @@ class DataModel(QAbstractTableModel):
             ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
-                ctx.search = self.browser.norm_search(ctx.search)
+                ctx.search = self.browser.normalize_search(ctx.search)
                 ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
@@ -819,8 +819,8 @@ class Browser(QMainWindow):
             # no row change will fire
             self._onRowChanged(None, None)
 
-    def norm_search(self, search: str) -> str:
-        normed = self.col.backend.norm_search(search)
+    def normalize_search(self, search: str) -> str:
+        normed = self.col.backend.normalize_search(search)
         self._lastSearchTxt = normed
         self.form.searchEdit.lineEdit().setText(normed)
         return normed
