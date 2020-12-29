@@ -1,5 +1,4 @@
 <script context="module">
-    // import _ from "./graph-helpers.scss";
 </script>
 
 <script lang="typescript">
