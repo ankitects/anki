@@ -24,7 +24,7 @@ If you are using a packaged Python version that is installed in /usr/bin, you ca
 immediately to the next section.
 
 If Python 3.8 is not available in your distro, you can download it from python.org,
-compile it, and install in in /usr/local.
+compile it, and install in /usr/local.
 
 Bazel does not look in /usr/local by default. If you've installed Python somewhere
 other than /usr/bin, you'll need to put the following into a file called user.bazelrc
