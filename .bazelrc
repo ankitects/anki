@@ -30,7 +30,7 @@ build:ci --show_timestamps --isatty=0 --color=yes --show_progress_rate_limit=5
 
 # the typescript generation hack in rules_svelte is not hermetic, and
 # converts declared types in props to 'any' if it's not run locally.
-# Fixing it properly will probably require moving the Svelete rules to
+# Fixing it properly will probably require moving the Svelte rules to
 # ts_project()
 build:ci --strategy Svelte=local
 
