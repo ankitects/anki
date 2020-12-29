@@ -439,7 +439,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         web_content = WebContent(
             body=body,
             head=head,
-            js=["js/webview.js"] + (["js/vendor/jquery.js"] if js is None else js),
+            js=["js/webview.js"] + (["js/vendor/jquery.min.js"] if js is None else js),
             css=["css/webview.css"] + ([] if css is None else css),
         )
 
