@@ -8,10 +8,10 @@ var _updatingQA = false;
 var qFade = 50;
 var aFade = 0;
 
-var onUpdateHook;
-var onShownHook;
+var onUpdateHook: Array<() => Promise<void>>;
+var onShownHook: Array<() => Promise<void>>;
 
-function _runHook(arr: () => Promise<any>[]): Promise<any[]> {
+function _runHook(arr: Array<() => Promise<void>>): Promise<void[]> {
     var promises = [];
 
     for (var i = 0; i < arr.length; i++) {
