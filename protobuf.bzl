@@ -14,7 +14,7 @@ alias(
     actual = select({
         "@net_ankiweb_anki//platforms:windows_x86_64": "@protoc_bin_windows//:bin/protoc.exe",
         "@net_ankiweb_anki//platforms:macos_x86_64": "@protoc_bin_macos//:bin/protoc",
-        "@net_ankiweb_anki//platforms:linux_x86_64": "@protoc_bin_linux//:bin/protoc"
+        "@net_ankiweb_anki//platforms:linux_x86_64": "@protoc_bin_linux_x86_64//:bin/protoc"
     }),
     visibility = ["//visibility:public"]
 )
@@ -39,7 +39,7 @@ def setup_protobuf_binary(name):
 
     maybe(
         http_archive,
-        name = "protoc_bin_linux",
+        name = "protoc_bin_linux_x86_64",
         urls = [
             "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-linux-x86_64.zip",
         ],
