@@ -1,6 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+declare var MathJax: any;
+
 var ankiPlatform = "desktop";
 var typeans;
 var _updatingQA = false;
@@ -54,12 +56,11 @@ async function _updateQA(html, fadeTime, onupdate, onshown) {
     };
     await _runHook(onUpdateHook);
 
-    // @ts-ignore wait for mathjax to ready
+    // wait for mathjax to ready
     await MathJax.startup.promise.then(() => {
-        // @ts-ignore clear MathJax buffer
+        // clear MathJax buffers from previous typesets
         MathJax.typesetClear();
 
-        // @ts-ignore typeset
         return MathJax.typesetPromise(qa.slice(0, 1));
     });
 
