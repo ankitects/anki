@@ -14,7 +14,8 @@ alias(
     actual = select({
         "@net_ankiweb_anki//platforms:windows_x86_64": "@protoc_bin_windows//:bin/protoc.exe",
         "@net_ankiweb_anki//platforms:macos_x86_64": "@protoc_bin_macos//:bin/protoc",
-        "@net_ankiweb_anki//platforms:linux_x86_64": "@protoc_bin_linux_x86_64//:bin/protoc"
+        "@net_ankiweb_anki//platforms:linux_x86_64": "@protoc_bin_linux_x86_64//:bin/protoc",
+        "@net_ankiweb_anki//platforms:linux_arm64": "@protoc_bin_linux_arm64//:bin/protoc"
     }),
     visibility = ["//visibility:public"]
 )
@@ -44,6 +45,16 @@ def setup_protobuf_binary(name):
             "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-linux-x86_64.zip",
         ],
         sha256 = "a2900100ef9cda17d9c0bbf6a3c3592e809f9842f2d9f0d50e3fba7f3fc864f0",
+        build_file_content = """exports_files(["bin/protoc"])""",
+    )
+
+    maybe(
+        http_archive,
+        name = "protoc_bin_linux_arm64",
+        urls = [
+            "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-linux-aarch_64.zip",
+        ],
+        sha256 = "67db019c10ad0a151373278383e4e9b756dc90c3cea6c1244d5d5bd230af7c1a",
         build_file_content = """exports_files(["bin/protoc"])""",
     )
 
