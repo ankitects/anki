@@ -430,7 +430,7 @@ class DeckManager:
 
     def selected(self) -> int:
         "The currently selected did."
-        return self.col.conf["curDeck"]
+        return int(self.col.conf["curDeck"])
 
     def current(self) -> Deck:
         return self.get(self.selected())
