@@ -13,7 +13,7 @@
 
     export let search: string;
     export let days: number;
-    export let controller: SvelteComponent;
+    export let controller: SvelteComponent | null;
 
     let active = false;
     let sourceData: pb.BackendProto.GraphsOut | null = null;
