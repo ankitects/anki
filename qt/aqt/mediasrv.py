@@ -197,6 +197,10 @@ def _redirectWebExports(path):
                 base = "jquery.min"
                 addprefix = "js/vendor/"
 
+            elif base == "plot":
+                base = "jquery.flot"
+                addprefix = "js/vendor/"
+
         if addprefix:
             oldpath = path
             path = f"{targetPath}{addprefix}{base}{ext}"
