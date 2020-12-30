@@ -125,7 +125,7 @@ class DeckBrowser:
             css=["css/deckbrowser.css"],
             js=[
                 "js/vendor/jquery.min.js",
-                "js/vendor/jquery-ui.js",
+                "js/vendor/jquery-ui.min.js",
                 "js/deckbrowser.js",
             ],
             context=self,
