@@ -311,7 +311,7 @@ alias(
 
 alias(
     name = "serde_json",
-    actual = "@raze__serde_json__1_0_60//:serde_json",
+    actual = "@raze__serde_json__1_0_61//:serde_json",
     tags = [
         "cargo-raze",
         "manual",

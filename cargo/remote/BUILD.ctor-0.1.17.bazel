@@ -48,7 +48,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.16",
+    version = "0.1.17",
     # buildifier: leave-alone
     deps = [
         "@raze__quote__1_0_8//:quote",

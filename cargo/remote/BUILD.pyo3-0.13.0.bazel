@@ -101,7 +101,7 @@ rust_library(
     compile_data = glob(["**/*.md"]),
     edition = "2018",
     proc_macro_deps = [
-        "@raze__ctor__0_1_16//:ctor",
+        "@raze__ctor__0_1_17//:ctor",
         "@raze__indoc__1_0_3//:indoc",
         "@raze__paste__1_0_4//:paste",
         "@raze__pyo3_macros__0_13_0//:pyo3_macros",
