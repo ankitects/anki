@@ -6,7 +6,7 @@ if [ "$PREFIX" = "" ]; then
 	PREFIX=/usr/local
 fi
 
-rm -rf ${PREFIX}/share/anki
+rm -rf ${PREFIX}/share/anki ${PREFIX}/bin/anki
 mkdir -p ${PREFIX}/share/anki
 cp -av * ${PREFIX}/share/anki/
 mkdir -p ${PREFIX}/bin
