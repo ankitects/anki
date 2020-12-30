@@ -86,7 +86,7 @@ class DeckChooser(QHBoxLayout):
             current=current,
             accept=tr(TR.ACTIONS_CHOOSE),
             title=tr(TR.QT_MISC_CHOOSE_DECK),
-            help="addingnotes",
+            help="editing",
             cancel=False,
             parent=self.widget,
             geomKey="selectDeck",
