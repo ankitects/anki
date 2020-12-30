@@ -52,7 +52,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.6",
+    version = "0.2.7",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
@@ -68,6 +68,7 @@ cargo_build_script(
     }) + selects.with_or({
         # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         (
+            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__openssl_sys__0_9_60//:openssl_sys",
@@ -105,7 +106,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.6",
+    version = "0.2.7",
     # buildifier: leave-alone
     deps = [
         ":native_tls_build_script",
@@ -126,6 +127,7 @@ rust_library(
     }) + selects.with_or({
         # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         (
+            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__log__0_4_11//:log",

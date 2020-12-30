@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.36",
+    "version": "1.0.37",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -388,7 +388,7 @@
   },
   {
     "name": "ctor",
-    "version": "0.1.16",
+    "version": "0.1.17",
     "authors": "Matt Mastracci <matthew@mastracci.com>",
     "repository": "https://github.com/mmastrac/rust-ctor",
     "license": "Apache-2.0 OR MIT",
@@ -1162,7 +1162,7 @@
   },
   {
     "name": "native-tls",
-    "version": "0.2.6",
+    "version": "0.2.7",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-native-tls",
     "license": "Apache-2.0 OR MIT",
@@ -1792,7 +1792,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.60",
+    "version": "1.0.61",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",

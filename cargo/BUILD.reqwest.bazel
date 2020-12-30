@@ -61,7 +61,7 @@ rust_library(
         ): {},
         "//conditions:default": {
             # native-tls
-            "@raze__native_tls__0_2_6//:native_tls": "native_tls_crate",
+            "@raze__native_tls__0_2_7//:native_tls": "native_tls_crate",
         },
     }),
     crate_features = [
@@ -111,7 +111,7 @@ rust_library(
         "@raze__hyper_timeout__0_3_1//:hyper_timeout",
         "@raze__mime_guess__2_0_3//:mime_guess",
         "@raze__serde__1_0_118//:serde",
-        "@raze__serde_json__1_0_60//:serde_json",
+        "@raze__serde_json__1_0_61//:serde_json",
         "@raze__serde_urlencoded__0_6_1//:serde_urlencoded",
         "@raze__url__2_2_0//:url",
     ] + selects.with_or({
@@ -160,7 +160,7 @@ rust_library(
         # native-tls on other platforms
         "//conditions:default": [
             "@raze__hyper_tls__0_4_3//:hyper_tls",
-            "@raze__native_tls__0_2_6//:native_tls",
+            "@raze__native_tls__0_2_7//:native_tls",
             "@raze__tokio_tls__0_3_1//:tokio_tls",
         ],
     }),
