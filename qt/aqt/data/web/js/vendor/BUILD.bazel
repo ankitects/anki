@@ -1,11 +1,10 @@
 load("//ts:jquery.bzl", "copy_jquery")
+load("//ts:jquery-ui.bzl", "copy_jquery_ui")
 
 copy_jquery(
     name = "jquery",
     visibility = ["//visibility:public"],
 )
-
-load("//ts:jquery-ui.bzl", "copy_jquery_ui")
 
 copy_jquery_ui(
     name = "jquery-ui",
