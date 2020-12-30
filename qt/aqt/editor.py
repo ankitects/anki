@@ -731,7 +731,7 @@ class Editor:
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval("insertHtmlRemovingInitialBR(%s);" % json.dumps(html))
+        self.web.eval("setFormat('inserthtml', %s);" % json.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
         "Add to media folder and return local img or sound tag."
