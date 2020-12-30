@@ -1,20 +1,13 @@
 load("//ts:jquery.bzl", "copy_jquery")
-load("//ts:flot.bzl", "copy_flot")
 
 copy_jquery(
     name = "jquery",
     visibility = ["//visibility:public"],
 )
 
-copy_flot(
-    name = "flot",
-    visibility = ["//visibility:public"],
-)
-
 
 files = [
     "jquery",
-    "flot",
 ]
 
 directories = [
