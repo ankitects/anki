@@ -3,6 +3,8 @@
 
 declare var MathJax: any;
 
+type Callback = () => void | Promise<void>;
+
 var ankiPlatform = "desktop";
 var typeans;
 var _updatingQueue: Promise<void> = Promise.resolve();
@@ -10,10 +12,10 @@ var _updatingQueue: Promise<void> = Promise.resolve();
 var qFade = 50;
 var aFade = 0;
 
-var onUpdateHook: Array<() => void | Promise<void>>;
-var onShownHook: Array<() => void | Promise<void>>;
+var onUpdateHook: Array<Callback>;
+var onShownHook: Array<Callback>;
 
-function _runHook(arr: Array<() => void | Promise<void>>): Promise<void[]> {
+function _runHook(arr: Array<Callback>): Promise<void[]> {
     var promises = [];
 
     for (var i = 0; i < arr.length; i++) {
@@ -23,15 +25,15 @@ function _runHook(arr: Array<() => void | Promise<void>>): Promise<void[]> {
     return Promise.all(promises);
 }
 
-function _queueAction(action: () => Promise<void>): void {
+function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
 }
 
 async function _updateQA(
     html: string,
     fadeTime: number,
-    onupdate: () => void,
-    onshown: () => void
+    onupdate: Callback,
+    onshown: Callback
 ): Promise<void> {
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
