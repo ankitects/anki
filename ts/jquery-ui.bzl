@@ -10,7 +10,7 @@ _unwanted_prefix = "external/npm/node_modules/jquery-ui-dist/"
 
 def _copy_jquery_ui_impl(ctx):
     wanted = []
-    for f in ctx.attr.jquery-ui.files.to_list():
+    for f in ctx.attr.jquery_ui.files.to_list():
         path = f.path
         want = True
 
@@ -24,6 +24,6 @@ def _copy_jquery_ui_impl(ctx):
 copy_jquery_ui = rule(
     implementation = _copy_jquery_ui_impl,
     attrs = {
-        "jquery-ui": attr.label(default = "@npm//jquery-ui-dist:jquery-ui-dist__files"),
+        "jquery_ui": attr.label(default = "@npm//jquery-ui-dist:jquery-ui-dist__files"),
     },
 )
