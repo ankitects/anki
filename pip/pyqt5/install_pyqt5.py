@@ -9,6 +9,7 @@ import os
 import shutil
 import sys
 import re
+import subprocess
 
 from pip._internal.commands import create_command
 from pip._vendor import pkg_resources
@@ -76,11 +77,14 @@ def install_package(pkg, directory, pip_args):
 
     return pkginfo.Wheel(dist_info)
 
+
 def _cleanup(directory, pattern):
     for p in glob.glob(os.path.join(directory, pattern)):
         shutil.rmtree(p)
 
+
 fix_none = re.compile(r"(\s*None) =")
+
 
 def copy_and_fix_pyi(source, dest):
     "Fix broken PyQt types."
@@ -89,6 +93,7 @@ def copy_and_fix_pyi(source, dest):
             for line in input_file.readlines():
                 line = fix_none.sub(r"\1_ =", line)
                 output_file.write(line)
+
 
 def merge_files(root, source):
     for dirpath, _dirnames, filenames in os.walk(source):
@@ -104,22 +109,40 @@ def merge_files(root, source):
                 else:
                     shutil.copy2(source_path, target_path)
 
+
 def main():
     base = sys.argv[1]
 
-    packages = [
-       ("pyqt5", "pyqt5==5.15.2"),
-       ("pyqtwebengine", "pyqtwebengine==5.15.2"),
-       ("pyqt5-sip", "pyqt5_sip==12.8.1"),
-    ]
+    local_site_packages = os.environ.get("PYTHON_SITE_PACKAGES")
+    if local_site_packages:
+        subprocess.run(
+            [
+                "rsync",
+                "-ai",
+                "--include=PyQt**",
+                "--exclude=*",
+                local_site_packages,
+                base + "/",
+            ],
+            check=True,
+        )
+        with open(os.path.join(base, "__init__.py"), "w") as file:
+            pass
 
-    for (name, with_version) in packages:
-        # install package in subfolder
-        folder = os.path.join(base, "temp")
-        _pkg = install_package(with_version, folder, [])
-        # merge into parent
-        merge_files(base, folder)
-        shutil.rmtree(folder)
+    else:
+        packages = [
+            ("pyqt5", "pyqt5==5.15.2"),
+            ("pyqtwebengine", "pyqtwebengine==5.15.2"),
+            ("pyqt5-sip", "pyqt5_sip==12.8.1"),
+        ]
+
+        for (name, with_version) in packages:
+            # install package in subfolder
+            folder = os.path.join(base, "temp")
+            _pkg = install_package(with_version, folder, [])
+            # merge into parent
+            merge_files(base, folder)
+            shutil.rmtree(folder)
 
     # add missing py.typed file
     with open(os.path.join(base, "py.typed"), "w") as file:
