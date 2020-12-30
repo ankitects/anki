@@ -5,7 +5,7 @@ declare var MathJax: any;
 
 var ankiPlatform = "desktop";
 var typeans;
-var _updatingQA = false;
+var _updatingQueue: Promise<void> = Promise.resolve();
 
 var qFade = 50;
 var aFade = 0;
@@ -23,18 +23,11 @@ function _runHook(arr: Array<() => void | Promise<void>>): Promise<void[]> {
     return Promise.all(promises);
 }
 
-async function _updateQA(html, fadeTime, onupdate, onshown) {
-    // if a request to update q/a comes in before the previous content
-    // has been loaded, wait a while and try again
-    if (_updatingQA) {
-        setTimeout(function () {
-            _updateQA(html, fadeTime, onupdate, onshown);
-        }, 50);
-        return;
-    }
+function _queueAction(action: () => Promise<void>): void {
+    _updatingQueue = _updatingQueue.then(action);
+}
 
-    _updatingQA = true;
-
+async function _updateQA(html, fadeTime, onupdate, onshown): Promise<void> {
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
@@ -67,12 +60,10 @@ async function _updateQA(html, fadeTime, onupdate, onshown) {
     // and reveal when processing is done
     await qa.fadeTo(fadeTime, 1).promise();
     await _runHook(onShownHook);
-
-    _updatingQA = false;
 }
 
 function _showQuestion(q, bodyclass) {
-    _updateQA(
+    _queueAction(() => _updateQA(
         q,
         qFade,
         function () {
@@ -88,11 +79,11 @@ function _showQuestion(q, bodyclass) {
                 typeans.focus();
             }
         }
-    );
+    ));
 }
 
 function _showAnswer(a, bodyclass) {
-    _updateQA(
+    _queueAction(() => _updateQA(
         a,
         aFade,
         function () {
@@ -108,7 +99,7 @@ function _showAnswer(a, bodyclass) {
             }
         },
         function () {}
-    );
+    ));
 }
 
 const _flagColours = {
