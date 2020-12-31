@@ -93,7 +93,7 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/node@13.13.35": {
+    "@types/node@13.13.38": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -258,6 +258,22 @@
         "email": "eemeli@gmail.com",
         "path": "node_modules/intl-pluralrules",
         "licenseFile": "node_modules/intl-pluralrules/LICENSE"
+    },
+    "jquery-ui-dist@1.12.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jquery/jquery-ui",
+        "publisher": "jQuery Foundation and other contributors",
+        "url": "https://github.com/jquery/jquery-ui/blob/1.12.1/AUTHORS.txt",
+        "path": "node_modules/jquery-ui-dist",
+        "licenseFile": "node_modules/jquery-ui-dist/LICENSE.txt"
+    },
+    "jquery@3.5.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jquery/jquery",
+        "publisher": "JS Foundation and other contributors",
+        "url": "https://github.com/jquery/jquery/blob/3.5.1/AUTHORS.txt",
+        "path": "node_modules/jquery",
+        "licenseFile": "node_modules/jquery/LICENSE.txt"
     },
     "lodash.debounce@4.0.8": {
         "licenses": "MIT",
