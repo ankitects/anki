@@ -99,6 +99,13 @@
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
+    "css-browser-selector@0.6.5": {
+        "licenses": "CC-BY-SA-2.5",
+        "repository": "https://github.com/verbatim/css_browser_selector",
+        "publisher": "Rafael Lima",
+        "path": "node_modules/css-browser-selector",
+        "licenseFile": "node_modules/css-browser-selector/README.mkdn"
+    },
     "d3-array@2.9.1": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-array",
