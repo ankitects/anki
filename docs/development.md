@@ -54,6 +54,7 @@ Platform-specific instructions:
 - [Windows](./windows.md)
 - [Mac](./mac.md)
 - [Linux](./linux.md)
+- [Other Platforms](./new-platform.md)
 
 Don't name the Git checkout ~/Anki or ~/Documents/Anki, as those folders
 were used on old Anki versions and will be automatically moved.
