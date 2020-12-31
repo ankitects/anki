@@ -16,5 +16,5 @@ exports_files([
 
 alias(
     name = "yarn",
-    actual = "@nodejs//:yarn_bin",
+    actual = "@nodejs//:yarn",
 )
