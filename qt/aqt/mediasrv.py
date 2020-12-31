@@ -201,6 +201,10 @@ def _redirectWebExports(path):
                 base = "jquery-ui.min"
                 addprefix = "js/vendor/"
 
+            elif base == "browsersel":
+                base = "css_browser_selector.min"
+                addprefix = "js/vendor/"
+
         if addprefix:
             oldpath = path
             path = f"{targetPath}{addprefix}{base}{ext}"
