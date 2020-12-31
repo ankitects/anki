@@ -111,7 +111,7 @@ class Previewer(QDialog):
     def _setup_web_view(self):
         jsinc = [
             "js/vendor/jquery.min.js",
-            "js/vendor/browsersel.js",
+            "js/vendor/css_browser_selector.min.js",
             "js/mathjax.js",
             "js/vendor/mathjax/tex-chtml.js",
             "js/reviewer.js",
