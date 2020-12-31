@@ -3,17 +3,19 @@
 
 declare var MathJax: any;
 
+type Callback = () => void | Promise<void>;
+
 var ankiPlatform = "desktop";
 var typeans;
-var _updatingQA = false;
+var _updatingQueue: Promise<void> = Promise.resolve();
 
 var qFade = 50;
 var aFade = 0;
 
-var onUpdateHook: Array<() => void | Promise<void>>;
-var onShownHook: Array<() => void | Promise<void>>;
+var onUpdateHook: Array<Callback>;
+var onShownHook: Array<Callback>;
 
-function _runHook(arr: Array<() => void | Promise<void>>): Promise<void[]> {
+function _runHook(arr: Array<Callback>): Promise<void[]> {
     var promises = [];
 
     for (var i = 0; i < arr.length; i++) {
@@ -23,18 +25,16 @@ function _runHook(arr: Array<() => void | Promise<void>>): Promise<void[]> {
     return Promise.all(promises);
 }
 
-async function _updateQA(html, fadeTime, onupdate, onshown) {
-    // if a request to update q/a comes in before the previous content
-    // has been loaded, wait a while and try again
-    if (_updatingQA) {
-        setTimeout(function () {
-            _updateQA(html, fadeTime, onupdate, onshown);
-        }, 50);
-        return;
-    }
+function _queueAction(action: Callback): void {
+    _updatingQueue = _updatingQueue.then(action);
+}
 
-    _updatingQA = true;
-
+async function _updateQA(
+    html: string,
+    fadeTime: number,
+    onupdate: Callback,
+    onshown: Callback
+): Promise<void> {
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
@@ -67,47 +67,49 @@ async function _updateQA(html, fadeTime, onupdate, onshown) {
     // and reveal when processing is done
     await qa.fadeTo(fadeTime, 1).promise();
     await _runHook(onShownHook);
-
-    _updatingQA = false;
 }
 
-function _showQuestion(q, bodyclass) {
-    _updateQA(
-        q,
-        qFade,
-        function () {
-            // return to top of window
-            window.scrollTo(0, 0);
+function _showQuestion(q: string, bodyclass: string): void {
+    _queueAction(() =>
+        _updateQA(
+            q,
+            qFade,
+            function () {
+                // return to top of window
+                window.scrollTo(0, 0);
 
-            document.body.className = bodyclass;
-        },
-        function () {
-            // focus typing area if visible
-            typeans = document.getElementById("typeans");
-            if (typeans) {
-                typeans.focus();
+                document.body.className = bodyclass;
+            },
+            function () {
+                // focus typing area if visible
+                typeans = document.getElementById("typeans");
+                if (typeans) {
+                    typeans.focus();
+                }
             }
-        }
+        )
     );
 }
 
-function _showAnswer(a, bodyclass) {
-    _updateQA(
-        a,
-        aFade,
-        function () {
-            if (bodyclass) {
-                //  when previewing
-                document.body.className = bodyclass;
-            }
+function _showAnswer(a: string, bodyclass: string): void {
+    _queueAction(() =>
+        _updateQA(
+            a,
+            aFade,
+            function () {
+                if (bodyclass) {
+                    //  when previewing
+                    document.body.className = bodyclass;
+                }
 
-            // scroll to answer?
-            var e = $("#answer");
-            if (e[0]) {
-                e[0].scrollIntoView();
-            }
-        },
-        function () {}
+                // scroll to answer?
+                var e = $("#answer");
+                if (e[0]) {
+                    e[0].scrollIntoView();
+                }
+            },
+            function () {}
+        )
     );
 }
 
@@ -118,7 +120,7 @@ const _flagColours = {
     4: "#77aaff",
 };
 
-function _drawFlag(flag) {
+function _drawFlag(flag: 0 | 1 | 2 | 3): void {
     var elem = $("#_flag");
     if (flag === 0) {
         elem.hide();
@@ -128,7 +130,7 @@ function _drawFlag(flag) {
     elem.css("color", _flagColours[flag]);
 }
 
-function _drawMark(mark) {
+function _drawMark(mark: boolean): void {
     var elem = $("#_mark");
     if (!mark) {
         elem.hide();
@@ -137,13 +139,13 @@ function _drawMark(mark) {
     }
 }
 
-function _typeAnsPress() {
+function _typeAnsPress(): void {
     if ((window.event as KeyboardEvent).keyCode === 13) {
         pycmd("ans");
     }
 }
 
-function _emulateMobile(enabled: boolean) {
+function _emulateMobile(enabled: boolean): void {
     const list = document.documentElement.classList;
     if (enabled) {
         list.add("mobile");
