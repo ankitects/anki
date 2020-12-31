@@ -26,6 +26,11 @@ immediately to the next section.
 If Python 3.8 is not available in your distro, you can download it from python.org,
 compile it, and install it in /usr/local.
 
+If you're on a basic Debian install, make sure you have the following installed
+before building Python:
+
+gcc g++ make libsqlite3-dev libreadline-dev libssl-dev zlib1g-dev libffi-dev
+
 Bazel does not look in /usr/local by default. If you've installed Python somewhere
 other than /usr/bin, you'll need to put the following into a file called user.bazelrc
 at the top of this repo before proceeding:
