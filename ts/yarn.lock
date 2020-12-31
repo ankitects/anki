@@ -756,6 +756,11 @@ cross-spawn@^7.0.1:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
+css-browser-selector@^0.6.5:
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/css-browser-selector/-/css-browser-selector-0.6.5.tgz#d2b06c01ff7d7cb455e2006b6b6558d39372ca60"
+  integrity sha1-0rBsAf99fLRV4gBra2VY05NyymA=
+
 csstype@^3.0.2:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.5.tgz#7fdec6a28a67ae18647c51668a9ff95bb2fa7bb8"

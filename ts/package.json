@@ -52,6 +52,7 @@
     },
     "dependencies": {
         "@fluent/bundle": "^0.15.1",
+        "css-browser-selector": "^0.6.5",
         "d3-array": "^2.8.0",
         "d3-axis": "^1.0.12",
         "d3-interpolate": "^1.4.0",
