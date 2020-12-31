@@ -3,14 +3,14 @@ load("//ts:copy.bzl", "copy_files")
 "Rule to copy css-browser-selector subset from node_modules to vendor folder."
 
 _include = [
-    "css-browser-selector.min.js",
+    "css_browser_selector.min.js",
 ]
 
 _unwanted_prefix = "external/npm/node_modules/css-browser-selector/"
 
-def _copy_browsersel(ctx):
+def _copy_css_browser_selector_impl(ctx):
     wanted = []
-    for f in ctx.attr.browsersel.files.to_list():
+    for f in ctx.attr.css_browser_selector.files.to_list():
         path = f.path
         want = True
 
@@ -21,9 +21,9 @@ def _copy_browsersel(ctx):
 
     return copy_files(ctx, wanted)
 
-copy_browsersel = rule(
-    implementation = _copy_browsersel_impl,
+copy_css_browser_selector = rule(
+    implementation = _copy_css_browser_selector_impl,
     attrs = {
-        "browsersel": attr.label(default = "@npm//css-browser-selector:css_browser-selector__files"),
+        "css_browser_selector": attr.label(default = "@npm//css-browser-selector:css-browser-selector__files"),
     },
 )

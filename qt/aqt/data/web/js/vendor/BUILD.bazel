@@ -1,6 +1,7 @@
 load("//ts:jquery.bzl", "copy_jquery")
 load("//ts:jquery-ui.bzl", "copy_jquery_ui")
 load("//ts:protobufjs.bzl", "copy_protobufjs")
+load("//ts:css-browser-selector.bzl", "copy_css_browser_selector")
 
 copy_jquery(
     name = "jquery",
@@ -17,11 +18,17 @@ copy_protobufjs(
     visibility = ["//visibility:public"],
 )
 
+copy_css_browser_selector(
+    name = "css-browser-selector",
+    visibility = ["//visibility:public"],
+)
+
 
 files = [
     "jquery",
     "jquery-ui",
     "protobufjs",
+    "css-browser-selector",
 ]
 
 directories = [
