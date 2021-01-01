@@ -120,7 +120,7 @@ const _flagColours = {
     4: "#77aaff",
 };
 
-function _drawFlag(flag: 0 | 1 | 2 | 3): void {
+function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
     var elem = $("#_flag");
     if (flag === 0) {
         elem.hide();
