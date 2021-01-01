@@ -247,6 +247,15 @@ impl SqlWriter<'_> {
                     day = day
                 )
             }
+            PropertyKind::Order(order) => {
+                write!(
+                    self.sql,
+                    "(c.type = {t} and due {op} {order})",
+                    t = CardType::New as u8,
+                    op = op,
+                    order = order
+                )
+            }
             PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl),
             PropertyKind::Reps(reps) => write!(self.sql, "reps {} {}", op, reps),
             PropertyKind::Lapses(days) => write!(self.sql, "lapses {} {}", op, days),
