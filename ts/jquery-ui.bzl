@@ -6,7 +6,8 @@ _include = [
     "jquery-ui.min.js",
 ]
 
-_unwanted_prefix = "external/npm/node_modules/jquery-ui-dist/"
+_base = "external/npm/node_modules/jquery-ui-dist/"
+_unwanted_prefix = ""
 
 def _copy_jquery_ui_impl(ctx):
     return copy_select_files(
@@ -14,6 +15,7 @@ def _copy_jquery_ui_impl(ctx):
         ctx.attr.jquery_ui.files,
         _include,
         [],
+        _base,
         _unwanted_prefix,
     )
 

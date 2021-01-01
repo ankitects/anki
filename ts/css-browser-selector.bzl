@@ -6,7 +6,8 @@ _include = [
     "css_browser_selector.min.js",
 ]
 
-_unwanted_prefix = "external/npm/node_modules/css-browser-selector/"
+_base = "external/npm/node_modules/css-browser-selector/"
+_unwanted_prefix = ""
 
 def _copy_css_browser_selector_impl(ctx):
     return copy_select_files(
@@ -14,6 +15,7 @@ def _copy_css_browser_selector_impl(ctx):
         ctx.attr.css_browser_selector.files,
         _include,
         [],
+        _base,
         _unwanted_prefix,
     )
 

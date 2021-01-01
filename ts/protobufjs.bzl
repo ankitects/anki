@@ -6,7 +6,8 @@ _include = [
     "dist/protobuf.min.js",
 ]
 
-_unwanted_prefix = "external/npm/node_modules/protobufjs/dist/"
+_base = "external/npm/node_modules/protobufjs/"
+_unwanted_prefix = "dist/"
 
 def _copy_protobufjs_impl(ctx):
     return copy_select_files(
@@ -14,6 +15,7 @@ def _copy_protobufjs_impl(ctx):
         ctx.attr.protobufjs.files,
         _include,
         [],
+        _base,
         _unwanted_prefix,
     )
 

@@ -14,7 +14,8 @@ _exclude = [
     "es5/sre/mathmaps/mathmaps_ie.js",
 ]
 
-_unwanted_prefix = "external/npm/node_modules/mathjax/es5/"
+_base = "external/npm/node_modules/mathjax/"
+_unwanted_prefix = "es5/"
 
 def _copy_mathjax_impl(ctx):
     return copy_select_files(
@@ -22,6 +23,7 @@ def _copy_mathjax_impl(ctx):
         ctx.attr.mathjax.files,
         _include,
         _exclude,
+        _base,
         _unwanted_prefix,
     )
 
