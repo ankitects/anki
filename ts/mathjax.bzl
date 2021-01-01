@@ -11,7 +11,7 @@ _include = [
 ]
 
 _exclude = [
-    "mathmaps_ie.js",
+    "es5/sre/mathmaps/mathmaps_ie.js",
 ]
 
 _unwanted_prefix = "external/npm/node_modules/mathjax/es5/"
