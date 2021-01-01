@@ -1,4 +1,4 @@
-load("//ts:copy.bzl", "copy_files")
+load("//ts:copy.bzl", "copy_select_files")
 
 "Rule to copy jquery-ui subset from node_modules to vendor folder."
 
@@ -9,17 +9,13 @@ _include = [
 _unwanted_prefix = "external/npm/node_modules/jquery-ui-dist/"
 
 def _copy_jquery_ui_impl(ctx):
-    wanted = []
-    for f in ctx.attr.jquery_ui.files.to_list():
-        path = f.path
-        want = True
-
-        for substr in _include:
-            if substr in path:
-                output = path.replace(_unwanted_prefix, "")
-                wanted.append((f, output))
-
-    return copy_files(ctx, wanted)
+    return copy_select_files(
+        ctx,
+        ctx.attr.jquery_ui.files,
+        _include,
+        [],
+        _unwanted_prefix,
+    )
 
 copy_jquery_ui = rule(
     implementation = _copy_jquery_ui_impl,
