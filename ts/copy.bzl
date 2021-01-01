@@ -27,22 +27,27 @@ def copy_files(ctx, files):
 
     return [DefaultInfo(files = depset(outputs))]
 
-def copy_select_files(ctx, files, include, exclude, unwanted_prefix):
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
+def copy_select_files(ctx, files, include, exclude, base, unwanted_prefix):
     wanted = []
     for f in files.to_list():
-        path = f.path
+        path = remove_prefix(f.path, base)
         want = True
 
         for substr in exclude:
-            if substr in path:
+            if path.startswith(substr):
                 want = False
                 continue
         if not want:
             continue
 
         for substr in include:
-            if substr in path:
-                output = path.replace(unwanted_prefix, "")
+            if path.startswith(substr):
+                output = remove_prefix(path, unwanted_prefix)
                 wanted.append((f, output))
 
     return copy_files(ctx, wanted)

@@ -6,7 +6,8 @@ _include = [
     "dist/jquery.min.js"
 ]
 
-_unwanted_prefix = "external/npm/node_modules/jquery/dist/"
+_base = "external/npm/node_modules/jquery/"
+_unwanted_prefix = "dist/"
 
 def _copy_jquery_impl(ctx):
     return copy_select_files(
@@ -14,6 +15,7 @@ def _copy_jquery_impl(ctx):
         ctx.attr.jquery.files,
         _include,
         [],
+        _base,
         _unwanted_prefix,
     )
 
