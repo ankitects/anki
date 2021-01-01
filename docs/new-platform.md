@@ -7,6 +7,7 @@
   version installed already, either from your Linux distro's archives, or by building
   from source.
 - Rust and Node must support your platform.
+- If the Bazel Rust and Node rules do not support your platform, extra work may be required.
 
 ## 32 bit builds
 
@@ -53,9 +54,59 @@ Examples of the required changes:
 
 ## NodeJS
 
-If you node don't provide a binary for your platform and you have a local copy
-installed, you may be able to modify node_repositories() in /defs.bzl to point
-to your [local npm installation](https://bazelbuild.github.io/rules_nodejs/install.html).
+If node doesn't provide a binary for your platform and you have a local copy
+installed, you can create a local_node folder in the project root, symlink in
+your local installation, and modify defs.bzl.
+
+```patch
+diff --git a/defs.bzl b/defs.bzl
+index eff3d9df2..fb2e9f7fe 100644
+--- a/defs.bzl
++++ b/defs.bzl
+@@ -41,7 +41,15 @@ def setup_deps():
+         python_runtime = "@python//:python",
+     )
+
+-    node_repositories(package_json = ["@net_ankiweb_anki//ts:package.json"])
++    native.local_repository(
++        name = "local_node",
++        path = "local_node",
++    )
++
++    node_repositories(
++        package_json = ["@net_ankiweb_anki//ts:package.json"],
++        vendored_node = "@local_node//:node",
++    )
+
+     yarn_install(
+         name = "npm",
+diff --git a/local_node/BUILD.bazel b/local_node/BUILD.bazel
+new file mode 100644
+index 000000000..aa0c473ae
+--- /dev/null
++++ b/local_node/BUILD.bazel
+@@ -0,0 +1 @@
++exports_files(["node/bin/node"] + glob(["node/lib/node_modules/**"]))
+diff --git a/local_node/WORKSPACE b/local_node/WORKSPACE
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/local_node/node/bin/node b/local_node/node/bin/node
+new file mode 120000
+index 000000000..d7b371472
+--- /dev/null
++++ b/local_node/node/bin/node
+@@ -0,0 +1 @@
++/usr/local/bin/node
+\ No newline at end of file
+diff --git a/local_node/node/lib/node_modules b/local_node/node/lib/node_modules
+new file mode 120000
+index 000000000..23dd0736e
+--- /dev/null
++++ b/local_node/node/lib/node_modules
+@@ -0,0 +1 @@
++/usr/local/lib/node_modules
+\ No newline at end of file
+```
 
 ## Submitting changes
 

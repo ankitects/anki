@@ -4,6 +4,10 @@
 
 These instructions are written for Debian/Ubuntu; adjust for your distribution.
 
+Glibc is required - if you are on a distro like Alpine that uses musl, you'll need
+to contribute fixes to the upstream [Rust rules](https://github.com/bazelbuild/rules_rust/issues/390),
+then follow the steps in [Other Platforms](./new-platform.md).
+
 **Ensure some basic tools are installed**:
 
 ```
