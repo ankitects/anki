@@ -26,3 +26,23 @@ def copy_files(ctx, files):
     )
 
     return [DefaultInfo(files = depset(outputs))]
+
+def copy_select_files(ctx, files, include, exclude, unwanted_prefix):
+    wanted = []
+    for f in files.to_list():
+        path = f.path
+        want = True
+
+        for substr in exclude:
+            if substr in path:
+                want = False
+                continue
+        if not want:
+            continue
+
+        for substr in include:
+            if substr in path:
+                output = path.replace(unwanted_prefix, "")
+                wanted.append((f, output))
+
+    return copy_files(ctx, wanted)
