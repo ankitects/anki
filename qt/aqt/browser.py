@@ -809,7 +809,9 @@ class Browser(QMainWindow):
             c = self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             if nid:
-                self.model.search("nid:%d" % nid)
+                search = "nid:%d" % nid
+                search = gui_hooks.default_search(search, c)
+                self.model.search(search)
                 self.focusCid(c.id)
         else:
             self.model.search(self._lastSearchTxt)
