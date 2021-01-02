@@ -97,7 +97,7 @@ pub(super) enum PropertyKind {
     Reps(u32),
     Lapses(u32),
     Ease(f32),
-    Order(u32),
+    Position(u32),
 }
 
 #[derive(Debug, PartialEq)]
@@ -374,7 +374,7 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
         tag("reps"),
         tag("lapses"),
         tag("ease"),
-        tag("order"),
+        tag("pos"),
     ))(val)?;
 
     let (val, operator) = alt((
@@ -398,7 +398,7 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
             "ivl" => PropertyKind::Interval(num),
             "reps" => PropertyKind::Reps(num),
             "lapses" => PropertyKind::Lapses(num),
-            "order" => PropertyKind::Order(num),
+            "pos" => PropertyKind::Position(num),
             _ => unreachable!(),
         }
     };

@@ -247,13 +247,13 @@ impl SqlWriter<'_> {
                     day = day
                 )
             }
-            PropertyKind::Order(order) => {
+            PropertyKind::Position(pos) => {
                 write!(
                     self.sql,
-                    "(c.type = {t} and due {op} {order})",
+                    "(c.type = {t} and due {op} {pos})",
                     t = CardType::New as u8,
                     op = op,
-                    order = order
+                    pos = pos
                 )
             }
             PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl),
