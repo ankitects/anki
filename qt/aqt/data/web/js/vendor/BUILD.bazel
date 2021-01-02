@@ -1,28 +1,12 @@
-load("//ts:jquery.bzl", "copy_jquery")
-load("//ts:jquery-ui.bzl", "copy_jquery_ui")
-load("//ts:protobufjs.bzl", "copy_protobufjs")
-load("//ts:css-browser-selector.bzl", "copy_css_browser_selector")
+load("//ts:vendor.bzl", "copy_css_browser_selector", "copy_jquery", "copy_jquery_ui", "copy_protobufjs")
 
-copy_jquery(
-    name = "jquery",
-    visibility = ["//visibility:public"],
-)
+copy_jquery(name = "jquery")
 
-copy_jquery_ui(
-    name = "jquery-ui",
-    visibility = ["//visibility:public"],
-)
+copy_jquery_ui(name = "jquery-ui")
 
-copy_protobufjs(
-    name = "protobufjs",
-    visibility = ["//visibility:public"],
-)
+copy_protobufjs(name = "protobufjs")
 
-copy_css_browser_selector(
-    name = "css-browser-selector",
-    visibility = ["//visibility:public"],
-)
-
+copy_css_browser_selector(name = "css-browser-selector")
 
 files = [
     "jquery",
@@ -37,8 +21,8 @@ directories = [
 
 filegroup(
     name = "vendor",
-    srcs = glob(["*.js"])
-        + ["//qt/aqt/data/web/js/vendor:{}".format(file) for file in files]
-        + ["//qt/aqt/data/web/js/vendor/{}".format(dir) for dir in directories],
+    srcs = glob(["*.js"]) +
+           ["//qt/aqt/data/web/js/vendor:{}".format(file) for file in files] +
+           ["//qt/aqt/data/web/js/vendor/{}".format(dir) for dir in directories],
     visibility = ["//qt:__subpackages__"],
 )

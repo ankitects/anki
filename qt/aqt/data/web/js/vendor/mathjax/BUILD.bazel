@@ -1,6 +1,3 @@
-load("//ts:mathjax.bzl", "copy_mathjax")
+load("//ts:vendor.bzl", "copy_mathjax")
 
-copy_mathjax(
-    name = "mathjax",
-    visibility = ["//visibility:public"],
-)
+copy_mathjax(name = "mathjax")
