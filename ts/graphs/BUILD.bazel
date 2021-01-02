@@ -76,9 +76,6 @@ ts_library(
 
 rollup_bundle(
     name = "graphs",
-    srcs = [
-        "//ts/lib:es6",
-    ],
     config_file = "//ts:rollup.config.js",
     entry_point = "bootstrap.ts",
     format = "iife",
@@ -87,6 +84,7 @@ rollup_bundle(
     sourcemap = "false",
     visibility = ["//visibility:public"],
     deps = [
+        "//ts/lib",
         "bootstrap",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
