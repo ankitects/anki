@@ -41,12 +41,6 @@ ts_library(
     ],
 )
 
-filegroup(
-    name = "es6",
-    output_group = "es6_sources",
-    visibility = ["//visibility:public"],
-)
-
 # Tests
 ################
 
