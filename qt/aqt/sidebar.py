@@ -99,7 +99,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
             return
         try:
             self.mw.col.decks.rename(deck, new_name)
-            self.browser.maybeRefreshSidebar()
-            self.mw.deckBrowser.refresh()
         except DeckRenameError as e:
             return showWarning(e.description)
+        self.browser.maybeRefreshSidebar()
+        self.mw.deckBrowser.refresh()
