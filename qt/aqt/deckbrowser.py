@@ -140,7 +140,9 @@ class DeckBrowser:
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
     def _renderStats(self):
-        return self.mw.col.studied_today()
+        return '<div id="studiedToday"><span>{}</span></div>'.format(
+            self.mw.col.studied_today(),
+        )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
