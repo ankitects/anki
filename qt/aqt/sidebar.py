@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import re
 from enum import Enum
 
 import aqt
@@ -111,7 +112,9 @@ class NewSidebarTreeView(SidebarTreeViewBase):
 
     def _rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
         old_name = item.name
-        nids = self.col.find_notes("tag:" + old_name)
+        escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old_name)
+        escaped_name = '"{}"'.format(escaped_name.replace('"', '\\"'))
+        nids = self.col.find_notes("tag:" + escaped_name)
         if len(nids) == 0:
             showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
             return
