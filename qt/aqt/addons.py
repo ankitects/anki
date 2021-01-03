@@ -735,6 +735,8 @@ class AddonsDialog(QDialog):
 
         return QDialog.reject(self)
 
+    silentlyClose = True
+
     def name_for_addon_list(self, addon: AddonMeta) -> str:
         name = addon.human_name()
 
