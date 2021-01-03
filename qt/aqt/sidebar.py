@@ -90,13 +90,13 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         m.exec_(QCursor.pos())
 
     def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
         new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
         new_name = new_name.replace('"', "")
         if not new_name or new_name == old_name:
             return
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
         except DeckRenameError as e:
