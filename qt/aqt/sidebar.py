@@ -102,4 +102,3 @@ class NewSidebarTreeView(SidebarTreeViewBase):
             self.browser.maybeRefreshSidebar()
         except DeckRenameError as e:
             return showWarning(e.description)
-        self.show()
