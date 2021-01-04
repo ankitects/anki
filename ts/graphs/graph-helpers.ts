@@ -33,6 +33,12 @@ export enum GraphRange {
     AllTime = 3,
 }
 
+// how card should be counted
+export enum CardCountMethod {
+    ByType = 0,
+    ByQueue = 1,
+}
+
 export interface GraphsContext {
     cards: pb.BackendProto.Card[];
     revlog: pb.BackendProto.RevlogEntry[];
