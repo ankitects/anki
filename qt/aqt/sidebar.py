@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from concurrent.futures import Future
 from enum import Enum
 
 import aqt
@@ -92,7 +93,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
             a.triggered.connect(lambda _, func=act_func: func(item))  # type: ignore
         m.exec_(QCursor.pos())
 
-    def rename_deck(self, item: aqt.browser.SidebarItem) -> None:
+    def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
         new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
@@ -107,24 +108,29 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.browser.maybeRefreshSidebar()
         self.mw.deckBrowser.refresh()
 
-    def rename_tag(self, item: aqt.browser.SidebarItem) -> None:
+    def rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
         self.browser.editor.saveNow(lambda: self._rename_tag(item))
 
-    def _rename_tag(self, item: aqt.browser.SidebarItem) -> None:
+    def _rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
         old_name = item.name
-        escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old_name)
-        escaped_name = '"{}"'.format(escaped_name.replace('"', '\\"'))
-        nids = self.col.find_notes("tag:" + escaped_name)
-        if len(nids) == 0:
-            showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
-            return
         new_name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
         if new_name == old_name or not new_name:
             return
+
+        def do_rename():
+            return self.col.tags.rename_tag(old_name, new_name)
+
+        def on_done(fut: Future):
+            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
+            self.browser.model.endReset()
+
+            count = fut.result()
+            if not count:
+                showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
+                return
+
+            self.browser.clearUnusedTags()
+
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
-        self.col.tags.bulk_update(list(nids), old_name, new_name, False)
-        self.browser.model.endReset()
-        self.browser.clearUnusedTags()
-        self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-        self.browser.maybeRefreshSidebar()
+        self.mw.taskman.run_in_background(do_rename, on_done)

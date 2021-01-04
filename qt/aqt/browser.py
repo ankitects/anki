@@ -6,6 +6,7 @@ from __future__ import annotations
 import html
 import re
 import time
+from concurrent.futures import Future
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
@@ -1649,8 +1650,11 @@ where id in %s"""
         self.editor.saveNow(self._clearUnusedTags)
 
     def _clearUnusedTags(self):
-        self.col.tags.registerNotes()
-        self.on_tag_list_update()
+        def on_done(fut: Future):
+            fut.result()
+            self.on_tag_list_update()
+
+        self.mw.taskman.run_in_background(self.col.tags.registerNotes, on_done)
 
     # Suspending
     ######################################################################
