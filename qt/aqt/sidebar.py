@@ -92,7 +92,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
             a.triggered.connect(lambda _, func=act_func: func(item))  # type: ignore
         m.exec_(QCursor.pos())
 
-    def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
+    def rename_deck(self, item: aqt.browser.SidebarItem) -> None:
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
         new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
@@ -107,10 +107,10 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.browser.maybeRefreshSidebar()
         self.mw.deckBrowser.refresh()
 
-    def rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
+    def rename_tag(self, item: aqt.browser.SidebarItem) -> None:
         self.browser.editor.saveNow(lambda: self._rename_tag(item))
 
-    def _rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
+    def _rename_tag(self, item: aqt.browser.SidebarItem) -> None:
         old_name = item.name
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old_name)
         escaped_name = '"{}"'.format(escaped_name.replace('"', '\\"'))
