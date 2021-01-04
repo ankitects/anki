@@ -1,7 +1,8 @@
 load("@py_deps//:requirements.bzl", "requirement")
 
 fluent_syntax = [
-    requirement("fluent-syntax"),
+    requirement("fluent.syntax"),
+    requirement("compare-locales"),
     # undeclared runtime dependency
     requirement("six"),
 ]
