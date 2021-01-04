@@ -50,6 +50,7 @@ class Note:
         self.tags = list(n.tags)
         self.fields = list(n.fields)
         self._fmap = self.col.models.fieldMap(self.model())
+        hooks.note_did_load(self)
 
     def to_backend_note(self) -> BackendNote:
         hooks.note_will_flush(self)

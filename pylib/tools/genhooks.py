@@ -53,6 +53,11 @@ hooks = [
         field_text or not before returning it.""",
     ),
     Hook(
+        name="note_did_load",
+        args=["note: Note"],
+        doc="Allow to change a note after it was loaded from database / newly created.",
+    ),
+    Hook(
         name="note_will_flush",
         args=["note: Note"],
         doc="Allow to change a note before it is added/updated in the database.",
