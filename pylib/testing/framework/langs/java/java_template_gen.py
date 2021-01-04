@@ -27,10 +27,16 @@ public class Solution {
         """
         classes_src = '\n'.join('\t' + row for src in ts.classes.values() for row in src.split('\n')) \
             if len(ts.classes.values()) > 0 else ''
+
+        func_name = to_camel_case(ts.func_name)
+
+        func_args = ', '.join([x.arg_type + ' ' + x.arg_name for x in ts.test_args])
+
+        comments = '\n'.join(['* ' + line for line in ts.description.split('\n')])
+
         return trim_indent(self.SOLUTION_TEMPLATE % dict(
             classes=classes_src,
             result_type=ts.result_type,
-            func_name=to_camel_case(ts.func_name),
-            comments='\n'.join(['* ' + line for line in ts.description.split('\n')]),
-            arg_declarations=', '.join([x.arg_type + ' ' + x.arg_name for x in ts.test_args])
-        ))
+            func_name=func_name,
+            comments=comments,
+            arg_declarations=func_args))
