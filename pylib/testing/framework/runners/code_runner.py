@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 
 from abc import ABC, abstractmethod
@@ -28,11 +29,13 @@ def get_resource_path():
     :return: the path of the Resources folder in the system
     """
     if isWin:
-        return os.path.abspath('.')
+        result = sys._MEIPASS
     elif isMac:
-        return os.environ['RESOURCEPATH']
+        result = os.environ['RESOURCEPATH']
     else:
         raise Exception('not supported OS')
+
+    return '"' + result + '"'
 
 
 class CodeRunner(ABC):
