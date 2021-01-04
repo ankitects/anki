@@ -146,9 +146,7 @@ function _initalizeCodeEditor() {
         tab: " ".repeat(4), // default is '\t'
         indentOn: /[(\[]$/, // default is /{$/
     };
-    // codeansJar = CodeJar(codeans, highlight, options);
     codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
-    // _initializeProgress()
 }
 
 function _switchSkin(name) {
@@ -230,6 +228,7 @@ function _initializeCodeAnswers() {
         CodeJar(this, withLineNumbers(highlight), options);
         $(this).attr('contenteditable', 'false')
     });
+    $(window).scrollTop(0);
 }
 
 const _flagColours = {
