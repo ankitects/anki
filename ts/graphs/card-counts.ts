@@ -8,7 +8,7 @@
 
 import { CardQueue, CardType } from "anki/cards";
 import type pb from "anki/backend_proto";
-import { schemeGreens, schemeBlues, schemeOranges} from "d3-scale-chromatic";
+import { schemeGreens, schemeBlues, schemeOranges } from "d3-scale-chromatic";
 import "d3-transition";
 import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
@@ -35,7 +35,7 @@ const barColours = {
     relearn: schemeOranges[5][3],
     suspended: "#FFDC41",
     buried: "grey",
-}
+};
 
 function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
     let newCards = 0;
@@ -51,7 +51,7 @@ function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
                 break;
             case CardQueue.Review:
                 review += 1;
-                break
+                break;
             case CardQueue.Learn:
             case CardQueue.DayLearn:
             case CardQueue.PreviewRepeat:
@@ -71,7 +71,11 @@ function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, barColours.new],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, barColours.learn],
         ["Review", review, barColours.review],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended, barColours.suspended],
+        [
+            i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS),
+            suspended,
+            barColours.suspended,
+        ],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried, barColours.buried],
     ];
 
@@ -96,14 +100,13 @@ function gatherByCtype(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
             case CardType.Review:
                 if (card.interval < 21) {
                     young += 1;
-                }
-                else {
+                } else {
                     mature += 1;
                 }
-                break
+                break;
             case CardType.Relearn:
                 relearn += 1;
-                break
+                break;
         }
     }
 
@@ -112,17 +115,26 @@ function gatherByCtype(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, barColours.learn],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young, barColours.young],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature, barColours.mature],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn, barColours.relearn],
+        [
+            i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
+            relearn,
+            barColours.relearn,
+        ],
     ];
 
     return counts;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut, method: CardCountMethod, i18n: I18n): GraphData {
+export function gatherData(
+    data: pb.BackendProto.GraphsOut,
+    method: CardCountMethod,
+    i18n: I18n
+): GraphData {
     const totalCards = data.cards.length;
-    const counts = method === CardCountMethod.ByType
-        ?  gatherByCtype(data.cards, i18n)
-        :  gatherByQueue(data.cards, i18n);
+    const counts =
+        method === CardCountMethod.ByType
+            ? gatherByCtype(data.cards, i18n)
+            : gatherByQueue(data.cards, i18n);
 
     return {
         title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),
@@ -197,17 +209,18 @@ export function renderCards(
             function (update) {
                 return update.call((d) =>
                     d
-                    .transition(trans)
-                    .attr("fill", (_d, i) => {
-                        return data[i].colour;
-                    })
-                    .attrTween("d", (d) => {
-                        const interpolator = interpolate(
-                            { startAngle: 0, endAngle: 0 },
-                            d,
-                        );
-                        return (t): string => arcGen(interpolator(t) as any) as string;
-                    })
+                        .transition(trans)
+                        .attr("fill", (_d, i) => {
+                            return data[i].colour;
+                        })
+                        .attrTween("d", (d) => {
+                            const interpolator = interpolate(
+                                { startAngle: 0, endAngle: 0 },
+                                d
+                            );
+                            return (t): string =>
+                                arcGen(interpolator(t) as any) as string;
+                        })
                 );
             }
         );
