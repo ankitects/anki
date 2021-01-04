@@ -9,6 +9,7 @@ import os
 import json
 import glob
 import sys
+import difflib
 from typing import List
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Junk
@@ -64,6 +65,17 @@ def check_file(path: str, fix: bool) -> bool:
         return True
     else:
         print(f"Bad formatting in {path}")
+        print(
+            "\n".join(
+                difflib.unified_diff(
+                    orig_text.splitlines(),
+                    new_text.splitlines(),
+                    fromfile="bad",
+                    tofile="good",
+                    lineterm="",
+                )
+            )
+        )
         return False
 
 
