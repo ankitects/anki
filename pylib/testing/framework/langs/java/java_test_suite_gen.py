@@ -110,7 +110,7 @@ import java.util.concurrent.atomic.AtomicInteger;'''
         main_src = self.MAIN_FUNCTION_TEMPLATE % dict(
             converters_src=converters_src,
             function_name=ts.func_name,
-            file_path=ts.test_cases_file,
+            file_path=ts.test_cases_file.replace('\\', '\\\\'),
             pass_msg=test_passed_msg,
             fail_msg=test_failed_msg)
         i = solution_src.rindex('}')

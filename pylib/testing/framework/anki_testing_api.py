@@ -62,7 +62,7 @@ def run_tests(card: Card, src: str, lang: str, logger: ConsoleLogger):
 
     tree = SyntaxTree.of(rows[0].split(';'))
     ts = TestSuite(fn_name)
-    ts.test_cases_file = tempfile.mkdtemp() + '/data.csv'
+    ts.test_cases_file = os.path.join(tempfile.mkdtemp(), 'data.csv')
     ts.test_case_count = len(rows) - 1
     try:
         file = open(ts.test_cases_file, 'w')
