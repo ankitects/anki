@@ -11,7 +11,7 @@ import aqt
 from anki.errors import DeckRenameError
 from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.utils import TR, askUser, getOnlyText, showInfo, showWarning, tr
+from aqt.utils import TR, getOnlyText, showInfo, showWarning, tr
 
 
 class SidebarItemType(Enum):
@@ -149,6 +149,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
                 return self.mw.col.decks.rem(did, True)
 
             def on_done(fut: Future):
+                self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
                 self.browser.search()
                 self.browser.model.endReset()
                 self.browser.maybeRefreshSidebar()
