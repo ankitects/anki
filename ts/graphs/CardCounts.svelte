@@ -4,7 +4,7 @@
     import type { GraphData, TableDatum } from "./card-counts";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
-    import CountMethodRadios from './CountMethodRadios.svelte';
+    import CountMethodRadios from "./CountMethodRadios.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
