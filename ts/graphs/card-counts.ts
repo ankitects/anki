@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { CardQueue } from "anki/cards";
+import { CardQueue, CardType } from "anki/cards";
 import type pb from "anki/backend_proto";
 import { schemeGreens, schemeBlues } from "d3-scale-chromatic";
 import "d3-transition";
@@ -15,6 +15,7 @@ import { scaleLinear } from "d3-scale";
 import { pie, arc } from "d3-shape";
 import { interpolate } from "d3-interpolate";
 import type { GraphBounds } from "./graph-helpers";
+import { CardCountMethod } from "./graph-helpers";
 import { cumsum } from "d3-array";
 import type { I18n } from "anki/i18n";
 
@@ -25,29 +26,25 @@ export interface GraphData {
     totalCards: number;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphData {
-    const totalCards = data.cards.length;
+function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
     let newCards = 0;
-    let young = 0;
-    let mature = 0;
+    let learn = 0;
+    let review = 0;
     let suspended = 0;
     let buried = 0;
 
-    for (const card of data.cards as pb.BackendProto.Card[]) {
+    for (const card of cards as pb.BackendProto.Card[]) {
         switch (card.queue) {
             case CardQueue.New:
                 newCards += 1;
                 break;
             case CardQueue.Review:
-                if (card.interval >= 21) {
-                    mature += 1;
-                    break;
-                }
-            // young falls through
+                review += 1;
+                break
             case CardQueue.Learn:
             case CardQueue.DayLearn:
             case CardQueue.PreviewRepeat:
-                young += 1;
+                learn += 1;
                 break;
             case CardQueue.Suspended:
                 suspended += 1;
@@ -59,13 +56,62 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphDa
         }
     }
 
-    const counts = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried] as Count,
+    const counts: Count[] = [
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards],
+        ["Learning", learn],
+        ["Review", review],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried],
     ];
+
+    return counts;
+}
+
+function gatherByCtype(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
+    let newCards = 0;
+    let learn = 0;
+    let young = 0;
+    let mature = 0;
+    let relearn = 0;
+
+    for (const card of cards as pb.BackendProto.Card[]) {
+        switch (card.ctype) {
+            case CardType.New:
+                newCards += 1;
+                break;
+            case CardType.Learn:
+                learn += 1;
+                break;
+            case CardType.Review:
+                if (card.interval < 21) {
+                    young += 1;
+                }
+                else {
+                    mature += 1;
+                }
+                break
+            case CardType.Relearn:
+                relearn += 1;
+                break
+        }
+    }
+
+    const counts: Count[] = [
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards],
+        ["Learning", learn],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature],
+        ["Relearning", relearn],
+    ];
+
+    return counts;
+}
+
+export function gatherData(data: pb.BackendProto.GraphsOut, method: CardCountMethod, i18n: I18n): GraphData {
+    const totalCards = data.cards.length;
+    const counts = method === CardCountMethod.ByType
+        ?  gatherByCtype(data.cards, i18n)
+        :  gatherByQueue(data.cards, i18n);
 
     return {
         title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),

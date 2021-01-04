@@ -6,7 +6,8 @@
     export let cardCountMethod: CardCountMethod;
 
     const byType = "By card type";
-    const byQueue = "By scheduling Queue";
+    const byQueue = "By scheduling queue";
+    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
 </script>
 
 <label>
