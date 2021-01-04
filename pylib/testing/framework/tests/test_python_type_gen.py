@@ -1,18 +1,19 @@
 import unittest
 
-from testing.framework.langs.python.python_test_arg_gen import PythonTestArgGenerator
+from testing.framework.langs.python.python_type_gen import PythonTypeGenerator
 from testing.framework.syntax.syntax_tree import SyntaxTree
+from testing.framework.syntax.utils import get_arg_declarations
 
 
-class PythonArgGenTests(unittest.TestCase):
+class PythonTypeGeneratorTests(unittest.TestCase):
 
     def evaluate_generator(self, type_expression, expected_type, expected_name=''):
         tree = SyntaxTree.of(type_expression)
-        generator = PythonTestArgGenerator()
-        args, result_type = generator.get_args(tree)
-        self.assertEquals(len(args), 1)
-        self.assertEquals(expected_type, args[0].arg_type)
-        self.assertEquals(expected_name, args[0].arg_name)
+        generator = PythonTypeGenerator()
+        args, result_type = get_arg_declarations(tree, generator)
+        self.assertEqual(len(args), 1)
+        self.assertEqual(expected_type, args[0].arg_type)
+        self.assertEqual(expected_name, args[0].arg_name)
 
     def test_array_of_integers(self):
         self.evaluate_generator(['array(array(int))[a]', 'int'], 'List[List[int]]', 'a')
@@ -21,7 +22,7 @@ class PythonArgGenTests(unittest.TestCase):
         self.evaluate_generator(['list(int)[a]', 'int'], 'List[int]', 'a')
 
     def test_simple_int(self):
-        self.evaluate_generator(['int', 'int'], 'int')
+        self.evaluate_generator(['int', 'int'], 'int', 'var0')
 
     def test_custom_object(self):
         self.evaluate_generator(['object(int[a],int[b])<Edge>[a]', 'int'], 'Edge', 'a')

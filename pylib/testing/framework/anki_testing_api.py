@@ -1,6 +1,6 @@
 import os
 import tempfile
-import sys
+from typing import Tuple, List
 
 from anki.cards import Card
 from aqt.utils import run_async
@@ -8,19 +8,31 @@ from testing.framework.dto.test_suite import TestSuite
 from testing.framework.langs.lang_factory import get_lang_factory
 from testing.framework.runners.console_logger import ConsoleLogger
 from testing.framework.syntax.syntax_tree import SyntaxTree
-from testing.framework.syntax.utils import strip_html_tags
+from testing.framework.syntax.utils import strip_html_tags, get_arg_declarations, get_class_declarations
 
-def parse_anki_card(card: Card):
+
+def parse_anki_card(card: Card) -> Tuple[str, str, List[str]]:
+    """
+    extracts target function name, test description and test case rows from a card
+    :param card: input card
+    :return: tuple: function name, description, test case rows
+    """
     note = card.note()
     model = card.model()['flds']
-    #todo: come with better solution than using of direct indexes
+    # todo: come up with better solution than indexes
     description = strip_html_tags(note[model[1]['name']])
     fn_name = note[model[2]['name']]
     rows = strip_html_tags(note[model[4]['name']]).split('\n')
     return fn_name, description, rows
 
 
-def get_solution_template(card: Card, lang: str):
+def get_solution_template(card: Card, lang: str) -> str:
+    """
+    Generates test solution template for the given Card and language
+    :param card: target card
+    :param lang: target programming language
+    :return: solution template src
+    """
     fn_name, description, rows = parse_anki_card(card)
     factory = get_lang_factory(lang)
     if factory is None:
@@ -29,13 +41,20 @@ def get_solution_template(card: Card, lang: str):
     tree = SyntaxTree.of(rows[0].split(';'))
     ts = TestSuite(fn_name)
     ts.description = description
-    ts.user_types = factory.get_user_type_generator().get_user_type_declarations(tree)
-    ts.test_args, ts.result_type = factory.get_test_arg_generator().get_arg_declarations(tree)
+    ts.classes = get_class_declarations(tree, factory.get_class_generator())
+    ts.test_args, ts.result_type = get_arg_declarations(tree, factory.get_type_generator())
     return factory.get_template_generator().generate_solution_template(ts)
 
 
 @run_async
 def run_tests(card: Card, src: str, lang: str, logger: ConsoleLogger):
+    """
+    Executes tests for a given test suite and user code
+    :param card: target card
+    :param src: target solution src to be executed
+    :param lang: target programming language
+    :param logger: console logger
+    """
     fn_name, _, rows = parse_anki_card(card)
     factory = get_lang_factory(lang)
     if factory is None:
@@ -66,6 +85,11 @@ def run_tests(card: Card, src: str, lang: str, logger: ConsoleLogger):
     finally:
         os.remove(ts.test_cases_file)
 
+
 def stop_tests(lang: str):
+    """
+    Stop tests execution
+    :param lang: target programming language
+    """
     factory = get_lang_factory(lang)
     factory.get_code_runner().stop()

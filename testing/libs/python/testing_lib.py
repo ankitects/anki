@@ -5,20 +5,47 @@ import numbers
 
 
 class IntegerConverter:
+    """
+    Converts object to int
+    """
     def convert(self, obj):
+        """
+        Converts object to int
+        :param obj: target obj
+        :return: object casted to int
+        """
         return int(obj)
 
 
 class StringConverter:
+    """
+    Converts object to string
+    """
     def convert(self, obj):
+        """
+        Converts object to string
+        :param obj: target obj
+        :return: object casted to string
+        """
         return str(obj)
 
 
 class FloatConverter:
+    """
+    Converts object to float
+    """
     def convert(self, obj):
+        """
+        Converts object to float
+        :param obj: target obj
+        :return: object casted to float
+        """
         return float(obj)
 
 class BoolConverter:
+    """
+    Converts object to bool
+    """
     def convert(self, obj):
         return bool(obj)
 
@@ -37,6 +64,8 @@ class UserTypeConverter:
         self.user_type = user_type
 
     def convert(self, obj):
+        if not isinstance(obj, List):
+            obj = [obj]
         return self.user_type(*[self.inner_converters[i].convert(x) for i, x in enumerate(obj)])
 
 

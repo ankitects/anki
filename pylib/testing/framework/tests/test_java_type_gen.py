@@ -1,18 +1,19 @@
 import unittest
 
+from testing.framework.langs.java.java_type_gen import JavaTypeGenerator
 from testing.framework.syntax.syntax_tree import SyntaxTree
-from testing.framework.langs.java.java_test_arg_gen import JavaTestArgGenerator
+from testing.framework.syntax.utils import get_arg_declarations
 
 
-class JavaArgGenTests(unittest.TestCase):
+class JavaTypeGenTests(unittest.TestCase):
 
     def evaluate_generator(self, type_expression, expected_type, expected_name=''):
         tree = SyntaxTree.of(type_expression)
-        generator = JavaTestArgGenerator()
-        args, result_type = generator.get_args(tree)
-        self.assertEquals(len(args), 1)
-        self.assertEquals(expected_type, args[0].arg_type)
-        self.assertEquals(expected_name, args[0].arg_name)
+        generator = JavaTypeGenerator()
+        args, result_type = get_arg_declarations(tree, generator)
+        self.assertEqual(len(args), 1)
+        self.assertEqual(expected_type, args[0].arg_type)
+        self.assertEqual(expected_name, args[0].arg_name)
 
     def test_array_of_integers(self):
         self.evaluate_generator(['array(array(int))[a]', 'int'], 'int[][]', 'a')
@@ -21,7 +22,7 @@ class JavaArgGenTests(unittest.TestCase):
         self.evaluate_generator(['list(int)[a]', 'int'], 'List<Integer>', 'a')
 
     def test_simple_int(self):
-        self.evaluate_generator(['int', 'int'], 'int')
+        self.evaluate_generator(['int', 'int'], 'int', 'var0')
 
     def test_custom_object(self):
         self.evaluate_generator(['object(int[a],int[b])<Edge>[a]', 'int'], 'Edge', 'a')

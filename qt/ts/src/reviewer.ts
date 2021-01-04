@@ -146,9 +146,9 @@ function _initalizeCodeEditor() {
         tab: " ".repeat(4), // default is '\t'
         indentOn: /[(\[]$/, // default is /{$/
     };
-    codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
     // codeansJar = CodeJar(codeans, highlight, options);
-    _initializeProgress()
+    codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
+    // _initializeProgress()
 }
 
 function _switchSkin(name) {

@@ -1,22 +1,28 @@
 from typing import List, Dict
-
-import typing
 from testing.framework.dto.test_arg import TestArg
-from testing.framework.dto.test_case import TestCase
 
 
 class TestSuite:
-
-    func_name: str
+    """
+    This class represents a test suite. It contains information needed to run a test suite.
+       - testing function name
+       - challenge description
+       - function arguments
+       - test cases count
+       - function result type
+       - user types definition map
+       - test cases file name
+    """
     description: str
+    func_name: str
     test_args: List[TestArg]
-    test_case_count: int
     result_type: str
-    user_types: Dict[str, str]
+    classes: Dict[str, str]
+    test_case_count: int
     test_cases_file: str
 
     def __init__(self, func_name: str):
         self.func_name = func_name
         self.test_args = []
         self.test_cases = []
-        self.user_types = {}
+        self.classes = {}

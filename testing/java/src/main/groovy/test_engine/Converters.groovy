@@ -83,10 +83,13 @@ class Converters {
 
     @Override
     Object convert(Object obj) {
-      if (!(obj instanceof List)) {
-        throw new IllegalArgumentException("cannot deserialize non-list value to list")
+      List list
+      if (obj instanceof List) {
+        list = obj
+      } else {
+        list = [obj]
       }
-      List list = obj as List
+
       List params = []
       list.eachWithIndex { item, i ->
         params << innerTypeConverters[i].convert(item)

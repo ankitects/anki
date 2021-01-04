@@ -90,6 +90,7 @@ class Reviewer:
         return None
 
     def cleanup(self) -> None:
+        # self.web.eval("codeansJar.destroy()")
         gui_hooks.reviewer_will_end()
 
     # Fetching a card

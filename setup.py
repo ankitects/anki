@@ -5,7 +5,6 @@ RESOURCES = ['qt/aqt_data', 'testing/libs']
 OPTIONS = {
     'argv_emulation': False,
     'site_packages': True,
-    'packages': ['bintrees', 'deepdiff'],
     'resources': RESOURCES,
     'iconfile': 'images/pig.icns',
     'plist': {

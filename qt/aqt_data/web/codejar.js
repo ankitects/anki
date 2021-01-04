@@ -30,7 +30,7 @@ function withLineNumbers(highlight, options = {}) {
         lineNumbers.style.borderBottomLeftRadius = css.borderBottomLeftRadius;
         // Tweak editor styles
         editor.style.paddingLeft = `calc(${opts.width} + ${lineNumbers.style.paddingLeft})`;
-        editor.style.whiteSpace = "pre";
+        //editor.style.whiteSpace = "pre";
         // Swap editor with a wrap
         editor.parentNode.insertBefore(wrap, editor);
         wrap.appendChild(editor);
