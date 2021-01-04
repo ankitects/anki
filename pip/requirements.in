@@ -12,7 +12,7 @@ mock
 mypy
 mypy-protobuf
 orjson
-pip-tools==5.4.0
+pip-tools
 protobuf
 pylint
 pytest
