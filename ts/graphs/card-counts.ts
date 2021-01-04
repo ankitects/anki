@@ -8,7 +8,7 @@
 
 import { CardQueue, CardType } from "anki/cards";
 import type pb from "anki/backend_proto";
-import { schemeGreens, schemeBlues } from "d3-scale-chromatic";
+import { schemeGreens, schemeBlues, schemeOranges} from "d3-scale-chromatic";
 import "d3-transition";
 import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
@@ -19,11 +19,22 @@ import { CardCountMethod } from "./graph-helpers";
 import { cumsum } from "d3-array";
 import type { I18n } from "anki/i18n";
 
-type Count = [string, number];
+type Count = [string, number, string];
 export interface GraphData {
     title: string;
     counts: Count[];
     totalCards: number;
+}
+
+const barColours = {
+    new: schemeBlues[5][2],
+    review: schemeGreens[5][2],
+    young: schemeGreens[5][2],
+    mature: schemeGreens[5][3],
+    learn: schemeOranges[5][2],
+    relearn: schemeOranges[5][3],
+    suspended: "#FFDC41",
+    buried: "grey",
 }
 
 function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
@@ -57,11 +68,11 @@ function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
     }
 
     const counts: Count[] = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards],
-        ["Learning", learn],
-        ["Review", review],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, barColours.new],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, barColours.learn],
+        ["Review", review, barColours.review],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended, barColours.suspended],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried, barColours.buried],
     ];
 
     return counts;
@@ -97,11 +108,11 @@ function gatherByCtype(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
     }
 
     const counts: Count[] = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards],
-        ["Learning", learn],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature],
-        ["Relearning", relearn],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, barColours.new],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, barColours.learn],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young, barColours.young],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature, barColours.mature],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn, barColours.relearn],
     ];
 
     return counts;
@@ -128,27 +139,11 @@ interface Reviews {
     early: number;
 }
 
-function barColour(idx: number): string {
-    switch (idx) {
-        case 0:
-            return schemeBlues[5][2];
-        case 1:
-            return schemeGreens[5][2];
-        case 2:
-            return schemeGreens[5][3];
-        case 3:
-            return "#FFDC41";
-        case 4:
-        default:
-            return "grey";
-    }
-}
-
 export interface SummedDatum {
     label: string;
     // count of this particular item
     count: number;
-    idx: number;
+    colour: string;
     // running total
     total: number;
 }
@@ -165,12 +160,13 @@ export function renderCards(
     bounds: GraphBounds,
     sourceData: GraphData
 ): TableDatum[] {
-    const summed = cumsum(sourceData.counts, (d) => d[1]);
+    const summed = cumsum(sourceData.counts, (d: Count) => d[1]);
     const data = Array.from(summed).map((n, idx) => {
         const count = sourceData.counts[idx];
         return {
             label: count[0],
             count: count[1],
+            colour: count[2],
             idx,
             total: n,
         } as SummedDatum;
@@ -181,7 +177,7 @@ export function renderCards(
     const x = scaleLinear().domain([0, xMax]);
     const svg = select(svgElem);
     const paths = svg.select(".counts");
-    const pieData = pie()(sourceData.counts.map((d) => d[1]));
+    const pieData = pie()(sourceData.counts.map((d: Count) => d[1]));
     const radius = bounds.height / 2 - bounds.marginTop - bounds.marginBottom;
     const arcGen = arc().innerRadius(0).outerRadius(radius);
     const trans = svg.transition().duration(600) as any;
@@ -194,16 +190,21 @@ export function renderCards(
             (enter) =>
                 enter
                     .append("path")
-                    .attr("fill", function (d, i) {
-                        return barColour(i);
+                    .attr("fill", (_d, i) => {
+                        return data[i].colour;
                     })
                     .attr("d", arcGen as any),
             function (update) {
                 return update.call((d) =>
-                    d.transition(trans).attrTween("d", (d) => {
+                    d
+                    .transition(trans)
+                    .attr("fill", (_d, i) => {
+                        return data[i].colour;
+                    })
+                    .attrTween("d", (d) => {
                         const interpolator = interpolate(
                             { startAngle: 0, endAngle: 0 },
-                            d
+                            d,
                         );
                         return (t): string => arcGen(interpolator(t) as any) as string;
                     })
@@ -213,13 +214,13 @@ export function renderCards(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
-    const tableData = data.map((d, idx) => {
+    const tableData = data.map((d) => {
         const percent = ((d.count / xMax) * 100).toFixed(1);
         return {
             label: d.label,
             count: d.count,
             percent: `${percent}%`,
-            colour: barColour(idx),
+            colour: d.colour,
         } as TableDatum;
     });
 
