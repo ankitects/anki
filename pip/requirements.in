@@ -1,5 +1,6 @@
 beautifulsoup4
 black
+compare-locales
 decorator
 distro
 flask
@@ -11,7 +12,7 @@ mock
 mypy
 mypy-protobuf
 orjson
-pip-tools
+pip-tools==5.4.0
 protobuf
 pylint
 pytest
@@ -20,7 +21,7 @@ send2trash
 snakeviz
 stringcase
 waitress>=2.0.0b1
-fluent-syntax
+fluent.syntax
 
 # windows only
 psutil; sys.platform == "win32"

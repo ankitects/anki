@@ -12,6 +12,31 @@ import sys
 from typing import List
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Junk
+from compare_locales.paths import File
+from compare_locales import parser
+from compare_locales.checks.fluent import ReferenceMessageVisitor
+
+
+def check_missing_terms(path: str) -> bool:
+    "True if file is ok."
+    file = File(path, os.path.basename(path))
+    content = open(path, "rb").read()
+    p = parser.getParser(file.file)
+    p.readContents(content)
+    refList = p.parse()
+
+    p.readContents(content)
+    for e in p.parse():
+        ref_data = ReferenceMessageVisitor()
+        ref_data.visit(e.entry)
+
+        for attr_or_val, refs in ref_data.entry_refs.items():
+            for ref, ref_type in refs.items():
+                if ref not in refList:
+                    print(f"In {path}:{e}, missing '{ref}'")
+                    return False
+
+    return True
 
 
 def check_file(path: str, fix: bool) -> bool:
@@ -31,7 +56,7 @@ def check_file(path: str, fix: bool) -> bool:
             raise Exception(f"file introduced junk! {path} {ent}")
 
     if new_text == orig_text:
-        return True
+        return check_missing_terms(path)
 
     if fix:
         print(f"Fixing {path}")
@@ -50,7 +75,7 @@ def check_files(files: List[str], fix: bool) -> bool:
         ok = check_file(path, fix)
         if not ok:
             found_bad = True
-    return True
+    return not found_bad
 
 
 if __name__ == "__main__":
