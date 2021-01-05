@@ -69,6 +69,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.mw = browser.mw
         self.col = self.mw.col
 
+        qconnect(self.clicked, self.onLeftClick)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus = {
@@ -78,6 +79,14 @@ class NewSidebarTreeView(SidebarTreeViewBase):
             ),
             SidebarItemType.TAG: ((tr(TR.ACTIONS_RENAME), self.rename_tag),),
         }
+
+    def onLeftClick(self, idx: QModelIndex) -> None:
+        item: "aqt.browser.SidebarItem" = idx.internalPointer()
+        if item.onClick:
+            item.onClick()
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        QTreeView.mouseReleaseEvent(self, event)
 
     def onContextMenu(self, point: QPoint) -> None:
         idx: QModelIndex = self.indexAt(point)
