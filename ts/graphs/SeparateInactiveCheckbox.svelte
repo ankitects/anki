@@ -4,8 +4,7 @@
     export let i18n: I18n;
     export let separateInactive: boolean = false;
 
-    const label = "Separate suspended/buried cards";
-    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const label = i18n.tr(i18n.TR.STATISTICS_COUNTS_SEPARATE_SUSPENDED_BURIED_CARDS);
 </script>
 
 <label> <input type="checkbox" bind:checked={separateInactive} /> {label} </label>
