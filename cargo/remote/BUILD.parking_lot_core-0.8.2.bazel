@@ -53,7 +53,7 @@ rust_library(
     deps = [
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__instant__0_1_9//:instant",
-        "@raze__smallvec__1_5_1//:smallvec",
+        "@raze__smallvec__1_6_0//:smallvec",
     ] + selects.with_or({
         # cfg(unix)
         (

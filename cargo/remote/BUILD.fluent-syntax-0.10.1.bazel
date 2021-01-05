@@ -50,7 +50,7 @@ rust_binary(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.0",
+    version = "0.10.1",
     # buildifier: leave-alone
     deps = [
         # Binaries get an implicit dependency on their crate's lib
@@ -76,7 +76,7 @@ rust_binary(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.0",
+    version = "0.10.1",
     # buildifier: leave-alone
     deps = [
         # Binaries get an implicit dependency on their crate's lib
@@ -101,7 +101,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.0",
+    version = "0.10.1",
     # buildifier: leave-alone
     deps = [
     ],
