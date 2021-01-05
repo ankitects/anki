@@ -565,10 +565,11 @@ impl BackendService for Backend {
         })
     }
 
-    fn schedule_cards_as_new(&self, input: pb::CardIDs) -> BackendResult<Empty> {
+    fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> BackendResult<Empty> {
         self.with_col(|col| {
-            col.reschedule_cards_as_new(&input.into_native())
-                .map(Into::into)
+            let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+            let log = input.log;
+            col.reschedule_cards_as_new(&cids, log).map(Into::into)
         })
     }
 
