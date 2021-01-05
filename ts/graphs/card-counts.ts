@@ -8,7 +8,12 @@
 
 import { CardQueue, CardType } from "anki/cards";
 import type pb from "anki/backend_proto";
-import { schemeGreens, schemeBlues, schemeOranges } from "d3-scale-chromatic";
+import {
+    schemeGreens,
+    schemeBlues,
+    schemeOranges,
+    schemeReds,
+} from "d3-scale-chromatic";
 import "d3-transition";
 import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
@@ -28,7 +33,7 @@ export interface GraphData {
 const barColours = [
     schemeBlues[5][2] /* new */,
     schemeOranges[5][2] /* learn */,
-    schemeOranges[5][3] /* relearn */,
+    schemeReds[5][2] /* relearn */,
     schemeGreens[5][2] /* young */,
     schemeGreens[5][3] /* mature */,
     "#FFDC41" /* suspended */,
