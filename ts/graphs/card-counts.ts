@@ -18,7 +18,7 @@ import type { GraphBounds } from "./graph-helpers";
 import { cumsum } from "d3-array";
 import type { I18n } from "anki/i18n";
 
-type Count = [string, number];
+type Count = [string, number, boolean];
 export interface GraphData {
     title: string;
     counts: Count[];
@@ -79,15 +79,14 @@ function countCards(cards: pb.BackendProto.ICard[], separateInactive: boolean, i
 
 
     const counts: Count[] = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended, separateInactive],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried, separateInactive],
     ]
-
 
     return counts;
 }
@@ -119,6 +118,8 @@ export interface SummedDatum {
     label: string;
     // count of this particular item
     count: number;
+    // show up in the table
+    show: boolean,
     // running total
     total: number;
 }
@@ -141,6 +142,7 @@ export function renderCards(
         return {
             label: count[0],
             count: count[1],
+            show: count[2],
             idx,
             total: n,
         } as SummedDatum;
@@ -185,14 +187,17 @@ export function renderCards(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
-    const tableData = data.map((d, idx) => {
+    // @ts-ignore
+    const tableData = data.flatMap((d: SummedDatum, idx: number) => {
         const percent = ((d.count / xMax) * 100).toFixed(1);
-        return {
-            label: d.label,
-            count: d.count,
-            percent: `${percent}%`,
-            colour: barColours[idx],
-        } as TableDatum;
+        return d.show
+            ? {
+                label: d.label,
+                count: d.count,
+                percent: `${percent}%`,
+                colour: barColours[idx],
+            } as TableDatum
+            : [];
     });
 
     return tableData;
