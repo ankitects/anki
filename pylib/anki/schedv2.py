@@ -1408,7 +1408,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
     def schedule_cards_as_new(self, card_ids: List[int]) -> None:
         "Put cards at the end of the new queue."
-        self.col.backend.schedule_cards_as_new(card_ids)
+        self.col.backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
     def schedule_cards_as_reviews(
         self, card_ids: List[int], min_interval: int, max_interval: int
@@ -1432,8 +1432,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        self.forgetCards(nonNew)
-        self.col.log(ids)
+        self.col.backend.schedule_cards_as_new(card_ids=nonNew, log=False)
 
     # legacy
 
