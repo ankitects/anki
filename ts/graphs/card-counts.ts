@@ -15,81 +15,48 @@ import { scaleLinear } from "d3-scale";
 import { pie, arc } from "d3-shape";
 import { interpolate } from "d3-interpolate";
 import type { GraphBounds } from "./graph-helpers";
-import { CardCountMethod } from "./graph-helpers";
 import { cumsum } from "d3-array";
 import type { I18n } from "anki/i18n";
 
-type Count = [string, number, string];
+type Count = [string, number];
 export interface GraphData {
     title: string;
     counts: Count[];
     totalCards: number;
 }
 
-const barColours = {
-    new: schemeBlues[5][2],
-    review: schemeGreens[5][2],
-    young: schemeGreens[5][2],
-    mature: schemeGreens[5][3],
-    learn: schemeOranges[5][2],
-    relearn: schemeOranges[5][3],
-    suspended: "#FFDC41",
-    buried: "grey",
-};
+const barColours = [
+    schemeBlues[5][2] /* new */,
+    schemeOranges[5][2] /* learn */,
+    schemeOranges[5][3] /* relearn */,
+    schemeGreens[5][2] /* young */,
+    schemeGreens[5][3] /* mature */,
+    "#FFDC41" /* suspended */,
+    "grey" /* buried */,
+];
 
-function gatherByQueue(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
+function countCards(cards: pb.BackendProto.ICard[], separateInactive: boolean, i18n: I18n): Count[] {
     let newCards = 0;
     let learn = 0;
-    let review = 0;
+    let relearn = 0;
+    let young = 0;
+    let mature = 0;
     let suspended = 0;
     let buried = 0;
 
     for (const card of cards as pb.BackendProto.Card[]) {
-        switch (card.queue) {
-            case CardQueue.New:
-                newCards += 1;
-                break;
-            case CardQueue.Review:
-                review += 1;
-                break;
-            case CardQueue.Learn:
-            case CardQueue.DayLearn:
-            case CardQueue.PreviewRepeat:
-                learn += 1;
-                break;
-            case CardQueue.Suspended:
-                suspended += 1;
-                break;
-            case CardQueue.SchedBuried:
-            case CardQueue.UserBuried:
-                buried += 1;
-                break;
+        if (separateInactive) {
+            switch (card.queue) {
+                case CardQueue.Suspended:
+                    suspended += 1;
+                    continue;
+                case CardQueue.SchedBuried:
+                case CardQueue.UserBuried:
+                    buried += 1;
+                    continue;
+            }
         }
-    }
 
-    const counts: Count[] = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, barColours.new],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, barColours.learn],
-        ["Review", review, barColours.review],
-        [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS),
-            suspended,
-            barColours.suspended,
-        ],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried, barColours.buried],
-    ];
-
-    return counts;
-}
-
-function gatherByCtype(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
-    let newCards = 0;
-    let learn = 0;
-    let young = 0;
-    let mature = 0;
-    let relearn = 0;
-
-    for (const card of cards as pb.BackendProto.Card[]) {
         switch (card.ctype) {
             case CardType.New:
                 newCards += 1;
@@ -110,31 +77,28 @@ function gatherByCtype(cards: pb.BackendProto.ICard[], i18n: I18n): Count[] {
         }
     }
 
+
     const counts: Count[] = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, barColours.new],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, barColours.learn],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young, barColours.young],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature, barColours.mature],
-        [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
-            relearn,
-            barColours.relearn,
-        ],
-    ];
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried],
+    ]
+
 
     return counts;
 }
 
 export function gatherData(
     data: pb.BackendProto.GraphsOut,
-    method: CardCountMethod,
+    separateInactive: boolean,
     i18n: I18n
 ): GraphData {
     const totalCards = data.cards.length;
-    const counts =
-        method === CardCountMethod.ByType
-            ? gatherByCtype(data.cards, i18n)
-            : gatherByQueue(data.cards, i18n);
+    const counts = countCards(data.cards, separateInactive, i18n)
 
     return {
         title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),
@@ -155,7 +119,6 @@ export interface SummedDatum {
     label: string;
     // count of this particular item
     count: number;
-    colour: string;
     // running total
     total: number;
 }
@@ -178,7 +141,6 @@ export function renderCards(
         return {
             label: count[0],
             count: count[1],
-            colour: count[2],
             idx,
             total: n,
         } as SummedDatum;
@@ -199,20 +161,16 @@ export function renderCards(
         .selectAll("path")
         .data(pieData)
         .join(
-            (enter) =>
-                enter
+            (enter) => enter
                     .append("path")
-                    .attr("fill", (_d, i) => {
-                        return data[i].colour;
+                    .attr("fill", (_d, idx) => {
+                        return barColours[idx];
                     })
                     .attr("d", arcGen as any),
             function (update) {
                 return update.call((d) =>
                     d
                         .transition(trans)
-                        .attr("fill", (_d, i) => {
-                            return data[i].colour;
-                        })
                         .attrTween("d", (d) => {
                             const interpolator = interpolate(
                                 { startAngle: 0, endAngle: 0 },
@@ -227,13 +185,13 @@ export function renderCards(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
-    const tableData = data.map((d) => {
+    const tableData = data.map((d, idx) => {
         const percent = ((d.count / xMax) * 100).toFixed(1);
         return {
             label: d.label,
             count: d.count,
             percent: `${percent}%`,
-            colour: d.colour,
+            colour: barColours[idx],
         } as TableDatum;
     });
 
