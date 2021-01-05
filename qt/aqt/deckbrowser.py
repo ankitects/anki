@@ -280,8 +280,7 @@ class DeckBrowser:
 
         self.show()
 
-    def _delete(self, did: int):
-        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+    def ask_delete_deck(self, did: int) -> bool:
         deck = self.mw.col.decks.get(did)
         extra = None
         if not deck["dyn"]:
@@ -292,9 +291,15 @@ class DeckBrowser:
             deck["dyn"]
             or not extra
             or askUser(
-                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"])) + extra
+                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"])) + " " + extra
             )
         ):
+            return True
+        return False
+
+    def _delete(self, did: int) -> None:
+        if self.ask_delete_deck(did):
+            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
             self.mw.progress.start()
             self.mw.col.decks.rem(did, True)
             self.mw.progress.finish()
