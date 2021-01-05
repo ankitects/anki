@@ -74,3 +74,4 @@ unic-langid = { version = "0.9", features = ["macros"] }
 unicode-normalization = "0.1.13"
 utime = "0.3.1"
 zip = { version = "0.5.6", default-features = false, features = ["deflate", "time"] }
+async-trait = "0.1.42"
