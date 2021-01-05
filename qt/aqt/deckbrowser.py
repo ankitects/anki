@@ -283,17 +283,16 @@ class DeckBrowser:
 
     def ask_delete_deck(self, did: int) -> bool:
         deck = self.mw.col.decks.get(did)
-        extra = None
-        if not deck["dyn"]:
-            count = self.mw.col.decks.card_count(did, include_subdecks=True)
-            if count:
-                extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
-        if (
-            deck["dyn"]
-            or not extra
-            or askUser(
-                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"])) + " " + extra
-            )
+        if deck["dyn"]:
+            return True
+
+        count = self.mw.col.decks.card_count(did, include_subdecks=True)
+        if not count:
+            return True
+
+        extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
+        if askUser(
+            tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"]) + " " + extra
         ):
             return True
         return False
