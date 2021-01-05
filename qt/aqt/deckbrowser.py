@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
 
@@ -299,11 +300,16 @@ class DeckBrowser:
 
     def _delete(self, did: int) -> None:
         if self.ask_delete_deck(did):
+
+            def do_delete():
+                return self.mw.col.decks.rem(did, True)
+
+            def on_done(fut: Future):
+                self.show()
+                res = fut.result()  # Required to check for errors
+
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
-            self.mw.progress.start()
-            self.mw.col.decks.rem(did, True)
-            self.mw.progress.finish()
-            self.show()
+            self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons
     ######################################################################
