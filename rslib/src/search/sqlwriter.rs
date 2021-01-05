@@ -279,9 +279,9 @@ impl SqlWriter<'_> {
             ),
             StateKind::Learning => write!(
                 self.sql,
-                "c.queue in ({},{})",
-                CardQueue::Learn as i8,
-                CardQueue::DayLearn as i8
+                "c.type in ({}, {})",
+                CardType::Learn as i8,
+                CardType::Relearn as i8,
             ),
             StateKind::Buried => write!(
                 self.sql,
