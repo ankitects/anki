@@ -35,7 +35,11 @@ const barColours = [
     "grey" /* buried */,
 ];
 
-function countCards(cards: pb.BackendProto.ICard[], separateInactive: boolean, i18n: I18n): Count[] {
+function countCards(
+    cards: pb.BackendProto.ICard[],
+    separateInactive: boolean,
+    i18n: I18n
+): Count[] {
     let newCards = 0;
     let learn = 0;
     let relearn = 0;
@@ -77,16 +81,19 @@ function countCards(cards: pb.BackendProto.ICard[], separateInactive: boolean, i
         }
     }
 
-
     const counts: Count[] = [
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, true],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, true],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn, true],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young, true],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature, true],
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended, separateInactive],
+        [
+            i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS),
+            suspended,
+            separateInactive,
+        ],
         [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried, separateInactive],
-    ]
+    ];
 
     return counts;
 }
@@ -97,7 +104,7 @@ export function gatherData(
     i18n: I18n
 ): GraphData {
     const totalCards = data.cards.length;
-    const counts = countCards(data.cards, separateInactive, i18n)
+    const counts = countCards(data.cards, separateInactive, i18n);
 
     return {
         title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),
@@ -119,7 +126,7 @@ export interface SummedDatum {
     // count of this particular item
     count: number;
     // show up in the table
-    show: boolean,
+    show: boolean;
     // running total
     total: number;
 }
@@ -163,7 +170,8 @@ export function renderCards(
         .selectAll("path")
         .data(pieData)
         .join(
-            (enter) => enter
+            (enter) =>
+                enter
                     .append("path")
                     .attr("fill", (_d, idx) => {
                         return barColours[idx];
@@ -171,32 +179,28 @@ export function renderCards(
                     .attr("d", arcGen as any),
             function (update) {
                 return update.call((d) =>
-                    d
-                        .transition(trans)
-                        .attrTween("d", (d) => {
-                            const interpolator = interpolate(
-                                { startAngle: 0, endAngle: 0 },
-                                d
-                            );
-                            return (t): string =>
-                                arcGen(interpolator(t) as any) as string;
-                        })
+                    d.transition(trans).attrTween("d", (d) => {
+                        const interpolator = interpolate(
+                            { startAngle: 0, endAngle: 0 },
+                            d
+                        );
+                        return (t): string => arcGen(interpolator(t) as any) as string;
+                    })
                 );
             }
         );
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
-    // @ts-ignore
-    const tableData = data.flatMap((d: SummedDatum, idx: number) => {
+    const tableData = (data as any).flatMap((d: SummedDatum, idx: number) => {
         const percent = ((d.count / xMax) * 100).toFixed(1);
         return d.show
-            ? {
-                label: d.label,
-                count: d.count,
-                percent: `${percent}%`,
-                colour: barColours[idx],
-            } as TableDatum
+            ? ({
+                  label: d.label,
+                  count: d.count,
+                  percent: `${percent}%`,
+                  colour: barColours[idx],
+              } as TableDatum)
             : [];
     });
 
