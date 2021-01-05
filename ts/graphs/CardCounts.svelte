@@ -1,15 +1,15 @@
 <script lang="typescript">
-    import { CardCountMethod, defaultGraphBounds } from "./graph-helpers";
+    import { defaultGraphBounds } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
-    import CountMethodRadios from "./CountMethodRadios.svelte";
+    import SeparateInactiveCheckbox from "./SeparateInactiveCheckbox.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
 
-    let cardCountMethod = CardCountMethod.ByType;
+    let separateInactive = false;
     let svg = null as HTMLElement | SVGElement | null;
 
     let bounds = defaultGraphBounds();
@@ -20,7 +20,7 @@
     let tableData = (null as unknown) as TableDatum[];
 
     $: {
-        graphData = gatherData(sourceData, cardCountMethod, i18n);
+        graphData = gatherData(sourceData, separateInactive, i18n);
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
@@ -56,7 +56,7 @@
     <h1>{graphData.title}</h1>
 
     <div class="range-box-inner">
-        <CountMethodRadios bind:cardCountMethod {i18n} />
+        <SeparateInactiveCheckbox bind:separateInactive {i18n} />
     </div>
 
     <div class="counts-outer">
