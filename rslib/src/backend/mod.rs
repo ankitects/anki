@@ -435,7 +435,7 @@ impl BackendService for Backend {
     fn negate_search(&self, input: pb::String) -> Result<pb::String> {
         Ok(negate_search(&input.val)?.into())
     }
-    
+
     fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
         Ok(concatenate_searches(input.sep, &input.searches)?.into())
     }

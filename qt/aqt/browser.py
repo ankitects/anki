@@ -20,7 +20,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TR, DeckTreeNode, InvalidInput
+from anki.rsbackend import TR, DeckTreeNode, InvalidInput, pb
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1219,17 +1219,19 @@ QTableView {{ gridline-color: {grid} }}
                     items.append(txt)
                     txt = ""
             txt = " AND ".join(items)
-        # is there something to replace or append with?
-        if txt:
-            if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-                txt = "-" + txt
-            # is there something to replace or append to?
-            cur = str(self.form.searchEdit.lineEdit().text())
-            if cur and cur != self._searchPrompt:
-                if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
-                    txt = cur + " AND " + txt
-                elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-                    txt = cur + " OR " + txt
+        if self.mw.app.keyboardModifiers() & Qt.AltModifier:
+            txt = self.col.backend.negate_search(txt)
+        cur = str(self.form.searchEdit.lineEdit().text())
+        if cur != self._searchPrompt:
+            mods = self.mw.app.keyboardModifiers()
+            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                txt = self.col.backend.replace_search_term(search=cur, replacement=txt)
+            elif mods & Qt.ControlModifier:
+                and_sep = pb.ConcatenateSearchesIn.Separator.AND
+                txt = self.col.backend.concatenate_searches(sep=and_sep, searches=[cur, txt])
+            elif mods & Qt.ShiftModifier:
+                or_sep = pb.ConcatenateSearchesIn.Separator.OR
+                txt = self.col.backend.concatenate_searches(sep=or_sep, searches=[cur, txt])
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 
