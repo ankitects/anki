@@ -9,6 +9,7 @@ use crate::{
     search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
 use itertools::Itertools;
+use std::mem;
 
 /// Take an Anki-style search string and convert it into an equivalent
 /// search string with normalized syntax.
@@ -55,6 +56,31 @@ pub fn concatenate_searches(sep: i32, searches: &[String]) -> Result<String> {
     ))
 }
 
+/// Take two Anki-style search strings. If the second one evaluates to a single search
+/// node, replace with it all search terms of the same kind in the first search.
+/// Then return the possibly modified first search.
+pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
+    let mut nodes = parse(search)?;
+    let new = parse(replacement)?;
+    if let [Node::Search(search_node)] = &new[..] {
+        fn update_node_vec<'a>(old_nodes: &mut [Node<'a>], new_node: &SearchNode<'a>) {
+            fn update_node<'a>(old_node: &mut Node<'a>, new_node: &SearchNode<'a>) {
+                match old_node {
+                    Node::Not(n) => update_node(n, new_node),
+                    Node::Group(ns) => update_node_vec(ns, new_node),
+                    Node::Search(n) => {
+                        if mem::discriminant(n) == mem::discriminant(new_node) {
+                            *n = new_node.clone();
+                        }
+                    }
+                    _ => (),
+                }
+            }
+            old_nodes.iter_mut().for_each(|n| update_node(n, new_node));
+        }
+        update_node_vec(&mut nodes, search_node);
+    }
+    Ok(write_nodes(&nodes))
 }
 
 fn write_nodes<'a, I>(nodes: I) -> String
