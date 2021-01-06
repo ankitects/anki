@@ -89,7 +89,11 @@
                         <!-- prettier-ignore -->
                         <td>
                             <span style="color: {d.colour};">■&nbsp;</span>
-                            <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
+                            {#if sourceData.bridgeCommandsSupported}
+                                <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
+                            {:else}
+                                <span>{d.label}</span>
+                            {/if}
                         </td>
                         <td class="right">{d.count}</td>
                         <td class="right">{d.percent}</td>
