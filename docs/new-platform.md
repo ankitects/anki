@@ -34,8 +34,15 @@ https://github.com/ankitects/anki/commit/db3308e788f20b188e84add40d6a1dce5bf726a
 build --action_env=PYTHON_SITE_PACKAGES=/path/to/site-packages
 ```
 
-- Anki uses the Python 'orjson' module. If it's not available on your system,
-  you will need to [patch it out](https://github.com/ankitects/anki/pull/752#issuecomment-748861582), and remove references to it in the build scripts.
+- Anki uses the Python 'orjson' module to speed up DB access. If you're on a
+  platform that can not build orjson, you can remove it from
+  pip/requirements.txt to skip it during running/building, but DB operations
+  will be slower.
+
+  The py_wheel() rule in pylib/anki/BUILD.bazel adds an orjson requirement to
+  the generated Anki wheel on x86_64. If you have removed orjson, you'll want to
+  remove that line. If you have successfully built orjson for another platform,
+  you'll want to adjust that line to include your platform.
 
 ## Rust
 
