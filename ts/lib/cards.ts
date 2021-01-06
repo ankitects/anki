@@ -1,6 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+export enum CardType {
+    New = 0,
+    Learn = 1,
+    Review = 2,
+    Relearn = 3,
+}
+
 export enum CardQueue {
     /// due is the order cards are shown in
     New = 0,
