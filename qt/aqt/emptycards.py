@@ -38,6 +38,7 @@ class EmptyCardsDialog(QDialog):
         self.form.setupUi(self)
         restoreGeom(self, "emptycards")
         self.setWindowTitle(tr(TR.EMPTY_CARDS_WINDOW_TITLE))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.form.keep_notes.setText(tr(TR.EMPTY_CARDS_PRESERVE_NOTES_CHECKBOX))
         self.form.webview.title = "empty cards"
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)

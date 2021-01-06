@@ -555,6 +555,7 @@ class Editor:
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         qconnect(form.buttonBox.helpRequested, lambda: openHelp("editing?id=features"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()

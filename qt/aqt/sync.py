@@ -290,6 +290,7 @@ def get_id_and_pass_from_user(
 ) -> Tuple[str, str]:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
+    diag.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
     diag.setWindowModality(Qt.WindowModal)
     vbox = QVBoxLayout()
     info_label = QLabel(

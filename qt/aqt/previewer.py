@@ -43,6 +43,7 @@ class Previewer(QDialog):
         self.mw = mw
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/anki.png"), QIcon.Normal, QIcon.Off)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setWindowIcon(icon)
 
     def card(self) -> Optional[Card]:
