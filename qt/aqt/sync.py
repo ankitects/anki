@@ -249,7 +249,9 @@ def sync_login(
             if e.kind() == SyncErrorKind.AUTH_FAILED:
                 showWarning(str(e))
                 sync_login(mw, on_success, username, password)
-                return
+            else:
+                handle_sync_error(mw, e)
+            return
         except Exception as err:
             handle_sync_error(mw, err)
             return
