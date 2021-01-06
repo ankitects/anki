@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
 
@@ -280,25 +281,34 @@ class DeckBrowser:
 
         self.show()
 
-    def _delete(self, did: int):
-        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+    def ask_delete_deck(self, did: int) -> bool:
         deck = self.mw.col.decks.get(did)
-        extra = None
-        if not deck["dyn"]:
-            count = self.mw.col.decks.card_count(did, include_subdecks=True)
-            if count:
-                extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
-        if (
-            deck["dyn"]
-            or not extra
-            or askUser(
-                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"])) + extra
-            )
+        if deck["dyn"]:
+            return True
+
+        count = self.mw.col.decks.card_count(did, include_subdecks=True)
+        if not count:
+            return True
+
+        extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
+        if askUser(
+            tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"]) + " " + extra
         ):
-            self.mw.progress.start()
-            self.mw.col.decks.rem(did, True)
-            self.mw.progress.finish()
-            self.show()
+            return True
+        return False
+
+    def _delete(self, did: int) -> None:
+        if self.ask_delete_deck(did):
+
+            def do_delete():
+                return self.mw.col.decks.rem(did, True)
+
+            def on_done(fut: Future):
+                self.show()
+                res = fut.result()  # Required to check for errors
+
+            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+            self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons
     ######################################################################
