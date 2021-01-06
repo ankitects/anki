@@ -25,7 +25,7 @@
     const preferencesPromise = getPreferences();
 
     const refreshWith = async (searchNew: string, days: number) => {
-        search = searchNew
+        search = searchNew;
 
         active = true;
         try {
@@ -48,9 +48,9 @@
     refreshWith(search, days);
 
     const browserSearch = (event: CustomEvent) => {
-        const query = `${search} ${event.detail.query}`
-        bridgeCommand(`browserSearch:${query}`)
-    }
+        const query = `${search} ${event.detail.query}`;
+        bridgeCommand(`browserSearch:${query}`);
+    };
 </script>
 
 {#if controller}

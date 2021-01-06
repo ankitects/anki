@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import { createEventDispatcher } from "svelte";
     import { defaultGraphBounds } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
@@ -11,6 +12,8 @@
     export let preferences: PreferenceStore;
 
     let { cardCountsSeparateInactive } = preferences;
+    const dispatch = createEventDispatcher();
+
     let svg = null as HTMLElement | SVGElement | null;
 
     let bounds = defaultGraphBounds();
@@ -52,6 +55,12 @@
     .right {
         text-align: right;
     }
+
+    .search-link:hover {
+        cursor: pointer;
+        color: var(--link);
+        text-decoration: underline;
+    }
 </style>
 
 <div class="graph" id="graph-card-counts">
@@ -79,7 +88,8 @@
                     <tr>
                         <!-- prettier-ignore -->
                         <td>
-                            <span style="color: {d.colour};">■&nbsp;</span>{d.label}
+                            <span style="color: {d.colour};">■&nbsp;</span>
+                            <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
                         </td>
                         <td class="right">{d.count}</td>
                         <td class="right">{d.percent}</td>
