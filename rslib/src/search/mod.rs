@@ -5,4 +5,4 @@ mod sqlwriter;
 mod writer;
 
 pub use cards::SortMode;
-pub use writer::normalize_search;
+pub use writer::{concatenate_searches, negate_search, normalize_search, replace_search_term};

@@ -32,7 +32,9 @@ use crate::{
     },
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, time_span},
-    search::{normalize_search, SortMode},
+    search::{
+        concatenate_searches, negate_search, normalize_search, replace_search_term, SortMode,
+    },
     stats::studied_today,
     sync::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
@@ -430,6 +432,9 @@ impl BackendService for Backend {
         })
     }
 
+    fn negate_search(&self, input: pb::String) -> Result<pb::String> {
+        Ok(negate_search(&input.val)?.into())
+    }
     fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {
         let mut search = if input.regex {
             input.search
