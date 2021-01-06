@@ -1227,11 +1227,13 @@ QTableView {{ gridline-color: {grid} }}
             if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
                 txt = self.col.backend.replace_search_term(search=cur, replacement=txt)
             elif mods & Qt.ControlModifier:
-                and_sep = pb.ConcatenateSearchesIn.Separator.AND
-                txt = self.col.backend.concatenate_searches(sep=and_sep, searches=[cur, txt])
+                txt = self.col.backend.concatenate_searches(
+                    sep=pb.ConcatenateSearchesIn.Separator.AND, searches=[cur, txt]
+                )
             elif mods & Qt.ShiftModifier:
-                or_sep = pb.ConcatenateSearchesIn.Separator.OR
-                txt = self.col.backend.concatenate_searches(sep=or_sep, searches=[cur, txt])
+                txt = self.col.backend.concatenate_searches(
+                    sep=pb.ConcatenateSearchesIn.Separator.OR, searches=[cur, txt]
+                )
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 

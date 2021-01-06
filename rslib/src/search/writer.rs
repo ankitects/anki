@@ -4,7 +4,7 @@
 use crate::{
     backend_proto::concatenate_searches_in::Separator,
     decks::DeckID as DeckIDType,
-    err::Result,
+    err::{AnkiError, Result},
     notetype::NoteTypeID as NoteTypeIDType,
     search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
@@ -39,15 +39,15 @@ pub fn negate_search(input: &str) -> Result<String> {
 /// are separated by the provided boolean operator.
 /// Empty searches (whole collection) are left out.
 pub fn concatenate_searches(sep: i32, searches: &[String]) -> Result<String> {
-    let bool_node = vec![if let Some(Separator::Or) = Separator::from_i32(sep) {
-        Node::Or
-    } else {
-        Node::And
+    let bool_node = vec![match Separator::from_i32(sep) {
+        Some(Separator::Or) => Node::Or,
+        Some(Separator::And) => Node::And,
+        None => return Err(AnkiError::SearchError(None)),
     }];
     Ok(write_nodes(
         searches
             .iter()
-            .map(|s: &String| -> Result<Vec<Node>> { parse(s) })
+            .map(|s| parse(s))
             .collect::<Result<Vec<Vec<Node>>>>()?
             .iter()
             .filter(|v| v[0] != Node::Search(SearchNode::WholeCollection))
@@ -182,5 +182,90 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Reps(u) => format!("\"prop:reps{}{}\"", operator, u),
         Lapses(u) => format!("\"prop:lapses{}{}\"", operator, u),
         Ease(f) => format!("\"prop:ease{}{}\"", operator, f),
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn normalizing() -> Result<()> {
+        assert_eq!(r#""(" AND "-""#, normalize_search(r"\( \-").unwrap());
+        assert_eq!(r#""deck::""#, normalize_search(r"deck:\:").unwrap());
+        assert_eq!(r#""\*" OR "\:""#, normalize_search(r"\* or \:").unwrap());
+        assert_eq!(
+            r#""field:foo""#,
+            normalize_search(r#"field:"foo""#).unwrap()
+        );
+        assert_eq!(
+            r#""prop:ease>1""#,
+            normalize_search("prop:ease>1.0").unwrap()
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn negating() -> Result<()> {
+        assert_eq!(r#"-("foo" AND "bar")"#, negate_search("foo bar").unwrap());
+        assert_eq!(r#""foo""#, negate_search("-foo").unwrap());
+        assert_eq!(r#"("foo")"#, negate_search("-(foo)").unwrap());
+        assert_eq!("", negate_search("").unwrap());
+
+        Ok(())
+    }
+
+    #[test]
+    fn concatenating() -> Result<()> {
+        assert_eq!(
+            r#""foo" AND "bar""#,
+            concatenate_searches(
+                Separator::And as i32,
+                &["foo".to_string(), "bar".to_string()]
+            )
+            .unwrap()
+        );
+        assert_eq!(
+            r#""foo" OR "bar""#,
+            concatenate_searches(
+                Separator::Or as i32,
+                &["foo".to_string(), "".to_string(), "bar".to_string()]
+            )
+            .unwrap()
+        );
+        assert_eq!(
+            "",
+            concatenate_searches(Separator::Or as i32, &["".to_string()]).unwrap()
+        );
+        assert_eq!("", concatenate_searches(Separator::Or as i32, &[]).unwrap());
+
+        Ok(())
+    }
+
+    #[test]
+    fn replacing() -> Result<()> {
+        assert_eq!(
+            r#""deck:foo" AND "bar""#,
+            replace_search_term("deck:baz bar", "deck:foo").unwrap()
+        );
+        assert_eq!(
+            r#""tag:baz" OR "tag:baz""#,
+            replace_search_term("tag:foo Or tag:bar", "tag:baz").unwrap()
+        );
+        assert_eq!(
+            r#""bar" OR (-"bar" AND "tag:baz")"#,
+            replace_search_term("foo or (-foo tag:baz)", "bar").unwrap()
+        );
+        assert_eq!(
+            r#""is:due""#,
+            replace_search_term("is:due", "-is:new").unwrap()
+        );
+        assert_eq!(
+            r#""added:1""#,
+            replace_search_term("added:1", "is:due").unwrap()
+        );
+
+        Ok(())
     }
 }
