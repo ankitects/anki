@@ -17,6 +17,10 @@
     --area-stroke-opacity: 0.18;
 }
 
+* {
+    overscroll-behavior: none;
+}
+
 .graph-tooltip {
     position: absolute;
     padding: 15px;
@@ -188,4 +192,8 @@
 
 .align-start {
     text-align: start;
+}
+
+.no-focus-outline:focus {
+    outline: 0;
 }

@@ -61,9 +61,9 @@ rust_library(
         "@raze__num_traits__0_2_14//:num_traits",
         "@raze__percent_encoding__2_1_0//:percent_encoding",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_7//:quote",
+        "@raze__quote__1_0_8//:quote",
         "@raze__serde__1_0_118//:serde",
-        "@raze__syn__1_0_54//:syn",
-        "@raze__toml__0_5_7//:toml",
+        "@raze__syn__1_0_56//:syn",
+        "@raze__toml__0_5_8//:toml",
     ],
 )

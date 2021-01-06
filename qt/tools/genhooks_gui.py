@@ -274,6 +274,12 @@ hooks = [
     ),
     # Browser
     ###################
+    Hook(
+        name="default_search",
+        args=["current_search: str", "c: Card"],
+        return_type="str",
+        doc="Change the default search when the card browser is opened with card `c`.",
+    ),
     Hook(name="browser_will_show", args=["browser: aqt.browser.Browser"]),
     Hook(
         name="browser_menus_did_init",

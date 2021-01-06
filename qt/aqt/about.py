@@ -5,6 +5,7 @@ import platform
 import time
 
 import aqt.forms
+from anki.lang import without_unicode_isolation
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
@@ -100,7 +101,10 @@ def show(mw):
         QT_VERSION_STR,
         PYQT_VERSION_STR,
     )
-    abouttext += tr(TR.ABOUT_VISIT_WEBSITE, val=aqt.appWebsite) + "</span>"
+    abouttext += (
+        without_unicode_isolation(tr(TR.ABOUT_VISIT_WEBSITE, val=aqt.appWebsite))
+        + "</span>"
+    )
 
     # automatically sorted; add new lines at the end
     allusers = sorted(

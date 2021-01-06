@@ -86,6 +86,7 @@ REVLOG_LRN = 0
 REVLOG_REV = 1
 REVLOG_RELRN = 2
 REVLOG_CRAM = 3
+REVLOG_RESCHED = 4
 
 # Labels
 ##########################################################################

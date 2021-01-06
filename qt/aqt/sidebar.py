@@ -3,12 +3,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import re
+from concurrent.futures import Future
 from enum import Enum
 
 import aqt
 from anki.errors import DeckRenameError
+from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.utils import TR, getOnlyText, showWarning, tr
+from aqt.utils import TR, getOnlyText, showInfo, showWarning, tr
 
 
 class SidebarItemType(Enum):
@@ -69,7 +72,11 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus = {
-            SidebarItemType.DECK: ((tr(TR.ACTIONS_RENAME), self.rename_deck),),
+            SidebarItemType.DECK: (
+                (tr(TR.ACTIONS_RENAME), self.rename_deck),
+                (tr(TR.ACTIONS_DELETE), self.delete_deck),
+            ),
+            SidebarItemType.TAG: ((tr(TR.ACTIONS_RENAME), self.rename_tag),),
         }
 
     def onContextMenu(self, point: QPoint) -> None:
@@ -90,16 +97,64 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         m.exec_(QCursor.pos())
 
     def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
         new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
         new_name = new_name.replace('"', "")
         if not new_name or new_name == old_name:
             return
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
-            self.browser.maybeRefreshSidebar()
         except DeckRenameError as e:
             return showWarning(e.description)
-        self.show()
+        self.browser.maybeRefreshSidebar()
+        self.mw.deckBrowser.refresh()
+
+    def rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
+        self.browser.editor.saveNow(lambda: self._rename_tag(item))
+
+    def _rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
+        old_name = item.name
+        new_name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
+        if new_name == old_name or not new_name:
+            return
+
+        def do_rename():
+            return self.col.tags.rename_tag(old_name, new_name)
+
+        def on_done(fut: Future):
+            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
+            self.browser.model.endReset()
+
+            count = fut.result()
+            if not count:
+                showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
+                return
+
+            self.browser.clearUnusedTags()
+
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
+        self.browser.model.beginReset()
+        self.mw.taskman.run_in_background(do_rename, on_done)
+
+    def delete_deck(self, item: "aqt.browser.SidebarItem") -> None:
+        self.browser.editor.saveNow(lambda: self._delete_deck(item))
+
+    def _delete_deck(self, item: "aqt.browser.SidebarItem") -> None:
+        did = item.id
+        if self.mw.deckBrowser.ask_delete_deck(did):
+
+            def do_delete():
+                return self.mw.col.decks.rem(did, True)
+
+            def on_done(fut: Future):
+                self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
+                self.browser.search()
+                self.browser.model.endReset()
+                self.browser.maybeRefreshSidebar()
+                res = fut.result()  # Required to check for errors
+
+            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+            self.browser.model.beginReset()
+            self.mw.taskman.run_in_background(do_delete, on_done)

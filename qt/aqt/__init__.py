@@ -37,7 +37,7 @@ appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
 from aqt.main import AnkiQt  # isort:skip
-from aqt.profiles import ProfileManager, AnkiRestart  # isort:skip
+from aqt.profiles import ProfileManager, AnkiRestart, VideoDriver  # isort:skip
 
 profiler: Optional[cProfile.Profile] = None
 mw: Optional[AnkiQt] = None  # set on init
@@ -69,7 +69,7 @@ except ImportError as e:
 # - make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, browser, editcurrent  # isort:skip
+from aqt import addcards, addons, browser, editcurrent  # isort:skip
 from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
@@ -77,6 +77,7 @@ class DialogManager:
 
     _dialogs: Dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
+        "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
         "DeckStats": [stats.DeckStats, None],
@@ -326,7 +327,7 @@ def setupGL(pm):
     if isMac:
         return
 
-    mode = pm.glMode()
+    driver = pm.video_driver()
 
     # work around pyqt loading wrong GL library
     if isLin:
@@ -366,22 +367,27 @@ def setupGL(pm):
                 None,
                 tr(TR.QT_MISC_ERROR),
                 tr(
-                    TR.QT_MISC_ERROR_LOADING_GRAPHICS_DRIVER, mode=mode, context=context
+                    TR.QT_MISC_ERROR_LOADING_GRAPHICS_DRIVER,
+                    mode=driver.value,
+                    context=context,
                 ),
             )
-            pm.nextGlMode()
+            pm.set_video_driver(driver.next())
             return
         else:
             print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
 
-    if mode == "auto":
-        return
-    elif isLin:
-        os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+    if driver == VideoDriver.OpenGL:
+        pass
     else:
-        os.environ["QT_OPENGL"] = mode
+        if isWin:
+            os.environ["QT_OPENGL"] = driver.value
+        elif isMac:
+            QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+        elif isLin:
+            os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
 
 
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
@@ -548,11 +554,12 @@ def _run(argv=None, exec=True):
     # i18n & backend
     backend = setupLangAndBackend(pm, app, opts.lang, pmLoadResult.firstTime)
 
-    if isLin and pm.glMode() == "auto":
+    driver = pm.video_driver()
+    if isLin and driver == VideoDriver.OpenGL:
         from aqt.utils import gfxDriverIsBroken
 
         if gfxDriverIsBroken():
-            pm.nextGlMode()
+            pm.set_video_driver(driver.next())
             QMessageBox.critical(
                 None,
                 tr(TR.QT_MISC_ERROR),

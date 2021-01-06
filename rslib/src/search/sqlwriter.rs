@@ -247,6 +247,15 @@ impl SqlWriter<'_> {
                     day = day
                 )
             }
+            PropertyKind::Position(pos) => {
+                write!(
+                    self.sql,
+                    "(c.type = {t} and due {op} {pos})",
+                    t = CardType::New as u8,
+                    op = op,
+                    pos = pos
+                )
+            }
             PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl),
             PropertyKind::Reps(reps) => write!(self.sql, "reps {} {}", op, reps),
             PropertyKind::Lapses(days) => write!(self.sql, "lapses {} {}", op, days),
@@ -270,9 +279,9 @@ impl SqlWriter<'_> {
             ),
             StateKind::Learning => write!(
                 self.sql,
-                "c.queue in ({},{})",
-                CardQueue::Learn as i8,
-                CardQueue::DayLearn as i8
+                "c.type in ({}, {})",
+                CardType::Learn as i8,
+                CardType::Relearn as i8,
             ),
             StateKind::Buried => write!(
                 self.sql,

@@ -210,6 +210,16 @@ class DeckManager:
     def count(self) -> int:
         return len(self.all_names_and_ids())
 
+    def card_count(self, did: int, include_subdecks: bool) -> Any:
+        dids: List[int] = [did]
+        if include_subdecks:
+            dids += [r[1] for r in self.children(did)]
+        count = self.col.db.scalar(
+            "select count() from cards where did in {0} or "
+            "odid in {0}".format(ids2str(dids))
+        )
+        return count
+
     def get(self, did: Union[int, str], default: bool = True) -> Optional[Deck]:
         if not did:
             if default:
@@ -420,7 +430,7 @@ class DeckManager:
 
     def selected(self) -> int:
         "The currently selected did."
-        return self.col.conf["curDeck"]
+        return int(self.col.conf["curDeck"])
 
     def current(self) -> Deck:
         return self.get(self.selected())

@@ -16,6 +16,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
@@ -138,7 +139,7 @@ class Reviewer:
     def revHtml(self) -> str:
         extra = self.mw.col.conf.get("reviewExtra", "")
         fade = ""
-        if self.mw.pm.glMode() == "software":
+        if self.mw.pm.video_driver() == VideoDriver.Software:
             fade = "<script>qFade=0;</script>"
         return """
 <div id=_mark>&#x2605;</div>
@@ -157,8 +158,8 @@ class Reviewer:
             self.revHtml(),
             css=["css/reviewer.css"],
             js=[
-                "js/vendor/jquery.js",
-                "js/vendor/browsersel.js",
+                "js/vendor/jquery.min.js",
+                "js/vendor/css_browser_selector.min.js",
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
@@ -170,7 +171,7 @@ class Reviewer:
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
-            js=["js/vendor/jquery.js", "js/reviewer-bottom.js"],
+            js=["js/vendor/jquery.min.js", "js/reviewer-bottom.js"],
             context=ReviewerBottomBar(self),
         )
 

@@ -583,10 +583,11 @@ impl BackendService for Backend {
         })
     }
 
-    fn schedule_cards_as_new(&self, input: pb::CardIDs) -> BackendResult<Empty> {
+    fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> BackendResult<Empty> {
         self.with_col(|col| {
-            col.reschedule_cards_as_new(&input.into_native())
-                .map(Into::into)
+            let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+            let log = input.log;
+            col.reschedule_cards_as_new(&cids, log).map(Into::into)
         })
     }
 
@@ -1559,13 +1560,19 @@ impl Backend {
 
         // fetch and cache result
         let rt = self.runtime_handle();
+        let time_at_check_begin = TimestampSecs::now();
         let remote: SyncMeta = rt.block_on(get_remote_sync_meta(input.into()))?;
         let response = self.with_col(|col| col.get_sync_status(remote).map(Into::into))?;
 
         {
             let mut guard = self.state.lock().unwrap();
-            guard.remote_sync_status.last_check = TimestampSecs::now();
-            guard.remote_sync_status.last_response = response;
+            // On startup, the sync status check will block on network access, and then automatic syncing begins,
+            // taking hold of the mutex. By the time we reach here, our network status may be out of date,
+            // so we discard it if stale.
+            if guard.remote_sync_status.last_check < time_at_check_begin {
+                guard.remote_sync_status.last_check = time_at_check_begin;
+                guard.remote_sync_status.last_response = response;
+            }
         }
 
         Ok(response.into())

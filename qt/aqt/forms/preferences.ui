@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>374</height>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -56,11 +56,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="hwAccel">
-         <property name="text">
-          <string>PREFERENCES_HARDWARE_ACCELERATION_FASTER_MAY_CAUSE_DISPLAY</string>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="video_driver"/>
        </item>
        <item>
         <widget class="QCheckBox" name="showPlayButtons">
@@ -596,7 +592,7 @@
  </widget>
  <tabstops>
   <tabstop>lang</tabstop>
-  <tabstop>hwAccel</tabstop>
+  <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>

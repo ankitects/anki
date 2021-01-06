@@ -30,7 +30,7 @@ class DBProxy:
     ###############
 
     def begin(self) -> None:
-        self.last_begin_at = anki.utils.intTime(1000)
+        self.last_begin_at = self.scalar("select mod from col")
         self._backend.db_begin()
 
     def commit(self) -> None:

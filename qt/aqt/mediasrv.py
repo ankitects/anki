@@ -186,14 +186,29 @@ def _redirectWebExports(path):
                 addprefix = "css/"
             elif ext == ".js":
                 if base in ("browsersel", "jquery-ui", "jquery", "plot"):
-                    addprefix = "js/js/vendor/"
+                    addprefix = "js/vendor/"
                 else:
                     addprefix = "js/"
 
-            if addprefix:
-                oldpath = path
-                path = f"{targetPath}{addprefix}{filename}"
-                print(f"legacy {oldpath} remapped to {path}")
+        elif dirname == "_anki/js/vendor":
+            base, ext = os.path.splitext(filename)
+
+            if base == "jquery":
+                base = "jquery.min"
+                addprefix = "js/vendor/"
+
+            elif base == "jquery-ui":
+                base = "jquery-ui.min"
+                addprefix = "js/vendor/"
+
+            elif base == "browsersel":
+                base = "css_browser_selector.min"
+                addprefix = "js/vendor/"
+
+        if addprefix:
+            oldpath = path
+            path = f"{targetPath}{addprefix}{base}{ext}"
+            print(f"legacy {oldpath} remapped to {path}")
 
         return _exportFolder, path[len(targetPath) :]
 

@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__libc__0_2_81//:libc",
-        "@raze__thiserror__1_0_22//:thiserror",
+        "@raze__thiserror__1_0_23//:thiserror",
     ],
 )
 

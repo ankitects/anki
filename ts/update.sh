@@ -3,7 +3,5 @@
 
 set -e
 
-bazel run @nodejs//:yarn upgrade
-./node_modules/.bin/license-checker-rseidelsohn --production --json \
-    --excludePackages anki --relativeLicensePath \
-    --relativeModulePath > licenses.json
+bazel run yarn upgrade
+./update-licenses.sh

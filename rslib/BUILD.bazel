@@ -14,13 +14,12 @@ cargo_build_script(
         "PROTOC": "$(location @com_google_protobuf//:protoc)",
         "RSLIB_FTL_ROOT": "$(location @rslib_ftl//:l10n.toml)",
         "EXTRA_FTL_ROOT": "$(location @extra_ftl//:l10n.toml)",
-        "BUILDINFO": "$(location //:buildinfo.txt)",
+        "BAZEL": "1",
     },
     crate_root = "build/main.rs",
     data = [
         "//ftl",
         "backend.proto",
-        "//:buildinfo.txt",
         "@com_google_protobuf//:protoc",
         # bazel requires us to list these out separately
         "@rslib_ftl//:l10n.toml",
@@ -50,6 +49,10 @@ _anki_features = [
     "translations",
 ]
 
+_anki_rustc_env = {
+    "BUILDINFO": "$(location //:buildinfo.txt)",
+}
+
 rust_library(
     name = "anki",
     srcs = glob([
@@ -61,6 +64,7 @@ rust_library(
         "//rslib/cargo:serde_derive",
         "//rslib/cargo:serde_repr",
     ],
+    rustc_env = _anki_rustc_env,
     visibility = ["//visibility:public"],
     deps = [
         ":build_script",
@@ -121,6 +125,7 @@ rust_test(
     data = glob([
         "tests/support/**",
     ]),
+    rustc_env = _anki_rustc_env,
     deps = ["//rslib/cargo:env_logger"],
 )
 

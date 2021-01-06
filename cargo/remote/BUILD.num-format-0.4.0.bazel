@@ -54,11 +54,12 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__arrayvec__0_4_12//:arrayvec",
-        "@raze__itoa__0_4_6//:itoa",
+        "@raze__itoa__0_4_7//:itoa",
     ] + selects.with_or({
         # cfg(unix)
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
+            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",

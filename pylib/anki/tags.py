@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, List, Optional, Tuple
+from typing import Collection, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki.utils import ids2str
@@ -92,13 +92,22 @@ class TagManager:
         return self.col.backend.add_note_tags(nids=nids, tags=tags)
 
     def bulk_update(
-        self, nids: List[int], tags: str, replacement: str, regex: bool
+        self, nids: Sequence[int], tags: str, replacement: str, regex: bool
     ) -> int:
         """Replace space-separated tags, returning changed count.
         Tags replaced with an empty string will be removed."""
         return self.col.backend.update_note_tags(
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
+
+    def rename_tag(self, old: str, new: str) -> int:
+        "Rename provided tag, returning number of changed notes."
+        escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
+        escaped_name = '"{}"'.format(escaped_name.replace('"', '\\"'))
+        nids = self.col.find_notes("tag:" + escaped_name)
+        if not nids:
+            return 0
+        return self.col.tags.bulk_update(nids, old, new, False)
 
     # legacy routines
 

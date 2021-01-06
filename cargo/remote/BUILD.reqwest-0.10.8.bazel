@@ -46,7 +46,7 @@ rust_library(
     name = "reqwest",
     srcs = glob(["**/*.rs"]),
     aliases = {
-        "@raze__native_tls__0_2_6//:native_tls": "native_tls_crate",
+        "@raze__native_tls__0_2_7//:native_tls": "native_tls_crate",
     },
     crate_features = [
         "__rustls",
@@ -87,13 +87,14 @@ rust_library(
         "@raze__hyper_timeout__0_3_1//:hyper_timeout",
         "@raze__mime_guess__2_0_3//:mime_guess",
         "@raze__serde__1_0_118//:serde",
-        "@raze__serde_json__1_0_60//:serde_json",
+        "@raze__serde_json__1_0_61//:serde_json",
         "@raze__serde_urlencoded__0_6_1//:serde_urlencoded",
         "@raze__url__2_2_0//:url",
     ] + selects.with_or({
         # cfg(not(target_arch = "wasm32"))
         (
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
+            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -111,7 +112,7 @@ rust_library(
             "@raze__lazy_static__1_4_0//:lazy_static",
             "@raze__log__0_4_11//:log",
             "@raze__mime__0_3_16//:mime",
-            "@raze__native_tls__0_2_6//:native_tls",
+            "@raze__native_tls__0_2_7//:native_tls",
             "@raze__percent_encoding__2_1_0//:percent_encoding",
             "@raze__pin_project_lite__0_1_11//:pin_project_lite",
             "@raze__rustls__0_18_1//:rustls",

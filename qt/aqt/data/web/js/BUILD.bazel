@@ -38,7 +38,7 @@ filegroup(
 
 prettier_test(
     name = "format_check",
-    srcs = glob(["*.ts"]),
+    srcs = glob(["*.ts", "*.js"]),
 )
 
 # source files need fixing first

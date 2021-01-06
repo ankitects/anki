@@ -54,6 +54,7 @@ Platform-specific instructions:
 - [Windows](./windows.md)
 - [Mac](./mac.md)
 - [Linux](./linux.md)
+- [Other Platforms](./new-platform.md)
 
 Don't name the Git checkout ~/Anki or ~/Documents/Anki, as those folders
 were used on old Anki versions and will be automatically moved.
@@ -188,6 +189,17 @@ Audio playing requires `mpv` or `mplayer` to be in your system path.
 
 Recording also requires `lame` to be in your system path.
 
+## Build errors and cleaning
+
+If you get errors with @npm and node_modules in the message, try deleting the
+ts/node_modules folder.
+
+Unlike the old Make system, a "clean build" should almost never be required
+unless you are debugging issues with the build system. But if you need to get
+things to a fresh state, you can run `bazel clean --expunge`. Afte doing so,
+make sure you remove the ts/node_modules folder, or subsequent build commands
+will fail with a "no such file or directory node_modules/anki" message.
+
 ## Tracing build problems
 
 You can run bazel with '-s' to print the commands that are being executed.
@@ -211,14 +223,6 @@ If LOGTERM is set before starting Anki, warnings and error messages that are nor
 in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
-
-## Cleaning
-
-Unlike the old Make system, a "clean build" should almost never be required
-unless you are debugging issues with the build system. But if you need to get
-things to a fresh state, you can run `bazel clean --expunge`. Afte doing so,
-make sure you remove the ts/node_modules folder, or subsequent build commands
-will fail with a "no such file or directory node_modules/anki" message.
 
 ## Mixing development and study
 

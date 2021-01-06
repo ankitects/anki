@@ -6,9 +6,14 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { CardQueue } from "anki/cards";
+import { CardQueue, CardType } from "anki/cards";
 import type pb from "anki/backend_proto";
-import { schemeGreens, schemeBlues } from "d3-scale-chromatic";
+import {
+    schemeGreens,
+    schemeBlues,
+    schemeOranges,
+    schemeReds,
+} from "d3-scale-chromatic";
 import "d3-transition";
 import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
@@ -18,54 +23,93 @@ import type { GraphBounds } from "./graph-helpers";
 import { cumsum } from "d3-array";
 import type { I18n } from "anki/i18n";
 
-type Count = [string, number];
+type Count = [string, number, boolean];
 export interface GraphData {
     title: string;
     counts: Count[];
     totalCards: number;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphData {
-    const totalCards = data.cards.length;
+const barColours = [
+    schemeBlues[5][2] /* new */,
+    schemeOranges[5][2] /* learn */,
+    schemeReds[5][2] /* relearn */,
+    schemeGreens[5][2] /* young */,
+    schemeGreens[5][3] /* mature */,
+    "#FFDC41" /* suspended */,
+    "grey" /* buried */,
+];
+
+function countCards(
+    cards: pb.BackendProto.ICard[],
+    separateInactive: boolean,
+    i18n: I18n
+): Count[] {
     let newCards = 0;
+    let learn = 0;
+    let relearn = 0;
     let young = 0;
     let mature = 0;
     let suspended = 0;
     let buried = 0;
 
-    for (const card of data.cards as pb.BackendProto.Card[]) {
-        switch (card.queue) {
-            case CardQueue.New:
+    for (const card of cards as pb.BackendProto.Card[]) {
+        if (separateInactive) {
+            switch (card.queue) {
+                case CardQueue.Suspended:
+                    suspended += 1;
+                    continue;
+                case CardQueue.SchedBuried:
+                case CardQueue.UserBuried:
+                    buried += 1;
+                    continue;
+            }
+        }
+
+        switch (card.ctype) {
+            case CardType.New:
                 newCards += 1;
                 break;
-            case CardQueue.Review:
-                if (card.interval >= 21) {
+            case CardType.Learn:
+                learn += 1;
+                break;
+            case CardType.Review:
+                if (card.interval < 21) {
+                    young += 1;
+                } else {
                     mature += 1;
-                    break;
                 }
-            // young falls through
-            case CardQueue.Learn:
-            case CardQueue.DayLearn:
-            case CardQueue.PreviewRepeat:
-                young += 1;
                 break;
-            case CardQueue.Suspended:
-                suspended += 1;
-                break;
-            case CardQueue.SchedBuried:
-            case CardQueue.UserBuried:
-                buried += 1;
+            case CardType.Relearn:
+                relearn += 1;
                 break;
         }
     }
 
-    const counts = [
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended] as Count,
-        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried] as Count,
+    const counts: Count[] = [
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS), learn, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS), relearn, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young, true],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature, true],
+        [
+            i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS),
+            suspended,
+            separateInactive,
+        ],
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried, separateInactive],
     ];
+
+    return counts;
+}
+
+export function gatherData(
+    data: pb.BackendProto.GraphsOut,
+    separateInactive: boolean,
+    i18n: I18n
+): GraphData {
+    const totalCards = data.cards.length;
+    const counts = countCards(data.cards, separateInactive, i18n);
 
     return {
         title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),
@@ -82,27 +126,12 @@ interface Reviews {
     early: number;
 }
 
-function barColour(idx: number): string {
-    switch (idx) {
-        case 0:
-            return schemeBlues[5][2];
-        case 1:
-            return schemeGreens[5][2];
-        case 2:
-            return schemeGreens[5][3];
-        case 3:
-            return "#FFDC41";
-        case 4:
-        default:
-            return "grey";
-    }
-}
-
 export interface SummedDatum {
     label: string;
     // count of this particular item
     count: number;
-    idx: number;
+    // show up in the table
+    show: boolean;
     // running total
     total: number;
 }
@@ -119,12 +148,13 @@ export function renderCards(
     bounds: GraphBounds,
     sourceData: GraphData
 ): TableDatum[] {
-    const summed = cumsum(sourceData.counts, (d) => d[1]);
+    const summed = cumsum(sourceData.counts, (d: Count) => d[1]);
     const data = Array.from(summed).map((n, idx) => {
         const count = sourceData.counts[idx];
         return {
             label: count[0],
             count: count[1],
+            show: count[2],
             idx,
             total: n,
         } as SummedDatum;
@@ -135,7 +165,7 @@ export function renderCards(
     const x = scaleLinear().domain([0, xMax]);
     const svg = select(svgElem);
     const paths = svg.select(".counts");
-    const pieData = pie()(sourceData.counts.map((d) => d[1]));
+    const pieData = pie()(sourceData.counts.map((d: Count) => d[1]));
     const radius = bounds.height / 2 - bounds.marginTop - bounds.marginBottom;
     const arcGen = arc().innerRadius(0).outerRadius(radius);
     const trans = svg.transition().duration(600) as any;
@@ -148,8 +178,8 @@ export function renderCards(
             (enter) =>
                 enter
                     .append("path")
-                    .attr("fill", function (d, i) {
-                        return barColour(i);
+                    .attr("fill", (_d, idx) => {
+                        return barColours[idx];
                     })
                     .attr("d", arcGen as any),
             function (update) {
@@ -167,14 +197,16 @@ export function renderCards(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
-    const tableData = data.map((d, idx) => {
+    const tableData = (data as any).flatMap((d: SummedDatum, idx: number) => {
         const percent = ((d.count / xMax) * 100).toFixed(1);
-        return {
-            label: d.label,
-            count: d.count,
-            percent: `${percent}%`,
-            colour: barColour(idx),
-        } as TableDatum;
+        return d.show
+            ? ({
+                  label: d.label,
+                  count: d.count,
+                  percent: `${percent}%`,
+                  colour: barColours[idx],
+              } as TableDatum)
+            : [];
     });
 
     return tableData;

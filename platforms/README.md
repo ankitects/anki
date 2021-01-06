@@ -1,2 +1,2 @@
-Platform constraints. Currently only used to control wheel filenames
-on a per-platform basis.
+Platform constraints, used for things like controlling wheel filenames
+on a per-platform basis, and selecting the correct protobuf binary.
