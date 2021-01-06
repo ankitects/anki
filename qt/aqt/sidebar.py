@@ -72,7 +72,10 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus = {
-            SidebarItemType.DECK: ((tr(TR.ACTIONS_RENAME), self.rename_deck),),
+            SidebarItemType.DECK: (
+                (tr(TR.ACTIONS_RENAME), self.rename_deck),
+                (tr(TR.ACTIONS_DELETE), self.delete_deck),
+            ),
             SidebarItemType.TAG: ((tr(TR.ACTIONS_RENAME), self.rename_tag),),
         }
 
@@ -134,3 +137,24 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
         self.mw.taskman.run_in_background(do_rename, on_done)
+
+    def delete_deck(self, item: "aqt.browser.SidebarItem") -> None:
+        self.browser.editor.saveNow(lambda: self._delete_deck(item))
+
+    def _delete_deck(self, item: "aqt.browser.SidebarItem") -> None:
+        did = item.id
+        if self.mw.deckBrowser.ask_delete_deck(did):
+
+            def do_delete():
+                return self.mw.col.decks.rem(did, True)
+
+            def on_done(fut: Future):
+                self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
+                self.browser.search()
+                self.browser.model.endReset()
+                self.browser.maybeRefreshSidebar()
+                res = fut.result()  # Required to check for errors
+
+            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+            self.browser.model.beginReset()
+            self.mw.taskman.run_in_background(do_delete, on_done)
