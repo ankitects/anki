@@ -28,6 +28,7 @@ class ClosableQDialog(QDialog):
 
 def show(mw):
     dialog = ClosableQDialog(mw)
+    dialog.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
     mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)

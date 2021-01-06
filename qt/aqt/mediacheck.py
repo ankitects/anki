@@ -84,6 +84,7 @@ class MediaChecker:
         # show report and offer to delete
         diag = QDialog(self.mw)
         diag.setWindowTitle(tr(TR.MEDIA_CHECK_WINDOW_TITLE))
+        setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         layout = QVBoxLayout(diag)
         diag.setLayout(layout)
         text = QTextEdit()

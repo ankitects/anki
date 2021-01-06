@@ -38,6 +38,7 @@ class ChangeMap(QDialog):
         self.model = model
         self.frm = aqt.forms.changemap.Ui_ChangeMap()
         self.frm.setupUi(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         n = 0
         setCurrent = False
         for field in self.model["flds"]:
@@ -85,6 +86,7 @@ class ImportDialog(QDialog):
         qconnect(
             self.frm.buttonBox.button(QDialogButtonBox.Help).clicked, self.helpRequested
         )
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()

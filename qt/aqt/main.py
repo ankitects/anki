@@ -1345,6 +1345,7 @@ title="%s" %s>%s</button>""" % (
 
         d = self.debugDiag = DebugDialog()
         d.silentlyClose = True
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         frm.setupUi(d)
         restoreGeom(d, "DebugConsoleWindow")
         restoreSplitter(frm.splitter, "DebugConsoleWindow")

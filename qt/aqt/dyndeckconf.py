@@ -23,6 +23,7 @@ class DeckConf(QDialog):
             label = tr(TR.ACTIONS_REBUILD)
         self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered-decks"))
         self.setWindowTitle(

@@ -48,6 +48,7 @@ class DeckConf(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
         gui_hooks.deck_conf_will_show(self)
