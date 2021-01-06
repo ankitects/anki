@@ -27,6 +27,7 @@ class FieldDialog(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
         )
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)

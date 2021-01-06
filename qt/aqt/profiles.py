@@ -542,6 +542,7 @@ create table if not exists profiles
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
         f.setupUi(d)
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         qconnect(d.accepted, self._onLangSelected)
         qconnect(d.rejected, lambda: True)
         # update list

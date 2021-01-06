@@ -127,6 +127,7 @@ def showText(
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
     diag.setWindowTitle(title)
+    diag.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
     text = QTextBrowser()
@@ -245,6 +246,7 @@ class GetTextDialog(QDialog):
     ):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.question = question
         self.help = help
         self.qlabel = QLabel(question)
@@ -316,6 +318,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     if not parent:
         parent = aqt.mw.app.activeWindow()
     d = QDialog(parent)
+    d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
     d.setWindowModality(Qt.WindowModal)
     l = QVBoxLayout()
     d.setLayout(l)

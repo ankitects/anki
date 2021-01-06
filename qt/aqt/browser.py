@@ -1741,6 +1741,7 @@ where id in %s"""
         if not cids2:
             return showInfo(tr(TR.BROWSING_ONLY_NEW_CARDS_CAN_BE_REPOSITIONED))
         d = QDialog(self)
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
@@ -1776,6 +1777,7 @@ where id in %s"""
 
     def _reschedule(self):
         d = QDialog(self)
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reschedule.Ui_Dialog()
         frm.setupUi(d)
@@ -1875,6 +1877,7 @@ where id in %s"""
 
     def _on_find_replace_diag(self, fields: List[str], nids: List[int]) -> None:
         d = QDialog(self)
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowModality(Qt.WindowModal)
@@ -1958,6 +1961,7 @@ where id in %s"""
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         searchHistory = restore_combo_history(frm.search, "findDupesFind")
 
         fields = sorted(
@@ -2123,6 +2127,7 @@ class ChangeModel(QDialog):
         self.oldModel = browser.card.note().model()
         self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setWindowModality(Qt.WindowModal)
         self.setup()
         restoreGeom(self, "changeModel")
@@ -2298,6 +2303,7 @@ class CardInfoDialog(QDialog):
     def __init__(self, browser: Browser, *args, **kwargs):
         super().__init__(browser, *args, **kwargs)
         self.browser = browser
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
 
     def reject(self):
         saveGeom(self, "revlog")

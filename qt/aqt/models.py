@@ -155,6 +155,7 @@ class Models(QDialog):
     def onAdvanced(self) -> None:
         nt = self.current_notetype()
         d = QDialog(self)
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         frm = aqt.forms.modelopts.Ui_Dialog()
         frm.setupUi(d)
         frm.latexsvg.setChecked(nt.get("latexsvg", False))
@@ -210,6 +211,7 @@ class AddModel(QDialog):
         self.model = None
         self.dialog = aqt.forms.addmodel.Ui_Dialog()
         self.dialog.setupUi(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         # standard models
         self.models = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):

@@ -71,6 +71,7 @@ class CardLayout(QDialog):
                 tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val=self.model["name"])
             )
         )
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)
         v1.addWidget(self.mainArea)
@@ -700,6 +701,7 @@ class CardLayout(QDialog):
 
     def onBrowserDisplay(self):
         d = QDialog()
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         f = aqt.forms.browserdisp.Ui_Dialog()
         f.setupUi(d)
         t = self.current_template()
@@ -731,6 +733,7 @@ class CardLayout(QDialog):
         t = self.current_template()
         d = QDialog(self)
         d.setWindowTitle("Anki")
+        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         d.setMinimumWidth(400)
         l = QVBoxLayout()
         lab = QLabel(
@@ -760,6 +763,7 @@ class CardLayout(QDialog):
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
+        diag.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         fields = [f["name"] for f in self.model["flds"]]
         form.fields.addItems(fields)
         form.fields.setCurrentRow(0)

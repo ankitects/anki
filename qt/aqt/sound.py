@@ -707,6 +707,7 @@ class RecordDialog(QDialog):
         self._parent = parent
         self.mw = mw
         self._on_success = on_success
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
 
         self._start_recording()
         self._setup_dialog()

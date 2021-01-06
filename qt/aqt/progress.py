@@ -211,6 +211,7 @@ class ProgressManager:
 class ProgressDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.form = aqt.forms.progress.Ui_Dialog()
         self.form.setupUi(self)
         self._closingDown = False
