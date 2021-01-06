@@ -82,7 +82,7 @@ class ModelChooser(QHBoxLayout):
             names=nameFunc,
             accept=tr(TR.ACTIONS_CHOOSE),
             title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
-            help="_notes",
+            help="getting-started?id=note-types",
             current=current,
             parent=self.widget,
             buttons=[edit],
