@@ -1226,7 +1226,9 @@ QTableView {{ gridline-color: {grid} }}
             if cur != self._searchPrompt:
                 mods = self.mw.app.keyboardModifiers()
                 if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                    txt = self.col.backend.replace_search_term(search=cur, replacement=txt)
+                    txt = self.col.backend.replace_search_term(
+                        search=cur, replacement=txt
+                    )
                 elif mods & Qt.ControlModifier:
                     txt = self.col.backend.concatenate_searches(
                         sep=pb.ConcatenateSearchesIn.Separator.AND, searches=[cur, txt]
