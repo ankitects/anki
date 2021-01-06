@@ -16,6 +16,7 @@ class EditCurrent(QDialog):
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(tr(TR.EDITING_EDIT_CURRENT))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(

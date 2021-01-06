@@ -30,6 +30,7 @@ class ExportDialog(QDialog):
         self.frm.setupUi(self)
         self.exporter: Optional[Exporter] = None
         self.cids = cids
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setup(did)
         self.exec_()
 

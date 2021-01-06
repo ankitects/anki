@@ -28,6 +28,7 @@ class CustomStudy(QDialog):
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
         self.created_custom_study = False
         f.setupUi(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
         f.radioNew.click()

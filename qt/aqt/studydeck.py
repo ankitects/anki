@@ -42,6 +42,7 @@ class StudyDeck(QDialog):
         gui_hooks.state_did_reset.append(self.onReset)
         self.geomKey = "studyDeck-" + geomKey
         restoreGeom(self, self.geomKey)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         if not cancel:
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel)

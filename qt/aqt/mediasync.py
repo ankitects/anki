@@ -164,6 +164,7 @@ class MediaSyncDialog(QDialog):
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(tr(TR.SYNC_MEDIA_LOG_TITLE))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.abort_button = QPushButton(tr(TR.SYNC_ABORT_BUTTON))
         qconnect(self.abort_button.clicked, self._on_abort)
         self.abort_button.setAutoDefault(False)

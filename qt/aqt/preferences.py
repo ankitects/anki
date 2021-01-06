@@ -31,6 +31,7 @@ class Preferences(QDialog):
         self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("preferences"))

@@ -16,6 +16,7 @@ class TagLimit(QDialog):
         self.deck = self.parent.deck
         self.dialog = aqt.forms.taglimit.Ui_Dialog()
         self.dialog.setupUi(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
         s = QShortcut(
             QKeySequence("ctrl+d"), self.dialog.activeList, context=Qt.WidgetShortcut
         )
