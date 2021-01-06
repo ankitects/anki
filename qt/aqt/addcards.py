@@ -170,7 +170,7 @@ class AddCards(QDialog):
             problem = tr(TR.ADDING_THE_FIRST_FIELD_IS_EMPTY)
         problem = gui_hooks.add_cards_will_add_note(problem, note)
         if problem is not None:
-            showWarning(problem, help="AddItems#AddError")
+            showWarning(problem, help="editing?id=adding-cards-and-notes")
             return None
         if note.model()["type"] == MODEL_CLOZE:
             if not note.cloze_numbers_in_fields():
