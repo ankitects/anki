@@ -1,0 +1,41 @@
+diff --git a/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl b/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl
+index fec29b6..fc77192 100755
+--- a/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl
++++ b/node_modules/@bazel/labs/protobufjs/ts_proto_library.bzl
+@@ -15,7 +15,16 @@
+ 
+ load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "JSNamedModuleInfo")
+ 
+-def _run_pbjs(actions, executable, var, output_name, proto_files, suffix = ".js", wrap = "default", amd_name = ""):
++def _run_pbjs(
++        actions,
++        executable,
++        var,
++        output_name,
++        proto_files,
++        suffix = ".js",
++        wrap = "default",
++        amd_name = "",
++        target = "static-module"):
+     js_file = actions.declare_file(output_name + suffix)
+ 
+     # Create an intermediate file so that we can do some manipulation of the
+@@ -25,9 +34,8 @@ def _run_pbjs(actions, executable, var, output_name, proto_files, suffix = ".js"
+     # Reference of arguments:
+     # https://github.com/dcodeIO/ProtoBuf.js/#pbjs-for-javascript
+     args = actions.args()
+-    args.add_all(["--target", "static-module"])
++    args.add_all(["--target", target])
+     args.add_all(["--wrap", wrap])
+-    args.add("--strict-long")  # Force usage of Long type with int64 fields
+     args.add_all(["--out", js_file.path + ".tmpl"])
+     args.add_all(proto_files)
+ 
+@@ -106,6 +114,7 @@ def _ts_proto_library(ctx):
+         sources,
+         suffix = ".mjs",
+         wrap = "es6",
++        target = "json-module",
+     )
+ 
+     # pbts doesn't understand '.mjs' extension so give it the es5 file

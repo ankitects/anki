@@ -20,6 +20,10 @@ button {
 
 .stat {
     padding-top: 5px;
+
+    @media (max-width: 583px) {
+        display: none;
+    }
 }
 
 .stat2 {
@@ -78,3 +82,4 @@ button {
         border-top-color: var(--faint-border);
     }
 }
+

@@ -1,8 +1,9 @@
 common --enable_platform_specific_config
 common --experimental_repository_cache_hardlinks
 
-# specify python path on Windows for pyo3 compile
+# specify python path for pyo3 compile
 build:windows --action_env="PYTHON_SYS_EXECUTABLE=c:\\python\\python.exe"
+#build:linux --action_env="PYTHON_SYS_EXECUTABLE=/usr/local/bin/python3.8"
 
 # runfiles are off by default on Windows, and we need them
 build --enable_runfiles
@@ -26,5 +27,11 @@ build --incompatible_default_to_explicit_init_py
 #--genrule_strategy=standalone
 
 build:ci --show_timestamps --isatty=0 --color=yes --show_progress_rate_limit=5
+
+# the typescript generation hack in rules_svelte is not hermetic, and
+# converts declared types in props to 'any' if it's not run locally.
+# Fixing it properly will probably require moving the Svelte rules to
+# ts_project()
+build:ci --strategy Svelte=local
 
 try-import %workspace%/user.bazelrc

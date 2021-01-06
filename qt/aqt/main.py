@@ -79,6 +79,7 @@ class ResetReason(enum.Enum):
     BrowserReschedule = "browserReschedule"
     BrowserFindReplace = "browserFindReplace"
     BrowserTagDupes = "browserTagDupes"
+    BrowserDeleteDeck = "browserDeleteDeck"
 
 
 class ResetRequired:

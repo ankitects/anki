@@ -4,13 +4,17 @@
 .field {
     border: 1px solid var(--border);
     background: var(--frame-bg);
-    color: var(--text-fg);
     padding: 5px;
     overflow-wrap: break-word;
     overflow: auto;
+
+    &:empty::after {
+        content: "\A";
+        white-space: pre;
+    }
 }
 
-.clearfix:after {
+.clearfix::after {
     content: "";
     display: table;
     clear: both;

@@ -17,10 +17,6 @@ COMMITS_SHALLOW_SINCE = {
     "f9ef687120d88744c1da50a222e19208b4553503": "1604362633 +1000",
     # tokio-io-timeout
     "96e1358555c49905de89170f2b1102a7d8b6c4c2": "1598411535 +1000",
-    # prost
-    "4ded4a98ef339da0b7babd4efee3fbe8adaf746b": "1598739849 -0700",
-    # pyo3
-    "92b7a9736c9585883df5ec5bc01004caa7f65106": "1606725379 +0000",
 }
 
 import os
@@ -114,8 +110,22 @@ def update_reqwest_deps():
         file.write(data)
 
 
+def stage_commit():
+    subprocess.run(
+        [
+            "git",
+            "add",
+            ".",
+            "../Cargo.lock",
+            "../rslib/cargo/BUILD.bazel",
+            "../pylib/rsbridge/BUILD.bazel",
+        ]
+    )
+
+
 update_cargo_lock()
 run_cargo_raze()
 write_licenses()
 update_crates_bzl()
 update_reqwest_deps()
+stage_commit()

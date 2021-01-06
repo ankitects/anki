@@ -1,0 +1,88 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated Targets
+
+# Unsupported target "zlib_tokio_02_write" with type "example" omitted
+
+# Unsupported target "zstd_gzip" with type "example" omitted
+
+rust_library(
+    name = "async_compression",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+        "@raze__bytes__0_5_6//:bytes": "bytes_05",
+    },
+    crate_features = [
+        "bytes-05",
+        "default",
+        "flate2",
+        "gzip",
+        "stream",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.7",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__bytes__0_5_6//:bytes",
+        "@raze__flate2__1_0_19//:flate2",
+        "@raze__futures_core__0_3_8//:futures_core",
+        "@raze__memchr__2_3_4//:memchr",
+        "@raze__pin_project_lite__0_2_0//:pin_project_lite",
+    ],
+)
+
+# Unsupported target "brotli" with type "test" omitted
+
+# Unsupported target "bzip2" with type "test" omitted
+
+# Unsupported target "deflate" with type "test" omitted
+
+# Unsupported target "gzip" with type "test" omitted
+
+# Unsupported target "lzma" with type "test" omitted
+
+# Unsupported target "proptest" with type "test" omitted
+
+# Unsupported target "xz" with type "test" omitted
+
+# Unsupported target "zlib" with type "test" omitted
+
+# Unsupported target "zstd" with type "test" omitted

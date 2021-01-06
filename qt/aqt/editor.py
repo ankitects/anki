@@ -217,7 +217,7 @@ class Editor:
         self.web.stdHtml(
             _html % (bgcol, bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
             css=["css/editor.css"],
-            js=["js/vendor/jquery.js", "js/editor.js"],
+            js=["js/vendor/jquery.min.js", "js/editor.js"],
             context=self,
         )
 
@@ -731,7 +731,7 @@ class Editor:
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval("insertHtmlRemovingInitialBR(%s);" % json.dumps(html))
+        self.web.eval("setFormat('inserthtml', %s);" % json.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
         "Add to media folder and return local img or sound tag."

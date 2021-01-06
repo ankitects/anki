@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
 
@@ -123,7 +124,11 @@ class DeckBrowser:
         self.web.stdHtml(
             self._body % content.__dict__,
             css=["css/deckbrowser.css"],
-            js=["js/vendor/jquery.js", "js/vendor/jquery-ui.js", "js/deckbrowser.js"],
+            js=[
+                "js/vendor/jquery.min.js",
+                "js/vendor/jquery-ui.min.js",
+                "js/deckbrowser.js",
+            ],
             context=self,
         )
         self.web.key = "deckBrowser"
@@ -136,7 +141,9 @@ class DeckBrowser:
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
     def _renderStats(self):
-        return self.mw.col.studied_today()
+        return '<div id="studiedToday"><span>{}</span></div>'.format(
+            self.mw.col.studied_today(),
+        )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
@@ -265,7 +272,7 @@ class DeckBrowser:
             node.collapsed = not node.collapsed
         self._renderPage(reuse=True)
 
-    def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
+    def _dragDeckOnto(self, draggedDeckDid: int, ontoDeckDid: int):
         try:
             self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
             gui_hooks.sidebar_should_refresh_decks()
@@ -274,30 +281,34 @@ class DeckBrowser:
 
         self.show()
 
-    def _delete(self, did):
-        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+    def ask_delete_deck(self, did: int) -> bool:
         deck = self.mw.col.decks.get(did)
-        if not deck["dyn"]:
-            dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
-            cnt = self.mw.col.db.scalar(
-                "select count() from cards where did in {0} or "
-                "odid in {0}".format(ids2str(dids))
-            )
-            if cnt:
-                extra = tr(TR.DECKS_IT_HAS_CARD, count=cnt)
-            else:
-                extra = None
-        if (
-            deck["dyn"]
-            or not extra
-            or askUser(
-                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"])) + extra
-            )
+        if deck["dyn"]:
+            return True
+
+        count = self.mw.col.decks.card_count(did, include_subdecks=True)
+        if not count:
+            return True
+
+        extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
+        if askUser(
+            tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"]) + " " + extra
         ):
-            self.mw.progress.start()
-            self.mw.col.decks.rem(did, True)
-            self.mw.progress.finish()
-            self.show()
+            return True
+        return False
+
+    def _delete(self, did: int) -> None:
+        if self.ask_delete_deck(did):
+
+            def do_delete():
+                return self.mw.col.decks.rem(did, True)
+
+            def on_done(fut: Future):
+                self.show()
+                res = fut.result()  # Required to check for errors
+
+            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+            self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons
     ######################################################################

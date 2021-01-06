@@ -97,6 +97,7 @@ pub(super) enum PropertyKind {
     Reps(u32),
     Lapses(u32),
     Ease(f32),
+    Position(u32),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -373,6 +374,7 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
         tag("reps"),
         tag("lapses"),
         tag("ease"),
+        tag("pos"),
     ))(val)?;
 
     let (val, operator) = alt((
@@ -396,6 +398,7 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
             "ivl" => PropertyKind::Interval(num),
             "reps" => PropertyKind::Reps(num),
             "lapses" => PropertyKind::Lapses(num),
+            "pos" => PropertyKind::Position(num),
             _ => unreachable!(),
         }
     };
@@ -647,7 +650,7 @@ mod test {
         assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,
-            vec![Search(NoteIDs("1237123712,2,3".into()))]
+            vec![Search(NoteIDs("1237123712,2,3"))]
         );
         assert!(parse("nid:1237123712_2,3").is_err());
         assert_eq!(parse("is:due")?, vec![Search(State(StateKind::Due))]);

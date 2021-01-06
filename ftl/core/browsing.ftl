@@ -94,6 +94,7 @@ browsing-step = Step:
 browsing-studied-today = Studied Today
 browsing-suspended = Suspended
 browsing-tag-duplicates = Tag Duplicates
+browsing-tag-rename-warning-empty = You can't rename a tag that has no notes.
 browsing-target-field = Target field:
 browsing-today = Today
 browsing-toggle-mark = Toggle Mark

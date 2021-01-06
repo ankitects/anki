@@ -4,6 +4,10 @@
 
 These instructions are written for Debian/Ubuntu; adjust for your distribution.
 
+Glibc is required - if you are on a distro like Alpine that uses musl, you'll need
+to contribute fixes to the upstream [Rust rules](https://github.com/bazelbuild/rules_rust/issues/390),
+then follow the steps in [Other Platforms](./new-platform.md).
+
 **Ensure some basic tools are installed**:
 
 ```
@@ -24,14 +28,19 @@ If you are using a packaged Python version that is installed in /usr/bin, you ca
 immediately to the next section.
 
 If Python 3.8 is not available in your distro, you can download it from python.org,
-compile it, and install in in /usr/local.
+compile it, and install it in /usr/local.
+
+If you're on a basic Debian install, make sure you have the following installed
+before building Python:
+
+gcc g++ make libsqlite3-dev libreadline-dev libssl-dev zlib1g-dev libffi-dev
 
 Bazel does not look in /usr/local by default. If you've installed Python somewhere
 other than /usr/bin, you'll need to put the following into a file called user.bazelrc
 at the top of this repo before proceeding:
 
 ```
-build --action_env=PYTHON_SYS_EXECUTABLE=/usr/local/bin/python
+build --action_env=PYTHON_SYS_EXECUTABLE=/usr/local/bin/python3.8
 ```
 
 If you're building Anki from a docker container or distro that has no `python` command in

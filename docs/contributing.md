@@ -108,10 +108,6 @@ in one of those files will update the generated files.
 
 ## Translations
 
-The translations into other languages will be fetched on the first build.
-If you'd like to keep them up to date, you need to run 'make pull-i18n'
-periodically.
-
 For information on adding new translatable strings to Anki, please see
 https://translating.ankiweb.net/#/anki/developers
 
@@ -121,8 +117,10 @@ Please make sure 'bazel test //...' completes successfully before submitting cod
 You can do this automatically by adding the following into
 .git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
+```sh
 #!/bin/bash
 bazel test //...
+```
 
 If your change is non-trivial and not covered by the existing unit tests, please
 consider adding a unit test at the same time.

@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.35",
+    "version": "1.0.37",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -136,7 +136,7 @@
   },
   {
     "name": "async-compression",
-    "version": "0.3.6",
+    "version": "0.3.7",
     "authors": "Wim Looman <wim@nemo157.com>|Allen Bui <fairingrey@gmail.com>",
     "repository": "https://github.com/Nemo157/async-compression",
     "license": "Apache-2.0 OR MIT",
@@ -254,6 +254,15 @@
   {
     "name": "bytes",
     "version": "0.5.6",
+    "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/tokio-rs/bytes",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Types and traits for working with bytes"
+  },
+  {
+    "name": "bytes",
+    "version": "1.0.0",
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/tokio-rs/bytes",
     "license": "MIT",
@@ -379,7 +388,7 @@
   },
   {
     "name": "ctor",
-    "version": "0.1.16",
+    "version": "0.1.17",
     "authors": "Matt Mastracci <matthew@mastracci.com>",
     "repository": "https://github.com/mmastrac/rust-ctor",
     "license": "Apache-2.0 OR MIT",
@@ -424,7 +433,7 @@
   },
   {
     "name": "dtoa",
-    "version": "0.4.6",
+    "version": "0.4.7",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/dtoa",
     "license": "Apache-2.0 OR MIT",
@@ -604,7 +613,7 @@
   },
   {
     "name": "funty",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "authors": "myrrlyn <self@myrrlyn.dev>",
     "repository": "https://github.com/myrrlyn/funty",
     "license": "MIT",
@@ -766,7 +775,7 @@
   },
   {
     "name": "heck",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "authors": "Without Boats <woboats@gmail.com>",
     "repository": "https://github.com/withoutboats/heck",
     "license": "Apache-2.0 OR MIT",
@@ -991,7 +1000,7 @@
   },
   {
     "name": "itoa",
-    "version": "0.4.6",
+    "version": "0.4.7",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/itoa",
     "license": "Apache-2.0 OR MIT",
@@ -1153,7 +1162,7 @@
   },
   {
     "name": "native-tls",
-    "version": "0.2.6",
+    "version": "0.2.7",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-native-tls",
     "license": "Apache-2.0 OR MIT",
@@ -1261,7 +1270,7 @@
   },
   {
     "name": "openssl",
-    "version": "0.10.31",
+    "version": "0.10.32",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "Apache-2.0",
@@ -1279,7 +1288,7 @@
   },
   {
     "name": "openssl-sys",
-    "version": "0.9.59",
+    "version": "0.9.60",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "MIT",
@@ -1297,7 +1306,7 @@
   },
   {
     "name": "parking_lot_core",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/parking_lot",
     "license": "Apache-2.0 OR MIT",
@@ -1459,7 +1468,7 @@
   },
   {
     "name": "prost",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "authors": "Dan Burkert <dan@danburkert.com>",
     "repository": "https://github.com/danburkert/prost",
     "license": "Apache-2.0",
@@ -1468,7 +1477,7 @@
   },
   {
     "name": "prost-build",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "authors": "Dan Burkert <dan@danburkert.com>",
     "repository": "https://github.com/danburkert/prost",
     "license": "Apache-2.0",
@@ -1477,7 +1486,7 @@
   },
   {
     "name": "prost-derive",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "authors": "Dan Burkert <dan@danburkert.com>",
     "repository": "https://github.com/danburkert/prost",
     "license": "Apache-2.0",
@@ -1486,7 +1495,7 @@
   },
   {
     "name": "prost-types",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "authors": "Dan Burkert <dan@danburkert.com>",
     "repository": "https://github.com/danburkert/prost",
     "license": "Apache-2.0",
@@ -1495,7 +1504,7 @@
   },
   {
     "name": "pyo3",
-    "version": "0.12.4",
+    "version": "0.13.0",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
@@ -1503,17 +1512,8 @@
     "description": "Bindings to Python interpreter"
   },
   {
-    "name": "pyo3-derive-backend",
-    "version": "0.12.4",
-    "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
-    "repository": "https://github.com/pyo3/pyo3",
-    "license": "Apache-2.0",
-    "license_file": null,
-    "description": "Code generation for PyO3 package"
-  },
-  {
-    "name": "pyo3cls",
-    "version": "0.12.4",
+    "name": "pyo3-macros",
+    "version": "0.13.0",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
     "repository": "https://github.com/pyo3/pyo3",
     "license": "Apache-2.0",
@@ -1521,8 +1521,17 @@
     "description": "Proc macros for PyO3 package"
   },
   {
+    "name": "pyo3-macros-backend",
+    "version": "0.13.0",
+    "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
+    "repository": "https://github.com/pyo3/pyo3",
+    "license": "Apache-2.0",
+    "license_file": null,
+    "description": "Code generation for PyO3 package"
+  },
+  {
     "name": "quote",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/quote",
     "license": "Apache-2.0 OR MIT",
@@ -1783,7 +1792,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.60",
+    "version": "1.0.61",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",
@@ -1909,7 +1918,7 @@
   },
   {
     "name": "socket2",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/socket2-rs",
     "license": "Apache-2.0 OR MIT",
@@ -1954,7 +1963,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.54",
+    "version": "1.0.56",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -2017,7 +2026,7 @@
   },
   {
     "name": "thiserror",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/thiserror",
     "license": "Apache-2.0 OR MIT",
@@ -2026,7 +2035,7 @@
   },
   {
     "name": "thiserror-impl",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/thiserror",
     "license": "Apache-2.0 OR MIT",
@@ -2134,7 +2143,7 @@
   },
   {
     "name": "toml",
-    "version": "0.5.7",
+    "version": "0.5.8",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/toml-rs",
     "license": "Apache-2.0 OR MIT",

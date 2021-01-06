@@ -41,10 +41,23 @@ impl NoteField {
         if self.name.contains(bad_chars) {
             self.name = self.name.replace(bad_chars, "");
         }
-        // and leading/trailing whitespace
-        let trimmed = self.name.trim();
+        // and leading/trailing whitespace and special chars
+        let bad_start_chars = |c: char| c == '#' || c == '/' || c == '^' || c.is_whitespace();
+        let trimmed = self.name.trim().trim_start_matches(bad_start_chars);
         if trimmed.len() != self.name.len() {
             self.name = trimmed.into();
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn name() {
+        let mut field = NoteField::new("  # /^ t:e{s\"t} field name #/^  ");
+        field.fix_name();
+        assert_eq!(&field.name, "test field name #/^");
     }
 }

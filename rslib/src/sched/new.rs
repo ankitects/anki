@@ -68,7 +68,7 @@ impl NewCardSorter {
 }
 
 impl Collection {
-    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID]) -> Result<()> {
+    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<()> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(None, |col| {
@@ -76,7 +76,9 @@ impl Collection {
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
                 let original = card.clone();
-                col.log_manually_scheduled_review(&card, usn, 0)?;
+                if log {
+                    col.log_manually_scheduled_review(&card, usn, 0)?;
+                }
                 card.schedule_as_new(position);
                 col.update_card(&mut card, &original, usn)?;
                 position += 1;

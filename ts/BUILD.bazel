@@ -13,3 +13,8 @@ exports_files([
     ".eslintrc.js",
     "licenses.json",
 ])
+
+alias(
+    name = "yarn",
+    actual = "@nodejs//:yarn",
+)

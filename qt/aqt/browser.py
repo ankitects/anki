@@ -6,6 +6,7 @@ from __future__ import annotations
 import html
 import re
 import time
+from concurrent.futures import Future
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
@@ -810,7 +811,9 @@ class Browser(QMainWindow):
             c = self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             if nid:
-                self.model.search("nid:%d" % nid)
+                search = "nid:%d" % nid
+                search = gui_hooks.default_search(search, c)
+                self.model.search(search)
                 self.focusCid(c.id)
         else:
             self.model.search(self._lastSearchTxt)
@@ -1661,8 +1664,11 @@ where id in %s"""
         self.editor.saveNow(self._clearUnusedTags)
 
     def _clearUnusedTags(self):
-        self.col.tags.registerNotes()
-        self.on_tag_list_update()
+        def on_done(fut: Future):
+            fut.result()
+            self.on_tag_list_update()
+
+        self.mw.taskman.run_in_background(self.col.tags.registerNotes, on_done)
 
     # Suspending
     ######################################################################

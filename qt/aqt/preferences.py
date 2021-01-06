@@ -4,9 +4,24 @@
 import anki.lang
 import aqt
 from aqt import AnkiQt
-from aqt.profiles import RecordingDriver
+from aqt.profiles import RecordingDriver, VideoDriver
 from aqt.qt import *
 from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr
+
+
+def video_driver_name_for_platform(driver: VideoDriver) -> str:
+    if driver == VideoDriver.ANGLE:
+        return tr(TR.PREFERENCES_VIDEO_DRIVER_ANGLE)
+    elif driver == VideoDriver.Software:
+        if isMac:
+            return tr(TR.PREFERENCES_VIDEO_DRIVER_SOFTWARE_MAC)
+        else:
+            return tr(TR.PREFERENCES_VIDEO_DRIVER_SOFTWARE_OTHER)
+    else:
+        if isMac:
+            return tr(TR.PREFERENCES_VIDEO_DRIVER_OPENGL_MAC)
+        else:
+            return tr(TR.PREFERENCES_VIDEO_DRIVER_OPENGL_OTHER)
 
 
 class Preferences(QDialog):
@@ -81,10 +96,7 @@ class Preferences(QDialog):
         f = self.form
         qc = self.mw.col.conf
 
-        if isMac:
-            f.hwAccel.setVisible(False)
-        else:
-            f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
+        self.setup_video_driver()
 
         f.newSpread.addItems(list(c.newCardSchedulingLabels(self.mw.col).values()))
 
@@ -106,19 +118,28 @@ class Preferences(QDialog):
             f.newSched.setChecked(True)
             f.new_timezone.setChecked(s.new_timezone)
 
+    def setup_video_driver(self):
+        self.video_drivers = VideoDriver.all_for_platform()
+        names = [
+            tr(TR.PREFERENCES_VIDEO_DRIVER, driver=video_driver_name_for_platform(d))
+            for d in self.video_drivers
+        ]
+        self.form.video_driver.addItems(names)
+        self.form.video_driver.setCurrentIndex(
+            self.video_drivers.index(self.mw.pm.video_driver())
+        )
+
+    def update_video_driver(self):
+        new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
+        if new_driver != self.mw.pm.video_driver():
+            self.mw.pm.set_video_driver(new_driver)
+            showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
+
     def updateCollection(self):
         f = self.form
         d = self.mw.col
 
-        if not isMac:
-            wasAccel = self.mw.pm.glMode() != "software"
-            wantAccel = f.hwAccel.isChecked()
-            if wasAccel != wantAccel:
-                if wantAccel:
-                    self.mw.pm.setGlMode("auto")
-                else:
-                    self.mw.pm.setGlMode("software")
-                showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
+        self.update_video_driver()
 
         qc = d.conf
         qc["addToCur"] = not f.useCurrent.currentIndex()
@@ -223,10 +244,10 @@ class Preferences(QDialog):
         self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
         self._recording_drivers = [
             RecordingDriver.QtAudioInput,
-            RecordingDriver.QtRecorder,
             RecordingDriver.PyAudio,
         ]
-        # fixme: i18n
+        # The plan is to phase out PyAudio soon, so will hold off on
+        # making this string translatable for now.
         self.form.recording_driver.addItems(
             [
                 f"Voice recording driver: {driver.value}"
@@ -253,9 +274,18 @@ class Preferences(QDialog):
             restart_required = True
 
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
-        self.mw.pm.set_recording_driver(
-            self._recording_drivers[self.form.recording_driver.currentIndex()]
-        )
+
+        new_audio_driver = self._recording_drivers[
+            self.form.recording_driver.currentIndex()
+        ]
+        if self.mw.pm.recording_driver() != new_audio_driver:
+            self.mw.pm.set_recording_driver(new_audio_driver)
+            if new_audio_driver == RecordingDriver.PyAudio:
+                showInfo(
+                    """\
+The PyAudio driver will likely be removed in a future update. If you find it works better \
+for you than the default driver, please let us know on the Anki forums."""
+                )
 
         if restart_required:
             showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))

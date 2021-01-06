@@ -32,9 +32,6 @@ ts_library(
 
 rollup_bundle(
     name = "congrats",
-    srcs = [
-        "//ts/lib:es6",
-    ],
     config_file = "//ts:rollup.config.js",
     entry_point = "bootstrap.ts",
     format = "iife",
@@ -45,6 +42,7 @@ rollup_bundle(
     deps = [
         "CongratsPage",
         "bootstrap",
+        "//ts/lib",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-terser",
