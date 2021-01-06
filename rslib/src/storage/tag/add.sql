@@ -1,3 +1,4 @@
-INSERT
-  OR IGNORE INTO tags (tag, usn)
-VALUES (?, ?)
+insert
+  or replace into tags (id, name, usn, config)
+values
+  (?, ?, ?, ?)

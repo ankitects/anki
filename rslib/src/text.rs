@@ -323,14 +323,6 @@ pub(crate) fn to_text(txt: &str) -> Cow<str> {
     RE.replace_all(&txt, "$1")
 }
 
-/// Escape characters special to SQL: \%_
-pub(crate) fn escape_sql(txt: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"[\\%_]").unwrap();
-    }
-    RE.replace_all(&txt, r"\$0")
-}
-
 /// Compare text with a possible glob, folding case.
 pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
     if is_glob(search) {
@@ -399,7 +391,6 @@ mod test {
         assert_eq!(&to_custom_re("f_o*", r"\d"), r"f\do\d*");
         assert_eq!(&to_sql("%f_o*"), r"\%f_o%");
         assert_eq!(&to_text(r"\*\_*_"), "*_*_");
-        assert_eq!(&escape_sql(r"1\2%3_"), r"1\\2\%3\_");
         assert!(is_glob(r"\\\\_"));
         assert!(!is_glob(r"\\\_"));
         assert!(matches_glob("foo*bar123", r"foo\*bar*"));

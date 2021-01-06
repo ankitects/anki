@@ -76,7 +76,10 @@ class NewSidebarTreeView(SidebarTreeViewBase):
                 (tr(TR.ACTIONS_RENAME), self.rename_deck),
                 (tr(TR.ACTIONS_DELETE), self.delete_deck),
             ),
-            SidebarItemType.TAG: ((tr(TR.ACTIONS_RENAME), self.rename_tag),),
+            SidebarItemType.TAG: (
+                (tr(TR.ACTIONS_RENAME), self.rename_tag),
+                (tr(TR.ACTIONS_DELETE), self.remove_tag),
+            ),
         }
 
     def onContextMenu(self, point: QPoint) -> None:
@@ -111,16 +114,37 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.browser.maybeRefreshSidebar()
         self.mw.deckBrowser.refresh()
 
+    def remove_tag(self, item: "aqt.browser.SidebarItem") -> None:
+        self.browser.editor.saveNow(lambda: self._remove_tag(item))
+
+    def _remove_tag(self, item: "aqt.browser.SidebarItem") -> None:
+        old_name = self.mw.col.backend.get_tag(item.id).name
+
+        def do_remove():
+            self.mw.col.backend.clear_tag(old_name)
+            self.col.tags.rename_tag(old_name, "")
+
+        def on_done(fut: Future):
+            self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
+            self.browser.model.endReset()
+            fut.result()
+            self.browser.maybeRefreshSidebar()
+
+        self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
+        self.browser.model.beginReset()
+        self.mw.taskman.run_in_background(do_remove, on_done)
+
     def rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
         self.browser.editor.saveNow(lambda: self._rename_tag(item))
 
     def _rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
-        old_name = item.name
+        old_name = self.mw.col.backend.get_tag(item.id).name
         new_name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
         if new_name == old_name or not new_name:
             return
 
         def do_rename():
+            self.mw.col.backend.clear_tag(old_name)
             return self.col.tags.rename_tag(old_name, new_name)
 
         def on_done(fut: Future):
@@ -132,7 +156,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
                 showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
                 return
 
-            self.browser.clearUnusedTags()
+            self.browser.maybeRefreshSidebar()
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()

@@ -25,7 +25,7 @@ class TagManager:
 
     # all tags
     def all(self) -> List[str]:
-        return [t.tag for t in self.col.backend.all_tags()]
+        return [t.name for t in self.col.backend.all_tags()]
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)
@@ -34,7 +34,7 @@ class TagManager:
 
     # # List of (tag, usn)
     def allItems(self) -> List[Tuple[str, int]]:
-        return [(t.tag, t.usn) for t in self.col.backend.all_tags()]
+        return [(t.name, t.usn) for t in self.col.backend.all_tags()]
 
     # Registering and fetching tags
     #############################################################
@@ -63,11 +63,7 @@ class TagManager:
             lim = ""
             clear = True
         self.register(
-            set(
-                self.split(
-                    " ".join(self.col.db.list("select distinct tags from notes" + lim))
-                )
-            ),
+            self.col.backend.get_note_tags(nids),
             clear=clear,
         )
 

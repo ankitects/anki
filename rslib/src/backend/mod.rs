@@ -44,6 +44,7 @@ use crate::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
+    tags::TagID,
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -919,6 +920,14 @@ impl BackendService for Backend {
         })
     }
 
+    fn get_note_tags(&self, input: pb::GetNoteTagsIn) -> BackendResult<pb::GetNoteTagsOut> {
+        self.with_col(|col| {
+            Ok(pb::GetNoteTagsOut {
+                tags: col.storage.get_note_tags(to_nids(input.nids))?,
+            })
+        })
+    }
+
     fn cloze_numbers_in_note(&self, note: pb::Note) -> BackendResult<pb::ClozeNumbersInNoteOut> {
         let mut set = HashSet::with_capacity(4);
         for field in &note.fields {
@@ -1286,12 +1295,26 @@ impl BackendService for Backend {
     //-------------------------------------------------------------------
 
     fn all_tags(&self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
-        let tags = self.with_col(|col| col.storage.all_tags())?;
-        let tags: Vec<_> = tags
-            .into_iter()
-            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
-            .collect();
+        let tags: Vec<pb::Tag> =
+            self.with_col(|col| Ok(col.all_tags()?.into_iter().map(|t| t.into()).collect()))?;
         Ok(pb::AllTagsOut { tags })
+    }
+
+    fn get_tag(&self, input: pb::TagId) -> BackendResult<pb::Tag> {
+        self.with_col(|col| {
+            if let Some(tag) = col.storage.get_tag(TagID(input.tid))? {
+                Ok(tag.into())
+            } else {
+                Err(AnkiError::NotFound)
+            }
+        })
+    }
+
+    fn update_tag(&self, tag: pb::Tag) -> BackendResult<pb::Bool> {
+        self.with_col(|col| {
+            col.update_tag(&tag.into())?;
+            Ok(pb::Bool { val: true })
+        })
     }
 
     fn register_tags(&self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
@@ -1306,6 +1329,19 @@ impl BackendService for Backend {
                     .map(|val| pb::Bool { val })
             })
         })
+    }
+
+    fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Bool> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.clear_tag(tag.val.as_str())?;
+                Ok(pb::Bool { val: true })
+            })
+        })
+    }
+
+    fn tag_tree(&self, _input: Empty) -> Result<pb::TagTreeNode> {
+        self.with_col(|col| col.tag_tree())
     }
 
     // config/preferences

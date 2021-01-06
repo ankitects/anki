@@ -14,7 +14,7 @@ use crate::{
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
-    tags::{join_tags, split_tags},
+    tags::{join_tags, split_tags, Tag},
     version::sync_client_version,
 };
 use flate2::write::GzEncoder;
@@ -888,7 +888,11 @@ impl Collection {
 
     fn merge_tags(&self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
         for tag in tags {
-            self.register_tag(&tag, latest_usn)?;
+            self.register_tag(Tag {
+                name: tag,
+                usn: latest_usn,
+                ..Default::default()
+            })?;
         }
         Ok(())
     }
@@ -1338,12 +1342,12 @@ mod test {
                 col1.storage
                     .all_tags()?
                     .into_iter()
-                    .map(|t| t.0)
+                    .map(|t| t.name)
                     .collect::<Vec<_>>(),
                 col2.storage
                     .all_tags()?
                     .into_iter()
-                    .map(|t| t.0)
+                    .map(|t| t.name)
                     .collect::<Vec<_>>()
             );
 
