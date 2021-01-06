@@ -435,8 +435,13 @@ impl BackendService for Backend {
     fn negate_search(&self, input: pb::String) -> Result<pb::String> {
         Ok(negate_search(&input.val)?.into())
     }
+    
     fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
         Ok(concatenate_searches(input.sep, &input.searches)?.into())
+    }
+
+    fn replace_search_term(&self, input: pb::ReplaceSearchTermIn) -> Result<pb::String> {
+        Ok(replace_search_term(&input.search, &input.replacement)?.into())
     }
 
     fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {
