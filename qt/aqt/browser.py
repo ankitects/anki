@@ -1214,14 +1214,11 @@ QTableView {{ gridline-color: {grid} }}
                 if i % 2 == 0:
                     txt += a + ":"
                 else:
-                    txt += re.sub(r"[*_\\]", r"\\\g<0>", a)
-                    for c in ' 　()"':
-                        if c in txt:
-                            txt = '"{}"'.format(txt.replace('"', '\\"'))
-                            break
+                    txt += re.sub(r'["*_\\]', r"\\\g<0>", a)
+                    txt = '"{}"'.format(txt.replace('"', '\\"'))
                     items.append(txt)
                     txt = ""
-            txt = " ".join(items)
+            txt = " AND ".join(items)
         # is there something to replace or append with?
         if txt:
             if self.mw.app.keyboardModifiers() & Qt.AltModifier:
@@ -1230,9 +1227,9 @@ QTableView {{ gridline-color: {grid} }}
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != self._searchPrompt:
                 if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
-                    txt = cur + " " + txt
+                    txt = cur + " AND " + txt
                 elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-                    txt = cur + " or " + txt
+                    txt = cur + " OR " + txt
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 
@@ -1253,7 +1250,7 @@ QTableView {{ gridline-color: {grid} }}
         return self._simpleFilters(
             (
                 (tr(TR.BROWSING_WHOLE_COLLECTION), ""),
-                (tr(TR.BROWSING_CURRENT_DECK), "deck:current"),
+                (tr(TR.BROWSING_CURRENT_DECK), '"deck:current"'),
             )
         )
 
@@ -1262,9 +1259,9 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.BROWSING_ADDED_TODAY), "added:1"),
-                    (tr(TR.BROWSING_STUDIED_TODAY), "rated:1"),
-                    (tr(TR.BROWSING_AGAIN_TODAY), "rated:1:1"),
+                    (tr(TR.BROWSING_ADDED_TODAY), '"added:1"'),
+                    (tr(TR.BROWSING_STUDIED_TODAY), '"rated:1"'),
+                    (tr(TR.BROWSING_AGAIN_TODAY), '"rated:1:1"'),
                 )
             )
         )
@@ -1275,20 +1272,20 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.ACTIONS_NEW), "is:new"),
-                    (tr(TR.SCHEDULING_LEARNING), "is:learn"),
-                    (tr(TR.SCHEDULING_REVIEW), "is:review"),
-                    (tr(TR.FILTERING_IS_DUE), "is:due"),
+                    (tr(TR.ACTIONS_NEW), '"is:new"'),
+                    (tr(TR.SCHEDULING_LEARNING), '"is:learn"'),
+                    (tr(TR.SCHEDULING_REVIEW), '"is:review"'),
+                    (tr(TR.FILTERING_IS_DUE), '"is:due"'),
                     None,
-                    (tr(TR.BROWSING_SUSPENDED), "is:suspended"),
-                    (tr(TR.BROWSING_BURIED), "is:buried"),
+                    (tr(TR.BROWSING_SUSPENDED), '"is:suspended"'),
+                    (tr(TR.BROWSING_BURIED), '"is:buried"'),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), "flag:1"),
-                    (tr(TR.ACTIONS_ORANGE_FLAG), "flag:2"),
-                    (tr(TR.ACTIONS_GREEN_FLAG), "flag:3"),
-                    (tr(TR.ACTIONS_BLUE_FLAG), "flag:4"),
-                    (tr(TR.BROWSING_NO_FLAG), "flag:0"),
-                    (tr(TR.BROWSING_ANY_FLAG), "-flag:0"),
+                    (tr(TR.ACTIONS_RED_FLAG), '"flag:1"'),
+                    (tr(TR.ACTIONS_ORANGE_FLAG), '"flag:2"'),
+                    (tr(TR.ACTIONS_GREEN_FLAG), '"flag:3"'),
+                    (tr(TR.ACTIONS_BLUE_FLAG), '"flag:4"'),
+                    (tr(TR.BROWSING_NO_FLAG), '"flag:0"'),
+                    (tr(TR.BROWSING_ANY_FLAG), '"-flag:0"'),
                 )
             )
         )
