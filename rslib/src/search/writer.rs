@@ -182,6 +182,7 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Reps(u) => format!("\"prop:reps{}{}\"", operator, u),
         Lapses(u) => format!("\"prop:lapses{}{}\"", operator, u),
         Ease(f) => format!("\"prop:ease{}{}\"", operator, f),
+        Position(u) => format!("\"prop:pos{}{}\"", operator, u),
     }
 }
 
