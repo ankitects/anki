@@ -831,7 +831,7 @@ impl Collection {
         for nt in notetypes {
             let nt: NoteType = nt.into();
             let proceed = if let Some(existing_nt) = self.storage.get_notetype(nt.id)? {
-                if existing_nt.mtime_secs < nt.mtime_secs {
+                if existing_nt.mtime_secs <= nt.mtime_secs {
                     if (existing_nt.fields.len() != nt.fields.len())
                         || (existing_nt.templates.len() != nt.templates.len())
                     {
@@ -858,7 +858,7 @@ impl Collection {
     fn merge_decks(&mut self, decks: Vec<DeckSchema11>) -> Result<()> {
         for deck in decks {
             let proceed = if let Some(existing_deck) = self.storage.get_deck(deck.id())? {
-                existing_deck.mtime_secs < deck.common().mtime
+                existing_deck.mtime_secs <= deck.common().mtime
             } else {
                 true
             };
@@ -874,7 +874,7 @@ impl Collection {
     fn merge_deck_config(&self, dconf: Vec<DeckConfSchema11>) -> Result<()> {
         for conf in dconf {
             let proceed = if let Some(existing_conf) = self.storage.get_deck_config(conf.id)? {
-                existing_conf.mtime_secs < conf.mtime
+                existing_conf.mtime_secs <= conf.mtime
             } else {
                 true
             };
