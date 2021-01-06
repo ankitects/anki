@@ -9,7 +9,7 @@
     export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
 
-    let separateInactive = false;
+    let separateInactive = true;
     let svg = null as HTMLElement | SVGElement | null;
 
     let bounds = defaultGraphBounds();
