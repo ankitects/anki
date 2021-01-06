@@ -1219,23 +1219,27 @@ QTableView {{ gridline-color: {grid} }}
                     items.append(txt)
                     txt = ""
             txt = " AND ".join(items)
-        if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-            txt = self.col.backend.negate_search(txt)
-        cur = str(self.form.searchEdit.lineEdit().text())
-        if cur != self._searchPrompt:
-            mods = self.mw.app.keyboardModifiers()
-            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                txt = self.col.backend.replace_search_term(search=cur, replacement=txt)
-            elif mods & Qt.ControlModifier:
-                txt = self.col.backend.concatenate_searches(
-                    sep=pb.ConcatenateSearchesIn.Separator.AND, searches=[cur, txt]
-                )
-            elif mods & Qt.ShiftModifier:
-                txt = self.col.backend.concatenate_searches(
-                    sep=pb.ConcatenateSearchesIn.Separator.OR, searches=[cur, txt]
-                )
-        self.form.searchEdit.lineEdit().setText(txt)
-        self.onSearchActivated()
+        try:
+            if self.mw.app.keyboardModifiers() & Qt.AltModifier:
+                txt = self.col.backend.negate_search(txt)
+            cur = str(self.form.searchEdit.lineEdit().text())
+            if cur != self._searchPrompt:
+                mods = self.mw.app.keyboardModifiers()
+                if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                    txt = self.col.backend.replace_search_term(search=cur, replacement=txt)
+                elif mods & Qt.ControlModifier:
+                    txt = self.col.backend.concatenate_searches(
+                        sep=pb.ConcatenateSearchesIn.Separator.AND, searches=[cur, txt]
+                    )
+                elif mods & Qt.ShiftModifier:
+                    txt = self.col.backend.concatenate_searches(
+                        sep=pb.ConcatenateSearchesIn.Separator.OR, searches=[cur, txt]
+                    )
+        except InvalidInput as e:
+            showWarning(str(e))
+        else:
+            self.form.searchEdit.lineEdit().setText(txt)
+            self.onSearchActivated()
 
     def _simpleFilters(self, items):
         ml = MenuList()
