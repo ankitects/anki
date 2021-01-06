@@ -2,11 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
+    backend_proto::concatenate_searches_in::Separator,
     decks::DeckID as DeckIDType,
     err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
     search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
+use itertools::Itertools;
 
 /// Take an Anki-style search string and convert it into an equivalent
 /// search string with normalized syntax.
@@ -31,6 +33,26 @@ pub fn negate_search(input: &str) -> Result<String> {
         write_node(&Not(Box::new(Group(nodes))))
     })
 }
+
+/// Take arbitrary Anki-style search strings and return their concatenation where they
+/// are separated by the provided boolean operator.
+/// Empty searches (whole collection) are left out.
+pub fn concatenate_searches(sep: i32, searches: &[String]) -> Result<String> {
+    let bool_node = vec![if let Some(Separator::Or) = Separator::from_i32(sep) {
+        Node::Or
+    } else {
+        Node::And
+    }];
+    Ok(write_nodes(
+        searches
+            .iter()
+            .map(|s: &String| -> Result<Vec<Node>> { parse(s) })
+            .collect::<Result<Vec<Vec<Node>>>>()?
+            .iter()
+            .filter(|v| v[0] != Node::Search(SearchNode::WholeCollection))
+            .intersperse(&&bool_node)
+            .flat_map(|v| v.iter()),
+    ))
 }
 
 }
@@ -67,9 +89,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NoteType(s) => quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),
         Tag(s) => quote(&format!("tag:{}", s)),
-        Duplicates { note_type_id, text } => {
-            quote(&format!("dupes:{},{}", note_type_id, text))
-        }
+        Duplicates { note_type_id, text } => quote(&format!("dupes:{},{}", note_type_id, text)),
         State(k) => write_state(k),
         Flag(u) => format!("\"flag:{}\"", u),
         NoteIDs(s) => format!("\"nid:{}\"", s),
@@ -89,7 +109,12 @@ fn quote(txt: &str) -> String {
 
 fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
     let re = if is_re { "re:" } else { "" };
-    quote(&format!("{}:{}{}", field.replace(":", "\\:"), re, text))
+    let text = if !is_re && text.starts_with("re:") {
+        text.replacen(":", "\\:", 1)
+    } else {
+        text.to_string()
+    };
+    quote(&format!("{}:{}{}", field.replace(":", "\\:"), re, &text))
 }
 
 fn write_template(template: &TemplateKind) -> String {
@@ -102,7 +127,7 @@ fn write_template(template: &TemplateKind) -> String {
 fn write_rated(days: &u32, ease: &Option<u8>) -> String {
     match ease {
         Some(u) => format!("\"rated:{}:{}\"", days, u),
-        None => format!("\"rated:{}\"\"", days),
+        None => format!("\"rated:{}\"", days),
     }
 }
 
