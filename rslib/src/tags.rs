@@ -1,16 +1,63 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub use crate::backend_proto::TagConfig;
 use crate::{
+    backend_proto::{Tag as TagProto, TagTreeNode},
     collection::Collection,
+    define_newtype,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
-    text::to_re,
-    {text::normalize_to_nfc, types::Usn},
+    text::{normalize_to_nfc, to_re},
+    types::Usn,
 };
+
 use regex::{NoExpand, Regex, Replacer};
-use std::{borrow::Cow, collections::HashSet};
+use std::{borrow::Cow, collections::HashSet, iter::Peekable};
 use unicase::UniCase;
+
+define_newtype!(TagID, i64);
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Tag {
+    pub id: TagID,
+    pub name: String,
+    pub usn: Usn,
+    pub config: TagConfig,
+}
+
+impl Default for Tag {
+    fn default() -> Self {
+        Tag {
+            id: TagID(0),
+            name: "".to_string(),
+            usn: Usn(-1),
+            config: Default::default(),
+        }
+    }
+}
+
+impl From<Tag> for TagProto {
+    fn from(t: Tag) -> Self {
+        TagProto {
+            id: t.id.0,
+            name: t.name,
+            usn: t.usn.0,
+            config: Some(t.config),
+        }
+    }
+}
+
+impl From<TagProto> for Tag {
+    fn from(t: TagProto) -> Self {
+        Tag {
+            id: TagID(t.id),
+            name: t.name,
+            usn: Usn(t.usn),
+            config: t.config.unwrap(),
+        }
+    }
+}
 
 pub(crate) fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
     tags.split(is_tag_separator).filter(|tag| !tag.is_empty())
@@ -32,31 +79,117 @@ fn invalid_char_for_tag(c: char) -> bool {
     c.is_ascii_control() || is_tag_separator(c) || c == '"'
 }
 
+fn normalized_tag_name_component(comp: &str) -> Cow<str> {
+    let mut out = normalize_to_nfc(comp);
+    if out.contains(invalid_char_for_tag) {
+        out = out.replace(invalid_char_for_tag, "").into();
+    }
+    let trimmed = out.trim();
+    if trimmed.is_empty() {
+        "blank".to_string().into()
+    } else if trimmed.len() != out.len() {
+        trimmed.to_string().into()
+    } else {
+        out
+    }
+}
+
+pub(crate) fn human_tag_name_to_native(name: &str) -> String {
+    let mut out = String::with_capacity(name.len());
+    for comp in name.split("::") {
+        out.push_str(&normalized_tag_name_component(comp));
+        out.push('\x1f');
+    }
+    out.trim_end_matches('\x1f').into()
+}
+
+pub(crate) fn native_tag_name_to_human(name: &str) -> String {
+    name.replace('\x1f', "::")
+}
+
+fn immediate_parent_name(native_name: &str) -> Option<&str> {
+    native_name.rsplitn(2, '\x1f').nth(1)
+}
+
+fn tags_to_tree(tags: Vec<Tag>) -> TagTreeNode {
+    let mut top = TagTreeNode::default();
+    let mut it = tags.into_iter().peekable();
+    add_child_nodes(&mut it, &mut top);
+
+    top
+}
+
+fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut TagTreeNode) {
+    while let Some(tag) = tags.peek() {
+        let split_name: Vec<_> = tag.name.split("::").collect();
+        match split_name.len() as u32 {
+            l if l <= parent.level => {
+                // next item is at a higher level
+                return;
+            }
+            l if l == parent.level + 1 => {
+                // next item is an immediate descendent of parent
+                parent.children.push(TagTreeNode {
+                    tag_id: tag.id.0,
+                    name: (*split_name.last().unwrap()).into(),
+                    children: vec![],
+                    level: parent.level + 1,
+                    collapsed: tag.config.browser_collapsed,
+                });
+                tags.next();
+            }
+            _ => {
+                // next item is at a lower level
+                if let Some(last_child) = parent.children.last_mut() {
+                    add_child_nodes(tags, last_child)
+                } else {
+                    // immediate parent is missing
+                    tags.next();
+                }
+            }
+        }
+    }
+}
+
 impl Collection {
+    pub fn all_tags(&self) -> Result<Vec<Tag>> {
+        self.storage
+            .all_tags()?
+            .into_iter()
+            .map(|t| {
+                Ok(Tag {
+                    name: native_tag_name_to_human(&t.name),
+                    ..t
+                })
+            })
+            .collect()
+    }
+
+    pub fn tag_tree(&mut self) -> Result<TagTreeNode> {
+        let tags = self.storage.all_tags_sorted()?;
+        let tree = tags_to_tree(tags);
+
+        Ok(tree)
+    }
+
     /// Given a list of tags, fix case, ordering and duplicates.
     /// Returns true if any new tags were added.
     pub(crate) fn canonify_tags(&self, tags: Vec<String>, usn: Usn) -> Result<(Vec<String>, bool)> {
         let mut seen = HashSet::new();
         let mut added = false;
 
-        let mut tags: Vec<_> = tags
-            .iter()
-            .flat_map(|t| split_tags(t))
-            .map(|s| normalize_to_nfc(&s))
-            .collect();
-
+        let mut tags: Vec<_> = tags.iter().flat_map(|t| split_tags(t)).collect();
         for tag in &mut tags {
-            if tag.contains(invalid_char_for_tag) {
-                *tag = tag.replace(invalid_char_for_tag, "").into();
-            }
-            if tag.trim().is_empty() {
+            let t = self.register_tag(Tag {
+                name: tag.to_string(),
+                usn,
+                ..Default::default()
+            })?;
+            if t.0.is_empty() {
                 continue;
             }
-            let tag = self.register_tag(tag, usn)?;
-            if matches!(tag, Cow::Borrowed(_)) {
-                added = true;
-            }
-            seen.insert(UniCase::new(tag));
+            added |= t.1;
+            seen.insert(UniCase::new(t.0));
         }
 
         // exit early if no non-empty tags
@@ -75,12 +208,40 @@ impl Collection {
         Ok((tags, added))
     }
 
-    pub(crate) fn register_tag<'a>(&self, tag: &'a str, usn: Usn) -> Result<Cow<'a, str>> {
-        if let Some(preferred) = self.storage.preferred_tag_case(tag)? {
-            Ok(preferred.into())
+    fn create_missing_tag_parents(&self, mut native_name: &str, usn: Usn) -> Result<bool> {
+        let mut added = false;
+        while let Some(parent_name) = immediate_parent_name(native_name) {
+            if self.storage.preferred_tag_case(&parent_name)?.is_none() {
+                let mut t = Tag {
+                    name: parent_name.to_string(),
+                    usn,
+                    ..Default::default()
+                };
+                self.storage.register_tag(&mut t)?;
+                added = true;
+            }
+            native_name = parent_name;
+        }
+        Ok(added)
+    }
+
+    pub(crate) fn register_tag<'a>(&self, tag: Tag) -> Result<(Cow<'a, str>, bool)> {
+        let native_name = human_tag_name_to_native(&tag.name);
+        if native_name.is_empty() {
+            return Ok(("".into(), false));
+        }
+        let added_parents = self.create_missing_tag_parents(&native_name, tag.usn)?;
+        if let Some(preferred) = self.storage.preferred_tag_case(&native_name)? {
+            Ok((native_tag_name_to_human(&preferred).into(), added_parents))
         } else {
-            self.storage.register_tag(tag, usn)?;
-            Ok(tag.into())
+            let mut t = Tag {
+                name: native_name.clone(),
+                usn: tag.usn,
+                config: tag.config,
+                ..Default::default()
+            };
+            self.storage.register_tag(&mut t)?;
+            Ok((native_tag_name_to_human(&native_name).into(), true))
         }
     }
 
@@ -90,12 +251,29 @@ impl Collection {
             self.storage.clear_tags()?;
         }
         for tag in split_tags(tags) {
-            let tag = self.register_tag(tag, usn)?;
-            if matches!(tag, Cow::Borrowed(_)) {
-                changed = true;
-            }
+            let t = self.register_tag(Tag {
+                name: tag.to_string(),
+                usn,
+                ..Default::default()
+            })?;
+            changed |= t.1;
         }
         Ok(changed)
+    }
+
+    pub(crate) fn update_tag(&self, tag: &Tag) -> Result<()> {
+        let native_name = human_tag_name_to_native(&tag.name);
+        self.storage.update_tag(&Tag {
+            id: tag.id,
+            name: native_name,
+            usn: tag.usn,
+            config: tag.config.clone(),
+        })
+    }
+
+    pub(crate) fn clear_tag(&self, tag: &str) -> Result<()> {
+        let native_name = human_tag_name_to_native(tag);
+        self.storage.clear_tag(&native_name)
     }
 
     fn replace_tags_for_notes_inner<R: Replacer>(
@@ -135,11 +313,10 @@ impl Collection {
         let tags = split_tags(tags)
             .map(|tag| {
                 let tag = if regex { tag.into() } else { to_re(tag) };
-                Regex::new(&format!("(?i)^{}$", tag))
+                Regex::new(&format!("(?i)^{}(::.*)?", tag))
                     .map_err(|_| AnkiError::invalid_input("invalid regex"))
             })
             .collect::<Result<Vec<Regex>>>()?;
-
         if !regex {
             self.replace_tags_for_notes_inner(nids, &tags, NoExpand(repl))
         } else {
@@ -222,6 +399,11 @@ mod test {
         col.update_note(&mut note)?;
         assert_eq!(&note.tags, &["one", "two"]);
 
+        // note.tags is in human form
+        note.tags = vec!["foo::bar".into()];
+        col.update_note(&mut note)?;
+        assert_eq!(&note.tags, &["foo::bar"]);
+
         Ok(())
     }
 
@@ -262,6 +444,26 @@ mod test {
         col.replace_tags_for_notes(&[note.id], "b.* .*ye", "", true)?;
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(&note.tags, &["cee"]);
+
+        let mut note = col.storage.get_note(note.id)?.unwrap();
+        note.tags = vec![
+            "foo::bar".into(),
+            "foo::bar::foo".into(),
+            "bar::foo".into(),
+            "bar::foo::bar".into(),
+        ];
+        col.update_note(&mut note)?;
+        col.replace_tags_for_notes(&[note.id], "bar::foo", "foo::bar", false)?;
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(&note.tags, &["foo::bar", "foo::bar::bar", "foo::bar::foo",]);
+
+        // missing tag parents are registered too when registering their children
+        col.storage.clear_tags()?;
+        let mut note = col.storage.get_note(note.id)?.unwrap();
+        note.tags = vec!["animal::mammal::cat".into()];
+        col.update_note(&mut note)?;
+        let tags: Vec<String> = col.all_tags()?.into_iter().map(|t| t.name).collect();
+        assert_eq!(&tags, &["animal::mammal", "animal", "animal::mammal::cat"]);
 
         Ok(())
     }

@@ -21,7 +21,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput
+from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput, TagTreeNode
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1132,15 +1132,39 @@ QTableView {{ gridline-color: {grid} }}
             root.addChild(item)
 
     def _userTagTree(self, root) -> None:
-        assert self.col
-        for t in self.col.tags.all():
-            item = SidebarItem(
-                t,
-                ":/icons/tag.svg",
-                lambda t=t: self.setFilter("tag", t),  # type: ignore
-                item_type=SidebarItemType.TAG,
-            )
-            root.addChild(item)
+        tree = self.col.backend.tag_tree()
+
+        def fillGroups(root, nodes: Sequence[TagTreeNode], head=""):
+            for node in nodes:
+
+                def set_filter():
+                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
+                    return lambda: self.setFilter("tag", full_name)
+
+                def toggle_expand():
+                    tid = node.tag_id  # pylint: disable=cell-var-from-loop
+
+                    def toggle(_):
+                        tag = self.mw.col.backend.get_tag(tid)
+                        tag.config.browser_collapsed = not tag.config.browser_collapsed
+                        self.mw.col.backend.update_tag(tag)
+
+                    return toggle
+
+                item = SidebarItem(
+                    node.name,
+                    ":/icons/tag.svg",
+                    set_filter(),
+                    toggle_expand(),
+                    not node.collapsed,
+                    item_type=SidebarItemType.TAG,
+                    id=node.tag_id,
+                )
+                root.addChild(item)
+                newhead = head + node.name + "::"
+                fillGroups(item, node.children, newhead)
+
+        fillGroups(root, tree.children)
 
     def _decksTree(self, root) -> None:
         tree = self.col.decks.deck_tree()
