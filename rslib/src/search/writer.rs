@@ -14,8 +14,32 @@ pub fn normalize_search(input: &str) -> Result<String> {
     Ok(write_nodes(&parse(input)?))
 }
 
-fn write_nodes(nodes: &[Node]) -> String {
-    nodes.iter().map(|node| write_node(node)).collect()
+/// Take an Anki-style search string and return the negated counterpart.
+/// Empty searches (whole collection) remain unchanged.
+pub fn negate_search(input: &str) -> Result<String> {
+    let mut nodes = parse(input)?;
+    use Node::*;
+    Ok(if nodes.len() == 1 {
+        let node = nodes.remove(0);
+        match node {
+            Not(n) => write_node(&n),
+            Search(SearchNode::WholeCollection) => "".to_string(),
+            Group(_) | Search(_) => write_node(&Not(Box::new(node))),
+            _ => unreachable!(),
+        }
+    } else {
+        write_node(&Not(Box::new(Group(nodes))))
+    })
+}
+}
+
+}
+
+fn write_nodes<'a, I>(nodes: I) -> String
+where
+    I: IntoIterator<Item = &'a Node<'a>>,
+{
+    nodes.into_iter().map(|node| write_node(node)).collect()
 }
 
 fn write_node(node: &Node) -> String {

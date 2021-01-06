@@ -87,6 +87,7 @@ service BackendService {
     rpc NormalizeSearch (String) returns (String);
     rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
     rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
+    rpc NegateSearch (String) returns (String);
     rpc FindAndReplace (FindAndReplaceIn) returns (UInt32);
 
     // scheduling
