@@ -20,7 +20,7 @@ from anki.types import assert_exhaustive
 from anki.utils import intTime
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
-from aqt.utils import showWarning, tr
+from aqt.utils import disable_help_button, showWarning, tr
 
 LogEntry = Union[MediaSyncProgress, str]
 
@@ -164,7 +164,7 @@ class MediaSyncDialog(QDialog):
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(tr(TR.SYNC_MEDIA_LOG_TITLE))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.abort_button = QPushButton(tr(TR.SYNC_ABORT_BUTTON))
         qconnect(self.abort_button.clicked, self._on_abort)
         self.abort_button.setAutoDefault(False)

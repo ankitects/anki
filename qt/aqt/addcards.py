@@ -18,6 +18,7 @@ from aqt.utils import (
     TR,
     addCloseShortcut,
     askUser,
+    disable_help_button,
     downArrow,
     openHelp,
     restoreGeom,
@@ -37,7 +38,7 @@ class AddCards(QDialog):
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(tr(TR.ACTIONS_ADD))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
         self.setupChoosers()

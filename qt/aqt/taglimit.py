@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import aqt
 from aqt.qt import *
-from aqt.utils import restoreGeom, saveGeom
+from aqt.utils import disable_help_button, restoreGeom, saveGeom
 
 
 class TagLimit(QDialog):
@@ -16,7 +16,7 @@ class TagLimit(QDialog):
         self.deck = self.parent.deck
         self.dialog = aqt.forms.taglimit.Ui_Dialog()
         self.dialog.setupUi(self)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         s = QShortcut(
             QKeySequence("ctrl+d"), self.dialog.activeList, context=Qt.WidgetShortcut
         )

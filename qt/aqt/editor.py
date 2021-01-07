@@ -31,6 +31,7 @@ from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
+    disable_help_button,
     getFile,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -555,7 +556,7 @@ class Editor:
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")
-        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(d)
         qconnect(form.buttonBox.helpRequested, lambda: openHelp("editing?id=features"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()

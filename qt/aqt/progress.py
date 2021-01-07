@@ -8,7 +8,7 @@ from typing import Optional
 
 import aqt.forms
 from aqt.qt import *
-from aqt.utils import TR, tr
+from aqt.utils import TR, disable_help_button, tr
 
 # Progress info
 ##########################################################################
@@ -211,7 +211,7 @@ class ProgressManager:
 class ProgressDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.form = aqt.forms.progress.Ui_Dialog()
         self.form.setupUi(self)
         self._closingDown = False

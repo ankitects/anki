@@ -6,7 +6,16 @@ from typing import List, Optional
 import aqt
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
-from aqt.utils import TR, askUser, openHelp, restoreGeom, saveGeom, showWarning, tr
+from aqt.utils import (
+    TR,
+    askUser,
+    disable_help_button,
+    openHelp,
+    restoreGeom,
+    saveGeom,
+    showWarning,
+    tr,
+)
 
 
 class DeckConf(QDialog):
@@ -23,7 +32,7 @@ class DeckConf(QDialog):
             label = tr(TR.ACTIONS_REBUILD)
         self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered-decks"))
         self.setWindowTitle(

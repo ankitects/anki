@@ -28,7 +28,15 @@ from aqt.mpv import MPV, MPVBase, MPVCommandError
 from aqt.profiles import RecordingDriver
 from aqt.qt import *
 from aqt.taskman import TaskManager
-from aqt.utils import TR, restoreGeom, saveGeom, showWarning, startup_info, tr
+from aqt.utils import (
+    TR,
+    disable_help_button,
+    restoreGeom,
+    saveGeom,
+    showWarning,
+    startup_info,
+    tr,
+)
 
 if TYPE_CHECKING:
     from PyQt5.QtMultimedia import QAudioRecorder
@@ -707,7 +715,7 @@ class RecordDialog(QDialog):
         self._parent = parent
         self.mw = mw
         self._on_success = on_success
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
 
         self._start_recording()
         self._setup_dialog()

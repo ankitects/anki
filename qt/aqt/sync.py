@@ -32,7 +32,14 @@ from aqt.qt import (
     QVBoxLayout,
     qconnect,
 )
-from aqt.utils import askUser, askUserDialog, showText, showWarning, tr
+from aqt.utils import (
+    askUser,
+    askUserDialog,
+    disable_help_button,
+    showText,
+    showWarning,
+    tr,
+)
 
 
 class FullSyncChoice(enum.Enum):
@@ -290,7 +297,7 @@ def get_id_and_pass_from_user(
 ) -> Tuple[str, str]:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
-    diag.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+    disable_help_button(diag)
     diag.setWindowModality(Qt.WindowModal)
     vbox = QVBoxLayout()
     info_label = QLabel(

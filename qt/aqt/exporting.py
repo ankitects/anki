@@ -13,7 +13,15 @@ import aqt
 from anki import hooks
 from anki.exporting import Exporter, exporters
 from aqt.qt import *
-from aqt.utils import TR, checkInvalidFilename, getSaveFile, showWarning, tooltip, tr
+from aqt.utils import (
+    TR,
+    checkInvalidFilename,
+    disable_help_button,
+    getSaveFile,
+    showWarning,
+    tooltip,
+    tr,
+)
 
 
 class ExportDialog(QDialog):
@@ -30,7 +38,7 @@ class ExportDialog(QDialog):
         self.frm.setupUi(self)
         self.exporter: Optional[Exporter] = None
         self.cids = cids
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setup(did)
         self.exec_()
 

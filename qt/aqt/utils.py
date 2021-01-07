@@ -7,7 +7,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
 import anki
 import aqt
@@ -127,7 +127,7 @@ def showText(
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
     diag.setWindowTitle(title)
-    diag.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+    disable_help_button(diag)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
     text = QTextBrowser()
@@ -246,7 +246,7 @@ class GetTextDialog(QDialog):
     ):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.question = question
         self.help = help
         self.qlabel = QLabel(question)
@@ -318,7 +318,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     if not parent:
         parent = aqt.mw.app.activeWindow()
     d = QDialog(parent)
-    d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+    disable_help_button(d)
     d.setWindowModality(Qt.WindowModal)
     l = QVBoxLayout()
     d.setLayout(l)
@@ -343,6 +343,12 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     ret = getText(question, parent, edit=te, geomKey="getTag", **kwargs)
     te.hideCompleter()
     return ret
+
+
+def disable_help_button(widget: QWidget) -> None:
+    "Disable the help button in the window titlebar."
+    flags = cast(Qt.WindowType, widget.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+    widget.setWindowFlags(flags)
 
 
 # File handling

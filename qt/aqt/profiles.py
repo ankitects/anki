@@ -26,7 +26,7 @@ from anki.rsbackend import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.utils import TR, locale_dir, showWarning, tr
+from aqt.utils import TR, disable_help_button, locale_dir, showWarning, tr
 
 # Profile handling
 ##########################################################################
@@ -542,7 +542,7 @@ create table if not exists profiles
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
         f.setupUi(d)
-        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(d)
         qconnect(d.accepted, self._onLangSelected)
         qconnect(d.rejected, lambda: True)
         # update list
