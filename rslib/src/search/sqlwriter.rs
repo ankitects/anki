@@ -235,16 +235,24 @@ impl SqlWriter<'_> {
 
     fn write_prop(&mut self, op: &str, kind: &PropertyKind) -> Result<()> {
         let timing = self.col.timing_today()?;
+
         match kind {
             PropertyKind::Due(days) => {
                 let day = days + (timing.days_elapsed as i32);
                 write!(
                     self.sql,
-                    "(c.queue in ({rev},{daylrn}) and due {op} {day})",
+                    "(
+                    (c.queue in ({rev},{daylrn}) and c.due {op} {day}) or
+                    (c.queue in ({lrn},{previewrepeat}) and ((c.due - {cutoff}) / 86400) {op} {days})
+                    )",
                     rev = CardQueue::Review as u8,
                     daylrn = CardQueue::DayLearn as u8,
                     op = op,
-                    day = day
+                    day = day,
+                    lrn = CardQueue::Learn as i8,
+                    previewrepeat = CardQueue::PreviewRepeat as i8,
+                    cutoff = timing.next_day_at,
+                    days = days
                 )
             }
             PropertyKind::Position(pos) => {
