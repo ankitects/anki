@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import PyQt5
+import multiprocessing
 
 from pylint.lint import Run
 
@@ -15,7 +16,7 @@ if __name__ == "__main__":
             "--rcfile",
             ini,
             "-j",
-            "0",
+            str(min(4, multiprocessing.cpu_count())),
             "-v",
         ]
     )
