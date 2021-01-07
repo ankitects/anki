@@ -40,7 +40,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
             let dueDay: number;
 
             if (isLearning(c)) {
-                const offset = c.due - data.nextDayAtSecs
+                const offset = c.due - data.nextDayAtSecs;
                 dueDay = Math.floor(offset / 86_400) + 1;
             } else {
                 // - testing just odue fails on day 1
@@ -48,12 +48,11 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
                 //   have due calculated at regraduation time
                 const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
                 dueDay = due - data.daysElapsed;
-
             }
 
             haveBacklog = haveBacklog || dueDay < 0;
 
-            return dueDay
+            return dueDay;
         });
 
     const dueCounts = rollup(
