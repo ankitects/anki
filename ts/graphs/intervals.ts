@@ -84,13 +84,12 @@ export function prepareIntervalData(
         case IntervalRange.All:
             break;
     }
-    const xMin = 0;
+    const xMin = 1;
     xMax = xMax! + 1;
 
     // cap bars to available range
     const desiredBars = Math.min(70, xMax! - xMin!);
-
-    const scale = scaleLinear().domain([xMin!, xMax!]).nice();
+    const scale = scaleLinear().domain([xMin!, xMax!]);
     const bins = histogram()
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(allIntervals);
