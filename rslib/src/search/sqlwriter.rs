@@ -241,6 +241,7 @@ impl SqlWriter<'_> {
                 let day = days + (timing.days_elapsed as i32);
                 write!(
                     self.sql,
+                    // SQL does integer division if both parameters are integers
                     "(\
                     (c.queue in ({rev},{daylrn}) and c.due {op} {day}) or \
                     (c.queue in ({lrn},{previewrepeat}) and ((c.due - {cutoff}) / 86400) {op} {days})\
