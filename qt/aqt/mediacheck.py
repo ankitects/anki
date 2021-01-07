@@ -11,7 +11,15 @@ from typing import Iterable, List, Optional, Sequence, TypeVar
 import aqt
 from anki.rsbackend import TR, Interrupted, ProgressKind, pb
 from aqt.qt import *
-from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip, tr
+from aqt.utils import (
+    askUser,
+    disable_help_button,
+    restoreGeom,
+    saveGeom,
+    showText,
+    tooltip,
+    tr,
+)
 
 T = TypeVar("T")
 
@@ -84,7 +92,7 @@ class MediaChecker:
         # show report and offer to delete
         diag = QDialog(self.mw)
         diag.setWindowTitle(tr(TR.MEDIA_CHECK_WINDOW_TITLE))
-        setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(diag)
         layout = QVBoxLayout(diag)
         diag.setLayout(layout)
         text = QTextEdit()
