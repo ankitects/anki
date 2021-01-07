@@ -33,7 +33,8 @@ use crate::{
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, time_span},
     search::{
-        concatenate_searches, negate_search, normalize_search, replace_search_term, SortMode,
+        concatenate_searches, negate_search, normalize_search, replace_search_term, BoolSeparator,
+        SortMode,
     },
     stats::studied_today,
     sync::{
@@ -273,6 +274,17 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
+impl From<i32> for BoolSeparator {
+    fn from(sep: i32) -> Self {
+        use pb::concatenate_searches_in::Separator;
+        match Separator::from_i32(sep) {
+            Some(Separator::And) => BoolSeparator::And,
+            Some(Separator::Or) => BoolSeparator::Or,
+            None => BoolSeparator::And,
+        }
+    }
+}
+
 impl BackendService for Backend {
     fn latest_progress(&self, _input: Empty) -> BackendResult<pb::Progress> {
         let progress = self.progress_state.lock().unwrap().last_progress;
@@ -437,7 +449,7 @@ impl BackendService for Backend {
     }
 
     fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
-        Ok(concatenate_searches(input.sep, &input.searches)?.into())
+        Ok(concatenate_searches(input.sep.into(), &input.searches)?.into())
     }
 
     fn replace_search_term(&self, input: pb::ReplaceSearchTermIn) -> Result<pb::String> {
