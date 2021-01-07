@@ -5,7 +5,7 @@ pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
-    backend_proto::builtin_search_order::BuiltinSortKind,
+    backend_proto::builtin_search_order::BuiltinSortKind as SortKindProto,
     backend_proto::concatenate_searches_in::Separator as BoolSeparatorProto,
     backend_proto::{
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
@@ -419,7 +419,7 @@ impl BackendService for Backend {
                     Some(V::Custom(s)) => SortMode::Custom(s),
                     Some(V::FromConfig(_)) => SortMode::FromConfig,
                     Some(V::Builtin(b)) => SortMode::Builtin {
-                        kind: sort_kind_from_pb(b.kind),
+                        kind: SortKindProto::from_i32(b.kind).unwrap_or_default().into(),
                         reverse: b.reverse,
                     },
                     None => SortMode::FromConfig,
@@ -1834,25 +1834,23 @@ fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgre
     }
 }
 
-fn sort_kind_from_pb(kind: i32) -> SortKind {
-    use SortKind as SK;
-    match BuiltinSortKind::from_i32(kind) {
-        Some(pbkind) => match pbkind {
-            BuiltinSortKind::NoteCreation => SK::NoteCreation,
-            BuiltinSortKind::NoteMod => SK::NoteMod,
-            BuiltinSortKind::NoteField => SK::NoteField,
-            BuiltinSortKind::NoteTags => SK::NoteTags,
-            BuiltinSortKind::NoteType => SK::NoteType,
-            BuiltinSortKind::CardMod => SK::CardMod,
-            BuiltinSortKind::CardReps => SK::CardReps,
-            BuiltinSortKind::CardDue => SK::CardDue,
-            BuiltinSortKind::CardEase => SK::CardEase,
-            BuiltinSortKind::CardLapses => SK::CardLapses,
-            BuiltinSortKind::CardInterval => SK::CardInterval,
-            BuiltinSortKind::CardDeck => SK::CardDeck,
-            BuiltinSortKind::CardTemplate => SK::CardTemplate,
-        },
-        _ => SortKind::NoteCreation,
+impl From<SortKindProto> for SortKind {
+    fn from(kind: SortKindProto) -> Self {
+        match kind {
+            SortKindProto::NoteCreation => SortKind::NoteCreation,
+            SortKindProto::NoteMod => SortKind::NoteMod,
+            SortKindProto::NoteField => SortKind::NoteField,
+            SortKindProto::NoteTags => SortKind::NoteTags,
+            SortKindProto::NoteType => SortKind::NoteType,
+            SortKindProto::CardMod => SortKind::CardMod,
+            SortKindProto::CardReps => SortKind::CardReps,
+            SortKindProto::CardDue => SortKind::CardDue,
+            SortKindProto::CardEase => SortKind::CardEase,
+            SortKindProto::CardLapses => SortKind::CardLapses,
+            SortKindProto::CardInterval => SortKind::CardInterval,
+            SortKindProto::CardDeck => SortKind::CardDeck,
+            SortKindProto::CardTemplate => SortKind::CardTemplate,
+        }
     }
 }
 
