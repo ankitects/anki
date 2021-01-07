@@ -21,7 +21,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import DeckTreeNode, InvalidInput, ConcatSeparator
+from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
