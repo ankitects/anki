@@ -151,8 +151,8 @@ export function dayLabel(i18n: I18n, daysStart: number, daysEnd: number): string
             });
         } else {
             return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_RANGE, {
-                daysStart: Math.abs(daysEnd),
-                daysEnd: -daysStart - 1,
+                daysStart: Math.abs(daysEnd - 1),
+                daysEnd: -daysStart,
             });
         }
     }

@@ -42,7 +42,6 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
             if (isLearning(c)) {
                 const offset = c.due - data.nextDayAtSecs
                 dueDay = Math.floor(offset / 86_400) + 1;
-
             } else {
                 // - testing just odue fails on day 1
                 // - testing just odid fails on lapsed cards that
