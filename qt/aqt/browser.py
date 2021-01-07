@@ -21,7 +21,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TR, DeckTreeNode, InvalidInput
+from anki.rsbackend import TR, DeckTreeNode, InvalidInput, pb
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -189,6 +189,7 @@ class DataModel(QAbstractTableModel):
             ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
+                ctx.search = self.browser.normalize_search(ctx.search)
                 ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
@@ -821,6 +822,12 @@ class Browser(QMainWindow):
             # no row change will fire
             self._onRowChanged(None, None)
 
+    def normalize_search(self, search: str) -> str:
+        normed = self.col.backend.normalize_search(search)
+        self._lastSearchTxt = normed
+        self.form.searchEdit.lineEdit().setText(normed)
+        return normed
+
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
@@ -1210,27 +1217,34 @@ QTableView {{ gridline-color: {grid} }}
                 if i % 2 == 0:
                     txt += a + ":"
                 else:
-                    txt += re.sub(r"[*_\\]", r"\\\g<0>", a)
-                    for c in ' 　()"':
-                        if c in txt:
-                            txt = '"{}"'.format(txt.replace('"', '\\"'))
-                            break
+                    txt += re.sub(r'["*_\\]', r"\\\g<0>", a)
+                    txt = '"{}"'.format(txt.replace('"', '\\"'))
                     items.append(txt)
                     txt = ""
-            txt = " ".join(items)
-        # is there something to replace or append with?
-        if txt:
+            txt = " AND ".join(items)
+        try:
             if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-                txt = "-" + txt
-            # is there something to replace or append to?
+                txt = self.col.backend.negate_search(txt)
             cur = str(self.form.searchEdit.lineEdit().text())
-            if cur and cur != self._searchPrompt:
-                if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
-                    txt = cur + " " + txt
-                elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-                    txt = cur + " or " + txt
-        self.form.searchEdit.lineEdit().setText(txt)
-        self.onSearchActivated()
+            if cur != self._searchPrompt:
+                mods = self.mw.app.keyboardModifiers()
+                if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                    txt = self.col.backend.replace_search_term(
+                        search=cur, replacement=txt
+                    )
+                elif mods & Qt.ControlModifier:
+                    txt = self.col.backend.concatenate_searches(
+                        sep=pb.ConcatenateSearchesIn.Separator.AND, searches=[cur, txt]
+                    )
+                elif mods & Qt.ShiftModifier:
+                    txt = self.col.backend.concatenate_searches(
+                        sep=pb.ConcatenateSearchesIn.Separator.OR, searches=[cur, txt]
+                    )
+        except InvalidInput as e:
+            showWarning(str(e))
+        else:
+            self.form.searchEdit.lineEdit().setText(txt)
+            self.onSearchActivated()
 
     def _simpleFilters(self, items):
         ml = MenuList()
@@ -1249,7 +1263,7 @@ QTableView {{ gridline-color: {grid} }}
         return self._simpleFilters(
             (
                 (tr(TR.BROWSING_WHOLE_COLLECTION), ""),
-                (tr(TR.BROWSING_CURRENT_DECK), "deck:current"),
+                (tr(TR.BROWSING_CURRENT_DECK), '"deck:current"'),
             )
         )
 
@@ -1258,9 +1272,9 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.BROWSING_ADDED_TODAY), "added:1"),
-                    (tr(TR.BROWSING_STUDIED_TODAY), "rated:1"),
-                    (tr(TR.BROWSING_AGAIN_TODAY), "rated:1:1"),
+                    (tr(TR.BROWSING_ADDED_TODAY), '"added:1"'),
+                    (tr(TR.BROWSING_STUDIED_TODAY), '"rated:1"'),
+                    (tr(TR.BROWSING_AGAIN_TODAY), '"rated:1:1"'),
                 )
             )
         )
@@ -1271,20 +1285,20 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.ACTIONS_NEW), "is:new"),
-                    (tr(TR.SCHEDULING_LEARNING), "is:learn"),
-                    (tr(TR.SCHEDULING_REVIEW), "is:review"),
-                    (tr(TR.FILTERING_IS_DUE), "is:due"),
+                    (tr(TR.ACTIONS_NEW), '"is:new"'),
+                    (tr(TR.SCHEDULING_LEARNING), '"is:learn"'),
+                    (tr(TR.SCHEDULING_REVIEW), '"is:review"'),
+                    (tr(TR.FILTERING_IS_DUE), '"is:due"'),
                     None,
-                    (tr(TR.BROWSING_SUSPENDED), "is:suspended"),
-                    (tr(TR.BROWSING_BURIED), "is:buried"),
+                    (tr(TR.BROWSING_SUSPENDED), '"is:suspended"'),
+                    (tr(TR.BROWSING_BURIED), '"is:buried"'),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), "flag:1"),
-                    (tr(TR.ACTIONS_ORANGE_FLAG), "flag:2"),
-                    (tr(TR.ACTIONS_GREEN_FLAG), "flag:3"),
-                    (tr(TR.ACTIONS_BLUE_FLAG), "flag:4"),
-                    (tr(TR.BROWSING_NO_FLAG), "flag:0"),
-                    (tr(TR.BROWSING_ANY_FLAG), "-flag:0"),
+                    (tr(TR.ACTIONS_RED_FLAG), '"flag:1"'),
+                    (tr(TR.ACTIONS_ORANGE_FLAG), '"flag:2"'),
+                    (tr(TR.ACTIONS_GREEN_FLAG), '"flag:3"'),
+                    (tr(TR.ACTIONS_BLUE_FLAG), '"flag:4"'),
+                    (tr(TR.BROWSING_NO_FLAG), '"flag:0"'),
+                    (tr(TR.BROWSING_ANY_FLAG), '"-flag:0"'),
                 )
             )
         )

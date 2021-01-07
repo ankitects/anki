@@ -50,7 +50,7 @@ pub(super) enum Node<'a> {
     Search(SearchNode<'a>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) enum SearchNode<'a> {
     // text without a colon
     UnqualifiedText(Cow<'a, str>),
@@ -90,7 +90,7 @@ pub(super) enum SearchNode<'a> {
     WordBoundary(Cow<'a, str>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) enum PropertyKind {
     Due(i32),
     Interval(u32),
@@ -100,7 +100,7 @@ pub(super) enum PropertyKind {
     Position(u32),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) enum StateKind {
     New,
     Review,
@@ -112,7 +112,7 @@ pub(super) enum StateKind {
     Suspended,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) enum TemplateKind<'a> {
     Ordinal(u16),
     Name(Cow<'a, str>),
