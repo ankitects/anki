@@ -23,31 +23,38 @@ export interface GraphData {
 }
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
-    const isLearning = (queue: number): boolean =>
-        [CardQueue.Learn, CardQueue.PreviewRepeat].includes(queue);
+    const isLearning = (card: pb.BackendProto.Card): boolean =>
+        [CardQueue.Learn, CardQueue.PreviewRepeat].includes(card.queue);
+
     let haveBacklog = false;
     const due = (data.cards as pb.BackendProto.Card[])
-        .filter(
-            (c) =>
-                // reviews
+        .filter((c: pb.BackendProto.Card) => {
+            // reviews
+            return (
                 [CardQueue.Review, CardQueue.DayLearn].includes(c.queue) ||
-                // or learning cards due today
-                (isLearning(c.queue) && c.due < data.nextDayAtSecs)
-        )
-        .map((c) => {
-            if (isLearning(c.queue)) {
-                return 0;
+                // or learning cards
+                isLearning(c)
+            );
+        })
+        .map((c: pb.BackendProto.Card) => {
+            let dueDay: number;
+
+            if (isLearning(c)) {
+                const offset = c.due - data.nextDayAtSecs
+                dueDay = Math.floor(offset / 86_400) + 1;
+
             } else {
                 // - testing just odue fails on day 1
                 // - testing just odid fails on lapsed cards that
                 //   have due calculated at regraduation time
                 const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
-                const dueDay = due - data.daysElapsed;
-                if (dueDay < 0) {
-                    haveBacklog = true;
-                }
-                return dueDay;
+                dueDay = due - data.daysElapsed;
+
             }
+
+            haveBacklog = haveBacklog || dueDay < 0;
+
+            return dueDay
         });
 
     const dueCounts = rollup(
