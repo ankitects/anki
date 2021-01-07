@@ -9,7 +9,7 @@
 import type pb from "anki/backend_proto";
 import { extent, histogram, quantile, sum, mean } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
-import { CardQueue } from "anki/cards";
+import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
@@ -29,7 +29,7 @@ export enum IntervalRange {
 
 export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
     const intervals = (data.cards as pb.BackendProto.Card[])
-        .filter((c) => c.queue == CardQueue.Review)
+        .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
         .map((c) => c.interval);
     return { intervals };
 }
