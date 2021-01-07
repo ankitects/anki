@@ -241,9 +241,9 @@ impl SqlWriter<'_> {
                 let day = days + (timing.days_elapsed as i32);
                 write!(
                     self.sql,
-                    "(
-                    (c.queue in ({rev},{daylrn}) and c.due {op} {day}) or
-                    (c.queue in ({lrn},{previewrepeat}) and ((c.due - {cutoff}) / 86400) {op} {days})
+                    "(\
+                    (c.queue in ({rev},{daylrn}) and c.due {op} {day}) or \
+                    (c.queue in ({lrn},{previewrepeat}) and ((c.due - {cutoff}) / 86400) {op} {days})\
                     )",
                     rev = CardQueue::Review as u8,
                     daylrn = CardQueue::DayLearn as u8,
@@ -300,10 +300,10 @@ impl SqlWriter<'_> {
             StateKind::Suspended => write!(self.sql, "c.queue = {}", CardQueue::Suspended as i8),
             StateKind::Due => write!(
                 self.sql,
-                "(
-    (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
-    (c.queue in ({lrn},{previewrepeat}) and c.due <= {learncutoff})
-    )",
+                "(\
+                (c.queue in ({rev},{daylrn}) and c.due <= {today}) or \
+                (c.queue in ({lrn},{previewrepeat}) and c.due <= {learncutoff})\
+                )",
                 rev = CardQueue::Review as i8,
                 daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
@@ -734,8 +734,9 @@ mod test {
         assert_eq!(
             s(ctx, "prop:due!=-1").0,
             format!(
-                "((c.queue in (2,3) and due != {}))",
-                timing.days_elapsed - 1
+                "(((c.queue in (2,3) and c.due != {days}) or (c.queue in (1,4) and ((c.due - {cutoff}) / 86400) != -1)))",
+                days = timing.days_elapsed - 1,
+                cutoff = timing.next_day_at
             )
         );
 
