@@ -46,6 +46,7 @@ TagUsnTuple = pb.TagUsnTuple
 NoteType = pb.NoteType
 DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
+ConcatSeparator = pb.ConcatenateSearchesIn.Separator
 SyncAuth = pb.SyncAuth
 SyncOutput = pb.SyncCollectionOut
 SyncStatus = pb.SyncStatusOut

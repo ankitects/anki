@@ -2,14 +2,19 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto::concatenate_searches_in::Separator,
     decks::DeckID as DeckIDType,
-    err::{AnkiError, Result},
+    err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
     search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
 use itertools::Itertools;
 use std::mem;
+
+#[derive(Debug, PartialEq)]
+pub enum BoolSeparator {
+    And,
+    Or,
+}
 
 /// Take an Anki-style search string and convert it into an equivalent
 /// search string with normalized syntax.
@@ -38,11 +43,10 @@ pub fn negate_search(input: &str) -> Result<String> {
 /// Take arbitrary Anki-style search strings and return their concatenation where they
 /// are separated by the provided boolean operator.
 /// Empty searches (whole collection) are left out.
-pub fn concatenate_searches(sep: i32, searches: &[String]) -> Result<String> {
-    let bool_node = vec![match Separator::from_i32(sep) {
-        Some(Separator::Or) => Node::Or,
-        Some(Separator::And) => Node::And,
-        None => return Err(AnkiError::SearchError(None)),
+pub fn concatenate_searches(sep: BoolSeparator, searches: &[String]) -> Result<String> {
+    let bool_node = vec![match sep {
+        BoolSeparator::And => Node::And,
+        BoolSeparator::Or => Node::Or,
     }];
     Ok(write_nodes(
         searches
@@ -221,25 +225,22 @@ mod test {
     fn concatenating() -> Result<()> {
         assert_eq!(
             r#""foo" AND "bar""#,
-            concatenate_searches(
-                Separator::And as i32,
-                &["foo".to_string(), "bar".to_string()]
-            )
-            .unwrap()
+            concatenate_searches(BoolSeparator::And, &["foo".to_string(), "bar".to_string()])
+                .unwrap()
         );
         assert_eq!(
             r#""foo" OR "bar""#,
             concatenate_searches(
-                Separator::Or as i32,
+                BoolSeparator::Or,
                 &["foo".to_string(), "".to_string(), "bar".to_string()]
             )
             .unwrap()
         );
         assert_eq!(
             "",
-            concatenate_searches(Separator::Or as i32, &["".to_string()]).unwrap()
+            concatenate_searches(BoolSeparator::Or, &["".to_string()]).unwrap()
         );
-        assert_eq!("", concatenate_searches(Separator::Or as i32, &[]).unwrap());
+        assert_eq!("", concatenate_searches(BoolSeparator::Or, &[]).unwrap());
 
         Ok(())
     }

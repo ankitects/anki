@@ -21,7 +21,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import DeckTreeNode, InvalidInput, pb
+from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1236,13 +1236,13 @@ QTableView {{ gridline-color: {grid} }}
                 elif mods & Qt.ControlModifier:
                     txt = self.col.backend.concatenate_searches(
                         # pylint: disable=no-member
-                        sep=pb.ConcatenateSearchesIn.Separator.AND,
+                        sep=ConcatSeparator.AND,
                         searches=[cur, txt],
                     )
                 elif mods & Qt.ShiftModifier:
                     txt = self.col.backend.concatenate_searches(
                         # pylint: disable=no-member
-                        sep=pb.ConcatenateSearchesIn.Separator.OR,
+                        sep=ConcatSeparator.OR,
                         searches=[cur, txt],
                     )
         except InvalidInput as e:
@@ -1413,14 +1413,20 @@ QTableView {{ gridline-color: {grid} }}
         return ml
 
     def _onSaveFilter(self) -> None:
-        name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
-        if not name:
-            return
-        filt = self.form.searchEdit.lineEdit().text()
-        conf = self.col.get_config("savedFilters")
-        conf[name] = filt
-        self.col.set_config("savedFilters", conf)
-        self.maybeRefreshSidebar()
+        try:
+            filt = self.col.backend.normalize_search(
+                self.form.searchEdit.lineEdit().text()
+            )
+        except InvalidInput as e:
+            showWarning(str(e))
+        else:
+            name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
+            if not name:
+                return
+            conf = self.col.get_config("savedFilters")
+            conf[name] = filt
+            self.col.set_config("savedFilters", conf)
+            self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
         name = self._currentFilterIsSaved()
@@ -1433,7 +1439,15 @@ QTableView {{ gridline-color: {grid} }}
     # returns name if found
     def _currentFilterIsSaved(self):
         filt = self.form.searchEdit.lineEdit().text()
+        try:
+            filt = self.col.backend.normalize_search(filt)
+        except InvalidInput:
+            pass
         for k, v in self.col.get_config("savedFilters").items():
+            try:
+                v = self.col.backend.normalize_search(v)
+            except InvalidInput:
+                pass
             if filt == v:
                 return k
         return None
