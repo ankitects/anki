@@ -1413,14 +1413,20 @@ QTableView {{ gridline-color: {grid} }}
         return ml
 
     def _onSaveFilter(self) -> None:
-        name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
-        if not name:
-            return
-        filt = self.form.searchEdit.lineEdit().text()
-        conf = self.col.get_config("savedFilters")
-        conf[name] = filt
-        self.col.set_config("savedFilters", conf)
-        self.maybeRefreshSidebar()
+        try:
+            filt = self.col.backend.normalize_search(
+                self.form.searchEdit.lineEdit().text()
+            )
+        except InvalidInput as e:
+            showWarning(str(e))
+        else:
+            name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
+            if not name:
+                return
+            conf = self.col.get_config("savedFilters")
+            conf[name] = filt
+            self.col.set_config("savedFilters", conf)
+            self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
         name = self._currentFilterIsSaved()
@@ -1433,7 +1439,15 @@ QTableView {{ gridline-color: {grid} }}
     # returns name if found
     def _currentFilterIsSaved(self):
         filt = self.form.searchEdit.lineEdit().text()
+        try:
+            filt = self.col.backend.normalize_search(filt)
+        except InvalidInput:
+            pass
         for k, v in self.col.get_config("savedFilters").items():
+            try:
+                v = self.col.backend.normalize_search(v)
+            except InvalidInput:
+                pass
             if filt == v:
                 return k
         return None
