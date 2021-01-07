@@ -40,7 +40,8 @@ class SidebarTreeViewBase(QTreeView):
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
-        self.onClickCurrent()
+        if event.button() == Qt.LeftButton:
+            self.onClickCurrent()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
