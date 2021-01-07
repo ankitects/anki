@@ -1,8 +1,7 @@
 [MASTER]
 persistent = no
-extension-pkg-whitelist=PyQt5,ankirspy
-ignore = aqt/forms
-init-hook='from PyQt5.QtWebChannel import QWebChannel; print("successful import!"); import sys; print(sys.path)'
+extension-pkg-whitelist=PyQt5
+ignore = forms
 
 [TYPECHECK]
 ignored-modules=win32file,pywintypes,socket,win32pipe
