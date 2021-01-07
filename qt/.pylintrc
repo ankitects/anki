@@ -4,7 +4,7 @@ extension-pkg-whitelist=PyQt5
 ignore = forms,hooks_gen.py
 
 [TYPECHECK]
-ignored-modules=win32file,pywintypes,socket,win32pipe,winrt
+ignored-modules=win32file,pywintypes,socket,win32pipe,winrt,pyaudio
 
 [REPORTS]
 output-format=colorized
