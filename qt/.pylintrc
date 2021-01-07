@@ -1,10 +1,10 @@
 [MASTER]
 persistent = no
 extension-pkg-whitelist=PyQt5
-ignore = forms
+ignore = forms,hooks_gen.py
 
 [TYPECHECK]
-ignored-modules=win32file,pywintypes,socket,win32pipe
+ignored-modules=win32file,pywintypes,socket,win32pipe,winrt
 
 [REPORTS]
 output-format=colorized

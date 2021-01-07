@@ -526,7 +526,6 @@ class Recorder(ABC):
 
     def on_timer(self):
         "Will be called periodically."
-        pass
 
 
 # QAudioInput recording
@@ -540,12 +539,7 @@ class QtAudioInputRecorder(Recorder):
         self.mw = mw
         self._parent = parent
 
-        from PyQt5.QtMultimedia import (
-            QAudio,
-            QAudioDeviceInfo,
-            QAudioFormat,
-            QAudioInput,
-        )
+        from PyQt5.QtMultimedia import QAudioDeviceInfo, QAudioFormat, QAudioInput
 
         format = QAudioFormat()
         format.setChannelCount(1)
@@ -776,7 +770,7 @@ class RecordDialog(QDialog):
 
         try:
             self._save_diag()
-            self._recorder.stop(lambda out: self._on_success(out))
+            self._recorder.stop(self._on_success)
         finally:
             QDialog.accept(self)
 
