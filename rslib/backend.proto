@@ -84,8 +84,12 @@ service BackendService {
 
     // searching
 
+    rpc NormalizeSearch (String) returns (String);
     rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
     rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
+    rpc NegateSearch (String) returns (String);
+    rpc ConcatenateSearches (ConcatenateSearchesIn) returns (String);
+    rpc ReplaceSearchTerm (ReplaceSearchTermIn) returns (String);
     rpc FindAndReplace (FindAndReplaceIn) returns (UInt32);
 
     // scheduling
@@ -750,6 +754,20 @@ message BuiltinSearchOrder {
     }
     BuiltinSortKind kind = 1;
     bool reverse = 2;
+}
+
+message ConcatenateSearchesIn {
+    enum Separator {
+        AND = 0;
+        OR = 1;
+    }
+    Separator sep = 1;
+    repeated string searches = 2;
+}
+
+message ReplaceSearchTermIn {
+    string search = 1;
+    string replacement = 2;
 }
 
 message CloseCollectionIn {
