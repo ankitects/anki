@@ -102,8 +102,24 @@ export function buildHistogram(
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
     }
 
+    function makeQuery(
+        data: HistogramData,
+        binIdx: number,
+    ): string {
+        const start = Math.abs(data.bins[binIdx].x0!) + 1;
+        const include = `added:${start}`
+
+        if (start === 1) {
+            return include
+        }
+
+        const end = Math.abs(data.bins[binIdx].x1!) + 1;
+        const exclude = `-added:${end}`
+        return `${include} ${exclude}`
+    }
+
     return [
-        { scale, bins, total: totalInPeriod, hoverText, colourScale, showArea: true },
+        { scale, bins, total: totalInPeriod, hoverText, makeQuery, colourScale, showArea: true },
         tableData,
     ];
 }

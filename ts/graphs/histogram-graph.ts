@@ -25,6 +25,10 @@ export interface HistogramData {
         cumulative: number,
         percent: number
     ) => string;
+    makeQuery?: (
+        data: HistogramData,
+        binIdx: number,
+    ) => string;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
     binValue?: (bin: Bin<any, any>) => number;
@@ -34,7 +38,8 @@ export interface HistogramData {
 export function histogramGraph(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    data: HistogramData | null
+    data: HistogramData | null,
+    dispatch: any,
 ): void {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -152,10 +157,21 @@ export function histogramGraph(
         .attr("y", () => y(yMax!)!)
         .attr("width", barWidth)
         .attr("height", () => y(0)! - y(yMax!)!)
+        .on("mouseover", function (this: any) {
+            this.style = "cursor: pointer;";
+        })
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
             const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;
             showTooltip(data.hoverText(data, idx, areaData[idx + 1], pct), x, y);
         })
-        .on("mouseout", hideTooltip);
+        .on("mouseout", function (this: any) {
+            hideTooltip;
+            this.style = "";
+        })
+        .on('click', function(this: any, d: any, idx: number) {
+            console.log('clicked', this)
+            if (!data.makeQuery) { return }
+            dispatch("search", { query: data.makeQuery(data, idx) })
+        });
 }
