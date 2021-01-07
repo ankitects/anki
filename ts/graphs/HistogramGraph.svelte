@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import { createEventDispatcher } from "svelte";
     import type { HistogramData } from "./histogram-graph";
     import { histogramGraph } from "./histogram-graph";
     import AxisTicks from "./AxisTicks.svelte";
@@ -9,10 +10,12 @@
     export let data: HistogramData | null = null;
     export let i18n: I18n;
 
+    const dispatch = createEventDispatcher();
+
     let bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
 
-    $: histogramGraph(svg as SVGElement, bounds, data);
+    $: histogramGraph(svg as SVGElement, bounds, data, dispatch);
 </script>
 
 <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
