@@ -6,6 +6,7 @@ use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::builtin_search_order::BuiltinSortKind,
+    backend_proto::concatenate_searches_in::Separator as BoolSeparatorProto,
     backend_proto::{
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
     },
@@ -274,13 +275,11 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
-impl From<i32> for BoolSeparator {
-    fn from(sep: i32) -> Self {
-        use pb::concatenate_searches_in::Separator;
-        match Separator::from_i32(sep) {
-            Some(Separator::And) => BoolSeparator::And,
-            Some(Separator::Or) => BoolSeparator::Or,
-            None => BoolSeparator::And,
+impl From<BoolSeparatorProto> for BoolSeparator {
+    fn from(sep: BoolSeparatorProto) -> Self {
+        match sep {
+            BoolSeparatorProto::And => BoolSeparator::And,
+            BoolSeparatorProto::Or => BoolSeparator::Or,
         }
     }
 }
@@ -449,7 +448,13 @@ impl BackendService for Backend {
     }
 
     fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
-        Ok(concatenate_searches(input.sep.into(), &input.searches)?.into())
+        Ok(concatenate_searches(
+            BoolSeparatorProto::from_i32(input.sep)
+                .unwrap_or_default()
+                .into(),
+            &input.searches,
+        )?
+        .into())
     }
 
     fn replace_search_term(&self, input: pb::ReplaceSearchTermIn) -> Result<pb::String> {
