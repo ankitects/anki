@@ -14,6 +14,7 @@ from aqt.qt import *
 from aqt.utils import (
     TR,
     askUser,
+    disable_help_button,
     getOnlyText,
     openHelp,
     restoreGeom,
@@ -48,7 +49,7 @@ class DeckConf(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
         gui_hooks.deck_conf_will_show(self)

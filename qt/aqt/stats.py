@@ -12,6 +12,7 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     addCloseShortcut,
+    disable_help_button,
     getSaveFile,
     maybeHideClose,
     restoreGeom,
@@ -34,7 +35,7 @@ class NewDeckStats(QDialog):
         self.oldPos = None
         self.wholeCollection = False
         self.setMinimumWidth(700)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         f = self.form
         f.setupUi(self)
         f.groupBox.setVisible(False)
@@ -105,7 +106,7 @@ class DeckStats(QDialog):
         self.oldPos = None
         self.wholeCollection = False
         self.setMinimumWidth(700)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         f = self.form
         if theme_manager.night_mode and not theme_manager.macos_dark_mode():
             # the grouping box renders incorrectly in the fusion theme. 5.9+

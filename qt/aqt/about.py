@@ -9,7 +9,7 @@ from anki.lang import without_unicode_isolation
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
-from aqt.utils import TR, supportText, tooltip, tr
+from aqt.utils import TR, disable_help_button, supportText, tooltip, tr
 
 
 class ClosableQDialog(QDialog):
@@ -28,7 +28,7 @@ class ClosableQDialog(QDialog):
 
 def show(mw):
     dialog = ClosableQDialog(mw)
-    dialog.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+    disable_help_button(dialog)
     mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)

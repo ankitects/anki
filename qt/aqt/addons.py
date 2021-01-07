@@ -30,6 +30,7 @@ from aqt.qt import *
 from aqt.utils import (
     TR,
     askUser,
+    disable_help_button,
     getFile,
     isWin,
     openFolder,
@@ -705,7 +706,7 @@ class AddonsDialog(QDialog):
         qconnect(self.form.addonList.itemDoubleClicked, self.onConfig)
         qconnect(self.form.addonList.currentRowChanged, self._onAddonItemSelected)
         self.setWindowTitle(tr(TR.ADDONS_WINDOW_TITLE))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
@@ -918,7 +919,7 @@ class GetAddons(QDialog):
             tr(TR.ADDONS_BROWSE_ADDONS), QDialogButtonBox.ActionRole
         )
         qconnect(b.clicked, self.onBrowse)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         restoreGeom(self, "getaddons", adjustSize=True)
         self.exec_()
         saveGeom(self, "getaddons")
@@ -1296,7 +1297,7 @@ class ConfigEditor(QDialog):
                 )
             )
         )
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.show()
 
     def onRestoreDefaults(self) -> None:

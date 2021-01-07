@@ -20,6 +20,7 @@ from aqt.qt import *
 from aqt.utils import (
     TR,
     askUser,
+    disable_help_button,
     getFile,
     getOnlyText,
     openHelp,
@@ -38,7 +39,7 @@ class ChangeMap(QDialog):
         self.model = model
         self.frm = aqt.forms.changemap.Ui_ChangeMap()
         self.frm.setupUi(self)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         n = 0
         setCurrent = False
         for field in self.model["flds"]:
@@ -86,7 +87,7 @@ class ImportDialog(QDialog):
         qconnect(
             self.frm.buttonBox.button(QDialogButtonBox.Help).clicked, self.helpRequested
         )
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()

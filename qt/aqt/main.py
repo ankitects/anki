@@ -50,6 +50,7 @@ from aqt.utils import (
     TR,
     askUser,
     checkInvalidFilename,
+    disable_help_button,
     getFile,
     getOnlyText,
     openHelp,
@@ -1345,7 +1346,7 @@ title="%s" %s>%s</button>""" % (
 
         d = self.debugDiag = DebugDialog()
         d.silentlyClose = True
-        d.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(d)
         frm.setupUi(d)
         restoreGeom(d, "DebugConsoleWindow")
         restoreSplitter(frm.splitter, "DebugConsoleWindow")

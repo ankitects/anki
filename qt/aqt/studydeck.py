@@ -6,6 +6,7 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    disable_help_button,
     getOnlyText,
     openHelp,
     restoreGeom,
@@ -42,7 +43,7 @@ class StudyDeck(QDialog):
         gui_hooks.state_did_reset.append(self.onReset)
         self.geomKey = "studyDeck-" + geomKey
         restoreGeom(self, self.geomKey)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         if not cancel:
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel)

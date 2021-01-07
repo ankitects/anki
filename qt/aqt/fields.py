@@ -9,7 +9,16 @@ from anki.rsbackend import TemplateError
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
-from aqt.utils import TR, askUser, getOnlyText, openHelp, showWarning, tooltip, tr
+from aqt.utils import (
+    TR,
+    askUser,
+    disable_help_button,
+    getOnlyText,
+    openHelp,
+    showWarning,
+    tooltip,
+    tr,
+)
 
 
 class FieldDialog(QDialog):
@@ -27,7 +36,7 @@ class FieldDialog(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
         )
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)

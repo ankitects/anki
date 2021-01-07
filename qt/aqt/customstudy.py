@@ -4,7 +4,7 @@
 import aqt
 from anki.consts import *
 from aqt.qt import *
-from aqt.utils import TR, showInfo, showWarning, tr
+from aqt.utils import TR, disable_help_button, showInfo, showWarning, tr
 
 RADIO_NEW = 1
 RADIO_REV = 2
@@ -28,7 +28,7 @@ class CustomStudy(QDialog):
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
         self.created_custom_study = False
         f.setupUi(self)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
         f.radioNew.click()

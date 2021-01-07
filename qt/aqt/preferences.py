@@ -6,7 +6,15 @@ import aqt
 from aqt import AnkiQt
 from aqt.profiles import RecordingDriver, VideoDriver
 from aqt.qt import *
-from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr
+from aqt.utils import (
+    TR,
+    askUser,
+    disable_help_button,
+    openHelp,
+    showInfo,
+    showWarning,
+    tr,
+)
 
 
 def video_driver_name_for_platform(driver: VideoDriver) -> str:
@@ -31,7 +39,7 @@ class Preferences(QDialog):
         self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("preferences"))

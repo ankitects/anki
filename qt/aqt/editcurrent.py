@@ -5,7 +5,7 @@ import aqt.editor
 from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.utils import TR, restoreGeom, saveGeom, tooltip, tr
+from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, tr
 
 
 class EditCurrent(QDialog):
@@ -16,7 +16,7 @@ class EditCurrent(QDialog):
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(tr(TR.EDITING_EDIT_CURRENT))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(

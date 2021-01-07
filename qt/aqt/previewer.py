@@ -24,7 +24,7 @@ from aqt.qt import (
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import TR, restoreGeom, saveGeom, tr
+from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
 
@@ -43,7 +43,7 @@ class Previewer(QDialog):
         self.mw = mw
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/anki.png"), QIcon.Normal, QIcon.Off)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  # type: ignore
+        disable_help_button(self)
         self.setWindowIcon(icon)
 
     def card(self) -> Optional[Card]:
