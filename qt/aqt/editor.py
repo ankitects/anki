@@ -23,7 +23,7 @@ from anki.cards import Card
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note
-from anki.utils import checksum, isLin, isWin, namedtmp, stripHTMLMedia
+from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *

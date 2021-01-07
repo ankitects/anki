@@ -3,9 +3,7 @@
 
 from __future__ import annotations
 
-import enum
 import io
-import locale
 import pickle
 import random
 import shutil

@@ -21,7 +21,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TR, DeckTreeNode, InvalidInput, pb
+from anki.rsbackend import DeckTreeNode, InvalidInput, pb
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1235,11 +1235,15 @@ QTableView {{ gridline-color: {grid} }}
                     )
                 elif mods & Qt.ControlModifier:
                     txt = self.col.backend.concatenate_searches(
-                        sep=pb.ConcatenateSearchesIn.Separator.AND, searches=[cur, txt]
+                        # pylint: disable=no-member
+                        sep=pb.ConcatenateSearchesIn.Separator.AND,
+                        searches=[cur, txt],
                     )
                 elif mods & Qt.ShiftModifier:
                     txt = self.col.backend.concatenate_searches(
-                        sep=pb.ConcatenateSearchesIn.Separator.OR, searches=[cur, txt]
+                        # pylint: disable=no-member
+                        sep=pb.ConcatenateSearchesIn.Separator.OR,
+                        searches=[cur, txt],
                     )
         except InvalidInput as e:
             showWarning(str(e))
