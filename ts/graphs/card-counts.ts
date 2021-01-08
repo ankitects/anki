@@ -86,50 +86,50 @@ function countCards(
         }
     }
 
-    const extraQuery = separateInactive ? " -(is:buried or is:suspended)" : "";
+    const extraQuery = separateInactive ? 'AND -("is:buried" OR "is:suspended")' : "";
 
     const counts: Count[] = [
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS),
             newCards,
             true,
-            `is:new${extraQuery}`,
+            `"is:new"${extraQuery}`,
         ],
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
             learn,
             true,
-            `(-is:review is:learn)${extraQuery}`,
+            `(-"is:review" AND "is:learn")${extraQuery}`,
         ],
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
             relearn,
             true,
-            `(is:review is:learn)${extraQuery}`,
+            `("is:review" AND "is:learn")${extraQuery}`,
         ],
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
             young,
             true,
-            `(is:review -is:learn) prop:ivl<21${extraQuery}`,
+            `("is:review" AND -"is:learn") AND "prop:ivl<21"${extraQuery}`,
         ],
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
             mature,
             true,
-            `(is:review -is:learn) prop:ivl>=21${extraQuery}`,
+            `("is:review" -"is:learn") AND "prop:ivl>=21"${extraQuery}`,
         ],
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS),
             suspended,
             separateInactive,
-            "is:suspended",
+            '"is:suspended"',
         ],
         [
             i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS),
             buried,
             separateInactive,
-            "is:buried",
+            '"is:buried"',
         ],
     ];
 
