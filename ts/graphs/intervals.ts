@@ -143,13 +143,13 @@ export function prepareIntervalData(
         const end = bin.x1! - 1;
 
         if (start === end) {
-            return `prop:ivl=${start}`
+            return `"prop:ivl=${start}"`
         }
 
-        const fromQuery = `prop:ivl>=${start}`
-        const tillQuery = `prop:ivl<=${end}`
+        const fromQuery = `"prop:ivl>=${start}"`
+        const tillQuery = `"prop:ivl<=${end}"`
 
-        return `${fromQuery} ${tillQuery}`
+        return `${fromQuery} AND ${tillQuery}`
     }
 
     const meanInterval = Math.round(mean(allIntervals) ?? 0);
