@@ -61,6 +61,21 @@ export function prepareData(
         });
     }
 
+    function makeQuery(data: HistogramData, binIdx: number): string {
+        const bin = data.bins[binIdx];
+        const start = bin.x0!;
+        const end = (bin.x1! - 1);
+
+        if (start === end) {
+            return `"prop:ease=${start / 100}"`;
+        }
+
+        const fromQuery = `"prop:ease>=${start / 100}"`;
+        const tillQuery = `"prop:ease<${end / 100}"`;
+
+        return `${fromQuery} AND ${tillQuery}`;
+    }
+
     const xTickFormat = (num: number): string => `${num.toFixed(0)}%`;
     const tableData = [
         {
@@ -70,7 +85,7 @@ export function prepareData(
     ];
 
     return [
-        { scale, bins, total, hoverText, colourScale, showArea: false, xTickFormat },
+        { scale, bins, total, hoverText, makeQuery, colourScale, showArea: false, xTickFormat },
         tableData,
     ];
 }

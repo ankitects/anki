@@ -26,7 +26,7 @@
 
     <div class="subtitle">{subtitle}</div>
 
-    <HistogramGraph data={histogramData} {i18n} />
+    <HistogramGraph data={histogramData} {i18n} on:search />
 
     <TableData {i18n} {tableData} />
 </div>
