@@ -138,20 +138,18 @@ export function prepareIntervalData(
         data: HistogramData,
         binIdx: number,
     ): string {
-        const onlyReview = "-(is:new or is:learn or is:suspended or is:buried)"
-
         const bin = data.bins[binIdx];
         const start = bin.x0!;
         const end = bin.x1! - 1;
 
         if (start === end) {
-            return `prop:ivl=${start} ${onlyReview}`
+            return `prop:ivl=${start}`
         }
 
         const fromQuery = `prop:ivl>=${start}`
         const tillQuery = `prop:ivl<=${end}`
 
-        return `${fromQuery} ${tillQuery} ${onlyReview}`
+        return `${fromQuery} ${tillQuery}`
     }
 
     const meanInterval = Math.round(mean(allIntervals) ?? 0);
