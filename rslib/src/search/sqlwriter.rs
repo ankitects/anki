@@ -272,6 +272,9 @@ impl SqlWriter<'_> {
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32)
             }
+            PropertyKind::Rated(days, ease) => {
+                write!(self.sql, "")
+            }
         }
         .unwrap();
         Ok(())
