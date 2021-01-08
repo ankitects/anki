@@ -201,16 +201,11 @@ class ButtonedDialog(QMessageBox):
         self.help = help
         self.setIcon(QMessageBox.Warning)
         self.setText(text)
-        # v = QVBoxLayout()
-        # v.addWidget(QLabel(text))
-        # box = QDialogButtonBox()
-        # v.addWidget(box)
         for b in buttons:
             self._buttons.append(self.addButton(b, QMessageBox.AcceptRole))
         if help:
             self.addButton(tr(TR.ACTIONS_HELP), QMessageBox.HelpRole)
             buttons.append(tr(TR.ACTIONS_HELP))
-        # self.setLayout(v)
 
     def run(self):
         self.exec_()
