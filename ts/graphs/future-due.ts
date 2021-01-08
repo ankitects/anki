@@ -145,6 +145,24 @@ export function buildHistogram(
         return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
     }
 
+    function makeQuery(
+        data: HistogramData,
+        binIdx: number,
+    ): string {
+        const bin = data.bins[binIdx];
+        const start = bin.x0!;
+        const end = bin.x1! - 1;
+
+        if (start === end) {
+            return `"prop:due=${start}"`
+        }
+
+        const fromQuery = `"prop:due>=${start}"`
+        const tillQuery = `"prop:due<=${end}"`
+
+        return `${fromQuery} AND ${tillQuery}`
+    }
+
     const periodDays = xMax! - xMin!;
     const tableData = [
         {
@@ -171,6 +189,7 @@ export function buildHistogram(
             bins,
             total,
             hoverText,
+            makeQuery,
             showArea: true,
             colourScale,
             binValue,
