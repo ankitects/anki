@@ -33,6 +33,7 @@ use crate::{
         RenderCardOutput,
     },
     sched::cutoff::local_minutes_west_for_stamp,
+    sched::new::NewCardSortOrder,
     sched::timespan::{answer_button_time, time_span},
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, BoolSeparator,
@@ -597,8 +598,13 @@ impl BackendService for Backend {
             input.randomize,
             input.shift_existing,
         );
+        let order = if random {
+            NewCardSortOrder::Random
+        } else {
+            NewCardSortOrder::Preserve
+        };
         self.with_col(|col| {
-            col.sort_cards(&cids, start, step, random, shift)
+            col.sort_cards(&cids, start, step, order, shift)
                 .map(Into::into)
         })
     }
