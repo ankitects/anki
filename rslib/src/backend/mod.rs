@@ -5,10 +5,11 @@ pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
-    backend_proto::builtin_search_order::BuiltinSortKind as SortKindProto,
-    backend_proto::concatenate_searches_in::Separator as BoolSeparatorProto,
     backend_proto::{
-        AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
+        builtin_search_order::BuiltinSortKind as SortKindProto,
+        concatenate_searches_in::Separator as BoolSeparatorProto,
+        sort_order::Value as SortOrderProto, AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty,
+        RenderedTemplateReplacement,
     },
     card::{Card, CardID},
     card::{CardQueue, CardType},
@@ -412,21 +413,7 @@ impl BackendService for Backend {
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
-            let order = if let Some(order) = input.order {
-                use pb::sort_order::Value as V;
-                match order.value {
-                    Some(V::None(_)) => SortMode::NoOrder,
-                    Some(V::Custom(s)) => SortMode::Custom(s),
-                    Some(V::FromConfig(_)) => SortMode::FromConfig,
-                    Some(V::Builtin(b)) => SortMode::Builtin {
-                        kind: SortKindProto::from_i32(b.kind).unwrap_or_default().into(),
-                        reverse: b.reverse,
-                    },
-                    None => SortMode::FromConfig,
-                }
-            } else {
-                SortMode::FromConfig
-            };
+            let order = input.order.unwrap_or_default().value.into();
             let cids = col.search_cards(&input.search, order)?;
             Ok(pb::SearchCardsOut {
                 card_ids: cids.into_iter().map(|v| v.0).collect(),
@@ -448,13 +435,7 @@ impl BackendService for Backend {
     }
 
     fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
-        Ok(concatenate_searches(
-            BoolSeparatorProto::from_i32(input.sep)
-                .unwrap_or_default()
-                .into(),
-            &input.searches,
-        )?
-        .into())
+        Ok(concatenate_searches(input.sep().into(), &input.searches)?.into())
     }
 
     fn replace_search_term(&self, input: pb::ReplaceSearchTermIn) -> Result<pb::String> {
@@ -1280,18 +1261,11 @@ impl BackendService for Backend {
     }
 
     fn format_timespan(&self, input: pb::FormatTimespanIn) -> BackendResult<pb::String> {
-        let context = match pb::format_timespan_in::Context::from_i32(input.context) {
-            Some(context) => context,
-            None => return Ok("".to_string().into()),
-        };
-        Ok(match context {
-            pb::format_timespan_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
-            pb::format_timespan_in::Context::Intervals => {
-                time_span(input.seconds, &self.i18n, false)
-            }
-            pb::format_timespan_in::Context::AnswerButtons => {
-                answer_button_time(input.seconds, &self.i18n)
-            }
+        use pb::format_timespan_in::Context;
+        Ok(match input.context() {
+            Context::Precise => time_span(input.seconds, &self.i18n, true),
+            Context::Intervals => time_span(input.seconds, &self.i18n, false),
+            Context::AnswerButtons => answer_button_time(input.seconds, &self.i18n),
         }
         .into())
     }
@@ -1850,6 +1824,21 @@ impl From<SortKindProto> for SortKind {
             SortKindProto::CardInterval => SortKind::CardInterval,
             SortKindProto::CardDeck => SortKind::CardDeck,
             SortKindProto::CardTemplate => SortKind::CardTemplate,
+        }
+    }
+}
+
+impl From<Option<SortOrderProto>> for SortMode {
+    fn from(order: Option<SortOrderProto>) -> Self {
+        use pb::sort_order::Value as V;
+        match order.unwrap_or(V::FromConfig(pb::Empty {})) {
+            V::None(_) => SortMode::NoOrder,
+            V::Custom(s) => SortMode::Custom(s),
+            V::FromConfig(_) => SortMode::FromConfig,
+            V::Builtin(b) => SortMode::Builtin {
+                kind: b.kind().into(),
+                reverse: b.reverse,
+            },
         }
     }
 }
