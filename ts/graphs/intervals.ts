@@ -134,22 +134,19 @@ export function prepareIntervalData(
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
-    function makeQuery(
-        data: HistogramData,
-        binIdx: number,
-    ): string {
+    function makeQuery(data: HistogramData, binIdx: number): string {
         const bin = data.bins[binIdx];
         const start = bin.x0!;
         const end = bin.x1! - 1;
 
         if (start === end) {
-            return `"prop:ivl=${start}"`
+            return `"prop:ivl=${start}"`;
         }
 
-        const fromQuery = `"prop:ivl>=${start}"`
-        const tillQuery = `"prop:ivl<=${end}"`
+        const fromQuery = `"prop:ivl>=${start}"`;
+        const tillQuery = `"prop:ivl<=${end}"`;
 
-        return `${fromQuery} AND ${tillQuery}`
+        return `${fromQuery} AND ${tillQuery}`;
     }
 
     const meanInterval = Math.round(mean(allIntervals) ?? 0);
@@ -161,7 +158,15 @@ export function prepareIntervalData(
         },
     ];
     return [
-        { scale, bins, total: totalInPeriod, hoverText, makeQuery, colourScale, showArea: true },
+        {
+            scale,
+            bins,
+            total: totalInPeriod,
+            hoverText,
+            makeQuery,
+            colourScale,
+            showArea: true,
+        },
         tableData,
     ];
 }

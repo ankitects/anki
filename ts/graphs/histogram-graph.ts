@@ -25,10 +25,7 @@ export interface HistogramData {
         cumulative: number,
         percent: number
     ) => string;
-    makeQuery?: (
-        data: HistogramData,
-        binIdx: number,
-    ) => string;
+    makeQuery?: (data: HistogramData, binIdx: number) => string;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
     binValue?: (bin: Bin<any, any>) => number;
@@ -39,7 +36,7 @@ export function histogramGraph(
     svgElem: SVGElement,
     bounds: GraphBounds,
     data: HistogramData | null,
-    dispatch: any,
+    dispatch: any
 ): void {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -149,7 +146,8 @@ export function histogramGraph(
     }
 
     // hover/tooltip
-    const hoverzone = svg.select("g.hoverzone")
+    const hoverzone = svg
+        .select("g.hoverzone")
         .selectAll("rect")
         .data(data.bins)
         .join("rect")
@@ -168,7 +166,7 @@ export function histogramGraph(
         hoverzone
             .attr("class", "clickable")
             .on("click", function (this: any, _d: any, idx: number) {
-                dispatch("search", { query: data.makeQuery!(data, idx) })
+                dispatch("search", { query: data.makeQuery!(data, idx) });
             });
     }
 }
