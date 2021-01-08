@@ -87,6 +87,7 @@ pub enum PropertyKind {
     Lapses(u32),
     Ease(f32),
     Position(u32),
+    Rated(u32, Option<u8>),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -369,6 +370,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("lapses"),
         tag("ease"),
         tag("pos"),
+        tag("rated"),
     ))(s)
     .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty(s.into())))?;
 
@@ -394,6 +396,49 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
     } else if prop == "due" {
         if let Ok(i) = num.parse::<i32>() {
             PropertyKind::Due(i)
+        } else {
+            return Err(parse_failure(
+                s,
+                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+            ));
+        }
+    } else if key == "rated" {
+        let mut it = num.splitn(2, ':');
+
+        let days: i32 = if let Ok(i) = it.next().unwrap().parse::<i32>() {
+            i
+        } else {
+            return Err(parse_failure(
+                s,
+                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+            ));
+        }
+
+        let ease = match it.next() {
+            Some(v) => {
+                let n: u8 = if let Ok(i) = v.parse() {
+                    if (1..5).contains(i) {
+                        EaseKind::AnswerButton(i)
+                    } else {
+                        return Err(parse_failure(
+                            s,
+                            FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+                        ));
+                    }
+                } else {
+                    return Err(parse_failure(
+                        s,
+                        FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+                    ));
+                }
+            }
+            None => EaseKind::AnyAnswerButton,
+        }
+
+        PropertyKind::Rated(days, ease)
+    } else if key == "resched" {
+        if let Ok(days) = num.parse::<i32>() {
+            PropertyKind::Rated(days, EaseKind::ManualReschedule)
         } else {
             return Err(parse_failure(
                 s,

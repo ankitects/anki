@@ -195,6 +195,10 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Lapses(u) => format!("\"prop:lapses{}{}\"", operator, u),
         Ease(f) => format!("\"prop:ease{}{}\"", operator, f),
         Position(u) => format!("\"prop:pos{}{}\"", operator, u),
+        Rated(u, ease) => match ease {
+            Some(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
+            None => format!("\"prop:rated{}{}\"", operator, u),
+        }
     }
 }
 
