@@ -9,7 +9,7 @@
 import type pb from "anki/backend_proto";
 import { extent, histogram, sum } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
-import { CardQueue } from "anki/cards";
+import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import { interpolateRdYlGn } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
@@ -21,7 +21,7 @@ export interface GraphData {
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const eases = (data.cards as pb.BackendProto.Card[])
-        .filter((c) => c.queue == CardQueue.Review)
+        .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
         .map((c) => c.easeFactor / 10);
     return { eases };
 }
