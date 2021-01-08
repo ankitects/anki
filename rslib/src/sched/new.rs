@@ -4,7 +4,6 @@
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
-    deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
     decks::DeckID,
     err::Result,
     notes::NoteID,
