@@ -21,11 +21,7 @@ impl Card {
         self.ctype = CardType::New;
         self.queue = CardQueue::New;
         self.interval = 0;
-        if self.ease_factor == 0 {
-            // unlike the old Python code, we leave the ease factor alone
-            // if it's already set
-            self.ease_factor = INITIAL_EASE_FACTOR_THOUSANDS;
-        }
+        self.ease_factor = 0;
     }
 
     /// If the card is new, change its position.
