@@ -92,10 +92,10 @@ export function prepareIntervalData(
     xMax = xMax! + 1;
 
     // do not show the zero interval
-    const increment = (x: number) => x + 1;
+    const increment = (x: number): number => x + 1;
 
-    const adjustTicks = (x: number, idx: number, ticks: number[]) =>
-        idx === ticks.length - 1 ? [x - (ticks[0] - 1), x + 1] : x - (ticks[0] - 1);
+    const adjustTicks = (x: number, idx: number, ticks: number[]): number[] =>
+        idx === ticks.length - 1 ? [x - (ticks[0] - 1), x + 1] : [x - (ticks[0] - 1)];
 
     // cap bars to available range
     const desiredBars = Math.min(70, xMax! - xMin!);
