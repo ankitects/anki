@@ -108,9 +108,7 @@ export function prepareIntervalData(
 
     const bins = histogram()
         .domain(scale.domain() as [number, number])
-        .thresholds((scale.ticks(desiredBars) as any).flatMap(adjustTicks))(
-        allIntervals
-    );
+        .thresholds(scale.ticks(desiredBars).flatMap(adjustTicks))(allIntervals);
 
     // empty graph?
     const totalInPeriod = sum(bins, (bin) => bin.length);
