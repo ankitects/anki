@@ -235,16 +235,25 @@ impl SqlWriter<'_> {
 
     fn write_prop(&mut self, op: &str, kind: &PropertyKind) -> Result<()> {
         let timing = self.col.timing_today()?;
+
         match kind {
             PropertyKind::Due(days) => {
                 let day = days + (timing.days_elapsed as i32);
                 write!(
                     self.sql,
-                    "(c.queue in ({rev},{daylrn}) and due {op} {day})",
+                    // SQL does integer division if both parameters are integers
+                    "(\
+                    (c.queue in ({rev},{daylrn}) and c.due {op} {day}) or \
+                    (c.queue in ({lrn},{previewrepeat}) and ((c.due - {cutoff}) / 86400) {op} {days})\
+                    )",
                     rev = CardQueue::Review as u8,
                     daylrn = CardQueue::DayLearn as u8,
                     op = op,
-                    day = day
+                    day = day,
+                    lrn = CardQueue::Learn as i8,
+                    previewrepeat = CardQueue::PreviewRepeat as i8,
+                    cutoff = timing.next_day_at,
+                    days = days
                 )
             }
             PropertyKind::Position(pos) => {
@@ -292,14 +301,15 @@ impl SqlWriter<'_> {
             StateKind::Suspended => write!(self.sql, "c.queue = {}", CardQueue::Suspended as i8),
             StateKind::Due => write!(
                 self.sql,
-                "(
-    (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
-    (c.queue = {lrn} and c.due <= {learncutoff})
-    )",
+                "(\
+                (c.queue in ({rev},{daylrn}) and c.due <= {today}) or \
+                (c.queue in ({lrn},{previewrepeat}) and c.due <= {learncutoff})\
+                )",
                 rev = CardQueue::Review as i8,
                 daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
                 lrn = CardQueue::Learn as i8,
+                previewrepeat = CardQueue::PreviewRepeat as i8,
                 learncutoff = TimestampSecs::now().0 + (self.col.learn_ahead_secs() as i64),
             ),
             StateKind::UserBuried => write!(self.sql, "c.queue = {}", CardQueue::UserBuried as i8),
@@ -725,8 +735,9 @@ mod test {
         assert_eq!(
             s(ctx, "prop:due!=-1").0,
             format!(
-                "((c.queue in (2,3) and due != {}))",
-                timing.days_elapsed - 1
+                "(((c.queue in (2,3) and c.due != {days}) or (c.queue in (1,4) and ((c.due - {cutoff}) / 86400) != -1)))",
+                days = timing.days_elapsed - 1,
+                cutoff = timing.next_day_at
             )
         );
 
