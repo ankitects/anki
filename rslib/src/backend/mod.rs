@@ -279,40 +279,51 @@ impl From<pb::DeckConfigId> for DeckConfID {
 
 impl From<pb::FilterToSearchIn> for Node<'_> {
     fn from(msg: pb::FilterToSearchIn) -> Self {
-        use pb::filter_to_search_in::Filter as F;
-        use pb::filter_to_search_in::NamedFilter as NF;
-        use Node as N;
-        use SearchNode as SN;
-        match msg.filter.unwrap_or(F::Name(NF::WholeCollection as i32)) {
-            F::Name(name) => match NF::from_i32(name).unwrap_or(NF::WholeCollection) {
-                NF::WholeCollection => N::Search(SN::WholeCollection),
-                NF::CurrentDeck => N::Search(SN::Deck("current".into())),
-                NF::AddedToday => N::Search(SN::AddedInDays(1)),
-                NF::StudiedToday => N::Search(SN::Rated {
-                    days: 1,
-                    ease: None,
-                }),
-                NF::AgainToday => N::Search(SN::Rated {
-                    days: 1,
-                    ease: Some(1),
-                }),
-                NF::New => N::Search(SN::State(StateKind::New)),
-                NF::Learn => N::Search(SN::State(StateKind::Learning)),
-                NF::Review => N::Search(SN::State(StateKind::Review)),
-                NF::Due => N::Search(SN::State(StateKind::Due)),
-                NF::Suspended => N::Search(SN::State(StateKind::Suspended)),
-                NF::Buried => N::Search(SN::State(StateKind::Buried)),
-                NF::RedFlag => N::Search(SN::Flag(1)),
-                NF::OrangeFlag => N::Search(SN::Flag(2)),
-                NF::GreenFlag => N::Search(SN::Flag(3)),
-                NF::BlueFlag => N::Search(SN::Flag(4)),
-                NF::NoFlag => N::Search(SN::Flag(0)),
-                NF::AnyFlag => N::Not(Box::new(N::Search(SN::Flag(0)))),
-            },
-            F::Tag(s) => N::Search(SN::Tag(escape_anki_wildcards(&s).into_owned().into())),
-            F::Deck(s) => N::Search(SN::Deck(escape_anki_wildcards(&s).into_owned().into())),
-            F::Note(s) => N::Search(SN::NoteType(escape_anki_wildcards(&s).into_owned().into())),
-            F::Template(u) => N::Search(SN::CardTemplate(TemplateKind::Ordinal(u as u16))),
+        use pb::filter_to_search_in::Filter;
+        use pb::filter_to_search_in::NamedFilter;
+        match msg
+            .filter
+            .unwrap_or(Filter::Name(NamedFilter::WholeCollection as i32))
+        {
+            Filter::Name(name) => {
+                match NamedFilter::from_i32(name).unwrap_or(NamedFilter::WholeCollection) {
+                    NamedFilter::WholeCollection => Node::Search(SearchNode::WholeCollection),
+                    NamedFilter::CurrentDeck => Node::Search(SearchNode::Deck("current".into())),
+                    NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
+                    NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
+                        days: 1,
+                        ease: None,
+                    }),
+                    NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
+                        days: 1,
+                        ease: Some(1),
+                    }),
+                    NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
+                    NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),
+                    NamedFilter::Review => Node::Search(SearchNode::State(StateKind::Review)),
+                    NamedFilter::Due => Node::Search(SearchNode::State(StateKind::Due)),
+                    NamedFilter::Suspended => Node::Search(SearchNode::State(StateKind::Suspended)),
+                    NamedFilter::Buried => Node::Search(SearchNode::State(StateKind::Buried)),
+                    NamedFilter::RedFlag => Node::Search(SearchNode::Flag(1)),
+                    NamedFilter::OrangeFlag => Node::Search(SearchNode::Flag(2)),
+                    NamedFilter::GreenFlag => Node::Search(SearchNode::Flag(3)),
+                    NamedFilter::BlueFlag => Node::Search(SearchNode::Flag(4)),
+                    NamedFilter::NoFlag => Node::Search(SearchNode::Flag(0)),
+                    NamedFilter::AnyFlag => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
+                }
+            }
+            Filter::Tag(s) => Node::Search(SearchNode::Tag(
+                escape_anki_wildcards(&s).into_owned().into(),
+            )),
+            Filter::Deck(s) => Node::Search(SearchNode::Deck(
+                escape_anki_wildcards(&s).into_owned().into(),
+            )),
+            Filter::Note(s) => Node::Search(SearchNode::NoteType(
+                escape_anki_wildcards(&s).into_owned().into(),
+            )),
+            Filter::Template(u) => {
+                Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
+            }
         }
     }
 }
