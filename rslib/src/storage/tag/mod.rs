@@ -171,17 +171,8 @@ impl SqliteStorage {
                 })
             })?
             .collect::<Result<Vec<Tag>>>()?;
-        self.db.execute_batch(
-            "
-        drop table tags;
-        create table tags (
-          id integer primary key not null,
-          name text not null collate unicase,
-          usn integer not null,
-          config blob not null
-        );
-        ",
-        )?;
+        self.db
+            .execute_batch(include_str!["../upgrades/schema17_upgrade.sql"])?;
         tags.into_iter().try_for_each(|mut tag| -> Result<()> {
             tag.name = human_tag_name_to_native(&tag.name);
             self.register_tag(&mut tag)
