@@ -1,6 +1,5 @@
-update cards
-set
-  nid = ?,
+UPDATE cards
+SET nid = ?,
   did = ?,
   ord = ?,
   mod = ?,
@@ -17,5 +16,4 @@ set
   odid = ?,
   flags = ?,
   data = ?
-where
-  id = ?
+WHERE id = ?

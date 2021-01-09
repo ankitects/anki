@@ -3,7 +3,7 @@
     "compilerOptions": {
         "target": "es6",
         "module": "es6",
-        "lib": ["es2016", "dom"],
+        "lib": ["es2016", "es2019.array", "dom"],
         "baseUrl": ".",
         "paths": {
             "anki/*": ["../bazel-bin/ts/lib/*"]
@@ -24,7 +24,7 @@
         "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
         "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
         "jsx": "react",
-        "types": ["svelte", "long"],
+        "types": ["svelte", "long", "node"],
         "noEmitHelpers": true,
         "importHelpers": true
     }

@@ -1,45 +1,43 @@
-create table fields (
-  ntid integer not null,
-  ord integer not null,
-  name text not null collate unicase,
-  config blob not null,
-  primary key (ntid, ord)
+CREATE TABLE FIELDS (
+  ntid integer NOT NULL,
+  ord integer NOT NULL,
+  name text NOT NULL COLLATE unicase,
+  config blob NOT NULL,
+  PRIMARY KEY (ntid, ord)
 ) without rowid;
-create unique index idx_fields_name_ntid on fields (name, ntid);
-create table templates (
-  ntid integer not null,
-  ord integer not null,
-  name text not null collate unicase,
-  mtime_secs integer not null,
-  usn integer not null,
-  config blob not null,
-  primary key (ntid, ord)
+CREATE UNIQUE INDEX idx_fields_name_ntid ON FIELDS (name, ntid);
+CREATE TABLE templates (
+  ntid integer NOT NULL,
+  ord integer NOT NULL,
+  name text NOT NULL COLLATE unicase,
+  mtime_secs integer NOT NULL,
+  usn integer NOT NULL,
+  config blob NOT NULL,
+  PRIMARY KEY (ntid, ord)
 ) without rowid;
-create unique index idx_templates_name_ntid on templates (name, ntid);
-create index idx_templates_usn on templates (usn);
-create table notetypes (
-  id integer not null primary key,
-  name text not null collate unicase,
-  mtime_secs integer not null,
-  usn integer not null,
-  config blob not null
+CREATE UNIQUE INDEX idx_templates_name_ntid ON templates (name, ntid);
+CREATE INDEX idx_templates_usn ON templates (usn);
+CREATE TABLE notetypes (
+  id integer NOT NULL PRIMARY KEY,
+  name text NOT NULL COLLATE unicase,
+  mtime_secs integer NOT NULL,
+  usn integer NOT NULL,
+  config blob NOT NULL
 );
-create unique index idx_notetypes_name on notetypes (name);
-create index idx_notetypes_usn on notetypes (usn);
-create table decks (
-  id integer primary key not null,
-  name text not null collate unicase,
-  mtime_secs integer not null,
-  usn integer not null,
-  common blob not null,
-  kind blob not null
+CREATE UNIQUE INDEX idx_notetypes_name ON notetypes (name);
+CREATE INDEX idx_notetypes_usn ON notetypes (usn);
+CREATE TABLE decks (
+  id integer PRIMARY KEY NOT NULL,
+  name text NOT NULL COLLATE unicase,
+  mtime_secs integer NOT NULL,
+  usn integer NOT NULL,
+  common blob NOT NULL,
+  kind blob NOT NULL
 );
-create unique index idx_decks_name on decks (name);
-create index idx_notes_mid on notes (mid);
-create index idx_cards_odid on cards (odid)
-where
-  odid != 0;
-update col
-set
-  ver = 15;
-analyze;
+CREATE UNIQUE INDEX idx_decks_name ON decks (name);
+CREATE INDEX idx_notes_mid ON notes (mid);
+CREATE INDEX idx_cards_odid ON cards (odid)
+WHERE odid != 0;
+UPDATE col
+SET ver = 15;
+ANALYZE;

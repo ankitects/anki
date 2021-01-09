@@ -1,9 +1,7 @@
-select
-  id
-from cards
-where
-  did = ?1
-  or (
+SELECT id
+FROM cards
+WHERE did = ?1
+  OR (
     odid != 0
-    and odid = ?1
+    AND odid = ?1
   )

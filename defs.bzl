@@ -4,6 +4,7 @@ load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
 load("@net_ankiweb_anki//cargo:crates.bzl", "raze_fetch_remote_crates")
 load(":python.bzl", "setup_local_python")
 load(":protobuf.bzl", "setup_protobuf_binary")
+load("//rslib:clang_format.bzl", "setup_clang_format")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
@@ -27,6 +28,8 @@ def setup_deps():
     setup_local_python(name = "python")
 
     setup_protobuf_binary(name = "com_google_protobuf")
+
+    setup_clang_format(name = "clang_format")
 
     native.register_toolchains("@python//:python3_toolchain")
 

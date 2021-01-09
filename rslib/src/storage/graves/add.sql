@@ -1,4 +1,3 @@
-insert
-  or ignore into graves (usn, oid, type)
-values
-  (?, ?, ?)
+INSERT
+  OR IGNORE INTO graves (usn, oid, type)
+VALUES (?, ?, ?)

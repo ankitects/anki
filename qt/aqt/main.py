@@ -270,7 +270,6 @@ class AnkiQt(QMainWindow):
             # called on .clear()
             return
         name = self.pm.profiles()[n]
-        f = self.profileForm
         self.pm.load(name)
 
     def openProfile(self):

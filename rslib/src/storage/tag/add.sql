@@ -1,4 +1,3 @@
-insert
-  or ignore into tags (tag, usn)
-values
-  (?, ?)
+INSERT
+  OR IGNORE INTO tags (tag, usn)
+VALUES (?, ?)

@@ -71,7 +71,6 @@ class TagLimit(QDialog):
 
     def accept(self):
         self.hide()
-        n = 0
         # gather yes/no tags
         yes = []
         no = []

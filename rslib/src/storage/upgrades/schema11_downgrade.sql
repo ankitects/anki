@@ -1,12 +1,11 @@
-drop table config;
-drop table deck_config;
-drop table tags;
-drop table fields;
-drop table templates;
-drop table notetypes;
-drop table decks;
-drop index idx_cards_odid;
-drop index idx_notes_mid;
-update col
-set
-  ver = 11;
+DROP TABLE config;
+DROP TABLE deck_config;
+DROP TABLE tags;
+DROP TABLE FIELDS;
+DROP TABLE templates;
+DROP TABLE notetypes;
+DROP TABLE decks;
+DROP INDEX idx_cards_odid;
+DROP INDEX idx_notes_mid;
+UPDATE col
+SET ver = 11;

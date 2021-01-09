@@ -1,5 +1,5 @@
-insert
-  or replace into notes (
+INSERT
+  OR REPLACE INTO notes (
     id,
     guid,
     mid,
@@ -12,8 +12,7 @@ insert
     flags,
     data
   )
-values
-  (
+VALUES (
     ?,
     ?,
     ?,

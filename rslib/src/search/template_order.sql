@@ -1,14 +1,12 @@
-drop table if exists sort_order;
-create temporary table sort_order (
-  pos integer primary key,
-  ntid integer not null,
-  ord integer not null,
-  unique(ntid, ord)
+DROP TABLE IF EXISTS sort_order;
+CREATE TEMPORARY TABLE sort_order (
+  pos integer PRIMARY KEY,
+  ntid integer NOT NULL,
+  ord integer NOT NULL,
+  UNIQUE(ntid, ord)
 );
-insert into sort_order (ntid, ord)
-select
-  ntid,
+INSERT INTO sort_order (ntid, ord)
+SELECT ntid,
   ord
-from templates
-order by
-  name
+FROM templates
+ORDER BY name
