@@ -80,10 +80,9 @@ class TagManager:
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
-    def toggle_browser_collapse(self, name: str):
-        tag = self.col.backend.get_tag(name)
-        tag.config.browser_collapsed = not tag.config.browser_collapsed
-        self.col.backend.update_tag(tag)
+    def set_collapsed(self, tag: str, collapsed: bool):
+        "Set browser collapse state for tag, registering the tag if missing."
+        self.col.backend.set_tag_collapsed(name=tag, collapsed=collapsed)
 
     # Bulk addition/removal from notes
     #############################################################

@@ -232,11 +232,11 @@ impl Collection {
                 usn,
                 ..Default::default()
             })?;
-            if t.0.is_empty() {
+            if t.0.name.is_empty() {
                 continue;
             }
             added |= t.1;
-            seen.insert(UniCase::new(t.0));
+            seen.insert(UniCase::new(t.0.name));
         }
 
         // exit early if no non-empty tags
@@ -247,28 +247,27 @@ impl Collection {
         // return the sorted, canonified tags
         let mut tags = seen.into_iter().collect::<Vec<_>>();
         tags.sort_unstable();
-        let tags: Vec<_> = tags
-            .into_iter()
-            .map(|s| s.into_inner().to_string())
-            .collect();
+        let tags: Vec<_> = tags.into_iter().map(|s| s.into_inner()).collect();
 
         Ok((tags, added))
     }
 
-    pub(crate) fn register_tag<'a>(&self, tag: Tag) -> Result<(Cow<'a, str>, bool)> {
+    pub(crate) fn register_tag(&self, tag: Tag) -> Result<(Tag, bool)> {
         let native_name = human_tag_name_to_native(&tag.name);
+        let mut t = Tag {
+            name: native_name.clone(),
+            ..tag
+        };
         if native_name.is_empty() {
-            return Ok(("".into(), false));
+            return Ok((t, false));
         }
         if let Some(preferred) = self.storage.preferred_tag_case(&native_name)? {
-            Ok((native_tag_name_to_human(&preferred).into(), false))
+            t.name = native_tag_name_to_human(&preferred);
+            Ok((t, false))
         } else {
-            let mut t = Tag {
-                name: native_name.clone(),
-                ..tag
-            };
             self.storage.register_tag(&mut t)?;
-            Ok((native_tag_name_to_human(&native_name).into(), true))
+            t.name = native_tag_name_to_human(&t.name);
+            Ok((t, true))
         }
     }
 
