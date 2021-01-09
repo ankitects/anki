@@ -213,7 +213,7 @@ impl Collection {
     }
 
     pub fn tag_tree(&mut self) -> Result<TagTreeNode> {
-        let tags = self.all_tags()?;
+        let tags = self.storage.all_tags_sorted()?;
         let tree = tags_to_tree(tags);
 
         Ok(tree)

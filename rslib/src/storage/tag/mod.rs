@@ -30,6 +30,18 @@ impl SqliteStorage {
             .collect()
     }
 
+    /// Get all tags in human form, sorted by name
+    pub(crate) fn all_tags_sorted(&self) -> Result<Vec<Tag>> {
+        self.db
+            .prepare_cached("select id, name, usn, config from tags order by name")?
+            .query_and_then(NO_PARAMS, |row| {
+                let mut tag = row_to_tag(row)?;
+                tag.name = native_tag_name_to_human(&tag.name);
+                Ok(tag)
+            })?
+            .collect()
+    }
+
     /// Get tag by human name
     pub(crate) fn get_tag(&self, name: &str) -> Result<Option<Tag>> {
         self.db
