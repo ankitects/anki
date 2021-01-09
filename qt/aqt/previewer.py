@@ -307,7 +307,6 @@ class BrowserPreviewer(MultiCardPreviewer):
 
     def _on_finished(self, ok):
         super()._on_finished(ok)
-        self._parent.form.previewButton.setChecked(False)
 
     def _on_prev_card(self):
         self._parent.editor.saveNow(
