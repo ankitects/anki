@@ -212,7 +212,7 @@ service BackendService {
 
     rpc RegisterTags (RegisterTagsIn) returns (Bool);
     rpc AllTags (Empty) returns (AllTagsOut);
-    rpc GetTag (TagID) returns (Tag);
+    rpc GetTag (String) returns (Tag);
     rpc UpdateTag (Tag) returns (Bool);
     rpc ClearTag (String) returns (Bool);
     rpc TagTree (Empty) returns (TagTreeNode);
