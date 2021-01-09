@@ -879,8 +879,10 @@ QTableView {{ gridline-color: {grid} }}
                 lambda _editor: self.onTogglePreview(),
                 "Preview Selected Card",
                 "Preview",
+                id="previewButton",
                 disables=False,
                 rightside=False,
+                toggleable=True,
             ))
 
         gui_hooks.editor_did_init_left_buttons.append(add_preview_button)
@@ -1579,6 +1581,7 @@ where id in %s"""
             self._previewer.close()
 
     def _on_preview_closed(self):
+        self.editor.web.eval("$('#previewButton').removeClass('highlighted')")
         self._previewer = None
 
     # Card deletion

@@ -73,7 +73,13 @@ button.linkb:disabled {
 }
 
 button.highlighted {
-    border-bottom: 3px solid #000;
+    #topbutsleft & {
+        box-shadow: inset 0px 0px 5px #222;
+    }
+
+    #topbutsright & {
+        border-bottom: 3px solid #000;
+    }
 }
 
 #fields {
