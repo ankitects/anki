@@ -622,12 +622,6 @@ class Browser(QMainWindow):
         # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
-        qconnect(f.previewButton.clicked, self.onTogglePreview)
-        f.previewButton.setToolTip(
-            tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val=shortcut("Ctrl+Shift+P"))
-        )
-        f.previewButton.setShortcut("Ctrl+Shift+P")
-
         qconnect(f.filter.clicked, self.onFilterButton)
         # edit
         qconnect(f.actionUndo.triggered, self.mw.onUndo)
@@ -877,8 +871,8 @@ QTableView {{ gridline-color: {grid} }}
                 None,
                 "preview",
                 lambda _editor: self.onTogglePreview(),
-                "Preview Selected Card",
-                "Preview",
+                tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val=shortcut("Ctrl+Shift+P")),
+                tr(TR.ACTIONS_PREVIEW),
                 id="previewButton",
                 disables=False,
                 rightside=False,
