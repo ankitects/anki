@@ -13,7 +13,6 @@ def sql_format_setup():
         ],
         visibility = ["//visibility:public"],
     )
-    native.exports_files(["sql_format.ts"])
 
 def sql_format(name = "sql_format", srcs = [], **kwargs):
     nodejs_test(
