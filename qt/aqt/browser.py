@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import html
-import re
 import time
 from concurrent.futures import Future
 from dataclasses import dataclass
@@ -21,7 +20,13 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput
+from anki.rsbackend import (
+    ConcatSeparator,
+    DeckTreeNode,
+    FilterToSearchIn,
+    InvalidInput,
+    NamedFilter,
+)
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1107,14 +1112,14 @@ QTableView {{ gridline-color: {grid} }}
         item = SidebarItem(
             tr(TR.BROWSING_WHOLE_COLLECTION),
             ":/icons/collection.svg",
-            self._filterFunc(""),
+            self._named_filter(NamedFilter.WHOLE_COLLECTION),
             item_type=SidebarItemType.COLLECTION,
         )
         root.addChild(item)
         item = SidebarItem(
             tr(TR.BROWSING_CURRENT_DECK),
             ":/icons/deck.svg",
-            self._filterFunc("deck:current"),
+            self._named_filter(NamedFilter.CURRENT_DECK),
             item_type=SidebarItemType.CURRENT_DECK,
         )
         root.addChild(item)
@@ -1126,7 +1131,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 name,
                 ":/icons/heart.svg",
-                lambda s=filt: self.setFilter(s),  # type: ignore
+                self._saved_filter(filt),
                 item_type=SidebarItemType.FILTER,
             )
             root.addChild(item)
@@ -1137,7 +1142,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 t,
                 ":/icons/tag.svg",
-                lambda t=t: self.setFilter("tag", t),  # type: ignore
+                self._tag_filter(t),
                 item_type=SidebarItemType.TAG,
             )
             root.addChild(item)
@@ -1148,10 +1153,6 @@ QTableView {{ gridline-color: {grid} }}
         def fillGroups(root, nodes: Sequence[DeckTreeNode], head=""):
             for node in nodes:
 
-                def set_filter():
-                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda: self.setFilter("deck", full_name)
-
                 def toggle_expand():
                     did = node.deck_id  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
@@ -1159,7 +1160,7 @@ QTableView {{ gridline-color: {grid} }}
                 item = SidebarItem(
                     node.name,
                     ":/icons/deck.svg",
-                    set_filter(),
+                    self._deck_filter(head + node.name),
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
@@ -1177,7 +1178,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 m.name,
                 ":/icons/notetype.svg",
-                lambda m=m: self.setFilter("note", m.name),  # type: ignore
+                self._note_filter(m.name),
                 item_type=SidebarItemType.NOTETYPE,
             )
             root.addChild(item)
@@ -1205,47 +1206,36 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.popupOver(self.form.filter)
 
-    def setFilter(self, *args):
-        if len(args) == 1:
-            txt = args[0]
-        else:
-            txt = ""
-            items = []
-            for i, a in enumerate(args):
-                if i % 2 == 0:
-                    txt += a + ":"
-                else:
-                    txt += re.sub(r'["*_\\]', r"\\\g<0>", a)
-                    txt = '"{}"'.format(txt.replace('"', '\\"'))
-                    items.append(txt)
-                    txt = ""
-            txt = " AND ".join(items)
+    def setFilter(self, *searches):
         try:
-            if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-                txt = self.col.backend.negate_search(txt)
+            search = self.col.backend.concatenate_searches(
+                sep=ConcatSeparator.AND, searches=searches
+            )
+            mods = self.mw.app.keyboardModifiers()
+            if mods & Qt.AltModifier:
+                search = self.col.backend.negate_search(search)
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur != self._searchPrompt:
-                mods = self.mw.app.keyboardModifiers()
                 if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                    txt = self.col.backend.replace_search_term(
-                        search=cur, replacement=txt
+                    search = self.col.backend.replace_search_term(
+                        search=cur, replacement=search
                     )
                 elif mods & Qt.ControlModifier:
-                    txt = self.col.backend.concatenate_searches(
+                    search = self.col.backend.concatenate_searches(
                         # pylint: disable=no-member
                         sep=ConcatSeparator.AND,
-                        searches=[cur, txt],
+                        searches=[cur, search],
                     )
                 elif mods & Qt.ShiftModifier:
-                    txt = self.col.backend.concatenate_searches(
+                    search = self.col.backend.concatenate_searches(
                         # pylint: disable=no-member
                         sep=ConcatSeparator.OR,
-                        searches=[cur, txt],
+                        searches=[cur, search],
                     )
         except InvalidInput as e:
             showWarning(str(e))
         else:
-            self.form.searchEdit.lineEdit().setText(txt)
+            self.form.searchEdit.lineEdit().setText(search)
             self.onSearchActivated()
 
     def _simpleFilters(self, items):
@@ -1254,18 +1244,44 @@ QTableView {{ gridline-color: {grid} }}
             if row is None:
                 ml.addSeparator()
             else:
-                label, filter = row
-                ml.addItem(label, self._filterFunc(filter))
+                label, filter_name = row
+                ml.addItem(label, self._named_filter(filter_name))
         return ml
 
-    def _filterFunc(self, *args):
-        return lambda *, f=args: self.setFilter(*f)
+    def _named_filter(self, name: Any) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(name=name))
+        )
+
+    def _tag_filter(self, tag: str) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(tag=tag))
+        )
+
+    def _deck_filter(self, deck: str) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(deck=deck))
+        )
+
+    def _note_filter(self, note: str) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(note=note))
+        )
+
+    def _template_filter(self, note: str, template: int) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(note=note)),
+            self.col.backend.filter_to_search(FilterToSearchIn(template=template)),
+        )
+
+    def _saved_filter(self, saved: str) -> Callable:
+        return lambda: self.setFilter(saved)
 
     def _commonFilters(self):
         return self._simpleFilters(
             (
-                (tr(TR.BROWSING_WHOLE_COLLECTION), ""),
-                (tr(TR.BROWSING_CURRENT_DECK), '"deck:current"'),
+                (tr(TR.BROWSING_WHOLE_COLLECTION), NamedFilter.WHOLE_COLLECTION),
+                (tr(TR.BROWSING_CURRENT_DECK), NamedFilter.CURRENT_DECK),
             )
         )
 
@@ -1274,9 +1290,9 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.BROWSING_ADDED_TODAY), '"added:1"'),
-                    (tr(TR.BROWSING_STUDIED_TODAY), '"rated:1"'),
-                    (tr(TR.BROWSING_AGAIN_TODAY), '"rated:1:1"'),
+                    (tr(TR.BROWSING_ADDED_TODAY), NamedFilter.ADDED_TODAY),
+                    (tr(TR.BROWSING_STUDIED_TODAY), NamedFilter.STUDIED_TODAY),
+                    (tr(TR.BROWSING_AGAIN_TODAY), NamedFilter.AGAIN_TODAY),
                 )
             )
         )
@@ -1287,20 +1303,20 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.ACTIONS_NEW), '"is:new"'),
-                    (tr(TR.SCHEDULING_LEARNING), '"is:learn"'),
-                    (tr(TR.SCHEDULING_REVIEW), '"is:review"'),
-                    (tr(TR.FILTERING_IS_DUE), '"is:due"'),
+                    (tr(TR.ACTIONS_NEW), NamedFilter.NEW),
+                    (tr(TR.SCHEDULING_LEARNING), NamedFilter.LEARN),
+                    (tr(TR.SCHEDULING_REVIEW), NamedFilter.REVIEW),
+                    (tr(TR.FILTERING_IS_DUE), NamedFilter.DUE),
                     None,
-                    (tr(TR.BROWSING_SUSPENDED), '"is:suspended"'),
-                    (tr(TR.BROWSING_BURIED), '"is:buried"'),
+                    (tr(TR.BROWSING_SUSPENDED), NamedFilter.SUSPENDED),
+                    (tr(TR.BROWSING_BURIED), NamedFilter.BURIED),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), '"flag:1"'),
-                    (tr(TR.ACTIONS_ORANGE_FLAG), '"flag:2"'),
-                    (tr(TR.ACTIONS_GREEN_FLAG), '"flag:3"'),
-                    (tr(TR.ACTIONS_BLUE_FLAG), '"flag:4"'),
-                    (tr(TR.BROWSING_NO_FLAG), '"flag:0"'),
-                    (tr(TR.BROWSING_ANY_FLAG), '"-flag:0"'),
+                    (tr(TR.ACTIONS_RED_FLAG), NamedFilter.RED_FLAG),
+                    (tr(TR.ACTIONS_ORANGE_FLAG), NamedFilter.ORANGE_FLAG),
+                    (tr(TR.ACTIONS_GREEN_FLAG), NamedFilter.GREEN_FLAG),
+                    (tr(TR.ACTIONS_BLUE_FLAG), NamedFilter.BLUE_FLAG),
+                    (tr(TR.BROWSING_NO_FLAG), NamedFilter.NO_FLAG),
+                    (tr(TR.BROWSING_ANY_FLAG), NamedFilter.ANY_FLAG),
                 )
             )
         )
@@ -1317,7 +1333,7 @@ QTableView {{ gridline-color: {grid} }}
 
         tagList = MenuList()
         for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(self._escapeMenuItem(t), self._filterFunc("tag", t))
+            tagList.addItem(self._escapeMenuItem(t), self._tag_filter(t))
 
         m.addChild(tagList.chunked())
         return m
@@ -1330,13 +1346,11 @@ QTableView {{ gridline-color: {grid} }}
                 fullname = parent_prefix + node.name
                 if node.children:
                     subm = parent.addMenu(escaped_name)
-                    subm.addItem(
-                        tr(TR.ACTIONS_FILTER), self._filterFunc("deck", fullname)
-                    )
+                    subm.addItem(tr(TR.ACTIONS_FILTER), self._deck_filter(fullname))
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
-                    parent.addItem(escaped_name, self._filterFunc("deck", fullname))
+                    parent.addItem(escaped_name, self._deck_filter(fullname))
 
         alldecks = self.col.decks.deck_tree()
         ml = MenuList()
@@ -1358,12 +1372,12 @@ QTableView {{ gridline-color: {grid} }}
             escaped_nt_name = self._escapeMenuItem(nt["name"])
             # no sub menu if it's a single template
             if len(nt["tmpls"]) == 1:
-                noteTypes.addItem(escaped_nt_name, self._filterFunc("note", nt["name"]))
+                noteTypes.addItem(escaped_nt_name, self._note_filter(nt["name"]))
             else:
                 subm = noteTypes.addMenu(escaped_nt_name)
 
                 subm.addItem(
-                    tr(TR.BROWSING_ALL_CARD_TYPES), self._filterFunc("note", nt["name"])
+                    tr(TR.BROWSING_ALL_CARD_TYPES), self._note_filter(nt["name"])
                 )
                 subm.addSeparator()
 
@@ -1376,9 +1390,7 @@ QTableView {{ gridline-color: {grid} }}
                         num=c + 1,
                         name=self._escapeMenuItem(tmpl["name"]),
                     )
-                    subm.addItem(
-                        name, self._filterFunc("note", nt["name"], "card", str(c + 1))
-                    )
+                    subm.addItem(name, self._template_filter(nt["name"], c + 1))
 
         m.addChild(noteTypes.chunked())
         return m
@@ -1405,7 +1417,7 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.addSeparator()
         for name, filt in sorted(saved.items()):
-            ml.addItem(self._escapeMenuItem(name), self._filterFunc(filt))
+            ml.addItem(self._escapeMenuItem(name), self._saved_filter(filt))
 
         return ml
 

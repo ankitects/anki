@@ -331,6 +331,14 @@ pub(crate) fn escape_sql(txt: &str) -> Cow<str> {
     RE.replace_all(&txt, r"\$0")
 }
 
+/// Escape Anki wildcards and the backslash for escaping them: \*_
+pub(crate) fn escape_anki_wildcards(txt: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
+    }
+    RE.replace_all(&txt, r"\$0")
+}
+
 /// Compare text with a possible glob, folding case.
 pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
     if is_glob(search) {
