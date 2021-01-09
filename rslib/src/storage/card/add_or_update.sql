@@ -1,5 +1,5 @@
-insert
-  or replace into cards (
+INSERT
+  OR REPLACE INTO cards (
     id,
     nid,
     did,
@@ -19,8 +19,7 @@ insert
     flags,
     data
   )
-values
-  (
+VALUES (
     ?,
     ?,
     ?,

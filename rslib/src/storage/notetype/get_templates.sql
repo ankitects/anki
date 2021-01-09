@@ -1,11 +1,8 @@
-select
-  ord,
+SELECT ord,
   name,
   mtime_secs,
   usn,
   config
-from templates
-where
-  ntid = ?
-order by
-  ord
+FROM templates
+WHERE ntid = ?
+ORDER BY ord

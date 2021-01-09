@@ -1,7 +1,7 @@
-select coalesce(max(ord), 0)
-from cards
-where nid in (
-        select id
-        from notes
-        where mid = ?
-    )
+SELECT coalesce(max(ord), 0)
+FROM cards
+WHERE nid IN (
+    SELECT id
+    FROM notes
+    WHERE mid = ?
+  )

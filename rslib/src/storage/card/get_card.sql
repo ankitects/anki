@@ -1,14 +1,13 @@
-select
-  id,
+SELECT id,
   nid,
   did,
   ord,
-  cast(mod as integer),
+  cast(mod AS integer),
   usn,
   type,
   queue,
   due,
-  cast(ivl as integer),
+  cast(ivl AS integer),
   factor,
   reps,
   lapses,
@@ -17,4 +16,4 @@ select
   odid,
   flags,
   data
-from cards
+FROM cards

@@ -1,9 +1,6 @@
-select
-  distinct did
-from cards
-where
-  did not in (
-    select
-      id
-    from decks
+SELECT DISTINCT did
+FROM cards
+WHERE did NOT IN (
+    SELECT id
+    FROM decks
   );

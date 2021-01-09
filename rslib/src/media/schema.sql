@@ -1,10 +1,13 @@
-create table media (
- fname text not null primary key,
- csum text,           -- null indicates deleted file
- mtime int not null,  -- zero if deleted
- dirty int not null
+CREATE TABLE media (
+  fname text NOT NULL PRIMARY KEY,
+  -- null indicates deleted file
+  csum text,
+  -- zero if deleted
+  mtime int NOT NULL,
+  dirty int NOT NULL
 ) without rowid;
-
-create index idx_media_dirty on media (dirty) where dirty=1;
-
-create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
+CREATE INDEX idx_media_dirty ON media (dirty)
+WHERE dirty = 1;
+CREATE TABLE meta (dirMod int, lastUsn int);
+INSERT INTO meta
+VALUES (0, 0);

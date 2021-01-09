@@ -115,6 +115,8 @@ in the relevant package:
 
 ```
 bazel run //rslib:format
+bazel run //rslib:sql_format
+bazel run //rslib:proto_format
 bazel run //pylib:format
 bazel run //qt:format
 bazel run //ts:format

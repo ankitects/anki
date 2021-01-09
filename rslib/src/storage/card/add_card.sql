@@ -1,4 +1,4 @@
-insert into cards (
+INSERT INTO cards (
     id,
     nid,
     did,
@@ -18,21 +18,18 @@ insert into cards (
     flags,
     data
   )
-values
-  (
+VALUES (
     (
-      case
-        when ?1 in (
-          select
-            id
-          from cards
-        ) then (
-          select
-            max(id) + 1
-          from cards
+      CASE
+        WHEN ?1 IN (
+          SELECT id
+          FROM cards
+        ) THEN (
+          SELECT max(id) + 1
+          FROM cards
         )
-        else ?1
-      end
+        ELSE ?1
+      END
     ),
     ?,
     ?,

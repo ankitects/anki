@@ -1,19 +1,17 @@
-update cards
-set
-  due = (
-    case
-      when queue = 2
-      and due > 100000 then ?1
-      else min(max(round(due), -2147483648), 2147483647)
-    end
+UPDATE cards
+SET due = (
+    CASE
+      WHEN queue = 2
+      AND due > 100000 THEN ?1
+      ELSE min(max(round(due), -2147483648), 2147483647)
+    END
   ),
   mod = ?2,
   usn = ?3
-where
-  due != (
-    case
-      when queue = 2
-      and due > 100000 then ?1
-      else min(max(round(due), -2147483648), 2147483647)
-    end
+WHERE due != (
+    CASE
+      WHEN queue = 2
+      AND due > 100000 THEN ?1
+      ELSE min(max(round(due), -2147483648), 2147483647)
+    END
   );

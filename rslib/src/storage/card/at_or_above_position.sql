@@ -1,5 +1,5 @@
-insert into search_cids
-select id
-from cards
-where due >= ?
-    and type = ?
+INSERT INTO search_cids
+SELECT id
+FROM cards
+WHERE due >= ?
+  AND type = ?

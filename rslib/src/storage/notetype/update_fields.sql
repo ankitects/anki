@@ -1,3 +1,2 @@
-insert into fields (ntid, ord, name, config)
-values
-  (?, ?, ?, ?);
+INSERT INTO FIELDS (ntid, ord, name, config)
+VALUES (?, ?, ?, ?);

@@ -1,10 +1,7 @@
-delete from cards
-where
-  nid in (
-    select
-      id
-    from notes
-    where
-      mid = ?
+DELETE FROM cards
+WHERE nid IN (
+    SELECT id
+    FROM notes
+    WHERE mid = ?
   )
-  and ord = ?;
+  AND ord = ?;

@@ -1,2 +1,2 @@
-drop table if exists search_cids;
-create temporary table search_cids (cid integer primary key not null);
+DROP TABLE IF EXISTS search_cids;
+CREATE TEMPORARY TABLE search_cids (cid integer PRIMARY KEY NOT NULL);

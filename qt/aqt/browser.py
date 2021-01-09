@@ -136,7 +136,6 @@ class DataModel(QAbstractTableModel):
         if role == Qt.FontRole:
             if self.activeCols[index.column()] not in ("question", "answer", "noteFld"):
                 return
-            row = index.row()
             c = self.getCard(index)
             t = c.template()
             if not t.get("bfont"):
@@ -298,7 +297,6 @@ class DataModel(QAbstractTableModel):
         return "%Y-%m-%d"
 
     def columnData(self, index):
-        row = index.row()
         col = index.column()
         type = self.columnType(col)
         c = self.getCard(index)
@@ -393,7 +391,6 @@ class DataModel(QAbstractTableModel):
         if type != "noteFld":
             return False
 
-        row = index.row()
         c = self.getCard(index)
         nt = c.note().model()
         return nt["flds"][self.col.models.sortIdx(nt)]["rtl"]
@@ -2073,7 +2070,7 @@ where id in %s"""
         self.model.beginReset()
         self.mw.checkpoint(tr(TR.BROWSING_TAG_DUPLICATES))
         nids = set()
-        for s, nidlist in res:
+        for _, nidlist in res:
             nids.update(nidlist)
         self.col.tags.bulkAdd(list(nids), tr(TR.BROWSING_DUPLICATE))
         self.mw.progress.finish()

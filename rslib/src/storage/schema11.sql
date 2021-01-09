@@ -1,88 +1,92 @@
-create table col
-(
-    id     integer primary key,
-    crt    integer not null,
-    mod    integer not null,
-    scm    integer not null,
-    ver    integer not null,
-    dty    integer not null,
-    usn    integer not null,
-    ls     integer not null,
-    conf   text    not null,
-    models text    not null,
-    decks  text    not null,
-    dconf  text    not null,
-    tags   text    not null
+CREATE TABLE col (
+  id integer PRIMARY KEY,
+  crt integer NOT NULL,
+  mod integer NOT NULL,
+  scm integer NOT NULL,
+  ver integer NOT NULL,
+  dty integer NOT NULL,
+  usn integer NOT NULL,
+  ls integer NOT NULL,
+  conf text NOT NULL,
+  models text NOT NULL,
+  decks text NOT NULL,
+  dconf text NOT NULL,
+  tags text NOT NULL
 );
-
-create table notes
-(
-    id    integer primary key,
-    guid  text    not null,
-    mid   integer not null,
-    mod   integer not null,
-    usn   integer not null,
-    tags  text    not null,
-    flds  text    not null,
-    sfld  integer not null,
-    csum  integer not null,
-    flags integer not null,
-    data  text    not null
+CREATE TABLE notes (
+  id integer PRIMARY KEY,
+  guid text NOT NULL,
+  mid integer NOT NULL,
+  mod integer NOT NULL,
+  usn integer NOT NULL,
+  tags text NOT NULL,
+  flds text NOT NULL,
+  sfld integer NOT NULL,
+  csum integer NOT NULL,
+  flags integer NOT NULL,
+  data text NOT NULL
 );
-
-create table cards
-(
-    id     integer primary key,
-    nid    integer not null,
-    did    integer not null,
-    ord    integer not null,
-    mod    integer not null,
-    usn    integer not null,
-    type   integer not null,
-    queue  integer not null,
-    due    integer not null,
-    ivl    integer not null,
-    factor integer not null,
-    reps   integer not null,
-    lapses integer not null,
-    left   integer not null,
-    odue   integer not null,
-    odid   integer not null,
-    flags  integer not null,
-    data   text    not null
+CREATE TABLE cards (
+  id integer PRIMARY KEY,
+  nid integer NOT NULL,
+  did integer NOT NULL,
+  ord integer NOT NULL,
+  mod integer NOT NULL,
+  usn integer NOT NULL,
+  type integer NOT NULL,
+  queue integer NOT NULL,
+  due integer NOT NULL,
+  ivl integer NOT NULL,
+  factor integer NOT NULL,
+  reps integer NOT NULL,
+  lapses integer NOT NULL,
+  left integer NOT NULL,
+  odue integer NOT NULL,
+  odid integer NOT NULL,
+  flags integer NOT NULL,
+  data text NOT NULL
 );
-
-create table revlog
-(
-    id      integer primary key,
-    cid     integer not null,
-    usn     integer not null,
-    ease    integer not null,
-    ivl     integer not null,
-    lastIvl integer not null,
-    factor  integer not null,
-    time    integer not null,
-    type    integer not null
+CREATE TABLE revlog (
+  id integer PRIMARY KEY,
+  cid integer NOT NULL,
+  usn integer NOT NULL,
+  ease integer NOT NULL,
+  ivl integer NOT NULL,
+  lastIvl integer NOT NULL,
+  factor integer NOT NULL,
+  time integer NOT NULL,
+  type integer NOT NULL
 );
-
-create table graves
-(
-    usn  integer not null,
-    oid  integer not null,
-    type integer not null
+CREATE TABLE graves (
+  usn integer NOT NULL,
+  oid integer NOT NULL,
+  type integer NOT NULL
 );
-
 -- syncing
-create index ix_notes_usn on notes (usn);
-create index ix_cards_usn on cards (usn);
-create index ix_revlog_usn on revlog (usn);
+CREATE INDEX ix_notes_usn ON notes (usn);
+CREATE INDEX ix_cards_usn ON cards (usn);
+CREATE INDEX ix_revlog_usn ON revlog (usn);
 -- card spacing, etc
-create index ix_cards_nid on cards (nid);
+CREATE INDEX ix_cards_nid ON cards (nid);
 -- scheduling and deck limiting
-create index ix_cards_sched on cards (did, queue, due);
+CREATE INDEX ix_cards_sched ON cards (did, queue, due);
 -- revlog by card
-create index ix_revlog_cid on revlog (cid);
+CREATE INDEX ix_revlog_cid ON revlog (cid);
 -- field uniqueness
-create index ix_notes_csum on notes (csum);
-
-insert into col values (1,0,0,0,0,0,0,0,'{}','{}','{}','{}','{}');
+CREATE INDEX ix_notes_csum ON notes (csum);
+INSERT INTO col
+VALUES (
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    '{}',
+    '{}',
+    '{}',
+    '{}',
+    '{}'
+  );

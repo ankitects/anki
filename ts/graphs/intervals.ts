@@ -67,33 +67,48 @@ export function prepareIntervalData(
         return [null, []];
     }
 
-    const [_xMinOrig, origXMax] = extent(allIntervals);
-    let xMax = origXMax;
+    const xMin = 0;
+    let [, xMax] = extent(allIntervals);
+    let niceNecessary = false;
 
     // cap max to selected range
     switch (range) {
         case IntervalRange.Month:
-            xMax = Math.min(xMax!, 31);
+            xMax = Math.min(xMax!, 30);
             break;
         case IntervalRange.Percentile50:
             xMax = quantile(allIntervals, 0.5);
+            niceNecessary = true;
             break;
         case IntervalRange.Percentile95:
             xMax = quantile(allIntervals, 0.95);
+            niceNecessary = true;
             break;
         case IntervalRange.All:
+            niceNecessary = true;
             break;
     }
-    const xMin = 0;
+
     xMax = xMax! + 1;
+
+    // do not show the zero interval
+    const increment = (x: number): number => x + 1;
+
+    const adjustTicks = (x: number, idx: number, ticks: number[]): number[] =>
+        idx === ticks.length - 1 ? [x - (ticks[0] - 1), x + 1] : [x - (ticks[0] - 1)];
 
     // cap bars to available range
     const desiredBars = Math.min(70, xMax! - xMin!);
 
-    const scale = scaleLinear().domain([xMin!, xMax!]).nice();
+    const prescale = scaleLinear().domain([xMin!, xMax!]);
+
+    const scale = scaleLinear().domain(
+        (niceNecessary ? prescale.nice() : prescale).domain().map(increment)
+    );
+
     const bins = histogram()
-        .domain(scale.domain() as any)
-        .thresholds(scale.ticks(desiredBars))(allIntervals);
+        .domain(scale.domain() as [number, number])
+        .thresholds(scale.ticks(desiredBars).flatMap(adjustTicks))(allIntervals);
 
     // empty graph?
     const totalInPeriod = sum(bins, (bin) => bin.length);
