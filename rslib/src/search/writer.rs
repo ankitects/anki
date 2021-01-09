@@ -159,7 +159,7 @@ fn write_rated(days: &u32, ease: &EaseKind) -> String {
     match ease {
         Rated(n) => format!("\"rated:{}:{}\"", days, n),
         Reviewed => format!("\"rated:{}\"", days),
-        All => format!("\"rated:{}:a\"", days),
+        Manually => format!("\"resched:{}\"", days),
     }
 }
 

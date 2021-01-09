@@ -122,7 +122,7 @@ pub enum TemplateKind<'a> {
 pub(super) enum EaseKind {
     Rated(u8),
     Reviewed,
-    All,
+    Manually,
 }
 
 impl std::fmt::Display for EaseKind {
@@ -132,7 +132,7 @@ impl std::fmt::Display for EaseKind {
         match self {
             Rated(u) => write!(f, " and ease = {}", u),
             Reviewed => write!(f, " and ease in (1, 2, 3, 4)"),
-            All => write!(f, ""),
+            Manually => write!(f, " and ease = 0"),
         }
     }
 }
@@ -305,6 +305,7 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "flag" => parse_flag(val)?,
         "rated" => parse_rated(val)?,
+        "resched" => parse_resched(val)?,
         "dupe" => parse_dupes(val)?,
         "prop" => parse_prop(val)?,
         "re" => SearchNode::Regex(unescape_quotes(val)),
@@ -378,18 +379,24 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 
     let ease = match it.next() {
         Some(v) => {
-            let c: char = v.parse().unwrap();
-            match c {
-                '0' | '1' | '2' | '3' | '4' => {
-                    let n = c.to_digit(10).unwrap() as u8;
-                    EaseKind::Rated(n)
-                }
-                'a' => EaseKind::All,
-                _ => return Err(ParseError {}),
+            let u: u8 = v.parse().unwrap();
+            if (1..5).contains(&u) {
+                EaseKind::Rated(u)
+            } else {
+                return Err(ParseError {})
             }
         }
         None => EaseKind::Reviewed,
     };
+
+    Ok(SearchNode::Rated { days, ease })
+}
+
+/// eg resched:3
+fn parse_resched(val: &str) -> ParseResult<SearchNode<'static>> {
+    let mut it = val.splitn(1, ':');
+    let days = it.next().unwrap().parse()?;
+    let ease = EaseKind::Manually;
 
     Ok(SearchNode::Rated { days, ease })
 }
