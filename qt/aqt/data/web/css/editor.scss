@@ -65,16 +65,28 @@ button.linkb {
     box-shadow: none;
     padding: 0px 2px;
     background: transparent;
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .nightMode & > img {
+        filter: invert(180);
+    }
 }
 
-button.linkb:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+button:focus {
+    outline: none;
 }
 
 button.highlighted {
+    .nightMode #topbutsleft & {
+        background: linear-gradient(0deg, #333333 0%, #434343 100%);
+    }
+
     #topbutsleft & {
-        box-shadow: inset 0px 0px 5px #222;
+        background-color: lightgrey;
     }
 
     #topbutsright & {
@@ -92,12 +104,6 @@ button.highlighted {
 
 #dupes a {
     color: var(--link);
-}
-
-.nightMode {
-    button.linkb > img {
-        filter: invert(180);
-    }
 }
 
 .drawing {
