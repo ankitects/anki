@@ -46,6 +46,7 @@ TagUsnTuple = pb.TagUsnTuple
 NoteType = pb.NoteType
 DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
+NamedFilter = pb.FilterToSearchIn.NamedFilter
 ConcatSeparator = pb.ConcatenateSearchesIn.Separator
 SyncAuth = pb.SyncAuth
 SyncOutput = pb.SyncCollectionOut
@@ -260,6 +261,12 @@ class RustBackend(RustBackendGenerated):
         err = pb.BackendError()
         err.ParseFromString(err_bytes)
         raise proto_exception_to_native(err)
+
+    def filters_to_searches(self, **kwargs) -> List[str]:
+        return [
+            self.filter_to_search(pb.FilterToSearchIn(**dict([f])))
+            for f in kwargs.items()
+        ]
 
 
 def translate_string_in(
