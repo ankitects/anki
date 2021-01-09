@@ -65,6 +65,7 @@ rust_library(
     proc_macro_deps = [
         "//rslib/cargo:serde_derive",
         "//rslib/cargo:serde_repr",
+        "//rslib/cargo:async_trait",
     ],
     rustc_env = _anki_rustc_env,
     visibility = ["//visibility:public"],
