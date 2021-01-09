@@ -23,6 +23,7 @@ exports_files([
     "rollup.config.js",
     ".eslintrc.js",
     "licenses.json",
+    "sql_format.ts",
 ])
 
 alias(
