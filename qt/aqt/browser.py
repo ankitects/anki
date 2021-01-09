@@ -21,7 +21,13 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput, TagTreeNode
+from anki.rsbackend import (
+    ConcatSeparator,
+    DeckTreeNode,
+    InvalidInput,
+    NotFoundError,
+    TagTreeNode,
+)
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -451,8 +457,12 @@ class SidebarItem:
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,
+        full_name: str = None,
     ) -> None:
         self.name = name
+        if not full_name:
+            full_name = name
+        self.full_name = full_name
         self.icon = icon
         self.item_type = item_type
         self.id = id
@@ -1142,12 +1152,16 @@ QTableView {{ gridline-color: {grid} }}
                     return lambda: self.setFilter("tag", full_name)
 
                 def toggle_expand():
-                    tid = node.tag_id  # pylint: disable=cell-var-from-loop
+
+                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
 
                     def toggle(_):
-                        tag = self.mw.col.backend.get_tag(tid)
-                        tag.config.browser_collapsed = not tag.config.browser_collapsed
-                        self.mw.col.backend.update_tag(tag)
+                        try:
+                            self.mw.col.tags.toggle_browser_collapse(full_name)
+                        except NotFoundError:
+                            # tag is missing, register it first
+                            self.mw.col.tags.register([full_name])
+                            self.mw.col.tags.toggle_browser_collapse(full_name)
 
                     return toggle
 
@@ -1159,6 +1173,7 @@ QTableView {{ gridline-color: {grid} }}
                     not node.collapsed,
                     item_type=SidebarItemType.TAG,
                     id=node.tag_id,
+                    full_name=head + node.name,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"

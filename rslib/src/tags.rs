@@ -13,18 +13,43 @@ use crate::{
 };
 
 use regex::{NoExpand, Regex, Replacer};
-use std::{borrow::Cow, collections::HashSet, iter::Peekable};
+use std::cmp::Ordering;
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    iter::Peekable,
+};
 use unicase::UniCase;
 
 define_newtype!(TagID, i64);
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Tag {
     pub id: TagID,
     pub name: String,
     pub usn: Usn,
     pub config: TagConfig,
 }
+
+impl Ord for Tag {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.name.cmp(&other.name)
+    }
+}
+
+impl PartialOrd for Tag {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Tag {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Eq for Tag {}
 
 impl Default for Tag {
     fn default() -> Self {
@@ -107,11 +132,33 @@ pub(crate) fn native_tag_name_to_human(name: &str) -> String {
     name.replace('\x1f', "::")
 }
 
-fn immediate_parent_name(native_name: &str) -> Option<&str> {
-    native_name.rsplitn(2, '\x1f').nth(1)
+fn fill_missing_tags(tags: Vec<Tag>) -> Vec<Tag> {
+    let mut filled_tags: HashMap<String, Tag> = HashMap::new();
+    for tag in tags.into_iter() {
+        let name = tag.name.to_owned();
+        let split: Vec<&str> = (&tag.name).split("::").collect();
+        for i in 0..split.len() - 1 {
+            let comp = split[0..i + 1].join("::");
+            let t = Tag {
+                name: comp.to_owned(),
+                ..Default::default()
+            };
+            if filled_tags.get(&comp).is_none() {
+                filled_tags.insert(comp, t);
+            }
+        }
+        if filled_tags.get(&name).is_none() {
+            filled_tags.insert(name, tag);
+        }
+    }
+    let mut tags: Vec<Tag> = filled_tags.values().map(|t| (*t).clone()).collect();
+    tags.sort_unstable();
+
+    tags
 }
 
 fn tags_to_tree(tags: Vec<Tag>) -> TagTreeNode {
+    let tags = fill_missing_tags(tags);
     let mut top = TagTreeNode::default();
     let mut it = tags.into_iter().peekable();
     add_child_nodes(&mut it, &mut top);
@@ -166,7 +213,7 @@ impl Collection {
     }
 
     pub fn tag_tree(&mut self) -> Result<TagTreeNode> {
-        let tags = self.storage.all_tags_sorted()?;
+        let tags = self.all_tags()?;
         let tree = tags_to_tree(tags);
 
         Ok(tree)
@@ -208,37 +255,17 @@ impl Collection {
         Ok((tags, added))
     }
 
-    fn create_missing_tag_parents(&self, mut native_name: &str, usn: Usn) -> Result<bool> {
-        let mut added = false;
-        while let Some(parent_name) = immediate_parent_name(native_name) {
-            if self.storage.preferred_tag_case(&parent_name)?.is_none() {
-                let mut t = Tag {
-                    name: parent_name.to_string(),
-                    usn,
-                    ..Default::default()
-                };
-                self.storage.register_tag(&mut t)?;
-                added = true;
-            }
-            native_name = parent_name;
-        }
-        Ok(added)
-    }
-
     pub(crate) fn register_tag<'a>(&self, tag: Tag) -> Result<(Cow<'a, str>, bool)> {
         let native_name = human_tag_name_to_native(&tag.name);
         if native_name.is_empty() {
             return Ok(("".into(), false));
         }
-        let added_parents = self.create_missing_tag_parents(&native_name, tag.usn)?;
         if let Some(preferred) = self.storage.preferred_tag_case(&native_name)? {
-            Ok((native_tag_name_to_human(&preferred).into(), added_parents))
+            Ok((native_tag_name_to_human(&preferred).into(), false))
         } else {
             let mut t = Tag {
                 name: native_name.clone(),
-                usn: tag.usn,
-                config: tag.config,
-                ..Default::default()
+                ..tag
             };
             self.storage.register_tag(&mut t)?;
             Ok((native_tag_name_to_human(&native_name).into(), true))
@@ -456,14 +483,6 @@ mod test {
         col.replace_tags_for_notes(&[note.id], "bar::foo", "foo::bar", false)?;
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(&note.tags, &["foo::bar", "foo::bar::bar", "foo::bar::foo",]);
-
-        // missing tag parents are registered too when registering their children
-        col.storage.clear_tags()?;
-        let mut note = col.storage.get_note(note.id)?.unwrap();
-        note.tags = vec!["animal::mammal::cat".into()];
-        col.update_note(&mut note)?;
-        let tags: Vec<String> = col.all_tags()?.into_iter().map(|t| t.name).collect();
-        assert_eq!(&tags, &["animal::mammal", "animal", "animal::mammal::cat"]);
 
         Ok(())
     }

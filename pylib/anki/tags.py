@@ -80,6 +80,11 @@ class TagManager:
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
+    def toggle_browser_collapse(self, name: str):
+        tag = self.col.backend.get_tag(name)
+        tag.config.browser_collapsed = not tag.config.browser_collapsed
+        self.col.backend.update_tag(tag)
+
     # Bulk addition/removal from notes
     #############################################################
 

@@ -118,7 +118,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.browser.editor.saveNow(lambda: self._remove_tag(item))
 
     def _remove_tag(self, item: "aqt.browser.SidebarItem") -> None:
-        old_name = self.mw.col.backend.get_tag(item.id).name
+        old_name = item.full_name
 
         def do_remove():
             self.mw.col.backend.clear_tag(old_name)
@@ -138,7 +138,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.browser.editor.saveNow(lambda: self._rename_tag(item))
 
     def _rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
-        old_name = self.mw.col.backend.get_tag(item.id).name
+        old_name = item.full_name
         new_name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
         if new_name == old_name or not new_name:
             return

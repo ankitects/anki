@@ -44,7 +44,6 @@ use crate::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
-    tags::TagID,
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -1300,9 +1299,9 @@ impl BackendService for Backend {
         Ok(pb::AllTagsOut { tags })
     }
 
-    fn get_tag(&self, input: pb::TagId) -> BackendResult<pb::Tag> {
+    fn get_tag(&self, name: pb::String) -> BackendResult<pb::Tag> {
         self.with_col(|col| {
-            if let Some(tag) = col.storage.get_tag(TagID(input.tid))? {
+            if let Some(tag) = col.storage.get_tag(name.val.as_str())? {
                 Ok(tag.into())
             } else {
                 Err(AnkiError::NotFound)
