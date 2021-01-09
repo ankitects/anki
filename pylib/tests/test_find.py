@@ -204,13 +204,21 @@ def test_findCards():
         assert len(col.findCards("rated:1:1")) == 1
         assert len(col.findCards("rated:1:2")) == 1
         assert len(col.findCards("rated:1")) == 2
-        assert len(col.findCards("rated:0:2")) == 0
         assert len(col.findCards("rated:2:2")) == 1
+        with pytest.raises(Exception):
+            col.findCards("rated:0")
+
+        with pytest.raises(Exception):
+            col.findCards("rated:366")
         # added
-        assert len(col.findCards("added:0")) == 0
         col.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
         assert len(col.findCards("added:1")) == col.cardCount() - 1
         assert len(col.findCards("added:2")) == col.cardCount()
+        with pytest.raises(Exception):
+            col.findCards("added:0")
+
+        with pytest.raises(Exception):
+            col.findCards("edited:0")
     else:
         print("some find tests disabled near cutoff")
     # empty field

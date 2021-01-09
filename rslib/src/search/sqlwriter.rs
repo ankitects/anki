@@ -721,6 +721,7 @@ mod test {
                 (timing.next_day_at - (86_400 * 2)) * 1_000
             )
         );
+
         assert_eq!(
             s(ctx, "rated:365:1").0,
             format!(
