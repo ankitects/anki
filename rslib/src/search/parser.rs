@@ -69,7 +69,7 @@ pub enum SearchNode<'a> {
     NoteType(Cow<'a, str>),
     Rated {
         days: u32,
-        ease: Option<u8>,
+        ease: EaseKind,
     },
     Tag(Cow<'a, str>),
     Duplicates {
@@ -116,6 +116,25 @@ pub enum StateKind {
 pub enum TemplateKind<'a> {
     Ordinal(u16),
     Name(Cow<'a, str>),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub(super) enum EaseKind {
+    Rated(u8),
+    Reviewed,
+    All,
+}
+
+impl std::fmt::Display for EaseKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        use EaseKind::*;
+
+        match self {
+            Rated(u) => write!(f, " and ease = {}", u),
+            Reviewed => write!(f, " and ease in (1, 2, 3, 4)"),
+            All => write!(f, ""),
+        }
+    }
 }
 
 /// Parse the input string into a list of nodes.
@@ -359,14 +378,17 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 
     let ease = match it.next() {
         Some(v) => {
-            let n: u8 = v.parse()?;
-            if n < 5 {
-                Some(n)
-            } else {
-                return Err(ParseError {});
+            let c: char = v.parse().unwrap();
+            match c {
+                '0' | '1' | '2' | '3' | '4' => {
+                    let n = c.to_digit(10).unwrap() as u8;
+                    EaseKind::Rated(n)
+                }
+                'a' => EaseKind::All,
+                _ => return Err(ParseError {}),
             }
         }
-        None => None,
+        None => EaseKind::Reviewed,
     };
 
     Ok(SearchNode::Rated { days, ease })

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
+use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind, EaseKind};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -144,7 +144,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
             SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
-            SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
+            SearchNode::Rated { days, ease } => self.write_rated(*days, ease)?,
 
             SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
             SearchNode::State(state) => self.write_state(state)?,
@@ -214,20 +214,16 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
+    fn write_rated(&mut self, days: u32, ease: &EaseKind) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
         let target_cutoff_ms = (today_cutoff - 86_400 * i64::from(days)) * 1_000;
         write!(
             self.sql,
-            "c.id in (select cid from revlog where id>{}",
-            target_cutoff_ms
+            "c.id in (select cid from revlog where id>{}{})",
+            target_cutoff_ms,
+            ease,
         )
         .unwrap();
-        if let Some(ease) = ease {
-            write!(self.sql, " and ease={})", ease).unwrap();
-        } else {
-            write!(self.sql, ")").unwrap();
-        }
 
         Ok(())
     }
