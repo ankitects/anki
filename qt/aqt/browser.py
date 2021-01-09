@@ -1128,7 +1128,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 name,
                 ":/icons/heart.svg",
-                lambda s=filt: self.setFilter(s),  # type: ignore
+                self._filterFunc(filt),
                 item_type=SidebarItemType.FILTER,
             )
             root.addChild(item)
@@ -1139,7 +1139,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 t,
                 ":/icons/tag.svg",
-                lambda t=t: self.setFilter(tag=t),  # type: ignore
+                self._filterFunc(tag=t),
                 item_type=SidebarItemType.TAG,
             )
             root.addChild(item)
@@ -1179,7 +1179,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 m.name,
                 ":/icons/notetype.svg",
-                lambda m=m: self.setFilter(note=m.name),  # type: ignore
+                self._filterFunc(note=m.name),
                 item_type=SidebarItemType.NOTETYPE,
             )
             root.addChild(item)
@@ -1207,12 +1207,11 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.popupOver(self.form.filter)
 
-    def setFilter(self, *args, **kwargs):
-        # args are literal searches, kwargs are searches provided by the backend
+    def setFilter(self, *search_strings, **filters):
         try:
-            filters = self.col.backend.filters_to_searches(**kwargs)
+            filter_searches = self.col.backend.filters_to_searches(filters)
             search = self.col.backend.concatenate_searches(
-                sep=ConcatSeparator.AND, searches=list(args) + filters
+                sep=ConcatSeparator.AND, searches=list(search_strings) + filter_searches
             )
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
@@ -1258,10 +1257,7 @@ QTableView {{ gridline-color: {grid} }}
         return self._simpleFilters(
             (
                 (tr(TR.BROWSING_WHOLE_COLLECTION), NamedFilter.WHOLE_COLLECTION),
-                (
-                    tr(TR.BROWSING_CURRENT_DECK),
-                    NamedFilter.CURRENT_DECK,
-                ),
+                (tr(TR.BROWSING_CURRENT_DECK), NamedFilter.CURRENT_DECK),
             )
         )
 
