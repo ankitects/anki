@@ -722,7 +722,7 @@ mod test {
             )
         );
         assert_eq!(
-            s(ctx, "rated:400:1").0,
+            s(ctx, "rated:365:1").0,
             format!(
                 "(c.id in (select cid from revlog where id>{} and ease=1))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
