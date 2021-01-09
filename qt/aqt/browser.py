@@ -872,7 +872,20 @@ QTableView {{ gridline-color: {grid} }}
         self.singleCard = False
 
     def setupEditor(self):
+        def add_preview_button(leftbuttons, editor):
+            leftbuttons.insert(0, editor.addButton(
+                None,
+                "preview",
+                lambda _editor: self.onTogglePreview(),
+                "Preview Selected Card",
+                "Preview",
+                disables=False,
+                rightside=False,
+            ))
+
+        gui_hooks.editor_did_init_left_buttons.append(add_preview_button)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
+        gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
     def onRowChanged(self, current, previous):
         "Update current note and hide/show editor."
