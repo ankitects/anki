@@ -1248,7 +1248,7 @@ QTableView {{ gridline-color: {grid} }}
                 ml.addItem(label, self._named_filter(filter_name))
         return ml
 
-    def _named_filter(self, name: Any) -> Callable:
+    def _named_filter(self, name: "FilterToSearchIn.NamedFilterValue") -> Callable:
         return lambda: self.setFilter(
             self.col.backend.filter_to_search(FilterToSearchIn(name=name))
         )
