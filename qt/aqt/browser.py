@@ -20,7 +20,13 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput, NamedFilter
+from anki.rsbackend import (
+    ConcatSeparator,
+    DeckTreeNode,
+    FilterToSearchIn,
+    InvalidInput,
+    NamedFilter,
+)
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1109,14 +1115,14 @@ QTableView {{ gridline-color: {grid} }}
         item = SidebarItem(
             tr(TR.BROWSING_WHOLE_COLLECTION),
             ":/icons/collection.svg",
-            self._filterFunc(name=NamedFilter.WHOLE_COLLECTION),
+            self._named_filter(NamedFilter.WHOLE_COLLECTION),
             item_type=SidebarItemType.COLLECTION,
         )
         root.addChild(item)
         item = SidebarItem(
             tr(TR.BROWSING_CURRENT_DECK),
             ":/icons/deck.svg",
-            self._filterFunc(name=NamedFilter.CURRENT_DECK),
+            self._named_filter(NamedFilter.CURRENT_DECK),
             item_type=SidebarItemType.CURRENT_DECK,
         )
         root.addChild(item)
@@ -1128,7 +1134,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 name,
                 ":/icons/heart.svg",
-                self._filterFunc(filt),
+                self._saved_filter(filt),
                 item_type=SidebarItemType.FILTER,
             )
             root.addChild(item)
@@ -1139,7 +1145,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 t,
                 ":/icons/tag.svg",
-                self._filterFunc(tag=t),
+                self._tag_filter(t),
                 item_type=SidebarItemType.TAG,
             )
             root.addChild(item)
@@ -1150,10 +1156,6 @@ QTableView {{ gridline-color: {grid} }}
         def fillGroups(root, nodes: Sequence[DeckTreeNode], head=""):
             for node in nodes:
 
-                def set_filter():
-                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda: self.setFilter(deck=full_name)
-
                 def toggle_expand():
                     did = node.deck_id  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
@@ -1161,7 +1163,7 @@ QTableView {{ gridline-color: {grid} }}
                 item = SidebarItem(
                     node.name,
                     ":/icons/deck.svg",
-                    set_filter(),
+                    self._deck_filter(head + node.name),
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
@@ -1179,7 +1181,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 m.name,
                 ":/icons/notetype.svg",
-                self._filterFunc(note=m.name),
+                self._note_filter(m.name),
                 item_type=SidebarItemType.NOTETYPE,
             )
             root.addChild(item)
@@ -1207,11 +1209,10 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.popupOver(self.form.filter)
 
-    def setFilter(self, *search_strings, **filters):
+    def setFilter(self, *searches):
         try:
-            filter_searches = self.col.backend.filters_to_searches(filters)
             search = self.col.backend.concatenate_searches(
-                sep=ConcatSeparator.AND, searches=list(search_strings) + filter_searches
+                sep=ConcatSeparator.AND, searches=searches
             )
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
@@ -1247,11 +1248,37 @@ QTableView {{ gridline-color: {grid} }}
                 ml.addSeparator()
             else:
                 label, filter_name = row
-                ml.addItem(label, self._filterFunc(name=filter_name))
+                ml.addItem(label, self._named_filter(filter_name))
         return ml
 
-    def _filterFunc(self, *args, **kwargs):
-        return lambda: self.setFilter(*args, **kwargs)
+    def _named_filter(self, name: Any) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(name=name))
+        )
+
+    def _tag_filter(self, tag: str) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(tag=tag))
+        )
+
+    def _deck_filter(self, deck: str) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(deck=deck))
+        )
+
+    def _note_filter(self, note: str) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(note=note))
+        )
+
+    def _template_filter(self, note: str, template: int) -> Callable:
+        return lambda: self.setFilter(
+            self.col.backend.filter_to_search(FilterToSearchIn(note=note)),
+            self.col.backend.filter_to_search(FilterToSearchIn(template=template)),
+        )
+
+    def _saved_filter(self, saved: str) -> Callable:
+        return lambda: self.setFilter(saved)
 
     def _commonFilters(self):
         return self._simpleFilters(
@@ -1309,7 +1336,7 @@ QTableView {{ gridline-color: {grid} }}
 
         tagList = MenuList()
         for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(self._escapeMenuItem(t), self._filterFunc(tag=t))
+            tagList.addItem(self._escapeMenuItem(t), self._tag_filter(t))
 
         m.addChild(tagList.chunked())
         return m
@@ -1322,11 +1349,11 @@ QTableView {{ gridline-color: {grid} }}
                 fullname = parent_prefix + node.name
                 if node.children:
                     subm = parent.addMenu(escaped_name)
-                    subm.addItem(tr(TR.ACTIONS_FILTER), self._filterFunc(deck=fullname))
+                    subm.addItem(tr(TR.ACTIONS_FILTER), self._deck_filter(fullname))
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
-                    parent.addItem(escaped_name, self._filterFunc(deck=fullname))
+                    parent.addItem(escaped_name, self._deck_filter(fullname))
 
         alldecks = self.col.decks.deck_tree()
         ml = MenuList()
@@ -1348,12 +1375,12 @@ QTableView {{ gridline-color: {grid} }}
             escaped_nt_name = self._escapeMenuItem(nt["name"])
             # no sub menu if it's a single template
             if len(nt["tmpls"]) == 1:
-                noteTypes.addItem(escaped_nt_name, self._filterFunc(note=nt["name"]))
+                noteTypes.addItem(escaped_nt_name, self._note_filter(nt["name"]))
             else:
                 subm = noteTypes.addMenu(escaped_nt_name)
 
                 subm.addItem(
-                    tr(TR.BROWSING_ALL_CARD_TYPES), self._filterFunc(note=nt["name"])
+                    tr(TR.BROWSING_ALL_CARD_TYPES), self._note_filter(nt["name"])
                 )
                 subm.addSeparator()
 
@@ -1366,9 +1393,7 @@ QTableView {{ gridline-color: {grid} }}
                         num=c + 1,
                         name=self._escapeMenuItem(tmpl["name"]),
                     )
-                    subm.addItem(
-                        name, self._filterFunc(note=nt["name"], template=c + 1)
-                    )
+                    subm.addItem(name, self._template_filter(nt["name"], c + 1))
 
         m.addChild(noteTypes.chunked())
         return m
@@ -1395,7 +1420,7 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.addSeparator()
         for name, filt in sorted(saved.items()):
-            ml.addItem(self._escapeMenuItem(name), self._filterFunc(filt))
+            ml.addItem(self._escapeMenuItem(name), self._saved_filter(filt))
 
         return ml
 
