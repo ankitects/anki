@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::server::SyncServer;
 use super::*;
+use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
 use reqwest::Body;
@@ -10,11 +12,14 @@ use reqwest::Body;
 
 static SYNC_VERSION: u8 = 10;
 
+pub type FullSyncProgressFn = Box<dyn FnMut(FullSyncProgress, bool) + Send + Sync + 'static>;
+
 pub struct HTTPSyncClient {
     hkey: Option<String>,
     skey: String,
     client: Client,
     endpoint: String,
+    full_sync_progress_fn: Option<FullSyncProgressFn>,
 }
 
 #[derive(Serialize)]
@@ -113,7 +118,12 @@ impl HTTPSyncClient {
             skey,
             client,
             endpoint,
+            full_sync_progress_fn: None,
         }
+    }
+
+    pub fn set_full_sync_progress_fn(&mut self, func: Option<FullSyncProgressFn>) {
+        self.full_sync_progress_fn = func;
     }
 
     async fn json_request<T>(&self, method: &str, json: &T, timeout_long: bool) -> Result<Response>
@@ -178,8 +188,11 @@ impl HTTPSyncClient {
     pub(crate) fn hkey(&self) -> &str {
         self.hkey.as_ref().unwrap()
     }
+}
 
-    pub(crate) async fn meta(&self) -> Result<SyncMeta> {
+#[async_trait(?Send)]
+impl SyncServer for HTTPSyncClient {
+    async fn meta(&self) -> Result<SyncMeta> {
         let meta_in = MetaIn {
             sync_version: SYNC_VERSION,
             client_version: sync_client_version(),
@@ -187,8 +200,8 @@ impl HTTPSyncClient {
         self.json_request_deserialized("meta", &meta_in).await
     }
 
-    pub(crate) async fn start(
-        &self,
+    async fn start(
+        &mut self,
         local_usn: Usn,
         minutes_west: Option<i32>,
         local_is_newer: bool,
@@ -202,47 +215,92 @@ impl HTTPSyncClient {
         self.json_request_deserialized("start", &input).await
     }
 
-    pub(crate) async fn apply_graves(&self, chunk: Graves) -> Result<()> {
+    async fn apply_graves(&mut self, chunk: Graves) -> Result<()> {
         let input = ApplyGravesIn { chunk };
         let resp = self.json_request("applyGraves", &input, false).await?;
         resp.error_for_status()?;
         Ok(())
     }
 
-    pub(crate) async fn apply_changes(
-        &self,
-        changes: UnchunkedChanges,
-    ) -> Result<UnchunkedChanges> {
+    async fn apply_changes(&mut self, changes: UnchunkedChanges) -> Result<UnchunkedChanges> {
         let input = ApplyChangesIn { changes };
         self.json_request_deserialized("applyChanges", &input).await
     }
 
-    pub(crate) async fn chunk(&self) -> Result<Chunk> {
+    async fn chunk(&mut self) -> Result<Chunk> {
         self.json_request_deserialized("chunk", &Empty {}).await
     }
 
-    pub(crate) async fn apply_chunk(&self, chunk: Chunk) -> Result<()> {
+    async fn apply_chunk(&mut self, chunk: Chunk) -> Result<()> {
         let input = ApplyChunkIn { chunk };
         let resp = self.json_request("applyChunk", &input, false).await?;
         resp.error_for_status()?;
         Ok(())
     }
 
-    pub(crate) async fn sanity_check(&self, client: SanityCheckCounts) -> Result<SanityCheckOut> {
+    async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckOut> {
         let input = SanityCheckIn { client, full: true };
         self.json_request_deserialized("sanityCheck2", &input).await
     }
 
-    pub(crate) async fn finish(&self) -> Result<TimestampMillis> {
+    async fn finish(&mut self) -> Result<TimestampMillis> {
         Ok(self.json_request_deserialized("finish", &Empty {}).await?)
     }
 
-    pub(crate) async fn abort(&self) -> Result<()> {
+    async fn abort(&mut self) -> Result<()> {
         let resp = self.json_request("abort", &Empty {}, false).await?;
         resp.error_for_status()?;
         Ok(())
     }
 
+    async fn full_upload(mut self: Box<Self>, col_path: &Path, _can_consume: bool) -> Result<()> {
+        let file = tokio::fs::File::open(col_path).await?;
+        let total_bytes = file.metadata().await?.len() as usize;
+        let progress_fn = self
+            .full_sync_progress_fn
+            .take()
+            .expect("progress func was not set");
+        let wrap1 = ProgressWrapper {
+            reader: file,
+            progress_fn,
+            progress: FullSyncProgress {
+                transferred_bytes: 0,
+                total_bytes,
+            },
+        };
+        let wrap2 = async_compression::stream::GzipEncoder::new(wrap1);
+        let body = Body::wrap_stream(wrap2);
+        self.upload_inner(body).await?;
+
+        Ok(())
+    }
+
+    /// Download collection into a temporary file, returning it.
+    /// Caller should persist the file in the correct path after checking it.
+    /// Progress func must be set first.
+    async fn full_download(mut self: Box<Self>, folder: &Path) -> Result<NamedTempFile> {
+        let mut temp_file = NamedTempFile::new_in(folder)?;
+        let (size, mut stream) = self.download_inner().await?;
+        let mut progress = FullSyncProgress {
+            transferred_bytes: 0,
+            total_bytes: size,
+        };
+        let mut progress_fn = self
+            .full_sync_progress_fn
+            .take()
+            .expect("progress func was not set");
+        while let Some(chunk) = stream.next().await {
+            let chunk = chunk?;
+            temp_file.write_all(&chunk)?;
+            progress.transferred_bytes += chunk.len();
+            progress_fn(progress, true);
+        }
+        progress_fn(progress, false);
+        Ok(temp_file)
+    }
+}
+
+impl HTTPSyncClient {
     async fn download_inner(
         &self,
     ) -> Result<(
@@ -252,33 +310,6 @@ impl HTTPSyncClient {
         let resp: reqwest::Response = self.json_request("download", &Empty {}, true).await?;
         let len = resp.content_length().unwrap_or_default();
         Ok((len as usize, resp.bytes_stream()))
-    }
-
-    /// Download collection into a temporary file, returning it.
-    /// Caller should persist the file in the correct path after checking it.
-    pub(crate) async fn download<P>(
-        &self,
-        folder: &Path,
-        mut progress_fn: P,
-    ) -> Result<NamedTempFile>
-    where
-        P: FnMut(FullSyncProgress, bool),
-    {
-        let mut temp_file = NamedTempFile::new_in(folder)?;
-        let (size, mut stream) = self.download_inner().await?;
-        let mut progress = FullSyncProgress {
-            transferred_bytes: 0,
-            total_bytes: size,
-        };
-        while let Some(chunk) = stream.next().await {
-            let chunk = chunk?;
-            temp_file.write_all(&chunk)?;
-            progress.transferred_bytes += chunk.len();
-            progress_fn(progress, true);
-        }
-        progress_fn(progress, false);
-
-        Ok(temp_file)
     }
 
     async fn upload_inner(&self, body: Body) -> Result<()> {
@@ -294,27 +325,6 @@ impl HTTPSyncClient {
         } else {
             Ok(())
         }
-    }
-
-    pub(crate) async fn upload<P>(&mut self, col_path: &Path, progress_fn: P) -> Result<()>
-    where
-        P: FnMut(FullSyncProgress, bool) + Send + Sync + 'static,
-    {
-        let file = tokio::fs::File::open(col_path).await?;
-        let total_bytes = file.metadata().await?.len() as usize;
-        let wrap1 = ProgressWrapper {
-            reader: file,
-            progress_fn,
-            progress: FullSyncProgress {
-                transferred_bytes: 0,
-                total_bytes,
-            },
-        };
-        let wrap2 = async_compression::stream::GzipEncoder::new(wrap1);
-        let body = Body::wrap_stream(wrap2);
-        self.upload_inner(body).await?;
-
-        Ok(())
     }
 }
 
@@ -380,7 +390,7 @@ mod test {
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
-        let mut syncer = HTTPSyncClient::new(None, 0);
+        let mut syncer = Box::new(HTTPSyncClient::new(None, 0));
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
@@ -445,17 +455,16 @@ mod test {
         use tempfile::tempdir;
 
         let dir = tempdir()?;
-        let out_path = syncer
-            .download(&dir.path(), |progress, _throttle| {
-                println!("progress: {:?}", progress);
-            })
-            .await?;
+        syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
+            println!("progress: {:?}", progress);
+        })));
+        let out_path = syncer.full_download(&dir.path()).await?;
 
-        syncer
-            .upload(&out_path.path(), |progress, _throttle| {
-                println!("progress {:?}", progress);
-            })
-            .await?;
+        let mut syncer = Box::new(HTTPSyncClient::new(None, 0));
+        syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
+            println!("progress {:?}", progress);
+        })));
+        syncer.full_upload(&out_path.path(), false).await?;
 
         Ok(())
     }

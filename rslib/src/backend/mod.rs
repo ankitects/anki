@@ -1694,11 +1694,11 @@ impl Backend {
         };
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(input.into(), progress_fn);
+            let sync_fut = col_inner.full_upload(input.into(), Box::new(progress_fn));
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(input.into(), progress_fn);
+            let sync_fut = col_inner.full_download(input.into(), Box::new(progress_fn));
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };
