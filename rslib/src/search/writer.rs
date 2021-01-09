@@ -87,7 +87,7 @@ pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
     Ok(write_nodes(&nodes))
 }
 
-fn write_nodes<'a, I>(nodes: I) -> String
+pub fn write_nodes<'a, I>(nodes: I) -> String
 where
     I: IntoIterator<Item = &'a Node<'a>>,
 {

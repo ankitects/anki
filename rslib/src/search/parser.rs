@@ -42,7 +42,7 @@ impl<I> From<nom::Err<(I, ErrorKind)>> for ParseError {
 type ParseResult<T> = std::result::Result<T, ParseError>;
 
 #[derive(Debug, PartialEq)]
-pub(super) enum Node<'a> {
+pub enum Node<'a> {
     And,
     Or,
     Not(Box<Node<'a>>),
@@ -51,7 +51,7 @@ pub(super) enum Node<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum SearchNode<'a> {
+pub enum SearchNode<'a> {
     // text without a colon
     UnqualifiedText(Cow<'a, str>),
     // foo:bar, where foo doesn't match a term below
@@ -91,7 +91,7 @@ pub(super) enum SearchNode<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum PropertyKind {
+pub enum PropertyKind {
     Due(i32),
     Interval(u32),
     Reps(u32),
@@ -101,7 +101,7 @@ pub(super) enum PropertyKind {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum StateKind {
+pub enum StateKind {
     New,
     Review,
     Learning,
@@ -113,7 +113,7 @@ pub(super) enum StateKind {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum TemplateKind<'a> {
+pub enum TemplateKind<'a> {
     Ordinal(u16),
     Name(Cow<'a, str>),
 }
