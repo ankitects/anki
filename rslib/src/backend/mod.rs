@@ -1320,17 +1320,18 @@ impl BackendService for Backend {
     fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             let name = &input.name;
-            let tag: Result<Tag> = if let Some(tag) = col.storage.get_tag(name)? {
-                Ok(tag)
+            let mut tag = if let Some(tag) = col.storage.get_tag(name)? {
+                tag
             } else {
                 // tag is missing, register it
                 let t = Tag {
                     name: name.to_owned(),
                     ..Default::default()
                 };
-                Ok(col.register_tag(t)?.0)
+                col.register_tag(t)?.0
             };
-            tag?.config.browser_collapsed = input.collapsed;
+            tag.config.browser_collapsed = input.collapsed;
+            col.update_tag(&tag)?;
             Ok(pb::Bool { val: true })
         })
     }
