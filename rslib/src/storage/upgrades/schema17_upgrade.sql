@@ -1,7 +1,7 @@
-drop table tags;
-create table tags (
-    id integer primary key not null,
-    name text not null collate unicase,
-    usn integer not null,
-    config blob not null
+DROP TABLE tags;
+CREATE TABLE tags (
+  id integer PRIMARY KEY NOT NULL,
+  name text NOT NULL COLLATE unicase,
+  usn integer NOT NULL,
+  config blob NOT NULL
 );

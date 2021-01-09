@@ -1,13 +1,10 @@
-select
-  case
-    when ?1 in (
-      select
-        id
-      from tags
-    ) then (
-      select
-        max(id) + 1
-      from tags
+SELECT CASE
+    WHEN ?1 IN (
+      SELECT id
+      FROM tags
+    ) THEN (
+      SELECT max(id) + 1
+      FROM tags
     )
-    else ?1
-  end;
+    ELSE ?1
+  END;
