@@ -1,6 +1,5 @@
-update notes
-set
-  guid = ?,
+UPDATE notes
+SET guid = ?,
   mid = ?,
   mod = ?,
   usn = ?,
@@ -8,5 +7,4 @@ set
   flds = ?,
   sfld = ?,
   csum = ?
-where
-  id = ?
+WHERE id = ?

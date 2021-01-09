@@ -1,20 +1,19 @@
-create table deck_config (
-  id integer primary key not null,
-  name text not null collate unicase,
-  mtime_secs integer not null,
-  usn integer not null,
-  config blob not null
+CREATE TABLE deck_config (
+  id integer PRIMARY KEY NOT NULL,
+  name text NOT NULL COLLATE unicase,
+  mtime_secs integer NOT NULL,
+  usn integer NOT NULL,
+  config blob NOT NULL
 );
-create table config (
-  key text not null primary key,
-  usn integer not null,
-  mtime_secs integer not null,
-  val blob not null
+CREATE TABLE config (
+  KEY text NOT NULL PRIMARY KEY,
+  usn integer NOT NULL,
+  mtime_secs integer NOT NULL,
+  val blob NOT NULL
 ) without rowid;
-create table tags (
-  tag text not null primary key collate unicase,
-  usn integer not null
+CREATE TABLE tags (
+  tag text NOT NULL PRIMARY KEY COLLATE unicase,
+  usn integer NOT NULL
 ) without rowid;
-update col
-set
-  ver = 14;
+UPDATE col
+SET ver = 14;

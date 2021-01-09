@@ -1,41 +1,41 @@
-select did,
+SELECT did,
   sum(queue = :new_queue),
   sum(
     queue = :review_queue
-    and due <= :day_cutoff
+    AND due <= :day_cutoff
   ),
   -- learning
   sum(
     (
-      case
+      CASE
         :sched_ver
-        when 2 then (
+        WHEN 2 THEN (
           -- v2 scheduler
           (
             queue = :learn_queue
-            and due < :learn_cutoff
+            AND due < :learn_cutoff
           )
-          or (
+          OR (
             queue = :daylearn_queue
-            and due <= :day_cutoff
+            AND due <= :day_cutoff
           )
-          or (
+          OR (
             queue = :preview_queue
-            and due <= :learn_cutoff
+            AND due <= :learn_cutoff
           )
         )
-        else (
+        ELSE (
           -- v1 scheduler
-          case
-            when queue = :learn_queue
-            and due < :learn_cutoff then left / 1000
-            when queue = :daylearn_queue
-            and due <= :day_cutoff then 1
-            else 0
-          end
+          CASE
+            WHEN queue = :learn_queue
+            AND due < :learn_cutoff THEN left / 1000
+            WHEN queue = :daylearn_queue
+            AND due <= :day_cutoff THEN 1
+            ELSE 0
+          END
         )
-      end
+      END
     )
   )
-from cards
-where queue >= 0
+FROM cards
+WHERE queue >= 0

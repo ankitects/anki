@@ -1,27 +1,26 @@
-select
-  id,
+SELECT id,
   nid,
   ord,
   -- original deck
   (
-    case
+    CASE
       odid
-      when 0 then did
-      else odid
-    end
+      WHEN 0 THEN did
+      ELSE odid
+    END
   ),
   -- new position if card is empty
   (
-    case
+    CASE
       type
-      when 0 then (
-        case
+      WHEN 0 THEN (
+        CASE
           odue
-          when 0 then max(0, due)
-          else max(odue, 0)
-        end
+          WHEN 0 THEN max(0, due)
+          ELSE max(odue, 0)
+        END
       )
-      else null
-    end
+      ELSE NULL
+    END
   )
-from cards c
+FROM cards c

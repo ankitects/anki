@@ -1,13 +1,10 @@
-select
-  case
-    when ?1 in (
-      select
-        id
-      from decks
-    ) then (
-      select
-        max(id) + 1
-      from decks
+SELECT CASE
+    WHEN ?1 IN (
+      SELECT id
+      FROM decks
+    ) THEN (
+      SELECT max(id) + 1
+      FROM decks
     )
-    else ?1
-  end;
+    ELSE ?1
+  END;

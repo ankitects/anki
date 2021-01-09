@@ -1,8 +1,8 @@
-insert into active_decks
-select id
-from decks
-where name = ?
-    or (
-        name >= ?
-        and name < ?
-    )
+INSERT INTO active_decks
+SELECT id
+FROM decks
+WHERE name = ?
+  OR (
+    name >= ?
+    AND name < ?
+  )

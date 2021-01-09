@@ -1,4 +1,3 @@
-insert
-  or replace into deck_config (id, name, mtime_secs, usn, config)
-values
-  (?, ?, ?, ?, ?);
+INSERT
+  OR REPLACE INTO deck_config (id, name, mtime_secs, usn, config)
+VALUES (?, ?, ?, ?, ?);
