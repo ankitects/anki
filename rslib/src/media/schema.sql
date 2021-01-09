@@ -1,9 +1,9 @@
 CREATE TABLE media (
   fname text NOT NULL PRIMARY KEY,
-  csum text,
   -- null indicates deleted file
-  mtime int NOT NULL,
+  csum text,
   -- zero if deleted
+  mtime int NOT NULL,
   dirty int NOT NULL
 ) without rowid;
 CREATE INDEX idx_media_dirty ON media (dirty)
