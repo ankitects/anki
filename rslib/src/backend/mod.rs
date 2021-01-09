@@ -36,8 +36,8 @@ use crate::{
     sched::new::NewCardSortOrder,
     sched::timespan::{answer_button_time, time_span},
     search::{
-        concatenate_searches, negate_search, normalize_search, replace_search_term, BoolSeparator,
-        SortMode,
+        concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
+        BoolSeparator, Node, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -45,7 +45,7 @@ use crate::{
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
     template::RenderedNode,
-    text::{extract_av_tags, strip_av_tags, AVTag},
+    text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -277,6 +277,46 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
+impl From<pb::FilterToSearchIn> for Node<'_> {
+    fn from(msg: pb::FilterToSearchIn) -> Self {
+        use pb::filter_to_search_in::Filter as F;
+        use pb::filter_to_search_in::NamedFilter as NF;
+        use Node as N;
+        use SearchNode as SN;
+        match msg.filter.unwrap_or(F::Name(NF::WholeCollection as i32)) {
+            F::Name(name) => match NF::from_i32(name).unwrap_or(NF::WholeCollection) {
+                NF::WholeCollection => N::Search(SN::WholeCollection),
+                NF::CurrentDeck => N::Search(SN::Deck("current".into())),
+                NF::AddedToday => N::Search(SN::AddedInDays(1)),
+                NF::StudiedToday => N::Search(SN::Rated {
+                    days: 1,
+                    ease: None,
+                }),
+                NF::AgainToday => N::Search(SN::Rated {
+                    days: 1,
+                    ease: Some(1),
+                }),
+                NF::New => N::Search(SN::State(StateKind::New)),
+                NF::Learn => N::Search(SN::State(StateKind::Learning)),
+                NF::Review => N::Search(SN::State(StateKind::Review)),
+                NF::Due => N::Search(SN::State(StateKind::Due)),
+                NF::Suspended => N::Search(SN::State(StateKind::Suspended)),
+                NF::Buried => N::Search(SN::State(StateKind::Buried)),
+                NF::RedFlag => N::Search(SN::Flag(1)),
+                NF::OrangeFlag => N::Search(SN::Flag(2)),
+                NF::GreenFlag => N::Search(SN::Flag(3)),
+                NF::BlueFlag => N::Search(SN::Flag(4)),
+                NF::NoFlag => N::Search(SN::Flag(0)),
+                NF::AnyFlag => N::Not(Box::new(N::Search(SN::Flag(0)))),
+            },
+            F::Tag(s) => N::Search(SN::Tag(escape_anki_wildcards(&s).into_owned().into())),
+            F::Deck(s) => N::Search(SN::Deck(escape_anki_wildcards(&s).into_owned().into())),
+            F::Note(s) => N::Search(SN::NoteType(escape_anki_wildcards(&s).into_owned().into())),
+            F::Template(u) => N::Search(SN::CardTemplate(TemplateKind::Ordinal(u as u16))),
+        }
+    }
+}
+
 impl From<BoolSeparatorProto> for BoolSeparator {
     fn from(sep: BoolSeparatorProto) -> Self {
         match sep {
@@ -407,6 +447,10 @@ impl BackendService for Backend {
 
     // searching
     //-----------------------------------------------
+
+    fn filter_to_search(&self, input: pb::FilterToSearchIn) -> Result<pb::String> {
+        Ok(write_nodes(&[input.into()]).into())
+    }
 
     fn normalize_search(&self, input: pb::String) -> Result<pb::String> {
         Ok(normalize_search(&input.val)?.into())

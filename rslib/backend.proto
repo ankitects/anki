@@ -84,6 +84,7 @@ service BackendService {
 
     // searching
 
+    rpc FilterToSearch (FilterToSearchIn) returns (String);
     rpc NormalizeSearch (String) returns (String);
     rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
     rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
@@ -754,6 +755,35 @@ message BuiltinSearchOrder {
     }
     BuiltinSortKind kind = 1;
     bool reverse = 2;
+}
+
+message FilterToSearchIn {
+    enum NamedFilter {
+        WHOLE_COLLECTION = 0;
+        CURRENT_DECK = 1;
+        ADDED_TODAY = 2;
+        STUDIED_TODAY = 3;
+        AGAIN_TODAY = 4;
+        NEW = 5;
+        LEARN = 6;
+        REVIEW = 7;
+        DUE = 8;
+        SUSPENDED = 9;
+        BURIED = 10;
+        RED_FLAG = 11;
+        ORANGE_FLAG = 12;
+        GREEN_FLAG = 13;
+        BLUE_FLAG = 14;
+        NO_FLAG = 15;
+        ANY_FLAG = 16;
+    }
+    oneof filter {
+        NamedFilter name = 1;
+        string tag = 2;
+        string deck = 3;
+        string note = 4;
+        uint32 template = 5;
+    }
 }
 
 message ConcatenateSearchesIn {
