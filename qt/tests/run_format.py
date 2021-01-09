@@ -22,7 +22,7 @@ if __name__ == "__main__":
             "black",
             "-t",
             "py38",
-            "--exclude=aqt/forms|colors",
+            "--exclude=aqt/forms|colors|_gen",
             "aqt",
             "tests",
             "tools",
