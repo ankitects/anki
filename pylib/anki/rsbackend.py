@@ -262,10 +262,10 @@ class RustBackend(RustBackendGenerated):
         err.ParseFromString(err_bytes)
         raise proto_exception_to_native(err)
 
-    def filters_to_searches(self, **kwargs) -> List[str]:
+    def filters_to_searches(self, filters: dict) -> List[str]:
         return [
-            self.filter_to_search(pb.FilterToSearchIn(**dict([f])))
-            for f in kwargs.items()
+            self.filter_to_search(pb.FilterToSearchIn(**{key: val}))
+            for key, val in filters.items()
         ]
 
 
