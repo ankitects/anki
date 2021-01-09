@@ -1,4 +1,3 @@
-insert
-  or replace into notetype_config (ntid, config)
-values
-  (?, ?)
+INSERT
+  OR REPLACE INTO notetype_config (ntid, config)
+VALUES (?, ?)

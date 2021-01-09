@@ -1,19 +1,16 @@
-insert into notetypes (id, name, mtime_secs, usn, config)
-values
-  (
+INSERT INTO notetypes (id, name, mtime_secs, usn, config)
+VALUES (
     (
-      case
-        when ?1 in (
-          select
-            id
-          from notetypes
-        ) then (
-          select
-            max(id) + 1
-          from notetypes
+      CASE
+        WHEN ?1 IN (
+          SELECT id
+          FROM notetypes
+        ) THEN (
+          SELECT max(id) + 1
+          FROM notetypes
         )
-        else ?1
-      end
+        ELSE ?1
+      END
     ),
     ?,
     ?,

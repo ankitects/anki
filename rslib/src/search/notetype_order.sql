@@ -1,11 +1,9 @@
-drop table if exists sort_order;
-create temporary table sort_order (
-  pos integer primary key,
-  ntid integer not null unique
+DROP TABLE IF EXISTS sort_order;
+CREATE TEMPORARY TABLE sort_order (
+  pos integer PRIMARY KEY,
+  ntid integer NOT NULL UNIQUE
 );
-insert into sort_order (ntid)
-select
-  id
-from notetypes
-order by
-  name;
+INSERT INTO sort_order (ntid)
+SELECT id
+FROM notetypes
+ORDER BY name;

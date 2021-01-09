@@ -1,9 +1,6 @@
-select
-  ord,
+SELECT ord,
   name,
   config
-from fields
-where
-  ntid = ?
-order by
-  ord
+FROM FIELDS
+WHERE ntid = ?
+ORDER BY ord

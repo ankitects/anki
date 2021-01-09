@@ -1,5 +1,3 @@
-select
-  count(id) = 0
-from cards
-where
-  nid = ?;
+SELECT COUNT(id) = 0
+FROM cards
+WHERE nid = ?;

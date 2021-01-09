@@ -1,11 +1,9 @@
-drop table if exists sort_order;
-create temporary table sort_order (
-  pos integer primary key,
-  did integer not null unique
+DROP TABLE IF EXISTS sort_order;
+CREATE TEMPORARY TABLE sort_order (
+  pos integer PRIMARY KEY,
+  did integer NOT NULL UNIQUE
 );
-insert into sort_order (did)
-select
-  id
-from decks
-order by
-  name;
+INSERT INTO sort_order (did)
+SELECT id
+FROM decks
+ORDER BY name;
