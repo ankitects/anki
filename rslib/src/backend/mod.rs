@@ -1300,23 +1300,6 @@ impl BackendService for Backend {
         Ok(pb::AllTagsOut { tags })
     }
 
-    fn get_tag(&self, name: pb::String) -> BackendResult<pb::Tag> {
-        self.with_col(|col| {
-            if let Some(tag) = col.storage.get_tag(name.val.as_str())? {
-                Ok(tag.into())
-            } else {
-                Err(AnkiError::NotFound)
-            }
-        })
-    }
-
-    fn update_tag(&self, tag: pb::Tag) -> BackendResult<pb::Bool> {
-        self.with_col(|col| {
-            col.update_tag(&tag.into())?;
-            Ok(pb::Bool { val: true })
-        })
-    }
-
     fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             let name = &input.name;

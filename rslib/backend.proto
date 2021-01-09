@@ -66,167 +66,162 @@ message DeckConfigID {
   int64 dcid = 1;
 }
 
-message TagID {
-    int64 tid = 1;
-}
-
 // New style RPC definitions
 ///////////////////////////////////////////////////////////
 
 service BackendService {
-    rpc LatestProgress (Empty) returns (Progress);
-    rpc SetWantsAbort (Empty) returns (Empty);
+  rpc LatestProgress(Empty) returns (Progress);
+  rpc SetWantsAbort(Empty) returns (Empty);
 
-    // card rendering
+  // card rendering
 
-    rpc ExtractAVTags (ExtractAVTagsIn) returns (ExtractAVTagsOut);
-    rpc ExtractLatex (ExtractLatexIn) returns (ExtractLatexOut);
-    rpc GetEmptyCards (Empty) returns (EmptyCardsReport);
-    rpc RenderExistingCard (RenderExistingCardIn) returns (RenderCardOut);
-    rpc RenderUncommittedCard (RenderUncommittedCardIn) returns (RenderCardOut);
-    rpc StripAVTags (String) returns (String);
+  rpc ExtractAVTags(ExtractAVTagsIn) returns (ExtractAVTagsOut);
+  rpc ExtractLatex(ExtractLatexIn) returns (ExtractLatexOut);
+  rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
+  rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
+  rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
+  rpc StripAVTags(String) returns (String);
 
-    // searching
+  // searching
 
-    rpc NormalizeSearch (String) returns (String);
-    rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
-    rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
-    rpc NegateSearch (String) returns (String);
-    rpc ConcatenateSearches (ConcatenateSearchesIn) returns (String);
-    rpc ReplaceSearchTerm (ReplaceSearchTermIn) returns (String);
-    rpc FindAndReplace (FindAndReplaceIn) returns (UInt32);
+  rpc NormalizeSearch(String) returns (String);
+  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
+  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
+  rpc NegateSearch(String) returns (String);
+  rpc ConcatenateSearches(ConcatenateSearchesIn) returns (String);
+  rpc ReplaceSearchTerm(ReplaceSearchTermIn) returns (String);
+  rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
 
-    // scheduling
+  // scheduling
 
-    rpc LocalMinutesWest (Int64) returns (Int32);
-    rpc SetLocalMinutesWest (Int32) returns (Empty);
-    rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
-    rpc StudiedToday (Empty) returns (String);
-    rpc StudiedTodayMessage (StudiedTodayMessageIn) returns (String);
-    rpc UpdateStats (UpdateStatsIn) returns (Empty);
-    rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
-    rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
-    rpc CongratsInfo (Empty) returns (CongratsInfoOut);
-    rpc RestoreBuriedAndSuspendedCards (CardIDs) returns (Empty);
-    rpc UnburyCardsInCurrentDeck (UnburyCardsInCurrentDeckIn) returns (Empty);
-    rpc BuryOrSuspendCards (BuryOrSuspendCardsIn) returns (Empty);
-    rpc EmptyFilteredDeck (DeckID) returns (Empty);
-    rpc RebuildFilteredDeck (DeckID) returns (UInt32);
-    rpc ScheduleCardsAsReviews (ScheduleCardsAsReviewsIn) returns (Empty);
-    rpc ScheduleCardsAsNew (ScheduleCardsAsNewIn) returns (Empty);
-    rpc SortCards (SortCardsIn) returns (Empty);
-    rpc SortDeck (SortDeckIn) returns (Empty);
+  rpc LocalMinutesWest(Int64) returns (Int32);
+  rpc SetLocalMinutesWest(Int32) returns (Empty);
+  rpc SchedTimingToday(Empty) returns (SchedTimingTodayOut);
+  rpc StudiedToday(Empty) returns (String);
+  rpc StudiedTodayMessage(StudiedTodayMessageIn) returns (String);
+  rpc UpdateStats(UpdateStatsIn) returns (Empty);
+  rpc ExtendLimits(ExtendLimitsIn) returns (Empty);
+  rpc CountsForDeckToday(DeckID) returns (CountsForDeckTodayOut);
+  rpc CongratsInfo(Empty) returns (CongratsInfoOut);
+  rpc RestoreBuriedAndSuspendedCards(CardIDs) returns (Empty);
+  rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (Empty);
+  rpc EmptyFilteredDeck(DeckID) returns (Empty);
+  rpc RebuildFilteredDeck(DeckID) returns (UInt32);
+  rpc ScheduleCardsAsReviews(ScheduleCardsAsReviewsIn) returns (Empty);
+  rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (Empty);
+  rpc SortCards(SortCardsIn) returns (Empty);
+  rpc SortDeck(SortDeckIn) returns (Empty);
 
-    // stats
+  // stats
 
-    rpc CardStats (CardID) returns (String);
-    rpc Graphs(GraphsIn) returns (GraphsOut);
+  rpc CardStats(CardID) returns (String);
+  rpc Graphs(GraphsIn) returns (GraphsOut);
 
-    // media
+  // media
 
-    rpc CheckMedia (Empty) returns (CheckMediaOut);
-    rpc TrashMediaFiles (TrashMediaFilesIn) returns (Empty);
-    rpc AddMediaFile (AddMediaFileIn) returns (String);
-    rpc EmptyTrash (Empty) returns (Empty);
-    rpc RestoreTrash (Empty) returns (Empty);
+  rpc CheckMedia(Empty) returns (CheckMediaOut);
+  rpc TrashMediaFiles(TrashMediaFilesIn) returns (Empty);
+  rpc AddMediaFile(AddMediaFileIn) returns (String);
+  rpc EmptyTrash(Empty) returns (Empty);
+  rpc RestoreTrash(Empty) returns (Empty);
 
-    // decks
+  // decks
 
-    rpc AddOrUpdateDeckLegacy (AddOrUpdateDeckLegacyIn) returns (DeckID);
-    rpc DeckTree (DeckTreeIn) returns (DeckTreeNode);
-    rpc DeckTreeLegacy (Empty) returns (Json);
-    rpc GetAllDecksLegacy (Empty) returns (Json);
-    rpc GetDeckIDByName (String) returns (DeckID);
-    rpc GetDeckLegacy (DeckID) returns (Json);
-    rpc GetDeckNames (GetDeckNamesIn) returns (DeckNames);
-    rpc NewDeckLegacy (Bool) returns (Json);
-    rpc RemoveDeck (DeckID) returns (Empty);
+  rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckID);
+  rpc DeckTree(DeckTreeIn) returns (DeckTreeNode);
+  rpc DeckTreeLegacy(Empty) returns (Json);
+  rpc GetAllDecksLegacy(Empty) returns (Json);
+  rpc GetDeckIDByName(String) returns (DeckID);
+  rpc GetDeckLegacy(DeckID) returns (Json);
+  rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
+  rpc NewDeckLegacy(Bool) returns (Json);
+  rpc RemoveDeck(DeckID) returns (Empty);
 
-    // deck config
+  // deck config
 
-    rpc AddOrUpdateDeckConfigLegacy (AddOrUpdateDeckConfigLegacyIn) returns (DeckConfigID);
-    rpc AllDeckConfigLegacy (Empty) returns (Json);
-    rpc GetDeckConfigLegacy (DeckConfigID) returns (Json);
-    rpc NewDeckConfigLegacy (Empty) returns (Json);
-    rpc RemoveDeckConfig (DeckConfigID) returns (Empty);
+  rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
+      returns (DeckConfigID);
+  rpc AllDeckConfigLegacy(Empty) returns (Json);
+  rpc GetDeckConfigLegacy(DeckConfigID) returns (Json);
+  rpc NewDeckConfigLegacy(Empty) returns (Json);
+  rpc RemoveDeckConfig(DeckConfigID) returns (Empty);
 
-    // cards
+  // cards
 
-    rpc GetCard (CardID) returns (Card);
-    rpc UpdateCard (Card) returns (Empty);
-    rpc AddCard (Card) returns (CardID);
-    rpc RemoveCards (RemoveCardsIn) returns (Empty);
-    rpc SetDeck (SetDeckIn) returns (Empty);
+  rpc GetCard(CardID) returns (Card);
+  rpc UpdateCard(Card) returns (Empty);
+  rpc AddCard(Card) returns (CardID);
+  rpc RemoveCards(RemoveCardsIn) returns (Empty);
+  rpc SetDeck(SetDeckIn) returns (Empty);
 
-    // notes
+  // notes
 
-    rpc NewNote (NoteTypeID) returns (Note);
-    rpc AddNote (AddNoteIn) returns (NoteID);
-    rpc UpdateNote (Note) returns (Empty);
-    rpc GetNote (NoteID) returns (Note);
-    rpc RemoveNotes (RemoveNotesIn) returns (Empty);
-    rpc AddNoteTags (AddNoteTagsIn) returns (UInt32);
-    rpc UpdateNoteTags (UpdateNoteTagsIn) returns (UInt32);
-    rpc GetNoteTags(GetNoteTagsIn) returns (GetNoteTagsOut);
-    rpc ClozeNumbersInNote (Note) returns (ClozeNumbersInNoteOut);
-    rpc AfterNoteUpdates (AfterNoteUpdatesIn) returns (Empty);
-    rpc FieldNamesForNotes (FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
-    rpc NoteIsDuplicateOrEmpty (Note) returns (NoteIsDuplicateOrEmptyOut);
-    rpc CardsOfNote (NoteID) returns (CardIDs);
+  rpc NewNote(NoteTypeID) returns (Note);
+  rpc AddNote(AddNoteIn) returns (NoteID);
+  rpc UpdateNote(Note) returns (Empty);
+  rpc GetNote(NoteID) returns (Note);
+  rpc RemoveNotes(RemoveNotesIn) returns (Empty);
+  rpc AddNoteTags(AddNoteTagsIn) returns (UInt32);
+  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (UInt32);
+  rpc GetNoteTags(GetNoteTagsIn) returns (GetNoteTagsOut);
+  rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
+  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (Empty);
+  rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
+  rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
+  rpc CardsOfNote(NoteID) returns (CardIDs);
 
-    // note types
+  // note types
 
-    rpc AddOrUpdateNotetype (AddOrUpdateNotetypeIn) returns (NoteTypeID);
-    rpc GetStockNotetypeLegacy (GetStockNotetypeIn) returns (Json);
-    rpc GetNotetypeLegacy (NoteTypeID) returns (Json);
-    rpc GetNotetypeNames (Empty) returns (NoteTypeNames);
-    rpc GetNotetypeNamesAndCounts (Empty) returns (NoteTypeUseCounts);
-    rpc GetNotetypeIDByName (String) returns (NoteTypeID);
-    rpc RemoveNotetype (NoteTypeID) returns (Empty);
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
+  rpc GetStockNotetypeLegacy(GetStockNotetypeIn) returns (Json);
+  rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
+  rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
+  rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
+  rpc GetNotetypeIDByName(String) returns (NoteTypeID);
+  rpc RemoveNotetype(NoteTypeID) returns (Empty);
 
-    // collection
+  // collection
 
-    rpc OpenCollection (OpenCollectionIn) returns (Empty);
-    rpc CloseCollection (CloseCollectionIn) returns (Empty);
-    rpc CheckDatabase (Empty) returns (CheckDatabaseOut);
+  rpc OpenCollection(OpenCollectionIn) returns (Empty);
+  rpc CloseCollection(CloseCollectionIn) returns (Empty);
+  rpc CheckDatabase(Empty) returns (CheckDatabaseOut);
 
-    // sync
+  // sync
 
-    rpc SyncMedia (SyncAuth) returns (Empty);
-    rpc AbortSync (Empty) returns (Empty);
-    rpc AbortMediaSync (Empty) returns (Empty);
-    rpc BeforeUpload (Empty) returns (Empty);
-    rpc SyncLogin (SyncLoginIn) returns (SyncAuth);
-    rpc SyncStatus (SyncAuth) returns (SyncStatusOut);
-    rpc SyncCollection (SyncAuth) returns (SyncCollectionOut);
-    rpc FullUpload (SyncAuth) returns (Empty);
-    rpc FullDownload (SyncAuth) returns (Empty);
+  rpc SyncMedia(SyncAuth) returns (Empty);
+  rpc AbortSync(Empty) returns (Empty);
+  rpc AbortMediaSync(Empty) returns (Empty);
+  rpc BeforeUpload(Empty) returns (Empty);
+  rpc SyncLogin(SyncLoginIn) returns (SyncAuth);
+  rpc SyncStatus(SyncAuth) returns (SyncStatusOut);
+  rpc SyncCollection(SyncAuth) returns (SyncCollectionOut);
+  rpc FullUpload(SyncAuth) returns (Empty);
+  rpc FullDownload(SyncAuth) returns (Empty);
 
-    // translation/messages
+  // translation/messages
 
-    rpc TranslateString (TranslateStringIn) returns (String);
-    rpc FormatTimespan (FormatTimespanIn) returns (String);
-    rpc I18nResources (Empty) returns (Json);
+  rpc TranslateString(TranslateStringIn) returns (String);
+  rpc FormatTimespan(FormatTimespanIn) returns (String);
+  rpc I18nResources(Empty) returns (Json);
 
-    // tags
+  // tags
 
-    rpc RegisterTags (RegisterTagsIn) returns (Bool);
-    rpc AllTags (Empty) returns (AllTagsOut);
-    rpc GetTag (String) returns (Tag);
-    rpc UpdateTag (Tag) returns (Bool);
-    rpc SetTagCollapsed (SetTagCollapsedIn) returns (Bool);
-    rpc ClearTag (String) returns (Bool);
-    rpc TagTree (Empty) returns (TagTreeNode);
+  rpc RegisterTags(RegisterTagsIn) returns (Bool);
+  rpc AllTags(Empty) returns (AllTagsOut);
+  rpc SetTagCollapsed(SetTagCollapsedIn) returns (Bool);
+  rpc ClearTag(String) returns (Bool);
+  rpc TagTree(Empty) returns (TagTreeNode);
 
-    // config/preferences
+  // config/preferences
 
-    rpc GetConfigJson (String) returns (Json);
-    rpc SetConfigJson (SetConfigJsonIn) returns (Empty);
-    rpc RemoveConfig (String) returns (Empty);
-    rpc SetAllConfig (Json) returns (Empty);
-    rpc GetAllConfig (Empty) returns (Json);
-    rpc GetPreferences (Empty) returns (Preferences);
-    rpc SetPreferences (Preferences) returns (Empty);
+  rpc GetConfigJson(String) returns (Json);
+  rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
+  rpc RemoveConfig(String) returns (Empty);
+  rpc SetAllConfig(Json) returns (Empty);
+  rpc GetAllConfig(Empty) returns (Json);
+  rpc GetPreferences(Empty) returns (Preferences);
+  rpc SetPreferences(Preferences) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
@@ -794,23 +789,23 @@ message RegisterTagsIn {
 }
 
 message AllTagsOut {
-    repeated Tag tags = 1;
+  repeated Tag tags = 1;
 }
 
 message SetTagCollapsedIn {
-    string name = 1;
-    bool collapsed = 2;
+  string name = 1;
+  bool collapsed = 2;
 }
 
 message TagConfig {
-    bool browser_collapsed = 1;
+  bool browser_collapsed = 1;
 }
 
 message Tag {
-    int64 id = 1;
-    string name = 2;
-    sint32 usn = 3;
-    TagConfig config = 4;
+  int64 id = 1;
+  string name = 2;
+  sint32 usn = 3;
+  TagConfig config = 4;
 }
 
 message GetChangedTagsOut {
@@ -818,11 +813,11 @@ message GetChangedTagsOut {
 }
 
 message TagTreeNode {
-    int64 tag_id = 1;
-    string name = 2;
-    repeated TagTreeNode children = 3;
-    uint32 level = 5;
-    bool collapsed = 4;
+  int64 tag_id = 1;
+  string name = 2;
+  repeated TagTreeNode children = 3;
+  uint32 level = 5;
+  bool collapsed = 4;
 }
 
 message SetConfigJsonIn {
@@ -932,11 +927,11 @@ message UpdateNoteTagsIn {
 }
 
 message GetNoteTagsIn {
-    repeated int64 nids = 1;
+  repeated int64 nids = 1;
 }
 
 message GetNoteTagsOut {
-    repeated string tags = 1;
+  repeated string tags = 1;
 }
 
 message CheckDatabaseOut {
