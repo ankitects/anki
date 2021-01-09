@@ -214,6 +214,7 @@ service BackendService {
     rpc AllTags (Empty) returns (AllTagsOut);
     rpc GetTag (String) returns (Tag);
     rpc UpdateTag (Tag) returns (Bool);
+    rpc SetTagCollapsed (SetTagCollapsedIn) returns (Bool);
     rpc ClearTag (String) returns (Bool);
     rpc TagTree (Empty) returns (TagTreeNode);
 
@@ -794,6 +795,11 @@ message RegisterTagsIn {
 
 message AllTagsOut {
     repeated Tag tags = 1;
+}
+
+message SetTagCollapsedIn {
+    string name = 1;
+    bool collapsed = 2;
 }
 
 message TagConfig {

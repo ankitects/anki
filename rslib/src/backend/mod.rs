@@ -44,6 +44,7 @@ use crate::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
+    tags::Tag,
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -1312,6 +1313,24 @@ impl BackendService for Backend {
     fn update_tag(&self, tag: pb::Tag) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             col.update_tag(&tag.into())?;
+            Ok(pb::Bool { val: true })
+        })
+    }
+
+    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Bool> {
+        self.with_col(|col| {
+            let name = &input.name;
+            let tag: Result<Tag> = if let Some(tag) = col.storage.get_tag(name)? {
+                Ok(tag)
+            } else {
+                // tag is missing, register it
+                let t = Tag {
+                    name: name.to_owned(),
+                    ..Default::default()
+                };
+                Ok(col.register_tag(t)?.0)
+            };
+            tag?.config.browser_collapsed = input.collapsed;
             Ok(pb::Bool { val: true })
         })
     }

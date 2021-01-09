@@ -21,13 +21,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import (
-    ConcatSeparator,
-    DeckTreeNode,
-    InvalidInput,
-    NotFoundError,
-    TagTreeNode,
-)
+from anki.rsbackend import ConcatSeparator, DeckTreeNode, InvalidInput, TagTreeNode
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -1152,18 +1146,10 @@ QTableView {{ gridline-color: {grid} }}
                     return lambda: self.setFilter("tag", full_name)
 
                 def toggle_expand():
-
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
-
-                    def toggle(_):
-                        try:
-                            self.mw.col.tags.toggle_browser_collapse(full_name)
-                        except NotFoundError:
-                            # tag is missing, register it first
-                            self.mw.col.tags.register([full_name])
-                            self.mw.col.tags.toggle_browser_collapse(full_name)
-
-                    return toggle
+                    return lambda _: self.mw.col.tags.set_collapsed(
+                        full_name, not node.collapsed
+                    )
 
                 item = SidebarItem(
                     node.name,
