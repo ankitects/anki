@@ -11,6 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
+from random import randrange
 from typing import Callable, List, Optional, Tuple
 
 import bs4
@@ -252,10 +253,23 @@ class Editor:
         if func:
             self._links[cmd] = func
         if keys:
+            def on_activated():
+                func(self)
+
+            if toggleable:
+                # generate a random id for triggering toggle
+                id = id or str(randrange(1_000_000))
+
+                def on_hotkey():
+                    on_activated()
+                    self.web.eval(f'toggleEditorButton("#{id}");')
+            else:
+                on_hotkey = on_activated
+
             QShortcut(  # type: ignore
                 QKeySequence(keys),
                 self.widget,
-                activated=lambda s=self: func(s),
+                activated=on_hotkey,
             )
         btn = self._addButton(
             icon,
