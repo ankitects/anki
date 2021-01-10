@@ -320,7 +320,7 @@ fn parse_added(s: &str) -> ParseResult<SearchNode<'static>> {
 fn parse_edited(s: &str) -> ParseResult<SearchNode<'static>> {
     let n: u32 = s.parse()?;
     let days = n.max(1);
-    Ok(SearchNode::EditedInDays(n))
+    Ok(SearchNode::EditedInDays(days))
 }
 
 /// eg is:due
