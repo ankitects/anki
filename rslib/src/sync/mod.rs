@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub mod http;
 mod http_client;
 mod server;
 
@@ -10,30 +11,23 @@ use crate::{
     deckconf::DeckConfSchema11,
     decks::DeckSchema11,
     err::SyncErrorKind,
-    notes::{guid, Note},
+    notes::Note,
     notetype::{NoteType, NoteTypeSchema11},
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
     storage::open_and_check_sqlite_file,
     tags::{join_tags, split_tags},
-    version::sync_client_version,
 };
-use flate2::write::GzEncoder;
-use flate2::Compression;
-use futures::StreamExt;
 pub use http_client::FullSyncProgressFn;
 use http_client::HTTPSyncClient;
 pub use http_client::Timeouts;
 use itertools::Itertools;
-use reqwest::{multipart, Client, Response};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
-use server::SyncServer;
-use std::io::prelude::*;
-use std::{collections::HashMap, path::Path, time::Duration};
-use tempfile::NamedTempFile;
+pub(crate) use server::SyncServer;
+use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone, Copy)]
 pub struct NormalSyncProgress {
@@ -1194,6 +1188,8 @@ impl From<SyncActionRequired> for sync_status_out::Required {
 
 #[cfg(test)]
 mod test {
+    use std::path::Path;
+
     use async_trait::async_trait;
     use lazy_static::lazy_static;
 

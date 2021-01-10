@@ -2,11 +2,29 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::server::SyncServer;
-use super::*;
+use super::{
+    Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckOut, SyncMeta, UnchunkedChanges,
+};
+use crate::prelude::*;
+use crate::{err::SyncErrorKind, notes::guid, version::sync_client_version};
 use async_trait::async_trait;
 use bytes::Bytes;
+use flate2::write::GzEncoder;
+use flate2::Compression;
 use futures::Stream;
+use futures::StreamExt;
 use reqwest::Body;
+use reqwest::{multipart, Client, Response};
+use serde::de::DeserializeOwned;
+
+use super::http::{
+    ApplyChangesIn, ApplyChunkIn, ApplyGravesIn, HostKeyIn, HostKeyOut, MetaIn, SanityCheckIn,
+    StartIn, SyncRequest,
+};
+use std::io::prelude::*;
+use std::path::Path;
+use std::time::Duration;
+use tempfile::NamedTempFile;
 
 // fixme: 100mb limit
 
@@ -20,61 +38,6 @@ pub struct HTTPSyncClient {
     client: Client,
     endpoint: String,
     full_sync_progress_fn: Option<FullSyncProgressFn>,
-}
-
-#[derive(Serialize)]
-struct HostKeyIn<'a> {
-    #[serde(rename = "u")]
-    username: &'a str,
-    #[serde(rename = "p")]
-    password: &'a str,
-}
-#[derive(Deserialize)]
-struct HostKeyOut {
-    key: String,
-}
-
-#[derive(Serialize)]
-struct MetaIn<'a> {
-    #[serde(rename = "v")]
-    sync_version: u8,
-    #[serde(rename = "cv")]
-    client_version: &'a str,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct StartIn {
-    #[serde(rename = "minUsn")]
-    local_usn: Usn,
-    #[serde(rename = "offset")]
-    minutes_west: Option<i32>,
-    // only used to modify behaviour of changes()
-    #[serde(rename = "lnewer")]
-    local_is_newer: bool,
-    // used by 2.0 clients
-    #[serde(skip_serializing_if = "Option::is_none")]
-    local_graves: Option<Graves>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ApplyGravesIn {
-    chunk: Graves,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ApplyChangesIn {
-    changes: UnchunkedChanges,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ApplyChunkIn {
-    chunk: Chunk,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct SanityCheckIn {
-    client: SanityCheckCounts,
-    full: bool,
 }
 
 pub struct Timeouts {
@@ -99,158 +62,64 @@ impl Timeouts {
         }
     }
 }
-#[derive(Serialize)]
-struct Empty {}
-
-impl HTTPSyncClient {
-    pub fn new(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
-        let timeouts = Timeouts::new();
-        let client = Client::builder()
-            .connect_timeout(Duration::from_secs(timeouts.connect_secs))
-            .timeout(Duration::from_secs(timeouts.request_secs))
-            .io_timeout(Duration::from_secs(timeouts.io_secs))
-            .build()
-            .unwrap();
-        let skey = guid();
-        let endpoint = sync_endpoint(host_number);
-        HTTPSyncClient {
-            hkey,
-            skey,
-            client,
-            endpoint,
-            full_sync_progress_fn: None,
-        }
-    }
-
-    pub fn set_full_sync_progress_fn(&mut self, func: Option<FullSyncProgressFn>) {
-        self.full_sync_progress_fn = func;
-    }
-
-    async fn json_request<T>(&self, method: &str, json: &T, timeout_long: bool) -> Result<Response>
-    where
-        T: serde::Serialize,
-    {
-        let req_json = serde_json::to_vec(json)?;
-
-        let mut gz = GzEncoder::new(Vec::new(), Compression::fast());
-        gz.write_all(&req_json)?;
-        let part = multipart::Part::bytes(gz.finish()?);
-
-        self.request(method, part, timeout_long).await
-    }
-
-    async fn json_request_deserialized<T, T2>(&self, method: &str, json: &T) -> Result<T2>
-    where
-        T: Serialize,
-        T2: DeserializeOwned,
-    {
-        self.json_request(method, json, false)
-            .await?
-            .json()
-            .await
-            .map_err(Into::into)
-    }
-
-    async fn request(
-        &self,
-        method: &str,
-        data_part: multipart::Part,
-        timeout_long: bool,
-    ) -> Result<Response> {
-        let data_part = data_part.file_name("data");
-
-        let mut form = multipart::Form::new()
-            .part("data", data_part)
-            .text("c", "1");
-        if let Some(hkey) = &self.hkey {
-            form = form.text("k", hkey.clone()).text("s", self.skey.clone());
-        }
-
-        let url = format!("{}{}", self.endpoint, method);
-        let mut req = self.client.post(&url).multipart(form);
-
-        if timeout_long {
-            req = req.timeout(Duration::from_secs(60 * 60));
-        }
-
-        req.send().await?.error_for_status().map_err(Into::into)
-    }
-
-    pub(crate) async fn login(&mut self, username: &str, password: &str) -> Result<()> {
-        let resp: HostKeyOut = self
-            .json_request_deserialized("hostKey", &HostKeyIn { username, password })
-            .await?;
-        self.hkey = Some(resp.key);
-
-        Ok(())
-    }
-
-    pub(crate) fn hkey(&self) -> &str {
-        self.hkey.as_ref().unwrap()
-    }
-}
 
 #[async_trait(?Send)]
 impl SyncServer for HTTPSyncClient {
     async fn meta(&self) -> Result<SyncMeta> {
-        let meta_in = MetaIn {
+        let input = SyncRequest::Meta(MetaIn {
             sync_version: SYNC_VERSION,
-            client_version: sync_client_version(),
-        };
-        self.json_request_deserialized("meta", &meta_in).await
+            client_version: sync_client_version().to_string(),
+        });
+        self.json_request(&input).await
     }
 
     async fn start(
         &mut self,
-        local_usn: Usn,
+        client_usn: Usn,
         minutes_west: Option<i32>,
         local_is_newer: bool,
     ) -> Result<Graves> {
-        let input = StartIn {
-            local_usn,
+        let input = SyncRequest::Start(StartIn {
+            client_usn,
             minutes_west,
             local_is_newer,
-            local_graves: None,
-        };
-        self.json_request_deserialized("start", &input).await
+        });
+        self.json_request(&input).await
     }
 
     async fn apply_graves(&mut self, chunk: Graves) -> Result<()> {
-        let input = ApplyGravesIn { chunk };
-        let resp = self.json_request("applyGraves", &input, false).await?;
-        resp.error_for_status()?;
-        Ok(())
+        let input = SyncRequest::ApplyGraves(ApplyGravesIn { chunk });
+        self.json_request(&input).await
     }
 
     async fn apply_changes(&mut self, changes: UnchunkedChanges) -> Result<UnchunkedChanges> {
-        let input = ApplyChangesIn { changes };
-        self.json_request_deserialized("applyChanges", &input).await
+        let input = SyncRequest::ApplyChanges(ApplyChangesIn { changes });
+        self.json_request(&input).await
     }
 
     async fn chunk(&mut self) -> Result<Chunk> {
-        self.json_request_deserialized("chunk", &Empty {}).await
+        let input = SyncRequest::Chunk;
+        self.json_request(&input).await
     }
 
     async fn apply_chunk(&mut self, chunk: Chunk) -> Result<()> {
-        let input = ApplyChunkIn { chunk };
-        let resp = self.json_request("applyChunk", &input, false).await?;
-        resp.error_for_status()?;
-        Ok(())
+        let input = SyncRequest::ApplyChunk(ApplyChunkIn { chunk });
+        self.json_request(&input).await
     }
 
     async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckOut> {
-        let input = SanityCheckIn { client, full: true };
-        self.json_request_deserialized("sanityCheck2", &input).await
+        let input = SyncRequest::SanityCheck(SanityCheckIn { client, full: true });
+        self.json_request(&input).await
     }
 
     async fn finish(&mut self) -> Result<TimestampMillis> {
-        Ok(self.json_request_deserialized("finish", &Empty {}).await?)
+        let input = SyncRequest::Finish;
+        self.json_request(&input).await
     }
 
     async fn abort(&mut self) -> Result<()> {
-        let resp = self.json_request("abort", &Empty {}, false).await?;
-        resp.error_for_status()?;
-        Ok(())
+        let input = SyncRequest::Abort;
+        self.json_request(&input).await
     }
 
     async fn full_upload(mut self: Box<Self>, col_path: &Path, _can_consume: bool) -> Result<()> {
@@ -301,13 +170,101 @@ impl SyncServer for HTTPSyncClient {
 }
 
 impl HTTPSyncClient {
+    pub fn new(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
+        let timeouts = Timeouts::new();
+        let client = Client::builder()
+            .connect_timeout(Duration::from_secs(timeouts.connect_secs))
+            .timeout(Duration::from_secs(timeouts.request_secs))
+            .io_timeout(Duration::from_secs(timeouts.io_secs))
+            .build()
+            .unwrap();
+        let skey = guid();
+        let endpoint = sync_endpoint(host_number);
+        HTTPSyncClient {
+            hkey,
+            skey,
+            client,
+            endpoint,
+            full_sync_progress_fn: None,
+        }
+    }
+
+    pub fn set_full_sync_progress_fn(&mut self, func: Option<FullSyncProgressFn>) {
+        self.full_sync_progress_fn = func;
+    }
+
+    async fn json_request<T>(&self, req: &SyncRequest) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        let (method, req_json) = req.to_method_and_json()?;
+        self.request_bytes(method, &req_json, false)
+            .await?
+            .json()
+            .await
+            .map_err(Into::into)
+    }
+
+    async fn request_bytes(
+        &self,
+        method: &str,
+        req: &[u8],
+        timeout_long: bool,
+    ) -> Result<Response> {
+        let mut gz = GzEncoder::new(Vec::new(), Compression::fast());
+        gz.write_all(req)?;
+        let part = multipart::Part::bytes(gz.finish()?);
+        let resp = self.request(method, part, timeout_long).await?;
+        resp.error_for_status().map_err(Into::into)
+    }
+
+    async fn request(
+        &self,
+        method: &str,
+        data_part: multipart::Part,
+        timeout_long: bool,
+    ) -> Result<Response> {
+        let data_part = data_part.file_name("data");
+
+        let mut form = multipart::Form::new()
+            .part("data", data_part)
+            .text("c", "1");
+        if let Some(hkey) = &self.hkey {
+            form = form.text("k", hkey.clone()).text("s", self.skey.clone());
+        }
+
+        let url = format!("{}{}", self.endpoint, method);
+        let mut req = self.client.post(&url).multipart(form);
+
+        if timeout_long {
+            req = req.timeout(Duration::from_secs(60 * 60));
+        }
+
+        req.send().await?.error_for_status().map_err(Into::into)
+    }
+
+    pub(crate) async fn login<S: Into<String>>(&mut self, username: S, password: S) -> Result<()> {
+        let input = SyncRequest::HostKey(HostKeyIn {
+            username: username.into(),
+            password: password.into(),
+        });
+        let output: HostKeyOut = self.json_request(&input).await?;
+        self.hkey = Some(output.key);
+
+        Ok(())
+    }
+
+    pub(crate) fn hkey(&self) -> &str {
+        self.hkey.as_ref().unwrap()
+    }
+
     async fn download_inner(
         &self,
     ) -> Result<(
         usize,
         impl Stream<Item = std::result::Result<Bytes, reqwest::Error>>,
     )> {
-        let resp: reqwest::Response = self.json_request("download", &Empty {}, true).await?;
+        let resp: reqwest::Response = self.request_bytes("download", b"{}", true).await?;
         let len = resp.content_length().unwrap_or_default();
         Ok((len as usize, resp.bytes_stream()))
     }
@@ -386,7 +343,7 @@ fn sync_endpoint(host_number: u32) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::err::SyncErrorKind;
+    use crate::{err::SyncErrorKind, sync::SanityCheckDueCounts};
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
