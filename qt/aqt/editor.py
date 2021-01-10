@@ -252,27 +252,29 @@ class Editor:
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
             self._links[cmd] = func
-        if keys:
 
-            def on_activated():
-                func(self)
+            if keys:
 
-            if toggleable:
-                # generate a random id for triggering toggle
-                id = id or str(randrange(1_000_000))
+                def on_activated():
+                    func(self)
 
-                def on_hotkey():
-                    on_activated()
-                    self.web.eval(f'toggleEditorButton("#{id}");')
+                if toggleable:
+                    # generate a random id for triggering toggle
+                    id = id or str(randrange(1_000_000))
 
-            else:
-                on_hotkey = on_activated
+                    def on_hotkey():
+                        on_activated()
+                        self.web.eval(f'toggleEditorButton("#{id}");')
 
-            QShortcut(  # type: ignore
-                QKeySequence(keys),
-                self.widget,
-                activated=on_hotkey,
-            )
+                else:
+                    on_hotkey = on_activated
+
+                QShortcut(  # type: ignore
+                    QKeySequence(keys),
+                    self.widget,
+                    activated=on_hotkey,
+                )
+
         btn = self._addButton(
             icon,
             cmd,
