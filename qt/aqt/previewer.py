@@ -16,6 +16,7 @@ from aqt.qt import (
     QIcon,
     QKeySequence,
     QPixmap,
+    QShortcut,
     Qt,
     QVBoxLayout,
     QWidget,
@@ -62,6 +63,9 @@ class Previewer(QDialog):
 
     def _create_gui(self):
         self.setWindowTitle(tr(TR.ACTIONS_PREVIEW))
+
+        self.close_shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
+        qconnect(self.close_shortcut.activated, self.close)
 
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
