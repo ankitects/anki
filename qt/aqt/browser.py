@@ -1575,7 +1575,10 @@ where id in %s"""
 
     def _renderPreview(self):
         if self._previewer:
-            self._previewer.render_card()
+            if self.singleCard:
+                self._previewer.render_card()
+            else:
+                self.onTogglePreview()
 
     def _cleanup_preview(self):
         if self._previewer:
