@@ -253,6 +253,7 @@ class Editor:
         if func:
             self._links[cmd] = func
         if keys:
+
             def on_activated():
                 func(self)
 
@@ -263,6 +264,7 @@ class Editor:
                 def on_hotkey():
                     on_activated()
                     self.web.eval(f'toggleEditorButton("#{id}");')
+
             else:
                 on_hotkey = on_activated
 

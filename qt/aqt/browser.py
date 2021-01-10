@@ -868,18 +868,24 @@ QTableView {{ gridline-color: {grid} }}
     def setupEditor(self):
         def add_preview_button(leftbuttons, editor):
             preview_shortcut = "Ctrl+Shift+P"
-            leftbuttons.insert(0, editor.addButton(
-                None,
-                "preview",
-                lambda _editor: self.onTogglePreview(),
-                tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val=preview_shortcut),
-                tr(TR.ACTIONS_PREVIEW),
-                id="previewButton",
-                keys=preview_shortcut,
-                disables=False,
-                rightside=False,
-                toggleable=True,
-            ))
+            leftbuttons.insert(
+                0,
+                editor.addButton(
+                    None,
+                    "preview",
+                    lambda _editor: self.onTogglePreview(),
+                    tr(
+                        TR.BROWSING_PREVIEW_SELECTED_CARD,
+                        val=shortcut(preview_shortcut),
+                    ),
+                    tr(TR.ACTIONS_PREVIEW),
+                    id="previewButton",
+                    keys=preview_shortcut,
+                    disables=False,
+                    rightside=False,
+                    toggleable=True,
+                ),
+            )
 
         gui_hooks.editor_did_init_left_buttons.append(add_preview_button)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)

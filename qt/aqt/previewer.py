@@ -309,9 +309,6 @@ class BrowserPreviewer(MultiCardPreviewer):
             self._last_card_id = c.id
             return changed
 
-    def _on_finished(self, ok):
-        super()._on_finished(ok)
-
     def _on_prev_card(self):
         self._parent.editor.saveNow(
             lambda: self._parent._moveCur(QAbstractItemView.MoveUp)
