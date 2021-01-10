@@ -1577,7 +1577,8 @@ where id in %s"""
             self._previewer.close()
 
     def _on_preview_closed(self):
-        self.editor.web.eval("$('#previewButton').removeClass('highlighted')")
+        if self.editor.web:
+            self.editor.web.eval("$('#previewButton').removeClass('highlighted')")
         self._previewer = None
 
     # Card deletion
