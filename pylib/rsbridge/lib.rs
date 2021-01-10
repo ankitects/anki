@@ -57,6 +57,7 @@ fn want_release_gil(method: u32) -> bool {
                 | BackendMethod::NegateSearch
                 | BackendMethod::ConcatenateSearches
                 | BackendMethod::ReplaceSearchTerm
+                | BackendMethod::FilterToSearch
         )
     } else {
         false
