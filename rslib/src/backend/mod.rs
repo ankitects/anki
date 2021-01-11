@@ -37,7 +37,7 @@ use crate::{
     sched::timespan::{answer_button_time, time_span},
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, Node, SearchNode, SortMode, StateKind, TemplateKind,
+        BoolSeparator, EaseKind, Node, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -292,11 +292,11 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                     NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
                     NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
                         days: 1,
-                        ease: None,
+                        ease: EaseKind::Reviewed,
                     }),
                     NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
                         days: 1,
-                        ease: Some(1),
+                        ease: EaseKind::Rated(1),
                     }),
                     NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
                     NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),

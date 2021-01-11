@@ -5,7 +5,7 @@ use crate::{
     decks::DeckID as DeckIDType,
     err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind, EaseKind},
+    search::parser::{parse, EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
 use itertools::Itertools;
 use std::mem;
