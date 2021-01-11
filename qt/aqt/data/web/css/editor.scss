@@ -65,15 +65,33 @@ button.linkb {
     box-shadow: none;
     padding: 0px 2px;
     background: transparent;
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .nightMode & > img {
+        filter: invert(180);
+    }
 }
 
-button.linkb:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+button:focus {
+    outline: none;
 }
 
 button.highlighted {
-    border-bottom: 3px solid #000;
+    .nightMode #topbutsleft & {
+        background: linear-gradient(0deg, #333333 0%, #434343 100%);
+    }
+
+    #topbutsleft & {
+        background-color: lightgrey;
+    }
+
+    #topbutsright & {
+        border-bottom: 3px solid #000;
+    }
 }
 
 #fields {
@@ -86,12 +104,6 @@ button.highlighted {
 
 #dupes a {
     color: var(--link);
-}
-
-.nightMode {
-    button.linkb > img {
-        filter: invert(180);
-    }
 }
 
 .drawing {
