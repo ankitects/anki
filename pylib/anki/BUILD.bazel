@@ -96,6 +96,8 @@ py_library(
         requirement("distro"),
         requirement("protobuf"),
         requirement("requests"),
+        requirement("flask"),
+        requirement("waitress"),
     ] + orjson_if_available(),
 )
 
@@ -110,6 +112,12 @@ py_wheel(
     abi = "abi3",
     description_file = "wheel_description.txt",
     distribution = "anki",
+    extra_requires = {
+        "syncserver": [
+            "flask",
+            "waitress",
+        ],
+    },
     platform = select({
         "//platforms:windows_x86_64": "win_amd64",
         "//platforms:macos_x86_64": "macosx_10_7_x86_64",

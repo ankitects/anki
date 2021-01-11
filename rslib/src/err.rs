@@ -5,6 +5,7 @@ use crate::i18n::{tr_args, tr_strs, I18n, TR};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
 use std::{io, str::Utf8Error};
+use tempfile::PathPersistError;
 
 pub type Result<T> = std::result::Result<T, AnkiError>;
 
@@ -94,6 +95,8 @@ impl AnkiError {
                 SyncErrorKind::ResyncRequired => i18n.tr(TR::SyncResyncRequired),
                 SyncErrorKind::ClockIncorrect => i18n.tr(TR::SyncClockOff),
                 SyncErrorKind::DatabaseCheckRequired => i18n.tr(TR::SyncSanityCheckFailed),
+                // server message
+                SyncErrorKind::SyncNotStarted => "sync not started".into(),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
@@ -229,6 +232,7 @@ pub enum SyncErrorKind {
     Other,
     ResyncRequired,
     DatabaseCheckRequired,
+    SyncNotStarted,
 }
 
 fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {
@@ -326,4 +330,12 @@ pub enum DBErrorKind {
     Locked,
     Utf8,
     Other,
+}
+
+impl From<PathPersistError> for AnkiError {
+    fn from(e: PathPersistError) -> Self {
+        AnkiError::IOError {
+            info: e.to_string(),
+        }
+    }
 }

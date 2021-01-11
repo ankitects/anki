@@ -26,8 +26,11 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
-pub(crate) use server::SyncServer;
+pub(crate) use server::{LocalServer, SyncServer};
 use std::collections::HashMap;
+
+pub static SYNC_VERSION_MIN: u8 = 7;
+pub static SYNC_VERSION_MAX: u8 = 10;
 
 #[derive(Default, Debug, Clone, Copy)]
 pub struct NormalSyncProgress {
@@ -51,23 +54,23 @@ impl Default for SyncStage {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct SyncMeta {
     #[serde(rename = "mod")]
-    modified: TimestampMillis,
+    pub modified: TimestampMillis,
     #[serde(rename = "scm")]
-    schema: TimestampMillis,
-    usn: Usn,
+    pub schema: TimestampMillis,
+    pub usn: Usn,
     #[serde(rename = "ts")]
-    current_time: TimestampSecs,
+    pub current_time: TimestampSecs,
     #[serde(rename = "msg")]
-    server_message: String,
+    pub server_message: String,
     #[serde(rename = "cont")]
-    should_continue: bool,
+    pub should_continue: bool,
     #[serde(rename = "hostNum")]
-    host_number: u32,
+    pub host_number: u32,
     #[serde(default)]
-    empty: bool,
+    pub empty: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -158,16 +161,16 @@ pub struct CardEntry {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SanityCheckOut {
-    status: SanityCheckStatus,
+    pub status: SanityCheckStatus,
     #[serde(rename = "c", default, deserialize_with = "default_on_invalid")]
-    client: Option<SanityCheckCounts>,
+    pub client: Option<SanityCheckCounts>,
     #[serde(rename = "s", default, deserialize_with = "default_on_invalid")]
-    server: Option<SanityCheckCounts>,
+    pub server: Option<SanityCheckCounts>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "lowercase")]
-enum SanityCheckStatus {
+pub enum SanityCheckStatus {
     Ok,
     Bad,
 }
@@ -666,9 +669,8 @@ impl Collection {
 
     pub(crate) async fn full_download_inner(self, server: Box<dyn SyncServer>) -> Result<()> {
         let col_path = self.col_path.clone();
-        let folder = col_path.parent().unwrap();
         self.close(false)?;
-        let out_file = server.full_download(folder).await?;
+        let out_file = server.full_download().await?;
         // check file ok
         let db = open_and_check_sqlite_file(out_file.path())?;
         db.execute_batch("update col set ls=mod")?;
