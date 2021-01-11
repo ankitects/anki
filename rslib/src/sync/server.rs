@@ -28,7 +28,7 @@ pub trait SyncServer {
     /// If `can_consume` is true, the local server will move or remove the file, instead
     /// creating a copy. The remote server ignores this argument.
     async fn full_upload(self: Box<Self>, col_path: &Path, can_consume: bool) -> Result<()>;
-    async fn full_download(self: Box<Self>, folder: &Path) -> Result<NamedTempFile>;
+    async fn full_download(self: Box<Self>) -> Result<NamedTempFile>;
 }
 
 pub struct LocalServer {
@@ -57,6 +57,12 @@ impl LocalServer {
             client_is_newer: false,
             server_chunk_ids: None,
         }
+    }
+
+    /// Consumes self and returns the stored collection. If a sync has begun, caller must ensure they
+    /// call .finish() or .abort() before calling this.
+    pub fn into_col(self) -> Collection {
+        self.col
     }
 }
 
@@ -168,14 +174,14 @@ impl SyncServer for LocalServer {
         fs::rename(col_path, &target_col_path).map_err(Into::into)
     }
 
-    async fn full_download(mut self: Box<Self>, output_folder: &Path) -> Result<NamedTempFile> {
+    async fn full_download(mut self: Box<Self>) -> Result<NamedTempFile> {
         // bump usn/mod & close
         self.col.transact(None, |col| col.storage.increment_usn())?;
         let col_path = self.col.col_path.clone();
         self.col.close(true)?;
 
         // copy file and return path
-        let temp_file = NamedTempFile::new_in(output_folder)?;
+        let temp_file = NamedTempFile::new()?;
         fs::copy(&col_path, temp_file.path())?;
 
         Ok(temp_file)

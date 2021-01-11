@@ -196,6 +196,7 @@ service BackendService {
   rpc SyncCollection(SyncAuth) returns (SyncCollectionOut);
   rpc FullUpload(SyncAuth) returns (Empty);
   rpc FullDownload(SyncAuth) returns (Empty);
+  rpc SyncServerMethod(SyncServerMethodIn) returns (Json);
 
   // translation/messages
 
@@ -506,6 +507,7 @@ message SyncError {
     RESYNC_REQUIRED = 7;
     CLOCK_INCORRECT = 8;
     DATABASE_CHECK_REQUIRED = 9;
+    SYNC_NOT_STARTED = 10;
   }
   SyncErrorKind kind = 1;
 }
@@ -1011,6 +1013,26 @@ message SyncCollectionOut {
 message SyncAuth {
   string hkey = 1;
   uint32 host_number = 2;
+}
+
+message SyncServerMethodIn {
+  enum Method {
+    HOST_KEY = 0;
+    META = 1;
+    START = 2;
+    APPLY_GRAVES = 3;
+    APPLY_CHANGES = 4;
+    CHUNK = 5;
+    APPLY_CHUNK = 6;
+    SANITY_CHECK = 7;
+    FINISH = 8;
+    ABORT = 9;
+    // caller must reopen after these two are called
+    FULL_UPLOAD = 10;
+    FULL_DOWNLOAD = 11;
+  }
+  Method method = 1;
+  bytes data = 2;
 }
 
 message RemoveNotesIn {

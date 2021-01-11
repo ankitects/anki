@@ -1,4 +1,10 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use std::{fs, path::PathBuf};
+
 use super::{Chunk, Graves, SanityCheckCounts, UnchunkedChanges};
+use crate::backend_proto::sync_server_method_in::Method;
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
@@ -15,11 +21,15 @@ pub enum SyncRequest {
     SanityCheck(SanityCheckIn),
     Finish,
     Abort,
+    #[serde(rename = "upload")]
+    FullUpload(PathBuf),
+    #[serde(rename = "download")]
+    FullDownload,
 }
 
 impl SyncRequest {
     /// Return method name and payload bytes.
-    pub(crate) fn to_method_and_json(&self) -> Result<(&'static str, Vec<u8>)> {
+    pub(crate) fn into_method_and_data(self) -> Result<(&'static str, Vec<u8>)> {
         use serde_json::to_vec;
         Ok(match self {
             SyncRequest::HostKey(v) => ("hostKey", to_vec(&v)?),
@@ -32,6 +42,32 @@ impl SyncRequest {
             SyncRequest::SanityCheck(v) => ("sanityCheck2", to_vec(&v)?),
             SyncRequest::Finish => ("finish", b"{}".to_vec()),
             SyncRequest::Abort => ("abort", b"{}".to_vec()),
+            SyncRequest::FullUpload(v) => {
+                // fixme: stream in the data instead, in a different call
+                ("upload", fs::read(&v)?)
+            }
+            SyncRequest::FullDownload => ("download", b"{}".to_vec()),
+        })
+    }
+
+    pub(crate) fn from_method_and_data(method: Method, data: Vec<u8>) -> Result<Self> {
+        use serde_json::from_slice;
+        Ok(match method {
+            Method::HostKey => SyncRequest::HostKey(from_slice(&data)?),
+            Method::Meta => SyncRequest::Meta(from_slice(&data)?),
+            Method::Start => SyncRequest::Start(from_slice(&data)?),
+            Method::ApplyGraves => SyncRequest::ApplyGraves(from_slice(&data)?),
+            Method::ApplyChanges => SyncRequest::ApplyChanges(from_slice(&data)?),
+            Method::Chunk => SyncRequest::Chunk,
+            Method::ApplyChunk => SyncRequest::ApplyChunk(from_slice(&data)?),
+            Method::SanityCheck => SyncRequest::SanityCheck(from_slice(&data)?),
+            Method::Finish => SyncRequest::Finish,
+            Method::Abort => SyncRequest::Abort,
+            Method::FullUpload => {
+                let path = PathBuf::from(String::from_utf8(data).expect("path was not in utf8"));
+                SyncRequest::FullUpload(path)
+            }
+            Method::FullDownload => SyncRequest::FullDownload,
         })
     }
 }
@@ -82,5 +118,4 @@ pub struct ApplyChunkIn {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SanityCheckIn {
     pub client: SanityCheckCounts,
-    pub full: bool,
 }

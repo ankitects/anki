@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::server::SyncServer;
+use super::{server::SyncServer, SYNC_VERSION_MAX};
 use super::{
     Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckOut, SyncMeta, UnchunkedChanges,
 };
@@ -27,8 +27,6 @@ use std::time::Duration;
 use tempfile::NamedTempFile;
 
 // fixme: 100mb limit
-
-static SYNC_VERSION: u8 = 10;
 
 pub type FullSyncProgressFn = Box<dyn FnMut(FullSyncProgress, bool) + Send + Sync + 'static>;
 
@@ -67,10 +65,10 @@ impl Timeouts {
 impl SyncServer for HTTPSyncClient {
     async fn meta(&self) -> Result<SyncMeta> {
         let input = SyncRequest::Meta(MetaIn {
-            sync_version: SYNC_VERSION,
+            sync_version: SYNC_VERSION_MAX,
             client_version: sync_client_version().to_string(),
         });
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn start(&mut self, client_usn: Usn, local_is_newer: bool) -> Result<Graves> {
@@ -78,42 +76,42 @@ impl SyncServer for HTTPSyncClient {
             client_usn,
             local_is_newer,
         });
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn apply_graves(&mut self, chunk: Graves) -> Result<()> {
         let input = SyncRequest::ApplyGraves(ApplyGravesIn { chunk });
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn apply_changes(&mut self, changes: UnchunkedChanges) -> Result<UnchunkedChanges> {
         let input = SyncRequest::ApplyChanges(ApplyChangesIn { changes });
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn chunk(&mut self) -> Result<Chunk> {
         let input = SyncRequest::Chunk;
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn apply_chunk(&mut self, chunk: Chunk) -> Result<()> {
         let input = SyncRequest::ApplyChunk(ApplyChunkIn { chunk });
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckOut> {
-        let input = SyncRequest::SanityCheck(SanityCheckIn { client, full: true });
-        self.json_request(&input).await
+        let input = SyncRequest::SanityCheck(SanityCheckIn { client });
+        self.json_request(input).await
     }
 
     async fn finish(&mut self) -> Result<TimestampMillis> {
         let input = SyncRequest::Finish;
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn abort(&mut self) -> Result<()> {
         let input = SyncRequest::Abort;
-        self.json_request(&input).await
+        self.json_request(input).await
     }
 
     async fn full_upload(mut self: Box<Self>, col_path: &Path, _can_consume: bool) -> Result<()> {
@@ -141,8 +139,8 @@ impl SyncServer for HTTPSyncClient {
     /// Download collection into a temporary file, returning it.
     /// Caller should persist the file in the correct path after checking it.
     /// Progress func must be set first.
-    async fn full_download(mut self: Box<Self>, folder: &Path) -> Result<NamedTempFile> {
-        let mut temp_file = NamedTempFile::new_in(folder)?;
+    async fn full_download(mut self: Box<Self>) -> Result<NamedTempFile> {
+        let mut temp_file = NamedTempFile::new()?;
         let (size, mut stream) = self.download_inner().await?;
         let mut progress = FullSyncProgress {
             transferred_bytes: 0,
@@ -187,11 +185,11 @@ impl HTTPSyncClient {
         self.full_sync_progress_fn = func;
     }
 
-    async fn json_request<T>(&self, req: &SyncRequest) -> Result<T>
+    async fn json_request<T>(&self, req: SyncRequest) -> Result<T>
     where
         T: DeserializeOwned,
     {
-        let (method, req_json) = req.to_method_and_json()?;
+        let (method, req_json) = req.into_method_and_data()?;
         self.request_bytes(method, &req_json, false)
             .await?
             .json()
@@ -242,7 +240,7 @@ impl HTTPSyncClient {
             username: username.into(),
             password: password.into(),
         });
-        let output: HostKeyOut = self.json_request(&input).await?;
+        let output: HostKeyOut = self.json_request(input).await?;
         self.hkey = Some(output.key);
 
         Ok(())
@@ -403,13 +401,10 @@ mod test {
         // failed sanity check will have cleaned up; can't finish
         // syncer.finish().await?;
 
-        use tempfile::tempdir;
-
-        let dir = tempdir()?;
         syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
             println!("progress: {:?}", progress);
         })));
-        let out_path = syncer.full_download(&dir.path()).await?;
+        let out_path = syncer.full_download().await?;
 
         let mut syncer = Box::new(HTTPSyncClient::new(None, 0));
         syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {

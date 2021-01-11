@@ -40,8 +40,9 @@ use crate::{
     },
     stats::studied_today,
     sync::{
-        get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
-        SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
+        get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,
+        LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
+        SyncStage,
     },
     template::RenderedNode,
     text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
@@ -65,6 +66,7 @@ use std::{
 use tokio::runtime::{self, Runtime};
 
 mod dbproxy;
+mod http_sync_server;
 
 struct ThrottlingProgressHandler {
     state: Arc<Mutex<ProgressState>>,
@@ -111,6 +113,7 @@ pub struct Backend {
 struct BackendState {
     remote_sync_status: RemoteSyncStatus,
     media_sync_abort: Option<AbortHandle>,
+    http_sync_server: Option<LocalServer>,
 }
 
 #[derive(Default, Debug)]
@@ -191,6 +194,7 @@ impl std::convert::From<SyncErrorKind> for i32 {
             SyncErrorKind::DatabaseCheckRequired => V::DatabaseCheckRequired,
             SyncErrorKind::Other => V::Other,
             SyncErrorKind::ClockIncorrect => V::ClockIncorrect,
+            SyncErrorKind::SyncNotStarted => V::SyncNotStarted,
         }) as i32
     }
 }
@@ -1286,6 +1290,11 @@ impl BackendService for Backend {
 
     fn before_upload(&self, _input: Empty) -> BackendResult<Empty> {
         self.with_col(|col| col.before_upload().map(Into::into))
+    }
+
+    fn sync_server_method(&self, input: pb::SyncServerMethodIn) -> BackendResult<pb::Json> {
+        let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
+        self.sync_server_method_inner(req).map(Into::into)
     }
 
     // i18n/messages

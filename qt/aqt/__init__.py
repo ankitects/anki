@@ -316,9 +316,16 @@ def parseArgs(argv):
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
-    parser.add_argument("-v", "--version", help="print the Anki version and exit")
     parser.add_argument(
-        "-s", "--safemode", help="disable add-ons and automatic syncing"
+        "-v", "--version", help="print the Anki version and exit", action="store_true"
+    )
+    parser.add_argument(
+        "--safemode", help="disable add-ons and automatic syncing", action="store_true"
+    )
+    parser.add_argument(
+        "--syncserver",
+        help="skip GUI and start a local sync server",
+        action="store_true",
     )
     return parser.parse_known_args(argv[1:])
 
@@ -433,7 +440,12 @@ def _run(argv=None, exec=True):
     opts, args = parseArgs(argv)
 
     if opts.version:
-        print(f"Anki version '{appVersion}'")
+        print(f"Anki {appVersion}")
+        return
+    elif opts.syncserver:
+        from anki.syncserver import serve
+
+        serve()
         return
 
     if PROFILE_CODE:
