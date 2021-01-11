@@ -1390,7 +1390,7 @@ QTableView {{ gridline-color: {grid} }}
                         num=c + 1,
                         name=self._escapeMenuItem(tmpl["name"]),
                     )
-                    subm.addItem(name, self._template_filter(nt["name"], c + 1))
+                    subm.addItem(name, self._template_filter(nt["name"], c))
 
         m.addChild(noteTypes.chunked())
         return m
