@@ -16,6 +16,7 @@ from aqt.qt import (
     QIcon,
     QKeySequence,
     QPixmap,
+    QShortcut,
     Qt,
     QVBoxLayout,
     QWidget,
@@ -62,6 +63,9 @@ class Previewer(QDialog):
 
     def _create_gui(self):
         self.setWindowTitle(tr(TR.ACTIONS_PREVIEW))
+
+        self.close_shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
+        qconnect(self.close_shortcut.activated, self.close)
 
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
@@ -304,10 +308,6 @@ class BrowserPreviewer(MultiCardPreviewer):
             changed = c.id != self._last_card_id
             self._last_card_id = c.id
             return changed
-
-    def _on_finished(self, ok):
-        super()._on_finished(ok)
-        self._parent.form.previewButton.setChecked(False)
 
     def _on_prev_card(self):
         self._parent.editor.saveNow(

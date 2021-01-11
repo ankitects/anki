@@ -624,12 +624,6 @@ class Browser(QMainWindow):
         # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
-        qconnect(f.previewButton.clicked, self.onTogglePreview)
-        f.previewButton.setToolTip(
-            tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val=shortcut("Ctrl+Shift+P"))
-        )
-        f.previewButton.setShortcut("Ctrl+Shift+P")
-
         qconnect(f.filter.clicked, self.onFilterButton)
         # edit
         qconnect(f.actionUndo.triggered, self.mw.onUndo)
@@ -874,7 +868,30 @@ QTableView {{ gridline-color: {grid} }}
         self.singleCard = False
 
     def setupEditor(self):
+        def add_preview_button(leftbuttons, editor):
+            preview_shortcut = "Ctrl+Shift+P"
+            leftbuttons.insert(
+                0,
+                editor.addButton(
+                    None,
+                    "preview",
+                    lambda _editor: self.onTogglePreview(),
+                    tr(
+                        TR.BROWSING_PREVIEW_SELECTED_CARD,
+                        val=shortcut(preview_shortcut),
+                    ),
+                    tr(TR.ACTIONS_PREVIEW),
+                    id="previewButton",
+                    keys=preview_shortcut,
+                    disables=False,
+                    rightside=False,
+                    toggleable=True,
+                ),
+            )
+
+        gui_hooks.editor_did_init_left_buttons.append(add_preview_button)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
+        gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
     def onRowChanged(self, current, previous):
         "Update current note and hide/show editor."
@@ -1567,7 +1584,10 @@ where id in %s"""
 
     def _renderPreview(self):
         if self._previewer:
-            self._previewer.render_card()
+            if self.singleCard:
+                self._previewer.render_card()
+            else:
+                self.onTogglePreview()
 
     def _cleanup_preview(self):
         if self._previewer:
@@ -1575,6 +1595,8 @@ where id in %s"""
             self._previewer.close()
 
     def _on_preview_closed(self):
+        if self.editor.web:
+            self.editor.web.eval("$('#previewButton').removeClass('highlighted')")
         self._previewer = None
 
     # Card deletion

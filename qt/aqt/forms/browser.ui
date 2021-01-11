@@ -114,19 +114,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="previewButton">
-            <property name="text">
-             <string>ACTIONS_PREVIEW</string>
-            </property>
-            <property name="shortcut">
-             <string notr="true">Ctrl+Shift+P</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QPushButton" name="filter">
             <property name="text">
