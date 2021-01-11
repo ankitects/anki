@@ -732,6 +732,15 @@ mod test {
         );
         assert_eq!(s(ctx, "rated:0").0, s(ctx, "rated:1").0);
 
+        // resched
+        assert_eq!(
+            s(ctx, "resched:400").0,
+            format!(
+                "(c.id in (select cid from revlog where id>{} and ease = 0))",
+                (timing.next_day_at - (86_400 * 365)) * 1_000
+            )
+        );
+
         // props
         assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());
         assert_eq!(s(ctx, "prop:ease>=2.5").0, "(factor >= 2500)".to_string());
