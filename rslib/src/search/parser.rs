@@ -119,22 +119,10 @@ pub enum TemplateKind<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum EaseKind {
+pub enum EaseKind {
     Rated(u8),
     Reviewed,
     Manually,
-}
-
-impl std::fmt::Display for EaseKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        use EaseKind::*;
-
-        match self {
-            Rated(u) => write!(f, " and ease = {}", u),
-            Reviewed => write!(f, " and ease in (1, 2, 3, 4)"),
-            Manually => write!(f, " and ease = 0"),
-        }
-    }
 }
 
 /// Parse the input string into a list of nodes.
@@ -383,7 +371,7 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
             if (1..5).contains(&u) {
                 EaseKind::Rated(u)
             } else {
-                return Err(ParseError {})
+                return Err(ParseError {});
             }
         }
         None => EaseKind::Reviewed,

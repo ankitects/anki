@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind, EaseKind};
+use super::parser::{EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -219,10 +219,16 @@ impl SqlWriter<'_> {
         let target_cutoff_ms = (today_cutoff - 86_400 * i64::from(days)) * 1_000;
         write!(
             self.sql,
-            "c.id in (select cid from revlog where id>{}{})",
+            "c.id in (select cid from revlog where id>{}",
             target_cutoff_ms,
-            ease,
         )
+        .unwrap();
+
+        match ease {
+            EaseKind::Rated(u) => write!(self.sql, " and ease = {})", u),
+            EaseKind::Reviewed => write!(self.sql, " and ease in (1, 2, 3, 4))"),
+            EaseKind::Manually => write!(self.sql, " and ease = 0)"),
+        }
         .unwrap();
 
         Ok(())
