@@ -82,8 +82,8 @@ hooks = [
         return_type="Tuple[Tuple[int, str], ...]",
         doc="""Used to modify list of answer buttons
 
-        buttons_tuple is a tuple of buttons, with each button represented by a 
-        tuple containing an int for the button's ease and a string for the 
+        buttons_tuple is a tuple of buttons, with each button represented by a
+        tuple containing an int for the button's ease and a string for the
         button's label.
 
         Return a tuple of the form ((int, str), ...), e.g.:
@@ -103,11 +103,11 @@ hooks = [
         return_type="Tuple[bool, int]",
         doc="""Used to modify the ease at which a card is rated or to bypass
         rating the card completely.
-        
+
         ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
         should continue with rating the card, and an integer expressing the ease at
         which the card should be rated.
-        
+
         If your code just needs to be notified of the card rating event, you should use
         the reviewer_did_answer_card hook instead.""",
     ),
@@ -202,15 +202,15 @@ hooks = [
             "content: aqt.deckbrowser.DeckBrowserContent",
         ],
         doc="""Used to modify HTML content sections in the deck browser body
-        
+
         'content' contains the sections of HTML content the deck browser body
         will be updated with.
-        
+
         When modifying the content of a particular section, please make sure your
         changes only perform the minimum required edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
-        
+
             def on_deck_browser_will_render_content(deck_browser, content):
                 content.stats += "\n<div>my html</div>"
         """,
@@ -310,36 +310,36 @@ hooks = [
         ],
         return_type="bool",
         doc="""Used to add or replace items in the browser sidebar tree
-        
+
         'tree' is the root SidebarItem that all other items are added to.
-        
+
         'stage' is an enum describing the different construction stages of
         the sidebar tree at which you can interject your changes.
         The different values can be inspected by looking at
         aqt.browser.SidebarStage.
-        
+
         If you want Anki to proceed with the construction of the tree stage
         in question after your have performed your changes or additions,
         return the 'handled' boolean unchanged.
-        
+
         On the other hand, if you want to prevent Anki from adding its own
         items at a particular construction stage (e.g. in case your add-on
         implements its own version of that particular stage), return 'True'.
-        
+
         If you return 'True' at SidebarStage.ROOT, the sidebar will not be
         populated by any of the other construction stages. For any other stage
         the tree construction will just continue as usual.
-        
+
         For example, if your code wishes to replace the tag tree, you could do:
-        
+
             def on_browser_will_build_tree(handled, root, stage, browser):
                 if stage != SidebarStage.TAGS:
                     # not at tag tree building stage, pass on
                     return handled
-                
+
                 # your tag tree construction code
                 # root.addChild(...)
-                
+
                 # your code handled tag tree construction, no need for Anki
                 # or other add-ons to build the tag tree
                 return True
@@ -349,13 +349,13 @@ hooks = [
         name="browser_will_search",
         args=["context: aqt.browser.SearchContext"],
         doc="""Allows you to modify the search text, or perform your own search.
-         
+
          You can modify context.search to change the text that is sent to the
          searching backend.
-         
+
          If you set context.card_ids to a list of ids, the regular search will
          not be performed, and the provided ids will be used instead.
-         
+
          Your add-on should check if context.card_ids is not None, and return
          without making changes if it has been set.
          """,
@@ -400,17 +400,17 @@ hooks = [
         args=["handled: Tuple[bool, Any]", "message: str", "context: Any"],
         return_type="Tuple[bool, Any]",
         doc="""Used to handle pycmd() messages sent from Javascript.
-        
+
         Message is the string passed to pycmd().
 
         For messages you don't want to handle, return 'handled' unchanged.
-        
+
         If you handle a message and don't want it passed to the original
         bridge command handler, return (True, None).
-        
+
         If you want to pass a value to pycmd's result callback, you can
         return it with (True, some_value).
-                
+
         Context is the instance that was passed to set_bridge_command().
         It can be inspected to check which screen this hook is firing
         in, and to get a reference to the screen. For example, if your
@@ -419,7 +419,7 @@ hooks = [
             if not isinstance(context, aqt.reviewer.Reviewer):
                 # not reviewer, pass on message
                 return handled
-    
+
             if message == "my-mark-action":
                 # our message, call onMark() on the reviewer instance
                 context.onMark()
@@ -447,17 +447,17 @@ hooks = [
         code wishes to function only in the review screen, you could do:
 
             def on_webview_will_set_content(web_content: WebContent, context):
-                
+
                 if not isinstance(context, aqt.reviewer.Reviewer):
                     # not reviewer, do not modify content
                     return
-                
+
                 # reviewer, perform changes to content
-                
+
                 context: aqt.reviewer.Reviewer
-                
+
                 addon_package = mw.addonManager.addonFromModule(__name__)
-                
+
                 web_content.css.append(
                     f"/_addons/{addon_package}/web/my-addon.css")
                 web_content.js.append(
@@ -501,7 +501,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="main_window_did_init",
         doc="""Executed after the main window is fully initialized
-        
+
         A sample use case for this hook would be to delay actions until Anki objects
         like the profile or collection are fully initialized. In contrast to
         `profile_did_open`, this hook will only fire once per Anki session and
@@ -531,7 +531,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="profile_did_open",
         legacy_hook="profileLoaded",
         doc="""Executed whenever a user profile has been opened
-        
+
         Please note that this hook will also be called on profile switches, so if you
         are looking to simply delay an add-on action in a single-shot manner,
         `main_window_did_init` is likely the more suitable choice.
@@ -557,7 +557,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="top_toolbar_did_init_links",
         args=["links: List[str]", "top_toolbar: aqt.toolbar.Toolbar"],
         doc="""Used to modify or add links in the top toolbar of Anki's main window
-        
+
         'links' is a list of HTML link elements. Add-ons can generate their own links
         by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
         appended to the link list, e.g.:
@@ -625,6 +625,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         return_type="str",
         doc="""Allows changing the history line in the add-card window.""",
     ),
+    Hook(name="add_cards_will_close", args=["addcards: aqt.addcards.AddCards"]),
     # Editing
     ###################
     Hook(

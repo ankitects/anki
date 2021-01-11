@@ -213,6 +213,7 @@ class AddCards(QDialog):
         self.ifCanClose(self._reject)
 
     def _reject(self) -> None:
+        gui_hooks.add_cards_will_close(self)
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.current_note_type_did_change.remove(self.onModelChange)
         av_player.stop_and_clear_queue()
