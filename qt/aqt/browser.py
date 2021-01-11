@@ -708,6 +708,7 @@ class Browser(QMainWindow):
         evt.ignore()
 
     def _closeWindow(self):
+        gui_hooks.browser_will_close(self)
         self._cleanup_preview()
         self.editor.cleanup()
         saveSplitter(self.form.splitter, "editor3")
@@ -862,7 +863,7 @@ class Browser(QMainWindow):
             grid = theme_manager.str_color("frame-bg")
             self.form.tableView.setStyleSheet(
                 f"""
-QTableView {{ gridline-color: {grid} }}           
+QTableView {{ gridline-color: {grid} }}
             """
             )
         self.singleCard = False
