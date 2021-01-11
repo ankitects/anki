@@ -226,7 +226,7 @@ impl SqlWriter<'_> {
 
         match ease {
             EaseKind::Rated(u) => write!(self.sql, " and ease = {})", u),
-            EaseKind::Reviewed => write!(self.sql, " and ease in (1, 2, 3, 4))"),
+            EaseKind::Reviewed => write!(self.sql, " and ease between 1 and 4)"),
             EaseKind::Manually => write!(self.sql, " and ease = 0)"),
         }
         .unwrap();
@@ -719,14 +719,14 @@ mod test {
         assert_eq!(
             s(ctx, "rated:2").0,
             format!(
-                "(c.id in (select cid from revlog where id>{}))",
+                "(c.id in (select cid from revlog where id>{} and ease between 1 and 4))",
                 (timing.next_day_at - (86_400 * 2)) * 1_000
             )
         );
         assert_eq!(
             s(ctx, "rated:400:1").0,
             format!(
-                "(c.id in (select cid from revlog where id>{} and ease=1))",
+                "(c.id in (select cid from revlog where id>{} and ease = 1))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
