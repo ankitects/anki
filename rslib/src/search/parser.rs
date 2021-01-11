@@ -358,7 +358,7 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode<'static>> {
 }
 
 /// eg rated:3 or rated:10:2
-/// second arg must be between 0-4
+/// second arg must be between 1-4
 fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
     let mut it = val.splitn(2, ':');
 
@@ -383,7 +383,10 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 /// eg resched:3
 fn parse_resched(val: &str) -> ParseResult<SearchNode<'static>> {
     let mut it = val.splitn(1, ':');
-    let days = it.next().unwrap().parse()?;
+
+    let n: u32 = it.next().unwrap().parse()?;
+    let days = n.max(1).min(365);
+
     let ease = EaseKind::Manually;
 
     Ok(SearchNode::Rated { days, ease })
