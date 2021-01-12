@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from operator import itemgetter
 from typing import Any, Dict
+from enum import Enum
 
 from PyQt5.QtWidgets import QLineEdit
 
@@ -24,6 +25,12 @@ from aqt.utils import (
     tooltip,
     tr,
 )
+
+
+class StepKind(Enum):
+    MINUTES = 1
+    HOURS = 60
+    DAYS = 1440
 
 
 class DeckConf(QDialog):
@@ -172,10 +179,22 @@ class DeckConf(QDialog):
 
     def listToUser(self, l):
         def num_to_user(n: Union[int, float]):
-            if n == round(n):
-                return str(int(n))
-            else:
-                return str(n)
+            step_kind = StepKind.MINUTES
+            suffix = 'm'
+
+            if n % 144 == 0:
+                step_kind = StepKind.DAYS
+                suffix = 'd'
+
+            elif n >= 60 and n % 6 == 0:
+                step_kind = StepKind.HOURS
+                suffix = 'h'
+
+            num = n / step_kind.value
+            if num == int(num):
+                num = int(num)
+
+            return f"{num}{suffix}"
 
         return " ".join(map(num_to_user, l))
 
@@ -255,7 +274,6 @@ class DeckConf(QDialog):
 
     # Saving
     ##################################################
-
     def updateList(self, conf: Any, key: str, w: QLineEdit, minSize: int = 1) -> None:
         items = str(w.text()).split(" ")
         ret = []
@@ -263,11 +281,24 @@ class DeckConf(QDialog):
             if not item:
                 continue
             try:
+                step_kind = StepKind.MINUTES
+
+                if item.endswith('m'):
+                    item = item[:-1]
+
+                elif item.endswith('h'):
+                    item = item[:-1]
+                    step_kind = StepKind.HOURS
+
+                elif item.endswith('d'):
+                    item = item[:-1]
+                    step_kind = StepKind.DAYS
+
                 i = float(item)
                 assert i > 0
                 if i == int(i):
                     i = int(i)
-                ret.append(i)
+                ret.append(i * step_kind.value)
             except:
                 # invalid, don't update
                 showWarning(tr(TR.SCHEDULING_STEPS_MUST_BE_NUMBERS))
