@@ -9,13 +9,13 @@ use crate::{
 use lazy_static::lazy_static;
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, is_not, tag, tag_no_case},
+    bytes::complete::{escaped, is_not, tag},
     character::complete::{anychar, char, none_of, one_of},
-    combinator::{all_consuming, map, map_parser, verify},
+    combinator::{all_consuming, map, verify},
     error::{ErrorKind as NomErrorKind, ParseError as NomParseError},
     multi::many0,
     sequence::{delimited, preceded, separated_pair},
-    Err::Failure,
+    Err::{Error, Failure},
 };
 use regex::{Captures, Regex};
 use std::borrow::Cow;
@@ -31,6 +31,9 @@ enum ErrorKind {
     MisplacedAnd,
     MisplacedOr,
     EmptyGroup,
+    EmptyQuote,
+    UnclosedQuote,
+    MissingKey,
     UnknownEscape(String),
     InvalidIdList,
     InvalidState,
@@ -147,8 +150,10 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
 
-    let (_, nodes) =
-        all_consuming(group_inner)(input).map_err(|e| { dbg!(e); AnkiError::SearchError(None) })?;
+    let (_, nodes) = all_consuming(group_inner)(input).map_err(|e| {
+        dbg!(e);
+        AnkiError::SearchError(None)
+    })?;
     Ok(nodes)
 }
 
@@ -218,9 +223,7 @@ fn negated_node(s: &str) -> IResult<Node> {
 
 /// One or more nodes surrounded by brackets, eg (one OR two)
 fn group(s: &str) -> IResult<Node> {
-    map(delimited(char('('), group_inner, char(')')), |nodes| {
-        Node::Group(nodes)
-    })(s)
+    map(delimited(char('('), group_inner, char(')')), Node::Group)(s)
 }
 
 /// Either quoted or unquoted text
@@ -230,70 +233,98 @@ fn text(s: &str) -> IResult<Node> {
 
 /// Quoted text, including the outer double quotes.
 fn quoted_term(s: &str) -> IResult<Node> {
-    map_parser(quoted_term_str, map(search_node_for_text, Node::Search))(s)
+    let (remaining, term) = quoted_term_str(s)?;
+    Ok((remaining, Node::Search(search_node_for_text(term)?)))
 }
 
 /// eg deck:"foo bar" - quotes must come after the :
 fn partially_quoted_term(s: &str) -> IResult<Node> {
     let (remaining, (key, val)) = separated_pair(
-        verify(
-            escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(": \u{3000}")),
-            |s: &str| !s.is_empty(),
-        ),
+        escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(": \u{3000}")),
         char(':'),
         quoted_term_str,
     )(s)?;
-    let (_, node) = search_node_for_text_with_argument(key, val)?;
-
-    Ok((remaining, Node::Search(node)))
+    if key.is_empty() {
+        Err(nom::Err::Failure(ParseError::Anki(
+            s,
+            ErrorKind::MissingKey,
+        )))
+    } else {
+        Ok((
+            remaining,
+            Node::Search(search_node_for_text_with_argument(key, val)?),
+        ))
+    }
 }
 
 /// Unquoted text, terminated by whitespace or unescaped ", ( or )
 fn unquoted_term(s: &str) -> IResult<Node> {
-    map_parser(
-        verify(
-            escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}")),
-            |s: &str| !s.is_empty(),
-        ),
-        alt((
-            map(all_consuming(tag_no_case("and")), |_| Node::And),
-            map(all_consuming(tag_no_case("or")), |_| Node::Or),
-            map(search_node_for_text, Node::Search),
-        )),
+    if let Ok((tail, term)) = verify::<_, _, _, ParseError, _, _>(
+        escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}")),
+        |s: &str| !s.is_empty(),
     )(s)
+    {
+        if tail.starts_with('\\') {
+            let escaped = (if tail.len() > 1 { &tail[0..2] } else { "" }).to_string();
+            Err(Failure(ParseError::Anki(
+                s,
+                ErrorKind::UnknownEscape(format!("\\{}", escaped)),
+            )))
+        } else if term.eq_ignore_ascii_case("and") {
+            Ok((tail, Node::And))
+        } else if term.eq_ignore_ascii_case("or") {
+            Ok((tail, Node::Or))
+        } else {
+            Ok((tail, Node::Search(search_node_for_text(term)?)))
+        }
+    } else if s.starts_with('\\') {
+        let escaped = (if s.len() > 1 { &s[0..2] } else { "" }).to_string();
+        Err(Failure(ParseError::Anki(
+            s,
+            ErrorKind::UnknownEscape(format!("\\{}", escaped)),
+        )))
+    } else {
+        Err(Error(ParseError::Nom(s, NomErrorKind::Verify)))
+    }
 }
 
 /// Non-empty string delimited by unescaped double quotes.
 fn quoted_term_str(s: &str) -> IResult<&str> {
-    unempty(delimited(
-        char('"'),
-        escaped(is_not(r#""\"#), '\\', anychar),
-        char('"'),
-    )(s))
-}
-
-fn unempty<'a>(res: IResult<'a, &'a str>) -> IResult<'a, &'a str> {
-    if let Ok((_, parsed)) = res {
-        if parsed.is_empty() {
-            Err(nom::Err::Failure(ParseError::Anki(
-                "",
-                ErrorKind::EmptyGroup,
-            )))
+    let (opened, _) = char('"')(s)?;
+    if let Ok((tail, inner)) =
+        escaped::<_, ParseError, _, _, _, _>(is_not(r#""\"#), '\\', anychar)(opened)
+    {
+        if tail.is_empty() {
+            Err(Failure(ParseError::Anki(s, ErrorKind::UnclosedQuote)))
+        } else if let Ok((remaining, _)) = char::<_, ParseError>('"')(tail) {
+            Ok((remaining, inner))
         } else {
-            res
+            Err(Failure(ParseError::Anki(s, ErrorKind::UnclosedQuote)))
         }
     } else {
-        res
+        match opened.chars().next().unwrap() {
+            '"' => Err(Failure(ParseError::Anki(s, ErrorKind::EmptyQuote))),
+            // '\' followed by nothing
+            '\\' => Err(Failure(ParseError::Anki(s, ErrorKind::UnclosedQuote))),
+            // everything else is accepted by escaped
+            _ => unreachable!(),
+        }
     }
 }
 
 /// Determine if text is a qualified search, and handle escaped chars.
-fn search_node_for_text(s: &str) -> IResult<SearchNode> {
-    let (tail, head) = escaped(is_not(r":\"), '\\', anychar)(s)?;
-    if tail.is_empty() {
-        Ok(("", SearchNode::UnqualifiedText(unescape(head)?)))
+fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
+    if let Ok((tail, head)) = escaped::<_, ParseError, _, _, _, _>(is_not(r":\"), '\\', anychar)(s)
+    {
+        if tail.is_empty() {
+            Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        } else {
+            search_node_for_text_with_argument(head, &tail[1..])
+        }
     } else {
-        search_node_for_text_with_argument(head, &tail[1..])
+        // escaped only fails on "\" and leading ':'
+        // "\" cannot be passed as an argument by a calling parser
+        Err(Failure(ParseError::Anki(s, ErrorKind::MissingKey)))
     }
 }
 
@@ -301,32 +332,29 @@ fn search_node_for_text(s: &str) -> IResult<SearchNode> {
 fn search_node_for_text_with_argument<'a>(
     key: &'a str,
     val: &'a str,
-) -> IResult<'a, SearchNode<'a>> {
-    Ok((
-        "",
-        match key.to_ascii_lowercase().as_str() {
-            "deck" => SearchNode::Deck(unescape(val)?),
-            "note" => SearchNode::NoteType(unescape(val)?),
-            "tag" => SearchNode::Tag(unescape(val)?),
-            "card" => parse_template(val)?,
-            "flag" => parse_flag(val)?,
-            "prop" => parse_prop(val)?,
-            "added" => parse_added(val)?,
-            "edited" => parse_edited(val)?,
-            "rated" => parse_rated(val)?,
-            "is" => parse_state(val)?,
-            "did" => parse_did(val)?,
-            "mid" => parse_mid(val)?,
-            "nid" => SearchNode::NoteIDs(check_id_list(val)?),
-            "cid" => SearchNode::CardIDs(check_id_list(val)?),
-            "re" => SearchNode::Regex(unescape_quotes(val)),
-            "nc" => SearchNode::NoCombining(unescape(val)?),
-            "w" => SearchNode::WordBoundary(unescape(val)?),
-            "dupe" => parse_dupes(val)?,
-            // anything else is a field search
-            _ => parse_single_field(key, val)?,
-        },
-    ))
+) -> ParseResult<'a, SearchNode<'a>> {
+    Ok(match key.to_ascii_lowercase().as_str() {
+        "deck" => SearchNode::Deck(unescape(val)?),
+        "note" => SearchNode::NoteType(unescape(val)?),
+        "tag" => SearchNode::Tag(unescape(val)?),
+        "card" => parse_template(val)?,
+        "flag" => parse_flag(val)?,
+        "prop" => parse_prop(val)?,
+        "added" => parse_added(val)?,
+        "edited" => parse_edited(val)?,
+        "rated" => parse_rated(val)?,
+        "is" => parse_state(val)?,
+        "did" => parse_did(val)?,
+        "mid" => parse_mid(val)?,
+        "nid" => SearchNode::NoteIDs(check_id_list(val)?),
+        "cid" => SearchNode::CardIDs(check_id_list(val)?),
+        "re" => SearchNode::Regex(unescape_quotes(val)),
+        "nc" => SearchNode::NoCombining(unescape(val)?),
+        "w" => SearchNode::WordBoundary(unescape(val)?),
+        "dupe" => parse_dupes(val)?,
+        // anything else is a field search
+        _ => parse_single_field(key, val)?,
+    })
 }
 
 fn parse_template(s: &str) -> ParseResult<SearchNode> {
