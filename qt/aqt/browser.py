@@ -1158,7 +1158,6 @@ QTableView {{ gridline-color: {grid} }}
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.TAG,
-                    id=node.tag_id,
                     full_name=head + node.name,
                 )
                 root.addChild(item)

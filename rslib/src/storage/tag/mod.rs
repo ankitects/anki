@@ -2,30 +2,23 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::SqliteStorage;
-use crate::{
-    err::Result,
-    tags::{human_tag_name_to_native, native_tag_name_to_human, Tag, TagConfig, TagID},
-    timestamp::TimestampMillis,
-    types::Usn,
-};
-use prost::Message;
+use crate::{err::Result, tags::Tag, types::Usn};
+
 use rusqlite::{params, Row, NO_PARAMS};
 use std::collections::HashMap;
 
 fn row_to_tag(row: &Row) -> Result<Tag> {
-    let config = TagConfig::decode(row.get_raw(3).as_blob()?)?;
     Ok(Tag {
-        id: row.get(0)?,
-        name: row.get(1)?,
-        usn: row.get(2)?,
-        config,
+        name: row.get(0)?,
+        usn: row.get(1)?,
+        collapsed: row.get(2)?,
     })
 }
 
 impl SqliteStorage {
     pub(crate) fn all_tags(&self) -> Result<Vec<Tag>> {
         self.db
-            .prepare_cached("select id, name, usn, config from tags")?
+            .prepare_cached("select tag, usn, collapsed from tags")?
             .query_and_then(NO_PARAMS, row_to_tag)?
             .collect()
     }
@@ -33,54 +26,30 @@ impl SqliteStorage {
     /// Get all tags in human form, sorted by name
     pub(crate) fn all_tags_sorted(&self) -> Result<Vec<Tag>> {
         self.db
-            .prepare_cached("select id, name, usn, config from tags order by name")?
-            .query_and_then(NO_PARAMS, |row| {
-                let mut tag = row_to_tag(row)?;
-                tag.name = native_tag_name_to_human(&tag.name);
-                Ok(tag)
-            })?
+            .prepare_cached("select tag, usn, collapsed from tags order by tag")?
+            .query_and_then(NO_PARAMS, row_to_tag)?
             .collect()
     }
 
     /// Get tag by human name
     pub(crate) fn get_tag(&self, name: &str) -> Result<Option<Tag>> {
         self.db
-            .prepare_cached("select id, name, usn, config from tags where name = ?")?
-            .query_and_then(&[human_tag_name_to_native(name)], |row| {
-                let mut tag = row_to_tag(row)?;
-                tag.name = native_tag_name_to_human(&tag.name);
-                Ok(tag)
-            })?
+            .prepare_cached("select tag, usn, collapsed from tags where tag = ?")?
+            .query_and_then(&[name], row_to_tag)?
             .next()
             .transpose()
     }
 
-    fn alloc_id(&self) -> rusqlite::Result<TagID> {
-        self.db
-            .prepare_cached(include_str!("alloc_id.sql"))?
-            .query_row(&[TimestampMillis::now()], |r| r.get(0))
-    }
-
-    pub(crate) fn register_tag(&self, tag: &mut Tag) -> Result<()> {
-        let mut config = vec![];
-        tag.config.encode(&mut config)?;
-        tag.id = self.alloc_id()?;
-        self.update_tag(tag)?;
-        Ok(())
-    }
-
-    pub(crate) fn update_tag(&self, tag: &Tag) -> Result<()> {
-        let mut config = vec![];
-        tag.config.encode(&mut config)?;
+    pub(crate) fn register_tag(&self, tag: &Tag) -> Result<()> {
         self.db
             .prepare_cached(include_str!("add.sql"))?
-            .execute(params![tag.id, tag.name, tag.usn, config])?;
+            .execute(params![tag.name, tag.usn, tag.collapsed])?;
         Ok(())
     }
 
     pub(crate) fn preferred_tag_case(&self, tag: &str) -> Result<Option<String>> {
         self.db
-            .prepare_cached("select name from tags where name = ?")?
+            .prepare_cached("select tag from tags where tag = ?")?
             .query_and_then(params![tag], |row| row.get(0))?
             .next()
             .transpose()
@@ -89,8 +58,16 @@ impl SqliteStorage {
 
     pub(crate) fn clear_tag(&self, tag: &str) -> Result<()> {
         self.db
-            .prepare_cached("delete from tags where name regexp ?")?
-            .execute(&[format!("^{}($|\x1f)", regex::escape(tag))])?;
+            .prepare_cached("delete from tags where tag regexp ?")?
+            .execute(&[format!("^{}($|::)", regex::escape(tag))])?;
+
+        Ok(())
+    }
+
+    pub(crate) fn set_tag_collapsed(&self, tag: &str, collapsed: bool) -> Result<()> {
+        self.db
+            .prepare_cached("update tags set collapsed = ? where tag = ?")?
+            .execute(params![collapsed, tag])?;
 
         Ok(())
     }
@@ -111,7 +88,7 @@ impl SqliteStorage {
     pub(crate) fn tags_pending_sync(&self, usn: Usn) -> Result<Vec<String>> {
         self.db
             .prepare_cached(&format!(
-                "select name from tags where {}",
+                "select tag from tags where {}",
                 usn.pending_object_clause()
             ))?
             .query_and_then(&[usn], |r| r.get(0).map_err(Into::into))?
@@ -121,7 +98,7 @@ impl SqliteStorage {
     pub(crate) fn update_tag_usns(&self, tags: &[String], new_usn: Usn) -> Result<()> {
         let mut stmt = self
             .db
-            .prepare_cached("update tags set usn=? where name=?")?;
+            .prepare_cached("update tags set usn=? where tag=?")?;
         for tag in tags {
             stmt.execute(params![new_usn, tag])?;
         }
@@ -173,18 +150,7 @@ impl SqliteStorage {
             .collect::<Result<Vec<Tag>>>()?;
         self.db
             .execute_batch(include_str!["../upgrades/schema17_upgrade.sql"])?;
-        tags.into_iter().try_for_each(|mut tag| -> Result<()> {
-            tag.name = human_tag_name_to_native(&tag.name);
-            self.register_tag(&mut tag)
-        })
-    }
-
-    pub(super) fn downgrade_tags_from_schema17(&self) -> Result<()> {
-        let tags = self.all_tags()?;
-        self.clear_tags()?;
-        tags.into_iter().try_for_each(|mut tag| -> Result<()> {
-            tag.name = native_tag_name_to_human(&tag.name);
-            self.register_tag(&mut tag)
-        })
+        tags.into_iter()
+            .try_for_each(|tag| -> Result<()> { self.register_tag(&tag) })
     }
 }

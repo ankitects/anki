@@ -243,6 +243,7 @@ impl Collection {
         let stamp = TimestampMillis::now();
 
         // will rebuild tag list below
+        let old_tags = self.storage.all_tags_sorted()?;
         self.storage.clear_tags()?;
 
         let total_notes = self.storage.total_notes()?;
@@ -291,6 +292,18 @@ impl Collection {
                 // write note, updating tags and generating missing cards
                 let ctx = genctx.get_or_insert_with(|| CardGenContext::new(&nt, usn));
                 self.update_note_inner_generating_cards(&ctx, &mut note, false, norm)?;
+            }
+        }
+
+        let new_tags = self.storage.all_tags_sorted()?;
+        for old in old_tags.into_iter() {
+            for new in new_tags.iter() {
+                if new.name == old.name {
+                    self.storage.set_tag_collapsed(&new.name, new.collapsed)?;
+                    break;
+                } else if new.name.starts_with(&old.name) {
+                    self.set_tag_collapsed(&old.name, old.collapsed)?;
+                }
             }
         }
 

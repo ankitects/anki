@@ -10,7 +10,6 @@ use crate::{
     notes::field_checksum,
     notetype::NoteTypeID,
     storage::ids_to_string,
-    tags::human_tag_name_to_native,
     text::{
         is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
         to_custom_re, to_re, to_sql, to_text, without_combining,
@@ -204,8 +203,7 @@ impl SqlWriter<'_> {
                 text => {
                     write!(self.sql, "n.tags regexp ?").unwrap();
                     let re = &to_custom_re(text, r"\S");
-                    let native_name = human_tag_name_to_native(re);
-                    self.args.push(format!("(?i).* {}(\x1f| ).*", native_name));
+                    self.args.push(format!("(?i).* {}(::| ).*", re));
                 }
             }
         }
@@ -681,14 +679,14 @@ mod test {
             s(ctx, r"tag:one"),
             (
                 "(n.tags regexp ?)".into(),
-                vec!["(?i).* one(\x1f| ).*".into()]
+                vec!["(?i).* one(::| ).*".into()]
             )
         );
         assert_eq!(
             s(ctx, r"tag:foo::bar"),
             (
                 "(n.tags regexp ?)".into(),
-                vec!["(?i).* foo\x1fbar(\x1f| ).*".into()]
+                vec!["(?i).* foo::bar(::| ).*".into()]
             )
         );
 
@@ -696,7 +694,7 @@ mod test {
             s(ctx, r"tag:o*n\*et%w%oth_re\_e"),
             (
                 "(n.tags regexp ?)".into(),
-                vec!["(?i).* o\\S*n\\*et%w%oth\\Sre_e(\u{1f}| ).*".into()]
+                vec![r"(?i).* o\S*n\*et%w%oth\Sre_e(::| ).*".into()]
             )
         );
         assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));

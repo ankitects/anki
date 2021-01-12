@@ -797,15 +797,10 @@ message SetTagCollapsedIn {
   bool collapsed = 2;
 }
 
-message TagConfig {
-  bool browser_collapsed = 1;
-}
-
 message Tag {
-  int64 id = 1;
-  string name = 2;
-  sint32 usn = 3;
-  TagConfig config = 4;
+  string name = 1;
+  sint32 usn = 2;
+  bool collapsed = 3;
 }
 
 message GetChangedTagsOut {
@@ -813,10 +808,9 @@ message GetChangedTagsOut {
 }
 
 message TagTreeNode {
-  int64 tag_id = 1;
-  string name = 2;
-  repeated TagTreeNode children = 3;
-  uint32 level = 5;
+  string name = 1;
+  repeated TagTreeNode children = 2;
+  uint32 level = 3;
   bool collapsed = 4;
 }
 
