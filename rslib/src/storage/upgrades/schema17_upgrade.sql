@@ -1,7 +1,7 @@
 DROP TABLE tags;
 CREATE TABLE tags (
-  id integer PRIMARY KEY NOT NULL,
-  name text NOT NULL COLLATE unicase,
+  tag text NOT NULL PRIMARY KEY COLLATE unicase,
   usn integer NOT NULL,
-  config blob NOT NULL
-);
+  collapsed boolean NOT NULL,
+  config blob NULL
+) without rowid;

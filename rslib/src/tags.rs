@@ -1,11 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub use crate::backend_proto::TagConfig;
 use crate::{
     backend_proto::{Tag as TagProto, TagTreeNode},
     collection::Collection,
-    define_newtype,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
     text::{normalize_to_nfc, to_re},
@@ -21,14 +19,11 @@ use std::{
 };
 use unicase::UniCase;
 
-define_newtype!(TagID, i64);
-
 #[derive(Debug, Clone)]
 pub struct Tag {
-    pub id: TagID,
     pub name: String,
     pub usn: Usn,
-    pub config: TagConfig,
+    pub collapsed: bool,
 }
 
 impl Ord for Tag {
@@ -54,10 +49,9 @@ impl Eq for Tag {}
 impl Default for Tag {
     fn default() -> Self {
         Tag {
-            id: TagID(0),
             name: "".to_string(),
             usn: Usn(-1),
-            config: Default::default(),
+            collapsed: false,
         }
     }
 }
@@ -65,10 +59,9 @@ impl Default for Tag {
 impl From<Tag> for TagProto {
     fn from(t: Tag) -> Self {
         TagProto {
-            id: t.id.0,
             name: t.name,
             usn: t.usn.0,
-            config: Some(t.config),
+            collapsed: t.collapsed,
         }
     }
 }
@@ -76,10 +69,9 @@ impl From<Tag> for TagProto {
 impl From<TagProto> for Tag {
     fn from(t: TagProto) -> Self {
         Tag {
-            id: TagID(t.id),
             name: t.name,
             usn: Usn(t.usn),
-            config: t.config.unwrap(),
+            collapsed: t.collapsed,
         }
     }
 }
@@ -119,17 +111,13 @@ fn normalized_tag_name_component(comp: &str) -> Cow<str> {
     }
 }
 
-pub(crate) fn human_tag_name_to_native(name: &str) -> String {
+fn normalize_tag_name(name: &str) -> String {
     let mut out = String::with_capacity(name.len());
     for comp in name.split("::") {
         out.push_str(&normalized_tag_name_component(comp));
-        out.push('\x1f');
+        out.push_str("::");
     }
-    out.trim_end_matches('\x1f').into()
-}
-
-pub(crate) fn native_tag_name_to_human(name: &str) -> String {
-    name.replace('\x1f', "::")
+    out.trim_end_matches("::").into()
 }
 
 fn fill_missing_tags(tags: Vec<Tag>) -> Vec<Tag> {
@@ -177,11 +165,10 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
             l if l == parent.level + 1 => {
                 // next item is an immediate descendent of parent
                 parent.children.push(TagTreeNode {
-                    tag_id: tag.id.0,
                     name: (*split_name.last().unwrap()).into(),
                     children: vec![],
                     level: parent.level + 1,
-                    collapsed: tag.config.browser_collapsed,
+                    collapsed: tag.collapsed,
                 });
                 tags.next();
             }
@@ -199,19 +186,6 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
 }
 
 impl Collection {
-    pub fn all_tags(&self) -> Result<Vec<Tag>> {
-        self.storage
-            .all_tags()?
-            .into_iter()
-            .map(|t| {
-                Ok(Tag {
-                    name: native_tag_name_to_human(&t.name),
-                    ..t
-                })
-            })
-            .collect()
-    }
-
     pub fn tag_tree(&mut self) -> Result<TagTreeNode> {
         let tags = self.storage.all_tags_sorted()?;
         let tree = tags_to_tree(tags);
@@ -253,20 +227,19 @@ impl Collection {
     }
 
     pub(crate) fn register_tag(&self, tag: Tag) -> Result<(Tag, bool)> {
-        let native_name = human_tag_name_to_native(&tag.name);
+        let normalized_name = normalize_tag_name(&tag.name);
         let mut t = Tag {
-            name: native_name.clone(),
+            name: normalized_name.clone(),
             ..tag
         };
-        if native_name.is_empty() {
+        if normalized_name.is_empty() {
             return Ok((t, false));
         }
-        if let Some(preferred) = self.storage.preferred_tag_case(&native_name)? {
-            t.name = native_tag_name_to_human(&preferred);
+        if let Some(preferred) = self.storage.preferred_tag_case(&normalized_name)? {
+            t.name = preferred;
             Ok((t, false))
         } else {
-            self.storage.register_tag(&mut t)?;
-            t.name = native_tag_name_to_human(&t.name);
+            self.storage.register_tag(&t)?;
             Ok((t, true))
         }
     }
@@ -287,19 +260,16 @@ impl Collection {
         Ok(changed)
     }
 
-    pub(crate) fn update_tag(&self, tag: &Tag) -> Result<()> {
-        let native_name = human_tag_name_to_native(&tag.name);
-        self.storage.update_tag(&Tag {
-            id: tag.id,
-            name: native_name,
-            usn: tag.usn,
-            config: tag.config.clone(),
-        })
-    }
-
-    pub(crate) fn clear_tag(&self, tag: &str) -> Result<()> {
-        let native_name = human_tag_name_to_native(tag);
-        self.storage.clear_tag(&native_name)
+    pub(crate) fn set_tag_collapsed(&self, name: &str, collapsed: bool) -> Result<()> {
+        if self.storage.get_tag(name)?.is_none() {
+            // tag is missing, register it
+            let t = Tag {
+                name: name.to_owned(),
+                ..Default::default()
+            };
+            self.register_tag(t)?;
+        }
+        self.storage.set_tag_collapsed(name, collapsed)
     }
 
     fn replace_tags_for_notes_inner<R: Replacer>(
@@ -425,11 +395,6 @@ mod test {
         col.update_note(&mut note)?;
         assert_eq!(&note.tags, &["one", "two"]);
 
-        // note.tags is in human form
-        note.tags = vec!["foo::bar".into()];
-        col.update_note(&mut note)?;
-        assert_eq!(&note.tags, &["foo::bar"]);
-
         Ok(())
     }
 
@@ -482,6 +447,11 @@ mod test {
         col.replace_tags_for_notes(&[note.id], "bar::foo", "foo::bar", false)?;
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(&note.tags, &["foo::bar", "foo::bar::bar", "foo::bar::foo",]);
+
+        // tag children are also cleared when clearing their parent
+        col.register_tags("a a::b a::b::c", Usn(-1), true)?;
+        col.storage.clear_tag("a")?;
+        assert_eq!(col.storage.all_tags()?, vec![]);
 
         Ok(())
     }

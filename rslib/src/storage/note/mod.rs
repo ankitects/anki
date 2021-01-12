@@ -5,7 +5,7 @@ use crate::{
     err::Result,
     notes::{Note, NoteID},
     notetype::NoteTypeID,
-    tags::{human_tag_name_to_native, join_tags, native_tag_name_to_human, split_tags},
+    tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
 use rusqlite::{params, Row, NO_PARAMS};
@@ -18,11 +18,6 @@ pub(crate) fn join_fields(fields: &[String]) -> String {
     fields.join("\x1f")
 }
 
-fn native_tags_str(tags: &[String]) -> String {
-    let s: Vec<_> = tags.iter().map(|t| human_tag_name_to_native(t)).collect();
-    join_tags(&s)
-}
-
 fn row_to_note(row: &Row) -> Result<Note> {
     Ok(Note {
         id: row.get(0)?,
@@ -31,7 +26,7 @@ fn row_to_note(row: &Row) -> Result<Note> {
         mtime: row.get(3)?,
         usn: row.get(4)?,
         tags: split_tags(row.get_raw(5).as_str()?)
-            .map(|t| native_tag_name_to_human(t))
+            .map(Into::into)
             .collect(),
         fields: split_fields(row.get_raw(6).as_str()?),
         sort_field: None,
@@ -57,7 +52,7 @@ impl super::SqliteStorage {
             note.notetype_id,
             note.mtime,
             note.usn,
-            native_tags_str(&note.tags),
+            join_tags(&note.tags),
             join_fields(&note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
@@ -75,7 +70,7 @@ impl super::SqliteStorage {
             note.notetype_id,
             note.mtime,
             note.usn,
-            native_tags_str(&note.tags),
+            join_tags(&note.tags),
             join_fields(&note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
@@ -93,7 +88,7 @@ impl super::SqliteStorage {
             note.notetype_id,
             note.mtime,
             note.usn,
-            native_tags_str(&note.tags),
+            join_tags(&note.tags),
             join_fields(&note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
@@ -162,69 +157,18 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    // get distinct note tags in human form
+    // get distinct note tags
     pub(crate) fn get_note_tags(&self, nids: Vec<NoteID>) -> Result<Vec<String>> {
         if nids.is_empty() {
             self.db
                 .prepare_cached("select distinct tags from notes")?
-                .query_and_then(NO_PARAMS, |r| {
-                    let t = r.get_raw(0).as_str()?;
-                    Ok(native_tag_name_to_human(t))
-                })?
+                .query_and_then(NO_PARAMS, |r| Ok(r.get_raw(0).as_str()?.to_owned()))?
                 .collect()
         } else {
             self.db
                 .prepare_cached("select distinct tags from notes where id in ?")?
-                .query_and_then(nids, |r| {
-                    let t = r.get_raw(0).as_str()?;
-                    Ok(native_tag_name_to_human(t))
-                })?
+                .query_and_then(nids, |r| Ok(r.get_raw(0).as_str()?.to_owned()))?
                 .collect()
         }
-    }
-
-    pub(super) fn upgrade_notes_to_schema17(&self) -> Result<()> {
-        let notes: Result<Vec<(NoteID, String)>> = self
-            .db
-            .prepare_cached("select id, tags from notes")?
-            .query_and_then(NO_PARAMS, |row| -> Result<(NoteID, String)> {
-                let id = NoteID(row.get_raw(0).as_i64()?);
-                let tags: Vec<String> = split_tags(row.get_raw(1).as_str()?)
-                    .map(|t| human_tag_name_to_native(t))
-                    .collect();
-                let tags = join_tags(&tags);
-                Ok((id, tags))
-            })?
-            .collect();
-        notes?.into_iter().try_for_each(|(id, tags)| -> Result<_> {
-            self.db
-                .prepare_cached("update notes set tags = ? where id = ?")?
-                .execute(params![tags, id])?;
-            Ok(())
-        })?;
-
-        Ok(())
-    }
-
-    pub(super) fn downgrade_notes_from_schema17(&self) -> Result<()> {
-        let notes: Result<Vec<(NoteID, String)>> = self
-            .db
-            .prepare_cached("select id, tags from notes")?
-            .query_and_then(NO_PARAMS, |row| -> Result<(NoteID, String)> {
-                let id = NoteID(row.get_raw(0).as_i64()?);
-                let tags: Vec<String> = split_tags(row.get_raw(1).as_str()?)
-                    .map(|t| native_tag_name_to_human(t))
-                    .collect();
-                let tags = join_tags(&tags);
-                Ok((id, tags))
-            })?
-            .collect();
-        notes?.into_iter().try_for_each(|(id, tags)| -> Result<_> {
-            self.db
-                .prepare_cached("update notes set tags = ? where id = ?")?
-                .execute(params![tags, id])?;
-            Ok(())
-        })?;
-        Ok(())
     }
 }

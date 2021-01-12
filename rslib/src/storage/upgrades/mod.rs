@@ -33,7 +33,6 @@ impl SqliteStorage {
         }
         if ver < 17 {
             self.upgrade_tags_to_schema17()?;
-            self.upgrade_notes_to_schema17()?;
             self.db.execute_batch("update col set ver = 17")?;
         }
 
@@ -47,9 +46,7 @@ impl SqliteStorage {
         self.downgrade_decks_from_schema15()?;
         self.downgrade_notetypes_from_schema15()?;
         self.downgrade_config_from_schema14()?;
-        self.downgrade_tags_from_schema17()?;
         self.downgrade_tags_from_schema14()?;
-        self.downgrade_notes_from_schema17()?;
         self.db
             .execute_batch(include_str!("schema11_downgrade.sql"))?;
 

@@ -44,7 +44,6 @@ use crate::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
-    tags::Tag,
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -1295,27 +1294,23 @@ impl BackendService for Backend {
     //-------------------------------------------------------------------
 
     fn all_tags(&self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
-        let tags: Vec<pb::Tag> =
-            self.with_col(|col| Ok(col.all_tags()?.into_iter().map(|t| t.into()).collect()))?;
+        let tags: Vec<pb::Tag> = self.with_col(|col| {
+            Ok(col
+                .storage
+                .all_tags()?
+                .into_iter()
+                .map(|t| t.into())
+                .collect())
+        })?;
         Ok(pb::AllTagsOut { tags })
     }
 
     fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
-            let name = &input.name;
-            let mut tag = if let Some(tag) = col.storage.get_tag(name)? {
-                tag
-            } else {
-                // tag is missing, register it
-                let t = Tag {
-                    name: name.to_owned(),
-                    ..Default::default()
-                };
-                col.register_tag(t)?.0
-            };
-            tag.config.browser_collapsed = input.collapsed;
-            col.update_tag(&tag)?;
-            Ok(pb::Bool { val: true })
+            col.transact(None, |col| {
+                col.set_tag_collapsed(&input.name, input.collapsed)?;
+                Ok(pb::Bool { val: true })
+            })
         })
     }
 
@@ -1336,7 +1331,7 @@ impl BackendService for Backend {
     fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                col.clear_tag(tag.val.as_str())?;
+                col.storage.clear_tag(tag.val.as_str())?;
                 Ok(pb::Bool { val: true })
             })
         })

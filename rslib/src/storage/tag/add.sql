@@ -1,3 +1,3 @@
 INSERT
-  OR REPLACE INTO tags (id, name, usn, config)
-VALUES (?, ?, ?, ?)
+  OR REPLACE INTO tags (tag, usn, collapsed)
+VALUES (?, ?, ?)
