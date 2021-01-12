@@ -14,7 +14,7 @@ for path in sys.argv[2:]:
     ).decode("utf-8")
     if orig != new:
         if want_fix:
-            with open(os.path.join(workspace, path), "w") as file:
+            with open(os.path.join(workspace, path), "w", newline="\n") as file:
                 file.write(new)
             print("fixed", path)
         else:
