@@ -15,12 +15,7 @@ use super::ChunkableIDs;
 #[async_trait(?Send)]
 pub trait SyncServer {
     async fn meta(&self) -> Result<SyncMeta>;
-    async fn start(
-        &mut self,
-        client_usn: Usn,
-        minutes_west: Option<i32>,
-        local_is_newer: bool,
-    ) -> Result<Graves>;
+    async fn start(&mut self, client_usn: Usn, local_is_newer: bool) -> Result<Graves>;
     async fn apply_graves(&mut self, client_chunk: Graves) -> Result<()>;
     async fn apply_changes(&mut self, client_changes: UnchunkedChanges)
         -> Result<UnchunkedChanges>;
@@ -80,20 +75,12 @@ impl SyncServer for LocalServer {
         })
     }
 
-    async fn start(
-        &mut self,
-        client_usn: Usn,
-        minutes_west: Option<i32>,
-        client_is_newer: bool,
-    ) -> Result<Graves> {
+    async fn start(&mut self, client_usn: Usn, client_is_newer: bool) -> Result<Graves> {
         self.server_usn = self.col.usn()?;
         self.client_usn = client_usn;
         self.client_is_newer = client_is_newer;
 
         self.col.storage.begin_rust_trx()?;
-        if let Some(mins) = minutes_west {
-            self.col.set_local_mins_west(mins)?;
-        }
         self.col.storage.pending_graves(client_usn)
     }
 

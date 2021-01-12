@@ -135,14 +135,6 @@ class Collection:
 
         self._loadScheduler()
 
-    # the sync code uses this to send the local timezone to AnkiWeb
-    def localOffset(self) -> Optional[int]:
-        "Minutes west of UTC. Only applies to V2 scheduler."
-        if isinstance(self.sched, V1Scheduler):
-            return None
-        else:
-            return self.backend.local_minutes_west(intTime())
-
     # DB-related
     ##########################################################################
 

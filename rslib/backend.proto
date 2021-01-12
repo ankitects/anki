@@ -95,8 +95,6 @@ service BackendService {
 
   // scheduling
 
-  rpc LocalMinutesWest(Int64) returns (Int32);
-  rpc SetLocalMinutesWest(Int32) returns (Empty);
   rpc SchedTimingToday(Empty) returns (SchedTimingTodayOut);
   rpc StudiedToday(Empty) returns (String);
   rpc StudiedTodayMessage(StudiedTodayMessageIn) returns (String);

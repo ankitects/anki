@@ -60,8 +60,6 @@ pub struct MetaIn {
 pub struct StartIn {
     #[serde(rename = "minUsn")]
     pub client_usn: Usn,
-    #[serde(rename = "offset", default)]
-    pub minutes_west: Option<i32>,
     #[serde(rename = "lnewer")]
     pub local_is_newer: bool,
 }

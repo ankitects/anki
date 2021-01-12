@@ -404,11 +404,7 @@ where
     async fn start_and_process_deletions(&mut self, state: &SyncState) -> Result<()> {
         let remote: Graves = self
             .remote
-            .start(
-                state.usn_at_last_sync,
-                self.col.get_local_mins_west(),
-                state.local_is_newer,
-            )
+            .start(state.usn_at_last_sync, state.local_is_newer)
             .await?;
 
         debug!(self.col.log, "removed on remote";

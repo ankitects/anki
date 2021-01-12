@@ -73,15 +73,9 @@ impl SyncServer for HTTPSyncClient {
         self.json_request(&input).await
     }
 
-    async fn start(
-        &mut self,
-        client_usn: Usn,
-        minutes_west: Option<i32>,
-        local_is_newer: bool,
-    ) -> Result<Graves> {
+    async fn start(&mut self, client_usn: Usn, local_is_newer: bool) -> Result<Graves> {
         let input = SyncRequest::Start(StartIn {
             client_usn,
-            minutes_west,
             local_is_newer,
         });
         self.json_request(&input).await
@@ -370,13 +364,13 @@ mod test {
             })
         ));
 
-        let _graves = syncer.start(Usn(1), None, true).await?;
+        let _graves = syncer.start(Usn(1), true).await?;
 
         // aborting should now work
         syncer.abort().await?;
 
         // start again, and continue
-        let _graves = syncer.start(Usn(1), None, true).await?;
+        let _graves = syncer.start(Usn(1), true).await?;
 
         syncer.apply_graves(Graves::default()).await?;
 

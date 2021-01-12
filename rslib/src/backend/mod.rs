@@ -32,7 +32,6 @@ use crate::{
         all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeID, NoteTypeSchema11,
         RenderCardOutput,
     },
-    sched::cutoff::local_minutes_west_for_stamp,
     sched::new::NewCardSortOrder,
     sched::timespan::{answer_button_time, time_span},
     search::{
@@ -530,20 +529,6 @@ impl BackendService for Backend {
             let timing = col.timing_today()?;
             col.unbury_if_day_rolled_over(timing)?;
             Ok(timing.into())
-        })
-    }
-
-    fn local_minutes_west(&self, input: pb::Int64) -> BackendResult<pb::Int32> {
-        Ok(pb::Int32 {
-            val: local_minutes_west_for_stamp(input.val),
-        })
-    }
-
-    fn set_local_minutes_west(&self, input: pb::Int32) -> BackendResult<Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.set_local_mins_west(input.val).map(Into::into)
-            })
         })
     }
 
