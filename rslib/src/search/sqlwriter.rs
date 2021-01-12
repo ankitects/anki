@@ -213,8 +213,7 @@ impl SqlWriter<'_> {
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
-        let days = days.min(365) as i64;
-        let target_cutoff_ms = (today_cutoff - 86_400 * days) * 1_000;
+        let target_cutoff_ms = (today_cutoff - 86_400 * i64::from(days)) * 1_000;
         write!(
             self.sql,
             "c.id in (select cid from revlog where id>{}",
@@ -634,6 +633,7 @@ mod test {
             s(ctx, "added:3").0,
             format!("(c.id > {})", (timing.next_day_at - (86_400 * 3)) * 1_000)
         );
+        assert_eq!(s(ctx, "added:0").0, s(ctx, "added:1").0,);
 
         // deck
         assert_eq!(
@@ -725,6 +725,7 @@ mod test {
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
+        assert_eq!(s(ctx, "rated:0").0, s(ctx, "rated:1").0);
 
         // props
         assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());

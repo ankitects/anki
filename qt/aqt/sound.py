@@ -136,7 +136,7 @@ class VideoPlayer(Player):  # pylint: disable=abstract-method
 
 class AVPlayer:
     players: List[Player] = []
-    # when a new batch of audio is played, shoud the currently playing
+    # when a new batch of audio is played, should the currently playing
     # audio be stopped?
     interrupt_current_audio = True
 

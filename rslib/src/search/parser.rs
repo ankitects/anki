@@ -42,7 +42,7 @@ impl<I> From<nom::Err<(I, ErrorKind)>> for ParseError {
 type ParseResult<T> = std::result::Result<T, ParseError>;
 
 #[derive(Debug, PartialEq)]
-pub(super) enum Node<'a> {
+pub enum Node<'a> {
     And,
     Or,
     Not(Box<Node<'a>>),
@@ -51,7 +51,7 @@ pub(super) enum Node<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum SearchNode<'a> {
+pub enum SearchNode<'a> {
     // text without a colon
     UnqualifiedText(Cow<'a, str>),
     // foo:bar, where foo doesn't match a term below
@@ -91,7 +91,7 @@ pub(super) enum SearchNode<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum PropertyKind {
+pub enum PropertyKind {
     Due(i32),
     Interval(u32),
     Reps(u32),
@@ -101,7 +101,7 @@ pub(super) enum PropertyKind {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum StateKind {
+pub enum StateKind {
     New,
     Review,
     Learning,
@@ -113,7 +113,7 @@ pub(super) enum StateKind {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum TemplateKind<'a> {
+pub enum TemplateKind<'a> {
     Ordinal(u16),
     Name(Cow<'a, str>),
 }
@@ -273,8 +273,8 @@ fn search_node_for_text_with_argument<'a>(
     val: &'a str,
 ) -> ParseResult<SearchNode<'a>> {
     Ok(match key.to_ascii_lowercase().as_str() {
-        "added" => SearchNode::AddedInDays(val.parse()?),
-        "edited" => SearchNode::EditedInDays(val.parse()?),
+        "added" => parse_added(val)?,
+        "edited" => parse_edited(val)?,
         "deck" => SearchNode::Deck(unescape(val)?),
         "note" => SearchNode::NoteType(unescape(val)?),
         "tag" => SearchNode::Tag(unescape(val)?),
@@ -309,6 +309,20 @@ fn check_id_list(s: &str) -> ParseResult<&str> {
     }
 }
 
+/// eg added:1
+fn parse_added(s: &str) -> ParseResult<SearchNode<'static>> {
+    let n: u32 = s.parse()?;
+    let days = n.max(1);
+    Ok(SearchNode::AddedInDays(days))
+}
+
+/// eg edited:1
+fn parse_edited(s: &str) -> ParseResult<SearchNode<'static>> {
+    let n: u32 = s.parse()?;
+    let days = n.max(1);
+    Ok(SearchNode::EditedInDays(days))
+}
+
 /// eg is:due
 fn parse_state(s: &str) -> ParseResult<SearchNode<'static>> {
     use StateKind::*;
@@ -339,7 +353,10 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode<'static>> {
 /// second arg must be between 0-4
 fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
     let mut it = val.splitn(2, ':');
-    let days = it.next().unwrap().parse()?;
+
+    let n: u32 = it.next().unwrap().parse()?;
+    let days = n.max(1).min(365);
+
     let ease = match it.next() {
         Some(v) => {
             let n: u8 = v.parse()?;

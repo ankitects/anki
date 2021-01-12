@@ -87,7 +87,7 @@ pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
     Ok(write_nodes(&nodes))
 }
 
-fn write_nodes<'a, I>(nodes: I) -> String
+pub fn write_nodes<'a, I>(nodes: I) -> String
 where
     I: IntoIterator<Item = &'a Node<'a>>,
 {
@@ -149,7 +149,7 @@ fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
 
 fn write_template(template: &TemplateKind) -> String {
     match template {
-        TemplateKind::Ordinal(u) => format!("\"card:{}\"", u),
+        TemplateKind::Ordinal(u) => format!("\"card:{}\"", u + 1),
         TemplateKind::Name(s) => format!("\"card:{}\"", s),
     }
 }

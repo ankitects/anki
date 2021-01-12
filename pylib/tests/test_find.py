@@ -193,6 +193,7 @@ def test_findCards():
     assert len(col.findCards("-prop:ease>2")) > 1
     # recently failed
     if not isNearCutoff():
+        # rated
         assert len(col.findCards("rated:1:1")) == 0
         assert len(col.findCards("rated:1:2")) == 0
         c = col.sched.getCard()
@@ -204,13 +205,14 @@ def test_findCards():
         assert len(col.findCards("rated:1:1")) == 1
         assert len(col.findCards("rated:1:2")) == 1
         assert len(col.findCards("rated:1")) == 2
-        assert len(col.findCards("rated:0:2")) == 0
         assert len(col.findCards("rated:2:2")) == 1
+        assert len(col.findCards("rated:0")) == len(col.findCards("rated:1"))
+
         # added
-        assert len(col.findCards("added:0")) == 0
         col.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
         assert len(col.findCards("added:1")) == col.cardCount() - 1
         assert len(col.findCards("added:2")) == col.cardCount()
+        assert len(col.findCards("added:0")) == len(col.findCards("added:1"))
     else:
         print("some find tests disabled near cutoff")
     # empty field

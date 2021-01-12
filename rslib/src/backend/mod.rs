@@ -36,8 +36,8 @@ use crate::{
     sched::new::NewCardSortOrder,
     sched::timespan::{answer_button_time, time_span},
     search::{
-        concatenate_searches, negate_search, normalize_search, replace_search_term, BoolSeparator,
-        SortMode,
+        concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
+        BoolSeparator, Node, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -45,7 +45,7 @@ use crate::{
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
     template::RenderedNode,
-    text::{extract_av_tags, strip_av_tags, AVTag},
+    text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -277,6 +277,57 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
+impl From<pb::FilterToSearchIn> for Node<'_> {
+    fn from(msg: pb::FilterToSearchIn) -> Self {
+        use pb::filter_to_search_in::Filter;
+        use pb::filter_to_search_in::NamedFilter;
+        match msg
+            .filter
+            .unwrap_or(Filter::Name(NamedFilter::WholeCollection as i32))
+        {
+            Filter::Name(name) => {
+                match NamedFilter::from_i32(name).unwrap_or(NamedFilter::WholeCollection) {
+                    NamedFilter::WholeCollection => Node::Search(SearchNode::WholeCollection),
+                    NamedFilter::CurrentDeck => Node::Search(SearchNode::Deck("current".into())),
+                    NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
+                    NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
+                        days: 1,
+                        ease: None,
+                    }),
+                    NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
+                        days: 1,
+                        ease: Some(1),
+                    }),
+                    NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
+                    NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),
+                    NamedFilter::Review => Node::Search(SearchNode::State(StateKind::Review)),
+                    NamedFilter::Due => Node::Search(SearchNode::State(StateKind::Due)),
+                    NamedFilter::Suspended => Node::Search(SearchNode::State(StateKind::Suspended)),
+                    NamedFilter::Buried => Node::Search(SearchNode::State(StateKind::Buried)),
+                    NamedFilter::RedFlag => Node::Search(SearchNode::Flag(1)),
+                    NamedFilter::OrangeFlag => Node::Search(SearchNode::Flag(2)),
+                    NamedFilter::GreenFlag => Node::Search(SearchNode::Flag(3)),
+                    NamedFilter::BlueFlag => Node::Search(SearchNode::Flag(4)),
+                    NamedFilter::NoFlag => Node::Search(SearchNode::Flag(0)),
+                    NamedFilter::AnyFlag => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
+                }
+            }
+            Filter::Tag(s) => Node::Search(SearchNode::Tag(
+                escape_anki_wildcards(&s).into_owned().into(),
+            )),
+            Filter::Deck(s) => Node::Search(SearchNode::Deck(
+                escape_anki_wildcards(&s).into_owned().into(),
+            )),
+            Filter::Note(s) => Node::Search(SearchNode::NoteType(
+                escape_anki_wildcards(&s).into_owned().into(),
+            )),
+            Filter::Template(u) => {
+                Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
+            }
+        }
+    }
+}
+
 impl From<BoolSeparatorProto> for BoolSeparator {
     fn from(sep: BoolSeparatorProto) -> Self {
         match sep {
@@ -407,6 +458,10 @@ impl BackendService for Backend {
 
     // searching
     //-----------------------------------------------
+
+    fn filter_to_search(&self, input: pb::FilterToSearchIn) -> Result<pb::String> {
+        Ok(write_nodes(&[input.into()]).into())
+    }
 
     fn normalize_search(&self, input: pb::String) -> Result<pb::String> {
         Ok(normalize_search(&input.val)?.into())
