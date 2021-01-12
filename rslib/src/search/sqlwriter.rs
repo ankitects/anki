@@ -123,7 +123,7 @@ impl SqlWriter<'_> {
                 self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
             }
             SearchNode::Duplicates { note_type_id, text } => {
-                self.write_dupes(*note_type_id, &self.norm_note(text))?
+                self.write_dupe(*note_type_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
             SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
@@ -443,7 +443,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
+    fn write_dupe(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
 
