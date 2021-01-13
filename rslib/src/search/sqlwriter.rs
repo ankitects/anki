@@ -225,9 +225,9 @@ impl SqlWriter<'_> {
         .unwrap();
 
         match ease {
-            EaseKind::Rated(u) => write!(self.sql, " and ease = {})", u),
-            EaseKind::Reviewed => write!(self.sql, " and ease between 1 and 4)"),
-            EaseKind::Manually => write!(self.sql, " and ease = 0)"),
+            EaseKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
+            EaseKind::AnyAnswerButton => write!(self.sql, " and ease between 1 and 4)"),
+            EaseKind::ManualReschedule => write!(self.sql, " and ease = 0)"),
         }
         .unwrap();
 
