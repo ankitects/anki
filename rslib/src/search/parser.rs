@@ -120,9 +120,9 @@ pub enum TemplateKind<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum EaseKind {
-    Rated(u8),
-    Reviewed,
-    Manually,
+    AnswerButton(u8),
+    AnyAnswerButton,
+    ManualReschedule,
 }
 
 /// Parse the input string into a list of nodes.
@@ -367,14 +367,14 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 
     let ease = match it.next() {
         Some(v) => {
-            let u: u8 = v.parse().unwrap();
+            let u: u8 = v.parse()?;
             if (1..5).contains(&u) {
-                EaseKind::Rated(u)
+                EaseKind::AnswerButton(u)
             } else {
                 return Err(ParseError {});
             }
         }
-        None => EaseKind::Reviewed,
+        None => EaseKind::AnyAnswerButton,
     };
 
     Ok(SearchNode::Rated { days, ease })
@@ -387,7 +387,7 @@ fn parse_resched(val: &str) -> ParseResult<SearchNode<'static>> {
     let n: u32 = it.next().unwrap().parse()?;
     let days = n.max(1).min(365);
 
-    let ease = EaseKind::Manually;
+    let ease = EaseKind::ManualReschedule;
 
     Ok(SearchNode::Rated { days, ease })
 }

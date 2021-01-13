@@ -292,11 +292,11 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                     NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
                     NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
                         days: 1,
-                        ease: EaseKind::Reviewed,
+                        ease: EaseKind::AnyAnswerButton,
                     }),
                     NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
                         days: 1,
-                        ease: EaseKind::Rated(1),
+                        ease: EaseKind::AnswerButton(1),
                     }),
                     NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
                     NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),

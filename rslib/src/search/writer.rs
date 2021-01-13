@@ -157,9 +157,9 @@ fn write_template(template: &TemplateKind) -> String {
 fn write_rated(days: &u32, ease: &EaseKind) -> String {
     use EaseKind::*;
     match ease {
-        Rated(n) => format!("\"rated:{}:{}\"", days, n),
-        Reviewed => format!("\"rated:{}\"", days),
-        Manually => format!("\"resched:{}\"", days),
+        AnswerButton(n) => format!("\"rated:{}:{}\"", days, n),
+        AnyAnswerButton => format!("\"rated:{}\"", days),
+        ManualReschedule => format!("\"resched:{}\"", days),
     }
 }
 
