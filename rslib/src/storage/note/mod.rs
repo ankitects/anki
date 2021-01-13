@@ -158,17 +158,10 @@ impl super::SqliteStorage {
     }
 
     // get distinct note tags
-    pub(crate) fn get_note_tags(&self, nids: Vec<NoteID>) -> Result<Vec<String>> {
-        if nids.is_empty() {
-            self.db
-                .prepare_cached("select distinct tags from notes")?
-                .query_and_then(NO_PARAMS, |r| Ok(r.get_raw(0).as_str()?.to_owned()))?
-                .collect()
-        } else {
-            self.db
-                .prepare_cached("select distinct tags from notes where id in ?")?
-                .query_and_then(nids, |r| Ok(r.get_raw(0).as_str()?.to_owned()))?
-                .collect()
-        }
+    pub(crate) fn get_note_tags(&self) -> Result<Vec<String>> {
+        self.db
+            .prepare_cached("select distinct tags from notes")?
+            .query_and_then(NO_PARAMS, |r| Ok(r.get_raw(0).as_str()?.to_owned()))?
+            .collect()
     }
 }

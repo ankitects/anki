@@ -272,6 +272,22 @@ impl Collection {
         self.storage.set_tag_collapsed(name, collapsed)
     }
 
+    /// Update collapse state of existing tags and register tags in old_tags that are parents of those tags
+    pub(crate) fn update_tags_collapse(&self, old_tags: Vec<Tag>) -> Result<()> {
+        let new_tags = self.storage.all_tags_sorted()?;
+        for old in old_tags.into_iter() {
+            for new in new_tags.iter() {
+                if new.name == old.name {
+                    self.storage.set_tag_collapsed(&new.name, old.collapsed)?;
+                    break;
+                } else if new.name.starts_with(&old.name) {
+                    self.set_tag_collapsed(&old.name, old.collapsed)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn replace_tags_for_notes_inner<R: Replacer>(
         &mut self,
         nids: &[NoteID],

@@ -44,6 +44,7 @@ use crate::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
+    tags::join_tags,
     template::RenderedNode,
     text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -974,14 +975,6 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_note_tags(&self, input: pb::GetNoteTagsIn) -> BackendResult<pb::GetNoteTagsOut> {
-        self.with_col(|col| {
-            Ok(pb::GetNoteTagsOut {
-                tags: col.storage.get_note_tags(to_nids(input.nids))?,
-            })
-        })
-    }
-
     fn cloze_numbers_in_note(&self, note: pb::Note) -> BackendResult<pb::ClozeNumbersInNoteOut> {
         let mut set = HashSet::with_capacity(4);
         for field in &note.fields {
@@ -1360,34 +1353,32 @@ impl BackendService for Backend {
         Ok(pb::AllTagsOut { tags })
     }
 
-    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Bool> {
+    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.set_tag_collapsed(&input.name, input.collapsed)?;
-                Ok(pb::Bool { val: true })
+                Ok(().into())
             })
         })
     }
 
-    fn register_tags(&self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
+    fn clear_unused_tags(&self, _input: pb::Empty) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                let usn = if input.preserve_usn {
-                    Usn(input.usn)
-                } else {
-                    col.usn()?
-                };
-                col.register_tags(&input.tags, usn, input.clear_first)
-                    .map(|val| pb::Bool { val })
+                let old_tags = col.storage.all_tags()?;
+                let note_tags = join_tags(&col.storage.get_note_tags()?);
+                col.register_tags(&note_tags, col.usn()?, true)?;
+                col.update_tags_collapse(old_tags)?;
+                Ok(().into())
             })
         })
     }
 
-    fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Bool> {
+    fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.storage.clear_tag(tag.val.as_str())?;
-                Ok(pb::Bool { val: true })
+                Ok(().into())
             })
         })
     }

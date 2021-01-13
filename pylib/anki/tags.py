@@ -42,30 +42,14 @@ class TagManager:
     def register(
         self, tags: Collection[str], usn: Optional[int] = None, clear=False
     ) -> None:
-        if usn is None:
-            preserve_usn = False
-            usn_ = 0
-        else:
-            usn_ = usn
-            preserve_usn = True
-
-        self.col.backend.register_tags(
-            tags=" ".join(tags), preserve_usn=preserve_usn, usn=usn_, clear_first=clear
-        )
+        print("tags.register() is deprecated and no longer works")
 
     def registerNotes(self, nids: Optional[List[int]] = None) -> None:
-        "Add any missing tags from notes to the tags list."
-        # when called without an argument, the old list is cleared first.
-        if nids:
-            lim = " where id in " + ids2str(nids)
-            clear = False
-        else:
-            lim = ""
-            clear = True
-        self.register(
-            self.col.backend.get_note_tags(nids),
-            clear=clear,
-        )
+        "Clear unused tags and add any missing tags from notes to the tag list."
+        self.clear_unused_tags()
+
+    def clear_unused_tags(self):
+        self.col.backend.clear_unused_tags()
 
     def byDeck(self, did, children=False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
