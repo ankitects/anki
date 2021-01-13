@@ -165,7 +165,6 @@ service BackendService {
   rpc RemoveNotes(RemoveNotesIn) returns (Empty);
   rpc AddNoteTags(AddNoteTagsIn) returns (UInt32);
   rpc UpdateNoteTags(UpdateNoteTagsIn) returns (UInt32);
-  rpc GetNoteTags(GetNoteTagsIn) returns (GetNoteTagsOut);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
   rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (Empty);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
@@ -208,10 +207,10 @@ service BackendService {
 
   // tags
 
-  rpc RegisterTags(RegisterTagsIn) returns (Bool);
+  rpc ClearUnusedTags(Empty) returns (Empty);
   rpc AllTags(Empty) returns (AllTagsOut);
-  rpc SetTagCollapsed(SetTagCollapsedIn) returns (Bool);
-  rpc ClearTag(String) returns (Bool);
+  rpc SetTagCollapsed(SetTagCollapsedIn) returns (Empty);
+  rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
 
   // config/preferences
@@ -811,13 +810,6 @@ message AddOrUpdateDeckConfigLegacyIn {
   bool preserve_usn_and_mtime = 2;
 }
 
-message RegisterTagsIn {
-  string tags = 1;
-  bool preserve_usn = 2;
-  int32 usn = 3;
-  bool clear_first = 4;
-}
-
 message AllTagsOut {
   repeated Tag tags = 1;
 }
@@ -948,14 +940,6 @@ message UpdateNoteTagsIn {
   string tags = 2;
   string replacement = 3;
   bool regex = 4;
-}
-
-message GetNoteTagsIn {
-  repeated int64 nids = 1;
-}
-
-message GetNoteTagsOut {
-  repeated string tags = 1;
 }
 
 message CheckDatabaseOut {

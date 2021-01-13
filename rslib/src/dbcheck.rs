@@ -295,17 +295,8 @@ impl Collection {
             }
         }
 
-        let new_tags = self.storage.all_tags_sorted()?;
-        for old in old_tags.into_iter() {
-            for new in new_tags.iter() {
-                if new.name == old.name {
-                    self.storage.set_tag_collapsed(&new.name, new.collapsed)?;
-                    break;
-                } else if new.name.starts_with(&old.name) {
-                    self.set_tag_collapsed(&old.name, old.collapsed)?;
-                }
-            }
-        }
+        // restore tags collapse state and re-register old tags that are parents of used ones
+        self.update_tags_collapse(old_tags)?;
 
         // if the collection is empty and the user has deleted all note types, ensure at least
         // one note type exists
