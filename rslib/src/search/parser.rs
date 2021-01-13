@@ -223,8 +223,9 @@ fn unquoted_term(s: &str) -> IResult<Node> {
     )(s)
     {
         if tail.starts_with('\\') {
-            let escaped = (if tail.len() > 1 { &tail[0..2] } else { "" }).to_string();
-            Err(parse_failure(s, UnknownEscape(format!("\\{}", escaped))))
+            // trailing backslash followed by whitespace or nothing
+            let seq = (if tail.len() > 1 { &tail[0..2] } else { r"\" }).to_string();
+            Err(parse_failure(s, UnknownEscape(seq)))
         } else if term.eq_ignore_ascii_case("and") {
             Ok((tail, Node::And))
         } else if term.eq_ignore_ascii_case("or") {
@@ -233,8 +234,9 @@ fn unquoted_term(s: &str) -> IResult<Node> {
             Ok((tail, Node::Search(search_node_for_text(term)?)))
         }
     } else if s.starts_with('\\') {
-        let escaped = (if s.len() > 1 { &s[0..2] } else { "" }).to_string();
-        Err(parse_failure(s, UnknownEscape(format!("\\{}", escaped))))
+        // leading backslash followed by whitespace or nothing
+        let seq = (if s.len() > 1 { &s[0..2] } else { r"\" }).to_string();
+        Err(parse_failure(s, UnknownEscape(seq)))
     } else {
         Err(nom::Err::Error(ParseError::Nom(s, NomErrorKind::Verify)))
     }
@@ -246,21 +248,21 @@ fn quoted_term_str(s: &str) -> IResult<&str> {
     if let Ok((tail, inner)) =
         escaped::<_, ParseError, _, _, _, _>(is_not(r#""\"#), '\\', anychar)(opened)
     {
-        if tail.is_empty() {
-            Err(parse_failure(s, UnclosedQuote))
-        } else if let Ok((remaining, _)) = char::<_, ParseError>('"')(tail) {
+        if let Ok((remaining, _)) = char::<_, ParseError>('"')(tail) {
             Ok((remaining, inner))
         } else {
             Err(parse_failure(s, UnclosedQuote))
         }
     } else {
-        match opened.chars().next().unwrap() {
-            '"' => Err(parse_failure(s, EmptyQuote)),
-            // '\' followed by nothing
-            '\\' => Err(parse_failure(s, UnclosedQuote)),
-            // everything else is accepted by escaped
-            _ => unreachable!(),
-        }
+        Err(parse_failure(
+            s,
+            match opened.chars().next().unwrap() {
+                '"' => EmptyQuote,
+                // '\' followed by nothing
+                '\\' => UnclosedQuote,
+                _ => unreachable!(),
+            },
+        ))
     }
 }
 
