@@ -3,7 +3,7 @@
 
 use crate::{
     decks::DeckID,
-    err::{AnkiError, Result},
+    err::{AnkiError, ParseError, ParseErrorKind, Result},
     notetype::NoteTypeID,
 };
 use lazy_static::lazy_static;
@@ -12,58 +12,19 @@ use nom::{
     bytes::complete::{escaped, is_not, tag},
     character::complete::{anychar, char, none_of, one_of},
     combinator::{all_consuming, map, verify},
-    error::{ErrorKind as NomErrorKind, ParseError as NomParseError},
+    error::ErrorKind as NomErrorKind,
     multi::many0,
     sequence::{delimited, preceded, separated_pair},
-    Err::{Error, Failure},
 };
 use regex::{Captures, Regex};
 use std::borrow::Cow;
-
-#[derive(Debug)]
-enum ParseError<'a> {
-    Anki(&'a str, ErrorKind),
-    Nom(&'a str, NomErrorKind),
-}
-
-#[derive(Debug)]
-enum ErrorKind {
-    MisplacedAnd,
-    MisplacedOr,
-    EmptyGroup,
-    EmptyQuote,
-    UnclosedQuote,
-    MissingKey,
-    UnknownEscape(String),
-    InvalidIdList,
-    InvalidState,
-    InvalidFlag,
-    InvalidAdded,
-    InvalidEdited,
-    InvalidRatedDays,
-    InvalidRatedEase,
-    InvalidDupesMid,
-    InvalidDupesText,
-    InvalidPropProperty,
-    InvalidPropOperator,
-    InvalidPropFloat,
-    InvalidPropInteger,
-    InvalidPropUnsigned,
-    InvalidDid,
-    InvalidMid,
-}
+use ParseErrorKind::*;
 
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
 
-impl<'a> NomParseError<&'a str> for ParseError<'a> {
-    fn from_error_kind(input: &'a str, kind: NomErrorKind) -> Self {
-        ParseError::Nom(input, kind)
-    }
-
-    fn append(_: &str, _: NomErrorKind, other: Self) -> Self {
-        other
-    }
+fn parse_failure(input: &str, kind: ParseErrorKind) -> nom::Err<ParseError<'_>> {
+    nom::Err::Failure(ParseError::Anki(input, kind))
 }
 
 #[derive(Debug, PartialEq)]
@@ -171,9 +132,9 @@ fn group_inner(input: &str) -> IResult<Vec<Node>> {
                     // before adding the node, if the length is even then the node
                     // must not be a boolean
                     if node == Node::And {
-                        return Err(Failure(ParseError::Anki(input, ErrorKind::MisplacedAnd)));
+                        return Err(parse_failure(input, MisplacedAnd));
                     } else if node == Node::Or {
-                        return Err(Failure(ParseError::Anki(input, ErrorKind::MisplacedOr)));
+                        return Err(parse_failure(input, MisplacedOr));
                     }
                 } else {
                     // if the length is odd, the next item must be a boolean. if it's
@@ -193,11 +154,11 @@ fn group_inner(input: &str) -> IResult<Vec<Node>> {
     }
 
     if nodes.is_empty() {
-        Err(Failure(ParseError::Anki(input, ErrorKind::EmptyGroup)))
+        Err(parse_failure(input, EmptyGroup))
     } else if nodes.last().unwrap() == &Node::And {
-        Err(Failure(ParseError::Anki(input, ErrorKind::MisplacedAnd)))
+        Err(parse_failure(input, MisplacedAnd))
     } else if nodes.last().unwrap() == &Node::Or {
-        Err(Failure(ParseError::Anki(input, ErrorKind::MisplacedOr)))
+        Err(parse_failure(input, MisplacedOr))
     } else {
         // chomp any trailing whitespace
         let (remaining, _) = whitespace0(remaining)?;
@@ -245,10 +206,7 @@ fn partially_quoted_term(s: &str) -> IResult<Node> {
         quoted_term_str,
     )(s)?;
     if key.is_empty() {
-        Err(nom::Err::Failure(ParseError::Anki(
-            s,
-            ErrorKind::MissingKey,
-        )))
+        Err(parse_failure(s, MissingKey))
     } else {
         Ok((
             remaining,
@@ -266,10 +224,7 @@ fn unquoted_term(s: &str) -> IResult<Node> {
     {
         if tail.starts_with('\\') {
             let escaped = (if tail.len() > 1 { &tail[0..2] } else { "" }).to_string();
-            Err(Failure(ParseError::Anki(
-                s,
-                ErrorKind::UnknownEscape(format!("\\{}", escaped)),
-            )))
+            Err(parse_failure(s, UnknownEscape(format!("\\{}", escaped))))
         } else if term.eq_ignore_ascii_case("and") {
             Ok((tail, Node::And))
         } else if term.eq_ignore_ascii_case("or") {
@@ -279,12 +234,9 @@ fn unquoted_term(s: &str) -> IResult<Node> {
         }
     } else if s.starts_with('\\') {
         let escaped = (if s.len() > 1 { &s[0..2] } else { "" }).to_string();
-        Err(Failure(ParseError::Anki(
-            s,
-            ErrorKind::UnknownEscape(format!("\\{}", escaped)),
-        )))
+        Err(parse_failure(s, UnknownEscape(format!("\\{}", escaped))))
     } else {
-        Err(Error(ParseError::Nom(s, NomErrorKind::Verify)))
+        Err(nom::Err::Error(ParseError::Nom(s, NomErrorKind::Verify)))
     }
 }
 
@@ -295,17 +247,17 @@ fn quoted_term_str(s: &str) -> IResult<&str> {
         escaped::<_, ParseError, _, _, _, _>(is_not(r#""\"#), '\\', anychar)(opened)
     {
         if tail.is_empty() {
-            Err(Failure(ParseError::Anki(s, ErrorKind::UnclosedQuote)))
+            Err(parse_failure(s, UnclosedQuote))
         } else if let Ok((remaining, _)) = char::<_, ParseError>('"')(tail) {
             Ok((remaining, inner))
         } else {
-            Err(Failure(ParseError::Anki(s, ErrorKind::UnclosedQuote)))
+            Err(parse_failure(s, UnclosedQuote))
         }
     } else {
         match opened.chars().next().unwrap() {
-            '"' => Err(Failure(ParseError::Anki(s, ErrorKind::EmptyQuote))),
+            '"' => Err(parse_failure(s, EmptyQuote)),
             // '\' followed by nothing
-            '\\' => Err(Failure(ParseError::Anki(s, ErrorKind::UnclosedQuote))),
+            '\\' => Err(parse_failure(s, UnclosedQuote)),
             // everything else is accepted by escaped
             _ => unreachable!(),
         }
@@ -324,7 +276,7 @@ fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
     } else {
         // escaped only fails on "\" and leading ':'
         // "\" cannot be passed as an argument by a calling parser
-        Err(Failure(ParseError::Anki(s, ErrorKind::MissingKey)))
+        Err(parse_failure(s, MissingKey))
     }
 }
 
@@ -368,12 +320,12 @@ fn parse_template(s: &str) -> ParseResult<SearchNode> {
 fn parse_flag(s: &str) -> ParseResult<SearchNode> {
     if let Ok(flag) = s.parse::<u8>() {
         if flag > 4 {
-            Err(Failure(ParseError::Anki(s, ErrorKind::InvalidFlag)))
+            Err(parse_failure(s, InvalidFlag))
         } else {
             Ok(SearchNode::Flag(flag))
         }
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidEdited)))
+        Err(parse_failure(s, InvalidEdited))
     }
 }
 
@@ -387,7 +339,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
         tag("ease"),
         tag("pos"),
     ))(s)
-    .map_err(|_| Failure(ParseError::Anki(s, ErrorKind::InvalidPropProperty)))?;
+    .map_err(|_| parse_failure(s, InvalidPropProperty))?;
 
     let (num, operator) = alt::<&str, &str, ParseError, _>((
         tag("<="),
@@ -397,19 +349,19 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
         tag("<"),
         tag(">"),
     ))(tail)
-    .map_err(|_| Failure(ParseError::Anki(s, ErrorKind::InvalidPropOperator)))?;
+    .map_err(|_| parse_failure(s, InvalidPropOperator))?;
 
     let kind = if prop == "ease" {
         if let Ok(f) = num.parse::<f32>() {
             PropertyKind::Ease(f)
         } else {
-            return Err(Failure(ParseError::Anki(s, ErrorKind::InvalidPropFloat)));
+            return Err(parse_failure(s, InvalidPropFloat));
         }
     } else if prop == "due" {
         if let Ok(i) = num.parse::<i32>() {
             PropertyKind::Due(i)
         } else {
-            return Err(Failure(ParseError::Anki(s, ErrorKind::InvalidPropInteger)));
+            return Err(parse_failure(s, InvalidPropInteger));
         }
     } else if let Ok(u) = num.parse::<u32>() {
         match prop {
@@ -420,7 +372,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
             _ => unreachable!(),
         }
     } else {
-        return Err(Failure(ParseError::Anki(s, ErrorKind::InvalidPropUnsigned)));
+        return Err(parse_failure(s, InvalidPropUnsigned));
     };
 
     Ok(SearchNode::Property {
@@ -434,7 +386,7 @@ fn parse_added(s: &str) -> ParseResult<SearchNode> {
     if let Ok(days) = s.parse::<u32>() {
         Ok(SearchNode::AddedInDays(days.max(1)))
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidAdded)))
+        Err(parse_failure(s, InvalidAdded))
     }
 }
 
@@ -443,7 +395,7 @@ fn parse_edited(s: &str) -> ParseResult<SearchNode> {
     if let Ok(days) = s.parse::<u32>() {
         Ok(SearchNode::EditedInDays(days.max(1)))
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidEdited)))
+        Err(parse_failure(s, InvalidEdited))
     }
 }
 
@@ -458,17 +410,17 @@ fn parse_rated(s: &str) -> ParseResult<SearchNode> {
                 if u < 5 {
                     Some(u)
                 } else {
-                    return Err(Failure(ParseError::Anki(s, ErrorKind::InvalidRatedEase)));
+                    return Err(parse_failure(s, InvalidRatedEase));
                 }
             } else {
-                return Err(Failure(ParseError::Anki(s, ErrorKind::InvalidRatedEase)));
+                return Err(parse_failure(s, InvalidRatedEase));
             }
         } else {
             None
         };
         Ok(SearchNode::Rated { days, ease })
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidRatedDays)))
+        Err(parse_failure(s, InvalidRatedDays))
     }
 }
 
@@ -484,7 +436,7 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
         "buried-manually" => UserBuried,
         "buried-sibling" => SchedBuried,
         "suspended" => Suspended,
-        _ => return Err(Failure(ParseError::Anki(s, ErrorKind::InvalidState))),
+        _ => return Err(parse_failure(s, InvalidState)),
     }))
 }
 
@@ -492,7 +444,7 @@ fn parse_did(s: &str) -> ParseResult<SearchNode> {
     if let Ok(did) = s.parse() {
         Ok(SearchNode::DeckID(did))
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidDid)))
+        Err(parse_failure(s, InvalidDid))
     }
 }
 
@@ -500,7 +452,7 @@ fn parse_mid(s: &str) -> ParseResult<SearchNode> {
     if let Ok(mid) = s.parse() {
         Ok(SearchNode::NoteTypeID(mid))
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidMid)))
+        Err(parse_failure(s, InvalidMid))
     }
 }
 
@@ -513,7 +465,7 @@ fn check_id_list(s: &str) -> ParseResult<&str> {
     if RE.is_match(s) {
         Ok(s)
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidIdList)))
+        Err(parse_failure(s, InvalidIdList))
     }
 }
 
@@ -527,10 +479,10 @@ fn parse_dupes(s: &str) -> ParseResult<SearchNode> {
                 text: unescape_quotes(text),
             })
         } else {
-            Err(Failure(ParseError::Anki(s, ErrorKind::InvalidDupesText)))
+            Err(parse_failure(s, InvalidDupesText))
         }
     } else {
-        Err(Failure(ParseError::Anki(s, ErrorKind::InvalidDupesMid)))
+        Err(parse_failure(s, InvalidDupesMid))
     }
 }
 
@@ -562,10 +514,7 @@ fn unescape_quotes(s: &str) -> Cow<str> {
 /// Unescape chars with special meaning to the parser.
 fn unescape(txt: &str) -> ParseResult<Cow<str>> {
     if let Some(seq) = invalid_escape_sequence(txt) {
-        Err(Failure(ParseError::Anki(
-            txt,
-            ErrorKind::UnknownEscape(seq),
-        )))
+        Err(parse_failure(txt, UnknownEscape(seq)))
     } else {
         Ok(if is_parser_escape(txt) {
             lazy_static! {

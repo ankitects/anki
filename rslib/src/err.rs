@@ -3,6 +3,7 @@
 
 use crate::i18n::{tr_args, tr_strs, I18n, TR};
 pub use failure::{Error, Fail};
+use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
 use reqwest::StatusCode;
 use std::{io, str::Utf8Error};
 
@@ -326,4 +327,47 @@ pub enum DBErrorKind {
     Locked,
     Utf8,
     Other,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ParseError<'a> {
+    Anki(&'a str, ParseErrorKind),
+    Nom(&'a str, NomErrorKind),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ParseErrorKind {
+    MisplacedAnd,
+    MisplacedOr,
+    EmptyGroup,
+    EmptyQuote,
+    UnclosedQuote,
+    MissingKey,
+    UnknownEscape(String),
+    InvalidIdList,
+    InvalidState,
+    InvalidFlag,
+    InvalidAdded,
+    InvalidEdited,
+    InvalidRatedDays,
+    InvalidRatedEase,
+    InvalidDupesMid,
+    InvalidDupesText,
+    InvalidPropProperty,
+    InvalidPropOperator,
+    InvalidPropFloat,
+    InvalidPropInteger,
+    InvalidPropUnsigned,
+    InvalidDid,
+    InvalidMid,
+}
+
+impl<'a> NomParseError<&'a str> for ParseError<'a> {
+    fn from_error_kind(input: &'a str, kind: NomErrorKind) -> Self {
+        ParseError::Nom(input, kind)
+    }
+
+    fn append(_: &str, _: NomErrorKind, other: Self) -> Self {
+        other
+    }
 }
