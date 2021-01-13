@@ -327,6 +327,10 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             Filter::Template(u) => {
                 Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
             }
+            Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
+                note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
+                text: dupe.text.into(),
+            }),
         }
     }
 }
