@@ -117,16 +117,16 @@ def update_repos_bzl():
             out.append(line)
     open(path, "w").writelines(out)
 
-    commit_if_changed(root)
+    commit_if_changed(root, update_label="translations")
 
 
-def commit_if_changed(folder: str):
+def commit_if_changed(folder: str, update_label: str):
     status = subprocess.run(["git", "diff", "--exit-code"], cwd=folder, check=False)
     if status.returncode == 0:
         # no changes
         return
     subprocess.run(
-        ["git", "commit", "-a", "-m", "update translations"], cwd=folder, check=True
+        ["git", "commit", "-a", "-m", "update " + update_label], cwd=folder, check=True
     )
 
 
@@ -147,7 +147,7 @@ def update_ftl_templates():
                 ],
                 check=True,
             )
-            commit_if_changed(module.folder())
+            commit_if_changed(module.folder(), update_label="templates")
 
 
 def push_i18n_changes():
