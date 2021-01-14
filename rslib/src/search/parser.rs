@@ -11,10 +11,10 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag},
     character::complete::{anychar, char, none_of, one_of},
-    combinator::{all_consuming, map},
+    combinator::{map, verify},
     error::ErrorKind as NomErrorKind,
     multi::many0,
-    sequence::{delimited, preceded, separated_pair},
+    sequence::{preceded, separated_pair},
 };
 use regex::{Captures, Regex};
 use std::borrow::Cow;
@@ -24,6 +24,10 @@ type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
 
 fn parse_failure(input: &str, kind: FailKind) -> nom::Err<ParseError<'_>> {
     nom::Err::Failure(ParseError::Anki(input, kind))
+}
+
+fn parse_error(input: &str) -> nom::Err<ParseError<'_>> {
+    nom::Err::Error(ParseError::Anki(input, FailKind::Other(None)))
 }
 
 #[derive(Debug, PartialEq)]
@@ -110,8 +114,11 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
 
-    let (_, nodes) = all_consuming(group_inner)(input)?;
-    Ok(nodes)
+    match group_inner(input) {
+        Ok(("", nodes)) => Ok(nodes),
+        Ok((remaining, _)) => Err(parse_failure(remaining, FailKind::UnopenedGroup).into()),
+        Err(err) => Err(err.into()),
+    }
 }
 
 /// One or more nodes inside brackets, er 'one OR two -three'
@@ -143,24 +150,21 @@ fn group_inner(input: &str) -> IResult<Vec<Node>> {
             }
             Err(e) => match e {
                 nom::Err::Error(_) => break,
-                // fixme: add context to failure
                 _ => return Err(e),
             },
         };
     }
 
-    if nodes.is_empty() {
-        Err(parse_failure(input, FailKind::EmptyGroup))
-    } else if nodes.last().unwrap() == &Node::And {
-        Err(parse_failure(input, FailKind::MisplacedAnd))
-    } else if nodes.last().unwrap() == &Node::Or {
-        Err(parse_failure(input, FailKind::MisplacedOr))
-    } else {
-        // chomp any trailing whitespace
-        let (remaining, _) = whitespace0(remaining)?;
-
-        Ok((remaining, nodes))
+    if let Some(last) = nodes.last() {
+        match last {
+            Node::And => return Err(parse_failure(input, FailKind::MisplacedAnd)),
+            Node::Or => return Err(parse_failure(input, FailKind::MisplacedOr)),
+            _ => (),
+        }
     }
+    let (remaining, _) = whitespace0(remaining)?;
+
+    Ok((remaining, nodes))
 }
 
 fn whitespace0(s: &str) -> IResult<Vec<char>> {
@@ -180,7 +184,17 @@ fn negated_node(s: &str) -> IResult<Node> {
 
 /// One or more nodes surrounded by brackets, eg (one OR two)
 fn group(s: &str) -> IResult<Node> {
-    map(delimited(char('('), group_inner, char(')')), Node::Group)(s)
+    let (opened, _) = char('(')(s)?;
+    let (tail, inner) = group_inner(opened)?;
+    if let Some(remaining) = tail.strip_prefix(')') {
+        if inner.is_empty() {
+            Err(parse_failure(s, FailKind::EmptyGroup))
+        } else {
+            Ok((remaining, Node::Group(inner)))
+        }
+    } else {
+        Err(parse_failure(s, FailKind::UnclosedGroup))
+    }
 }
 
 /// Either quoted or unquoted text
@@ -201,16 +215,18 @@ fn partially_quoted_term(s: &str) -> IResult<Node> {
         char(':'),
         quoted_term_str,
     )(s)?;
-    Ok((remaining, Node::Search(search_node_for_text_with_argument(key, val)?)))
+    Ok((
+        remaining,
+        Node::Search(search_node_for_text_with_argument(key, val)?),
+    ))
 }
 
 /// Unquoted text, terminated by whitespace or unescaped ", ( or )
 fn unquoted_term(s: &str) -> IResult<Node> {
-    match escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}"))(s)
-    {
+    match escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}"))(s) {
         Ok((tail, term)) => {
             if term.is_empty() {
-                Err(nom::Err::Error(ParseError::Nom(s, NomErrorKind::Verify)))
+                Err(parse_error(s))
             } else if term.eq_ignore_ascii_case("and") {
                 Ok((tail, Node::And))
             } else if term.eq_ignore_ascii_case("or") {
@@ -218,17 +234,20 @@ fn unquoted_term(s: &str) -> IResult<Node> {
             } else {
                 Ok((tail, Node::Search(search_node_for_text(term)?)))
             }
-        },
+        }
         Err(err) => {
             if let nom::Err::Error((c, NomErrorKind::NoneOf)) = err {
-                Err(parse_failure(s, FailKind::UnknownEscape(format!("\\{}", c))))
+                Err(parse_failure(
+                    s,
+                    FailKind::UnknownEscape(format!("\\{}", c)),
+                ))
             } else if "\"() \u{3000}".contains(s.chars().next().unwrap()) {
-                Err(nom::Err::Error(ParseError::Nom(s, NomErrorKind::IsNot)))
+                Err(parse_error(s))
             } else {
                 // input ends in an odd number of backslashes
                 Err(parse_failure(s, FailKind::UnknownEscape('\\'.to_string())))
             }
-        },
+        }
     }
 }
 
@@ -258,19 +277,15 @@ fn quoted_term_str(s: &str) -> IResult<&str> {
 /// Determine if text is a qualified search, and handle escaped chars.
 /// Expect well-formed input: unempty and no trailing \.
 fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
-    if s.is_empty() {
-        return Err(parse_failure(s, FailKind::Other(Some("Unexpected search error.".to_string()))));
-    }
-    if let Ok((tail, head)) = escaped::<_, ParseError, _, _, _, _>(is_not(r":\"), '\\', anychar)(s)
-    {
-        if tail.is_empty() {
-            Ok(SearchNode::UnqualifiedText(unescape(head)?))
-        } else {
-            search_node_for_text_with_argument(head, &tail[1..])
-        }
+    // leading : is only possible error for well-formed input
+    let (tail, head) = verify(escaped(is_not(r":\"), '\\', anychar), |t: &str| {
+        !t.is_empty()
+    })(s)
+    .map_err(|_: nom::Err<ParseError>| parse_failure(s, FailKind::MissingKey))?;
+    if tail.is_empty() {
+        Ok(SearchNode::UnqualifiedText(unescape(head)?))
     } else {
-        // trailing \ should not be passed, so error must be leading ':'
-        Err(parse_failure(s, FailKind::MissingKey))
+        search_node_for_text_with_argument(head, &tail[1..])
     }
 }
 
@@ -319,13 +334,13 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
             Ok(SearchNode::Flag(flag))
         }
     } else {
-        Err(parse_failure(s, FailKind::InvalidEdited))
+        Err(parse_failure(s, FailKind::InvalidFlag))
     }
 }
 
 /// eg prop:ivl>3, prop:ease!=2.5
 fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
-    let (tail, prop) = alt::<&str, &str, ParseError, _>((
+    let (tail, prop) = alt::<_, _, ParseError, _>((
         tag("ivl"),
         tag("due"),
         tag("reps"),
@@ -335,7 +350,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
     ))(s)
     .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty))?;
 
-    let (num, operator) = alt::<&str, &str, ParseError, _>((
+    let (num, operator) = alt::<_, _, ParseError, _>((
         tag("<="),
         tag(">="),
         tag("!="),
