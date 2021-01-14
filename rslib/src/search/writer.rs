@@ -199,7 +199,7 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
             EaseKind::AnswerButton(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
             EaseKind::AnyAnswerButton => format!("\"prop:rated{}{}\"", operator, u),
             EaseKind::ManualReschedule => format!("\"prop:resched{}{}\"", operator, u),
-        }
+        },
     }
 }
 
