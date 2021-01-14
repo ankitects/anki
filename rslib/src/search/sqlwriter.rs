@@ -222,12 +222,12 @@ impl SqlWriter<'_> {
         write!(self.sql, "c.id in (select cid from revlog where id").unwrap();
 
         match op {
-            ">" => write!(self.sql, " {} {}", ">", target_cutoff_ms),
-            "<" => write!(self.sql, " {} {}", "<", day_before_cutoff_ms),
-            ">=" => write!(self.sql, " {} {}", ">", day_before_cutoff_ms),
-            "<=" => write!(self.sql, " {} {}", "<", target_cutoff_ms),
-            "=" => write!(self.sql, " between {} and {}", day_before_cutoff_ms, target_cutoff_ms),
-            _ /* "!=" */ => write!(self.sql, " not between {} and {}", day_before_cutoff_ms, target_cutoff_ms),
+            ">" => write!(self.sql, " >= {}", target_cutoff_ms),
+            ">=" => write!(self.sql, " >= {}", day_before_cutoff_ms),
+            "<" => write!(self.sql, " < {}", day_before_cutoff_ms),
+            "<=" => write!(self.sql, " < {}", target_cutoff_ms),
+            "=" => write!(self.sql, " between {} and {}", day_before_cutoff_ms, target_cutoff_ms - 1),
+            _ /* "!=" */ => write!(self.sql, " not between {} and {}", day_before_cutoff_ms, target_cutoff_ms - 1),
         }
         .unwrap();
 
@@ -726,14 +726,14 @@ mod test {
         assert_eq!(
             s(ctx, "rated:2").0,
             format!(
-                "(c.id in (select cid from revlog where id > {} and ease > 0))",
+                "(c.id in (select cid from revlog where id >= {} and ease > 0))",
                 (timing.next_day_at - (86_400 * 2)) * 1_000
             )
         );
         assert_eq!(
             s(ctx, "rated:400:1").0,
             format!(
-                "(c.id in (select cid from revlog where id > {} and ease = 1))",
+                "(c.id in (select cid from revlog where id >= {} and ease = 1))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
@@ -743,7 +743,7 @@ mod test {
         assert_eq!(
             s(ctx, "resched:400").0,
             format!(
-                "(c.id in (select cid from revlog where id > {} and ease = 0))",
+                "(c.id in (select cid from revlog where id >= {} and ease = 0))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
