@@ -1,7 +1,7 @@
 [
   {
     "name": "addr2line",
-    "version": "0.14.0",
+    "version": "0.14.1",
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>|Philip Craig <philipjcraig@gmail.com>|Jon Gjengset <jon@thesquareplanet.com>|Noah Bergbauer <noah.bergbauer@tum.de>",
     "repository": "https://github.com/gimli-rs/addr2line",
     "license": "Apache-2.0 OR MIT",
@@ -142,6 +142,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Adaptors between compression crates and Rust's modern asynchronous IO types."
+  },
+  {
+    "name": "async-trait",
+    "version": "0.1.42",
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "repository": "https://github.com/dtolnay/async-trait",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Type erasure for async trait methods"
   },
   {
     "name": "atty",
@@ -397,7 +406,7 @@
   },
   {
     "name": "derivative",
-    "version": "2.1.1",
+    "version": "2.1.3",
     "authors": "mcarton <cartonmartin+git@gmail.com>",
     "repository": "https://github.com/mcarton/rust-derivative",
     "license": "Apache-2.0 OR MIT",
@@ -550,7 +559,7 @@
   },
   {
     "name": "fluent-syntax",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "authors": "Zibi Braniecki <gandalf@mozilla.com>|Staś Małolepszy <stas@mozilla.com>",
     "repository": "https://github.com/projectfluent/fluent-rs",
     "license": "Apache-2.0 OR MIT",
@@ -721,7 +730,7 @@
   },
   {
     "name": "getrandom",
-    "version": "0.1.15",
+    "version": "0.1.16",
     "authors": "The Rand Project Developers",
     "repository": "https://github.com/rust-random/getrandom",
     "license": "Apache-2.0 OR MIT",
@@ -1909,7 +1918,7 @@
   },
   {
     "name": "smallvec",
-    "version": "1.5.1",
+    "version": "1.6.0",
     "authors": "The Servo Project Developers",
     "repository": "https://github.com/servo/rust-smallvec",
     "license": "Apache-2.0 OR MIT",
@@ -1963,7 +1972,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.56",
+    "version": "1.0.57",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",

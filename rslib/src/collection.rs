@@ -38,11 +38,18 @@ pub fn open_collection<P: Into<PathBuf>>(
     Ok(col)
 }
 
+// We need to make a Builder for Collection in the future.
+
 #[cfg(test)]
 pub fn open_test_collection() -> Collection {
+    open_test_collection_with_server(false)
+}
+
+#[cfg(test)]
+pub fn open_test_collection_with_server(server: bool) -> Collection {
     use crate::log;
     let i18n = I18n::new(&[""], "", log::terminal());
-    open_collection(":memory:", "", "", false, i18n, log::terminal()).unwrap()
+    open_collection(":memory:", "", "", server, i18n, log::terminal()).unwrap()
 }
 
 #[derive(Debug, Default)]

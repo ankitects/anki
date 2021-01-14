@@ -9,7 +9,6 @@ use crate::{
     collection::Collection,
     err::Result,
     sched::cutoff::local_minutes_west_for_stamp,
-    timestamp::TimestampSecs,
 };
 
 impl Collection {
@@ -43,7 +42,7 @@ impl Collection {
             show_remaining_due_counts: self.get_show_due_counts(),
             show_intervals_on_buttons: self.get_show_intervals_above_buttons(),
             time_limit_secs: self.get_answer_time_limit_secs(),
-            new_timezone: self.get_creation_mins_west().is_some(),
+            new_timezone: self.get_creation_utc_offset().is_some(),
             day_learn_first: self.get_day_learn_first(),
         })
     }
@@ -73,15 +72,11 @@ impl Collection {
         }
 
         if s.new_timezone {
-            if self.get_creation_mins_west().is_none() {
-                self.set_creation_mins_west(Some(local_minutes_west_for_stamp(created.0)))?;
+            if self.get_creation_utc_offset().is_none() {
+                self.set_creation_utc_offset(Some(local_minutes_west_for_stamp(created.0)))?;
             }
         } else {
-            self.set_creation_mins_west(None)?;
-        }
-
-        if s.scheduler_version != 1 {
-            self.set_local_mins_west(local_minutes_west_for_stamp(TimestampSecs::now().0))?;
+            self.set_creation_utc_offset(None)?;
         }
 
         // fixme: currently scheduler change unhandled

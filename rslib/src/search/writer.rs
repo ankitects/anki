@@ -5,7 +5,7 @@ use crate::{
     decks::DeckID as DeckIDType,
     err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
+    search::parser::{parse, EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
 use itertools::Itertools;
 use std::mem;
@@ -119,7 +119,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NoteType(s) => quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),
         Tag(s) => quote(&format!("tag:{}", s)),
-        Duplicates { note_type_id, text } => quote(&format!("dupes:{},{}", note_type_id, text)),
+        Duplicates { note_type_id, text } => write_dupe(note_type_id, text),
         State(k) => write_state(k),
         Flag(u) => format!("\"flag:{}\"", u),
         NoteIDs(s) => format!("\"nid:{}\"", s),
@@ -154,11 +154,19 @@ fn write_template(template: &TemplateKind) -> String {
     }
 }
 
-fn write_rated(days: &u32, ease: &Option<u8>) -> String {
+fn write_rated(days: &u32, ease: &EaseKind) -> String {
+    use EaseKind::*;
     match ease {
-        Some(u) => format!("\"rated:{}:{}\"", days, u),
-        None => format!("\"rated:{}\"", days),
+        AnswerButton(n) => format!("\"rated:{}:{}\"", days, n),
+        AnyAnswerButton => format!("\"rated:{}\"", days),
+        ManualReschedule => format!("\"resched:{}\"", days),
     }
+}
+
+/// Escape double quotes and backslashes: \"
+fn write_dupe(note_type_id: &NoteTypeIDType, text: &str) -> String {
+    let esc = text.replace(r"\", r"\\").replace('"', r#"\""#);
+    format!("\"dupe:{},{}\"", note_type_id, esc)
 }
 
 fn write_state(kind: &StateKind) -> String {

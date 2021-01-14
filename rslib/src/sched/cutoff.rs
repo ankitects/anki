@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::timestamp::TimestampSecs;
+use crate::prelude::*;
 use chrono::{Date, Duration, FixedOffset, Local, TimeZone, Timelike};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -13,24 +13,21 @@ pub struct SchedTimingToday {
 }
 
 /// Timing information for the current day.
-/// - created_secs is a UNIX timestamp of the collection creation time
-/// - created_mins_west is the offset west of UTC at the time of creation
-///   (eg UTC+10 hours is -600)
-/// - now_secs is a timestamp of the current time
-/// - now_mins_west is the current offset west of UTC
+/// - creation_secs is a UNIX timestamp of the collection creation time
+/// - creation_utc_offset is the UTC offset at collection creation time
+/// - current_secs is a timestamp of the current time
+/// - current_utc_offset is the current UTC offset
 /// - rollover_hour is the hour of the day the rollover happens (eg 4 for 4am)
 pub fn sched_timing_today_v2_new(
-    created_secs: i64,
-    created_mins_west: i32,
-    now_secs: i64,
-    now_mins_west: i32,
+    creation_secs: TimestampSecs,
+    creation_utc_offset: FixedOffset,
+    current_secs: TimestampSecs,
+    current_utc_offset: FixedOffset,
     rollover_hour: u8,
 ) -> SchedTimingToday {
     // get date(times) based on timezone offsets
-    let created_date = fixed_offset_from_minutes(created_mins_west)
-        .timestamp(created_secs, 0)
-        .date();
-    let now_datetime = fixed_offset_from_minutes(now_mins_west).timestamp(now_secs, 0);
+    let created_date = creation_secs.datetime(creation_utc_offset).date();
+    let now_datetime = current_secs.datetime(current_utc_offset);
     let today = now_datetime.date();
 
     // rollover
@@ -118,9 +115,9 @@ fn v1_creation_date_adjusted_to_hour_inner(crt: i64, hour: u8, offset: FixedOffs
         .timestamp()
 }
 
-fn sched_timing_today_v1(crt: i64, now: i64) -> SchedTimingToday {
-    let days_elapsed = (now - crt) / 86_400;
-    let next_day_at = crt + (days_elapsed + 1) * 86_400;
+fn sched_timing_today_v1(crt: TimestampSecs, now: TimestampSecs) -> SchedTimingToday {
+    let days_elapsed = (now.0 - crt.0) / 86_400;
+    let next_day_at = crt.0 + (days_elapsed + 1) * 86_400;
     SchedTimingToday {
         days_elapsed: days_elapsed as u32,
         next_day_at,
@@ -128,26 +125,24 @@ fn sched_timing_today_v1(crt: i64, now: i64) -> SchedTimingToday {
 }
 
 fn sched_timing_today_v2_legacy(
-    crt: i64,
+    crt: TimestampSecs,
     rollover: u8,
-    now: i64,
-    mins_west: i32,
+    now: TimestampSecs,
+    current_utc_offset: FixedOffset,
 ) -> SchedTimingToday {
-    let offset = fixed_offset_from_minutes(mins_west);
-
-    let crt_at_rollover = offset
-        .timestamp(crt, 0)
+    let crt_at_rollover = crt
+        .datetime(current_utc_offset)
         .date()
         .and_hms(rollover as u32, 0, 0)
         .timestamp();
-    let days_elapsed = (now - crt_at_rollover) / 86_400;
+    let days_elapsed = (now.0 - crt_at_rollover) / 86_400;
 
-    let mut next_day_at = offset
-        .timestamp(now, 0)
+    let mut next_day_at = now
+        .datetime(current_utc_offset)
         .date()
         .and_hms(rollover as u32, 0, 0)
         .timestamp();
-    if next_day_at < now {
+    if next_day_at < now.0 {
         next_day_at += 86_400;
     }
 
@@ -159,27 +154,33 @@ fn sched_timing_today_v2_legacy(
 
 // ----------------------------------
 
-/// Based on provided input, get timing info from the relevant function.
+/// Decide which scheduler timing to use based on the provided input,
+/// and return the relevant timing info.
 pub(crate) fn sched_timing_today(
-    created_secs: TimestampSecs,
-    now_secs: TimestampSecs,
-    created_mins_west: Option<i32>,
-    now_mins_west: Option<i32>,
+    creation_secs: TimestampSecs,
+    current_secs: TimestampSecs,
+    creation_utc_offset: Option<FixedOffset>,
+    current_utc_offset: FixedOffset,
     rollover_hour: Option<u8>,
 ) -> SchedTimingToday {
-    let now_west = now_mins_west.unwrap_or_else(|| local_minutes_west_for_stamp(now_secs.0));
-    match (rollover_hour, created_mins_west) {
+    match (rollover_hour, creation_utc_offset) {
         (None, _) => {
             // if rollover unset, v1 scheduler
-            sched_timing_today_v1(created_secs.0, now_secs.0)
+            sched_timing_today_v1(creation_secs, current_secs)
         }
-        (Some(roll), None) => {
+        (Some(rollover), None) => {
             // if creationOffset unset, v2 scheduler with legacy cutoff handling
-            sched_timing_today_v2_legacy(created_secs.0, roll, now_secs.0, now_west)
+            sched_timing_today_v2_legacy(creation_secs, rollover, current_secs, current_utc_offset)
         }
-        (Some(roll), Some(crt_west)) => {
+        (Some(rollover), Some(creation_utc_offset)) => {
             // v2 scheduler, new cutoff handling
-            sched_timing_today_v2_new(created_secs.0, crt_west, now_secs.0, now_west, roll)
+            sched_timing_today_v2_new(
+                creation_secs,
+                creation_utc_offset,
+                current_secs,
+                current_utc_offset,
+                rollover,
+            )
         }
     }
 }
@@ -192,6 +193,10 @@ mod test {
     // static timezone for tests
     const AEST_MINS_WEST: i32 = -600;
 
+    fn aest_offset() -> FixedOffset {
+        FixedOffset::west(AEST_MINS_WEST * 60)
+    }
+
     #[test]
     fn fixed_offset() {
         let offset = fixed_offset_from_minutes(AEST_MINS_WEST);
@@ -200,6 +205,10 @@ mod test {
 
     // helper
     fn elap(start: i64, end: i64, start_west: i32, end_west: i32, rollhour: u8) -> u32 {
+        let start = TimestampSecs(start);
+        let end = TimestampSecs(end);
+        let start_west = FixedOffset::west(start_west * 60);
+        let end_west = FixedOffset::west(end_west * 60);
         let today = sched_timing_today_v2_new(start, start_west, end, end_west, rollhour);
         today.days_elapsed
     }
@@ -312,10 +321,10 @@ mod test {
         let now = Local.ymd(2019, 1, 3).and_hms(2, 0, 0);
         let next_day_at = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
         let today = sched_timing_today_v2_new(
-            crt.timestamp(),
-            crt.offset().utc_minus_local() / 60,
-            now.timestamp(),
-            now.offset().utc_minus_local() / 60,
+            TimestampSecs(crt.timestamp()),
+            *crt.offset(),
+            TimestampSecs(now.timestamp()),
+            *now.offset(),
             rollhour as u8,
         );
         assert_eq!(today.next_day_at, next_day_at.timestamp());
@@ -324,10 +333,10 @@ mod test {
         let now = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
         let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
         let today = sched_timing_today_v2_new(
-            crt.timestamp(),
-            crt.offset().utc_minus_local() / 60,
-            now.timestamp(),
-            now.offset().utc_minus_local() / 60,
+            TimestampSecs(crt.timestamp()),
+            *crt.offset(),
+            TimestampSecs(now.timestamp()),
+            *now.offset(),
             rollhour as u8,
         );
         assert_eq!(today.next_day_at, next_day_at.timestamp());
@@ -336,10 +345,10 @@ mod test {
         let now = Local.ymd(2019, 1, 3).and_hms(rollhour + 3, 0, 0);
         let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
         let today = sched_timing_today_v2_new(
-            crt.timestamp(),
-            crt.offset().utc_minus_local() / 60,
-            now.timestamp(),
-            now.offset().utc_minus_local() / 60,
+            TimestampSecs(crt.timestamp()),
+            *crt.offset(),
+            TimestampSecs(now.timestamp()),
+            *now.offset(),
             rollhour as u8,
         );
         assert_eq!(today.next_day_at, next_day_at.timestamp());
@@ -347,10 +356,10 @@ mod test {
 
     #[test]
     fn legacy_timing() {
-        let now = 1584491078;
+        let now = TimestampSecs(1584491078);
 
         assert_eq!(
-            sched_timing_today_v1(1575226800, now),
+            sched_timing_today_v1(TimestampSecs(1575226800), now),
             SchedTimingToday {
                 days_elapsed: 107,
                 next_day_at: 1584558000
@@ -358,7 +367,7 @@ mod test {
         );
 
         assert_eq!(
-            sched_timing_today_v2_legacy(1533564000, 0, now, AEST_MINS_WEST),
+            sched_timing_today_v2_legacy(TimestampSecs(1533564000), 0, now, aest_offset()),
             SchedTimingToday {
                 days_elapsed: 589,
                 next_day_at: 1584540000
@@ -366,7 +375,7 @@ mod test {
         );
 
         assert_eq!(
-            sched_timing_today_v2_legacy(1524038400, 4, now, AEST_MINS_WEST),
+            sched_timing_today_v2_legacy(TimestampSecs(1524038400), 4, now, aest_offset()),
             SchedTimingToday {
                 days_elapsed: 700,
                 next_day_at: 1584554400

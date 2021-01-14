@@ -31,6 +31,15 @@ alias(
 )
 
 alias(
+    name = "async_trait",
+    actual = "@raze__async_trait__0_1_42//:async_trait",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "blake3",
     actual = "@raze__blake3__0_3_7//:blake3",
     tags = [
@@ -104,7 +113,7 @@ alias(
 
 alias(
     name = "fluent_syntax",
-    actual = "@raze__fluent_syntax__0_10_0//:fluent_syntax",
+    actual = "@raze__fluent_syntax__0_10_1//:fluent_syntax",
     tags = [
         "cargo-raze",
         "manual",

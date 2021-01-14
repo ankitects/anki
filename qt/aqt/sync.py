@@ -122,10 +122,6 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         else:
             full_sync(mw, out, on_done)
 
-    if not mw.col.basicCheck():
-        showWarning("Please use Tools>Check Database")
-        return on_done()
-
     mw.col.save(trx=False)
     mw.taskman.with_progress(
         lambda: mw.col.backend.sync_collection(auth),
