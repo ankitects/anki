@@ -56,7 +56,8 @@ function onKey(evt: KeyboardEvent) {
     }
 
     // prefer <br> instead of <div></div>
-    if (evt.which === 13) {
+    if (evt.which === 13 && !inListItem()) {
+        console.log("Enter");
         evt.preventDefault();
         document.execCommand("insertLineBreak");
         return;
@@ -87,6 +88,25 @@ function onKey(evt: KeyboardEvent) {
     triggerKeyTimer();
 }
 
+function nodeIsElement(node: Node): node is Element {
+    return node.nodeType == Node.ELEMENT_NODE;
+}
+
+function inListItem(): boolean {
+    const anchor = window.getSelection().anchorNode;
+
+    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
+
+    let inList = false;
+
+    while (n) {
+        inList = inList || window.getComputedStyle(n).display == "list-item";
+        n = n.parentElement;
+    }
+
+    return inList;
+}
+
 function insertNewline() {
     if (!inPreEnvironment()) {
         setFormat("insertText", "\n");
@@ -113,11 +133,10 @@ function insertNewline() {
 }
 
 // is the cursor in an environment that respects whitespace?
-function inPreEnvironment() {
-    let n = window.getSelection().anchorNode as Element;
-    if (n.nodeType === 3) {
-        n = n.parentNode as Element;
-    }
+function inPreEnvironment(): boolean {
+    const anchor = window.getSelection().anchorNode;
+    const n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
+
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
 
