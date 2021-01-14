@@ -888,11 +888,7 @@ impl Collection {
 
     fn merge_tags(&self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
         for tag in tags {
-            self.register_tag(Tag {
-                name: tag,
-                usn: latest_usn,
-                ..Default::default()
-            })?;
+            self.register_tag(Tag::new(tag, latest_usn))?;
         }
         Ok(())
     }
