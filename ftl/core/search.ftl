@@ -2,18 +2,25 @@
 
 search-invalid = Invalid search - please check for typing mistakes.
 # The literal string `AND` is part of the search syntax.
-search-misplaced-and = An `AND` was found but it is not connecting two
+search-misplaced-and =
+    An `AND` was found but it is not connecting two
     search terms. If you want to search for the word itself, wrap it in
     double quotes: "and".
 # The literal string `OR` is part of the search syntax.
-search-misplaced-or = An `OR` was found but it is not connecting two
+search-misplaced-or =
+    An `OR` was found but it is not connecting two
     search terms. If you want to search for the word itself, wrap it in
     double quotes: "or".
-search-empty-group = A group was found but there was nothing between the
+search-empty-group =
+    A group was found but there was nothing between the
     parentheses to search for.
-search-empty-quote = A quote was found but there was nothing between the
+search-unopened-group = search-unopened-group
+search-unclosed-group = search-unclosed-group
+search-empty-quote =
+    A quote was found but there was nothing between the
     double quotes to search for.
-search-unclosed-quote = An opening double quote `"` was found but there
+search-unclosed-quote =
+    An opening double quote `"` was found but there
     is no second one to close it.
 search-missing-key = A colon `:` must be preceded by a key.
 search-unknown-escape = The escape sequence `` is unknown.
