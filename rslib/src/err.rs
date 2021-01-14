@@ -60,7 +60,7 @@ pub enum AnkiError {
     DeckIsFiltered,
 
     #[fail(display = "Invalid search.")]
-    SearchError(Option<String>),
+    SearchError(ParseErrorKind),
 }
 
 // error helpers
@@ -120,13 +120,38 @@ impl AnkiError {
                 DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
                 _ => format!("{:?}", self),
             },
-            AnkiError::SearchError(details) => {
-                if let Some(details) = details {
-                    details.to_owned()
-                } else {
-                    i18n.tr(TR::SearchInvalid).to_string()
-                }
-            }
+            AnkiError::SearchError(kind) => { match kind {
+                    ParseErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
+                    ParseErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
+                    ParseErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
+                    ParseErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
+                    ParseErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
+                    ParseErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
+                    ParseErrorKind::UnknownEscape(_seq) => i18n.tr(TR::SearchUnknownEscape),
+                    ParseErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
+                    ParseErrorKind::InvalidState => i18n.tr(TR::SearchInvalidState),
+                    ParseErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
+                    ParseErrorKind::InvalidAdded => i18n.tr(TR::SearchInvalidAdded),
+                    ParseErrorKind::InvalidEdited => i18n.tr(TR::SearchInvalidEdited),
+                    ParseErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
+                    ParseErrorKind::InvalidRatedEase => i18n.tr(TR::SearchInvalidRatedEase),
+                    ParseErrorKind::InvalidDupeMid => i18n.tr(TR::SearchInvalidDupeMid),
+                    ParseErrorKind::InvalidDupeText => i18n.tr(TR::SearchInvalidDupeText),
+                    ParseErrorKind::InvalidPropProperty => i18n.tr(TR::SearchInvalidPropProperty),
+                    ParseErrorKind::InvalidPropOperator => i18n.tr(TR::SearchInvalidPropOperator),
+                    ParseErrorKind::InvalidPropFloat => i18n.tr(TR::SearchInvalidPropFloat),
+                    ParseErrorKind::InvalidPropInteger => i18n.tr(TR::SearchInvalidPropInteger),
+                    ParseErrorKind::InvalidPropUnsigned => i18n.tr(TR::SearchInvalidPropUnsigned),
+                    ParseErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
+                    ParseErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
+                    ParseErrorKind::Regex(text) => text.into(),
+                    ParseErrorKind::Other(opt) => if let Some(info) = opt {
+                        info.into()
+                    } else {
+                        i18n.tr(TR::SearchInvalid)
+                    }
+                }.into()
+            },
             _ => format!("{:?}", self),
         }
     }
@@ -164,7 +189,7 @@ impl From<rusqlite::Error> for AnkiError {
                 };
             }
             if reason.contains("regex parse error") {
-                return AnkiError::SearchError(Some(reason.to_owned()));
+                return AnkiError::SearchError(ParseErrorKind::Regex(reason.to_owned()));
             }
         }
         AnkiError::DBError {
@@ -351,8 +376,8 @@ pub enum ParseErrorKind {
     InvalidEdited,
     InvalidRatedDays,
     InvalidRatedEase,
-    InvalidDupesMid,
-    InvalidDupesText,
+    InvalidDupeMid,
+    InvalidDupeText,
     InvalidPropProperty,
     InvalidPropOperator,
     InvalidPropFloat,
@@ -360,6 +385,27 @@ pub enum ParseErrorKind {
     InvalidPropUnsigned,
     InvalidDid,
     InvalidMid,
+    Regex(String),
+    Other(Option<String>),
+}
+
+impl From<ParseError<'_>> for AnkiError {
+    fn from(err: ParseError) -> Self {
+        match err {
+            ParseError::Anki(_, kind) => AnkiError::SearchError(kind),
+            ParseError::Nom(_, _) => AnkiError::SearchError(ParseErrorKind::Other(None)),
+        }
+    }
+}
+
+impl From<nom::Err<ParseError<'_>>> for AnkiError {
+    fn from(err: nom::Err<ParseError<'_>>) -> Self {
+        match err {
+            nom::Err::Error(e) => e.into(),
+            nom::Err::Failure(e) => e.into(),
+            nom::Err::Incomplete(_) => AnkiError::SearchError(ParseErrorKind::Other(None)),
+        }
+    }
 }
 
 impl<'a> NomParseError<&'a str> for ParseError<'a> {

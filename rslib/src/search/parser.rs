@@ -110,10 +110,7 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
 
-    let (_, nodes) = all_consuming(group_inner)(input).map_err(|e| {
-        dbg!(e);
-        AnkiError::SearchError(None)
-    })?;
+    let (_, nodes) = all_consuming(group_inner)(input)?;
     Ok(nodes)
 }
 
