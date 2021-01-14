@@ -28,7 +28,7 @@ pub struct Tag {
 
 impl Ord for Tag {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.name.cmp(&other.name)
+        UniCase::new(&self.name).cmp(&UniCase::new(&other.name))
     }
 }
 
@@ -40,7 +40,7 @@ impl PartialOrd for Tag {
 
 impl PartialEq for Tag {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.cmp(other) == Ordering::Equal
     }
 }
 
@@ -121,7 +121,7 @@ fn normalize_tag_name(name: &str) -> String {
 }
 
 fn fill_missing_tags(tags: Vec<Tag>) -> Vec<Tag> {
-    let mut filled_tags: HashMap<String, Tag> = HashMap::new();
+    let mut filled_tags: HashMap<String, Tag> = HashMap::with_capacity(tags.len());
     for tag in tags.into_iter() {
         let name = tag.name.to_owned();
         let split: Vec<&str> = (&tag.name).split("::").collect();
