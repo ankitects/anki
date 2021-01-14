@@ -264,22 +264,21 @@ impl SqlWriter<'_> {
                     days = days
                 ).unwrap()
             }
-            PropertyKind::Position(pos) => {
-                write!(
-                    self.sql,
-                    "(c.type = {t} and due {op} {pos})",
-                    t = CardType::New as u8,
-                    op = op,
-                    pos = pos
-                ).unwrap()
-            }
+            PropertyKind::Position(pos) => write!(
+                self.sql,
+                "(c.type = {t} and due {op} {pos})",
+                t = CardType::New as u8,
+                op = op,
+                pos = pos
+            )
+            .unwrap(),
             PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl).unwrap(),
             PropertyKind::Reps(reps) => write!(self.sql, "reps {} {}", op, reps).unwrap(),
             PropertyKind::Lapses(days) => write!(self.sql, "lapses {} {}", op, days).unwrap(),
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
-            PropertyKind::Rated(days, ease) => self.write_rated(i64::from(*days), ease, op)?
+            PropertyKind::Rated(days, ease) => self.write_rated(i64::from(*days), ease, op)?,
         }
 
         Ok(())
