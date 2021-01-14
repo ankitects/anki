@@ -3,7 +3,7 @@
 
 use crate::{
     decks::DeckID,
-    err::{ParseError, ParseErrorKind as FailKind, Result},
+    err::{ParseError, SearchErrorKind as FailKind, Result},
     notetype::NoteTypeID,
 };
 use lazy_static::lazy_static;
@@ -116,12 +116,14 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
 
     match group_inner(input) {
         Ok(("", nodes)) => Ok(nodes),
+        // unmatched ) is only char not consumed by any node parser
         Ok((remaining, _)) => Err(parse_failure(remaining, FailKind::UnopenedGroup).into()),
         Err(err) => Err(err.into()),
     }
 }
 
-/// One or more nodes inside brackets, er 'one OR two -three'
+/// Zero or more nodes inside brackets, eg 'one OR two -three'.
+/// Empty vec must be handled by caller.
 fn group_inner(input: &str) -> IResult<Vec<Node>> {
     let mut remaining = input;
     let mut nodes = vec![];
