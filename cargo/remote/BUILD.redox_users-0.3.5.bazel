@@ -52,7 +52,7 @@ rust_library(
     version = "0.3.5",
     # buildifier: leave-alone
     deps = [
-        "@raze__getrandom__0_1_15//:getrandom",
+        "@raze__getrandom__0_1_16//:getrandom",
         "@raze__redox_syscall__0_1_57//:redox_syscall",
         "@raze__rust_argon2__0_8_3//:rust_argon2",
     ],

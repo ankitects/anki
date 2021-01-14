@@ -2,4 +2,4 @@
 
 set -e
 
-BUILDARGS="-c opt" $(dirname $0)/../run
+BUILDARGS="-c opt --@io_bazel_rules_rust//worker:use_worker=False" $(dirname $0)/../run $*

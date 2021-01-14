@@ -537,12 +537,8 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = self.note.fields[0].replace('"', r"\"")
         browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.lineEdit().setText(
-            '"dupe:%s,%s"' % (self.note.model()["id"], contents)
-        )
-        browser.onSearchActivated()
+        browser.search_dupe(self.note.model()["id"], self.note.fields[0])
 
     def fieldsAreBlank(self, previousNote=None):
         if not self.note:

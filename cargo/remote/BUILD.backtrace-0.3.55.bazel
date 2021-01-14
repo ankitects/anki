@@ -63,7 +63,7 @@ rust_library(
     version = "0.3.55",
     # buildifier: leave-alone
     deps = [
-        "@raze__addr2line__0_14_0//:addr2line",
+        "@raze__addr2line__0_14_1//:addr2line",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__libc__0_2_81//:libc",
         "@raze__miniz_oxide__0_4_3//:miniz_oxide",
