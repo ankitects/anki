@@ -775,12 +775,17 @@ message FilterToSearchIn {
     NO_FLAG = 15;
     ANY_FLAG = 16;
   }
+  message DupeIn {
+    NoteTypeID mid = 1;
+    string text = 2;
+  }
   oneof filter {
     NamedFilter name = 1;
     string tag = 2;
     string deck = 3;
     string note = 4;
     uint32 template = 5;
+    DupeIn dupe = 6;
   }
 }
 
