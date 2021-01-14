@@ -196,8 +196,9 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Ease(f) => format!("\"prop:ease{}{}\"", operator, f),
         Position(u) => format!("\"prop:pos{}{}\"", operator, u),
         Rated(u, ease) => match ease {
-            Some(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
-            None => format!("\"prop:rated{}{}\"", operator, u),
+            EaseKind::AnswerButton(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
+            EaseKind::AnyAnswerButton => format!("\"prop:rated{}{}\"", operator, u),
+            EaseKind::ManualReschedule => format!("\"prop:resched{}{}\"", operator, u),
         }
     }
 }

@@ -116,7 +116,6 @@ impl SqlWriter<'_> {
 
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
         use normalize_to_nfc as norm;
-        use std::cmp::max;
         match node {
             // note fields related
             SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
@@ -218,7 +217,7 @@ impl SqlWriter<'_> {
     fn write_rated(&mut self, days: u32, ease: &EaseKind, op: &str) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
         let target_cutoff_ms = (today_cutoff - 86_400 * i64::from(days)) * 1_000;
-        let day_before_cutoff_ms = (today_cutoff - 86_400 * (days)) * 1_000;
+        let day_before_cutoff_ms = (today_cutoff - 86_400 * i64::from(days - 1)) * 1_000;
 
         write!(
             self.sql,
@@ -286,7 +285,7 @@ impl SqlWriter<'_> {
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
-            PropertyKind::Rated(days, ease) => self.write_rated(*days, *ease, op)?
+            PropertyKind::Rated(days, ease) => self.write_rated(*days, ease, op)?
         }
 
         Ok(())
