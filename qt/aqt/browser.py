@@ -21,8 +21,10 @@ from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import (
+    BackendNoteTypeID,
     ConcatSeparator,
     DeckTreeNode,
+    DupeIn,
     FilterToSearchIn,
     InvalidInput,
     NamedFilter,
@@ -2015,6 +2017,17 @@ where id in %s"""
 
     # Edit: finding dupes
     ######################################################################
+
+    # filter called by the editor
+    def search_dupe(self, mid: int, text: str):
+        self.form.searchEdit.lineEdit().setText(
+            self.col.backend.filter_to_search(
+                FilterToSearchIn(
+                    dupe=DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
+                )
+            )
+        )
+        self.onSearchActivated()
 
     def onFindDupes(self):
         self.editor.saveNow(self._onFindDupes)

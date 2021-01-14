@@ -293,8 +293,8 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "flag" => parse_flag(val)?,
         "rated" => parse_rated(val)?,
+        "dupe" => parse_dupe(val)?,
         "resched" => parse_resched(val)?,
-        "dupe" => parse_dupes(val)?,
         "prop" => parse_prop(val)?,
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
@@ -392,14 +392,14 @@ fn parse_resched(val: &str) -> ParseResult<SearchNode<'static>> {
     Ok(SearchNode::Rated { days, ease })
 }
 
-/// eg dupes:1231,hello
-fn parse_dupes(val: &str) -> ParseResult<SearchNode> {
+/// eg dupe:1231,hello
+fn parse_dupe(val: &str) -> ParseResult<SearchNode> {
     let mut it = val.splitn(2, ',');
     let mid: NoteTypeID = it.next().unwrap().parse()?;
     let text = it.next().ok_or(ParseError {})?;
     Ok(SearchNode::Duplicates {
         note_type_id: mid,
-        text: unescape_quotes(text),
+        text: unescape_quotes_and_backslashes(text),
     })
 }
 
@@ -473,6 +473,15 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<SearchNode<
 fn unescape_quotes(s: &str) -> Cow<str> {
     if s.contains('"') {
         s.replace(r#"\""#, "\"").into()
+    } else {
+        s.into()
+    }
+}
+
+/// For non-globs like dupe text without any assumption about the content
+fn unescape_quotes_and_backslashes(s: &str) -> Cow<str> {
+    if s.contains('"') || s.contains('\\') {
+        s.replace(r#"\""#, "\"").replace(r"\\", r"\").into()
     } else {
         s.into()
     }
