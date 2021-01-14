@@ -60,7 +60,7 @@ pub enum AnkiError {
     DeckIsFiltered,
 
     #[fail(display = "Invalid search.")]
-    SearchError(ParseErrorKind),
+    SearchError(SearchErrorKind),
 }
 
 // error helpers
@@ -121,34 +121,34 @@ impl AnkiError {
                 _ => format!("{:?}", self),
             },
             AnkiError::SearchError(kind) => match kind {
-                ParseErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
-                ParseErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
-                ParseErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
-                ParseErrorKind::UnopenedGroup => i18n.tr(TR::SearchUnopenedGroup),
-                ParseErrorKind::UnclosedGroup => i18n.tr(TR::SearchUnclosedGroup),
-                ParseErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
-                ParseErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
-                ParseErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
-                ParseErrorKind::UnknownEscape(_seq) => i18n.tr(TR::SearchUnknownEscape),
-                ParseErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
-                ParseErrorKind::InvalidState => i18n.tr(TR::SearchInvalidState),
-                ParseErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
-                ParseErrorKind::InvalidAdded => i18n.tr(TR::SearchInvalidAdded),
-                ParseErrorKind::InvalidEdited => i18n.tr(TR::SearchInvalidEdited),
-                ParseErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
-                ParseErrorKind::InvalidRatedEase => i18n.tr(TR::SearchInvalidRatedEase),
-                ParseErrorKind::InvalidDupeMid => i18n.tr(TR::SearchInvalidDupeMid),
-                ParseErrorKind::InvalidDupeText => i18n.tr(TR::SearchInvalidDupeText),
-                ParseErrorKind::InvalidPropProperty => i18n.tr(TR::SearchInvalidPropProperty),
-                ParseErrorKind::InvalidPropOperator => i18n.tr(TR::SearchInvalidPropOperator),
-                ParseErrorKind::InvalidPropFloat => i18n.tr(TR::SearchInvalidPropFloat),
-                ParseErrorKind::InvalidPropInteger => i18n.tr(TR::SearchInvalidPropInteger),
-                ParseErrorKind::InvalidPropUnsigned => i18n.tr(TR::SearchInvalidPropUnsigned),
-                ParseErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
-                ParseErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
-                ParseErrorKind::Regex(text) => text.into(),
-                ParseErrorKind::Other(Some(info)) => info.into(),
-                ParseErrorKind::Other(None) => i18n.tr(TR::SearchInvalid),
+                SearchErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
+                SearchErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
+                SearchErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
+                SearchErrorKind::UnopenedGroup => i18n.tr(TR::SearchUnopenedGroup),
+                SearchErrorKind::UnclosedGroup => i18n.tr(TR::SearchUnclosedGroup),
+                SearchErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
+                SearchErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
+                SearchErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
+                SearchErrorKind::UnknownEscape(_seq) => i18n.tr(TR::SearchUnknownEscape),
+                SearchErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
+                SearchErrorKind::InvalidState => i18n.tr(TR::SearchInvalidState),
+                SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
+                SearchErrorKind::InvalidAdded => i18n.tr(TR::SearchInvalidAdded),
+                SearchErrorKind::InvalidEdited => i18n.tr(TR::SearchInvalidEdited),
+                SearchErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
+                SearchErrorKind::InvalidRatedEase => i18n.tr(TR::SearchInvalidRatedEase),
+                SearchErrorKind::InvalidDupeMid => i18n.tr(TR::SearchInvalidDupeMid),
+                SearchErrorKind::InvalidDupeText => i18n.tr(TR::SearchInvalidDupeText),
+                SearchErrorKind::InvalidPropProperty => i18n.tr(TR::SearchInvalidPropProperty),
+                SearchErrorKind::InvalidPropOperator => i18n.tr(TR::SearchInvalidPropOperator),
+                SearchErrorKind::InvalidPropFloat => i18n.tr(TR::SearchInvalidPropFloat),
+                SearchErrorKind::InvalidPropInteger => i18n.tr(TR::SearchInvalidPropInteger),
+                SearchErrorKind::InvalidPropUnsigned => i18n.tr(TR::SearchInvalidPropUnsigned),
+                SearchErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
+                SearchErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
+                SearchErrorKind::Regex(text) => text.into(),
+                SearchErrorKind::Other(Some(info)) => info.into(),
+                SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalid),
             }
             .into(),
             _ => format!("{:?}", self),
@@ -188,7 +188,7 @@ impl From<rusqlite::Error> for AnkiError {
                 };
             }
             if reason.contains("regex parse error") {
-                return AnkiError::SearchError(ParseErrorKind::Regex(reason.to_owned()));
+                return AnkiError::SearchError(SearchErrorKind::Regex(reason.to_owned()));
             }
         }
         AnkiError::DBError {
@@ -355,12 +355,12 @@ pub enum DBErrorKind {
 
 #[derive(Debug, PartialEq)]
 pub enum ParseError<'a> {
-    Anki(&'a str, ParseErrorKind),
+    Anki(&'a str, SearchErrorKind),
     Nom(&'a str, NomErrorKind),
 }
 
 #[derive(Debug, PartialEq)]
-pub enum ParseErrorKind {
+pub enum SearchErrorKind {
     MisplacedAnd,
     MisplacedOr,
     EmptyGroup,
@@ -394,7 +394,7 @@ impl From<ParseError<'_>> for AnkiError {
     fn from(err: ParseError) -> Self {
         match err {
             ParseError::Anki(_, kind) => AnkiError::SearchError(kind),
-            ParseError::Nom(_, _) => AnkiError::SearchError(ParseErrorKind::Other(None)),
+            ParseError::Nom(_, _) => AnkiError::SearchError(SearchErrorKind::Other(None)),
         }
     }
 }
@@ -404,7 +404,7 @@ impl From<nom::Err<ParseError<'_>>> for AnkiError {
         match err {
             nom::Err::Error(e) => e.into(),
             nom::Err::Failure(e) => e.into(),
-            nom::Err::Incomplete(_) => AnkiError::SearchError(ParseErrorKind::Other(None)),
+            nom::Err::Incomplete(_) => AnkiError::SearchError(SearchErrorKind::Other(None)),
         }
     }
 }
