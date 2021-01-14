@@ -144,7 +144,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
             SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
-            SearchNode::Rated { days, ease } => self.write_rated(*days, ease, "<")?,
+            SearchNode::Rated { days, ease } => self.write_rated(-i64::from(*days), ease, ">")?,
 
             SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
             SearchNode::State(state) => self.write_state(state)?,
@@ -214,28 +214,22 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_rated(&mut self, days: u32, ease: &EaseKind, op: &str) -> Result<()> {
+    fn write_rated(&mut self, days: i64, ease: &EaseKind, op: &str) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
-        let target_cutoff_ms = (today_cutoff - 86_400 * i64::from(days)) * 1_000;
-        let day_before_cutoff_ms = (today_cutoff - 86_400 * i64::from(days - 1)) * 1_000;
+        let target_cutoff_ms = (today_cutoff + 86_400 * days) * 1_000;
+        let day_before_cutoff_ms = (today_cutoff + 86_400 * (days - 1)) * 1_000;
 
-        write!(
-            self.sql,
-            "c.id in (select cid from revlog where id>{}",
-            target_cutoff_ms,
-        )
-        .unwrap();
+        write!(self.sql, "c.id in (select cid from revlog where id").unwrap();
 
-        // We use positive numbers for negative offsets
-        // which is why operators are reversed
         match op {
-            "<" => write!(self.sql, "{} {}", ">", target_cutoff_ms),
-            ">" => write!(self.sql, "{} {}", "<", day_before_cutoff_ms),
-            "<=" => write!(self.sql, "{} {}", ">", day_before_cutoff_ms),
-            ">=" => write!(self.sql, "{} {}", "<", target_cutoff_ms),
-            "=" => write!(self.sql, "between {} and {}", target_cutoff_ms, day_before_cutoff_ms),
-            _ /* "!=" */ => write!(self.sql, "not between {} and {}", target_cutoff_ms, day_before_cutoff_ms),
-        }.unwrap();
+            ">" => write!(self.sql, " {} {}", ">", target_cutoff_ms),
+            "<" => write!(self.sql, " {} {}", "<", day_before_cutoff_ms),
+            ">=" => write!(self.sql, " {} {}", ">", day_before_cutoff_ms),
+            "<=" => write!(self.sql, " {} {}", "<", target_cutoff_ms),
+            "=" => write!(self.sql, " between {} and {}", day_before_cutoff_ms, target_cutoff_ms),
+            _ /* "!=" */ => write!(self.sql, " not between {} and {}", day_before_cutoff_ms, target_cutoff_ms),
+        }
+        .unwrap();
 
         match ease {
             EaseKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
@@ -285,7 +279,7 @@ impl SqlWriter<'_> {
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
-            PropertyKind::Rated(days, ease) => self.write_rated(*days, ease, op)?
+            PropertyKind::Rated(days, ease) => self.write_rated(i64::from(*days), ease, op)?
         }
 
         Ok(())
@@ -733,14 +727,14 @@ mod test {
         assert_eq!(
             s(ctx, "rated:2").0,
             format!(
-                "(c.id in (select cid from revlog where id>{} and ease > 0))",
+                "(c.id in (select cid from revlog where id > {} and ease > 0))",
                 (timing.next_day_at - (86_400 * 2)) * 1_000
             )
         );
         assert_eq!(
             s(ctx, "rated:400:1").0,
             format!(
-                "(c.id in (select cid from revlog where id>{} and ease = 1))",
+                "(c.id in (select cid from revlog where id > {} and ease = 1))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
@@ -750,7 +744,7 @@ mod test {
         assert_eq!(
             s(ctx, "resched:400").0,
             format!(
-                "(c.id in (select cid from revlog where id>{} and ease = 0))",
+                "(c.id in (select cid from revlog where id > {} and ease = 0))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
