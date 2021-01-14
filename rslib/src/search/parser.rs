@@ -87,7 +87,7 @@ pub enum PropertyKind {
     Lapses(u32),
     Ease(f32),
     Position(u32),
-    Rated(u32, EaseKind),
+    Rated(i32, EaseKind),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -439,8 +439,8 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
     } else if key == "resched" {
         let mut it = val.splitn(2, ':');
 
-        let n: u32 = it.next().unwrap().parse()?;
-        let days = n.max(1).min(365);
+        let n: i32 = it.next().unwrap().parse()?;
+        let days = n.max(-365).min(0);
 
         let ease = EaseKind::ManualReschedule;
 
