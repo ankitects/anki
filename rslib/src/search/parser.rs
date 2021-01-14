@@ -87,7 +87,7 @@ pub enum PropertyKind {
     Lapses(u32),
     Ease(f32),
     Position(u32),
-    Rated(u32, Option<u8>),
+    Rated(u32, EaseKind),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -433,7 +433,16 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
                 }
             }
             None => EaseKind::AnyAnswerButton,
-        }
+        };
+
+        PropertyKind::Rated(days, ease)
+    } else if key == "resched" {
+        let mut it = val.splitn(2, ':');
+
+        let n: u32 = it.next().unwrap().parse()?;
+        let days = n.max(1).min(365);
+
+        let ease = EaseKind::ManualReschedule;
 
         PropertyKind::Rated(days, ease)
     } else if key == "resched" {
