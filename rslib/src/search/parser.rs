@@ -593,11 +593,6 @@ mod test {
         assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(SearchNode::WholeCollection)]);
 
-        // leading/trailing boolean operators
-        assert!(parse("foo and").is_err());
-        assert!(parse("and foo").is_err());
-        assert!(parse("and").is_err());
-
         // leading/trailing/interspersed whitespace
         assert_eq!(
             parse("  t   t2  ")?,
@@ -658,11 +653,6 @@ mod test {
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:va\"lue"#)?,);
 
-        // only \":()-*_ are escapable
-        assert!(parse(r"\").is_err());
-        assert!(parse(r"\a").is_err());
-        assert!(parse(r"\%").is_err());
-
         // parser unescapes ":()-
         assert_eq!(
             parse(r#"\"\:\(\)\-"#)?,
@@ -677,11 +667,8 @@ mod test {
 
         // escaping parentheses is optional (only) inside quotes
         assert_eq!(parse(r#""\)\(""#), parse(r#"")(""#));
-        assert!(parse(")(").is_err());
 
         // escaping : is optional if it is preceded by another :
-        assert!(parse(":test").is_err());
-        assert!(parse(":").is_err());
         assert_eq!(parse("field:val:ue"), parse(r"field:val\:ue"));
         assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
         assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
@@ -703,7 +690,6 @@ mod test {
             parse(r#"re:te\"st"#)?,
             vec![Search(Regex(r#"te"st"#.into()))]
         );
-        assert!(parse(r#"re:te"st"#).is_err());
 
         // spaces are optional if node separation is clear
         assert_eq!(parse(r#"a"b"(c)"#)?, parse("a b (c)")?);
@@ -734,11 +720,8 @@ mod test {
             parse("nid:1237123712,2,3")?,
             vec![Search(NoteIDs("1237123712,2,3"))]
         );
-        assert!(parse("nid:1237123712_2,3").is_err());
         assert_eq!(parse("is:due")?, vec![Search(State(StateKind::Due))]);
         assert_eq!(parse("flag:3")?, vec![Search(Flag(3))]);
-        assert!(parse("flag:-1").is_err());
-        assert!(parse("flag:5").is_err());
 
         assert_eq!(
             parse("prop:ivl>3")?,
@@ -747,7 +730,6 @@ mod test {
                 kind: PropertyKind::Interval(3)
             })]
         );
-        assert!(parse("prop:ivl>3.3").is_err());
         assert_eq!(
             parse("prop:ease<=3.3")?,
             vec![Search(Property {
@@ -755,6 +737,125 @@ mod test {
                 kind: PropertyKind::Ease(3.3)
             })]
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn errors() -> Result<()> {
+        use crate::err::AnkiError;
+        use FailKind::*;
+
+        fn assert_err_kind(input: &str, kind: FailKind) {
+            assert_eq!(parse(input), Err(AnkiError::SearchError(kind)));
+        }
+
+        assert_err_kind("foo and", MisplacedAnd);
+        assert_err_kind("and foo", MisplacedAnd);
+        assert_err_kind("and", MisplacedAnd);
+
+        assert_err_kind("foo or", MisplacedOr);
+        assert_err_kind("or foo", MisplacedOr);
+        assert_err_kind("or", MisplacedOr);
+
+        assert_err_kind("()", EmptyGroup);
+        assert_err_kind("( )", EmptyGroup);
+        assert_err_kind("(foo () bar)", EmptyGroup);
+
+        assert_err_kind(")", UnopenedGroup);
+        assert_err_kind("foo ) bar", UnopenedGroup);
+        assert_err_kind("(foo) bar)", UnopenedGroup);
+
+        assert_err_kind("(", UnclosedGroup);
+        assert_err_kind("foo ( bar", UnclosedGroup);
+        assert_err_kind("(foo (bar)", UnclosedGroup);
+
+        assert_err_kind(r#""""#, EmptyQuote);
+        assert_err_kind(r#"foo:"""#, EmptyQuote);
+
+        assert_err_kind(r#" " "#, UnclosedQuote);
+        assert_err_kind(r#"" foo"#, UnclosedQuote);
+        assert_err_kind(r#""\"#, UnclosedQuote);
+        assert_err_kind(r#"foo:"bar"#, UnclosedQuote);
+        assert_err_kind(r#"foo:"bar\"#, UnclosedQuote);
+
+        assert_err_kind(":", MissingKey);
+        assert_err_kind(":foo", MissingKey);
+        assert_err_kind(r#":"foo""#, MissingKey);
+
+        assert_err_kind(r"\", UnknownEscape(r"\".to_string()));
+        assert_err_kind(r"\%", UnknownEscape(r"\%".to_string()));
+        assert_err_kind(r"foo\", UnknownEscape(r"\".to_string()));
+        assert_err_kind(r"\foo", UnknownEscape(r"\f".to_string()));
+        assert_err_kind(r"\ ", UnknownEscape(r"\".to_string()));
+        assert_err_kind(r#""\ ""#, UnknownEscape(r"\ ".to_string()));
+
+        assert_err_kind("nid:1_2,3", InvalidIdList);
+        assert_err_kind("nid:1,2,x", InvalidIdList);
+        assert_err_kind("nid:,2,3", InvalidIdList);
+        assert_err_kind("nid:1,2,", InvalidIdList);
+        assert_err_kind("cid:1_2,3", InvalidIdList);
+        assert_err_kind("cid:1,2,x", InvalidIdList);
+        assert_err_kind("cid:,2,3", InvalidIdList);
+        assert_err_kind("cid:1,2,", InvalidIdList);
+
+        assert_err_kind("is:foo", InvalidState);
+        assert_err_kind("is:DUE", InvalidState);
+        assert_err_kind("is:New", InvalidState);
+        assert_err_kind("is:", InvalidState);
+        assert_err_kind(r#""is:learn ""#, InvalidState);
+
+        assert_err_kind(r#""flag: ""#, InvalidFlag);
+        assert_err_kind("flag:-0", InvalidFlag);
+        assert_err_kind("flag:", InvalidFlag);
+        assert_err_kind("flag:5", InvalidFlag);
+        assert_err_kind("flag:1.1", InvalidFlag);
+
+        assert_err_kind("added:1.1", InvalidAdded);
+        assert_err_kind("added:-1", InvalidAdded);
+        assert_err_kind("added:", InvalidAdded);
+        assert_err_kind("added:foo", InvalidAdded);
+
+        assert_err_kind("edited:1.1", InvalidEdited);
+        assert_err_kind("edited:-1", InvalidEdited);
+        assert_err_kind("edited:", InvalidEdited);
+        assert_err_kind("edited:foo", InvalidEdited);
+
+        assert_err_kind("rated:1.1", InvalidRatedDays);
+        assert_err_kind("rated:-1", InvalidRatedDays);
+        assert_err_kind("rated:", InvalidRatedDays);
+        assert_err_kind("rated:foo", InvalidRatedDays);
+
+        assert_err_kind("rated:1:", InvalidRatedEase);
+        assert_err_kind("rated:2:-1", InvalidRatedEase);
+        assert_err_kind("rated:3:1.1", InvalidRatedEase);
+        assert_err_kind("rated:0:foo", InvalidRatedEase);
+
+        assert_err_kind("dupe:", InvalidDupeMid);
+        assert_err_kind("dupe:1.1", InvalidDupeMid);
+        assert_err_kind("dupe:foo", InvalidDupeMid);
+
+        assert_err_kind("dupe:123", InvalidDupeText);
+
+        assert_err_kind("prop:", InvalidPropProperty);
+        assert_err_kind("prop:=1", InvalidPropProperty);
+        assert_err_kind("prop:DUE<5", InvalidPropProperty);
+
+        assert_err_kind("prop:lapses", InvalidPropOperator);
+        assert_err_kind("prop:pos~1", InvalidPropOperator);
+        assert_err_kind("prop:reps10", InvalidPropOperator);
+
+        assert_err_kind("prop:ease>", InvalidPropFloat);
+        assert_err_kind("prop:ease!=one", InvalidPropFloat);
+        assert_err_kind("prop:ease<1,3", InvalidPropFloat);
+
+        assert_err_kind("prop:due>", InvalidPropInteger);
+        assert_err_kind("prop:due=0.5", InvalidPropInteger);
+        assert_err_kind("prop:due<foo", InvalidPropInteger);
+
+        assert_err_kind("prop:ivl>", InvalidPropUnsigned);
+        assert_err_kind("prop:reps=1.1", InvalidPropUnsigned);
+        assert_err_kind("prop:lapses!=-1", InvalidPropUnsigned);
 
         Ok(())
     }
