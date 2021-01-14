@@ -87,11 +87,11 @@ class TagManager:
     def rename_tag(self, old: str, new: str) -> int:
         "Rename provided tag, returning number of changed notes."
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
-        escaped_name = '"{}"'.format(escaped_name.replace('"', '\\"'))
-        nids = self.col.find_notes("tag:" + escaped_name)
+        quote_escaped = escaped_name.replace('"', '\\"')
+        nids = self.col.find_notes(f'tag:"{quote_escaped}"')
         if not nids:
             return 0
-        return self.col.tags.bulk_update(nids, old, new, False)
+        return self.bulk_update(nids, escaped_name, new, False)
 
     # legacy routines
 
