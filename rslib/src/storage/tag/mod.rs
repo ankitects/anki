@@ -140,13 +140,7 @@ impl SqliteStorage {
         let tags = self
             .db
             .prepare_cached("select tag, usn from tags")?
-            .query_and_then(NO_PARAMS, |r| {
-                Ok(Tag {
-                    name: r.get(0)?,
-                    usn: r.get(1)?,
-                    ..Default::default()
-                })
-            })?
+            .query_and_then(NO_PARAMS, |r| Ok(Tag::new(r.get(0)?, r.get(1)?)))?
             .collect::<Result<Vec<Tag>>>()?;
         self.db
             .execute_batch(include_str!["../upgrades/schema17_upgrade.sql"])?;

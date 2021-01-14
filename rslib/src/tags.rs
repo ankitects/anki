@@ -46,16 +46,6 @@ impl PartialEq for Tag {
 
 impl Eq for Tag {}
 
-impl Default for Tag {
-    fn default() -> Self {
-        Tag {
-            name: "".to_string(),
-            usn: Usn(-1),
-            collapsed: false,
-        }
-    }
-}
-
 impl From<Tag> for TagProto {
     fn from(t: Tag) -> Self {
         TagProto {
@@ -72,6 +62,16 @@ impl From<TagProto> for Tag {
             name: t.name,
             usn: Usn(t.usn),
             collapsed: t.collapsed,
+        }
+    }
+}
+
+impl Tag {
+    pub fn new(name: String, usn: Usn) -> Self {
+        Tag {
+            name,
+            usn,
+            collapsed: false,
         }
     }
 }
@@ -127,10 +127,7 @@ fn fill_missing_tags(tags: Vec<Tag>) -> Vec<Tag> {
         let split: Vec<&str> = (&tag.name).split("::").collect();
         for i in 0..split.len() - 1 {
             let comp = split[0..i + 1].join("::");
-            let t = Tag {
-                name: comp.to_owned(),
-                ..Default::default()
-            };
+            let t = Tag::new(comp.to_owned(), Usn(-1));
             if filled_tags.get(&comp).is_none() {
                 filled_tags.insert(comp, t);
             }
@@ -199,13 +196,9 @@ impl Collection {
         let mut seen = HashSet::new();
         let mut added = false;
 
-        let mut tags: Vec<_> = tags.iter().flat_map(|t| split_tags(t)).collect();
-        for tag in &mut tags {
-            let t = self.register_tag(Tag {
-                name: tag.to_string(),
-                usn,
-                ..Default::default()
-            })?;
+        let tags: Vec<_> = tags.iter().flat_map(|t| split_tags(t)).collect();
+        for tag in tags {
+            let t = self.register_tag(Tag::new(tag.to_string(), usn))?;
             if t.0.name.is_empty() {
                 continue;
             }
@@ -226,6 +219,8 @@ impl Collection {
         Ok((tags, added))
     }
 
+    /// Register tag if it doesn't exist.
+    /// Returns a tuple of the tag with its name normalized and a boolean indicating if it was added.
     pub(crate) fn register_tag(&self, tag: Tag) -> Result<(Tag, bool)> {
         let normalized_name = normalize_tag_name(&tag.name);
         let mut t = Tag {
@@ -250,11 +245,7 @@ impl Collection {
             self.storage.clear_tags()?;
         }
         for tag in split_tags(tags) {
-            let t = self.register_tag(Tag {
-                name: tag.to_string(),
-                usn,
-                ..Default::default()
-            })?;
+            let t = self.register_tag(Tag::new(tag.to_string(), usn))?;
             changed |= t.1;
         }
         Ok(changed)
@@ -263,11 +254,7 @@ impl Collection {
     pub(crate) fn set_tag_collapsed(&self, name: &str, collapsed: bool) -> Result<()> {
         if self.storage.get_tag(name)?.is_none() {
             // tag is missing, register it
-            let t = Tag {
-                name: name.to_owned(),
-                ..Default::default()
-            };
-            self.register_tag(t)?;
+            self.register_tag(Tag::new(name.to_string(), self.usn()?))?;
         }
         self.storage.set_tag_collapsed(name, collapsed)
     }
