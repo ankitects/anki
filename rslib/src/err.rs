@@ -129,21 +129,45 @@ impl AnkiError {
                 SearchErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
                 SearchErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
                 SearchErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
-                SearchErrorKind::UnknownEscape(ctx) => i18n.trn(TR::SearchUnknownEscape, tr_strs!["val"=>(ctx)]).into(),
+                SearchErrorKind::UnknownEscape(ctx) => i18n
+                    .trn(
+                        TR::SearchUnknownEscape,
+                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                    )
+                    .into(),
                 SearchErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
                 SearchErrorKind::InvalidState => i18n.tr(TR::SearchInvalidState),
                 SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
                 SearchErrorKind::InvalidAdded => i18n.tr(TR::SearchInvalidAdded),
                 SearchErrorKind::InvalidEdited => i18n.tr(TR::SearchInvalidEdited),
                 SearchErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
-                SearchErrorKind::InvalidRatedEase(ctx) => i18n.trn(TR::SearchInvalidRatedEase, tr_strs!["val"=>(ctx)]).into(),
+                SearchErrorKind::InvalidRatedEase(ctx) => i18n
+                    .trn(TR::SearchInvalidRatedEase, tr_strs!["val"=>(ctx)])
+                    .into(),
                 SearchErrorKind::InvalidDupeMid => i18n.tr(TR::SearchInvalidDupeMid),
                 SearchErrorKind::InvalidDupeText => i18n.tr(TR::SearchInvalidDupeText),
                 SearchErrorKind::InvalidPropProperty => i18n.tr(TR::SearchInvalidPropProperty),
-                SearchErrorKind::InvalidPropOperator(ctx) => i18n.trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)]).into(),
-                SearchErrorKind::InvalidPropFloat(ctx) => i18n.trn(TR::SearchInvalidPropFloat, tr_strs!["val"=>(ctx)]).into(),
-                SearchErrorKind::InvalidPropInteger(ctx) => i18n.trn(TR::SearchInvalidPropInteger, tr_strs!["val"=>(ctx)]).into(),
-                SearchErrorKind::InvalidPropUnsigned(ctx) => i18n.trn(TR::SearchInvalidPropUnsigned, tr_strs!["val"=>(ctx)]).into(),
+                SearchErrorKind::InvalidPropOperator(ctx) => i18n
+                    .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
+                    .into(),
+                SearchErrorKind::InvalidPropFloat(ctx) => i18n
+                    .trn(
+                        TR::SearchInvalidPropFloat,
+                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                    )
+                    .into(),
+                SearchErrorKind::InvalidPropInteger(ctx) => i18n
+                    .trn(
+                        TR::SearchInvalidPropInteger,
+                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                    )
+                    .into(),
+                SearchErrorKind::InvalidPropUnsigned(ctx) => i18n
+                    .trn(
+                        TR::SearchInvalidPropUnsigned,
+                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                    )
+                    .into(),
                 SearchErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
                 SearchErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
                 SearchErrorKind::Regex(text) => text.into(),
