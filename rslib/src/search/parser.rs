@@ -69,7 +69,7 @@ pub enum SearchNode<'a> {
     NoteType(Cow<'a, str>),
     Rated {
         days: u32,
-        ease: Option<u8>,
+        ease: EaseKind,
     },
     Tag(Cow<'a, str>),
     Duplicates {
@@ -116,6 +116,13 @@ pub enum StateKind {
 pub enum TemplateKind<'a> {
     Ordinal(u16),
     Name(Cow<'a, str>),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum EaseKind {
+    AnswerButton(u8),
+    AnyAnswerButton,
+    ManualReschedule,
 }
 
 /// Parse the input string into a list of nodes.
@@ -286,6 +293,7 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "flag" => parse_flag(val)?,
         "rated" => parse_rated(val)?,
+        "resched" => parse_resched(val)?,
         "dupe" => parse_dupes(val)?,
         "prop" => parse_prop(val)?,
         "re" => SearchNode::Regex(unescape_quotes(val)),
@@ -350,7 +358,7 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode<'static>> {
 }
 
 /// eg rated:3 or rated:10:2
-/// second arg must be between 0-4
+/// second arg must be between 1-4
 fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
     let mut it = val.splitn(2, ':');
 
@@ -359,15 +367,27 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 
     let ease = match it.next() {
         Some(v) => {
-            let n: u8 = v.parse()?;
-            if n < 5 {
-                Some(n)
+            let u: u8 = v.parse()?;
+            if (1..5).contains(&u) {
+                EaseKind::AnswerButton(u)
             } else {
                 return Err(ParseError {});
             }
         }
-        None => None,
+        None => EaseKind::AnyAnswerButton,
     };
+
+    Ok(SearchNode::Rated { days, ease })
+}
+
+/// eg resched:3
+fn parse_resched(val: &str) -> ParseResult<SearchNode<'static>> {
+    let mut it = val.splitn(1, ':');
+
+    let n: u32 = it.next().unwrap().parse()?;
+    let days = n.max(1).min(365);
+
+    let ease = EaseKind::ManualReschedule;
 
     Ok(SearchNode::Rated { days, ease })
 }

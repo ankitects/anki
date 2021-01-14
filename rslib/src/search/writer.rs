@@ -5,7 +5,7 @@ use crate::{
     decks::DeckID as DeckIDType,
     err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{parse, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
+    search::parser::{parse, EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
 };
 use itertools::Itertools;
 use std::mem;
@@ -154,10 +154,12 @@ fn write_template(template: &TemplateKind) -> String {
     }
 }
 
-fn write_rated(days: &u32, ease: &Option<u8>) -> String {
+fn write_rated(days: &u32, ease: &EaseKind) -> String {
+    use EaseKind::*;
     match ease {
-        Some(u) => format!("\"rated:{}:{}\"", days, u),
-        None => format!("\"rated:{}\"", days),
+        AnswerButton(n) => format!("\"rated:{}:{}\"", days, n),
+        AnyAnswerButton => format!("\"rated:{}\"", days),
+        ManualReschedule => format!("\"resched:{}\"", days),
     }
 }
 
