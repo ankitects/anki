@@ -55,6 +55,13 @@ function onKey(evt: KeyboardEvent) {
         return;
     }
 
+    // prefer <br> instead of <div></div>
+    if (evt.which === 13) {
+        evt.preventDefault();
+        document.execCommand("insertLineBreak");
+        return;
+    }
+
     // fix Ctrl+right/left handling in RTL fields
     if (currentField.dir === "rtl") {
         const selection = window.getSelection();
