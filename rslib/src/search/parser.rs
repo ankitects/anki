@@ -360,19 +360,19 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
         tag("<"),
         tag(">"),
     ))(tail)
-    .map_err(|_| parse_failure(s, FailKind::InvalidPropOperator))?;
+    .map_err(|_| parse_failure(s, FailKind::InvalidPropOperator(prop.to_string())))?;
 
     let kind = if prop == "ease" {
         if let Ok(f) = num.parse::<f32>() {
             PropertyKind::Ease(f)
         } else {
-            return Err(parse_failure(s, FailKind::InvalidPropFloat));
+            return Err(parse_failure(s, FailKind::InvalidPropFloat(format!("{}{}", prop, operator))));
         }
     } else if prop == "due" {
         if let Ok(i) = num.parse::<i32>() {
             PropertyKind::Due(i)
         } else {
-            return Err(parse_failure(s, FailKind::InvalidPropInteger));
+            return Err(parse_failure(s, FailKind::InvalidPropInteger(format!("{}{}", prop, operator))));
         }
     } else if let Ok(u) = num.parse::<u32>() {
         match prop {
@@ -383,7 +383,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
             _ => unreachable!(),
         }
     } else {
-        return Err(parse_failure(s, FailKind::InvalidPropUnsigned));
+        return Err(parse_failure(s, FailKind::InvalidPropUnsigned(format!("{}{}", prop, operator))));
     };
 
     Ok(SearchNode::Property {
@@ -421,10 +421,10 @@ fn parse_rated(s: &str) -> ParseResult<SearchNode> {
                 if u < 5 {
                     Some(u)
                 } else {
-                    return Err(parse_failure(s, FailKind::InvalidRatedEase));
+                    return Err(parse_failure(s, FailKind::InvalidRatedEase(days.to_string())));
                 }
             } else {
-                return Err(parse_failure(s, FailKind::InvalidRatedEase));
+                return Err(parse_failure(s, FailKind::InvalidRatedEase(days.to_string())));
             }
         } else {
             None
