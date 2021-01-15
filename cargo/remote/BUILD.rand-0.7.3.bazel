@@ -46,7 +46,7 @@ rust_library(
     name = "rand",
     srcs = glob(["**/*.rs"]),
     aliases = {
-        "@raze__getrandom__0_1_15//:getrandom": "getrandom_package",
+        "@raze__getrandom__0_1_16//:getrandom": "getrandom_package",
     },
     crate_features = [
         "alloc",
@@ -70,7 +70,7 @@ rust_library(
     version = "0.7.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__getrandom__0_1_15//:getrandom",
+        "@raze__getrandom__0_1_16//:getrandom",
         "@raze__rand_chacha__0_2_2//:rand_chacha",
         "@raze__rand_core__0_5_1//:rand_core",
     ] + selects.with_or({

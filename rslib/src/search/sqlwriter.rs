@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
+use super::parser::{EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -123,7 +123,7 @@ impl SqlWriter<'_> {
                 self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
             }
             SearchNode::Duplicates { note_type_id, text } => {
-                self.write_dupes(*note_type_id, &self.norm_note(text))?
+                self.write_dupe(*note_type_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
             SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
@@ -144,7 +144,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
             SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
-            SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
+            SearchNode::Rated { days, ease } => self.write_rated(*days, ease)?,
 
             SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
             SearchNode::State(state) => self.write_state(state)?,
@@ -214,20 +214,22 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
+    fn write_rated(&mut self, days: u32, ease: &EaseKind) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
         let target_cutoff_ms = (today_cutoff - 86_400 * i64::from(days)) * 1_000;
         write!(
             self.sql,
             "c.id in (select cid from revlog where id>{}",
-            target_cutoff_ms
+            target_cutoff_ms,
         )
         .unwrap();
-        if let Some(ease) = ease {
-            write!(self.sql, " and ease={})", ease).unwrap();
-        } else {
-            write!(self.sql, ")").unwrap();
+
+        match ease {
+            EaseKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
+            EaseKind::AnyAnswerButton => write!(self.sql, " and ease > 0)"),
+            EaseKind::ManualReschedule => write!(self.sql, " and ease = 0)"),
         }
+        .unwrap();
 
         Ok(())
     }
@@ -441,7 +443,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
+    fn write_dupe(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
 
@@ -717,18 +719,27 @@ mod test {
         assert_eq!(
             s(ctx, "rated:2").0,
             format!(
-                "(c.id in (select cid from revlog where id>{}))",
+                "(c.id in (select cid from revlog where id>{} and ease > 0))",
                 (timing.next_day_at - (86_400 * 2)) * 1_000
             )
         );
         assert_eq!(
             s(ctx, "rated:400:1").0,
             format!(
-                "(c.id in (select cid from revlog where id>{} and ease=1))",
+                "(c.id in (select cid from revlog where id>{} and ease = 1))",
                 (timing.next_day_at - (86_400 * 365)) * 1_000
             )
         );
         assert_eq!(s(ctx, "rated:0").0, s(ctx, "rated:1").0);
+
+        // resched
+        assert_eq!(
+            s(ctx, "resched:400").0,
+            format!(
+                "(c.id in (select cid from revlog where id>{} and ease = 0))",
+                (timing.next_day_at - (86_400 * 365)) * 1_000
+            )
+        );
 
         // props
         assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());

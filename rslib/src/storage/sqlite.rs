@@ -170,7 +170,7 @@ impl SqliteStorage {
                 "update col set crt=?, scm=?, ver=?, conf=?",
                 params![
                     crt,
-                    crt * 1000,
+                    TimestampMillis::now(),
                     SCHEMA_STARTING_VERSION,
                     &schema11_config_as_string()
                 ],

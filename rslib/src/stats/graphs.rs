@@ -22,7 +22,7 @@ impl Collection {
             0
         });
 
-        let offset = self.local_offset();
+        let offset = self.local_utc_offset_for_user()?;
         let local_offset_secs = offset.local_minus_utc() as i64;
 
         let cards = self.storage.all_searched_cards()?;

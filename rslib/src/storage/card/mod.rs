@@ -229,7 +229,7 @@ impl super::SqliteStorage {
             .prepare_cached("select null from cards")?
             .query(NO_PARAMS)?
             .next()
-            .map(|o| o.is_none())
+            .map(|o| o.is_some())
             .map_err(Into::into)
     }
 

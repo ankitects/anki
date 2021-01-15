@@ -32,17 +32,17 @@ use crate::{
         all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeID, NoteTypeSchema11,
         RenderCardOutput,
     },
-    sched::cutoff::local_minutes_west_for_stamp,
     sched::new::NewCardSortOrder,
     sched::timespan::{answer_button_time, time_span},
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, Node, SearchNode, SortMode, StateKind, TemplateKind,
+        BoolSeparator, EaseKind, Node, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
-        get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
-        SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
+        get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,
+        LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
+        SyncStage,
     },
     template::RenderedNode,
     text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
@@ -66,6 +66,7 @@ use std::{
 use tokio::runtime::{self, Runtime};
 
 mod dbproxy;
+mod http_sync_server;
 
 struct ThrottlingProgressHandler {
     state: Arc<Mutex<ProgressState>>,
@@ -112,6 +113,7 @@ pub struct Backend {
 struct BackendState {
     remote_sync_status: RemoteSyncStatus,
     media_sync_abort: Option<AbortHandle>,
+    http_sync_server: Option<LocalServer>,
 }
 
 #[derive(Default, Debug)]
@@ -192,6 +194,7 @@ impl std::convert::From<SyncErrorKind> for i32 {
             SyncErrorKind::DatabaseCheckRequired => V::DatabaseCheckRequired,
             SyncErrorKind::Other => V::Other,
             SyncErrorKind::ClockIncorrect => V::ClockIncorrect,
+            SyncErrorKind::SyncNotStarted => V::SyncNotStarted,
         }) as i32
     }
 }
@@ -292,11 +295,11 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                     NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
                     NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
                         days: 1,
-                        ease: None,
+                        ease: EaseKind::AnyAnswerButton,
                     }),
                     NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
                         days: 1,
-                        ease: Some(1),
+                        ease: EaseKind::AnswerButton(1),
                     }),
                     NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
                     NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),
@@ -324,6 +327,10 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             Filter::Template(u) => {
                 Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
             }
+            Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
+                note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
+                text: dupe.text.into(),
+            }),
         }
     }
 }
@@ -530,20 +537,6 @@ impl BackendService for Backend {
             let timing = col.timing_today()?;
             col.unbury_if_day_rolled_over(timing)?;
             Ok(timing.into())
-        })
-    }
-
-    fn local_minutes_west(&self, input: pb::Int64) -> BackendResult<pb::Int32> {
-        Ok(pb::Int32 {
-            val: local_minutes_west_for_stamp(input.val),
-        })
-    }
-
-    fn set_local_minutes_west(&self, input: pb::Int32) -> BackendResult<Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.set_local_mins_west(input.val).map(Into::into)
-            })
         })
     }
 
@@ -1303,6 +1296,11 @@ impl BackendService for Backend {
         self.with_col(|col| col.before_upload().map(Into::into))
     }
 
+    fn sync_server_method(&self, input: pb::SyncServerMethodIn) -> BackendResult<pb::Json> {
+        let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
+        self.sync_server_method_inner(req).map(Into::into)
+    }
+
     // i18n/messages
     //-------------------------------------------------------------------
 
@@ -1694,11 +1692,11 @@ impl Backend {
         };
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(input.into(), progress_fn);
+            let sync_fut = col_inner.full_upload(input.into(), Box::new(progress_fn));
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(input.into(), progress_fn);
+            let sync_fut = col_inner.full_download(input.into(), Box::new(progress_fn));
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };

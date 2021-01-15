@@ -52,6 +52,6 @@ rust_library(
     version = "0.5.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__getrandom__0_1_15//:getrandom",
+        "@raze__getrandom__0_1_16//:getrandom",
     ],
 )

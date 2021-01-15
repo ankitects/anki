@@ -47,14 +47,16 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "2.1.1",
+    version = "2.1.3",
     # buildifier: leave-alone
     deps = [
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__quote__1_0_8//:quote",
-        "@raze__syn__1_0_56//:syn",
+        "@raze__syn__1_0_57//:syn",
     ],
 )
+
+# Unsupported target "clippy-warning-clone-from" with type "test" omitted
 
 # Unsupported target "compile-test" with type "test" omitted
 
