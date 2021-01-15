@@ -843,10 +843,10 @@ mod test {
         assert_err_kind("rated:", InvalidRatedDays);
         assert_err_kind("rated:foo", InvalidRatedDays);
 
-        assert_err_kind("rated:1:", InvalidRatedEase);
-        assert_err_kind("rated:2:-1", InvalidRatedEase);
-        assert_err_kind("rated:3:1.1", InvalidRatedEase);
-        assert_err_kind("rated:0:foo", InvalidRatedEase);
+        assert_err_kind("rated:1:", InvalidRatedEase("1".to_string()));
+        assert_err_kind("rated:2:-1", InvalidRatedEase("2".to_string()));
+        assert_err_kind("rated:3:1.1", InvalidRatedEase("3".to_string()));
+        assert_err_kind("rated:0:foo", InvalidRatedEase("1".to_string()));
 
         assert_err_kind("dupe:", InvalidDupeMid);
         assert_err_kind("dupe:1.1", InvalidDupeMid);
@@ -858,21 +858,24 @@ mod test {
         assert_err_kind("prop:=1", InvalidPropProperty);
         assert_err_kind("prop:DUE<5", InvalidPropProperty);
 
-        assert_err_kind("prop:lapses", InvalidPropOperator);
-        assert_err_kind("prop:pos~1", InvalidPropOperator);
-        assert_err_kind("prop:reps10", InvalidPropOperator);
+        assert_err_kind("prop:lapses", InvalidPropOperator("lapses".to_string()));
+        assert_err_kind("prop:pos~1", InvalidPropOperator("pos".to_string()));
+        assert_err_kind("prop:reps10", InvalidPropOperator("reps".to_string()));
 
-        assert_err_kind("prop:ease>", InvalidPropFloat);
-        assert_err_kind("prop:ease!=one", InvalidPropFloat);
-        assert_err_kind("prop:ease<1,3", InvalidPropFloat);
+        assert_err_kind("prop:ease>", InvalidPropFloat("ease>".to_string()));
+        assert_err_kind("prop:ease!=one", InvalidPropFloat("ease!=".to_string()));
+        assert_err_kind("prop:ease<1,3", InvalidPropFloat("ease<".to_string()));
 
-        assert_err_kind("prop:due>", InvalidPropInteger);
-        assert_err_kind("prop:due=0.5", InvalidPropInteger);
-        assert_err_kind("prop:due<foo", InvalidPropInteger);
+        assert_err_kind("prop:due>", InvalidPropInteger("due>".to_string()));
+        assert_err_kind("prop:due=0.5", InvalidPropInteger("due=".to_string()));
+        assert_err_kind("prop:due<foo", InvalidPropInteger("due<".to_string()));
 
-        assert_err_kind("prop:ivl>", InvalidPropUnsigned);
-        assert_err_kind("prop:reps=1.1", InvalidPropUnsigned);
-        assert_err_kind("prop:lapses!=-1", InvalidPropUnsigned);
+        assert_err_kind("prop:ivl>", InvalidPropUnsigned("ivl>".to_string()));
+        assert_err_kind("prop:reps=1.1", InvalidPropUnsigned("reps=".to_string()));
+        assert_err_kind(
+            "prop:lapses!=-1",
+            InvalidPropUnsigned("lapses!=".to_string()),
+        );
 
         Ok(())
     }
