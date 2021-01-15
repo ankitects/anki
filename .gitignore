@@ -2,4 +2,5 @@ __pycache__
 .DS_Store
 /bazel-*
 anki.prof
+target
 user.bazelrc

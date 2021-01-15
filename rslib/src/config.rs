@@ -141,11 +141,11 @@ impl Collection {
             .unwrap_or(DeckID(1))
     }
 
-    pub(crate) fn get_creation_mins_west(&self) -> Option<i32> {
+    pub(crate) fn get_creation_utc_offset(&self) -> Option<i32> {
         self.get_config_optional(ConfigKey::CreationOffset)
     }
 
-    pub(crate) fn set_creation_mins_west(&self, mins: Option<i32>) -> Result<()> {
+    pub(crate) fn set_creation_utc_offset(&self, mins: Option<i32>) -> Result<()> {
         if let Some(mins) = mins {
             self.set_config(ConfigKey::CreationOffset, &mins)
         } else {
@@ -153,11 +153,11 @@ impl Collection {
         }
     }
 
-    pub(crate) fn get_local_mins_west(&self) -> Option<i32> {
+    pub(crate) fn get_configured_utc_offset(&self) -> Option<i32> {
         self.get_config_optional(ConfigKey::LocalOffset)
     }
 
-    pub(crate) fn set_local_mins_west(&self, mins: i32) -> Result<()> {
+    pub(crate) fn set_configured_utc_offset(&self, mins: i32) -> Result<()> {
         self.set_config(ConfigKey::LocalOffset, &mins)
     }
 

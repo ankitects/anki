@@ -48,6 +48,8 @@ DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
 FilterToSearchIn = pb.FilterToSearchIn
 NamedFilter = pb.FilterToSearchIn.NamedFilter
+DupeIn = pb.FilterToSearchIn.DupeIn
+BackendNoteTypeID = pb.NoteTypeID
 ConcatSeparator = pb.ConcatenateSearchesIn.Separator
 SyncAuth = pb.SyncAuth
 SyncOutput = pb.SyncCollectionOut
@@ -274,10 +276,3 @@ def translate_string_in(
         else:
             args[k] = pb.TranslateArgValue(number=v)
     return pb.TranslateStringIn(key=key, args=args)
-
-
-# temporarily force logging of media handling
-if "RUST_LOG" not in os.environ:
-    os.environ[
-        "RUST_LOG"
-    ] = "warn,anki::media=debug,anki::sync=debug,anki::dbcheck=debug"

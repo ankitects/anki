@@ -40,13 +40,11 @@ fn want_release_gil(method: u32) -> bool {
                 | BackendMethod::RenderExistingCard
                 | BackendMethod::RenderUncommittedCard
                 | BackendMethod::StripAVTags
-                | BackendMethod::LocalMinutesWest
                 | BackendMethod::SchedTimingToday
                 | BackendMethod::AddOrUpdateDeckLegacy
                 | BackendMethod::NewDeckLegacy
                 | BackendMethod::NewDeckConfigLegacy
                 | BackendMethod::GetStockNotetypeLegacy
-                | BackendMethod::SetLocalMinutesWest
                 | BackendMethod::StudiedToday
                 | BackendMethod::TranslateString
                 | BackendMethod::FormatTimespan

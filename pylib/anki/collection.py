@@ -135,14 +135,6 @@ class Collection:
 
         self._loadScheduler()
 
-    # the sync code uses this to send the local timezone to AnkiWeb
-    def localOffset(self) -> Optional[int]:
-        "Minutes west of UTC. Only applies to V2 scheduler."
-        if isinstance(self.sched, V1Scheduler):
-            return None
-        else:
-            return self.backend.local_minutes_west(intTime())
-
     # DB-related
     ##########################################################################
 
@@ -631,37 +623,6 @@ table.review-log {{ {revlog_style} }}
 
     # DB maintenance
     ##########################################################################
-
-    def basicCheck(self) -> bool:
-        "Basic integrity check for syncing. True if ok."
-        # cards without notes
-        if self.db.scalar(
-            """
-select 1 from cards where nid not in (select id from notes) limit 1"""
-        ):
-            return False
-        # notes without cards or models
-        if self.db.scalar(
-            """
-select 1 from notes where id not in (select distinct nid from cards)
-or mid not in %s limit 1"""
-            % ids2str(self.models.ids())
-        ):
-            return False
-        # invalid ords
-        for m in self.models.all():
-            # ignore clozes
-            if m["type"] != MODEL_STD:
-                continue
-            if self.db.scalar(
-                """
-select 1 from cards where ord not in %s and nid in (
-select id from notes where mid = ?) limit 1"""
-                % ids2str([t["ord"] for t in m["tmpls"]]),
-                m["id"],
-            ):
-                return False
-        return True
 
     def fixIntegrity(self) -> Tuple[str, bool]:
         """Fix possible problems and rebuild caches.

@@ -27,6 +27,14 @@ impl TimestampSecs {
     pub(crate) fn date_string(self, offset: FixedOffset) -> String {
         offset.timestamp(self.0, 0).format("%Y-%m-%d").to_string()
     }
+
+    pub fn local_utc_offset(self) -> FixedOffset {
+        *Local.timestamp(self.0, 0).offset()
+    }
+
+    pub fn datetime(self, utc_offset: FixedOffset) -> DateTime<FixedOffset> {
+        utc_offset.timestamp(self.0, 0)
+    }
 }
 
 impl TimestampMillis {

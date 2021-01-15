@@ -58,7 +58,7 @@ pub enum SearchNode<'a> {
     NoteType(Cow<'a, str>),
     Rated {
         days: u32,
-        ease: Option<u8>,
+        ease: EaseKind,
     },
     Tag(Cow<'a, str>),
     Duplicates {
@@ -105,6 +105,13 @@ pub enum StateKind {
 pub enum TemplateKind<'a> {
     Ordinal(u16),
     Name(Cow<'a, str>),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum EaseKind {
+    AnswerButton(u8),
+    AnyAnswerButton,
+    ManualReschedule,
 }
 
 /// Parse the input string into a list of nodes.
@@ -302,6 +309,7 @@ fn search_node_for_text_with_argument<'a>(
         "tag" => SearchNode::Tag(unescape(val)?),
         "card" => parse_template(val)?,
         "flag" => parse_flag(val)?,
+        "resched" => parse_resched(val)?,
         "prop" => parse_prop(val)?,
         "added" => parse_added(val)?,
         "edited" => parse_edited(val)?,
@@ -314,7 +322,7 @@ fn search_node_for_text_with_argument<'a>(
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
-        "dupe" => parse_dupes(val)?,
+        "dupe" => parse_dupe(val)?,
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
@@ -340,8 +348,20 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
     }
 }
 
+/// eg resched:3
+fn parse_resched(s: &str) -> ParseResult<SearchNode> {
+    if let Ok(d) = s.parse::<u32>() {
+        Ok(SearchNode::Rated {
+            days: d.max(1).min(365),
+            ease: EaseKind::ManualReschedule,
+        })
+    } else {
+        Err(parse_failure(s, FailKind::InvalidResched))
+    }
+}
+
 /// eg prop:ivl>3, prop:ease!=2.5
-fn parse_prop(s: &str) -> ParseResult<SearchNode<'static>> {
+fn parse_prop(s: &str) -> ParseResult<SearchNode> {
     let (tail, prop) = alt::<_, _, ParseError, _>((
         tag("ivl"),
         tag("due"),
@@ -420,15 +440,15 @@ fn parse_edited(s: &str) -> ParseResult<SearchNode> {
 }
 
 /// eg rated:3 or rated:10:2
-/// second arg must be between 0-4
+/// second arg must be between 1-4
 fn parse_rated(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
     if let Ok(d) = it.next().unwrap().parse::<u32>() {
         let days = d.max(1).min(365);
         let ease = if let Some(tail) = it.next() {
             if let Ok(u) = tail.parse::<u8>() {
-                if u < 5 {
-                    Some(u)
+                if u > 0 && u < 5 {
+                    EaseKind::AnswerButton(u)
                 } else {
                     return Err(parse_failure(
                         s,
@@ -442,7 +462,7 @@ fn parse_rated(s: &str) -> ParseResult<SearchNode> {
                 ));
             }
         } else {
-            None
+            EaseKind::AnyAnswerButton
         };
         Ok(SearchNode::Rated { days, ease })
     } else {
@@ -495,14 +515,14 @@ fn check_id_list(s: &str) -> ParseResult<&str> {
     }
 }
 
-/// eg dupes:1231,hello
-fn parse_dupes(s: &str) -> ParseResult<SearchNode> {
+/// eg dupe:1231,hello
+fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ',');
     if let Ok(mid) = it.next().unwrap().parse::<NoteTypeID>() {
         if let Some(text) = it.next() {
             Ok(SearchNode::Duplicates {
                 note_type_id: mid,
-                text: unescape_quotes(text),
+                text: unescape_quotes_and_backslashes(text),
             })
         } else {
             Err(parse_failure(s, FailKind::InvalidDupeText))
@@ -532,6 +552,15 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchN
 fn unescape_quotes(s: &str) -> Cow<str> {
     if s.contains('"') {
         s.replace(r#"\""#, "\"").into()
+    } else {
+        s.into()
+    }
+}
+
+/// For non-globs like dupe text without any assumption about the content
+fn unescape_quotes_and_backslashes(s: &str) -> Cow<str> {
+    if s.contains('"') || s.contains('\\') {
+        s.replace(r#"\""#, "\"").replace(r"\\", r"\").into()
     } else {
         s.into()
     }
