@@ -18,6 +18,7 @@ pub(crate) fn schema11_config_as_string() -> String {
         "curDeck": 1,
         "newSpread": 0,
         "collapseTime": 1200,
+        "firstWeekday": 0,
         "timeLim": 0,
         "estTimes": true,
         "dueCounts": true,
@@ -47,6 +48,7 @@ pub(crate) enum ConfigKey {
     ShowRemainingDueCountsInStudy,
     ShowIntervalsAboveAnswerButtons,
     NewReviewMix,
+    FirstWeekday,
     AnswerTimeLimitSecs,
     ShowDayLearningCardsFirst,
     LastUnburiedDay,
@@ -75,6 +77,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
             ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
             ConfigKey::NewReviewMix => "newSpread",
+            ConfigKey::FirstWeekday => "firstWeekday",
             ConfigKey::AnswerTimeLimitSecs => "timeLim",
             ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
             ConfigKey::LastUnburiedDay => "lastUnburied",
@@ -227,6 +230,16 @@ impl Collection {
         self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
     }
 
+
+    pub(crate) fn get_first_weekday(&self) -> Weekday {
+        match self.get_config_default::<u8, _>(ConfigKey::FirstWeekday) {
+            1 => Weekday::Monday,
+            5 => Weekday::Friday,
+            6 => Weekday::Saturday,
+            _ => Weekday::Sunday,
+        }
+    }
+
     pub(crate) fn get_show_due_counts(&self) -> bool {
         self.get_config_optional(ConfigKey::ShowRemainingDueCountsInStudy)
             .unwrap_or(true)
@@ -307,6 +320,13 @@ pub(crate) enum NewReviewMix {
     Mix = 0,
     ReviewsFirst = 1,
     NewFirst = 2,
+}
+
+pub(crate) enum Weekday {
+    Sunday = 0,
+    Monday = 1,
+    Friday = 5,
+    Saturday = 6,
 }
 
 #[cfg(test)]
