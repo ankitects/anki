@@ -25,6 +25,7 @@ impl Collection {
         let offset = self.local_utc_offset_for_user()?;
         let local_offset_secs = offset.local_minus_utc() as i64;
 
+
         let cards = self.storage.all_searched_cards()?;
         let revlog = if all {
             self.storage.get_all_revlog_entries(revlog_start)?
@@ -42,6 +43,7 @@ impl Collection {
             next_day_at_secs: timing.next_day_at as u32,
             scheduler_version: self.sched_ver() as u32,
             local_offset_secs: local_offset_secs as i32,
+            first_weekday: self.get_first_weekday() as i32,
         })
     }
 }
