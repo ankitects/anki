@@ -57,7 +57,6 @@ function onKey(evt: KeyboardEvent) {
 
     // prefer <br> instead of <div></div>
     if (evt.which === 13 && !inListItem()) {
-        console.log("Enter");
         evt.preventDefault();
         document.execCommand("insertLineBreak");
         return;
@@ -86,6 +85,23 @@ function onKey(evt: KeyboardEvent) {
     }
 
     triggerKeyTimer();
+}
+
+function onKeyUp(evt: KeyboardEvent) {
+    // Avoid div element on remove
+    if (evt.which === 8 || evt.which === 13) {
+        const anchor = window.getSelection().anchorNode;
+
+        if (
+            nodeIsElement(anchor) &&
+            anchor.tagName === "DIV" &&
+            !anchor.classList.contains("field") &&
+            anchor.childElementCount === 1 &&
+            anchor.children[0].tagName === "BR"
+        ) {
+            anchor.replaceWith(anchor.children[0]);
+        }
+    }
 }
 
 function nodeIsElement(node: Node): node is Element {
@@ -364,19 +380,19 @@ function setFields(fields) {
         </tr>
         <tr>
             <td width=100%>
-                <div id=f${i}
-                     onkeydown='onKey(window.event);'
-                     oninput='onInput();'
-                     onmouseup='onKey(window.event);'
-                     onfocus='onFocus(this);'
-                     onblur='onBlur();'
-                     class='field clearfix'
-                     onpaste='onPaste(this);'
-                     oncopy='onCutOrCopy(this);'
-                     oncut='onCutOrCopy(this);'
-                     contentEditable=true
-                     class=field
-                     style='color: ${color}'
+                <div id="f${i}"
+                     onkeydown="onKey(window.event);"
+                     onkeyup="onKeyUp(window.event);"
+                     oninput="onInput();"
+                     onmouseup="onKey(window.event);"
+                     onfocus="onFocus(this);"
+                     onblur="onBlur();"
+                     class="field clearfix"
+                     onpaste="onPaste(this);"
+                     oncopy="onCutOrCopy(this);"
+                     oncut="onCutOrCopy(this);"
+                     contentEditable
+                     style="color: ${color}"
                 >${f}</div>
             </td>
         </tr>`;
