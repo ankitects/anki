@@ -877,6 +877,11 @@ mod test {
         assert_err_kind("rated:3:1.1", InvalidRatedEase("3".to_string()));
         assert_err_kind("rated:0:foo", InvalidRatedEase("1".to_string()));
 
+        assert_err_kind("resched:", FailKind::InvalidResched);
+        assert_err_kind("resched:-1", FailKind::InvalidResched);
+        assert_err_kind("resched:1:1", FailKind::InvalidResched);
+        assert_err_kind("resched:foo", FailKind::InvalidResched);
+
         assert_err_kind("dupe:", InvalidDupeMid);
         assert_err_kind("dupe:1.1", InvalidDupeMid);
         assert_err_kind("dupe:foo", InvalidDupeMid);
