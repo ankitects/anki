@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashSet;
+
 use crate::{
     err::Result,
     notes::{Note, NoteID},
@@ -157,11 +159,19 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    // get distinct note tags
-    pub(crate) fn get_note_tags(&self) -> Result<Vec<String>> {
-        self.db
-            .prepare_cached("select distinct tags from notes")?
-            .query_and_then(NO_PARAMS, |r| Ok(r.get_raw(0).as_str()?.to_owned()))?
-            .collect()
+    pub(crate) fn all_tags_in_notes(&self) -> Result<HashSet<String>> {
+        let mut stmt = self
+            .db
+            .prepare_cached("select tags from notes where tags != ''")?;
+        let mut query = stmt.query(NO_PARAMS)?;
+        let mut seen: HashSet<String> = HashSet::new();
+        while let Some(rows) = query.next()? {
+            for tag in split_tags(rows.get_raw(0).as_str()?) {
+                if !seen.contains(tag) {
+                    seen.insert(tag.to_string());
+                }
+            }
+        }
+        Ok(seen)
     }
 }
