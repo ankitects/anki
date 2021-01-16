@@ -406,7 +406,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         let mut it = num.splitn(2, ':');
 
         let days: i32 = if let Ok(i) = it.next().unwrap().parse::<i32>() {
-            i
+            i.min(0)
         } else {
             return Err(parse_failure(
                 s,
@@ -438,7 +438,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         PropertyKind::Rated(days, ease)
     } else if prop == "resched" {
         if let Ok(days) = num.parse::<i32>() {
-            PropertyKind::Rated(days, EaseKind::ManualReschedule)
+            PropertyKind::Rated(days.min(0), EaseKind::ManualReschedule)
         } else {
             return Err(parse_failure(
                 s,
@@ -489,6 +489,7 @@ fn parse_edited(s: &str) -> ParseResult<SearchNode> {
 fn parse_rated(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
     if let Ok(days) = it.next().unwrap().parse::<u32>() {
+        let days = days.max(1);
         let ease = if let Some(tail) = it.next() {
             if let Ok(u) = tail.parse::<u8>() {
                 if u > 0 && u < 5 {

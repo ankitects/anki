@@ -734,7 +734,7 @@ mod test {
             s(ctx, "rated:400:1").0,
             format!(
                 "(c.id in (select cid from revlog where id >= {} and ease = 1))",
-                (timing.next_day_at - (86_400 * 365)) * 1_000
+                (timing.next_day_at - (86_400 * 400)) * 1_000
             )
         );
         assert_eq!(s(ctx, "rated:0").0, s(ctx, "rated:1").0);
@@ -744,7 +744,7 @@ mod test {
             s(ctx, "resched:400").0,
             format!(
                 "(c.id in (select cid from revlog where id >= {} and ease = 0))",
-                (timing.next_day_at - (86_400 * 365)) * 1_000
+                (timing.next_day_at - (86_400 * 400)) * 1_000
             )
         );
 
@@ -759,6 +759,7 @@ mod test {
                 cutoff = timing.next_day_at
             )
         );
+        assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
 
         // note types by name
         assert_eq!(
