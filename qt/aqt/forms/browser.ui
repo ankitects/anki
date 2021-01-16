@@ -437,7 +437,7 @@
     <string>BROWSING_FIRST_CARD</string>
    </property>
    <property name="shortcut">
-    <string/>
+    <string notr="true">Home</string>
    </property>
   </action>
   <action name="actionLastCard">
@@ -445,7 +445,7 @@
     <string>BROWSING_LAST_CARD</string>
    </property>
    <property name="shortcut">
-    <string/>
+    <string notr="true">End</string>
    </property>
   </action>
   <action name="actionClose">
@@ -587,7 +587,7 @@
     <string>QT_ACCEL_EXPORT_NOTES</string>
    </property>
    <property name="shortcut">
-    <string/>
+    <string notr="true">Ctrl+Shift+E</string>
    </property>
   </action>
  </widget>
