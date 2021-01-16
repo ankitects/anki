@@ -179,7 +179,7 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
 
 impl Collection {
     pub fn tag_tree(&mut self) -> Result<TagTreeNode> {
-        let tags = self.storage.all_tags_sorted()?;
+        let tags = self.storage.all_tags()?;
         let tree = tags_to_tree(tags);
 
         Ok(tree)
@@ -256,7 +256,7 @@ impl Collection {
 
     /// Update collapse state of existing tags and register tags in old_tags that are parents of those tags
     pub(crate) fn update_tags_collapse(&self, old_tags: Vec<Tag>) -> Result<()> {
-        let new_tags = self.storage.all_tags_sorted()?;
+        let new_tags = self.storage.all_tags()?;
         for old in old_tags.into_iter() {
             for new in new_tags.iter() {
                 if new.name == old.name {

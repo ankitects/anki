@@ -243,7 +243,7 @@ impl Collection {
         let stamp = TimestampMillis::now();
 
         // will rebuild tag list below
-        let old_tags = self.storage.all_tags_sorted()?;
+        let old_tags = self.storage.all_tags()?;
         self.storage.clear_tags()?;
 
         let total_notes = self.storage.total_notes()?;
