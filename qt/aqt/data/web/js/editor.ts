@@ -50,13 +50,13 @@ interface Selection {
 
 function onKey(evt: KeyboardEvent) {
     // esc clears focus, allowing dialog to close
-    if (evt.which === 27) {
+    if (evt.code === "Escape") {
         currentField.blur();
         return;
     }
 
     // prefer <br> instead of <div></div>
-    if (evt.which === 13 && !inListItem()) {
+    if (evt.code === "Enter" && !inListItem()) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
         return;
@@ -73,11 +73,11 @@ function onKey(evt: KeyboardEvent) {
         if (evt.shiftKey) {
             alter = "extend";
         }
-        if (evt.which === 39) {
+        if (evt.code === "ArrowRight") {
             selection.modify(alter, "right", granularity);
             evt.preventDefault();
             return;
-        } else if (evt.which === 37) {
+        } else if (evt.code === "ArrowLeft") {
             selection.modify(alter, "left", granularity);
             evt.preventDefault();
             return;
@@ -89,7 +89,7 @@ function onKey(evt: KeyboardEvent) {
 
 function onKeyUp(evt: KeyboardEvent) {
     // Avoid div element on remove
-    if (evt.which === 8 || evt.which === 13) {
+    if (evt.code === "Enter" || evt.code === "Backspace") {
         const anchor = window.getSelection().anchorNode;
 
         if (
