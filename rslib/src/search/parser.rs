@@ -402,7 +402,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
                 FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
             ));
         }
-    } else if key == "rated" {
+    } else if prop == "rated" {
         let mut it = num.splitn(2, ':');
 
         let days: i32 = if let Ok(i) = it.next().unwrap().parse::<i32>() {
@@ -412,13 +412,13 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
                 s,
                 FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
             ));
-        }
+        };
 
         let ease = match it.next() {
             Some(v) => {
-                let n: u8 = if let Ok(i) = v.parse() {
-                    if (1..5).contains(i) {
-                        EaseKind::AnswerButton(i)
+                if let Ok(u) = v.parse::<u8>() {
+                    if (1..5).contains(&u) {
+                        EaseKind::AnswerButton(u)
                     } else {
                         return Err(parse_failure(
                             s,
@@ -436,16 +436,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         };
 
         PropertyKind::Rated(days, ease)
-    } else if key == "resched" {
-        let mut it = val.splitn(2, ':');
-
-        let n: i32 = it.next().unwrap().parse()?;
-        let days = n.max(-365).min(0);
-
-        let ease = EaseKind::ManualReschedule;
-
-        PropertyKind::Rated(days, ease)
-    } else if key == "resched" {
+    } else if prop == "resched" {
         if let Ok(days) = num.parse::<i32>() {
             PropertyKind::Rated(days, EaseKind::ManualReschedule)
         } else {
