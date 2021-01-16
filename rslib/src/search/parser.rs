@@ -351,9 +351,9 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
 
 /// eg resched:3
 fn parse_resched(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(d) = s.parse::<u32>() {
+    if let Ok(days) = s.parse::<u32>() {
         Ok(SearchNode::Rated {
-            days: d.max(1).min(365),
+            days,
             ease: EaseKind::ManualReschedule,
         })
     } else {
@@ -488,8 +488,7 @@ fn parse_edited(s: &str) -> ParseResult<SearchNode> {
 /// second arg must be between 1-4
 fn parse_rated(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
-    if let Ok(d) = it.next().unwrap().parse::<u32>() {
-        let days = d.max(1).min(365);
+    if let Ok(days) = it.next().unwrap().parse::<u32>() {
         let ease = if let Some(tail) = it.next() {
             if let Ok(u) = tail.parse::<u8>() {
                 if u > 0 && u < 5 {
