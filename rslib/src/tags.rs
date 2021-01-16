@@ -104,7 +104,7 @@ fn immediate_parent_name(tag_name: UniCase<&str>) -> Option<UniCase<&str>> {
 /// If the immediate parent is missing, check and add any missing parents.
 /// This should ensure that if an immediate parent is found, all ancestors
 /// are guaranteed to already exist.
-fn add_self_and_missing_parents<'a, 'b>(
+fn add_tag_and_missing_parents<'a, 'b>(
     all: &'a mut HashSet<UniCase<&'b str>>,
     missing: &'a mut Vec<UniCase<&'b str>>,
     tag_name: UniCase<&'b str>,
@@ -112,10 +112,10 @@ fn add_self_and_missing_parents<'a, 'b>(
     if let Some(parent) = immediate_parent_name(tag_name) {
         if !all.contains(&parent) {
             missing.push(parent);
-            add_self_and_missing_parents(all, missing, parent);
+            add_tag_and_missing_parents(all, missing, parent);
         }
     }
-    // finally, add self
+    // finally, add provided tag
     all.insert(tag_name);
 }
 
@@ -124,7 +124,7 @@ fn add_missing_parents(tags: &mut Vec<Tag>) {
     let mut all_names: HashSet<UniCase<&str>> = HashSet::new();
     let mut missing = vec![];
     for tag in &*tags {
-        add_self_and_missing_parents(&mut all_names, &mut missing, UniCase::new(&tag.name))
+        add_tag_and_missing_parents(&mut all_names, &mut missing, UniCase::new(&tag.name))
     }
     let mut missing: Vec<_> = missing
         .into_iter()
