@@ -1166,10 +1166,6 @@ QTableView {{ gridline-color: {grid} }}
         def fillGroups(root, nodes: Sequence[TagTreeNode], head=""):
             for node in nodes:
 
-                def set_filter():
-                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda: self.setFilter("tag", full_name)
-
                 def toggle_expand():
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.tags.set_collapsed(
