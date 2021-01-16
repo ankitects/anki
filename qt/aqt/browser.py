@@ -11,6 +11,8 @@ from enum import Enum
 from operator import itemgetter
 from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 
+from markdown import markdown
+
 import anki
 import aqt
 import aqt.forms
@@ -86,6 +88,14 @@ class SearchContext:
     order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
     card_ids: Optional[Sequence[int]] = None
+
+
+def show_invalid_search_error(err: Exception):
+    "Render search errors in markdown, then display a warning."
+    text = str(err)
+    if isinstance(err, InvalidInput):
+        text = markdown(text)
+    showWarning(text)
 
 
 # Data model
@@ -191,7 +201,7 @@ class DataModel(QAbstractTableModel):
     def search(self, txt: str) -> None:
         self.beginReset()
         self.cards = []
-        error_message: Optional[str] = None
+        exception: Optional[Exception] = None
         try:
             ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
@@ -201,12 +211,12 @@ class DataModel(QAbstractTableModel):
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
-            error_message = str(e)
+            exception = e
         finally:
             self.endReset()
 
-        if error_message:
-            showWarning(error_message)
+        if exception:
+            show_invalid_search_error(exception)
 
     def reset(self):
         self.beginReset()
@@ -1252,7 +1262,7 @@ QTableView {{ gridline-color: {grid} }}
                         searches=[cur, search],
                     )
         except InvalidInput as e:
-            showWarning(str(e))
+            show_invalid_search_error(e)
         else:
             self.form.searchEdit.lineEdit().setText(search)
             self.onSearchActivated()
@@ -1446,7 +1456,7 @@ QTableView {{ gridline-color: {grid} }}
                 self.form.searchEdit.lineEdit().text()
             )
         except InvalidInput as e:
-            showWarning(str(e))
+            show_invalid_search_error(e)
         else:
             name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
             if not name:
@@ -2001,8 +2011,7 @@ where id in %s"""
             try:
                 changed = fut.result()
             except InvalidInput as e:
-                # failed regex
-                showWarning(str(e))
+                show_invalid_search_error(e)
                 return
 
             showInfo(

@@ -123,62 +123,94 @@ impl AnkiError {
                 DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
                 _ => format!("{:?}", self),
             },
-            AnkiError::SearchError(kind) => match kind {
-                SearchErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
-                SearchErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
-                SearchErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
-                SearchErrorKind::UnopenedGroup => i18n.tr(TR::SearchUnopenedGroup),
-                SearchErrorKind::UnclosedGroup => i18n.tr(TR::SearchUnclosedGroup),
-                SearchErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
-                SearchErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
-                SearchErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
-                SearchErrorKind::UnknownEscape(ctx) => i18n
-                    .trn(
-                        TR::SearchUnknownEscape,
-                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                    )
-                    .into(),
-                SearchErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
-                SearchErrorKind::InvalidState => i18n.tr(TR::SearchInvalidState),
-                SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
-                SearchErrorKind::InvalidAdded => i18n.tr(TR::SearchInvalidAdded),
-                SearchErrorKind::InvalidEdited => i18n.tr(TR::SearchInvalidEdited),
-                SearchErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
-                SearchErrorKind::InvalidRatedEase(ctx) => i18n
-                    .trn(TR::SearchInvalidRatedEase, tr_strs!["val"=>(ctx)])
-                    .into(),
-                SearchErrorKind::InvalidResched => i18n.tr(TR::SearchInvalidResched),
-                SearchErrorKind::InvalidDupeMid => i18n.tr(TR::SearchInvalidDupeMid),
-                SearchErrorKind::InvalidDupeText => i18n.tr(TR::SearchInvalidDupeText),
-                SearchErrorKind::InvalidPropProperty => i18n.tr(TR::SearchInvalidPropProperty),
-                SearchErrorKind::InvalidPropOperator(ctx) => i18n
-                    .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
-                    .into(),
-                SearchErrorKind::InvalidPropFloat(ctx) => i18n
-                    .trn(
-                        TR::SearchInvalidPropFloat,
-                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                    )
-                    .into(),
-                SearchErrorKind::InvalidPropInteger(ctx) => i18n
-                    .trn(
-                        TR::SearchInvalidPropInteger,
-                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                    )
-                    .into(),
-                SearchErrorKind::InvalidPropUnsigned(ctx) => i18n
-                    .trn(
-                        TR::SearchInvalidPropUnsigned,
-                        tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                    )
-                    .into(),
-                SearchErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
-                SearchErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
-                SearchErrorKind::Regex(text) => text.into(),
-                SearchErrorKind::Other(Some(info)) => info.into(),
-                SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalid),
+            AnkiError::SearchError(kind) => {
+                let reason = match kind {
+                    SearchErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
+                    SearchErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
+                    SearchErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
+                    SearchErrorKind::UnopenedGroup => i18n.tr(TR::SearchUnopenedGroup),
+                    SearchErrorKind::UnclosedGroup => i18n.tr(TR::SearchUnclosedGroup),
+                    SearchErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
+                    SearchErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
+                    SearchErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
+                    SearchErrorKind::UnknownEscape(ctx) => i18n
+                        .trn(
+                            TR::SearchUnknownEscape,
+                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
+                    SearchErrorKind::InvalidState(state) => i18n
+                        .trn(
+                            TR::SearchInvalidArgument,
+                            tr_strs!("term" => "is:", "argument" => state),
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
+                    SearchErrorKind::InvalidAdded => i18n
+                        .trn(
+                            TR::SearchInvalidFollowedByPositiveDays,
+                            tr_strs!("term" => "added:"),
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidEdited => i18n
+                        .trn(
+                            TR::SearchInvalidFollowedByPositiveDays,
+                            tr_strs!("term" => "edited:"),
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
+                    SearchErrorKind::InvalidRatedEase(ctx) => i18n
+                        .trn(TR::SearchInvalidRatedEase, tr_strs!["val"=>(ctx)])
+                        .into(),
+                    SearchErrorKind::InvalidResched => i18n
+                        .trn(
+                            TR::SearchInvalidFollowedByPositiveDays,
+                            tr_strs!("term" => "resched:"),
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidDupeMid | SearchErrorKind::InvalidDupeText => {
+                        // this is an undocumented search keyword, so no translation
+                        "`dupe:` arguments were invalid".into()
+                    }
+                    SearchErrorKind::InvalidPropProperty(prop) => i18n
+                        .trn(
+                            TR::SearchInvalidArgument,
+                            tr_strs!("term" => "prop:", "argument" => prop),
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidPropOperator(ctx) => i18n
+                        .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
+                        .into(),
+                    SearchErrorKind::InvalidPropFloat(ctx) => i18n
+                        .trn(
+                            TR::SearchInvalidPropFloat,
+                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidPropInteger(ctx) => i18n
+                        .trn(
+                            TR::SearchInvalidPropInteger,
+                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidPropUnsigned(ctx) => i18n
+                        .trn(
+                            TR::SearchInvalidPropUnsigned,
+                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
+                    SearchErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
+                    SearchErrorKind::Regex(text) => text.into(),
+                    SearchErrorKind::Other(Some(info)) => info.into(),
+                    SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalidOther),
+                };
+                i18n.trn(
+                    TR::SearchInvalidSearch,
+                    tr_args!("reason" => reason.into_owned()),
+                )
             }
-            .into(),
             _ => format!("{:?}", self),
         }
     }
@@ -408,7 +440,7 @@ pub enum SearchErrorKind {
     MissingKey,
     UnknownEscape(String),
     InvalidIdList,
-    InvalidState,
+    InvalidState(String),
     InvalidFlag,
     InvalidAdded,
     InvalidEdited,
@@ -417,7 +449,7 @@ pub enum SearchErrorKind {
     InvalidDupeMid,
     InvalidDupeText,
     InvalidResched,
-    InvalidPropProperty,
+    InvalidPropProperty(String),
     InvalidPropOperator(String),
     InvalidPropFloat(String),
     InvalidPropInteger(String),
