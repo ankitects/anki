@@ -234,16 +234,19 @@ impl Collection {
         }
     }
 
-    pub(crate) fn register_tags(&self, tags: &str, usn: Usn, clear_first: bool) -> Result<bool> {
-        let mut changed = false;
-        if clear_first {
-            self.storage.clear_tags()?;
+    pub fn clear_unused_tags(&self) -> Result<()> {
+        let collapsed: HashSet<_> = self.storage.collapsed_tags()?.into_iter().collect();
+        self.storage.clear_tags()?;
+        let usn = self.usn()?;
+        for name in self.storage.all_tags_in_notes()? {
+            self.register_tag(Tag {
+                collapsed: collapsed.contains(&name),
+                name,
+                usn,
+            })?;
         }
-        for tag in split_tags(tags) {
-            let t = self.register_tag(Tag::new(tag.to_string(), usn))?;
-            changed |= t.1;
-        }
-        Ok(changed)
+
+        Ok(())
     }
 
     pub(crate) fn set_tag_collapsed(&self, name: &str, collapsed: bool) -> Result<()> {
@@ -252,22 +255,6 @@ impl Collection {
             self.register_tag(Tag::new(name.to_string(), self.usn()?))?;
         }
         self.storage.set_tag_collapsed(name, collapsed)
-    }
-
-    /// Update collapse state of existing tags and register tags in old_tags that are parents of those tags
-    pub(crate) fn update_tags_collapse(&self, old_tags: Vec<Tag>) -> Result<()> {
-        let new_tags = self.storage.all_tags()?;
-        for old in old_tags.into_iter() {
-            for new in new_tags.iter() {
-                if new.name == old.name {
-                    self.storage.set_tag_collapsed(&new.name, old.collapsed)?;
-                    break;
-                } else if new.name.starts_with(&old.name) {
-                    self.set_tag_collapsed(&old.name, old.collapsed)?;
-                }
-            }
-        }
-        Ok(())
     }
 
     fn replace_tags_for_notes_inner<R: Replacer>(
@@ -447,7 +434,10 @@ mod test {
         assert_eq!(&note.tags, &["foo::bar", "foo::bar::bar", "foo::bar::foo",]);
 
         // tag children are also cleared when clearing their parent
-        col.register_tags("a a::b a::b::c", Usn(-1), true)?;
+        col.storage.clear_tags()?;
+        for name in vec!["a", "a::b", "a::b::c"] {
+            col.register_tag(Tag::new(name.to_string(), Usn(0)))?;
+        }
         col.storage.clear_tag("a")?;
         assert_eq!(col.storage.all_tags()?, vec![]);
 
@@ -542,6 +532,23 @@ mod test {
                 vec![node("one", 1, vec![leaf("two", 2)]), leaf("one1", 1)]
             )
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn clearing() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags.push("one".into());
+        note.tags.push("two".into());
+        col.add_note(&mut note, DeckID(1))?;
+
+        col.set_tag_collapsed("two", true)?;
+        col.clear_unused_tags()?;
+        assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
 
         Ok(())
     }

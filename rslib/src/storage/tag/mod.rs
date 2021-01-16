@@ -24,7 +24,23 @@ impl SqliteStorage {
             .collect()
     }
 
-    /// Get tag by human name
+    pub(crate) fn collapsed_tags(&self) -> Result<Vec<String>> {
+        self.db
+            .prepare_cached("select tag from tags where collapsed = true")?
+            .query_and_then(NO_PARAMS, |r| r.get::<_, String>(0).map_err(Into::into))?
+            .collect::<Result<Vec<_>>>()
+    }
+
+    pub(crate) fn restore_collapsed_tags(&self, tags: &[String]) -> Result<()> {
+        let mut stmt = self
+            .db
+            .prepare_cached("update tags set collapsed = true where tag = ?")?;
+        for tag in tags {
+            stmt.execute(&[tag])?;
+        }
+        Ok(())
+    }
+
     pub(crate) fn get_tag(&self, name: &str) -> Result<Option<Tag>> {
         self.db
             .prepare_cached("select tag, usn, collapsed from tags where tag = ?")?

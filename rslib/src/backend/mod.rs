@@ -44,7 +44,6 @@ use crate::{
         LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
         SyncStage,
     },
-    tags::join_tags,
     template::RenderedNode,
     text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -1361,15 +1360,7 @@ impl BackendService for Backend {
     }
 
     fn clear_unused_tags(&self, _input: pb::Empty) -> BackendResult<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                let old_tags = col.storage.all_tags()?;
-                let note_tags = join_tags(&col.storage.get_note_tags()?);
-                col.register_tags(&note_tags, col.usn()?, true)?;
-                col.update_tags_collapse(old_tags)?;
-                Ok(().into())
-            })
-        })
+        self.with_col(|col| col.transact(None, |col| col.clear_unused_tags().map(Into::into)))
     }
 
     fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Empty> {

@@ -242,8 +242,7 @@ impl Collection {
         let usn = self.usn()?;
         let stamp = TimestampMillis::now();
 
-        // will rebuild tag list below
-        let old_tags = self.storage.all_tags()?;
+        let collapsed_tags = self.storage.collapsed_tags()?;
         self.storage.clear_tags()?;
 
         let total_notes = self.storage.total_notes()?;
@@ -295,8 +294,9 @@ impl Collection {
             }
         }
 
-        // restore tags collapse state and re-register old tags that are parents of used ones
-        self.update_tags_collapse(old_tags)?;
+        // the note rebuilding process took care of adding tags back, so we just need
+        // to ensure to restore the collapse state
+        self.storage.restore_collapsed_tags(&collapsed_tags)?;
 
         // if the collection is empty and the user has deleted all note types, ensure at least
         // one note type exists
@@ -633,6 +633,25 @@ mod test {
                 .collect::<Vec<_>>(),
             &["Default", "foo", "foo::bar", "foo::bar::baz"]
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn tags() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags.push("one".into());
+        note.tags.push("two".into());
+        col.add_note(&mut note, DeckID(1))?;
+
+        col.set_tag_collapsed("two", true)?;
+
+        col.check_database(progress_fn)?;
+
+        assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
 
         Ok(())
     }
