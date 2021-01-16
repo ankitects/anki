@@ -11,36 +11,15 @@ use crate::{
 };
 
 use regex::{NoExpand, Regex, Replacer};
-use std::cmp::Ordering;
 use std::{borrow::Cow, collections::HashSet, iter::Peekable};
 use unicase::UniCase;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Tag {
     pub name: String,
     pub usn: Usn,
     pub collapsed: bool,
 }
-
-impl Ord for Tag {
-    fn cmp(&self, other: &Self) -> Ordering {
-        UniCase::new(&self.name).cmp(&UniCase::new(&other.name))
-    }
-}
-
-impl PartialOrd for Tag {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl PartialEq for Tag {
-    fn eq(&self, other: &Self) -> bool {
-        self.cmp(other) == Ordering::Equal
-    }
-}
-
-impl Eq for Tag {}
 
 impl From<Tag> for TagProto {
     fn from(t: Tag) -> Self {
@@ -132,7 +111,7 @@ fn add_self_and_missing_parents<'a, 'b>(
 ) {
     if let Some(parent) = immediate_parent_name(tag_name) {
         if !all.contains(&parent) {
-            missing.push(parent.clone());
+            missing.push(parent);
             add_self_and_missing_parents(all, missing, parent);
         }
     }
