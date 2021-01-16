@@ -55,6 +55,13 @@ function onKey(evt: KeyboardEvent) {
         return;
     }
 
+    // prefer <br> instead of <div></div>
+    if (evt.which === 13 && !inListItem()) {
+        evt.preventDefault();
+        document.execCommand("insertLineBreak");
+        return;
+    }
+
     // fix Ctrl+right/left handling in RTL fields
     if (currentField.dir === "rtl") {
         const selection = window.getSelection();
@@ -78,6 +85,42 @@ function onKey(evt: KeyboardEvent) {
     }
 
     triggerKeyTimer();
+}
+
+function onKeyUp(evt: KeyboardEvent) {
+    // Avoid div element on remove
+    if (evt.which === 8 || evt.which === 13) {
+        const anchor = window.getSelection().anchorNode;
+
+        if (
+            nodeIsElement(anchor) &&
+            anchor.tagName === "DIV" &&
+            !anchor.classList.contains("field") &&
+            anchor.childElementCount === 1 &&
+            anchor.children[0].tagName === "BR"
+        ) {
+            anchor.replaceWith(anchor.children[0]);
+        }
+    }
+}
+
+function nodeIsElement(node: Node): node is Element {
+    return node.nodeType == Node.ELEMENT_NODE;
+}
+
+function inListItem(): boolean {
+    const anchor = window.getSelection().anchorNode;
+
+    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
+
+    let inList = false;
+
+    while (n) {
+        inList = inList || window.getComputedStyle(n).display == "list-item";
+        n = n.parentElement;
+    }
+
+    return inList;
 }
 
 function insertNewline() {
@@ -106,11 +149,10 @@ function insertNewline() {
 }
 
 // is the cursor in an environment that respects whitespace?
-function inPreEnvironment() {
-    let n = window.getSelection().anchorNode as Element;
-    if (n.nodeType === 3) {
-        n = n.parentNode as Element;
-    }
+function inPreEnvironment(): boolean {
+    const anchor = window.getSelection().anchorNode;
+    const n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
+
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
 
@@ -338,19 +380,19 @@ function setFields(fields) {
         </tr>
         <tr>
             <td width=100%>
-                <div id=f${i}
-                     onkeydown='onKey(window.event);'
-                     oninput='onInput();'
-                     onmouseup='onKey(window.event);'
-                     onfocus='onFocus(this);'
-                     onblur='onBlur();'
-                     class='field clearfix'
-                     onpaste='onPaste(this);'
-                     oncopy='onCutOrCopy(this);'
-                     oncut='onCutOrCopy(this);'
-                     contentEditable=true
-                     class=field
-                     style='color: ${color}'
+                <div id="f${i}"
+                     onkeydown="onKey(window.event);"
+                     onkeyup="onKeyUp(window.event);"
+                     oninput="onInput();"
+                     onmouseup="onKey(window.event);"
+                     onfocus="onFocus(this);"
+                     onblur="onBlur();"
+                     class="field clearfix"
+                     onpaste="onPaste(this);"
+                     oncopy="onCutOrCopy(this);"
+                     oncut="onCutOrCopy(this);"
+                     contentEditable
+                     style="color: ${color}"
                 >${f}</div>
             </td>
         </tr>`;
