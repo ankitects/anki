@@ -16,17 +16,10 @@ fn row_to_tag(row: &Row) -> Result<Tag> {
 }
 
 impl SqliteStorage {
+    /// All tags in the collection, in alphabetical order.
     pub(crate) fn all_tags(&self) -> Result<Vec<Tag>> {
         self.db
             .prepare_cached("select tag, usn, collapsed from tags")?
-            .query_and_then(NO_PARAMS, row_to_tag)?
-            .collect()
-    }
-
-    /// Get all tags in human form, sorted by name
-    pub(crate) fn all_tags_sorted(&self) -> Result<Vec<Tag>> {
-        self.db
-            .prepare_cached("select tag, usn, collapsed from tags order by tag")?
             .query_and_then(NO_PARAMS, row_to_tag)?
             .collect()
     }
