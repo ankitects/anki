@@ -144,7 +144,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
             SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
-            SearchNode::Rated { days, ease } => self.write_rated(-i64::from(*days), ease, ">")?,
+            SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
             SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
             SearchNode::State(state) => self.write_state(state)?,
@@ -214,7 +214,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_rated(&mut self, days: i64, ease: &EaseKind, op: &str) -> Result<()> {
+    fn write_rated(&mut self, op: &str, days: i64, ease: &EaseKind) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
         let target_cutoff_ms = (today_cutoff + 86_400 * days) * 1_000;
         let day_before_cutoff_ms = (today_cutoff + 86_400 * (days - 1)) * 1_000;
@@ -278,7 +278,7 @@ impl SqlWriter<'_> {
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
-            PropertyKind::Rated(days, ease) => self.write_rated(i64::from(*days), ease, op)?,
+            PropertyKind::Rated(days, ease) => self.write_rated(op, i64::from(*days), ease)?,
         }
 
         Ok(())
