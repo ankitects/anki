@@ -458,4 +458,53 @@ mod test {
 
         Ok(())
     }
+
+    fn node(name: &str, level: u32, children: Vec<TagTreeNode>) -> TagTreeNode {
+        TagTreeNode {
+            name: name.into(),
+            level,
+            children,
+            ..Default::default()
+        }
+    }
+
+    fn leaf(name: &str, level: u32) -> TagTreeNode {
+        node(name, level, vec![])
+    }
+
+    #[test]
+    fn tree() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags.push("foo::a".into());
+        note.tags.push("foo::b".into());
+        col.add_note(&mut note, DeckID(1))?;
+
+        // missing parents are added
+        assert_eq!(
+            col.tag_tree()?,
+            node(
+                "",
+                0,
+                vec![node("foo", 1, vec![leaf("a", 2), leaf("b", 2)])]
+            )
+        );
+
+        // differing case should result in only one parent case being added -
+        // the first one
+        *(&mut note.tags[1]) = "FOO::b".into();
+        col.storage.clear_tags()?;
+        col.update_note(&mut note)?;
+        assert_eq!(
+            col.tag_tree()?,
+            node(
+                "",
+                0,
+                vec![node("foo", 1, vec![leaf("a", 2), leaf("b", 2)])]
+            )
+        );
+
+        Ok(())
+    }
 }
