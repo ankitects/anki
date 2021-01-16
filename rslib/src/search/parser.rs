@@ -370,7 +370,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("ease"),
         tag("pos"),
     ))(s)
-    .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty))?;
+    .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty(s.into())))?;
 
     let (num, operator) = alt::<_, _, ParseError, _>((
         tag("<="),
@@ -482,7 +482,7 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
         "buried-manually" => UserBuried,
         "buried-sibling" => SchedBuried,
         "suspended" => Suspended,
-        _ => return Err(parse_failure(s, FailKind::InvalidState)),
+        _ => return Err(parse_failure(s, FailKind::InvalidState(s.into()))),
     }))
 }
 
@@ -845,11 +845,11 @@ mod test {
         assert_err_kind("cid:,2,3", InvalidIdList);
         assert_err_kind("cid:1,2,", InvalidIdList);
 
-        assert_err_kind("is:foo", InvalidState);
-        assert_err_kind("is:DUE", InvalidState);
-        assert_err_kind("is:New", InvalidState);
-        assert_err_kind("is:", InvalidState);
-        assert_err_kind(r#""is:learn ""#, InvalidState);
+        assert_err_kind("is:foo", InvalidState("foo".into()));
+        assert_err_kind("is:DUE", InvalidState("DUE".into()));
+        assert_err_kind("is:New", InvalidState("New".into()));
+        assert_err_kind("is:", InvalidState("".into()));
+        assert_err_kind(r#""is:learn ""#, InvalidState("learn ".into()));
 
         assert_err_kind(r#""flag: ""#, InvalidFlag);
         assert_err_kind("flag:-0", InvalidFlag);
@@ -888,9 +888,9 @@ mod test {
 
         assert_err_kind("dupe:123", InvalidDupeText);
 
-        assert_err_kind("prop:", InvalidPropProperty);
-        assert_err_kind("prop:=1", InvalidPropProperty);
-        assert_err_kind("prop:DUE<5", InvalidPropProperty);
+        assert_err_kind("prop:", InvalidPropProperty("".into()));
+        assert_err_kind("prop:=1", InvalidPropProperty("=1".into()));
+        assert_err_kind("prop:DUE<5", InvalidPropProperty("DUE<5".into()));
 
         assert_err_kind("prop:lapses", InvalidPropOperator("lapses".to_string()));
         assert_err_kind("prop:pos~1", InvalidPropOperator("pos".to_string()));
