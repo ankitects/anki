@@ -423,7 +423,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
                     } else {
                         return Err(parse_failure(
                             s,
-                            FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+                            FailKind::InvalidRatedEase(format!("prop:{}{}{}", prop, operator, days.to_string())),
                         ));
                     }
                 } else {
@@ -498,13 +498,13 @@ fn parse_rated(s: &str) -> ParseResult<SearchNode> {
                 } else {
                     return Err(parse_failure(
                         s,
-                        FailKind::InvalidRatedEase(days.to_string()),
+                        FailKind::InvalidRatedEase(format!("rated:{}", days.to_string())),
                     ));
                 }
             } else {
                 return Err(parse_failure(
                     s,
-                    FailKind::InvalidRatedEase(days.to_string()),
+                    FailKind::InvalidRatedEase(format!("rated:{}", days.to_string())),
                 ));
             }
         } else {
