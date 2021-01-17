@@ -371,6 +371,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("ease"),
         tag("pos"),
         tag("rated"),
+        tag("resched"),
     ))(s)
     .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty(s.into())))?;
 
@@ -460,10 +461,7 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         ));
     };
 
-    Ok(SearchNode::Property {
-        operator: operator.to_string(),
-        kind,
-    })
+    Ok(SearchNode::Property { operator, kind })
 }
 
 /// eg added:1
