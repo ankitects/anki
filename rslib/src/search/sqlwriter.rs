@@ -226,8 +226,19 @@ impl SqlWriter<'_> {
             ">=" => write!(self.sql, " >= {}", day_before_cutoff_ms),
             "<" => write!(self.sql, " < {}", day_before_cutoff_ms),
             "<=" => write!(self.sql, " < {}", target_cutoff_ms),
-            "=" => write!(self.sql, " between {} and {}", day_before_cutoff_ms, target_cutoff_ms - 1),
-            _ /* "!=" */ => write!(self.sql, " not between {} and {}", day_before_cutoff_ms, target_cutoff_ms - 1),
+            "=" => write!(
+                self.sql,
+                " between {} and {}",
+                day_before_cutoff_ms,
+                target_cutoff_ms - 1
+            ),
+            "!=" => write!(
+                self.sql,
+                " not between {} and {}",
+                day_before_cutoff_ms,
+                target_cutoff_ms - 1
+            ),
+            _ => unreachable!("unexpected op"),
         }
         .unwrap();
 
