@@ -461,7 +461,10 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         ));
     };
 
-    Ok(SearchNode::Property { operator, kind })
+    Ok(SearchNode::Property {
+        operator: operator.to_string(),
+        kind,
+    })
 }
 
 /// eg added:1
