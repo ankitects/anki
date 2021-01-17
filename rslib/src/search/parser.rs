@@ -87,6 +87,7 @@ pub enum PropertyKind {
     Lapses(u32),
     Ease(f32),
     Position(u32),
+    Rated(i32, EaseKind),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -350,9 +351,9 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
 
 /// eg resched:3
 fn parse_resched(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(d) = s.parse::<u32>() {
+    if let Ok(days) = s.parse::<u32>() {
         Ok(SearchNode::Rated {
-            days: d.max(1).min(365),
+            days,
             ease: EaseKind::ManualReschedule,
         })
     } else {
@@ -369,6 +370,8 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("lapses"),
         tag("ease"),
         tag("pos"),
+        tag("rated"),
+        tag("resched"),
     ))(s)
     .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty(s.into())))?;
 
@@ -394,6 +397,54 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
     } else if prop == "due" {
         if let Ok(i) = num.parse::<i32>() {
             PropertyKind::Due(i)
+        } else {
+            return Err(parse_failure(
+                s,
+                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+            ));
+        }
+    } else if prop == "rated" {
+        let mut it = num.splitn(2, ':');
+
+        let days: i32 = if let Ok(i) = it.next().unwrap().parse::<i32>() {
+            i.min(0)
+        } else {
+            return Err(parse_failure(
+                s,
+                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+            ));
+        };
+
+        let ease = match it.next() {
+            Some(v) => {
+                if let Ok(u) = v.parse::<u8>() {
+                    if (1..5).contains(&u) {
+                        EaseKind::AnswerButton(u)
+                    } else {
+                        return Err(parse_failure(
+                            s,
+                            FailKind::InvalidRatedEase(format!(
+                                "prop:{}{}{}",
+                                prop,
+                                operator,
+                                days.to_string()
+                            )),
+                        ));
+                    }
+                } else {
+                    return Err(parse_failure(
+                        s,
+                        FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
+                    ));
+                }
+            }
+            None => EaseKind::AnyAnswerButton,
+        };
+
+        PropertyKind::Rated(days, ease)
+    } else if prop == "resched" {
+        if let Ok(days) = num.parse::<i32>() {
+            PropertyKind::Rated(days.min(0), EaseKind::ManualReschedule)
         } else {
             return Err(parse_failure(
                 s,
@@ -443,8 +494,8 @@ fn parse_edited(s: &str) -> ParseResult<SearchNode> {
 /// second arg must be between 1-4
 fn parse_rated(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
-    if let Ok(d) = it.next().unwrap().parse::<u32>() {
-        let days = d.max(1).min(365);
+    if let Ok(days) = it.next().unwrap().parse::<u32>() {
+        let days = days.max(1);
         let ease = if let Some(tail) = it.next() {
             if let Ok(u) = tail.parse::<u8>() {
                 if u > 0 && u < 5 {
@@ -452,13 +503,13 @@ fn parse_rated(s: &str) -> ParseResult<SearchNode> {
                 } else {
                     return Err(parse_failure(
                         s,
-                        FailKind::InvalidRatedEase(days.to_string()),
+                        FailKind::InvalidRatedEase(format!("rated:{}", days.to_string())),
                     ));
                 }
             } else {
                 return Err(parse_failure(
                     s,
-                    FailKind::InvalidRatedEase(days.to_string()),
+                    FailKind::InvalidRatedEase(format!("rated:{}", days.to_string())),
                 ));
             }
         } else {
@@ -872,10 +923,10 @@ mod test {
         assert_err_kind("rated:", InvalidRatedDays);
         assert_err_kind("rated:foo", InvalidRatedDays);
 
-        assert_err_kind("rated:1:", InvalidRatedEase("1".to_string()));
-        assert_err_kind("rated:2:-1", InvalidRatedEase("2".to_string()));
-        assert_err_kind("rated:3:1.1", InvalidRatedEase("3".to_string()));
-        assert_err_kind("rated:0:foo", InvalidRatedEase("1".to_string()));
+        assert_err_kind("rated:1:", InvalidRatedEase("rated:1".to_string()));
+        assert_err_kind("rated:2:-1", InvalidRatedEase("rated:2".to_string()));
+        assert_err_kind("rated:3:1.1", InvalidRatedEase("rated:3".to_string()));
+        assert_err_kind("rated:0:foo", InvalidRatedEase("rated:1".to_string()));
 
         assert_err_kind("resched:", FailKind::InvalidResched);
         assert_err_kind("resched:-1", FailKind::InvalidResched);

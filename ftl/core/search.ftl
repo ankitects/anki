@@ -17,7 +17,7 @@ search-invalid-argument = `{ $term }` was given an invalid argument '`{ $argumen
 search-invalid-flag = `flag:` must be followed by a valid flag number: `1` (red), `2` (orange), `3` (green), `4` (blue) or `0` (no flag).
 search-invalid-followed-by-positive-days = `{ $term }` must be followed by a positive number of days.
 search-invalid-rated-days = `rated:` must be followed by a positive number of days.
-search-invalid-rated-ease = `rated:{ $val }:` must be followed by `1` (again), `2` (hard), `3` (good) or `4` (easy).
+search-invalid-rated-ease = `{ $val }:` must be followed by `1` (again), `2` (hard), `3` (good) or `4` (easy).
 search-invalid-prop-operator = `prop:{ $val }` must be followed by one of the comparison operators: `=`, `!=`, `<`, `>`, `<=` or `>=`.
 search-invalid-prop-float = `prop:{ $val }` must be followed by a decimal number.
 search-invalid-prop-integer = `prop:{ $val }` must be followed by a whole number.

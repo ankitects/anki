@@ -195,6 +195,11 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Lapses(u) => format!("\"prop:lapses{}{}\"", operator, u),
         Ease(f) => format!("\"prop:ease{}{}\"", operator, f),
         Position(u) => format!("\"prop:pos{}{}\"", operator, u),
+        Rated(u, ease) => match ease {
+            EaseKind::AnswerButton(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
+            EaseKind::AnyAnswerButton => format!("\"prop:rated{}{}\"", operator, u),
+            EaseKind::ManualReschedule => format!("\"prop:resched{}{}\"", operator, u),
+        },
     }
 }
 
