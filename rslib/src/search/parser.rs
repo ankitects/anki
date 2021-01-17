@@ -423,7 +423,12 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
                     } else {
                         return Err(parse_failure(
                             s,
-                            FailKind::InvalidRatedEase(format!("prop:{}{}{}", prop, operator, days.to_string())),
+                            FailKind::InvalidRatedEase(format!(
+                                "prop:{}{}{}",
+                                prop,
+                                operator,
+                                days.to_string()
+                            )),
                         ));
                     }
                 } else {
@@ -918,10 +923,10 @@ mod test {
         assert_err_kind("rated:", InvalidRatedDays);
         assert_err_kind("rated:foo", InvalidRatedDays);
 
-        assert_err_kind("rated:1:", InvalidRatedEase("1".to_string()));
-        assert_err_kind("rated:2:-1", InvalidRatedEase("2".to_string()));
-        assert_err_kind("rated:3:1.1", InvalidRatedEase("3".to_string()));
-        assert_err_kind("rated:0:foo", InvalidRatedEase("1".to_string()));
+        assert_err_kind("rated:1:", InvalidRatedEase("rated:1".to_string()));
+        assert_err_kind("rated:2:-1", InvalidRatedEase("rated:2".to_string()));
+        assert_err_kind("rated:3:1.1", InvalidRatedEase("rated:3".to_string()));
+        assert_err_kind("rated:0:foo", InvalidRatedEase("rated:1".to_string()));
 
         assert_err_kind("resched:", FailKind::InvalidResched);
         assert_err_kind("resched:-1", FailKind::InvalidResched);
