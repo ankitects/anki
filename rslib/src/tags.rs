@@ -225,13 +225,13 @@ impl Collection {
         if normalized_name.is_empty() {
             return Ok((t, false));
         }
-        if let Some(preferred) = self.storage.preferred_tag_case(&normalized_name)? {
-            t.name = preferred;
-            Ok((t, false))
-        } else {
+        let (preferred, exists) = self.storage.preferred_tag_case(&normalized_name)?;
+        t.name = preferred?;
+        if !exists {
             self.storage.register_tag(&t)?;
-            Ok((t, true))
         }
+
+        Ok((t, !exists))
     }
 
     pub fn clear_unused_tags(&self) -> Result<()> {
@@ -532,6 +532,14 @@ mod test {
                 vec![node("one", 1, vec![leaf("two", 2)]), leaf("one1", 1)]
             )
         );
+
+        // children should match the case of their parents
+        col.storage.clear_tags()?;
+        *(&mut note.tags[0]) = "FOO".into();
+        *(&mut note.tags[1]) = "foo::BAR".into();
+        *(&mut note.tags[2]) = "foo::bar::baz".into();
+        col.update_note(&mut note)?;
+        assert_eq!(note.tags, vec!["FOO", "FOO::BAR", "FOO::BAR::baz"]);
 
         Ok(())
     }
