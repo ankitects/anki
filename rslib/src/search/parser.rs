@@ -17,7 +17,11 @@ use nom::{
     sequence::{preceded, separated_pair},
 };
 use regex::{Captures, Regex};
-use std::borrow::Cow;
+use std::{
+    borrow::Cow,
+    num::{ParseFloatError, ParseIntError},
+    str::FromStr,
+};
 
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
@@ -362,7 +366,7 @@ fn parse_resched(s: &str) -> ParseResult<SearchNode> {
 }
 
 /// eg prop:ivl>3, prop:ease!=2.5
-fn parse_prop(s: &str) -> ParseResult<SearchNode> {
+fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
     let (tail, prop) = alt::<_, _, ParseError, _>((
         tag("ivl"),
         tag("due"),
@@ -372,8 +376,13 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("pos"),
         tag("rated"),
         tag("resched"),
-    ))(s)
-    .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty(s.into())))?;
+    ))(prop_clause)
+    .map_err(|_| {
+        parse_failure(
+            prop_clause,
+            FailKind::InvalidPropProperty(prop_clause.into()),
+        )
+    })?;
 
     let (num, operator) = alt::<_, _, ParseError, _>((
         tag("<="),
@@ -383,93 +392,64 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("<"),
         tag(">"),
     ))(tail)
-    .map_err(|_| parse_failure(s, FailKind::InvalidPropOperator(prop.to_string())))?;
+    .map_err(|_| parse_failure(prop_clause, FailKind::InvalidPropOperator(prop.to_string())))?;
 
-    let kind = if prop == "ease" {
-        if let Ok(f) = num.parse::<f32>() {
-            PropertyKind::Ease(f)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropFloat(format!("{}{}", prop, operator)),
-            ));
-        }
-    } else if prop == "due" {
-        if let Ok(i) = num.parse::<i32>() {
-            PropertyKind::Due(i)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-            ));
-        }
-    } else if prop == "rated" {
-        let mut it = num.splitn(2, ':');
-
-        let days: i32 = if let Ok(i) = it.next().unwrap().parse::<i32>() {
-            i.min(0)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-            ));
-        };
-
-        let ease = match it.next() {
-            Some(v) => {
-                if let Ok(u) = v.parse::<u8>() {
-                    if (1..5).contains(&u) {
-                        EaseKind::AnswerButton(u)
-                    } else {
-                        return Err(parse_failure(
-                            s,
-                            FailKind::InvalidRatedEase(format!(
-                                "prop:{}{}{}",
-                                prop,
-                                operator,
-                                days.to_string()
-                            )),
-                        ));
-                    }
-                } else {
-                    return Err(parse_failure(
-                        s,
-                        FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-                    ));
-                }
-            }
-            None => EaseKind::AnyAnswerButton,
-        };
-
-        PropertyKind::Rated(days, ease)
-    } else if prop == "resched" {
-        if let Ok(days) = num.parse::<i32>() {
-            PropertyKind::Rated(days.min(0), EaseKind::ManualReschedule)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-            ));
-        }
-    } else if let Ok(u) = num.parse::<u32>() {
-        match prop {
-            "ivl" => PropertyKind::Interval(u),
-            "reps" => PropertyKind::Reps(u),
-            "lapses" => PropertyKind::Lapses(u),
-            "pos" => PropertyKind::Position(u),
-            _ => unreachable!(),
-        }
-    } else {
-        return Err(parse_failure(
-            s,
-            FailKind::InvalidPropUnsigned(format!("{}{}", prop, operator)),
-        ));
+    let kind = match prop {
+        "ease" => PropertyKind::Ease(parse_prop_float(num, prop_clause)?),
+        "due" => PropertyKind::Due(parse_prop_integer(num, prop_clause)?),
+        "rated" => parse_prop_rated(num, prop_clause)?,
+        "resched" => PropertyKind::Rated(
+            parse_prop_integer::<i32>(num, prop_clause)?.min(0),
+            EaseKind::ManualReschedule,
+        ),
+        "ivl" => PropertyKind::Interval(parse_prop_integer(num, prop_clause)?),
+        "reps" => PropertyKind::Reps(parse_prop_integer(num, prop_clause)?),
+        "lapses" => PropertyKind::Lapses(parse_prop_integer(num, prop_clause)?),
+        "pos" => PropertyKind::Position(parse_prop_integer(num, prop_clause)?),
+        _ => unreachable!(),
     };
 
     Ok(SearchNode::Property {
         operator: operator.to_string(),
         kind,
     })
+}
+
+fn parse_prop_float<'a, N>(num: &str, prop_clause: &'a str) -> ParseResult<'a, N>
+where
+    N: FromStr,
+    <N as FromStr>::Err: PartialEq<ParseFloatError>,
+{
+    num.parse()
+        .map_err(|_e| parse_failure(prop_clause, FailKind::InvalidNumber(prop_clause.to_owned())))
+}
+
+fn parse_prop_integer<'a, N>(num: &str, prop_clause: &'a str) -> ParseResult<'a, N>
+where
+    N: FromStr,
+    <N as FromStr>::Err: PartialEq<ParseIntError>,
+{
+    num.parse()
+        .map_err(|_e| parse_failure(prop_clause, FailKind::InvalidNumber(prop_clause.to_owned())))
+}
+
+fn parse_prop_rated<'a>(num: &str, prop_clause: &'a str) -> ParseResult<'a, PropertyKind> {
+    let mut it = num.splitn(2, ':');
+    let days = parse_prop_integer::<i32>(it.next().unwrap(), prop_clause)?.min(0);
+    let ease = match it.next() {
+        Some(v) => match parse_prop_integer(v, prop_clause)? {
+            u @ 1..=5 => EaseKind::AnswerButton(u),
+            _ => {
+                return Err(parse_failure(
+                    prop_clause,
+                    FailKind::InvalidRatedEase(prop_clause.to_owned()),
+                ))
+            }
+        },
+        None => EaseKind::AnyAnswerButton,
+    };
+
+    Ok(PropertyKind::Rated(days, ease))
 }
 
 /// eg added:1
@@ -947,20 +927,17 @@ mod test {
         assert_err_kind("prop:pos~1", InvalidPropOperator("pos".to_string()));
         assert_err_kind("prop:reps10", InvalidPropOperator("reps".to_string()));
 
-        assert_err_kind("prop:ease>", InvalidPropFloat("ease>".to_string()));
-        assert_err_kind("prop:ease!=one", InvalidPropFloat("ease!=".to_string()));
-        assert_err_kind("prop:ease<1,3", InvalidPropFloat("ease<".to_string()));
+        assert_err_kind("prop:ease>", InvalidNumber("ease>".to_string()));
+        assert_err_kind("prop:ease!=one", InvalidNumber("ease!=one".to_string()));
+        assert_err_kind("prop:ease<1,3", InvalidNumber("ease<1,3".to_string()));
 
-        assert_err_kind("prop:due>", InvalidPropInteger("due>".to_string()));
-        assert_err_kind("prop:due=0.5", InvalidPropInteger("due=".to_string()));
-        assert_err_kind("prop:due<foo", InvalidPropInteger("due<".to_string()));
+        assert_err_kind("prop:due>", InvalidNumber("due>".to_string()));
+        assert_err_kind("prop:due=0.5", InvalidNumber("due=0.5".to_string()));
+        assert_err_kind("prop:due<foo", InvalidNumber("due<foo".to_string()));
 
-        assert_err_kind("prop:ivl>", InvalidPropUnsigned("ivl>".to_string()));
-        assert_err_kind("prop:reps=1.1", InvalidPropUnsigned("reps=".to_string()));
-        assert_err_kind(
-            "prop:lapses!=-1",
-            InvalidPropUnsigned("lapses!=".to_string()),
-        );
+        assert_err_kind("prop:ivl>", InvalidNumber("ivl>".to_string()));
+        assert_err_kind("prop:reps=1.1", InvalidNumber("reps=1.1".to_string()));
+        assert_err_kind("prop:lapses!=-1", InvalidNumber("lapses!=-1".to_string()));
 
         Ok(())
     }

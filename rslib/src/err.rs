@@ -163,6 +163,9 @@ impl AnkiError {
                     SearchErrorKind::InvalidRatedEase(ctx) => i18n
                         .trn(TR::SearchInvalidRatedEase, tr_strs!["val"=>(ctx)])
                         .into(),
+                    SearchErrorKind::InvalidNumber(ctx) => i18n
+                        .trn(TR::SearchInvalidNumber, tr_strs!["val"=>(ctx)])
+                        .into(),
                     SearchErrorKind::InvalidResched => i18n
                         .trn(
                             TR::SearchInvalidFollowedByPositiveDays,
@@ -454,6 +457,7 @@ pub enum SearchErrorKind {
     InvalidPropFloat(String),
     InvalidPropInteger(String),
     InvalidPropUnsigned(String),
+    InvalidNumber(String),
     InvalidDid,
     InvalidMid,
     Regex(String),
