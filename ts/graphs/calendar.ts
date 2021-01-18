@@ -13,12 +13,14 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, RevlogRange } from "./graph-helpers";
-import { timeDay, timeYear, timeWeek } from "d3-time";
+import { timeDay, timeYear, timeSunday, timeMonday, timeFriday, timeSaturday } from "d3-time";
+import type { CountableTimeInterval } from "d3-time";
 import type { I18n } from "anki/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, number>;
+    timeFunction: CountableTimeInterval,
 }
 
 interface DayDatum {
@@ -45,7 +47,15 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
         reviewCount.set(day, count + 1);
     }
 
-    return { reviewCount };
+    let timeFunction = data.firstWeekday === 1
+        ? timeMonday
+        : data.firstWeekday === 5
+        ? timeFriday
+        : data.firstWeekday === 6
+        ? timeSaturday
+        : timeSunday;
+
+    return { reviewCount, timeFunction };
 }
 
 export function renderCalendar(
@@ -73,8 +83,8 @@ export function renderCalendar(
         if (date.getFullYear() != targetYear) {
             continue;
         }
-        const weekNumber = timeWeek.count(timeYear(date), date);
-        const weekDay = timeDay.count(timeWeek(date), date);
+        const weekNumber = sourceData.timeFunction.count(timeYear(date), date);
+        const weekDay = timeDay.count(sourceData.timeFunction(date), date);
         const yearDay = timeDay.count(timeYear(date), date);
         dayMap.set(yearDay, { day, count, weekNumber, weekDay, date } as DayDatum);
         if (count > maxCount) {
@@ -105,8 +115,8 @@ export function renderCalendar(
         }
         const yearDay = timeDay.count(timeYear(date), date);
         if (!dayMap.has(yearDay)) {
-            const weekNumber = timeWeek.count(timeYear(date), date);
-            const weekDay = timeDay.count(timeWeek(date), date);
+            const weekNumber = sourceData.timeFunction.count(timeYear(date), date);
+            const weekDay = timeDay.count(sourceData.timeFunction(date), date);
             dayMap.set(yearDay, {
                 day: yearDay,
                 count: 0,
