@@ -64,7 +64,7 @@ export function prepareData(
     function makeQuery(data: HistogramData, binIdx: number): string {
         const bin = data.bins[binIdx];
         const start = bin.x0!;
-        const end = (bin.x1! - 1);
+        const end = bin.x1! - 1;
 
         if (start === end) {
             return `"prop:ease=${start / 100}"`;
@@ -85,7 +85,16 @@ export function prepareData(
     ];
 
     return [
-        { scale, bins, total, hoverText, makeQuery, colourScale, showArea: false, xTickFormat },
+        {
+            scale,
+            bins,
+            total,
+            hoverText,
+            makeQuery,
+            colourScale,
+            showArea: false,
+            xTickFormat,
+        },
         tableData,
     ];
 }
