@@ -10,18 +10,18 @@ declare interface String {
 }
 
 /* kept for compatibility with add-ons */
-String.prototype.format = function () {
+String.prototype.format = function (): string {
     const args = arguments;
     return this.replace(/\{\d+\}/g, function (m) {
         return args[m.match(/\d+/)];
     });
 };
 
-function setFGButton(col) {
+function setFGButton(col: string): void {
     $("#forecolor")[0].style.backgroundColor = col;
 }
 
-function saveNow(keepFocus) {
+function saveNow(keepFocus: boolean): void {
     if (!currentField) {
         return;
     }
@@ -36,7 +36,7 @@ function saveNow(keepFocus) {
     }
 }
 
-function triggerKeyTimer() {
+function triggerKeyTimer(): void {
     clearChangeTimer();
     changeTimer = setTimeout(function () {
         updateButtonState();
@@ -48,7 +48,7 @@ interface Selection {
     modify(s: string, t: string, u: string): void;
 }
 
-function onKey(evt: KeyboardEvent) {
+function onKey(evt: KeyboardEvent): void {
     // esc clears focus, allowing dialog to close
     if (evt.code === "Escape") {
         currentField.blur();
@@ -87,7 +87,7 @@ function onKey(evt: KeyboardEvent) {
     triggerKeyTimer();
 }
 
-function onKeyUp(evt: KeyboardEvent) {
+function onKeyUp(evt: KeyboardEvent): void {
     // Avoid div element on remove
     if (evt.code === "Enter" || evt.code === "Backspace") {
         const anchor = window.getSelection().anchorNode;
@@ -105,7 +105,7 @@ function onKeyUp(evt: KeyboardEvent) {
 }
 
 function nodeIsElement(node: Node): node is Element {
-    return node.nodeType == Node.ELEMENT_NODE;
+    return node.nodeType === Node.ELEMENT_NODE;
 }
 
 function inListItem(): boolean {
@@ -123,7 +123,7 @@ function inListItem(): boolean {
     return inList;
 }
 
-function insertNewline() {
+function insertNewline(): void {
     if (!inPreEnvironment()) {
         setFormat("insertText", "\n");
         return;
@@ -156,12 +156,12 @@ function inPreEnvironment(): boolean {
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
 
-function onInput() {
+function onInput(): void {
     // make sure IME changes get saved
     triggerKeyTimer();
 }
 
-function updateButtonState() {
+function updateButtonState(): void {
     const buts = ["bold", "italic", "underline", "superscript", "subscript"];
     for (const name of buts) {
         if (document.queryCommandState(name)) {
@@ -175,15 +175,16 @@ function updateButtonState() {
     //    'col': document.queryCommandValue("forecolor")
 }
 
-function toggleEditorButton(buttonid) {
-    if ($(buttonid).hasClass("highlighted")) {
-        $(buttonid).removeClass("highlighted");
+function toggleEditorButton(buttonid: string): void {
+    const button = $(buttonid);
+    if (button.hasClass("highlighted")) {
+        button.removeClass("highlighted");
     } else {
-        $(buttonid).addClass("highlighted");
+        button.addClass("highlighted");
     }
 }
 
-function setFormat(cmd: string, arg?: any, nosave: boolean = false) {
+function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField("key");
@@ -191,14 +192,14 @@ function setFormat(cmd: string, arg?: any, nosave: boolean = false) {
     }
 }
 
-function clearChangeTimer() {
+function clearChangeTimer(): void {
     if (changeTimer) {
         clearTimeout(changeTimer);
         changeTimer = null;
     }
 }
 
-function onFocus(elem) {
+function onFocus(elem: HTMLElement): void {
     if (currentField === elem) {
         // anki window refocused; current element unchanged
         return;
@@ -213,11 +214,12 @@ function onFocus(elem) {
     // do this twice so that there's no flicker on newer versions
     caretToEnd();
     // scroll if bottom of element off the screen
-    function pos(obj) {
+    function pos(elem: HTMLElement): number {
         let cur = 0;
         do {
-            cur += obj.offsetTop;
-        } while ((obj = obj.offsetParent));
+            cur += elem.offsetTop;
+            elem = elem.offsetParent as HTMLElement;
+        } while (elem);
         return cur;
     }
 
@@ -230,14 +232,14 @@ function onFocus(elem) {
     }
 }
 
-function focusField(n) {
+function focusField(n: number): void {
     if (n === null) {
         return;
     }
     $("#f" + n).focus();
 }
 
-function focusIfField(x, y) {
+function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
         let elem = elements[i] as HTMLElement;
@@ -252,12 +254,12 @@ function focusIfField(x, y) {
     return false;
 }
 
-function onPaste(elem) {
+function onPaste(): void {
     pycmd("paste");
     window.event.preventDefault();
 }
 
-function caretToEnd() {
+function caretToEnd(): void {
     const r = document.createRange();
     r.selectNodeContents(currentField);
     r.collapse(false);
@@ -266,7 +268,7 @@ function caretToEnd() {
     s.addRange(r);
 }
 
-function onBlur() {
+function onBlur(): void {
     if (!currentField) {
         return;
     }
@@ -281,7 +283,7 @@ function onBlur() {
     }
 }
 
-function saveField(type) {
+function saveField(type: "blur" | "key"): void {
     clearChangeTimer();
     if (!currentField) {
         // no field has been focused yet
@@ -299,25 +301,25 @@ function saveField(type) {
     );
 }
 
-function currentFieldOrdinal() {
+function currentFieldOrdinal(): string {
     return currentField.id.substring(1);
 }
 
-function wrappedExceptForWhitespace(text, front, back) {
+function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const match = text.match(/^(\s*)([^]*?)(\s*)$/);
     return match[1] + front + match[2] + back + match[3];
 }
 
-function disableButtons() {
+function disableButtons(): void {
     $("button.linkb:not(.perm)").prop("disabled", true);
 }
 
-function enableButtons() {
+function enableButtons(): void {
     $("button.linkb").prop("disabled", false);
 }
 
 // disable the buttons if a field is not currently focused
-function maybeDisableButtons() {
+function maybeDisableButtons(): void {
     if (!document.activeElement || document.activeElement.className !== "field") {
         disableButtons();
     } else {
@@ -325,16 +327,16 @@ function maybeDisableButtons() {
     }
 }
 
-function wrap(front, back) {
+function wrap(front: string, back: string): void {
     wrapInternal(front, back, false);
 }
 
 /* currently unused */
-function wrapIntoText(front, back) {
+function wrapIntoText(front: string, back: string): void {
     wrapInternal(front, back, true);
 }
 
-function wrapInternal(front, back, plainText) {
+function wrapInternal(front: string, back: string, plainText: boolean): void {
     const s = window.getSelection();
     let r = s.getRangeAt(0);
     const content = r.cloneContents();
@@ -357,12 +359,12 @@ function wrapInternal(front, back, plainText) {
     }
 }
 
-function onCutOrCopy() {
+function onCutOrCopy(): boolean {
     pycmd("cutOrCopy");
     return true;
 }
 
-function setFields(fields) {
+function setFields(fields: [string, string][]): void {
     let txt = "";
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
@@ -414,7 +416,7 @@ function setBackgrounds(cols) {
     }
 }
 
-function setFonts(fonts) {
+function setFonts(fonts: [string, number, boolean][]): void {
     for (let i = 0; i < fonts.length; i++) {
         const n = $("#f" + i);
         n.css("font-family", fonts[i][0]).css("font-size", fonts[i][1]);
@@ -422,19 +424,19 @@ function setFonts(fonts) {
     }
 }
 
-function setNoteId(id) {
+function setNoteId(id: number): void {
     currentNoteId = id;
 }
 
-function showDupes() {
+function showDupes(): void {
     $("#dupes").show();
 }
 
-function hideDupes() {
+function hideDupes(): void {
     $("#dupes").hide();
 }
 
-let pasteHTML = function (html, internal, extendedMode) {
+let pasteHTML = function (html: string, internal: boolean, extendedMode: boolean): void {
     html = filterHTML(html, internal, extendedMode);
 
     if (html !== "") {
@@ -442,7 +444,7 @@ let pasteHTML = function (html, internal, extendedMode) {
     }
 };
 
-let filterHTML = function (html, internal, extendedMode) {
+let filterHTML = function (html: string, internal: boolean, extendedMode: boolean): string {
     // wrap it in <top> as we aren't allowed to change top level elements
     const top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0] as Element;
     if (internal) {
@@ -516,37 +518,31 @@ let isNightMode = function (): boolean {
     return document.body.classList.contains("nightMode");
 };
 
-let filterExternalSpan = function (node) {
+let filterExternalSpan = function (elem: HTMLElement) {
     // filter out attributes
-    let toRemove = [];
-    for (const attr of node.attributes) {
+    for (let i = 0; i < elem.attributes.length; i++) {
+        const attr = elem.attributes.item(i);
         const attrName = attr.name.toUpperCase();
+
         if (attrName !== "STYLE") {
-            toRemove.push(attr);
+            elem.removeAttributeNode(attr);
         }
     }
-    for (const attributeToRemove of toRemove) {
-        node.removeAttributeNode(attributeToRemove);
-    }
+
     // filter styling
-    toRemove = [];
-    for (const name of node.style) {
-        if (!allowedStyling.hasOwnProperty(name)) {
-            toRemove.push(name);
-        }
-        if (name === "background-color" && node.style[name] === "transparent") {
+    for (let i = 0; i < elem.style.length; i++) {
+        const name = elem.style.item(i);
+        const value = elem.style.getPropertyValue(name)
+
+        if (
+            !allowedStyling.hasOwnProperty(name) ||
             // google docs adds this unnecessarily
-            toRemove.push(name);
-        }
-        if (isNightMode()) {
+            name === "background-color" && value === "transparent" ||
             // ignore coloured text in night mode for now
-            if (name === "background-color" || name == "color") {
-                toRemove.push(name);
-            }
+            isNightMode() && (name === "background-color" || name === "color")
+        ) {
+            elem.style.removeProperty(name);
         }
-    }
-    for (let name of toRemove) {
-        node.style.removeProperty(name);
     }
 };
 
@@ -555,34 +551,34 @@ allowedTagsExtended["SPAN"] = filterExternalSpan;
 // add basic tags to extended
 Object.assign(allowedTagsExtended, allowedTagsBasic);
 
+function isHTMLElement(elem: Element): elem is HTMLElement {
+    return elem instanceof HTMLElement;
+}
+
 // filtering from another field
-let filterInternalNode = function (node) {
-    if (node.style) {
-        node.style.removeProperty("background-color");
-        node.style.removeProperty("font-size");
-        node.style.removeProperty("font-family");
+let filterInternalNode = function (elem: Element) {
+    if (isHTMLElement(elem)) {
+        elem.style.removeProperty("background-color");
+        elem.style.removeProperty("font-size");
+        elem.style.removeProperty("font-family");
     }
     // recurse
-    for (const child of node.childNodes) {
+    for (let i = 0; i < elem.children.length; i++) {
+        const child = elem.children[i];
         filterInternalNode(child);
     }
 };
 
 // filtering from external sources
-let filterNode = function (node, extendedMode) {
-    // text node?
-    if (node.nodeType === 3) {
+let filterNode = function (node: Node, extendedMode: boolean): void {
+    if (!nodeIsElement(node)) {
         return;
     }
 
     // descend first, and take a copy of the child nodes as the loop will skip
     // elements due to node modifications otherwise
-
-    const nodes = [];
-    for (const child of node.childNodes) {
-        nodes.push(child);
-    }
-    for (const child of nodes) {
+    for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
         filterNode(child, extendedMode);
     }
 
@@ -590,12 +586,10 @@ let filterNode = function (node, extendedMode) {
         return;
     }
 
-    let tag;
-    if (extendedMode) {
-        tag = allowedTagsExtended[node.tagName];
-    } else {
-        tag = allowedTagsBasic[node.tagName];
-    }
+    const tag = extendedMode
+        ? allowedTagsExtended[node.tagName]
+        : allowedTagsBasic[node.tagName];
+
     if (!tag) {
         if (!node.innerHTML || node.tagName === "TITLE") {
             node.parentNode.removeChild(node);
@@ -608,21 +602,18 @@ let filterNode = function (node, extendedMode) {
             tag(node);
         } else {
             // allowed, filter out attributes
-            const toRemove = [];
-            for (const attr of node.attributes) {
+            for (let i = 0; i < node.attributes.length; i++) {
+                const attr = node.attributes.item(i);
                 const attrName = attr.name.toUpperCase();
                 if (tag.attrs.indexOf(attrName) === -1) {
-                    toRemove.push(attr);
+                    node.removeAttributeNode(attr);
                 }
-            }
-            for (const attributeToRemove of toRemove) {
-                node.removeAttributeNode(attributeToRemove);
             }
         }
     }
 };
 
-let adjustFieldsTopMargin = function () {
+let adjustFieldsTopMargin = function (): void {
     const topHeight = $("#topbuts").height();
     const margin = topHeight + 8;
     document.getElementById("fields").style.marginTop = margin + "px";
@@ -630,7 +621,7 @@ let adjustFieldsTopMargin = function () {
 
 let mouseDown = 0;
 
-$(function () {
+$(function (): void {
     document.body.onmousedown = function () {
         mouseDown++;
     };
@@ -639,7 +630,7 @@ $(function () {
         mouseDown--;
     };
 
-    document.onclick = function (evt: MouseEvent) {
+    document.onclick = function (evt: MouseEvent): void {
         const src = evt.target as Element;
         if (src.tagName === "IMG") {
             // image clicked; find contenteditable parent
