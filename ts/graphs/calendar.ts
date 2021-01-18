@@ -114,7 +114,7 @@ export function renderCalendar(
             maxCount = count;
         }
     }
-    console.log('sourceData', sourceData, dayMap)
+    console.log("sourceData", sourceData, dayMap);
 
     if (!maxCount) {
         setDataAvailable(svg, false);
@@ -207,8 +207,13 @@ export function renderCalendar(
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)
+        .attr("class", (d: any): string => {
+            return d.count > 0 ? "clickable" : "";
+        })
         .on("click", function (this: any, d: any) {
-            dispatch("search", { query: `"prop:rated=${d.day}"` });
+            if (d.count > 0) {
+                dispatch("search", { query: `"prop:rated=${d.day}"` });
+            }
         })
         .transition()
         .duration(800)
