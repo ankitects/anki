@@ -230,7 +230,6 @@ impl Collection {
         self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
     }
 
-
     pub(crate) fn get_first_weekday(&self) -> Weekday {
         match self.get_config_default::<u8, _>(ConfigKey::FirstWeekday) {
             1 => Weekday::Monday,

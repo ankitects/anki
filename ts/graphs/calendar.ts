@@ -13,14 +13,21 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, RevlogRange } from "./graph-helpers";
-import { timeDay, timeYear, timeSunday, timeMonday, timeFriday, timeSaturday } from "d3-time";
+import {
+    timeDay,
+    timeYear,
+    timeSunday,
+    timeMonday,
+    timeFriday,
+    timeSaturday,
+} from "d3-time";
 import type { CountableTimeInterval } from "d3-time";
 import type { I18n } from "anki/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, number>;
-    timeFunction: CountableTimeInterval,
+    timeFunction: CountableTimeInterval;
 }
 
 interface DayDatum {
@@ -47,13 +54,14 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
         reviewCount.set(day, count + 1);
     }
 
-    let timeFunction = data.firstWeekday === 1
-        ? timeMonday
-        : data.firstWeekday === 5
-        ? timeFriday
-        : data.firstWeekday === 6
-        ? timeSaturday
-        : timeSunday;
+    const timeFunction =
+        data.firstWeekday === 1
+            ? timeMonday
+            : data.firstWeekday === 5
+            ? timeFriday
+            : data.firstWeekday === 6
+            ? timeSaturday
+            : timeSunday;
 
     return { reviewCount, timeFunction };
 }
