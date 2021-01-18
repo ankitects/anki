@@ -25,6 +25,7 @@ actions-red-flag = Red Flag
 actions-rename = Rename
 actions-rename-deck = Rename Deck
 actions-rename-tag = Rename Tag
+actions-remove-tag = Remove Tag
 actions-replay-audio = Replay Audio
 actions-reposition = Reposition
 actions-save = Save

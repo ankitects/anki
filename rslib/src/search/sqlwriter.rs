@@ -11,7 +11,7 @@ use crate::{
     notetype::NoteTypeID,
     storage::ids_to_string,
     text::{
-        escape_sql, is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
+        is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
         to_custom_re, to_re, to_sql, to_text, without_combining,
     },
     timestamp::TimestampSecs,
@@ -194,19 +194,16 @@ impl SqlWriter<'_> {
             write!(self.sql, "false").unwrap();
         } else {
             match text {
-                "none" => write!(self.sql, "n.tags = ''").unwrap(),
-                "*" => write!(self.sql, "true").unwrap(),
-                s => {
-                    if is_glob(s) {
-                        write!(self.sql, "n.tags regexp ?").unwrap();
-                        let re = &to_custom_re(s, r"\S");
-                        self.args.push(format!("(?i).* {} .*", re));
-                    } else if let Some(tag) = self.col.storage.preferred_tag_case(&to_text(s))? {
-                        write!(self.sql, "n.tags like ? escape '\\'").unwrap();
-                        self.args.push(format!("% {} %", escape_sql(&tag)));
-                    } else {
-                        write!(self.sql, "false").unwrap();
-                    }
+                "none" => {
+                    write!(self.sql, "n.tags = ''").unwrap();
+                }
+                "*" => {
+                    write!(self.sql, "true").unwrap();
+                }
+                text => {
+                    write!(self.sql, "n.tags regexp ?").unwrap();
+                    let re = &to_custom_re(text, r"\S");
+                    self.args.push(format!("(?i).* {}(::| ).*", re));
                 }
             }
         }
@@ -587,7 +584,6 @@ mod test {
         collection::{open_collection, Collection},
         i18n::I18n,
         log,
-        types::Usn,
     };
     use std::{fs, path::PathBuf};
     use tempfile::tempdir;
@@ -698,26 +694,27 @@ mod test {
         // dupes
         assert_eq!(s(ctx, "dupe:123,test"), ("(n.id in ())".into(), vec![]));
 
-        // if registered, searches with canonical
-        ctx.transact(None, |col| col.register_tag("One", Usn(-1)))
-            .unwrap();
+        // tags
         assert_eq!(
             s(ctx, r"tag:one"),
             (
-                "(n.tags like ? escape '\\')".into(),
-                vec![r"% One %".into()]
+                "(n.tags regexp ?)".into(),
+                vec!["(?i).* one(::| ).*".into()]
+            )
+        );
+        assert_eq!(
+            s(ctx, r"tag:foo::bar"),
+            (
+                "(n.tags regexp ?)".into(),
+                vec!["(?i).* foo::bar(::| ).*".into()]
             )
         );
 
-        // unregistered tags without wildcards won't match
-        assert_eq!(s(ctx, "tag:unknown"), ("(false)".into(), vec![]));
-
-        // wildcards force a regexp search
         assert_eq!(
             s(ctx, r"tag:o*n\*et%w%oth_re\_e"),
             (
                 "(n.tags regexp ?)".into(),
-                vec![r"(?i).* o\S*n\*et%w%oth\Sre_e .*".into()]
+                vec![r"(?i).* o\S*n\*et%w%oth\Sre_e(::| ).*".into()]
             )
         );
         assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));

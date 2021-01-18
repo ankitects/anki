@@ -75,6 +75,7 @@ class ResetReason(enum.Enum):
     EditorBridgeCmd = "editorBridgeCmd"
     BrowserSetDeck = "browserSetDeck"
     BrowserAddTags = "browserAddTags"
+    BrowserRemoveTags = "browserRemoveTags"
     BrowserSuspend = "browserSuspend"
     BrowserReposition = "browserReposition"
     BrowserReschedule = "browserReschedule"
