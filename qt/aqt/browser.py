@@ -1168,8 +1168,8 @@ QTableView {{ gridline-color: {grid} }}
 
                 def toggle_expand():
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda _: self.mw.col.tags.set_collapsed(
-                        full_name, not node.collapsed
+                    return lambda expanded: self.mw.col.tags.set_collapsed(
+                        full_name, not expanded
                     )
 
                 item = SidebarItem(
