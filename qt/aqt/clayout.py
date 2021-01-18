@@ -599,8 +599,6 @@ class CardLayout(QDialog):
         if not name.strip():
             return
 
-        if not self.change_tracker.mark_schema():
-            return
         template["name"] = name
         self.redraw_everything()
 
