@@ -22,6 +22,7 @@ search-invalid-prop-operator = `prop:{ $val }` must be followed by one of the co
 search-invalid-prop-float = `prop:{ $val }` must be followed by a decimal number.
 search-invalid-prop-integer = `prop:{ $val }` must be followed by a whole number.
 search-invalid-prop-unsigned = `prop:{ $val }` must be followed by a non-negative whole number.
+search-invalid-number = `{ $val }`: invalid number provided
 search-invalid-did = `did:` must be followed by a valid deck id.
 search-invalid-mid = `mid:` must be followed by a note type id.
 search-invalid-other = please check for typing mistakes.
