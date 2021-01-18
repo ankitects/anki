@@ -6,15 +6,12 @@ let changeTimer = null;
 let currentNoteId = null;
 
 declare interface String {
-    format(...args): string;
+    format(...args: string[]): string;
 }
 
 /* kept for compatibility with add-ons */
-String.prototype.format = function (): string {
-    const args = arguments;
-    return this.replace(/\{\d+\}/g, function (m) {
-        return args[m.match(/\d+/)];
-    });
+String.prototype.format = function (...args: string[]): string {
+    return this.replace(/\{\d+\}/g, (m) => args[m.match(/\d+/)]);
 };
 
 function setFGButton(col: string): void {
@@ -165,9 +162,9 @@ function updateButtonState(): void {
     const buts = ["bold", "italic", "underline", "superscript", "subscript"];
     for (const name of buts) {
         if (document.queryCommandState(name)) {
-            $("#" + name).addClass("highlighted");
+            $(`#${name}`).addClass("highlighted");
         } else {
-            $("#" + name).removeClass("highlighted");
+            $(`#${name}`).removeClass("highlighted");
         }
     }
 
@@ -205,7 +202,7 @@ function onFocus(elem: HTMLElement): void {
         return;
     }
     currentField = elem;
-    pycmd("focus:" + currentFieldOrdinal());
+    pycmd(`focus:${currentFieldOrdinal()}`);
     enableButtons();
     // don't adjust cursor on mouse clicks
     if (mouseDown) {
@@ -236,7 +233,7 @@ function focusField(n: number): void {
     if (n === null) {
         return;
     }
-    $("#f" + n).focus();
+    $(`#f${n}`).focus();
 }
 
 function focusIfField(x: number, y: number): boolean {
@@ -290,15 +287,7 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
     // type is either 'blur' or 'key'
-    pycmd(
-        type +
-            ":" +
-            currentFieldOrdinal() +
-            ":" +
-            currentNoteId +
-            ":" +
-            currentField.innerHTML
-    );
+    pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.innerHTML}`)
 }
 
 function currentFieldOrdinal(): string {
@@ -399,26 +388,23 @@ function setFields(fields: [string, string][]): void {
             </td>
         </tr>`;
     }
-    $("#fields").html(`
-    <table cellpadding=0 width=100% style='table-layout: fixed;'>
-${txt}
-    </table>`);
+    $("#fields").html(`<table cellpadding=0 width=100% style='table-layout: fixed;'>${txt}</table>`);
     maybeDisableButtons();
 }
 
-function setBackgrounds(cols) {
+function setBackgrounds(cols: ("dupe")[]) {
     for (let i = 0; i < cols.length; i++) {
-        if (cols[i] == "dupe") {
-            $("#f" + i).addClass("dupe");
+        if (cols[i] === "dupe") {
+            $(`#f${i}`).addClass("dupe");
         } else {
-            $("#f" + i).removeClass("dupe");
+            $(`#f${i}`).removeClass("dupe");
         }
     }
 }
 
 function setFonts(fonts: [string, number, boolean][]): void {
     for (let i = 0; i < fonts.length; i++) {
-        const n = $("#f" + i);
+        const n = $(`#f${i}`);
         n.css("font-family", fonts[i][0]).css("font-size", fonts[i][1]);
         n[0].dir = fonts[i][2] ? "rtl" : "ltr";
     }
@@ -446,7 +432,7 @@ let pasteHTML = function (html: string, internal: boolean, extendedMode: boolean
 
 let filterHTML = function (html: string, internal: boolean, extendedMode: boolean): string {
     // wrap it in <top> as we aren't allowed to change top level elements
-    const top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0] as Element;
+    const top = $.parseHTML(`<ankitop>${html}</ankitop>`)[0] as Element;
     if (internal) {
         filterInternalNode(top);
     } else {
@@ -616,42 +602,37 @@ let filterNode = function (node: Node, extendedMode: boolean): void {
 let adjustFieldsTopMargin = function (): void {
     const topHeight = $("#topbuts").height();
     const margin = topHeight + 8;
-    document.getElementById("fields").style.marginTop = margin + "px";
+    document.getElementById("fields").style.marginTop = `${margin}px`;
 };
 
 let mouseDown = 0;
 
 $(function (): void {
-    document.body.onmousedown = function () {
-        mouseDown++;
-    };
+    document.body.addEventListener("mousedown", () => (mouseDown++));
+    document.body.addEventListener("mouseup", () => (mouseDown--));
 
-    document.body.onmouseup = function () {
-        mouseDown--;
-    };
-
-    document.onclick = function (evt: MouseEvent): void {
+    document.addEventListener("click", (evt: MouseEvent): void => {
         const src = evt.target as Element;
         if (src.tagName === "IMG") {
             // image clicked; find contenteditable parent
             let p = src;
             while ((p = p.parentNode as Element)) {
                 if (p.className === "field") {
-                    $("#" + p.id).focus();
+                    $(`#${p.id}`).focus();
                     break;
                 }
             }
         }
-    };
-
-    // prevent editor buttons from taking focus
-    $("button.linkb").on("mousedown", function (e) {
-        e.preventDefault();
     });
 
-    window.onresize = function () {
+    // prevent editor buttons from taking focus
+    $("button.linkb").on("mousedown", function (evt: Event) {
+        evt.preventDefault();
+    });
+
+    window.addEventListener("resize", () => {
         adjustFieldsTopMargin();
-    };
+    });
 
     adjustFieldsTopMargin();
 });
