@@ -1092,6 +1092,7 @@ message GraphsOut {
   uint32 scheduler_version = 5;
   /// Seconds to add to UTC timestamps to get local time.
   int32 local_offset_secs = 7;
+  bool bridge_commands_supported = 8;
 }
 
 message GraphPreferences {
