@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import { createEventDispatcher } from "svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds, RevlogRange } from "./graph-helpers";
@@ -15,6 +16,8 @@
     export let nightMode: boolean;
 
     let { calendarFirstDayOfWeek } = preferences;
+    const dispatch = createEventDispatcher();
+
     let graphData: GraphData | null = null;
 
     let bounds = defaultGraphBounds();
@@ -49,6 +52,7 @@
             svg as SVGElement,
             bounds,
             graphData,
+            dispatch,
             targetYear,
             i18n,
             nightMode,
