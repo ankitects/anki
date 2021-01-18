@@ -1339,26 +1339,41 @@ impl BackendService for Backend {
     //-------------------------------------------------------------------
 
     fn all_tags(&self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
-        let tags = self.with_col(|col| col.storage.all_tags())?;
-        let tags: Vec<_> = tags
-            .into_iter()
-            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
-            .collect();
+        let tags: Vec<pb::Tag> = self.with_col(|col| {
+            Ok(col
+                .storage
+                .all_tags()?
+                .into_iter()
+                .map(|t| t.into())
+                .collect())
+        })?;
         Ok(pb::AllTagsOut { tags })
     }
 
-    fn register_tags(&self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
+    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                let usn = if input.preserve_usn {
-                    Usn(input.usn)
-                } else {
-                    col.usn()?
-                };
-                col.register_tags(&input.tags, usn, input.clear_first)
-                    .map(|val| pb::Bool { val })
+                col.set_tag_collapsed(&input.name, input.collapsed)?;
+                Ok(().into())
             })
         })
+    }
+
+    fn clear_unused_tags(&self, _input: pb::Empty) -> BackendResult<pb::Empty> {
+        self.with_col(|col| col.transact(None, |col| col.clear_unused_tags().map(Into::into)))
+    }
+
+    fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.storage.clear_tag(tag.val.as_str())?;
+                Ok(().into())
+            })
+        })
+    }
+
+    fn tag_tree(&self, _input: Empty) -> Result<pb::TagTreeNode> {
+        self.with_col(|col| col.tag_tree())
     }
 
     // config/preferences

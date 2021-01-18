@@ -2,24 +2,57 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::SqliteStorage;
-use crate::{err::Result, types::Usn};
-use rusqlite::{params, NO_PARAMS};
+use crate::{err::Result, tags::Tag, types::Usn};
+
+use rusqlite::{params, Row, NO_PARAMS};
 use std::collections::HashMap;
 
+fn row_to_tag(row: &Row) -> Result<Tag> {
+    Ok(Tag {
+        name: row.get(0)?,
+        usn: row.get(1)?,
+        collapsed: row.get(2)?,
+    })
+}
+
 impl SqliteStorage {
-    pub(crate) fn all_tags(&self) -> Result<Vec<(String, Usn)>> {
+    /// All tags in the collection, in alphabetical order.
+    pub(crate) fn all_tags(&self) -> Result<Vec<Tag>> {
         self.db
-            .prepare_cached("select tag, usn from tags")?
-            .query_and_then(NO_PARAMS, |row| -> Result<_> {
-                Ok((row.get(0)?, row.get(1)?))
-            })?
+            .prepare_cached("select tag, usn, collapsed from tags")?
+            .query_and_then(NO_PARAMS, row_to_tag)?
             .collect()
     }
 
-    pub(crate) fn register_tag(&self, tag: &str, usn: Usn) -> Result<()> {
+    pub(crate) fn collapsed_tags(&self) -> Result<Vec<String>> {
+        self.db
+            .prepare_cached("select tag from tags where collapsed = true")?
+            .query_and_then(NO_PARAMS, |r| r.get::<_, String>(0).map_err(Into::into))?
+            .collect::<Result<Vec<_>>>()
+    }
+
+    pub(crate) fn restore_collapsed_tags(&self, tags: &[String]) -> Result<()> {
+        let mut stmt = self
+            .db
+            .prepare_cached("update tags set collapsed = true where tag = ?")?;
+        for tag in tags {
+            stmt.execute(&[tag])?;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn get_tag(&self, name: &str) -> Result<Option<Tag>> {
+        self.db
+            .prepare_cached("select tag, usn, collapsed from tags where tag = ?")?
+            .query_and_then(&[name], row_to_tag)?
+            .next()
+            .transpose()
+    }
+
+    pub(crate) fn register_tag(&self, tag: &Tag) -> Result<()> {
         self.db
             .prepare_cached(include_str!("add.sql"))?
-            .execute(params![tag, usn])?;
+            .execute(params![tag.name, tag.usn, tag.collapsed])?;
         Ok(())
     }
 
@@ -30,6 +63,22 @@ impl SqliteStorage {
             .next()
             .transpose()
             .map_err(Into::into)
+    }
+
+    pub(crate) fn clear_tag(&self, tag: &str) -> Result<()> {
+        self.db
+            .prepare_cached("delete from tags where tag regexp ?")?
+            .execute(&[format!("(?i)^{}($|::)", regex::escape(tag))])?;
+
+        Ok(())
+    }
+
+    pub(crate) fn set_tag_collapsed(&self, tag: &str, collapsed: bool) -> Result<()> {
+        self.db
+            .prepare_cached("update tags set collapsed = ? where tag = ?")?
+            .execute(params![collapsed, tag])?;
+
+        Ok(())
     }
 
     pub(crate) fn clear_tags(&self) -> Result<()> {
@@ -75,8 +124,11 @@ impl SqliteStorage {
                     serde_json::from_str(row.get_raw(0).as_str()?).map_err(Into::into);
                 tags
             })?;
+        let mut stmt = self
+            .db
+            .prepare_cached("insert or ignore into tags (tag, usn) values (?, ?)")?;
         for (tag, usn) in tags.into_iter() {
-            self.register_tag(&tag, usn)?;
+            stmt.execute(params![tag, usn])?;
         }
         self.db.execute_batch("update col set tags=''")?;
 
@@ -85,11 +137,23 @@ impl SqliteStorage {
 
     pub(super) fn downgrade_tags_from_schema14(&self) -> Result<()> {
         let alltags = self.all_tags()?;
-        let tagsmap: HashMap<String, Usn> = alltags.into_iter().collect();
+        let tagsmap: HashMap<String, Usn> = alltags.into_iter().map(|t| (t.name, t.usn)).collect();
         self.db.execute(
             "update col set tags=?",
             params![serde_json::to_string(&tagsmap)?],
         )?;
         Ok(())
+    }
+
+    pub(super) fn upgrade_tags_to_schema17(&self) -> Result<()> {
+        let tags = self
+            .db
+            .prepare_cached("select tag, usn from tags")?
+            .query_and_then(NO_PARAMS, |r| Ok(Tag::new(r.get(0)?, r.get(1)?)))?
+            .collect::<Result<Vec<Tag>>>()?;
+        self.db
+            .execute_batch(include_str!["../upgrades/schema17_upgrade.sql"])?;
+        tags.into_iter()
+            .try_for_each(|tag| -> Result<()> { self.register_tag(&tag) })
     }
 }

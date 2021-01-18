@@ -30,6 +30,7 @@ from anki.rsbackend import (
     FilterToSearchIn,
     InvalidInput,
     NamedFilter,
+    TagTreeNode,
 )
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
@@ -468,8 +469,12 @@ class SidebarItem:
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,
+        full_name: str = None,
     ) -> None:
         self.name = name
+        if not full_name:
+            full_name = name
+        self.full_name = full_name
         self.icon = icon
         self.item_type = item_type
         self.id = id
@@ -1166,15 +1171,31 @@ QTableView {{ gridline-color: {grid} }}
             root.addChild(item)
 
     def _userTagTree(self, root) -> None:
-        assert self.col
-        for t in self.col.tags.all():
-            item = SidebarItem(
-                t,
-                ":/icons/tag.svg",
-                self._tag_filter(t),
-                item_type=SidebarItemType.TAG,
-            )
-            root.addChild(item)
+        tree = self.col.backend.tag_tree()
+
+        def fillGroups(root, nodes: Sequence[TagTreeNode], head=""):
+            for node in nodes:
+
+                def toggle_expand():
+                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
+                    return lambda expanded: self.mw.col.tags.set_collapsed(
+                        full_name, not expanded
+                    )
+
+                item = SidebarItem(
+                    node.name,
+                    ":/icons/tag.svg",
+                    self._tag_filter(head + node.name),
+                    toggle_expand(),
+                    not node.collapsed,
+                    item_type=SidebarItemType.TAG,
+                    full_name=head + node.name,
+                )
+                root.addChild(item)
+                newhead = head + node.name + "::"
+                fillGroups(item, node.children, newhead)
+
+        fillGroups(root, tree.children)
 
     def _decksTree(self, root) -> None:
         tree = self.col.decks.deck_tree()
