@@ -435,7 +435,7 @@ mod test {
 
         // tag children are also cleared when clearing their parent
         col.storage.clear_tags()?;
-        for name in vec!["a", "a::b", "a::b::c"] {
+        for name in vec!["a", "a::b", "A::b::c"] {
             col.register_tag(Tag::new(name.to_string(), Usn(0)))?;
         }
         col.storage.clear_tag("a")?;

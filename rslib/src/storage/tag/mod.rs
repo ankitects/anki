@@ -68,7 +68,7 @@ impl SqliteStorage {
     pub(crate) fn clear_tag(&self, tag: &str) -> Result<()> {
         self.db
             .prepare_cached("delete from tags where tag regexp ?")?
-            .execute(&[format!("^{}($|::)", regex::escape(tag))])?;
+            .execute(&[format!("(?i)^{}($|::)", regex::escape(tag))])?;
 
         Ok(())
     }
