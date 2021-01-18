@@ -42,6 +42,7 @@ impl Collection {
             next_day_at_secs: timing.next_day_at as u32,
             scheduler_version: self.sched_ver() as u32,
             local_offset_secs: local_offset_secs as i32,
+            first_weekday: self.get_first_weekday() as i32,
         })
     }
 }
