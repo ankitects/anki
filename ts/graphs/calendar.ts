@@ -82,6 +82,7 @@ export function renderCalendar(
     svgElem: SVGElement,
     bounds: GraphBounds,
     sourceData: GraphData,
+    dispatch: any,
     targetYear: number,
     i18n: I18n,
     nightMode: boolean,
@@ -113,6 +114,7 @@ export function renderCalendar(
             maxCount = count;
         }
     }
+    console.log('sourceData', sourceData, dayMap)
 
     if (!maxCount) {
         setDataAvailable(svg, false);
@@ -205,6 +207,9 @@ export function renderCalendar(
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)
+        .on("click", function (this: any, d: any) {
+            dispatch("search", { query: `"prop:rated=${d.day}"` });
+        })
         .transition()
         .duration(800)
         .attr("fill", (d) => (d.count === 0 ? emptyColour : blues(d.count)!));
