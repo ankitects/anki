@@ -253,7 +253,11 @@ export function renderReviews(
                 i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS),
                 valueLabel(totals[4]),
             ],
-            ["grey", i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL), valueLabel(cumulative)],
+            [
+                "transparent",
+                i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL),
+                valueLabel(cumulative),
+            ],
         ];
         for (const [colour, label, detail] of lines) {
             buf += `<tr>
