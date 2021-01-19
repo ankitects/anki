@@ -318,8 +318,8 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "did" => parse_did(val)?,
         "mid" => parse_mid(val)?,
-        "nid" => SearchNode::NoteIDs(check_id_list(val)?),
-        "cid" => SearchNode::CardIDs(check_id_list(val)?),
+        "nid" => SearchNode::NoteIDs(check_id_list(val, key)?),
+        "cid" => SearchNode::CardIDs(check_id_list(val, key)?),
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
@@ -351,18 +351,14 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
 
 /// eg resched:3
 fn parse_resched(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(days) = s.parse::<u32>() {
-        Ok(SearchNode::Rated {
-            days,
-            ease: EaseKind::ManualReschedule,
-        })
-    } else {
-        Err(parse_failure(s, FailKind::InvalidResched))
-    }
+    parse_u32(s, "resched:").map(|days| SearchNode::Rated {
+        days,
+        ease: EaseKind::ManualReschedule,
+    })
 }
 
 /// eg prop:ivl>3, prop:ease!=2.5
-fn parse_prop(s: &str) -> ParseResult<SearchNode> {
+fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
     let (tail, prop) = alt::<_, _, ParseError, _>((
         tag("ivl"),
         tag("due"),
@@ -372,8 +368,13 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("pos"),
         tag("rated"),
         tag("resched"),
-    ))(s)
-    .map_err(|_| parse_failure(s, FailKind::InvalidPropProperty(s.into())))?;
+    ))(prop_clause)
+    .map_err(|_| {
+        parse_failure(
+            prop_clause,
+            FailKind::InvalidPropProperty(prop_clause.into()),
+        )
+    })?;
 
     let (num, operator) = alt::<_, _, ParseError, _>((
         tag("<="),
@@ -383,87 +384,21 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
         tag("<"),
         tag(">"),
     ))(tail)
-    .map_err(|_| parse_failure(s, FailKind::InvalidPropOperator(prop.to_string())))?;
+    .map_err(|_| parse_failure(prop_clause, FailKind::InvalidPropOperator(prop.to_string())))?;
 
-    let kind = if prop == "ease" {
-        if let Ok(f) = num.parse::<f32>() {
-            PropertyKind::Ease(f)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropFloat(format!("{}{}", prop, operator)),
-            ));
-        }
-    } else if prop == "due" {
-        if let Ok(i) = num.parse::<i32>() {
-            PropertyKind::Due(i)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-            ));
-        }
-    } else if prop == "rated" {
-        let mut it = num.splitn(2, ':');
-
-        let days: i32 = if let Ok(i) = it.next().unwrap().parse::<i32>() {
-            i.min(0)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-            ));
-        };
-
-        let ease = match it.next() {
-            Some(v) => {
-                if let Ok(u) = v.parse::<u8>() {
-                    if (1..5).contains(&u) {
-                        EaseKind::AnswerButton(u)
-                    } else {
-                        return Err(parse_failure(
-                            s,
-                            FailKind::InvalidRatedEase(format!(
-                                "prop:{}{}{}",
-                                prop,
-                                operator,
-                                days.to_string()
-                            )),
-                        ));
-                    }
-                } else {
-                    return Err(parse_failure(
-                        s,
-                        FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-                    ));
-                }
-            }
-            None => EaseKind::AnyAnswerButton,
-        };
-
-        PropertyKind::Rated(days, ease)
-    } else if prop == "resched" {
-        if let Ok(days) = num.parse::<i32>() {
-            PropertyKind::Rated(days.min(0), EaseKind::ManualReschedule)
-        } else {
-            return Err(parse_failure(
-                s,
-                FailKind::InvalidPropInteger(format!("{}{}", prop, operator)),
-            ));
-        }
-    } else if let Ok(u) = num.parse::<u32>() {
-        match prop {
-            "ivl" => PropertyKind::Interval(u),
-            "reps" => PropertyKind::Reps(u),
-            "lapses" => PropertyKind::Lapses(u),
-            "pos" => PropertyKind::Position(u),
-            _ => unreachable!(),
-        }
-    } else {
-        return Err(parse_failure(
-            s,
-            FailKind::InvalidPropUnsigned(format!("{}{}", prop, operator)),
-        ));
+    let kind = match prop {
+        "ease" => PropertyKind::Ease(parse_f32(num, prop_clause)?),
+        "due" => PropertyKind::Due(parse_i32(num, prop_clause)?),
+        "rated" => parse_prop_rated(num, prop_clause)?,
+        "resched" => PropertyKind::Rated(
+            parse_negative_i32(num, prop_clause)?,
+            EaseKind::ManualReschedule,
+        ),
+        "ivl" => PropertyKind::Interval(parse_u32(num, prop_clause)?),
+        "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
+        "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
+        "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
+        _ => unreachable!(),
     };
 
     Ok(SearchNode::Property {
@@ -472,53 +407,114 @@ fn parse_prop(s: &str) -> ParseResult<SearchNode> {
     })
 }
 
+fn parse_u32<'a>(num: &str, context: &'a str) -> ParseResult<'a, u32> {
+    num.parse().map_err(|_e| {
+        parse_failure(
+            context,
+            FailKind::InvalidPositiveWholeNumber {
+                context: context.into(),
+                provided: num.into(),
+            },
+        )
+    })
+}
+
+fn parse_i32<'a>(num: &str, context: &'a str) -> ParseResult<'a, i32> {
+    num.parse().map_err(|_e| {
+        parse_failure(
+            context,
+            FailKind::InvalidWholeNumber {
+                context: context.into(),
+                provided: num.into(),
+            },
+        )
+    })
+}
+
+fn parse_negative_i32<'a>(num: &str, context: &'a str) -> ParseResult<'a, i32> {
+    num.parse()
+        .map_err(|_| ())
+        .and_then(|n| if n > 0 { Err(()) } else { Ok(n) })
+        .map_err(|_| {
+            parse_failure(
+                context,
+                FailKind::InvalidNegativeWholeNumber {
+                    context: context.into(),
+                    provided: num.into(),
+                },
+            )
+        })
+}
+
+fn parse_f32<'a>(num: &str, context: &'a str) -> ParseResult<'a, f32> {
+    num.parse().map_err(|_e| {
+        parse_failure(
+            context,
+            FailKind::InvalidNumber {
+                context: context.into(),
+                provided: num.into(),
+            },
+        )
+    })
+}
+
+fn parse_i64<'a>(num: &str, context: &'a str) -> ParseResult<'a, i64> {
+    num.parse().map_err(|_e| {
+        parse_failure(
+            context,
+            FailKind::InvalidWholeNumber {
+                context: context.into(),
+                provided: num.into(),
+            },
+        )
+    })
+}
+
+fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'a, EaseKind> {
+    Ok(if let Some(num) = num {
+        EaseKind::AnswerButton(
+            num.parse()
+                .map_err(|_| ())
+                .and_then(|n| if matches!(n, 1..=4) { Ok(n) } else { Err(()) })
+                .map_err(|_| {
+                    parse_failure(
+                        context,
+                        FailKind::InvalidAnswerButton {
+                            context: context.into(),
+                            provided: num.into(),
+                        },
+                    )
+                })?,
+        )
+    } else {
+        EaseKind::AnyAnswerButton
+    })
+}
+
+fn parse_prop_rated<'a>(num: &str, context: &'a str) -> ParseResult<'a, PropertyKind> {
+    let mut it = num.splitn(2, ':');
+    let days = parse_negative_i32(it.next().unwrap(), context)?;
+    let button = parse_answer_button(it.next(), context)?;
+    Ok(PropertyKind::Rated(days, button))
+}
+
 /// eg added:1
 fn parse_added(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(days) = s.parse::<u32>() {
-        Ok(SearchNode::AddedInDays(days.max(1)))
-    } else {
-        Err(parse_failure(s, FailKind::InvalidAdded))
-    }
+    parse_u32(s, "added:").map(|n| SearchNode::AddedInDays(n.max(1)))
 }
 
 /// eg edited:1
 fn parse_edited(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(days) = s.parse::<u32>() {
-        Ok(SearchNode::EditedInDays(days.max(1)))
-    } else {
-        Err(parse_failure(s, FailKind::InvalidEdited))
-    }
+    parse_u32(s, "edited:").map(|n| SearchNode::EditedInDays(n.max(1)))
 }
 
 /// eg rated:3 or rated:10:2
 /// second arg must be between 1-4
 fn parse_rated(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
-    if let Ok(days) = it.next().unwrap().parse::<u32>() {
-        let days = days.max(1);
-        let ease = if let Some(tail) = it.next() {
-            if let Ok(u) = tail.parse::<u8>() {
-                if u > 0 && u < 5 {
-                    EaseKind::AnswerButton(u)
-                } else {
-                    return Err(parse_failure(
-                        s,
-                        FailKind::InvalidRatedEase(format!("rated:{}", days.to_string())),
-                    ));
-                }
-            } else {
-                return Err(parse_failure(
-                    s,
-                    FailKind::InvalidRatedEase(format!("rated:{}", days.to_string())),
-                ));
-            }
-        } else {
-            EaseKind::AnyAnswerButton
-        };
-        Ok(SearchNode::Rated { days, ease })
-    } else {
-        Err(parse_failure(s, FailKind::InvalidRatedDays))
-    }
+    let days = parse_u32(it.next().unwrap(), "rated:")?.max(1);
+    let button = parse_answer_button(it.next(), s)?;
+    Ok(SearchNode::Rated { days, ease: button })
 }
 
 /// eg is:due
@@ -538,48 +534,48 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
 }
 
 fn parse_did(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(did) = s.parse() {
-        Ok(SearchNode::DeckID(did))
-    } else {
-        Err(parse_failure(s, FailKind::InvalidDid))
-    }
+    parse_i64(s, "did:").map(|n| SearchNode::DeckID(n.into()))
 }
 
 fn parse_mid(s: &str) -> ParseResult<SearchNode> {
-    if let Ok(mid) = s.parse() {
-        Ok(SearchNode::NoteTypeID(mid))
-    } else {
-        Err(parse_failure(s, FailKind::InvalidMid))
-    }
+    parse_i64(s, "mid:").map(|n| SearchNode::NoteTypeID(n.into()))
 }
 
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true
 /// used by nid: and cid:
-fn check_id_list(s: &str) -> ParseResult<&str> {
+fn check_id_list<'a, 'b>(s: &'a str, context: &'b str) -> ParseResult<'a, &'a str> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^(\d+,)*\d+$").unwrap();
     }
     if RE.is_match(s) {
         Ok(s)
     } else {
-        Err(parse_failure(s, FailKind::InvalidIdList))
+        Err(parse_failure(
+            s,
+            // id lists are undocumented, so no translation
+            FailKind::Other(Some(format!(
+                "expected only digits and commas in {}:",
+                context
+            ))),
+        ))
     }
 }
 
 /// eg dupe:1231,hello
 fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ',');
-    if let Ok(mid) = it.next().unwrap().parse::<NoteTypeID>() {
-        if let Some(text) = it.next() {
-            Ok(SearchNode::Duplicates {
-                note_type_id: mid,
-                text: unescape_quotes_and_backslashes(text),
-            })
-        } else {
-            Err(parse_failure(s, FailKind::InvalidDupeText))
-        }
+    let ntid = parse_i64(it.next().unwrap(), s)?;
+    if let Some(text) = it.next() {
+        Ok(SearchNode::Duplicates {
+            note_type_id: ntid.into(),
+            text: unescape_quotes_and_backslashes(text),
+        })
     } else {
-        Err(parse_failure(s, FailKind::InvalidDupeMid))
+        // this is an undocumented keyword, so no translation/help
+        Err(parse_failure(
+            s,
+            FailKind::Other(Some("invalid 'dupe:' search".into())),
+        ))
     }
 }
 
@@ -680,6 +676,8 @@ fn is_parser_escape(txt: &str) -> bool {
 
 #[cfg(test)]
 mod test {
+    use crate::err::SearchErrorKind;
+
     use super::*;
 
     #[test]
@@ -847,6 +845,14 @@ mod test {
             assert_eq!(parse(input), Err(AnkiError::SearchError(kind)));
         }
 
+        fn failkind(input: &str) -> SearchErrorKind {
+            if let Err(AnkiError::SearchError(err)) = parse(input) {
+                err
+            } else {
+                panic!("expected search error");
+            }
+        }
+
         assert_err_kind("foo and", MisplacedAnd);
         assert_err_kind("and foo", MisplacedAnd);
         assert_err_kind("and", MisplacedAnd);
@@ -887,14 +893,18 @@ mod test {
         assert_err_kind(r"\ ", UnknownEscape(r"\".to_string()));
         assert_err_kind(r#""\ ""#, UnknownEscape(r"\ ".to_string()));
 
-        assert_err_kind("nid:1_2,3", InvalidIdList);
-        assert_err_kind("nid:1,2,x", InvalidIdList);
-        assert_err_kind("nid:,2,3", InvalidIdList);
-        assert_err_kind("nid:1,2,", InvalidIdList);
-        assert_err_kind("cid:1_2,3", InvalidIdList);
-        assert_err_kind("cid:1,2,x", InvalidIdList);
-        assert_err_kind("cid:,2,3", InvalidIdList);
-        assert_err_kind("cid:1,2,", InvalidIdList);
+        for term in &[
+            "nid:1_2,3",
+            "nid:1,2,x",
+            "nid:,2,3",
+            "nid:1,2,",
+            "cid:1_2,3",
+            "cid:1,2,x",
+            "cid:,2,3",
+            "cid:1,2,",
+        ] {
+            assert!(matches!(failkind(term), SearchErrorKind::Other(_)));
+        }
 
         assert_err_kind("is:foo", InvalidState("foo".into()));
         assert_err_kind("is:DUE", InvalidState("DUE".into()));
@@ -908,36 +918,29 @@ mod test {
         assert_err_kind("flag:5", InvalidFlag);
         assert_err_kind("flag:1.1", InvalidFlag);
 
-        assert_err_kind("added:1.1", InvalidAdded);
-        assert_err_kind("added:-1", InvalidAdded);
-        assert_err_kind("added:", InvalidAdded);
-        assert_err_kind("added:foo", InvalidAdded);
+        for term in &["added", "edited", "rated", "resched"] {
+            assert!(
+                matches!(failkind(&format!("{}:1.1", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+            assert!(
+                matches!(failkind(&format!("{}:-1", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+            assert!(
+                matches!(failkind(&format!("{}:", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+            assert!(
+                matches!(failkind(&format!("{}:foo", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+        }
 
-        assert_err_kind("edited:1.1", InvalidEdited);
-        assert_err_kind("edited:-1", InvalidEdited);
-        assert_err_kind("edited:", InvalidEdited);
-        assert_err_kind("edited:foo", InvalidEdited);
+        assert!(matches!(failkind("rated:1:"), SearchErrorKind::InvalidAnswerButton { .. }));
+        assert!(matches!(failkind("rated:2:-1"), SearchErrorKind::InvalidAnswerButton { .. }));
+        assert!(matches!(failkind("rated:3:1.1"), SearchErrorKind::InvalidAnswerButton { .. }));
+        assert!(matches!(failkind("rated:0:foo"), SearchErrorKind::InvalidAnswerButton { .. }));
 
-        assert_err_kind("rated:1.1", InvalidRatedDays);
-        assert_err_kind("rated:-1", InvalidRatedDays);
-        assert_err_kind("rated:", InvalidRatedDays);
-        assert_err_kind("rated:foo", InvalidRatedDays);
-
-        assert_err_kind("rated:1:", InvalidRatedEase("rated:1".to_string()));
-        assert_err_kind("rated:2:-1", InvalidRatedEase("rated:2".to_string()));
-        assert_err_kind("rated:3:1.1", InvalidRatedEase("rated:3".to_string()));
-        assert_err_kind("rated:0:foo", InvalidRatedEase("rated:1".to_string()));
-
-        assert_err_kind("resched:", FailKind::InvalidResched);
-        assert_err_kind("resched:-1", FailKind::InvalidResched);
-        assert_err_kind("resched:1:1", FailKind::InvalidResched);
-        assert_err_kind("resched:foo", FailKind::InvalidResched);
-
-        assert_err_kind("dupe:", InvalidDupeMid);
-        assert_err_kind("dupe:1.1", InvalidDupeMid);
-        assert_err_kind("dupe:foo", InvalidDupeMid);
-
-        assert_err_kind("dupe:123", InvalidDupeText);
+        assert!(matches!(failkind("dupe:"), SearchErrorKind::InvalidWholeNumber { .. }));
+        assert!(matches!(failkind("dupe:1.1"), SearchErrorKind::InvalidWholeNumber { .. }));
+        assert!(matches!(failkind("dupe:foo"), SearchErrorKind::InvalidWholeNumber { .. }));
 
         assert_err_kind("prop:", InvalidPropProperty("".into()));
         assert_err_kind("prop:=1", InvalidPropProperty("=1".into()));
@@ -947,20 +950,33 @@ mod test {
         assert_err_kind("prop:pos~1", InvalidPropOperator("pos".to_string()));
         assert_err_kind("prop:reps10", InvalidPropOperator("reps".to_string()));
 
-        assert_err_kind("prop:ease>", InvalidPropFloat("ease>".to_string()));
-        assert_err_kind("prop:ease!=one", InvalidPropFloat("ease!=".to_string()));
-        assert_err_kind("prop:ease<1,3", InvalidPropFloat("ease<".to_string()));
+        // unsigned
 
-        assert_err_kind("prop:due>", InvalidPropInteger("due>".to_string()));
-        assert_err_kind("prop:due=0.5", InvalidPropInteger("due=".to_string()));
-        assert_err_kind("prop:due<foo", InvalidPropInteger("due<".to_string()));
+        for term in &["ivl", "reps", "lapses", "pos"] {
+            assert!(
+                matches!(failkind(&format!("prop:{}>", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+            assert!(
+                matches!(failkind(&format!("prop:{}=0.5", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+            assert!(
+                matches!(failkind(&format!("prop:{}!=-1", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+            assert!(
+                matches!(failkind(&format!("prop:{}<foo", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
+            );
+        }
 
-        assert_err_kind("prop:ivl>", InvalidPropUnsigned("ivl>".to_string()));
-        assert_err_kind("prop:reps=1.1", InvalidPropUnsigned("reps=".to_string()));
-        assert_err_kind(
-            "prop:lapses!=-1",
-            InvalidPropUnsigned("lapses!=".to_string()),
-        );
+        // signed
+
+        assert!(matches!(failkind("prop:due>"), SearchErrorKind::InvalidWholeNumber { .. }));
+        assert!(matches!(failkind("prop:due=0.5"), SearchErrorKind::InvalidWholeNumber { .. }));
+
+        // float
+
+        assert!(matches!(failkind("prop:ease>"), SearchErrorKind::InvalidNumber { .. }));
+        assert!(matches!(failkind("prop:ease!=one"), SearchErrorKind::InvalidNumber { .. }));
+        assert!(matches!(failkind("prop:ease<1,3"), SearchErrorKind::InvalidNumber { .. }));
 
         Ok(())
     }
