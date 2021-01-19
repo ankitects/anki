@@ -12,12 +12,10 @@ declare interface String {
 /* kept for compatibility with add-ons */
 String.prototype.format = function (...args: string[]): string {
     return this.replace(/\{\d+\}/g, (m: string): void => {
-        const match = m.match(/\d+/)
+        const match = m.match(/\d+/);
 
-        return match
-            ? args[match[0]]
-            : "";
-    })
+        return match ? args[match[0]] : "";
+    });
 };
 
 function setFGButton(col: string): void {
@@ -393,8 +391,8 @@ function setFields(fields: [string, string][]): void {
 
 function setBackgrounds(cols: "dupe"[]) {
     for (let i = 0; i < cols.length; i++) {
-        const element = document.querySelector(`#f${i}`)
-        element.classList.toggle("dupe", cols[i] === "dupe")
+        const element = document.querySelector(`#f${i}`);
+        element.classList.toggle("dupe", cols[i] === "dupe");
     }
 }
 
@@ -436,7 +434,7 @@ let filterHTML = function (
     extendedMode: boolean
 ): string {
     // wrap it in <top> as we aren't allowed to change top level elements
-    const top = document.createElement("ankitop")
+    const top = document.createElement("ankitop");
     top.innerHTML = html;
 
     if (internal) {
@@ -607,31 +605,31 @@ let adjustFieldsTopMargin = function (): void {
     document.getElementById("fields").style.marginTop = `${margin}px`;
 };
 
-let mouseDown = 0;
-
-$(function (): void {
-    document.addEventListener("click", (evt: MouseEvent): void => {
-        const src = evt.target as Element;
-        if (src.tagName === "IMG") {
-            // image clicked; find contenteditable parent
-            let p = src;
-            while ((p = p.parentNode as Element)) {
-                if (p.className === "field") {
-                    $(`#${p.id}`).focus();
-                    break;
-                }
+document.addEventListener("click", (evt: MouseEvent): void => {
+    const src = evt.target as Element;
+    if (src.tagName === "IMG") {
+        // image clicked; find contenteditable parent
+        let p = src;
+        while ((p = p.parentNode as Element)) {
+            if (p.className === "field") {
+                document.getElementById(p.id).focus();
+                break;
             }
         }
-    });
+    }
+});
 
-    // prevent editor buttons from taking focus
-    $("button.linkb").on("mousedown", function (evt: Event) {
+// prevent editor buttons from taking focus
+for (const element of document.querySelectorAll("button.linkb")) {
+    element.addEventListener("mousedown", (evt: Event) => {
         evt.preventDefault();
     });
+}
 
-    window.addEventListener("resize", () => {
-        adjustFieldsTopMargin();
-    });
+window.addEventListener("resize", () => {
+    adjustFieldsTopMargin();
+});
 
+$(function (): void {
     adjustFieldsTopMargin();
 });
