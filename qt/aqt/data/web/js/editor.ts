@@ -210,10 +210,6 @@ function onFocus(elem: HTMLElement): void {
     currentField = elem;
     pycmd(`focus:${currentFieldOrdinal()}`);
     enableButtons();
-    // don't adjust cursor on mouse clicks
-    if (mouseDown) {
-        return;
-    }
     // do this twice so that there's no flicker on newer versions
     caretToEnd();
     // scroll if bottom of element off the screen
@@ -622,13 +618,6 @@ let adjustFieldsTopMargin = function (): void {
 let mouseDown = 0;
 
 $(function (): void {
-    document.body.addEventListener("mousedown", (): void => {
-        mouseDown++;
-    });
-    document.body.addEventListener("mouseup", (): void => {
-        mouseDown--;
-    });
-
     document.addEventListener("click", (evt: MouseEvent): void => {
         const src = evt.target as Element;
         if (src.tagName === "IMG") {
