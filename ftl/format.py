@@ -42,7 +42,7 @@ def check_missing_terms(path: str) -> bool:
 
 def check_file(path: str, fix: bool) -> bool:
     "True if file is ok."
-    orig_text = open(path).read()
+    orig_text = open(path, encoding="utf8").read()
     obj = parse(orig_text, with_spans=False)
     # make sure there's no junk
     for ent in obj.body:
