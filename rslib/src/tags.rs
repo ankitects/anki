@@ -204,12 +204,9 @@ impl Collection {
 
         let tags: Vec<_> = tags.iter().flat_map(|t| split_tags(t)).collect();
         for tag in tags {
-            let t = self.register_tag(Tag::new(tag.to_string(), usn))?;
-            if t.0.name.is_empty() {
-                continue;
-            }
-            added |= t.1;
-            seen.insert(UniCase::new(t.0.name));
+            let mut tag = Tag::new(tag.to_string(), usn);
+            added |= self.register_tag(&mut tag)?;
+            seen.insert(UniCase::new(tag.name));
         }
 
         // exit early if no non-empty tags
@@ -226,24 +223,26 @@ impl Collection {
     }
 
     /// Adjust tag casing to match any existing parents, and register it if it's not already
-    /// in the tags list. Returns a tuple of the tag with its name normalized, and a boolean
-    /// indicating if it was added.
-    pub(crate) fn register_tag(&self, tag: Tag) -> Result<(Tag, bool)> {
+    /// in the tags list. True if the tag was added and not already in tag list.
+    /// In the case the tag is already registered, tag will be mutated to match the existing
+    /// name.
+    pub(crate) fn register_tag(&self, tag: &mut Tag) -> Result<bool> {
         let normalized_name = normalize_tag_name(&tag.name);
         if normalized_name.is_empty() {
             // this should not be possible
             return Err(AnkiError::invalid_input("blank tag"));
         }
-        if let Some(out_tag) = self.storage.get_tag(&normalized_name)? {
-            // already registered
-            Ok((out_tag, false))
+        if let Some(existing_tag) = self.storage.get_tag(&normalized_name)? {
+            tag.name = existing_tag.name;
+            Ok(false)
         } else {
-            let name = self
-                .adjusted_case_for_parents(&normalized_name)?
-                .unwrap_or_else(|| normalized_name.into());
-            let out_tag = Tag { name, ..tag };
-            self.storage.register_tag(&out_tag)?;
-            Ok((out_tag, true))
+            if let Some(new_name) = self.adjusted_case_for_parents(&normalized_name)? {
+                tag.name = new_name;
+            } else if let Cow::Owned(new_name) = normalized_name {
+                tag.name = new_name;
+            }
+            self.storage.register_tag(&tag)?;
+            Ok(true)
         }
     }
 
@@ -290,9 +289,13 @@ impl Collection {
     }
 
     pub(crate) fn set_tag_collapsed(&self, name: &str, collapsed: bool) -> Result<()> {
+        let mut name = name;
+        let tag;
         if self.storage.get_tag(name)?.is_none() {
             // tag is missing, register it
-            self.register_tag(Tag::new(name.to_string(), self.usn()?))?;
+            tag = Tag::new(name.to_string(), self.usn()?);
+            self.storage.register_tag(&tag)?;
+            name = &tag.name;
         }
         self.storage.set_tag_collapsed(name, collapsed)
     }
@@ -487,7 +490,7 @@ mod test {
         // tag children are also cleared when clearing their parent
         col.storage.clear_tags()?;
         for name in vec!["a", "a::b", "A::b::c"] {
-            col.register_tag(Tag::new(name.to_string(), Usn(0)))?;
+            col.register_tag(&mut Tag::new(name.to_string(), Usn(0)))?;
         }
         col.storage.clear_tag("a")?;
         assert_eq!(col.storage.all_tags()?, vec![]);
