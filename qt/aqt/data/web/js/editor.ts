@@ -287,7 +287,9 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
     // type is either 'blur' or 'key'
-    pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.innerHTML}`)
+    pycmd(
+        `${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.innerHTML}`
+    );
 }
 
 function currentFieldOrdinal(): string {
@@ -388,11 +390,13 @@ function setFields(fields: [string, string][]): void {
             </td>
         </tr>`;
     }
-    $("#fields").html(`<table cellpadding=0 width=100% style='table-layout: fixed;'>${txt}</table>`);
+    $("#fields").html(
+        `<table cellpadding=0 width=100% style='table-layout: fixed;'>${txt}</table>`
+    );
     maybeDisableButtons();
 }
 
-function setBackgrounds(cols: ("dupe")[]) {
+function setBackgrounds(cols: "dupe"[]) {
     for (let i = 0; i < cols.length; i++) {
         if (cols[i] === "dupe") {
             $(`#f${i}`).addClass("dupe");
@@ -422,7 +426,11 @@ function hideDupes(): void {
     $("#dupes").hide();
 }
 
-let pasteHTML = function (html: string, internal: boolean, extendedMode: boolean): void {
+let pasteHTML = function (
+    html: string,
+    internal: boolean,
+    extendedMode: boolean
+): void {
     html = filterHTML(html, internal, extendedMode);
 
     if (html !== "") {
@@ -430,7 +438,11 @@ let pasteHTML = function (html: string, internal: boolean, extendedMode: boolean
     }
 };
 
-let filterHTML = function (html: string, internal: boolean, extendedMode: boolean): string {
+let filterHTML = function (
+    html: string,
+    internal: boolean,
+    extendedMode: boolean
+): string {
     // wrap it in <top> as we aren't allowed to change top level elements
     const top = $.parseHTML(`<ankitop>${html}</ankitop>`)[0] as Element;
     if (internal) {
@@ -518,14 +530,14 @@ let filterExternalSpan = function (elem: HTMLElement) {
     // filter styling
     for (let i = 0; i < elem.style.length; i++) {
         const name = elem.style.item(i);
-        const value = elem.style.getPropertyValue(name)
+        const value = elem.style.getPropertyValue(name);
 
         if (
             !allowedStyling.hasOwnProperty(name) ||
             // google docs adds this unnecessarily
-            name === "background-color" && value === "transparent" ||
+            (name === "background-color" && value === "transparent") ||
             // ignore coloured text in night mode for now
-            isNightMode() && (name === "background-color" || name === "color")
+            (isNightMode() && (name === "background-color" || name === "color"))
         ) {
             elem.style.removeProperty(name);
         }
@@ -608,8 +620,12 @@ let adjustFieldsTopMargin = function (): void {
 let mouseDown = 0;
 
 $(function (): void {
-    document.body.addEventListener("mousedown", () => (mouseDown++));
-    document.body.addEventListener("mouseup", () => (mouseDown--));
+    document.body.addEventListener("mousedown", (): void => {
+        mouseDown++;
+    });
+    document.body.addEventListener("mouseup", (): void => {
+        mouseDown--;
+    });
 
     document.addEventListener("click", (evt: MouseEvent): void => {
         const src = evt.target as Element;
