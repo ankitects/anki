@@ -139,7 +139,6 @@ impl AnkiError {
                             tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
                         )
                         .into(),
-                    SearchErrorKind::InvalidIdList => i18n.tr(TR::SearchInvalidIdList),
                     SearchErrorKind::InvalidState(state) => i18n
                         .trn(
                             TR::SearchInvalidArgument,
@@ -147,35 +146,6 @@ impl AnkiError {
                         )
                         .into(),
                     SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
-                    SearchErrorKind::InvalidAdded => i18n
-                        .trn(
-                            TR::SearchInvalidFollowedByPositiveDays,
-                            tr_strs!("term" => "added:"),
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidEdited => i18n
-                        .trn(
-                            TR::SearchInvalidFollowedByPositiveDays,
-                            tr_strs!("term" => "edited:"),
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidRatedDays => i18n.tr(TR::SearchInvalidRatedDays),
-                    SearchErrorKind::InvalidRatedEase(ctx) => i18n
-                        .trn(TR::SearchInvalidRatedEase, tr_strs!["val"=>(ctx)])
-                        .into(),
-                    SearchErrorKind::InvalidNumber(ctx) => i18n
-                        .trn(TR::SearchInvalidNumber, tr_strs!["val"=>(ctx)])
-                        .into(),
-                    SearchErrorKind::InvalidResched => i18n
-                        .trn(
-                            TR::SearchInvalidFollowedByPositiveDays,
-                            tr_strs!("term" => "resched:"),
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidDupeMid | SearchErrorKind::InvalidDupeText => {
-                        // this is an undocumented search keyword, so no translation
-                        "`dupe:` arguments were invalid".into()
-                    }
                     SearchErrorKind::InvalidPropProperty(prop) => i18n
                         .trn(
                             TR::SearchInvalidArgument,
@@ -185,29 +155,39 @@ impl AnkiError {
                     SearchErrorKind::InvalidPropOperator(ctx) => i18n
                         .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
                         .into(),
-                    SearchErrorKind::InvalidPropFloat(ctx) => i18n
-                        .trn(
-                            TR::SearchInvalidPropFloat,
-                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidPropInteger(ctx) => i18n
-                        .trn(
-                            TR::SearchInvalidPropInteger,
-                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidPropUnsigned(ctx) => i18n
-                        .trn(
-                            TR::SearchInvalidPropUnsigned,
-                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidDid => i18n.tr(TR::SearchInvalidDid),
-                    SearchErrorKind::InvalidMid => i18n.tr(TR::SearchInvalidMid),
                     SearchErrorKind::Regex(text) => text.into(),
                     SearchErrorKind::Other(Some(info)) => info.into(),
                     SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalidOther),
+                    SearchErrorKind::InvalidNumber { provided, context } => i18n
+                        .trn(
+                            TR::SearchInvalidNumber,
+                            tr_strs!["provided"=>provided, "context"=>context],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidWholeNumber { provided, context } => i18n
+                        .trn(
+                            TR::SearchInvalidWholeNumber,
+                            tr_strs!["provided"=>provided, "context"=>context],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => i18n
+                        .trn(
+                            TR::SearchInvalidPositiveWholeNumber,
+                            tr_strs!["provided"=>provided, "context"=>context],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => i18n
+                        .trn(
+                            TR::SearchInvalidNegativeWholeNumber,
+                            tr_strs!["provided"=>provided, "context"=>context],
+                        )
+                        .into(),
+                    SearchErrorKind::InvalidAnswerButton { provided, context } => i18n
+                        .trn(
+                            TR::SearchInvalidAnswerButton,
+                            tr_strs!["provided"=>provided, "context"=>context],
+                        )
+                        .into(),
                 };
                 i18n.trn(
                     TR::SearchInvalidSearch,
@@ -442,24 +422,15 @@ pub enum SearchErrorKind {
     UnclosedQuote,
     MissingKey,
     UnknownEscape(String),
-    InvalidIdList,
     InvalidState(String),
     InvalidFlag,
-    InvalidAdded,
-    InvalidEdited,
-    InvalidRatedDays,
-    InvalidRatedEase(String),
-    InvalidDupeMid,
-    InvalidDupeText,
-    InvalidResched,
     InvalidPropProperty(String),
     InvalidPropOperator(String),
-    InvalidPropFloat(String),
-    InvalidPropInteger(String),
-    InvalidPropUnsigned(String),
-    InvalidNumber(String),
-    InvalidDid,
-    InvalidMid,
+    InvalidNumber { provided: String, context: String },
+    InvalidWholeNumber { provided: String, context: String },
+    InvalidPositiveWholeNumber { provided: String, context: String },
+    InvalidNegativeWholeNumber { provided: String, context: String },
+    InvalidAnswerButton { provided: String, context: String },
     Regex(String),
     Other(Option<String>),
 }
