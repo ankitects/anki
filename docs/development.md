@@ -94,18 +94,27 @@ On Windows you'll need to list out the filenames manually.
 
 ## Running tests
 
-From inside the source folder:
+You can run all tests at once. From the top level project folder:
 
 ```
-bazel test //...
+bazel test ...
 ```
+
+If you're in a subfolder, `...` will run the tests in that folder.
+To run all tests, use `//...` instead.
 
 Pylint will currently fail if you're using Python 3.9.
+
+To run a single Rust unit test with output, eg 'unbury':
+
+```
+bazel run rslib:unit_tests -- --nocapture unbury
+```
 
 To run a single Python library test, eg test_bury:
 
 ```
-bazel test //pylib:pytest --test_env=PYTEST=test_bury
+PYTEST=test_bury bazel run //pylib:pytest
 ```
 
 ## Fixing formatting
