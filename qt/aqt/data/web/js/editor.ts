@@ -167,11 +167,8 @@ function onInput(): void {
 function updateButtonState(): void {
     const buts = ["bold", "italic", "underline", "superscript", "subscript"];
     for (const name of buts) {
-        if (document.queryCommandState(name)) {
-            $(`#${name}`).addClass("highlighted");
-        } else {
-            $(`#${name}`).removeClass("highlighted");
-        }
+        const elem = document.querySelector(`#${name}`) as HTMLElement;
+        elem.classList.toggle("highlighted", document.queryCommandState(name));
     }
 
     // fixme: forecolor
@@ -179,12 +176,8 @@ function updateButtonState(): void {
 }
 
 function toggleEditorButton(buttonid: string): void {
-    const button = $(buttonid);
-    if (button.hasClass("highlighted")) {
-        button.removeClass("highlighted");
-    } else {
-        button.addClass("highlighted");
-    }
+    const button = $(buttonid)[0];
+    button.classList.toggle("highlighted");
 }
 
 function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
@@ -400,11 +393,8 @@ function setFields(fields: [string, string][]): void {
 
 function setBackgrounds(cols: "dupe"[]) {
     for (let i = 0; i < cols.length; i++) {
-        if (cols[i] === "dupe") {
-            $(`#f${i}`).addClass("dupe");
-        } else {
-            $(`#f${i}`).removeClass("dupe");
-        }
+        const element = document.querySelector(`#f${i}`)
+        element.classList.toggle("dupe", cols[i] === "dupe")
     }
 }
 
@@ -446,7 +436,9 @@ let filterHTML = function (
     extendedMode: boolean
 ): string {
     // wrap it in <top> as we aren't allowed to change top level elements
-    const top = $.parseHTML(`<ankitop>${html}</ankitop>`)[0] as Element;
+    const top = document.createElement("ankitop")
+    top.innerHTML = html;
+
     if (internal) {
         filterInternalNode(top);
     } else {
