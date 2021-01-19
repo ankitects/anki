@@ -8,10 +8,10 @@
 
 import pb from "anki/backend_proto";
 import {
-    interpolateBlues,
     interpolateGreens,
     interpolateReds,
     interpolateOranges,
+    interpolatePurples,
 } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
@@ -26,10 +26,10 @@ import { timeSpan, dayLabel } from "anki/time";
 import type { I18n } from "anki/i18n";
 
 interface Reviews {
-    mature: number;
-    young: number;
     learn: number;
     relearn: number;
+    young: number;
+    mature: number;
     early: number;
 }
 
@@ -61,6 +61,14 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
             reviewTime.get(day) ?? reviewTime.set(day, { ...empty }).get(day)!;
 
         switch (review.reviewKind) {
+            case ReviewKind.LEARNING:
+                countEntry.learn += 1;
+                timeEntry.learn += review.takenMillis;
+                break;
+            case ReviewKind.RELEARNING:
+                countEntry.relearn += 1;
+                timeEntry.relearn += review.takenMillis;
+                break;
             case ReviewKind.REVIEW:
                 if (review.lastInterval < 21) {
                     countEntry.young += 1;
@@ -69,14 +77,6 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
                     countEntry.mature += 1;
                     timeEntry.mature += review.takenMillis;
                 }
-                break;
-            case ReviewKind.LEARNING:
-                countEntry.learn += 1;
-                timeEntry.learn += review.takenMillis;
-                break;
-            case ReviewKind.RELEARNING:
-                countEntry.relearn += 1;
-                timeEntry.relearn += review.takenMillis;
                 break;
             case ReviewKind.EARLY_REVIEW:
                 countEntry.early += 1;
@@ -91,10 +91,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
 function totalsForBin(bin: BinType): number[] {
     const total = [0, 0, 0, 0, 0];
     for (const entry of bin) {
-        total[0] += entry[1].mature;
-        total[1] += entry[1].young;
-        total[2] += entry[1].learn;
-        total[3] += entry[1].relearn;
+        total[0] += entry[1].learn;
+        total[1] += entry[1].relearn;
+        total[2] += entry[1].young;
+        total[3] += entry[1].mature;
         total[4] += entry[1].early;
     }
 
@@ -204,13 +204,13 @@ export function renderReviews(
     const lighterGreens = scaleSequential((n) =>
         interpolateGreens(cappedRange(n)!)
     ).domain(x.domain() as any);
-    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain(
-        x.domain() as any
-    );
     const reds = scaleSequential((n) => interpolateReds(cappedRange(n)!)).domain(
         x.domain() as any
     );
     const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n)!)).domain(
+        x.domain() as any
+    );
+    const purples = scaleSequential((n) => interpolatePurples(cappedRange(n)!)).domain(
         x.domain() as any
     );
 
@@ -229,27 +229,27 @@ export function renderReviews(
         let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
         const lines = [
             [
-                darkerGreens(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
-                valueLabel(totals[0]),
-            ],
-            [
-                lighterGreens(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
-                valueLabel(totals[1]),
-            ],
-            [
-                blues(1),
+                oranges(1),
                 i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
-                valueLabel(totals[2]),
+                valueLabel(totals[0]),
             ],
             [
                 reds(1),
                 i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
+                valueLabel(totals[1]),
+            ],
+            [
+                lighterGreens(1),
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
+                valueLabel(totals[2]),
+            ],
+            [
+                darkerGreens(1),
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
                 valueLabel(totals[3]),
             ],
             [
-                oranges(1),
+                purples(1),
                 i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS),
                 valueLabel(totals[4]),
             ],
@@ -274,15 +274,15 @@ export function renderReviews(
             .attr("fill", (d: any) => {
                 switch (idx) {
                     case 0:
-                        return darkerGreens(d.x0);
-                    case 1:
-                        return lighterGreens(d.x0);
-                    case 2:
-                        return blues(d.x0);
-                    case 3:
-                        return reds(d.x0);
-                    case 4:
                         return oranges(d.x0);
+                    case 1:
+                        return reds(d.x0);
+                    case 2:
+                        return lighterGreens(d.x0);
+                    case 3:
+                        return darkerGreens(d.x0);
+                    case 4:
+                        return purples(d.x0);
                 }
             });
     };
