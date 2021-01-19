@@ -86,17 +86,27 @@ fn normalized_tag_name_component(comp: &str) -> Cow<str> {
     }
 }
 
-fn normalize_tag_name(name: &str) -> String {
-    let mut out = String::with_capacity(name.len());
-    for comp in name.split("::") {
-        out.push_str(&normalized_tag_name_component(comp));
-        out.push_str("::");
+fn normalize_tag_name(name: &str) -> Cow<str> {
+    if name
+        .split("::")
+        .any(|comp| matches!(normalized_tag_name_component(comp), Cow::Owned(_)))
+    {
+        name.split("::")
+            .map(normalized_tag_name_component)
+            .collect::<String>()
+            .into()
+    } else {
+        // no changes required
+        name.into()
     }
-    out.trim_end_matches("::").into()
 }
 
-fn immediate_parent_name(tag_name: UniCase<&str>) -> Option<UniCase<&str>> {
+fn immediate_parent_name_unicase(tag_name: UniCase<&str>) -> Option<UniCase<&str>> {
     tag_name.rsplitn(2, '\x1f').nth(1).map(UniCase::new)
+}
+
+fn immediate_parent_name_str(tag_name: &str) -> Option<&str> {
+    tag_name.rsplitn(2, "::").nth(1)
 }
 
 /// For the given tag, check if immediate parent exists. If so, add
@@ -109,7 +119,7 @@ fn add_tag_and_missing_parents<'a, 'b>(
     missing: &'a mut Vec<UniCase<&'b str>>,
     tag_name: UniCase<&'b str>,
 ) {
-    if let Some(parent) = immediate_parent_name(tag_name) {
+    if let Some(parent) = immediate_parent_name_unicase(tag_name) {
         if !all.contains(&parent) {
             missing.push(parent);
             add_tag_and_missing_parents(all, missing, parent);
@@ -214,24 +224,52 @@ impl Collection {
         Ok((tags, added))
     }
 
-    /// Register tag if it doesn't exist.
-    /// Returns a tuple of the tag with its name normalized and a boolean indicating if it was added.
+    /// Adjust tag casing to match any existing parents, and register it if it's not already
+    /// in the tags list. Returns a tuple of the tag with its name normalized, and a boolean
+    /// indicating if it was added.
     pub(crate) fn register_tag(&self, tag: Tag) -> Result<(Tag, bool)> {
         let normalized_name = normalize_tag_name(&tag.name);
-        let mut t = Tag {
-            name: normalized_name.clone(),
-            ..tag
-        };
         if normalized_name.is_empty() {
-            return Ok((t, false));
+            // this should not be possible
+            return Err(AnkiError::invalid_input("blank tag"));
         }
-        if let Some(preferred) = self.storage.preferred_tag_case(&normalized_name)? {
-            t.name = preferred;
-            Ok((t, false))
+        if let Some(out_tag) = self.storage.get_tag(&normalized_name)? {
+            // already registered
+            Ok((out_tag, false))
         } else {
-            self.storage.register_tag(&t)?;
-            Ok((t, true))
+            let name = self
+                .adjusted_case_for_parents(&normalized_name)?
+                .unwrap_or_else(|| normalized_name.into());
+            let out_tag = Tag { name, ..tag };
+            self.storage.register_tag(&out_tag)?;
+            Ok((out_tag, true))
         }
+    }
+
+    /// If parent tag(s) exist and differ in case, return a rewritten tag.
+    fn adjusted_case_for_parents(&self, tag: &str) -> Result<Option<String>> {
+        if let Some(parent_tag) = self.first_existing_parent_tag(&tag)? {
+            let child_split: Vec<_> = tag.split("::").collect();
+            let parent_count = parent_tag.matches("::").count() + 1;
+            Ok(Some(format!(
+                "{}::{}",
+                parent_tag,
+                &child_split[parent_count..].join("::")
+            )))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn first_existing_parent_tag(&self, mut tag: &str) -> Result<Option<String>> {
+        while let Some(parent_name) = immediate_parent_name_str(tag) {
+            if let Some(parent_tag) = self.storage.preferred_tag_case(parent_name)? {
+                return Ok(Some(parent_tag));
+            }
+            tag = parent_name;
+        }
+
+        Ok(None)
     }
 
     pub fn clear_unused_tags(&self) -> Result<()> {
@@ -239,7 +277,8 @@ impl Collection {
         self.storage.clear_tags()?;
         let usn = self.usn()?;
         for name in self.storage.all_tags_in_notes()? {
-            self.register_tag(Tag {
+            let name = normalize_tag_name(&name).into();
+            self.storage.register_tag(&Tag {
                 collapsed: collapsed.contains(&name),
                 name,
                 usn,
@@ -532,6 +571,14 @@ mod test {
                 vec![node("one", 1, vec![leaf("two", 2)]), leaf("one1", 1)]
             )
         );
+
+        // children should match the case of their parents
+        col.storage.clear_tags()?;
+        *(&mut note.tags[0]) = "FOO".into();
+        *(&mut note.tags[1]) = "foo::BAR".into();
+        *(&mut note.tags[2]) = "foo::bar::baz".into();
+        col.update_note(&mut note)?;
+        assert_eq!(note.tags, vec!["FOO", "FOO::BAR", "FOO::BAR::baz"]);
 
         Ok(())
     }
