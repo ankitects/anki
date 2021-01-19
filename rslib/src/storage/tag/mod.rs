@@ -2,8 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::SqliteStorage;
-use crate::err::{AnkiError, Result};
-use crate::{tags::Tag, types::Usn};
+use crate::{err::Result, tags::Tag, types::Usn};
 
 use rusqlite::{params, Row, NO_PARAMS};
 use std::collections::HashMap;
@@ -14,10 +13,6 @@ fn row_to_tag(row: &Row) -> Result<Tag> {
         usn: row.get(1)?,
         collapsed: row.get(2)?,
     })
-}
-
-fn immediate_parent_name(tag_name: &str) -> Option<&str> {
-    tag_name.rsplitn(2, "::").nth(1)
 }
 
 impl SqliteStorage {
@@ -61,43 +56,12 @@ impl SqliteStorage {
         Ok(())
     }
 
-    /// If parent tag(s) exist, rewrite name to match their case.
-    fn match_parents(&self, tag: &str) -> Result<String> {
-        let child_split: Vec<_> = tag.split("::").collect();
-        let t = if let Some(parent_tag) = self.first_existing_parent(&tag)? {
-            let parent_count = parent_tag.matches("::").count() + 1;
-            format!(
-                "{}::{}",
-                parent_tag,
-                &child_split[parent_count..].join("::")
-            )
-        } else {
-            tag.into()
-        };
-
-        Ok(t)
-    }
-
-    fn first_existing_parent(&self, mut tag: &str) -> Result<Option<String>> {
-        while let Some(parent_name) = immediate_parent_name(tag) {
-            if let Some(parent_tag) = self.get_tag(parent_name)? {
-                return Ok(Some(parent_tag.name));
-            }
-            tag = parent_name;
-        }
-
-        Ok(None)
-    }
-
-    // Get stored tag name or the same passed name if it doesn't exist, rewritten to match parents case.
-    // Returns a tuple of the preferred name and a boolean indicating if the tag exists.
-    pub(crate) fn preferred_tag_case(&self, tag: &str) -> Result<(Result<String>, bool)> {
+    pub(crate) fn preferred_tag_case(&self, tag: &str) -> Result<Option<String>> {
         self.db
             .prepare_cached("select tag from tags where tag = ?")?
-            .query_row(params![tag], |row| {
-                Ok((self.match_parents(row.get_raw(0).as_str()?), true))
-            })
-            .or_else::<AnkiError, _>(|_| Ok((self.match_parents(tag), false)))
+            .query_and_then(params![tag], |row| row.get(0))?
+            .next()
+            .transpose()
             .map_err(Into::into)
     }
 
