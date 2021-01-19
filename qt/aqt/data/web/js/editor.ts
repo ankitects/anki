@@ -11,7 +11,13 @@ declare interface String {
 
 /* kept for compatibility with add-ons */
 String.prototype.format = function (...args: string[]): string {
-    return this.replace(/\{\d+\}/g, (m) => args[m.match(/\d+/)]);
+    return this.replace(/\{\d+\}/g, (m: string): void => {
+        const match = m.match(/\d+/)
+
+        return match
+            ? args[match[0]]
+            : "";
+    })
 };
 
 function setFGButton(col: string): void {
@@ -518,8 +524,7 @@ let isNightMode = function (): boolean {
 
 let filterExternalSpan = function (elem: HTMLElement) {
     // filter out attributes
-    for (let i = 0; i < elem.attributes.length; i++) {
-        const attr = elem.attributes.item(i);
+    for (const attr of [...elem.attributes]) {
         const attrName = attr.name.toUpperCase();
 
         if (attrName !== "STYLE") {
@@ -528,8 +533,7 @@ let filterExternalSpan = function (elem: HTMLElement) {
     }
 
     // filter styling
-    for (let i = 0; i < elem.style.length; i++) {
-        const name = elem.style.item(i);
+    for (const name of [...elem.style]) {
         const value = elem.style.getPropertyValue(name);
 
         if (
@@ -575,8 +579,7 @@ let filterNode = function (node: Node, extendedMode: boolean): void {
 
     // descend first, and take a copy of the child nodes as the loop will skip
     // elements due to node modifications otherwise
-    for (let i = 0; i < node.children.length; i++) {
-        const child = node.children[i];
+    for (const child of [...node.children]) {
         filterNode(child, extendedMode);
     }
 
@@ -600,8 +603,7 @@ let filterNode = function (node: Node, extendedMode: boolean): void {
             tag(node);
         } else {
             // allowed, filter out attributes
-            for (let i = 0; i < node.attributes.length; i++) {
-                const attr = node.attributes.item(i);
+            for (const attr of [...node.attributes]) {
                 const attrName = attr.name.toUpperCase();
                 if (tag.attrs.indexOf(attrName) === -1) {
                     node.removeAttributeNode(attr);
