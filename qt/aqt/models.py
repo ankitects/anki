@@ -80,9 +80,10 @@ class Models(QDialog):
 
         def on_done(fut) -> None:
             self.updateModelsList(fut.result())
+            f.modelsList.setCurrentRow(0)
+            gui_hooks.models_dialog_will_show(self)
 
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
-        f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
     def onRename(self) -> None:

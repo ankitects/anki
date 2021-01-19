@@ -743,6 +743,11 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     # Model
     ###################
     Hook(
+        name="models_dialog_will_show",
+        args=["dialog: QDialog"],
+        doc="""Allows changing the models dialog before it is shown.""",
+    ),
+    Hook(
         name="models_advanced_will_show",
         args=["advanced: QDialog"],
     ),
