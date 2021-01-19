@@ -91,10 +91,11 @@ fn normalize_tag_name(name: &str) -> Cow<str> {
         .split("::")
         .any(|comp| matches!(normalized_tag_name_component(comp), Cow::Owned(_)))
     {
-        name.split("::")
+        let comps: Vec<_> = name
+            .split("::")
             .map(normalized_tag_name_component)
-            .collect::<String>()
-            .into()
+            .collect::<Vec<_>>();
+        comps.join("::").into()
     } else {
         // no changes required
         name.into()
@@ -418,6 +419,17 @@ mod test {
         note.tags = vec!["one two".into()];
         col.update_note(&mut note)?;
         assert_eq!(&note.tags, &["one", "two"]);
+
+        // blanks should be handled
+        note.tags = vec![
+            "".into(),
+            "foo".into(),
+            " ".into(),
+            "::".into(),
+            "foo::".into(),
+        ];
+        col.update_note(&mut note)?;
+        assert_eq!(&note.tags, &["blank::blank", "foo", "foo::blank"]);
 
         Ok(())
     }
