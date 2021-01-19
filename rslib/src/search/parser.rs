@@ -512,7 +512,7 @@ fn parse_edited(s: &str) -> ParseResult<SearchNode> {
 /// second arg must be between 1-4
 fn parse_rated(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
-    let days = parse_u32(it.next().unwrap(), s)?.max(1);
+    let days = parse_u32(it.next().unwrap(), "rated:")?.max(1);
     let button = parse_answer_button(it.next(), s)?;
     Ok(SearchNode::Rated { days, ease: button })
 }
