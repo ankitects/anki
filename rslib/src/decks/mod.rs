@@ -114,10 +114,11 @@ fn normalize_native_name(name: &str) -> Cow<str> {
         .split('\x1f')
         .any(|comp| matches!(normalized_deck_name_component(comp), Cow::Owned(_)))
     {
-        name.split('\x1f')
+        let comps: Vec<_> = name
+            .split('\x1f')
             .map(normalized_deck_name_component)
-            .collect::<String>()
-            .into()
+            .collect::<Vec<_>>();
+        comps.join("\x1f").into()
     } else {
         // no changes required
         name.into()
@@ -525,7 +526,7 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use super::{human_deck_name_to_native, immediate_parent_name};
+    use super::{human_deck_name_to_native, immediate_parent_name, normalize_native_name};
     use crate::{
         collection::{open_test_collection, Collection},
         err::Result,
@@ -560,6 +561,12 @@ mod test {
             &human_deck_name_to_native("foo::::baz"),
             "foo\x1fblank\x1fbaz"
         );
+    }
+
+    #[test]
+    fn normalize() {
+        assert_eq!(&normalize_native_name("foo\x1fbar"), "foo\x1fbar");
+        assert_eq!(&normalize_native_name("fo\u{a}o\x1fbar"), "foo\x1fbar");
     }
 
     #[test]
