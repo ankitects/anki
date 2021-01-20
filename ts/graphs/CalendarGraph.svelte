@@ -25,7 +25,7 @@
     let targetYear = maxYear;
 
     $: if (sourceData) {
-        graphData = gatherData(sourceData);
+        graphData = gatherData(sourceData, i18n);
     }
 
     $: {
