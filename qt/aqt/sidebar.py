@@ -80,6 +80,10 @@ class NewSidebarTreeView(SidebarTreeViewBase):
                 (tr(TR.ACTIONS_RENAME), self.rename_tag),
                 (tr(TR.ACTIONS_DELETE), self.remove_tag),
             ),
+            SidebarItemType.FILTER: (
+                (tr(TR.ACTIONS_RENAME), self.rename_filter),
+                (tr(TR.ACTIONS_DELETE), self.remove_filter),
+            ),
         }
 
     def onContextMenu(self, point: QPoint) -> None:
@@ -182,3 +186,9 @@ class NewSidebarTreeView(SidebarTreeViewBase):
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
+
+    def remove_filter(self, item: "aqt.browser.SidebarItem") -> None:
+        self.browser.removeFilter(item.name)
+
+    def rename_filter(self, item: "aqt.browser.SidebarItem") -> None:
+        self.browser.renameFilter(item.name)
