@@ -179,9 +179,10 @@ export function renderCalendar(
         .text((d) => d)
         .attr("width", x(-1)! - 2)
         .attr("height", height - 2)
-        .attr("x", x(0)!)
+        .attr("x", x(1)! - 3)
         .attr("y", (_d, index) => bounds.marginTop + index * height)
         .attr("dominant-baseline", "hanging")
+        .attr("text-anchor", "end")
         .attr("font-size", "small")
         .attr("font-family", "monospace")
         .style("user-select", "none");
