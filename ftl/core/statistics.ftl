@@ -156,6 +156,13 @@ statistics-hours-subtitle = Review success rate for each hour of the day.
 # shown when graph is empty
 statistics-no-data = NO DATA
 statistics-calendar-title = Calendar
+statistics-calendar-label-sunday = S
+statistics-calendar-label-monday = M
+statistics-calendar-label-tuesday = T
+statistics-calendar-label-wednesday = W
+statistics-calendar-label-thursday = T
+statistics-calendar-label-friday = F
+statistics-calendar-label-saturday = S
 
 ## An amount of elapsed time, used in the graphs to show the amount of
 ## time spent studying. For example, English would show "5s" for 5 seconds,
