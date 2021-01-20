@@ -1487,16 +1487,33 @@ QTableView {{ gridline-color: {grid} }}
             self.col.set_config("savedFilters", conf)
             self.maybeRefreshSidebar()
 
-    def _onRemoveFilter(self):
-        name = self._currentFilterIsSaved()
+    def _onRemoveFilter(self) -> None:
+        self.removeFilter(self._currentFilterIsSaved())
+
+    def removeFilter(self, name: str) -> None:
         if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
             return
-        del self.col.conf["savedFilters"][name]
-        self.col.setMod()
+        conf = self.col.get_config("savedFilters")
+        del conf[name]
+        self.col.set_config("savedFilters", conf)
+        self.maybeRefreshSidebar()
+
+    def renameFilter(self, old: str) -> None:
+        conf = self.col.get_config("savedFilters")
+        try:
+            filt = conf[old]
+        except KeyError:
+            return
+        new = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
+        if new == old or not new:
+            return
+        conf[new] = filt
+        del conf[old]
+        self.col.set_config("savedFilters", conf)
         self.maybeRefreshSidebar()
 
     # returns name if found
-    def _currentFilterIsSaved(self):
+    def _currentFilterIsSaved(self) -> Optional[str]:
         filt = self.form.searchEdit.lineEdit().text()
         try:
             filt = self.col.backend.normalize_search(filt)
