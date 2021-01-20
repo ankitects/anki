@@ -1,1 +1,5 @@
 * text=auto eol=lf
+*.ftl linguist-language=Fluent
+*.sql linguist-language=SQL
+cargo/remote/* -linguist-detectable
+qt/aqt/forms/*.ui -linguist-detectable
