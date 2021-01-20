@@ -294,6 +294,14 @@ function wrappedExceptForWhitespace(text: string, front: string, back: string): 
     return match[1] + front + match[2] + back + match[3];
 }
 
+function preventButtonFocus(): void {
+    for (const element of document.querySelectorAll("button.linkb")) {
+        element.addEventListener("mousedown", (evt: Event) => {
+            evt.preventDefault();
+        });
+    }
+}
+
 function disableButtons(): void {
     $("button.linkb:not(.perm)").prop("disabled", true);
 }
@@ -618,13 +626,6 @@ document.addEventListener("click", (evt: MouseEvent): void => {
         }
     }
 });
-
-// prevent editor buttons from taking focus
-for (const element of document.querySelectorAll("button.linkb")) {
-    element.addEventListener("mousedown", (evt: Event) => {
-        evt.preventDefault();
-    });
-}
 
 window.addEventListener("resize", () => {
     adjustFieldsTopMargin();
