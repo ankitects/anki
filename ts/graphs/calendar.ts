@@ -28,6 +28,7 @@ export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, number>;
     timeFunction: CountableTimeInterval;
+    weekdayLabels: string[];
 }
 
 interface DayDatum {
@@ -63,7 +64,14 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
             ? timeSaturday
             : timeSunday;
 
-    return { reviewCount, timeFunction };
+    const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+    for (let i = 0; i < data.firstWeekday; i++) {
+        const shifted = weekdayLabels.shift() as string;
+        weekdayLabels.push(shifted);
+    }
+
+    return { reviewCount, timeFunction, weekdayLabels };
 }
 
 export function renderCalendar(
@@ -82,7 +90,8 @@ export function renderCalendar(
 
     const x = scaleLinear()
         .range([bounds.marginLeft, bounds.width - bounds.marginRight])
-        .domain([0, 53]);
+        .domain([-1, 53]);
+
     // map of 0-365 -> day
     const dayMap: Map<number, DayDatum> = new Map();
     let maxCount = 0;
@@ -153,20 +162,30 @@ export function renderCalendar(
     }
 
     const height = bounds.height / 10;
-    let emptyColour = "#ddd";
-    if (nightMode) {
-        emptyColour = "#333";
-    }
-    svg.select(`g.days`)
+    const emptyColour = nightMode ? "#333" : "#ddd";
+
+    svg.select("g.weekdays")
+        .selectAll("text")
+        .data(sourceData.weekdayLabels)
+        .join("text")
+        .text((d) => d)
+        .attr("width", x(-1)! - 2)
+        .attr("height", height - 2)
+        .attr("x", x(0)!)
+        .attr("y", (_d, index) => bounds.marginTop + index * height)
+        .attr("dominant-baseline", "hanging")
+        .attr("font-size", "small")
+        .attr("font-family", "monospace")
+        .style("user-select", "none");
+
+    svg.select("g.days")
         .selectAll("rect")
         .data(data)
         .join("rect")
         .attr("fill", emptyColour)
-        .attr("width", (d) => {
-            return x(d.weekNumber + 1)! - x(d.weekNumber)! - 2;
-        })
+        .attr("width", (d) => x(d.weekNumber + 1)! - x(d.weekNumber)! - 2)
         .attr("height", height - 2)
-        .attr("x", (d) => x(d.weekNumber)!)
+        .attr("x", (d) => x(d.weekNumber + 1)!)
         .attr("y", (d) => bounds.marginTop + d.weekDay * height)
         .on("mousemove", function (this: any, d: any) {
             const [x, y] = mouse(document.body);
