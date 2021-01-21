@@ -71,6 +71,7 @@ ts_library(
         "@npm//d3-transition",
         "@npm//lodash.debounce",
         "@npm//lodash.throttle",
+        "@npm//svelte",
     ],
 )
 
