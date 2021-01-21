@@ -606,17 +606,3 @@ let filterNode = function (node: Node, extendedMode: boolean): void {
         }
     }
 };
-
-document.addEventListener("click", (evt: MouseEvent): void => {
-    const src = evt.target as Element;
-    if (src.tagName === "IMG") {
-        // image clicked; find contenteditable parent
-        let p = src;
-        while ((p = p.parentNode as Element)) {
-            if (p.className === "field") {
-                document.getElementById(p.id).focus();
-                break;
-            }
-        }
-    }
-});
