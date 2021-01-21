@@ -34,12 +34,10 @@ body {
 }
 
 #topbutsOuter {
-    position: fixed;
+    position: sticky;
     top: 0;
-    padding: 2px;
     left: 0;
-    right: 0;
-    z-index: 1;
+    padding: 2px;
 }
 
 .topbut {
@@ -92,10 +90,6 @@ button.highlighted {
     #topbutsright & {
         border-bottom: 3px solid #000;
     }
-}
-
-#fields {
-    margin-top: 35px;
 }
 
 .dupe {
