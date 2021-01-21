@@ -62,6 +62,7 @@
             <svelte:component
                 this={graph}
                 {sourceData}
+                {preferences}
                 {revlogRange}
                 {i18n}
                 {nightMode} />
