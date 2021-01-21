@@ -28,7 +28,7 @@ export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, number>;
     timeFunction: CountableTimeInterval;
-    weekdayLabels: string[];
+    weekdayLabels: number[];
 }
 
 interface DayDatum {
@@ -64,11 +64,9 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
             ? timeSaturday
             : timeSunday;
 
-    const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
-
-    for (let i = 0; i < data.firstWeekday; i++) {
-        const shifted = weekdayLabels.shift() as string;
-        weekdayLabels.push(shifted);
+    const weekdayLabels: number[] = [];
+    for (let i = 0; i < 7; i++) {
+        weekdayLabels.push((data.firstWeekday + i) % 7);
     }
 
     return { reviewCount, timeFunction, weekdayLabels };
@@ -168,7 +166,7 @@ export function renderCalendar(
         .selectAll("text")
         .data(sourceData.weekdayLabels)
         .join("text")
-        .text((d) => d)
+        .text((d: number) => i18n.weekdayLabel(d))
         .attr("width", x(-1)! - 2)
         .attr("height", height - 2)
         .attr("x", x(1)! - 3)
