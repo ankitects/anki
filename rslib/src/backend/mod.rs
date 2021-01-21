@@ -680,6 +680,11 @@ impl BackendService for Backend {
         self.with_col(|col| col.graphs_preferences())
     }
 
+    fn set_graphs_preferences(&self, input: pb::GraphsPreferencesOut) -> BackendResult<Empty> {
+        self.with_col(|col| col.set_graphs_preferences(input))
+            .map(Into::into)
+    }
+
     // decks
     //-----------------------------------------------
 

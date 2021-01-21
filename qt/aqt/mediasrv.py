@@ -19,6 +19,7 @@ from flask import Response, request
 from waitress.server import create_server
 
 import aqt
+import anki.backend_pb2 as pb
 from anki import hooks
 from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
@@ -259,6 +260,18 @@ def graph_preferences() -> bytes:
     return aqt.mw.col.backend.graphs_preferences()
 
 
+def set_graph_preferences() -> bytes:
+    data = from_json_bytes(request.data)
+
+    underscore_data = {
+        "calendar_first_day_of_week": data["calendarFirstDayOfWeek"],
+        "card_counts_separate_inactive": data["cardCountsSeparateInactive"],
+    }
+
+    data = pb.GraphsPreferencesOut(**underscore_data)
+    return aqt.mw.col.backend.set_graphs_preferences(input=data)
+
+
 def congrats_info() -> bytes:
     info = aqt.mw.col.backend.congrats_info()
     return info.SerializeToString()
@@ -267,6 +280,7 @@ def congrats_info() -> bytes:
 post_handlers = dict(
     graphData=graph_data,
     graphPreferences=graph_preferences,
+    setGraphPreferences=set_graph_preferences,
     # pylint: disable=unnecessary-lambda
     i18nResources=lambda: aqt.mw.col.backend.i18n_resources(),
     congratsInfo=congrats_info,

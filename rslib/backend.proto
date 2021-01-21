@@ -117,6 +117,7 @@ service BackendService {
   rpc CardStats(CardID) returns (String);
   rpc Graphs(GraphsIn) returns (GraphsOut);
   rpc GraphsPreferences(Empty) returns (GraphsPreferencesOut);
+  rpc SetGraphsPreferences(GraphsPreferencesOut) returns (Empty);
 
   // media
 
