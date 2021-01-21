@@ -5,7 +5,6 @@
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
     import SeparateInactiveCheckbox from "./SeparateInactiveCheckbox.svelte";
-    import { cardCountsSeparateInactive } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
@@ -18,9 +17,10 @@
 
     let graphData = (null as unknown) as GraphData;
     let tableData = (null as unknown) as TableDatum[];
+    let cardCountsSeparateInactive = false;
 
     $: {
-        graphData = gatherData(sourceData, $cardCountsSeparateInactive, i18n);
+        graphData = gatherData(sourceData, cardCountsSeparateInactive, i18n);
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
@@ -56,7 +56,7 @@
     <h1>{graphData.title}</h1>
 
     <div class="range-box-inner">
-        <SeparateInactiveCheckbox {i18n} />
+        <SeparateInactiveCheckbox {i18n} bind:cardCountsSeparateInactive />
     </div>
 
     <div class="counts-outer">
