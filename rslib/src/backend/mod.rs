@@ -676,6 +676,10 @@ impl BackendService for Backend {
         self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
     }
 
+    fn graphs_preferences(&self, _input: pb::Empty) -> BackendResult<pb::GraphsPreferencesOut> {
+        self.with_col(|col| col.graphs_preferences())
+    }
+
     // decks
     //-----------------------------------------------
 

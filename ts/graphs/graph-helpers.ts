@@ -19,6 +19,12 @@ export async function getGraphData(
     );
 }
 
+export async function getGraphPreferences(): Promise<pb.BackendProto.GraphsPreferencesOut> {
+    return pb.BackendProto.GraphsPreferencesOut.decode(
+        await postRequest("/_anki/graphPreferences", JSON.stringify({}))
+    );
+}
+
 // amount of data to fetch from backend
 export enum RevlogRange {
     Year = 1,

@@ -5,7 +5,7 @@
     import type { SvelteComponent } from "svelte/internal";
     import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
-    import { getGraphData, RevlogRange } from "./graph-helpers";
+    import { getGraphData, getGraphPreferences, RevlogRange } from "./graph-helpers";
 
     export let i18n: I18n;
     export let nightMode: boolean;
