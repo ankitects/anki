@@ -255,6 +255,10 @@ def graph_data() -> bytes:
     return aqt.mw.col.backend.graphs(search=args["search"], days=args["days"])
 
 
+def graph_preferences() -> bytes:
+    return aqt.mw.col.backend.graphs_preferences()
+
+
 def congrats_info() -> bytes:
     info = aqt.mw.col.backend.congrats_info()
     return info.SerializeToString()
@@ -262,6 +266,7 @@ def congrats_info() -> bytes:
 
 post_handlers = dict(
     graphData=graph_data,
+    graphPreferences=graph_preferences,
     # pylint: disable=unnecessary-lambda
     i18nResources=lambda: aqt.mw.col.backend.i18n_resources(),
     congratsInfo=congrats_info,

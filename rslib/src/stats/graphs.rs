@@ -45,6 +45,13 @@ impl Collection {
             first_weekday: self.get_first_weekday() as i32,
         })
     }
+
+    pub(crate) fn graphs_preferences(&self) -> Result<pb::GraphsPreferencesOut> {
+        Ok(pb::GraphsPreferencesOut {
+            calendar_first_day_of_week: self.get_first_weekday() as i32,
+            card_counts_separate_inactive: true,
+        })
+    }
 }
 
 impl From<RevlogEntry> for pb::RevlogEntry {

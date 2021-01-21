@@ -116,6 +116,7 @@ service BackendService {
 
   rpc CardStats(CardID) returns (String);
   rpc Graphs(GraphsIn) returns (GraphsOut);
+  rpc GraphsPreferences(Empty) returns (GraphsPreferencesOut);
 
   // media
 
@@ -1097,6 +1098,18 @@ message GraphsOut {
   /// Seconds to add to UTC timestamps to get local time.
   int32 local_offset_secs = 7;
   Weekday first_weekday = 8;
+}
+
+message GraphsPreferencesOut {
+  enum Weekday {
+    SUNDAY = 0;
+    MONDAY = 1;
+    FRIDAY = 5;
+    SATURDAY = 6;
+  }
+  Weekday calendar_first_day_of_week = 1;
+  bool card_counts_separate_inactive = 2;
+
 }
 
 message RevlogEntry {
