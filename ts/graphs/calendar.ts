@@ -41,7 +41,7 @@ interface DayDatum {
     date: Date;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphData {
+export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const reviewCount = new Map<number, number>();
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
@@ -64,15 +64,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphDa
             ? timeSaturday
             : timeSunday;
 
-    const weekdayLabels = [
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_SUNDAY),
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_MONDAY),
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_TUESDAY),
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_WEDNESDAY),
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_THURSDAY),
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_FRIDAY),
-        i18n.tr(i18n.TR.STATISTICS_CALENDAR_LABEL_SATURDAY),
-    ];
+    const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
 
     for (let i = 0; i < data.firstWeekday; i++) {
         const shifted = weekdayLabels.shift() as string;
