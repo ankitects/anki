@@ -25,6 +25,12 @@ export async function getGraphPreferences(): Promise<pb.BackendProto.GraphsPrefe
     );
 }
 
+export async function setGraphPreferences(prefs: pb.BackendProto.GraphsPreferencesOut): Promise<void> {
+    return (async () => {
+        await postRequest("/_anki/setGraphPreferences", JSON.stringify({ ...prefs }))
+    })()
+}
+
 // amount of data to fetch from backend
 export enum RevlogRange {
     Year = 1,

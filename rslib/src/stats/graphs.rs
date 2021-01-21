@@ -52,6 +52,11 @@ impl Collection {
             card_counts_separate_inactive: true,
         })
     }
+
+    pub(crate) fn set_graphs_preferences(&self, prefs: pb::GraphsPreferencesOut) -> Result<()> {
+        // self.set_first_weekday(prefs.calendar_first_day_of_week);
+        Ok(())
+    }
 }
 
 impl From<RevlogEntry> for pb::RevlogEntry {
