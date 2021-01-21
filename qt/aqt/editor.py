@@ -222,6 +222,7 @@ class Editor:
             js=["js/vendor/jquery.min.js", "js/editor.js"],
             context=self,
         )
+        self.web.eval("preventButtonFocus();")
 
     # Top buttons
     ######################################################################
