@@ -4,8 +4,10 @@
 <script lang="typescript">
     import type { SvelteComponent } from "svelte/internal";
     import type { I18n } from "anki/i18n";
+    import type { PreferenceStore } from "./preferences";
     import type pb from "anki/backend_proto";
-    import { getGraphData, getGraphPreferences, RevlogRange } from "./graph-helpers";
+    import { getGraphData, RevlogRange } from "./graph-helpers";
+    import { getPreferences } from "./preferences";
 
     export let i18n: I18n;
     export let nightMode: boolean;
@@ -17,12 +19,18 @@
 
     let active = false;
     let sourceData: pb.BackendProto.GraphsOut | null = null;
+    let preferences: PreferenceStore | null = null;
     let revlogRange: RevlogRange;
+
+    const preferencesPromise = getPreferences();
 
     const refreshWith = async (search: string, days: number) => {
         active = true;
         try {
-            sourceData = await getGraphData(search, days);
+            [sourceData, preferences] = await Promise.all([
+                getGraphData(search, days),
+                preferencesPromise,
+            ]);
             revlogRange = days > 365 || days === 0 ? RevlogRange.All : RevlogRange.Year;
         } catch (e) {
             sourceData = null;
