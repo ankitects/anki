@@ -8,7 +8,6 @@ from enum import Enum
 
 import aqt
 from anki.errors import DeckRenameError
-from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.models import Models
 from aqt.qt import *
@@ -197,12 +196,6 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.browser.renameFilter(item.name)
 
     def manage_notetype(self, item: "aqt.browser.SidebarItem") -> None:
-        def select(dialog: QDialog):
-            for i, m in enumerate(dialog.models):
-                if m.name == item.name:
-                    dialog.form.modelsList.setCurrentRow(i)
-                    break
-
-        gui_hooks.models_dialog_will_show.append(select)
-        Models(self.mw, parent=self.browser, fromMain=True)
-        gui_hooks.models_dialog_will_show.remove(select)
+        Models(
+            self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
+        )
