@@ -99,7 +99,11 @@ impl Backend {
 
         self.with_sync_server(|server| {
             let mut rt = Runtime::new().unwrap();
-            rt.block_on(server.start(input.client_usn, input.local_is_newer))
+            rt.block_on(server.start(
+                input.client_usn,
+                input.local_is_newer,
+                input.deprecated_client_graves,
+            ))
         })
     }
 

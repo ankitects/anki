@@ -98,6 +98,9 @@ pub struct StartIn {
     pub client_usn: Usn,
     #[serde(rename = "lnewer")]
     pub local_is_newer: bool,
+    /// Unfortunately AnkiDroid is still using this
+    #[serde(rename = "graves", default)]
+    pub deprecated_client_graves: Option<Graves>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
