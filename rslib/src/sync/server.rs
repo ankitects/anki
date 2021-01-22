@@ -18,7 +18,12 @@ use super::ChunkableIDs;
 #[async_trait(?Send)]
 pub trait SyncServer {
     async fn meta(&self) -> Result<SyncMeta>;
-    async fn start(&mut self, client_usn: Usn, local_is_newer: bool) -> Result<Graves>;
+    async fn start(
+        &mut self,
+        client_usn: Usn,
+        local_is_newer: bool,
+        deprecated_client_graves: Option<Graves>,
+    ) -> Result<Graves>;
     async fn apply_graves(&mut self, client_chunk: Graves) -> Result<()>;
     async fn apply_changes(&mut self, client_changes: UnchunkedChanges)
         -> Result<UnchunkedChanges>;
@@ -84,13 +89,23 @@ impl SyncServer for LocalServer {
         })
     }
 
-    async fn start(&mut self, client_usn: Usn, client_is_newer: bool) -> Result<Graves> {
+    async fn start(
+        &mut self,
+        client_usn: Usn,
+        client_is_newer: bool,
+        deprecated_client_graves: Option<Graves>,
+    ) -> Result<Graves> {
         self.server_usn = self.col.usn()?;
         self.client_usn = client_usn;
         self.client_is_newer = client_is_newer;
 
         self.col.storage.begin_rust_trx()?;
-        self.col.storage.pending_graves(client_usn)
+        let server_graves = self.col.storage.pending_graves(client_usn)?;
+        // Handle AnkiDroid using old protocol
+        if let Some(graves) = deprecated_client_graves {
+            self.col.apply_graves(graves, self.server_usn)?;
+        }
+        Ok(server_graves)
     }
 
     async fn apply_graves(&mut self, client_chunk: Graves) -> Result<()> {
