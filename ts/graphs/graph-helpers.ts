@@ -27,7 +27,7 @@ export async function getGraphPreferences(): Promise<pb.BackendProto.GraphsPrefe
 
 export async function setGraphPreferences(prefs: pb.BackendProto.GraphsPreferencesOut): Promise<void> {
     return (async () => {
-        await postRequest("/_anki/setGraphPreferences", JSON.stringify({ ...prefs }))
+        await postRequest("/_anki/setGraphPreferences", pb.BackendProto.GraphsPreferencesOut.encode(prefs).finish())
     })()
 }
 
