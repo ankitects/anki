@@ -33,7 +33,7 @@ body {
     margin: 0;
 }
 
-#topbuts {
+#topbutsOuter {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -42,6 +42,18 @@ body {
     top: 0;
     left: 0;
     padding: 2px;
+}
+
+.topbuts > button {
+    margin: 0 1px;
+
+    &:first-child {
+        margin-left: 0;
+    }
+
+    &:last-child {
+        margin-right: 0;
+    }
 }
 
 .topbut {
