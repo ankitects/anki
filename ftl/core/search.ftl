@@ -1,6 +1,7 @@
 ## Errors shown when invalid search input is encountered.
-## Text wrapped in `backticks` is literal search input, and should generally be preserved unaltered as should be the backticks themselves.
-## It's ok to change quotes which aren't wrapped in backticks however, eg:
+## Backticks change the text formatting, so please don't change the backticks.
+## Text inside backticks should not be changed unless noted.
+## It's ok to change quotes outside of backticks however, eg:
 ## "`{ $context }`" => 「`{ $context }`」
 
 search-invalid-search = Invalid search: { $reason }
@@ -18,6 +19,9 @@ search-invalid-argument = `{ $term }` was given an invalid argument '`{ $argumen
 search-invalid-flag = `flag:` must be followed by a valid flag number: `1` (red), `2` (orange), `3` (green), `4` (blue) or `0` (no flag).
 search-invalid-prop-operator = `prop:{ $val }` must be followed by one of the following comparison operators: `=`, `!=`, `<`, `>`, `<=` or `>=`.
 search-invalid-other = please check for typing mistakes.
+
+## eg. expected a number in "due>5x", but found "5x"
+
 search-invalid-number = expected a number in "`{ $context }`", but found "`{ $provided }`".
 search-invalid-whole-number = expected a whole number in "`{ $context }`", but found "`{ $provided }`".
 search-invalid-positive-whole-number = expected a positive whole number in "`{ $context }`", but found "`{ $provided }`".
