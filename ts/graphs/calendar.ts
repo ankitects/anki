@@ -85,7 +85,8 @@ export function renderCalendar(
     targetYear: number,
     i18n: I18n,
     nightMode: boolean,
-    revlogRange: RevlogRange
+    revlogRange: RevlogRange,
+    setFirstDayOfWeek: (d: number) => void,
 ): void {
     const svg = select(svgElem);
     const now = new Date();
@@ -181,7 +182,10 @@ export function renderCalendar(
         .attr("text-anchor", "end")
         .attr("font-size", "small")
         .attr("font-family", "monospace")
-        .style("user-select", "none");
+        .style("user-select", "none")
+        .on("click", null)
+        .filter((d: number) => [Weekday.SUNDAY, Weekday.MONDAY, Weekday.FRIDAY, Weekday.SATURDAY].includes(d))
+        .on("click", setFirstDayOfWeek);
 
     svg.select("g.days")
         .selectAll("rect")
@@ -199,11 +203,5 @@ export function renderCalendar(
         .on("mouseout", hideTooltip)
         .transition()
         .duration(800)
-        .attr("fill", (d) => {
-            if (d.count === 0) {
-                return emptyColour;
-            } else {
-                return blues(d.count)!;
-            }
-        });
+        .attr("fill", (d) => d.count === 0 ? emptyColour : blues(d.count)!);
 }
