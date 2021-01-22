@@ -51,8 +51,9 @@
             targetYear,
             i18n,
             nightMode,
-            revlogRange
-        );
+            revlogRange,
+            calendarFirstDayOfWeek.set,
+        )
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_CALENDAR_TITLE);
