@@ -5,7 +5,6 @@
     import type { PreferenceStore } from "./preferences";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
-    import SeparateInactiveCheckbox from "./SeparateInactiveCheckbox.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
@@ -26,6 +25,7 @@
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
+    const label = i18n.tr(i18n.TR.STATISTICS_COUNTS_SEPARATE_SUSPENDED_BURIED_CARDS);
     const total = i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS);
 </script>
 
@@ -58,7 +58,10 @@
     <h1>{graphData.title}</h1>
 
     <div class="range-box-inner">
-        <SeparateInactiveCheckbox {i18n} {cardCountsSeparateInactive} />
+        <label>
+            <input type="checkbox" bind:checked={$cardCountsSeparateInactive} />
+            {label}
+        </label>
     </div>
 
     <div class="counts-outer">
