@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, prelude::*, revlog::RevlogEntry, search::SortMode, config::Weekday};
+use crate::{
+    backend_proto as pb, config::Weekday, prelude::*, revlog::RevlogEntry, search::SortMode,
+};
 
 impl Collection {
     pub(crate) fn graph_data_for_search(
@@ -48,7 +50,7 @@ impl Collection {
     pub(crate) fn graphs_preferences(&self) -> Result<pb::GraphsPreferencesOut> {
         Ok(pb::GraphsPreferencesOut {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
-            card_counts_separate_inactive: true,
+            card_counts_separate_inactive: self.get_card_counts_separate_inactive(),
         })
     }
 
@@ -59,6 +61,7 @@ impl Collection {
             6 => Weekday::Saturday,
             _ => Weekday::Sunday,
         })?;
+        self.set_card_counts_separate_inactive(prefs.card_counts_separate_inactive)?;
         Ok(())
     }
 }
