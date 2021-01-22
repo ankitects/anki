@@ -44,7 +44,7 @@ body {
     padding: 2px;
 }
 
-.topbuts > button {
+.topbuts > * {
     margin: 0 1px;
 
     &:first-child {
@@ -75,6 +75,7 @@ body {
 
 button.linkb {
     -webkit-appearance: none;
+    margin-bottom: -3px;
     border: 0;
     box-shadow: none;
     padding: 0px 2px;
@@ -95,12 +96,12 @@ button:focus {
 }
 
 button.highlighted {
-    .nightMode #topbutsleft & {
-        background: linear-gradient(0deg, #333333 0%, #434343 100%);
-    }
-
     #topbutsleft & {
         background-color: lightgrey;
+
+        .nightMode & {
+            background: linear-gradient(0deg, #333333 0%, #434343 100%);
+        }
     }
 
     #topbutsright & {
