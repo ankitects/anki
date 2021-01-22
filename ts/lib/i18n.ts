@@ -59,6 +59,13 @@ export class I18n {
         }
     }
 
+    weekdayLabel(n: number): string {
+        const firstLang = this.bundles[0].locales[0];
+        return new Date(86_400_000 * (3 + n)).toLocaleDateString(firstLang, {
+            weekday: "narrow",
+        });
+    }
+
     private keyName(msg: pb.FluentProto.FluentString): string {
         return this.TR[msg].toLowerCase().replace(/_/g, "-");
     }

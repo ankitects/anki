@@ -74,6 +74,7 @@
     </div>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
+        <g class="weekdays" />
         <g class="days" />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
