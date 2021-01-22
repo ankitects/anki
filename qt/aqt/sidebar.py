@@ -9,6 +9,7 @@ from enum import Enum
 import aqt
 from anki.errors import DeckRenameError
 from aqt.main import ResetReason
+from aqt.models import Models
 from aqt.qt import *
 from aqt.utils import TR, getOnlyText, showInfo, showWarning, tr
 
@@ -84,6 +85,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
                 (tr(TR.ACTIONS_RENAME), self.rename_filter),
                 (tr(TR.ACTIONS_DELETE), self.remove_filter),
             ),
+            SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
         }
 
     def onContextMenu(self, point: QPoint) -> None:
@@ -192,3 +194,8 @@ class NewSidebarTreeView(SidebarTreeViewBase):
 
     def rename_filter(self, item: "aqt.browser.SidebarItem") -> None:
         self.browser.renameFilter(item.name)
+
+    def manage_notetype(self, item: "aqt.browser.SidebarItem") -> None:
+        Models(
+            self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
+        )

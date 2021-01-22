@@ -1230,6 +1230,7 @@ QTableView {{ gridline-color: {grid} }}
                 ":/icons/notetype.svg",
                 self._note_filter(m.name),
                 item_type=SidebarItemType.NOTETYPE,
+                id=m.id,
             )
             root.addChild(item)
 
