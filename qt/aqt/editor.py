@@ -72,13 +72,11 @@ audio = (
 _html = """
 <style>
 html { background: %s; }
-#topbutsOuter { background: %s; }
+#topbuts { background: %s; }
 </style>
 <div>
-    <div id="topbutsOuter">
-        <div id="topbuts" class="clearfix">
-    %s
-        </div>
+    <div id="topbuts">
+        %s
     </div>
     <div id="fields">
     </div>
@@ -206,10 +204,10 @@ class Editor:
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
 
         topbuts = """
-            <div id="topbutsleft" style="float:left;">
+            <div id="topbutsleft">
                 %(leftbts)s
             </div>
-            <div id="topbutsright" style="float:right;">
+            <div id="topbutsright">
                 %(rightbts)s
             </div>
         """ % dict(
