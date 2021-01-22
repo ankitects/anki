@@ -1103,7 +1103,6 @@ message GraphsPreferencesOut {
   }
   Weekday calendar_first_day_of_week = 1;
   bool card_counts_separate_inactive = 2;
-
 }
 
 message RevlogEntry {
