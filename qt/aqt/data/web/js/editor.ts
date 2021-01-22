@@ -606,31 +606,3 @@ let filterNode = function (node: Node, extendedMode: boolean): void {
         }
     }
 };
-
-let adjustFieldsTopMargin = function (): void {
-    const topHeight = $("#topbuts").height();
-    const margin = topHeight + 8;
-    document.getElementById("fields").style.marginTop = `${margin}px`;
-};
-
-document.addEventListener("click", (evt: MouseEvent): void => {
-    const src = evt.target as Element;
-    if (src.tagName === "IMG") {
-        // image clicked; find contenteditable parent
-        let p = src;
-        while ((p = p.parentNode as Element)) {
-            if (p.className === "field") {
-                document.getElementById(p.id).focus();
-                break;
-            }
-        }
-    }
-});
-
-window.addEventListener("resize", () => {
-    adjustFieldsTopMargin();
-});
-
-$(function (): void {
-    adjustFieldsTopMargin();
-});
