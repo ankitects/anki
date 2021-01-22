@@ -28,10 +28,17 @@ from aqt.utils import (
 
 
 class Models(QDialog):
-    def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
+    def __init__(
+        self,
+        mw: AnkiQt,
+        parent=None,
+        fromMain=False,
+        selected_notetype_id: Optional[int] = None,
+    ):
         self.mw = mw
         parent = parent or mw
         self.fromMain = fromMain
+        self.selected_notetype_id = selected_notetype_id
         QDialog.__init__(self, parent, Qt.Window)
         self.col = mw.col.weakref()
         assert self.col
@@ -50,6 +57,15 @@ class Models(QDialog):
 
     # Models
     ##########################################################################
+
+    def maybe_select_provided_notetype(self):
+        if not self.selected_notetype_id:
+            self.form.modelsList.setCurrentRow(0)
+            return
+        for i, m in enumerate(self.models):
+            if m.id == self.selected_notetype_id:
+                self.form.modelsList.setCurrentRow(i)
+                break
 
     def setupModels(self) -> None:
         self.model = None
@@ -80,9 +96,9 @@ class Models(QDialog):
 
         def on_done(fut) -> None:
             self.updateModelsList(fut.result())
+            self.maybe_select_provided_notetype()
 
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
-        f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
     def onRename(self) -> None:
