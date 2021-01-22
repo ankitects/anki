@@ -18,7 +18,6 @@ pub(crate) fn schema11_config_as_string() -> String {
         "curDeck": 1,
         "newSpread": 0,
         "collapseTime": 1200,
-        "firstWeekday": 0,
         "timeLim": 0,
         "estTimes": true,
         "dueCounts": true,
@@ -231,12 +230,8 @@ impl Collection {
     }
 
     pub(crate) fn get_first_weekday(&self) -> Weekday {
-        match self.get_config_default::<u8, _>(ConfigKey::FirstWeekday) {
-            1 => Weekday::Monday,
-            5 => Weekday::Friday,
-            6 => Weekday::Saturday,
-            _ => Weekday::Sunday,
-        }
+        self.get_config_optional(ConfigKey::FirstWeekday)
+            .unwrap_or(Weekday::Sunday)
     }
 
     pub(crate) fn get_show_due_counts(&self) -> bool {
@@ -321,6 +316,8 @@ pub(crate) enum NewReviewMix {
     NewFirst = 2,
 }
 
+#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
+#[repr(u8)]
 pub(crate) enum Weekday {
     Sunday = 0,
     Monday = 1,
