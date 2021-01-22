@@ -18,8 +18,8 @@ import flask_cors  # type: ignore
 from flask import Response, request
 from waitress.server import create_server
 
-import aqt
 import anki.backend_pb2 as pb
+import aqt
 from anki import hooks
 from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
@@ -260,16 +260,10 @@ def graph_preferences() -> bytes:
     return aqt.mw.col.backend.graphs_preferences()
 
 
-def set_graph_preferences() -> bytes:
-    data = from_json_bytes(request.data)
-
-    underscore_data = {
-        "calendar_first_day_of_week": data["calendarFirstDayOfWeek"],
-        "card_counts_separate_inactive": data["cardCountsSeparateInactive"],
-    }
-
-    data = pb.GraphsPreferencesOut(**underscore_data)
-    return aqt.mw.col.backend.set_graphs_preferences(input=data)
+def set_graph_preferences() -> None:
+    input = pb.GraphsPreferencesOut()
+    input.ParseFromString(request.data)
+    aqt.mw.col.backend.set_graphs_preferences(input=input)
 
 
 def congrats_info() -> bytes:
@@ -277,14 +271,14 @@ def congrats_info() -> bytes:
     return info.SerializeToString()
 
 
-post_handlers = dict(
-    graphData=graph_data,
-    graphPreferences=graph_preferences,
-    setGraphPreferences=set_graph_preferences,
+post_handlers = {
+    "graphData": graph_data,
+    "graphPreferences": graph_preferences,
+    "setGraphPreferences": set_graph_preferences,
     # pylint: disable=unnecessary-lambda
-    i18nResources=lambda: aqt.mw.col.backend.i18n_resources(),
-    congratsInfo=congrats_info,
-)
+    "i18nResources": lambda: aqt.mw.col.backend.i18n_resources(),
+    "congratsInfo": congrats_info,
+}
 
 
 def handle_post(path: str) -> Response:
@@ -293,12 +287,15 @@ def handle_post(path: str) -> Response:
         return flask.make_response("Collection not open", HTTPStatus.NOT_FOUND)
 
     if path in post_handlers:
-        data = post_handlers[path]()
-        response = flask.make_response(data)
-        response.headers["Content-Type"] = "application/binary"
-        return response
+        if data := post_handlers[path]():
+            response = flask.make_response(data)
+            response.headers["Content-Type"] = "application/binary"
+        else:
+            response = flask.make_response("", HTTPStatus.NO_CONTENT)
     else:
-        return flask.make_response(
+        response = flask.make_response(
             f"Unhandled post to {path}",
             HTTPStatus.FORBIDDEN,
         )
+
+    return response
