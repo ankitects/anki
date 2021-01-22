@@ -1,6 +1,6 @@
 ## Errors shown when invalid search input is encountered.
-## Text wrapped in `backticks` is literal search input, and should generally not to be altered.
-## It's ok to change quotes however, eg:
+## Text wrapped in `backticks` is literal search input, and should generally be preserved unaltered as should be the backticks themselves.
+## It's ok to change quotes which aren't wrapped in backticks however, eg:
 ## "`{ $context }`" => 「`{ $context }`」
 
 search-invalid-search = Invalid search: { $reason }
