@@ -8,6 +8,7 @@
 
 import pb from "anki/backend_proto";
 import type { Selection } from "d3-selection";
+import type { PreferencePayload } from "./preferences";
 import { postRequest } from "anki/postrequest";
 
 export async function getGraphData(
@@ -25,10 +26,8 @@ export async function getGraphPreferences(): Promise<pb.BackendProto.GraphsPrefe
     );
 }
 
-export async function setGraphPreferences(
-    prefs: pb.BackendProto.GraphsPreferencesOut
-): Promise<void> {
-    return (async () => {
+export async function setGraphPreferences(prefs: PreferencePayload): Promise<void> {
+    return (async (): Promise<void> => {
         await postRequest(
             "/_anki/setGraphPreferences",
             pb.BackendProto.GraphsPreferencesOut.encode(prefs).finish()

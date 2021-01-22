@@ -178,7 +178,7 @@ export function renderCalendar(
         .attr("height", height - 2)
         .attr("x", x(1)! - 3)
         .attr("y", (_d, index) => bounds.marginTop + index * height)
-        .attr("fill", emptyColour)
+        .attr("fill", nightMode ? "#ddd" : "black")
         .attr("dominant-baseline", "hanging")
         .attr("text-anchor", "end")
         .attr("font-size", "small")
