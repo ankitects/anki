@@ -33,7 +33,11 @@ body {
     margin: 0;
 }
 
-#topbutsOuter {
+#topbuts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
     position: sticky;
     top: 0;
     left: 0;
