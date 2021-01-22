@@ -8,16 +8,16 @@ export interface CustomStore<T> extends Writable<T> {
 }
 
 export type PreferenceStore = {
-    [K in keyof Omit<pb.BackendProto.GraphsPreferencesOut, "toJSON">]: CustomStore<
-        pb.BackendProto.GraphsPreferencesOut[K]
+    [K in keyof Omit<pb.BackendProto.GraphsPreferences, "toJSON">]: CustomStore<
+        pb.BackendProto.GraphsPreferences[K]
     >;
 };
 
 export type PreferencePayload = {
     [K in keyof Omit<
-        pb.BackendProto.GraphsPreferencesOut,
+        pb.BackendProto.GraphsPreferences,
         "toJSON"
-    >]: pb.BackendProto.GraphsPreferencesOut[K];
+    >]: pb.BackendProto.GraphsPreferences[K];
 };
 
 function createPreference<T>(
@@ -40,7 +40,7 @@ function createPreference<T>(
 }
 
 function preparePreferences(
-    graphsPreferences: pb.BackendProto.GraphsPreferencesOut
+    graphsPreferences: pb.BackendProto.GraphsPreferences
 ): PreferenceStore {
     const preferences: Partial<PreferenceStore> = {};
 

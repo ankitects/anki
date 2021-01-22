@@ -47,14 +47,14 @@ impl Collection {
         })
     }
 
-    pub(crate) fn graphs_preferences(&self) -> Result<pb::GraphsPreferencesOut> {
-        Ok(pb::GraphsPreferencesOut {
+    pub(crate) fn get_graphs_preferences(&self) -> Result<pb::GraphsPreferences> {
+        Ok(pb::GraphsPreferences {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
             card_counts_separate_inactive: self.get_card_counts_separate_inactive(),
         })
     }
 
-    pub(crate) fn set_graphs_preferences(&self, prefs: pb::GraphsPreferencesOut) -> Result<()> {
+    pub(crate) fn set_graphs_preferences(&self, prefs: pb::GraphsPreferences) -> Result<()> {
         self.set_first_day_of_week(match prefs.calendar_first_day_of_week {
             1 => Weekday::Monday,
             5 => Weekday::Friday,

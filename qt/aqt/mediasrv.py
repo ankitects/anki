@@ -256,12 +256,12 @@ def graph_data() -> bytes:
     return aqt.mw.col.backend.graphs(search=args["search"], days=args["days"])
 
 
-def graph_preferences() -> bytes:
-    return aqt.mw.col.backend.graphs_preferences()
+def graph_preferences() -> pb.GraphsPreferences:
+    return aqt.mw.col.backend.get_graphs_preferences()
 
 
 def set_graph_preferences() -> None:
-    input = pb.GraphsPreferencesOut()
+    input = pb.GraphsPreferences()
     input.ParseFromString(request.data)
     aqt.mw.col.backend.set_graphs_preferences(input=input)
 

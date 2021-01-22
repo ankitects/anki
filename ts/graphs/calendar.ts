@@ -41,8 +41,8 @@ interface DayDatum {
     date: Date;
 }
 
-type WeekdayType = pb.BackendProto.GraphsPreferencesOut.Weekday;
-const Weekday = pb.BackendProto.GraphsPreferencesOut.Weekday; /* enum */
+type WeekdayType = pb.BackendProto.GraphsPreferences.Weekday;
+const Weekday = pb.BackendProto.GraphsPreferences.Weekday; /* enum */
 
 export function gatherData(
     data: pb.BackendProto.GraphsOut,
