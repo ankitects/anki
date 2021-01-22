@@ -2,7 +2,6 @@ import type pb from "anki/backend_proto";
 import { getGraphPreferences, setGraphPreferences } from "./graph-helpers";
 import { writable, get } from "svelte/store";
 
-
 export interface CustomStore<T> {
     subscribe: (getter: (value: T) => void) => () => void;
     set: (value: T) => void;
@@ -29,7 +28,9 @@ function createPreference<T>(
     };
 }
 
-function preparePreferences(graphsPreferences: pb.BackendProto.GraphsPreferencesOut): PreferenceStore {
+function preparePreferences(
+    graphsPreferences: pb.BackendProto.GraphsPreferencesOut
+): PreferenceStore {
     const preferences: Partial<PreferenceStore> = {};
 
     function constructPreferences(): pb.BackendProto.GraphsPreferencesOut {
@@ -53,5 +54,5 @@ function preparePreferences(graphsPreferences: pb.BackendProto.GraphsPreferences
 
 export async function getPreferences() {
     const initialPreferences = await getGraphPreferences();
-    return preparePreferences(initialPreferences)
+    return preparePreferences(initialPreferences);
 }

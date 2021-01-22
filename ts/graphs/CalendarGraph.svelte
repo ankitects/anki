@@ -8,10 +8,12 @@
     import type { I18n } from "anki/i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let preferences: pb.BackendProto.GraphsPreferencesOut | null = null;
     export let revlogRange: RevlogRange;
     export let i18n: I18n;
     export let nightMode: boolean;
 
+    let { calendarFirstDayOfWeek } = preferences;
     let graphData: GraphData | null = null;
 
     let bounds = defaultGraphBounds();
@@ -25,7 +27,7 @@
     let targetYear = maxYear;
 
     $: if (sourceData) {
-        graphData = gatherData(sourceData);
+        graphData = gatherData(sourceData, $calendarFirstDayOfWeek);
     }
 
     $: {

@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type pb from "anki/backend_proto";
+import pb from "anki/backend_proto";
 import { interpolateBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
@@ -41,7 +41,13 @@ interface DayDatum {
     date: Date;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+type WeekdayType = pb.BackendProto.GraphsPreferencesOut.Weekday;
+const Weekday = pb.BackendProto.GraphsPreferencesOut.Weekday; /* enum */
+
+export function gatherData(
+    data: pb.BackendProto.GraphsOut,
+    firstDayOfWeek: WeekdayType
+): GraphData {
     const reviewCount = new Map<number, number>();
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
@@ -56,17 +62,17 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     }
 
     const timeFunction =
-        data.firstWeekday === 1
+        firstDayOfWeek === Weekday.MONDAY
             ? timeMonday
-            : data.firstWeekday === 5
+            : data.firstWeekday === Weekday.FRIDAY
             ? timeFriday
-            : data.firstWeekday === 6
+            : data.firstWeekday === Weekday.SATURDAY
             ? timeSaturday
             : timeSunday;
 
     const weekdayLabels: number[] = [];
     for (let i = 0; i < 7; i++) {
-        weekdayLabels.push((data.firstWeekday + i) % 7);
+        weekdayLabels.push((firstDayOfWeek + i) % 7);
     }
 
     return { reviewCount, timeFunction, weekdayLabels };
