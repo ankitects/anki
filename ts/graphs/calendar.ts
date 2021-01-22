@@ -64,9 +64,9 @@ export function gatherData(
     const timeFunction =
         firstDayOfWeek === Weekday.MONDAY
             ? timeMonday
-            : data.firstWeekday === Weekday.FRIDAY
+            : firstDayOfWeek === Weekday.FRIDAY
             ? timeFriday
-            : data.firstWeekday === Weekday.SATURDAY
+            : firstDayOfWeek === Weekday.SATURDAY
             ? timeSaturday
             : timeSunday;
 

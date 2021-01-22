@@ -47,7 +47,7 @@ pub(crate) enum ConfigKey {
     ShowRemainingDueCountsInStudy,
     ShowIntervalsAboveAnswerButtons,
     NewReviewMix,
-    FirstWeekday,
+    FirstDayOfWeek,
     AnswerTimeLimitSecs,
     ShowDayLearningCardsFirst,
     LastUnburiedDay,
@@ -76,7 +76,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
             ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
             ConfigKey::NewReviewMix => "newSpread",
-            ConfigKey::FirstWeekday => "firstWeekday",
+            ConfigKey::FirstDayOfWeek => "firstDayOfWeek",
             ConfigKey::AnswerTimeLimitSecs => "timeLim",
             ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
             ConfigKey::LastUnburiedDay => "lastUnburied",
@@ -229,9 +229,13 @@ impl Collection {
         self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
     }
 
-    pub(crate) fn get_first_weekday(&self) -> Weekday {
-        self.get_config_optional(ConfigKey::FirstWeekday)
+    pub(crate) fn get_first_day_of_week(&self) -> Weekday {
+        self.get_config_optional(ConfigKey::FirstDayOfWeek)
             .unwrap_or(Weekday::Sunday)
+    }
+
+    pub(crate) fn set_first_day_of_week(&self, weekday: Weekday) -> Result<()> {
+        self.set_config(ConfigKey::FirstDayOfWeek, &weekday)
     }
 
     pub(crate) fn get_show_due_counts(&self) -> bool {
