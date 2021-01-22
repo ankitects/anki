@@ -116,8 +116,8 @@ service BackendService {
 
   rpc CardStats(CardID) returns (String);
   rpc Graphs(GraphsIn) returns (GraphsOut);
-  rpc GraphsPreferences(Empty) returns (GraphsPreferencesOut);
-  rpc SetGraphsPreferences(GraphsPreferencesOut) returns (Empty);
+  rpc GetGraphsPreferences(Empty) returns (GraphsPreferences);
+  rpc SetGraphsPreferences(GraphsPreferences) returns (Empty);
 
   // media
 
@@ -1094,7 +1094,7 @@ message GraphsOut {
   int32 local_offset_secs = 7;
 }
 
-message GraphsPreferencesOut {
+message GraphsPreferences {
   enum Weekday {
     SUNDAY = 0;
     MONDAY = 1;
