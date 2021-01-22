@@ -256,7 +256,7 @@ def graph_data() -> bytes:
     return aqt.mw.col.backend.graphs(search=args["search"], days=args["days"])
 
 
-def graph_preferences() -> pb.GraphsPreferences:
+def graph_preferences() -> bytes:
     return aqt.mw.col.backend.get_graphs_preferences()
 
 

@@ -34,7 +34,7 @@ LABEL_REPEATED = 3
 
 # messages we don't want to unroll in codegen
 SKIP_UNROLL_INPUT = {"TranslateString"}
-SKIP_DECODE = {"Graphs", "GraphsPreferences"}
+SKIP_DECODE = {"Graphs", "GetGraphsPreferences"}
 
 
 def python_type(field):
