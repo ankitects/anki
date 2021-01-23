@@ -346,6 +346,7 @@ order by due"""
         if recursing:
             print("bug: fillNew()")
             return False
+        self._reset_counts()
         self._resetNew()
         return self._fillNew(recursing=True)
 
@@ -862,7 +863,12 @@ limit ?"""
                 self._revQueue.reverse()
                 return True
 
-        return False
+        if recursing:
+            print("bug: fillRev2()")
+            return False
+        self._reset_counts()
+        self._resetRev()
+        return self._fillRev(recursing=True)
 
     def _getRevCard(self) -> Optional[Card]:
         if self._fillRev():

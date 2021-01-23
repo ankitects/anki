@@ -492,6 +492,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if recursing:
             print("bug: fillRev()")
             return False
+        self._reset_counts()
         self._resetRev()
         return self._fillRev(recursing=True)
 
