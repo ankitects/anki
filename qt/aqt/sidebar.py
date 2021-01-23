@@ -23,6 +23,7 @@ class SidebarItemType(Enum):
     NOTETYPE = 5
     TAG = 6
     CUSTOM = 7
+    TEMPLATE = 8
 
 
 class SidebarTreeViewBase(QTreeView):
