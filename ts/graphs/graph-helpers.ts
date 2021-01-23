@@ -41,6 +41,10 @@ export enum RevlogRange {
     All = 2,
 }
 
+export function daysToRevlogRange(days: number): RevlogRange {
+    return days > 365 || days === 0 ? RevlogRange.All : RevlogRange.Year;
+}
+
 // period a graph should cover
 export enum GraphRange {
     Month = 0,

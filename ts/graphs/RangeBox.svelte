@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
 
     import type { I18n } from "anki/i18n";
-    import { RevlogRange } from "./graph-helpers";
+    import { RevlogRange, daysToRevlogRange } from "./graph-helpers";
 
     enum SearchRange {
         Deck = 1,
@@ -18,9 +18,7 @@
 
     const dispatch = createEventDispatcher();
 
-    let revlogRange: RevlogRange =
-        days > 365 || days === 0 ? RevlogRange.Year : RevlogRange.All;
-
+    let revlogRange = daysToRevlogRange(days);
     let searchRange: SearchRange =
         search === "deck:current"
             ? SearchRange.Deck

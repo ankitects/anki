@@ -6,7 +6,7 @@
     import type { I18n } from "anki/i18n";
     import type { PreferenceStore } from "./preferences";
     import type pb from "anki/backend_proto";
-    import { getGraphData, RevlogRange } from "./graph-helpers";
+    import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
     import { getPreferences } from "./preferences";
 
     export let i18n: I18n;
@@ -31,7 +31,7 @@
                 getGraphData(search, days),
                 preferencesPromise,
             ]);
-            revlogRange = days > 365 || days === 0 ? RevlogRange.All : RevlogRange.Year;
+            revlogRange = daysToRevlogRange(days);
         } catch (e) {
             sourceData = null;
             alert(i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING));
