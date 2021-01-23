@@ -3,15 +3,18 @@
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds, RevlogRange } from "./graph-helpers";
     import { gatherData, renderCalendar } from "./calendar";
+    import type { PreferenceStore } from "./preferences";
     import type { GraphData } from "./calendar";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let preferences: PreferenceStore | null = null;
     export let revlogRange: RevlogRange;
     export let i18n: I18n;
     export let nightMode: boolean;
 
+    let { calendarFirstDayOfWeek } = preferences;
     let graphData: GraphData | null = null;
 
     let bounds = defaultGraphBounds();
@@ -25,7 +28,7 @@
     let targetYear = maxYear;
 
     $: if (sourceData) {
-        graphData = gatherData(sourceData);
+        graphData = gatherData(sourceData, $calendarFirstDayOfWeek);
     }
 
     $: {
@@ -49,7 +52,8 @@
             targetYear,
             i18n,
             nightMode,
-            revlogRange
+            revlogRange,
+            calendarFirstDayOfWeek.set
         );
     }
 
