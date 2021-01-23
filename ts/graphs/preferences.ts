@@ -1,4 +1,4 @@
-import type pb from "anki/backend_proto";
+import pb from "anki/backend_proto";
 import { getGraphPreferences, setGraphPreferences } from "./graph-helpers";
 import { Writable, writable, get } from "svelte/store";
 
@@ -58,7 +58,11 @@ function preparePreferences(
         setGraphPreferences(constructPreferences());
     }
 
-    for (const [key, value] of Object.entries(graphsPreferences)) {
+    for (const [key, value] of Object.entries(
+        pb.BackendProto.GraphsPreferences.toObject(graphsPreferences, {
+            defaults: true,
+        })
+    )) {
         preferences[key] = createPreference(value, savePreferences);
     }
 
