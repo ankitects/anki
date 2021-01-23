@@ -1224,14 +1224,25 @@ QTableView {{ gridline-color: {grid} }}
 
     def _modelTree(self, root) -> None:
         assert self.col
-        for m in self.col.models.all_names_and_ids():
+
+        for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
             item = SidebarItem(
-                m.name,
+                nt["name"],
                 ":/icons/notetype.svg",
-                self._note_filter(m.name),
+                self._note_filter(nt["name"]),
                 item_type=SidebarItemType.NOTETYPE,
-                id=m.id,
+                id=nt["id"],
             )
+
+            for c, tmpl in enumerate(nt["tmpls"]):
+                child = SidebarItem(
+                    tmpl["name"],
+                    ":/icons/notetype.svg",
+                    self._template_filter(nt["name"], c),
+                    item_type=SidebarItemType.TEMPLATE,
+                )
+                item.addChild(child)
+
             root.addChild(item)
 
     # Filter tree
