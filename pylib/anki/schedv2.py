@@ -173,7 +173,7 @@ class Scheduler:
         tree = self.deck_due_tree(self.col.decks.selected())
         node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
         if not node:
-            print("invalid current deck")
+            # current deck points to a missing deck
             self.newCount = 0
             self.revCount = 0
         else:
