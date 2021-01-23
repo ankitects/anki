@@ -699,32 +699,6 @@ class MenuList:
         self.renderTo(qmenu)
         qmenu.exec_(widget.mapToGlobal(QPoint(0, 0)))
 
-    # Chunking
-    ######################################################################
-
-    chunkSize = 30
-
-    def chunked(self):
-        if len(self.children) <= self.chunkSize:
-            return self
-
-        newList = MenuList()
-        oldItems = self.children[:]
-        while oldItems:
-            chunk = oldItems[: self.chunkSize]
-            del oldItems[: self.chunkSize]
-            label = self._chunkLabel(chunk)
-            menu = newList.addMenu(label)
-            menu.children = chunk
-        return newList
-
-    def _chunkLabel(self, items):
-        start = items[0].title
-        end = items[-1].title
-        prefix = os.path.commonprefix([start.upper(), end.upper()])
-        n = len(prefix) + 1
-        return "{}-{}".format(start[:n].upper(), end[:n].upper())
-
 
 class SubMenu(MenuList):
     def __init__(self, title):

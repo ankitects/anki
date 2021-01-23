@@ -1251,14 +1251,8 @@ QTableView {{ gridline-color: {grid} }}
     def onFilterButton(self):
         ml = MenuList()
 
-        ml.addChild(self._commonFilters())
-        ml.addSeparator()
-
         ml.addChild(self._todayFilters())
         ml.addChild(self._cardStateFilters())
-        ml.addChild(self._deckFilters())
-        ml.addChild(self._noteTypeFilters())
-        ml.addChild(self._tagFilters())
         ml.addSeparator()
 
         ml.addChild(self.sidebarDockWidget.toggleViewAction())
@@ -1339,14 +1333,6 @@ QTableView {{ gridline-color: {grid} }}
     def _saved_filter(self, saved: str) -> Callable:
         return lambda: self.setFilter(saved)
 
-    def _commonFilters(self):
-        return self._simpleFilters(
-            (
-                (tr(TR.BROWSING_WHOLE_COLLECTION), NamedFilter.WHOLE_COLLECTION),
-                (tr(TR.BROWSING_CURRENT_DECK), NamedFilter.CURRENT_DECK),
-            )
-        )
-
     def _todayFilters(self):
         subm = SubMenu(tr(TR.BROWSING_TODAY))
         subm.addChild(
@@ -1387,76 +1373,6 @@ QTableView {{ gridline-color: {grid} }}
     def _escapeMenuItem(self, label):
         return label.replace("&", "&&")
 
-    def _tagFilters(self):
-        m = SubMenu(tr(TR.EDITING_TAGS))
-
-        m.addItem(tr(TR.BROWSING_CLEAR_UNUSED), self.clearUnusedTags)
-        m.addSeparator()
-
-        tagList = MenuList()
-        for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(self._escapeMenuItem(t), self._tag_filter(t))
-
-        m.addChild(tagList.chunked())
-        return m
-
-    def _deckFilters(self):
-        def addDecks(parent, decks, parent_prefix):
-            for node in decks:
-                escaped_name = self._escapeMenuItem(node.name)
-                # pylint: disable=cell-var-from-loop
-                fullname = parent_prefix + node.name
-                if node.children:
-                    subm = parent.addMenu(escaped_name)
-                    subm.addItem(tr(TR.ACTIONS_FILTER), self._deck_filter(fullname))
-                    subm.addSeparator()
-                    addDecks(subm, node.children, fullname + "::")
-                else:
-                    parent.addItem(escaped_name, self._deck_filter(fullname))
-
-        alldecks = self.col.decks.deck_tree()
-        ml = MenuList()
-        addDecks(ml, alldecks.children, "")
-
-        root = SubMenu(tr(TR.ACTIONS_DECKS))
-        root.addChild(ml.chunked())
-
-        return root
-
-    def _noteTypeFilters(self):
-        m = SubMenu(tr(TR.NOTETYPES_NOTE_TYPES))
-
-        m.addItem(tr(TR.ACTIONS_MANAGE), self.mw.onNoteTypes)
-        m.addSeparator()
-
-        noteTypes = MenuList()
-        for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
-            escaped_nt_name = self._escapeMenuItem(nt["name"])
-            # no sub menu if it's a single template
-            if len(nt["tmpls"]) == 1:
-                noteTypes.addItem(escaped_nt_name, self._note_filter(nt["name"]))
-            else:
-                subm = noteTypes.addMenu(escaped_nt_name)
-
-                subm.addItem(
-                    tr(TR.BROWSING_ALL_CARD_TYPES), self._note_filter(nt["name"])
-                )
-                subm.addSeparator()
-
-                # add templates
-                for c, tmpl in enumerate(nt["tmpls"]):
-                    # T: name is a card type name. n it's order in the list of card type.
-                    # T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = tr(
-                        TR.BROWSING_ND_NAMES,
-                        num=c + 1,
-                        name=self._escapeMenuItem(tmpl["name"]),
-                    )
-                    subm.addItem(name, self._template_filter(nt["name"], c))
-
-        m.addChild(noteTypes.chunked())
-        return m
-
     # Favourites
     ######################################################################
 
@@ -1472,14 +1388,6 @@ QTableView {{ gridline-color: {grid} }}
             ml.addItem(tr(TR.BROWSING_REMOVE_CURRENT_FILTER), self._onRemoveFilter)
         else:
             ml.addItem(tr(TR.BROWSING_SAVE_CURRENT_FILTER), self._onSaveFilter)
-
-        saved = self.col.get_config("savedFilters")
-        if not saved:
-            return ml
-
-        ml.addSeparator()
-        for name, filt in sorted(saved.items()):
-            ml.addItem(self._escapeMenuItem(name), self._saved_filter(filt))
 
         return ml
 
