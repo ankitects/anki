@@ -225,7 +225,7 @@ impl Collection {
         self.storage.update_deck(deck)
     }
 
-    fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
+    pub(crate) fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
         loop {
             match self.storage.get_deck_id(&deck.name)? {
                 Some(did) if did == deck.id => {

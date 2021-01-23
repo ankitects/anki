@@ -822,8 +822,8 @@ impl Collection {
     //----------------------------------------------------------------
 
     fn apply_changes(&mut self, remote: UnchunkedChanges, latest_usn: Usn) -> Result<()> {
-        self.merge_notetypes(remote.notetypes)?;
-        self.merge_decks(remote.decks_and_config.decks)?;
+        self.merge_notetypes(remote.notetypes, latest_usn)?;
+        self.merge_decks(remote.decks_and_config.decks, latest_usn)?;
         self.merge_deck_config(remote.decks_and_config.config)?;
         self.merge_tags(remote.tags, latest_usn)?;
         if let Some(crt) = remote.creation_stamp {
@@ -837,9 +837,9 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_notetypes(&mut self, notetypes: Vec<NoteTypeSchema11>) -> Result<()> {
+    fn merge_notetypes(&mut self, notetypes: Vec<NoteTypeSchema11>, latest_usn: Usn) -> Result<()> {
         for nt in notetypes {
-            let nt: NoteType = nt.into();
+            let mut nt: NoteType = nt.into();
             let proceed = if let Some(existing_nt) = self.storage.get_notetype(nt.id)? {
                 if existing_nt.mtime_secs <= nt.mtime_secs {
                     if (existing_nt.fields.len() != nt.fields.len())
@@ -858,6 +858,7 @@ impl Collection {
                 true
             };
             if proceed {
+                self.ensure_notetype_name_unique(&mut nt, latest_usn)?;
                 self.storage.add_or_update_notetype(&nt)?;
                 self.state.notetype_cache.remove(&nt.id);
             }
@@ -865,7 +866,7 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_decks(&mut self, decks: Vec<DeckSchema11>) -> Result<()> {
+    fn merge_decks(&mut self, decks: Vec<DeckSchema11>, latest_usn: Usn) -> Result<()> {
         for deck in decks {
             let proceed = if let Some(existing_deck) = self.storage.get_deck(deck.id())? {
                 existing_deck.mtime_secs <= deck.common().mtime
@@ -873,7 +874,8 @@ impl Collection {
                 true
             };
             if proceed {
-                let deck = deck.into();
+                let mut deck = deck.into();
+                self.ensure_deck_name_unique(&mut deck, latest_usn)?;
                 self.storage.add_or_update_deck(&deck)?;
                 self.state.deck_cache.remove(&deck.id);
             }
@@ -1538,4 +1540,44 @@ mod test {
         assert!(matches!(out.required, SyncActionRequired::FullSyncRequired { .. }));
         Ok(())
     }
+
+    // Helper to reproduce issues with a copy of the client and server collections.
+    // #[test]
+    // fn repro_test() {
+    //     let mut rt = Runtime::new().unwrap();
+    //     rt.block_on(repro_test_inner()).unwrap();
+    // }
+
+    // async fn repro_test_inner() -> Result<()> {
+    //     let client_fname = "/path/to/collection1.anki2";
+    //     let server_fname = "/path/to/collection2.anki2";
+
+    //     use std::env::temp_dir;
+    //     use std::fs;
+    //     use tempfile::NamedTempFile;
+
+    //     let client_col_file = NamedTempFile::new()?;
+    //     let client_col_name = client_col_file
+    //         .path()
+    //         .file_name()
+    //         .unwrap()
+    //         .to_string_lossy();
+    //     fs::copy(client_fname, client_col_file.path())?;
+    //     let server_col_file = NamedTempFile::new()?;
+    //     let server_col_name = server_col_file
+    //         .path()
+    //         .file_name()
+    //         .unwrap()
+    //         .to_string_lossy();
+    //     fs::copy(server_fname, server_col_file.path())?;
+    //     let dir = temp_dir();
+    //     let server = Box::new(LocalServer::new(open_col(&dir, true, &server_col_name)?));
+    //     let mut client_col = open_col(&dir, false, &client_col_name)?;
+    //     NormalSyncer::new(&mut client_col, server, norm_progress)
+    //         .sync()
+    //         .await
+    //         .unwrap();
+
+    //     Ok(())
+    // }
 }

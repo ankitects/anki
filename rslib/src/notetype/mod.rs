@@ -399,10 +399,14 @@ impl Collection {
         self.storage.add_new_notetype(nt)
     }
 
-    fn ensure_notetype_name_unique(&self, notetype: &mut NoteType, usn: Usn) -> Result<()> {
+    pub(crate) fn ensure_notetype_name_unique(
+        &self,
+        notetype: &mut NoteType,
+        usn: Usn,
+    ) -> Result<()> {
         loop {
             match self.storage.get_notetype_id(&notetype.name)? {
-                Some(did) if did == notetype.id => {
+                Some(id) if id == notetype.id => {
                     break;
                 }
                 None => break,
