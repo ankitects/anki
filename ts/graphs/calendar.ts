@@ -10,7 +10,7 @@ import type pb from "anki/backend_proto";
 import { interpolateBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
-import { scaleLinear, scaleSequential } from "d3-scale";
+import { scaleLinear, scaleSequentialSqrt } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, RevlogRange } from "./graph-helpers";
 import {
@@ -143,10 +143,9 @@ export function renderCalendar(
     }
     const data = Array.from(dayMap.values());
     const cappedRange = scaleLinear().range([0.2, nightMode ? 0.8 : 1]);
-    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
-        0,
-        maxCount,
-    ]);
+    const blues = scaleSequentialSqrt()
+        .domain([0, maxCount])
+        .interpolator((n) => interpolateBlues(cappedRange(n)!));
 
     function tooltipText(d: DayDatum): string {
         const date = d.date.toLocaleString(i18n.langs, {
