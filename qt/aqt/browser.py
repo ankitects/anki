@@ -7,13 +7,11 @@ import html
 import time
 from concurrent.futures import Future
 from dataclasses import dataclass
-from enum import Enum
 from operator import itemgetter
-from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
+from typing import List, Sequence, Tuple, cast
 
 from markdown import markdown
 
-import anki
 import aqt
 import aqt.forms
 from anki.cards import Card
@@ -25,12 +23,10 @@ from anki.notes import Note
 from anki.rsbackend import (
     BackendNoteTypeID,
     ConcatSeparator,
-    DeckTreeNode,
     DupeIn,
     FilterToSearchIn,
     InvalidInput,
     NamedFilter,
-    TagTreeNode,
 )
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
@@ -41,7 +37,7 @@ from aqt.main import ResetReason
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
-from aqt.sidebar import NewSidebarTreeView, SidebarItemType, SidebarTreeViewBase
+from aqt.sidebar import SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
@@ -74,6 +70,10 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView
+
+# legacy add-on support
+# pylint: disable=unused-import
+from aqt.sidebar import SidebarItem, SidebarStage  # isort: skip
 
 
 @dataclass
@@ -446,156 +446,6 @@ class StatusDelegate(QItemDelegate):
         return QItemDelegate.paint(self, painter, option, index)
 
 
-# Sidebar
-######################################################################
-
-
-class SidebarStage(Enum):
-    ROOT = 0
-    STANDARD = 1
-    FAVORITES = 2
-    DECKS = 3
-    MODELS = 4
-    TAGS = 5
-
-
-class SidebarItem:
-    def __init__(
-        self,
-        name: str,
-        icon: str,
-        onClick: Callable[[], None] = None,
-        onExpanded: Callable[[bool], None] = None,
-        expanded: bool = False,
-        item_type: SidebarItemType = SidebarItemType.CUSTOM,
-        id: int = 0,
-        full_name: str = None,
-    ) -> None:
-        self.name = name
-        if not full_name:
-            full_name = name
-        self.full_name = full_name
-        self.icon = icon
-        self.item_type = item_type
-        self.id = id
-        self.onClick = onClick
-        self.onExpanded = onExpanded
-        self.expanded = expanded
-        self.children: List["SidebarItem"] = []
-        self.parentItem: Optional["SidebarItem"] = None
-        self.tooltip: Optional[str] = None
-
-    def addChild(self, cb: "SidebarItem") -> None:
-        self.children.append(cb)
-        cb.parentItem = self
-
-    def rowForChild(self, child: "SidebarItem") -> Optional[int]:
-        try:
-            return self.children.index(child)
-        except ValueError:
-            return None
-
-
-class SidebarModel(QAbstractItemModel):
-    def __init__(self, root: SidebarItem) -> None:
-        super().__init__()
-        self.root = root
-
-    # Qt API
-    ######################################################################
-
-    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        if not parent.isValid():
-            return len(self.root.children)
-        else:
-            item: SidebarItem = parent.internalPointer()
-            return len(item.children)
-
-    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        return 1
-
-    def index(
-        self, row: int, column: int, parent: QModelIndex = QModelIndex()
-    ) -> QModelIndex:
-        if not self.hasIndex(row, column, parent):
-            return QModelIndex()
-
-        parentItem: SidebarItem
-        if not parent.isValid():
-            parentItem = self.root
-        else:
-            parentItem = parent.internalPointer()
-
-        item = parentItem.children[row]
-        return self.createIndex(row, column, item)
-
-    def parent(self, child: QModelIndex) -> QModelIndex:  # type: ignore
-        if not child.isValid():
-            return QModelIndex()
-
-        childItem: SidebarItem = child.internalPointer()
-        parentItem = childItem.parentItem
-
-        if parentItem is None or parentItem == self.root:
-            return QModelIndex()
-
-        row = parentItem.rowForChild(childItem)
-        if row is None:
-            return QModelIndex()
-
-        return self.createIndex(row, 0, parentItem)
-
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
-        if not index.isValid():
-            return QVariant()
-
-        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole):
-            return QVariant()
-
-        item: SidebarItem = index.internalPointer()
-
-        if role == Qt.DisplayRole:
-            return QVariant(item.name)
-        elif role == Qt.ToolTipRole:
-            return QVariant(item.tooltip)
-        else:
-            return QVariant(theme_manager.icon_from_resources(item.icon))
-
-    # Helpers
-    ######################################################################
-
-    def iconFromRef(self, iconRef: str) -> QIcon:
-        print("iconFromRef() deprecated")
-        return theme_manager.icon_from_resources(iconRef)
-
-    def expandWhereNeccessary(self, tree: QTreeView) -> None:
-        for row, child in enumerate(self.root.children):
-            if child.expanded:
-                idx = self.index(row, 0, QModelIndex())
-                self._expandWhereNeccessary(idx, tree)
-
-    def _expandWhereNeccessary(self, parent: QModelIndex, tree: QTreeView) -> None:
-        parentItem: SidebarItem
-        if not parent.isValid():
-            parentItem = self.root
-        else:
-            parentItem = parent.internalPointer()
-
-        # nothing to do?
-        if not parentItem.expanded:
-            return
-
-        # expand children
-        for row, child in enumerate(parentItem.children):
-            if not child.expanded:
-                continue
-            childIdx = self.index(row, 0, parent)
-            self._expandWhereNeccessary(childIdx, tree)
-
-        # then ourselves
-        tree.setExpanded(parent, True)
-
-
 # Browser window
 ######################################################################
 
@@ -611,7 +461,6 @@ class Browser(QMainWindow):
     def __init__(self, mw: AnkiQt) -> None:
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
-        self.want_old_sidebar = mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
         self.col = self.mw.col
         self.lastFilter = ""
         self.focusTo: Optional[int] = None
@@ -853,7 +702,7 @@ class Browser(QMainWindow):
         return selected
 
     def onReset(self):
-        self.maybeRefreshSidebar()
+        self.sidebar.refresh()
         self.editor.setNote(None)
         self.search()
 
@@ -1062,190 +911,41 @@ QTableView {{ gridline-color: {grid} }}
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
 
-    # implementation moved to sidebar.py. this is kept for compatibility
-    class SidebarTreeView(SidebarTreeViewBase):
-        pass
-
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(tr(TR.BROWSING_SIDEBAR), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
 
-        self.sidebarTree: SidebarTreeViewBase
-        if self.want_old_sidebar:
-            self.sidebarTree = self.SidebarTreeView()
-        else:
-            self.sidebarTree = NewSidebarTreeView(self)
-
-        self.sidebarTree.mw = self.mw
-        self.sidebarTree.setUniformRowHeights(True)
-        self.sidebarTree.setHeaderHidden(True)
-        self.sidebarTree.setIndentation(15)
-        qconnect(self.sidebarTree.expanded, self.onSidebarItemExpanded)
-        dw.setWidget(self.sidebarTree)
-        # match window background color
-        bgcolor = QPalette().window().color().name()
-        self.sidebarTree.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
+        self.sidebar = SidebarTreeView(self)
+        self.sidebarTree = self.sidebar  # legacy alias
+        dw.setWidget(self.sidebar)
         self.sidebarDockWidget.setFloating(False)
-        qconnect(self.sidebarDockWidget.visibilityChanged, self.onSidebarVisChanged)
+
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
         self.addDockWidget(Qt.LeftDockWidgetArea, dw)
 
-    def onSidebarItemExpanded(self, idx: QModelIndex) -> None:
-        item: SidebarItem = idx.internalPointer()
-        # item.on
-
-    def onSidebarVisChanged(self, _visible: bool) -> None:
-        self.maybeRefreshSidebar()
+        # schedule sidebar to refresh after browser window has loaded, so the
+        # UI is more responsive
+        self.mw.progress.timer(10, self.sidebar.refresh, False)
 
     def focusSidebar(self) -> None:
         # workaround for PyQt focus bug
         self.editor.hideCompleters()
-
         self.sidebarDockWidget.setVisible(True)
-        self.sidebarTree.setFocus()
+        self.sidebar.setFocus()
 
+    # legacy
     def maybeRefreshSidebar(self) -> None:
-        if self.sidebarDockWidget.isVisible():
-            # add slight delay to allow browser window to appear first
-            def deferredDisplay():
-                root = self.buildTree()
-                model = SidebarModel(root)
-                self.sidebarTree.setModel(model)
-                model.expandWhereNeccessary(self.sidebarTree)
+        self.sidebar.refresh()
 
-            self.mw.progress.timer(10, deferredDisplay, False)
+    def toggle_sidebar(self):
+        want_visible = not self.sidebarDockWidget.isVisible()
+        self.sidebarDockWidget.setVisible(want_visible)
+        if want_visible:
+            self.sidebar.refresh()
 
-    def buildTree(self) -> SidebarItem:
-        root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
-
-        handled = gui_hooks.browser_will_build_tree(
-            False, root, SidebarStage.ROOT, self
-        )
-        if handled:
-            return root
-
-        for stage, builder in zip(
-            list(SidebarStage)[1:],
-            (
-                self._stdTree,
-                self._favTree,
-                self._decksTree,
-                self._modelTree,
-                self._userTagTree,
-            ),
-        ):
-            handled = gui_hooks.browser_will_build_tree(False, root, stage, self)
-            if not handled and builder:
-                builder(root)
-
-        return root
-
-    def _stdTree(self, root) -> None:
-        item = SidebarItem(
-            tr(TR.BROWSING_WHOLE_COLLECTION),
-            ":/icons/collection.svg",
-            self._named_filter(NamedFilter.WHOLE_COLLECTION),
-            item_type=SidebarItemType.COLLECTION,
-        )
-        root.addChild(item)
-        item = SidebarItem(
-            tr(TR.BROWSING_CURRENT_DECK),
-            ":/icons/deck.svg",
-            self._named_filter(NamedFilter.CURRENT_DECK),
-            item_type=SidebarItemType.CURRENT_DECK,
-        )
-        root.addChild(item)
-
-    def _favTree(self, root) -> None:
-        assert self.col
-        saved = self.col.get_config("savedFilters", {})
-        for name, filt in sorted(saved.items()):
-            item = SidebarItem(
-                name,
-                ":/icons/heart.svg",
-                self._saved_filter(filt),
-                item_type=SidebarItemType.FILTER,
-            )
-            root.addChild(item)
-
-    def _userTagTree(self, root) -> None:
-        tree = self.col.backend.tag_tree()
-
-        def fillGroups(root, nodes: Sequence[TagTreeNode], head=""):
-            for node in nodes:
-
-                def toggle_expand():
-                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda expanded: self.mw.col.tags.set_collapsed(
-                        full_name, not expanded
-                    )
-
-                item = SidebarItem(
-                    node.name,
-                    ":/icons/tag.svg",
-                    self._tag_filter(head + node.name),
-                    toggle_expand(),
-                    not node.collapsed,
-                    item_type=SidebarItemType.TAG,
-                    full_name=head + node.name,
-                )
-                root.addChild(item)
-                newhead = head + node.name + "::"
-                fillGroups(item, node.children, newhead)
-
-        fillGroups(root, tree.children)
-
-    def _decksTree(self, root) -> None:
-        tree = self.col.decks.deck_tree()
-
-        def fillGroups(root, nodes: Sequence[DeckTreeNode], head=""):
-            for node in nodes:
-
-                def toggle_expand():
-                    did = node.deck_id  # pylint: disable=cell-var-from-loop
-                    return lambda _: self.mw.col.decks.collapseBrowser(did)
-
-                item = SidebarItem(
-                    node.name,
-                    ":/icons/deck.svg",
-                    self._deck_filter(head + node.name),
-                    toggle_expand(),
-                    not node.collapsed,
-                    item_type=SidebarItemType.DECK,
-                    id=node.deck_id,
-                )
-                root.addChild(item)
-                newhead = head + node.name + "::"
-                fillGroups(item, node.children, newhead)
-
-        fillGroups(root, tree.children)
-
-    def _modelTree(self, root) -> None:
-        assert self.col
-
-        for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
-            item = SidebarItem(
-                nt["name"],
-                ":/icons/notetype.svg",
-                self._note_filter(nt["name"]),
-                item_type=SidebarItemType.NOTETYPE,
-                id=nt["id"],
-            )
-
-            for c, tmpl in enumerate(nt["tmpls"]):
-                child = SidebarItem(
-                    tmpl["name"],
-                    ":/icons/notetype.svg",
-                    self._template_filter(nt["name"], c),
-                    item_type=SidebarItemType.TEMPLATE,
-                )
-                item.addChild(child)
-
-            root.addChild(item)
-
-    # Filter tree
+    # Filter button and sidebar helpers
     ######################################################################
 
     def onFilterButton(self):
@@ -1255,17 +955,22 @@ QTableView {{ gridline-color: {grid} }}
         ml.addChild(self._cardStateFilters())
         ml.addSeparator()
 
-        ml.addChild(self.sidebarDockWidget.toggleViewAction())
+        toggle_sidebar = QAction(tr(TR.BROWSING_SIDEBAR))
+        qconnect(toggle_sidebar.triggered, self.toggle_sidebar)
+        toggle_sidebar.setCheckable(True)
+        toggle_sidebar.setChecked(self.sidebarDockWidget.isVisible())
+        ml.addChild(toggle_sidebar)
         ml.addSeparator()
 
         ml.addChild(self._savedSearches())
 
         ml.popupOver(self.form.filter)
 
-    def setFilter(self, *searches):
+    def update_search(self, *terms: str):
+        "Modify the current search string based on modified keys, then refresh."
         try:
             search = self.col.backend.concatenate_searches(
-                sep=ConcatSeparator.AND, searches=searches
+                sep=ConcatSeparator.AND, searches=terms
             )
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
@@ -1294,6 +999,10 @@ QTableView {{ gridline-color: {grid} }}
             self.form.searchEdit.lineEdit().setText(search)
             self.onSearchActivated()
 
+    # legacy
+    def setFilter(self, *terms: str):
+        self.set_filter_then_search(*terms)
+
     def _simpleFilters(self, items):
         ml = MenuList()
         for row in items:
@@ -1301,37 +1010,8 @@ QTableView {{ gridline-color: {grid} }}
                 ml.addSeparator()
             else:
                 label, filter_name = row
-                ml.addItem(label, self._named_filter(filter_name))
+                ml.addItem(label, self.sidebar._named_filter(filter_name))
         return ml
-
-    def _named_filter(self, name: "FilterToSearchIn.NamedFilterValue") -> Callable:
-        return lambda: self.setFilter(
-            self.col.backend.filter_to_search(FilterToSearchIn(name=name))
-        )
-
-    def _tag_filter(self, tag: str) -> Callable:
-        return lambda: self.setFilter(
-            self.col.backend.filter_to_search(FilterToSearchIn(tag=tag))
-        )
-
-    def _deck_filter(self, deck: str) -> Callable:
-        return lambda: self.setFilter(
-            self.col.backend.filter_to_search(FilterToSearchIn(deck=deck))
-        )
-
-    def _note_filter(self, note: str) -> Callable:
-        return lambda: self.setFilter(
-            self.col.backend.filter_to_search(FilterToSearchIn(note=note))
-        )
-
-    def _template_filter(self, note: str, template: int) -> Callable:
-        return lambda: self.setFilter(
-            self.col.backend.filter_to_search(FilterToSearchIn(note=note)),
-            self.col.backend.filter_to_search(FilterToSearchIn(template=template)),
-        )
-
-    def _saved_filter(self, saved: str) -> Callable:
-        return lambda: self.setFilter(saved)
 
     def _todayFilters(self):
         subm = SubMenu(tr(TR.BROWSING_TODAY))
@@ -1370,9 +1050,6 @@ QTableView {{ gridline-color: {grid} }}
         )
         return subm
 
-    def _escapeMenuItem(self, label):
-        return label.replace("&", "&&")
-
     # Favourites
     ######################################################################
 
@@ -1405,7 +1082,7 @@ QTableView {{ gridline-color: {grid} }}
             conf = self.col.get_config("savedFilters")
             conf[name] = filt
             self.col.set_config("savedFilters", conf)
-            self.maybeRefreshSidebar()
+            self.sidebar.refresh()
 
     def _onRemoveFilter(self) -> None:
         self.removeFilter(self._currentFilterIsSaved())
@@ -1416,7 +1093,7 @@ QTableView {{ gridline-color: {grid} }}
         conf = self.col.get_config("savedFilters")
         del conf[name]
         self.col.set_config("savedFilters", conf)
-        self.maybeRefreshSidebar()
+        self.sidebar.refresh()
 
     def renameFilter(self, old: str) -> None:
         conf = self.col.get_config("savedFilters")
@@ -1430,7 +1107,7 @@ QTableView {{ gridline-color: {grid} }}
         conf[new] = filt
         del conf[old]
         self.col.set_config("savedFilters", conf)
-        self.maybeRefreshSidebar()
+        self.sidebar.refresh()
 
     # returns name if found
     def _currentFilterIsSaved(self) -> Optional[str]:
@@ -1879,10 +1556,10 @@ where id in %s"""
 
     # covers the tag, note and deck case
     def on_item_added(self, item: Any = None) -> None:
-        self.maybeRefreshSidebar()
+        self.sidebar.refresh()
 
     def on_tag_list_update(self):
-        self.maybeRefreshSidebar()
+        self.sidebar.refresh()
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
