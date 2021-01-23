@@ -257,13 +257,13 @@ def graph_data() -> bytes:
 
 
 def graph_preferences() -> bytes:
-    return aqt.mw.col.backend.get_graphs_preferences()
+    return aqt.mw.col.backend.get_graph_preferences()
 
 
 def set_graph_preferences() -> None:
-    input = pb.GraphsPreferences()
+    input = pb.GraphPreferences()
     input.ParseFromString(request.data)
-    aqt.mw.col.backend.set_graphs_preferences(input=input)
+    aqt.mw.col.backend.set_graph_preferences(input=input)
 
 
 def congrats_info() -> bytes:

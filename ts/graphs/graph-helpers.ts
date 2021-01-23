@@ -20,8 +20,8 @@ export async function getGraphData(
     );
 }
 
-export async function getGraphPreferences(): Promise<pb.BackendProto.GraphsPreferences> {
-    return pb.BackendProto.GraphsPreferences.decode(
+export async function getGraphPreferences(): Promise<pb.BackendProto.GraphPreferences> {
+    return pb.BackendProto.GraphPreferences.decode(
         await postRequest("/_anki/graphPreferences", JSON.stringify({}))
     );
 }
@@ -30,7 +30,7 @@ export async function setGraphPreferences(prefs: PreferencePayload): Promise<voi
     return (async (): Promise<void> => {
         await postRequest(
             "/_anki/setGraphPreferences",
-            pb.BackendProto.GraphsPreferences.encode(prefs).finish()
+            pb.BackendProto.GraphPreferences.encode(prefs).finish()
         );
     })();
 }

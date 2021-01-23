@@ -676,12 +676,12 @@ impl BackendService for Backend {
         self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
     }
 
-    fn get_graphs_preferences(&self, _input: pb::Empty) -> BackendResult<pb::GraphsPreferences> {
-        self.with_col(|col| col.get_graphs_preferences())
+    fn get_graph_preferences(&self, _input: pb::Empty) -> BackendResult<pb::GraphPreferences> {
+        self.with_col(|col| col.get_graph_preferences())
     }
 
-    fn set_graphs_preferences(&self, input: pb::GraphsPreferences) -> BackendResult<Empty> {
-        self.with_col(|col| col.set_graphs_preferences(input))
+    fn set_graph_preferences(&self, input: pb::GraphPreferences) -> BackendResult<Empty> {
+        self.with_col(|col| col.set_graph_preferences(input))
             .map(Into::into)
     }
 
