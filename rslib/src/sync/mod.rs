@@ -103,6 +103,7 @@ pub struct UnchunkedChanges {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Chunk {
+    #[serde(default)]
     done: bool,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     revlog: Vec<RevlogEntry>,
