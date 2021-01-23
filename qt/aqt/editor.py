@@ -76,9 +76,7 @@ html { background: %s; }
 </style>
 <div>
     <div id="topbutsOuter">
-        <div id="topbuts" class="clearfix">
-    %s
-        </div>
+        %s
     </div>
     <div id="fields">
     </div>
@@ -206,10 +204,10 @@ class Editor:
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
 
         topbuts = """
-            <div id="topbutsleft" style="float:left;">
+            <div id="topbutsleft" class="topbuts">
                 %(leftbts)s
             </div>
-            <div id="topbutsright" style="float:right;">
+            <div id="topbutsright" class="topbuts">
                 %(rightbts)s
             </div>
         """ % dict(
@@ -330,7 +328,7 @@ class Editor:
             class_ = ""
         if not disables:
             class_ += " perm"
-        return """ <button tabindex=-1
+        return """<button tabindex=-1
                         {id}
                         class="{class_}"
                         type="button"
