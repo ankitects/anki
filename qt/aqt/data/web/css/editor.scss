@@ -34,10 +34,26 @@ body {
 }
 
 #topbutsOuter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
     position: sticky;
     top: 0;
     left: 0;
     padding: 2px;
+}
+
+.topbuts > * {
+    margin: 0 1px;
+
+    &:first-child {
+        margin-left: 0;
+    }
+
+    &:last-child {
+        margin-right: 0;
+    }
 }
 
 .topbut {
@@ -59,6 +75,7 @@ body {
 
 button.linkb {
     -webkit-appearance: none;
+    margin-bottom: -3px;
     border: 0;
     box-shadow: none;
     padding: 0px 2px;
@@ -79,12 +96,12 @@ button:focus {
 }
 
 button.highlighted {
-    .nightMode #topbutsleft & {
-        background: linear-gradient(0deg, #333333 0%, #434343 100%);
-    }
-
     #topbutsleft & {
         background-color: lightgrey;
+
+        .nightMode & {
+            background: linear-gradient(0deg, #333333 0%, #434343 100%);
+        }
     }
 
     #topbutsright & {
