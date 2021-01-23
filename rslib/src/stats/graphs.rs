@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, prelude::*, revlog::RevlogEntry, search::SortMode};
+use crate::{
+    backend_proto as pb, config::Weekday, prelude::*, revlog::RevlogEntry, search::SortMode,
+};
 
 impl Collection {
     pub(crate) fn graph_data_for_search(
@@ -42,8 +44,25 @@ impl Collection {
             next_day_at_secs: timing.next_day_at as u32,
             scheduler_version: self.sched_ver() as u32,
             local_offset_secs: local_offset_secs as i32,
-            first_weekday: self.get_first_weekday() as i32,
         })
+    }
+
+    pub(crate) fn get_graph_preferences(&self) -> Result<pb::GraphPreferences> {
+        Ok(pb::GraphPreferences {
+            calendar_first_day_of_week: self.get_first_day_of_week() as i32,
+            card_counts_separate_inactive: self.get_card_counts_separate_inactive(),
+        })
+    }
+
+    pub(crate) fn set_graph_preferences(&self, prefs: pb::GraphPreferences) -> Result<()> {
+        self.set_first_day_of_week(match prefs.calendar_first_day_of_week {
+            1 => Weekday::Monday,
+            5 => Weekday::Friday,
+            6 => Weekday::Saturday,
+            _ => Weekday::Sunday,
+        })?;
+        self.set_card_counts_separate_inactive(prefs.card_counts_separate_inactive)?;
+        Ok(())
     }
 }
 

@@ -8,6 +8,7 @@
 
 import pb from "anki/backend_proto";
 import type { Selection } from "d3-selection";
+import type { PreferencePayload } from "./preferences";
 import { postRequest } from "anki/postrequest";
 
 export async function getGraphData(
@@ -17,6 +18,21 @@ export async function getGraphData(
     return pb.BackendProto.GraphsOut.decode(
         await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
     );
+}
+
+export async function getGraphPreferences(): Promise<pb.BackendProto.GraphPreferences> {
+    return pb.BackendProto.GraphPreferences.decode(
+        await postRequest("/_anki/graphPreferences", JSON.stringify({}))
+    );
+}
+
+export async function setGraphPreferences(prefs: PreferencePayload): Promise<void> {
+    return (async (): Promise<void> => {
+        await postRequest(
+            "/_anki/setGraphPreferences",
+            pb.BackendProto.GraphPreferences.encode(prefs).finish()
+        );
+    })();
 }
 
 // amount of data to fetch from backend
