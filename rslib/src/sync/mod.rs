@@ -145,6 +145,7 @@ pub struct CardEntry {
     pub usn: Usn,
     pub ctype: CardType,
     pub queue: CardQueue,
+    #[serde(deserialize_with = "deserialize_int_from_number")]
     pub due: i32,
     #[serde(deserialize_with = "deserialize_int_from_number")]
     pub ivl: u32,
@@ -152,6 +153,7 @@ pub struct CardEntry {
     pub reps: u32,
     pub lapses: u32,
     pub left: u32,
+    #[serde(deserialize_with = "deserialize_int_from_number")]
     pub odue: i32,
     pub odid: DeckID,
     pub flags: u8,

@@ -3,8 +3,8 @@ select
   cid,
   usn,
   ease,
-  ivl,
-  lastIvl,
+  cast(ivl AS integer),
+  cast(lastIvl AS integer),
   factor,
   time,
   type
