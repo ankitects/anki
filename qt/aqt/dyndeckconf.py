@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import aqt
 from anki.lang import without_unicode_isolation
+from anki.rsbackend import InvalidInput
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -13,6 +14,7 @@ from aqt.utils import (
     openHelp,
     restoreGeom,
     saveGeom,
+    show_invalid_search_error,
     showWarning,
     tr,
 )
@@ -114,25 +116,27 @@ class DeckConf(QDialog):
             else:
                 d["delays"] = None
 
-        terms = [[f.search.text(), f.limit.value(), f.order.currentIndex()]]
+        search = self.mw.col.backend.normalize_search(f.search.text())
+        terms = [[search, f.limit.value(), f.order.currentIndex()]]
 
         if f.secondFilter.isChecked():
-            terms.append(
-                [f.search_2.text(), f.limit_2.value(), f.order_2.currentIndex()]
-            )
+            search_2 = self.mw.col.backend.normalize_search(f.search_2.text())
+            terms.append([search_2, f.limit_2.value(), f.order_2.currentIndex()])
 
         d["terms"] = terms
         d["previewDelay"] = f.previewDelay.value()
 
         self.mw.col.decks.save(d)
-        return True
 
     def reject(self):
         self.ok = False
         QDialog.reject(self)
 
     def accept(self):
-        if not self.saveConf():
+        try:
+            self.saveConf()
+        except InvalidInput as err:
+            show_invalid_search_error(err)
             return
         if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
             if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
