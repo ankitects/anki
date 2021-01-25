@@ -25,7 +25,7 @@ export interface HistogramData {
         cumulative: number,
         percent: number
     ) => string;
-    onClick?: (data: Bin<number, number>) => void;
+    onClick: ((data: Bin<number, number>) => void) | null;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
     binValue?: (bin: Bin<any, any>) => number;
@@ -35,7 +35,7 @@ export interface HistogramData {
 export function histogramGraph(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    data: HistogramData | null,
+    data: HistogramData | null
 ): void {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -162,8 +162,6 @@ export function histogramGraph(
         .on("mouseout", hideTooltip);
 
     if (data.onClick) {
-        hoverzone
-            .attr("class", "clickable")
-            .on("click", data.onClick);
+        hoverzone.attr("class", "clickable").on("click", data.onClick);
     }
 }

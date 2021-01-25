@@ -41,6 +41,7 @@ export function prepareData(
     data: GraphData,
     i18n: I18n,
     dispatch: any,
+    browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;
@@ -94,7 +95,7 @@ export function prepareData(
             bins,
             total,
             hoverText,
-            onClick,
+            onClick: browserLinksSupported ? onClick : null,
             colourScale,
             showArea: false,
             xTickFormat,

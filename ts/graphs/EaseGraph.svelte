@@ -7,17 +7,25 @@
     import type { TableDatum } from "./graph-helpers";
     import TableData from "./TableData.svelte";
     import { createEventDispatcher } from "svelte";
+    import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+    export let preferences: PreferenceStore;
 
     const dispatch = createEventDispatcher();
 
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
+    let { browserLinksSupported } = preferences;
 
     $: if (sourceData) {
-        [histogramData, tableData] = prepareData(gatherData(sourceData), i18n, dispatch);
+        [histogramData, tableData] = prepareData(
+            gatherData(sourceData),
+            i18n,
+            dispatch,
+            $browserLinksSupported
+        );
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TITLE);
@@ -29,7 +37,7 @@
 
     <div class="subtitle">{subtitle}</div>
 
-    <HistogramGraph data={histogramData} {i18n} on:search />
+    <HistogramGraph data={histogramData} {i18n} />
 
     <TableData {i18n} {tableData} />
 </div>

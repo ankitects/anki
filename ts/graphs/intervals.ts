@@ -72,6 +72,7 @@ export function prepareIntervalData(
     range: IntervalRange,
     i18n: I18n,
     dispatch: any,
+    browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
@@ -161,13 +162,14 @@ export function prepareIntervalData(
             value: meanIntervalString,
         },
     ];
+
     return [
         {
             scale,
             bins,
             total: totalInPeriod,
             hoverText,
-            onClick,
+            onClick: browserLinksSupported ? onClick : null,
             colourScale,
             showArea: true,
         },
