@@ -9,9 +9,11 @@ import subprocess
 import sys
 from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
+from markdown import markdown
+
 import anki
 import aqt
-from anki.rsbackend import TR  # pylint: disable=unused-import
+from anki.rsbackend import TR, InvalidInput  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -65,6 +67,14 @@ def showWarning(text, parent=None, help="", title="Anki", textFormat=None):
 def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
+
+
+def show_invalid_search_error(err: Exception):
+    "Render search errors in markdown, then display a warning."
+    text = str(err)
+    if isinstance(err, InvalidInput):
+        text = markdown(text)
+    showWarning(text)
 
 
 def showInfo(
