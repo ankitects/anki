@@ -1305,7 +1305,7 @@ where id in %s"""
             current=current,
             accept=tr(TR.BROWSING_MOVE_CARDS),
             title=tr(TR.BROWSING_CHANGE_DECK),
-            help="browse",
+            help="browsing",
             parent=self,
         )
         if not ret.name:
