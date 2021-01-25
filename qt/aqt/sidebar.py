@@ -219,10 +219,13 @@ class SidebarTreeView(QTreeView):
         if not self.isVisible():
             return
 
-        root = self._root_tree()
-        model = SidebarModel(root)
-        self.setModel(model)
-        model.expandWhereNeccessary(self)
+        def on_done(fut: Future):
+            root = fut.result()
+            model = SidebarModel(root)
+            self.setModel(model)
+            model.expandWhereNeccessary(self)
+
+        self.mw.taskman.run_in_background(self._root_tree, on_done)
 
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
