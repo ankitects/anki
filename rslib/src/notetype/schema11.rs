@@ -264,7 +264,7 @@ pub struct CardTemplateSchema11 {
     pub(crate) bqfmt: String,
     #[serde(default)]
     pub(crate) bafmt: String,
-    #[serde(deserialize_with = "default_on_invalid")]
+    #[serde(deserialize_with = "default_on_invalid", default)]
     pub(crate) did: Option<DeckID>,
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) bfont: String,

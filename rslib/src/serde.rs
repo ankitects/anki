@@ -8,6 +8,8 @@ pub(crate) use serde_aux::field_attributes::{
 };
 use serde_json::Value;
 
+/// Note: if you wish to cover the case where a field is missing, make sure you also
+/// use the `serde(default)` flag.
 pub(crate) fn default_on_invalid<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     T: Default + DeTrait<'de>,
@@ -61,5 +63,33 @@ impl FromI64 for i64 {
 impl FromI64 for TimestampSecs {
     fn from_i64(val: i64) -> Self {
         TimestampSecs(val as i64)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde::Deserialize;
+
+    #[derive(Deserialize, Debug, PartialEq)]
+    struct MaybeInvalid {
+        #[serde(deserialize_with = "default_on_invalid", default)]
+        field: Option<usize>,
+    }
+
+    #[test]
+    fn invalid_or_missing() {
+        assert_eq!(
+            serde_json::from_str::<MaybeInvalid>(r#"{"field": 5}"#).unwrap(),
+            MaybeInvalid { field: Some(5) }
+        );
+        assert_eq!(
+            serde_json::from_str::<MaybeInvalid>(r#"{"field": "5"}"#).unwrap(),
+            MaybeInvalid { field: None }
+        );
+        assert_eq!(
+            serde_json::from_str::<MaybeInvalid>(r#"{"another": 5}"#).unwrap(),
+            MaybeInvalid { field: None }
+        );
     }
 }
