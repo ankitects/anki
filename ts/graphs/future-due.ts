@@ -72,11 +72,23 @@ export interface FutureDueOut {
     tableData: TableDatum[];
 }
 
+function makeQuery(start: number, end: number): string {
+    if (start === end) {
+        return `"prop:due=${start}"`;
+    }
+    else {
+        const fromQuery = `"prop:due>=${start}"`;
+        const tillQuery = `"prop:due<=${end}"`;
+        return `${fromQuery} AND ${tillQuery}`;
+    }
+}
+
 export function buildHistogram(
     sourceData: GraphData,
     range: GraphRange,
     backlog: boolean,
-    i18n: I18n
+    i18n: I18n,
+    dispatch: any,
 ): FutureDueOut {
     const output = { histogramData: null, tableData: [] };
     // get min/max
@@ -145,19 +157,11 @@ export function buildHistogram(
         return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
     }
 
-    function makeQuery(data: HistogramData, binIdx: number): string {
-        const bin = data.bins[binIdx];
+    function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
         const end = bin.x1! - 1;
-
-        if (start === end) {
-            return `"prop:due=${start}"`;
-        }
-
-        const fromQuery = `"prop:due>=${start}"`;
-        const tillQuery = `"prop:due<=${end}"`;
-
-        return `${fromQuery} AND ${tillQuery}`;
+        const query = makeQuery(start, end);
+        dispatch("search", { query });
     }
 
     const periodDays = xMax! - xMin!;
@@ -186,7 +190,7 @@ export function buildHistogram(
             bins,
             total,
             hoverText,
-            makeQuery,
+            onClick,
             showArea: true,
             colourScale,
             binValue,

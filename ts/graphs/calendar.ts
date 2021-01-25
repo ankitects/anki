@@ -114,7 +114,6 @@ export function renderCalendar(
             maxCount = count;
         }
     }
-    console.log("sourceData", sourceData, dayMap);
 
     if (!maxCount) {
         setDataAvailable(svg, false);

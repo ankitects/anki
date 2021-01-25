@@ -7,7 +7,7 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, quantile, sum, mean } from "d3-array";
+import { extent, histogram, quantile, sum, mean, Bin } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
@@ -56,10 +56,22 @@ export function intervalLabel(
     }
 }
 
+function makeQuery(start: number, end: number): string {
+    if (start === end) {
+        return `"prop:ivl=${start}"`;
+    }
+
+    const fromQuery = `"prop:ivl>=${start}"`;
+    const tillQuery = `"prop:ivl<=${end}"`;
+
+    return `${fromQuery} AND ${tillQuery}`;
+}
+
 export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange,
-    i18n: I18n
+    i18n: I18n,
+    dispatch: any,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
@@ -134,19 +146,11 @@ export function prepareIntervalData(
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
-    function makeQuery(data: HistogramData, binIdx: number): string {
-        const bin = data.bins[binIdx];
+    function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
         const end = bin.x1! - 1;
-
-        if (start === end) {
-            return `"prop:ivl=${start}"`;
-        }
-
-        const fromQuery = `"prop:ivl>=${start}"`;
-        const tillQuery = `"prop:ivl<=${end}"`;
-
-        return `${fromQuery} AND ${tillQuery}`;
+        const query = makeQuery(start, end);
+        dispatch("search", { query });
     }
 
     const meanInterval = Math.round(mean(allIntervals) ?? 0);
@@ -163,7 +167,7 @@ export function prepareIntervalData(
             bins,
             total: totalInPeriod,
             hoverText,
-            makeQuery,
+            onClick,
             colourScale,
             showArea: true,
         },

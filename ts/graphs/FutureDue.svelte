@@ -9,9 +9,12 @@
     import HistogramGraph from "./HistogramGraph.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
+    import { createEventDispatcher } from "svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+
+    const dispatch = createEventDispatcher();
 
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
@@ -28,7 +31,8 @@
             graphData,
             graphRange,
             backlog,
-            i18n
+            i18n,
+            dispatch,
         ));
     }
 

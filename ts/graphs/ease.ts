@@ -7,7 +7,7 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, sum } from "d3-array";
+import { extent, histogram, sum, Bin } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
@@ -26,9 +26,21 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     return { eases };
 }
 
+function makeQuery(start: number, end: number): string {
+    if (start === end) {
+        return `"prop:ease=${start / 100}"`;
+    }
+
+    const fromQuery = `"prop:ease>=${start / 100}"`;
+    const tillQuery = `"prop:ease<${end / 100}"`;
+
+    return `${fromQuery} AND ${tillQuery}`;
+}
+
 export function prepareData(
     data: GraphData,
-    i18n: I18n
+    i18n: I18n,
+    dispatch: any,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;
@@ -61,19 +73,11 @@ export function prepareData(
         });
     }
 
-    function makeQuery(data: HistogramData, binIdx: number): string {
-        const bin = data.bins[binIdx];
+    function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
         const end = bin.x1! - 1;
-
-        if (start === end) {
-            return `"prop:ease=${start / 100}"`;
-        }
-
-        const fromQuery = `"prop:ease>=${start / 100}"`;
-        const tillQuery = `"prop:ease<${end / 100}"`;
-
-        return `${fromQuery} AND ${tillQuery}`;
+        const query = makeQuery(start, end);
+        dispatch("search", { query });
     }
 
     const xTickFormat = (num: number): string => `${num.toFixed(0)}%`;
@@ -90,7 +94,7 @@ export function prepareData(
             bins,
             total,
             hoverText,
-            makeQuery,
+            onClick,
             colourScale,
             showArea: false,
             xTickFormat,

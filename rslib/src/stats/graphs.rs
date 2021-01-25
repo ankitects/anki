@@ -44,7 +44,6 @@ impl Collection {
             next_day_at_secs: timing.next_day_at as u32,
             scheduler_version: self.sched_ver() as u32,
             local_offset_secs: local_offset_secs as i32,
-            bridge_commands_supported: true,
         })
     }
 
@@ -52,6 +51,7 @@ impl Collection {
         Ok(pb::GraphPreferences {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
             card_counts_separate_inactive: self.get_card_counts_separate_inactive(),
+            browser_links_supported: true,
         })
     }
 

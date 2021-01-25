@@ -25,7 +25,7 @@ export interface HistogramData {
         cumulative: number,
         percent: number
     ) => string;
-    makeQuery?: (data: HistogramData, binIdx: number) => string;
+    onClick?: (data: Bin<number, number>) => void;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
     binValue?: (bin: Bin<any, any>) => number;
@@ -36,7 +36,6 @@ export function histogramGraph(
     svgElem: SVGElement,
     bounds: GraphBounds,
     data: HistogramData | null,
-    dispatch: any
 ): void {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -162,11 +161,9 @@ export function histogramGraph(
         })
         .on("mouseout", hideTooltip);
 
-    if (data.makeQuery) {
+    if (data.onClick) {
         hoverzone
             .attr("class", "clickable")
-            .on("click", function (this: any, _d: any, idx: number) {
-                dispatch("search", { query: data.makeQuery!(data, idx) });
-            });
+            .on("click", data.onClick);
     }
 }
