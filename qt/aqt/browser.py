@@ -10,8 +10,6 @@ from dataclasses import dataclass
 from operator import itemgetter
 from typing import List, Sequence, Tuple, cast
 
-from markdown import markdown
-
 import aqt
 import aqt.forms
 from anki.cards import Card
@@ -64,6 +62,7 @@ from aqt.utils import (
     saveSplitter,
     saveState,
     shortcut,
+    show_invalid_search_error,
     showInfo,
     showWarning,
     tooltip,
@@ -89,14 +88,6 @@ class SearchContext:
     order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
     card_ids: Optional[Sequence[int]] = None
-
-
-def show_invalid_search_error(err: Exception):
-    "Render search errors in markdown, then display a warning."
-    text = str(err)
-    if isinstance(err, InvalidInput):
-        text = markdown(text)
-    showWarning(text)
 
 
 # Data model
