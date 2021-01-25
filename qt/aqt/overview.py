@@ -158,11 +158,10 @@ class Overview:
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
-        table_text = self._table()
-        if not table_text:
-            # deck is finished
+        if self.mw.col.sched._is_finished():
             self._show_finished_screen()
             return
+        table_text = self._table()
         content = OverviewContent(
             deck=deck["name"],
             shareLink=shareLink,
@@ -196,14 +195,9 @@ class Overview:
         return '<div class="descfont descmid description %s">%s</div>' % (dyn, desc)
 
     def _table(self) -> Optional[str]:
-        "Return table text if deck is not finished."
         counts = list(self.mw.col.sched.counts())
-        finished = not sum(counts)
         but = self.mw.button
-        if finished:
-            return None
-        else:
-            return """
+        return """
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
@@ -213,14 +207,14 @@ class Overview:
 </table>
 </td><td align=center>
 %s</td></tr></table>""" % (
-                tr(TR.ACTIONS_NEW),
-                counts[0],
-                tr(TR.SCHEDULING_LEARNING),
-                counts[1],
-                tr(TR.STUDYING_TO_REVIEW),
-                counts[2],
-                but("study", tr(TR.STUDYING_STUDY_NOW), id="study", extra=" autofocus"),
-            )
+            tr(TR.ACTIONS_NEW),
+            counts[0],
+            tr(TR.SCHEDULING_LEARNING),
+            counts[1],
+            tr(TR.STUDYING_TO_REVIEW),
+            counts[2],
+            but("study", tr(TR.STUDYING_STUDY_NOW), id="study", extra=" autofocus"),
+        )
 
     _body = """
 <center>

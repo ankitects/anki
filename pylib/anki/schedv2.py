@@ -176,9 +176,11 @@ class Scheduler:
             print("invalid current deck")
             self.newCount = 0
             self.revCount = 0
+            self._immediate_learn_count = 0
         else:
             self.newCount = node.new_count
             self.revCount = node.review_count
+            self._immediate_learn_count = node.learn_count
 
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
@@ -187,6 +189,10 @@ class Scheduler:
             counts[idx] += 1
         new, lrn, rev = counts
         return (new, lrn, rev)
+
+    def _is_finished(self):
+        "Don't use this, it is a stop-gap until this code is refactored."
+        return not any((self.newCount, self.revCount, self._immediate_learn_count))
 
     def dueForecast(self, days: int = 7) -> List[Any]:
         "Return counts over next DAYS. Includes today."
