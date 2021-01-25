@@ -6,15 +6,18 @@
     import type { I18n } from "anki/i18n";
     import type { TableDatum } from "./graph-helpers";
     import TableData from "./TableData.svelte";
+    import { createEventDispatcher } from "svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+
+    const dispatch = createEventDispatcher();
 
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
 
     $: if (sourceData) {
-        [histogramData, tableData] = prepareData(gatherData(sourceData), i18n);
+        [histogramData, tableData] = prepareData(gatherData(sourceData), i18n, dispatch);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TITLE);

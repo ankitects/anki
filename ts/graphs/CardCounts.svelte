@@ -11,7 +11,7 @@
     export let i18n: I18n;
     export let preferences: PreferenceStore;
 
-    let { cardCountsSeparateInactive } = preferences;
+    let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
     const dispatch = createEventDispatcher();
 
     let svg = null as HTMLElement | SVGElement | null;
@@ -89,7 +89,7 @@
                         <!-- prettier-ignore -->
                         <td>
                             <span style="color: {d.colour};">■&nbsp;</span>
-                            {#if sourceData.bridgeCommandsSupported}
+                            {#if browserLinksSupported}
                                 <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
                             {:else}
                                 <span>{d.label}</span>

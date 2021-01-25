@@ -12,9 +12,12 @@
     import HistogramGraph from "./HistogramGraph.svelte";
     import type { TableDatum } from "./graph-helpers";
     import TableData from "./TableData.svelte";
+    import { createEventDispatcher } from "svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+
+    const dispatch = createEventDispatcher();
 
     let intervalData: IntervalGraphData | null = null;
     let histogramData = null as HistogramData | null;
@@ -26,7 +29,7 @@
     }
 
     $: if (intervalData) {
-        [histogramData, tableData] = prepareIntervalData(intervalData, range, i18n);
+        [histogramData, tableData] = prepareIntervalData(intervalData, range, i18n, dispatch);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);

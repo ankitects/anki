@@ -65,7 +65,7 @@ class DeckBrowser:
 
     def _linkHandler(self, url):
         if ":" in url:
-            (cmd, arg) = url.split(":")
+            (cmd, arg) = url.split(":", 1)
         else:
             cmd = url
         if cmd == "open":
