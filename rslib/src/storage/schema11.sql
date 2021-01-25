@@ -21,6 +21,8 @@ CREATE TABLE notes (
   usn integer NOT NULL,
   tags text NOT NULL,
   flds text NOT NULL,
+  -- The use of type integer for sfld is deliberate, because it means that integer values in this
+  -- field will sort numerically.
   sfld integer NOT NULL,
   csum integer NOT NULL,
   flags integer NOT NULL,
