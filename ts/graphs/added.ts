@@ -44,6 +44,7 @@ export function buildHistogram(
     range: GraphRange,
     i18n: I18n,
     dispatch: any,
+    browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const total = data.daysAdded.length;
@@ -127,7 +128,7 @@ export function buildHistogram(
             bins,
             total: totalInPeriod,
             hoverText,
-            onClick,
+            onClick: browserLinksSupported ? onClick : null,
             colourScale,
             showArea: true,
         },

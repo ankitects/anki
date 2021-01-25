@@ -75,8 +75,7 @@ export interface FutureDueOut {
 function makeQuery(start: number, end: number): string {
     if (start === end) {
         return `"prop:due=${start}"`;
-    }
-    else {
+    } else {
         const fromQuery = `"prop:due>=${start}"`;
         const tillQuery = `"prop:due<=${end}"`;
         return `${fromQuery} AND ${tillQuery}`;
@@ -89,6 +88,7 @@ export function buildHistogram(
     backlog: boolean,
     i18n: I18n,
     dispatch: any,
+    browserLinksSupported: boolean
 ): FutureDueOut {
     const output = { histogramData: null, tableData: [] };
     // get min/max
@@ -190,7 +190,7 @@ export function buildHistogram(
             bins,
             total,
             hoverText,
-            onClick,
+            onClick: browserLinksSupported ? onClick : null,
             showArea: true,
             colourScale,
             binValue,

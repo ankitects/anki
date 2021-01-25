@@ -10,9 +10,11 @@
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
     import { createEventDispatcher } from "svelte";
+    import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+    export let preferences: PreferenceStore;
 
     const dispatch = createEventDispatcher();
 
@@ -21,6 +23,7 @@
     let tableData: TableDatum[] = [] as any;
     let backlog: boolean = true;
     let graphRange: GraphRange = GraphRange.Month;
+    let { browserLinksSupported } = preferences;
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);
@@ -33,6 +36,7 @@
             backlog,
             i18n,
             dispatch,
+            $browserLinksSupported
         ));
     }
 
@@ -57,7 +61,7 @@
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
     </div>
 
-    <HistogramGraph data={histogramData} {i18n} on:search />
+    <HistogramGraph data={histogramData} {i18n} />
 
     <TableData {i18n} {tableData} />
 </div>
