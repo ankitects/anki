@@ -5,7 +5,7 @@ from typing import Optional
 
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, shortcut, tr
+from aqt.utils import TR, HelpPage, shortcut, tr
 
 
 class ModelChooser(QHBoxLayout):
@@ -82,7 +82,7 @@ class ModelChooser(QHBoxLayout):
             names=nameFunc,
             accept=tr(TR.ACTIONS_CHOOSE),
             title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
-            help="getting-started?id=note-types",
+            help=HelpPage.NOTE_TYPE,
             current=current,
             parent=self.widget,
             buttons=[edit],

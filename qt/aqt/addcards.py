@@ -16,6 +16,7 @@ from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
     TR,
+    HelpPage,
     addCloseShortcut,
     askUser,
     disable_help_button,
@@ -64,7 +65,7 @@ class AddCards(QDialog):
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
 
     def helpRequested(self):
-        openHelp("editing?id=adding-cards-and-notes")
+        openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
     def setupButtons(self) -> None:
         bb = self.form.buttonBox
@@ -172,7 +173,7 @@ class AddCards(QDialog):
             problem = tr(TR.ADDING_THE_FIRST_FIELD_IS_EMPTY)
         problem = gui_hooks.add_cards_will_add_note(problem, note)
         if problem is not None:
-            showWarning(problem, help="editing?id=adding-cards-and-notes")
+            showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
             return None
         if note.model()["type"] == MODEL_CLOZE:
             if not note.cloze_numbers_in_fields():

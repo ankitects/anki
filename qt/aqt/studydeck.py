@@ -1,11 +1,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import aqt
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    HelpPage,
+    HelpPageArgument,
     disable_help_button,
     getOnlyText,
     openHelp,
@@ -24,7 +27,7 @@ class StudyDeck(QDialog):
         names=None,
         accept=None,
         title=None,
-        help="studying?id=keyboard-shortcuts",
+        help: HelpPageArgument = HelpPage.KEYBOARD_SHORTCUTS,
         current=None,
         cancel=True,
         parent=None,

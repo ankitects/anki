@@ -11,6 +11,7 @@ from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     getOnlyText,
@@ -245,4 +246,4 @@ class FieldDialog(QDialog):
         self.mw.taskman.with_progress(save, on_done, self)
 
     def onHelp(self):
-        openHelp("editing?id=customizing-fields")
+        openHelp(HelpPage.CUSTOMIZING_FIELDS)

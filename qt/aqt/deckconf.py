@@ -13,6 +13,7 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     getOnlyText,
@@ -40,7 +41,9 @@ class DeckConf(QDialog):
         self.setupCombos()
         self.setupConfs()
         self.setWindowModality(Qt.WindowModal)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("deck-options"))
+        qconnect(
+            self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.DECK_OPTIONS)
+        )
         qconnect(self.form.confOpts.clicked, self.confOpts)
         qconnect(
             self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked,

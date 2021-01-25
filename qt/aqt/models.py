@@ -15,6 +15,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     getText,
@@ -48,7 +49,7 @@ class Models(QDialog):
         self.form.setupUi(self)
         qconnect(
             self.form.buttonBox.helpRequested,
-            lambda: openHelp("editing?id=adding-a-note-type"),
+            lambda: openHelp(HelpPage.ADDING_A_NOTE_TYPE),
         )
         self.models: List[pb.NoteTypeNameIDUseCount] = []
         self.setupModels()
@@ -181,7 +182,7 @@ class Models(QDialog):
         d.setWindowTitle(
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
         )
-        qconnect(frm.buttonBox.helpRequested, lambda: openHelp("math?id=latex"))
+        qconnect(frm.buttonBox.helpRequested, lambda: openHelp(HelpPage.LATEX))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)
         d.exec_()
@@ -266,4 +267,4 @@ class AddModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self) -> None:
-        openHelp("editing?id=adding-a-note-type")
+        openHelp(HelpPage.ADDING_A_NOTE_TYPE)
