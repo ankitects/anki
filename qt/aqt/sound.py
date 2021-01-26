@@ -35,6 +35,7 @@ from aqt.utils import (
     saveGeom,
     showWarning,
     startup_info,
+    tooltip,
     tr,
 )
 
@@ -208,7 +209,7 @@ class AVPlayer:
             gui_hooks.av_player_will_play(tag)
             self.current_player.play(tag, self._on_play_finished)
         else:
-            print("no players found for", tag)
+            tooltip(f"no players found for {tag}")
 
     def _best_player_for_tag(self, tag: AVTag) -> Optional[Player]:
         ranked = []
