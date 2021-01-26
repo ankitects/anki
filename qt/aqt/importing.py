@@ -19,6 +19,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     getFile,
@@ -122,7 +123,7 @@ class ImportDialog(QDialog):
             getOnlyText(
                 tr(TR.IMPORTING_BY_DEFAULT_ANKI_WILL_DETECT_THE),
                 self,
-                help="importing",
+                help=HelpPage.IMPORTING,
             )
             or "\t"
         )
@@ -280,7 +281,7 @@ class ImportDialog(QDialog):
         QDialog.reject(self)
 
     def helpRequested(self):
-        openHelp("importing")
+        openHelp(HelpPage.IMPORTING)
 
     def importModeChanged(self, newImportMode):
         if newImportMode == 0:

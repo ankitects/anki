@@ -20,6 +20,7 @@ from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     downArrow,
@@ -828,4 +829,4 @@ class CardLayout(QDialog):
         self.mw = None
 
     def onHelp(self):
-        openHelp("templates/intro")
+        openHelp(HelpPage.TEMPLATES)
