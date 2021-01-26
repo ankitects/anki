@@ -176,19 +176,14 @@ const INLINE_TAGS = [
 ];
 
 function nodeIsInline(node: Node): boolean {
-    return (
-        nodeIsText(node) ||
-        INLINE_TAGS.includes((node as Element).tagName)
-    );
+    return !nodeIsElement(node) || INLINE_TAGS.includes(node.tagName);
 }
 
 function inListItem(): boolean {
     const anchor = window.getSelection().anchorNode;
 
-    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
-
     let inList = false;
-
+    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
     while (n) {
         inList = inList || window.getComputedStyle(n).display == "list-item";
         n = n.parentElement;
