@@ -105,12 +105,20 @@ function onKeyUp(evt: KeyboardEvent): void {
     }
 }
 
+function nodeIsBRElement(node: Node): node is HTMLBRElement {
+    return nodeIsElement(node) && node.tagName === "BR";
+}
+
 function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
 function nodeIsText(node: Node): node is Text {
     return node.nodeType === Node.TEXT_NODE;
+}
+
+function nodeIsInline(node: Node): boolean {
+    return nodeIsText(node) || nodeIsBRElement(node) || window.getComputedStyle(node as Element).getPropertyValue("display").startsWith("inline");
 }
 
 function inListItem(): boolean {
@@ -197,7 +205,8 @@ function clearChangeTimer(): void {
     }
 }
 
-function onFocus(elem: HTMLElement): void {
+function onFocus(evt: FocusEvent): void {
+    const elem = evt.currentTarget as HTMLElement;
     if (currentField === elem) {
         // anki window refocused; current element unchanged
         return;
@@ -277,19 +286,19 @@ function onBlur(): void {
     }
 }
 
-function stripTrailingLinebreakIfInlineElements(field: HTMLDivElement) {
-    if (
-        nodeIsElement(field.lastChild) &&
-        field.lastChild.tagName === "BR" && (
-            nodeIsText(field.lastChild.previousSibling) ||
-            window.getComputedStyle(field.lastChild.previousSibling as Element).getPropertyValue("display").startsWith("inline")
-        )
-    ) {
-        console.log('trimmd!', field.lastChild, field.lastChild.previousSibling)
-        return field.innerHTML.slice(0, -4);
+function fieldIsInInlineMode(field: HTMLDivElement): boolean {
+    if (field.childNodes.length === 0) {
+        // for now, for all practical purposes, empty fields are in block mode
+        return false;
     }
 
-    return field.innerHTML;
+    for (const child of field.children) {
+        if (!nodeIsInline(child)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function saveField(type: "blur" | "key"): void {
@@ -299,7 +308,11 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
 
-    const fieldText = stripTrailingLinebreakIfInlineElements(currentField);
+    const fieldText = fieldIsInInlineMode(currentField) && currentField.innerHTML.endsWith("<br>")
+        // trim trailing <br>
+        ? currentField.innerHTML.slice(0, -4)
+        : currentField.innerHTML
+
     pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${fieldText}`);
 }
 
@@ -374,44 +387,58 @@ function onCutOrCopy(): boolean {
     return true;
 }
 
+function createField(index: number, label: string, color: string, content: string): [HTMLDivElement, HTMLDivElement] {
+    const name = document.createElement("div");
+    name.id = `name${index}`;
+    name.className = "fname";
+
+    const fieldname = document.createElement("span");
+    fieldname.className = "fieldname";
+    fieldname.innerText = label;
+    name.appendChild(fieldname);
+
+    const field = document.createElement("div");
+    field.id = `f${index}`;
+    field.className = "field";
+    field.setAttribute("contenteditable", "true");
+    field.style.color = color;
+    field.addEventListener("keydown", onKey);
+    field.addEventListener("keyup", onKeyUp);
+    field.addEventListener("input", onInput);
+    field.addEventListener("focus", onFocus);
+    field.addEventListener("blur", onBlur);
+    field.addEventListener("paste", onPaste);
+    field.addEventListener("copy", onCutOrCopy);
+    field.addEventListener("oncut", onCutOrCopy);
+    field.innerHTML = content;
+
+    if (fieldIsInInlineMode(field)) {
+        field.appendChild(document.createElement("br"));
+    }
+
+    return [name, field];
+}
+
 function setFields(fields: [string, string][]): void {
-    let txt = "";
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
     const color = window
         .getComputedStyle(document.documentElement)
         .getPropertyValue("--text-fg");
-    for (let i = 0; i < fields.length; i++) {
-        const n = fields[i][0];
-        let f = fields[i][1];
-        txt += `
-        <tr>
-            <td class=fname id="name${i}">
-                <span class="fieldname">${n}</span>
-            </td>
-        </tr>
-        <tr>
-            <td width=100%>
-                <div id="f${i}"
-                     onkeydown="onKey(window.event);"
-                     onkeyup="onKeyUp(window.event);"
-                     oninput="onInput();"
-                     onmouseup="onKey(window.event);"
-                     onfocus="onFocus(this);"
-                     onblur="onBlur();"
-                     class="field clearfix"
-                     onpaste="onPaste(this);"
-                     oncopy="onCutOrCopy(this);"
-                     oncut="onCutOrCopy(this);"
-                     contentEditable
-                     style="color: ${color}"
-                >${f}</div>
-            </td>
-        </tr>`;
+
+    const elements = fields.flatMap(
+        ([name, fieldcontent], index: number) => createField(index, name, color, fieldcontent)
+    )
+
+    const fieldsContainer = document.getElementById("fields")
+    // can be replaced with ParentNode.replaceChildren in Chrome 86+
+    while (fieldsContainer.firstChild) {
+        fieldsContainer.removeChild(fieldsContainer.firstChild);
     }
-    $("#fields").html(
-        `<table cellpadding=0 width=100% style='table-layout: fixed;'>${txt}</table>`
-    );
+    for (const element of elements) {
+        fieldsContainer.appendChild(element);
+    }
+
     maybeDisableButtons();
 }
 
@@ -474,8 +501,6 @@ let filterHTML = function (
         outHtml = outHtml.replace(/[\n\t ]+/g, " ");
     }
     outHtml = outHtml.trim();
-    //console.log(`input html: ${html}`);
-    //console.log(`outpt html: ${outHtml}`);
     return outHtml;
 };
 
