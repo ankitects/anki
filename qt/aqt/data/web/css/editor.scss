@@ -14,12 +14,6 @@
     }
 }
 
-.clearfix::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
 .fname {
     vertical-align: middle;
     padding: 0;
