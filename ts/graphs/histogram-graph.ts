@@ -25,6 +25,7 @@ export interface HistogramData {
         cumulative: number,
         percent: number
     ) => string;
+    onClick: ((data: Bin<number, number>) => void) | null;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
     binValue?: (bin: Bin<any, any>) => number;
@@ -131,7 +132,7 @@ export function histogramGraph(
                 "d",
                 area()
                     .curve(curveBasis)
-                    .x((d, idx) => {
+                    .x((_d, idx) => {
                         if (idx === 0) {
                             return x(data.bins[0].x0!)!;
                         } else {
@@ -144,7 +145,8 @@ export function histogramGraph(
     }
 
     // hover/tooltip
-    svg.select("g.hoverzone")
+    const hoverzone = svg
+        .select("g.hoverzone")
         .selectAll("rect")
         .data(data.bins)
         .join("rect")
@@ -152,10 +154,14 @@ export function histogramGraph(
         .attr("y", () => y(yMax!)!)
         .attr("width", barWidth)
         .attr("height", () => y(0)! - y(yMax!)!)
-        .on("mousemove", function (this: any, d: any, idx) {
+        .on("mousemove", function (this: any, _d: any, idx: number) {
             const [x, y] = mouse(document.body);
             const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;
             showTooltip(data.hoverText(data, idx, areaData[idx + 1], pct), x, y);
         })
         .on("mouseout", hideTooltip);
+
+    if (data.onClick) {
+        hoverzone.attr("class", "clickable").on("click", data.onClick);
+    }
 }

@@ -8,6 +8,7 @@
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
     import { getPreferences } from "./preferences";
+    import { bridgeCommand } from "anki/bridgecommand";
 
     export let i18n: I18n;
     export let nightMode: boolean;
@@ -24,7 +25,9 @@
 
     const preferencesPromise = getPreferences();
 
-    const refreshWith = async (search: string, days: number) => {
+    const refreshWith = async (searchNew: string, days: number) => {
+        search = searchNew;
+
         active = true;
         try {
             [sourceData, preferences] = await Promise.all([
@@ -44,6 +47,11 @@
     };
 
     refreshWith(search, days);
+
+    const browserSearch = (event: CustomEvent) => {
+        const query = `${search} ${event.detail.query}`;
+        bridgeCommand(`browserSearch:${query}`);
+    };
 </script>
 
 {#if controller}
@@ -65,7 +73,8 @@
                 {preferences}
                 {revlogRange}
                 {i18n}
-                {nightMode} />
+                {nightMode}
+                on:search={browserSearch} />
         {/each}
     </div>
 {/if}

@@ -51,6 +51,7 @@ class NewDeckStats(QDialog):
         gui_hooks.stats_dialog_will_show(self)
         self.show()
         self.refresh()
+        self.form.web.set_bridge_command(self._on_bridge_cmd, self)
         self.activateWindow()
 
     def reject(self):
@@ -88,6 +89,14 @@ class NewDeckStats(QDialog):
 
     def changeScope(self, type):
         pass
+
+    def _on_bridge_cmd(self, cmd: str) -> bool:
+        if cmd.startswith("browserSearch"):
+            _, query = cmd.split(":", 1)
+            browser = aqt.dialogs.open("Browser", self.mw)
+            browser.search_for(query)
+
+        return False
 
     def refresh(self):
         self.form.web.load_ts_page("graphs")
