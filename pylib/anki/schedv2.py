@@ -1226,7 +1226,6 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     ##########################################################################
 
     def _updateCutoff(self) -> None:
-        oldToday = self.today
         timing = self._timing_today()
         self.today = timing.days_elapsed
         self.dayCutoff = timing.next_day_at
