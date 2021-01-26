@@ -118,7 +118,14 @@ function nodeIsText(node: Node): node is Text {
 }
 
 function nodeIsInline(node: Node): boolean {
-    return nodeIsText(node) || nodeIsBRElement(node) || window.getComputedStyle(node as Element).getPropertyValue("display").startsWith("inline");
+    return (
+        nodeIsText(node) ||
+        nodeIsBRElement(node) ||
+        window
+            .getComputedStyle(node as Element)
+            .getPropertyValue("display")
+            .startsWith("inline")
+    );
 }
 
 function inListItem(): boolean {
@@ -308,10 +315,11 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
 
-    const fieldText = fieldIsInInlineMode(currentField) && currentField.innerHTML.endsWith("<br>")
-        // trim trailing <br>
-        ? currentField.innerHTML.slice(0, -4)
-        : currentField.innerHTML
+    const fieldText =
+        fieldIsInInlineMode(currentField) && currentField.innerHTML.endsWith("<br>")
+            ? // trim trailing <br>
+              currentField.innerHTML.slice(0, -4)
+            : currentField.innerHTML;
 
     pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${fieldText}`);
 }
@@ -387,7 +395,12 @@ function onCutOrCopy(): boolean {
     return true;
 }
 
-function createField(index: number, label: string, color: string, content: string): [HTMLDivElement, HTMLDivElement] {
+function createField(
+    index: number,
+    label: string,
+    color: string,
+    content: string
+): [HTMLDivElement, HTMLDivElement] {
     const name = document.createElement("div");
     name.id = `name${index}`;
     name.className = "fname";
@@ -426,11 +439,11 @@ function setFields(fields: [string, string][]): void {
         .getComputedStyle(document.documentElement)
         .getPropertyValue("--text-fg");
 
-    const elements = fields.flatMap(
-        ([name, fieldcontent], index: number) => createField(index, name, color, fieldcontent)
-    )
+    const elements = fields.flatMap(([name, fieldcontent], index: number) =>
+        createField(index, name, color, fieldcontent)
+    );
 
-    const fieldsContainer = document.getElementById("fields")
+    const fieldsContainer = document.getElementById("fields");
     // can be replaced with ParentNode.replaceChildren in Chrome 86+
     while (fieldsContainer.firstChild) {
         fieldsContainer.removeChild(fieldsContainer.firstChild);
