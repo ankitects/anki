@@ -162,6 +162,9 @@ export function histogramGraph(
         .on("mouseout", hideTooltip);
 
     if (data.onClick) {
-        hoverzone.attr("class", "clickable").on("click", data.onClick);
+        hoverzone
+            .filter((d: Bin<number, number>) => d.length > 0)
+            .attr("class", "clickable")
+            .on("click", data.onClick);
     }
 }
