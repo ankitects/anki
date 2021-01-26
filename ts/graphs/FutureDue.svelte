@@ -9,15 +9,21 @@
     import HistogramGraph from "./HistogramGraph.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
+    import { createEventDispatcher } from "svelte";
+    import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+    export let preferences: PreferenceStore;
+
+    const dispatch = createEventDispatcher();
 
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [] as any;
     let backlog: boolean = true;
     let graphRange: GraphRange = GraphRange.Month;
+    let { browserLinksSupported } = preferences;
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);
@@ -28,7 +34,9 @@
             graphData,
             graphRange,
             backlog,
-            i18n
+            i18n,
+            dispatch,
+            $browserLinksSupported
         ));
     }
 

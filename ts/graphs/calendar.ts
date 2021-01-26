@@ -82,6 +82,7 @@ export function renderCalendar(
     svgElem: SVGElement,
     bounds: GraphBounds,
     sourceData: GraphData,
+    dispatch: any,
     targetYear: number,
     i18n: I18n,
     nightMode: boolean,
@@ -205,6 +206,14 @@ export function renderCalendar(
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)
+        .attr("class", (d: any): string => {
+            return d.count > 0 ? "clickable" : "";
+        })
+        .on("click", function (this: any, d: any) {
+            if (d.count > 0) {
+                dispatch("search", { query: `"prop:rated=${d.day}"` });
+            }
+        })
         .transition()
         .duration(800)
         .attr("fill", (d) => (d.count === 0 ? emptyColour : blues(d.count)!));
