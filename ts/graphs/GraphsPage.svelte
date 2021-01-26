@@ -8,6 +8,7 @@
     import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
     import { getPreferences } from "./preferences";
+    import { bridgeCommand } from "anki/bridgecommand";
 
     export let i18n: I18n;
     export let nightMode: boolean;
