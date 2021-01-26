@@ -117,14 +117,68 @@ function nodeIsText(node: Node): node is Text {
     return node.nodeType === Node.TEXT_NODE;
 }
 
+const INLINE_TAGS = [
+    "A",
+    "ABBR",
+    "ACRONYM",
+    "AUDIO",
+    "B",
+    "BDI",
+    "BDO",
+    "BIG",
+    "BR",
+    "BUTTON",
+    "CANVAS",
+    "CITE",
+    "CODE",
+    "DATA",
+    "DATALIST",
+    "DEL",
+    "DFN",
+    "EM",
+    "EMBED",
+    "I",
+    "IFRAME",
+    "IMG",
+    "INPUT",
+    "INS",
+    "KBD",
+    "LABEL",
+    "MAP",
+    "MARK",
+    "METER",
+    "NOSCRIPT",
+    "OBJECT",
+    "OUTPUT",
+    "PICTURE",
+    "PROGRESS",
+    "Q",
+    "RUBY",
+    "S",
+    "SAMP",
+    "SCRIPT",
+    "SELECT",
+    "SLOT",
+    "SMALL",
+    "SPAN",
+    "STRONG",
+    "SUB",
+    "SUP",
+    "SVG",
+    "TEMPLATE",
+    "TEXTAREA",
+    "TIME",
+    "U",
+    "TT",
+    "VAR",
+    "VIDEO",
+    "WBR",
+];
+
 function nodeIsInline(node: Node): boolean {
     return (
         nodeIsText(node) ||
-        nodeIsBRElement(node) ||
-        window
-            .getComputedStyle(node as Element)
-            .getPropertyValue("display")
-            .startsWith("inline")
+        INLINE_TAGS.includes((node as Element).tagName)
     );
 }
 
