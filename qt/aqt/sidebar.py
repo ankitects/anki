@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import copy
+import re
 from concurrent.futures import Future
 from enum import Enum
 from typing import Iterable, List, Optional
@@ -177,6 +179,49 @@ class SidebarModel(QAbstractItemModel):
         # then ourselves
         tree.setExpanded(parent, True)
 
+    def flattened(self) -> SidebarModel:
+        "Returns a flattened representation of the model."
+        root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
+
+        def flatten_tree(children: Iterable[SidebarItem]):
+            for child in children:
+                child.name = child.full_name
+                root.addChild(child)
+                flatten_tree(child.children)
+                child.children = []
+
+        flatten_tree(copy.deepcopy(self.root.children))
+
+        return SidebarModel(root)
+
+
+class SidebarSearchBar(QLineEdit):
+    def __init__(self, sidebar):
+        QLineEdit.__init__(self, sidebar)
+        self.sidebar = sidebar
+        qconnect(self.textChanged, self.onTextChanged)
+
+    def onTextChanged(self, text: str):
+        if text == "":
+            self.sidebar.refresh()
+        else:
+            # show matched items in the sidebar
+            root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
+            pattern = re.compile("(?i).*{}.*".format(re.escape(text)))
+            for item in self.sidebar.flattened_model.root.children:
+                if pattern.match(item.name) or pattern.match(item.full_name):
+                    root.addChild(item)
+
+            self.sidebar.setModel(SidebarModel(root))
+
+    def keyPressEvent(self, evt):
+        if evt.key() in (Qt.Key_Up, Qt.Key_Down):
+            self.sidebar.setFocus()
+        elif evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+            self.onTextChanged(self.text())
+        else:
+            QLineEdit.keyPressEvent(self, evt)
+
 
 class SidebarTreeView(QTreeView):
     def __init__(self, browser: aqt.browser.Browser) -> None:
@@ -222,6 +267,7 @@ class SidebarTreeView(QTreeView):
         def on_done(fut: Future):
             root = fut.result()
             model = SidebarModel(root)
+            self.flattened_model = model.flattened()
             self.setModel(model)
             model.expandWhereNeccessary(self)
 
@@ -359,6 +405,7 @@ class SidebarTreeView(QTreeView):
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,
+                    full_name=head + node.name,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"
@@ -384,6 +431,7 @@ class SidebarTreeView(QTreeView):
                     ":/icons/notetype.svg",
                     self._template_filter(nt["name"], c),
                     item_type=SidebarItemType.TEMPLATE,
+                    full_name=nt["name"] + "::" + tmpl["name"],
                 )
                 item.addChild(child)
 

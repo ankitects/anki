@@ -35,7 +35,7 @@ from aqt.main import ResetReason
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
-from aqt.sidebar import SidebarTreeView
+from aqt.sidebar import SidebarSearchBar, SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
@@ -912,6 +912,17 @@ QTableView {{ gridline-color: {grid} }}
         self.sidebar = SidebarTreeView(self)
         self.sidebarTree = self.sidebar  # legacy alias
         dw.setWidget(self.sidebar)
+        self.sidebar.searchBar = searchBar = SidebarSearchBar(self.sidebar)
+        qconnect(
+            QShortcut(QKeySequence("Ctrl+Shift+B"), self).activated,
+            self.focusSidebarSearchBar,
+        )
+        l = QVBoxLayout()
+        l.addWidget(searchBar)
+        l.addWidget(self.sidebar)
+        w = QWidget()
+        w.setLayout(l)
+        dw.setWidget(w)
         self.sidebarDockWidget.setFloating(False)
 
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
@@ -921,11 +932,18 @@ QTableView {{ gridline-color: {grid} }}
         # UI is more responsive
         self.mw.progress.timer(10, self.sidebar.refresh, False)
 
-    def focusSidebar(self) -> None:
+    def showSidebar(self) -> None:
         # workaround for PyQt focus bug
         self.editor.hideCompleters()
         self.sidebarDockWidget.setVisible(True)
+
+    def focusSidebar(self) -> None:
+        self.showSidebar()
         self.sidebar.setFocus()
+
+    def focusSidebarSearchBar(self) -> None:
+        self.showSidebar()
+        self.sidebar.searchBar.setFocus()
 
     # legacy
     def maybeRefreshSidebar(self) -> None:
