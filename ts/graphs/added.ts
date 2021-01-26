@@ -14,7 +14,7 @@ import { interpolateBlues } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
 import { dayLabel } from "anki/time";
 import { GraphRange } from "./graph-helpers";
-import type { TableDatum } from "./graph-helpers";
+import type { TableDatum, SearchDispatch } from "./graph-helpers";
 
 export interface GraphData {
     daysAdded: number[];
@@ -43,7 +43,7 @@ export function buildHistogram(
     data: GraphData,
     range: GraphRange,
     i18n: I18n,
-    dispatch: any,
+    dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
     // get min/max

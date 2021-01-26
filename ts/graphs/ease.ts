@@ -13,7 +13,7 @@ import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import { interpolateRdYlGn } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
-import type { TableDatum } from "./graph-helpers";
+import type { TableDatum, SearchDispatch } from "./graph-helpers";
 
 export interface GraphData {
     eases: number[];
@@ -40,7 +40,7 @@ function makeQuery(start: number, end: number): string {
 export function prepareData(
     data: GraphData,
     i18n: I18n,
-    dispatch: any,
+    dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
@@ -49,7 +49,7 @@ export function prepareData(
         return [null, []];
     }
     const total = allEases.length;
-    const [_xMin, origXMax] = extent(allEases);
+    const [, origXMax] = extent(allEases);
     let xMax = origXMax;
     const xMin = 130;
 

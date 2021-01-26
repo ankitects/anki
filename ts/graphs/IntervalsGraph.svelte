@@ -10,7 +10,7 @@
     import type { IntervalGraphData } from "./intervals";
     import type pb from "anki/backend_proto";
     import HistogramGraph from "./HistogramGraph.svelte";
-    import type { TableDatum } from "./graph-helpers";
+    import type { TableDatum, SearchEventMap } from "./graph-helpers";
     import TableData from "./TableData.svelte";
     import { createEventDispatcher } from "svelte";
     import type { PreferenceStore } from "./preferences";
@@ -19,7 +19,7 @@
     export let i18n: I18n;
     export let preferences: PreferenceStore;
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<SearchEventMap>();
 
     let intervalData: IntervalGraphData | null = null;
     let histogramData = null as HistogramData | null;
