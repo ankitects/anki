@@ -13,7 +13,7 @@ import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
-import type { TableDatum } from "./graph-helpers";
+import type { TableDatum, SearchDispatch } from "./graph-helpers";
 import { timeSpan } from "anki/time";
 
 export interface IntervalGraphData {
@@ -71,7 +71,7 @@ export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange,
     i18n: I18n,
-    dispatch: any,
+    dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
     // get min/max

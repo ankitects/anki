@@ -3,6 +3,7 @@
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds, RevlogRange } from "./graph-helpers";
+    import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCalendar } from "./calendar";
     import type { PreferenceStore } from "./preferences";
     import type { GraphData } from "./calendar";
@@ -16,7 +17,7 @@
     export let nightMode: boolean;
 
     let { calendarFirstDayOfWeek } = preferences;
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<SearchEventMap>();
 
     let graphData: GraphData | null = null;
 

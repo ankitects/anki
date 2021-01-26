@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { RevlogRange, GraphRange } from "./graph-helpers";
-    import type { TableDatum } from "./graph-helpers";
+    import type { TableDatum, SearchEventMap } from "./graph-helpers";
     import type { I18n } from "anki/i18n";
     import type { HistogramData } from "./histogram-graph";
     import { gatherData, buildHistogram } from "./added";
@@ -21,7 +21,7 @@
     let graphRange: GraphRange = GraphRange.Month;
     let { browserLinksSupported } = preferences;
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<SearchEventMap>();
 
     let addedData: GraphData | null = null;
     $: if (sourceData) {

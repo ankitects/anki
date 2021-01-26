@@ -12,7 +12,12 @@ import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequentialSqrt } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable, RevlogRange } from "./graph-helpers";
+import {
+    GraphBounds,
+    setDataAvailable,
+    RevlogRange,
+    SearchDispatch,
+} from "./graph-helpers";
 import {
     timeDay,
     timeYear,
@@ -82,7 +87,7 @@ export function renderCalendar(
     svgElem: SVGElement,
     bounds: GraphBounds,
     sourceData: GraphData,
-    dispatch: any,
+    dispatch: SearchDispatch,
     targetYear: number,
     i18n: I18n,
     nightMode: boolean,
