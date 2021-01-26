@@ -105,16 +105,8 @@ function onKeyUp(evt: KeyboardEvent): void {
     }
 }
 
-function nodeIsBRElement(node: Node): node is HTMLBRElement {
-    return nodeIsElement(node) && node.tagName === "BR";
-}
-
 function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
-}
-
-function nodeIsText(node: Node): node is Text {
-    return node.nodeType === Node.TEXT_NODE;
 }
 
 const INLINE_TAGS = [
