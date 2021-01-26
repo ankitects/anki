@@ -109,6 +109,10 @@ function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+function nodeIsText(node: Node): node is Text {
+    return node.nodeType === Node.TEXT_NODE;
+}
+
 function inListItem(): boolean {
     const anchor = window.getSelection().anchorNode;
 
@@ -273,16 +277,30 @@ function onBlur(): void {
     }
 }
 
+function stripTrailingLinebreakIfInlineElements(field: HTMLDivElement) {
+    if (
+        nodeIsElement(field.lastChild) &&
+        field.lastChild.tagName === "BR" && (
+            nodeIsText(field.lastChild.previousSibling) ||
+            window.getComputedStyle(field.lastChild.previousSibling as Element).getPropertyValue("display").startsWith("inline")
+        )
+    ) {
+        console.log('trimmd!', field.lastChild, field.lastChild.previousSibling)
+        return field.innerHTML.slice(0, -4);
+    }
+
+    return field.innerHTML;
+}
+
 function saveField(type: "blur" | "key"): void {
     clearChangeTimer();
     if (!currentField) {
         // no field has been focused yet
         return;
     }
-    // type is either 'blur' or 'key'
-    pycmd(
-        `${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.innerHTML}`
-    );
+
+    const fieldText = stripTrailingLinebreakIfInlineElements(currentField);
+    pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${fieldText}`);
 }
 
 function currentFieldOrdinal(): string {
