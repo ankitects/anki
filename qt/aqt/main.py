@@ -48,6 +48,7 @@ from aqt.taskman import TaskManager
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     checkInvalidFilename,
     disable_help_button,
@@ -1090,7 +1091,7 @@ title="%s" %s>%s</button>""" % (
         openLink(aqt.appDonate)
 
     def onDocumentation(self):
-        openHelp("")
+        openHelp(HelpPage.INDEX)
 
     # Importing & exporting
     ##########################################################################

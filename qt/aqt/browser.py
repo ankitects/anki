@@ -8,7 +8,7 @@ import time
 from concurrent.futures import Future
 from dataclasses import dataclass
 from operator import itemgetter
-from typing import List, Sequence, Tuple, cast
+from typing import List, Optional, Sequence, Tuple, cast
 
 import aqt
 import aqt.forms
@@ -39,6 +39,7 @@ from aqt.sidebar import SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
+    HelpPage,
     MenuList,
     SubMenu,
     askUser,
@@ -1196,7 +1197,7 @@ where id in %s"""
         return sf
 
     def onHelp(self):
-        openHelp("browsing")
+        openHelp(HelpPage.BROWSING)
 
     # Misc menu options
     ######################################################################
@@ -1296,7 +1297,7 @@ where id in %s"""
             current=current,
             accept=tr(TR.BROWSING_MOVE_CARDS),
             title=tr(TR.BROWSING_CHANGE_DECK),
-            help="browsing",
+            help=HelpPage.BROWSING,
             parent=self,
         )
         if not ret.name:
@@ -1648,7 +1649,7 @@ where id in %s"""
         self.mw.taskman.run_in_background(do_search, on_done)
 
     def onFindReplaceHelp(self):
-        openHelp("browsing?id=find-and-replace")
+        openHelp(HelpPage.BROWSING_FIND_AND_REPLACE)
 
     # Edit: finding dupes
     ######################################################################
@@ -2002,7 +2003,7 @@ class ChangeModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        openHelp("browsing?id=other-menu-items")
+        openHelp(HelpPage.BROWSING_OTHER_MENU_ITEMS)
 
 
 # Card Info Dialog

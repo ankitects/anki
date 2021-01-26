@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+from enum import Enum
 from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
 from markdown import markdown
@@ -46,10 +47,40 @@ def tr(key: TRValue, **kwargs: Union[str, int, float]) -> str:
     return anki.lang.current_i18n.translate(key, **kwargs)
 
 
-def openHelp(section):
+class HelpPage(Enum):
+    NOTE_TYPE = "getting-started?id=note-types"
+    BROWSING = "browsing"
+    BROWSING_FIND_AND_REPLACE = "browsing?id=find-and-replace"
+    BROWSING_OTHER_MENU_ITEMS = "browsing?id=other-menu-items"
+    KEYBOARD_SHORTCUTS = "studying?id=keyboard-shortcuts"
+    EDITING = "editing"
+    ADDING_CARD_AND_NOTE = "editing?id=adding-cards-and-notes"
+    ADDING_A_NOTE_TYPE = "editing?id=adding-a-note-type"
+    LATEX = "math?id=latex"
+    PREFERENCES = "preferences"
+    INDEX = ""
+    TEMPLATES = "templates/intro"
+    FILTERED_DECK = "filtered-decks"
+    IMPORTING = "importing"
+    CUSTOMIZING_FIELDS = "editing?id=customizing-fields"
+    DECK_OPTIONS = "deck-options"
+    EDITING_FEATURES = "editing?id=features"
+
+
+HelpPageArgument = Optional[Union[HelpPage, str]]
+"""This type represents what can be used as argument expecting a specific help page. Anki code should use HelpPage as
+argument. However, add-on may use string, and we want to accept this.
+
+"""
+
+
+def openHelp(section: HelpPageArgument):
     link = aqt.appHelpSite
     if section:
-        link += section
+        if isinstance(section, HelpPage):
+            link += section.value
+        else:
+            link += section
     openLink(link)
 
 
@@ -180,7 +211,14 @@ def showText(
         return diag, box
 
 
-def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="Anki"):
+def askUser(
+    text,
+    parent=None,
+    help: HelpPageArgument = None,
+    defaultno=False,
+    msgfunc=None,
+    title="Anki",
+):
     "Show a yes/no question. Return true if yes."
     if not parent:
         parent = aqt.mw.app.activeWindow()
@@ -204,7 +242,9 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="An
 
 
 class ButtonedDialog(QMessageBox):
-    def __init__(self, text, buttons, parent=None, help="", title="Anki"):
+    def __init__(
+        self, text, buttons, parent=None, help: HelpPageArgument = None, title="Anki"
+    ):
         QMessageBox.__init__(self, parent)
         self._buttons = []
         self.setWindowTitle(title)
@@ -231,7 +271,9 @@ class ButtonedDialog(QMessageBox):
         self.setDefaultButton(self._buttons[idx])
 
 
-def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
+def askUserDialog(
+    text, buttons, parent=None, help: HelpPageArgument = None, title="Anki"
+):
     if not parent:
         parent = aqt.mw
     diag = ButtonedDialog(text, buttons, parent, help, title=title)
@@ -243,7 +285,7 @@ class GetTextDialog(QDialog):
         self,
         parent,
         question,
-        help=None,
+        help: HelpPageArgument = None,
         edit=None,
         default="",
         title="Anki",
@@ -289,7 +331,7 @@ class GetTextDialog(QDialog):
 def getText(
     prompt,
     parent=None,
-    help=None,
+    help: HelpPageArgument = None,
     edit=None,
     default="",
     title="Anki",

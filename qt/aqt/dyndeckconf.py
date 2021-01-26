@@ -9,6 +9,7 @@ from anki.rsbackend import InvalidInput
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     openHelp,
@@ -36,7 +37,9 @@ class DeckConf(QDialog):
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered-decks"))
+        qconnect(
+            self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.FILTERED_DECK)
+        )
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )

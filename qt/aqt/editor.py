@@ -32,6 +32,7 @@ from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
+    HelpPage,
     disable_help_button,
     getFile,
     openHelp,
@@ -572,7 +573,9 @@ class Editor:
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")
         disable_help_button(d)
-        qconnect(form.buttonBox.helpRequested, lambda: openHelp("editing?id=features"))
+        qconnect(
+            form.buttonBox.helpRequested, lambda: openHelp(HelpPage.EDITING_FEATURES)
+        )
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
         form.textEdit.moveCursor(QTextCursor.End)

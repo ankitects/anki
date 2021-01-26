@@ -5,7 +5,7 @@ from typing import Any
 
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, shortcut, tr
+from aqt.utils import TR, HelpPage, shortcut, tr
 
 
 class DeckChooser(QHBoxLayout):
@@ -86,7 +86,7 @@ class DeckChooser(QHBoxLayout):
             current=current,
             accept=tr(TR.ACTIONS_CHOOSE),
             title=tr(TR.QT_MISC_CHOOSE_DECK),
-            help="editing",
+            help=HelpPage.EDITING,
             cancel=False,
             parent=self.widget,
             geomKey="selectDeck",

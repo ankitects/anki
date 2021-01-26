@@ -8,6 +8,7 @@ from aqt.profiles import RecordingDriver, VideoDriver
 from aqt.qt import *
 from aqt.utils import (
     TR,
+    HelpPage,
     askUser,
     disable_help_button,
     openHelp,
@@ -42,7 +43,9 @@ class Preferences(QDialog):
         disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("preferences"))
+        qconnect(
+            self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
+        )
         self.silentlyClose = True
         self.prefs = self.mw.col.backend.get_preferences()
         self.setupLang()
