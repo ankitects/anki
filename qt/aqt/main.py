@@ -1192,6 +1192,7 @@ title="%s" %s>%s</button>""" % (
         qconnect(m.actionDonate.triggered, self.onDonate)
         qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
+        qconnect(m.actionCreateSampleDeck.triggered, self.onCreateSampleDeck)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
 

@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>667</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -81,6 +81,7 @@
     </property>
     <addaction name="actionStudyDeck"/>
     <addaction name="actionCreateFiltered"/>
+    <addaction name="actionCreateSampleDeck"/>
     <addaction name="separator"/>
     <addaction name="actionFullDatabaseCheck"/>
     <addaction name="actionCheckMediaDatabase"/>
@@ -235,6 +236,11 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionCreateSampleDeck">
+   <property name="text">
+    <string>QT_MISC_CREATE_SAMPLE_DECK</string>
    </property>
   </action>
  </widget>

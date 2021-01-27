@@ -14,6 +14,7 @@ qt-misc-closing = Closing...
 qt-misc-configure-interface-language-and-options = Configure interface language and options
 qt-misc-copy-to-clipboard = Copy to Clipboard
 qt-misc-create-filtered-deck = Create Filtered Deck...
+qt-misc-create-sample-deck = Create Anki Basics Deck
 qt-misc-debug-console = Debug Console
 qt-misc-deck-will-be-imported-when-a = Deck will be imported when a profile is opened.
 qt-misc-default = Default
