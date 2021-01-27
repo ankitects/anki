@@ -17,6 +17,7 @@ use crate::{
     types::Usn,
 };
 mod counts;
+mod sample;
 mod schema11;
 mod tree;
 pub(crate) use counts::DueCounts;
