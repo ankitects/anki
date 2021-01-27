@@ -1,7 +1,6 @@
 UPDATE cards
 SET factor = 2500,
-  usn = ?,
-  mod = ?
+  usn = ?
 WHERE factor != 0
   AND factor <= 2000
   AND (
