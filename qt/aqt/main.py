@@ -398,6 +398,13 @@ class AnkiQt(QMainWindow):
         self.activateWindow()
         self.raise_()
 
+        if "showWelcome" not in self.pm.profile or self.pm.profile["showWelcome"]:
+            if askUser(tr(TR.SHALL_CREATE_SAMPLE_DECK)):
+                self.pm.profile["showWelcome"] = True
+                self.onCreateSampleDeck()
+            else:
+                self.pm.profile["showWelcome"] = False
+
         # import pending?
         if self.pendingImport:
             if self._isAddon(self.pendingImport):
@@ -1091,6 +1098,16 @@ title="%s" %s>%s</button>""" % (
 
     def onDocumentation(self):
         openHelp("")
+
+    def onCreateSampleDeck(self):
+        try:
+            self.col.backend.create_sample_deck()
+        except Exception:
+            showInfo(tr(TR.COULD_NOT_CREATE_SAMPLE_DECK))
+        else:
+            self.reset()
+            showInfo(tr(TR.CREATED_SAMPLE_DECK))
+            self.pm.profile["showWelcome"] = False
 
     # Importing & exporting
     ##########################################################################
