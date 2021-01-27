@@ -334,7 +334,7 @@ function onBlur(): void {
     }
 }
 
-function fieldIsInInlineMode(field: HTMLDivElement): boolean {
+function fieldContainsInlineContent(field: HTMLDivElement): boolean {
     if (field.childNodes.length === 0) {
         // for now, for all practical purposes, empty fields are in block mode
         return false;
@@ -357,7 +357,8 @@ function saveField(type: "blur" | "key"): void {
     }
 
     const fieldText =
-        fieldIsInInlineMode(currentField) && currentField.innerHTML.endsWith("<br>")
+        fieldContainsInlineContent(currentField) &&
+        currentField.innerHTML.endsWith("<br>")
             ? // trim trailing <br>
               currentField.innerHTML.slice(0, -4)
             : currentField.innerHTML;
@@ -466,7 +467,7 @@ function createField(
     field.addEventListener("oncut", onCutOrCopy);
     field.innerHTML = content;
 
-    if (fieldIsInInlineMode(field)) {
+    if (fieldContainsInlineContent(field)) {
         field.appendChild(document.createElement("br"));
     }
 
