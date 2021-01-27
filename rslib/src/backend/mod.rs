@@ -792,6 +792,11 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn create_sample_deck(&self, _input: Empty) -> BackendResult<Empty> {
+        self.with_col(|col| col.create_sample_deck())
+            .map(Into::into)
+    }
+
     // deck config
     //----------------------------------------------------
 

@@ -138,6 +138,7 @@ service BackendService {
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
   rpc RemoveDeck(DeckID) returns (Empty);
+  rpc CreateSampleDeck(Empty) returns (Empty);
 
   // deck config
 
