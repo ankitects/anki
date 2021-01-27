@@ -1104,6 +1104,7 @@ message GraphPreferences {
   Weekday calendar_first_day_of_week = 1;
   bool card_counts_separate_inactive = 2;
   bool browser_links_supported = 3;
+  bool future_due_show_backlog = 4;
 }
 
 message RevlogEntry {
