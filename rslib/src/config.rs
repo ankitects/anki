@@ -49,6 +49,7 @@ pub(crate) enum ConfigKey {
     NewReviewMix,
     FirstDayOfWeek,
     CardCountsSeparateInactive,
+    FutureDueShowBacklog,
     AnswerTimeLimitSecs,
     ShowDayLearningCardsFirst,
     LastUnburiedDay,
@@ -79,6 +80,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::NewReviewMix => "newSpread",
             ConfigKey::FirstDayOfWeek => "firstDayOfWeek",
             ConfigKey::CardCountsSeparateInactive => "cardCountsSeparateInactive",
+            ConfigKey::FutureDueShowBacklog => "futureDueShowBacklog",
             ConfigKey::AnswerTimeLimitSecs => "timeLim",
             ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
             ConfigKey::LastUnburiedDay => "lastUnburied",
@@ -247,6 +249,15 @@ impl Collection {
 
     pub(crate) fn set_card_counts_separate_inactive(&self, separate: bool) -> Result<()> {
         self.set_config(ConfigKey::CardCountsSeparateInactive, &separate)
+    }
+
+    pub(crate) fn get_future_due_show_backlog(&self) -> bool {
+        self.get_config_optional(ConfigKey::FutureDueShowBacklog)
+            .unwrap_or(true)
+    }
+
+    pub(crate) fn set_future_due_show_backlog(&self, show: bool) -> Result<()> {
+        self.set_config(ConfigKey::FutureDueShowBacklog, &show)
     }
 
     pub(crate) fn get_show_due_counts(&self) -> bool {
