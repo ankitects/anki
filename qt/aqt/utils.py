@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 from enum import Enum
-from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, List, Literal, Optional, Union, cast
 
 from markdown import markdown
 
@@ -21,6 +21,8 @@ from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
     from anki.rsbackend import TRValue
+
+    TextFormat = Union[Literal["plain", "rich"]]
 
 
 def aqt_data_folder() -> str:
@@ -90,12 +92,16 @@ def openLink(link):
         QDesktopServices.openUrl(QUrl(link))
 
 
-def showWarning(text, parent=None, help="", title="Anki", textFormat=None):
+def showWarning(
+    text, parent=None, help="", title="Anki", textFormat: Optional[TextFormat] = None
+):
     "Show a small warning with an OK button."
     return showInfo(text, parent, help, "warning", title=title, textFormat=textFormat)
 
 
-def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
+def showCritical(
+    text, parent=None, help="", title="Anki", textFormat: Optional[TextFormat] = None
+):
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
 
@@ -114,9 +120,9 @@ def showInfo(
     help="",
     type="info",
     title="Anki",
-    textFormat=None,
+    textFormat: Optional[TextFormat] = None,
     customBtns=None,
-):
+) -> int:
     "Show a small info window with an OK button."
     if parent is False:
         parent = aqt.mw.app.activeWindow() or aqt.mw
