@@ -404,9 +404,7 @@ impl super::SqliteStorage {
         ids_to_string(&mut ids, &affected_decks);
         let sql = include_str!("fix_low_ease.sql").replace("DECK_IDS", &ids);
 
-        self.db
-            .prepare(&sql)?
-            .execute(params![self.usn(server)?, TimestampSecs::now()])?;
+        self.db.prepare(&sql)?.execute(params![self.usn(server)?])?;
 
         Ok(())
     }
