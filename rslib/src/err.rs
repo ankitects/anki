@@ -256,6 +256,10 @@ fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {
                 kind: SyncErrorKind::ServerError,
             }
         }
+        S::BAD_REQUEST => AnkiError::SyncError {
+            info,
+            kind: SyncErrorKind::DatabaseCheckRequired,
+        },
         _ => AnkiError::NetworkError {
             info,
             kind: NetworkErrorKind::Other,
