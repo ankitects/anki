@@ -10,13 +10,17 @@
         Custom = 3,
     }
 
+    type UpdateEventMap = {
+        update: { days: number; search: string; searchRange: SearchRange };
+    };
+
     export let i18n: I18n;
     export let active: boolean;
 
     export let days: number;
     export let search: string;
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<UpdateEventMap>();
 
     let revlogRange = daysToRevlogRange(days);
     let searchRange: SearchRange =
