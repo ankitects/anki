@@ -52,6 +52,7 @@ impl Collection {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
             card_counts_separate_inactive: self.get_card_counts_separate_inactive(),
             browser_links_supported: true,
+            future_due_show_backlog: self.get_future_due_show_backlog(),
         })
     }
 
@@ -63,6 +64,7 @@ impl Collection {
             _ => Weekday::Sunday,
         })?;
         self.set_card_counts_separate_inactive(prefs.card_counts_separate_inactive)?;
+        self.set_future_due_show_backlog(prefs.future_due_show_backlog)?;
         Ok(())
     }
 }

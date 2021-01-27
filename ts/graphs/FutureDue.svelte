@@ -21,9 +21,8 @@
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [] as any;
-    let backlog: boolean = true;
     let graphRange: GraphRange = GraphRange.Month;
-    let { browserLinksSupported } = preferences;
+    let { browserLinksSupported, futureDueShowBacklog } = preferences;
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);
@@ -33,7 +32,7 @@
         ({ histogramData, tableData } = buildHistogram(
             graphData,
             graphRange,
-            backlog,
+            $futureDueShowBacklog,
             i18n,
             dispatch,
             $browserLinksSupported
@@ -53,7 +52,7 @@
     <div class="range-box-inner">
         {#if graphData && graphData.haveBacklog}
             <label>
-                <input type="checkbox" bind:checked={backlog} />
+                <input type="checkbox" bind:checked={$futureDueShowBacklog} />
                 {backlogLabel}
             </label>
         {/if}
