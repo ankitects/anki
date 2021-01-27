@@ -118,3 +118,9 @@ export interface TableDatum {
     label: string;
     value: string;
 }
+
+export type SearchEventMap = { search: { query: string } };
+export type SearchDispatch = <EventKey extends Extract<keyof SearchEventMap, string>>(
+    type: EventKey,
+    detail: SearchEventMap[EventKey]
+) => void;

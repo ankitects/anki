@@ -15,7 +15,7 @@ import { interpolateGreens } from "d3-scale-chromatic";
 import { dayLabel } from "anki/time";
 import type { I18n } from "anki/i18n";
 import { GraphRange } from "./graph-helpers";
-import type { TableDatum } from "./graph-helpers";
+import type { TableDatum, SearchDispatch } from "./graph-helpers";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
@@ -87,7 +87,7 @@ export function buildHistogram(
     range: GraphRange,
     backlog: boolean,
     i18n: I18n,
-    dispatch: any,
+    dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): FutureDueOut {
     const output = { histogramData: null, tableData: [] };

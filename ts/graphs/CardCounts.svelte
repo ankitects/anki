@@ -1,6 +1,7 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
     import { defaultGraphBounds } from "./graph-helpers";
+    import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
     import type { PreferenceStore } from "./preferences";
@@ -12,7 +13,7 @@
     export let preferences: PreferenceStore;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<SearchEventMap>();
 
     let svg = null as HTMLElement | SVGElement | null;
 
