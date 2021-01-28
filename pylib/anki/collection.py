@@ -25,7 +25,20 @@ from anki.errors import AnkiError
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, FormatTimeSpanContext, Progress, RustBackend, pb
+from anki.rsbackend import (  # pylint: disable=unused-import
+    TR,
+    BackendNoteTypeID,
+    ConcatSeparator,
+    DBError,
+    DupeIn,
+    FilterToSearchIn,
+    FormatTimeSpanContext,
+    InvalidInput,
+    NamedFilter,
+    Progress,
+    RustBackend,
+    pb,
+)
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -466,6 +479,66 @@ class Collection:
     findCards = find_cards
     findNotes = find_notes
     findReplace = find_and_replace
+
+    # Search Strings
+    ##########################################################################
+
+    # Helper function for the backend's search string operations.
+    # Pass search strings as 'searches' to normalize.
+    # Pass multiple to concatenate (defaults to 'and').
+    # Pass 'negate=True' to negate the end result.
+    # May raise InvalidInput.
+    def search_string(
+        self,
+        *,
+        negate: bool = False,
+        concat_by_or: bool = False,
+        searches: Optional[List[str]] = None,
+        name: Optional["FilterToSearchIn.NamedFilterValue"] = None,
+        tag: Optional[str] = None,
+        deck: Optional[str] = None,
+        note: Optional[str] = None,
+        template: Optional[int] = None,
+        dupe: Optional[Tuple[int, str]] = None,
+        forgot_in: Optional[int] = None,
+        added_in: Optional[int] = None,
+        due_in: Optional[int] = None,
+    ) -> str:
+        filters = searches or []
+
+        def append_filter(filter_in):
+            filters.append(self.backend.filter_to_search(filter_in))
+
+        if name:
+            append_filter(FilterToSearchIn(name=name))
+        if tag:
+            append_filter(FilterToSearchIn(tag=tag))
+        if deck:
+            append_filter(FilterToSearchIn(deck=deck))
+        if note:
+            append_filter(FilterToSearchIn(note=note))
+        if template:
+            append_filter(FilterToSearchIn(template=template))
+        if dupe:
+            dupe_in = DupeIn(mid=BackendNoteTypeID(ntid=dupe[0]), text=dupe[1])
+            append_filter(FilterToSearchIn(dupe=dupe_in))
+        if forgot_in:
+            append_filter(FilterToSearchIn(forgot_in=forgot_in))
+        if added_in:
+            append_filter(FilterToSearchIn(added_in=added_in))
+        if due_in:
+            append_filter(FilterToSearchIn(due_in=due_in))
+        if concat_by_or:
+            sep = ConcatSeparator.OR
+        else:
+            sep = ConcatSeparator.AND
+        search_string = self.backend.concatenate_searches(sep=sep, searches=filters)
+        if negate:
+            search_string = self.backend.negate_search(search_string)
+        return search_string
+
+    def replace_search_term(self, search: str, replacement: str) -> str:
+        return self.backend.replace_search_term(search=search, replacement=replacement)
 
     # Config
     ##########################################################################
