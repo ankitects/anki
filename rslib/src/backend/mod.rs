@@ -36,7 +36,7 @@ use crate::{
     sched::timespan::{answer_button_time, time_span},
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, EaseKind, Node, SearchNode, SortMode, StateKind, TemplateKind,
+        BoolSeparator, EaseKind, Node, PropertyKind, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -330,6 +330,15 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                 note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
                 text: dupe.text.into(),
+            }),
+            Filter::ForgotIn(u) => Node::Search(SearchNode::Rated {
+                days: u,
+                ease: EaseKind::AnswerButton(1),
+            }),
+            Filter::AddedIn(u) => Node::Search(SearchNode::AddedInDays(u)),
+            Filter::DueIn(i) => Node::Search(SearchNode::Property {
+                operator: "<=".to_string(),
+                kind: PropertyKind::Due(i),
             }),
         }
     }
