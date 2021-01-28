@@ -140,7 +140,7 @@ class SidebarModel(QAbstractItemModel):
         if not index.isValid():
             return QVariant()
 
-        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole):
+        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole, Qt.EditRole):
             return QVariant()
 
         item: SidebarItem = index.internalPointer()
@@ -149,6 +149,8 @@ class SidebarModel(QAbstractItemModel):
             return QVariant(item.name)
         elif role == Qt.ToolTipRole:
             return QVariant(item.tooltip)
+        elif role == Qt.EditRole:
+            return QVariant(item.full_name)
         else:
             return QVariant(theme_manager.icon_from_resources(item.icon))
 
@@ -264,6 +266,7 @@ class SidebarTreeView(QTreeView):
             filter_model.setSourceModel(self.model())
             filter_model.setFilterCaseSensitivity(False)  # type: ignore
             filter_model.setRecursiveFilteringEnabled(True)
+            filter_model.setFilterRole(Qt.EditRole)
             self.setModel(filter_model)
         else:
             filter_model = self.model()
@@ -282,7 +285,7 @@ class SidebarTreeView(QTreeView):
             return super().drawRow(painter, options, idx)
         if not (item := self.model().item_for_index(idx)):
             return super().drawRow(painter, options, idx)
-        if self.current_search.lower() in item.name.lower():
+        if self.current_search.lower() in item.full_name.lower():
             brush = QBrush(QColor("lightyellow"))
             painter.save()
             painter.fillRect(options.rect, brush)
