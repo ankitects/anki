@@ -1688,7 +1688,12 @@ where id in %s"""
 
     def duplicatesReport(self, web, fname, search, frm, web_context):
         self.mw.progress.start()
-        res = self.mw.col.findDupes(fname, search)
+        try:
+            res = self.mw.col.findDupes(fname, search)
+        except InvalidInput as e:
+            self.mw.progress.finish()
+            show_invalid_search_error(e)
+            return
         if not self._dupesButton:
             self._dupesButton = b = frm.buttonBox.addButton(
                 tr(TR.BROWSING_TAG_DUPLICATES), QDialogButtonBox.ActionRole
