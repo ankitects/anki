@@ -144,7 +144,7 @@ class AddCards(QDialog):
     def onHistory(self) -> None:
         m = QMenu(self)
         for nid in self.history:
-            if self.mw.col.findNotes(self.col.search_string(nids=[nid])):
+            if self.mw.col.findNotes(self.mw.col.search_string(nids=[nid])):
                 note = self.mw.col.getNote(nid)
                 fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))
@@ -162,7 +162,7 @@ class AddCards(QDialog):
 
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.lineEdit().setText(self.col.search_string(nids=[nid]))
+        browser.form.searchEdit.lineEdit().setText(self.mw.col.search_string(nids=[nid]))
         browser.onSearchActivated()
 
     def addNote(self, note) -> Optional[Note]:
