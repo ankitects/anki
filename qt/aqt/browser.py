@@ -659,7 +659,7 @@ class Browser(QMainWindow):
             c = self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             if nid:
-                search = "nid:%d" % nid
+                search = self.col.search_string(nids=[nid])
                 search = gui_hooks.default_search(search, c)
                 self.model.search(search)
                 self.focusCid(c.id)
@@ -1494,7 +1494,7 @@ where id in %s"""
         tv = self.form.tableView
         tv.selectionModel().clear()
 
-        search = "nid:" + ",".join([str(x) for x in nids])
+        search = self.col.search_string(nids=nids)
         self.search_for(search)
 
         tv.selectAll()
@@ -1705,7 +1705,7 @@ where id in %s"""
             t += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
-                    "nid:" + ",".join(str(id) for id in nids),
+                    self.col.search_string(nids=nids).replace('"', '&quot;'),
                     tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )

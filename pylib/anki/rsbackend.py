@@ -50,6 +50,7 @@ StockNoteType = pb.StockNoteType
 FilterToSearchIn = pb.FilterToSearchIn
 NamedFilter = pb.FilterToSearchIn.NamedFilter
 DupeIn = pb.FilterToSearchIn.DupeIn
+NoteIDs = pb.NoteIDs
 BackendNoteTypeID = pb.NoteTypeID
 ConcatSeparator = pb.ConcatenateSearchesIn.Separator
 SyncAuth = pb.SyncAuth
