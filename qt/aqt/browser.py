@@ -1705,7 +1705,7 @@ where id in %s"""
             t += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
-                    self.col.search_string(nids=nids).replace('"', '&quot;'),
+                    self.col.search_string(nids=nids).replace('"', "&quot;"),
                     tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )
