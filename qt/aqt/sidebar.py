@@ -9,8 +9,12 @@ from enum import Enum
 from typing import Iterable, List, Optional
 
 import aqt
+from anki.collection import (  # pylint: disable=unused-import
+    FilterToSearchIn,
+    NamedFilter,
+)
 from anki.errors import DeckRenameError
-from anki.rsbackend import DeckTreeNode, FilterToSearchIn, NamedFilter, TagTreeNode
+from anki.rsbackend import DeckTreeNode, TagTreeNode
 from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.models import Models
@@ -390,29 +394,20 @@ class SidebarTreeView(QTreeView):
             root.addChild(item)
 
     def _named_filter(self, name: "FilterToSearchIn.NamedFilterValue") -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(name=name))
-        )
+        return lambda: self.browser.update_search(self.col.search_string(name=name))
 
     def _tag_filter(self, tag: str) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(tag=tag))
-        )
+        return lambda: self.browser.update_search(self.col.search_string(tag=tag))
 
     def _deck_filter(self, deck: str) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(deck=deck))
-        )
+        return lambda: self.browser.update_search(self.col.search_string(deck=deck))
 
     def _note_filter(self, note: str) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(note=note))
-        )
+        return lambda: self.browser.update_search(self.col.search_string(note=note))
 
     def _template_filter(self, note: str, template: int) -> Callable:
         return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(note=note)),
-            self.col.backend.filter_to_search(FilterToSearchIn(template=template)),
+            self.col.search_string(note=note), self.col.search_string(template=template)
         )
 
     def _saved_filter(self, saved: str) -> Callable:

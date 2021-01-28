@@ -13,19 +13,11 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection
+from anki.collection import Collection, InvalidInput, NamedFilter
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import (
-    BackendNoteTypeID,
-    ConcatSeparator,
-    DupeIn,
-    FilterToSearchIn,
-    InvalidInput,
-    NamedFilter,
-)
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -678,7 +670,7 @@ class Browser(QMainWindow):
             self._onRowChanged(None, None)
 
     def normalize_search(self, search: str) -> str:
-        normed = self.col.backend.normalize_search(search)
+        normed = self.col.search_string(searches=[search])
         self._lastSearchTxt = normed
         self.form.searchEdit.lineEdit().setText(normed)
         return normed
@@ -961,29 +953,19 @@ QTableView {{ gridline-color: {grid} }}
     def update_search(self, *terms: str):
         "Modify the current search string based on modified keys, then refresh."
         try:
-            search = self.col.backend.concatenate_searches(
-                sep=ConcatSeparator.AND, searches=terms
-            )
+            search = self.col.search_string(searches=list(terms))
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
-                search = self.col.backend.negate_search(search)
+                search = self.col.search_string(negate=True, searches=[search])
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur != self._searchPrompt:
                 if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                    search = self.col.backend.replace_search_term(
-                        search=cur, replacement=search
-                    )
+                    search = self.col.replace_search_term(cur, search)
                 elif mods & Qt.ControlModifier:
-                    search = self.col.backend.concatenate_searches(
-                        # pylint: disable=no-member
-                        sep=ConcatSeparator.AND,
-                        searches=[cur, search],
-                    )
+                    search = self.col.search_string(searches=[cur, search])
                 elif mods & Qt.ShiftModifier:
-                    search = self.col.backend.concatenate_searches(
-                        # pylint: disable=no-member
-                        sep=ConcatSeparator.OR,
-                        searches=[cur, search],
+                    search = self.col.search_string(
+                        concat_by_or=True, searches=[cur, search]
                     )
         except InvalidInput as e:
             show_invalid_search_error(e)
@@ -1062,8 +1044,8 @@ QTableView {{ gridline-color: {grid} }}
 
     def _onSaveFilter(self) -> None:
         try:
-            filt = self.col.backend.normalize_search(
-                self.form.searchEdit.lineEdit().text()
+            filt = self.col.search_string(
+                searches=[self.form.searchEdit.lineEdit().text()]
             )
         except InvalidInput as e:
             show_invalid_search_error(e)
@@ -1105,12 +1087,12 @@ QTableView {{ gridline-color: {grid} }}
     def _currentFilterIsSaved(self) -> Optional[str]:
         filt = self.form.searchEdit.lineEdit().text()
         try:
-            filt = self.col.backend.normalize_search(filt)
+            filt = self.col.search_string(searches=[filt])
         except InvalidInput:
             pass
         for k, v in self.col.get_config("savedFilters").items():
             try:
-                v = self.col.backend.normalize_search(v)
+                v = self.col.search_string(searches=[v])
             except InvalidInput:
                 pass
             if filt == v:
@@ -1657,11 +1639,7 @@ where id in %s"""
     # filter called by the editor
     def search_dupe(self, mid: int, text: str):
         self.form.searchEdit.lineEdit().setText(
-            self.col.backend.filter_to_search(
-                FilterToSearchIn(
-                    dupe=DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
-                )
-            )
+            self.col.search_string(dupe=(mid, text))
         )
         self.onSearchActivated()
 

@@ -119,11 +119,11 @@ class DeckConf(QDialog):
             else:
                 d["delays"] = None
 
-        search = self.mw.col.backend.normalize_search(f.search.text())
+        search = self.mw.col.search_string(searches=[f.search.text()])
         terms = [[search, f.limit.value(), f.order.currentIndex()]]
 
         if f.secondFilter.isChecked():
-            search_2 = self.mw.col.backend.normalize_search(f.search_2.text())
+            search_2 = self.mw.col.search_string(searches=[f.search_2.text()])
             terms.append([search_2, f.limit_2.value(), f.order_2.currentIndex()])
 
         d["terms"] = terms
