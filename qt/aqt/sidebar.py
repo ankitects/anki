@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import copy
-import re
 from concurrent.futures import Future
 from enum import Enum
 from typing import Iterable, List, Optional
@@ -68,6 +66,7 @@ class SidebarItem:
         self.children: List["SidebarItem"] = []
         self.parentItem: Optional["SidebarItem"] = None
         self.tooltip: Optional[str] = None
+        self.row_in_parent: Optional[int] = None
 
     def addChild(self, cb: "SidebarItem") -> None:
         self.children.append(cb)
@@ -84,6 +83,13 @@ class SidebarModel(QAbstractItemModel):
     def __init__(self, root: SidebarItem) -> None:
         super().__init__()
         self.root = root
+        self._cache_rows(root)
+
+    def _cache_rows(self, node: SidebarItem):
+        "Cache index of children in parent."
+        for row, item in enumerate(node.children):
+            item.row_in_parent = row
+            self._cache_rows(item)
 
     # Qt API
     ######################################################################
@@ -123,8 +129,7 @@ class SidebarModel(QAbstractItemModel):
         if parentItem is None or parentItem == self.root:
             return QModelIndex()
 
-        grandparent = parentItem.parentItem or self.root
-        row = grandparent.rowForChild(parentItem)
+        row = parentItem.row_in_parent
 
         return self.createIndex(row, 0, parentItem)
 
@@ -151,67 +156,29 @@ class SidebarModel(QAbstractItemModel):
         print("iconFromRef() deprecated")
         return theme_manager.icon_from_resources(iconRef)
 
-    def expandWhereNeccessary(self, tree: QTreeView) -> None:
-        for row, child in enumerate(self.root.children):
-            if child.expanded:
-                idx = self.index(row, 0, QModelIndex())
-                self._expandWhereNeccessary(idx, tree)
 
-    def _expandWhereNeccessary(self, parent: QModelIndex, tree: QTreeView) -> None:
-        parentItem: SidebarItem
-        if not parent.isValid():
-            parentItem = self.root
-        else:
-            parentItem = parent.internalPointer()
-
-        # nothing to do?
-        if not parentItem.expanded:
-            return
-
-        # expand children
-        for row, child in enumerate(parentItem.children):
-            if not child.expanded:
-                continue
-            childIdx = self.index(row, 0, parent)
-            self._expandWhereNeccessary(childIdx, tree)
-
-        # then ourselves
-        tree.setExpanded(parent, True)
-
-    def flattened(self) -> SidebarModel:
-        "Returns a flattened representation of the model."
-        root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
-
-        def flatten_tree(children: Iterable[SidebarItem]):
-            for child in children:
-                child.name = child.full_name
-                root.addChild(child)
-                flatten_tree(child.children)
-                child.children = []
-
-        flatten_tree(copy.deepcopy(self.root.children))
-
-        return SidebarModel(root)
+def expand_where_necessary(
+    model: QAbstractItemModel, tree: QTreeView, parent=None
+) -> None:
+    parent = parent or QModelIndex()
+    for row in range(model.rowCount(parent)):
+        idx = model.index(row, 0, parent)
+        if not idx.isValid():
+            continue
+        expand_where_necessary(model, tree, idx)
+        item = idx.internalPointer()
+        if item.expanded:
+            tree.setExpanded(idx, True)
 
 
 class SidebarSearchBar(QLineEdit):
-    def __init__(self, sidebar):
+    def __init__(self, sidebar: SidebarTreeView):
         QLineEdit.__init__(self, sidebar)
         self.sidebar = sidebar
         qconnect(self.textChanged, self.onTextChanged)
 
     def onTextChanged(self, text: str):
-        if text == "":
-            self.sidebar.refresh()
-        else:
-            # show matched items in the sidebar
-            root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
-            pattern = re.compile("(?i).*{}.*".format(re.escape(text)))
-            for item in self.sidebar.flattened_model.root.children:
-                if pattern.match(item.name) or pattern.match(item.full_name):
-                    root.addChild(item)
-
-            self.sidebar.setModel(SidebarModel(root))
+        self.sidebar.search_for(text)
 
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Up, Qt.Key_Down):
@@ -228,6 +195,7 @@ class SidebarTreeView(QTreeView):
         self.browser = browser
         self.mw = browser.mw
         self.col = self.mw.col
+        self.searching = False
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -266,15 +234,35 @@ class SidebarTreeView(QTreeView):
         def on_done(fut: Future):
             root = fut.result()
             model = SidebarModel(root)
-            self.flattened_model = model.flattened()
+
+            # from PyQt5.QtTest import QAbstractItemModelTester
+            # tester = QAbstractItemModelTester(model)
+
+            self.searching = False
             self.setModel(model)
-
-            #from PyQt5.QtTest import QAbstractItemModelTester
-            #tester = QAbstractItemModelTester(model)
-
-            model.expandWhereNeccessary(self)
+            expand_where_necessary(model, self)
 
         self.mw.taskman.run_in_background(self._root_tree, on_done)
+
+    def search_for(self, text: str):
+        if not text.strip():
+            self.refresh()
+            return
+        if not isinstance(self.model(), QSortFilterProxyModel):
+            filter_model = QSortFilterProxyModel(self)
+            filter_model.setSourceModel(self.model())
+            filter_model.setFilterCaseSensitivity(False)  # type: ignore
+            filter_model.setRecursiveFilteringEnabled(True)
+            self.setModel(filter_model)
+        else:
+            filter_model = self.model()
+
+        self.searching = True
+        # Without collapsing first, can be very slow. Surely there's
+        # a better way than this?
+        self.collapseAll()
+        filter_model.setFilterFixedString(text)
+        self.expandAll()
 
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
@@ -295,9 +283,13 @@ class SidebarTreeView(QTreeView):
             super().keyPressEvent(event)
 
     def onExpansion(self, idx: QModelIndex) -> None:
+        if self.searching:
+            return
         self._onExpansionChange(idx, True)
 
     def onCollapse(self, idx: QModelIndex) -> None:
+        if self.searching:
+            return
         self._onExpansionChange(idx, False)
 
     def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
