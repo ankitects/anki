@@ -356,14 +356,9 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
 
-    const fieldText =
-        fieldContainsInlineContent(currentField) &&
-        currentField.innerHTML.endsWith("<br>")
-            ? // trim trailing <br>
-              currentField.innerHTML.slice(0, -4)
-            : currentField.innerHTML;
-
-    pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${fieldText}`);
+    pycmd(
+        `${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.fieldHTML}`
+    );
 }
 
 function currentFieldOrdinal(): string {
@@ -441,64 +436,104 @@ class EditingArea extends HTMLElement {
     connectedCallback() {
         this.setAttribute("contenteditable", "true");
     }
+
+    initialize(color: string): void {
+        this.style.color = color;
+    }
+
+    set fieldHTML(content: string) {
+        this.innerHTML = content;
+
+        if (fieldContainsInlineContent(this)) {
+            this.appendChild(document.createElement("br"));
+        }
+    }
+
+    get fieldHTML(): string {
+        return fieldContainsInlineContent(this) && this.innerHTML.endsWith("<br>")
+            ? this.innerHTML.slice(0, -4) // trim trailing <br>
+            : this.innerHTML;
+    }
 }
 
 customElements.define("editing-area", EditingArea);
 
-class EditorField extends HTMLElement {
-    labelContainer: HTMLDivElement
-    label: HTMLSpanElement
-    editingContainer: HTMLDivElement
-    editingArea: EditingArea
-    editingShadow: ShadowRoot
+class EditingContainer extends HTMLDivElement {
+    editingArea: EditingArea;
 
-    connectedCallback() {
+    connectedCallback(): void {
+        this.className = "field";
+
+        this.addEventListener("keydown", onKey);
+        this.addEventListener("keyup", onKeyUp);
+        this.addEventListener("input", onInput);
+        this.addEventListener("focus", onFocus);
+        this.addEventListener("blur", onBlur);
+        this.addEventListener("paste", onPaste);
+        this.addEventListener("copy", onCutOrCopy);
+        this.addEventListener("oncut", onCutOrCopy);
+
+        const editingShadow = this.attachShadow({ mode: "open" });
+
+        const style = editingShadow.appendChild(document.createElement("link"));
+        style.setAttribute("rel", "stylesheet");
+        style.setAttribute("href", "./_anki/css/editing-area.css");
+
+        this.editingArea = editingShadow.appendChild(
+            document.createElement("editing-area")
+        ) as EditingArea;
+    }
+
+    initialize(index: number, color: string, content: string): void {
+        this.id = `f${index}`;
+        this.editingArea.initialize(color);
+        this.editingArea.fieldHTML = content;
+    }
+
+    set fieldHTML(content: string) {
+        this.editingArea.fieldHTML = content;
+    }
+
+    get fieldHTML(): string {
+        return this.editingArea.fieldHTML;
+    }
+}
+
+customElements.define("editing-container", EditingContainer, { extends: "div" });
+
+class EditorField extends HTMLDivElement {
+    labelContainer: HTMLDivElement;
+    label: HTMLSpanElement;
+    editingContainer: EditingContainer;
+
+    connectedCallback(): void {
         this.labelContainer = this.appendChild(document.createElement("div"));
         this.labelContainer.className = "fname";
 
         this.label = this.labelContainer.appendChild(document.createElement("span"));
         this.label.className = "fieldname";
 
-        this.editingContainer = this.appendChild(document.createElement("div"));
-        this.editingContainer.className = "field";
-        this.editingContainer.addEventListener("keydown", onKey);
-        this.editingContainer.addEventListener("keyup", onKeyUp);
-        this.editingContainer.addEventListener("input", onInput);
-        this.editingContainer.addEventListener("focus", onFocus);
-        this.editingContainer.addEventListener("blur", onBlur);
-        this.editingContainer.addEventListener("paste", onPaste);
-        this.editingContainer.addEventListener("copy", onCutOrCopy);
-        this.editingContainer.addEventListener("oncut", onCutOrCopy);
-
-        const editingShadow = this.editingContainer.attachShadow({ mode: "open" });
-        this.editingArea = editingShadow.appendChild(document.createElement("editing-area")) as EditingArea;
+        this.editingContainer = this.appendChild(
+            document.createElement("div", { is: "editing-container" })
+        ) as EditingContainer;
     }
 
     initialize(index: number, label: string, color: string, content: string): void {
         this.labelContainer.id = `name${index}`;
         this.label.innerText = label;
-
-        this.editingContainer.id = `f${index}`;
-
-        this.editingArea.style.color = color;
-        this.editingArea.innerHTML = content;
-        if (fieldContainsInlineContent(this.editingArea)) {
-            this.editingArea.appendChild(document.createElement("br"));
-        }
-    }
-
-    fieldContent(): string {
-        return this.editingArea.innerHTML;
+        this.editingContainer.initialize(index, color, content);
     }
 }
 
-customElements.define("editor-field", EditorField);
+customElements.define("editor-field", EditorField, { extends: "div" });
 
 function adjustFieldAmount(amount: number): void {
     const fieldsContainer = document.getElementById("fields");
 
     while (fieldsContainer.childElementCount < amount) {
-        fieldsContainer.appendChild(document.createElement("editor-field"))
+        fieldsContainer.appendChild(
+            document.createElement("div", { is: "editor-field" })
+        );
     }
 
     while (fieldsContainer.childElementCount > amount) {
@@ -516,10 +551,10 @@ function setFields(fields: [string, string][]): void {
     adjustFieldAmount(fields.length);
 
     const fieldsContainer = document.getElementById("fields");
-    const children = [...fieldsContainer.children]
+    const children = [...fieldsContainer.children] as EditorField[];
     for (const [index, child] of children.entries()) {
         const [name, fieldContent] = fields[index];
-        (child as EditorField).initialize(index, name, color, fieldContent);
+        child.initialize(index, name, color, fieldContent);
     }
 
     maybeDisableButtons();
