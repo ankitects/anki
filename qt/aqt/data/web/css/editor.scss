@@ -119,7 +119,11 @@ button.highlighted {
     }
 
     #topbutsright & {
-        border-bottom: 3px solid #000;
+        border-bottom: 3px solid black;
+    }
+
+    .nightMode #topbutsright & {
+        border-bottom: 3px solid white;
     }
 }
 
