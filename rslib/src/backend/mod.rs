@@ -264,7 +264,11 @@ impl From<pb::NoteId> for NoteID {
 
 impl pb::NoteIDs {
     fn into_id_string(self) -> String {
-        self.nids.iter().map(|i| i.to_string()).collect::<Vec<_>>().join(",")
+        self.nids
+            .iter()
+            .map(|i| i.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
     }
 }
 
