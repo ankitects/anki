@@ -1,6 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+html {
+    background: var(--bg-color);
+}
+
 #fields {
     display: flex;
     flex-direction: column;
@@ -22,6 +26,10 @@
 .field {
     border: 1px solid var(--border);
     background: var(--frame-bg);
+
+    &.dupe {
+        background: var(--flag1-bg);
+    }
 }
 
 .fname {
@@ -46,6 +54,8 @@ body {
     top: 0;
     left: 0;
     padding: 2px;
+
+    background: var(--bg-color);
 }
 
 .topbuts > * {
@@ -113,12 +123,20 @@ button.highlighted {
     }
 }
 
-.dupe {
-    background: var(--flag1-bg);
-}
+#dupes {
+    position: sticky;
+    bottom: 0;
 
-#dupes a {
-    color: var(--link);
+    text-align: center;
+    background-color: var(--bg-color);
+
+    &.is-inactive {
+        display: none;
+    }
+
+    a {
+        color: var(--link);
+    }
 }
 
 .drawing {

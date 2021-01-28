@@ -73,8 +73,9 @@ audio = (
 
 _html = """
 <style>
-html { background: %s; }
-#topbutsOuter { background: %s; }
+:root {
+    --bg-color: %s;
+}
 </style>
 <div>
     <div id="topbutsOuter">
@@ -82,11 +83,9 @@ html { background: %s; }
     </div>
     <div id="fields">
     </div>
-</div>
-<div id="dupes" style="display:none;">
-    <a href="#" onclick="pycmd('dupes');return false;">
-%s
-    </a>
+    <div id="dupes" class="is-inactive">
+        <a href="#" onclick="pycmd('dupes');return false;">%s</a>
+    </div>
 </div>
 """
 
@@ -219,7 +218,7 @@ class Editor:
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
-            _html % (bgcol, bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
+            _html % (bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
             css=["css/editor.css"],
             js=["js/vendor/jquery.min.js", "js/editor.js"],
             context=self,
@@ -534,9 +533,7 @@ class Editor:
         err = self.note.dupeOrEmpty()
         if err == 2:
             cols[0] = "dupe"
-            self.web.eval("showDupes();")
-        else:
-            self.web.eval("hideDupes();")
+
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
