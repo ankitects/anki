@@ -109,13 +109,73 @@ function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+const INLINE_TAGS = [
+    "A",
+    "ABBR",
+    "ACRONYM",
+    "AUDIO",
+    "B",
+    "BDI",
+    "BDO",
+    "BIG",
+    "BR",
+    "BUTTON",
+    "CANVAS",
+    "CITE",
+    "CODE",
+    "DATA",
+    "DATALIST",
+    "DEL",
+    "DFN",
+    "EM",
+    "EMBED",
+    "I",
+    "IFRAME",
+    "IMG",
+    "INPUT",
+    "INS",
+    "KBD",
+    "LABEL",
+    "MAP",
+    "MARK",
+    "METER",
+    "NOSCRIPT",
+    "OBJECT",
+    "OUTPUT",
+    "PICTURE",
+    "PROGRESS",
+    "Q",
+    "RUBY",
+    "S",
+    "SAMP",
+    "SCRIPT",
+    "SELECT",
+    "SLOT",
+    "SMALL",
+    "SPAN",
+    "STRONG",
+    "SUB",
+    "SUP",
+    "SVG",
+    "TEMPLATE",
+    "TEXTAREA",
+    "TIME",
+    "U",
+    "TT",
+    "VAR",
+    "VIDEO",
+    "WBR",
+];
+
+function nodeIsInline(node: Node): boolean {
+    return !nodeIsElement(node) || INLINE_TAGS.includes(node.tagName);
+}
+
 function inListItem(): boolean {
     const anchor = window.getSelection().anchorNode;
 
-    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
-
     let inList = false;
-
+    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
     while (n) {
         inList = inList || window.getComputedStyle(n).display == "list-item";
         n = n.parentElement;
@@ -193,7 +253,8 @@ function clearChangeTimer(): void {
     }
 }
 
-function onFocus(elem: HTMLElement): void {
+function onFocus(evt: FocusEvent): void {
+    const elem = evt.currentTarget as HTMLElement;
     if (currentField === elem) {
         // anki window refocused; current element unchanged
         return;
@@ -273,16 +334,36 @@ function onBlur(): void {
     }
 }
 
+function fieldContainsInlineContent(field: HTMLDivElement): boolean {
+    if (field.childNodes.length === 0) {
+        // for now, for all practical purposes, empty fields are in block mode
+        return false;
+    }
+
+    for (const child of field.children) {
+        if (!nodeIsInline(child)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function saveField(type: "blur" | "key"): void {
     clearChangeTimer();
     if (!currentField) {
         // no field has been focused yet
         return;
     }
-    // type is either 'blur' or 'key'
-    pycmd(
-        `${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.innerHTML}`
-    );
+
+    const fieldText =
+        fieldContainsInlineContent(currentField) &&
+        currentField.innerHTML.endsWith("<br>")
+            ? // trim trailing <br>
+              currentField.innerHTML.slice(0, -4)
+            : currentField.innerHTML;
+
+    pycmd(`${type}:${currentFieldOrdinal()}:${currentNoteId}:${fieldText}`);
 }
 
 function currentFieldOrdinal(): string {
@@ -356,44 +437,63 @@ function onCutOrCopy(): boolean {
     return true;
 }
 
+function createField(
+    index: number,
+    label: string,
+    color: string,
+    content: string
+): [HTMLDivElement, HTMLDivElement] {
+    const name = document.createElement("div");
+    name.id = `name${index}`;
+    name.className = "fname";
+
+    const fieldname = document.createElement("span");
+    fieldname.className = "fieldname";
+    fieldname.innerText = label;
+    name.appendChild(fieldname);
+
+    const field = document.createElement("div");
+    field.id = `f${index}`;
+    field.className = "field";
+    field.setAttribute("contenteditable", "true");
+    field.style.color = color;
+    field.addEventListener("keydown", onKey);
+    field.addEventListener("keyup", onKeyUp);
+    field.addEventListener("input", onInput);
+    field.addEventListener("focus", onFocus);
+    field.addEventListener("blur", onBlur);
+    field.addEventListener("paste", onPaste);
+    field.addEventListener("copy", onCutOrCopy);
+    field.addEventListener("oncut", onCutOrCopy);
+    field.innerHTML = content;
+
+    if (fieldContainsInlineContent(field)) {
+        field.appendChild(document.createElement("br"));
+    }
+
+    return [name, field];
+}
+
 function setFields(fields: [string, string][]): void {
-    let txt = "";
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
     const color = window
         .getComputedStyle(document.documentElement)
         .getPropertyValue("--text-fg");
-    for (let i = 0; i < fields.length; i++) {
-        const n = fields[i][0];
-        let f = fields[i][1];
-        txt += `
-        <tr>
-            <td class=fname id="name${i}">
-                <span class="fieldname">${n}</span>
-            </td>
-        </tr>
-        <tr>
-            <td width=100%>
-                <div id="f${i}"
-                     onkeydown="onKey(window.event);"
-                     onkeyup="onKeyUp(window.event);"
-                     oninput="onInput();"
-                     onmouseup="onKey(window.event);"
-                     onfocus="onFocus(this);"
-                     onblur="onBlur();"
-                     class="field clearfix"
-                     onpaste="onPaste(this);"
-                     oncopy="onCutOrCopy(this);"
-                     oncut="onCutOrCopy(this);"
-                     contentEditable
-                     style="color: ${color}"
-                >${f}</div>
-            </td>
-        </tr>`;
-    }
-    $("#fields").html(
-        `<table cellpadding=0 width=100% style='table-layout: fixed;'>${txt}</table>`
+
+    const elements = fields.flatMap(([name, fieldcontent], index: number) =>
+        createField(index, name, color, fieldcontent)
     );
+
+    const fieldsContainer = document.getElementById("fields");
+    // can be replaced with ParentNode.replaceChildren in Chrome 86+
+    while (fieldsContainer.firstChild) {
+        fieldsContainer.removeChild(fieldsContainer.firstChild);
+    }
+    for (const element of elements) {
+        fieldsContainer.appendChild(element);
+    }
+
     maybeDisableButtons();
 }
 
@@ -456,8 +556,6 @@ let filterHTML = function (
         outHtml = outHtml.replace(/[\n\t ]+/g, " ");
     }
     outHtml = outHtml.trim();
-    //console.log(`input html: ${html}`);
-    //console.log(`outpt html: ${outHtml}`);
     return outHtml;
 };
 

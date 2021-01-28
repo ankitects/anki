@@ -1,6 +1,24 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+#fields {
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+
+    & > * {
+        margin: 1px 0;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
 .field {
     border: 1px solid var(--border);
     background: var(--frame-bg);
@@ -12,12 +30,6 @@
         content: "\A";
         white-space: pre;
     }
-}
-
-.clearfix::after {
-    content: "";
-    display: table;
-    clear: both;
 }
 
 .fname {
