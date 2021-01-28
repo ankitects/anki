@@ -67,7 +67,7 @@ pub enum SearchNode<'a> {
     },
     State(StateKind),
     Flag(u8),
-    NoteIDs(&'a str),
+    NoteIDs(Cow<'a, str>),
     CardIDs(&'a str),
     Property {
         operator: String,
@@ -318,7 +318,7 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "did" => parse_did(val)?,
         "mid" => parse_mid(val)?,
-        "nid" => SearchNode::NoteIDs(check_id_list(val, key)?),
+        "nid" => SearchNode::NoteIDs(check_id_list(val, key)?.into()),
         "cid" => SearchNode::CardIDs(check_id_list(val, key)?),
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
