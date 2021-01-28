@@ -4,8 +4,8 @@
 from typing import List, Optional
 
 import aqt
+from anki.collection import InvalidInput, NamedFilter
 from anki.lang import without_unicode_isolation
-from anki.rsbackend import InvalidInput
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -47,8 +47,12 @@ class DeckConf(QDialog):
         self.initialSetup()
         self.loadConf()
         if search:
-            self.form.search.setText(search + " is:due")
-            self.form.search_2.setText(search + " is:new")
+            search = self.mw.col.search_string(searches=[search], name=NamedFilter.DUE)
+            self.form.search.setText(search)
+            search_2 = self.mw.col.search_string(
+                searches=[search], name=NamedFilter.NEW
+            )
+            self.form.search_2.setText(search_2)
         self.form.search.selectAll()
 
         if self.mw.col.schedVer() == 1:

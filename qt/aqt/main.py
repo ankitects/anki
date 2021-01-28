@@ -1141,7 +1141,7 @@ title="%s" %s>%s</button>""" % (
         deck = self.col.decks.current()
         if not search:
             if not deck["dyn"]:
-                search = 'deck:"%s" ' % deck["name"]
+                search = self.col.search_string(deck=deck["name"])
         while self.col.decks.id_for_name(
             without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
         ):
