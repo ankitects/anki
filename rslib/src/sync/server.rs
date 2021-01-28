@@ -100,11 +100,18 @@ impl SyncServer for LocalServer {
         self.client_is_newer = client_is_newer;
 
         self.col.storage.begin_rust_trx()?;
+
+        // make sure any pending cards have been unburied first if necessary
+        let timing = self.col.timing_today()?;
+        self.col.unbury_if_day_rolled_over(timing)?;
+
+        // fetch local graves
         let server_graves = self.col.storage.pending_graves(client_usn)?;
-        // Handle AnkiDroid using old protocol
+        // handle AnkiDroid using old protocol
         if let Some(graves) = deprecated_client_graves {
             self.col.apply_graves(graves, self.server_usn)?;
         }
+
         Ok(server_graves)
     }
 
