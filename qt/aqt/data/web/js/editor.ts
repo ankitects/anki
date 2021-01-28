@@ -433,8 +433,8 @@ class EditingArea extends HTMLElement {
         this.setAttribute("contenteditable", "true");
     }
 
-    initialize(color: string): void {
-        this.style.color = color;
+    initialize(index: number): void {
+        this.className = `editor-field-${index}`;
     }
 
     set fieldHTML(content: string) {
@@ -491,6 +491,7 @@ class EditingContainer extends HTMLDivElement {
             font-family: initial;
             font-size: initial;
             direction: initial;
+            color: initial;
         }`,
             0
         );
@@ -507,8 +508,14 @@ class EditingContainer extends HTMLDivElement {
 
     initialize(index: number, color: string, content: string): void {
         this.id = `f${index}`;
-        this.editingArea.initialize(color);
+        this.editingArea.initialize(index);
+        this.setBaseColor(color);
         this.editingArea.fieldHTML = content;
+    }
+
+    setBaseColor(color: string): void {
+        const firstRule = this.baseStylesheet.cssRules[0] as CSSStyleRule;
+        firstRule.style.color = color;
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
