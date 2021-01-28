@@ -1637,13 +1637,6 @@ where id in %s"""
     # Edit: finding dupes
     ######################################################################
 
-    # filter called by the editor
-    def search_dupe(self, mid: int, text: str):
-        self.form.searchEdit.lineEdit().setText(
-            self.col.search_string(dupe=(mid, text))
-        )
-        self.onSearchActivated()
-
     def onFindDupes(self):
         self.editor.saveNow(self._onFindDupes)
 

@@ -1617,3 +1617,13 @@ title="%s" %s>%s</button>""" % (
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
+
+    # Helpers for all windows
+    ##########################################################################
+
+    # Wrapper for col.search_string() to look up the result in the browser.
+    def browser_search(self, **kwargs) -> None:
+        search = self.col.search_string(**kwargs)
+        browser = aqt.dialogs.open("Browser", self)
+        browser.form.searchEdit.lineEdit().setText(search)
+        browser.onSearchActivated()
