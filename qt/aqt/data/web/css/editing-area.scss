@@ -9,3 +9,11 @@ editing-area {
         white-space: pre;
     }
 }
+
+img.drawing {
+    zoom: 50%;
+
+    .nightMode & {
+        filter: unquote("invert() hue-rotate(180deg)");
+    }
+}
