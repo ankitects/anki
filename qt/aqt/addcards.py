@@ -161,9 +161,7 @@ class AddCards(QDialog):
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid):
-        browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.lineEdit().setText(self.mw.col.search_string(nids=[nid]))
-        browser.onSearchActivated()
+        self.mw.browser_search(nids=[nid])
 
     def addNote(self, note) -> Optional[Note]:
         note.model()["did"] = self.deckChooser.selectedId()

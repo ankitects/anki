@@ -145,10 +145,7 @@ class MediaChecker:
 
         if out is not None:
             nid, err = out
-            browser = aqt.dialogs.open("Browser", self.mw)
-            search = self.mw.col.search_string(nids=[nid])
-            browser.form.searchEdit.lineEdit().setText(search)
-            browser.onSearchActivated()
+            self.mw.browser_search(nids=[nid])
             showText(err, type="html")
         else:
             tooltip(tr(TR.MEDIA_CHECK_ALL_LATEX_RENDERED))
