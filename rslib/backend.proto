@@ -50,6 +50,10 @@ message NoteID {
   int64 nid = 1;
 }
 
+message NoteIDs {
+  repeated int64 nids = 1;
+}
+
 message CardID {
   int64 cid = 1;
 }
@@ -797,6 +801,7 @@ message FilterToSearchIn {
     uint32 added_in = 8;
     // will be due in the next x days
     int32 due_in = 9;
+    NoteIDs nids = 10;
   }
 }
 

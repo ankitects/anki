@@ -262,6 +262,12 @@ impl From<pb::NoteId> for NoteID {
     }
 }
 
+impl pb::NoteIDs {
+    fn into_id_string(self) -> String {
+        self.nids.iter().map(|i| i.to_string()).collect::<Vec<_>>().join(",")
+    }
+}
+
 impl From<pb::NoteTypeId> for NoteTypeID {
     fn from(ntid: pb::NoteTypeId) -> Self {
         NoteTypeID(ntid.ntid)
@@ -340,6 +346,7 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                 operator: "<=".to_string(),
                 kind: PropertyKind::Due(i),
             }),
+            Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
         }
     }
 }
