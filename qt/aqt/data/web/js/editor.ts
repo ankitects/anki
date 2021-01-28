@@ -2,8 +2,8 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 let currentField: EditingContainer | null = null;
-let changeTimer = null;
-let currentNoteId = null;
+let changeTimer: number | null = null;
+let currentNoteId: number | null = null;
 
 declare interface String {
     format(...args: string[]): string;
@@ -254,6 +254,7 @@ function onFocus(evt: FocusEvent): void {
         // anki window refocused; current element unchanged
         return;
     }
+    elem.focusEditingArea();
     currentField = elem;
     pycmd(`focus:${currentFieldOrdinal()}`);
     enableButtons();
@@ -307,12 +308,12 @@ function onPaste(): void {
 }
 
 function caretToEnd(): void {
-    const r = document.createRange();
-    r.selectNodeContents(currentField);
-    r.collapse(false);
-    const s = currentField.getSelection();
-    s.removeAllRanges();
-    s.addRange(r);
+    const range = document.createRange();
+    range.selectNodeContents(currentField.editingArea);
+    range.collapse(false);
+    const selection = currentField.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
 }
 
 function onBlur(): void {
