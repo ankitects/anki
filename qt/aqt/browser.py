@@ -1038,7 +1038,7 @@ QTableView {{ gridline-color: {grid} }}
 
         if self._currentFilterIsSaved():
             ml.addItem(tr(TR.BROWSING_REMOVE_CURRENT_FILTER), self._onRemoveFilter)
-        else:
+        elif self._searchPrompt != self.form.searchEdit.lineEdit().text():
             ml.addItem(tr(TR.BROWSING_SAVE_CURRENT_FILTER), self._onSaveFilter)
 
         return ml
