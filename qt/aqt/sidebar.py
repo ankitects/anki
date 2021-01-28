@@ -91,6 +91,9 @@ class SidebarModel(QAbstractItemModel):
             item.row_in_parent = row
             self._cache_rows(item)
 
+    def item_for_index(self, idx: QModelIndex) -> SidebarItem:
+        return idx.internalPointer()
+
     # Qt API
     ######################################################################
 
@@ -157,18 +160,23 @@ class SidebarModel(QAbstractItemModel):
         return theme_manager.icon_from_resources(iconRef)
 
 
-def expand_where_necessary(
-    model: QAbstractItemModel, tree: QTreeView, parent=None
-) -> None:
+def expand_where_necessary(model: SidebarModel, tree: QTreeView, parent=None) -> None:
     parent = parent or QModelIndex()
     for row in range(model.rowCount(parent)):
         idx = model.index(row, 0, parent)
         if not idx.isValid():
             continue
         expand_where_necessary(model, tree, idx)
-        item = idx.internalPointer()
-        if item.expanded:
+        item = model.item_for_index(idx)
+        if item and item.expanded:
             tree.setExpanded(idx, True)
+
+
+class FilterModel(QSortFilterProxyModel):
+    def item_for_index(self, idx: QModelIndex) -> Optional[SidebarItem]:
+        if not idx.isValid():
+            return None
+        return self.mapToSource(idx).internalPointer()
 
 
 class SidebarSearchBar(QLineEdit):
@@ -195,7 +203,7 @@ class SidebarTreeView(QTreeView):
         self.browser = browser
         self.mw = browser.mw
         self.col = self.mw.col
-        self.current_search = False
+        self.current_search: Optional[str] = None
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -226,6 +234,9 @@ class SidebarTreeView(QTreeView):
         bgcolor = QPalette().window().color().name()
         self.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
 
+    def model(self) -> Union[FilterModel, SidebarModel]:
+        return super().model()
+
     def refresh(self) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
@@ -248,8 +259,8 @@ class SidebarTreeView(QTreeView):
         if not text.strip():
             self.refresh()
             return
-        if not isinstance(self.model(), QSortFilterProxyModel):
-            filter_model = QSortFilterProxyModel(self)
+        if not isinstance(self.model(), FilterModel):
+            filter_model = FilterModel(self)
             filter_model.setSourceModel(self.model())
             filter_model.setFilterCaseSensitivity(False)  # type: ignore
             filter_model.setRecursiveFilteringEnabled(True)
@@ -264,10 +275,14 @@ class SidebarTreeView(QTreeView):
         filter_model.setFilterFixedString(text)
         self.expandAll()
 
-    def drawRow(self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex):
-        if not self.current_search:
+    def drawRow(
+        self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex
+    ):
+        if self.current_search is None:
             return super().drawRow(painter, options, idx)
-        if self.current_search.lower() in self.model().mapToSource(idx).internalPointer().name.lower():
+        if not (item := self.model().item_for_index(idx)):
+            return super().drawRow(painter, options, idx)
+        if self.current_search.lower() in item.name.lower():
             brush = QBrush(QColor("lightyellow"))
             painter.save()
             painter.fillRect(options.rect, brush)
@@ -276,8 +291,7 @@ class SidebarTreeView(QTreeView):
 
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
-        if idx.isValid():
-            item: "aqt.browser.SidebarItem" = idx.internalPointer()
+        if item := self.model().item_for_index(idx):
             if item.onClick:
                 item.onClick()
 
@@ -303,8 +317,8 @@ class SidebarTreeView(QTreeView):
         self._onExpansionChange(idx, False)
 
     def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
-        item: "aqt.browser.SidebarItem" = idx.internalPointer()
-        if item.expanded != expanded:
+        item = self.model().item_for_index(idx)
+        if item and item.expanded != expanded:
             item.expanded = expanded
             if item.onExpanded:
                 item.onExpanded(expanded)
@@ -476,7 +490,7 @@ class SidebarTreeView(QTreeView):
 
     def onContextMenu(self, point: QPoint) -> None:
         idx: QModelIndex = self.indexAt(point)
-        item: "aqt.browser.SidebarItem" = idx.internalPointer()
+        item = self.model().item_for_index(idx)
         if not item:
             return
         item_type: SidebarItemType = item.item_type
