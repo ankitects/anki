@@ -334,7 +334,7 @@ function onBlur(): void {
     }
 }
 
-function fieldContainsInlineContent(field: Element): boolean {
+function containsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
         // for now, for all practical purposes, empty fields are in block mode
         return false;
@@ -444,13 +444,13 @@ class EditingArea extends HTMLElement {
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
-        if (fieldContainsInlineContent(this)) {
+        if (containsInlineContent(this)) {
             this.appendChild(document.createElement("br"));
         }
     }
 
     get fieldHTML(): string {
-        return fieldContainsInlineContent(this) && this.innerHTML.endsWith("<br>")
+        return containsInlineContent(this) && this.innerHTML.endsWith("<br>")
             ? this.innerHTML.slice(0, -4) // trim trailing <br>
             : this.innerHTML;
     }
