@@ -60,28 +60,23 @@ function onKey(evt: KeyboardEvent): void {
     if (evt.code === "Enter" && !inListItem()) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
-        return;
     }
 
-    // fix Ctrl+right/left handling in RTL fields
-    if (currentField.dir === "rtl") {
-        const selection = window.getSelection();
-        let granularity = "character";
-        let alter = "move";
-        if (evt.ctrlKey) {
-            granularity = "word";
-        }
-        if (evt.shiftKey) {
-            alter = "extend";
-        }
-        if (evt.code === "ArrowRight") {
-            selection.modify(alter, "right", granularity);
-            evt.preventDefault();
-            return;
-        } else if (evt.code === "ArrowLeft") {
-            selection.modify(alter, "left", granularity);
-            evt.preventDefault();
-            return;
+    // // fix Ctrl+right/left handling in RTL fields
+    if (currentField.isRightToLeft()) {
+        const selection = currentField.getSelection();
+        const granularity = evt.ctrlKey ? "word" : "character";
+        const alter = evt.shiftKey ? "extend" : "move";
+
+        switch (evt.code) {
+            case "ArrowRight":
+                selection.modify(alter, "right", granularity);
+                evt.preventDefault();
+                return;
+            case "ArrowLeft":
+                selection.modify(alter, "left", granularity);
+                evt.preventDefault();
+                return;
         }
     }
 
@@ -441,6 +436,12 @@ class EditingArea extends HTMLElement {
         this.style.color = color;
     }
 
+    setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
+        this.style.fontFamily = fontFamily;
+        this.style.fontSize = fontSize;
+        this.style.direction = direction;
+    }
+
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -491,6 +492,14 @@ class EditingContainer extends HTMLDivElement {
         this.editingArea.fieldHTML = content;
     }
 
+    setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
+        this.editingArea.setBaseStyling(fontFamily, fontSize, direction);
+    }
+
+    isRightToLeft(): boolean {
+        return this.editingArea.style.direction === "rtl";
+    }
+
     getSelection(): Selection {
         return this.editingShadow.getSelection();
     }
@@ -528,6 +537,10 @@ class EditorField extends HTMLDivElement {
         this.label.innerText = label;
         this.editingContainer.initialize(index, color, content);
     }
+
+    setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
+        this.editingContainer.setBaseStyling(fontFamily, fontSize, direction);
+    }
 }
 
 customElements.define("editor-field", EditorField, { extends: "div" });
@@ -546,6 +559,15 @@ function adjustFieldAmount(amount: number): void {
     }
 }
 
+function forField<T>(values: T[], func: (value: T, field: EditorField, index: number) => void): void {
+    const fieldContainer = document.getElementById("fields");
+    const fields = [...fieldContainer.children] as EditorField[];
+
+    for (const [index, field] of fields.entries()) {
+        func(values[index], field, index)
+    }
+}
+
 function setFields(fields: [string, string][]): void {
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
@@ -554,30 +576,19 @@ function setFields(fields: [string, string][]): void {
         .getPropertyValue("--text-fg");
 
     adjustFieldAmount(fields.length);
-
-    const fieldsContainer = document.getElementById("fields");
-    const children = [...fieldsContainer.children] as EditorField[];
-    for (const [index, child] of children.entries()) {
-        const [name, fieldContent] = fields[index];
-        child.initialize(index, name, color, fieldContent);
-    }
+    forField(fields, ([name, fieldContent], field, index) => field.initialize(index, name, color, fieldContent));
 
     maybeDisableButtons();
 }
 
 function setBackgrounds(cols: "dupe"[]) {
-    for (let i = 0; i < cols.length; i++) {
-        const element = document.querySelector(`#f${i}`);
-        element.classList.toggle("dupe", cols[i] === "dupe");
-    }
+    forField(cols, (value, field) => field.classList.toggle("dupe", value === "dupe"));
 }
 
 function setFonts(fonts: [string, number, boolean][]): void {
-    for (let i = 0; i < fonts.length; i++) {
-        const n = $(`#f${i}`);
-        n.css("font-family", fonts[i][0]).css("font-size", fonts[i][1]);
-        n[0].dir = fonts[i][2] ? "rtl" : "ltr";
-    }
+    forField(fonts, ([fontFamily, fontSize, isRtl], field) => {
+        field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
+    });
 }
 
 function setNoteId(id: number): void {
