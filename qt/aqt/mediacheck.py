@@ -146,7 +146,8 @@ class MediaChecker:
         if out is not None:
             nid, err = out
             browser = aqt.dialogs.open("Browser", self.mw)
-            browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
+            search = self.mw.col.search_string(nids=[nid])
+            browser.form.searchEdit.lineEdit().setText(search)
             browser.onSearchActivated()
             showText(err, type="html")
         else:
