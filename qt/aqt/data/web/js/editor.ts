@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-let currentField = null;
+let currentField: EditingContainer | null = null;
 let changeTimer = null;
 let currentNoteId = null;
 
@@ -172,7 +172,7 @@ function nodeIsInline(node: Node): boolean {
 }
 
 function inListItem(): boolean {
-    const anchor = window.getSelection().anchorNode;
+    const anchor = currentField.getSelection().anchorNode;
 
     let inList = false;
     let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
@@ -254,7 +254,7 @@ function clearChangeTimer(): void {
 }
 
 function onFocus(evt: FocusEvent): void {
-    const elem = evt.currentTarget as HTMLElement;
+    const elem = evt.currentTarget as EditingContainer;
     if (currentField === elem) {
         // anki window refocused; current element unchanged
         return;
@@ -293,7 +293,7 @@ function focusField(n: number): void {
 function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
-        let elem = elements[i] as HTMLElement;
+        let elem = elements[i] as EditingContainer;
         if (elem.classList.contains("field")) {
             elem.focus();
             // the focus event may not fire if the window is not active, so make sure
@@ -459,6 +459,7 @@ class EditingArea extends HTMLElement {
 customElements.define("editing-area", EditingArea);
 
 class EditingContainer extends HTMLDivElement {
+    editingShadow: ShadowRoot;
     editingArea: EditingArea;
 
     connectedCallback(): void {
@@ -473,13 +474,13 @@ class EditingContainer extends HTMLDivElement {
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
 
-        const editingShadow = this.attachShadow({ mode: "open" });
+        this.editingShadow = this.attachShadow({ mode: "open" });
 
-        const style = editingShadow.appendChild(document.createElement("link"));
+        const style = this.editingShadow.appendChild(document.createElement("link"));
         style.setAttribute("rel", "stylesheet");
         style.setAttribute("href", "./_anki/css/editing-area.css");
 
-        this.editingArea = editingShadow.appendChild(
+        this.editingArea = this.editingShadow.appendChild(
             document.createElement("editing-area")
         ) as EditingArea;
     }
@@ -488,6 +489,10 @@ class EditingContainer extends HTMLDivElement {
         this.id = `f${index}`;
         this.editingArea.initialize(color);
         this.editingArea.fieldHTML = content;
+    }
+
+    getSelection(): Selection {
+        return this.editingShadow.getSelection();
     }
 
     set fieldHTML(content: string) {
