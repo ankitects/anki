@@ -86,7 +86,7 @@ function onKey(evt: KeyboardEvent): void {
 function onKeyUp(evt: KeyboardEvent): void {
     // Avoid div element on remove
     if (evt.code === "Enter" || evt.code === "Backspace") {
-        const anchor = window.getSelection().anchorNode;
+        const anchor = currentField.getSelection().anchorNode;
 
         if (
             nodeIsElement(anchor) &&
@@ -190,7 +190,7 @@ function insertNewline(): void {
     // differently. so in such cases we note the height has not
     // changed and insert an extra newline.
 
-    const r = window.getSelection().getRangeAt(0);
+    const r = currentField.getSelection().getRangeAt(0);
     if (!r.collapsed) {
         // delete any currently selected text first, making
         // sure the delete is undoable
@@ -206,7 +206,7 @@ function insertNewline(): void {
 
 // is the cursor in an environment that respects whitespace?
 function inPreEnvironment(): boolean {
-    const anchor = window.getSelection().anchorNode;
+    const anchor = currentField.getSelection().anchorNode;
     const n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
 
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
@@ -310,7 +310,7 @@ function caretToEnd(): void {
     const r = document.createRange();
     r.selectNodeContents(currentField);
     r.collapse(false);
-    const s = document.getSelection();
+    const s = currentField.getSelection();
     s.removeAllRanges();
     s.addRange(r);
 }
@@ -401,7 +401,7 @@ function wrapIntoText(front: string, back: string): void {
 }
 
 function wrapInternal(front: string, back: string, plainText: boolean): void {
-    const s = window.getSelection();
+    const s = currentField.getSelection();
     let r = s.getRangeAt(0);
     const content = r.cloneContents();
     const span = document.createElement("span");
