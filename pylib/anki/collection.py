@@ -35,6 +35,7 @@ from anki.rsbackend import (  # pylint: disable=unused-import
     FormatTimeSpanContext,
     InvalidInput,
     NamedFilter,
+    NoteIDs,
     Progress,
     RustBackend,
     pb,
@@ -503,6 +504,7 @@ class Collection:
         forgot_in: Optional[int] = None,
         added_in: Optional[int] = None,
         due_in: Optional[int] = None,
+        nids: Optional[List[int]] = None,
     ) -> str:
         filters = searches or []
 
@@ -528,6 +530,8 @@ class Collection:
             append_filter(FilterToSearchIn(added_in=added_in))
         if due_in:
             append_filter(FilterToSearchIn(due_in=due_in))
+        if nids:
+            append_filter(FilterToSearchIn(nids=NoteIDs(nids=nids)))
         if concat_by_or:
             sep = ConcatSeparator.OR
         else:
