@@ -612,6 +612,7 @@ class Browser(QMainWindow):
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self._searchPrompt = tr(TR.BROWSING_TYPE_HERE_TO_SEARCH)
+        self._searchPromptFilter = self.col.search_string(name=NamedFilter.CURRENT_DECK)
         self.form.searchEdit.addItems(
             [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
         )
@@ -629,7 +630,7 @@ class Browser(QMainWindow):
         prompt = self.form.searchEdit.lineEdit().text()
 
         # convert guide text before we save history
-        txt = "deck:current " if prompt == self._searchPrompt else prompt
+        txt = self._searchPromptFilter if prompt == self._searchPrompt else prompt
         self.update_history(txt)
 
         # keep track of search string so that we reuse identical search when
