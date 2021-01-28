@@ -123,9 +123,8 @@ class SidebarModel(QAbstractItemModel):
         if parentItem is None or parentItem == self.root:
             return QModelIndex()
 
-        row = parentItem.rowForChild(childItem)
-        if row is None:
-            return QModelIndex()
+        grandparent = parentItem.parentItem or self.root
+        row = grandparent.rowForChild(parentItem)
 
         return self.createIndex(row, 0, parentItem)
 
@@ -269,6 +268,10 @@ class SidebarTreeView(QTreeView):
             model = SidebarModel(root)
             self.flattened_model = model.flattened()
             self.setModel(model)
+
+            #from PyQt5.QtTest import QAbstractItemModelTester
+            #tester = QAbstractItemModelTester(model)
+
             model.expandWhereNeccessary(self)
 
         self.mw.taskman.run_in_background(self._root_tree, on_done)
