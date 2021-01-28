@@ -19,7 +19,7 @@ String.prototype.format = function (...args: string[]): string {
 };
 
 function setFGButton(col: string): void {
-    $("#forecolor")[0].style.backgroundColor = col;
+    document.getElementById("forecolor").style.backgroundColor = col;
 }
 
 function saveNow(keepFocus: boolean): void {
@@ -33,7 +33,7 @@ function saveNow(keepFocus: boolean): void {
         saveField("key");
     } else {
         // triggers onBlur, which saves
-        currentField.blur();
+        currentField.blurEditingArea();
     }
 }
 
@@ -52,7 +52,7 @@ interface Selection {
 function onKey(evt: KeyboardEvent): void {
     // esc clears focus, allowing dialog to close
     if (evt.code === "Escape") {
-        currentField.blur();
+        currentField.blurEditingArea();
         return;
     }
 
@@ -279,10 +279,11 @@ function onFocus(evt: FocusEvent): void {
 }
 
 function focusField(n: number): void {
-    if (n === null) {
-        return;
+    const field = document.getElementById(`f${n}`) as EditingContainer;
+
+    if (field) {
+        field.focusEditingArea();
     }
-    $(`#f${n}`).focus();
 }
 
 function focusIfField(x: number, y: number): boolean {
@@ -290,7 +291,7 @@ function focusIfField(x: number, y: number): boolean {
     for (let i = 0; i < elements.length; i++) {
         let elem = elements[i] as EditingContainer;
         if (elem.classList.contains("field")) {
-            elem.focus();
+            elem.focusEditingArea();
             // the focus event may not fire if the window is not active, so make sure
             // the current field is set
             currentField = elem;
@@ -502,6 +503,14 @@ class EditingContainer extends HTMLDivElement {
 
     getSelection(): Selection {
         return this.editingShadow.getSelection();
+    }
+
+    focusEditingArea(): void {
+        this.editingArea.focus();
+    }
+
+    blurEditingArea(): void {
+        this.editingArea.blur();
     }
 
     set fieldHTML(content: string) {
