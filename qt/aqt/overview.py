@@ -71,8 +71,8 @@ class Overview:
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "cram":
-            deck = self.mw.col.decks.current()
-            self.mw.onCram("'deck:%s'" % deck["name"])
+            deck = self.mw.col.decks.current()["name"]
+            self.mw.onCram(self.mw.col.search_string(deck=deck))
         elif url == "refresh":
             self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
