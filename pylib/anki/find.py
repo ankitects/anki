@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING, Optional, Set, Tuple
 
 from anki.hooks import *
 from anki.utils import ids2str, splitFields, stripHTMLMedia
@@ -71,9 +71,7 @@ def findDupes(
     col: Collection, fieldName: str, search: str = ""
 ) -> List[Tuple[Any, List]]:
     # limit search to notes with applicable field name
-    if search:
-        search = "(" + search + ") "
-    search += '"%s:*"' % fieldName.replace('"', '"')
+    search = col.search_string(searches=[search], field_name=fieldName)
     # go through notes
     vals: Dict[str, List[int]] = {}
     dupes = []
