@@ -559,12 +559,15 @@ function adjustFieldAmount(amount: number): void {
     }
 }
 
-function forField<T>(values: T[], func: (value: T, field: EditorField, index: number) => void): void {
+function forField<T>(
+    values: T[],
+    func: (value: T, field: EditorField, index: number) => void
+): void {
     const fieldContainer = document.getElementById("fields");
     const fields = [...fieldContainer.children] as EditorField[];
 
     for (const [index, field] of fields.entries()) {
-        func(values[index], field, index)
+        func(values[index], field, index);
     }
 }
 
@@ -576,13 +579,20 @@ function setFields(fields: [string, string][]): void {
         .getPropertyValue("--text-fg");
 
     adjustFieldAmount(fields.length);
-    forField(fields, ([name, fieldContent], field, index) => field.initialize(index, name, color, fieldContent));
+    forField(fields, ([name, fieldContent], field, index) =>
+        field.initialize(index, name, color, fieldContent)
+    );
 
     maybeDisableButtons();
 }
 
-function setBackgrounds(cols: "dupe"[]) {
-    forField(cols, (value, field) => field.classList.toggle("dupe", value === "dupe"));
+function setBackgrounds(cols: ("dupe" | "")[]) {
+    forField(cols, (value, field) =>
+        field.editingContainer.classList.toggle("dupe", value === "dupe")
+    );
+    document
+        .querySelector("#dupes")
+        .classList.toggle("is-inactive", !cols.includes("dupe"));
 }
 
 function setFonts(fonts: [string, number, boolean][]): void {
@@ -593,14 +603,6 @@ function setFonts(fonts: [string, number, boolean][]): void {
 
 function setNoteId(id: number): void {
     currentNoteId = id;
-}
-
-function showDupes(): void {
-    $("#dupes").show();
-}
-
-function hideDupes(): void {
-    $("#dupes").hide();
 }
 
 let pasteHTML = function (
