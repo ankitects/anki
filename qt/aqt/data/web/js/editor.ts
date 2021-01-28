@@ -334,7 +334,7 @@ function onBlur(): void {
     }
 }
 
-function fieldContainsInlineContent(field: HTMLDivElement): boolean {
+function fieldContainsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
         // for now, for all practical purposes, empty fields are in block mode
         return false;
@@ -437,41 +437,73 @@ function onCutOrCopy(): boolean {
     return true;
 }
 
-function createField(
-    index: number,
-    label: string,
-    color: string,
-    content: string
-): [HTMLDivElement, HTMLDivElement] {
-    const name = document.createElement("div");
-    name.id = `name${index}`;
-    name.className = "fname";
+class EditingArea extends HTMLElement {
+    connectedCallback() {
+        this.setAttribute("contenteditable", "true");
+    }
+}
 
-    const fieldname = document.createElement("span");
-    fieldname.className = "fieldname";
-    fieldname.innerText = label;
-    name.appendChild(fieldname);
+customElements.define("editing-area", EditingArea);
 
-    const field = document.createElement("div");
-    field.id = `f${index}`;
-    field.className = "field";
-    field.setAttribute("contenteditable", "true");
-    field.style.color = color;
-    field.addEventListener("keydown", onKey);
-    field.addEventListener("keyup", onKeyUp);
-    field.addEventListener("input", onInput);
-    field.addEventListener("focus", onFocus);
-    field.addEventListener("blur", onBlur);
-    field.addEventListener("paste", onPaste);
-    field.addEventListener("copy", onCutOrCopy);
-    field.addEventListener("oncut", onCutOrCopy);
-    field.innerHTML = content;
+class EditorField extends HTMLElement {
+    labelContainer: HTMLDivElement
+    label: HTMLSpanElement
+    editingContainer: HTMLDivElement
+    editingArea: EditingArea
+    editingShadow: ShadowRoot
 
-    if (fieldContainsInlineContent(field)) {
-        field.appendChild(document.createElement("br"));
+    connectedCallback() {
+        this.labelContainer = this.appendChild(document.createElement("div"));
+        this.labelContainer.className = "fname";
+
+        this.label = this.labelContainer.appendChild(document.createElement("span"));
+        this.label.className = "fieldname";
+
+        this.editingContainer = this.appendChild(document.createElement("div"));
+        this.editingContainer.className = "field";
+        this.editingContainer.addEventListener("keydown", onKey);
+        this.editingContainer.addEventListener("keyup", onKeyUp);
+        this.editingContainer.addEventListener("input", onInput);
+        this.editingContainer.addEventListener("focus", onFocus);
+        this.editingContainer.addEventListener("blur", onBlur);
+        this.editingContainer.addEventListener("paste", onPaste);
+        this.editingContainer.addEventListener("copy", onCutOrCopy);
+        this.editingContainer.addEventListener("oncut", onCutOrCopy);
+
+        const editingShadow = this.editingContainer.attachShadow({ mode: "open" });
+        this.editingArea = editingShadow.appendChild(document.createElement("editing-area")) as EditingArea;
     }
 
-    return [name, field];
+    initialize(index: number, label: string, color: string, content: string): void {
+        this.labelContainer.id = `name${index}`;
+        this.label.innerText = label;
+
+        this.editingContainer.id = `f${index}`;
+
+        this.editingArea.style.color = color;
+        this.editingArea.innerHTML = content;
+        if (fieldContainsInlineContent(this.editingArea)) {
+            this.editingArea.appendChild(document.createElement("br"));
+        }
+    }
+
+    fieldContent(): string {
+        return this.editingArea.innerHTML;
+    }
+}
+
+customElements.define("editor-field", EditorField);
+
+function adjustFieldAmount(amount: number): void {
+    const fieldsContainer = document.getElementById("fields");
+
+    while (fieldsContainer.childElementCount < amount) {
+        fieldsContainer.appendChild(document.createElement("editor-field"))
+    }
+
+    while (fieldsContainer.childElementCount > amount) {
+        fieldsContainer.removeChild(fieldsContainer.lastElementChild);
+    }
 }
 
 function setFields(fields: [string, string][]): void {
@@ -481,17 +513,13 @@ function setFields(fields: [string, string][]): void {
         .getComputedStyle(document.documentElement)
         .getPropertyValue("--text-fg");
 
-    const elements = fields.flatMap(([name, fieldcontent], index: number) =>
-        createField(index, name, color, fieldcontent)
-    );
+    adjustFieldAmount(fields.length);
 
     const fieldsContainer = document.getElementById("fields");
-    // can be replaced with ParentNode.replaceChildren in Chrome 86+
-    while (fieldsContainer.firstChild) {
-        fieldsContainer.removeChild(fieldsContainer.firstChild);
-    }
-    for (const element of elements) {
-        fieldsContainer.appendChild(element);
+    const children = [...fieldsContainer.children]
+    for (const [index, child] of children.entries()) {
+        const [name, fieldContent] = fields[index];
+        (child as EditorField).initialize(index, name, color, fieldContent);
     }
 
     maybeDisableButtons();
