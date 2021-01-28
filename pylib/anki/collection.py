@@ -505,6 +505,7 @@ class Collection:
         added_in: Optional[int] = None,
         due_in: Optional[int] = None,
         nids: Optional[List[int]] = None,
+        field_name: Optional[str] = None,
     ) -> str:
         filters = searches or []
 
@@ -532,6 +533,8 @@ class Collection:
             append_filter(FilterToSearchIn(due_in=due_in))
         if nids:
             append_filter(FilterToSearchIn(nids=NoteIDs(nids=nids)))
+        if field_name:
+            append_filter(FilterToSearchIn(field_name=field_name))
         if concat_by_or:
             sep = ConcatSeparator.OR
         else:

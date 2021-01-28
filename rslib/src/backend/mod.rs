@@ -351,6 +351,11 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                 kind: PropertyKind::Due(i),
             }),
             Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
+            Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
+                field: escape_anki_wildcards(&s).into_owned().into(),
+                text: "*".to_string().into(),
+                is_re: false,
+            }),
         }
     }
 }

@@ -802,6 +802,7 @@ message FilterToSearchIn {
     // will be due in the next x days
     int32 due_in = 9;
     NoteIDs nids = 10;
+    string field_name = 11;
   }
 }
 
