@@ -195,7 +195,7 @@ class SidebarTreeView(QTreeView):
         self.browser = browser
         self.mw = browser.mw
         self.col = self.mw.col
-        self.searching = False
+        self.current_search = False
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -238,7 +238,7 @@ class SidebarTreeView(QTreeView):
             # from PyQt5.QtTest import QAbstractItemModelTester
             # tester = QAbstractItemModelTester(model)
 
-            self.searching = False
+            self.current_search = None
             self.setModel(model)
             expand_where_necessary(model, self)
 
@@ -257,12 +257,22 @@ class SidebarTreeView(QTreeView):
         else:
             filter_model = self.model()
 
-        self.searching = True
+        self.current_search = text
         # Without collapsing first, can be very slow. Surely there's
         # a better way than this?
         self.collapseAll()
         filter_model.setFilterFixedString(text)
         self.expandAll()
+
+    def drawRow(self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex):
+        if not self.current_search:
+            return super().drawRow(painter, options, idx)
+        if self.current_search.lower() in self.model().mapToSource(idx).internalPointer().name.lower():
+            brush = QBrush(QColor("lightyellow"))
+            painter.save()
+            painter.fillRect(options.rect, brush)
+            painter.restore()
+        return super().drawRow(painter, options, idx)
 
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
@@ -283,12 +293,12 @@ class SidebarTreeView(QTreeView):
             super().keyPressEvent(event)
 
     def onExpansion(self, idx: QModelIndex) -> None:
-        if self.searching:
+        if self.current_search:
             return
         self._onExpansionChange(idx, True)
 
     def onCollapse(self, idx: QModelIndex) -> None:
-        if self.searching:
+        if self.current_search:
             return
         self._onExpansionChange(idx, False)
 
