@@ -431,7 +431,7 @@ function onCutOrCopy(): boolean {
 
 class EditingArea extends HTMLElement {
     connectedCallback() {
-        this.setAttribute("contenteditable", "true");
+        this.setAttribute("contenteditable", "");
     }
 
     set fieldHTML(content: string) {
@@ -452,14 +452,28 @@ class EditingArea extends HTMLElement {
 customElements.define("editing-area", EditingArea);
 
 class EditingContainer extends HTMLDivElement {
-    editingShadow: ShadowRoot;
     editingArea: EditingArea;
+    baseStyle: HTMLStyleElement;
 
-    baseStylesheet: CSSStyleSheet;
-
-    connectedCallback(): void {
+    constructor() {
+        super();
+        this.attachShadow({ mode: "open" });
         this.className = "field";
 
+        const rootStyle = document.createElement("link");
+        rootStyle.setAttribute("rel", "stylesheet");
+        rootStyle.setAttribute("href", "./_anki/css/editing-area.css");
+        this.shadowRoot.appendChild(rootStyle)
+
+        this.baseStyle = document.createElement("style");
+        this.baseStyle.setAttribute("rel", "stylesheet");
+        this.shadowRoot.appendChild(this.baseStyle)
+
+        this.editingArea = document.createElement("editing-area") as EditingArea;
+        this.shadowRoot.appendChild(this.editingArea);
+    }
+
+    connectedCallback(): void {
         this.addEventListener("keydown", onKey);
         this.addEventListener("keyup", onKeyUp);
         this.addEventListener("input", onInput);
@@ -469,20 +483,8 @@ class EditingContainer extends HTMLDivElement {
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
 
-        this.editingShadow = this.attachShadow({ mode: "open" });
-
-        const rootStyle = this.editingShadow.appendChild(
-            document.createElement("link")
-        );
-        rootStyle.setAttribute("rel", "stylesheet");
-        rootStyle.setAttribute("href", "./_anki/css/editing-area.css");
-
-        const baseStyle = this.editingShadow.appendChild(
-            document.createElement("style")
-        );
-        baseStyle.setAttribute("rel", "stylesheet");
-        this.baseStylesheet = baseStyle.sheet as CSSStyleSheet;
-        this.baseStylesheet.insertRule(
+        const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
+        baseStyleSheet.insertRule(
             `editing-area {
             font-family: initial;
             font-size: initial;
@@ -492,9 +494,18 @@ class EditingContainer extends HTMLDivElement {
             0
         );
 
-        this.editingArea = document.createElement("editing-area") as EditingArea;
         this.editingArea.id = `editor-field-${this.id.match(/\d+$/)[0]}`;
-        this.editingShadow.appendChild(this.editingArea);
+    }
+
+    disconnectedCallback(): void {
+        this.removeEventListener("keydown", onKey);
+        this.removeEventListener("keyup", onKeyUp);
+        this.removeEventListener("input", onInput);
+        this.removeEventListener("focus", onFocus);
+        this.removeEventListener("blur", onBlur);
+        this.removeEventListener("paste", onPaste);
+        this.removeEventListener("copy", onCutOrCopy);
+        this.removeEventListener("oncut", onCutOrCopy);
     }
 
     initialize(color: string, content: string): void {
@@ -503,12 +514,14 @@ class EditingContainer extends HTMLDivElement {
     }
 
     setBaseColor(color: string): void {
-        const firstRule = this.baseStylesheet.cssRules[0] as CSSStyleRule;
+        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
+        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
         firstRule.style.color = color;
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
-        const firstRule = this.baseStylesheet.cssRules[0] as CSSStyleRule;
+        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
+        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
         firstRule.style.fontFamily = fontFamily;
         firstRule.style.fontSize = fontSize;
         firstRule.style.direction = direction;
@@ -519,7 +532,7 @@ class EditingContainer extends HTMLDivElement {
     }
 
     getSelection(): Selection {
-        return this.editingShadow.getSelection();
+        return this.shadowRoot.getSelection();
     }
 
     focusEditingArea(): void {
@@ -546,21 +559,26 @@ class EditorField extends HTMLDivElement {
     label: HTMLSpanElement;
     editingContainer: EditingContainer;
 
-    connectedCallback(): void {
-        const index = Array.prototype.indexOf.call(this.parentNode.children, this);
-
-        this.labelContainer = this.appendChild(document.createElement("div"));
+    constructor() {
+        super();
+        this.labelContainer = document.createElement("div");
         this.labelContainer.className = "fname";
-        this.labelContainer.id = `name${index}`;
+        this.appendChild(this.labelContainer)
 
-        this.label = this.labelContainer.appendChild(document.createElement("span"));
+        this.label = document.createElement("span");
         this.label.className = "fieldname";
+        this.labelContainer.appendChild(this.label);
 
         this.editingContainer = document.createElement("div", {
             is: "editing-container",
         }) as EditingContainer;
-        this.editingContainer.id = `f${index}`;
         this.appendChild(this.editingContainer);
+    }
+
+    connectedCallback(): void {
+        const index = Array.prototype.indexOf.call(this.parentNode.children, this);
+        this.labelContainer.id = `name${index}`;
+        this.editingContainer.id = `f${index}`;
     }
 
     initialize(label: string, color: string, content: string): void {
