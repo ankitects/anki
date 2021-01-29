@@ -430,16 +430,6 @@ class EditingArea extends HTMLElement {
         this.setAttribute("contenteditable", "");
     }
 
-    static get observedAttributes(): string[] {
-        return ['ord'];
-    }
-
-    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
-        switch (name) {
-            case "ord": this.id = `editor-field-${newValue}`;
-        }
-    }
-
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -481,13 +471,6 @@ class EditingContainer extends HTMLDivElement {
 
     static get observedAttributes(): string[] {
         return ['ord'];
-    }
-
-    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
-        switch (name) {
-            case "ord":
-                this.id = `f${newValue}`;
-        }
     }
 
     get ord(): number {
