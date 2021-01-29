@@ -37,7 +37,7 @@
             revlogRange = daysToRevlogRange(days);
         } catch (e) {
             sourceData = null;
-            alert(i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING));
+            alert(e);
         }
         active = false;
     };

@@ -7,7 +7,8 @@ export async function postRequest(path: string, body: string): Promise<Uint8Arra
         body,
     });
     if (!resp.ok) {
-        throw Error(`unexpected reply: ${resp.statusText}`);
+        const body = await resp.text();
+        throw Error(`${resp.status}: ${body}`);
     }
     // get returned bytes
     const respBlob = await resp.blob();
