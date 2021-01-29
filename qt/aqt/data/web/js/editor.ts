@@ -467,10 +467,6 @@ class EditingContainer extends HTMLDivElement {
         this.shadowRoot.appendChild(this.editingArea);
     }
 
-    static get observedAttributes(): string[] {
-        return ["ord"];
-    }
-
     get ord(): number {
         return Number(this.getAttribute("ord"));
     }
