@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 import aqt
 import aqt.sound
 from anki.cards import Card
+from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note
@@ -655,7 +656,7 @@ class Editor:
 
     def _onCloze(self):
         # check that the model is set up for cloze deletion
-        if not re.search("{{(.*:)*cloze:", self.note.model()["tmpls"][0]["qfmt"]):
+        if self.note.model()["type"] != MODEL_CLOZE:
             if self.addMode:
                 tooltip(tr(TR.EDITING_WARNING_CLOZE_DELETIONS_WILL_NOT_WORK))
             else:
