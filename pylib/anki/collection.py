@@ -484,11 +484,6 @@ class Collection:
     # Search Strings
     ##########################################################################
 
-    # Helper function for the backend's search string operations.
-    # Pass search strings as 'searches' to normalize.
-    # Pass multiple to concatenate (defaults to 'and').
-    # Pass 'negate=True' to negate the end result.
-    # May raise InvalidInput.
     def search_string(
         self,
         *,
@@ -507,7 +502,13 @@ class Collection:
         nids: Optional[List[int]] = None,
         field_name: Optional[str] = None,
     ) -> str:
-        filters = searches or []
+        """Helper function for the backend's search string operations.
+
+        Pass search strings as 'search_strings' to normalize.
+        Pass multiple to concatenate (defaults to 'and').
+        Pass 'negate=True' to negate the end result.
+        May raise InvalidInput.
+        """
 
         def append_filter(filter_in):
             filters.append(self.backend.filter_to_search(filter_in))
