@@ -57,7 +57,7 @@ use pb::{sync_status_out, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use slog::warn;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::convert::TryFrom;
 use std::{
     result,
@@ -1411,17 +1411,6 @@ impl BackendService for Backend {
     fn remove_config(&self, input: pb::String) -> BackendResult<Empty> {
         self.with_col(|col| col.transact(None, |col| col.remove_config(input.val.as_str())))
             .map(Into::into)
-    }
-
-    fn set_all_config(&self, input: pb::Json) -> BackendResult<Empty> {
-        let val: HashMap<String, JsonValue> = serde_json::from_slice(&input.json)?;
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage
-                    .set_all_config(val, col.usn()?, TimestampSecs::now())
-            })
-        })
-        .map(Into::into)
     }
 
     fn get_all_config(&self, _input: Empty) -> BackendResult<pb::Json> {
