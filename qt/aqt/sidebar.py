@@ -296,8 +296,8 @@ class SidebarTreeView(QTreeView):
             return super().drawRow(painter, options, idx)
         if not (item := self.model().item_for_index(idx)):
             return super().drawRow(painter, options, idx)
-        if self.current_search.lower() in item.full_name.lower():
-            brush = QBrush(QColor("lightyellow"))
+        if self.current_search.lower() in item.name.lower():
+            brush = QBrush(theme_manager.qcolor("suspended-bg"))
             painter.save()
             painter.fillRect(options.rect, brush)
             painter.restore()
