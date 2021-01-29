@@ -501,9 +501,9 @@ class Collection:
         note: Optional[str] = None,
         template: Optional[int] = None,
         dupe: Optional[Tuple[int, str]] = None,
-        forgot_in: Optional[int] = None,
-        added_in: Optional[int] = None,
-        due_in: Optional[int] = None,
+        forgot_in_days: Optional[int] = None,
+        added_in_days: Optional[int] = None,
+        due_in_days: Optional[int] = None,
         nids: Optional[List[int]] = None,
         field_name: Optional[str] = None,
     ) -> str:
@@ -525,12 +525,12 @@ class Collection:
         if dupe:
             dupe_in = DupeIn(mid=BackendNoteTypeID(ntid=dupe[0]), text=dupe[1])
             append_filter(FilterToSearchIn(dupe=dupe_in))
-        if forgot_in:
-            append_filter(FilterToSearchIn(forgot_in=forgot_in))
-        if added_in:
-            append_filter(FilterToSearchIn(added_in=added_in))
-        if due_in:
-            append_filter(FilterToSearchIn(due_in=due_in))
+        if forgot_in_days:
+            append_filter(FilterToSearchIn(forgot_in_days=forgot_in_days))
+        if added_in_days:
+            append_filter(FilterToSearchIn(added_in_days=added_in_days))
+        if due_in_days:
+            append_filter(FilterToSearchIn(due_in_days=due_in_days))
         if nids:
             append_filter(FilterToSearchIn(nids=NoteIDs(nids=nids)))
         if field_name:

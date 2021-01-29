@@ -341,12 +341,12 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                 note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
                 text: dupe.text.into(),
             }),
-            Filter::ForgotIn(u) => Node::Search(SearchNode::Rated {
+            Filter::ForgotInDays(u) => Node::Search(SearchNode::Rated {
                 days: u,
                 ease: EaseKind::AnswerButton(1),
             }),
-            Filter::AddedIn(u) => Node::Search(SearchNode::AddedInDays(u)),
-            Filter::DueIn(i) => Node::Search(SearchNode::Property {
+            Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
+            Filter::DueInDays(i) => Node::Search(SearchNode::Property {
                 operator: "<=".to_string(),
                 kind: PropertyKind::Due(i),
             }),

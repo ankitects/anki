@@ -795,12 +795,9 @@ message FilterToSearchIn {
     string note = 4;
     uint32 template = 5;
     DupeIn dupe = 6;
-    // rated Again in the last x days
-    uint32 forgot_in = 7;
-    // added in the last x days
-    uint32 added_in = 8;
-    // will be due in the next x days
-    int32 due_in = 9;
+    uint32 forgot_in_days = 7;
+    uint32 added_in_days = 8;
+    int32 due_in_days = 9;
     NoteIDs nids = 10;
     string field_name = 11;
   }
