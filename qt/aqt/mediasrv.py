@@ -287,11 +287,14 @@ def handle_post(path: str) -> Response:
         return flask.make_response("Collection not open", HTTPStatus.NOT_FOUND)
 
     if path in post_handlers:
-        if data := post_handlers[path]():
-            response = flask.make_response(data)
-            response.headers["Content-Type"] = "application/binary"
-        else:
-            response = flask.make_response("", HTTPStatus.NO_CONTENT)
+        try:
+            if data := post_handlers[path]():
+                response = flask.make_response(data)
+                response.headers["Content-Type"] = "application/binary"
+            else:
+                response = flask.make_response("", HTTPStatus.NO_CONTENT)
+        except Exception as e:
+            return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
     else:
         response = flask.make_response(
             f"Unhandled post to {path}",
