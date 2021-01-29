@@ -31,19 +31,19 @@ from anki.rsbackend import (  # pylint: disable=unused-import
     ConcatSeparator,
     DBError,
     DupeIn,
-    FilterToSearchIn,
+    Flag,
     FormatTimeSpanContext,
     InvalidInput,
-    NamedFilter,
     NoteIDs,
     Progress,
     RustBackend,
+    SearchTerm,
     pb,
 )
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.utils import devMode, ids2str, intTime
+from anki.utils import devMode, ids2str, intTime, splitFields, stripHTMLMedia
 
 if TYPE_CHECKING:
     from anki.rsbackend import FormatTimeSpanContextValue, TRValue
@@ -460,8 +460,8 @@ class Collection:
             )
         return self.backend.search_cards(search=query, order=mode)
 
-    def find_notes(self, query: str) -> Sequence[int]:
-        return self.backend.search_notes(query)
+    def find_notes(self, *terms: Union[str, SearchTerm]) -> Sequence[int]:
+        return self.backend.search_notes(self.build_search_string(*terms))
 
     def find_and_replace(
         self,
@@ -474,8 +474,39 @@ class Collection:
     ) -> int:
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
+    # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        return anki.find.findDupes(self, fieldName, search)
+        nids = self.findNotes(search, SearchTerm(field_name=fieldName))
+        # go through notes
+        vals: Dict[str, List[int]] = {}
+        dupes = []
+        fields: Dict[int, int] = {}
+
+        def ordForMid(mid):
+            if mid not in fields:
+                model = self.models.get(mid)
+                for c, f in enumerate(model["flds"]):
+                    if f["name"].lower() == fieldName.lower():
+                        fields[mid] = c
+                        break
+            return fields[mid]
+
+        for nid, mid, flds in self.db.all(
+            "select id, mid, flds from notes where id in " + ids2str(nids)
+        ):
+            flds = splitFields(flds)
+            ord = ordForMid(mid)
+            if ord is None:
+                continue
+            val = flds[ord]
+            val = stripHTMLMedia(val)
+            # empty does not count as duplicate
+            if not val:
+                continue
+            vals.setdefault(val, []).append(nid)
+            if len(vals[val]) == 2:
+                dupes.append((val, vals[val]))
+        return dupes
 
     findCards = find_cards
     findNotes = find_notes
@@ -484,68 +515,35 @@ class Collection:
     # Search Strings
     ##########################################################################
 
-    def search_string(
-        self,
-        *,
-        negate: bool = False,
-        concat_by_or: bool = False,
-        searches: Optional[List[str]] = None,
-        name: Optional["FilterToSearchIn.NamedFilterValue"] = None,
-        tag: Optional[str] = None,
-        deck: Optional[str] = None,
-        note: Optional[str] = None,
-        template: Optional[int] = None,
-        dupe: Optional[Tuple[int, str]] = None,
-        forgot_in_days: Optional[int] = None,
-        added_in_days: Optional[int] = None,
-        due_in_days: Optional[int] = None,
-        nids: Optional[List[int]] = None,
-        field_name: Optional[str] = None,
+    def build_search_string(
+        self, *terms: Union[str, SearchTerm], negate=False, match_any=False
     ) -> str:
         """Helper function for the backend's search string operations.
 
-        Pass search strings as 'search_strings' to normalize.
-        Pass multiple to concatenate (defaults to 'and').
+        Pass terms as strings to normalize.
+        Pass fields of backend.proto/FilterToSearchIn as valid SearchTerms.
+        Pass multiple terms to concatenate (defaults to 'and', 'or' when 'match_any=True').
         Pass 'negate=True' to negate the end result.
         May raise InvalidInput.
         """
 
-        def append_filter(filter_in):
-            filters.append(self.backend.filter_to_search(filter_in))
-
-        if name:
-            append_filter(FilterToSearchIn(name=name))
-        if tag:
-            append_filter(FilterToSearchIn(tag=tag))
-        if deck:
-            append_filter(FilterToSearchIn(deck=deck))
-        if note:
-            append_filter(FilterToSearchIn(note=note))
-        if template:
-            append_filter(FilterToSearchIn(template=template))
-        if dupe:
-            dupe_in = DupeIn(mid=BackendNoteTypeID(ntid=dupe[0]), text=dupe[1])
-            append_filter(FilterToSearchIn(dupe=dupe_in))
-        if forgot_in_days:
-            append_filter(FilterToSearchIn(forgot_in_days=forgot_in_days))
-        if added_in_days:
-            append_filter(FilterToSearchIn(added_in_days=added_in_days))
-        if due_in_days:
-            append_filter(FilterToSearchIn(due_in_days=due_in_days))
-        if nids:
-            append_filter(FilterToSearchIn(nids=NoteIDs(nids=nids)))
-        if field_name:
-            append_filter(FilterToSearchIn(field_name=field_name))
-        if concat_by_or:
+        searches = []
+        for term in terms:
+            if isinstance(term, SearchTerm):
+                term = self.backend.filter_to_search(term)
+            searches.append(term)
+        if match_any:
             sep = ConcatSeparator.OR
         else:
             sep = ConcatSeparator.AND
-        search_string = self.backend.concatenate_searches(sep=sep, searches=filters)
+        search_string = self.backend.concatenate_searches(sep=sep, searches=searches)
         if negate:
             search_string = self.backend.negate_search(search_string)
         return search_string
 
     def replace_search_term(self, search: str, replacement: str) -> str:
+        """Wrapper for the according backend function."""
+
         return self.backend.replace_search_term(search=search, replacement=replacement)
 
     # Config
@@ -786,6 +784,19 @@ table.review-log {{ {revlog_style} }}
             self.usn(),
             intTime(),
         )
+
+
+def dupe_search_term(mid: int, text: str) -> SearchTerm:
+    """Helper function for building a DupeIn message."""
+
+    dupe_in = DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
+    return SearchTerm(dupe=dupe_in)
+
+
+def nid_search_term(nids: List[int]) -> SearchTerm:
+    """Helper function for building a NoteIDs message."""
+
+    return SearchTerm(nids=NoteIDs(nids=nids))
 
 
 # legacy name

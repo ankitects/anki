@@ -21,6 +21,7 @@ from bs4 import BeautifulSoup
 import aqt
 import aqt.sound
 from anki.cards import Card
+from anki.collection import dupe_search_term
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note
@@ -539,7 +540,9 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        self.mw.browser_search(dupe=(self.note.model()["id"], self.note.fields[0]))
+        self.mw.browser_search(
+            dupe_search_term(self.note.model()["id"], self.note.fields[0])
+        )
 
     def fieldsAreBlank(self, previousNote=None):
         if not self.note:

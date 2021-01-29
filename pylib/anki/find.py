@@ -3,10 +3,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Set
 
 from anki.hooks import *
-from anki.utils import ids2str, splitFields, stripHTMLMedia
 
 if TYPE_CHECKING:
     from anki.collection import Collection
@@ -64,41 +63,3 @@ def fieldNames(col, downcase=True) -> List:
             if name not in fields:  # slower w/o
                 fields.add(name)
     return list(fields)
-
-
-# returns array of ("dupestr", [nids])
-def findDupes(
-    col: Collection, fieldName: str, search: str = ""
-) -> List[Tuple[Any, List]]:
-    # limit search to notes with applicable field name
-    search = col.search_string(searches=[search], field_name=fieldName)
-    # go through notes
-    vals: Dict[str, List[int]] = {}
-    dupes = []
-    fields: Dict[int, int] = {}
-
-    def ordForMid(mid):
-        if mid not in fields:
-            model = col.models.get(mid)
-            for c, f in enumerate(model["flds"]):
-                if f["name"].lower() == fieldName.lower():
-                    fields[mid] = c
-                    break
-        return fields[mid]
-
-    for nid, mid, flds in col.db.all(
-        "select id, mid, flds from notes where id in " + ids2str(col.findNotes(search))
-    ):
-        flds = splitFields(flds)
-        ord = ordForMid(mid)
-        if ord is None:
-            continue
-        val = flds[ord]
-        val = stripHTMLMedia(val)
-        # empty does not count as duplicate
-        if not val:
-            continue
-        vals.setdefault(val, []).append(nid)
-        if len(vals[val]) == 2:
-            dupes.append((val, vals[val]))
-    return dupes

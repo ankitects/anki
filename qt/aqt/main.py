@@ -26,7 +26,7 @@ import aqt.stats
 import aqt.toolbar
 import aqt.webview
 from anki import hooks
-from anki.collection import Collection
+from anki.collection import Collection, SearchTerm
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.lang import without_unicode_isolation
@@ -1141,7 +1141,7 @@ title="%s" %s>%s</button>""" % (
         deck = self.col.decks.current()
         if not search:
             if not deck["dyn"]:
-                search = self.col.search_string(deck=deck["name"])
+                search = self.col.build_search_string(SearchTerm(deck=deck["name"]))
         while self.col.decks.id_for_name(
             without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
         ):
@@ -1621,10 +1621,10 @@ title="%s" %s>%s</button>""" % (
     # Helpers for all windows
     ##########################################################################
 
-    def browser_search(self, **kwargs) -> None:
-        """Wrapper for col.search_string() to look up the result in the browser."""
+    def browser_search(self, *terms: Union[str, SearchTerm]) -> None:
+        """Wrapper for col.build_search_string() to look up the result in the browser."""
 
-        search = self.col.search_string(**kwargs)
+        search = self.col.build_search_string(*terms)
         browser = aqt.dialogs.open("Browser", self)
         browser.form.searchEdit.lineEdit().setText(search)
         browser.onSearchActivated()

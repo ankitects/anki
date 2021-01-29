@@ -13,7 +13,7 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, InvalidInput, NamedFilter
+from anki.collection import Collection, Flag, InvalidInput, SearchTerm, nid_search_term
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
@@ -612,7 +612,9 @@ class Browser(QMainWindow):
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self._searchPrompt = tr(TR.BROWSING_TYPE_HERE_TO_SEARCH)
-        self._searchPromptFilter = self.col.search_string(name=NamedFilter.CURRENT_DECK)
+        self._searchPromptFilter = self.col.build_search_string(
+            SearchTerm(current_deck=True)
+        )
         self.form.searchEdit.addItems(
             [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
         )
@@ -659,7 +661,7 @@ class Browser(QMainWindow):
             c = self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             if nid:
-                search = self.col.search_string(nids=[nid])
+                search = self.col.build_search_string(nid_search_term([nid]))
                 search = gui_hooks.default_search(search, c)
                 self.model.search(search)
                 self.focusCid(c.id)
@@ -671,7 +673,7 @@ class Browser(QMainWindow):
             self._onRowChanged(None, None)
 
     def normalize_search(self, search: str) -> str:
-        normed = self.col.search_string(searches=[search])
+        normed = self.col.build_search_string(search)
         self._lastSearchTxt = normed
         self.form.searchEdit.lineEdit().setText(normed)
         return normed
@@ -951,23 +953,21 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.popupOver(self.form.filter)
 
-    def update_search(self, *terms: str):
+    def update_search(self, *terms: Union[str, SearchTerm]):
         "Modify the current search string based on modified keys, then refresh."
         try:
-            search = self.col.search_string(searches=list(terms))
+            search = self.col.build_search_string(*terms)
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
-                search = self.col.search_string(negate=True, searches=[search])
+                search = self.col.build_search_string(search, negate=True)
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur != self._searchPrompt:
                 if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
                     search = self.col.replace_search_term(cur, search)
                 elif mods & Qt.ControlModifier:
-                    search = self.col.search_string(searches=[cur, search])
+                    search = self.col.build_search_string(cur, search)
                 elif mods & Qt.ShiftModifier:
-                    search = self.col.search_string(
-                        concat_by_or=True, searches=[cur, search]
-                    )
+                    search = self.col.build_search_string(cur, search, match_any=True)
         except InvalidInput as e:
             show_invalid_search_error(e)
         else:
@@ -993,9 +993,9 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.BROWSING_ADDED_TODAY), NamedFilter.ADDED_TODAY),
-                    (tr(TR.BROWSING_STUDIED_TODAY), NamedFilter.STUDIED_TODAY),
-                    (tr(TR.BROWSING_AGAIN_TODAY), NamedFilter.AGAIN_TODAY),
+                    (tr(TR.BROWSING_ADDED_TODAY), SearchTerm(added_in_days=1)),
+                    (tr(TR.BROWSING_STUDIED_TODAY), SearchTerm(studied_today=True)),
+                    (tr(TR.BROWSING_AGAIN_TODAY), SearchTerm(forgot_in_days=1)),
                 )
             )
         )
@@ -1006,20 +1006,20 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.ACTIONS_NEW), NamedFilter.NEW),
-                    (tr(TR.SCHEDULING_LEARNING), NamedFilter.LEARN),
-                    (tr(TR.SCHEDULING_REVIEW), NamedFilter.REVIEW),
-                    (tr(TR.FILTERING_IS_DUE), NamedFilter.DUE),
+                    (tr(TR.ACTIONS_NEW), SearchTerm(new=True)),
+                    (tr(TR.SCHEDULING_LEARNING), SearchTerm(learn=True)),
+                    (tr(TR.SCHEDULING_REVIEW), SearchTerm(review=True)),
+                    (tr(TR.FILTERING_IS_DUE), SearchTerm(due=True)),
                     None,
-                    (tr(TR.BROWSING_SUSPENDED), NamedFilter.SUSPENDED),
-                    (tr(TR.BROWSING_BURIED), NamedFilter.BURIED),
+                    (tr(TR.BROWSING_SUSPENDED), SearchTerm(suspended=True)),
+                    (tr(TR.BROWSING_BURIED), SearchTerm(buried=True)),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), NamedFilter.RED_FLAG),
-                    (tr(TR.ACTIONS_ORANGE_FLAG), NamedFilter.ORANGE_FLAG),
-                    (tr(TR.ACTIONS_GREEN_FLAG), NamedFilter.GREEN_FLAG),
-                    (tr(TR.ACTIONS_BLUE_FLAG), NamedFilter.BLUE_FLAG),
-                    (tr(TR.BROWSING_NO_FLAG), NamedFilter.NO_FLAG),
-                    (tr(TR.BROWSING_ANY_FLAG), NamedFilter.ANY_FLAG),
+                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=Flag.RED)),
+                    (tr(TR.ACTIONS_ORANGE_FLAG), SearchTerm(flag=Flag.ORANGE)),
+                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=Flag.GREEN)),
+                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=Flag.BLUE)),
+                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=Flag.WITHOUT)),
+                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=Flag.ANY)),
                 )
             )
         )
@@ -1045,9 +1045,7 @@ QTableView {{ gridline-color: {grid} }}
 
     def _onSaveFilter(self) -> None:
         try:
-            filt = self.col.search_string(
-                searches=[self.form.searchEdit.lineEdit().text()]
-            )
+            filt = self.col.build_search_string(self.form.searchEdit.lineEdit().text())
         except InvalidInput as e:
             show_invalid_search_error(e)
         else:
@@ -1088,12 +1086,12 @@ QTableView {{ gridline-color: {grid} }}
     def _currentFilterIsSaved(self) -> Optional[str]:
         filt = self.form.searchEdit.lineEdit().text()
         try:
-            filt = self.col.search_string(searches=[filt])
+            filt = self.col.build_search_string(filt)
         except InvalidInput:
             pass
         for k, v in self.col.get_config("savedFilters").items():
             try:
-                v = self.col.search_string(searches=[v])
+                v = self.col.build_search_string(v)
             except InvalidInput:
                 pass
             if filt == v:
@@ -1494,7 +1492,7 @@ where id in %s"""
         tv = self.form.tableView
         tv.selectionModel().clear()
 
-        search = self.col.search_string(nids=nids)
+        search = self.col.build_search_string(nid_search_term(nids))
         self.search_for(search)
 
         tv.selectAll()
@@ -1703,7 +1701,7 @@ where id in %s"""
             t += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
-                    self.col.search_string(nids=nids).replace('"', "&quot;"),
+                    html.escape(self.col.build_search_string(nid_search_term(nids))),
                     tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )
