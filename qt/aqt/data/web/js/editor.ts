@@ -91,7 +91,7 @@ function onKeyUp(evt: KeyboardEvent): void {
         if (
             nodeIsElement(anchor) &&
             anchor.tagName === "DIV" &&
-            !anchor.classList.contains("field") &&
+            !(anchor instanceof EditingContainer) &&
             anchor.childElementCount === 1 &&
             anchor.children[0].tagName === "BR"
         ) {
@@ -256,7 +256,7 @@ function onFocus(evt: FocusEvent): void {
     }
     elem.focusEditingArea();
     currentField = elem;
-    pycmd(`focus:${currentFieldOrdinal()}`);
+    pycmd(`focus:${currentField.ord}`);
     enableButtons();
     // do this twice so that there's no flicker on newer versions
     caretToEnd();
@@ -291,7 +291,7 @@ function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
         let elem = elements[i] as EditingContainer;
-        if (elem.classList.contains("field")) {
+        if (elem instanceof EditingContainer) {
             elem.focusEditingArea();
             // the focus event may not fire if the window is not active, so make sure
             // the current field is set
@@ -354,12 +354,8 @@ function saveField(type: "blur" | "key"): void {
     }
 
     pycmd(
-        `${type}:${currentFieldOrdinal()}:${currentNoteId}:${currentField.fieldHTML}`
+        `${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`
     );
-}
-
-function currentFieldOrdinal(): string {
-    return currentField.id.substring(1);
 }
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
@@ -385,10 +381,10 @@ function enableButtons(): void {
 
 // disable the buttons if a field is not currently focused
 function maybeDisableButtons(): void {
-    if (!document.activeElement || document.activeElement.className !== "field") {
-        disableButtons();
-    } else {
+    if (document.activeElement instanceof EditingContainer) {
         enableButtons();
+    } else {
+        disableButtons();
     }
 }
 
@@ -434,6 +430,16 @@ class EditingArea extends HTMLElement {
         this.setAttribute("contenteditable", "");
     }
 
+    static get observedAttributes(): string[] {
+        return ['ord'];
+    }
+
+    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
+        switch (name) {
+            case "ord": this.id = `editor-field-${newValue}`;
+        }
+    }
+
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -473,6 +479,21 @@ class EditingContainer extends HTMLDivElement {
         this.shadowRoot.appendChild(this.editingArea);
     }
 
+    static get observedAttributes(): string[] {
+        return ['ord'];
+    }
+
+    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
+        switch (name) {
+            case "ord":
+                this.id = `f${newValue}`;
+        }
+    }
+
+    get ord(): number {
+        return Number(this.getAttribute("ord"));
+    }
+
     connectedCallback(): void {
         this.addEventListener("keydown", onKey);
         this.addEventListener("keyup", onKeyUp);
@@ -493,8 +514,6 @@ class EditingContainer extends HTMLDivElement {
         }`,
             0
         );
-
-        this.editingArea.id = `editor-field-${this.id.match(/\d+$/)[0]}`;
     }
 
     disconnectedCallback(): void {
@@ -575,10 +594,19 @@ class EditorField extends HTMLDivElement {
         this.appendChild(this.editingContainer);
     }
 
-    connectedCallback(): void {
-        const index = Array.prototype.indexOf.call(this.parentNode.children, this);
-        this.labelContainer.id = `name${index}`;
-        this.editingContainer.id = `f${index}`;
+    static get observedAttributes(): string[] {
+        return ['ord'];
+    }
+
+    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
+        switch (name) {
+            case "ord":
+                this.editingContainer.setAttribute("ord", newValue);
+        }
+    }
+
+    set ord(n: number) {
+        this.setAttribute("ord", String(n));
     }
 
     initialize(label: string, color: string, content: string): void {
@@ -597,9 +625,9 @@ function adjustFieldAmount(amount: number): void {
     const fieldsContainer = document.getElementById("fields");
 
     while (fieldsContainer.childElementCount < amount) {
-        fieldsContainer.appendChild(
-            document.createElement("div", { is: "editor-field" })
-        );
+        const newField = document.createElement("div", { is: "editor-field" }) as EditorField;
+        newField.ord = fieldsContainer.childElementCount;
+        fieldsContainer.appendChild(newField);
     }
 
     while (fieldsContainer.childElementCount > amount) {
