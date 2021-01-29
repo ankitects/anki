@@ -185,16 +185,24 @@ class SidebarSearchBar(QLineEdit):
     def __init__(self, sidebar: SidebarTreeView):
         QLineEdit.__init__(self, sidebar)
         self.sidebar = sidebar
+        self.timer = QTimer(self)
+        self.timer.setInterval(600)
+        self.timer.setSingleShot(True)
+        qconnect(self.timer.timeout, self.onSearch)
         qconnect(self.textChanged, self.onTextChanged)
 
     def onTextChanged(self, text: str):
-        self.sidebar.search_for(text)
+        if not self.timer.isActive():
+            self.timer.start()
+
+    def onSearch(self):
+        self.sidebar.search_for(self.text())
 
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Up, Qt.Key_Down):
             self.sidebar.setFocus()
         elif evt.key() in (Qt.Key_Enter, Qt.Key_Return):
-            self.onTextChanged(self.text())
+            self.onSearch()
         else:
             QLineEdit.keyPressEvent(self, evt)
 
