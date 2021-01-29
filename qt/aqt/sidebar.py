@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future
 from enum import Enum
-from typing import TYPE_CHECKING, Iterable, List, Optional
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import aqt
 from anki.collection import ConfigBoolKey
@@ -221,7 +221,7 @@ class SidebarTreeView(QTreeView):
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
-        self.context_menus = {
+        self.context_menus: Dict[SidebarItemType, Sequence[Tuple[str, Callable]]] = {
             SidebarItemType.DECK: (
                 (tr(TR.ACTIONS_RENAME), self.rename_deck),
                 (tr(TR.ACTIONS_DELETE), self.delete_deck),
@@ -384,7 +384,7 @@ class SidebarTreeView(QTreeView):
             self.col.set_config_bool(collapse_key, not expanded)
 
         top = SidebarItem(
-            self.col.tr(name),
+            tr(name),
             icon,
             onExpanded=update,
             expanded=not self.col.get_config_bool(collapse_key),
@@ -423,7 +423,7 @@ class SidebarTreeView(QTreeView):
         )
 
         def on_click():
-            self.show_context_menu(root)
+            self.show_context_menu(root, None)
 
         root.onClick = on_click
 
@@ -570,19 +570,51 @@ class SidebarTreeView(QTreeView):
         item = self.model().item_for_index(idx)
         if not item:
             return
-        self.show_context_menu(item)
+        self.show_context_menu(item, idx)
 
-    def show_context_menu(self, item: SidebarItem):
-        if item.item_type not in self.context_menus:
+    def show_context_menu(self, item: SidebarItem, idx: Optional[QModelIndex]):
+        m = QMenu()
+
+        if item.item_type in self.context_menus:
+            for action in self.context_menus[item.item_type]:
+                act_name = action[0]
+                act_func = action[1]
+                a = m.addAction(act_name)
+                qconnect(a.triggered, lambda _, func=act_func: func(item))
+
+        if idx:
+            self.maybe_add_tree_actions(m, item, idx)
+
+        if not m.children():
             return
 
-        m = QMenu()
-        for action in self.context_menus[item.item_type]:
-            act_name = action[0]
-            act_func = action[1]
-            a = m.addAction(act_name)
-            qconnect(a.triggered, lambda _, func=act_func: func(item))
         m.exec_(QCursor.pos())
+
+    def maybe_add_tree_actions(
+        self, menu: QMenu, item: SidebarItem, parent: QModelIndex
+    ) -> None:
+        if self.current_search:
+            return
+        if not any(bool(c.children) for c in item.children):
+            return
+
+        def set_children_collapsed(collapsed: bool) -> None:
+            m = self.model()
+            self.setExpanded(parent, True)
+            for row in range(m.rowCount(parent)):
+                idx = m.index(row, 0, parent)
+                print(idx)
+                self.setExpanded(idx, not collapsed)
+
+        menu.addSeparator()
+        menu.addAction(
+            tr(TR.BROWSING_SIDEBAR_EXPAND_CHILDREN),
+            lambda: set_children_collapsed(False),
+        )
+        menu.addAction(
+            tr(TR.BROWSING_SIDEBAR_COLLAPSE_CHILDREN),
+            lambda: set_children_collapsed(True),
+        )
 
     def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
         deck = self.mw.col.decks.get(item.id)
