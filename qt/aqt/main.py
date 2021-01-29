@@ -1621,8 +1621,9 @@ title="%s" %s>%s</button>""" % (
     # Helpers for all windows
     ##########################################################################
 
-    # Wrapper for col.search_string() to look up the result in the browser.
     def browser_search(self, **kwargs) -> None:
+        """Wrapper for col.search_string() to look up the result in the browser."""
+
         search = self.col.search_string(**kwargs)
         browser = aqt.dialogs.open("Browser", self)
         browser.form.searchEdit.lineEdit().setText(search)
