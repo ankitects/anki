@@ -611,15 +611,14 @@ class Browser(QMainWindow):
         qconnect(self.form.searchButton.clicked, self.onSearchActivated)
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = tr(TR.BROWSING_TYPE_HERE_TO_SEARCH)
-        self._searchPromptFilter = self.col.build_search_string(
-            SearchTerm(current_deck=True)
+        self.form.searchEdit.lineEdit().setPlaceholderText(
+            tr(TR.BROWSING_SEARCH_BAR_HINT)
         )
         self.form.searchEdit.addItems(
-            [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
+            [self.col.build_search_string(SearchTerm(current_deck=True))]
+            + self.mw.pm.profile["searchHistory"]
         )
-        self.search_for("is:current", self._searchPrompt)
-        # then replace text for easily showing the deck
+        self._onRowChanged(None, None)
         self.form.searchEdit.lineEdit().selectAll()
         self.form.searchEdit.setFocus()
 
@@ -629,15 +628,12 @@ class Browser(QMainWindow):
 
     def _onSearchActivated(self):
         # grab search text and normalize
-        prompt = self.form.searchEdit.lineEdit().text()
-
-        # convert guide text before we save history
-        txt = self._searchPromptFilter if prompt == self._searchPrompt else prompt
-        self.update_history(txt)
+        text = self.form.searchEdit.lineEdit().text()
+        self.update_history(text)
 
         # keep track of search string so that we reuse identical search when
         # refreshing, rather than whatever is currently in the search field
-        self.search_for(txt)
+        self.search_for(text)
 
     def update_history(self, search: str) -> None:
         sh = self.mw.pm.profile["searchHistory"]
@@ -649,25 +645,14 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
 
-    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
+    def search_for(self, search: str) -> None:
         self._lastSearchTxt = search
-        self.form.searchEdit.lineEdit().setText(prompt or search)
+        self.form.searchEdit.lineEdit().setText(search)
         self.search()
 
     # search triggered programmatically. caller must have saved note first.
     def search(self) -> None:
-        if "is:current" in self._lastSearchTxt:
-            # show current card if there is one
-            c = self.card = self.mw.reviewer.card
-            nid = c and c.nid or 0
-            if nid:
-                search = self.col.build_search_string(nid_search_term([nid]))
-                search = gui_hooks.default_search(search, c)
-                self.model.search(search)
-                self.focusCid(c.id)
-        else:
-            self.model.search(self._lastSearchTxt)
-
+        self.model.search(self._lastSearchTxt)
         if not self.model.cards:
             # no row change will fire
             self._onRowChanged(None, None)
@@ -687,6 +672,17 @@ class Browser(QMainWindow):
             )
         )
         return selected
+
+    def show_single_card(self, card: Optional[Card]) -> None:
+        nid = card and card.nid
+        if nid:
+            self.card = card
+            search = self.col.build_search_string(nid_search_term([nid]))
+            search = gui_hooks.default_search(search, card)
+            self.form.searchEdit.lineEdit().setText(search)
+            self.onSearchActivated()
+            self.form.tableView.clearSelection()
+            self.focusCid(card.id)
 
     def onReset(self):
         self.sidebar.refresh()
@@ -954,20 +950,19 @@ QTableView {{ gridline-color: {grid} }}
         ml.popupOver(self.form.filter)
 
     def update_search(self, *terms: Union[str, SearchTerm]):
-        "Modify the current search string based on modified keys, then refresh."
+        """Modify the current search string based on modified keys, then refresh."""
         try:
             search = self.col.build_search_string(*terms)
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
                 search = self.col.build_search_string(search, negate=True)
             cur = str(self.form.searchEdit.lineEdit().text())
-            if cur != self._searchPrompt:
-                if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                    search = self.col.replace_search_term(cur, search)
-                elif mods & Qt.ControlModifier:
-                    search = self.col.build_search_string(cur, search)
-                elif mods & Qt.ShiftModifier:
-                    search = self.col.build_search_string(cur, search, match_any=True)
+            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                search = self.col.replace_search_term(cur, search)
+            elif mods & Qt.ControlModifier:
+                search = self.col.build_search_string(cur, search)
+            elif mods & Qt.ShiftModifier:
+                search = self.col.build_search_string(cur, search, match_any=True)
         except InvalidInput as e:
             show_invalid_search_error(e)
         else:
@@ -1038,7 +1033,7 @@ QTableView {{ gridline-color: {grid} }}
 
         if self._currentFilterIsSaved():
             ml.addItem(tr(TR.BROWSING_REMOVE_CURRENT_FILTER), self._onRemoveFilter)
-        elif self._searchPrompt != self.form.searchEdit.lineEdit().text():
+        else:
             ml.addItem(tr(TR.BROWSING_SAVE_CURRENT_FILTER), self._onSaveFilter)
 
         return ml

@@ -1045,7 +1045,8 @@ title="%s" %s>%s</button>""" % (
         aqt.dialogs.open("AddCards", self)
 
     def onBrowse(self) -> None:
-        aqt.dialogs.open("Browser", self)
+        browser = aqt.dialogs.open("Browser", self)
+        browser.show_single_card(self.reviewer.card)
 
     def onEditCurrent(self):
         aqt.dialogs.open("EditCurrent", self)

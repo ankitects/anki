@@ -83,6 +83,7 @@ browsing-reposition = Reposition...
 browsing-reposition-new-cards = Reposition New Cards
 browsing-reschedule = Reschedule
 browsing-save-current-filter = Save Current Filter...
+browsing-search-bar-hint = Type here and press Enter to search. Leave empty to show whole collection.
 browsing-search-in = Search in:
 browsing-search-within-formatting-slow = Search within formatting (slow)
 browsing-shift-position-of-existing-cards = Shift position of existing cards
