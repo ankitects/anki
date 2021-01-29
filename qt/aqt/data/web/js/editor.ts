@@ -460,7 +460,6 @@ class EditingContainer extends HTMLDivElement {
     editingArea: EditingArea;
 
     baseStylesheet: CSSStyleSheet;
-    userStyle: HTMLStyleElement;
 
     connectedCallback(): void {
         this.className = "field";
@@ -497,11 +496,6 @@ class EditingContainer extends HTMLDivElement {
             0
         );
 
-        this.userStyle = this.editingShadow.appendChild(
-            document.createElement("style")
-        );
-        this.userStyle.setAttribute("rel", "stylesheet");
-
         this.editingArea = this.editingShadow.appendChild(
             document.createElement("editing-area")
         ) as EditingArea;
@@ -524,11 +518,6 @@ class EditingContainer extends HTMLDivElement {
         firstRule.style.fontFamily = fontFamily;
         firstRule.style.fontSize = fontSize;
         firstRule.style.direction = direction;
-    }
-
-    setUserStyling(css: HTMLStyleElement): void {
-        this.userStyle.parentNode.replaceChild(css, this.userStyle);
-        this.userStyle = css;
     }
 
     isRightToLeft(): boolean {
@@ -583,10 +572,6 @@ class EditorField extends HTMLDivElement {
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
         this.editingContainer.setBaseStyling(fontFamily, fontSize, direction);
-    }
-
-    setUserStyling(css: HTMLStyleElement): void {
-        this.editingContainer.setUserStyling(css);
     }
 }
 
@@ -645,16 +630,6 @@ function setBackgrounds(cols: ("dupe" | "")[]) {
 function setFonts(fonts: [string, number, boolean][]): void {
     forField(fonts, ([fontFamily, fontSize, isRtl], field) => {
         field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
-    });
-}
-
-function setUserStyling(css: string): void {
-    const userStyle = document.createElement("style");
-    userStyle.setAttribute("rel", "stylesheet");
-    userStyle.innerHTML = css;
-
-    forField([], (_, field) => {
-        field.setUserStyling(userStyle.cloneNode(true) as HTMLStyleElement);
     });
 }
 
