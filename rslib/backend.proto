@@ -214,13 +214,15 @@ service BackendService {
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
 
-  // config/preferences
+  // config
 
   rpc GetConfigJson(String) returns (Json);
   rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
   rpc RemoveConfig(String) returns (Empty);
-  rpc SetAllConfig(Json) returns (Empty);
   rpc GetAllConfig(Empty) returns (Json);
+
+  // preferences
+
   rpc GetPreferences(Empty) returns (Preferences);
   rpc SetPreferences(Preferences) returns (Empty);
 }

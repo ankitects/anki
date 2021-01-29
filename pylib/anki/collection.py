@@ -25,7 +25,15 @@ from anki.errors import AnkiError
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, FormatTimeSpanContext, Progress, RustBackend, pb
+from anki.rsbackend import (
+    TR,
+    DBError,
+    FormatTimeSpanContext,
+    Progress,
+    RustBackend,
+    from_json_bytes,
+    pb,
+)
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -483,6 +491,10 @@ class Collection:
     def remove_config(self, key):
         self.setMod()
         self.conf.remove(key)
+
+    def all_config(self) -> Dict[str, Any]:
+        "This is a debugging aid. Prefer .get_config() when you know the key you need."
+        return from_json_bytes(self.backend.get_all_config())
 
     # Stats
     ##########################################################################
