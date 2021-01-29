@@ -434,10 +434,6 @@ class EditingArea extends HTMLElement {
         this.setAttribute("contenteditable", "true");
     }
 
-    initialize(index: number): void {
-        this.className = `editor-field-${index}`;
-    }
-
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -496,14 +492,12 @@ class EditingContainer extends HTMLDivElement {
             0
         );
 
-        this.editingArea = this.editingShadow.appendChild(
-            document.createElement("editing-area")
-        ) as EditingArea;
+        this.editingArea = document.createElement("editing-area") as EditingArea;
+        this.editingArea.id = `editor-field-${this.id.match(/\d+$/)[0]}`;
+        this.editingShadow.appendChild(this.editingArea);
     }
 
-    initialize(index: number, color: string, content: string): void {
-        this.id = `f${index}`;
-        this.editingArea.initialize(index);
+    initialize(color: string, content: string): void {
         this.setBaseColor(color);
         this.editingArea.fieldHTML = content;
     }
@@ -553,21 +547,25 @@ class EditorField extends HTMLDivElement {
     editingContainer: EditingContainer;
 
     connectedCallback(): void {
+        const index = Array.prototype.indexOf.call(this.parentNode.children, this);
+
         this.labelContainer = this.appendChild(document.createElement("div"));
         this.labelContainer.className = "fname";
+        this.labelContainer.id = `name${index}`;
 
         this.label = this.labelContainer.appendChild(document.createElement("span"));
         this.label.className = "fieldname";
 
-        this.editingContainer = this.appendChild(
-            document.createElement("div", { is: "editing-container" })
-        ) as EditingContainer;
+        this.editingContainer = document.createElement("div", {
+            is: "editing-container",
+        }) as EditingContainer;
+        this.editingContainer.id = `f${index}`;
+        this.appendChild(this.editingContainer);
     }
 
-    initialize(index: number, label: string, color: string, content: string): void {
-        this.labelContainer.id = `name${index}`;
+    initialize(label: string, color: string, content: string): void {
         this.label.innerText = label;
-        this.editingContainer.initialize(index, color, content);
+        this.editingContainer.initialize(color, content);
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
@@ -611,8 +609,8 @@ function setFields(fields: [string, string][]): void {
         .getPropertyValue("--text-fg");
 
     adjustFieldAmount(fields.length);
-    forField(fields, ([name, fieldContent], field, index) =>
-        field.initialize(index, name, color, fieldContent)
+    forField(fields, ([name, fieldContent], field) =>
+        field.initialize(name, color, fieldContent)
     );
 
     maybeDisableButtons();
