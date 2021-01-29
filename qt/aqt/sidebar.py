@@ -66,6 +66,7 @@ class SidebarItem:
         self.children: List["SidebarItem"] = []
         self.parentItem: Optional["SidebarItem"] = None
         self.tooltip: Optional[str] = None
+        self.row_in_parent: Optional[int] = None
 
     def addChild(self, cb: "SidebarItem") -> None:
         self.children.append(cb)
@@ -82,6 +83,16 @@ class SidebarModel(QAbstractItemModel):
     def __init__(self, root: SidebarItem) -> None:
         super().__init__()
         self.root = root
+        self._cache_rows(root)
+
+    def _cache_rows(self, node: SidebarItem):
+        "Cache index of children in parent."
+        for row, item in enumerate(node.children):
+            item.row_in_parent = row
+            self._cache_rows(item)
+
+    def item_for_index(self, idx: QModelIndex) -> SidebarItem:
+        return idx.internalPointer()
 
     # Qt API
     ######################################################################
@@ -121,9 +132,7 @@ class SidebarModel(QAbstractItemModel):
         if parentItem is None or parentItem == self.root:
             return QModelIndex()
 
-        row = parentItem.rowForChild(childItem)
-        if row is None:
-            return QModelIndex()
+        row = parentItem.row_in_parent
 
         return self.createIndex(row, 0, parentItem)
 
@@ -131,7 +140,7 @@ class SidebarModel(QAbstractItemModel):
         if not index.isValid():
             return QVariant()
 
-        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole):
+        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole, Qt.EditRole):
             return QVariant()
 
         item: SidebarItem = index.internalPointer()
@@ -140,6 +149,8 @@ class SidebarModel(QAbstractItemModel):
             return QVariant(item.name)
         elif role == Qt.ToolTipRole:
             return QVariant(item.tooltip)
+        elif role == Qt.EditRole:
+            return QVariant(item.full_name)
         else:
             return QVariant(theme_manager.icon_from_resources(item.icon))
 
@@ -150,32 +161,50 @@ class SidebarModel(QAbstractItemModel):
         print("iconFromRef() deprecated")
         return theme_manager.icon_from_resources(iconRef)
 
-    def expandWhereNeccessary(self, tree: QTreeView) -> None:
-        for row, child in enumerate(self.root.children):
-            if child.expanded:
-                idx = self.index(row, 0, QModelIndex())
-                self._expandWhereNeccessary(idx, tree)
 
-    def _expandWhereNeccessary(self, parent: QModelIndex, tree: QTreeView) -> None:
-        parentItem: SidebarItem
-        if not parent.isValid():
-            parentItem = self.root
+def expand_where_necessary(model: SidebarModel, tree: QTreeView, parent=None) -> None:
+    parent = parent or QModelIndex()
+    for row in range(model.rowCount(parent)):
+        idx = model.index(row, 0, parent)
+        if not idx.isValid():
+            continue
+        expand_where_necessary(model, tree, idx)
+        item = model.item_for_index(idx)
+        if item and item.expanded:
+            tree.setExpanded(idx, True)
+
+
+class FilterModel(QSortFilterProxyModel):
+    def item_for_index(self, idx: QModelIndex) -> Optional[SidebarItem]:
+        if not idx.isValid():
+            return None
+        return self.mapToSource(idx).internalPointer()
+
+
+class SidebarSearchBar(QLineEdit):
+    def __init__(self, sidebar: SidebarTreeView):
+        QLineEdit.__init__(self, sidebar)
+        self.sidebar = sidebar
+        self.timer = QTimer(self)
+        self.timer.setInterval(600)
+        self.timer.setSingleShot(True)
+        qconnect(self.timer.timeout, self.onSearch)
+        qconnect(self.textChanged, self.onTextChanged)
+
+    def onTextChanged(self, text: str):
+        if not self.timer.isActive():
+            self.timer.start()
+
+    def onSearch(self):
+        self.sidebar.search_for(self.text())
+
+    def keyPressEvent(self, evt):
+        if evt.key() in (Qt.Key_Up, Qt.Key_Down):
+            self.sidebar.setFocus()
+        elif evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+            self.onSearch()
         else:
-            parentItem = parent.internalPointer()
-
-        # nothing to do?
-        if not parentItem.expanded:
-            return
-
-        # expand children
-        for row, child in enumerate(parentItem.children):
-            if not child.expanded:
-                continue
-            childIdx = self.index(row, 0, parent)
-            self._expandWhereNeccessary(childIdx, tree)
-
-        # then ourselves
-        tree.setExpanded(parent, True)
+            QLineEdit.keyPressEvent(self, evt)
 
 
 class SidebarTreeView(QTreeView):
@@ -184,6 +213,7 @@ class SidebarTreeView(QTreeView):
         self.browser = browser
         self.mw = browser.mw
         self.col = self.mw.col
+        self.current_search: Optional[str] = None
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -214,6 +244,9 @@ class SidebarTreeView(QTreeView):
         bgcolor = QPalette().window().color().name()
         self.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
 
+    def model(self) -> Union[FilterModel, SidebarModel]:
+        return super().model()
+
     def refresh(self) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
@@ -222,15 +255,57 @@ class SidebarTreeView(QTreeView):
         def on_done(fut: Future):
             root = fut.result()
             model = SidebarModel(root)
+
+            # from PyQt5.QtTest import QAbstractItemModelTester
+            # tester = QAbstractItemModelTester(model)
+
             self.setModel(model)
-            model.expandWhereNeccessary(self)
+            if self.current_search:
+                self.search_for(self.current_search)
+            else:
+                expand_where_necessary(model, self)
 
         self.mw.taskman.run_in_background(self._root_tree, on_done)
 
+    def search_for(self, text: str):
+        if not text.strip():
+            self.current_search = None
+            self.refresh()
+            return
+        if not isinstance(self.model(), FilterModel):
+            filter_model = FilterModel(self)
+            filter_model.setSourceModel(self.model())
+            filter_model.setFilterCaseSensitivity(False)  # type: ignore
+            filter_model.setRecursiveFilteringEnabled(True)
+            filter_model.setFilterRole(Qt.EditRole)
+            self.setModel(filter_model)
+        else:
+            filter_model = self.model()
+
+        self.current_search = text
+        # Without collapsing first, can be very slow. Surely there's
+        # a better way than this?
+        self.collapseAll()
+        filter_model.setFilterFixedString(text)
+        self.expandAll()
+
+    def drawRow(
+        self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex
+    ):
+        if self.current_search is None:
+            return super().drawRow(painter, options, idx)
+        if not (item := self.model().item_for_index(idx)):
+            return super().drawRow(painter, options, idx)
+        if self.current_search.lower() in item.full_name.lower():
+            brush = QBrush(QColor("lightyellow"))
+            painter.save()
+            painter.fillRect(options.rect, brush)
+            painter.restore()
+        return super().drawRow(painter, options, idx)
+
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
-        if idx.isValid():
-            item: "aqt.browser.SidebarItem" = idx.internalPointer()
+        if item := self.model().item_for_index(idx):
             if item.onClick:
                 item.onClick()
 
@@ -246,14 +321,18 @@ class SidebarTreeView(QTreeView):
             super().keyPressEvent(event)
 
     def onExpansion(self, idx: QModelIndex) -> None:
+        if self.current_search:
+            return
         self._onExpansionChange(idx, True)
 
     def onCollapse(self, idx: QModelIndex) -> None:
+        if self.current_search:
+            return
         self._onExpansionChange(idx, False)
 
     def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
-        item: "aqt.browser.SidebarItem" = idx.internalPointer()
-        if item.expanded != expanded:
+        item = self.model().item_for_index(idx)
+        if item and item.expanded != expanded:
             item.expanded = expanded
             if item.onExpanded:
                 item.onExpanded(expanded)
@@ -359,6 +438,7 @@ class SidebarTreeView(QTreeView):
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,
+                    full_name=head + node.name,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"
@@ -384,6 +464,7 @@ class SidebarTreeView(QTreeView):
                     ":/icons/notetype.svg",
                     self._template_filter(nt["name"], c),
                     item_type=SidebarItemType.TEMPLATE,
+                    full_name=nt["name"] + "::" + tmpl["name"],
                 )
                 item.addChild(child)
 
@@ -423,7 +504,7 @@ class SidebarTreeView(QTreeView):
 
     def onContextMenu(self, point: QPoint) -> None:
         idx: QModelIndex = self.indexAt(point)
-        item: "aqt.browser.SidebarItem" = idx.internalPointer()
+        item = self.model().item_for_index(idx)
         if not item:
             return
         item_type: SidebarItemType = item.item_type
@@ -450,7 +531,7 @@ class SidebarTreeView(QTreeView):
             self.mw.col.decks.rename(deck, new_name)
         except DeckRenameError as e:
             return showWarning(e.description)
-        self.browser.maybeRefreshSidebar()
+        self.refresh()
         self.mw.deckBrowser.refresh()
 
     def remove_tag(self, item: "aqt.browser.SidebarItem") -> None:
@@ -467,7 +548,7 @@ class SidebarTreeView(QTreeView):
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
             self.browser.model.endReset()
             fut.result()
-            self.browser.maybeRefreshSidebar()
+            self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
         self.browser.model.beginReset()
@@ -495,7 +576,7 @@ class SidebarTreeView(QTreeView):
                 showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
                 return
 
-            self.browser.maybeRefreshSidebar()
+            self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
@@ -515,7 +596,7 @@ class SidebarTreeView(QTreeView):
                 self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
                 self.browser.search()
                 self.browser.model.endReset()
-                self.browser.maybeRefreshSidebar()
+                self.refresh()
                 res = fut.result()  # Required to check for errors
 
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
