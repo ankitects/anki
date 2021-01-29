@@ -7,6 +7,7 @@ import time
 from typing import Any, Callable, Optional, Union
 
 from anki.cards import Card
+from anki.collection import ConfigBoolKey
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
     QAbstractItemView,
@@ -87,7 +88,9 @@ class Previewer(QDialog):
         both_sides_button.setShortcut(QKeySequence("B"))
         both_sides_button.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="B"))
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
-        self._show_both_sides = self.mw.col.conf.get("previewBothSides", False)
+        self._show_both_sides = self.mw.col.get_config_bool(
+            ConfigBoolKey.PREVIEW_BOTH_SIDES
+        )
         both_sides_button.setChecked(self._show_both_sides)
         qconnect(both_sides_button.toggled, self._on_show_both_sides)
 
@@ -213,7 +216,7 @@ class Previewer(QDialog):
 
     def _on_show_both_sides(self, toggle):
         self._show_both_sides = toggle
-        self.mw.col.conf["previewBothSides"] = toggle
+        self.mw.col.set_config_bool(ConfigBoolKey.PREVIEW_BOTH_SIDES, toggle)
         self.mw.col.setMod()
         if self._state == "answer" and not toggle:
             self._state = "question"

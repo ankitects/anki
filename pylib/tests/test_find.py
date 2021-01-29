@@ -1,6 +1,7 @@
 # coding: utf-8
 import pytest
 
+from anki.collection import ConfigBoolKey
 from anki.consts import *
 from anki.rsbackend import BuiltinSortKind
 from tests.shared import getEmptyCol, isNearCutoff
@@ -121,7 +122,7 @@ def test_findCards():
     col.flush()
     assert col.findCards("", order=True)[-1] in latestCardIds
     assert col.findCards("", order=True)[0] == firstCardId
-    col.conf["sortBackwards"] = True
+    col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, True)
     col.flush()
     assert col.findCards("", order=True)[0] in latestCardIds
     assert (

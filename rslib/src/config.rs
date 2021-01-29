@@ -2,9 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
+    backend_proto as pb, collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
     timestamp::TimestampSecs,
 };
+use pb::config_bool::Key as BoolKey;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
@@ -52,6 +53,7 @@ pub(crate) enum ConfigKey {
     NewReviewMix,
     NextNewCardPosition,
     NormalizeNoteText,
+    PreviewBothSides,
     Rollover,
     SchedulerVersion,
     ShowDayLearningCardsFirst,
@@ -83,11 +85,21 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::NewReviewMix => "newSpread",
             ConfigKey::NextNewCardPosition => "nextPos",
             ConfigKey::NormalizeNoteText => "normalize_note_text",
+            ConfigKey::PreviewBothSides => "previewBothSides",
             ConfigKey::Rollover => "rollover",
             ConfigKey::SchedulerVersion => "schedVer",
             ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
             ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
             ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
+        }
+    }
+}
+
+impl From<BoolKey> for ConfigKey {
+    fn from(key: BoolKey) -> Self {
+        match key {
+            BoolKey::BrowserSortBackwards => ConfigKey::BrowserSortReverse,
+            BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,
         }
     }
 }
@@ -309,6 +321,18 @@ impl Collection {
 
     pub(crate) fn set_last_unburied_day(&self, day: u32) -> Result<()> {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
+    }
+
+    #[allow(clippy::match_single_binding)]
+    pub(crate) fn get_bool(&self, config: pb::ConfigBool) -> bool {
+        match config.key() {
+            // all options default to false at the moment
+            other => self.get_config_default(ConfigKey::from(other)),
+        }
+    }
+
+    pub(crate) fn set_bool(&self, input: pb::SetConfigBoolIn) -> Result<()> {
+        self.set_config(ConfigKey::from(input.key()), &input.value)
     }
 }
 
