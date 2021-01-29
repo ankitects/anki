@@ -259,14 +259,17 @@ class SidebarTreeView(QTreeView):
             # from PyQt5.QtTest import QAbstractItemModelTester
             # tester = QAbstractItemModelTester(model)
 
-            self.current_search = None
             self.setModel(model)
-            expand_where_necessary(model, self)
+            if self.current_search:
+                self.search_for(self.current_search)
+            else:
+                expand_where_necessary(model, self)
 
         self.mw.taskman.run_in_background(self._root_tree, on_done)
 
     def search_for(self, text: str):
         if not text.strip():
+            self.current_search = None
             self.refresh()
             return
         if not isinstance(self.model(), FilterModel):
@@ -528,7 +531,7 @@ class SidebarTreeView(QTreeView):
             self.mw.col.decks.rename(deck, new_name)
         except DeckRenameError as e:
             return showWarning(e.description)
-        self.browser.maybeRefreshSidebar()
+        self.refresh()
         self.mw.deckBrowser.refresh()
 
     def remove_tag(self, item: "aqt.browser.SidebarItem") -> None:
@@ -545,7 +548,7 @@ class SidebarTreeView(QTreeView):
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
             self.browser.model.endReset()
             fut.result()
-            self.browser.maybeRefreshSidebar()
+            self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
         self.browser.model.beginReset()
@@ -573,7 +576,7 @@ class SidebarTreeView(QTreeView):
                 showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
                 return
 
-            self.browser.maybeRefreshSidebar()
+            self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
@@ -593,7 +596,7 @@ class SidebarTreeView(QTreeView):
                 self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
                 self.browser.search()
                 self.browser.model.endReset()
-                self.browser.maybeRefreshSidebar()
+                self.refresh()
                 res = fut.result()  # Required to check for errors
 
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
