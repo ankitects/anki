@@ -353,9 +353,7 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
 
-    pycmd(
-        `${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`
-    );
+    pycmd(`${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`);
 }
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
@@ -459,18 +457,18 @@ class EditingContainer extends HTMLDivElement {
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");
         rootStyle.setAttribute("href", "./_anki/css/editing-area.css");
-        this.shadowRoot.appendChild(rootStyle)
+        this.shadowRoot.appendChild(rootStyle);
 
         this.baseStyle = document.createElement("style");
         this.baseStyle.setAttribute("rel", "stylesheet");
-        this.shadowRoot.appendChild(this.baseStyle)
+        this.shadowRoot.appendChild(this.baseStyle);
 
         this.editingArea = document.createElement("editing-area") as EditingArea;
         this.shadowRoot.appendChild(this.editingArea);
     }
 
     static get observedAttributes(): string[] {
-        return ['ord'];
+        return ["ord"];
     }
 
     get ord(): number {
@@ -557,7 +555,7 @@ class EditorField extends HTMLDivElement {
         super();
         this.labelContainer = document.createElement("div");
         this.labelContainer.className = "fname";
-        this.appendChild(this.labelContainer)
+        this.appendChild(this.labelContainer);
 
         this.label = document.createElement("span");
         this.label.className = "fieldname";
@@ -570,7 +568,7 @@ class EditorField extends HTMLDivElement {
     }
 
     static get observedAttributes(): string[] {
-        return ['ord'];
+        return ["ord"];
     }
 
     attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
@@ -600,7 +598,9 @@ function adjustFieldAmount(amount: number): void {
     const fieldsContainer = document.getElementById("fields");
 
     while (fieldsContainer.childElementCount < amount) {
-        const newField = document.createElement("div", { is: "editor-field" }) as EditorField;
+        const newField = document.createElement("div", {
+            is: "editor-field",
+        }) as EditorField;
         newField.ord = fieldsContainer.childElementCount;
         fieldsContainer.appendChild(newField);
     }
@@ -610,15 +610,14 @@ function adjustFieldAmount(amount: number): void {
     }
 }
 
-function forField<T>(
+function forEditorField<T>(
     values: T[],
-    func: (value: T, field: EditorField, index: number) => void
+    func: (field: EditorField, value: T) => void
 ): void {
-    const fieldContainer = document.getElementById("fields");
-    const fields = [...fieldContainer.children] as EditorField[];
-
-    for (const [index, field] of fields.entries()) {
-        func(values[index], field, index);
+    const fields = document.getElementById("fields").children;
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i] as EditorField;
+        func(field, values[i]);
     }
 }
 
@@ -630,7 +629,7 @@ function setFields(fields: [string, string][]): void {
         .getPropertyValue("--text-fg");
 
     adjustFieldAmount(fields.length);
-    forField(fields, ([name, fieldContent], field) =>
+    forEditorField(fields, (field, [name, fieldContent]) =>
         field.initialize(name, color, fieldContent)
     );
 
@@ -638,7 +637,7 @@ function setFields(fields: [string, string][]): void {
 }
 
 function setBackgrounds(cols: ("dupe" | "")[]) {
-    forField(cols, (value, field) =>
+    forEditorField(cols, (field, value) =>
         field.editingContainer.classList.toggle("dupe", value === "dupe")
     );
     document
@@ -647,7 +646,7 @@ function setBackgrounds(cols: ("dupe" | "")[]) {
 }
 
 function setFonts(fonts: [string, number, boolean][]): void {
-    forField(fonts, ([fontFamily, fontSize, isRtl], field) => {
+    forEditorField(fonts, (field, [fontFamily, fontSize, isRtl]) => {
         field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
     });
 }
