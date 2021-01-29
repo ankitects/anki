@@ -504,7 +504,7 @@ class Editor:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s);" % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
