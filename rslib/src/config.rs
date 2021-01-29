@@ -12,6 +12,10 @@ use serde_json::json;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 
+/// These items are expected to exist in schema 11. When adding
+/// new config variables, you do not need to add them here -
+/// just create an accessor function below with an appropriate
+/// default on missing/invalid values instead.
 pub(crate) fn schema11_config_as_string() -> String {
     let obj = json!({
         "activeDecks": [1],
@@ -33,26 +37,26 @@ pub(crate) fn schema11_config_as_string() -> String {
 }
 
 pub(crate) enum ConfigKey {
+    AnswerTimeLimitSecs,
     BrowserSortKind,
     BrowserSortReverse,
-    CurrentDeckID,
-    CreationOffset,
-    Rollover,
-    LocalOffset,
-    CurrentNoteTypeID,
-    NextNewCardPosition,
-    SchedulerVersion,
-    LearnAheadSecs,
-    NormalizeNoteText,
-    ShowRemainingDueCountsInStudy,
-    ShowIntervalsAboveAnswerButtons,
-    NewReviewMix,
-    FirstDayOfWeek,
     CardCountsSeparateInactive,
+    CreationOffset,
+    CurrentDeckID,
+    CurrentNoteTypeID,
+    FirstDayOfWeek,
     FutureDueShowBacklog,
-    AnswerTimeLimitSecs,
-    ShowDayLearningCardsFirst,
     LastUnburiedDay,
+    LearnAheadSecs,
+    LocalOffset,
+    NewReviewMix,
+    NextNewCardPosition,
+    NormalizeNoteText,
+    Rollover,
+    SchedulerVersion,
+    ShowDayLearningCardsFirst,
+    ShowIntervalsAboveAnswerButtons,
+    ShowRemainingDueCountsInStudy,
 }
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
@@ -64,30 +68,32 @@ pub(crate) enum SchedulerVersion {
 impl From<ConfigKey> for &'static str {
     fn from(c: ConfigKey) -> Self {
         match c {
+            ConfigKey::AnswerTimeLimitSecs => "timeLim",
             ConfigKey::BrowserSortKind => "sortType",
             ConfigKey::BrowserSortReverse => "sortBackwards",
-            ConfigKey::CurrentDeckID => "curDeck",
-            ConfigKey::CreationOffset => "creationOffset",
-            ConfigKey::Rollover => "rollover",
-            ConfigKey::LocalOffset => "localOffset",
-            ConfigKey::CurrentNoteTypeID => "curModel",
-            ConfigKey::NextNewCardPosition => "nextPos",
-            ConfigKey::SchedulerVersion => "schedVer",
-            ConfigKey::LearnAheadSecs => "collapseTime",
-            ConfigKey::NormalizeNoteText => "normalize_note_text",
-            ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
-            ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
-            ConfigKey::NewReviewMix => "newSpread",
-            ConfigKey::FirstDayOfWeek => "firstDayOfWeek",
             ConfigKey::CardCountsSeparateInactive => "cardCountsSeparateInactive",
+            ConfigKey::CreationOffset => "creationOffset",
+            ConfigKey::CurrentDeckID => "curDeck",
+            ConfigKey::CurrentNoteTypeID => "curModel",
+            ConfigKey::FirstDayOfWeek => "firstDayOfWeek",
             ConfigKey::FutureDueShowBacklog => "futureDueShowBacklog",
-            ConfigKey::AnswerTimeLimitSecs => "timeLim",
-            ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
             ConfigKey::LastUnburiedDay => "lastUnburied",
+            ConfigKey::LearnAheadSecs => "collapseTime",
+            ConfigKey::LocalOffset => "localOffset",
+            ConfigKey::NewReviewMix => "newSpread",
+            ConfigKey::NextNewCardPosition => "nextPos",
+            ConfigKey::NormalizeNoteText => "normalize_note_text",
+            ConfigKey::Rollover => "rollover",
+            ConfigKey::SchedulerVersion => "schedVer",
+            ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
+            ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
+            ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
         }
     }
 }
 
+/// This is a workaround for old clients that used ints to represent boolean
+/// values. For new config items, prefer using a bool directly.
 #[derive(Deserialize, Default)]
 struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bool);
 
