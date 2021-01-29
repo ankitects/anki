@@ -424,10 +424,6 @@ function onCutOrCopy(): boolean {
 }
 
 class EditingArea extends HTMLElement {
-    connectedCallback() {
-        this.setAttribute("contenteditable", "");
-    }
-
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -440,6 +436,10 @@ class EditingArea extends HTMLElement {
         return containsInlineContent(this) && this.innerHTML.endsWith("<br>")
             ? this.innerHTML.slice(0, -4) // trim trailing <br>
             : this.innerHTML;
+    }
+
+    connectedCallback() {
+        this.setAttribute("contenteditable", "");
     }
 }
 
@@ -469,6 +469,14 @@ class EditingContainer extends HTMLDivElement {
 
     get ord(): number {
         return Number(this.getAttribute("ord"));
+    }
+
+    set fieldHTML(content: string) {
+        this.editingArea.fieldHTML = content;
+    }
+
+    get fieldHTML(): string {
+        return this.editingArea.fieldHTML;
     }
 
     connectedCallback(): void {
@@ -530,14 +538,6 @@ class EditingContainer extends HTMLDivElement {
     blurEditingArea(): void {
         this.editingArea.blur();
     }
-
-    set fieldHTML(content: string) {
-        this.editingArea.fieldHTML = content;
-    }
-
-    get fieldHTML(): string {
-        return this.editingArea.fieldHTML;
-    }
 }
 
 customElements.define("editing-container", EditingContainer, { extends: "div" });
@@ -567,15 +567,15 @@ class EditorField extends HTMLDivElement {
         return ["ord"];
     }
 
+    set ord(n: number) {
+        this.setAttribute("ord", String(n));
+    }
+
     attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
         switch (name) {
             case "ord":
                 this.editingContainer.setAttribute("ord", newValue);
         }
-    }
-
-    set ord(n: number) {
-        this.setAttribute("ord", String(n));
     }
 
     initialize(label: string, color: string, content: string): void {
