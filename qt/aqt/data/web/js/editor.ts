@@ -505,15 +505,7 @@ class EditingContainer extends HTMLDivElement {
         this.addEventListener("oncut", onCutOrCopy);
 
         const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        baseStyleSheet.insertRule(
-            `editing-area {
-            font-family: initial;
-            font-size: initial;
-            direction: initial;
-            color: initial;
-        }`,
-            0
-        );
+        baseStyleSheet.insertRule("editing-area {}", 0);
     }
 
     disconnectedCallback(): void {
