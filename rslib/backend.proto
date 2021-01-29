@@ -1193,6 +1193,11 @@ message ConfigBool {
   enum Key {
     BROWSER_SORT_BACKWARDS = 0;
     PREVIEW_BOTH_SIDES = 1;
+    COLLAPSE_TAGS = 2;
+    COLLAPSE_NOTETYPES = 3;
+    COLLAPSE_DECKS = 4;
+    COLLAPSE_FAVORITES = 5;
+    COLLAPSE_COMMON = 6;
   }
   Key key = 1;
 }

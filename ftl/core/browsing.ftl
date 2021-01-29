@@ -87,6 +87,7 @@ browsing-search-in = Search in:
 browsing-search-within-formatting-slow = Search within formatting (slow)
 browsing-shift-position-of-existing-cards = Shift position of existing cards
 browsing-sidebar = Sidebar
+browsing-sidebar-filter = Sidebar filter
 browsing-sort-field = Sort Field
 browsing-sorting-on-this-column-is-not = Sorting on this column is not supported. Please choose another.
 browsing-start-position = Start position:
@@ -119,3 +120,8 @@ browsing-note-deleted =
        *[other] { $count } notes deleted.
     }
 browsing-window-title = Browse ({ $selected } of { $total } cards selected)
+browsing-sidebar-decks = Decks
+browsing-sidebar-tags = Tags
+browsing-sidebar-notetypes = Note Types
+browsing-sidebar-saved-searches = Saved Searches
+browsing-sidebar-save-current-search = Save Current Search

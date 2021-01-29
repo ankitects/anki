@@ -6,9 +6,10 @@ from __future__ import annotations
 
 from concurrent.futures import Future
 from enum import Enum
-from typing import Iterable, List, Optional
+from typing import TYPE_CHECKING, Iterable, List, Optional
 
 import aqt
+from anki.collection import ConfigBoolKey
 from anki.errors import DeckRenameError
 from anki.rsbackend import DeckTreeNode, FilterToSearchIn, NamedFilter, TagTreeNode
 from aqt import gui_hooks
@@ -18,17 +19,21 @@ from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import TR, getOnlyText, showInfo, showWarning, tr
 
+if TYPE_CHECKING:
+    from anki.collection import ConfigBoolKeyValue, TRValue
+
 
 class SidebarItemType(Enum):
     ROOT = 0
     COLLECTION = 1
     CURRENT_DECK = 2
-    FILTER = 3
+    SAVED_SEARCH = 3
     DECK = 4
     NOTETYPE = 5
     TAG = 6
     CUSTOM = 7
     TEMPLATE = 8
+    SAVED_SEARCH_ROOT = 9
 
 
 #  used by an add-on hook
@@ -182,6 +187,7 @@ class FilterModel(QSortFilterProxyModel):
 class SidebarSearchBar(QLineEdit):
     def __init__(self, sidebar: SidebarTreeView):
         QLineEdit.__init__(self, sidebar)
+        self.setPlaceholderText(sidebar.col.tr(TR.BROWSING_SIDEBAR_FILTER))
         self.sidebar = sidebar
         self.timer = QTimer(self)
         self.timer.setInterval(600)
@@ -224,11 +230,14 @@ class SidebarTreeView(QTreeView):
                 (tr(TR.ACTIONS_RENAME), self.rename_tag),
                 (tr(TR.ACTIONS_DELETE), self.remove_tag),
             ),
-            SidebarItemType.FILTER: (
+            SidebarItemType.SAVED_SEARCH: (
                 (tr(TR.ACTIONS_RENAME), self.rename_filter),
                 (tr(TR.ACTIONS_DELETE), self.remove_filter),
             ),
             SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
+            SidebarItemType.SAVED_SEARCH_ROOT: (
+                (tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search),
+            ),
         }
 
         self.setUniformRowHeights(True)
@@ -350,7 +359,7 @@ class SidebarTreeView(QTreeView):
             list(SidebarStage)[1:],
             (
                 self._commonly_used_tree,
-                self._favorites_tree,
+                self._saved_searches_tree,
                 self._deck_tree,
                 self._notetype_tree,
                 self._tag_tree,
@@ -361,6 +370,29 @@ class SidebarTreeView(QTreeView):
                 builder(root)
 
         return root
+
+    def _section_root(
+        self,
+        *,
+        root: SidebarItem,
+        name: TRValue,
+        icon: str,
+        collapse_key: ConfigBoolKeyValue,
+        type: Optional[SidebarItemType] = None,
+    ) -> SidebarItem:
+        def update(expanded: bool):
+            self.col.set_config_bool(collapse_key, not expanded)
+
+        top = SidebarItem(
+            self.col.tr(name),
+            icon,
+            onExpanded=update,
+            expanded=not self.col.get_config_bool(collapse_key),
+            item_type=type,
+        )
+        root.addChild(top)
+
+        return top
 
     def _commonly_used_tree(self, root: SidebarItem) -> None:
         item = SidebarItem(
@@ -378,20 +410,34 @@ class SidebarTreeView(QTreeView):
         )
         root.addChild(item)
 
-    def _favorites_tree(self, root: SidebarItem) -> None:
-        assert self.col
+    def _saved_searches_tree(self, root: SidebarItem) -> None:
+        icon = ":/icons/heart.svg"
         saved = self.col.get_config("savedFilters", {})
+
+        root = self._section_root(
+            root=root,
+            name=TR.BROWSING_SIDEBAR_SAVED_SEARCHES,
+            icon=icon,
+            collapse_key=ConfigBoolKey.COLLAPSE_FAVORITES,
+            type=SidebarItemType.SAVED_SEARCH_ROOT,
+        )
+
+        def on_click():
+            self.show_context_menu(root)
+
+        root.onClick = on_click
+
         for name, filt in sorted(saved.items()):
             item = SidebarItem(
                 name,
-                ":/icons/heart.svg",
+                icon,
                 self._saved_filter(filt),
-                item_type=SidebarItemType.FILTER,
+                item_type=SidebarItemType.SAVED_SEARCH,
             )
             root.addChild(item)
 
     def _tag_tree(self, root: SidebarItem) -> None:
-        tree = self.col.backend.tag_tree()
+        icon = ":/icons/tag.svg"
 
         def render(root: SidebarItem, nodes: Iterable[TagTreeNode], head="") -> None:
             for node in nodes:
@@ -404,7 +450,7 @@ class SidebarTreeView(QTreeView):
 
                 item = SidebarItem(
                     node.name,
-                    ":/icons/tag.svg",
+                    icon,
                     self._tag_filter(head + node.name),
                     toggle_expand(),
                     not node.collapsed,
@@ -415,10 +461,17 @@ class SidebarTreeView(QTreeView):
                 newhead = head + node.name + "::"
                 render(item, node.children, newhead)
 
+        tree = self.col.backend.tag_tree()
+        root = self._section_root(
+            root=root,
+            name=TR.BROWSING_SIDEBAR_TAGS,
+            icon=icon,
+            collapse_key=ConfigBoolKey.COLLAPSE_TAGS,
+        )
         render(root, tree.children)
 
     def _deck_tree(self, root: SidebarItem) -> None:
-        tree = self.col.decks.deck_tree()
+        icon = ":/icons/deck.svg"
 
         def render(root, nodes: Iterable[DeckTreeNode], head="") -> None:
             for node in nodes:
@@ -429,7 +482,7 @@ class SidebarTreeView(QTreeView):
 
                 item = SidebarItem(
                     node.name,
-                    ":/icons/deck.svg",
+                    icon,
                     self._deck_filter(head + node.name),
                     toggle_expand(),
                     not node.collapsed,
@@ -441,16 +494,29 @@ class SidebarTreeView(QTreeView):
                 newhead = head + node.name + "::"
                 render(item, node.children, newhead)
 
+        tree = self.col.decks.deck_tree()
+        root = self._section_root(
+            root=root,
+            name=TR.BROWSING_SIDEBAR_DECKS,
+            icon=icon,
+            collapse_key=ConfigBoolKey.COLLAPSE_DECKS,
+        )
         render(root, tree.children)
 
     def _notetype_tree(self, root: SidebarItem) -> None:
-        assert self.col
+        icon = ":/icons/notetype.svg"
+        root = self._section_root(
+            root=root,
+            name=TR.BROWSING_SIDEBAR_NOTETYPES,
+            icon=icon,
+            collapse_key=ConfigBoolKey.COLLAPSE_NOTETYPES,
+        )
 
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
             item = SidebarItem(
                 nt["name"],
-                ":/icons/notetype.svg",
-                self._note_filter(nt["name"]),
+                icon=icon,
+                onClick=self._note_filter(nt["name"]),
                 item_type=SidebarItemType.NOTETYPE,
                 id=nt["id"],
             )
@@ -458,8 +524,8 @@ class SidebarTreeView(QTreeView):
             for c, tmpl in enumerate(nt["tmpls"]):
                 child = SidebarItem(
                     tmpl["name"],
-                    ":/icons/notetype.svg",
-                    self._template_filter(nt["name"], c),
+                    icon,
+                    onClick=self._template_filter(nt["name"], c),
                     item_type=SidebarItemType.TEMPLATE,
                     full_name=nt["name"] + "::" + tmpl["name"],
                 )
@@ -504,16 +570,18 @@ class SidebarTreeView(QTreeView):
         item = self.model().item_for_index(idx)
         if not item:
             return
-        item_type: SidebarItemType = item.item_type
-        if item_type not in self.context_menus:
+        self.show_context_menu(item)
+
+    def show_context_menu(self, item: SidebarItem):
+        if item.item_type not in self.context_menus:
             return
 
         m = QMenu()
-        for action in self.context_menus[item_type]:
+        for action in self.context_menus[item.item_type]:
             act_name = action[0]
             act_func = action[1]
             a = m.addAction(act_name)
-            a.triggered.connect(lambda _, func=act_func: func(item))  # type: ignore
+            qconnect(a.triggered, lambda _, func=act_func: func(item))
         m.exec_(QCursor.pos())
 
     def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
@@ -610,3 +678,6 @@ class SidebarTreeView(QTreeView):
         Models(
             self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
         )
+
+    def save_current_search(self, _item=None) -> None:
+        self.browser._onSaveFilter()
