@@ -42,6 +42,11 @@ pub(crate) enum ConfigKey {
     BrowserSortKind,
     BrowserSortReverse,
     CardCountsSeparateInactive,
+    CollapseCommon,
+    CollapseDecks,
+    CollapseFavorites,
+    CollapseNotetypes,
+    CollapseTags,
     CreationOffset,
     CurrentDeckID,
     CurrentNoteTypeID,
@@ -74,6 +79,11 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::BrowserSortKind => "sortType",
             ConfigKey::BrowserSortReverse => "sortBackwards",
             ConfigKey::CardCountsSeparateInactive => "cardCountsSeparateInactive",
+            ConfigKey::CollapseCommon => "collapseCommon",
+            ConfigKey::CollapseDecks => "collapseDecks",
+            ConfigKey::CollapseFavorites => "collapseFavorites",
+            ConfigKey::CollapseNotetypes => "collapseNotetypes",
+            ConfigKey::CollapseTags => "collapseTags",
             ConfigKey::CreationOffset => "creationOffset",
             ConfigKey::CurrentDeckID => "curDeck",
             ConfigKey::CurrentNoteTypeID => "curModel",
@@ -100,6 +110,11 @@ impl From<BoolKey> for ConfigKey {
         match key {
             BoolKey::BrowserSortBackwards => ConfigKey::BrowserSortReverse,
             BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,
+            BoolKey::CollapseTags => ConfigKey::CollapseTags,
+            BoolKey::CollapseNotetypes => ConfigKey::CollapseNotetypes,
+            BoolKey::CollapseDecks => ConfigKey::CollapseDecks,
+            BoolKey::CollapseFavorites => ConfigKey::CollapseFavorites,
+            BoolKey::CollapseCommon => ConfigKey::CollapseCommon,
         }
     }
 }
