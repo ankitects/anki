@@ -617,7 +617,6 @@ class SidebarTreeView(QTreeView):
             self.setExpanded(parent, True)
             for row in range(m.rowCount(parent)):
                 idx = m.index(row, 0, parent)
-                print(idx)
                 self.setExpanded(idx, not collapsed)
 
         menu.addSeparator()
