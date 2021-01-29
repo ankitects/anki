@@ -186,7 +186,6 @@ class DataModel(QAbstractTableModel):
     def search(self, txt: str) -> None:
         self.beginReset()
         self.cards = []
-        exception: Optional[Exception] = None
         try:
             ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
@@ -195,13 +194,10 @@ class DataModel(QAbstractTableModel):
                 ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
-        except Exception as e:
-            exception = e
+        except Exception as err:
+            raise err
         finally:
             self.endReset()
-
-        if exception:
-            show_invalid_search_error(exception)
 
     def reset(self):
         self.beginReset()
@@ -627,35 +623,43 @@ class Browser(QMainWindow):
         self.editor.saveNow(self._onSearchActivated)
 
     def _onSearchActivated(self):
-        # grab search text and normalize
         text = self.form.searchEdit.lineEdit().text()
-        self.update_history(text)
+        if self.search_for(text):
+            # Only save successful searches.
+            self.update_history()
 
+    def search_for(self, search: str) -> bool:
         # keep track of search string so that we reuse identical search when
         # refreshing, rather than whatever is currently in the search field
-        self.search_for(text)
+        self._lastSearchTxt = search
+        self.form.searchEdit.lineEdit().setText(search)
+        return self.search()
 
-    def update_history(self, search: str) -> None:
+    def search(self) -> bool:
+        """Search triggered programmatically. Caller must have saved note first.
+        Return bool indicating success.
+        """
+
+        try:
+            self.model.search(self._lastSearchTxt)
+        except InvalidInput as err:
+            show_invalid_search_error(err)
+            return False
+        else:
+            if not self.model.cards:
+                # no row change will fire
+                self._onRowChanged(None, None)
+            return True
+
+    def update_history(self) -> None:
         sh = self.mw.pm.profile["searchHistory"]
-        if search in sh:
-            sh.remove(search)
-        sh.insert(0, search)
+        if self._lastSearchTxt in sh:
+            sh.remove(self._lastSearchTxt)
+        sh.insert(0, self._lastSearchTxt)
         sh = sh[:30]
         self.form.searchEdit.clear()
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
-
-    def search_for(self, search: str) -> None:
-        self._lastSearchTxt = search
-        self.form.searchEdit.lineEdit().setText(search)
-        self.search()
-
-    # search triggered programmatically. caller must have saved note first.
-    def search(self) -> None:
-        self.model.search(self._lastSearchTxt)
-        if not self.model.cards:
-            # no row change will fire
-            self._onRowChanged(None, None)
 
     def normalize_search(self, search: str) -> str:
         normed = self.col.build_search_string(search)
