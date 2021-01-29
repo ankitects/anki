@@ -38,6 +38,9 @@ if TYPE_CHECKING:
 
 assert anki._rsbridge.buildhash() == anki.buildinfo.buildhash
 
+# FIXME: rather than adding new items here, items intended to be consumed
+# by external libraries (eg aqt) should be exported in the module that
+# refers to them, eg collection.py
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
 BackendCard = pb.Card

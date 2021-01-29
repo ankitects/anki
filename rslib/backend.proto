@@ -220,6 +220,8 @@ service BackendService {
   rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
   rpc RemoveConfig(String) returns (Empty);
   rpc GetAllConfig(Empty) returns (Json);
+  rpc GetConfigBool(ConfigBool) returns (Bool);
+  rpc SetConfigBool(SetConfigBoolIn) returns (Empty);
 
   // preferences
 
@@ -1185,4 +1187,17 @@ message SortDeckIn {
 message SetDeckIn {
   repeated int64 card_ids = 1;
   int64 deck_id = 2;
+}
+
+message ConfigBool {
+  enum Key {
+    BROWSER_SORT_BACKWARDS = 0;
+    PREVIEW_BOTH_SIDES = 1;
+  }
+  Key key = 1;
+}
+
+message SetConfigBoolIn {
+  ConfigBool.Key key = 1;
+  bool value = 2;
 }

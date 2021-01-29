@@ -12,6 +12,7 @@ import traceback
 import weakref
 from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
+import anki.backend_pb2 as pb
 import anki.find
 import anki.latex  # sets up hook
 import anki.template
@@ -32,15 +33,18 @@ from anki.rsbackend import (
     Progress,
     RustBackend,
     from_json_bytes,
-    pb,
 )
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
 
+ConfigBoolKey = pb.ConfigBool.Key  # pylint: disable=no-member
+
 if TYPE_CHECKING:
     from anki.rsbackend import FormatTimeSpanContextValue, TRValue
+
+    ConfigBoolKeyValue = pb.ConfigBool.KeyValue  # pylint: disable=no-member
 
 
 class Collection:
@@ -495,6 +499,13 @@ class Collection:
     def all_config(self) -> Dict[str, Any]:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self.backend.get_all_config())
+
+    def get_config_bool(self, key: ConfigBoolKeyValue) -> bool:
+        return self.backend.get_config_bool(key)
+
+    def set_config_bool(self, key: ConfigBoolKeyValue, value: bool) -> None:
+        self.setMod()
+        self.backend.set_config_bool(key=key, value=value)
 
     # Stats
     ##########################################################################

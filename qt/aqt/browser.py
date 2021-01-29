@@ -13,7 +13,7 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection
+from anki.collection import Collection, ConfigBoolKey
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
@@ -827,13 +827,13 @@ QTableView {{ gridline-color: {grid} }}
             # default to descending for non-text fields
             if type == "noteFld":
                 ord = not ord
-            self.col.conf["sortBackwards"] = ord
+            self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, ord)
             self.col.setMod()
             self.col.save()
             self.search()
         else:
-            if self.col.conf["sortBackwards"] != ord:
-                self.col.conf["sortBackwards"] = ord
+            if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS) != ord:
+                self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, ord)
                 self.col.setMod()
                 self.col.save()
                 self.model.reverse()
@@ -846,7 +846,7 @@ QTableView {{ gridline-color: {grid} }}
             hh.setSortIndicatorShown(False)
             return
         idx = self.model.activeCols.index(type)
-        if self.col.conf["sortBackwards"]:
+        if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS):
             ord = Qt.DescendingOrder
         else:
             ord = Qt.AscendingOrder

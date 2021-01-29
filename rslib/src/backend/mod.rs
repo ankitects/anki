@@ -1429,6 +1429,19 @@ impl BackendService for Backend {
         self.with_col(|col| col.transact(None, |col| col.set_preferences(input)))
             .map(Into::into)
     }
+
+    fn get_config_bool(&self, input: pb::ConfigBool) -> BackendResult<pb::Bool> {
+        self.with_col(|col| {
+            Ok(pb::Bool {
+                val: col.get_bool(input),
+            })
+        })
+    }
+
+    fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> BackendResult<pb::Empty> {
+        self.with_col(|col| col.transact(None, |col| col.set_bool(input)))
+            .map(Into::into)
+    }
 }
 
 impl Backend {
