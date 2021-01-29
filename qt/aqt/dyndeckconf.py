@@ -4,7 +4,7 @@
 from typing import List, Optional
 
 import aqt
-from anki.collection import InvalidInput, NamedFilter
+from anki.collection import InvalidInput, SearchTerm
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import (
@@ -47,11 +47,9 @@ class DeckConf(QDialog):
         self.initialSetup()
         self.loadConf()
         if search:
-            search = self.mw.col.search_string(searches=[search], name=NamedFilter.DUE)
+            search = self.mw.col.build_search_string(search, SearchTerm(due=True))
             self.form.search.setText(search)
-            search_2 = self.mw.col.search_string(
-                searches=[search], name=NamedFilter.NEW
-            )
+            search_2 = self.mw.col.build_search_string(search, SearchTerm(new=True))
             self.form.search_2.setText(search_2)
         self.form.search.selectAll()
 
@@ -123,11 +121,11 @@ class DeckConf(QDialog):
             else:
                 d["delays"] = None
 
-        search = self.mw.col.search_string(searches=[f.search.text()])
+        search = self.mw.col.build_search_string(f.search.text())
         terms = [[search, f.limit.value(), f.order.currentIndex()]]
 
         if f.secondFilter.isChecked():
-            search_2 = self.mw.col.search_string(searches=[f.search_2.text()])
+            search_2 = self.mw.col.build_search_string(f.search_2.text())
             terms.append([search_2, f.limit_2.value(), f.order_2.currentIndex()])
 
         d["terms"] = terms

@@ -293,38 +293,8 @@ impl From<pb::DeckConfigId> for DeckConfID {
 impl From<pb::FilterToSearchIn> for Node<'_> {
     fn from(msg: pb::FilterToSearchIn) -> Self {
         use pb::filter_to_search_in::Filter;
-        use pb::filter_to_search_in::NamedFilter;
-        match msg
-            .filter
-            .unwrap_or(Filter::Name(NamedFilter::WholeCollection as i32))
-        {
-            Filter::Name(name) => {
-                match NamedFilter::from_i32(name).unwrap_or(NamedFilter::WholeCollection) {
-                    NamedFilter::WholeCollection => Node::Search(SearchNode::WholeCollection),
-                    NamedFilter::CurrentDeck => Node::Search(SearchNode::Deck("current".into())),
-                    NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
-                    NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
-                        days: 1,
-                        ease: EaseKind::AnyAnswerButton,
-                    }),
-                    NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
-                        days: 1,
-                        ease: EaseKind::AnswerButton(1),
-                    }),
-                    NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
-                    NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),
-                    NamedFilter::Review => Node::Search(SearchNode::State(StateKind::Review)),
-                    NamedFilter::Due => Node::Search(SearchNode::State(StateKind::Due)),
-                    NamedFilter::Suspended => Node::Search(SearchNode::State(StateKind::Suspended)),
-                    NamedFilter::Buried => Node::Search(SearchNode::State(StateKind::Buried)),
-                    NamedFilter::RedFlag => Node::Search(SearchNode::Flag(1)),
-                    NamedFilter::OrangeFlag => Node::Search(SearchNode::Flag(2)),
-                    NamedFilter::GreenFlag => Node::Search(SearchNode::Flag(3)),
-                    NamedFilter::BlueFlag => Node::Search(SearchNode::Flag(4)),
-                    NamedFilter::NoFlag => Node::Search(SearchNode::Flag(0)),
-                    NamedFilter::AnyFlag => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
-                }
-            }
+        use pb::filter_to_search_in::Flag;
+        match msg.filter.unwrap_or(Filter::WholeCollection(true)) {
             Filter::Tag(s) => Node::Search(SearchNode::Tag(
                 escape_anki_wildcards(&s).into_owned().into(),
             )),
@@ -337,9 +307,15 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             Filter::Template(u) => {
                 Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
             }
+            Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
             Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                 note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
                 text: dupe.text.into(),
+            }),
+            Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
+                field: escape_anki_wildcards(&s).into_owned().into(),
+                text: "*".to_string().into(),
+                is_re: false,
             }),
             Filter::ForgotInDays(u) => Node::Search(SearchNode::Rated {
                 days: u,
@@ -350,12 +326,26 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                 operator: "<=".to_string(),
                 kind: PropertyKind::Due(i),
             }),
-            Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
-            Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                field: escape_anki_wildcards(&s).into_owned().into(),
-                text: "*".to_string().into(),
-                is_re: false,
+            Filter::WholeCollection(_) => Node::Search(SearchNode::WholeCollection),
+            Filter::CurrentDeck(_) => Node::Search(SearchNode::Deck("current".into())),
+            Filter::StudiedToday(_) => Node::Search(SearchNode::Rated {
+                days: 1,
+                ease: EaseKind::AnyAnswerButton,
             }),
+            Filter::New(_) => Node::Search(SearchNode::State(StateKind::New)),
+            Filter::Learn(_) => Node::Search(SearchNode::State(StateKind::Learning)),
+            Filter::Review(_) => Node::Search(SearchNode::State(StateKind::Review)),
+            Filter::Due(_) => Node::Search(SearchNode::State(StateKind::Due)),
+            Filter::Suspended(_) => Node::Search(SearchNode::State(StateKind::Suspended)),
+            Filter::Buried(_) => Node::Search(SearchNode::State(StateKind::Buried)),
+            Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
+                Flag::Without => Node::Search(SearchNode::Flag(0)),
+                Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
+                Flag::Red => Node::Search(SearchNode::Flag(1)),
+                Flag::Orange => Node::Search(SearchNode::Flag(2)),
+                Flag::Green => Node::Search(SearchNode::Flag(3)),
+                Flag::Blue => Node::Search(SearchNode::Flag(4)),
+            },
         }
     }
 }
