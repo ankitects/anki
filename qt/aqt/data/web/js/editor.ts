@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-let currentField: EditingContainer | null = null;
+let currentField: EditingArea | null = null;
 let changeTimer: number | null = null;
 let currentNoteId: number | null = null;
 
@@ -33,7 +33,7 @@ function saveNow(keepFocus: boolean): void {
         saveField("key");
     } else {
         // triggers onBlur, which saves
-        currentField.blurEditingArea();
+        currentField.blurEditable();
     }
 }
 
@@ -52,7 +52,7 @@ interface Selection {
 function onKey(evt: KeyboardEvent): void {
     // esc clears focus, allowing dialog to close
     if (evt.code === "Escape") {
-        currentField.blurEditingArea();
+        currentField.blurEditable();
         return;
     }
 
@@ -91,7 +91,7 @@ function onKeyUp(evt: KeyboardEvent): void {
         if (
             nodeIsElement(anchor) &&
             anchor.tagName === "DIV" &&
-            !(anchor instanceof EditingContainer) &&
+            !(anchor instanceof EditingArea) &&
             anchor.childElementCount === 1 &&
             anchor.children[0].tagName === "BR"
         ) {
@@ -249,12 +249,12 @@ function clearChangeTimer(): void {
 }
 
 function onFocus(evt: FocusEvent): void {
-    const elem = evt.currentTarget as EditingContainer;
+    const elem = evt.currentTarget as EditingArea;
     if (currentField === elem) {
         // anki window refocused; current element unchanged
         return;
     }
-    elem.focusEditingArea();
+    elem.focusEditable();
     currentField = elem;
     pycmd(`focus:${currentField.ord}`);
     enableButtons();
@@ -280,19 +280,19 @@ function onFocus(evt: FocusEvent): void {
 }
 
 function focusField(n: number): void {
-    const field = document.getElementById(`f${n}`) as EditingContainer;
+    const field = document.getElementById(`f${n}`) as EditingArea;
 
     if (field) {
-        field.focusEditingArea();
+        field.focusEditable();
     }
 }
 
 function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
-        let elem = elements[i] as EditingContainer;
-        if (elem instanceof EditingContainer) {
-            elem.focusEditingArea();
+        let elem = elements[i] as EditingArea;
+        if (elem instanceof EditingArea) {
+            elem.focusEditable();
             // the focus event may not fire if the window is not active, so make sure
             // the current field is set
             currentField = elem;
@@ -309,7 +309,7 @@ function onPaste(): void {
 
 function caretToEnd(): void {
     const range = document.createRange();
-    range.selectNodeContents(currentField.editingArea);
+    range.selectNodeContents(currentField.editable);
     range.collapse(false);
     const selection = currentField.getSelection();
     selection.removeAllRanges();
@@ -379,7 +379,7 @@ function enableButtons(): void {
 
 // disable the buttons if a field is not currently focused
 function maybeDisableButtons(): void {
-    if (document.activeElement instanceof EditingContainer) {
+    if (document.activeElement instanceof EditingArea) {
         enableButtons();
     } else {
         disableButtons();
@@ -423,7 +423,7 @@ function onCutOrCopy(): boolean {
     return true;
 }
 
-class EditingArea extends HTMLElement {
+class Editable extends HTMLElement {
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -443,10 +443,10 @@ class EditingArea extends HTMLElement {
     }
 }
 
-customElements.define("editing-area", EditingArea);
+customElements.define("anki-editable", Editable);
 
-class EditingContainer extends HTMLDivElement {
-    editingArea: EditingArea;
+class EditingArea extends HTMLDivElement {
+    editable: Editable;
     baseStyle: HTMLStyleElement;
 
     constructor() {
@@ -456,15 +456,15 @@ class EditingContainer extends HTMLDivElement {
 
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");
-        rootStyle.setAttribute("href", "./_anki/css/editing-area.css");
+        rootStyle.setAttribute("href", "./_anki/css/editable.css");
         this.shadowRoot.appendChild(rootStyle);
 
         this.baseStyle = document.createElement("style");
         this.baseStyle.setAttribute("rel", "stylesheet");
         this.shadowRoot.appendChild(this.baseStyle);
 
-        this.editingArea = document.createElement("editing-area") as EditingArea;
-        this.shadowRoot.appendChild(this.editingArea);
+        this.editable = document.createElement("anki-editable") as Editable;
+        this.shadowRoot.appendChild(this.editable);
     }
 
     get ord(): number {
@@ -472,11 +472,11 @@ class EditingContainer extends HTMLDivElement {
     }
 
     set fieldHTML(content: string) {
-        this.editingArea.fieldHTML = content;
+        this.editable.fieldHTML = content;
     }
 
     get fieldHTML(): string {
-        return this.editingArea.fieldHTML;
+        return this.editable.fieldHTML;
     }
 
     connectedCallback(): void {
@@ -490,7 +490,7 @@ class EditingContainer extends HTMLDivElement {
         this.addEventListener("oncut", onCutOrCopy);
 
         const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        baseStyleSheet.insertRule("editing-area {}", 0);
+        baseStyleSheet.insertRule("anki-editable {}", 0);
     }
 
     disconnectedCallback(): void {
@@ -506,7 +506,7 @@ class EditingContainer extends HTMLDivElement {
 
     initialize(color: string, content: string): void {
         this.setBaseColor(color);
-        this.editingArea.fieldHTML = content;
+        this.editable.fieldHTML = content;
     }
 
     setBaseColor(color: string): void {
@@ -524,28 +524,28 @@ class EditingContainer extends HTMLDivElement {
     }
 
     isRightToLeft(): boolean {
-        return this.editingArea.style.direction === "rtl";
+        return this.editable.style.direction === "rtl";
     }
 
     getSelection(): Selection {
         return this.shadowRoot.getSelection();
     }
 
-    focusEditingArea(): void {
-        this.editingArea.focus();
+    focusEditable(): void {
+        this.editable.focus();
     }
 
-    blurEditingArea(): void {
-        this.editingArea.blur();
+    blurEditable(): void {
+        this.editable.blur();
     }
 }
 
-customElements.define("editing-container", EditingContainer, { extends: "div" });
+customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 
 class EditorField extends HTMLDivElement {
     labelContainer: HTMLDivElement;
     label: HTMLSpanElement;
-    editingContainer: EditingContainer;
+    editingArea: EditingArea;
 
     constructor() {
         super();
@@ -557,10 +557,10 @@ class EditorField extends HTMLDivElement {
         this.label.className = "fieldname";
         this.labelContainer.appendChild(this.label);
 
-        this.editingContainer = document.createElement("div", {
-            is: "editing-container",
-        }) as EditingContainer;
-        this.appendChild(this.editingContainer);
+        this.editingArea = document.createElement("div", {
+            is: "anki-editing-area",
+        }) as EditingArea;
+        this.appendChild(this.editingArea);
     }
 
     static get observedAttributes(): string[] {
@@ -574,28 +574,28 @@ class EditorField extends HTMLDivElement {
     attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
         switch (name) {
             case "ord":
-                this.editingContainer.setAttribute("ord", newValue);
+                this.editingArea.setAttribute("ord", newValue);
         }
     }
 
     initialize(label: string, color: string, content: string): void {
         this.label.innerText = label;
-        this.editingContainer.initialize(color, content);
+        this.editingArea.initialize(color, content);
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
-        this.editingContainer.setBaseStyling(fontFamily, fontSize, direction);
+        this.editingArea.setBaseStyling(fontFamily, fontSize, direction);
     }
 }
 
-customElements.define("editor-field", EditorField, { extends: "div" });
+customElements.define("anki-editor-field", EditorField, { extends: "div" });
 
 function adjustFieldAmount(amount: number): void {
     const fieldsContainer = document.getElementById("fields");
 
     while (fieldsContainer.childElementCount < amount) {
         const newField = document.createElement("div", {
-            is: "editor-field",
+            is: "anki-editor-field",
         }) as EditorField;
         newField.ord = fieldsContainer.childElementCount;
         fieldsContainer.appendChild(newField);
@@ -634,7 +634,7 @@ function setFields(fields: [string, string][]): void {
 
 function setBackgrounds(cols: ("dupe" | "")[]) {
     forEditorField(cols, (field, value) =>
-        field.editingContainer.classList.toggle("dupe", value === "dupe")
+        field.editingArea.classList.toggle("dupe", value === "dupe")
     );
     document
         .querySelector("#dupes")
