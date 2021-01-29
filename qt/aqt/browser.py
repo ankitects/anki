@@ -44,7 +44,6 @@ from aqt.utils import (
     SubMenu,
     askUser,
     disable_help_button,
-    getOnlyText,
     getTag,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -970,9 +969,6 @@ QTableView {{ gridline-color: {grid} }}
         toggle_sidebar.setCheckable(True)
         toggle_sidebar.setChecked(self.sidebarDockWidget.isVisible())
         ml.addChild(toggle_sidebar)
-        ml.addSeparator()
-
-        ml.addChild(self._savedSearches())
 
         ml.popupOver(self.form.filter)
 
@@ -1059,81 +1055,6 @@ QTableView {{ gridline-color: {grid} }}
             )
         )
         return subm
-
-    # Favourites
-    ######################################################################
-
-    def _savedSearches(self):
-        ml = MenuList()
-        # make sure exists
-        if "savedFilters" not in self.col.conf:
-            self.col.set_config("savedFilters", {})
-
-        ml.addSeparator()
-
-        if self._currentFilterIsSaved():
-            ml.addItem(tr(TR.BROWSING_REMOVE_CURRENT_FILTER), self._onRemoveFilter)
-        else:
-            ml.addItem(tr(TR.BROWSING_SAVE_CURRENT_FILTER), self._onSaveFilter)
-
-        return ml
-
-    def _onSaveFilter(self) -> None:
-        try:
-            filt = self.col.backend.normalize_search(
-                self.form.searchEdit.lineEdit().text()
-            )
-        except InvalidInput as e:
-            show_invalid_search_error(e)
-        else:
-            name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
-            if not name:
-                return
-            conf = self.col.get_config("savedFilters")
-            conf[name] = filt
-            self.col.set_config("savedFilters", conf)
-            self.sidebar.refresh()
-
-    def _onRemoveFilter(self) -> None:
-        self.removeFilter(self._currentFilterIsSaved())
-
-    def removeFilter(self, name: str) -> None:
-        if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
-            return
-        conf = self.col.get_config("savedFilters")
-        del conf[name]
-        self.col.set_config("savedFilters", conf)
-        self.sidebar.refresh()
-
-    def renameFilter(self, old: str) -> None:
-        conf = self.col.get_config("savedFilters")
-        try:
-            filt = conf[old]
-        except KeyError:
-            return
-        new = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
-        if new == old or not new:
-            return
-        conf[new] = filt
-        del conf[old]
-        self.col.set_config("savedFilters", conf)
-        self.sidebar.refresh()
-
-    # returns name if found
-    def _currentFilterIsSaved(self) -> Optional[str]:
-        filt = self.form.searchEdit.lineEdit().text()
-        try:
-            filt = self.col.backend.normalize_search(filt)
-        except InvalidInput:
-            pass
-        for k, v in self.col.get_config("savedFilters").items():
-            try:
-                v = self.col.backend.normalize_search(v)
-            except InvalidInput:
-                pass
-            if filt == v:
-                return k
-        return None
 
     # Info
     ######################################################################

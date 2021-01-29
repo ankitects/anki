@@ -11,13 +11,27 @@ from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tupl
 import aqt
 from anki.collection import ConfigBoolKey
 from anki.errors import DeckRenameError
-from anki.rsbackend import DeckTreeNode, FilterToSearchIn, NamedFilter, TagTreeNode
+from anki.rsbackend import (
+    DeckTreeNode,
+    FilterToSearchIn,
+    InvalidInput,
+    NamedFilter,
+    TagTreeNode,
+)
 from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.models import Models
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import TR, getOnlyText, showInfo, showWarning, tr
+from aqt.utils import (
+    TR,
+    askUser,
+    getOnlyText,
+    show_invalid_search_error,
+    showInfo,
+    showWarning,
+    tr,
+)
 
 if TYPE_CHECKING:
     from anki.collection import ConfigBoolKeyValue, TRValue
@@ -231,8 +245,8 @@ class SidebarTreeView(QTreeView):
                 (tr(TR.ACTIONS_DELETE), self.remove_tag),
             ),
             SidebarItemType.SAVED_SEARCH: (
-                (tr(TR.ACTIONS_RENAME), self.rename_filter),
-                (tr(TR.ACTIONS_DELETE), self.remove_filter),
+                (tr(TR.ACTIONS_RENAME), self.rename_saved_search),
+                (tr(TR.ACTIONS_DELETE), self.remove_saved_search),
             ),
             SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
             SidebarItemType.SAVED_SEARCH_ROOT: (
@@ -700,16 +714,47 @@ class SidebarTreeView(QTreeView):
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
 
-    def remove_filter(self, item: "aqt.browser.SidebarItem") -> None:
-        self.browser.removeFilter(item.name)
+    def remove_saved_search(self, item: "aqt.browser.SidebarItem") -> None:
+        name = item.name
+        if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
+            return
+        conf = self.col.get_config("savedFilters")
+        del conf[name]
+        self.col.set_config("savedFilters", conf)
+        self.refresh()
 
-    def rename_filter(self, item: "aqt.browser.SidebarItem") -> None:
-        self.browser.renameFilter(item.name)
+    def rename_saved_search(self, item: "aqt.browser.SidebarItem") -> None:
+        old = item.name
+        conf = self.col.get_config("savedFilters")
+        try:
+            filt = conf[old]
+        except KeyError:
+            return
+        new = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
+        if new == old or not new:
+            return
+        conf[new] = filt
+        del conf[old]
+        self.col.set_config("savedFilters", conf)
+        self.refresh()
+
+    def save_current_search(self, _item=None) -> None:
+        try:
+            filt = self.col.backend.normalize_search(
+                self.browser.form.searchEdit.lineEdit().text()
+            )
+        except InvalidInput as e:
+            show_invalid_search_error(e)
+        else:
+            name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
+            if not name:
+                return
+            conf = self.col.get_config("savedFilters")
+            conf[name] = filt
+            self.col.set_config("savedFilters", conf)
+            self.refresh()
 
     def manage_notetype(self, item: "aqt.browser.SidebarItem") -> None:
         Models(
             self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
         )
-
-    def save_current_search(self, _item=None) -> None:
-        self.browser._onSaveFilter()
