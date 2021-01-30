@@ -138,6 +138,7 @@ service BackendService {
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
   rpc RemoveDeck(DeckID) returns (Empty);
+  rpc DragDropDecks(DragDropDecksIn) returns (Empty);
 
   // deck config
 
@@ -989,6 +990,11 @@ message GetDeckNamesIn {
   bool skip_empty_default = 1;
   // if unset, implies skip_empty_default
   bool include_filtered = 2;
+}
+
+message DragDropDecksIn {
+  repeated int64 source_deck_ids = 1;
+  int64 target_deck_id = 2;
 }
 
 message NoteIsDuplicateOrEmptyOut {

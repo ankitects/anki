@@ -175,6 +175,26 @@ pub(crate) fn immediate_parent_name(machine_name: &str) -> Option<&str> {
     machine_name.rsplitn(2, '\x1f').nth(1)
 }
 
+/// Determine name to rename a deck to, when `dragged` is dropped on `dropped`.
+/// `dropped` being unset represents a drop at the top or bottom of the deck list.
+/// The returned name should be used to rename `dragged`, and may be unchanged.
+/// Arguments are expected in 'machine' form with an \x1f separator.
+pub(crate) fn drag_drop_deck_name(dragged: &str, dropped: Option<&str>) -> String {
+    let dragged_base = dragged.rsplit('\x1f').next().unwrap();
+    if let Some(dropped) = dropped {
+        if dropped.starts_with(dragged) {
+            // foo onto foo::bar, or foo onto itself -> no-op
+            dragged.to_string()
+        } else {
+            // foo::bar onto baz -> baz::bar
+            format!("{}\x1f{}", dropped, dragged_base)
+        }
+    } else {
+        // foo::bar onto top level -> bar
+        dragged_base.into()
+    }
+}
+
 impl Collection {
     pub(crate) fn default_deck_is_empty(&self) -> Result<bool> {
         self.storage.deck_is_empty(DeckID(1))
@@ -522,11 +542,51 @@ impl Collection {
         deck.set_modified(usn);
         self.add_or_update_single_deck(deck, usn)
     }
+
+    pub fn drag_drop_decks(
+        &mut self,
+        source_decks: &[DeckID],
+        target: Option<DeckID>,
+    ) -> Result<()> {
+        self.state.deck_cache.clear();
+        let usn = self.usn()?;
+        self.transact(None, |col| {
+            let target_deck;
+            let mut target_name = None;
+            if let Some(target) = target {
+                if let Some(target) = col.storage.get_deck(target)? {
+                    target_deck = target;
+                    target_name = Some(target_deck.name.as_str());
+                }
+            }
+
+            for source in source_decks {
+                if let Some(mut source) = col.storage.get_deck(*source)? {
+                    let orig = source.clone();
+                    let new_name = drag_drop_deck_name(&source.name, target_name);
+                    if new_name == source.name {
+                        continue;
+                    }
+                    source.name = new_name;
+                    col.ensure_deck_name_unique(&mut source, usn)?;
+                    col.rename_child_decks(&orig, &source.name, usn)?;
+                    source.set_modified(usn);
+                    col.storage.update_deck(&source)?;
+                    // after updating, we need to ensure all grandparents exist, which may not be the case
+                    // in the parent->child case
+                    col.create_missing_parents(&source.name, usn)?;
+                }
+            }
+
+            Ok(())
+        })
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::{human_deck_name_to_native, immediate_parent_name, normalize_native_name};
+    use crate::decks::drag_drop_deck_name;
     use crate::{
         collection::{open_test_collection, Collection},
         err::Result,
@@ -674,5 +734,40 @@ mod test {
         assert_eq!(col.search_cards("", SortMode::NoOrder)?, vec![]);
 
         Ok(())
+    }
+
+    #[test]
+    fn drag_drop() {
+        // use custom separator to make the tests easier to read
+        fn n(s: &str) -> String {
+            s.replace(":", "\x1f")
+        }
+        assert_eq!(drag_drop_deck_name("drag", Some("drop")), n("drop:drag"));
+        assert_eq!(&drag_drop_deck_name("drag", None), "drag");
+        assert_eq!(&drag_drop_deck_name(&n("drag:child"), None), "child");
+        assert_eq!(
+            drag_drop_deck_name(&n("drag:child"), Some(&n("drop:deck"))),
+            n("drop:deck:child")
+        );
+        assert_eq!(
+            drag_drop_deck_name(&n("drag:child"), Some("drag")),
+            n("drag:child")
+        );
+        assert_eq!(
+            drag_drop_deck_name(&n("drag:child:grandchild"), Some("drag")),
+            n("drag:grandchild")
+        );
+        // while the renaming code should be able to cope with renaming a parent to a child,
+        // it's not often useful and can be difficult for the user to clean up if done accidentally,
+        // so it should be a no-op
+        assert_eq!(
+            drag_drop_deck_name(&n("drag"), Some(&n("drag:child:grandchild"))),
+            n("drag")
+        );
+        // name doesn't change when deck dropped on itself
+        assert_eq!(
+            drag_drop_deck_name(&n("foo:bar"), Some(&n("foo:bar"))),
+            n("foo:bar")
+        );
     }
 }

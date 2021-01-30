@@ -792,6 +792,17 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn drag_drop_decks(&self, input: pb::DragDropDecksIn) -> BackendResult<Empty> {
+        let source_dids: Vec<_> = input.source_deck_ids.into_iter().map(Into::into).collect();
+        let target_did = if input.target_deck_id == 0 {
+            None
+        } else {
+            Some(input.target_deck_id.into())
+        };
+        self.with_col(|col| col.drag_drop_decks(&source_dids, target_did))
+            .map(Into::into)
+    }
+
     // deck config
     //----------------------------------------------------
 
