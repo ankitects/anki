@@ -290,10 +290,10 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
-impl From<pb::FilterToSearchIn> for Node<'_> {
-    fn from(msg: pb::FilterToSearchIn) -> Self {
-        use pb::filter_to_search_in::Filter;
-        use pb::filter_to_search_in::Flag;
+impl From<pb::SearchTerm> for Node<'_> {
+    fn from(msg: pb::SearchTerm) -> Self {
+        use pb::search_term::Filter;
+        use pb::search_term::Flag;
         match msg.filter.unwrap_or(Filter::WholeCollection(true)) {
             Filter::Tag(s) => Node::Search(SearchNode::Tag(
                 escape_anki_wildcards(&s).into_owned().into(),
@@ -329,7 +329,7 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             Filter::WholeCollection(_) => Node::Search(SearchNode::WholeCollection),
             Filter::CurrentDeck(_) => Node::Search(SearchNode::Deck("current".into())),
             Filter::CardState(state) => Node::Search(SearchNode::State(
-                pb::filter_to_search_in::CardState::from_i32(state)
+                pb::search_term::CardState::from_i32(state)
                     .unwrap_or_default()
                     .into(),
             )),
@@ -354,28 +354,28 @@ impl From<BoolSeparatorProto> for BoolSeparator {
     }
 }
 
-impl From<pb::filter_to_search_in::rated::Rating> for EaseKind {
-    fn from(r: pb::filter_to_search_in::rated::Rating) -> Self {
+impl From<pb::search_term::rated::Rating> for EaseKind {
+    fn from(r: pb::search_term::rated::Rating) -> Self {
         match r {
-            pb::filter_to_search_in::rated::Rating::AnswerButton1 => EaseKind::AnswerButton(1),
-            pb::filter_to_search_in::rated::Rating::AnswerButton2 => EaseKind::AnswerButton(2),
-            pb::filter_to_search_in::rated::Rating::AnswerButton3 => EaseKind::AnswerButton(3),
-            pb::filter_to_search_in::rated::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
-            pb::filter_to_search_in::rated::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
-            pb::filter_to_search_in::rated::Rating::ManualReschedule => EaseKind::ManualReschedule,
+            pb::search_term::rated::Rating::AnswerButton1 => EaseKind::AnswerButton(1),
+            pb::search_term::rated::Rating::AnswerButton2 => EaseKind::AnswerButton(2),
+            pb::search_term::rated::Rating::AnswerButton3 => EaseKind::AnswerButton(3),
+            pb::search_term::rated::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
+            pb::search_term::rated::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
+            pb::search_term::rated::Rating::ManualReschedule => EaseKind::ManualReschedule,
         }
     }
 }
 
-impl From<pb::filter_to_search_in::CardState> for StateKind {
-    fn from(k: pb::filter_to_search_in::CardState) -> Self {
+impl From<pb::search_term::CardState> for StateKind {
+    fn from(k: pb::search_term::CardState) -> Self {
         match k {
-            pb::filter_to_search_in::CardState::New => StateKind::New,
-            pb::filter_to_search_in::CardState::Learn => StateKind::Learning,
-            pb::filter_to_search_in::CardState::Review => StateKind::Review,
-            pb::filter_to_search_in::CardState::Due => StateKind::Due,
-            pb::filter_to_search_in::CardState::Suspended => StateKind::Suspended,
-            pb::filter_to_search_in::CardState::Buried => StateKind::Buried,
+            pb::search_term::CardState::New => StateKind::New,
+            pb::search_term::CardState::Learn => StateKind::Learning,
+            pb::search_term::CardState::Review => StateKind::Review,
+            pb::search_term::CardState::Due => StateKind::Due,
+            pb::search_term::CardState::Suspended => StateKind::Suspended,
+            pb::search_term::CardState::Buried => StateKind::Buried,
         }
     }
 }
@@ -502,7 +502,7 @@ impl BackendService for Backend {
     // searching
     //-----------------------------------------------
 
-    fn filter_to_search(&self, input: pb::FilterToSearchIn) -> Result<pb::String> {
+    fn filter_to_search(&self, input: pb::SearchTerm) -> Result<pb::String> {
         Ok(write_nodes(&[input.into()]).into())
     }
 
