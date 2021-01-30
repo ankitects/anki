@@ -8,8 +8,21 @@ let currentField: EditingArea | null = null;
 let changeTimer: number | null = null;
 let currentNoteId: number | null = null;
 
+declare global {
+    interface String {
+        format(...args: string[]): string;
+    }
+
+    interface Selection {
+        modify(s: string, t: string, u: string): void;
+        addRange(r: Range): void;
+        removeAllRanges(): void;
+        getRangeAt(n: number): Range;
+    }
+}
+
 /* kept for compatibility with add-ons */
-(String.prototype as any).format = function (...args: string[]): string {
+String.prototype.format = function (...args: string[]): string {
     return this.replace(/\{\d+\}/g, (m: string): void => {
         const match = m.match(/\d+/);
 
@@ -42,10 +55,6 @@ function triggerKeyTimer(): void {
         updateButtonState();
         saveField("key");
     }, 600);
-}
-
-interface Selection {
-    modify(s: string, t: string, u: string): void;
 }
 
 function onKey(evt: KeyboardEvent): void {
@@ -460,7 +469,7 @@ class EditingArea extends HTMLDivElement {
         return this.editable.style.direction === "rtl";
     }
 
-    getSelection(): any {
+    getSelection(): Selection {
         return this.shadowRoot.getSelection();
     }
 
