@@ -7,11 +7,18 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, rollup, sum, Bin } from "d3-array";
-import { scaleLinear, scaleSequential } from "d3-scale";
+import {
+    extent,
+    histogram,
+    rollup,
+    sum,
+    scaleLinear,
+    scaleSequential,
+    interpolateGreens,
+} from "d3";
+import type { Bin } from "d3";
 import { CardQueue } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import { interpolateGreens } from "d3-scale-chromatic";
 import { dayLabel } from "anki/time";
 import type { I18n } from "anki/i18n";
 import { GraphRange } from "./graph-helpers";
@@ -142,15 +149,13 @@ export function buildHistogram(
     const total = sum(bins as any, binValue);
 
     function hoverText(
-        data: HistogramData,
-        binIdx: number,
+        bin: Bin<number, number>,
         cumulative: number,
         _percent: number
     ): string {
-        const bin = data.bins[binIdx];
         const days = dayLabel(i18n, bin.x0!, bin.x1!);
         const cards = i18n.tr(i18n.TR.STATISTICS_CARDS_DUE, {
-            cards: binValue(data.bins[binIdx] as any),
+            cards: binValue(bin as any),
         });
         const totalLabel = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
 
