@@ -355,15 +355,15 @@ impl From<BoolSeparatorProto> for BoolSeparator {
     }
 }
 
-impl From<pb::search_term::rated::Rating> for EaseKind {
-    fn from(r: pb::search_term::rated::Rating) -> Self {
+impl From<pb::search_term::Rating> for EaseKind {
+    fn from(r: pb::search_term::Rating) -> Self {
         match r {
-            pb::search_term::rated::Rating::AnswerButton1 => EaseKind::AnswerButton(1),
-            pb::search_term::rated::Rating::AnswerButton2 => EaseKind::AnswerButton(2),
-            pb::search_term::rated::Rating::AnswerButton3 => EaseKind::AnswerButton(3),
-            pb::search_term::rated::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
-            pb::search_term::rated::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
-            pb::search_term::rated::Rating::ManualReschedule => EaseKind::ManualReschedule,
+            pb::search_term::Rating::AnswerButton1 => EaseKind::AnswerButton(1),
+            pb::search_term::Rating::AnswerButton2 => EaseKind::AnswerButton(2),
+            pb::search_term::Rating::AnswerButton3 => EaseKind::AnswerButton(3),
+            pb::search_term::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
+            pb::search_term::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
+            pb::search_term::Rating::ManualReschedule => EaseKind::ManualReschedule,
         }
     }
 }
