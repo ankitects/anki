@@ -1,11 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-non-null-assertion: "off",
-@typescript-eslint/no-explicit-any: "off",
- */
-
 import pb from "anki/backend_proto";
 import {
     interpolateRdYlGn,
@@ -18,6 +13,7 @@ import {
     axisLeft,
     sum,
 } from "d3";
+import type { BaseType, Selection } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -157,7 +153,7 @@ export function renderButtons(
         .transition(trans)
         .call(
             axisBottom(xGroup)
-                .tickFormat(((d: GroupKind) => {
+                .tickFormat((d: string) => {
                     let kind: string;
                     switch (d) {
                         case "learning":
@@ -171,8 +167,8 @@ export function renderButtons(
                             kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
                             break;
                     }
-                    return `${kind} \u200e(${totalCorrect(d).percent}%)`;
-                }) as any)
+                    return `${kind} \u200e(${totalCorrect(d as GroupKind).percent}%)`;
+                })
                 .tickSizeOuter(0)
         );
 
@@ -198,18 +194,19 @@ export function renderButtons(
         );
 
     // x bars
-
-    const updateBar = (sel: any): any => {
-        return sel
-            .attr("width", xButton.bandwidth())
+    const updateBar = <T extends BaseType>(
+        sel: Selection<T, Datum, BaseType, unknown>
+    ): void => {
+        sel.attr("width", xButton.bandwidth())
             .attr("opacity", 0.8)
             .transition(trans)
             .attr(
                 "x",
-                (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!
+                (d: Datum) =>
+                    (xGroup(d.group) ?? 0) + (xButton(d.buttonNum.toString()) ?? 0)
             )
-            .attr("y", (d: Datum) => y(d.count)!)
-            .attr("height", (d: Datum) => y(0)! - y(d.count)!)
+            .attr("y", (d: Datum) => y(d.count))
+            .attr("height", (d: Datum) => y(0) - y(d.count))
             .attr("fill", (d: Datum) => colour(d.buttonNum));
     };
 
@@ -224,15 +221,16 @@ export function renderButtons(
                     .attr(
                         "x",
                         (d: Datum) =>
-                            xGroup(d.group)! + xButton(d.buttonNum.toString())!
+                            (xGroup(d.group) ?? 0) +
+                            (xButton(d.buttonNum.toString()) ?? 0)
                     )
-                    .attr("y", y(0)!)
+                    .attr("y", y(0))
                     .attr("height", 0)
                     .call(updateBar),
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
+                    remove.transition(trans).attr("height", 0).attr("y", y(0))
                 )
         );
 
@@ -252,10 +250,14 @@ export function renderButtons(
         .selectAll("rect")
         .data(data)
         .join("rect")
-        .attr("x", (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!)
-        .attr("y", () => y(yMax!)!)
+        .attr(
+            "x",
+            (d: Datum) =>
+                (xGroup(d.group) ?? 0) + (xButton(d.buttonNum.toString()) ?? 0)
+        )
+        .attr("y", () => y(yMax))
         .attr("width", xButton.bandwidth())
-        .attr("height", () => y(0)! - y(yMax!)!)
+        .attr("height", () => y(0) - y(yMax))
         .on("mousemove", (event: MouseEvent, d: Datum) => {
             const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(d), x, y);
