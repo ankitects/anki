@@ -163,7 +163,7 @@ class CustomStudy(QDialog):
             search = self.mw.col.build_search_string(
                 SearchTerm(
                     rated=SearchTerm.Rated(
-                        days=spin, rating=SearchTerm.Rated.Rating.ANSWER_BUTTON_1
+                        days=spin, rating=SearchTerm.Rating.ANSWER_BUTTON_1
                     )
                 )
             )

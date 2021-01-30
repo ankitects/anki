@@ -777,15 +777,15 @@ message SearchTerm {
     GREEN = 4;
     BLUE = 5;
   }
+  enum Rating {
+    ANY_ANSWER_BUTTON = 0;
+    ANSWER_BUTTON_1 = 1;
+    ANSWER_BUTTON_2 = 2;
+    ANSWER_BUTTON_3 = 3;
+    ANSWER_BUTTON_4 = 4;
+    MANUAL_RESCHEDULE = 5;
+  }
   message Rated {
-    enum Rating {
-      ANY_ANSWER_BUTTON = 0;
-      ANSWER_BUTTON_1 = 1;
-      ANSWER_BUTTON_2 = 2;
-      ANSWER_BUTTON_3 = 3;
-      ANSWER_BUTTON_4 = 4;
-      MANUAL_RESCHEDULE = 5;
-    }
     uint32 days = 1;
     Rating rating = 2;
   }

@@ -1001,7 +1001,7 @@ QTableView {{ gridline-color: {grid} }}
                         tr(TR.BROWSING_AGAIN_TODAY),
                         SearchTerm(
                             rated=SearchTerm.Rated(
-                                days=1, rating=SearchTerm.Rated.Rating.ANSWER_BUTTON_1
+                                days=1, rating=SearchTerm.Rating.ANSWER_BUTTON_1
                             )
                         ),
                     ),
