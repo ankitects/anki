@@ -69,8 +69,7 @@ export function prepareData(
 
     const colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
 
-    function hoverText(data: HistogramData, binIdx: number, _percent: number): string {
-        const bin = data.bins[binIdx];
+    function hoverText(bin: Bin<number, number>, _percent: number): string {
         const minPct = Math.floor(bin.x0!);
         const maxPct = Math.floor(bin.x1!);
         const percent = maxPct - minPct <= 10 ? `${bin.x0}%` : `${bin.x0}%-${bin.x1}%`;

@@ -109,12 +109,10 @@ export function buildHistogram(
     ];
 
     function hoverText(
-        data: HistogramData,
-        binIdx: number,
+        bin: Bin<number, number>,
         cumulative: number,
         _percent: number
     ): string {
-        const bin = data.bins[binIdx];
         const day = dayLabel(i18n, bin.x0!, bin.x1!);
         const cards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: bin.length });
         const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);

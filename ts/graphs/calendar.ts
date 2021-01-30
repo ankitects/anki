@@ -215,7 +215,7 @@ export function renderCalendar(
         .attr("class", (d: any): string => {
             return d.count > 0 ? "clickable" : "";
         })
-        .on("click", function (this: any, d: any) {
+        .on("click", function (_event: MouseEvent, d: any) {
             if (d.count > 0) {
                 dispatch("search", { query: `"prop:rated=${d.day}"` });
             }

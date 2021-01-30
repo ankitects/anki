@@ -201,9 +201,9 @@ export function renderReviews(
 
     // x bars
 
-    function barWidth(d: any): number {
-        const width = Math.max(0, x(d.x1)! - x(d.x0)! - 1);
-        return width ? width : 0;
+    function barWidth(d: Bin<number, number>): number {
+        const width = Math.max(0, x(d.x1!) - x(d.x0!) - 1);
+        return width ?? 0;
     }
 
     const cappedRange = scaleLinear().range([0.3, 0.5]);
@@ -346,7 +346,7 @@ export function renderReviews(
                 "d",
                 area()
                     .curve(curveBasis)
-                    .x((d, idx) => {
+                    .x((_d: [number, number], idx: number) => {
                         if (idx === 0) {
                             return x(bins[0].x0!)!;
                         } else {
@@ -358,19 +358,26 @@ export function renderReviews(
             );
     }
 
-    // // hover/tooltip
+    const hoverData: [
+        Bin<number, number>,
+        number
+    ][] = bins.map((bin: Bin<number, number>, index: number) => [
+        bin,
+        areaData[index + 1],
+    ]);
+
+    // hover/tooltip
     svg.select("g.hoverzone")
         .selectAll("rect")
-        .data(bins)
+        .data(hoverData)
         .join("rect")
-        .attr("x", (d: any) => x(d.x0)!)
-        .attr("y", () => y(yMax!)!)
-        .attr("width", barWidth)
-        .attr("height", () => y(0)! - y(yMax!)!)
-        .on("mousemove", (event: MouseEvent, d) => {
-            const idx = 0; // TODO
+        .attr("x", ([bin]) => x(bin.x0!))
+        .attr("y", () => y(yMax))
+        .attr("width", ([bin]) => barWidth(bin))
+        .attr("height", () => y(0) - y(yMax))
+        .on("mousemove", (event: MouseEvent, [bin, area]): void => {
             const [x, y] = pointer(event);
-            showTooltip(tooltipText(d as any /* TODO */, areaData[idx + 1]), x, y);
+            showTooltip(tooltipText(bin as any, area), x, y);
         })
         .on("mouseout", hideTooltip);
 
