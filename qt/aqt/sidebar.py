@@ -48,6 +48,7 @@ class SidebarItemType(Enum):
     CUSTOM = 7
     TEMPLATE = 8
     SAVED_SEARCH_ROOT = 9
+    DECK_ROOT = 10
 
 
 #  used by an add-on hook
@@ -171,6 +172,19 @@ class SidebarModel(QAbstractItemModel):
         else:
             return QVariant(theme_manager.icon_from_resources(item.icon))
 
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        return (
+            Qt.ItemIsEnabled
+            | Qt.ItemIsSelectable
+            | Qt.ItemIsDragEnabled
+            | Qt.ItemIsDropEnabled
+        )
+
     # Helpers
     ######################################################################
 
@@ -258,6 +272,9 @@ class SidebarTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setIndentation(15)
 
+        self.setDragDropMode(QAbstractItemView.InternalMove)
+        self.setDragDropOverwriteMode(False)
+
         qconnect(self.expanded, self.onExpansion)
         qconnect(self.collapsed, self.onCollapse)
 
@@ -322,6 +339,34 @@ class SidebarTreeView(QTreeView):
             painter.fillRect(options.rect, brush)
             painter.restore()
         return super().drawRow(painter, options, idx)
+
+    def dropEvent(self, event: QDropEvent) -> None:
+        model = self.model()
+        source_items = [model.item_for_index(idx) for idx in self.selectedIndexes()]
+        target_item = model.item_for_index(self.indexAt(event.pos()))
+        print("drop")
+        if self.handle_drag_drop(source_items, target_item):
+            event.acceptProposedAction()
+
+    def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
+        if target.item_type in (SidebarItemType.DECK, SidebarItemType.DECK_ROOT):
+            return self._handle_drag_drop_decks(sources, target)
+        return False
+
+    def _handle_drag_drop_decks(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
+        source_ids = [source.id
+                       for source in sources
+                       if source.item_type == SidebarItemType.DECK]
+        if not source_ids:
+            return False
+
+        def on_done(fut):
+            fut.result()
+            self.refresh()
+
+        self.mw.taskman.with_progress(lambda: self.col.decks.drag_drop_decks(source_ids, target.id),
+                                      on_done)
+        return True
 
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
@@ -514,6 +559,7 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_DECKS,
             icon=icon,
             collapse_key=ConfigBoolKey.COLLAPSE_DECKS,
+            type=SidebarItemType.DECK_ROOT,
         )
         render(root, tree.children)
 
