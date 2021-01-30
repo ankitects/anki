@@ -20,8 +20,8 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
-from anki.backend_pb2 import SearchTerm
 from anki.cards import Card
+from anki.collection import SearchTerm
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note

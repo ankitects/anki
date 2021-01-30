@@ -9,7 +9,7 @@ from concurrent.futures import Future
 from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
-from anki.backend_pb2 import SearchTerm
+from anki.collection import SearchTerm
 from anki.rsbackend import TR, Interrupted, ProgressKind, pb
 from aqt.qt import *
 from aqt.utils import (
