@@ -39,6 +39,8 @@ DeckConfig = Union[FilteredDeck, Config]
 """ New/lrn/rev conf, from deck config"""
 QueueConfig = Dict[str, Any]
 
+DeckID = int
+
 
 class DecksDictProxy:
     def __init__(self, col: anki.collection.Collection):
@@ -260,43 +262,22 @@ class DeckManager:
     # Drag/drop
     #############################################################
 
+    def drag_drop_decks(self, source_decks: List[DeckID], target_deck: DeckID) -> None:
+        """Rename one or more source decks that were dropped on `target_deck`.
+        If target_deck is 0, decks will be placed at the top level."""
+        self.col.backend.drag_drop_decks(
+            source_deck_ids=source_decks, target_deck_id=target_deck
+        )
+
+    # legacy
     def renameForDragAndDrop(
-        self, draggedDeckDid: int, ontoDeckDid: Optional[Union[int, str]]
+        self, draggedDeckDid: Union[int, str], ontoDeckDid: Optional[Union[int, str]]
     ) -> None:
-        draggedDeck = self.get(draggedDeckDid)
-        draggedDeckName = draggedDeck["name"]
-        ontoDeckName = self.get(ontoDeckDid)["name"]
-
-        if ontoDeckDid is None or ontoDeckDid == "":
-            if len(self.path(draggedDeckName)) > 1:
-                self.rename(draggedDeck, self.basename(draggedDeckName))
-        elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
-            draggedDeck = self.get(draggedDeckDid)
-            draggedDeckName = draggedDeck["name"]
-            ontoDeckName = self.get(ontoDeckDid)["name"]
-            assert ontoDeckName.strip()
-            self.rename(
-                draggedDeck, ontoDeckName + "::" + self.basename(draggedDeckName)
-            )
-
-    def _canDragAndDrop(self, draggedDeckName: str, ontoDeckName: str) -> bool:
-        if (
-            draggedDeckName == ontoDeckName
-            or self._isParent(ontoDeckName, draggedDeckName)
-            or self._isAncestor(draggedDeckName, ontoDeckName)
-        ):
-            return False
+        if not ontoDeckDid:
+            onto = 0
         else:
-            return True
-
-    def _isParent(self, parentDeckName: str, childDeckName: str) -> bool:
-        return self.path(childDeckName) == self.path(parentDeckName) + [
-            self.basename(childDeckName)
-        ]
-
-    def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> bool:
-        ancestorPath = self.path(ancestorDeckName)
-        return ancestorPath == self.path(descendantDeckName)[0 : len(ancestorPath)]
+            onto = int(ontoDeckDid)
+        self.drag_drop_decks([int(draggedDeckDid)], onto)
 
     # Deck configurations
     #############################################################

@@ -6,6 +6,7 @@ from __future__ import annotations
 from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import Any
 
 import aqt
 from anki.errors import DeckRenameError
@@ -63,7 +64,7 @@ class DeckBrowser:
     # Event handlers
     ##########################################################################
 
-    def _linkHandler(self, url):
+    def _linkHandler(self, url: str) -> Any:
         if ":" in url:
             (cmd, arg) = url.split(":", 1)
         else:
@@ -83,8 +84,8 @@ class DeckBrowser:
                 gui_hooks.sidebar_should_refresh_decks()
                 self.refresh()
         elif cmd == "drag":
-            draggedDeckDid, ontoDeckDid = arg.split(",")
-            self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
+            source, target = arg.split(",")
+            self._handle_drag_and_drop(int(source), int(target or 0))
         elif cmd == "collapse":
             self._collapse(int(arg))
         return False
@@ -271,13 +272,9 @@ class DeckBrowser:
             node.collapsed = not node.collapsed
         self._renderPage(reuse=True)
 
-    def _dragDeckOnto(self, draggedDeckDid: int, ontoDeckDid: int):
-        try:
-            self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
-            gui_hooks.sidebar_should_refresh_decks()
-        except DeckRenameError as e:
-            return showWarning(e.description)
-
+    def _handle_drag_and_drop(self, source: int, target: int) -> None:
+        self.mw.col.decks.drag_drop_decks([source], target)
+        gui_hooks.sidebar_should_refresh_decks()
         self.show()
 
     def ask_delete_deck(self, did: int) -> bool:
