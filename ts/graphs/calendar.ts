@@ -7,10 +7,20 @@
  */
 
 import pb from "anki/backend_proto";
-import { interpolateBlues } from "d3-scale-chromatic";
-import "d3-transition";
-import { select, mouse } from "d3-selection";
-import { scaleLinear, scaleSequentialSqrt } from "d3-scale";
+import {
+    interpolateBlues,
+    select,
+    pointer,
+    scaleLinear,
+    scaleSequentialSqrt,
+    timeDay,
+    timeYear,
+    timeSunday,
+    timeMonday,
+    timeFriday,
+    timeSaturday,
+} from "d3";
+import type { CountableTimeInterval } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -18,15 +28,6 @@ import {
     RevlogRange,
     SearchDispatch,
 } from "./graph-helpers";
-import {
-    timeDay,
-    timeYear,
-    timeSunday,
-    timeMonday,
-    timeFriday,
-    timeSaturday,
-} from "d3-time";
-import type { CountableTimeInterval } from "d3-time";
 import type { I18n } from "anki/i18n";
 
 export interface GraphData {
@@ -206,15 +207,15 @@ export function renderCalendar(
         .attr("height", height - 2)
         .attr("x", (d) => x(d.weekNumber + 1)!)
         .attr("y", (d) => bounds.marginTop + d.weekDay * height)
-        .on("mousemove", function (this: any, d: any) {
-            const [x, y] = mouse(document.body);
+        .on("mousemove", (event: MouseEvent, d: DayDatum) => {
+            const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)
         .attr("class", (d: any): string => {
             return d.count > 0 ? "clickable" : "";
         })
-        .on("click", function (this: any, d: any) {
+        .on("click", function (_event: MouseEvent, d: any) {
             if (d.count > 0) {
                 dispatch("search", { query: `"prop:rated=${d.day}"` });
             }

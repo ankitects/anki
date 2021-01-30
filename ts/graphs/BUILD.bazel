@@ -36,39 +36,17 @@ ts_library(
 )
 
 ts_library(
-    name = "types",
-    srcs = ["d3_missing.d.ts"],
-)
-
-ts_library(
     name = "lib",
     srcs = glob(
         ["*.ts"],
         exclude = ["bootstrap.ts"],
     ),
     deps = [
-        "types",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "@npm//@types/d3-array",
-        "@npm//@types/d3-axis",
-        "@npm//@types/d3-interpolate",
-        "@npm//@types/d3-scale",
-        "@npm//@types/d3-scale-chromatic",
-        "@npm//@types/d3-selection",
-        "@npm//@types/d3-shape",
-        "@npm//@types/d3-time",
-        "@npm//@types/d3-transition",
+        "@npm//@types/d3",
         "@npm//@types/lodash",
-        "@npm//d3-array",
-        "@npm//d3-axis",
-        "@npm//d3-interpolate",
-        "@npm//d3-scale",
-        "@npm//d3-scale-chromatic",
-        "@npm//d3-selection",
-        "@npm//d3-shape",
-        "@npm//d3-time",
-        "@npm//d3-transition",
+        "@npm//d3",
         "@npm//lodash.debounce",
         "@npm//lodash.throttle",
         "@npm//svelte",
@@ -112,7 +90,6 @@ eslint_test(
         [
             "*.ts",
         ],
-        exclude = ["d3_missing.d.ts"],
     ),
 )
 

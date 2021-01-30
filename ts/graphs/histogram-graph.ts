@@ -6,12 +6,20 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "d3-transition";
-import { select, mouse } from "d3-selection";
-import { cumsum, max, Bin } from "d3-array";
-import { scaleLinear, ScaleLinear, ScaleSequential } from "d3-scale";
-import { axisBottom, axisLeft, axisRight } from "d3-axis";
-import { area, curveBasis } from "d3-shape";
+import {
+    select,
+    pointer,
+    cumsum,
+    max,
+    scaleLinear,
+    axisBottom,
+    axisLeft,
+    axisRight,
+    area,
+    curveBasis,
+} from "d3";
+
+import type { ScaleLinear, ScaleSequential, Bin } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graph-helpers";
 
@@ -20,8 +28,7 @@ export interface HistogramData {
     bins: Bin<number, number>[];
     total: number;
     hoverText: (
-        data: HistogramData,
-        binIdx: number,
+        bin: Bin<number, number>,
         cumulative: number,
         percent: number
     ) => string;
@@ -76,9 +83,9 @@ export function histogramGraph(
 
     // x bars
 
-    function barWidth(d: any): number {
-        const width = Math.max(0, x(d.x1)! - x(d.x0)! - 1);
-        return width ? width : 0;
+    function barWidth(d: Bin<number, number>): number {
+        const width = Math.max(0, x(d.x1!) - x(d.x0!) - 1);
+        return width ?? 0;
     }
 
     const updateBar = (sel: any): any => {
@@ -144,27 +151,35 @@ export function histogramGraph(
             );
     }
 
+    const hoverData: [
+        Bin<number, number>,
+        number
+    ][] = data.bins.map((bin: Bin<number, number>, index: number) => [
+        bin,
+        areaData[index + 1],
+    ]);
+
     // hover/tooltip
     const hoverzone = svg
         .select("g.hoverzone")
         .selectAll("rect")
-        .data(data.bins)
+        .data(hoverData)
         .join("rect")
-        .attr("x", (d: any) => x(d.x0)!)
-        .attr("y", () => y(yMax!)!)
-        .attr("width", barWidth)
-        .attr("height", () => y(0)! - y(yMax!)!)
-        .on("mousemove", function (this: any, _d: any, idx: number) {
-            const [x, y] = mouse(document.body);
-            const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;
-            showTooltip(data.hoverText(data, idx, areaData[idx + 1], pct), x, y);
+        .attr("x", ([bin]) => x(bin.x0!))
+        .attr("y", () => y(yMax))
+        .attr("width", ([bin]) => barWidth(bin))
+        .attr("height", () => y(0) - y(yMax))
+        .on("mousemove", (event: MouseEvent, [bin, area]) => {
+            const [x, y] = pointer(event, document.body);
+            const pct = data.showArea ? (area / data.total) * 100 : 0;
+            showTooltip(data.hoverText(bin, area, pct), x, y);
         })
         .on("mouseout", hideTooltip);
 
     if (data.onClick) {
         hoverzone
-            .filter((d: Bin<number, number>) => d.length > 0)
+            .filter(([bin]) => bin.length > 0)
             .attr("class", "clickable")
-            .on("click", data.onClick);
+            .on("click", (_event, [bin]) => data.onClick!(bin));
     }
 }

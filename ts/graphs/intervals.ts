@@ -7,11 +7,19 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, quantile, sum, mean, Bin } from "d3-array";
-import { scaleLinear, scaleSequential } from "d3-scale";
+import {
+    extent,
+    histogram,
+    quantile,
+    sum,
+    mean,
+    scaleLinear,
+    scaleSequential,
+    interpolateBlues,
+} from "d3";
+import type { Bin } from "d3";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import { interpolateBlues } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
 import { timeSpan } from "anki/time";
@@ -135,12 +143,10 @@ export function prepareIntervalData(
     ).domain([xMax!, xMin!]);
 
     function hoverText(
-        data: HistogramData,
-        binIdx: number,
+        bin: Bin<number, number>,
         _cumulative: number,
         percent: number
     ): string {
-        const bin = data.bins[binIdx];
         // const day = dayLabel(i18n, bin.x0!, bin.x1!);
         const interval = intervalLabel(i18n, bin.x0!, bin.x1!, bin.length);
         const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);

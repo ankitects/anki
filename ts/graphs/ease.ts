@@ -7,11 +7,17 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, sum, Bin } from "d3-array";
-import { scaleLinear, scaleSequential } from "d3-scale";
+import {
+    extent,
+    histogram,
+    sum,
+    scaleLinear,
+    scaleSequential,
+    interpolateRdYlGn,
+} from "d3";
+import type { Bin } from "d3";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import { interpolateRdYlGn } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
 
@@ -63,8 +69,7 @@ export function prepareData(
 
     const colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
 
-    function hoverText(data: HistogramData, binIdx: number, _percent: number): string {
-        const bin = data.bins[binIdx];
+    function hoverText(bin: Bin<number, number>, _percent: number): string {
         const minPct = Math.floor(bin.x0!);
         const maxPct = Math.floor(bin.x1!);
         const percent = maxPct - minPct <= 10 ? `${bin.x0}%` : `${bin.x0}%-${bin.x1}%`;

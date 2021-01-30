@@ -7,7 +7,7 @@
 @typescript-eslint/ban-ts-ignore: "off" */
 
 import pb from "anki/backend_proto";
-import type { Selection } from "d3-selection";
+import type { Selection } from "d3";
 import type { PreferencePayload } from "./preferences";
 import { postRequest } from "anki/postrequest";
 

@@ -7,11 +7,17 @@
  */
 
 import pb from "anki/backend_proto";
-import { interpolateRdYlGn } from "d3-scale-chromatic";
-import "d3-transition";
-import { select, mouse } from "d3-selection";
-import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import {
+    interpolateRdYlGn,
+    select,
+    pointer,
+    scaleLinear,
+    scaleBand,
+    scaleSequential,
+    axisBottom,
+    axisLeft,
+    sum,
+} from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -20,7 +26,6 @@ import {
     millisecondCutoffForRange,
 } from "./graph-helpers";
 import type { I18n } from "anki/i18n";
-import { sum } from "d3-array";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -251,8 +256,8 @@ export function renderButtons(
         .attr("y", () => y(yMax!)!)
         .attr("width", xButton.bandwidth())
         .attr("height", () => y(0)! - y(yMax!)!)
-        .on("mousemove", function (this: any, d: Datum) {
-            const [x, y] = mouse(document.body);
+        .on("mousemove", (event: MouseEvent, d: Datum) => {
+            const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip);
