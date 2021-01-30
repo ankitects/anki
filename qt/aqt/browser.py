@@ -1015,13 +1015,31 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.ACTIONS_NEW), SearchTerm(new=True)),
-                    (tr(TR.SCHEDULING_LEARNING), SearchTerm(learn=True)),
-                    (tr(TR.SCHEDULING_REVIEW), SearchTerm(review=True)),
-                    (tr(TR.FILTERING_IS_DUE), SearchTerm(due=True)),
+                    (
+                        tr(TR.ACTIONS_NEW),
+                        SearchTerm(card_state=SearchTerm.CardState.NEW),
+                    ),
+                    (
+                        tr(TR.SCHEDULING_LEARNING),
+                        SearchTerm(card_state=SearchTerm.CardState.LEARN),
+                    ),
+                    (
+                        tr(TR.SCHEDULING_REVIEW),
+                        SearchTerm(card_state=SearchTerm.CardState.REVIEW),
+                    ),
+                    (
+                        tr(TR.FILTERING_IS_DUE),
+                        SearchTerm(card_state=SearchTerm.CardState.DUE),
+                    ),
                     None,
-                    (tr(TR.BROWSING_SUSPENDED), SearchTerm(suspended=True)),
-                    (tr(TR.BROWSING_BURIED), SearchTerm(buried=True)),
+                    (
+                        tr(TR.BROWSING_SUSPENDED),
+                        SearchTerm(card_state=SearchTerm.CardState.SUSPENDED),
+                    ),
+                    (
+                        tr(TR.BROWSING_BURIED),
+                        SearchTerm(card_state=SearchTerm.CardState.BURIED),
+                    ),
                     None,
                     (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=Flag.RED)),
                     (tr(TR.ACTIONS_ORANGE_FLAG), SearchTerm(flag=Flag.ORANGE)),

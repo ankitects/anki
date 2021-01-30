@@ -789,6 +789,14 @@ message FilterToSearchIn {
     uint32 days = 1;
     Rating rating = 2;
   }
+  enum CardState {
+    NEW = 0;
+    LEARN = 1;
+    REVIEW = 2;
+    DUE = 3;
+    SUSPENDED = 4;
+    BURIED = 5;
+  }
   oneof filter {
     string tag = 1;
     string deck = 2;
@@ -803,12 +811,7 @@ message FilterToSearchIn {
     bool whole_collection = 11;
     bool current_deck = 12;
     Flag flag = 13;
-    bool new = 14;
-    bool learn = 15;
-    bool review = 16;
-    bool due = 17;
-    bool suspended = 18;
-    bool buried = 19;
+    CardState card_state = 14;
   }
 }
 
