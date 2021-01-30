@@ -980,7 +980,7 @@ QTableView {{ gridline-color: {grid} }}
                 ml.addSeparator()
             else:
                 label, filter_name = row
-                ml.addItem(label, self.sidebar._named_filter(filter_name))
+                ml.addItem(label, self.sidebar._filter_func(filter_name))
         return ml
 
     def _todayFilters(self):
