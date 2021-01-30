@@ -271,6 +271,7 @@ class SidebarTreeView(QTreeView):
         self.setUniformRowHeights(True)
         self.setHeaderHidden(True)
         self.setIndentation(15)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDragDropOverwriteMode(False)
@@ -344,7 +345,6 @@ class SidebarTreeView(QTreeView):
         model = self.model()
         source_items = [model.item_for_index(idx) for idx in self.selectedIndexes()]
         target_item = model.item_for_index(self.indexAt(event.pos()))
-        print("drop")
         if self.handle_drag_drop(source_items, target_item):
             event.acceptProposedAction()
 
@@ -647,6 +647,13 @@ class SidebarTreeView(QTreeView):
 
         if not m.children():
             return
+
+        # until we support multiple selection, show user that only the current
+        # item is being operated on by clearing the selection
+        if idx:
+            sm = self.selectionModel()
+            sm.clear()
+            sm.select(idx, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
 
         m.exec_(QCursor.pos())
 
