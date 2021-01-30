@@ -162,9 +162,7 @@ class CustomStudy(QDialog):
         if i == RADIO_FORGOT:
             search = self.mw.col.build_search_string(
                 SearchTerm(
-                    rated=SearchTerm.Rated(
-                        days=spin, rating=SearchTerm.RATING_AGAIN
-                    )
+                    rated=SearchTerm.Rated(days=spin, rating=SearchTerm.RATING_AGAIN)
                 )
             )
             dyn["terms"][0] = [search, DYN_MAX_SIZE, DYN_RANDOM]
