@@ -208,7 +208,7 @@ export function renderCalendar(
         .attr("x", (d) => x(d.weekNumber + 1)!)
         .attr("y", (d) => bounds.marginTop + d.weekDay * height)
         .on("mousemove", (event: MouseEvent, d: DayDatum) => {
-            const [x, y] = pointer(event);
+            const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)

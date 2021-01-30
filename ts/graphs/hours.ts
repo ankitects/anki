@@ -205,7 +205,7 @@ export function renderHours(
         .attr("width", x.bandwidth())
         .attr("height", () => y(0)! - y(yMax!)!)
         .on("mousemove", (event: MouseEvent, d: Hour) => {
-            const [x, y] = pointer(event);
+            const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip);

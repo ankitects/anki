@@ -170,7 +170,7 @@ export function histogramGraph(
         .attr("width", ([bin]) => barWidth(bin))
         .attr("height", () => y(0) - y(yMax))
         .on("mousemove", (event: MouseEvent, [bin, area]) => {
-            const [x, y] = pointer(event);
+            const [x, y] = pointer(event, document.body);
             const pct = data.showArea ? (area / data.total) * 100 : 0;
             showTooltip(data.hoverText(bin, area, pct), x, y);
         })
