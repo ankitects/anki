@@ -160,7 +160,13 @@ class CustomStudy(QDialog):
             dyn = self.mw.col.decks.get(did)
         # and then set various options
         if i == RADIO_FORGOT:
-            search = self.mw.col.build_search_string(SearchTerm(forgot_in_days=spin))
+            search = self.mw.col.build_search_string(
+                SearchTerm(
+                    rated=SearchTerm.Rated(
+                        days=spin, rating=SearchTerm.Rated.Rating.ANSWER_BUTTON_1
+                    )
+                )
+            )
             dyn["terms"][0] = [search, DYN_MAX_SIZE, DYN_RANDOM]
             dyn["resched"] = False
         elif i == RADIO_AHEAD:

@@ -317,9 +317,9 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
                 text: "*".to_string().into(),
                 is_re: false,
             }),
-            Filter::ForgotInDays(u) => Node::Search(SearchNode::Rated {
-                days: u,
-                ease: EaseKind::AnswerButton(1),
+            Filter::Rated(rated) => Node::Search(SearchNode::Rated {
+                days: rated.days,
+                ease: rated.rating().into(),
             }),
             Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
             Filter::DueInDays(i) => Node::Search(SearchNode::Property {
@@ -328,10 +328,6 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             }),
             Filter::WholeCollection(_) => Node::Search(SearchNode::WholeCollection),
             Filter::CurrentDeck(_) => Node::Search(SearchNode::Deck("current".into())),
-            Filter::StudiedToday(_) => Node::Search(SearchNode::Rated {
-                days: 1,
-                ease: EaseKind::AnyAnswerButton,
-            }),
             Filter::New(_) => Node::Search(SearchNode::State(StateKind::New)),
             Filter::Learn(_) => Node::Search(SearchNode::State(StateKind::Learning)),
             Filter::Review(_) => Node::Search(SearchNode::State(StateKind::Review)),
@@ -355,6 +351,19 @@ impl From<BoolSeparatorProto> for BoolSeparator {
         match sep {
             BoolSeparatorProto::And => BoolSeparator::And,
             BoolSeparatorProto::Or => BoolSeparator::Or,
+        }
+    }
+}
+
+impl From<pb::filter_to_search_in::rated::Rating> for EaseKind {
+    fn from(r: pb::filter_to_search_in::rated::Rating) -> Self {
+        match r {
+            pb::filter_to_search_in::rated::Rating::AnswerButton1 => EaseKind::AnswerButton(1),
+            pb::filter_to_search_in::rated::Rating::AnswerButton2 => EaseKind::AnswerButton(2),
+            pb::filter_to_search_in::rated::Rating::AnswerButton3 => EaseKind::AnswerButton(3),
+            pb::filter_to_search_in::rated::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
+            pb::filter_to_search_in::rated::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
+            pb::filter_to_search_in::rated::Rating::ManualReschedule => EaseKind::ManualReschedule,
         }
     }
 }
