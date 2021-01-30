@@ -1,11 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-non-null-assertion: "off",
-@typescript-eslint/no-explicit-any: "off",
- */
-
 import type pb from "anki/backend_proto";
 
 import {
@@ -60,7 +55,7 @@ export function buildHistogram(
     }
 
     const [xMinOrig] = extent(data.daysAdded);
-    let xMin = xMinOrig;
+    let xMin = xMinOrig ?? 0;
 
     // cap max to selected range
     switch (range) {
@@ -77,11 +72,11 @@ export function buildHistogram(
             break;
     }
     const xMax = 1;
-    const desiredBars = Math.min(70, Math.abs(xMin!));
+    const desiredBars = Math.min(70, Math.abs(xMin));
 
-    const scale = scaleLinear().domain([xMin!, xMax]);
+    const scale = scaleLinear().domain([xMin, xMax]);
     const bins = histogram()
-        .domain(scale.domain() as any)
+        .domain(scale.domain() as [number, number])
         .thresholds(scale.ticks(desiredBars))(data.daysAdded);
 
     // empty graph?
@@ -91,11 +86,11 @@ export function buildHistogram(
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!)
-    ).domain([xMax!, xMin!]);
+        interpolateBlues(adjustedRange(n))
+    ).domain([xMax, xMin]);
 
     const totalInPeriod = sum(bins, (bin) => bin.length);
-    const periodDays = Math.abs(xMin!);
+    const periodDays = Math.abs(xMin);
     const cardsPerDay = Math.round(totalInPeriod / periodDays);
     const tableData = [
         {
@@ -113,7 +108,7 @@ export function buildHistogram(
         cumulative: number,
         _percent: number
     ): string {
-        const day = dayLabel(i18n, bin.x0!, bin.x1!);
+        const day = dayLabel(i18n, bin.x0 ?? 0, bin.x1 ?? 0);
         const cards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: bin.length });
         const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
         const totalCards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: cumulative });
@@ -121,8 +116,8 @@ export function buildHistogram(
     }
 
     function onClick(bin: Bin<number, number>): void {
-        const start = Math.abs(bin.x0!) + 1;
-        const end = Math.abs(bin.x1!) + 1;
+        const start = Math.abs(bin.x0 ?? 0) + 1;
+        const end = Math.abs(bin.x1 ?? 0) + 1;
         const query = makeQuery(start, end);
         dispatch("search", { query });
     }
