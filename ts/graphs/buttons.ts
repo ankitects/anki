@@ -137,7 +137,7 @@ export function renderButtons(
     const yMax = Math.max(...data.map((d) => d.count));
 
     const svg = select(svgElem);
-    const trans = svg.transition().duration(600) as any;
+    const transitionTime = 600;
 
     if (!yMax) {
         setDataAvailable(svg, false);
@@ -150,7 +150,8 @@ export function renderButtons(
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
+        .transition()
+        .duration(transitionTime)
         .call(
             axisBottom(xGroup)
                 .tickFormat((d: string) => {
@@ -181,12 +182,12 @@ export function renderButtons(
     const colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);
 
     // y scale
-
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax]);
     svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
+        .transition()
+        .duration(transitionTime)
         .call(
             axisLeft(y)
                 .ticks(bounds.height / 50)
@@ -199,7 +200,8 @@ export function renderButtons(
     ): void => {
         sel.attr("width", xButton.bandwidth())
             .attr("opacity", 0.8)
-            .transition(trans)
+            .transition()
+            .duration(transitionTime)
             .attr(
                 "x",
                 (d: Datum) =>
@@ -230,12 +232,15 @@ export function renderButtons(
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0))
+                    remove
+                        .transition()
+                        .duration(transitionTime)
+                        .attr("height", 0)
+                        .attr("y", y(0))
                 )
         );
 
     // hover/tooltip
-
     function tooltipText(d: Datum): string {
         const button = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_NUMBER);
         const timesPressed = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_PRESSED);
