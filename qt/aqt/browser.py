@@ -603,7 +603,6 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSearch(self):
-        qconnect(self.form.searchButton.clicked, self.onSearchActivated)
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.lineEdit().setPlaceholderText(
