@@ -7,7 +7,7 @@ import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 import aqt.modelchooser
-from anki.backend_pb2 import SearchTerm
+from anki.collection import SearchTerm
 from anki.consts import MODEL_CLOZE
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
