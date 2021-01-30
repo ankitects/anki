@@ -777,6 +777,18 @@ message FilterToSearchIn {
     GREEN = 4;
     BLUE = 5;
   }
+  message Rated {
+    enum Rating {
+      ANY_ANSWER_BUTTON = 0;
+      ANSWER_BUTTON_1 = 1;
+      ANSWER_BUTTON_2 = 2;
+      ANSWER_BUTTON_3 = 3;
+      ANSWER_BUTTON_4 = 4;
+      MANUAL_RESCHEDULE = 5;
+    }
+    uint32 days = 1;
+    Rating rating = 2;
+  }
   oneof filter {
     string tag = 1;
     string deck = 2;
@@ -785,19 +797,18 @@ message FilterToSearchIn {
     NoteIDs nids = 5;
     DupeIn dupe = 6;
     string field_name = 7;
-    uint32 forgot_in_days = 8;
+    Rated rated = 8;
     uint32 added_in_days = 9;
     int32 due_in_days = 10;
     bool whole_collection = 11;
     bool current_deck = 12;
-    bool studied_today = 13;
+    Flag flag = 13;
     bool new = 14;
     bool learn = 15;
     bool review = 16;
     bool due = 17;
     bool suspended = 18;
     bool buried = 19;
-    Flag flag = 20;
   }
 }
 

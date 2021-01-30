@@ -993,8 +993,18 @@ QTableView {{ gridline-color: {grid} }}
             self._simpleFilters(
                 (
                     (tr(TR.BROWSING_ADDED_TODAY), SearchTerm(added_in_days=1)),
-                    (tr(TR.BROWSING_STUDIED_TODAY), SearchTerm(studied_today=True)),
-                    (tr(TR.BROWSING_AGAIN_TODAY), SearchTerm(forgot_in_days=1)),
+                    (
+                        tr(TR.BROWSING_STUDIED_TODAY),
+                        SearchTerm(rated=SearchTerm.Rated(days=1)),
+                    ),
+                    (
+                        tr(TR.BROWSING_AGAIN_TODAY),
+                        SearchTerm(
+                            rated=SearchTerm.Rated(
+                                days=1, rating=SearchTerm.Rated.Rating.ANSWER_BUTTON_1
+                            )
+                        ),
+                    ),
                 )
             )
         )
