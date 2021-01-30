@@ -628,8 +628,11 @@ class Browser(QMainWindow):
             self.update_history()
 
     def search_for(self, search: str, prompt: Optional[str] = None) -> bool:
-        # keep track of search string so that we reuse identical search when
-        # refreshing, rather than whatever is currently in the search field
+        """Keep track of search string so that we reuse identical search when
+        refreshing, rather than whatever is currently in the search field.
+        Optionally set the search bar to a different text than the actual search.
+        """
+
         self._lastSearchTxt = search
         prompt = search if prompt == None else prompt
         self.form.searchEdit.lineEdit().setText(prompt)
@@ -667,6 +670,8 @@ class Browser(QMainWindow):
         return selected
 
     def show_single_card(self, card: Optional[Card]) -> None:
+        """Try to search for the according note and select the given card."""
+
         nid = card and card.nid
         if nid:
 
