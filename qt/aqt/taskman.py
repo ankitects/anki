@@ -73,7 +73,8 @@ class TaskManager(QObject):
 
         def wrapped_done(fut):
             self.mw.progress.finish()
-            on_done(fut)
+            if on_done:
+                on_done(fut)
 
         self.run_in_background(task, wrapped_done)
 
