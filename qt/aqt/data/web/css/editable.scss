@@ -1,0 +1,19 @@
+anki-editable {
+    display: block;
+    overflow-wrap: break-word;
+    overflow: auto;
+    padding: 5px;
+
+    &:empty::after {
+        content: "\a";
+        white-space: pre;
+    }
+}
+
+img.drawing {
+    zoom: 50%;
+
+    .nightMode & {
+        filter: unquote("invert() hue-rotate(180deg)");
+    }
+}
