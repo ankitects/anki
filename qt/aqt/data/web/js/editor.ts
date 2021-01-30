@@ -280,10 +280,10 @@ function onFocus(evt: FocusEvent): void {
 }
 
 function focusField(n: number): void {
-    const field = document.getElementById(`f${n}`) as EditingArea;
+    const field = getEditorField(n);
 
     if (field) {
-        field.focusEditable();
+        field.editingArea.focusEditable();
     }
 }
 
@@ -604,6 +604,11 @@ function adjustFieldAmount(amount: number): void {
     while (fieldsContainer.childElementCount > amount) {
         fieldsContainer.removeChild(fieldsContainer.lastElementChild);
     }
+}
+
+function getEditorField(n: number): EditorField | null {
+    const fields = document.getElementById("fields").children;
+    return (fields[n] as EditorField) ?? null;
 }
 
 function forEditorField<T>(
