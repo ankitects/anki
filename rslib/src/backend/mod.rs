@@ -36,7 +36,8 @@ use crate::{
     sched::timespan::{answer_button_time, time_span},
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, EaseKind, Node, PropertyKind, SearchNode, SortMode, StateKind, TemplateKind,
+        BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode, StateKind,
+        TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -355,15 +356,15 @@ impl From<BoolSeparatorProto> for BoolSeparator {
     }
 }
 
-impl From<pb::search_term::Rating> for EaseKind {
+impl From<pb::search_term::Rating> for RatingKind {
     fn from(r: pb::search_term::Rating) -> Self {
         match r {
-            pb::search_term::Rating::Again => EaseKind::AnswerButton(1),
-            pb::search_term::Rating::Hard => EaseKind::AnswerButton(2),
-            pb::search_term::Rating::Good => EaseKind::AnswerButton(3),
-            pb::search_term::Rating::Easy => EaseKind::AnswerButton(4),
-            pb::search_term::Rating::Any => EaseKind::AnyAnswerButton,
-            pb::search_term::Rating::ByReschedule => EaseKind::ManualReschedule,
+            pb::search_term::Rating::Again => RatingKind::AnswerButton(1),
+            pb::search_term::Rating::Hard => RatingKind::AnswerButton(2),
+            pb::search_term::Rating::Good => RatingKind::AnswerButton(3),
+            pb::search_term::Rating::Easy => RatingKind::AnswerButton(4),
+            pb::search_term::Rating::Any => RatingKind::AnyAnswerButton,
+            pb::search_term::Rating::ByReschedule => RatingKind::ManualReschedule,
         }
     }
 }
