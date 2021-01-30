@@ -20,8 +20,8 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
+from anki.backend_pb2 import SearchTerm
 from anki.cards import Card
-from anki.collection import dupe_search_term
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note
@@ -541,7 +541,11 @@ class Editor:
 
     def showDupes(self):
         self.mw.browser_search(
-            dupe_search_term(self.note.model()["id"], self.note.fields[0])
+            SearchTerm(
+                dupe=SearchTerm.Dupe(
+                    notetype_id=self.note.model()["id"], first_field=self.note.fields[0]
+                )
+            )
         )
 
     def fieldsAreBlank(self, previousNote=None):

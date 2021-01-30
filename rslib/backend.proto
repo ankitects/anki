@@ -765,9 +765,9 @@ message BuiltinSearchOrder {
 }
 
 message SearchTerm {
-  message DupeIn {
-    NoteTypeID mid = 1;
-    string text = 2;
+  message Dupe {
+    int64 notetype_id = 1;
+    string first_field = 2;
   }
   enum Flag {
     WITHOUT = 0;
@@ -803,7 +803,7 @@ message SearchTerm {
     string note = 3;
     uint32 template = 4;
     NoteIDs nids = 5;
-    DupeIn dupe = 6;
+    Dupe dupe = 6;
     string field_name = 7;
     Rated rated = 8;
     uint32 added_in_days = 9;

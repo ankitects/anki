@@ -309,8 +309,8 @@ impl From<pb::SearchTerm> for Node<'_> {
             }
             Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
             Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
-                text: dupe.text.into(),
+                note_type_id: dupe.notetype_id.into(),
+                text: dupe.first_field.into(),
             }),
             Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
                 field: escape_anki_wildcards(&s).into_owned().into(),
