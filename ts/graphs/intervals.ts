@@ -1,11 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-non-null-assertion: "off",
-@typescript-eslint/no-explicit-any: "off",
- */
-
 import type pb from "anki/backend_proto";
 import {
     extent,
@@ -95,7 +90,7 @@ export function prepareIntervalData(
     // cap max to selected range
     switch (range) {
         case IntervalRange.Month:
-            xMax = Math.min(xMax!, 30);
+            xMax = Math.min(xMax ?? 0, 30);
             break;
         case IntervalRange.Percentile50:
             xMax = quantile(allIntervals, 0.5);
@@ -110,7 +105,7 @@ export function prepareIntervalData(
             break;
     }
 
-    xMax = xMax! + 1;
+    xMax = (xMax ?? 0) + 1;
 
     // do not show the zero interval
     const increment = (x: number): number => x + 1;
@@ -119,9 +114,9 @@ export function prepareIntervalData(
         idx === ticks.length - 1 ? [x - (ticks[0] - 1), x + 1] : [x - (ticks[0] - 1)];
 
     // cap bars to available range
-    const desiredBars = Math.min(70, xMax! - xMin!);
+    const desiredBars = Math.min(70, xMax - xMin);
 
-    const prescale = scaleLinear().domain([xMin!, xMax!]);
+    const prescale = scaleLinear().domain([xMin, xMax]);
 
     const scale = scaleLinear().domain(
         (niceNecessary ? prescale.nice() : prescale).domain().map(increment)
@@ -139,23 +134,22 @@ export function prepareIntervalData(
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!)
-    ).domain([xMax!, xMin!]);
+        interpolateBlues(adjustedRange(n))
+    ).domain([xMax, xMin]);
 
     function hoverText(
         bin: Bin<number, number>,
         _cumulative: number,
         percent: number
     ): string {
-        // const day = dayLabel(i18n, bin.x0!, bin.x1!);
-        const interval = intervalLabel(i18n, bin.x0!, bin.x1!, bin.length);
+        const interval = intervalLabel(i18n, bin.x0 ?? 0, bin.x1 ?? 0, bin.length);
         const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
     function onClick(bin: Bin<number, number>): void {
-        const start = bin.x0!;
-        const end = bin.x1! - 1;
+        const start = bin.x0 ?? 0;
+        const end = (bin.x1 ?? 0) - 1;
         const query = makeQuery(start, end);
         dispatch("search", { query });
     }
