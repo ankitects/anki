@@ -7,10 +7,17 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, sum, Bin } from "d3-array";
-import { scaleLinear, scaleSequential } from "d3-scale";
+
+import {
+    extent,
+    histogram,
+    sum,
+    scaleLinear,
+    scaleSequential,
+    interpolateBlues,
+} from "d3";
+import type { Bin } from "d3";
 import type { HistogramData } from "./histogram-graph";
-import { interpolateBlues } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
 import { dayLabel } from "anki/time";
 import { GraphRange } from "./graph-helpers";
@@ -52,7 +59,7 @@ export function buildHistogram(
         return [null, []];
     }
 
-    const [xMinOrig, _xMax] = extent(data.daysAdded);
+    const [xMinOrig] = extent(data.daysAdded);
     let xMin = xMinOrig;
 
     // cap max to selected range

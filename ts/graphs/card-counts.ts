@@ -13,14 +13,14 @@ import {
     schemeBlues,
     schemeOranges,
     schemeReds,
-} from "d3-scale-chromatic";
-import "d3-transition";
-import { select } from "d3-selection";
-import { scaleLinear } from "d3-scale";
-import { pie, arc } from "d3-shape";
-import { interpolate } from "d3-interpolate";
+    select,
+    scaleLinear,
+    pie,
+    arc,
+    interpolate,
+    cumsum,
+} from "d3";
 import type { GraphBounds } from "./graph-helpers";
-import { cumsum } from "d3-array";
 import type { I18n } from "anki/i18n";
 
 type Count = [string, number, boolean, string];
