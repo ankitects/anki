@@ -175,15 +175,19 @@ class SidebarModel(QAbstractItemModel):
     def supportedDropActions(self):
         return Qt.MoveAction
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex):
         if not index.isValid():
             return Qt.ItemIsEnabled
-        return (
-            Qt.ItemIsEnabled
-            | Qt.ItemIsSelectable
-            | Qt.ItemIsDragEnabled
-            | Qt.ItemIsDropEnabled
-        )
+        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+        item: SidebarItem = index.internalPointer()
+        if item.item_type in (
+            SidebarItemType.DECK,
+            SidebarItemType.DECK_ROOT,
+        ):
+            flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+
+        return flags
 
     # Helpers
     ######################################################################
@@ -353,10 +357,12 @@ class SidebarTreeView(QTreeView):
             return self._handle_drag_drop_decks(sources, target)
         return False
 
-    def _handle_drag_drop_decks(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
-        source_ids = [source.id
-                       for source in sources
-                       if source.item_type == SidebarItemType.DECK]
+    def _handle_drag_drop_decks(
+        self, sources: List[SidebarItem], target: SidebarItem
+    ) -> bool:
+        source_ids = [
+            source.id for source in sources if source.item_type == SidebarItemType.DECK
+        ]
         if not source_ids:
             return False
 
@@ -364,8 +370,9 @@ class SidebarTreeView(QTreeView):
             fut.result()
             self.refresh()
 
-        self.mw.taskman.with_progress(lambda: self.col.decks.drag_drop_decks(source_ids, target.id),
-                                      on_done)
+        self.mw.taskman.with_progress(
+            lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
+        )
         return True
 
     def onClickCurrent(self) -> None:
