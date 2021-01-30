@@ -33,7 +33,6 @@ from anki.rsbackend import (  # pylint: disable=unused-import
     DBError,
     FormatTimeSpanContext,
     InvalidInput,
-    NoteIDs,
     Progress,
     RustBackend,
     pb,

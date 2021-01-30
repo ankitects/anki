@@ -50,10 +50,6 @@ message NoteID {
   int64 nid = 1;
 }
 
-message NoteIDs {
-  repeated int64 nids = 1;
-}
-
 message CardID {
   int64 cid = 1;
 }
