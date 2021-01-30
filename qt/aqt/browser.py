@@ -13,7 +13,7 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, Flag, InvalidInput, SearchTerm, nid_search_term
+from anki.collection import Collection, InvalidInput, SearchTerm, nid_search_term
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
@@ -1041,12 +1041,15 @@ QTableView {{ gridline-color: {grid} }}
                         SearchTerm(card_state=SearchTerm.CardState.BURIED),
                     ),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=Flag.RED)),
-                    (tr(TR.ACTIONS_ORANGE_FLAG), SearchTerm(flag=Flag.ORANGE)),
-                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=Flag.GREEN)),
-                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=Flag.BLUE)),
-                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=Flag.WITHOUT)),
-                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=Flag.ANY)),
+                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=SearchTerm.Flag.RED)),
+                    (
+                        tr(TR.ACTIONS_ORANGE_FLAG),
+                        SearchTerm(flag=SearchTerm.Flag.ORANGE),
+                    ),
+                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=SearchTerm.Flag.GREEN)),
+                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=SearchTerm.Flag.BLUE)),
+                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=SearchTerm.Flag.WITHOUT)),
+                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=SearchTerm.Flag.ANY)),
                 )
             )
         )

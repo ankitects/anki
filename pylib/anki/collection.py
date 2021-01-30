@@ -16,6 +16,7 @@ import anki.find
 import anki.latex  # sets up hook
 import anki.template
 from anki import hooks
+from anki.backend_pb2 import SearchTerm
 from anki.cards import Card
 from anki.config import ConfigManager
 from anki.consts import *
@@ -30,14 +31,11 @@ from anki.rsbackend import (  # pylint: disable=unused-import
     BackendNoteTypeID,
     ConcatSeparator,
     DBError,
-    DupeIn,
-    Flag,
     FormatTimeSpanContext,
     InvalidInput,
     NoteIDs,
     Progress,
     RustBackend,
-    SearchTerm,
     pb,
 )
 from anki.sched import Scheduler as V1Scheduler
@@ -789,7 +787,7 @@ table.review-log {{ {revlog_style} }}
 def dupe_search_term(mid: int, text: str) -> SearchTerm:
     """Helper function for building a DupeIn message."""
 
-    dupe_in = DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
+    dupe_in = SearchTerm.DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
     return SearchTerm(dupe=dupe_in)
 
 
