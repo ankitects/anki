@@ -88,7 +88,7 @@ service BackendService {
 
   // searching
 
-  rpc FilterToSearch(FilterToSearchIn) returns (String);
+  rpc FilterToSearch(SearchTerm) returns (String);
   rpc NormalizeSearch(String) returns (String);
   rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
@@ -764,7 +764,7 @@ message BuiltinSearchOrder {
   bool reverse = 2;
 }
 
-message FilterToSearchIn {
+message SearchTerm {
   message DupeIn {
     NoteTypeID mid = 1;
     string text = 2;
