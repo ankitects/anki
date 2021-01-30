@@ -15,7 +15,7 @@ import {
     scaleSequential,
     interpolateRdYlGn,
 } from "d3";
-import type { Bin } from "d3";
+import type { Bin, ScaleLinear } from "d3";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import type { I18n } from "anki/i18n";
@@ -43,6 +43,30 @@ function makeQuery(start: number, end: number): string {
     return `${fromQuery} AND ${tillQuery}`;
 }
 
+function getAdjustedScaleAndTicks(
+    min: number,
+    max: number,
+    desiredBars: number
+): [ScaleLinear<number, number, never>, number[]] {
+    const prescale = scaleLinear().domain([min, max]).nice();
+    const ticks = prescale.ticks(desiredBars);
+
+    const predomain = prescale.domain() as [number, number];
+
+    const minOffset = min - predomain[0];
+    const tickSize = ticks[1] - ticks[0];
+
+    if (minOffset === 0 || (minOffset % tickSize !== 0 && tickSize % minOffset !== 0)) {
+        return [prescale, ticks];
+    }
+
+    const add = (n: number): number => n + minOffset;
+    return [
+        scaleLinear().domain(predomain.map(add) as [number, number]),
+        ticks.map(add),
+    ];
+}
+
 export function prepareData(
     data: GraphData,
     i18n: I18n,
@@ -56,16 +80,15 @@ export function prepareData(
     }
     const total = allEases.length;
     const [, origXMax] = extent(allEases);
-    let xMax = origXMax;
     const xMin = 130;
-
-    xMax = xMax! + 1;
+    const xMax = origXMax! + 1;
     const desiredBars = 20;
 
-    const scale = scaleLinear().domain([130, xMax!]).nice();
+    const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);
+
     const bins = histogram()
-        .domain(scale.domain() as any)
-        .thresholds(scale.ticks(desiredBars))(allEases);
+        .domain(scale.domain() as [number, number])
+        .thresholds(ticks)(allEases);
 
     const colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
 
