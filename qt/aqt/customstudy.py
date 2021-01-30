@@ -163,7 +163,7 @@ class CustomStudy(QDialog):
             search = self.mw.col.build_search_string(
                 SearchTerm(
                     rated=SearchTerm.Rated(
-                        days=spin, rating=SearchTerm.Rating.ANSWER_BUTTON_1
+                        days=spin, rating=SearchTerm.RATING_AGAIN
                     )
                 )
             )
@@ -175,7 +175,7 @@ class CustomStudy(QDialog):
             dyn["resched"] = True
         elif i == RADIO_PREVIEW:
             search = self.mw.col.build_search_string(
-                SearchTerm(card_state=SearchTerm.CardState.NEW),
+                SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
                 SearchTerm(added_in_days=spin),
             )
             dyn["terms"][0] = [search, DYN_MAX_SIZE, DYN_OLDEST]
@@ -184,19 +184,19 @@ class CustomStudy(QDialog):
             type = f.cardType.currentRow()
             if type == TYPE_NEW:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(card_state=SearchTerm.CardState.NEW)
+                    SearchTerm(card_state=SearchTerm.CARD_STATE_NEW)
                 )
                 ord = DYN_ADDED
                 dyn["resched"] = True
             elif type == TYPE_DUE:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(card_state=SearchTerm.CardState.DUE)
+                    SearchTerm(card_state=SearchTerm.CARD_STATE_DUE)
                 )
                 ord = DYN_DUE
                 dyn["resched"] = True
             elif type == TYPE_REVIEW:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(card_state=SearchTerm.CardState.NEW), negate=True
+                    SearchTerm(card_state=SearchTerm.CARD_STATE_NEW), negate=True
                 )
                 ord = DYN_RANDOM
                 dyn["resched"] = True

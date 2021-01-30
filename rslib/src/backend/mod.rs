@@ -335,7 +335,7 @@ impl From<pb::SearchTerm> for Node<'_> {
                     .into(),
             )),
             Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
-                Flag::Without => Node::Search(SearchNode::Flag(0)),
+                Flag::None => Node::Search(SearchNode::Flag(0)),
                 Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
                 Flag::Red => Node::Search(SearchNode::Flag(1)),
                 Flag::Orange => Node::Search(SearchNode::Flag(2)),
@@ -358,12 +358,12 @@ impl From<BoolSeparatorProto> for BoolSeparator {
 impl From<pb::search_term::Rating> for EaseKind {
     fn from(r: pb::search_term::Rating) -> Self {
         match r {
-            pb::search_term::Rating::AnswerButton1 => EaseKind::AnswerButton(1),
-            pb::search_term::Rating::AnswerButton2 => EaseKind::AnswerButton(2),
-            pb::search_term::Rating::AnswerButton3 => EaseKind::AnswerButton(3),
-            pb::search_term::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
-            pb::search_term::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
-            pb::search_term::Rating::ManualReschedule => EaseKind::ManualReschedule,
+            pb::search_term::Rating::Again => EaseKind::AnswerButton(1),
+            pb::search_term::Rating::Hard => EaseKind::AnswerButton(2),
+            pb::search_term::Rating::Good => EaseKind::AnswerButton(3),
+            pb::search_term::Rating::Easy => EaseKind::AnswerButton(4),
+            pb::search_term::Rating::Any => EaseKind::AnyAnswerButton,
+            pb::search_term::Rating::ByReschedule => EaseKind::ManualReschedule,
         }
     }
 }

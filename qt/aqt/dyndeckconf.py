@@ -48,11 +48,11 @@ class DeckConf(QDialog):
         self.loadConf()
         if search:
             search = self.mw.col.build_search_string(
-                search, SearchTerm(card_state=SearchTerm.CardState.DUE)
+                search, SearchTerm(card_state=SearchTerm.CARD_STATE_DUE)
             )
             self.form.search.setText(search)
             search_2 = self.mw.col.build_search_string(
-                search, SearchTerm(card_state=SearchTerm.CardState.NEW)
+                search, SearchTerm(card_state=SearchTerm.CARD_STATE_NEW)
             )
             self.form.search_2.setText(search_2)
         self.form.search.selectAll()
