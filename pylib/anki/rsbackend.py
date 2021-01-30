@@ -47,7 +47,6 @@ TagTreeNode = pb.TagTreeNode
 NoteType = pb.NoteType
 DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
-NoteIDs = pb.NoteIDs
 BackendNoteTypeID = pb.NoteTypeID
 ConcatSeparator = pb.ConcatenateSearchesIn.Separator
 SyncAuth = pb.SyncAuth
