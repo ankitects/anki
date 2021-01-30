@@ -1,12 +1,16 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+html {
+    background: var(--bg-color);
+}
+
 #fields {
     display: flex;
     flex-direction: column;
     margin: 5px;
 
-    & > * {
+    & > *, & > * > * {
         margin: 1px 0;
 
         &:first-child {
@@ -22,23 +26,15 @@
 .field {
     border: 1px solid var(--border);
     background: var(--frame-bg);
-    padding: 5px;
-    overflow-wrap: break-word;
-    overflow: auto;
 
-    &:empty::after {
-        content: "\A";
-        white-space: pre;
+    &.dupe {
+        background: var(--flag1-bg);
     }
 }
 
 .fname {
     vertical-align: middle;
     padding: 0;
-}
-
-img {
-    max-width: 90%;
 }
 
 body {
@@ -55,6 +51,8 @@ body {
     left: 0;
     z-index: 5;
     padding: 2px;
+
+    background: var(--bg-color);
 }
 
 .topbuts > * {
@@ -118,21 +116,26 @@ button.highlighted {
     }
 
     #topbutsright & {
-        border-bottom: 3px solid #000;
+        border-bottom: 3px solid black;
+    }
+
+    .nightMode #topbutsright & {
+        border-bottom: 3px solid white;
     }
 }
 
-.dupe {
-    background: var(--flag1-bg);
-}
+#dupes {
+    position: sticky;
+    bottom: 0;
 
-#dupes a {
-    color: var(--link);
-}
+    text-align: center;
+    background-color: var(--bg-color);
 
-.drawing {
-    zoom: 50%;
-}
-.nightMode img.drawing {
-    filter: unquote("invert() hue-rotate(180deg)");
+    &.is-inactive {
+        display: none;
+    }
+
+    a {
+        color: var(--link);
+    }
 }
