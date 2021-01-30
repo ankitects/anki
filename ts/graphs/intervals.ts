@@ -122,7 +122,6 @@ export function prepareIntervalData(
     const desiredBars = Math.min(70, xMax! - xMin!);
 
     const prescale = scaleLinear().domain([xMin!, xMax!]);
-
     const scale = scaleLinear().domain(
         (niceNecessary ? prescale.nice() : prescale).domain().map(increment)
     );
