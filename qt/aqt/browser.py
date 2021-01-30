@@ -627,7 +627,7 @@ class Browser(QMainWindow):
             self.search_for(normed)
             self.update_history()
 
-    def search_for(self, search: str, prompt: Optional[str] = None) -> bool:
+    def search_for(self, search: str, prompt: Optional[str] = None):
         """Keep track of search string so that we reuse identical search when
         refreshing, rather than whatever is currently in the search field.
         Optionally set the search bar to a different text than the actual search.
@@ -649,7 +649,7 @@ class Browser(QMainWindow):
             # no row change will fire
             self._onRowChanged(None, None)
 
-    def update_history(self) -> None:
+    def update_history(self):
         sh = self.mw.pm.profile["searchHistory"]
         if self._lastSearchTxt in sh:
             sh.remove(self._lastSearchTxt)
@@ -659,7 +659,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
 
-    def updateTitle(self):
+    def updateTitle(self) -> int:
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
         self.setWindowTitle(
@@ -669,10 +669,10 @@ class Browser(QMainWindow):
         )
         return selected
 
-    def show_single_card(self, card: Optional[Card]) -> None:
+    def show_single_card(self, card: Optional[Card]):
         """Try to search for the according note and select the given card."""
 
-        nid = card and card.nid
+        nid: Optional[int] = card and card.nid or 0
         if nid:
 
             def on_show_single_card():
