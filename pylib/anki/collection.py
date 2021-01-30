@@ -784,13 +784,6 @@ table.review-log {{ {revlog_style} }}
         )
 
 
-def dupe_search_term(mid: int, text: str) -> SearchTerm:
-    """Helper function for building a DupeIn message."""
-
-    dupe_in = SearchTerm.DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
-    return SearchTerm(dupe=dupe_in)
-
-
 def nid_search_term(nids: List[int]) -> SearchTerm:
     """Helper function for building a NoteIDs message."""
 
