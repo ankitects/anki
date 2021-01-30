@@ -328,12 +328,11 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             }),
             Filter::WholeCollection(_) => Node::Search(SearchNode::WholeCollection),
             Filter::CurrentDeck(_) => Node::Search(SearchNode::Deck("current".into())),
-            Filter::New(_) => Node::Search(SearchNode::State(StateKind::New)),
-            Filter::Learn(_) => Node::Search(SearchNode::State(StateKind::Learning)),
-            Filter::Review(_) => Node::Search(SearchNode::State(StateKind::Review)),
-            Filter::Due(_) => Node::Search(SearchNode::State(StateKind::Due)),
-            Filter::Suspended(_) => Node::Search(SearchNode::State(StateKind::Suspended)),
-            Filter::Buried(_) => Node::Search(SearchNode::State(StateKind::Buried)),
+            Filter::CardState(state) => Node::Search(SearchNode::State(
+                pb::filter_to_search_in::CardState::from_i32(state)
+                    .unwrap_or_default()
+                    .into(),
+            )),
             Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
                 Flag::Without => Node::Search(SearchNode::Flag(0)),
                 Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
@@ -364,6 +363,19 @@ impl From<pb::filter_to_search_in::rated::Rating> for EaseKind {
             pb::filter_to_search_in::rated::Rating::AnswerButton4 => EaseKind::AnswerButton(4),
             pb::filter_to_search_in::rated::Rating::AnyAnswerButton => EaseKind::AnyAnswerButton,
             pb::filter_to_search_in::rated::Rating::ManualReschedule => EaseKind::ManualReschedule,
+        }
+    }
+}
+
+impl From<pb::filter_to_search_in::CardState> for StateKind {
+    fn from(k: pb::filter_to_search_in::CardState) -> Self {
+        match k {
+            pb::filter_to_search_in::CardState::New => StateKind::New,
+            pb::filter_to_search_in::CardState::Learn => StateKind::Learning,
+            pb::filter_to_search_in::CardState::Review => StateKind::Review,
+            pb::filter_to_search_in::CardState::Due => StateKind::Due,
+            pb::filter_to_search_in::CardState::Suspended => StateKind::Suspended,
+            pb::filter_to_search_in::CardState::Buried => StateKind::Buried,
         }
     }
 }
