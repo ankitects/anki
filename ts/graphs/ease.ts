@@ -38,7 +38,7 @@ function makeQuery(start: number, end: number): string {
     }
 
     const fromQuery = `"prop:ease>=${start / 100}"`;
-    const tillQuery = `"prop:ease<${end / 100}"`;
+    const tillQuery = `"prop:ease<${(end + 1) / 100}"`;
 
     return `${fromQuery} AND ${tillQuery}`;
 }
