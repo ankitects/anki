@@ -58,7 +58,7 @@ pub enum SearchNode<'a> {
     NoteType(Cow<'a, str>),
     Rated {
         days: u32,
-        ease: EaseKind,
+        ease: RatingKind,
     },
     Tag(Cow<'a, str>),
     Duplicates {
@@ -87,7 +87,7 @@ pub enum PropertyKind {
     Lapses(u32),
     Ease(f32),
     Position(u32),
-    Rated(i32, EaseKind),
+    Rated(i32, RatingKind),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -109,7 +109,7 @@ pub enum TemplateKind<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum EaseKind {
+pub enum RatingKind {
     AnswerButton(u8),
     AnyAnswerButton,
     ManualReschedule,
@@ -353,7 +353,7 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
 fn parse_resched(s: &str) -> ParseResult<SearchNode> {
     parse_u32(s, "resched:").map(|days| SearchNode::Rated {
         days,
-        ease: EaseKind::ManualReschedule,
+        ease: RatingKind::ManualReschedule,
     })
 }
 
@@ -392,7 +392,7 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "rated" => parse_prop_rated(num, prop_clause)?,
         "resched" => PropertyKind::Rated(
             parse_negative_i32(num, prop_clause)?,
-            EaseKind::ManualReschedule,
+            RatingKind::ManualReschedule,
         ),
         "ivl" => PropertyKind::Interval(parse_u32(num, prop_clause)?),
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
@@ -470,9 +470,9 @@ fn parse_i64<'a>(num: &str, context: &'a str) -> ParseResult<'a, i64> {
     })
 }
 
-fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'a, EaseKind> {
+fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'a, RatingKind> {
     Ok(if let Some(num) = num {
-        EaseKind::AnswerButton(
+        RatingKind::AnswerButton(
             num.parse()
                 .map_err(|_| ())
                 .and_then(|n| if matches!(n, 1..=4) { Ok(n) } else { Err(()) })
@@ -487,7 +487,7 @@ fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'
                 })?,
         )
     } else {
-        EaseKind::AnyAnswerButton
+        RatingKind::AnyAnswerButton
     })
 }
 
