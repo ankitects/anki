@@ -262,9 +262,9 @@ impl From<pb::NoteId> for NoteID {
     }
 }
 
-impl pb::NoteIDs {
+impl pb::search_term::IdList {
     fn into_id_string(self) -> String {
-        self.nids
+        self.ids
             .iter()
             .map(|i| i.to_string())
             .collect::<Vec<_>>()
@@ -307,6 +307,7 @@ impl From<pb::SearchTerm> for Node<'_> {
             Filter::Template(u) => {
                 Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
             }
+            Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string().into())),
             Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
             Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                 note_type_id: dupe.notetype_id.into(),
