@@ -13,7 +13,7 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, InvalidInput, SearchTerm, nid_search_term
+from anki.collection import Collection, InvalidInput, SearchTerm
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
@@ -681,7 +681,7 @@ class Browser(QMainWindow):
         nid = card and card.nid
         if nid:
             self.card = card
-            search = self.col.build_search_string(nid_search_term([nid]))
+            search = self.col.build_search_string(SearchTerm(nid=nid))
             search = gui_hooks.default_search(search, card)
             self.form.searchEdit.lineEdit().setText(search)
             self.onSearchActivated()
@@ -1522,7 +1522,9 @@ where id in %s"""
         tv = self.form.tableView
         tv.selectionModel().clear()
 
-        search = self.col.build_search_string(nid_search_term(nids))
+        search = self.col.build_search_string(
+            SearchTerm(nids=SearchTerm.IdList(ids=nids))
+        )
         self.search_for(search)
 
         tv.selectAll()
@@ -1731,7 +1733,11 @@ where id in %s"""
             t += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
-                    html.escape(self.col.build_search_string(nid_search_term(nids))),
+                    html.escape(
+                        self.col.build_search_string(
+                            SearchTerm(nids=SearchTerm.IdList(ids=nids))
+                        )
+                    ),
                     tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )

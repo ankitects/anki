@@ -784,11 +784,5 @@ table.review-log {{ {revlog_style} }}
         )
 
 
-def nid_search_term(nids: List[int]) -> SearchTerm:
-    """Helper function for building a NoteIDs message."""
-
-    return SearchTerm(nids=NoteIDs(nids=nids))
-
-
 # legacy name
 _Collection = Collection

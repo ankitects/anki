@@ -797,12 +797,15 @@ message SearchTerm {
     SUSPENDED = 4;
     BURIED = 5;
   }
+  message IdList {
+    repeated int64 ids = 1;
+  }
   oneof filter {
     string tag = 1;
     string deck = 2;
     string note = 3;
     uint32 template = 4;
-    NoteIDs nids = 5;
+    int64 nid = 5;
     Dupe dupe = 6;
     string field_name = 7;
     Rated rated = 8;
@@ -812,6 +815,7 @@ message SearchTerm {
     bool current_deck = 12;
     Flag flag = 13;
     CardState card_state = 14;
+    IdList nids = 15;
   }
 }
 
