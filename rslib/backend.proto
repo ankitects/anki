@@ -766,32 +766,32 @@ message SearchTerm {
     string first_field = 2;
   }
   enum Flag {
-    WITHOUT = 0;
-    ANY = 1;
-    RED = 2;
-    ORANGE = 3;
-    GREEN = 4;
-    BLUE = 5;
+    FLAG_NONE = 0;
+    FLAG_ANY = 1;
+    FLAG_RED = 2;
+    FLAG_ORANGE = 3;
+    FLAG_GREEN = 4;
+    FLAG_BLUE = 5;
   }
   enum Rating {
-    ANY_ANSWER_BUTTON = 0;
-    ANSWER_BUTTON_1 = 1;
-    ANSWER_BUTTON_2 = 2;
-    ANSWER_BUTTON_3 = 3;
-    ANSWER_BUTTON_4 = 4;
-    MANUAL_RESCHEDULE = 5;
+    RATING_ANY = 0;
+    RATING_AGAIN = 1;
+    RATING_HARD = 2;
+    RATING_GOOD = 3;
+    RATING_EASY = 4;
+    RATING_BY_RESCHEDULE = 5;
   }
   message Rated {
     uint32 days = 1;
     Rating rating = 2;
   }
   enum CardState {
-    NEW = 0;
-    LEARN = 1;
-    REVIEW = 2;
-    DUE = 3;
-    SUSPENDED = 4;
-    BURIED = 5;
+    CARD_STATE_NEW = 0;
+    CARD_STATE_LEARN = 1;
+    CARD_STATE_REVIEW = 2;
+    CARD_STATE_DUE = 3;
+    CARD_STATE_SUSPENDED = 4;
+    CARD_STATE_BURIED = 5;
   }
   message IdList {
     repeated int64 ids = 1;

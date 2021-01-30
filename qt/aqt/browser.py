@@ -997,7 +997,7 @@ QTableView {{ gridline-color: {grid} }}
                         tr(TR.BROWSING_AGAIN_TODAY),
                         SearchTerm(
                             rated=SearchTerm.Rated(
-                                days=1, rating=SearchTerm.Rating.ANSWER_BUTTON_1
+                                days=1, rating=SearchTerm.RATING_AGAIN
                             )
                         ),
                     ),
@@ -1013,39 +1013,39 @@ QTableView {{ gridline-color: {grid} }}
                 (
                     (
                         tr(TR.ACTIONS_NEW),
-                        SearchTerm(card_state=SearchTerm.CardState.NEW),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
                     ),
                     (
                         tr(TR.SCHEDULING_LEARNING),
-                        SearchTerm(card_state=SearchTerm.CardState.LEARN),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_LEARN),
                     ),
                     (
                         tr(TR.SCHEDULING_REVIEW),
-                        SearchTerm(card_state=SearchTerm.CardState.REVIEW),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_REVIEW),
                     ),
                     (
                         tr(TR.FILTERING_IS_DUE),
-                        SearchTerm(card_state=SearchTerm.CardState.DUE),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
                     ),
                     None,
                     (
                         tr(TR.BROWSING_SUSPENDED),
-                        SearchTerm(card_state=SearchTerm.CardState.SUSPENDED),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_SUSPENDED),
                     ),
                     (
                         tr(TR.BROWSING_BURIED),
-                        SearchTerm(card_state=SearchTerm.CardState.BURIED),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_BURIED),
                     ),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=SearchTerm.Flag.RED)),
+                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=SearchTerm.FLAG_RED)),
                     (
                         tr(TR.ACTIONS_ORANGE_FLAG),
-                        SearchTerm(flag=SearchTerm.Flag.ORANGE),
+                        SearchTerm(flag=SearchTerm.FLAG_ORANGE),
                     ),
-                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=SearchTerm.Flag.GREEN)),
-                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=SearchTerm.Flag.BLUE)),
-                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=SearchTerm.Flag.WITHOUT)),
-                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=SearchTerm.Flag.ANY)),
+                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=SearchTerm.FLAG_GREEN)),
+                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=SearchTerm.FLAG_BLUE)),
+                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=SearchTerm.FLAG_NONE)),
+                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=SearchTerm.FLAG_ANY)),
                 )
             )
         )
