@@ -540,8 +540,6 @@ class Collection:
         return search_string
 
     def replace_search_term(self, search: str, replacement: str) -> str:
-        """Wrapper for the according backend function."""
-
         return self.backend.replace_search_term(search=search, replacement=replacement)
 
     # Config
