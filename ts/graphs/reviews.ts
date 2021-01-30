@@ -376,7 +376,7 @@ export function renderReviews(
         .attr("width", ([bin]) => barWidth(bin))
         .attr("height", () => y(0) - y(yMax))
         .on("mousemove", (event: MouseEvent, [bin, area]): void => {
-            const [x, y] = pointer(event);
+            const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(bin as any, area), x, y);
         })
         .on("mouseout", hideTooltip);
