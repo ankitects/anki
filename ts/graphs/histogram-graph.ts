@@ -178,8 +178,8 @@ export function histogramGraph(
 
     if (data.onClick) {
         hoverzone
-            .filter(([bin]: [Bin<number, number>, number]) => bin.length > 0)
+            .filter(([bin]) => bin.length > 0)
             .attr("class", "clickable")
-            .on("click", data.onClick);
+            .on("click", (_event, [bin]) => data.onClick!(bin));
     }
 }
