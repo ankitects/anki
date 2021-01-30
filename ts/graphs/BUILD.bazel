@@ -36,18 +36,12 @@ ts_library(
 )
 
 ts_library(
-    name = "types",
-    srcs = ["d3_missing.d.ts"],
-)
-
-ts_library(
     name = "lib",
     srcs = glob(
         ["*.ts"],
         exclude = ["bootstrap.ts"],
     ),
     deps = [
-        "types",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "@npm//@types/d3",
@@ -96,7 +90,6 @@ eslint_test(
         [
             "*.ts",
         ],
-        exclude = ["d3_missing.d.ts"],
     ),
 )
 

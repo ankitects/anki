@@ -12,16 +12,26 @@ import {
     interpolateReds,
     interpolateOranges,
     interpolatePurples,
-} from "d3-scale-chromatic";
-import "d3-transition";
-import { select, mouse } from "d3-selection";
-import { scaleLinear, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft, axisRight } from "d3-axis";
+    select,
+    pointer,
+    scaleLinear,
+    scaleSequential,
+    axisBottom,
+    axisLeft,
+    axisRight,
+    area,
+    curveBasis,
+    min,
+    histogram,
+    sum,
+    max,
+    cumsum,
+} from "d3";
+import type { Bin } from "d3";
+
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import type { TableDatum } from "./graph-helpers";
-import { area, curveBasis } from "d3-shape";
-import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "anki/time";
 import type { I18n } from "anki/i18n";
 
@@ -357,9 +367,10 @@ export function renderReviews(
         .attr("y", () => y(yMax!)!)
         .attr("width", barWidth)
         .attr("height", () => y(0)! - y(yMax!)!)
-        .on("mousemove", function (this: any, d: any, idx) {
-            const [x, y] = mouse(document.body);
-            showTooltip(tooltipText(d, areaData[idx + 1]), x, y);
+        .on("mousemove", (event: MouseEvent, d) => {
+            const idx = 0; // TODO
+            const [x, y] = pointer(event);
+            showTooltip(tooltipText(d as any /* TODO */, areaData[idx + 1]), x, y);
         })
         .on("mouseout", hideTooltip);
 

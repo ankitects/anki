@@ -7,11 +7,17 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, sum, Bin } from "d3-array";
-import { scaleLinear, scaleSequential } from "d3-scale";
+import {
+    extent,
+    histogram,
+    sum,
+    scaleLinear,
+    scaleSequential,
+    interpolateRdYlGn,
+} from "d3";
+import type { Bin } from "d3";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import { interpolateRdYlGn } from "d3-scale-chromatic";
 import type { I18n } from "anki/i18n";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
 

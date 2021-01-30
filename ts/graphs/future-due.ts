@@ -7,11 +7,18 @@
  */
 
 import type pb from "anki/backend_proto";
-import { extent, histogram, rollup, sum, Bin } from "d3-array";
-import { scaleLinear, scaleSequential } from "d3-scale";
+import {
+    extent,
+    histogram,
+    rollup,
+    sum,
+    scaleLinear,
+    scaleSequential,
+    interpolateGreens,
+} from "d3";
+import type { Bin } from "d3";
 import { CardQueue } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import { interpolateGreens } from "d3-scale-chromatic";
 import { dayLabel } from "anki/time";
 import type { I18n } from "anki/i18n";
 import { GraphRange } from "./graph-helpers";

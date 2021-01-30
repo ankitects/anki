@@ -6,12 +6,20 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "d3-transition";
-import { select, mouse } from "d3-selection";
-import { cumsum, max, Bin } from "d3-array";
-import { scaleLinear, ScaleLinear, ScaleSequential } from "d3-scale";
-import { axisBottom, axisLeft, axisRight } from "d3-axis";
-import { area, curveBasis } from "d3-shape";
+import {
+    select,
+    pointer,
+    cumsum,
+    max,
+    scaleLinear,
+    axisBottom,
+    axisLeft,
+    axisRight,
+    area,
+    curveBasis,
+} from "d3";
+
+import type { ScaleLinear, ScaleSequential, Bin } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graph-helpers";
 
@@ -154,8 +162,10 @@ export function histogramGraph(
         .attr("y", () => y(yMax!)!)
         .attr("width", barWidth)
         .attr("height", () => y(0)! - y(yMax!)!)
-        .on("mousemove", function (this: any, _d: any, idx: number) {
-            const [x, y] = mouse(document.body);
+        .on("mousemove", (event: MouseEvent, _d: Bin<number, number>) => {
+            const [x, y] = pointer(event);
+            // TODO
+            const idx = 0;
             const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;
             showTooltip(data.hoverText(data, idx, areaData[idx + 1], pct), x, y);
         })
