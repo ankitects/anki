@@ -190,8 +190,7 @@ class DataModel(QAbstractTableModel):
             ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
-                ctx.search = self.browser.normalize_search(ctx.search)
-                ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
+                ctx.card_ids = list(self.col.find_cards(ctx.search, order=ctx.order))
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as err:
@@ -610,12 +609,8 @@ class Browser(QMainWindow):
         self.form.searchEdit.lineEdit().setPlaceholderText(
             tr(TR.BROWSING_SEARCH_BAR_HINT)
         )
-        self.form.searchEdit.addItems(
-            [self.col.build_search_string(SearchTerm(current_deck=True))]
-            + self.mw.pm.profile["searchHistory"]
-        )
-        self._onRowChanged(None, None)
-        self.form.searchEdit.lineEdit().selectAll()
+        self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
+        self.search_for(self.col.build_search_string(SearchTerm(current_deck=True)), "")
         self.form.searchEdit.setFocus()
 
     # search triggered by user
@@ -624,32 +619,32 @@ class Browser(QMainWindow):
 
     def _onSearchActivated(self):
         text = self.form.searchEdit.lineEdit().text()
-        if self.search_for(text):
-            # Only save successful searches.
+        try:
+            normed = self.col.build_search_string(text)
+        except InvalidInput as err:
+            show_invalid_search_error(err)
+        else:
+            self.search_for(normed)
             self.update_history()
 
-    def search_for(self, search: str) -> bool:
+    def search_for(self, search: str, prompt: Optional[str] = None) -> bool:
         # keep track of search string so that we reuse identical search when
         # refreshing, rather than whatever is currently in the search field
         self._lastSearchTxt = search
-        self.form.searchEdit.lineEdit().setText(search)
-        return self.search()
+        prompt = search if prompt == None else prompt
+        self.form.searchEdit.lineEdit().setText(prompt)
+        self.search()
 
-    def search(self) -> bool:
-        """Search triggered programmatically. Caller must have saved note first.
-        Return bool indicating success.
-        """
+    def search(self):
+        """Search triggered programmatically. Caller must have saved note first."""
 
         try:
             self.model.search(self._lastSearchTxt)
-        except InvalidInput as err:
+        except Exception as err:
             show_invalid_search_error(err)
-            return False
-        else:
-            if not self.model.cards:
-                # no row change will fire
-                self._onRowChanged(None, None)
-            return True
+        if not self.model.cards:
+            # no row change will fire
+            self._onRowChanged(None, None)
 
     def update_history(self) -> None:
         sh = self.mw.pm.profile["searchHistory"]
@@ -660,12 +655,6 @@ class Browser(QMainWindow):
         self.form.searchEdit.clear()
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
-
-    def normalize_search(self, search: str) -> str:
-        normed = self.col.build_search_string(search)
-        self._lastSearchTxt = normed
-        self.form.searchEdit.lineEdit().setText(normed)
-        return normed
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
@@ -680,13 +669,15 @@ class Browser(QMainWindow):
     def show_single_card(self, card: Optional[Card]) -> None:
         nid = card and card.nid
         if nid:
-            self.card = card
-            search = self.col.build_search_string(SearchTerm(nid=nid))
-            search = gui_hooks.default_search(search, card)
-            self.form.searchEdit.lineEdit().setText(search)
-            self.onSearchActivated()
-            self.form.tableView.clearSelection()
-            self.focusCid(card.id)
+
+            def on_show_single_card():
+                self.card = card
+                search = self.col.build_search_string(SearchTerm(nid=nid))
+                search = gui_hooks.default_search(search, card)
+                self.search_for(search, "")
+                self.focusCid(card.id)
+
+            self.editor.saveNow(on_show_single_card)
 
     def onReset(self):
         self.sidebar.refresh()
@@ -1836,6 +1827,7 @@ where id in %s"""
             row = self.model.cards.index(cid)
         except:
             return
+        self.form.tableView.clearSelection()
         self.form.tableView.selectRow(row)
 
 
