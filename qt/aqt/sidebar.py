@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
 from anki.collection import ConfigBoolKey
@@ -275,7 +275,9 @@ class SidebarTreeView(QTreeView):
         self.setUniformRowHeights(True)
         self.setHeaderHidden(True)
         self.setIndentation(15)
-        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        # this doesn't play nicely with shift+click to OR items - we may want
+        # to put it behind a 'multi-select' mode
+        # self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDragDropOverwriteMode(False)
@@ -660,7 +662,13 @@ class SidebarTreeView(QTreeView):
         if idx:
             sm = self.selectionModel()
             sm.clear()
-            sm.select(idx, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
+            sm.select(
+                idx,
+                cast(
+                    QItemSelectionModel.SelectionFlag,
+                    QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows,
+                ),
+            )
 
         m.exec_(QCursor.pos())
 
