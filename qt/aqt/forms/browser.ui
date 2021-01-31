@@ -230,6 +230,8 @@
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionFilterToDeck"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -581,6 +583,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+E</string>
+   </property>
+  </action>
+  <action name="actionFilterToDeck">
+   <property name="text">
+    <string>BROWSING_FILTER_TO_DECK</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Q</string>
    </property>
   </action>
  </widget>
