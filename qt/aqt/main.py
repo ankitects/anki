@@ -30,7 +30,6 @@ from anki._backend import RustBackend as _RustBackend
 from anki.collection import Collection, SearchTerm
 from anki.decks import Deck
 from anki.hooks import runHook
-from anki.lang import without_unicode_isolation
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
@@ -1138,22 +1137,7 @@ title="%s" %s>%s</button>""" % (
     def onCram(self, search=""):
         import aqt.dyndeckconf
 
-        n = 1
-        deck = self.col.decks.current()
-        if not search:
-            if not deck["dyn"]:
-                search = self.col.build_search_string(SearchTerm(deck=deck["name"]))
-        while self.col.decks.id_for_name(
-            without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
-        ):
-            n += 1
-        name = without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
-        did = self.col.decks.new_filtered(name)
-        diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
-        if not diag.ok:
-            # user cancelled first config
-            self.col.decks.rem(did)
-            self.col.decks.select(deck["id"])
+        aqt.dyndeckconf.DeckConf(self)
 
     # Menu, title bar & status
     ##########################################################################
