@@ -5,7 +5,6 @@ from __future__ import annotations
 
 # some add-ons expect json to be in the utils module
 import json  # pylint: disable=unused-import
-import locale
 import os
 import platform
 import random
@@ -20,7 +19,7 @@ import traceback
 from contextlib import contextmanager
 from hashlib import sha1
 from html.entities import name2codepoint
-from typing import Iterable, Iterator, List, Optional, Union
+from typing import Any, Iterable, Iterator, List, Match, Optional, Union
 
 from anki.dbproxy import DBProxy
 
@@ -44,22 +43,6 @@ except:
 def intTime(scale: int = 1) -> int:
     "The time in integer seconds. Pass scale=1000 to get milliseconds."
     return int(time.time() * scale)
-
-
-# Locale
-##############################################################################
-
-
-def fmtPercentage(float_value, point=1) -> str:
-    "Return float with percentage sign"
-    fmt = "%" + "0.%(b)df" % {"b": point}
-    return locale.format_string(fmt, float_value) + "%"
-
-
-def fmtFloat(float_value, point=1) -> str:
-    "Return a string with decimal separator according to current locale"
-    fmt = "%" + "0.%(b)df" % {"b": point}
-    return locale.format_string(fmt, float_value)
 
 
 # HTML
@@ -114,7 +97,7 @@ def entsToTxt(html: str) -> str:
     # replace it first
     html = html.replace("&nbsp;", " ")
 
-    def fixup(m):
+    def fixup(m: Match) -> str:
         text = m.group(0)
         if text[:2] == "&#":
             # character reference
@@ -138,14 +121,6 @@ def entsToTxt(html: str) -> str:
 
 # IDs
 ##############################################################################
-
-
-def hexifyID(id) -> str:
-    return "%x" % int(id)
-
-
-def dehexifyID(id) -> int:
-    return int(id, 16)
 
 
 def ids2str(ids: Iterable[Union[int, str]]) -> str:
@@ -195,23 +170,6 @@ def guid64() -> str:
     return base91(random.randint(0, 2 ** 64 - 1))
 
 
-# increment a guid by one, for note type conflicts
-def incGuid(guid) -> str:
-    return _incGuid(guid[::-1])[::-1]
-
-
-def _incGuid(guid) -> str:
-    s = string
-    table = s.ascii_letters + s.digits + _base91_extra_chars
-    idx = table.index(guid[0])
-    if idx + 1 == len(table):
-        # overflow
-        guid = table[0] + _incGuid(guid[1:])
-    else:
-        guid = table[idx + 1] + guid[1:]
-    return guid
-
-
 # Fields
 ##############################################################################
 
@@ -250,7 +208,7 @@ def tmpdir() -> str:
     global _tmpdir
     if not _tmpdir:
 
-        def cleanup():
+        def cleanup() -> None:
             if os.path.exists(_tmpdir):
                 shutil.rmtree(_tmpdir)
 
@@ -294,7 +252,7 @@ def noBundledLibs() -> Iterator[None]:
         os.environ["LD_LIBRARY_PATH"] = oldlpath
 
 
-def call(argv: List[str], wait: bool = True, **kwargs) -> int:
+def call(argv: List[str], wait: bool = True, **kwargs: Any) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
@@ -338,7 +296,7 @@ devMode = os.getenv("ANKIDEV", "")
 invalidFilenameChars = ':*?"<>|'
 
 
-def invalidFilename(str, dirsep=True) -> Optional[str]:
+def invalidFilename(str: str, dirsep: bool = True) -> Optional[str]:
     for c in invalidFilenameChars:
         if c in str:
             return c
@@ -384,7 +342,7 @@ class TimedLog:
     def __init__(self) -> None:
         self._last = time.time()
 
-    def log(self, s) -> None:
+    def log(self, s: str) -> None:
         path, num, fn, y = traceback.extract_stack(limit=2)[0]
         sys.stderr.write(
             "%5dms: %s(): %s\n" % ((time.time() - self._last) * 1000, fn, s)

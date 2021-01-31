@@ -5,6 +5,8 @@
 Wrapper for requests that adds a callback for tracking upload/download progress.
 """
 
+from __future__ import annotations
+
 import io
 import os
 from typing import Any, Callable, Dict, Optional
@@ -28,24 +30,23 @@ class HttpClient:
         self.progress_hook = progress_hook
         self.session = requests.Session()
 
-    def __enter__(self):
+    def __enter__(self) -> HttpClient:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: Any) -> None:
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         if self.session:
             self.session.close()
             self.session = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
-    def post(self, url: str, data: Any, headers: Optional[Dict[str, str]]) -> Response:
-        data = _MonitoringFile(
-            data, hook=self.progress_hook
-        )  # pytype: disable=wrong-arg-types
+    def post(
+        self, url: str, data: bytes, headers: Optional[Dict[str, str]]
+    ) -> Response:
         headers["User-Agent"] = self._agentName()
         return self.session.post(
             url,
@@ -56,7 +57,7 @@ class HttpClient:
             verify=self.verify,
         )  # pytype: disable=wrong-arg-types
 
-    def get(self, url, headers=None) -> Response:
+    def get(self, url: str, headers: Dict[str, str] = None) -> Response:
         if headers is None:
             headers = {}
         headers["User-Agent"] = self._agentName()
@@ -64,7 +65,7 @@ class HttpClient:
             url, stream=True, headers=headers, timeout=self.timeout, verify=self.verify
         )
 
-    def streamContent(self, resp) -> bytes:
+    def streamContent(self, resp: Response) -> bytes:
         resp.raise_for_status()
 
         buf = io.BytesIO()
@@ -87,15 +88,3 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
     import warnings
 
     warnings.filterwarnings("ignore")
-
-
-class _MonitoringFile(io.BufferedReader):
-    def __init__(self, raw: io.RawIOBase, hook: Optional[ProgressCallback]):
-        io.BufferedReader.__init__(self, raw)
-        self.hook = hook
-
-    def read(self, size=-1) -> bytes:
-        data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
-        if self.hook:
-            self.hook(len(data), 0)
-        return data
