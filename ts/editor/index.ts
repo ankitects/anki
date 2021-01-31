@@ -3,6 +3,7 @@
 
 import { filterHTML } from "./filterHtml";
 import { nodeIsElement, nodeIsInline } from "./helpers";
+import { bridgeCommand } from "./lib";
 
 let currentField: EditingArea | null = null;
 let changeTimer: number | null = null;
@@ -198,7 +199,7 @@ function onFocus(evt: FocusEvent): void {
     }
     elem.focusEditable();
     currentField = elem;
-    pycmd(`focus:${currentField.ord}`);
+    bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
     // do this twice so that there's no flicker on newer versions
     caretToEnd();
@@ -245,7 +246,7 @@ export function focusIfField(x: number, y: number): boolean {
 }
 
 function onPaste(): void {
-    pycmd("paste");
+    bridgeCommand("paste");
     window.event.preventDefault();
 }
 
@@ -295,7 +296,9 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
 
-    pycmd(`${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`);
+    bridgeCommand(
+        `${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`
+    );
 }
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
@@ -361,7 +364,7 @@ function wrapInternal(front: string, back: string, plainText: boolean): void {
 }
 
 function onCutOrCopy(): boolean {
-    pycmd("cutOrCopy");
+    bridgeCommand("cutOrCopy");
     return true;
 }
 

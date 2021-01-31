@@ -1,5 +1,6 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
+load("//qt/aqt/data/web/pages:defs.bzl", "copy_page")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 
@@ -29,24 +30,13 @@ filegroup(
     output_group = "es5_sources",
 )
 
-###### aqt bundles
-
-rollup_bundle(
+copy_page(
     name = "editor",
-    config_file = "rollup.config.js",
-    entry_point = "//qt/aqt/data/web/js/editor:index.ts",
-    format = "iife",
-    link_workspace_root = True,
-    silent = True,
-    sourcemap = "false",
-    deps = [
-        "//qt/aqt/data/web/js/editor",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-        "@npm//rollup-plugin-terser",
+    srcs = [
+        "editor.js",
     ],
+    package = "//ts/editor",
 )
-
 
 filegroup(
     name = "js",
