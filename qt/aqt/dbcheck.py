@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import aqt
-from anki.rsbackend import DatabaseCheckProgress, ProgressKind
+from anki.collection import DatabaseCheckProgress, ProgressKind
 from aqt.qt import *
 from aqt.utils import showText, tooltip
 

@@ -7,7 +7,7 @@ from typing import cast
 
 from anki.db import DB
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
-from anki.rsbackend import TR
+from anki.lang import TR
 from anki.stdmodels import addBasicModel, addClozeModel
 
 

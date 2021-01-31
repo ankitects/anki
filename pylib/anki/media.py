@@ -14,9 +14,9 @@ import urllib.request
 from typing import Any, Callable, List, Optional, Tuple
 
 import anki
+import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
-from anki.rsbackend import pb
 from anki.utils import intTime
 
 
@@ -24,6 +24,9 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
     media_folder = re.sub(r"(?i)\.(anki2)$", ".media", col_path)
     media_db = media_folder + ".db2"
     return (media_folder, media_db)
+
+
+CheckMediaOut = _pb.CheckMediaOut
 
 
 # fixme: look into whether we can drop chdir() below
@@ -188,7 +191,7 @@ class MediaManager:
     # Checking media
     ##########################################################################
 
-    def check(self) -> pb.CheckMediaOut:
+    def check(self) -> CheckMediaOut:
         output = self.col.backend.check_media()
         # files may have been renamed on disk, so an undo at this point could
         # break file references

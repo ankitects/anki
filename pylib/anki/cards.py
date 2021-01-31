@@ -8,11 +8,11 @@ import time
 from typing import List, Optional
 
 import anki  # pylint: disable=unused-import
+import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import *
 from anki.models import NoteType, Template
 from anki.notes import Note
-from anki.rsbackend import BackendCard
 from anki.sound import AVTag
 
 # Cards
@@ -45,14 +45,14 @@ class Card:
             self.load()
         else:
             # new card with defaults
-            self._load_from_backend_card(BackendCard())
+            self._load_from_backend_card(_pb.Card())
 
     def load(self) -> None:
         c = self.col.backend.get_card(self.id)
         assert c
         self._load_from_backend_card(c)
 
-    def _load_from_backend_card(self, c: BackendCard) -> None:
+    def _load_from_backend_card(self, c: _pb.Card) -> None:
         self._render_output = None
         self._note = None
         self.id = c.id
@@ -86,7 +86,7 @@ class Card:
         self._bugcheck()
         hooks.card_will_flush(self)
         # mtime & usn are set by backend
-        card = BackendCard(
+        card = _pb.Card(
             id=self.id,
             note_id=self.nid,
             deck_id=self.did,

@@ -6,11 +6,9 @@ from typing import Any, List, Optional, Sequence
 
 import aqt.clayout
 from anki import stdmodels
-from anki.backend_pb2 import NoteTypeNameIDUseCount
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType
+from anki.models import NoteType, NoteTypeNameIDUseCount
 from anki.notes import Note
-from anki.rsbackend import pb
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -51,7 +49,7 @@ class Models(QDialog):
             self.form.buttonBox.helpRequested,
             lambda: openHelp(HelpPage.ADDING_A_NOTE_TYPE),
         )
-        self.models: List[pb.NoteTypeNameIDUseCount] = []
+        self.models: List[NoteTypeNameIDUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
         self.exec_()
@@ -111,7 +109,7 @@ class Models(QDialog):
             self.saveAndRefresh(nt)
 
     def saveAndRefresh(self, nt: NoteType) -> None:
-        def save() -> Sequence[pb.NoteTypeNameIDUseCount]:
+        def save() -> Sequence[NoteTypeNameIDUseCount]:
             self.mm.save(nt)
             return self.col.models.all_use_counts()
 
@@ -161,7 +159,7 @@ class Models(QDialog):
 
         nt = self.current_notetype()
 
-        def save() -> Sequence[pb.NoteTypeNameIDUseCount]:
+        def save() -> Sequence[NoteTypeNameIDUseCount]:
             self.mm.rem(nt)
             return self.col.models.all_use_counts()
 

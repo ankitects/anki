@@ -1,5 +1,5 @@
 import anki.lang
-from anki.rsbackend import TR
+from anki.lang import TR
 
 
 def test_no_collection_i18n():

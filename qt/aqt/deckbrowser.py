@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from typing import Any
 
 import aqt
+from anki.decks import DeckTreeNode
 from anki.errors import DeckRenameError
-from anki.rsbackend import DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player

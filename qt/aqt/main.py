@@ -26,11 +26,11 @@ import aqt.stats
 import aqt.toolbar
 import aqt.webview
 from anki import hooks
+from anki._backend import RustBackend as _RustBackend
 from anki.collection import Collection, SearchTerm
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.lang import without_unicode_isolation
-from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
@@ -100,7 +100,7 @@ class AnkiQt(QMainWindow):
         self,
         app: QApplication,
         profileManager: ProfileManagerType,
-        backend: RustBackend,
+        backend: _RustBackend,
         opts: Namespace,
         args: List[Any],
     ) -> None:

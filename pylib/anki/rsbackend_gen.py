@@ -1,1 +1,0 @@
-../../bazel-bin/pylib/anki/rsbackend_gen.py

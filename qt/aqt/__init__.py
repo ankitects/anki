@@ -14,8 +14,8 @@ from typing import Any, Callable, Dict, Optional, Union
 
 import anki.lang
 from anki import version as _version
+from anki._backend import RustBackend
 from anki.consts import HELP_SITE
-from anki.rsbackend import RustBackend
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, tr

@@ -9,8 +9,10 @@ from concurrent.futures import Future
 from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
-from anki.collection import SearchTerm
-from anki.rsbackend import TR, Interrupted, ProgressKind, pb
+from anki.collection import ProgressKind, SearchTerm
+from anki.errors import Interrupted
+from anki.lang import TR
+from anki.media import CheckMediaOut
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -74,7 +76,7 @@ class MediaChecker:
 
         self.mw.taskman.run_on_main(lambda: self.mw.progress.update(progress.val))
 
-    def _check(self) -> pb.CheckMediaOut:
+    def _check(self) -> CheckMediaOut:
         "Run the check on a background thread."
         return self.mw.col.media.check()
 
@@ -87,7 +89,7 @@ class MediaChecker:
         if isinstance(exc, Interrupted):
             return
 
-        output: pb.CheckMediaOut = future.result()
+        output: CheckMediaOut = future.result()
         report = output.report
 
         # show report and offer to delete

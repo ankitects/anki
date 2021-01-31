@@ -7,7 +7,7 @@ from typing import Any, List, Optional, TextIO, Union
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter
-from anki.rsbackend import TR
+from anki.lang import TR
 
 
 class TextImporter(NoteImporter):

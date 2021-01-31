@@ -13,8 +13,9 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, ConfigBoolKey, InvalidInput, SearchTerm
+from anki.collection import Collection, ConfigBoolKey, SearchTerm
 from anki.consts import *
+from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note

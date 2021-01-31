@@ -26,6 +26,17 @@ from anki.dbproxy import DBProxy
 
 _tmpdir: Optional[str]
 
+try:
+    # pylint: disable=c-extension-no-member
+    import orjson
+
+    to_json_bytes = orjson.dumps
+    from_json_bytes = orjson.loads
+except:
+    print("orjson is missing; DB operations will be slower")
+    to_json_bytes = lambda obj: json.dumps(obj).encode("utf8")  # type: ignore
+    from_json_bytes = json.loads
+
 # Time handling
 ##############################################################################
 

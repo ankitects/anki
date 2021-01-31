@@ -7,8 +7,7 @@ from anki.importing.csvfile import TextImporter
 from anki.importing.mnemo import MnemosyneImporter
 from anki.importing.pauker import PaukerImporter
 from anki.importing.supermemo_xml import SupermemoXmlImporter  # type: ignore
-from anki.lang import tr_legacyglobal
-from anki.rsbackend import TR
+from anki.lang import TR, tr_legacyglobal
 
 Importers = (
     (tr_legacyglobal(TR.IMPORTING_TEXT_SEPARATED_BY_TABS_OR_SEMICOLONS), TextImporter),

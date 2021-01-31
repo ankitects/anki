@@ -8,17 +8,14 @@ import pprint
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki.backend_pb2 as pb
+import anki._backend.backend_pb2 as _pb
 from anki.consts import *
-from anki.errors import DeckRenameError
-from anki.rsbackend import (
-    TR,
-    DeckTreeNode,
-    NotFoundError,
-    from_json_bytes,
-    to_json_bytes,
-)
-from anki.utils import ids2str, intTime
+from anki.errors import DeckIsFilteredError, DeckRenameError, NotFoundError
+from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
+
+# public exports
+DeckTreeNode = _pb.DeckTreeNode
+DeckNameID = _pb.DeckNameID
 
 # legacy code may pass this in as the type argument to .id()
 defaultDeck = 0
@@ -139,7 +136,7 @@ class DeckManager:
 
     def all_names_and_ids(
         self, skip_empty_default=False, include_filtered=True
-    ) -> Sequence[pb.DeckNameID]:
+    ) -> Sequence[DeckNameID]:
         "A sorted sequence of deck names and IDs."
         return self.col.backend.get_deck_names(
             skip_empty_default=skip_empty_default, include_filtered=include_filtered
@@ -166,7 +163,7 @@ class DeckManager:
     def new_deck_legacy(self, filtered: bool) -> Deck:
         return from_json_bytes(self.col.backend.new_deck_legacy(filtered))
 
-    def deck_tree(self) -> pb.DeckTreeNode:
+    def deck_tree(self) -> DeckTreeNode:
         return self.col.backend.deck_tree(top_deck_id=0, now=0)
 
     @classmethod
@@ -250,7 +247,7 @@ class DeckManager:
             g["id"] = self.col.backend.add_or_update_deck_legacy(
                 deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
             )
-        except anki.rsbackend.DeckIsFilteredError as exc:
+        except DeckIsFilteredError as exc:
             raise DeckRenameError("deck was filtered") from exc
 
     def rename(self, g: Deck, newName: str) -> None:

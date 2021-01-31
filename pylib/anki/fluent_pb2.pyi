@@ -1,1 +1,0 @@
-../../bazel-bin/pylib/anki/fluent_pb2.pyi
