@@ -29,7 +29,6 @@ from anki.models import ModelManager
 from anki.notes import Note
 from anki.rsbackend import (  # pylint: disable=unused-import
     TR,
-    BackendNoteTypeID,
     ConcatSeparator,
     DBError,
     FormatTimeSpanContext,
