@@ -33,7 +33,9 @@ LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
 # messages we don't want to unroll in codegen
-SKIP_UNROLL_INPUT = {"TranslateString"}
+SKIP_UNROLL_INPUT = {"TranslateString", "SetPreferences"}
+SKIP_UNROLL_OUTPUT = {"GetPreferences"}
+
 SKIP_DECODE = {"Graphs", "GetGraphPreferences"}
 
 
@@ -114,6 +116,7 @@ def render_method(method, idx):
     if (
         len(method.output_type.fields) == 1
         and method.output_type.fields[0].type != TYPE_ENUM
+        and method.name not in SKIP_UNROLL_OUTPUT
     ):
         # unwrap single return arg
         f = method.output_type.fields[0]

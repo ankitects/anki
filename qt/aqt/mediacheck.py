@@ -69,7 +69,7 @@ class MediaChecker:
 
         try:
             if self.progress_dialog.wantCancel:
-                self.mw.col.backend.set_wants_abort()
+                self.mw.col.set_wants_abort()
         except AttributeError:
             # dialog may not be active
             pass
@@ -188,7 +188,7 @@ class MediaChecker:
         self._set_progress_enabled(True)
 
         def empty_trash():
-            self.mw.col.backend.empty_trash()
+            self.mw.col.media.empty_trash()
 
         def on_done(fut: Future):
             self.mw.progress.finish()
@@ -205,7 +205,7 @@ class MediaChecker:
         self._set_progress_enabled(True)
 
         def restore_trash():
-            self.mw.col.backend.restore_trash()
+            self.mw.col.media.restore_trash()
 
         def on_done(fut: Future):
             self.mw.progress.finish()

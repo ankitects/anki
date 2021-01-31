@@ -274,7 +274,7 @@ post_handlers = {
     "graphPreferences": graph_preferences,
     "setGraphPreferences": set_graph_preferences,
     # pylint: disable=unnecessary-lambda
-    "i18nResources": lambda: aqt.mw.col.backend.i18n_resources(),
+    "i18nResources": lambda: aqt.mw.col.i18n_resources(),
     "congratsInfo": congrats_info,
 }
 

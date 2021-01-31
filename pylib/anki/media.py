@@ -17,6 +17,8 @@ import anki
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
+from anki.sound import SoundOrVideoTag
+from anki.template import av_tags_to_native
 from anki.utils import intTime
 
 
@@ -97,6 +99,24 @@ class MediaManager:
             os.unlink(media_paths_from_col_path(self.col.path)[1])
         except FileNotFoundError:
             pass
+
+    def empty_trash(self) -> None:
+        self.col.backend.empty_trash()
+
+    def restore_trash(self) -> None:
+        self.col.backend.restore_trash()
+
+    def strip_av_tags(self, text: str) -> str:
+        return self.col.backend.strip_av_tags(text)
+
+    def _extract_filenames(self, text: str) -> List[str]:
+        "This only exists do support a legacy function; do not use."
+        out = self.col.backend.extract_av_tags(text=text, question_side=True)
+        return [
+            x.filename
+            for x in av_tags_to_native(out.av_tags)
+            if isinstance(x, SoundOrVideoTag)
+        ]
 
     # File manipulation
     ##########################################################################

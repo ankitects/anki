@@ -20,6 +20,7 @@ from . import rsbridge
 if TYPE_CHECKING:
     from anki.lang import FormatTimeSpanContextValue, TRValue
 
+# pylint: disable=c-extension-no-member
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
 
 
