@@ -140,7 +140,7 @@ from revlog where id > ? """
         relrn = relrn or 0
         filt = filt or 0
         # studied
-        def bold(s):
+        def bold(s: str) -> str:
             return "<b>" + str(s) + "</b>"
 
         if cards:
@@ -298,7 +298,7 @@ group by day order by day"""
             # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
-        def plot(id, data, ylabel, ylabel2):
+        def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:
             return self._graph(
                 id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2
             )
@@ -333,7 +333,7 @@ group by day order by day"""
             # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
-        def plot(id, data, ylabel, ylabel2):
+        def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:
             return self._graph(
                 id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2
             )

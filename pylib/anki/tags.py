@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, List, Optional, Sequence, Tuple
+from typing import Collection, List, Match, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -139,7 +139,7 @@ class TagManager:
     def remFromStr(self, deltags: str, tags: str) -> str:
         "Delete tags if they exist."
 
-        def wildcard(pat: str, repl: str):
+        def wildcard(pat: str, repl: str) -> Match:
             pat = re.escape(pat).replace("\\*", ".*")
             return re.match("^" + pat + "$", repl, re.IGNORECASE)
 

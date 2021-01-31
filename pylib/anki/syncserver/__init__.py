@@ -11,9 +11,10 @@ import os
 import socket
 import sys
 import time
+from http import HTTPStatus
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import Optional
+from typing import Iterable, Optional
 
 try:
     import flask
@@ -89,7 +90,7 @@ def handle_sync_request(method_str: str) -> Response:
     elif method == Method.FULL_DOWNLOAD:
         path = outdata.decode("utf8")
 
-        def stream_reply():
+        def stream_reply() -> Iterable[bytes]:
             with open(path, "rb") as f:
                 while chunk := f.read(16 * 1024):
                     yield chunk
@@ -106,7 +107,7 @@ def handle_sync_request(method_str: str) -> Response:
     return resp
 
 
-def after_full_sync():
+def after_full_sync() -> None:
     # the server methods do not reopen the collection after a full sync,
     # so we need to
     col.reopen(after_full_sync=False)
@@ -146,15 +147,17 @@ def get_method(
 
 
 @app.route("/<path:pathin>", methods=["POST"])
-def handle_request(pathin: str):
+def handle_request(pathin: str) -> Response:
     path = pathin
     print(int(time.time()), flask.request.remote_addr, path)
 
     if path.startswith("sync/"):
         return handle_sync_request(path.split("/", maxsplit=1)[1])
+    else:
+        return flask.make_response("not found", HTTPStatus.NOT_FOUND)
 
 
-def folder():
+def folder() -> str:
     folder = os.getenv("FOLDER", os.path.expanduser("~/.syncserver"))
     if not os.path.exists(folder):
         print("creating", folder)
@@ -162,11 +165,11 @@ def folder():
     return folder
 
 
-def col_path():
+def col_path() -> str:
     return os.path.join(folder(), "collection.server.anki2")
 
 
-def serve():
+def serve() -> None:
     global col
 
     col = Collection(col_path(), server=True)
