@@ -811,11 +811,9 @@ message SearchTerm {
     Rated rated = 8;
     uint32 added_in_days = 9;
     int32 due_in_days = 10;
-    bool whole_collection = 11;
-    bool current_deck = 12;
-    Flag flag = 13;
-    CardState card_state = 14;
-    IdList nids = 15;
+    Flag flag = 11;
+    CardState card_state = 12;
+    IdList nids = 13;
   }
 }
 
