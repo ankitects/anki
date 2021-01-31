@@ -551,12 +551,12 @@ function adjustFieldAmount(amount: number): void {
     }
 }
 
-function getEditorField(n: number): EditorField | null {
+export function getEditorField(n: number): EditorField | null {
     const fields = document.getElementById("fields").children;
     return (fields[n] as EditorField) ?? null;
 }
 
-function forEditorField<T>(
+export function forEditorField<T>(
     values: T[],
     func: (field: EditorField, value: T) => void
 ): void {
