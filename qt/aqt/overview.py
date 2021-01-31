@@ -71,7 +71,7 @@ class Overview:
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "cram":
-            self.mw.onCram()
+            aqt.dialogs.open("DynDeckConfDialog", self.mw)
         elif url == "refresh":
             self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()

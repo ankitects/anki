@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import aqt
 from anki.collection import SearchTerm
@@ -67,13 +67,18 @@ class DeckConf(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
-        restoreGeom(self, "dyndeckconf")
-        self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
+        self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.form.search.selectAll()
         if self.mw.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
+        restoreGeom(self, "dyndeckconf")
 
         self.show()
+
+    def reopen(self, _mw, search: Optional[str] = None, _deck: Optional[Deck] = None):
+        if search is not None:
+            self.form.search.setText(search)
+        self.form.search.selectAll()
 
     def new_dyn_deck(self):
         suffix: int = 1
@@ -178,6 +183,7 @@ class DeckConf(QDialog):
             self.mw.col.decks.select(self.old_deck["id"])
         saveGeom(self, "dyndeckconf")
         QDialog.reject(self)
+        aqt.dialogs.markClosed("DynDeckConfDialog")
 
     def accept(self):
         try:
@@ -191,6 +197,11 @@ class DeckConf(QDialog):
         saveGeom(self, "dyndeckconf")
         self.mw.reset()
         QDialog.accept(self)
+        aqt.dialogs.markClosed("DynDeckConfDialog")
+
+    def closeWithCallback(self, callback: Callable):
+        self.reject()
+        callback()
 
     # Step load/save - fixme: share with std options screen
     ########################################################
