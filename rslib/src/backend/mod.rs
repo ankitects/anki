@@ -294,54 +294,58 @@ impl From<pb::SearchTerm> for Node<'_> {
     fn from(msg: pb::SearchTerm) -> Self {
         use pb::search_term::Filter;
         use pb::search_term::Flag;
-        match msg.filter.unwrap_or(Filter::WholeCollection(true)) {
-            Filter::Tag(s) => Node::Search(SearchNode::Tag(
-                escape_anki_wildcards(&s).into_owned().into(),
-            )),
-            Filter::Deck(s) => Node::Search(SearchNode::Deck(
-                escape_anki_wildcards(&s).into_owned().into(),
-            )),
-            Filter::Note(s) => Node::Search(SearchNode::NoteType(
-                escape_anki_wildcards(&s).into_owned().into(),
-            )),
-            Filter::Template(u) => {
-                Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
+        if let Some(filter) = msg.filter {
+            match filter {
+                Filter::Tag(s) => Node::Search(SearchNode::Tag(
+                    escape_anki_wildcards(&s).into_owned().into(),
+                )),
+                Filter::Deck(s) => Node::Search(SearchNode::Deck(
+                    escape_anki_wildcards(&s).into_owned().into(),
+                )),
+                Filter::Note(s) => Node::Search(SearchNode::NoteType(
+                    escape_anki_wildcards(&s).into_owned().into(),
+                )),
+                Filter::Template(u) => {
+                    Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
+                }
+                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string().into())),
+                Filter::Nids(nids) => {
+                    Node::Search(SearchNode::NoteIDs(nids.into_id_string().into()))
+                }
+                Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
+                    note_type_id: dupe.notetype_id.into(),
+                    text: dupe.first_field.into(),
+                }),
+                Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
+                    field: escape_anki_wildcards(&s).into_owned().into(),
+                    text: "*".to_string().into(),
+                    is_re: false,
+                }),
+                Filter::Rated(rated) => Node::Search(SearchNode::Rated {
+                    days: rated.days,
+                    ease: rated.rating().into(),
+                }),
+                Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
+                Filter::DueInDays(i) => Node::Search(SearchNode::Property {
+                    operator: "<=".to_string(),
+                    kind: PropertyKind::Due(i),
+                }),
+                Filter::CardState(state) => Node::Search(SearchNode::State(
+                    pb::search_term::CardState::from_i32(state)
+                        .unwrap_or_default()
+                        .into(),
+                )),
+                Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
+                    Flag::None => Node::Search(SearchNode::Flag(0)),
+                    Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
+                    Flag::Red => Node::Search(SearchNode::Flag(1)),
+                    Flag::Orange => Node::Search(SearchNode::Flag(2)),
+                    Flag::Green => Node::Search(SearchNode::Flag(3)),
+                    Flag::Blue => Node::Search(SearchNode::Flag(4)),
+                },
             }
-            Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string().into())),
-            Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
-            Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                note_type_id: dupe.notetype_id.into(),
-                text: dupe.first_field.into(),
-            }),
-            Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                field: escape_anki_wildcards(&s).into_owned().into(),
-                text: "*".to_string().into(),
-                is_re: false,
-            }),
-            Filter::Rated(rated) => Node::Search(SearchNode::Rated {
-                days: rated.days,
-                ease: rated.rating().into(),
-            }),
-            Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
-            Filter::DueInDays(i) => Node::Search(SearchNode::Property {
-                operator: "<=".to_string(),
-                kind: PropertyKind::Due(i),
-            }),
-            Filter::WholeCollection(_) => Node::Search(SearchNode::WholeCollection),
-            Filter::CurrentDeck(_) => Node::Search(SearchNode::Deck("current".into())),
-            Filter::CardState(state) => Node::Search(SearchNode::State(
-                pb::search_term::CardState::from_i32(state)
-                    .unwrap_or_default()
-                    .into(),
-            )),
-            Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
-                Flag::None => Node::Search(SearchNode::Flag(0)),
-                Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
-                Flag::Red => Node::Search(SearchNode::Flag(1)),
-                Flag::Orange => Node::Search(SearchNode::Flag(2)),
-                Flag::Green => Node::Search(SearchNode::Flag(3)),
-                Flag::Blue => Node::Search(SearchNode::Flag(4)),
-            },
+        } else {
+            Node::Search(SearchNode::WholeCollection)
         }
     }
 }
