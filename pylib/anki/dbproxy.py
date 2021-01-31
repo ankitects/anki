@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from re import Match
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki
@@ -43,7 +44,11 @@ class DBProxy:
     ################
 
     def _query(
-        self, sql: str, *args: ValueForDB, first_row_only: bool = False, **kwargs
+        self,
+        sql: str,
+        *args: ValueForDB,
+        first_row_only: bool = False,
+        **kwargs: ValueForDB,
     ) -> List[Row]:
         # mark modified?
         s = sql.strip().lower()
@@ -57,20 +62,22 @@ class DBProxy:
     # Query shortcuts
     ###################
 
-    def all(self, sql: str, *args: ValueForDB, **kwargs) -> List[Row]:
-        return self._query(sql, *args, **kwargs)
+    def all(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> List[Row]:
+        return self._query(sql, *args, first_row_only=False, **kwargs)
 
-    def list(self, sql: str, *args: ValueForDB, **kwargs) -> List[ValueFromDB]:
-        return [x[0] for x in self._query(sql, *args, **kwargs)]
+    def list(
+        self, sql: str, *args: ValueForDB, **kwargs: ValueForDB
+    ) -> List[ValueFromDB]:
+        return [x[0] for x in self._query(sql, *args, first_row_only=False, **kwargs)]
 
-    def first(self, sql: str, *args: ValueForDB, **kwargs) -> Optional[Row]:
+    def first(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> Optional[Row]:
         rows = self._query(sql, *args, first_row_only=True, **kwargs)
         if rows:
             return rows[0]
         else:
             return None
 
-    def scalar(self, sql: str, *args: ValueForDB, **kwargs) -> ValueFromDB:
+    def scalar(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> ValueFromDB:
         rows = self._query(sql, *args, first_row_only=True, **kwargs)
         if rows:
             return rows[0][0]
@@ -109,7 +116,7 @@ def emulate_named_args(
         n = len(args2)
         arg_num[key] = n
     # update refs
-    def repl(m):
+    def repl(m: Match) -> str:
         arg = m.group(1)
         return f"?{arg_num[arg]}"
 

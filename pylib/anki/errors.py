@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import anki._backend.backend_pb2 as _pb
 
 # fixme: notfounderror etc need to be in rsbackend.py
@@ -88,17 +86,15 @@ def backend_exception_to_pylib(err: _pb.BackendError) -> Exception:
         return StringError(err.localized)
 
 
+# FIXME: this is only used with "abortSchemaMod", but currently some
+# add-ons depend on it
 class AnkiError(Exception):
-    def __init__(self, type, **data) -> None:
+    def __init__(self, type: str) -> None:
         super().__init__()
         self.type = type
-        self.data = data
 
-    def __str__(self) -> Any:
-        m = self.type
-        if self.data:
-            m += ": %s" % repr(self.data)
-        return m
+    def __str__(self) -> str:
+        return self.type
 
 
 class DeckRenameError(Exception):
@@ -106,5 +102,5 @@ class DeckRenameError(Exception):
         super().__init__()
         self.description = description
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Couldn't rename deck: " + self.description

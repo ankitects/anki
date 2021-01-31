@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import locale
 import re
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
@@ -169,7 +169,7 @@ def ngettext(single: str, plural: str, n: int) -> str:
     return plural
 
 
-def tr_legacyglobal(*args, **kwargs) -> str:
+def tr_legacyglobal(*args: Any, **kwargs: Any) -> str:
     "Should use col.tr() instead."
     if current_i18n:
         return current_i18n.translate(*args, **kwargs)
