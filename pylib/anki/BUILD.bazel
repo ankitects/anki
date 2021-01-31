@@ -94,7 +94,9 @@ py_wheel(
 
 filegroup(
     name = "py_source_files",
-    srcs = _py_srcs,
+    srcs = _py_srcs + [
+        "//pylib/anki/_backend:py_source_files",
+    ],
     visibility = [
         "//pylib:__subpackages__",
     ],
