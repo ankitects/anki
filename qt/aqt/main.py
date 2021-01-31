@@ -1054,9 +1054,9 @@ title="%s" %s>%s</button>""" % (
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
-            import aqt.dyndeckconf
+            import aqt
 
-            aqt.dyndeckconf.DeckConf(self, deck=deck)
+            aqt.dialogs.open("DynDeckConfDialog", self, None, deck)
         else:
             import aqt.deckconf
 
@@ -1134,10 +1134,8 @@ title="%s" %s>%s</button>""" % (
     # Cramming
     ##########################################################################
 
-    def onCram(self, search=""):
-        import aqt.dyndeckconf
-
-        aqt.dyndeckconf.DeckConf(self)
+    def onCram(self):
+        aqt.dialogs.open("DynDeckConfDialog", self)
 
     # Menu, title bar & status
     ##########################################################################

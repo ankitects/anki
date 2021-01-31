@@ -69,7 +69,7 @@ except ImportError as e:
 # - make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, addons, browser, editcurrent  # isort:skip
+from aqt import addcards, addons, browser, editcurrent, dyndeckconf  # isort:skip
 from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
@@ -80,6 +80,7 @@ class DialogManager:
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
+        "DynDeckConfDialog": [dyndeckconf.DeckConf, None],
         "DeckStats": [stats.DeckStats, None],
         "NewDeckStats": [stats.NewDeckStats, None],
         "About": [about.show, None],
