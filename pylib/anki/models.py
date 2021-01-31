@@ -510,5 +510,5 @@ and notes.mid = ? and cards.ord = ?""",
         self, m: NoteType, flds: str, allowEmpty: bool = True
     ) -> List[int]:
         print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
-        note = anki._backend.BackendNote(fields=[flds])
+        note = _pb.Note(fields=[flds])
         return list(self.col.backend.cloze_numbers_in_note(note))
