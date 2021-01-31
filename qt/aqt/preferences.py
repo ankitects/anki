@@ -47,7 +47,7 @@ class Preferences(QDialog):
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )
         self.silentlyClose = True
-        self.prefs = self.mw.col.backend.get_preferences()
+        self.prefs = self.mw.col.get_preferences()
         self.setupLang()
         self.setupCollection()
         self.setupNetwork()
@@ -114,7 +114,7 @@ class Preferences(QDialog):
 
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 
-        s = self.prefs
+        s = self.prefs.sched
         f.lrnCutoff.setValue(int(s.learn_ahead_secs / 60.0))
         f.timeLimit.setValue(int(s.time_limit_secs / 60.0))
         f.showEstimates.setChecked(s.show_intervals_on_buttons)
@@ -156,7 +156,7 @@ class Preferences(QDialog):
         qc = d.conf
         qc["addToCur"] = not f.useCurrent.currentIndex()
 
-        s = self.prefs
+        s = self.prefs.sched
         s.show_remaining_due_counts = f.showProgress.isChecked()
         s.show_intervals_on_buttons = f.showEstimates.isChecked()
         s.new_review_mix = f.newSpread.currentIndex()
@@ -168,7 +168,7 @@ class Preferences(QDialog):
 
         # if moving this, make sure scheduler change is moved to Rust or
         # happens afterwards
-        self.mw.col.backend.set_preferences(self.prefs)
+        self.mw.col.set_preferences(self.prefs)
 
         self._updateSchedVer(f.newSched.isChecked())
         d.setMod()

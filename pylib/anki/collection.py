@@ -32,6 +32,7 @@ from anki.models import ModelManager
 from anki.notes import Note
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
+from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
 from anki.utils import (
     devMode,
@@ -53,6 +54,7 @@ EmptyCardsReport = _pb.EmptyCardsReport
 NoteWithEmptyCards = _pb.NoteWithEmptyCards
 GraphPreferences = _pb.GraphPreferences
 BuiltinSortKind = _pb.SortOrder.Builtin.Kind  # pylint: disable=no-member
+Preferences = _pb.Preferences
 
 # pylint: disable=no-member
 if TYPE_CHECKING:
@@ -818,6 +820,44 @@ table.review-log {{ {revlog_style} }}
             self.usn(),
             intTime(),
         )
+
+    ##########################################################################
+
+    def set_wants_abort(self) -> None:
+        self.backend.set_wants_abort()
+
+    def i18n_resources(self) -> bytes:
+        return self.backend.i18n_resources()
+
+    def abort_media_sync(self) -> None:
+        self.backend.abort_media_sync()
+
+    def abort_sync(self) -> None:
+        self.backend.abort_sync()
+
+    def full_upload(self, auth: SyncAuth) -> None:
+        self.backend.full_upload(auth)
+
+    def full_download(self, auth: SyncAuth) -> None:
+        self.backend.full_download(auth)
+
+    def sync_login(self, username: str, password: str) -> SyncAuth:
+        return self.backend.sync_login(username=username, password=password)
+
+    def sync_collection(self, auth: SyncAuth) -> SyncOutput:
+        return self.backend.sync_collection(auth)
+
+    def sync_media(self, auth: SyncAuth) -> None:
+        self.backend.sync_media(auth)
+
+    def sync_status(self, auth: SyncAuth) -> SyncStatus:
+        return self.backend.sync_status(auth)
+
+    def get_preferences(self) -> Preferences:
+        return self.backend.get_preferences()
+
+    def set_preferences(self, prefs: Preferences):
+        self.backend.set_preferences(prefs)
 
 
 class ProgressKind(enum.Enum):

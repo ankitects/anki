@@ -691,8 +691,8 @@ class SidebarTreeView(QTreeView):
         old_name = item.full_name
 
         def do_remove():
-            self.mw.col.backend.clear_tag(old_name)
-            self.col.tags.rename_tag(old_name, "")
+            self.mw.col.tags.remove(old_name)
+            self.col.tags.rename(old_name, "")
 
         def on_done(fut: Future):
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
@@ -714,8 +714,8 @@ class SidebarTreeView(QTreeView):
             return
 
         def do_rename():
-            self.mw.col.backend.clear_tag(old_name)
-            return self.col.tags.rename_tag(old_name, new_name)
+            self.mw.col.tags.remove(old_name)
+            return self.col.tags.rename(old_name, new_name)
 
         def on_done(fut: Future):
             self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)

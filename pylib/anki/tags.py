@@ -92,13 +92,16 @@ class TagManager:
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
 
-    def rename_tag(self, old: str, new: str) -> int:
+    def rename(self, old: str, new: str) -> int:
         "Rename provided tag, returning number of changed notes."
         nids = self.col.find_notes(anki.collection.SearchTerm(tag=old))
         if not nids:
             return 0
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
         return self.bulk_update(nids, escaped_name, new, False)
+
+    def remove(self, tag: str) -> None:
+        self.col.backend.clear_tag(tag)
 
     # legacy routines
 

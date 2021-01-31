@@ -54,9 +54,7 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None])
             return
         callback(out)
 
-    mw.taskman.run_in_background(
-        lambda: mw.col.backend.sync_status(auth), on_future_done
-    )
+    mw.taskman.run_in_background(lambda: mw.col.sync_status(auth), on_future_done)
 
 
 def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception):
@@ -82,7 +80,7 @@ def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
     mw.progress.set_title(progress.val.stage)
 
     if mw.progress.want_cancel():
-        mw.col.backend.abort_sync()
+        mw.col.abort_sync()
 
 
 def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
@@ -116,7 +114,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 
     mw.col.save(trx=False)
     mw.taskman.with_progress(
-        lambda: mw.col.backend.sync_collection(auth),
+        lambda: mw.col.sync_collection(auth),
         on_future_done,
         label=tr(TR.SYNC_CHECKING),
         immediate=True,
@@ -167,7 +165,7 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
     )
 
     if mw.progress.want_cancel():
-        mw.col.backend.abort_sync()
+        mw.col.abort_sync()
 
 
 def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
@@ -192,7 +190,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         return on_done()
 
     mw.taskman.with_progress(
-        lambda: mw.col.backend.full_download(mw.pm.sync_auth()),
+        lambda: mw.col.full_download(mw.pm.sync_auth()),
         on_future_done,
         label=tr(TR.SYNC_DOWNLOADING_FROM_ANKIWEB),
     )
@@ -221,7 +219,7 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         return on_done()
 
     mw.taskman.with_progress(
-        lambda: mw.col.backend.full_upload(mw.pm.sync_auth()),
+        lambda: mw.col.full_upload(mw.pm.sync_auth()),
         on_future_done,
         label=tr(TR.SYNC_UPLOADING_TO_ANKIWEB),
     )
@@ -258,7 +256,7 @@ def sync_login(
         on_success()
 
     mw.taskman.with_progress(
-        lambda: mw.col.backend.sync_login(username=username, password=password),
+        lambda: mw.col.sync_login(username=username, password=password),
         on_future_done,
     )
 

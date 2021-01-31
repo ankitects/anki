@@ -64,7 +64,7 @@ class MediaSyncer:
         gui_hooks.media_sync_did_start_or_stop(True)
 
         def run() -> None:
-            self.mw.col.backend.sync_media(auth)
+            self.mw.col.sync_media(auth)
 
         self.mw.taskman.run_in_background(run, self._on_finished)
 
@@ -107,8 +107,8 @@ class MediaSyncer:
         if not self.is_syncing():
             return
         self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTING))
-        self.mw.col.backend.set_wants_abort()
-        self.mw.col.backend.abort_media_sync()
+        self.mw.col.set_wants_abort()
+        self.mw.col.abort_media_sync()
 
     def is_syncing(self) -> bool:
         return self._syncing
