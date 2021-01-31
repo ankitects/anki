@@ -609,7 +609,7 @@ class Browser(QMainWindow):
             tr(TR.BROWSING_SEARCH_BAR_HINT)
         )
         self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
-        self.search_for(self.col.build_search_string(SearchTerm(current_deck=True)), "")
+        self.search_for(self.col.build_search_string(SearchTerm(deck="current")), "")
         self.form.searchEdit.setFocus()
 
     # search triggered by user
