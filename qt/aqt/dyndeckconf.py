@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import aqt
 from anki.collection import SearchTerm
+from anki.decks import Deck
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
@@ -23,19 +24,41 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw, first=False, search="", deck=None):
+    """Dialogue to modify and build a filtered deck."""
+
+    def __init__(self, mw, search: Optional[str] = None, deck: Optional[Deck] = None):
+        """If 'deck' is an existing filtered deck, load and modify its settings.
+        Otherwise, build a new one and derive settings from the current deck.
+        """
+
         QDialog.__init__(self, mw)
         self.mw = mw
-        self.deck = deck or self.mw.col.decks.current()
-        self.search = search
+        self.did: Optional[int] = None
         self.form = aqt.forms.dyndconf.Ui_Dialog()
         self.form.setupUi(self)
-        if first:
-            label = tr(TR.DECKS_BUILD)
-        else:
-            label = tr(TR.ACTIONS_REBUILD)
-        self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
+        self.initialSetup()
+        self.old_deck = self.mw.col.decks.current()
+
+        if deck and deck["dyn"]:
+            # modify existing dyn deck
+            label = tr(TR.ACTIONS_REBUILD)
+            self.deck = deck
+            self.loadConf()
+        elif self.old_deck["dyn"]:
+            # create new dyn deck from other dyn deck
+            label = tr(TR.DECKS_BUILD)
+            self.loadConf(deck=self.old_deck)
+            self.new_dyn_deck()
+        else:
+            # create new dyn deck from regular deck
+            label = tr(TR.DECKS_BUILD)
+            self.new_dyn_deck()
+            self.loadConf()
+            self.set_default_searches(self.old_deck["name"])
+        if search is not None:
+            self.form.search.setText(search)
+
         disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
         qconnect(
@@ -45,25 +68,36 @@ class DeckConf(QDialog):
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
         restoreGeom(self, "dyndeckconf")
-        self.initialSetup()
-        self.loadConf()
-        if search:
-            search = self.mw.col.build_search_string(
-                search, SearchTerm(card_state=SearchTerm.CARD_STATE_DUE)
-            )
-            self.form.search.setText(search)
-            search_2 = self.mw.col.build_search_string(
-                search, SearchTerm(card_state=SearchTerm.CARD_STATE_NEW)
-            )
-            self.form.search_2.setText(search_2)
+        self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.form.search.selectAll()
-
         if self.mw.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
 
         self.show()
-        self.exec_()
-        saveGeom(self, "dyndeckconf")
+
+    def new_dyn_deck(self):
+        suffix: int = 1
+        while self.mw.col.decks.id_for_name(
+            without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
+        ):
+            suffix += 1
+        name: str = without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
+        self.did = self.mw.col.decks.new_filtered(name)
+        self.deck = self.mw.col.decks.current()
+
+    def set_default_searches(self, deck_name):
+        self.form.search.setText(
+            self.mw.col.build_search_string(
+                SearchTerm(deck=deck_name),
+                SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
+            )
+        )
+        self.form.search_2.setText(
+            self.mw.col.build_search_string(
+                SearchTerm(deck=deck_name),
+                SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
+            )
+        )
 
     def initialSetup(self):
         import anki.consts as cs
@@ -78,9 +112,9 @@ class DeckConf(QDialog):
             not self.form.resched.isChecked() and self.mw.col.schedVer() > 1
         )
 
-    def loadConf(self):
+    def loadConf(self, deck: Optional[Deck] = None):
         f = self.form
-        d = self.deck
+        d = deck or self.deck
 
         f.resched.setChecked(d["resched"])
         self._onReschedToggled(0)
@@ -139,7 +173,10 @@ class DeckConf(QDialog):
         self.mw.col.decks.save(d)
 
     def reject(self):
-        self.ok = False
+        if self.did:
+            self.mw.col.decks.rem(self.did)
+            self.mw.col.decks.select(self.old_deck["id"])
+        saveGeom(self, "dyndeckconf")
         QDialog.reject(self)
 
     def accept(self):
@@ -151,6 +188,7 @@ class DeckConf(QDialog):
         if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
             if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
                 return
+        saveGeom(self, "dyndeckconf")
         self.mw.reset()
         QDialog.accept(self)
 
