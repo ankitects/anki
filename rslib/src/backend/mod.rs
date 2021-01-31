@@ -36,7 +36,8 @@ use crate::{
     sched::timespan::{answer_button_time, time_span},
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, EaseKind, Node, SearchNode, SortMode, StateKind, TemplateKind,
+        BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode, StateKind,
+        TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -262,6 +263,16 @@ impl From<pb::NoteId> for NoteID {
     }
 }
 
+impl pb::search_term::IdList {
+    fn into_id_string(self) -> String {
+        self.ids
+            .iter()
+            .map(|i| i.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    }
+}
+
 impl From<pb::NoteTypeId> for NoteTypeID {
     fn from(ntid: pb::NoteTypeId) -> Self {
         NoteTypeID(ntid.ntid)
@@ -280,41 +291,11 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
-impl From<pb::FilterToSearchIn> for Node<'_> {
-    fn from(msg: pb::FilterToSearchIn) -> Self {
-        use pb::filter_to_search_in::Filter;
-        use pb::filter_to_search_in::NamedFilter;
-        match msg
-            .filter
-            .unwrap_or(Filter::Name(NamedFilter::WholeCollection as i32))
-        {
-            Filter::Name(name) => {
-                match NamedFilter::from_i32(name).unwrap_or(NamedFilter::WholeCollection) {
-                    NamedFilter::WholeCollection => Node::Search(SearchNode::WholeCollection),
-                    NamedFilter::CurrentDeck => Node::Search(SearchNode::Deck("current".into())),
-                    NamedFilter::AddedToday => Node::Search(SearchNode::AddedInDays(1)),
-                    NamedFilter::StudiedToday => Node::Search(SearchNode::Rated {
-                        days: 1,
-                        ease: EaseKind::AnyAnswerButton,
-                    }),
-                    NamedFilter::AgainToday => Node::Search(SearchNode::Rated {
-                        days: 1,
-                        ease: EaseKind::AnswerButton(1),
-                    }),
-                    NamedFilter::New => Node::Search(SearchNode::State(StateKind::New)),
-                    NamedFilter::Learn => Node::Search(SearchNode::State(StateKind::Learning)),
-                    NamedFilter::Review => Node::Search(SearchNode::State(StateKind::Review)),
-                    NamedFilter::Due => Node::Search(SearchNode::State(StateKind::Due)),
-                    NamedFilter::Suspended => Node::Search(SearchNode::State(StateKind::Suspended)),
-                    NamedFilter::Buried => Node::Search(SearchNode::State(StateKind::Buried)),
-                    NamedFilter::RedFlag => Node::Search(SearchNode::Flag(1)),
-                    NamedFilter::OrangeFlag => Node::Search(SearchNode::Flag(2)),
-                    NamedFilter::GreenFlag => Node::Search(SearchNode::Flag(3)),
-                    NamedFilter::BlueFlag => Node::Search(SearchNode::Flag(4)),
-                    NamedFilter::NoFlag => Node::Search(SearchNode::Flag(0)),
-                    NamedFilter::AnyFlag => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
-                }
-            }
+impl From<pb::SearchTerm> for Node<'_> {
+    fn from(msg: pb::SearchTerm) -> Self {
+        use pb::search_term::Filter;
+        use pb::search_term::Flag;
+        match msg.filter.unwrap_or(Filter::WholeCollection(true)) {
             Filter::Tag(s) => Node::Search(SearchNode::Tag(
                 escape_anki_wildcards(&s).into_owned().into(),
             )),
@@ -327,10 +308,41 @@ impl From<pb::FilterToSearchIn> for Node<'_> {
             Filter::Template(u) => {
                 Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
             }
+            Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string().into())),
+            Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string().into())),
             Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                note_type_id: dupe.mid.unwrap_or(pb::NoteTypeId { ntid: 0 }).into(),
-                text: dupe.text.into(),
+                note_type_id: dupe.notetype_id.into(),
+                text: dupe.first_field.into(),
             }),
+            Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
+                field: escape_anki_wildcards(&s).into_owned().into(),
+                text: "*".to_string().into(),
+                is_re: false,
+            }),
+            Filter::Rated(rated) => Node::Search(SearchNode::Rated {
+                days: rated.days,
+                ease: rated.rating().into(),
+            }),
+            Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
+            Filter::DueInDays(i) => Node::Search(SearchNode::Property {
+                operator: "<=".to_string(),
+                kind: PropertyKind::Due(i),
+            }),
+            Filter::WholeCollection(_) => Node::Search(SearchNode::WholeCollection),
+            Filter::CurrentDeck(_) => Node::Search(SearchNode::Deck("current".into())),
+            Filter::CardState(state) => Node::Search(SearchNode::State(
+                pb::search_term::CardState::from_i32(state)
+                    .unwrap_or_default()
+                    .into(),
+            )),
+            Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
+                Flag::None => Node::Search(SearchNode::Flag(0)),
+                Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
+                Flag::Red => Node::Search(SearchNode::Flag(1)),
+                Flag::Orange => Node::Search(SearchNode::Flag(2)),
+                Flag::Green => Node::Search(SearchNode::Flag(3)),
+                Flag::Blue => Node::Search(SearchNode::Flag(4)),
+            },
         }
     }
 }
@@ -340,6 +352,32 @@ impl From<BoolSeparatorProto> for BoolSeparator {
         match sep {
             BoolSeparatorProto::And => BoolSeparator::And,
             BoolSeparatorProto::Or => BoolSeparator::Or,
+        }
+    }
+}
+
+impl From<pb::search_term::Rating> for RatingKind {
+    fn from(r: pb::search_term::Rating) -> Self {
+        match r {
+            pb::search_term::Rating::Again => RatingKind::AnswerButton(1),
+            pb::search_term::Rating::Hard => RatingKind::AnswerButton(2),
+            pb::search_term::Rating::Good => RatingKind::AnswerButton(3),
+            pb::search_term::Rating::Easy => RatingKind::AnswerButton(4),
+            pb::search_term::Rating::Any => RatingKind::AnyAnswerButton,
+            pb::search_term::Rating::ByReschedule => RatingKind::ManualReschedule,
+        }
+    }
+}
+
+impl From<pb::search_term::CardState> for StateKind {
+    fn from(k: pb::search_term::CardState) -> Self {
+        match k {
+            pb::search_term::CardState::New => StateKind::New,
+            pb::search_term::CardState::Learn => StateKind::Learning,
+            pb::search_term::CardState::Review => StateKind::Review,
+            pb::search_term::CardState::Due => StateKind::Due,
+            pb::search_term::CardState::Suspended => StateKind::Suspended,
+            pb::search_term::CardState::Buried => StateKind::Buried,
         }
     }
 }
@@ -466,7 +504,7 @@ impl BackendService for Backend {
     // searching
     //-----------------------------------------------
 
-    fn filter_to_search(&self, input: pb::FilterToSearchIn) -> Result<pb::String> {
+    fn filter_to_search(&self, input: pb::SearchTerm) -> Result<pb::String> {
         Ok(write_nodes(&[input.into()]).into())
     }
 

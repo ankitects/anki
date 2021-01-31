@@ -84,7 +84,7 @@ service BackendService {
 
   // searching
 
-  rpc FilterToSearch(FilterToSearchIn) returns (String);
+  rpc FilterToSearch(SearchTerm) returns (String);
   rpc NormalizeSearch(String) returns (String);
   rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
@@ -765,37 +765,58 @@ message BuiltinSearchOrder {
   bool reverse = 2;
 }
 
-message FilterToSearchIn {
-  enum NamedFilter {
-    WHOLE_COLLECTION = 0;
-    CURRENT_DECK = 1;
-    ADDED_TODAY = 2;
-    STUDIED_TODAY = 3;
-    AGAIN_TODAY = 4;
-    NEW = 5;
-    LEARN = 6;
-    REVIEW = 7;
-    DUE = 8;
-    SUSPENDED = 9;
-    BURIED = 10;
-    RED_FLAG = 11;
-    ORANGE_FLAG = 12;
-    GREEN_FLAG = 13;
-    BLUE_FLAG = 14;
-    NO_FLAG = 15;
-    ANY_FLAG = 16;
+message SearchTerm {
+  message Dupe {
+    int64 notetype_id = 1;
+    string first_field = 2;
   }
-  message DupeIn {
-    NoteTypeID mid = 1;
-    string text = 2;
+  enum Flag {
+    FLAG_NONE = 0;
+    FLAG_ANY = 1;
+    FLAG_RED = 2;
+    FLAG_ORANGE = 3;
+    FLAG_GREEN = 4;
+    FLAG_BLUE = 5;
+  }
+  enum Rating {
+    RATING_ANY = 0;
+    RATING_AGAIN = 1;
+    RATING_HARD = 2;
+    RATING_GOOD = 3;
+    RATING_EASY = 4;
+    RATING_BY_RESCHEDULE = 5;
+  }
+  message Rated {
+    uint32 days = 1;
+    Rating rating = 2;
+  }
+  enum CardState {
+    CARD_STATE_NEW = 0;
+    CARD_STATE_LEARN = 1;
+    CARD_STATE_REVIEW = 2;
+    CARD_STATE_DUE = 3;
+    CARD_STATE_SUSPENDED = 4;
+    CARD_STATE_BURIED = 5;
+  }
+  message IdList {
+    repeated int64 ids = 1;
   }
   oneof filter {
-    NamedFilter name = 1;
-    string tag = 2;
-    string deck = 3;
-    string note = 4;
-    uint32 template = 5;
-    DupeIn dupe = 6;
+    string tag = 1;
+    string deck = 2;
+    string note = 3;
+    uint32 template = 4;
+    int64 nid = 5;
+    Dupe dupe = 6;
+    string field_name = 7;
+    Rated rated = 8;
+    uint32 added_in_days = 9;
+    int32 due_in_days = 10;
+    bool whole_collection = 11;
+    bool current_deck = 12;
+    Flag flag = 13;
+    CardState card_state = 14;
+    IdList nids = 15;
   }
 }
 

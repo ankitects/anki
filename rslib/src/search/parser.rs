@@ -58,7 +58,7 @@ pub enum SearchNode<'a> {
     NoteType(Cow<'a, str>),
     Rated {
         days: u32,
-        ease: EaseKind,
+        ease: RatingKind,
     },
     Tag(Cow<'a, str>),
     Duplicates {
@@ -67,7 +67,7 @@ pub enum SearchNode<'a> {
     },
     State(StateKind),
     Flag(u8),
-    NoteIDs(&'a str),
+    NoteIDs(Cow<'a, str>),
     CardIDs(&'a str),
     Property {
         operator: String,
@@ -87,7 +87,7 @@ pub enum PropertyKind {
     Lapses(u32),
     Ease(f32),
     Position(u32),
-    Rated(i32, EaseKind),
+    Rated(i32, RatingKind),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -109,7 +109,7 @@ pub enum TemplateKind<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum EaseKind {
+pub enum RatingKind {
     AnswerButton(u8),
     AnyAnswerButton,
     ManualReschedule,
@@ -318,7 +318,7 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "did" => parse_did(val)?,
         "mid" => parse_mid(val)?,
-        "nid" => SearchNode::NoteIDs(check_id_list(val, key)?),
+        "nid" => SearchNode::NoteIDs(check_id_list(val, key)?.into()),
         "cid" => SearchNode::CardIDs(check_id_list(val, key)?),
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
@@ -353,7 +353,7 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
 fn parse_resched(s: &str) -> ParseResult<SearchNode> {
     parse_u32(s, "resched:").map(|days| SearchNode::Rated {
         days,
-        ease: EaseKind::ManualReschedule,
+        ease: RatingKind::ManualReschedule,
     })
 }
 
@@ -392,7 +392,7 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "rated" => parse_prop_rated(num, prop_clause)?,
         "resched" => PropertyKind::Rated(
             parse_negative_i32(num, prop_clause)?,
-            EaseKind::ManualReschedule,
+            RatingKind::ManualReschedule,
         ),
         "ivl" => PropertyKind::Interval(parse_u32(num, prop_clause)?),
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
@@ -470,9 +470,9 @@ fn parse_i64<'a>(num: &str, context: &'a str) -> ParseResult<'a, i64> {
     })
 }
 
-fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'a, EaseKind> {
+fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'a, RatingKind> {
     Ok(if let Some(num) = num {
-        EaseKind::AnswerButton(
+        RatingKind::AnswerButton(
             num.parse()
                 .map_err(|_| ())
                 .and_then(|n| if matches!(n, 1..=4) { Ok(n) } else { Err(()) })
@@ -487,7 +487,7 @@ fn parse_answer_button<'a>(num: Option<&str>, context: &'a str) -> ParseResult<'
                 })?,
         )
     } else {
-        EaseKind::AnyAnswerButton
+        RatingKind::AnyAnswerButton
     })
 }
 
@@ -813,7 +813,7 @@ mod test {
         assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,
-            vec![Search(NoteIDs("1237123712,2,3"))]
+            vec![Search(NoteIDs("1237123712,2,3".into()))]
         );
         assert_eq!(parse("is:due")?, vec![Search(State(StateKind::Due))]);
         assert_eq!(parse("flag:3")?, vec![Search(Flag(3))]);

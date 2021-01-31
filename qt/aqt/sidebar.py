@@ -9,15 +9,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
-from anki.collection import ConfigBoolKey
+from anki.collection import ConfigBoolKey, InvalidInput, SearchTerm
 from anki.errors import DeckRenameError
-from anki.rsbackend import (
-    DeckTreeNode,
-    FilterToSearchIn,
-    InvalidInput,
-    NamedFilter,
-    TagTreeNode,
-)
+from anki.rsbackend import DeckTreeNode, TagTreeNode
 from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.models import Models
@@ -42,6 +36,7 @@ class SidebarItemType(Enum):
     COLLECTION = 1
     CURRENT_DECK = 2
     SAVED_SEARCH = 3
+    FILTER = 3  # legacy alias for SAVED_SEARCH
     DECK = 4
     NOTETYPE = 5
     TAG = 6
@@ -466,14 +461,12 @@ class SidebarTreeView(QTreeView):
         item = SidebarItem(
             tr(TR.BROWSING_WHOLE_COLLECTION),
             ":/icons/collection.svg",
-            self._named_filter(NamedFilter.WHOLE_COLLECTION),
             item_type=SidebarItemType.COLLECTION,
         )
         root.addChild(item)
         item = SidebarItem(
             tr(TR.BROWSING_CURRENT_DECK),
             ":/icons/deck.svg",
-            self._named_filter(NamedFilter.CURRENT_DECK),
             item_type=SidebarItemType.CURRENT_DECK,
         )
         root.addChild(item)
@@ -499,8 +492,8 @@ class SidebarTreeView(QTreeView):
             item = SidebarItem(
                 name,
                 icon,
-                self._saved_filter(filt),
-                item_type=SidebarItemType.SAVED_SEARCH,
+                self._filter_func(filt),
+                item_type=SidebarItemType.FILTER,
             )
             root.addChild(item)
 
@@ -519,7 +512,7 @@ class SidebarTreeView(QTreeView):
                 item = SidebarItem(
                     node.name,
                     icon,
-                    self._tag_filter(head + node.name),
+                    self._filter_func(SearchTerm(tag=head + node.name)),
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.TAG,
@@ -551,7 +544,7 @@ class SidebarTreeView(QTreeView):
                 item = SidebarItem(
                     node.name,
                     icon,
-                    self._deck_filter(head + node.name),
+                    self._filter_func(SearchTerm(deck=head + node.name)),
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
@@ -584,8 +577,8 @@ class SidebarTreeView(QTreeView):
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
             item = SidebarItem(
                 nt["name"],
-                icon=icon,
-                onClick=self._note_filter(nt["name"]),
+                icon,
+                self._filter_func(SearchTerm(note=nt["name"])),
                 item_type=SidebarItemType.NOTETYPE,
                 id=nt["id"],
             )
@@ -594,7 +587,9 @@ class SidebarTreeView(QTreeView):
                 child = SidebarItem(
                     tmpl["name"],
                     icon,
-                    onClick=self._template_filter(nt["name"], c),
+                    self._filter_func(
+                        SearchTerm(note=nt["name"]), SearchTerm(template=c)
+                    ),
                     item_type=SidebarItemType.TEMPLATE,
                     full_name=nt["name"] + "::" + tmpl["name"],
                 )
@@ -602,34 +597,8 @@ class SidebarTreeView(QTreeView):
 
             root.addChild(item)
 
-    def _named_filter(self, name: "FilterToSearchIn.NamedFilterValue") -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(name=name))
-        )
-
-    def _tag_filter(self, tag: str) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(tag=tag))
-        )
-
-    def _deck_filter(self, deck: str) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(deck=deck))
-        )
-
-    def _note_filter(self, note: str) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(note=note))
-        )
-
-    def _template_filter(self, note: str, template: int) -> Callable:
-        return lambda: self.browser.update_search(
-            self.col.backend.filter_to_search(FilterToSearchIn(note=note)),
-            self.col.backend.filter_to_search(FilterToSearchIn(template=template)),
-        )
-
-    def _saved_filter(self, saved: str) -> Callable:
-        return lambda: self.browser.update_search(saved)
+    def _filter_func(self, *terms: Union[str, SearchTerm]) -> Callable:
+        return lambda: self.browser.update_search(self.col.build_search_string(*terms))
 
     # Context menu actions
     ###########################
@@ -807,7 +776,7 @@ class SidebarTreeView(QTreeView):
 
     def save_current_search(self, _item=None) -> None:
         try:
-            filt = self.col.backend.normalize_search(
+            filt = self.col.build_search_string(
                 self.browser.form.searchEdit.lineEdit().text()
             )
         except InvalidInput as e:

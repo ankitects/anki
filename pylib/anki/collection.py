@@ -17,6 +17,7 @@ import anki.find
 import anki.latex  # sets up hook
 import anki.template
 from anki import hooks
+from anki.backend_pb2 import SearchTerm
 from anki.cards import Card
 from anki.config import ConfigManager
 from anki.consts import *
@@ -26,18 +27,22 @@ from anki.errors import AnkiError
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import (
+from anki.rsbackend import (  # pylint: disable=unused-import
     TR,
+    BackendNoteTypeID,
+    ConcatSeparator,
     DBError,
     FormatTimeSpanContext,
+    InvalidInput,
     Progress,
     RustBackend,
     from_json_bytes,
+    pb,
 )
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.utils import devMode, ids2str, intTime
+from anki.utils import devMode, ids2str, intTime, splitFields, stripHTMLMedia
 
 ConfigBoolKey = pb.ConfigBool.Key  # pylint: disable=no-member
 
@@ -458,8 +463,8 @@ class Collection:
             )
         return self.backend.search_cards(search=query, order=mode)
 
-    def find_notes(self, query: str) -> Sequence[int]:
-        return self.backend.search_notes(query)
+    def find_notes(self, *terms: Union[str, SearchTerm]) -> Sequence[int]:
+        return self.backend.search_notes(self.build_search_string(*terms))
 
     def find_and_replace(
         self,
@@ -472,12 +477,75 @@ class Collection:
     ) -> int:
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
+    # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        return anki.find.findDupes(self, fieldName, search)
+        nids = self.findNotes(search, SearchTerm(field_name=fieldName))
+        # go through notes
+        vals: Dict[str, List[int]] = {}
+        dupes = []
+        fields: Dict[int, int] = {}
+
+        def ordForMid(mid):
+            if mid not in fields:
+                model = self.models.get(mid)
+                for c, f in enumerate(model["flds"]):
+                    if f["name"].lower() == fieldName.lower():
+                        fields[mid] = c
+                        break
+            return fields[mid]
+
+        for nid, mid, flds in self.db.all(
+            "select id, mid, flds from notes where id in " + ids2str(nids)
+        ):
+            flds = splitFields(flds)
+            ord = ordForMid(mid)
+            if ord is None:
+                continue
+            val = flds[ord]
+            val = stripHTMLMedia(val)
+            # empty does not count as duplicate
+            if not val:
+                continue
+            vals.setdefault(val, []).append(nid)
+            if len(vals[val]) == 2:
+                dupes.append((val, vals[val]))
+        return dupes
 
     findCards = find_cards
     findNotes = find_notes
     findReplace = find_and_replace
+
+    # Search Strings
+    ##########################################################################
+
+    def build_search_string(
+        self, *terms: Union[str, SearchTerm], negate=False, match_any=False
+    ) -> str:
+        """Helper function for the backend's search string operations.
+
+        Pass terms as strings to normalize.
+        Pass fields of backend.proto/FilterToSearchIn as valid SearchTerms.
+        Pass multiple terms to concatenate (defaults to 'and', 'or' when 'match_any=True').
+        Pass 'negate=True' to negate the end result.
+        May raise InvalidInput.
+        """
+
+        searches = []
+        for term in terms:
+            if isinstance(term, SearchTerm):
+                term = self.backend.filter_to_search(term)
+            searches.append(term)
+        if match_any:
+            sep = ConcatSeparator.OR
+        else:
+            sep = ConcatSeparator.AND
+        search_string = self.backend.concatenate_searches(sep=sep, searches=searches)
+        if negate:
+            search_string = self.backend.negate_search(search_string)
+        return search_string
+
+    def replace_search_term(self, search: str, replacement: str) -> str:
+        return self.backend.replace_search_term(search=search, replacement=replacement)
 
     # Config
     ##########################################################################

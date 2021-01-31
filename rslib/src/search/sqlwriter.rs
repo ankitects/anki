@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind};
+use super::parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -211,7 +211,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_rated(&mut self, op: &str, days: i64, ease: &EaseKind) -> Result<()> {
+    fn write_rated(&mut self, op: &str, days: i64, ease: &RatingKind) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
         let target_cutoff_ms = (today_cutoff + 86_400 * days) * 1_000;
         let day_before_cutoff_ms = (today_cutoff + 86_400 * (days - 1)) * 1_000;
@@ -240,9 +240,9 @@ impl SqlWriter<'_> {
         .unwrap();
 
         match ease {
-            EaseKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
-            EaseKind::AnyAnswerButton => write!(self.sql, " and ease > 0)"),
-            EaseKind::ManualReschedule => write!(self.sql, " and ease = 0)"),
+            RatingKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
+            RatingKind::AnyAnswerButton => write!(self.sql, " and ease > 0)"),
+            RatingKind::ManualReschedule => write!(self.sql, " and ease = 0)"),
         }
         .unwrap();
 

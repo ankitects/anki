@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import aqt
+from anki.collection import SearchTerm
 from aqt import gui_hooks
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
@@ -71,8 +72,8 @@ class Overview:
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "cram":
-            deck = self.mw.col.decks.current()
-            self.mw.onCram("'deck:%s'" % deck["name"])
+            deck = self.mw.col.decks.current()["name"]
+            self.mw.onCram(self.mw.col.build_search_string(SearchTerm(deck=deck)))
         elif url == "refresh":
             self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()

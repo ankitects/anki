@@ -16,7 +16,7 @@ import re
 from typing import Collection, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
-from anki.rsbackend import FilterToSearchIn
+from anki.collection import SearchTerm
 from anki.utils import ids2str
 
 
@@ -87,8 +87,7 @@ class TagManager:
 
     def rename_tag(self, old: str, new: str) -> int:
         "Rename provided tag, returning number of changed notes."
-        search = self.col.backend.filter_to_search(FilterToSearchIn(tag=old))
-        nids = self.col.find_notes(search)
+        nids = self.col.find_notes(SearchTerm(tag=old))
         if not nids:
             return 0
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
