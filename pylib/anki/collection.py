@@ -58,12 +58,14 @@ ConfigBoolKey = _pb.ConfigBool.Key  # pylint: disable=no-member
 EmptyCardsReport = _pb.EmptyCardsReport
 NoteWithEmptyCards = _pb.NoteWithEmptyCards
 GraphPreferences = _pb.GraphPreferences
+BuiltinSortKind = _pb.SortOrder.Builtin.Kind  # pylint: disable=no-member
 
 # pylint: disable=no-member
 if TYPE_CHECKING:
     from anki.lang import FormatTimeSpanContextValue, TRValue
 
     ConfigBoolKeyValue = _pb.ConfigBool.KeyValue
+    BuiltinSortKindValue = _pb.SortOrder.Builtin.KindValue
 
 
 class Collection:
@@ -460,11 +462,7 @@ class Collection:
     def find_cards(
         self,
         query: str,
-        order: Union[
-            bool,
-            str,
-            _pb.BuiltinSearchOrder.BuiltinSortKindValue,  # pylint: disable=no-member
-        ] = False,
+        order: Union[bool, str, BuiltinSortKindValue] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
         if isinstance(order, str):
@@ -476,7 +474,7 @@ class Collection:
                 mode = _pb.SortOrder(none=_pb.Empty())
         else:
             mode = _pb.SortOrder(
-                builtin=_pb.BuiltinSearchOrder(kind=order, reverse=reverse)
+                builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
             )
         return self.backend.search_cards(search=query, order=mode)
 

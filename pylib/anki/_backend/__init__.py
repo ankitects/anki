@@ -42,7 +42,6 @@ assert rsbridge.buildhash() == anki.buildinfo.buildhash
 # by external libraries (eg aqt) should be exported in the module that
 # refers to them, eg collection.py
 SchedTimingToday = pb.SchedTimingTodayOut
-BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
 BackendCard = pb.Card
 BackendNote = pb.Note
 Tag = pb.Tag

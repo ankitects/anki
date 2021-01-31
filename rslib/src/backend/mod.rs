@@ -6,10 +6,9 @@ use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::{
-        builtin_search_order::BuiltinSortKind as SortKindProto,
         concatenate_searches_in::Separator as BoolSeparatorProto,
-        sort_order::Value as SortOrderProto, AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty,
-        RenderedTemplateReplacement,
+        sort_order::builtin::Kind as SortKindProto, sort_order::Value as SortOrderProto,
+        AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
     },
     card::{Card, CardID},
     card::{CardQueue, CardType},

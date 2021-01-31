@@ -729,11 +729,30 @@ message SearchCardsOut {
 }
 
 message SortOrder {
+  message Builtin {
+    enum Kind {
+      NOTE_CREATION = 0;
+      NOTE_MOD = 1;
+      NOTE_FIELD = 2;
+      NOTE_TAGS = 3;
+      NOTE_TYPE = 4;
+      CARD_MOD = 5;
+      CARD_REPS = 6;
+      CARD_DUE = 7;
+      CARD_EASE = 8;
+      CARD_LAPSES = 9;
+      CARD_INTERVAL = 10;
+      CARD_DECK = 11;
+      CARD_TEMPLATE = 12;
+    }
+    Kind kind = 1;
+    bool reverse = 2;
+  }
   oneof value {
     Empty from_config = 1;
     Empty none = 2;
     string custom = 3;
-    BuiltinSearchOrder builtin = 4;
+    Builtin builtin = 4;
   }
 }
 
@@ -743,26 +762,6 @@ message SearchNotesIn {
 
 message SearchNotesOut {
   repeated int64 note_ids = 2;
-}
-
-message BuiltinSearchOrder {
-  enum BuiltinSortKind {
-    NOTE_CREATION = 0;
-    NOTE_MOD = 1;
-    NOTE_FIELD = 2;
-    NOTE_TAGS = 3;
-    NOTE_TYPE = 4;
-    CARD_MOD = 5;
-    CARD_REPS = 6;
-    CARD_DUE = 7;
-    CARD_EASE = 8;
-    CARD_LAPSES = 9;
-    CARD_INTERVAL = 10;
-    CARD_DECK = 11;
-    CARD_TEMPLATE = 12;
-  }
-  BuiltinSortKind kind = 1;
-  bool reverse = 2;
 }
 
 message SearchTerm {
