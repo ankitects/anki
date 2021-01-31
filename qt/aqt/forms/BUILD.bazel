@@ -13,7 +13,6 @@ compile_all(
     group = "forms",
     visibility = [
         "//qt/aqt:__pkg__",
-        "//qt/po:__pkg__",
     ],
 )
 
