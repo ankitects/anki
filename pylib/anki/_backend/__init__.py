@@ -23,15 +23,15 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
 import anki.buildinfo
-from . import backend_pb2 as pb
-from . import rsbridge
-from anki import hooks
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.errors import backend_exception_to_pylib
 from anki.lang import FormatTimeSpanContext
 from anki.utils import from_json_bytes, to_json_bytes
+
+from . import backend_pb2 as pb
+from . import rsbridge
 
 if TYPE_CHECKING:
     from anki.lang import FormatTimeSpanContextValue, TRValue
@@ -48,7 +48,7 @@ BackendNote = pb.Note
 Tag = pb.Tag
 TagTreeNode = pb.TagTreeNode
 NoteType = pb.NoteType
-StockNoteType = pb.StockNoteType
+BackendNoteTypeID = pb.NoteTypeID
 ConcatSeparator = pb.ConcatenateSearchesIn.Separator
 CountsForDeckToday = pb.CountsForDeckTodayOut
 

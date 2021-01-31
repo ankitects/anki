@@ -175,7 +175,7 @@ service BackendService {
   // note types
 
   rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
-  rpc GetStockNotetypeLegacy(GetStockNotetypeIn) returns (Json);
+  rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
   rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
   rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
   rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
@@ -874,16 +874,16 @@ message SetConfigJsonIn {
   bytes value_json = 2;
 }
 
-enum StockNoteType {
-  STOCK_NOTE_TYPE_BASIC = 0;
-  STOCK_NOTE_TYPE_BASIC_AND_REVERSED = 1;
-  STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED = 2;
-  STOCK_NOTE_TYPE_BASIC_TYPING = 3;
-  STOCK_NOTE_TYPE_CLOZE = 4;
-}
+message StockNoteType {
+  enum Kind {
+    BASIC = 0;
+    BASIC_AND_REVERSED = 1;
+    BASIC_OPTIONAL_REVERSED = 2;
+    BASIC_TYPING = 3;
+    CLOZE = 4;
+  }
 
-message GetStockNotetypeIn {
-  StockNoteType kind = 1;
+  Kind kind = 1;
 }
 
 message NoteTypeNames {

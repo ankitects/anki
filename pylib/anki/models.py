@@ -13,6 +13,7 @@ import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import TR, without_unicode_isolation
+from anki.stdmodels import StockNotetypeKind
 from anki.utils import (
     checksum,
     from_json_bytes,
@@ -206,9 +207,7 @@ class ModelManager:
         "Create a new model, and return it."
         # caller should call save() after modifying
         nt = from_json_bytes(
-            self.col.backend.get_stock_notetype_legacy(
-                _pb.StockNoteType.STOCK_NOTE_TYPE_BASIC
-            )
+            self.col.backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
         nt["flds"] = []
         nt["tmpls"] = []
@@ -299,9 +298,7 @@ class ModelManager:
     def new_field(self, name: str) -> Field:
         assert isinstance(name, str)
         nt = from_json_bytes(
-            self.col.backend.get_stock_notetype_legacy(
-                _pb.StockNoteType.STOCK_NOTE_TYPE_BASIC
-            )
+            self.col.backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
         field = nt["flds"][0]
         field["name"] = name
@@ -360,9 +357,7 @@ class ModelManager:
 
     def new_template(self, name: str) -> Template:
         nt = from_json_bytes(
-            self.col.backend.get_stock_notetype_legacy(
-                _pb.StockNoteType.STOCK_NOTE_TYPE_BASIC
-            )
+            self.col.backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
         template = nt["tmpls"][0]
         template["name"] = name

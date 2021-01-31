@@ -9,9 +9,9 @@
 
 from typing import TYPE_CHECKING
 
-from anki.lang import FormatTimeSpanContext
 from anki.decks import DeckTreeNode
-from anki.errors import NotFoundError, InvalidInput
+from anki.errors import InvalidInput, NotFoundError
+from anki.lang import FormatTimeSpanContext
 
 if TYPE_CHECKING:
     from anki.lang import FormatTimeSpanContextValue, TRValue

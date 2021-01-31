@@ -1084,7 +1084,7 @@ impl BackendService for Backend {
     // notetypes
     //-------------------------------------------------------------------
 
-    fn get_stock_notetype_legacy(&self, input: pb::GetStockNotetypeIn) -> BackendResult<pb::Json> {
+    fn get_stock_notetype_legacy(&self, input: pb::StockNoteType) -> BackendResult<pb::Json> {
         // fixme: use individual functions instead of full vec
         let mut all = all_stock_notetypes(&self.i18n);
         let idx = (input.kind as usize).min(all.len() - 1);
