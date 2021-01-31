@@ -461,12 +461,14 @@ class SidebarTreeView(QTreeView):
         item = SidebarItem(
             tr(TR.BROWSING_WHOLE_COLLECTION),
             ":/icons/collection.svg",
+            self._filter_func(SearchTerm(whole_collection=True)),
             item_type=SidebarItemType.COLLECTION,
         )
         root.addChild(item)
         item = SidebarItem(
             tr(TR.BROWSING_CURRENT_DECK),
             ":/icons/deck.svg",
+            self._filter_func(SearchTerm(current_deck=True)),
             item_type=SidebarItemType.CURRENT_DECK,
         )
         root.addChild(item)
