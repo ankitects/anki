@@ -30,7 +30,7 @@ class TagManager:
 
     # all tags
     def all(self) -> List[str]:
-        return [t.name for t in self.col.backend.all_tags()]
+        return [t.name for t in self.col._backend.all_tags()]
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)
@@ -39,10 +39,10 @@ class TagManager:
 
     # # List of (tag, usn)
     def allItems(self) -> List[Tuple[str, int]]:
-        return [(t.name, t.usn) for t in self.col.backend.all_tags()]
+        return [(t.name, t.usn) for t in self.col._backend.all_tags()]
 
     def tree(self) -> TagTreeNode:
-        return self.col.backend.tag_tree()
+        return self.col._backend.tag_tree()
 
     # Registering and fetching tags
     #############################################################
@@ -57,7 +57,7 @@ class TagManager:
         self.clear_unused_tags()
 
     def clear_unused_tags(self):
-        self.col.backend.clear_unused_tags()
+        self.col._backend.clear_unused_tags()
 
     def byDeck(self, did, children=False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
@@ -74,21 +74,21 @@ class TagManager:
 
     def set_collapsed(self, tag: str, collapsed: bool):
         "Set browser collapse state for tag, registering the tag if missing."
-        self.col.backend.set_tag_collapsed(name=tag, collapsed=collapsed)
+        self.col._backend.set_tag_collapsed(name=tag, collapsed=collapsed)
 
     # Bulk addition/removal from notes
     #############################################################
 
     def bulk_add(self, nids: List[int], tags: str) -> int:
         """Add space-separate tags to provided notes, returning changed count."""
-        return self.col.backend.add_note_tags(nids=nids, tags=tags)
+        return self.col._backend.add_note_tags(nids=nids, tags=tags)
 
     def bulk_update(
         self, nids: Sequence[int], tags: str, replacement: str, regex: bool
     ) -> int:
         """Replace space-separated tags, returning changed count.
         Tags replaced with an empty string will be removed."""
-        return self.col.backend.update_note_tags(
+        return self.col._backend.update_note_tags(
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
 
@@ -101,7 +101,7 @@ class TagManager:
         return self.bulk_update(nids, escaped_name, new, False)
 
     def remove(self, tag: str) -> None:
-        self.col.backend.clear_tag(tag)
+        self.col._backend.clear_tag(tag)
 
     # legacy routines
 

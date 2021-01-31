@@ -34,10 +34,10 @@ class Note:
             self.load()
         else:
             # new note for provided notetype
-            self._load_from_backend_note(self.col.backend.new_note(model["id"]))
+            self._load_from_backend_note(self.col._backend.new_note(model["id"]))
 
     def load(self) -> None:
-        n = self.col.backend.get_note(self.id)
+        n = self.col._backend.get_note(self.id)
         assert n
         self._load_from_backend_note(n)
 
@@ -65,7 +65,7 @@ class Note:
 
     def flush(self) -> None:
         assert self.id != 0
-        self.col.backend.update_note(self.to_backend_note())
+        self.col._backend.update_note(self.to_backend_note())
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)
@@ -87,7 +87,7 @@ class Note:
     _model = property(model)
 
     def cloze_numbers_in_fields(self) -> Sequence[int]:
-        return self.col.backend.cloze_numbers_in_note(self.to_backend_note())
+        return self.col._backend.cloze_numbers_in_note(self.to_backend_note())
 
     # Dict interface
     ##################################################
@@ -145,4 +145,6 @@ class Note:
 
     def dupeOrEmpty(self) -> int:
         "1 if first is empty; 2 if first is a duplicate, 0 otherwise."
-        return self.col.backend.note_is_duplicate_or_empty(self.to_backend_note()).state
+        return self.col._backend.note_is_duplicate_or_empty(
+            self.to_backend_note()
+        ).state

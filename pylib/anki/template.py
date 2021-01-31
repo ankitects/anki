@@ -217,10 +217,10 @@ class TemplateRenderContext:
             )
 
         qtext = apply_custom_filters(partial.qnodes, self, front_side=None)
-        qout = self.col().backend.extract_av_tags(text=qtext, question_side=True)
+        qout = self.col()._backend.extract_av_tags(text=qtext, question_side=True)
 
         atext = apply_custom_filters(partial.anodes, self, front_side=qout.text)
-        aout = self.col().backend.extract_av_tags(text=atext, question_side=False)
+        aout = self.col()._backend.extract_av_tags(text=atext, question_side=False)
 
         output = TemplateRenderOutput(
             question_text=qout.text,
@@ -238,7 +238,7 @@ class TemplateRenderContext:
     def _partially_render(self) -> PartiallyRenderedCard:
         if self._template:
             # card layout screen
-            out = self._col.backend.render_uncommitted_card(
+            out = self._col._backend.render_uncommitted_card(
                 note=self._note.to_backend_note(),
                 card_ord=self._card.ord,
                 template=to_json_bytes(self._template),
@@ -246,7 +246,7 @@ class TemplateRenderContext:
             )
         else:
             # existing card (eg study mode)
-            out = self._col.backend.render_existing_card(
+            out = self._col._backend.render_existing_card(
                 card_id=self._card.id, browser=self._browser
             )
         return PartiallyRenderedCard.from_proto(out)

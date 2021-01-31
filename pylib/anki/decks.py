@@ -132,25 +132,25 @@ class DeckManager:
         if isinstance(did, str):
             did = int(did)
         assert cardsToo and childrenToo
-        self.col.backend.remove_deck(did)
+        self.col._backend.remove_deck(did)
 
     def all_names_and_ids(
         self, skip_empty_default=False, include_filtered=True
     ) -> Sequence[DeckNameID]:
         "A sorted sequence of deck names and IDs."
-        return self.col.backend.get_deck_names(
+        return self.col._backend.get_deck_names(
             skip_empty_default=skip_empty_default, include_filtered=include_filtered
         )
 
     def id_for_name(self, name: str) -> Optional[int]:
         try:
-            return self.col.backend.get_deck_id_by_name(name)
+            return self.col._backend.get_deck_id_by_name(name)
         except NotFoundError:
             return None
 
     def get_legacy(self, did: int) -> Optional[Deck]:
         try:
-            return from_json_bytes(self.col.backend.get_deck_legacy(did))
+            return from_json_bytes(self.col._backend.get_deck_legacy(did))
         except NotFoundError:
             return None
 
@@ -158,13 +158,13 @@ class DeckManager:
         return not self.get_legacy(int(id))
 
     def get_all_legacy(self) -> List[Deck]:
-        return list(from_json_bytes(self.col.backend.get_all_decks_legacy()).values())
+        return list(from_json_bytes(self.col._backend.get_all_decks_legacy()).values())
 
     def new_deck_legacy(self, filtered: bool) -> Deck:
-        return from_json_bytes(self.col.backend.new_deck_legacy(filtered))
+        return from_json_bytes(self.col._backend.new_deck_legacy(filtered))
 
     def deck_tree(self) -> DeckTreeNode:
-        return self.col.backend.deck_tree(top_deck_id=0, now=0)
+        return self.col._backend.deck_tree(top_deck_id=0, now=0)
 
     @classmethod
     def find_deck_in_tree(
@@ -244,7 +244,7 @@ class DeckManager:
     def update(self, g: Deck, preserve_usn=True) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         try:
-            g["id"] = self.col.backend.add_or_update_deck_legacy(
+            g["id"] = self.col._backend.add_or_update_deck_legacy(
                 deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
             )
         except DeckIsFilteredError as exc:
@@ -262,7 +262,7 @@ class DeckManager:
     def drag_drop_decks(self, source_decks: List[DeckID], target_deck: DeckID) -> None:
         """Rename one or more source decks that were dropped on `target_deck`.
         If target_deck is 0, decks will be placed at the top level."""
-        self.col.backend.drag_drop_decks(
+        self.col._backend.drag_drop_decks(
             source_deck_ids=source_decks, target_deck_id=target_deck
         )
 
@@ -281,7 +281,7 @@ class DeckManager:
 
     def all_config(self) -> List[Config]:
         "A list of all deck config."
-        return list(from_json_bytes(self.col.backend.all_deck_config_legacy()))
+        return list(from_json_bytes(self.col._backend.all_deck_config_legacy()))
 
     def confForDid(self, did: int) -> DeckConfig:
         deck = self.get(did, default=False)
@@ -299,12 +299,12 @@ class DeckManager:
 
     def get_config(self, conf_id: int) -> Optional[DeckConfig]:
         try:
-            return from_json_bytes(self.col.backend.get_deck_config_legacy(conf_id))
+            return from_json_bytes(self.col._backend.get_deck_config_legacy(conf_id))
         except NotFoundError:
             return None
 
     def update_config(self, conf: DeckConfig, preserve_usn=False) -> None:
-        conf["id"] = self.col.backend.add_or_update_deck_config_legacy(
+        conf["id"] = self.col._backend.add_or_update_deck_config_legacy(
             config=to_json_bytes(conf), preserve_usn_and_mtime=preserve_usn
         )
 
@@ -315,7 +315,7 @@ class DeckManager:
             conf = copy.deepcopy(clone_from)
             conf["id"] = 0
         else:
-            conf = from_json_bytes(self.col.backend.new_deck_config_legacy())
+            conf = from_json_bytes(self.col._backend.new_deck_config_legacy())
         conf["name"] = name
         self.update_config(conf)
         return conf
@@ -335,7 +335,7 @@ class DeckManager:
             if str(g["conf"]) == str(id):
                 g["conf"] = 1
                 self.save(g)
-        self.col.backend.remove_deck_config(id)
+        self.col._backend.remove_deck_config(id)
 
     def setConf(self, grp: DeckConfig, id: int) -> None:
         grp["conf"] = id
@@ -350,7 +350,7 @@ class DeckManager:
 
     def restoreToDefault(self, conf) -> None:
         oldOrder = conf["new"]["order"]
-        new = from_json_bytes(self.col.backend.new_deck_config_legacy())
+        new = from_json_bytes(self.col._backend.new_deck_config_legacy())
         new["id"] = conf["id"]
         new["name"] = conf["name"]
         self.update_config(new)

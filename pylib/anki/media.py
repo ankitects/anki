@@ -101,17 +101,17 @@ class MediaManager:
             pass
 
     def empty_trash(self) -> None:
-        self.col.backend.empty_trash()
+        self.col._backend.empty_trash()
 
     def restore_trash(self) -> None:
-        self.col.backend.restore_trash()
+        self.col._backend.restore_trash()
 
     def strip_av_tags(self, text: str) -> str:
-        return self.col.backend.strip_av_tags(text)
+        return self.col._backend.strip_av_tags(text)
 
     def _extract_filenames(self, text: str) -> List[str]:
         "This only exists do support a legacy function; do not use."
-        out = self.col.backend.extract_av_tags(text=text, question_side=True)
+        out = self.col._backend.extract_av_tags(text=text, question_side=True)
         return [
             x.filename
             for x in av_tags_to_native(out.av_tags)
@@ -132,7 +132,7 @@ class MediaManager:
         """Write the file to the media folder, renaming if not unique.
 
         Returns possibly-renamed filename."""
-        return self.col.backend.add_media_file(desired_name=desired_fname, data=data)
+        return self.col._backend.add_media_file(desired_name=desired_fname, data=data)
 
     def add_extension_based_on_mime(self, fname: str, content_type: str) -> str:
         "If jpg or png mime, add .png/.jpg if missing extension."
@@ -153,7 +153,7 @@ class MediaManager:
 
     def trash_files(self, fnames: List[str]) -> None:
         "Move provided files to the trash."
-        self.col.backend.trash_media_files(fnames)
+        self.col._backend.trash_media_files(fnames)
 
     # String manipulation
     ##########################################################################
@@ -212,7 +212,7 @@ class MediaManager:
     ##########################################################################
 
     def check(self) -> CheckMediaOut:
-        output = self.col.backend.check_media()
+        output = self.col._backend.check_media()
         # files may have been renamed on disk, so an undo at this point could
         # break file references
         self.col.save()

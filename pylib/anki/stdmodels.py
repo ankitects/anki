@@ -25,7 +25,7 @@ models: List[Tuple] = []
 def _add_stock_notetype(
     col: anki.collection.Collection, kind: StockNotetypeKindValue
 ) -> anki.models.NoteType:
-    m = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
+    m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
     col.models.add(m)
     return m
 
@@ -67,7 +67,7 @@ def get_stock_notetypes(
         ),
         (StockNotetypeKind.CLOZE, addClozeModel),
     ]:
-        m = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
+        m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
         out.append((m["name"], func))
     # add extras from add-ons
     for (name_or_func, func) in models:

@@ -70,7 +70,7 @@ def handle_sync_request(method_str: str) -> Response:
     if full:
         col.close_for_full_sync()
     try:
-        outdata = col.backend.sync_server_method(method=method, data=data)
+        outdata = col._backend.sync_server_method(method=method, data=data)
     except Exception as e:
         if method == Method.META:
             # if parallel syncing requests come in, block them

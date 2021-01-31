@@ -231,7 +231,7 @@ order by due"""
     def update_stats(
         self, deck_id: int, new_delta=0, review_delta=0, milliseconds_delta=0
     ):
-        self.col.backend.update_stats(
+        self.col._backend.update_stats(
             deck_id=deck_id,
             new_delta=new_delta,
             review_delta=review_delta,
@@ -239,11 +239,11 @@ order by due"""
         )
 
     def counts_for_deck_today(self, deck_id: int) -> CountsForDeckToday:
-        return self.col.backend.counts_for_deck_today(deck_id)
+        return self.col._backend.counts_for_deck_today(deck_id)
 
     def extendLimits(self, new: int, rev: int) -> None:
         did = self.col.decks.current()["id"]
-        self.col.backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
+        self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
 
     # legacy
 
@@ -264,12 +264,12 @@ order by due"""
         print(
             "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
         )
-        return from_json_bytes(self.col.backend.deck_tree_legacy())[5]
+        return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
 
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.
         If top_deck_id provided, counts are limited to that node."""
-        return self.col.backend.deck_tree(top_deck_id=top_deck_id, now=intTime())
+        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=intTime())
 
     # Getting the next card
     ##########################################################################
@@ -1074,10 +1074,10 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     ##########################################################################
 
     def rebuild_filtered_deck(self, deck_id: int) -> int:
-        return self.col.backend.rebuild_filtered_deck(deck_id)
+        return self.col._backend.rebuild_filtered_deck(deck_id)
 
     def empty_filtered_deck(self, deck_id: int) -> None:
-        self.col.backend.empty_filtered_deck(deck_id)
+        self.col._backend.empty_filtered_deck(deck_id)
 
     def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:
@@ -1233,13 +1233,13 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self.reset()
 
     def _timing_today(self) -> SchedTimingToday:
-        return self.col.backend.sched_timing_today()
+        return self.col._backend.sched_timing_today()
 
     # Deck finished state
     ##########################################################################
 
     def congratulations_info(self) -> CongratsInfo:
-        return self.col.backend.congrats_info()
+        return self.col._backend.congrats_info()
 
     def finishedMsg(self) -> str:
         print("finishedMsg() is obsolete")
@@ -1321,19 +1321,19 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     ##########################################################################
 
     def unsuspend_cards(self, ids: List[int]) -> None:
-        self.col.backend.restore_buried_and_suspended_cards(ids)
+        self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_cards(self, ids: List[int]) -> None:
-        self.col.backend.restore_buried_and_suspended_cards(ids)
+        self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_cards_in_current_deck(
         self,
         mode: UnburyCurrentDeckModeValue = UnburyCurrentDeckMode.ALL,
     ) -> None:
-        self.col.backend.unbury_cards_in_current_deck(mode)
+        self.col._backend.unbury_cards_in_current_deck(mode)
 
     def suspend_cards(self, ids: Sequence[int]) -> None:
-        self.col.backend.bury_or_suspend_cards(
+        self.col._backend.bury_or_suspend_cards(
             card_ids=ids, mode=BuryOrSuspendMode.SUSPEND
         )
 
@@ -1342,7 +1342,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             mode = BuryOrSuspendMode.BURY_USER
         else:
             mode = BuryOrSuspendMode.BURY_SCHED
-        self.col.backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
+        self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
 
     def bury_note(self, note: Note):
         self.bury_cards(note.card_ids())
@@ -1416,13 +1416,13 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
     def schedule_cards_as_new(self, card_ids: List[int]) -> None:
         "Put cards at the end of the new queue."
-        self.col.backend.schedule_cards_as_new(card_ids=card_ids, log=True)
+        self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
     def schedule_cards_as_reviews(
         self, card_ids: List[int], min_interval: int, max_interval: int
     ) -> None:
         "Make cards review cards, with a new interval randomly selected from range."
-        self.col.backend.schedule_cards_as_reviews(
+        self.col._backend.schedule_cards_as_reviews(
             card_ids=card_ids, min_interval=min_interval, max_interval=max_interval
         )
 
@@ -1440,7 +1440,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        self.col.backend.schedule_cards_as_new(card_ids=nonNew, log=False)
+        self.col._backend.schedule_cards_as_new(card_ids=nonNew, log=False)
 
     # legacy
 
@@ -1458,7 +1458,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         shuffle: bool = False,
         shift: bool = False,
     ) -> None:
-        self.col.backend.sort_cards(
+        self.col._backend.sort_cards(
             card_ids=cids,
             starting_from=start,
             step_size=step,
@@ -1467,10 +1467,10 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         )
 
     def randomizeCards(self, did: int) -> None:
-        self.col.backend.sort_deck(deck_id=did, randomize=True)
+        self.col._backend.sort_deck(deck_id=did, randomize=True)
 
     def orderCards(self, did: int) -> None:
-        self.col.backend.sort_deck(deck_id=did, randomize=False)
+        self.col._backend.sort_deck(deck_id=did, randomize=False)
 
     def resortConf(self, conf) -> None:
         for did in self.col.decks.didsForConf(conf):

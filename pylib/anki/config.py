@@ -33,15 +33,15 @@ class ConfigManager:
 
     def get_immutable(self, key: str) -> Any:
         try:
-            return from_json_bytes(self.col.backend.get_config_json(key))
+            return from_json_bytes(self.col._backend.get_config_json(key))
         except NotFoundError as exc:
             raise KeyError from exc
 
     def set(self, key: str, val: Any) -> None:
-        self.col.backend.set_config_json(key=key, value_json=to_json_bytes(val))
+        self.col._backend.set_config_json(key=key, value_json=to_json_bytes(val))
 
     def remove(self, key: str) -> None:
-        self.col.backend.remove_config(key)
+        self.col._backend.remove_config(key)
 
     # Legacy dict interface
     #########################

@@ -130,10 +130,10 @@ class ModelManager:
     #############################################################
 
     def all_names_and_ids(self) -> Sequence[NoteTypeNameID]:
-        return self.col.backend.get_notetype_names()
+        return self.col._backend.get_notetype_names()
 
     def all_use_counts(self) -> Sequence[NoteTypeNameIDUseCount]:
-        return self.col.backend.get_notetype_names_and_counts()
+        return self.col._backend.get_notetype_names_and_counts()
 
     # legacy
 
@@ -170,7 +170,7 @@ class ModelManager:
 
     def id_for_name(self, name: str) -> Optional[int]:
         try:
-            return self.col.backend.get_notetype_id_by_name(name)
+            return self.col._backend.get_notetype_id_by_name(name)
         except NotFoundError:
             return None
 
@@ -185,7 +185,7 @@ class ModelManager:
         nt = self._get_cached(id)
         if not nt:
             try:
-                nt = from_json_bytes(self.col.backend.get_notetype_legacy(id))
+                nt = from_json_bytes(self.col._backend.get_notetype_legacy(id))
                 self._update_cache(nt)
             except NotFoundError:
                 return None
@@ -207,7 +207,7 @@ class ModelManager:
         "Create a new model, and return it."
         # caller should call save() after modifying
         nt = from_json_bytes(
-            self.col.backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
         nt["flds"] = []
         nt["tmpls"] = []
@@ -221,12 +221,12 @@ class ModelManager:
     def remove_all_notetypes(self):
         for nt in self.all_names_and_ids():
             self._remove_from_cache(nt.id)
-            self.col.backend.remove_notetype(nt.id)
+            self.col._backend.remove_notetype(nt.id)
 
     def remove(self, id: int) -> None:
         "Modifies schema."
         self._remove_from_cache(id)
-        self.col.backend.remove_notetype(id)
+        self.col._backend.remove_notetype(id)
 
     def add(self, m: NoteType) -> None:
         self.save(m)
@@ -240,7 +240,7 @@ class ModelManager:
         "Add or update an existing model. Use .save() instead."
         self._remove_from_cache(m["id"])
         self.ensureNameUnique(m)
-        m["id"] = self.col.backend.add_or_update_notetype(
+        m["id"] = self.col._backend.add_or_update_notetype(
             json=to_json_bytes(m), preserve_usn_and_mtime=preserve_usn
         )
         self.setCurrent(m)
@@ -298,7 +298,7 @@ class ModelManager:
     def new_field(self, name: str) -> Field:
         assert isinstance(name, str)
         nt = from_json_bytes(
-            self.col.backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
         field = nt["flds"][0]
         field["name"] = name
@@ -357,7 +357,7 @@ class ModelManager:
 
     def new_template(self, name: str) -> Template:
         nt = from_json_bytes(
-            self.col.backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
         template = nt["tmpls"][0]
         template["name"] = name
@@ -511,4 +511,4 @@ and notes.mid = ? and cards.ord = ?""",
     ) -> List[int]:
         print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
         note = _pb.Note(fields=[flds])
-        return list(self.col.backend.cloze_numbers_in_note(note))
+        return list(self.col._backend.cloze_numbers_in_note(note))

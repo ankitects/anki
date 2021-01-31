@@ -75,7 +75,7 @@ class Collection:
         server: bool = False,
         log: bool = False,
     ) -> None:
-        self.backend = backend or RustBackend(server=server)
+        self._backend = backend or RustBackend(server=server)
         self.db: Optional[DBProxy] = None
         self._should_log = log
         self.server = server
@@ -105,24 +105,33 @@ class Collection:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)
 
+    @property
+    def backend(self) -> RustBackend:
+        traceback.print_stack()
+        print()
+        print(
+            "Accessing the backend directly will break in the future. Please use the public methods on Collection instead."
+        )
+        return self._backend
+
     # I18n/messages
     ##########################################################################
 
     def tr(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
-        return self.backend.translate(key, **kwargs)
+        return self._backend.translate(key, **kwargs)
 
     def format_timespan(
         self,
         seconds: float,
         context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
     ) -> str:
-        return self.backend.format_timespan(seconds=seconds, context=context)
+        return self._backend.format_timespan(seconds=seconds, context=context)
 
     # Progress
     ##########################################################################
 
     def latest_progress(self) -> Progress:
-        return Progress.from_proto(self.backend.latest_progress())
+        return Progress.from_proto(self._backend.latest_progress())
 
     # Scheduler
     ##########################################################################
@@ -253,7 +262,7 @@ class Collection:
             else:
                 self.db.rollback()
             self.models._clear_cache()
-            self.backend.close_collection(downgrade_to_schema11=downgrade)
+            self._backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
             self.media.close()
             self._closeLog()
@@ -284,7 +293,7 @@ class Collection:
 
         # connect
         if not after_full_sync:
-            self.backend.open_collection(
+            self._backend.open_collection(
                 collection_path=self.path,
                 media_folder_path=media_dir,
                 media_db_path=media_db,
@@ -292,7 +301,7 @@ class Collection:
             )
         else:
             self.media.connect()
-        self.db = DBProxy(weakref.proxy(self.backend))
+        self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
 
         self._openLog()
@@ -316,7 +325,7 @@ class Collection:
     def beforeUpload(self) -> None:
         "Called before a full upload."
         self.save(trx=False)
-        self.backend.before_upload()
+        self._backend.before_upload()
         self.close(save=False, downgrade=True)
 
     # Object creation helpers
@@ -362,11 +371,11 @@ class Collection:
         return Note(self, self.models.current(forDeck))
 
     def add_note(self, note: Note, deck_id: int) -> None:
-        note.id = self.backend.add_note(note=note.to_backend_note(), deck_id=deck_id)
+        note.id = self._backend.add_note(note=note.to_backend_note(), deck_id=deck_id)
 
     def remove_notes(self, note_ids: Sequence[int]) -> None:
         hooks.notes_will_be_deleted(self, note_ids)
-        self.backend.remove_notes(note_ids=note_ids, card_ids=[])
+        self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
     def remove_notes_by_card(self, card_ids: List[int]) -> None:
         if hooks.notes_will_be_deleted.count():
@@ -374,10 +383,10 @@ class Collection:
                 "select nid from cards where id in " + ids2str(card_ids)
             )
             hooks.notes_will_be_deleted(self, nids)
-        self.backend.remove_notes(note_ids=[], card_ids=card_ids)
+        self._backend.remove_notes(note_ids=[], card_ids=card_ids)
 
     def card_ids_of_note(self, note_id: int) -> Sequence[int]:
-        return self.backend.cards_of_note(note_id)
+        return self._backend.cards_of_note(note_id)
 
     # legacy
 
@@ -402,13 +411,13 @@ class Collection:
 
     def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]):
         "You probably want .remove_notes_by_card() instead."
-        self.backend.remove_cards(card_ids=card_ids)
+        self._backend.remove_cards(card_ids=card_ids)
 
     def set_deck(self, card_ids: List[int], deck_id: int) -> None:
-        self.backend.set_deck(card_ids=card_ids, deck_id=deck_id)
+        self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
-        return self.backend.get_empty_cards()
+        return self._backend.get_empty_cards()
 
     # legacy
 
@@ -425,7 +434,7 @@ class Collection:
     def after_note_updates(
         self, nids: List[int], mark_modified: bool, generate_cards: bool = True
     ) -> None:
-        self.backend.after_note_updates(
+        self._backend.after_note_updates(
             nids=nids, generate_cards=generate_cards, mark_notes_modified=mark_modified
         )
 
@@ -472,10 +481,10 @@ class Collection:
             mode = _pb.SortOrder(
                 builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
             )
-        return self.backend.search_cards(search=query, order=mode)
+        return self._backend.search_cards(search=query, order=mode)
 
     def find_notes(self, *terms: Union[str, SearchTerm]) -> Sequence[int]:
-        return self.backend.search_notes(self.build_search_string(*terms))
+        return self._backend.search_notes(self.build_search_string(*terms))
 
     def find_and_replace(
         self,
@@ -544,19 +553,19 @@ class Collection:
         searches = []
         for term in terms:
             if isinstance(term, SearchTerm):
-                term = self.backend.filter_to_search(term)
+                term = self._backend.filter_to_search(term)
             searches.append(term)
         if match_any:
             sep = _pb.ConcatenateSearchesIn.Separator.OR
         else:
             sep = _pb.ConcatenateSearchesIn.Separator.AND
-        search_string = self.backend.concatenate_searches(sep=sep, searches=searches)
+        search_string = self._backend.concatenate_searches(sep=sep, searches=searches)
         if negate:
-            search_string = self.backend.negate_search(search_string)
+            search_string = self._backend.negate_search(search_string)
         return search_string
 
     def replace_search_term(self, search: str, replacement: str) -> str:
-        return self.backend.replace_search_term(search=search, replacement=replacement)
+        return self._backend.replace_search_term(search=search, replacement=replacement)
 
     # Config
     ##########################################################################
@@ -577,14 +586,14 @@ class Collection:
 
     def all_config(self) -> Dict[str, Any]:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
-        return from_json_bytes(self.backend.get_all_config())
+        return from_json_bytes(self._backend.get_all_config())
 
     def get_config_bool(self, key: ConfigBoolKeyValue) -> bool:
-        return self.backend.get_config_bool(key)
+        return self._backend.get_config_bool(key)
 
     def set_config_bool(self, key: ConfigBoolKeyValue, value: bool) -> None:
         self.setMod()
-        self.backend.set_config_bool(key=key, value=value)
+        self._backend.set_config_bool(key=key, value=value)
 
     # Stats
     ##########################################################################
@@ -610,23 +619,23 @@ class Collection:
 table.review-log {{ {revlog_style} }}
 </style>"""
 
-        return style + self.backend.card_stats(card_id)
+        return style + self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:
-        return self.backend.studied_today()
+        return self._backend.studied_today()
 
     def graph_data(self, search: str, days: int) -> bytes:
-        return self.backend.graphs(search=search, days=days)
+        return self._backend.graphs(search=search, days=days)
 
     def get_graph_preferences(self) -> bytes:
-        return self.backend.get_graph_preferences()
+        return self._backend.get_graph_preferences()
 
     def set_graph_preferences(self, prefs: GraphPreferences) -> None:
-        self.backend.set_graph_preferences(input=prefs)
+        self._backend.set_graph_preferences(input=prefs)
 
     def congrats_info(self) -> bytes:
         "Don't use this, it will likely go away in the future."
-        return self.backend.congrats_info().SerializeToString()
+        return self._backend.congrats_info().SerializeToString()
 
     # legacy
 
@@ -747,7 +756,7 @@ table.review-log {{ {revlog_style} }}
         """
         self.save(trx=False)
         try:
-            problems = list(self.backend.check_database())
+            problems = list(self._backend.check_database())
             ok = not problems
             problems.append(self.tr(TR.DATABASE_CHECK_REBUILT))
         except DBError as e:
@@ -824,40 +833,40 @@ table.review-log {{ {revlog_style} }}
     ##########################################################################
 
     def set_wants_abort(self) -> None:
-        self.backend.set_wants_abort()
+        self._backend.set_wants_abort()
 
     def i18n_resources(self) -> bytes:
-        return self.backend.i18n_resources()
+        return self._backend.i18n_resources()
 
     def abort_media_sync(self) -> None:
-        self.backend.abort_media_sync()
+        self._backend.abort_media_sync()
 
     def abort_sync(self) -> None:
-        self.backend.abort_sync()
+        self._backend.abort_sync()
 
     def full_upload(self, auth: SyncAuth) -> None:
-        self.backend.full_upload(auth)
+        self._backend.full_upload(auth)
 
     def full_download(self, auth: SyncAuth) -> None:
-        self.backend.full_download(auth)
+        self._backend.full_download(auth)
 
     def sync_login(self, username: str, password: str) -> SyncAuth:
-        return self.backend.sync_login(username=username, password=password)
+        return self._backend.sync_login(username=username, password=password)
 
     def sync_collection(self, auth: SyncAuth) -> SyncOutput:
-        return self.backend.sync_collection(auth)
+        return self._backend.sync_collection(auth)
 
     def sync_media(self, auth: SyncAuth) -> None:
-        self.backend.sync_media(auth)
+        self._backend.sync_media(auth)
 
     def sync_status(self, auth: SyncAuth) -> SyncStatus:
-        return self.backend.sync_status(auth)
+        return self._backend.sync_status(auth)
 
     def get_preferences(self) -> Preferences:
-        return self.backend.get_preferences()
+        return self._backend.get_preferences()
 
     def set_preferences(self, prefs: Preferences):
-        self.backend.set_preferences(prefs)
+        self._backend.set_preferences(prefs)
 
 
 class ProgressKind(enum.Enum):
