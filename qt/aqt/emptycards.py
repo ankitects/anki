@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 
 import aqt
-from anki.backend_pb2 import EmptyCardsReport, NoteWithEmptyCards
+from anki.collection import EmptyCardsReport, NoteWithEmptyCards
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
 from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, tr
@@ -24,7 +24,7 @@ def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
         diag = EmptyCardsDialog(mw, report)
         diag.show()
 
-    mw.taskman.run_in_background(mw.col.backend.get_empty_cards, on_done)
+    mw.taskman.run_in_background(mw.col.get_empty_cards, on_done)
 
 
 class EmptyCardsDialog(QDialog):

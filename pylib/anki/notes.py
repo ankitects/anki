@@ -7,9 +7,9 @@ import pprint
 from typing import Any, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
+import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.models import NoteType
-from anki.rsbackend import BackendNote
 from anki.utils import joinFields
 
 
@@ -41,7 +41,7 @@ class Note:
         assert n
         self._load_from_backend_note(n)
 
-    def _load_from_backend_note(self, n: BackendNote) -> None:
+    def _load_from_backend_note(self, n: _pb.Note) -> None:
         self.id = n.id
         self.guid = n.guid
         self.mid = n.notetype_id
@@ -51,9 +51,9 @@ class Note:
         self.fields = list(n.fields)
         self._fmap = self.col.models.fieldMap(self.model())
 
-    def to_backend_note(self) -> BackendNote:
+    def to_backend_note(self) -> _pb.Note:
         hooks.note_will_flush(self)
-        return BackendNote(
+        return _pb.Note(
             id=self.id,
             guid=self.guid,
             notetype_id=self.mid,

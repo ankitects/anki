@@ -5,7 +5,7 @@ import os
 import re
 import sys
 
-import pylib.anki.backend_pb2 as pb
+import pylib.anki._backend.backend_pb2 as pb
 
 import stringcase
 
@@ -168,7 +168,7 @@ col.decks.all_config()
     
 from typing import *
 
-import anki.backend_pb2 as pb
+import anki._backend.backend_pb2 as pb
 
 class RustBackendGenerated:
     def _run_command(self, method: int, input: Any) -> bytes:

@@ -9,7 +9,7 @@ from anki.collection import Collection
 from anki.consts import *
 from anki.decks import DeckManager
 from anki.importing.base import Importer
-from anki.rsbackend import TR
+from anki.lang import TR
 from anki.utils import intTime, joinFields, splitFields
 
 GUID = 1

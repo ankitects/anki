@@ -4,7 +4,8 @@
 from typing import List, Optional
 
 import aqt
-from anki.collection import InvalidInput, SearchTerm
+from anki.collection import SearchTerm
+from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import (

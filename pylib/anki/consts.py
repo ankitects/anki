@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import anki
-from anki.rsbackend import TR
+from anki.lang import TR
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0

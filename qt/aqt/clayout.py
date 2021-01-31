@@ -9,9 +9,9 @@ from typing import Any, Dict, List, Optional
 import aqt
 from anki.cards import Card
 from anki.consts import *
+from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
 from anki.notes import Note
-from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *

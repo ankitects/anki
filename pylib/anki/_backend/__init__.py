@@ -22,19 +22,19 @@ import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
+import anki._backend.backend_pb2 as pb
 import anki._rsbridge
-import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
+from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
-from anki.fluent_pb2 import FluentString as TR
-from anki.rsbackend_gen import RustBackendGenerated
+from anki.errors import backend_exception_to_pylib
+from anki.lang import FormatTimeSpanContext
+from anki.utils import from_json_bytes, to_json_bytes
 
 if TYPE_CHECKING:
-    from anki.fluent_pb2 import FluentStringValue as TRValue
-
-    FormatTimeSpanContextValue = pb.FormatTimespanIn.ContextValue
+    from anki.lang import FormatTimeSpanContextValue, TRValue
 
 assert anki._rsbridge.buildhash() == anki.buildinfo.buildhash
 
@@ -48,150 +48,9 @@ BackendNote = pb.Note
 Tag = pb.Tag
 TagTreeNode = pb.TagTreeNode
 NoteType = pb.NoteType
-DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
 ConcatSeparator = pb.ConcatenateSearchesIn.Separator
-SyncAuth = pb.SyncAuth
-SyncOutput = pb.SyncCollectionOut
-SyncStatus = pb.SyncStatusOut
 CountsForDeckToday = pb.CountsForDeckTodayOut
-
-try:
-    import orjson
-
-    to_json_bytes = orjson.dumps
-    from_json_bytes = orjson.loads
-except:
-    print("orjson is missing; DB operations will be slower")
-    to_json_bytes = lambda obj: json.dumps(obj).encode("utf8")  # type: ignore
-    from_json_bytes = json.loads
-
-
-class Interrupted(Exception):
-    pass
-
-
-class StringError(Exception):
-    def __str__(self) -> str:
-        return self.args[0]  # pylint: disable=unsubscriptable-object
-
-
-NetworkErrorKind = pb.NetworkError.NetworkErrorKind
-SyncErrorKind = pb.SyncError.SyncErrorKind
-
-
-class NetworkError(StringError):
-    def kind(self) -> pb.NetworkError.NetworkErrorKindValue:
-        return self.args[1]
-
-
-class SyncError(StringError):
-    def kind(self) -> pb.SyncError.SyncErrorKindValue:
-        return self.args[1]
-
-
-class IOError(StringError):
-    pass
-
-
-class DBError(StringError):
-    pass
-
-
-class TemplateError(StringError):
-    pass
-
-
-class NotFoundError(Exception):
-    pass
-
-
-class ExistsError(Exception):
-    pass
-
-
-class DeckIsFilteredError(Exception):
-    pass
-
-
-class InvalidInput(StringError):
-    pass
-
-
-def proto_exception_to_native(err: pb.BackendError) -> Exception:
-    val = err.WhichOneof("value")
-    if val == "interrupted":
-        return Interrupted()
-    elif val == "network_error":
-        return NetworkError(err.localized, err.network_error.kind)
-    elif val == "sync_error":
-        return SyncError(err.localized, err.sync_error.kind)
-    elif val == "io_error":
-        return IOError(err.localized)
-    elif val == "db_error":
-        return DBError(err.localized)
-    elif val == "template_parse":
-        return TemplateError(err.localized)
-    elif val == "invalid_input":
-        return InvalidInput(err.localized)
-    elif val == "json_error":
-        return StringError(err.localized)
-    elif val == "not_found_error":
-        return NotFoundError()
-    elif val == "exists":
-        return ExistsError()
-    elif val == "deck_is_filtered":
-        return DeckIsFilteredError()
-    elif val == "proto_error":
-        return StringError(err.localized)
-    else:
-        print("unhandled error type:", val)
-        return StringError(err.localized)
-
-
-MediaSyncProgress = pb.MediaSyncProgress
-FullSyncProgress = pb.FullSyncProgress
-NormalSyncProgress = pb.NormalSyncProgress
-DatabaseCheckProgress = pb.DatabaseCheckProgress
-
-FormatTimeSpanContext = pb.FormatTimespanIn.Context
-
-
-class ProgressKind(enum.Enum):
-    NoProgress = 0
-    MediaSync = 1
-    MediaCheck = 2
-    FullSync = 3
-    NormalSync = 4
-    DatabaseCheck = 5
-
-
-@dataclass
-class Progress:
-    kind: ProgressKind
-    val: Union[
-        MediaSyncProgress,
-        pb.FullSyncProgress,
-        NormalSyncProgress,
-        DatabaseCheckProgress,
-        str,
-    ]
-
-    @staticmethod
-    def from_proto(proto: pb.Progress) -> Progress:
-        kind = proto.WhichOneof("value")
-        if kind == "media_sync":
-            return Progress(kind=ProgressKind.MediaSync, val=proto.media_sync)
-        elif kind == "media_check":
-            return Progress(kind=ProgressKind.MediaCheck, val=proto.media_check)
-        elif kind == "full_sync":
-            return Progress(kind=ProgressKind.FullSync, val=proto.full_sync)
-        elif kind == "normal_sync":
-            return Progress(kind=ProgressKind.NormalSync, val=proto.normal_sync)
-        elif kind == "database_check":
-            return Progress(kind=ProgressKind.DatabaseCheck, val=proto.database_check)
-        else:
-            return Progress(kind=ProgressKind.NoProgress, val="")
 
 
 class RustBackend(RustBackendGenerated):
@@ -240,7 +99,7 @@ class RustBackend(RustBackendGenerated):
             err_bytes = bytes(e.args[0])
         err = pb.BackendError()
         err.ParseFromString(err_bytes)
-        raise proto_exception_to_native(err)
+        raise backend_exception_to_pylib(err)
 
     def translate(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
         return self.translate_string(translate_string_in(key, **kwargs))
@@ -263,7 +122,7 @@ class RustBackend(RustBackendGenerated):
             err_bytes = bytes(e.args[0])
         err = pb.BackendError()
         err.ParseFromString(err_bytes)
-        raise proto_exception_to_native(err)
+        raise backend_exception_to_pylib(err)
 
 
 def translate_string_in(

@@ -20,30 +20,25 @@ from typing import (
 )
 
 import anki  # pylint: disable=unused-import
-import anki.backend_pb2 as pb
+import anki._backend.backend_pb2 as _pb
 from anki import hooks
+from anki._backend import CountsForDeckToday, FormatTimeSpanContext, SchedTimingToday
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, DeckManager, QueueConfig
+from anki.decks import Deck, DeckConfig, DeckManager, DeckTreeNode, QueueConfig
 from anki.notes import Note
-from anki.rsbackend import (
-    TR,
-    CountsForDeckToday,
-    DeckTreeNode,
-    FormatTimeSpanContext,
-    SchedTimingToday,
-    from_json_bytes,
-)
-from anki.utils import ids2str, intTime
+from anki.utils import from_json_bytes, ids2str, intTime
 
-UnburyCurrentDeckMode = pb.UnburyCardsInCurrentDeckIn.Mode  # pylint:disable=no-member
-BuryOrSuspendMode = pb.BuryOrSuspendCardsIn.Mode  # pylint:disable=no-member
+CongratsInfoOut = anki._backend.backend_pb2.CongratsInfoOut
+
+UnburyCurrentDeckMode = _pb.UnburyCardsInCurrentDeckIn.Mode  # pylint:disable=no-member
+BuryOrSuspendMode = _pb.BuryOrSuspendCardsIn.Mode  # pylint:disable=no-member
 if TYPE_CHECKING:
     UnburyCurrentDeckModeValue = (
-        pb.UnburyCardsInCurrentDeckIn.ModeValue  # pylint:disable=no-member
+        _pb.UnburyCardsInCurrentDeckIn.ModeValue  # pylint:disable=no-member
     )
     BuryOrSuspendModeValue = (
-        pb.BuryOrSuspendCardsIn.ModeValue  # pylint:disable=no-member
+        _pb.BuryOrSuspendCardsIn.ModeValue  # pylint:disable=no-member
     )
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -1241,7 +1236,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     # Deck finished state
     ##########################################################################
 
-    def congratulations_info(self) -> pb.CongratsInfoOut:
+    def congratulations_info(self) -> CongratsInfoOut:
         return self.col.backend.congrats_info()
 
     def finishedMsg(self) -> str:

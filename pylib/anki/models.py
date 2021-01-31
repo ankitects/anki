@@ -9,17 +9,24 @@ import time
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki.backend_pb2 as pb
+import anki._backend.backend_pb2 as _pb
 from anki.consts import *
-from anki.lang import without_unicode_isolation
-from anki.rsbackend import (
-    TR,
-    NotFoundError,
-    StockNoteType,
+from anki.errors import NotFoundError
+from anki.lang import TR, without_unicode_isolation
+from anki.utils import (
+    checksum,
     from_json_bytes,
+    ids2str,
+    intTime,
+    joinFields,
+    splitFields,
     to_json_bytes,
 )
-from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
+
+# public exports
+NoteTypeNameID = _pb.NoteTypeNameID
+NoteTypeNameIDUseCount = _pb.NoteTypeNameIDUseCount
+
 
 # types
 NoteType = Dict[str, Any]
@@ -121,10 +128,10 @@ class ModelManager:
     # Listing note types
     #############################################################
 
-    def all_names_and_ids(self) -> Sequence[pb.NoteTypeNameID]:
+    def all_names_and_ids(self) -> Sequence[NoteTypeNameID]:
         return self.col.backend.get_notetype_names()
 
-    def all_use_counts(self) -> Sequence[pb.NoteTypeNameIDUseCount]:
+    def all_use_counts(self) -> Sequence[NoteTypeNameIDUseCount]:
         return self.col.backend.get_notetype_names_and_counts()
 
     # legacy
@@ -200,7 +207,7 @@ class ModelManager:
         # caller should call save() after modifying
         nt = from_json_bytes(
             self.col.backend.get_stock_notetype_legacy(
-                StockNoteType.STOCK_NOTE_TYPE_BASIC
+                _pb.StockNoteType.STOCK_NOTE_TYPE_BASIC
             )
         )
         nt["flds"] = []
@@ -293,7 +300,7 @@ class ModelManager:
         assert isinstance(name, str)
         nt = from_json_bytes(
             self.col.backend.get_stock_notetype_legacy(
-                StockNoteType.STOCK_NOTE_TYPE_BASIC
+                _pb.StockNoteType.STOCK_NOTE_TYPE_BASIC
             )
         )
         field = nt["flds"][0]
@@ -354,7 +361,7 @@ class ModelManager:
     def new_template(self, name: str) -> Template:
         nt = from_json_bytes(
             self.col.backend.get_stock_notetype_legacy(
-                StockNoteType.STOCK_NOTE_TYPE_BASIC
+                _pb.StockNoteType.STOCK_NOTE_TYPE_BASIC
             )
         )
         template = nt["tmpls"][0]
@@ -508,5 +515,5 @@ and notes.mid = ? and cards.ord = ?""",
         self, m: NoteType, flds: str, allowEmpty: bool = True
     ) -> List[int]:
         print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
-        note = anki.rsbackend.BackendNote(fields=[flds])
+        note = anki._backend.BackendNote(fields=[flds])
         return list(self.col.backend.cloze_numbers_in_note(note))

@@ -8,18 +8,10 @@ import os
 from typing import Callable, Tuple
 
 import aqt
-from anki.lang import without_unicode_isolation
-from anki.rsbackend import (
-    TR,
-    FullSyncProgress,
-    Interrupted,
-    NormalSyncProgress,
-    ProgressKind,
-    SyncError,
-    SyncErrorKind,
-    SyncOutput,
-    SyncStatus,
-)
+from anki.collection import FullSyncProgress, NormalSyncProgress, ProgressKind
+from anki.errors import Interrupted, SyncError
+from anki.lang import TR, without_unicode_isolation
+from anki.sync import SyncOutput, SyncStatus
 from anki.utils import platDesc
 from aqt.qt import (
     QDialog,
@@ -69,7 +61,7 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None])
 
 def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception):
     if isinstance(err, SyncError):
-        if err.kind() == SyncErrorKind.AUTH_FAILED:
+        if err.is_auth_error():
             mw.pm.clear_sync_auth()
     elif isinstance(err, Interrupted):
         # no message to show
@@ -249,7 +241,7 @@ def sync_login(
         try:
             auth = fut.result()
         except SyncError as e:
-            if e.kind() == SyncErrorKind.AUTH_FAILED:
+            if e.is_auth_error():
                 showWarning(str(e))
                 sync_login(mw, on_success, username, password)
             else:

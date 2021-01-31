@@ -3,9 +3,9 @@
 
 import aqt
 from anki.consts import *
+from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
-from anki.rsbackend import TemplateError
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker

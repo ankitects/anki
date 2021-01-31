@@ -18,11 +18,10 @@ import flask_cors  # type: ignore
 from flask import Response, request
 from waitress.server import create_server
 
-import anki.backend_pb2 as pb
 import aqt
 from anki import hooks
-from anki.rsbackend import from_json_bytes
-from anki.utils import devMode
+from anki.collection import GraphPreferences
+from anki.utils import devMode, from_json_bytes
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
 
@@ -253,22 +252,21 @@ def _redirectWebExports(path):
 
 def graph_data() -> bytes:
     args = from_json_bytes(request.data)
-    return aqt.mw.col.backend.graphs(search=args["search"], days=args["days"])
+    return aqt.mw.col.graph_data(search=args["search"], days=args["days"])
 
 
 def graph_preferences() -> bytes:
-    return aqt.mw.col.backend.get_graph_preferences()
+    return aqt.mw.col.get_graph_preferences()
 
 
 def set_graph_preferences() -> None:
-    input = pb.GraphPreferences()
-    input.ParseFromString(request.data)
-    aqt.mw.col.backend.set_graph_preferences(input=input)
+    prefs = GraphPreferences()
+    prefs.ParseFromString(request.data)
+    aqt.mw.col.set_graph_preferences(prefs)
 
 
 def congrats_info() -> bytes:
-    info = aqt.mw.col.backend.congrats_info()
-    return info.SerializeToString()
+    return aqt.mw.col.congrats_info()
 
 
 post_handlers = {

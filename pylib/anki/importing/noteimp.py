@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from anki.collection import Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.rsbackend import TR
+from anki.lang import TR
 from anki.utils import (
     fieldChecksum,
     guid64,

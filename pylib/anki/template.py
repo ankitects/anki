@@ -32,13 +32,15 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
+import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card
 from anki.decks import DeckManager
+from anki.errors import TemplateError
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import pb, to_json_bytes
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
+from anki.utils import to_json_bytes
 
 CARD_BLANK_HELP = (
     "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
@@ -61,7 +63,7 @@ class PartiallyRenderedCard:
     anodes: TemplateReplacementList
 
     @classmethod
-    def from_proto(cls, out: pb.RenderCardOut) -> PartiallyRenderedCard:
+    def from_proto(cls, out: _pb.RenderCardOut) -> PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 
@@ -69,7 +71,7 @@ class PartiallyRenderedCard:
 
     @staticmethod
     def nodes_from_proto(
-        nodes: Sequence[pb.RenderedTemplateNode],
+        nodes: Sequence[_pb.RenderedTemplateNode],
     ) -> TemplateReplacementList:
         results: TemplateReplacementList = []
         for node in nodes:
@@ -86,7 +88,7 @@ class PartiallyRenderedCard:
         return results
 
 
-def av_tag_to_native(tag: pb.AVTag) -> AVTag:
+def av_tag_to_native(tag: _pb.AVTag) -> AVTag:
     val = tag.WhichOneof("value")
     if val == "sound_or_video":
         return SoundOrVideoTag(filename=tag.sound_or_video)
@@ -100,7 +102,7 @@ def av_tag_to_native(tag: pb.AVTag) -> AVTag:
         )
 
 
-def av_tags_to_native(tags: Sequence[pb.AVTag]) -> List[AVTag]:
+def av_tags_to_native(tags: Sequence[_pb.AVTag]) -> List[AVTag]:
     return list(map(av_tag_to_native, tags))
 
 
@@ -206,7 +208,7 @@ class TemplateRenderContext:
     def render(self) -> TemplateRenderOutput:
         try:
             partial = self._partially_render()
-        except anki.rsbackend.TemplateError as e:
+        except TemplateError as e:
             return TemplateRenderOutput(
                 question_text=str(e),
                 answer_text=str(e),

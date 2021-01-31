@@ -5,8 +5,7 @@ import tempfile
 
 from anki import Collection as aopen
 from anki.dbproxy import emulate_named_args
-from anki.lang import without_unicode_isolation
-from anki.rsbackend import TR
+from anki.lang import TR, without_unicode_isolation
 from anki.stdmodels import addBasicModel, get_stock_notetypes
 from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol

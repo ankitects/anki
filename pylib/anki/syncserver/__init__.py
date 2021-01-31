@@ -26,7 +26,7 @@ except ImportError as e:
 from flask import Response
 
 from anki import Collection
-from anki.backend_pb2 import SyncServerMethodIn
+from anki._backend.backend_pb2 import SyncServerMethodIn
 
 Method = SyncServerMethodIn.Method  # pylint: disable=no-member
 

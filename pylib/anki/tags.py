@@ -16,8 +16,12 @@ import re
 from typing import Collection, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
-from anki.collection import SearchTerm
+import anki._backend.backend_pb2 as _pb
+import anki.collection
 from anki.utils import ids2str
+
+# public exports
+TagTreeNode = _pb.TagTreeNode
 
 
 class TagManager:
@@ -36,6 +40,9 @@ class TagManager:
     # # List of (tag, usn)
     def allItems(self) -> List[Tuple[str, int]]:
         return [(t.name, t.usn) for t in self.col.backend.all_tags()]
+
+    def tree(self) -> TagTreeNode:
+        return self.col.backend.tag_tree()
 
     # Registering and fetching tags
     #############################################################
@@ -87,7 +94,7 @@ class TagManager:
 
     def rename_tag(self, old: str, new: str) -> int:
         "Rename provided tag, returning number of changed notes."
-        nids = self.col.find_notes(SearchTerm(tag=old))
+        nids = self.col.find_notes(anki.collection.SearchTerm(tag=old))
         if not nids:
             return 0
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)

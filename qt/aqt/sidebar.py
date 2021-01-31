@@ -9,9 +9,10 @@ from enum import Enum
 from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
-from anki.collection import ConfigBoolKey, InvalidInput, SearchTerm
-from anki.errors import DeckRenameError
-from anki.rsbackend import DeckTreeNode, TagTreeNode
+from anki.collection import ConfigBoolKey, SearchTerm
+from anki.decks import DeckTreeNode
+from anki.errors import DeckRenameError, InvalidInput
+from anki.tags import TagTreeNode
 from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.models import Models
@@ -524,7 +525,7 @@ class SidebarTreeView(QTreeView):
                 newhead = head + node.name + "::"
                 render(item, node.children, newhead)
 
-        tree = self.col.backend.tag_tree()
+        tree = self.col.tags.tree()
         root = self._section_root(
             root=root,
             name=TR.BROWSING_SIDEBAR_TAGS,

@@ -5,12 +5,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, List, Tuple
 
+from anki._backend import StockNoteType
 from anki.collection import Collection
 from anki.models import NoteType
-from anki.rsbackend import StockNoteType, from_json_bytes
+from anki.utils import from_json_bytes
 
 if TYPE_CHECKING:
-    from anki.backend_pb2 import StockNoteTypeValue  # pylint: disable=no-name-in-module
+    from anki._backend.backend_pb2 import (  # pylint: disable=no-name-in-module
+        StockNoteTypeValue,
+    )
 
 
 # add-on authors can add ("note type name", function_like_addBasicModel)

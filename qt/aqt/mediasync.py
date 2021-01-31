@@ -9,13 +9,9 @@ from dataclasses import dataclass
 from typing import Callable, List, Optional, Union
 
 import aqt
-from anki.rsbackend import (
-    TR,
-    Interrupted,
-    MediaSyncProgress,
-    NetworkError,
-    ProgressKind,
-)
+from anki.collection import MediaSyncProgress, ProgressKind
+from anki.errors import Interrupted, NetworkError
+from anki.lang import TR
 from anki.types import assert_exhaustive
 from anki.utils import intTime
 from aqt import gui_hooks

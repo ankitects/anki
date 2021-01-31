@@ -23,7 +23,8 @@ import weakref
 from typing import Any
 
 import anki
-from anki.rsbackend import NotFoundError, from_json_bytes, to_json_bytes
+from anki.errors import NotFoundError
+from anki.utils import from_json_bytes, to_json_bytes
 
 
 class ConfigManager:

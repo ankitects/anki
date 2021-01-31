@@ -10,9 +10,10 @@ from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
 
 import anki
+import anki._backend.backend_pb2 as _pb
 from anki import hooks
+from anki.lang import TR
 from anki.models import NoteType
-from anki.rsbackend import TR, pb
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, isMac, namedtmp, tmpdir
 
@@ -45,7 +46,7 @@ class ExtractedLatexOutput:
     latex: List[ExtractedLatex]
 
     @staticmethod
-    def from_proto(proto: pb.ExtractLatexOut) -> ExtractedLatexOutput:
+    def from_proto(proto: _pb.ExtractLatexOut) -> ExtractedLatexOutput:
         return ExtractedLatexOutput(
             html=proto.text,
             latex=[

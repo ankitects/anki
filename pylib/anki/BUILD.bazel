@@ -1,7 +1,6 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
-load("//pylib:protobuf.bzl", "py_proto_library_typed")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//:defs.bzl", "anki_version")
@@ -14,33 +13,10 @@ copy_file(
 )
 
 genrule(
-    name = "rsbackend_gen",
-    outs = ["rsbackend_gen.py"],
-    cmd = "$(location //pylib/tools:genbackend) > $@",
-    tools = ["//pylib/tools:genbackend"],
-)
-
-genrule(
     name = "hooks_gen",
     outs = ["hooks_gen.py"],
     cmd = "$(location //pylib/tools:genhooks) $@",
     tools = ["//pylib/tools:genhooks"],
-)
-
-py_proto_library_typed(
-    name = "backend_pb2",
-    src = "//rslib:backend.proto",
-    visibility = [
-        "//visibility:public",
-    ],
-)
-
-py_proto_library_typed(
-    name = "fluent_pb2",
-    src = "//rslib:fluent.proto",
-    visibility = [
-        "//visibility:public",
-    ],
 )
 
 copy_file(
@@ -69,7 +45,6 @@ alias(
 _py_srcs = glob(
     ["**/*.py"],
     exclude = [
-        "rsbackend_gen.py",
         "hooks_gen.py",
     ],
 )
@@ -79,12 +54,10 @@ py_library(
     srcs = _py_srcs,
     data = [
         "py.typed",
-        ":backend_pb2",
         ":buildinfo",
-        ":fluent_pb2",
         ":hooks_gen",
-        ":rsbackend_gen",
         ":rsbridge",
+        "//pylib/anki/_backend",
     ],
     imports = [
         "..",

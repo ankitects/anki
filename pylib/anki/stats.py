@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
-from anki.rsbackend import TR, FormatTimeSpanContext
+from anki.lang import TR, FormatTimeSpanContext
 from anki.utils import ids2str
 
 # Card stats

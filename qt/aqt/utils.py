@@ -14,13 +14,14 @@ from markdown import markdown
 
 import anki
 import aqt
-from anki.rsbackend import TR, InvalidInput  # pylint: disable=unused-import
+from anki.errors import InvalidInput
+from anki.lang import TR  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    from anki.rsbackend import TRValue
+    from anki.lang import TRValue
 
     TextFormat = Union[Literal["plain", "rich"]]
 

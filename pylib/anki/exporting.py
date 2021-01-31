@@ -13,7 +13,7 @@ from zipfile import ZipFile
 
 from anki import hooks
 from anki.collection import Collection
-from anki.rsbackend import TR
+from anki.lang import TR
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 

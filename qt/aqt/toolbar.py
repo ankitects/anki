@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import aqt
-from anki.rsbackend import SyncStatus
+from anki.sync import SyncStatus
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sync import get_sync_status

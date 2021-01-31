@@ -4,51 +4,66 @@
 from __future__ import annotations
 
 import copy
+import enum
 import os
 import pprint
 import re
 import time
 import traceback
 import weakref
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
-import anki.backend_pb2 as pb
+import anki._backend.backend_pb2 as _pb
 import anki.find
 import anki.latex  # sets up hook
 import anki.template
 from anki import hooks
-from anki.backend_pb2 import SearchTerm
+from anki._backend import (  # pylint: disable=unused-import
+    ConcatSeparator,
+    FormatTimeSpanContext,
+    RustBackend,
+)
+
+# from anki._backend import _SyncStatus as SyncStatus
 from anki.cards import Card
 from anki.config import ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
-from anki.errors import AnkiError
+from anki.errors import AnkiError, DBError
+from anki.lang import TR
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import (  # pylint: disable=unused-import
-    TR,
-    ConcatSeparator,
-    DBError,
-    FormatTimeSpanContext,
-    InvalidInput,
-    Progress,
-    RustBackend,
-    from_json_bytes,
-    pb,
-)
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.utils import devMode, ids2str, intTime, splitFields, stripHTMLMedia
+from anki.utils import (
+    devMode,
+    from_json_bytes,
+    ids2str,
+    intTime,
+    splitFields,
+    stripHTMLMedia,
+)
 
-ConfigBoolKey = pb.ConfigBool.Key  # pylint: disable=no-member
+# public exports
+SearchTerm = _pb.SearchTerm
+MediaSyncProgress = _pb.MediaSyncProgress
+FullSyncProgress = _pb.FullSyncProgress
+NormalSyncProgress = _pb.NormalSyncProgress
+DatabaseCheckProgress = _pb.DatabaseCheckProgress
+ConfigBoolKey = _pb.ConfigBool.Key  # pylint: disable=no-member
+EmptyCardsReport = _pb.EmptyCardsReport
+NoteWithEmptyCards = _pb.NoteWithEmptyCards
+GraphPreferences = _pb.GraphPreferences
 
+# pylint: disable=no-member
 if TYPE_CHECKING:
-    from anki.rsbackend import FormatTimeSpanContextValue, TRValue
+    from anki.lang import FormatTimeSpanContextValue, TRValue
 
-    ConfigBoolKeyValue = pb.ConfigBool.KeyValue  # pylint: disable=no-member
+    ConfigBoolKeyValue = _pb.ConfigBool.KeyValue
 
 
 class Collection:
@@ -394,6 +409,9 @@ class Collection:
     def set_deck(self, card_ids: List[int], deck_id: int) -> None:
         self.backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
+    def get_empty_cards(self) -> EmptyCardsReport:
+        return self.backend.get_empty_cards()
+
     # legacy
 
     def remCards(self, ids: List[int], notes: bool = True) -> None:
@@ -445,20 +463,20 @@ class Collection:
         order: Union[
             bool,
             str,
-            pb.BuiltinSearchOrder.BuiltinSortKindValue,  # pylint: disable=no-member
+            _pb.BuiltinSearchOrder.BuiltinSortKindValue,  # pylint: disable=no-member
         ] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
         if isinstance(order, str):
-            mode = pb.SortOrder(custom=order)
+            mode = _pb.SortOrder(custom=order)
         elif isinstance(order, bool):
             if order is True:
-                mode = pb.SortOrder(from_config=pb.Empty())
+                mode = _pb.SortOrder(from_config=_pb.Empty())
             else:
-                mode = pb.SortOrder(none=pb.Empty())
+                mode = _pb.SortOrder(none=_pb.Empty())
         else:
-            mode = pb.SortOrder(
-                builtin=pb.BuiltinSearchOrder(kind=order, reverse=reverse)
+            mode = _pb.SortOrder(
+                builtin=_pb.BuiltinSearchOrder(kind=order, reverse=reverse)
             )
         return self.backend.search_cards(search=query, order=mode)
 
@@ -602,6 +620,19 @@ table.review-log {{ {revlog_style} }}
 
     def studied_today(self) -> str:
         return self.backend.studied_today()
+
+    def graph_data(self, search: str, days: int) -> bytes:
+        return self.backend.graphs(search=search, days=days)
+
+    def get_graph_preferences(self) -> bytes:
+        return self.backend.get_graph_preferences()
+
+    def set_graph_preferences(self, prefs: GraphPreferences) -> None:
+        self.backend.set_graph_preferences(input=prefs)
+
+    def congrats_info(self) -> bytes:
+        "Don't use this, it will likely go away in the future."
+        return self.backend.congrats_info().SerializeToString()
 
     # legacy
 
@@ -795,6 +826,43 @@ table.review-log {{ {revlog_style} }}
             self.usn(),
             intTime(),
         )
+
+
+class ProgressKind(enum.Enum):
+    NoProgress = 0
+    MediaSync = 1
+    MediaCheck = 2
+    FullSync = 3
+    NormalSync = 4
+    DatabaseCheck = 5
+
+
+@dataclass
+class Progress:
+    kind: ProgressKind
+    val: Union[
+        MediaSyncProgress,
+        FullSyncProgress,
+        NormalSyncProgress,
+        DatabaseCheckProgress,
+        str,
+    ]
+
+    @staticmethod
+    def from_proto(proto: _pb.Progress) -> Progress:
+        kind = proto.WhichOneof("value")
+        if kind == "media_sync":
+            return Progress(kind=ProgressKind.MediaSync, val=proto.media_sync)
+        elif kind == "media_check":
+            return Progress(kind=ProgressKind.MediaCheck, val=proto.media_check)
+        elif kind == "full_sync":
+            return Progress(kind=ProgressKind.FullSync, val=proto.full_sync)
+        elif kind == "normal_sync":
+            return Progress(kind=ProgressKind.NormalSync, val=proto.normal_sync)
+        elif kind == "database_check":
+            return Progress(kind=ProgressKind.DatabaseCheck, val=proto.database_check)
+        else:
+            return Progress(kind=ProgressKind.NoProgress, val="")
 
 
 # legacy name
