@@ -48,7 +48,7 @@ class Card:
             self._load_from_backend_card(_pb.Card())
 
     def load(self) -> None:
-        c = self.col.backend.get_card(self.id)
+        c = self.col._backend.get_card(self.id)
         assert c
         self._load_from_backend_card(c)
 
@@ -105,9 +105,9 @@ class Card:
             data=self.data,
         )
         if self.id != 0:
-            self.col.backend.update_card(card)
+            self.col._backend.update_card(card)
         else:
-            self.id = self.col.backend.add_card(card)
+            self.id = self.col._backend.add_card(card)
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.render_output(reload, browser).question_and_style()

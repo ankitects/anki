@@ -144,7 +144,7 @@ from revlog where id > ? """
             return "<b>" + str(s) + "</b>"
 
         if cards:
-            b += self.col.backend.studied_today_message(
+            b += self.col._backend.studied_today_message(
                 cards=cards, seconds=float(thetime)
             )
             # again/pass count
