@@ -7,13 +7,13 @@ use crate::{
     storage::SqliteStorage, timestamp::TimestampSecs,
 };
 
-pub use crate::backend_proto::StockNoteType;
+use crate::backend_proto::stock_note_type::Kind;
 
 impl SqliteStorage {
     pub(crate) fn add_stock_notetypes(&self, i18n: &I18n) -> Result<()> {
         for (idx, mut nt) in all_stock_notetypes(i18n).into_iter().enumerate() {
             self.add_new_notetype(&mut nt)?;
-            if idx == StockNoteType::Basic as usize {
+            if idx == Kind::Basic as usize {
                 self.set_config_value(
                     ConfigKey::CurrentNoteTypeID.into(),
                     &nt.id,
