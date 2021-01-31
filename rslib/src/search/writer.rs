@@ -5,7 +5,7 @@ use crate::{
     decks::DeckID as DeckIDType,
     err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{parse, EaseKind, Node, PropertyKind, SearchNode, StateKind, TemplateKind},
+    search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
 };
 use itertools::Itertools;
 use std::mem;
@@ -154,8 +154,8 @@ fn write_template(template: &TemplateKind) -> String {
     }
 }
 
-fn write_rated(days: &u32, ease: &EaseKind) -> String {
-    use EaseKind::*;
+fn write_rated(days: &u32, ease: &RatingKind) -> String {
+    use RatingKind::*;
     match ease {
         AnswerButton(n) => format!("\"rated:{}:{}\"", days, n),
         AnyAnswerButton => format!("\"rated:{}\"", days),
@@ -196,9 +196,9 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Ease(f) => format!("\"prop:ease{}{}\"", operator, f),
         Position(u) => format!("\"prop:pos{}{}\"", operator, u),
         Rated(u, ease) => match ease {
-            EaseKind::AnswerButton(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
-            EaseKind::AnyAnswerButton => format!("\"prop:rated{}{}\"", operator, u),
-            EaseKind::ManualReschedule => format!("\"prop:resched{}{}\"", operator, u),
+            RatingKind::AnswerButton(val) => format!("\"prop:rated{}{}:{}\"", operator, u, val),
+            RatingKind::AnyAnswerButton => format!("\"prop:rated{}{}\"", operator, u),
+            RatingKind::ManualReschedule => format!("\"prop:resched{}{}\"", operator, u),
         },
     }
 }

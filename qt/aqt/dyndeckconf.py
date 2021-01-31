@@ -4,8 +4,8 @@
 from typing import List, Optional
 
 import aqt
+from anki.collection import InvalidInput, SearchTerm
 from anki.lang import without_unicode_isolation
-from anki.rsbackend import InvalidInput
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -47,8 +47,14 @@ class DeckConf(QDialog):
         self.initialSetup()
         self.loadConf()
         if search:
-            self.form.search.setText(search + " is:due")
-            self.form.search_2.setText(search + " is:new")
+            search = self.mw.col.build_search_string(
+                search, SearchTerm(card_state=SearchTerm.CARD_STATE_DUE)
+            )
+            self.form.search.setText(search)
+            search_2 = self.mw.col.build_search_string(
+                search, SearchTerm(card_state=SearchTerm.CARD_STATE_NEW)
+            )
+            self.form.search_2.setText(search_2)
         self.form.search.selectAll()
 
         if self.mw.col.schedVer() == 1:
@@ -119,11 +125,11 @@ class DeckConf(QDialog):
             else:
                 d["delays"] = None
 
-        search = self.mw.col.backend.normalize_search(f.search.text())
+        search = self.mw.col.build_search_string(f.search.text())
         terms = [[search, f.limit.value(), f.order.currentIndex()]]
 
         if f.secondFilter.isChecked():
-            search_2 = self.mw.col.backend.normalize_search(f.search_2.text())
+            search_2 = self.mw.col.build_search_string(f.search_2.text())
             terms.append([search_2, f.limit_2.value(), f.order_2.currentIndex()])
 
         d["terms"] = terms

@@ -13,19 +13,11 @@ from typing import List, Optional, Sequence, Tuple, cast
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, ConfigBoolKey
+from anki.collection import Collection, ConfigBoolKey, InvalidInput, SearchTerm
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import (
-    BackendNoteTypeID,
-    ConcatSeparator,
-    DupeIn,
-    FilterToSearchIn,
-    InvalidInput,
-    NamedFilter,
-)
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
@@ -193,22 +185,17 @@ class DataModel(QAbstractTableModel):
     def search(self, txt: str) -> None:
         self.beginReset()
         self.cards = []
-        exception: Optional[Exception] = None
         try:
             ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
-                ctx.search = self.browser.normalize_search(ctx.search)
                 ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
-        except Exception as e:
-            exception = e
+        except Exception as err:
+            raise err
         finally:
             self.endReset()
-
-        if exception:
-            show_invalid_search_error(exception)
 
     def reset(self):
         self.beginReset()
@@ -615,16 +602,13 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSearch(self):
-        qconnect(self.form.searchButton.clicked, self.onSearchActivated)
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = tr(TR.BROWSING_TYPE_HERE_TO_SEARCH)
-        self.form.searchEdit.addItems(
-            [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
+        self.form.searchEdit.lineEdit().setPlaceholderText(
+            tr(TR.BROWSING_SEARCH_BAR_HINT)
         )
-        self.search_for("is:current", self._searchPrompt)
-        # then replace text for easily showing the deck
-        self.form.searchEdit.lineEdit().selectAll()
+        self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
+        self.search_for(self.col.build_search_string(SearchTerm(current_deck=True)), "")
         self.form.searchEdit.setFocus()
 
     # search triggered by user
@@ -632,57 +616,48 @@ class Browser(QMainWindow):
         self.editor.saveNow(self._onSearchActivated)
 
     def _onSearchActivated(self):
-        # grab search text and normalize
-        prompt = self.form.searchEdit.lineEdit().text()
+        text = self.form.searchEdit.lineEdit().text()
+        try:
+            normed = self.col.build_search_string(text)
+        except InvalidInput as err:
+            show_invalid_search_error(err)
+        else:
+            self.search_for(normed)
+            self.update_history()
 
-        # convert guide text before we save history
-        txt = "deck:current " if prompt == self._searchPrompt else prompt
-        self.update_history(txt)
+    def search_for(self, search: str, prompt: Optional[str] = None):
+        """Keep track of search string so that we reuse identical search when
+        refreshing, rather than whatever is currently in the search field.
+        Optionally set the search bar to a different text than the actual search.
+        """
 
-        # keep track of search string so that we reuse identical search when
-        # refreshing, rather than whatever is currently in the search field
-        self.search_for(txt)
+        self._lastSearchTxt = search
+        prompt = search if prompt == None else prompt
+        self.form.searchEdit.lineEdit().setText(prompt)
+        self.search()
 
-    def update_history(self, search: str) -> None:
+    def search(self):
+        """Search triggered programmatically. Caller must have saved note first."""
+
+        try:
+            self.model.search(self._lastSearchTxt)
+        except Exception as err:
+            show_invalid_search_error(err)
+        if not self.model.cards:
+            # no row change will fire
+            self._onRowChanged(None, None)
+
+    def update_history(self):
         sh = self.mw.pm.profile["searchHistory"]
-        if search in sh:
-            sh.remove(search)
-        sh.insert(0, search)
+        if self._lastSearchTxt in sh:
+            sh.remove(self._lastSearchTxt)
+        sh.insert(0, self._lastSearchTxt)
         sh = sh[:30]
         self.form.searchEdit.clear()
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
 
-    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
-        self._lastSearchTxt = search
-        self.form.searchEdit.lineEdit().setText(prompt or search)
-        self.search()
-
-    # search triggered programmatically. caller must have saved note first.
-    def search(self) -> None:
-        if "is:current" in self._lastSearchTxt:
-            # show current card if there is one
-            c = self.card = self.mw.reviewer.card
-            nid = c and c.nid or 0
-            if nid:
-                search = "nid:%d" % nid
-                search = gui_hooks.default_search(search, c)
-                self.model.search(search)
-                self.focusCid(c.id)
-        else:
-            self.model.search(self._lastSearchTxt)
-
-        if not self.model.cards:
-            # no row change will fire
-            self._onRowChanged(None, None)
-
-    def normalize_search(self, search: str) -> str:
-        normed = self.col.backend.normalize_search(search)
-        self._lastSearchTxt = normed
-        self.form.searchEdit.lineEdit().setText(normed)
-        return normed
-
-    def updateTitle(self):
+    def updateTitle(self) -> int:
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
         self.setWindowTitle(
@@ -691,6 +666,21 @@ class Browser(QMainWindow):
             )
         )
         return selected
+
+    def show_single_card(self, card: Optional[Card]):
+        """Try to search for the according note and select the given card."""
+
+        nid: Optional[int] = card and card.nid or 0
+        if nid:
+
+            def on_show_single_card():
+                self.card = card
+                search = self.col.build_search_string(SearchTerm(nid=nid))
+                search = gui_hooks.default_search(search, card)
+                self.search_for(search, "")
+                self.focusCid(card.id)
+
+            self.editor.saveNow(on_show_single_card)
 
     def onReset(self):
         self.sidebar.refresh()
@@ -972,33 +962,20 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.popupOver(self.form.filter)
 
-    def update_search(self, *terms: str):
-        "Modify the current search string based on modified keys, then refresh."
+    def update_search(self, *terms: Union[str, SearchTerm]):
+        """Modify the current search string based on modified keys, then refresh."""
         try:
-            search = self.col.backend.concatenate_searches(
-                sep=ConcatSeparator.AND, searches=terms
-            )
+            search = self.col.build_search_string(*terms)
             mods = self.mw.app.keyboardModifiers()
             if mods & Qt.AltModifier:
-                search = self.col.backend.negate_search(search)
+                search = self.col.build_search_string(search, negate=True)
             cur = str(self.form.searchEdit.lineEdit().text())
-            if cur != self._searchPrompt:
-                if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                    search = self.col.backend.replace_search_term(
-                        search=cur, replacement=search
-                    )
-                elif mods & Qt.ControlModifier:
-                    search = self.col.backend.concatenate_searches(
-                        # pylint: disable=no-member
-                        sep=ConcatSeparator.AND,
-                        searches=[cur, search],
-                    )
-                elif mods & Qt.ShiftModifier:
-                    search = self.col.backend.concatenate_searches(
-                        # pylint: disable=no-member
-                        sep=ConcatSeparator.OR,
-                        searches=[cur, search],
-                    )
+            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                search = self.col.replace_search_term(cur, search)
+            elif mods & Qt.ControlModifier:
+                search = self.col.build_search_string(cur, search)
+            elif mods & Qt.ShiftModifier:
+                search = self.col.build_search_string(cur, search, match_any=True)
         except InvalidInput as e:
             show_invalid_search_error(e)
         else:
@@ -1016,7 +993,7 @@ QTableView {{ gridline-color: {grid} }}
                 ml.addSeparator()
             else:
                 label, filter_name = row
-                ml.addItem(label, self.sidebar._named_filter(filter_name))
+                ml.addItem(label, self.sidebar._filter_func(filter_name))
         return ml
 
     def _todayFilters(self):
@@ -1024,9 +1001,19 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.BROWSING_ADDED_TODAY), NamedFilter.ADDED_TODAY),
-                    (tr(TR.BROWSING_STUDIED_TODAY), NamedFilter.STUDIED_TODAY),
-                    (tr(TR.BROWSING_AGAIN_TODAY), NamedFilter.AGAIN_TODAY),
+                    (tr(TR.BROWSING_ADDED_TODAY), SearchTerm(added_in_days=1)),
+                    (
+                        tr(TR.BROWSING_STUDIED_TODAY),
+                        SearchTerm(rated=SearchTerm.Rated(days=1)),
+                    ),
+                    (
+                        tr(TR.BROWSING_AGAIN_TODAY),
+                        SearchTerm(
+                            rated=SearchTerm.Rated(
+                                days=1, rating=SearchTerm.RATING_AGAIN
+                            )
+                        ),
+                    ),
                 )
             )
         )
@@ -1037,20 +1024,41 @@ QTableView {{ gridline-color: {grid} }}
         subm.addChild(
             self._simpleFilters(
                 (
-                    (tr(TR.ACTIONS_NEW), NamedFilter.NEW),
-                    (tr(TR.SCHEDULING_LEARNING), NamedFilter.LEARN),
-                    (tr(TR.SCHEDULING_REVIEW), NamedFilter.REVIEW),
-                    (tr(TR.FILTERING_IS_DUE), NamedFilter.DUE),
+                    (
+                        tr(TR.ACTIONS_NEW),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
+                    ),
+                    (
+                        tr(TR.SCHEDULING_LEARNING),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_LEARN),
+                    ),
+                    (
+                        tr(TR.SCHEDULING_REVIEW),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_REVIEW),
+                    ),
+                    (
+                        tr(TR.FILTERING_IS_DUE),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
+                    ),
                     None,
-                    (tr(TR.BROWSING_SUSPENDED), NamedFilter.SUSPENDED),
-                    (tr(TR.BROWSING_BURIED), NamedFilter.BURIED),
+                    (
+                        tr(TR.BROWSING_SUSPENDED),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_SUSPENDED),
+                    ),
+                    (
+                        tr(TR.BROWSING_BURIED),
+                        SearchTerm(card_state=SearchTerm.CARD_STATE_BURIED),
+                    ),
                     None,
-                    (tr(TR.ACTIONS_RED_FLAG), NamedFilter.RED_FLAG),
-                    (tr(TR.ACTIONS_ORANGE_FLAG), NamedFilter.ORANGE_FLAG),
-                    (tr(TR.ACTIONS_GREEN_FLAG), NamedFilter.GREEN_FLAG),
-                    (tr(TR.ACTIONS_BLUE_FLAG), NamedFilter.BLUE_FLAG),
-                    (tr(TR.BROWSING_NO_FLAG), NamedFilter.NO_FLAG),
-                    (tr(TR.BROWSING_ANY_FLAG), NamedFilter.ANY_FLAG),
+                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=SearchTerm.FLAG_RED)),
+                    (
+                        tr(TR.ACTIONS_ORANGE_FLAG),
+                        SearchTerm(flag=SearchTerm.FLAG_ORANGE),
+                    ),
+                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=SearchTerm.FLAG_GREEN)),
+                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=SearchTerm.FLAG_BLUE)),
+                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=SearchTerm.FLAG_NONE)),
+                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=SearchTerm.FLAG_ANY)),
                 )
             )
         )
@@ -1450,7 +1458,9 @@ where id in %s"""
         tv = self.form.tableView
         tv.selectionModel().clear()
 
-        search = "nid:" + ",".join([str(x) for x in nids])
+        search = self.col.build_search_string(
+            SearchTerm(nids=SearchTerm.IdList(ids=nids))
+        )
         self.search_for(search)
 
         tv.selectAll()
@@ -1593,17 +1603,6 @@ where id in %s"""
     # Edit: finding dupes
     ######################################################################
 
-    # filter called by the editor
-    def search_dupe(self, mid: int, text: str):
-        self.form.searchEdit.lineEdit().setText(
-            self.col.backend.filter_to_search(
-                FilterToSearchIn(
-                    dupe=DupeIn(mid=BackendNoteTypeID(ntid=mid), text=text)
-                )
-            )
-        )
-        self.onSearchActivated()
-
     def onFindDupes(self):
         self.editor.saveNow(self._onFindDupes)
 
@@ -1648,7 +1647,12 @@ where id in %s"""
 
     def duplicatesReport(self, web, fname, search, frm, web_context):
         self.mw.progress.start()
-        res = self.mw.col.findDupes(fname, search)
+        try:
+            res = self.mw.col.findDupes(fname, search)
+        except InvalidInput as e:
+            self.mw.progress.finish()
+            show_invalid_search_error(e)
+            return
         if not self._dupesButton:
             self._dupesButton = b = frm.buttonBox.addButton(
                 tr(TR.BROWSING_TAG_DUPLICATES), QDialogButtonBox.ActionRole
@@ -1665,7 +1669,11 @@ where id in %s"""
             t += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
-                    "nid:" + ",".join(str(id) for id in nids),
+                    html.escape(
+                        self.col.build_search_string(
+                            SearchTerm(nids=SearchTerm.IdList(ids=nids))
+                        )
+                    ),
                     tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )
@@ -1761,9 +1769,10 @@ where id in %s"""
 
     def focusCid(self, cid):
         try:
-            row = self.model.cards.index(cid)
-        except:
+            row = list(self.model.cards).index(cid)
+        except ValueError:
             return
+        self.form.tableView.clearSelection()
         self.form.tableView.selectRow(row)
 
 

@@ -7,6 +7,7 @@ import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 import aqt.modelchooser
+from anki.collection import SearchTerm
 from anki.consts import MODEL_CLOZE
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
@@ -144,7 +145,7 @@ class AddCards(QDialog):
     def onHistory(self) -> None:
         m = QMenu(self)
         for nid in self.history:
-            if self.mw.col.findNotes("nid:%s" % nid):
+            if self.mw.col.findNotes(SearchTerm(nid=nid)):
                 note = self.mw.col.getNote(nid)
                 fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))
@@ -161,9 +162,7 @@ class AddCards(QDialog):
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid):
-        browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
-        browser.onSearchActivated()
+        self.mw.browser_search(SearchTerm(nid=nid))
 
     def addNote(self, note) -> Optional[Note]:
         note.model()["did"] = self.deckChooser.selectedId()
