@@ -36,6 +36,7 @@ browsing-enter-tags-to-add = Enter tags to add:
 browsing-enter-tags-to-delete = Enter tags to delete:
 browsing-filter = Filter...
 browsing-filtered = (filtered)
+browsing-filter-to-deck = Current Filter to Filtered Deck...
 browsing-find = <b>Find</b>:
 browsing-find-and-replace = Find and Replace
 browsing-find-duplicates = Find Duplicates
