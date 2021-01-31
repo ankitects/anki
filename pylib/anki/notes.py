@@ -113,7 +113,7 @@ class Note:
     def __setitem__(self, key: str, value: str) -> None:
         self.fields[self._fieldOrd(key)] = value
 
-    def __contains__(self, key) -> bool:
+    def __contains__(self, key: str) -> bool:
         return key in self._fmap
 
     # Tags

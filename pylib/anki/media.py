@@ -11,7 +11,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Match, Optional, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
@@ -197,7 +197,7 @@ class MediaManager:
         else:
             fn = urllib.parse.quote
 
-        def repl(match):
+        def repl(match: Match) -> str:
             tag = match.group(0)
             fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
