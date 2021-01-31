@@ -2,7 +2,6 @@ load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
-load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//:defs.bzl", "anki_version")
 load("//pylib:orjson.bzl", "orjson_if_available")
 
@@ -19,29 +18,6 @@ genrule(
     tools = ["//pylib/tools:genhooks"],
 )
 
-copy_file(
-    name = "rsbridge_unix",
-    src = "//pylib/rsbridge",
-    out = "_rsbridge.so",
-)
-
-copy_file(
-    name = "rsbridge_win",
-    src = "//pylib/rsbridge",
-    out = "_rsbridge.pyd",
-)
-
-alias(
-    name = "rsbridge",
-    actual = selects.with_or({
-        (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): ":rsbridge_win",
-        "//conditions:default": ":rsbridge_unix",
-    }),
-    visibility = ["//visibility:public"],
-)
-
 _py_srcs = glob(
     ["**/*.py"],
     exclude = [
@@ -56,7 +32,6 @@ py_library(
         "py.typed",
         ":buildinfo",
         ":hooks_gen",
-        ":rsbridge",
         "//pylib/anki/_backend",
     ],
     imports = [
@@ -122,6 +97,5 @@ filegroup(
     srcs = _py_srcs,
     visibility = [
         "//pylib:__subpackages__",
-        "//qt/po:__pkg__",
     ],
 )

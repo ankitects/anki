@@ -11,12 +11,12 @@ use std::convert::TryFrom;
 // Regular backend
 //////////////////////////////////
 
-#[pyclass(module = "_rsbridge")]
+#[pyclass(module = "rsbridge")]
 struct Backend {
     backend: RustBackend,
 }
 
-create_exception!(_rsbridge, BackendError, PyException);
+create_exception!(rsbridge, BackendError, PyException);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
@@ -97,7 +97,7 @@ impl Backend {
 //////////////////////////////////
 
 #[pymodule]
-fn _rsbridge(_py: Python, m: &PyModule) -> PyResult<()> {
+fn rsbridge(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Backend>()?;
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();

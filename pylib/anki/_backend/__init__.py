@@ -22,9 +22,9 @@ import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
-import anki._backend.backend_pb2 as pb
-import anki._rsbridge
 import anki.buildinfo
+from . import backend_pb2 as pb
+from . import rsbridge
 from anki import hooks
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
@@ -36,7 +36,7 @@ from anki.utils import from_json_bytes, to_json_bytes
 if TYPE_CHECKING:
     from anki.lang import FormatTimeSpanContextValue, TRValue
 
-assert anki._rsbridge.buildhash() == anki.buildinfo.buildhash
+assert rsbridge.buildhash() == anki.buildinfo.buildhash
 
 # FIXME: rather than adding new items here, items intended to be consumed
 # by external libraries (eg aqt) should be exported in the module that
@@ -71,7 +71,7 @@ class RustBackend(RustBackendGenerated):
             preferred_langs=langs,
             server=server,
         )
-        self._backend = anki._rsbridge.open_backend(init_msg.SerializeToString())
+        self._backend = rsbridge.open_backend(init_msg.SerializeToString())
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
