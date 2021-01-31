@@ -3,8 +3,7 @@
 
 from __future__ import annotations
 
-# some add-ons expect json to be in the utils module
-import json  # pylint: disable=unused-import
+import json as _json
 import os
 import platform
 import random
@@ -33,8 +32,17 @@ try:
     from_json_bytes = orjson.loads
 except:
     print("orjson is missing; DB operations will be slower")
-    to_json_bytes = lambda obj: json.dumps(obj).encode("utf8")  # type: ignore
-    from_json_bytes = json.loads
+    to_json_bytes = lambda obj: _json.dumps(obj).encode("utf8")  # type: ignore
+    from_json_bytes = _json.loads
+
+
+def __getattr__(name: str) -> Any:
+    if name == "json":
+        traceback.print_stack(file=sys.stdout)
+        print("add-on should import json directly, not from anki.utils")
+        return _json
+    raise AttributeError(f"module {__name__} has no attribute {name}")
+
 
 # Time handling
 ##############################################################################

@@ -8,6 +8,7 @@ import enum
 import os
 import pprint
 import re
+import sys
 import time
 import traceback
 import weakref
@@ -107,7 +108,7 @@ class Collection:
 
     @property
     def backend(self) -> RustBackend:
-        traceback.print_stack()
+        traceback.print_stack(file=sys.stdout)
         print()
         print(
             "Accessing the backend directly will break in the future. Please use the public methods on Collection instead."
