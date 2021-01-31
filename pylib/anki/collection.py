@@ -19,20 +19,14 @@ import anki.find
 import anki.latex  # sets up hook
 import anki.template
 from anki import hooks
-from anki._backend import (  # pylint: disable=unused-import
-    ConcatSeparator,
-    FormatTimeSpanContext,
-    RustBackend,
-)
-
-# from anki._backend import _SyncStatus as SyncStatus
+from anki._backend import RustBackend
 from anki.cards import Card
 from anki.config import ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
 from anki.errors import AnkiError, DBError
-from anki.lang import TR
+from anki.lang import TR, FormatTimeSpanContext
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
@@ -551,9 +545,9 @@ class Collection:
                 term = self.backend.filter_to_search(term)
             searches.append(term)
         if match_any:
-            sep = ConcatSeparator.OR
+            sep = _pb.ConcatenateSearchesIn.Separator.OR
         else:
-            sep = ConcatSeparator.AND
+            sep = _pb.ConcatenateSearchesIn.Separator.AND
         search_string = self.backend.concatenate_searches(sep=sep, searches=searches)
         if negate:
             search_string = self.backend.negate_search(search_string)

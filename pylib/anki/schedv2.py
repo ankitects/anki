@@ -22,14 +22,16 @@ from typing import (
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki._backend import CountsForDeckToday, FormatTimeSpanContext, SchedTimingToday
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import Deck, DeckConfig, DeckManager, DeckTreeNode, QueueConfig
+from anki.lang import FormatTimeSpanContext
 from anki.notes import Note
 from anki.utils import from_json_bytes, ids2str, intTime
 
-CongratsInfoOut = anki._backend.backend_pb2.CongratsInfoOut
+CongratsInfo = _pb.CongratsInfoOut
+CountsForDeckToday = _pb.CountsForDeckTodayOut
+SchedTimingToday = _pb.SchedTimingTodayOut
 
 UnburyCurrentDeckMode = _pb.UnburyCardsInCurrentDeckIn.Mode  # pylint:disable=no-member
 BuryOrSuspendMode = _pb.BuryOrSuspendCardsIn.Mode  # pylint:disable=no-member
@@ -1236,7 +1238,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     # Deck finished state
     ##########################################################################
 
-    def congratulations_info(self) -> CongratsInfoOut:
+    def congratulations_info(self) -> CongratsInfo:
         return self.col.backend.congrats_info()
 
     def finishedMsg(self) -> str:

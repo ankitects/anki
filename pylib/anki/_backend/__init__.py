@@ -1,25 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-# pylint: skip-file
-
-"""
-Python bindings for Anki's Rust libraries.
-
-Please do not access methods on the backend directly - they may be changed
-or removed at any time. Instead, please use the methods on the collection
-instead. Eg, don't use col.backend.all_deck_config(), instead use
-col.decks.all_config()
-
-If you need to access a backend method that is not currently accessible
-via the collection, please send through a pull request that adds a method.
-"""
 
 from __future__ import annotations
 
-import enum
-import json
 import os
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
 import anki.buildinfo
@@ -38,21 +22,21 @@ if TYPE_CHECKING:
 
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
 
-# FIXME: rather than adding new items here, items intended to be consumed
-# by external libraries (eg aqt) should be exported in the module that
-# refers to them, eg collection.py
-SchedTimingToday = pb.SchedTimingTodayOut
-BackendCard = pb.Card
-BackendNote = pb.Note
-Tag = pb.Tag
-TagTreeNode = pb.TagTreeNode
-NoteType = pb.NoteType
-BackendNoteTypeID = pb.NoteTypeID
-ConcatSeparator = pb.ConcatenateSearchesIn.Separator
-CountsForDeckToday = pb.CountsForDeckTodayOut
-
 
 class RustBackend(RustBackendGenerated):
+    """
+    Python bindings for Anki's Rust libraries.
+
+    Please do not access methods on the backend directly - they may be changed
+    or removed at any time. Instead, please use the methods on the collection
+    instead. Eg, don't use col._backend.all_deck_config(), instead use
+    col.decks.all_config()
+
+    If you need to access a backend method that is not currently accessible
+    via the collection, please send through a pull request that adds a
+    public method.
+    """
+
     def __init__(
         self,
         ftl_folder: Optional[str] = None,
