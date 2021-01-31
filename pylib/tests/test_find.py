@@ -1,8 +1,7 @@
 # coding: utf-8
 import pytest
 
-from anki._backend import BuiltinSortKind
-from anki.collection import ConfigBoolKey
+from anki.collection import BuiltinSortKind, ConfigBoolKey
 from anki.consts import *
 from tests.shared import getEmptyCol, isNearCutoff
 
