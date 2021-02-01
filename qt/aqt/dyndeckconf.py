@@ -34,7 +34,7 @@ class DeckConf(QDialog):
         search: Optional[str] = None,
         search_2: Optional[str] = None,
         deck: Optional[Deck] = None,
-    ):
+    ) -> None:
         """If 'deck' is an existing filtered deck, load and modify its settings.
         Otherwise, build a new one and derive settings from the current deck.
         """
@@ -141,7 +141,7 @@ class DeckConf(QDialog):
             self.form.search_2.setFocus()
             self.form.search_2.selectAll()
 
-    def initialSetup(self):
+    def initialSetup(self) -> None:
         import anki.consts as cs
 
         self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
@@ -165,12 +165,12 @@ class DeckConf(QDialog):
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
 
-    def _onReschedToggled(self, _state: int):
+    def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(
             not self.form.resched.isChecked() and self.mw.col.schedVer() > 1
         )
 
-    def loadConf(self, deck: Optional[Deck] = None):
+    def loadConf(self, deck: Optional[Deck] = None) -> None:
         f = self.form
         d = deck or self.deck
 
@@ -205,7 +205,7 @@ class DeckConf(QDialog):
             f.secondFilter.setChecked(False)
             f.filter2group.setVisible(False)
 
-    def saveConf(self):
+    def saveConf(self) -> None:
         f = self.form
         d = self.deck
 
@@ -235,7 +235,7 @@ class DeckConf(QDialog):
 
         self.mw.col.decks.save(d)
 
-    def reject(self):
+    def reject(self) -> None:
         if self.did:
             self.mw.col.decks.rem(self.did)
             self.mw.col.decks.select(self.old_deck["id"])
@@ -243,7 +243,7 @@ class DeckConf(QDialog):
         QDialog.reject(self)
         aqt.dialogs.markClosed("DynDeckConfDialog")
 
-    def accept(self):
+    def accept(self) -> None:
         try:
             self.saveConf()
         except InvalidInput as err:

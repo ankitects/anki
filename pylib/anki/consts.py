@@ -92,7 +92,7 @@ REVLOG_RESCHED = 4
 ##########################################################################
 
 
-def _tr(col: Optional[anki.collection.Collection]):
+def _tr(col: Optional[anki.collection.Collection]) -> Any:
     if col:
         return col.tr
     else:

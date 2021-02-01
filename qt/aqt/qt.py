@@ -30,7 +30,7 @@ except ImportError:
     import sip  # type: ignore
 
 
-def debug():
+def debug() -> None:
     from pdb import set_trace
 
     pyqtRemoveInputHook()
@@ -39,7 +39,7 @@ def debug():
 
 if os.environ.get("DEBUG"):
 
-    def info(type, value, tb):
+    def info(type, value, tb) -> None:
         for line in traceback.format_exception(type, value, tb):
             sys.stdout.write(line)
         pyqtRemoveInputHook()

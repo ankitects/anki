@@ -5,16 +5,18 @@ import html
 import re
 import sys
 import traceback
+from typing import Optional
 
 from markdown import markdown
 
 from aqt import mw
+from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.utils import TR, showText, showWarning, supportText, tr
 
 if not os.environ.get("DEBUG"):
 
-    def excepthook(etype, val, tb):
+    def excepthook(etype, val, tb) -> None:
         sys.stderr.write(
             "Caught exception:\n%s\n"
             % ("".join(traceback.format_exception(etype, val, tb)))
@@ -29,20 +31,20 @@ class ErrorHandler(QObject):
 
     errorTimer = pyqtSignal()
 
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt) -> None:
         QObject.__init__(self, mw)
         self.mw = mw
-        self.timer = None
+        self.timer: Optional[QTimer] = None
         qconnect(self.errorTimer, self._setTimer)
         self.pool = ""
         self._oldstderr = sys.stderr
         sys.stderr = self
 
-    def unload(self):
+    def unload(self) -> None:
         sys.stderr = self._oldstderr
         sys.excepthook = None
 
-    def write(self, data):
+    def write(self, data: str) -> None:
         # dump to stdout
         sys.stdout.write(data)
         # save in buffer
@@ -50,12 +52,12 @@ class ErrorHandler(QObject):
         # and update timer
         self.setTimer()
 
-    def setTimer(self):
+    def setTimer(self) -> None:
         # we can't create a timer from a different thread, so we post a
         # message to the object on the main thread
         self.errorTimer.emit()  # type: ignore
 
-    def _setTimer(self):
+    def _setTimer(self) -> None:
         if not self.timer:
             self.timer = QTimer(self.mw)
             qconnect(self.timer.timeout, self.onTimeout)
@@ -63,10 +65,10 @@ class ErrorHandler(QObject):
         self.timer.setSingleShot(True)
         self.timer.start()
 
-    def tempFolderMsg(self):
+    def tempFolderMsg(self) -> str:
         return tr(TR.QT_MISC_UNABLE_TO_ACCESS_ANKI_MEDIA_FOLDER)
 
-    def onTimeout(self):
+    def onTimeout(self) -> None:
         error = html.escape(self.pool)
         self.pool = ""
         self.mw.progress.clear()
@@ -75,15 +77,19 @@ class ErrorHandler(QObject):
         if "DeprecationWarning" in error:
             return
         if "10013" in error:
-            return showWarning(tr(TR.QT_MISC_YOUR_FIREWALL_OR_ANTIVIRUS_PROGRAM_IS))
+            showWarning(tr(TR.QT_MISC_YOUR_FIREWALL_OR_ANTIVIRUS_PROGRAM_IS))
+            return
         if "no default input" in error.lower():
-            return showWarning(tr(TR.QT_MISC_PLEASE_CONNECT_A_MICROPHONE_AND_ENSURE))
+            showWarning(tr(TR.QT_MISC_PLEASE_CONNECT_A_MICROPHONE_AND_ENSURE))
+            return
         if "invalidTempFolder" in error:
-            return showWarning(self.tempFolderMsg())
+            showWarning(self.tempFolderMsg())
+            return
         if "Beautiful Soup is not an HTTP client" in error:
             return
         if "database or disk is full" in error or "Errno 28" in error:
-            return showWarning(tr(TR.QT_MISC_YOUR_COMPUTERS_STORAGE_MAY_BE_FULL))
+            showWarning(tr(TR.QT_MISC_YOUR_COMPUTERS_STORAGE_MAY_BE_FULL))
+            return
         if "disk I/O error" in error:
             showWarning(markdown(tr(TR.ERRORS_ACCESSING_DB)))
             return
@@ -99,7 +105,7 @@ class ErrorHandler(QObject):
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
         showText(txt, type="html", copyBtn=True)
 
-    def _addonText(self, error):
+    def _addonText(self, error: str) -> str:
         matches = re.findall(r"addons21/(.*?)/", error)
         if not matches:
             return ""

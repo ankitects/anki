@@ -481,7 +481,7 @@ if isWin:
                 return []
             return list(map(self._voice_to_object, self.speaker.GetVoices()))
 
-        def _voice_to_object(self, voice: Any):
+        def _voice_to_object(self, voice: Any) -> WindowsVoice:
             lang = voice.GetAttribute("language")
             lang = lcid_hex_str_to_lang_code(lang)
             name = self._tidy_name(voice.GetAttribute("name"))
@@ -525,7 +525,7 @@ if isWin:
         id: Any
 
     class WindowsRTTTSFilePlayer(TTSProcessPlayer):
-        voice_list = None
+        voice_list: List[Any] = []
         tmppath = os.path.join(tmpdir(), "tts.wav")
 
         def import_voices(self) -> None:
@@ -561,7 +561,7 @@ if isWin:
             )
             asyncio.run(self.speakText(tag, voice.id))
 
-        def _on_done(self, ret: Future, cb: OnDoneCallback):
+        def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
             ret.result()
 
             # inject file into the top of the audio queue
@@ -572,7 +572,7 @@ if isWin:
             # then tell player to advance, which will cause the file to be played
             cb()
 
-        async def speakText(self, tag: TTSTag, voice_id):
+        async def speakText(self, tag: TTSTag, voice_id) -> None:
             import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
             import winrt.windows.storage.streams as streams  # type: ignore
 

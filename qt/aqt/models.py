@@ -57,7 +57,7 @@ class Models(QDialog):
     # Models
     ##########################################################################
 
-    def maybe_select_provided_notetype(self):
+    def maybe_select_provided_notetype(self) -> None:
         if not self.selected_notetype_id:
             self.form.modelsList.setCurrentRow(0)
             return
@@ -219,7 +219,7 @@ class Models(QDialog):
 class AddModel(QDialog):
     model: Optional[NoteType]
 
-    def __init__(self, mw: AnkiQt, parent: Optional[QWidget] = None):
+    def __init__(self, mw: AnkiQt, parent: Optional[QWidget] = None) -> None:
         self.parent_ = parent or mw
         self.mw = mw
         self.col = mw.col

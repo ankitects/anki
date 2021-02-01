@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import copy
 import pprint
+import sys
 import time
+import traceback
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
@@ -39,36 +41,37 @@ class ModelsDictProxy:
     def __init__(self, col: anki.collection.Collection):
         self._col = col.weakref()
 
-    def _warn(self):
+    def _warn(self) -> None:
+        traceback.print_stack(file=sys.stdout)
         print("add-on should use methods on col.models, not col.models.models dict")
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Any) -> Any:
         self._warn()
         return self._col.models.get(int(item))
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: Any) -> None:
         self._warn()
         self._col.models.save(val)
 
-    def __len__(self):
+    def __len__(self) -> int:
         self._warn()
         return len(self._col.models.all_names_and_ids())
 
-    def keys(self):
+    def keys(self) -> Any:
         self._warn()
         return [str(nt.id) for nt in self._col.models.all_names_and_ids()]
 
-    def values(self):
+    def values(self) -> Any:
         self._warn()
         return self._col.models.all()
 
-    def items(self):
+    def items(self) -> Any:
         self._warn()
         return [(str(nt["id"]), nt) for nt in self._col.models.all()]
 
-    def __contains__(self, item):
+    def __contains__(self, item: Any) -> bool:
         self._warn()
-        self._col.models.have(item)
+        return self._col.models.have(item)
 
 
 class ModelManager:
@@ -123,7 +126,7 @@ class ModelManager:
     def _get_cached(self, ntid: int) -> Optional[NoteType]:
         return self._cache.get(ntid)
 
-    def _clear_cache(self):
+    def _clear_cache(self) -> None:
         self._cache = {}
 
     # Listing note types
@@ -218,7 +221,7 @@ class ModelManager:
         "Delete model, and all its cards/notes."
         self.remove(m["id"])
 
-    def remove_all_notetypes(self):
+    def remove_all_notetypes(self) -> None:
         for nt in self.all_names_and_ids():
             self._remove_from_cache(nt.id)
             self.col._backend.remove_notetype(nt.id)
@@ -236,7 +239,7 @@ class ModelManager:
         if existing_id is not None and existing_id != m["id"]:
             m["name"] += "-" + checksum(str(time.time()))[:5]
 
-    def update(self, m: NoteType, preserve_usn=True) -> None:
+    def update(self, m: NoteType, preserve_usn: bool = True) -> None:
         "Add or update an existing model. Use .save() instead."
         self._remove_from_cache(m["id"])
         self.ensureNameUnique(m)

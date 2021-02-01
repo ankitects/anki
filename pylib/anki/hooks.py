@@ -25,7 +25,7 @@ from anki.hooks_gen import *
 _hooks: Dict[str, List[Callable[..., Any]]] = {}
 
 
-def runHook(hook: str, *args) -> None:
+def runHook(hook: str, *args: Any) -> None:
     "Run all functions on hook."
     hookFuncs = _hooks.get(hook, None)
     if hookFuncs:
@@ -37,7 +37,7 @@ def runHook(hook: str, *args) -> None:
                 raise
 
 
-def runFilter(hook: str, arg: Any, *args) -> Any:
+def runFilter(hook: str, arg: Any, *args: Any) -> Any:
     hookFuncs = _hooks.get(hook, None)
     if hookFuncs:
         for func in hookFuncs:
@@ -57,7 +57,7 @@ def addHook(hook: str, func: Callable) -> None:
         _hooks[hook].append(func)
 
 
-def remHook(hook, func) -> None:
+def remHook(hook: Any, func: Any) -> None:
     "Remove a function if is on hook."
     hook = _hooks.get(hook, [])
     if func in hook:
@@ -72,10 +72,10 @@ def remHook(hook, func) -> None:
 #
 # If you call wrap() with pos='around', the original function will not be called
 # automatically but can be called with _old().
-def wrap(old, new, pos="after") -> Callable:
+def wrap(old: Any, new: Any, pos: str = "after") -> Callable:
     "Override an existing function."
 
-    def repl(*args, **kwargs):
+    def repl(*args: Any, **kwargs: Any) -> Any:
         if pos == "after":
             old(*args, **kwargs)
             return new(*args, **kwargs)
@@ -85,7 +85,7 @@ def wrap(old, new, pos="after") -> Callable:
         else:
             return new(_old=old, *args, **kwargs)
 
-    def decorator_wrapper(f, *args, **kwargs):
+    def decorator_wrapper(f: Any, *args: Any, **kwargs: Any) -> Any:
         return repl(*args, **kwargs)
 
     return decorator.decorator(decorator_wrapper)(old)

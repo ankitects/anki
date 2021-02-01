@@ -34,7 +34,7 @@ def video_driver_name_for_platform(driver: VideoDriver) -> str:
 
 
 class Preferences(QDialog):
-    def __init__(self, mw: AnkiQt):
+    def __init__(self, mw: AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile
@@ -55,7 +55,7 @@ class Preferences(QDialog):
         self.setupOptions()
         self.show()
 
-    def accept(self):
+    def accept(self) -> None:
         # avoid exception if main window is already closed
         if not self.mw.col:
             return
@@ -68,19 +68,19 @@ class Preferences(QDialog):
         self.done(0)
         aqt.dialogs.markClosed("Preferences")
 
-    def reject(self):
+    def reject(self) -> None:
         self.accept()
 
     # Language
     ######################################################################
 
-    def setupLang(self):
+    def setupLang(self) -> None:
         f = self.form
         f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentIndex(self.langIdx())
         qconnect(f.lang.currentIndexChanged, self.onLangIdxChanged)
 
-    def langIdx(self):
+    def langIdx(self) -> int:
         codes = [x[1] for x in anki.lang.langs]
         lang = anki.lang.currentLang
         if lang in anki.lang.compatMap:
@@ -92,7 +92,7 @@ class Preferences(QDialog):
         except:
             return codes.index("en_US")
 
-    def onLangIdxChanged(self, idx):
+    def onLangIdxChanged(self, idx) -> None:
         code = anki.lang.langs[idx][1]
         self.mw.pm.setLang(code)
         showInfo(
@@ -102,7 +102,7 @@ class Preferences(QDialog):
     # Collection options
     ######################################################################
 
-    def setupCollection(self):
+    def setupCollection(self) -> None:
         import anki.consts as c
 
         f = self.form
@@ -130,7 +130,7 @@ class Preferences(QDialog):
             f.newSched.setChecked(True)
             f.new_timezone.setChecked(s.new_timezone)
 
-    def setup_video_driver(self):
+    def setup_video_driver(self) -> None:
         self.video_drivers = VideoDriver.all_for_platform()
         names = [
             tr(TR.PREFERENCES_VIDEO_DRIVER, driver=video_driver_name_for_platform(d))
@@ -141,13 +141,13 @@ class Preferences(QDialog):
             self.video_drivers.index(self.mw.pm.video_driver())
         )
 
-    def update_video_driver(self):
+    def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
         if new_driver != self.mw.pm.video_driver():
             self.mw.pm.set_video_driver(new_driver)
             showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
 
-    def updateCollection(self):
+    def updateCollection(self) -> None:
         f = self.form
         d = self.mw.col
 
@@ -176,7 +176,7 @@ class Preferences(QDialog):
     # Scheduler version
     ######################################################################
 
-    def _updateSchedVer(self, wantNew):
+    def _updateSchedVer(self, wantNew) -> None:
         haveNew = self.mw.col.schedVer() == 2
 
         # nothing to do?
@@ -194,7 +194,7 @@ class Preferences(QDialog):
     # Network
     ######################################################################
 
-    def setupNetwork(self):
+    def setupNetwork(self) -> None:
         self.form.media_log.setText(tr(TR.SYNC_MEDIA_LOG_BUTTON))
         qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
@@ -207,10 +207,10 @@ class Preferences(QDialog):
             qconnect(self.form.syncDeauth.clicked, self.onSyncDeauth)
         self.form.syncDeauth.setText(tr(TR.SYNC_LOG_OUT_BUTTON))
 
-    def on_media_log(self):
+    def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
 
-    def _hideAuth(self):
+    def _hideAuth(self) -> None:
         self.form.syncDeauth.setVisible(False)
         self.form.syncUser.setText("")
         self.form.syncLabel.setText(
@@ -225,7 +225,7 @@ class Preferences(QDialog):
         self.mw.col.media.force_resync()
         self._hideAuth()
 
-    def updateNetwork(self):
+    def updateNetwork(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
         self.mw.pm.set_auto_sync_media_minutes(
@@ -238,16 +238,16 @@ class Preferences(QDialog):
     # Backup
     ######################################################################
 
-    def setupBackup(self):
+    def setupBackup(self) -> None:
         self.form.numBackups.setValue(self.prof["numBackups"])
 
-    def updateBackup(self):
+    def updateBackup(self) -> None:
         self.prof["numBackups"] = self.form.numBackups.value()
 
     # Basic & Advanced Options
     ######################################################################
 
-    def setupOptions(self):
+    def setupOptions(self) -> None:
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
@@ -270,7 +270,7 @@ class Preferences(QDialog):
             self._recording_drivers.index(self.mw.pm.recording_driver())
         )
 
-    def updateOptions(self):
+    def updateOptions(self) -> None:
         restart_required = False
 
         self.prof["pastePNG"] = self.form.pastePNG.isChecked()

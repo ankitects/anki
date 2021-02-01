@@ -44,7 +44,7 @@ py_proto_library_typed = rule(
         "mypy_protobuf": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("//pylib/tools:mypy_protobuf"),
+            default = Label("//pylib/tools:protoc-gen-mypy"),
         ),
     },
 )

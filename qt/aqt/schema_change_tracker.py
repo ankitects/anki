@@ -17,10 +17,10 @@ class Change(enum.Enum):
 class ChangeTracker:
     _changed = Change.NO_CHANGE
 
-    def __init__(self, mw: AnkiQt):
+    def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
 
-    def mark_basic(self):
+    def mark_basic(self) -> None:
         if self._changed == Change.NO_CHANGE:
             self._changed = Change.BASIC_CHANGE
 

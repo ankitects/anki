@@ -12,6 +12,7 @@ import threading
 import time
 import traceback
 from http import HTTPStatus
+from typing import Tuple
 
 import flask
 import flask_cors  # type: ignore
@@ -26,7 +27,7 @@ from aqt.qt import *
 from aqt.utils import aqt_data_folder
 
 
-def _getExportFolder():
+def _getExportFolder() -> str:
     data_folder = aqt_data_folder()
     webInSrcFolder = os.path.abspath(os.path.join(data_folder, "web"))
     if os.path.exists(webInSrcFolder):
@@ -52,11 +53,11 @@ class MediaServer(threading.Thread):
     _ready = threading.Event()
     daemon = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs):
+    def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.is_shutdown = False
 
-    def run(self):
+    def run(self) -> None:
         try:
             if devMode:
                 # idempotent if logging has already been set up
@@ -83,7 +84,7 @@ class MediaServer(threading.Thread):
             if not self.is_shutdown:
                 raise
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.is_shutdown = True
         sockets = list(self.server._map.values())  # type: ignore
         for socket in sockets:
@@ -91,13 +92,13 @@ class MediaServer(threading.Thread):
         # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L93-L104
         self.server.task_dispatcher.shutdown()
 
-    def getPort(self):
+    def getPort(self) -> int:
         self._ready.wait()
         return int(self.server.effective_port)  # type: ignore
 
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
-def allroutes(pathin):
+def allroutes(pathin) -> Response:
     try:
         directory, path = _redirectWebExports(pathin)
     except TypeError:
@@ -171,7 +172,7 @@ def allroutes(pathin):
         )
 
 
-def _redirectWebExports(path):
+def _redirectWebExports(path) -> Tuple[str, str]:
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):

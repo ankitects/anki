@@ -18,9 +18,9 @@ sql_format_setup()
 
 exports_files([
     "tsconfig.json",
-    "d3_missing.d.ts",
     ".prettierrc",
     "rollup.config.js",
+    "rollup.aqt.config.js",
     ".eslintrc.js",
     "licenses.json",
     "sql_format.ts",

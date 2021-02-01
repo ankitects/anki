@@ -65,7 +65,7 @@ class AddCards(QDialog):
         )
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
 
-    def helpRequested(self):
+    def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
     def setupButtons(self) -> None:
@@ -137,7 +137,7 @@ class AddCards(QDialog):
     def removeTempNote(self, note: Note) -> None:
         print("removeTempNote() will go away")
 
-    def addHistory(self, note):
+    def addHistory(self, note: Note) -> None:
         self.history.insert(0, note.id)
         self.history = self.history[:15]
         self.historyButton.setEnabled(True)
@@ -161,7 +161,7 @@ class AddCards(QDialog):
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
-    def editHistory(self, nid):
+    def editHistory(self, nid) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(SearchTerm(nid=nid),))
 
     def addNote(self, note) -> Optional[Note]:
@@ -186,10 +186,10 @@ class AddCards(QDialog):
         gui_hooks.add_cards_did_add_note(note)
         return note
 
-    def addCards(self):
+    def addCards(self) -> None:
         self.editor.saveNow(self._addCards)
 
-    def _addCards(self):
+    def _addCards(self) -> None:
         self.editor.saveAddModeVars()
         if not self.addNote(self.editor.note):
             return
@@ -202,7 +202,7 @@ class AddCards(QDialog):
         self.onReset(keep=True)
         self.mw.col.autosave()
 
-    def keyPressEvent(self, evt):
+    def keyPressEvent(self, evt: QKeyEvent) -> None:
         "Show answer on RET or register answer."
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return) and self.editor.tags.hasFocus():
             evt.accept()
@@ -225,7 +225,7 @@ class AddCards(QDialog):
         QDialog.reject(self)
 
     def ifCanClose(self, onOk: Callable) -> None:
-        def afterSave():
+        def afterSave() -> None:
             ok = self.editor.fieldsAreBlank(self.previousNote) or askUser(
                 tr(TR.ADDING_CLOSE_AND_LOSE_CURRENT_INPUT), defaultno=True
             )
@@ -234,8 +234,8 @@ class AddCards(QDialog):
 
         self.editor.saveNow(afterSave)
 
-    def closeWithCallback(self, cb):
-        def doClose():
+    def closeWithCallback(self, cb) -> None:
+        def doClose() -> None:
             self._reject()
             cb()
 

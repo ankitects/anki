@@ -19,8 +19,9 @@ $ brew install rsync bazelisk
 
 **Install Python 3.8**:
 
-Install Python 3.8 from <https://python.org>. You may be able to use
-the Homebrew version instead, but this is untested.
+Install Python 3.8 from <https://python.org>. We have heard reports
+of issues with pyenv and homebrew, so the package from python.org is
+the only recommended approach.
 
 Python 3.9 is not currently recommended, as pylint does not support it yet.
 

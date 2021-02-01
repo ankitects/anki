@@ -28,14 +28,14 @@ class LogEntryWithTime:
 
 
 class MediaSyncer:
-    def __init__(self, mw: aqt.main.AnkiQt):
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
         self._syncing: bool = False
         self._log: List[LogEntryWithTime] = []
         self._progress_timer: Optional[QTimer] = None
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
-    def _on_progress(self):
+    def _on_progress(self) -> None:
         progress = self.mw.col.latest_progress()
         if progress.kind != ProgressKind.MediaSync:
             return
@@ -88,7 +88,7 @@ class MediaSyncer:
         else:
             self._log_and_notify(tr(TR.SYNC_MEDIA_COMPLETE))
 
-    def _handle_sync_error(self, exc: BaseException):
+    def _handle_sync_error(self, exc: BaseException) -> None:
         if isinstance(exc, Interrupted):
             self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTED))
             return
@@ -116,10 +116,10 @@ class MediaSyncer:
     def _on_start_stop(self, running: bool) -> None:
         self.mw.toolbar.set_sync_active(running)
 
-    def show_sync_log(self):
+    def show_sync_log(self) -> None:
         aqt.dialogs.open("sync_log", self.mw, self)
 
-    def show_diag_until_finished(self, on_finished: Callable[[], None]):
+    def show_diag_until_finished(self, on_finished: Callable[[], None]) -> None:
         # nothing to do if not syncing
         if not self.is_syncing():
             return on_finished()
@@ -129,7 +129,7 @@ class MediaSyncer:
 
         timer: Optional[QTimer] = None
 
-        def check_finished():
+        def check_finished() -> None:
             if not self.is_syncing():
                 timer.stop()
                 on_finished()
@@ -197,7 +197,7 @@ class MediaSyncDialog(QDialog):
         asctime = time.asctime(time.localtime(stamp))
         return f"{asctime}: {text}"
 
-    def _entry_to_text(self, entry: LogEntryWithTime):
+    def _entry_to_text(self, entry: LogEntryWithTime) -> str:
         if isinstance(entry.entry, str):
             txt = entry.entry
         elif isinstance(entry.entry, MediaSyncProgress):
@@ -209,7 +209,7 @@ class MediaSyncDialog(QDialog):
     def _logentry_to_text(self, e: MediaSyncProgress) -> str:
         return f"{e.added}, {e.removed}, {e.checked}"
 
-    def _on_log_entry(self, entry: LogEntryWithTime):
+    def _on_log_entry(self, entry: LogEntryWithTime) -> None:
         self.form.plainTextEdit.appendPlainText(self._entry_to_text(entry))
         if not self._syncer.is_syncing():
             self.abort_button.setHidden(True)

@@ -166,7 +166,7 @@ class Scheduler:
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
 
-    def _reset_counts(self):
+    def _reset_counts(self) -> None:
         tree = self.deck_due_tree(self.col.decks.selected())
         node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
         if not node:
@@ -187,7 +187,7 @@ class Scheduler:
         new, lrn, rev = counts
         return (new, lrn, rev)
 
-    def _is_finished(self):
+    def _is_finished(self) -> bool:
         "Don't use this, it is a stop-gap until this code is refactored."
         return not any((self.newCount, self.revCount, self._immediate_learn_count))
 
@@ -229,8 +229,12 @@ order by due"""
     ##########################################################################
 
     def update_stats(
-        self, deck_id: int, new_delta=0, review_delta=0, milliseconds_delta=0
-    ):
+        self,
+        deck_id: int,
+        new_delta: int = 0,
+        review_delta: int = 0,
+        milliseconds_delta: int = 0,
+    ) -> None:
         self.col._backend.update_stats(
             deck_id=deck_id,
             new_delta=new_delta,
@@ -321,7 +325,7 @@ order by due"""
         self._newQueue: List[int] = []
         self._updateNewCardRatio()
 
-    def _fillNew(self, recursing=False) -> bool:
+    def _fillNew(self, recursing: bool = False) -> bool:
         if self._newQueue:
             return True
         if not self.newCount:
@@ -841,7 +845,7 @@ and due <= ? limit ?)"""
     def _resetRev(self) -> None:
         self._revQueue: List[int] = []
 
-    def _fillRev(self, recursing=False) -> bool:
+    def _fillRev(self, recursing: bool = False) -> bool:
         "True if a review card can be fetched."
         if self._revQueue:
             return True
@@ -947,7 +951,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self._removeFromFiltered(card)
 
     def _logRev(self, card: Card, ease: int, delay: int, type: int) -> None:
-        def log():
+        def log() -> None:
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
                 int(time.time() * 1000),
@@ -1344,7 +1348,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             mode = BuryOrSuspendMode.BURY_SCHED
         self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
 
-    def bury_note(self, note: Note):
+    def bury_note(self, note: Note) -> None:
         self.bury_cards(note.card_ids())
 
     # legacy
@@ -1472,7 +1476,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     def orderCards(self, did: int) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=False)
 
-    def resortConf(self, conf) -> None:
+    def resortConf(self, conf: DeckConfig) -> None:
         for did in self.col.decks.didsForConf(conf):
             if conf["new"]["order"] == 0:
                 self.randomizeCards(did)

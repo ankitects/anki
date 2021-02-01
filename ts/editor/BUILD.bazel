@@ -1,0 +1,62 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+
+sass_binary(
+    name = "editor_css",
+    src = "editor.scss",
+    visibility = ["//visibility:public"],
+)
+
+sass_binary(
+    name = "editable_css",
+    src = "editable.scss",
+    visibility = ["//visibility:public"],
+)
+
+ts_library(
+    name = "editor_ts",
+    srcs = glob(["*.ts"]),
+    tsconfig = "//qt/aqt/data/web/js:tsconfig.json",
+    deps = [
+        "@npm//@types/jquery",
+    ],
+)
+
+rollup_bundle(
+    name = "editor",
+    config_file = "//ts:rollup.aqt.config.js",
+    entry_point = "index.ts",
+    format = "iife",
+    link_workspace_root = True,
+    silent = True,
+    sourcemap = "false",
+    visibility = ["//visibility:public"],
+    deps = [
+        "editor_ts",
+        "@npm//@rollup/plugin-commonjs",
+        "@npm//@rollup/plugin-node-resolve",
+        "@npm//rollup-plugin-terser",
+    ],
+)
+
+# Tests
+################
+
+prettier_test(
+    name = "format_check",
+    srcs = glob([
+        "*.ts",
+    ]),
+)
+
+# eslint_test(
+#     name = "eslint",
+#     srcs = glob(
+#         [
+#             "*.ts",
+#         ],
+#     ),
+# )
