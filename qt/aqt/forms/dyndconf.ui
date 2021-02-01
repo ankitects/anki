@@ -64,6 +64,9 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
        <widget class="QPushButton" name="search_button">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="toolTip">
          <string>SEARCH_VIEW_IN_BROWSER</string>
         </property>
@@ -125,6 +128,9 @@
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <widget class="QPushButton" name="search_button_2">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="toolTip">
          <string>SEARCH_VIEW_IN_BROWSER</string>
         </property>
