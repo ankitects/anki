@@ -71,7 +71,7 @@ class ExportDialog(QDialog):
             index = self.frm.deck.findText(name)
             self.frm.deck.setCurrentIndex(index)
 
-    def exporterChanged(self, idx):
+    def exporterChanged(self, idx: int) -> None:
         self.exporter = self.exporters[idx][1](self.col)
         self.isApkg = self.exporter.ext == ".apkg"
         self.isVerbatim = getattr(self.exporter, "verbatim", False)
@@ -94,7 +94,7 @@ class ExportDialog(QDialog):
         # show deck list?
         self.frm.deck.setVisible(not self.isVerbatim)
 
-    def accept(self):
+    def accept(self) -> None:
         self.exporter.includeSched = self.frm.includeSched.isChecked()
         self.exporter.includeMedia = self.frm.includeMedia.isChecked()
         self.exporter.includeTags = self.frm.includeTags.isChecked()
@@ -177,7 +177,7 @@ class ExportDialog(QDialog):
 
             self.mw.taskman.run_in_background(do_export, on_done)
 
-    def on_export_finished(self):
+    def on_export_finished(self) -> None:
         if self.isVerbatim:
             msg = tr(TR.EXPORTING_COLLECTION_EXPORTED)
             self.mw.reopen()

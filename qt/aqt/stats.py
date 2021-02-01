@@ -54,7 +54,7 @@ class NewDeckStats(QDialog):
         self.form.web.set_bridge_command(self._on_bridge_cmd, self)
         self.activateWindow()
 
-    def reject(self):
+    def reject(self) -> None:
         self.form.web = None
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("NewDeckStats")
@@ -98,14 +98,14 @@ class NewDeckStats(QDialog):
 
         return False
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.form.web.load_ts_page("graphs")
 
 
 class DeckStats(QDialog):
     """Legacy deck stats, used by some add-ons."""
 
-    def __init__(self, mw):
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -143,7 +143,7 @@ class DeckStats(QDialog):
         self.refresh()
         self.activateWindow()
 
-    def reject(self):
+    def reject(self) -> None:
         self.form.web = None
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("DeckStats")
@@ -173,15 +173,15 @@ class DeckStats(QDialog):
         self.form.web.page().printToPdf(path)
         tooltip(tr(TR.STATISTICS_SAVED))
 
-    def changePeriod(self, n):
+    def changePeriod(self, n: int) -> None:
         self.period = n
         self.refresh()
 
-    def changeScope(self, type):
+    def changeScope(self, type: str) -> None:
         self.wholeCollection = type == "collection"
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.mw.progress.start(parent=self)
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection

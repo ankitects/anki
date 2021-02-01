@@ -20,7 +20,7 @@ class ChangeTracker:
     def __init__(self, mw: AnkiQt):
         self.mw = mw
 
-    def mark_basic(self):
+    def mark_basic(self) -> None:
         if self._changed == Change.NO_CHANGE:
             self._changed = Change.BASIC_CHANGE
 

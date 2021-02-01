@@ -52,10 +52,10 @@ class EditCurrent(QDialog):
         tooltip("Please finish editing the existing card first.")
         self.onReset()
 
-    def reject(self):
+    def reject(self) -> None:
         self.saveAndClose()
 
-    def saveAndClose(self):
+    def saveAndClose(self) -> None:
         self.editor.saveNow(self._saveAndClose)
 
     def _saveAndClose(self) -> None:

@@ -8,7 +8,7 @@ import html
 import json
 import re
 import unicodedata as ucd
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
@@ -697,7 +697,7 @@ time = %(time)d;
     ##########################################################################
 
     # note the shortcuts listed here also need to be defined above
-    def _contextMenu(self):
+    def _contextMenu(self) -> List[Any]:
         currentFlag = self.card and self.card.userFlag()
         opts = [
             [

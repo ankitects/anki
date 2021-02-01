@@ -1141,7 +1141,7 @@ title="%s" %s>%s</button>""" % (
     # Cramming
     ##########################################################################
 
-    def onCram(self, search=""):
+    def onCram(self, search: str = "") -> None:
         import aqt.dyndeckconf
 
         n = 1

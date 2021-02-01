@@ -1,12 +1,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import aqt
 from anki.collection import SearchTerm
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
+from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -23,7 +24,13 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw, first=False, search="", deck=None):
+    def __init__(
+        self,
+        mw: AnkiQt,
+        first: bool = False,
+        search: str = "",
+        deck: Optional[Dict] = None,
+    ) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck or self.mw.col.decks.current()
@@ -65,7 +72,7 @@ class DeckConf(QDialog):
         self.exec_()
         saveGeom(self, "dyndeckconf")
 
-    def initialSetup(self):
+    def initialSetup(self) -> None:
         import anki.consts as cs
 
         self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
@@ -73,12 +80,12 @@ class DeckConf(QDialog):
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
-    def _onReschedToggled(self, _state):
+    def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(
             not self.form.resched.isChecked() and self.mw.col.schedVer() > 1
         )
 
-    def loadConf(self):
+    def loadConf(self) -> None:
         f = self.form
         d = self.deck
 
@@ -113,7 +120,7 @@ class DeckConf(QDialog):
             f.secondFilter.setChecked(False)
             f.filter2group.setVisible(False)
 
-    def saveConf(self):
+    def saveConf(self) -> None:
         f = self.form
         d = self.deck
         d["resched"] = f.resched.isChecked()
@@ -142,7 +149,7 @@ class DeckConf(QDialog):
         self.ok = False
         QDialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         try:
             self.saveConf()
         except InvalidInput as err:
