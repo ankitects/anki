@@ -16,15 +16,10 @@
         padding: 3px 10px;
         clear: both;
         font-weight: normal;
-        line-height: 1.42857143;
         color: #333;
         white-space: nowrap;
         margin:0;
         user-select: none;
-    }
-
-    .checkbox-item:active label {
-        background-color: #cbcbff;
     }
 
     .checkbox-item label:hover,
@@ -32,9 +27,8 @@
         background-color: #f5f5f5;
     }
 
-    .checkbox-item:active label:hover,
-    .checkbox-item:active label:focus {
-        background-color: #b8b8ff;
+    .checkbox-item:active label {
+        background-color: #0d6efd;
     }
 </style>
 
@@ -60,6 +54,9 @@
                 <input type="checkbox" class="btn-check" id="addMobileClass" autocomplete="off" bind={addMobileClass}>
                 <span>Add mobile class</span>
             </label>
+        </li>
+        <li class="dropdown-item">
+            <span>Replay audio</span>
         </li>
     </ul>
 </div>
