@@ -34,7 +34,7 @@ decorator==4.4.2
     # via -r requirements.in
 distro==1.5.0
     # via -r requirements.in
-flask-cors==3.0.9
+flask-cors==3.0.10
     # via -r requirements.in
 flask==1.1.2
     # via
@@ -54,7 +54,7 @@ isort==5.7.0
     #   pylint
 itsdangerous==1.1.0
     # via flask
-jinja2==2.11.2
+jinja2==2.11.3
     # via flask
 jsonschema==3.2.0
     # via -r requirements.in
@@ -72,13 +72,13 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy-protobuf==1.23
+mypy-protobuf==1.24
     # via -r requirements.in
-mypy==0.790
+mypy==0.800
     # via -r requirements.in
-orjson==3.4.6
+orjson==3.4.7
     # via -r requirements.in
-packaging==20.8
+packaging==20.9
     # via pytest
 pathspec==0.8.1
     # via black
@@ -102,7 +102,7 @@ pyrsistent==0.17.3
     # via jsonschema
 pysocks==1.7.1
     # via requests
-pytest==6.2.1
+pytest==6.2.2
     # via -r requirements.in
 pytoml==0.1.21
     # via compare-locales
@@ -142,7 +142,7 @@ typing-extensions==3.7.4.3
     # via
     #   black
     #   mypy
-urllib3==1.26.2
+urllib3==1.26.3
     # via requests
 waitress==2.0.0b1
     # via -r requirements.in
@@ -154,9 +154,9 @@ wrapt==1.12.1
     # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==20.3.3
+pip==21.0.1
     # via pip-tools
-setuptools==51.1.1
+setuptools==52.0.0
     # via jsonschema
 
 # manually added for now; ensure it and the earlier winrt are not removed on update
