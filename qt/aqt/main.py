@@ -14,7 +14,7 @@ import weakref
 import zipfile
 from argparse import Namespace
 from threading import Thread
-from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, cast
+from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, Union, cast
 
 import anki
 import aqt
@@ -71,6 +71,7 @@ install_pylib_legacy()
 
 
 class ResetReason(enum.Enum):
+    Unknown = "unknown"
     AddCardsAddNote = "addCardsAddNote"
     EditCurrentInit = "editCurrentInit"
     EditorBridgeCmd = "editorBridgeCmd"
@@ -510,12 +511,12 @@ class AnkiQt(QMainWindow):
 
         return True
 
-    def _loadCollection(self):
+    def _loadCollection(self) -> None:
         cpath = self.pm.collectionPath()
         self.col = Collection(cpath, backend=self.backend, log=True)
         self.setEnabled(True)
 
-    def reopen(self):
+    def reopen(self) -> None:
         self.col.reopen()
 
     def unloadCollection(self, onsuccess: Callable) -> None:
@@ -656,10 +657,10 @@ class AnkiQt(QMainWindow):
             return self.moveToState("deckBrowser")
         self.overview.show()
 
-    def _reviewState(self, oldState):
+    def _reviewState(self, oldState: str) -> None:
         self.reviewer.show()
 
-    def _reviewCleanup(self, newState):
+    def _reviewCleanup(self, newState: str) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
 
@@ -675,7 +676,12 @@ class AnkiQt(QMainWindow):
             self.maybeEnableUndo()
             self.moveToState(self.state)
 
-    def requireReset(self, modal=False, reason="unknown", context=None):
+    def requireReset(
+        self,
+        modal: bool = False,
+        reason: ResetReason = ResetReason.Unknown,
+        context: Any = None,
+    ) -> None:
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
@@ -684,7 +690,7 @@ class AnkiQt(QMainWindow):
         ):
             self.moveToState("resetRequired")
 
-    def interactiveState(self):
+    def interactiveState(self) -> bool:
         "True if not in profile manager, syncing, etc."
         return self.state in ("overview", "review", "deckBrowser")
 
@@ -823,7 +829,7 @@ title="%s" %s>%s</button>""" % (
             self.addonManager.loadAddons()
             self.maybe_check_for_addon_updates()
 
-    def maybe_check_for_addon_updates(self):
+    def maybe_check_for_addon_updates(self) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = intTime() - last_check
 
@@ -866,7 +872,7 @@ title="%s" %s>%s</button>""" % (
     # Syncing
     ##########################################################################
 
-    def on_sync_button_clicked(self):
+    def on_sync_button_clicked(self) -> None:
         if self.media_syncer.is_syncing():
             self.media_syncer.show_sync_log()
         else:
@@ -879,7 +885,7 @@ title="%s" %s>%s</button>""" % (
             else:
                 self._sync_collection_and_media(self._refresh_after_sync)
 
-    def _refresh_after_sync(self):
+    def _refresh_after_sync(self) -> None:
         self.toolbar.redraw()
 
     def _sync_collection_and_media(self, after_sync: Callable[[], None]):
@@ -1028,7 +1034,7 @@ title="%s" %s>%s</button>""" % (
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
-    def checkpoint(self, name):
+    def checkpoint(self, name: str) -> None:
         self.col.save(name)
         self.maybeEnableUndo()
 
@@ -1048,7 +1054,7 @@ title="%s" %s>%s</button>""" % (
         browser = aqt.dialogs.open("Browser", self)
         browser.show_single_card(self.reviewer.card)
 
-    def onEditCurrent(self):
+    def onEditCurrent(self) -> None:
         aqt.dialogs.open("EditCurrent", self)
 
     def onDeckConf(self, deck=None):
@@ -1067,7 +1073,7 @@ title="%s" %s>%s</button>""" % (
         self.col.reset()
         self.moveToState("overview")
 
-    def onStats(self):
+    def onStats(self) -> None:
         deck = self._selectedDeck()
         if not deck:
             return
@@ -1080,7 +1086,7 @@ title="%s" %s>%s</button>""" % (
     def onPrefs(self):
         aqt.dialogs.open("Preferences", self)
 
-    def onNoteTypes(self):
+    def onNoteTypes(self) -> None:
         import aqt.models
 
         aqt.models.Models(self, self, fromMain=True)
@@ -1107,12 +1113,12 @@ title="%s" %s>%s</button>""" % (
         aqt.importing.importFile(self, path)
         return None
 
-    def onImport(self):
+    def onImport(self) -> None:
         import aqt.importing
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did=None):
+    def onExport(self, did: Optional[int] = None) -> None:
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)
@@ -1229,7 +1235,7 @@ title="%s" %s>%s</button>""" % (
         elif self.state == "overview":
             self.overview.refresh()
 
-    def on_autosync_timer(self):
+    def on_autosync_timer(self) -> None:
         elap = self.media_syncer.seconds_since_last_sync()
         minutes = self.pm.auto_sync_media_minutes()
         if not minutes:
@@ -1295,7 +1301,7 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     # this will gradually be phased out
-    def onSchemaMod(self, arg):
+    def onSchemaMod(self, arg: bool) -> bool:
         assert self.inMainThread()
         progress_shown = self.progress.busy()
         if progress_shown:
@@ -1316,14 +1322,14 @@ title="%s" %s>%s</button>""" % (
     # Advanced features
     ##########################################################################
 
-    def onCheckDB(self):
+    def onCheckDB(self) -> None:
         check_db(self)
 
     def on_check_media_db(self) -> None:
         gui_hooks.media_check_will_start()
         check_media_db(self)
 
-    def onStudyDeck(self):
+    def onStudyDeck(self) -> None:
         from aqt.studydeck import StudyDeck
 
         ret = StudyDeck(self, dyn=True, current=self.col.decks.current()["name"])
@@ -1377,7 +1383,7 @@ title="%s" %s>%s</button>""" % (
                 a = menu.addAction("Clear Code")
                 a.setShortcuts(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
-            menu.exec(QCursor.pos())
+            menu.exec_(QCursor.pos())
 
         frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")
         frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")
