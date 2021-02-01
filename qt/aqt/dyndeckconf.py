@@ -10,6 +10,7 @@ from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
 from aqt import AnkiQt
 from aqt.qt import *
+from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
@@ -62,6 +63,12 @@ class DeckConf(QDialog):
         if search is not None:
             self.form.search.setText(search)
 
+        qconnect(self.form.search_button.clicked, self.on_search_button)
+        color = theme_manager.str_color("link")
+        self.setStyleSheet(
+            f"""QPushButton[flat=true] {{ text-align: left; color: {color}; padding: 0; border: 0 }}
+            QPushButton[flat=true]:hover {{ text-decoration: underline }}"""
+        )
         disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
         qconnect(
@@ -112,8 +119,6 @@ class DeckConf(QDialog):
         )
 
     def initialSetup(self):
-        qconnect(self.form.search_button.clicked, self.on_search_button)
-
         import anki.consts as cs
 
         self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
