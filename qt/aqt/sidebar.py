@@ -223,6 +223,21 @@ class FilterModel(QSortFilterProxyModel):
             return None
         return self.mapToSource(idx).internalPointer()
 
+    def _anyParentMatches(self, item: SidebarItem) -> bool:
+        if not item.parentItem:
+            return False
+        if self.parent().current_search.lower() in item.parentItem.name.lower():
+            return True
+        return self._anyParentMatches(item.parentItem)
+
+    def filterAcceptsRow(self, row: int, parent: QModelIndex) -> bool:
+        current_search = self.parent().current_search
+        if not current_search:
+            return False
+        current_search = current_search.lower()
+        item = self.sourceModel().index(row, 0, parent).internalPointer()
+        return current_search in item.name.lower() or self._anyParentMatches(item)
+
 
 class SidebarSearchBar(QLineEdit):
     def __init__(self, sidebar: SidebarTreeView) -> None:
@@ -339,7 +354,20 @@ class SidebarTreeView(QTreeView):
         # a better way than this?
         self.collapseAll()
         filter_model.setFilterFixedString(text)
-        self.expandAll()
+        self.expandMatches(self.rootIndex())
+
+    def expandMatches(self, parent: QModelIndex) -> bool:
+        "Expand match trees one level."
+        expand = False
+        for i in range(self.model().rowCount(parent)):
+            idx = self.model().index(i, 0, parent)
+            item = self.model().item_for_index(idx)
+            expandChild = self.expandMatches(idx) or (
+                bool(item) and self.current_search.lower() in item.name.lower()
+            )
+            expand |= expandChild
+            self.setExpanded(idx, expandChild)
+        return expand
 
     def drawRow(
         self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex
