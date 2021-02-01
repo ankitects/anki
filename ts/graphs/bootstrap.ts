@@ -8,8 +8,8 @@
 import type { SvelteComponent } from "svelte/internal";
 
 import { setupI18n } from "anki/i18n";
-import GraphsPage from "./GraphsPage.svelte";
 import { checkNightMode } from "anki/nightmode";
+import GraphsPage from "./GraphsPage.svelte";
 
 export { default as RangeBox } from "./RangeBox.svelte";
 
