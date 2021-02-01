@@ -71,6 +71,7 @@ class DeckConf(QDialog):
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
         self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
+        self.form.search.setFocus()
         self.form.search.selectAll()
         if self.mw.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
@@ -83,7 +84,8 @@ class DeckConf(QDialog):
     ):
         if search is not None:
             self.form.search.setText(search)
-        self.form.search.selectAll()
+            self.form.search.setFocus()
+            self.form.search.selectAll()
 
     def new_dyn_deck(self):
         suffix: int = 1
@@ -110,12 +112,24 @@ class DeckConf(QDialog):
         )
 
     def initialSetup(self):
+        qconnect(self.form.search_button.clicked, self.on_search_button)
+
         import anki.consts as cs
 
         self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
         self.form.order_2.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
+
+    def on_search_button(self):
+        try:
+            search = self.mw.col.build_search_string(self.form.search.text())
+        except InvalidInput as err:
+            self.form.search.setFocus()
+            self.form.search.selectAll()
+            show_invalid_search_error(err)
+        else:
+            aqt.dialogs.open("Browser", self.mw, search=(search,))
 
     def _onReschedToggled(self, _state: int):
         self.form.previewDelayWidget.setVisible(

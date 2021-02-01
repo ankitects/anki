@@ -548,7 +548,7 @@ class Editor:
                         first_field=self.note.fields[0],
                     )
                 ),
-            )
+            ),
         )
 
     def fieldsAreBlank(self, previousNote=None):
