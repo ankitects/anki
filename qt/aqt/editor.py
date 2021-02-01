@@ -538,11 +538,16 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        self.mw.browser_search(
-            SearchTerm(
-                dupe=SearchTerm.Dupe(
-                    notetype_id=self.note.model()["id"], first_field=self.note.fields[0]
-                )
+        aqt.dialogs.open(
+            "Browser",
+            self.mw,
+            search=(
+                SearchTerm(
+                    dupe=SearchTerm.Dupe(
+                        notetype_id=self.note.model()["id"],
+                        first_field=self.note.fields[0],
+                    )
+                ),
             )
         )
 
