@@ -100,10 +100,10 @@ class DeckConf(QDialog):
         search: Optional[str] = None,
         search_2: Optional[str] = None,
         _deck: Optional[Deck] = None,
-    ):
+    ) -> None:
         self.set_custom_searches(search, search_2)
 
-    def new_dyn_deck(self):
+    def new_dyn_deck(self) -> None:
         suffix: int = 1
         while self.mw.col.decks.id_for_name(
             without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
@@ -113,7 +113,7 @@ class DeckConf(QDialog):
         self.did = self.mw.col.decks.new_filtered(name)
         self.deck = self.mw.col.decks.current()
 
-    def set_default_searches(self, deck_name: str):
+    def set_default_searches(self, deck_name: str) -> None:
         self.form.search.setText(
             self.mw.col.build_search_string(
                 SearchTerm(deck=deck_name),
@@ -247,18 +247,19 @@ class DeckConf(QDialog):
         try:
             self.saveConf()
         except InvalidInput as err:
-            return show_invalid_search_error(err)
+            show_invalid_search_error(err)
         except DeckRenameError as err:
-            return showWarning(err.description)
-        if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
-            if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
-                return
-        saveGeom(self, "dyndeckconf")
-        self.mw.reset()
-        QDialog.accept(self)
-        aqt.dialogs.markClosed("DynDeckConfDialog")
+            showWarning(err.description)
+        else:
+            if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
+                if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
+                    return
+            saveGeom(self, "dyndeckconf")
+            self.mw.reset()
+            QDialog.accept(self)
+            aqt.dialogs.markClosed("DynDeckConfDialog")
 
-    def closeWithCallback(self, callback: Callable):
+    def closeWithCallback(self, callback: Callable) -> None:
         self.reject()
         callback()
 

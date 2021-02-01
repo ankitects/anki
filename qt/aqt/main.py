@@ -14,7 +14,7 @@ import weakref
 import zipfile
 from argparse import Namespace
 from threading import Thread
-from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, Union, cast
+from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, cast
 
 import anki
 import aqt
