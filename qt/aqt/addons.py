@@ -867,9 +867,10 @@ class AddonsDialog(QDialog):
     def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
             key = tr(TR.ADDONS_PACKAGED_ANKI_ADDON) + " (*{})".format(self.mgr.ext)
-            paths = getFile(
+            paths_ = getFile(
                 self, tr(TR.ADDONS_INSTALL_ADDONS), None, key, key="addons", multi=True
             )
+            paths = paths_  # type: ignore
             if not paths:
                 return False
 

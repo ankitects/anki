@@ -607,14 +607,14 @@ class CardLayout(QDialog):
         n = len(self.templates)
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
-        pos = getOnlyText(
+        pos_txt = getOnlyText(
             tr(TR.CARD_TEMPLATES_ENTER_NEW_CARD_POSITION_1, val=n),
             default=str(current_pos),
         )
-        if not pos:
+        if not pos_txt:
             return
         try:
-            pos = int(pos)
+            pos = int(pos_txt)
         except ValueError:
             return
         if pos < 1 or pos > n:
