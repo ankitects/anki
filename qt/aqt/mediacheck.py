@@ -136,7 +136,7 @@ class MediaChecker:
         diag.exec_()
         saveGeom(diag, "checkmediadb")
 
-    def _on_render_latex(self):
+    def _on_render_latex(self) -> None:
         self.progress_dialog = self.mw.progress.start()
         try:
             out = self.mw.col.media.render_all_latex(self._on_render_latex_progress)
@@ -160,7 +160,7 @@ class MediaChecker:
         self.mw.progress.update(tr(TR.MEDIA_CHECK_CHECKED, count=count))
         return True
 
-    def _on_trash_files(self, fnames: Sequence[str]):
+    def _on_trash_files(self, fnames: Sequence[str]) -> None:
         if not askUser(tr(TR.MEDIA_CHECK_DELETE_UNUSED_CONFIRM)):
             return
 
@@ -183,14 +183,14 @@ class MediaChecker:
 
         tooltip(tr(TR.MEDIA_CHECK_DELETE_UNUSED_COMPLETE, count=total))
 
-    def _on_empty_trash(self):
+    def _on_empty_trash(self) -> None:
         self.progress_dialog = self.mw.progress.start()
         self._set_progress_enabled(True)
 
-        def empty_trash():
+        def empty_trash() -> None:
             self.mw.col.media.empty_trash()
 
-        def on_done(fut: Future):
+        def on_done(fut: Future) -> None:
             self.mw.progress.finish()
             self._set_progress_enabled(False)
             # check for errors
@@ -200,14 +200,14 @@ class MediaChecker:
 
         self.mw.taskman.run_in_background(empty_trash, on_done)
 
-    def _on_restore_trash(self):
+    def _on_restore_trash(self) -> None:
         self.progress_dialog = self.mw.progress.start()
         self._set_progress_enabled(True)
 
-        def restore_trash():
+        def restore_trash() -> None:
             self.mw.col.media.restore_trash()
 
-        def on_done(fut: Future):
+        def on_done(fut: Future) -> None:
             self.mw.progress.finish()
             self._set_progress_enabled(False)
             # check for errors

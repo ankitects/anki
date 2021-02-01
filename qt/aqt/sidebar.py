@@ -6,7 +6,17 @@ from __future__ import annotations
 
 from concurrent.futures import Future
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    cast,
+)
 
 import aqt
 from anki.collection import ConfigBoolKey, SearchTerm
@@ -101,7 +111,7 @@ class SidebarModel(QAbstractItemModel):
         self.root = root
         self._cache_rows(root)
 
-    def _cache_rows(self, node: SidebarItem):
+    def _cache_rows(self, node: SidebarItem) -> None:
         "Cache index of children in parent."
         for row, item in enumerate(node.children):
             item.row_in_parent = row
@@ -168,12 +178,12 @@ class SidebarModel(QAbstractItemModel):
         else:
             return QVariant(theme_manager.icon_from_resources(item.icon))
 
-    def supportedDropActions(self):
-        return Qt.MoveAction
+    def supportedDropActions(self) -> Qt.DropActions:
+        return cast(Qt.DropActions, Qt.MoveAction)
 
-    def flags(self, index: QModelIndex):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if not index.isValid():
-            return Qt.ItemIsEnabled
+            return cast(Qt.ItemFlags, Qt.ItemIsEnabled)
         flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
         item: SidebarItem = index.internalPointer()
@@ -183,7 +193,7 @@ class SidebarModel(QAbstractItemModel):
         ):
             flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
 
-        return flags
+        return cast(Qt.ItemFlags, flags)
 
     # Helpers
     ######################################################################
@@ -193,7 +203,9 @@ class SidebarModel(QAbstractItemModel):
         return theme_manager.icon_from_resources(iconRef)
 
 
-def expand_where_necessary(model: SidebarModel, tree: QTreeView, parent=None) -> None:
+def expand_where_necessary(
+    model: SidebarModel, tree: QTreeView, parent: Optional[QModelIndex] = None
+) -> None:
     parent = parent or QModelIndex()
     for row in range(model.rowCount(parent)):
         idx = model.index(row, 0, parent)
@@ -213,7 +225,7 @@ class FilterModel(QSortFilterProxyModel):
 
 
 class SidebarSearchBar(QLineEdit):
-    def __init__(self, sidebar: SidebarTreeView):
+    def __init__(self, sidebar: SidebarTreeView) -> None:
         QLineEdit.__init__(self, sidebar)
         self.setPlaceholderText(sidebar.col.tr(TR.BROWSING_SIDEBAR_FILTER))
         self.sidebar = sidebar
@@ -223,14 +235,14 @@ class SidebarSearchBar(QLineEdit):
         qconnect(self.timer.timeout, self.onSearch)
         qconnect(self.textChanged, self.onTextChanged)
 
-    def onTextChanged(self, text: str):
+    def onTextChanged(self, text: str) -> None:
         if not self.timer.isActive():
             self.timer.start()
 
-    def onSearch(self):
+    def onSearch(self) -> None:
         self.sidebar.search_for(self.text())
 
-    def keyPressEvent(self, evt):
+    def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() in (Qt.Key_Up, Qt.Key_Down):
             self.sidebar.setFocus()
         elif evt.key() in (Qt.Key_Enter, Qt.Key_Return):
@@ -293,7 +305,7 @@ class SidebarTreeView(QTreeView):
         if not self.isVisible():
             return
 
-        def on_done(fut: Future):
+        def on_done(fut: Future) -> None:
             root = fut.result()
             model = SidebarModel(root)
 
@@ -308,7 +320,7 @@ class SidebarTreeView(QTreeView):
 
         self.mw.taskman.run_in_background(self._root_tree, on_done)
 
-    def search_for(self, text: str):
+    def search_for(self, text: str) -> None:
         if not text.strip():
             self.current_search = None
             self.refresh()
@@ -331,7 +343,7 @@ class SidebarTreeView(QTreeView):
 
     def drawRow(
         self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex
-    ):
+    ) -> None:
         if self.current_search is None:
             return super().drawRow(painter, options, idx)
         if not (item := self.model().item_for_index(idx)):
@@ -364,7 +376,7 @@ class SidebarTreeView(QTreeView):
         if not source_ids:
             return False
 
-        def on_done(fut):
+        def on_done(fut: Future) -> None:
             fut.result()
             self.refresh()
 
@@ -444,7 +456,7 @@ class SidebarTreeView(QTreeView):
         collapse_key: ConfigBoolKeyValue,
         type: Optional[SidebarItemType] = None,
     ) -> SidebarItem:
-        def update(expanded: bool):
+        def update(expanded: bool) -> None:
             self.col.set_config_bool(collapse_key, not expanded)
 
         top = SidebarItem(
@@ -486,7 +498,7 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.SAVED_SEARCH_ROOT,
         )
 
-        def on_click():
+        def on_click() -> None:
             self.show_context_menu(root, None)
 
         root.onClick = on_click
@@ -503,10 +515,12 @@ class SidebarTreeView(QTreeView):
     def _tag_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/tag.svg"
 
-        def render(root: SidebarItem, nodes: Iterable[TagTreeNode], head="") -> None:
+        def render(
+            root: SidebarItem, nodes: Iterable[TagTreeNode], head: str = ""
+        ) -> None:
             for node in nodes:
 
-                def toggle_expand():
+                def toggle_expand() -> Callable[[bool], None]:
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
                     return lambda expanded: self.mw.col.tags.set_collapsed(
                         full_name, not expanded
@@ -537,10 +551,12 @@ class SidebarTreeView(QTreeView):
     def _deck_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/deck.svg"
 
-        def render(root, nodes: Iterable[DeckTreeNode], head="") -> None:
+        def render(
+            root: SidebarItem, nodes: Iterable[DeckTreeNode], head: str = ""
+        ) -> None:
             for node in nodes:
 
-                def toggle_expand():
+                def toggle_expand() -> Callable[[bool], None]:
                     did = node.deck_id  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
 
@@ -613,7 +629,7 @@ class SidebarTreeView(QTreeView):
             return
         self.show_context_menu(item, idx)
 
-    def show_context_menu(self, item: SidebarItem, idx: Optional[QModelIndex]):
+    def show_context_menu(self, item: SidebarItem, idx: Optional[QModelIndex]) -> None:
         m = QMenu()
 
         if item.item_type in self.context_menus:
@@ -680,7 +696,8 @@ class SidebarTreeView(QTreeView):
         try:
             self.mw.col.decks.rename(deck, new_name)
         except DeckRenameError as e:
-            return showWarning(e.description)
+            showWarning(e.description)
+            return
         self.refresh()
         self.mw.deckBrowser.refresh()
 
@@ -690,11 +707,11 @@ class SidebarTreeView(QTreeView):
     def _remove_tag(self, item: "aqt.browser.SidebarItem") -> None:
         old_name = item.full_name
 
-        def do_remove():
+        def do_remove() -> None:
             self.mw.col.tags.remove(old_name)
             self.col.tags.rename(old_name, "")
 
-        def on_done(fut: Future):
+        def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
             self.browser.model.endReset()
             fut.result()
@@ -713,11 +730,11 @@ class SidebarTreeView(QTreeView):
         if new_name == old_name or not new_name:
             return
 
-        def do_rename():
+        def do_rename() -> int:
             self.mw.col.tags.remove(old_name)
             return self.col.tags.rename(old_name, new_name)
 
-        def on_done(fut: Future):
+        def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
             self.browser.model.endReset()
 
@@ -739,10 +756,10 @@ class SidebarTreeView(QTreeView):
         did = item.id
         if self.mw.deckBrowser.ask_delete_deck(did):
 
-            def do_delete():
+            def do_delete() -> None:
                 return self.mw.col.decks.rem(did, True)
 
-            def on_done(fut: Future):
+            def on_done(fut: Future) -> None:
                 self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
                 self.browser.search()
                 self.browser.model.endReset()
@@ -777,7 +794,7 @@ class SidebarTreeView(QTreeView):
         self.col.set_config("savedFilters", conf)
         self.refresh()
 
-    def save_current_search(self, _item=None) -> None:
+    def save_current_search(self, _item: Any = None) -> None:
         try:
             filt = self.col.build_search_string(
                 self.browser.form.searchEdit.lineEdit().text()

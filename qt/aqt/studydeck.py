@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from typing import Optional
+
 import aqt
 from aqt import gui_hooks
 from aqt.qt import *
@@ -109,7 +111,7 @@ class StudyDeck(QDialog):
                 return True
         return False
 
-    def redraw(self, filt, focus=None):
+    def redraw(self, filt: str, focus: Optional[str] = None) -> None:
         self.filt = filt
         self.focus = focus
         self.names = [n for n in self.origNames if self._matches(n, filt)]
@@ -123,7 +125,7 @@ class StudyDeck(QDialog):
         l.setCurrentRow(idx)
         l.scrollToItem(l.item(idx), QAbstractItemView.PositionAtCenter)
 
-    def _matches(self, name, filt):
+    def _matches(self, name: str, filt: str) -> bool:
         name = name.lower()
         filt = filt.lower()
         if not filt:
@@ -133,7 +135,7 @@ class StudyDeck(QDialog):
                 return False
         return True
 
-    def onReset(self):
+    def onReset(self) -> None:
         # model updated?
         if self.nameFunc:
             self.origNames = self.nameFunc()

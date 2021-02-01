@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("//qt/aqt/data/web/pages:defs.bzl", "copy_page")
 load("compile_sass.bzl", "compile_sass")
 
 compile_sass(
@@ -16,11 +17,21 @@ copy_file(
     out = "core.css",
 )
 
+copy_page(
+    name = "editor",
+    srcs = [
+        "editor.css",
+        "editable.css",
+    ],
+    package = "//ts/editor",
+)
+
 filegroup(
     name = "css",
     srcs = [
         "core.css",
         "css_local",
+        "editor",
     ],
     visibility = ["//qt:__subpackages__"],
 )

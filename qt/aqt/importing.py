@@ -9,12 +9,13 @@ import traceback
 import unicodedata
 import zipfile
 from concurrent.futures import Future
-from typing import Optional
+from typing import Any, Optional
 
 import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -34,7 +35,7 @@ from aqt.utils import (
 
 
 class ChangeMap(QDialog):
-    def __init__(self, mw: AnkiQt, model, current):
+    def __init__(self, mw: AnkiQt, model, current) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.model = model
@@ -59,11 +60,11 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n + 1)
         self.field: Optional[str] = None
 
-    def getField(self):
+    def getField(self) -> str:
         self.exec_()
         return self.field
 
-    def accept(self):
+    def accept(self) -> None:
         row = self.frm.fields.currentRow()
         if row < len(self.model["flds"]):
             self.field = self.model["flds"][row]["name"]
@@ -73,7 +74,7 @@ class ChangeMap(QDialog):
             self.field = None
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.accept()
 
 
@@ -106,19 +107,19 @@ class ImportDialog(QDialog):
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         self.exec_()
 
-    def setupOptions(self):
+    def setupOptions(self) -> None:
         self.model = self.mw.col.models.current()
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.mw, self.frm.modelArea, label=False
         )
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
-    def modelChanged(self, unused=None):
+    def modelChanged(self, unused: Any = None) -> None:
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
 
-    def onDelimiter(self):
+    def onDelimiter(self) -> None:
         str = (
             getOnlyText(
                 tr(TR.IMPORTING_BY_DEFAULT_ANKI_WILL_DETECT_THE),
@@ -135,14 +136,14 @@ class ImportDialog(QDialog):
             return
         self.hideMapping()
 
-        def updateDelim():
+        def updateDelim() -> None:
             self.importer.delimiter = str
             self.importer.updateDelimiter()
 
         self.showMapping(hook=updateDelim)
         self.updateDelimiterButtonText()
 
-    def updateDelimiterButtonText(self):
+    def updateDelimiterButtonText(self) -> None:
         if not self.importer.needDelimiter:
             return
         if self.importer.delimiter:
@@ -164,7 +165,7 @@ class ImportDialog(QDialog):
         txt = tr(TR.IMPORTING_FIELDS_SEPARATED_BY, val=d)
         self.frm.autoDetect.setText(txt)
 
-    def accept(self):
+    def accept(self) -> None:
         self.importer.mapping = self.mapping
         if not self.importer.mappingOk():
             showWarning(tr(TR.IMPORTING_THE_FIRST_FIELD_OF_THE_NOTE))
@@ -182,7 +183,7 @@ class ImportDialog(QDialog):
         self.mw.progress.start()
         self.mw.checkpoint(tr(TR.ACTIONS_IMPORT))
 
-        def on_done(future: Future):
+        def on_done(future: Future) -> None:
             self.mw.progress.finish()
 
             try:
@@ -211,19 +212,21 @@ class ImportDialog(QDialog):
 
         self.mw.taskman.run_in_background(self.importer.run, on_done)
 
-    def setupMappingFrame(self):
+    def setupMappingFrame(self) -> None:
         # qt seems to have a bug with adding/removing from a grid, so we add
         # to a separate object and add/remove that instead
         self.frame = QFrame(self.frm.mappingArea)
         self.frm.mappingArea.setWidget(self.frame)
         self.mapbox = QVBoxLayout(self.frame)
         self.mapbox.setContentsMargins(0, 0, 0, 0)
-        self.mapwidget = None
+        self.mapwidget: Optional[QWidget] = None
 
-    def hideMapping(self):
+    def hideMapping(self) -> None:
         self.frm.mappingGroup.hide()
 
-    def showMapping(self, keepMapping=False, hook=None):
+    def showMapping(
+        self, keepMapping: bool = False, hook: Optional[Callable] = None
+    ) -> None:
         if hook:
             hook()
         if not keepMapping:
@@ -255,7 +258,7 @@ class ImportDialog(QDialog):
             self.grid.addWidget(button, num, 2)
             qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
 
-    def changeMappingNum(self, n):
+    def changeMappingNum(self, n) -> None:
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
         try:
             # make sure we don't have it twice
@@ -267,7 +270,7 @@ class ImportDialog(QDialog):
         if getattr(self.importer, "delimiter", False):
             self.savedDelimiter = self.importer.delimiter
 
-            def updateDelim():
+            def updateDelim() -> None:
                 self.importer.delimiter = self.savedDelimiter
 
             self.showMapping(hook=updateDelim, keepMapping=True)
@@ -280,22 +283,22 @@ class ImportDialog(QDialog):
         gui_hooks.current_note_type_did_change.remove(self.modelChanged)
         QDialog.reject(self)
 
-    def helpRequested(self):
+    def helpRequested(self) -> None:
         openHelp(HelpPage.IMPORTING)
 
-    def importModeChanged(self, newImportMode):
+    def importModeChanged(self, newImportMode) -> None:
         if newImportMode == 0:
             self.frm.tagModified.setEnabled(True)
         else:
             self.frm.tagModified.setEnabled(False)
 
 
-def showUnicodeWarning():
+def showUnicodeWarning() -> None:
     """Shorthand to show a standard warning."""
     showWarning(tr(TR.IMPORTING_SELECTED_FILE_WAS_NOT_IN_UTF8))
 
 
-def onImport(mw):
+def onImport(mw: AnkiQt) -> None:
     filt = ";;".join([x[0] for x in importing.Importers])
     file = getFile(mw, tr(TR.ACTIONS_IMPORT), None, key="import", filter=filt)
     if not file:
@@ -314,7 +317,7 @@ def onImport(mw):
     importFile(mw, file)
 
 
-def importFile(mw, file):
+def importFile(mw: AnkiQt, file: str) -> None:
     importerClass = None
     done = False
     for i in importing.Importers:
@@ -371,7 +374,7 @@ def importFile(mw, file):
         # importing non-colpkg files
         mw.progress.start(immediate=True)
 
-        def on_done(future: Future):
+        def on_done(future: Future) -> None:
             mw.progress.finish()
             try:
                 future.result()
@@ -402,11 +405,11 @@ def importFile(mw, file):
         mw.taskman.run_in_background(importer.run, on_done)
 
 
-def invalidZipMsg():
+def invalidZipMsg() -> str:
     return tr(TR.IMPORTING_THIS_FILE_DOES_NOT_APPEAR_TO)
 
 
-def setupApkgImport(mw, importer):
+def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     base = os.path.basename(importer.file).lower()
     full = (
         (base == "collection.apkg")
@@ -424,16 +427,17 @@ def setupApkgImport(mw, importer):
         return False
 
     replaceWithApkg(mw, importer.file, mw.restoringBackup)
+    return False
 
 
-def replaceWithApkg(mw, file, backup):
+def replaceWithApkg(mw, file, backup) -> None:
     mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
 
 
-def _replaceWithApkg(mw, filename, backup):
+def _replaceWithApkg(mw, filename, backup) -> None:
     mw.progress.start(immediate=True)
 
-    def do_import():
+    def do_import() -> None:
         z = zipfile.ZipFile(filename)
 
         # v2 scheduler?
@@ -468,7 +472,7 @@ def _replaceWithApkg(mw, filename, backup):
 
         z.close()
 
-    def on_done(future: Future):
+    def on_done(future: Future) -> None:
         mw.progress.finish()
 
         try:

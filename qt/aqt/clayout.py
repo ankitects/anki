@@ -4,7 +4,7 @@
 import copy
 import json
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Match, Optional
 
 import aqt
 from anki.cards import Card
@@ -14,6 +14,7 @@ from anki.lang import without_unicode_isolation
 from anki.notes import Note
 from anki.template import TemplateRenderContext
 from aqt import AnkiQt, gui_hooks
+from aqt.forms.browserdisp import Ui_Dialog
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
@@ -90,7 +91,7 @@ class CardLayout(QDialog):
         # as users tend to accidentally type into the template
         self.setFocus()
 
-    def redraw_everything(self):
+    def redraw_everything(self) -> None:
         self.ignore_change_signals = True
         self.updateTopArea()
         self.ignore_change_signals = False
@@ -104,13 +105,13 @@ class CardLayout(QDialog):
         self.fill_fields_from_template()
         self.renderPreview()
 
-    def _isCloze(self):
+    def _isCloze(self) -> bool:
         return self.model["type"] == MODEL_CLOZE
 
     # Top area
     ##########################################################################
 
-    def setupTopArea(self):
+    def setupTopArea(self) -> None:
         self.topArea = QWidget()
         self.topArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
@@ -125,10 +126,10 @@ class CardLayout(QDialog):
         )
         self.topAreaForm.card_type_label.setText(tr(TR.CARD_TEMPLATES_CARD_TYPE))
 
-    def updateTopArea(self):
+    def updateTopArea(self) -> None:
         self.updateCardNames()
 
-    def updateCardNames(self):
+    def updateCardNames(self) -> None:
         self.ignore_change_signals = True
         combo = self.topAreaForm.templatesBox
         combo.clear()
@@ -139,7 +140,7 @@ class CardLayout(QDialog):
         combo.setEnabled(not self._isCloze())
         self.ignore_change_signals = False
 
-    def _summarizedName(self, idx: int, tmpl: Dict):
+    def _summarizedName(self, idx: int, tmpl: Dict) -> str:
         return "{}: {}: {} -> {}".format(
             idx + 1,
             tmpl["name"],
@@ -170,7 +171,7 @@ class CardLayout(QDialog):
             s += "+..."
         return s
 
-    def setupShortcuts(self):
+    def setupShortcuts(self) -> None:
         self.tform.front_button.setToolTip(shortcut("Ctrl+1"))
         self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
         self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
@@ -193,7 +194,7 @@ class CardLayout(QDialog):
     # Main area setup
     ##########################################################################
 
-    def setupMainArea(self):
+    def setupMainArea(self) -> None:
         split = self.mainArea = QSplitter()
         split.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         split.setOrientation(Qt.Horizontal)
@@ -216,7 +217,7 @@ class CardLayout(QDialog):
         split.addWidget(right)
         split.setCollapsible(1, False)
 
-    def setup_edit_area(self):
+    def setup_edit_area(self) -> None:
         tform = self.tform
 
         tform.front_button.setText(tr(TR.CARD_TEMPLATES_FRONT_TEMPLATE))
@@ -248,7 +249,7 @@ class CardLayout(QDialog):
         qconnect(widg.textChanged, self.on_search_changed)
         qconnect(widg.returnPressed, self.on_search_next)
 
-    def setup_cloze_number_box(self):
+    def setup_cloze_number_box(self) -> None:
         names = (tr(TR.CARD_TEMPLATES_CLOZE, val=n) for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
@@ -266,7 +267,7 @@ class CardLayout(QDialog):
         self.have_autoplayed = False
         self._renderPreview()
 
-    def on_editor_toggled(self):
+    def on_editor_toggled(self) -> None:
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
@@ -283,7 +284,7 @@ class CardLayout(QDialog):
 
         self.fill_fields_from_template()
 
-    def on_search_changed(self, text: str):
+    def on_search_changed(self, text: str) -> None:
         editor = self.tform.edit_area
         if not editor.find(text):
             # try again from top
@@ -293,11 +294,11 @@ class CardLayout(QDialog):
             if not editor.find(text):
                 tooltip("No matches found.")
 
-    def on_search_next(self):
+    def on_search_next(self) -> None:
         text = self.tform.search_edit.text()
         self.on_search_changed(text)
 
-    def setup_preview(self):
+    def setup_preview(self) -> None:
         pform = self.pform
         self.preview_web = AnkiWebView(title="card layout")
         pform.verticalLayout.addWidget(self.preview_web)
@@ -336,19 +337,19 @@ class CardLayout(QDialog):
             self.cloze_numbers = []
             self.pform.cloze_number_combo.setHidden(True)
 
-    def on_fill_empty_action_toggled(self):
+    def on_fill_empty_action_toggled(self) -> None:
         self.fill_empty_action_toggled = not self.fill_empty_action_toggled
         self.on_preview_toggled()
 
-    def on_night_mode_action_toggled(self):
+    def on_night_mode_action_toggled(self) -> None:
         self.night_mode_is_enabled = not self.night_mode_is_enabled
         self.on_preview_toggled()
 
-    def on_mobile_class_action_toggled(self):
+    def on_mobile_class_action_toggled(self) -> None:
         self.mobile_emulation_enabled = not self.mobile_emulation_enabled
         self.on_preview_toggled()
 
-    def on_preview_settings(self):
+    def on_preview_settings(self) -> None:
         m = QMenu(self)
 
         a = m.addAction(tr(TR.CARD_TEMPLATES_FILL_EMPTY))
@@ -370,7 +371,7 @@ class CardLayout(QDialog):
 
         m.exec_(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
 
-    def on_preview_toggled(self):
+    def on_preview_toggled(self) -> None:
         self.have_autoplayed = False
         self._renderPreview()
 
@@ -388,7 +389,7 @@ class CardLayout(QDialog):
     # Buttons
     ##########################################################################
 
-    def setupButtons(self):
+    def setupButtons(self) -> None:
         l = self.buttons = QHBoxLayout()
         help = QPushButton(tr(TR.ACTIONS_HELP))
         help.setAutoDefault(False)
@@ -424,7 +425,7 @@ class CardLayout(QDialog):
             return self.templates[0]
         return self.templates[self.ord]
 
-    def fill_fields_from_template(self):
+    def fill_fields_from_template(self) -> None:
         t = self.current_template()
         self.ignore_change_signals = True
 
@@ -438,7 +439,7 @@ class CardLayout(QDialog):
         self.tform.edit_area.setPlainText(text)
         self.ignore_change_signals = False
 
-    def write_edits_to_template_and_redraw(self):
+    def write_edits_to_template_and_redraw(self) -> None:
         if self.ignore_change_signals:
             return
 
@@ -458,14 +459,14 @@ class CardLayout(QDialog):
     # Preview
     ##########################################################################
 
-    _previewTimer = None
+    _previewTimer: Optional[QTimer] = None
 
-    def renderPreview(self):
+    def renderPreview(self) -> None:
         # schedule a preview when timing stops
         self.cancelPreviewTimer()
         self._previewTimer = self.mw.progress.timer(200, self._renderPreview, False)
 
-    def cancelPreviewTimer(self):
+    def cancelPreviewTimer(self) -> None:
         if self._previewTimer:
             self._previewTimer.stop()
             self._previewTimer = None
@@ -512,14 +513,14 @@ class CardLayout(QDialog):
 
         self.updateCardNames()
 
-    def maybeTextInput(self, txt, type="q"):
+    def maybeTextInput(self, txt: str, type: str = "q") -> str:
         if "[[type:" not in txt:
             return txt
         origLen = len(txt)
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
 
-        def answerRepl(match):
+        def answerRepl(match: Match) -> str:
             res = self.mw.reviewer.correct("exomple", "an example")
             if hadHR:
                 res = "<hr id=answer>" + res
@@ -555,14 +556,15 @@ class CardLayout(QDialog):
     # Card operations
     ######################################################################
 
-    def onRemove(self):
+    def onRemove(self) -> None:
         if len(self.templates) < 2:
-            return showInfo(tr(TR.CARD_TEMPLATES_AT_LEAST_ONE_CARD_TYPE_IS))
+            showInfo(tr(TR.CARD_TEMPLATES_AT_LEAST_ONE_CARD_TYPE_IS))
+            return
 
-        def get_count():
+        def get_count() -> int:
             return self.mm.template_use_count(self.model["id"], self.ord)
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             card_cnt = fut.result()
 
             template = self.current_template()
@@ -592,7 +594,7 @@ class CardLayout(QDialog):
 
         self.redraw_everything()
 
-    def onRename(self):
+    def onRename(self) -> None:
         template = self.current_template()
         name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=template["name"]).replace(
             '"', ""
@@ -603,18 +605,18 @@ class CardLayout(QDialog):
         template["name"] = name
         self.redraw_everything()
 
-    def onReorder(self):
+    def onReorder(self) -> None:
         n = len(self.templates)
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
-        pos = getOnlyText(
+        pos_txt = getOnlyText(
             tr(TR.CARD_TEMPLATES_ENTER_NEW_CARD_POSITION_1, val=n),
             default=str(current_pos),
         )
-        if not pos:
+        if not pos_txt:
             return
         try:
-            pos = int(pos)
+            pos = int(pos_txt)
         except ValueError:
             return
         if pos < 1 or pos > n:
@@ -628,7 +630,7 @@ class CardLayout(QDialog):
         self.ord = new_idx
         self.redraw_everything()
 
-    def _newCardName(self):
+    def _newCardName(self) -> str:
         n = len(self.templates) + 1
         while 1:
             name = without_unicode_isolation(tr(TR.CARD_TEMPLATES_CARD, val=n))
@@ -637,7 +639,7 @@ class CardLayout(QDialog):
             n += 1
         return name
 
-    def onAddCard(self):
+    def onAddCard(self) -> None:
         cnt = self.mw.col.models.useCount(self.model)
         txt = tr(TR.CARD_TEMPLATES_THIS_WILL_CREATE_CARD_PROCEED, count=cnt)
         if not askUser(txt):
@@ -653,12 +655,12 @@ class CardLayout(QDialog):
         self.ord = len(self.templates) - 1
         self.redraw_everything()
 
-    def onFlip(self):
+    def onFlip(self) -> None:
         old = self.current_template()
         self._flipQA(old, old)
         self.redraw_everything()
 
-    def _flipQA(self, src, dst):
+    def _flipQA(self, src, dst) -> None:
         m = re.match("(?s)(.+)<hr id=answer>(.+)", src["afmt"])
         if not m:
             showInfo(tr(TR.CARD_TEMPLATES_ANKI_COULDNT_FIND_THE_LINE_BETWEEN))
@@ -666,9 +668,8 @@ class CardLayout(QDialog):
         self.change_tracker.mark_basic()
         dst["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src["qfmt"]
         dst["qfmt"] = m.group(2).strip()
-        return True
 
-    def onMore(self):
+    def onMore(self) -> None:
         m = QMenu(self)
 
         if not self._isCloze():
@@ -699,7 +700,7 @@ class CardLayout(QDialog):
 
         m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
 
-    def onBrowserDisplay(self):
+    def onBrowserDisplay(self) -> None:
         d = QDialog()
         disable_help_button(d)
         f = aqt.forms.browserdisp.Ui_Dialog()
@@ -714,7 +715,7 @@ class CardLayout(QDialog):
         qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
         d.exec_()
 
-    def onBrowserDisplayOk(self, f):
+    def onBrowserDisplayOk(self, f: Ui_Dialog) -> None:
         t = self.current_template()
         self.change_tracker.mark_basic()
         t["bqfmt"] = f.qfmt.text().strip()
@@ -727,7 +728,7 @@ class CardLayout(QDialog):
                 if key in t:
                     del t[key]
 
-    def onTargetDeck(self):
+    def onTargetDeck(self) -> None:
         from aqt.tagedit import TagEdit
 
         t = self.current_template()
@@ -759,7 +760,7 @@ class CardLayout(QDialog):
         else:
             t["did"] = self.col.decks.id(te.text())
 
-    def onAddField(self):
+    def onAddField(self) -> None:
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
@@ -779,7 +780,7 @@ class CardLayout(QDialog):
                 form.size.value(),
             )
 
-    def _addField(self, field, font, size):
+    def _addField(self, field, font, size) -> None:
         text = self.tform.edit_area.toPlainText()
         text += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font,
@@ -794,10 +795,10 @@ class CardLayout(QDialog):
     ######################################################################
 
     def accept(self) -> None:
-        def save():
+        def save() -> None:
             self.mm.save(self.model)
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             try:
                 fut.result()
             except TemplateError as e:
@@ -828,5 +829,5 @@ class CardLayout(QDialog):
         self.rendered_card = None
         self.mw = None
 
-    def onHelp(self):
+    def onHelp(self) -> None:
         openHelp(HelpPage.TEMPLATES)

@@ -350,7 +350,7 @@ limit %d"""
         lastIvl = -(self._delayForGrade(conf, lastLeft))
         ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.left))
 
-        def log():
+        def log() -> None:
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
                 int(time.time() * 1000),
@@ -450,7 +450,7 @@ and due <= ? limit ?)""",
         self._revQueue: List[Any] = []
         self._revDids = self.col.decks.active()[:]
 
-    def _fillRev(self, recursing=False) -> bool:
+    def _fillRev(self, recursing: bool = False) -> bool:
         "True if a review card can be fetched."
         if self._revQueue:
             return True

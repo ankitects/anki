@@ -16,10 +16,10 @@ class Finder:
         self.col = col.weakref()
         print("Finder() is deprecated, please use col.find_cards() or .find_notes()")
 
-    def findCards(self, query, order):
+    def findCards(self, query: Any, order: Any) -> Any:
         return self.col.find_cards(query, order)
 
-    def findNotes(self, query):
+    def findNotes(self, query: Any) -> Any:
         return self.col.find_notes(query)
 
 
@@ -55,7 +55,7 @@ def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
 ##########################################################################
 
 
-def fieldNames(col, downcase=True) -> List:
+def fieldNames(col: Collection, downcase: bool = True) -> List:
     fields: Set[str] = set()
     for m in col.models.all():
         for f in m["flds"]:

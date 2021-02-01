@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from operator import itemgetter
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from PyQt5.QtWidgets import QLineEdit
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
+from anki.decks import DeckConfig
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
@@ -28,7 +29,7 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw: aqt.AnkiQt, deck: Dict):
+    def __init__(self, mw: aqt.AnkiQt, deck: Dict) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
@@ -60,7 +61,7 @@ class DeckConf(QDialog):
         self.exec_()
         saveGeom(self, "deckconf")
 
-    def setupCombos(self):
+    def setupCombos(self) -> None:
         import anki.consts as cs
 
         f = self.form
@@ -70,12 +71,12 @@ class DeckConf(QDialog):
     # Conf list
     ######################################################################
 
-    def setupConfs(self):
+    def setupConfs(self) -> None:
         qconnect(self.form.dconf.currentIndexChanged, self.onConfChange)
-        self.conf = None
+        self.conf: Optional[DeckConfig] = None
         self.loadConfs()
 
-    def loadConfs(self):
+    def loadConfs(self) -> None:
         current = self.deck["conf"]
         self.confList = self.mw.col.decks.allConf()
         self.confList.sort(key=itemgetter("name"))
@@ -92,7 +93,7 @@ class DeckConf(QDialog):
             self._origNewOrder = self.confList[startOn]["new"]["order"]
         self.onConfChange(startOn)
 
-    def confOpts(self):
+    def confOpts(self) -> None:
         m = QMenu(self.mw)
         a = m.addAction(tr(TR.ACTIONS_ADD))
         qconnect(a.triggered, self.addGroup)
@@ -106,7 +107,7 @@ class DeckConf(QDialog):
             a.setEnabled(False)
         m.exec_(QCursor.pos())
 
-    def onConfChange(self, idx):
+    def onConfChange(self, idx) -> None:
         if self.ignoreConfChange:
             return
         if self.conf:
@@ -159,7 +160,7 @@ class DeckConf(QDialog):
         self.saveConf()
         self.loadConfs()
 
-    def setChildren(self):
+    def setChildren(self) -> None:
         if not askUser(tr(TR.SCHEDULING_SET_ALL_DECKS_BELOW_TO, val=self.deck["name"])):
             return
         for did in self.childDids:
@@ -173,8 +174,8 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l):
-        def num_to_user(n: Union[int, float]):
+    def listToUser(self, l) -> str:
+        def num_to_user(n: Union[int, float]) -> str:
             if n == round(n):
                 return str(int(n))
             else:
@@ -182,7 +183,7 @@ class DeckConf(QDialog):
 
         return " ".join(map(num_to_user, l))
 
-    def parentLimText(self, type="new"):
+    def parentLimText(self, type="new") -> str:
         # top level?
         if "::" not in self.deck["name"]:
             return ""
@@ -196,7 +197,7 @@ class DeckConf(QDialog):
                 lim = min(x, lim)
         return tr(TR.SCHEDULING_PARENT_LIMIT, val=lim)
 
-    def loadConf(self):
+    def loadConf(self) -> None:
         self.conf = self.mw.col.decks.confForDid(self.deck["id"])
         # new
         c = self.conf["new"]
@@ -238,7 +239,7 @@ class DeckConf(QDialog):
         f.desc.setPlainText(self.deck["desc"])
         gui_hooks.deck_conf_did_load_config(self, self.deck, self.conf)
 
-    def onRestore(self):
+    def onRestore(self) -> None:
         self.mw.progress.start()
         self.mw.col.decks.restoreToDefault(self.conf)
         self.mw.progress.finish()
@@ -247,7 +248,7 @@ class DeckConf(QDialog):
     # New order
     ##################################################
 
-    def onNewOrderChanged(self, new):
+    def onNewOrderChanged(self, new) -> None:
         old = self.conf["new"]["order"]
         if old == new:
             return
@@ -280,7 +281,7 @@ class DeckConf(QDialog):
             return
         conf[key] = ret
 
-    def saveConf(self):
+    def saveConf(self) -> None:
         # new
         c = self.conf["new"]
         f = self.form
@@ -324,10 +325,10 @@ class DeckConf(QDialog):
         self.mw.col.decks.save(self.deck)
         self.mw.col.decks.save(self.conf)
 
-    def reject(self):
+    def reject(self) -> None:
         self.accept()
 
-    def accept(self):
+    def accept(self) -> None:
         self.saveConf()
         self.mw.reset()
         QDialog.accept(self)

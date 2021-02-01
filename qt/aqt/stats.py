@@ -25,7 +25,7 @@ from aqt.utils import (
 class NewDeckStats(QDialog):
     """New deck stats."""
 
-    def __init__(self, mw: aqt.main.AnkiQt):
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -54,17 +54,17 @@ class NewDeckStats(QDialog):
         self.form.web.set_bridge_command(self._on_bridge_cmd, self)
         self.activateWindow()
 
-    def reject(self):
+    def reject(self) -> None:
         self.form.web = None
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("NewDeckStats")
         QDialog.reject(self)
 
-    def closeWithCallback(self, callback):
+    def closeWithCallback(self, callback) -> None:
         self.reject()
         callback()
 
-    def _imagePath(self):
+    def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
         name = "anki-" + tr(TR.STATISTICS_STATS) + name
         file = getSaveFile(
@@ -77,17 +77,17 @@ class NewDeckStats(QDialog):
         )
         return file
 
-    def saveImage(self):
+    def saveImage(self) -> None:
         path = self._imagePath()
         if not path:
             return
         self.form.web.page().printToPdf(path)
         tooltip(tr(TR.STATISTICS_SAVED))
 
-    def changePeriod(self, n):
+    def changePeriod(self, n) -> None:
         pass
 
-    def changeScope(self, type):
+    def changeScope(self, type) -> None:
         pass
 
     def _on_bridge_cmd(self, cmd: str) -> bool:
@@ -98,14 +98,14 @@ class NewDeckStats(QDialog):
 
         return False
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.form.web.load_ts_page("graphs")
 
 
 class DeckStats(QDialog):
     """Legacy deck stats, used by some add-ons."""
 
-    def __init__(self, mw):
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -143,17 +143,17 @@ class DeckStats(QDialog):
         self.refresh()
         self.activateWindow()
 
-    def reject(self):
+    def reject(self) -> None:
         self.form.web = None
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("DeckStats")
         QDialog.reject(self)
 
-    def closeWithCallback(self, callback):
+    def closeWithCallback(self, callback) -> None:
         self.reject()
         callback()
 
-    def _imagePath(self):
+    def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
         name = "anki-" + tr(TR.STATISTICS_STATS) + name
         file = getSaveFile(
@@ -166,22 +166,22 @@ class DeckStats(QDialog):
         )
         return file
 
-    def saveImage(self):
+    def saveImage(self) -> None:
         path = self._imagePath()
         if not path:
             return
         self.form.web.page().printToPdf(path)
         tooltip(tr(TR.STATISTICS_SAVED))
 
-    def changePeriod(self, n):
+    def changePeriod(self, n: int) -> None:
         self.period = n
         self.refresh()
 
-    def changeScope(self, type):
+    def changeScope(self, type: str) -> None:
         self.wholeCollection = type == "collection"
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.mw.progress.start(parent=self)
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection

@@ -17,8 +17,8 @@ components enabled on the right.
 
 **Python 3.8**:
 
-Download Python 3.8 from <https://python.org>. Run the installer, and
-customize the installation. Select "install for all users", and choose
+Download the 64 bit Python 3.8 from <https://python.org>. Run the installer,
+and customize the installation. Select "install for all users", and choose
 the install path as c:\python. Currently the build scripts require
 Python to be installed in that location.
 

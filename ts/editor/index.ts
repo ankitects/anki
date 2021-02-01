@@ -1,12 +1,25 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+import { filterHTML } from "./filterHtml";
+import { nodeIsElement, nodeIsInline } from "./helpers";
+import { bridgeCommand } from "./lib";
+
 let currentField: EditingArea | null = null;
 let changeTimer: number | null = null;
 let currentNoteId: number | null = null;
 
-declare interface String {
-    format(...args: string[]): string;
+declare global {
+    interface String {
+        format(...args: string[]): string;
+    }
+
+    interface Selection {
+        modify(s: string, t: string, u: string): void;
+        addRange(r: Range): void;
+        removeAllRanges(): void;
+        getRangeAt(n: number): Range;
+    }
 }
 
 /* kept for compatibility with add-ons */
@@ -18,11 +31,11 @@ String.prototype.format = function (...args: string[]): string {
     });
 };
 
-function setFGButton(col: string): void {
+export function setFGButton(col: string): void {
     document.getElementById("forecolor").style.backgroundColor = col;
 }
 
-function saveNow(keepFocus: boolean): void {
+export function saveNow(keepFocus: boolean): void {
     if (!currentField) {
         return;
     }
@@ -43,10 +56,6 @@ function triggerKeyTimer(): void {
         updateButtonState();
         saveField("key");
     }, 600);
-}
-
-interface Selection {
-    modify(s: string, t: string, u: string): void;
 }
 
 function onKey(evt: KeyboardEvent): void {
@@ -100,72 +109,6 @@ function onKeyUp(evt: KeyboardEvent): void {
     }
 }
 
-function nodeIsElement(node: Node): node is Element {
-    return node.nodeType === Node.ELEMENT_NODE;
-}
-
-const INLINE_TAGS = [
-    "A",
-    "ABBR",
-    "ACRONYM",
-    "AUDIO",
-    "B",
-    "BDI",
-    "BDO",
-    "BIG",
-    "BR",
-    "BUTTON",
-    "CANVAS",
-    "CITE",
-    "CODE",
-    "DATA",
-    "DATALIST",
-    "DEL",
-    "DFN",
-    "EM",
-    "EMBED",
-    "I",
-    "IFRAME",
-    "IMG",
-    "INPUT",
-    "INS",
-    "KBD",
-    "LABEL",
-    "MAP",
-    "MARK",
-    "METER",
-    "NOSCRIPT",
-    "OBJECT",
-    "OUTPUT",
-    "PICTURE",
-    "PROGRESS",
-    "Q",
-    "RUBY",
-    "S",
-    "SAMP",
-    "SCRIPT",
-    "SELECT",
-    "SLOT",
-    "SMALL",
-    "SPAN",
-    "STRONG",
-    "SUB",
-    "SUP",
-    "SVG",
-    "TEMPLATE",
-    "TEXTAREA",
-    "TIME",
-    "U",
-    "TT",
-    "VAR",
-    "VIDEO",
-    "WBR",
-];
-
-function nodeIsInline(node: Node): boolean {
-    return !nodeIsElement(node) || INLINE_TAGS.includes(node.tagName);
-}
-
 function inListItem(): boolean {
     const anchor = currentField.getSelection().anchorNode;
 
@@ -179,7 +122,7 @@ function inListItem(): boolean {
     return inList;
 }
 
-function insertNewline(): void {
+export function insertNewline(): void {
     if (!inPreEnvironment()) {
         setFormat("insertText", "\n");
         return;
@@ -228,12 +171,12 @@ function updateButtonState(): void {
     //    'col': document.queryCommandValue("forecolor")
 }
 
-function toggleEditorButton(buttonid: string): void {
+export function toggleEditorButton(buttonid: string): void {
     const button = $(buttonid)[0];
     button.classList.toggle("highlighted");
 }
 
-function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
+export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField("key");
@@ -256,7 +199,7 @@ function onFocus(evt: FocusEvent): void {
     }
     elem.focusEditable();
     currentField = elem;
-    pycmd(`focus:${currentField.ord}`);
+    bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
     // do this twice so that there's no flicker on newer versions
     caretToEnd();
@@ -279,7 +222,7 @@ function onFocus(evt: FocusEvent): void {
     }
 }
 
-function focusField(n: number): void {
+export function focusField(n: number): void {
     const field = getEditorField(n);
 
     if (field) {
@@ -287,7 +230,7 @@ function focusField(n: number): void {
     }
 }
 
-function focusIfField(x: number, y: number): boolean {
+export function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
         let elem = elements[i] as EditingArea;
@@ -303,7 +246,7 @@ function focusIfField(x: number, y: number): boolean {
 }
 
 function onPaste(): void {
-    pycmd("paste");
+    bridgeCommand("paste");
     window.event.preventDefault();
 }
 
@@ -353,7 +296,9 @@ function saveField(type: "blur" | "key"): void {
         return;
     }
 
-    pycmd(`${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`);
+    bridgeCommand(
+        `${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`
+    );
 }
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
@@ -361,7 +306,7 @@ function wrappedExceptForWhitespace(text: string, front: string, back: string): 
     return match[1] + front + match[2] + back + match[3];
 }
 
-function preventButtonFocus(): void {
+export function preventButtonFocus(): void {
     for (const element of document.querySelectorAll("button.linkb")) {
         element.addEventListener("mousedown", (evt: Event) => {
             evt.preventDefault();
@@ -386,7 +331,7 @@ function maybeDisableButtons(): void {
     }
 }
 
-function wrap(front: string, back: string): void {
+export function wrap(front: string, back: string): void {
     wrapInternal(front, back, false);
 }
 
@@ -419,7 +364,7 @@ function wrapInternal(front: string, back: string, plainText: boolean): void {
 }
 
 function onCutOrCopy(): boolean {
-    pycmd("cutOrCopy");
+    bridgeCommand("cutOrCopy");
     return true;
 }
 
@@ -606,12 +551,12 @@ function adjustFieldAmount(amount: number): void {
     }
 }
 
-function getEditorField(n: number): EditorField | null {
+export function getEditorField(n: number): EditorField | null {
     const fields = document.getElementById("fields").children;
     return (fields[n] as EditorField) ?? null;
 }
 
-function forEditorField<T>(
+export function forEditorField<T>(
     values: T[],
     func: (field: EditorField, value: T) => void
 ): void {
@@ -622,7 +567,7 @@ function forEditorField<T>(
     }
 }
 
-function setFields(fields: [string, string][]): void {
+export function setFields(fields: [string, string][]): void {
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
     const color = window
@@ -637,7 +582,7 @@ function setFields(fields: [string, string][]): void {
     maybeDisableButtons();
 }
 
-function setBackgrounds(cols: ("dupe" | "")[]) {
+export function setBackgrounds(cols: ("dupe" | "")[]) {
     forEditorField(cols, (field, value) =>
         field.editingArea.classList.toggle("dupe", value === "dupe")
     );
@@ -646,17 +591,17 @@ function setBackgrounds(cols: ("dupe" | "")[]) {
         .classList.toggle("is-inactive", !cols.includes("dupe"));
 }
 
-function setFonts(fonts: [string, number, boolean][]): void {
+export function setFonts(fonts: [string, number, boolean][]): void {
     forEditorField(fonts, (field, [fontFamily, fontSize, isRtl]) => {
         field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
     });
 }
 
-function setNoteId(id: number): void {
+export function setNoteId(id: number): void {
     currentNoteId = id;
 }
 
-let pasteHTML = function (
+export let pasteHTML = function (
     html: string,
     internal: boolean,
     extendedMode: boolean
@@ -665,174 +610,5 @@ let pasteHTML = function (
 
     if (html !== "") {
         setFormat("inserthtml", html);
-    }
-};
-
-let filterHTML = function (
-    html: string,
-    internal: boolean,
-    extendedMode: boolean
-): string {
-    // wrap it in <top> as we aren't allowed to change top level elements
-    const top = document.createElement("ankitop");
-    top.innerHTML = html;
-
-    if (internal) {
-        filterInternalNode(top);
-    } else {
-        filterNode(top, extendedMode);
-    }
-    let outHtml = top.innerHTML;
-    if (!extendedMode && !internal) {
-        // collapse whitespace
-        outHtml = outHtml.replace(/[\n\t ]+/g, " ");
-    }
-    outHtml = outHtml.trim();
-    return outHtml;
-};
-
-let allowedTagsBasic = {};
-let allowedTagsExtended = {};
-
-let TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP"];
-for (const tag of TAGS_WITHOUT_ATTRS) {
-    allowedTagsBasic[tag] = { attrs: [] };
-}
-
-TAGS_WITHOUT_ATTRS = [
-    "B",
-    "BLOCKQUOTE",
-    "CODE",
-    "DD",
-    "DL",
-    "DT",
-    "EM",
-    "H1",
-    "H2",
-    "H3",
-    "I",
-    "LI",
-    "OL",
-    "PRE",
-    "RP",
-    "RT",
-    "RUBY",
-    "STRONG",
-    "TABLE",
-    "U",
-    "UL",
-];
-for (const tag of TAGS_WITHOUT_ATTRS) {
-    allowedTagsExtended[tag] = { attrs: [] };
-}
-
-allowedTagsBasic["IMG"] = { attrs: ["SRC"] };
-
-allowedTagsExtended["A"] = { attrs: ["HREF"] };
-allowedTagsExtended["TR"] = { attrs: ["ROWSPAN"] };
-allowedTagsExtended["TD"] = { attrs: ["COLSPAN", "ROWSPAN"] };
-allowedTagsExtended["TH"] = { attrs: ["COLSPAN", "ROWSPAN"] };
-allowedTagsExtended["FONT"] = { attrs: ["COLOR"] };
-
-const allowedStyling = {
-    color: true,
-    "background-color": true,
-    "font-weight": true,
-    "font-style": true,
-    "text-decoration-line": true,
-};
-
-let isNightMode = function (): boolean {
-    return document.body.classList.contains("nightMode");
-};
-
-let filterExternalSpan = function (elem: HTMLElement) {
-    // filter out attributes
-    for (const attr of [...elem.attributes]) {
-        const attrName = attr.name.toUpperCase();
-
-        if (attrName !== "STYLE") {
-            elem.removeAttributeNode(attr);
-        }
-    }
-
-    // filter styling
-    for (const name of [...elem.style]) {
-        const value = elem.style.getPropertyValue(name);
-
-        if (
-            !allowedStyling.hasOwnProperty(name) ||
-            // google docs adds this unnecessarily
-            (name === "background-color" && value === "transparent") ||
-            // ignore coloured text in night mode for now
-            (isNightMode() && (name === "background-color" || name === "color"))
-        ) {
-            elem.style.removeProperty(name);
-        }
-    }
-};
-
-allowedTagsExtended["SPAN"] = filterExternalSpan;
-
-// add basic tags to extended
-Object.assign(allowedTagsExtended, allowedTagsBasic);
-
-function isHTMLElement(elem: Element): elem is HTMLElement {
-    return elem instanceof HTMLElement;
-}
-
-// filtering from another field
-let filterInternalNode = function (elem: Element) {
-    if (isHTMLElement(elem)) {
-        elem.style.removeProperty("background-color");
-        elem.style.removeProperty("font-size");
-        elem.style.removeProperty("font-family");
-    }
-    // recurse
-    for (let i = 0; i < elem.children.length; i++) {
-        const child = elem.children[i];
-        filterInternalNode(child);
-    }
-};
-
-// filtering from external sources
-let filterNode = function (node: Node, extendedMode: boolean): void {
-    if (!nodeIsElement(node)) {
-        return;
-    }
-
-    // descend first, and take a copy of the child nodes as the loop will skip
-    // elements due to node modifications otherwise
-    for (const child of [...node.children]) {
-        filterNode(child, extendedMode);
-    }
-
-    if (node.tagName === "ANKITOP") {
-        return;
-    }
-
-    const tag = extendedMode
-        ? allowedTagsExtended[node.tagName]
-        : allowedTagsBasic[node.tagName];
-
-    if (!tag) {
-        if (!node.innerHTML || node.tagName === "TITLE") {
-            node.parentNode.removeChild(node);
-        } else {
-            node.outerHTML = node.innerHTML;
-        }
-    } else {
-        if (typeof tag === "function") {
-            // filtering function provided
-            tag(node);
-        } else {
-            // allowed, filter out attributes
-            for (const attr of [...node.attributes]) {
-                const attrName = attr.name.toUpperCase();
-                if (tag.attrs.indexOf(attrName) === -1) {
-                    node.removeAttributeNode(attr);
-                }
-            }
-        }
     }
 };

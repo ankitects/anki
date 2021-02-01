@@ -8,6 +8,7 @@ import enum
 import os
 import pprint
 import re
+import sys
 import time
 import traceback
 import weakref
@@ -107,7 +108,7 @@ class Collection:
 
     @property
     def backend(self) -> RustBackend:
-        traceback.print_stack()
+        traceback.print_stack(file=sys.stdout)
         print()
         print(
             "Accessing the backend directly will break in the future. Please use the public methods on Collection instead."
@@ -280,7 +281,7 @@ class Collection:
         self.db.rollback()
         self.db.begin()
 
-    def reopen(self, after_full_sync=False) -> None:
+    def reopen(self, after_full_sync: bool = False) -> None:
         assert not self.db
         assert self.path.endswith(".anki2")
 
@@ -409,7 +410,7 @@ class Collection:
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]):
+    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]) -> None:
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
@@ -505,7 +506,7 @@ class Collection:
         dupes = []
         fields: Dict[int, int] = {}
 
-        def ordForMid(mid):
+        def ordForMid(mid: int) -> int:
             if mid not in fields:
                 model = self.models.get(mid)
                 for c, f in enumerate(model["flds"]):
@@ -539,7 +540,10 @@ class Collection:
     ##########################################################################
 
     def build_search_string(
-        self, *terms: Union[str, SearchTerm], negate=False, match_any=False
+        self,
+        *terms: Union[str, SearchTerm],
+        negate: bool = False,
+        match_any: bool = False,
     ) -> str:
         """Helper function for the backend's search string operations.
 
@@ -576,11 +580,11 @@ class Collection:
         except KeyError:
             return default
 
-    def set_config(self, key: str, val: Any):
+    def set_config(self, key: str, val: Any) -> None:
         self.setMod()
         self.conf.set(key, val)
 
-    def remove_config(self, key):
+    def remove_config(self, key: str) -> None:
         self.setMod()
         self.conf.remove(key)
 
@@ -779,11 +783,11 @@ table.review-log {{ {revlog_style} }}
     # Logging
     ##########################################################################
 
-    def log(self, *args, **kwargs) -> None:
+    def log(self, *args: Any, **kwargs: Any) -> None:
         if not self._should_log:
             return
 
-        def customRepr(x):
+        def customRepr(x: Any) -> str:
             if isinstance(x, str):
                 return x
             return pprint.pformat(x)
@@ -865,7 +869,7 @@ table.review-log {{ {revlog_style} }}
     def get_preferences(self) -> Preferences:
         return self._backend.get_preferences()
 
-    def set_preferences(self, prefs: Preferences):
+    def set_preferences(self, prefs: Preferences) -> None:
         self._backend.set_preferences(prefs)
 
 

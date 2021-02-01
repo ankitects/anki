@@ -3,14 +3,17 @@
 from typing import List, Optional
 
 import aqt
+from aqt.customstudy import CustomStudy
+from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.utils import disable_help_button, restoreGeom, saveGeom
 
 
 class TagLimit(QDialog):
-    def __init__(self, mw, parent):
+    def __init__(self, mw: AnkiQt, parent: CustomStudy) -> None:
         QDialog.__init__(self, parent, Qt.Window)
-        self.tags: Union[str, List] = ""
+        self.tags: str = ""
+        self.tags_list: List[str] = []
         self.mw = mw
         self.parent: Optional[QWidget] = parent
         self.deck = self.parent.deck
@@ -29,7 +32,7 @@ class TagLimit(QDialog):
         restoreGeom(self, "tagLimit")
         self.exec_()
 
-    def rebuildTagList(self):
+    def rebuildTagList(self) -> None:
         usertags = self.mw.col.tags.byDeck(self.deck["id"], True)
         yes = self.deck.get("activeTags", [])
         no = self.deck.get("inactiveTags", [])
@@ -42,10 +45,10 @@ class TagLimit(QDialog):
         groupedTags = []
         usertags.sort()
         groupedTags.append(usertags)
-        self.tags = []
+        self.tags_list = []
         for tags in groupedTags:
             for t in tags:
-                self.tags.append(t)
+                self.tags_list.append(t)
                 item = QListWidgetItem(t.replace("_", " "))
                 self.dialog.activeList.addItem(item)
                 if t in yesHash:
@@ -65,11 +68,11 @@ class TagLimit(QDialog):
                 idx = self.dialog.inactiveList.indexFromItem(item)
                 self.dialog.inactiveList.selectionModel().select(idx, mode)
 
-    def reject(self):
+    def reject(self) -> None:
         self.tags = ""
         QDialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         self.hide()
         # gather yes/no tags
         yes = []
@@ -80,12 +83,12 @@ class TagLimit(QDialog):
                 item = self.dialog.activeList.item(c)
                 idx = self.dialog.activeList.indexFromItem(item)
                 if self.dialog.activeList.selectionModel().isSelected(idx):
-                    yes.append(self.tags[c])
+                    yes.append(self.tags_list[c])
             # inactive
             item = self.dialog.inactiveList.item(c)
             idx = self.dialog.inactiveList.indexFromItem(item)
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
-                no.append(self.tags[c])
+                no.append(self.tags_list[c])
         # save in the deck for future invocations
         self.deck["activeTags"] = yes
         self.deck["inactiveTags"] = no

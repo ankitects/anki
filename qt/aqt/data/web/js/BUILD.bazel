@@ -1,9 +1,13 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
+load("//qt/aqt/data/web/pages:defs.bzl", "copy_page")
 load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
 
 ts_library(
     name = "pycmd",
     srcs = ["pycmd.d.ts"],
+    visibility = ["//qt/aqt/data/web/js:__subpackages__"],
 )
 
 ts_library(
@@ -26,10 +30,19 @@ filegroup(
     output_group = "es5_sources",
 )
 
+copy_page(
+    name = "editor",
+    srcs = [
+        "editor.js",
+    ],
+    package = "//ts/editor",
+)
+
 filegroup(
     name = "js",
     srcs = [
         "aqt_es5",
+        "editor",
         "mathjax.js",
         "//qt/aqt/data/web/js/vendor",
     ],
@@ -47,4 +60,7 @@ prettier_test(
 #     srcs = glob(["*.ts"]),
 # )
 
-exports_files(["mathjax.js"])
+exports_files([
+    "mathjax.js",
+    "tsconfig.json",
+])

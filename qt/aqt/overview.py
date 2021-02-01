@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aqt
 from aqt import gui_hooks
@@ -14,7 +14,7 @@ from aqt.utils import TR, askUserDialog, openLink, shortcut, tooltip, tr
 
 
 class OverviewBottomBar:
-    def __init__(self, overview: Overview):
+    def __init__(self, overview: Overview) -> None:
         self.overview = overview
 
 
@@ -44,13 +44,13 @@ class Overview:
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)
 
-    def show(self):
+    def show(self) -> None:
         av_player.stop_and_clear_queue()
         self.web.set_bridge_command(self._linkHandler, self)
         self.mw.setStateShortcuts(self._shortcutKeys())
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.mw.col.reset()
         self._renderPage()
         self._renderBottom()
@@ -60,7 +60,7 @@ class Overview:
     # Handlers
     ############################################################
 
-    def _linkHandler(self, url):
+    def _linkHandler(self, url: str) -> bool:
         if url == "study":
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
@@ -90,7 +90,7 @@ class Overview:
             openLink(url)
         return False
 
-    def _shortcutKeys(self):
+    def _shortcutKeys(self) -> List[Tuple[str, Callable]]:
         return [
             ("o", self.mw.onDeckConf),
             ("r", self.onRebuildKey),
@@ -99,24 +99,24 @@ class Overview:
             ("u", self.onUnbury),
         ]
 
-    def _filteredDeck(self):
+    def _filteredDeck(self) -> int:
         return self.mw.col.decks.current()["dyn"]
 
-    def onRebuildKey(self):
+    def onRebuildKey(self) -> None:
         if self._filteredDeck():
             self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
 
-    def onEmptyKey(self):
+    def onEmptyKey(self) -> None:
         if self._filteredDeck():
             self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
 
-    def onCustomStudyKey(self):
+    def onCustomStudyKey(self) -> None:
         if not self._filteredDeck():
             self.onStudyMore()
 
-    def onUnbury(self):
+    def onUnbury(self) -> None:
         if self.mw.col.schedVer() == 1:
             self.mw.col.sched.unburyCardsForDeck()
             self.mw.reset()
@@ -148,7 +148,7 @@ class Overview:
     # HTML
     ############################################################
 
-    def _renderPage(self):
+    def _renderPage(self) -> None:
         but = self.mw.button
         deck = self.mw.col.decks.current()
         self.sid = deck.get("sharedFrom")
@@ -175,10 +175,10 @@ class Overview:
             context=self,
         )
 
-    def _show_finished_screen(self):
+    def _show_finished_screen(self) -> None:
         self.web.load_ts_page("congrats")
 
-    def _desc(self, deck):
+    def _desc(self, deck: Dict[str, Any]) -> str:
         if deck["dyn"]:
             desc = tr(TR.STUDYING_THIS_IS_A_SPECIAL_DECK_FOR)
             desc += " " + tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)
@@ -227,7 +227,7 @@ class Overview:
     # Bottom area
     ######################################################################
 
-    def _renderBottom(self):
+    def _renderBottom(self) -> None:
         links = [
             ["O", "opts", tr(TR.ACTIONS_OPTIONS)],
         ]
@@ -254,7 +254,7 @@ class Overview:
     # Studying more
     ######################################################################
 
-    def onStudyMore(self):
+    def onStudyMore(self) -> None:
         import aqt.customstudy
 
         aqt.customstudy.CustomStudy(self.mw)

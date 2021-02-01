@@ -605,7 +605,7 @@ class AddonManager:
     def _addon_schema_path(self, dir: str) -> str:
         return os.path.join(self.addonsFolder(dir), "config.schema.json")
 
-    def _addon_schema(self, dir: str):
+    def _addon_schema(self, dir: str) -> Any:
         path = self._addon_schema_path(dir)
         try:
             if not os.path.exists(path):
@@ -867,9 +867,10 @@ class AddonsDialog(QDialog):
     def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
             key = tr(TR.ADDONS_PACKAGED_ANKI_ADDON) + " (*{})".format(self.mgr.ext)
-            paths = getFile(
+            paths_ = getFile(
                 self, tr(TR.ADDONS_INSTALL_ADDONS), None, key, key="addons", multi=True
             )
+            paths = paths_  # type: ignore
             if not paths:
                 return False
 

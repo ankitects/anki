@@ -32,7 +32,7 @@ class DB:
         del d["_db"]
         return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
-    def execute(self, sql: str, *a, **ka) -> Cursor:
+    def execute(self, sql: str, *a: Any, **ka: Any) -> Cursor:
         s = sql.strip().lower()
         # mark modified?
         for stmt in "insert", "update", "delete":
@@ -76,36 +76,36 @@ class DB:
     def rollback(self) -> None:
         self._db.rollback()
 
-    def scalar(self, *a, **kw) -> Any:
+    def scalar(self, *a: Any, **kw: Any) -> Any:
         res = self.execute(*a, **kw).fetchone()
         if res:
             return res[0]
         return None
 
-    def all(self, *a, **kw) -> List:
+    def all(self, *a: Any, **kw: Any) -> List:
         return self.execute(*a, **kw).fetchall()
 
-    def first(self, *a, **kw) -> Any:
+    def first(self, *a: Any, **kw: Any) -> Any:
         c = self.execute(*a, **kw)
         res = c.fetchone()
         c.close()
         return res
 
-    def list(self, *a, **kw) -> List:
+    def list(self, *a: Any, **kw: Any) -> List:
         return [x[0] for x in self.execute(*a, **kw)]
 
     def close(self) -> None:
         self._db.text_factory = None
         self._db.close()
 
-    def set_progress_handler(self, *args) -> None:
+    def set_progress_handler(self, *args: Any) -> None:
         self._db.set_progress_handler(*args)
 
     def __enter__(self) -> "DB":
         self._db.execute("begin")
         return self
 
-    def __exit__(self, exc_type, *args) -> None:
+    def __exit__(self, *args: Any) -> None:
         self._db.close()
 
     def totalChanges(self) -> Any:
