@@ -2,7 +2,7 @@
     import CardDisplay from "./CardDisplay.svelte";
     import Navbar from "./Navbar.svelte";
 
-    import CardTypeSelect from "./CardTypeSelect.svelte"
+    import CardTypeSelect from "./CardTypeSelect.svelte";
 </script>
 
 <CardDisplay />

@@ -19,11 +19,7 @@
         <!-- right buttons -->
         <div class="d-flex">
             <svelte:component this={extraControls} />
-            <OptionsDropup
-                bind:fillEmptyFields
-                bind:nightMode
-                bind:addMobileClass
-            />
+            <OptionsDropup bind:fillEmptyFields bind:nightMode bind:addMobileClass />
         </div>
     </div>
 </nav>

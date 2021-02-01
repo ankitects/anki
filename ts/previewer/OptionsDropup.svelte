@@ -18,7 +18,7 @@
         font-weight: normal;
         color: #333;
         white-space: nowrap;
-        margin:0;
+        margin: 0;
         user-select: none;
     }
 
@@ -33,30 +33,48 @@
 </style>
 
 <div class="dropup">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-gear-fill"></i>
+    <button
+        class="btn btn-secondary dropdown-toggle"
+        type="button"
+        id="dropdownMenuButton"
+        data-bs-toggle="dropdown"
+        aria-expanded="false">
+        <i class="bi bi-gear-fill" />
     </button>
     <ul class="dropdown-menu dropdown-menu-end" on:click|stopPropagation>
         <li class="checkbox-item">
             <label for="fillEmptyFields">
-                <input type="checkbox" class="btn-check" id="fillEmptyFields" autocomplete="off" bind={fillEmptyFields}>
+                <input
+                    type="checkbox"
+                    class="btn-check"
+                    id="fillEmptyFields"
+                    autocomplete="off"
+                    bind={fillEmptyFields} />
                 <span>Fill empty fields</span>
             </label>
         </li>
         <li class="checkbox-item">
             <label for="nightMode">
-                <input type="checkbox" class="btn-check" id="nightMode" autocomplete="off" bind={nightMode}>
+                <input
+                    type="checkbox"
+                    class="btn-check"
+                    id="nightMode"
+                    autocomplete="off"
+                    bind={nightMode} />
                 <span>Night mode</span>
             </label>
         </li>
         <li class="checkbox-item">
             <label for="addMobileClass">
-                <input type="checkbox" class="btn-check" id="addMobileClass" autocomplete="off" bind={addMobileClass}>
+                <input
+                    type="checkbox"
+                    class="btn-check"
+                    id="addMobileClass"
+                    autocomplete="off"
+                    bind={addMobileClass} />
                 <span>Add mobile class</span>
             </label>
         </li>
-        <li class="dropdown-item">
-            <span>Replay audio</span>
-        </li>
+        <li class="dropdown-item"><span>Replay audio</span></li>
     </ul>
 </div>
