@@ -1530,14 +1530,15 @@ title="%s" %s>%s</button>""" % (
     def setupAppMsg(self) -> None:
         qconnect(self.app.appMsg, self.onAppMsg)
 
-    def onAppMsg(self, buf: str) -> Optional[QTimer]:
+    def onAppMsg(self, buf: str) -> None:
         is_addon = self._isAddon(buf)
 
         if self.state == "startup":
             # try again in a second
-            return self.progress.timer(
+            self.progress.timer(
                 1000, lambda: self.onAppMsg(buf), False, requiresCollection=False
             )
+            return
         elif self.state == "profileManager":
             # can't raise window while in profile manager
             if buf == "raise":
@@ -1547,7 +1548,8 @@ title="%s" %s>%s</button>""" % (
                 msg = tr(TR.QT_MISC_ADDON_WILL_BE_INSTALLED_WHEN_A)
             else:
                 msg = tr(TR.QT_MISC_DECK_WILL_BE_IMPORTED_WHEN_A)
-            return tooltip(msg)
+            tooltip(msg)
+            return
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":

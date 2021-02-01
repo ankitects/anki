@@ -696,7 +696,8 @@ class SidebarTreeView(QTreeView):
         try:
             self.mw.col.decks.rename(deck, new_name)
         except DeckRenameError as e:
-            return showWarning(e.description)
+            showWarning(e.description)
+            return
         self.refresh()
         self.mw.deckBrowser.refresh()
 

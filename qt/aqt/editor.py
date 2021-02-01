@@ -12,7 +12,7 @@ import urllib.parse
 import urllib.request
 import warnings
 from random import randrange
-from typing import Any, Callable, Dict, List, Match, Optional, Tuple
+from typing import Any, Callable, Dict, List, Match, Optional, Tuple, cast
 
 import bs4
 import requests
@@ -750,7 +750,13 @@ class Editor:
         def accept(file: str) -> None:
             self.addMedia(file, canDelete=True)
 
-        file = getFile(self.widget, tr(TR.EDITING_ADD_MEDIA), accept, key, key="media")
+        file = getFile(
+            self.widget,
+            tr(TR.EDITING_ADD_MEDIA),
+            cast(Callable[[Any], None], accept),
+            key,
+            key="media",
+        )
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
