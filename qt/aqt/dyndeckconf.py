@@ -83,7 +83,11 @@ class DeckConf(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
-        self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
+        self.form.buttonBox.button(QDialogButtonBox.Ok).setText(label)
+        self.form.buttonBox.button(QDialogButtonBox.Cancel).setText(
+            tr(TR.ACTIONS_CANCEL)
+        )
+        self.form.buttonBox.button(QDialogButtonBox.Help).setText(tr(TR.ACTIONS_HELP))
         if self.mw.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
         restoreGeom(self, "dyndeckconf")
