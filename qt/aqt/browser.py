@@ -806,8 +806,8 @@ QTableView {{ gridline-color: {grid} }}
         qconnect(hh.sectionMoved, self.onColumnMoved)
 
     def onSortChanged(self, idx: int, ord: int) -> None:
-        ord = bool(ord)
-        self.editor.saveNow(lambda: self._onSortChanged(idx, ord))
+        ord_bool = bool(ord)
+        self.editor.saveNow(lambda: self._onSortChanged(idx, ord_bool))
 
     def _onSortChanged(self, idx: int, ord: bool) -> None:
         type = self.model.activeCols[idx]
