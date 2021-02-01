@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
+from typing import Any, Dict
 
 import requests
 
@@ -23,7 +24,7 @@ class LatestVersionFinder(QThread):
         self.main = main
         self.config = main.pm.meta
 
-    def _data(self):
+    def _data(self) -> Dict[str, Any]:
         return {
             "ver": versionWithBuild(),
             "os": platDesc(),
@@ -32,7 +33,7 @@ class LatestVersionFinder(QThread):
             "crt": self.config["created"],
         }
 
-    def run(self):
+    def run(self) -> None:
         if not self.config["updates"]:
             return
         d = self._data()
@@ -55,7 +56,7 @@ class LatestVersionFinder(QThread):
             self.clockIsOff.emit(diff)  # type: ignore
 
 
-def askAndUpdate(mw, ver):
+def askAndUpdate(mw, ver) -> None:
     baseStr = tr(TR.QT_MISC_ANKI_UPDATEDANKI_HAS_BEEN_RELEASED, val=ver)
     msg = QMessageBox(mw)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)  # type: ignore
@@ -72,6 +73,6 @@ def askAndUpdate(mw, ver):
         openLink(aqt.appWebsite)
 
 
-def showMessages(mw, data):
+def showMessages(mw, data) -> None:
     showText(data["msg"], parent=mw, type="html")
     mw.pm.meta["lastMsg"] = data["msgId"]

@@ -16,7 +16,7 @@ from aqt.utils import TR, showText, showWarning, supportText, tr
 
 if not os.environ.get("DEBUG"):
 
-    def excepthook(etype, val, tb):
+    def excepthook(etype, val, tb) -> None:
         sys.stderr.write(
             "Caught exception:\n%s\n"
             % ("".join(traceback.format_exception(etype, val, tb)))
@@ -65,7 +65,7 @@ class ErrorHandler(QObject):
         self.timer.setSingleShot(True)
         self.timer.start()
 
-    def tempFolderMsg(self):
+    def tempFolderMsg(self) -> str:
         return tr(TR.QT_MISC_UNABLE_TO_ACCESS_ANKI_MEDIA_FOLDER)
 
     def onTimeout(self) -> None:
@@ -105,7 +105,7 @@ class ErrorHandler(QObject):
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
         showText(txt, type="html", copyBtn=True)
 
-    def _addonText(self, error):
+    def _addonText(self, error: str) -> str:
         matches = re.findall(r"addons21/(.*?)/", error)
         if not matches:
             return ""

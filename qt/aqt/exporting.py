@@ -42,7 +42,7 @@ class ExportDialog(QDialog):
         self.setup(did)
         self.exec_()
 
-    def setup(self, did: Optional[int]):
+    def setup(self, did: Optional[int]) -> None:
         self.exporters = exporters(self.col)
         # if a deck specified, start with .apkg type selected
         idx = 0
@@ -155,17 +155,17 @@ class ExportDialog(QDialog):
                 os.unlink(file)
 
             # progress handler
-            def exported_media(cnt):
+            def exported_media(cnt) -> None:
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
                         label=tr(TR.EXPORTING_EXPORTED_MEDIA_FILE, count=cnt)
                     )
                 )
 
-            def do_export():
+            def do_export() -> None:
                 self.exporter.exportInto(file)
 
-            def on_done(future: Future):
+            def on_done(future: Future) -> None:
                 self.mw.progress.finish()
                 hooks.media_files_did_export.remove(exported_media)
                 # raises if exporter failed

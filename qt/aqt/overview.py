@@ -15,7 +15,7 @@ from aqt.utils import TR, askUserDialog, openLink, shortcut, tooltip, tr
 
 
 class OverviewBottomBar:
-    def __init__(self, overview: Overview):
+    def __init__(self, overview: Overview) -> None:
         self.overview = overview
 
 
@@ -104,12 +104,12 @@ class Overview:
     def _filteredDeck(self) -> int:
         return self.mw.col.decks.current()["dyn"]
 
-    def onRebuildKey(self):
+    def onRebuildKey(self) -> None:
         if self._filteredDeck():
             self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
 
-    def onEmptyKey(self):
+    def onEmptyKey(self) -> None:
         if self._filteredDeck():
             self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
@@ -118,7 +118,7 @@ class Overview:
         if not self._filteredDeck():
             self.onStudyMore()
 
-    def onUnbury(self):
+    def onUnbury(self) -> None:
         if self.mw.col.schedVer() == 1:
             self.mw.col.sched.unburyCardsForDeck()
             self.mw.reset()

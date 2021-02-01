@@ -135,7 +135,7 @@ class StudyDeck(QDialog):
                 return False
         return True
 
-    def onReset(self):
+    def onReset(self) -> None:
         # model updated?
         if self.nameFunc:
             self.origNames = self.nameFunc()

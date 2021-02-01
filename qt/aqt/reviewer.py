@@ -8,7 +8,7 @@ import html
 import json
 import re
 import unicodedata as ucd
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Match, Optional, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
@@ -426,7 +426,7 @@ class Reviewer:
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
         # and update the type answer area
-        def repl(match):
+        def repl(match: Match) -> str:
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
             s = """
@@ -448,7 +448,7 @@ class Reviewer:
         if not matches:
             return None
 
-        def noHint(txt):
+        def noHint(txt) -> str:
             if "::" in txt:
                 return txt.split("::")[0]
             return txt
@@ -652,7 +652,7 @@ time = %(time)d;
     def _answerButtons(self) -> str:
         default = self._defaultEase()
 
-        def but(i, label):
+        def but(i, label) -> str:
             if i == default:
                 extra = """id="defease" class="focus" """
             else:
@@ -834,7 +834,7 @@ time = %(time)d;
         tooltip(tr(TR.STUDYING_NOTE_BURIED))
 
     def onRecordVoice(self) -> None:
-        def after_record(path: str):
+        def after_record(path: str) -> None:
             self._recordedAudio = path
             self.onReplayRecorded()
 

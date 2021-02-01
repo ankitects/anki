@@ -40,12 +40,14 @@ class FullSyncChoice(enum.Enum):
     DOWNLOAD = 2
 
 
-def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None]):
+def get_sync_status(
+    mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None]
+) -> None:
     auth = mw.pm.sync_auth()
     if not auth:
-        return SyncStatus(required=SyncStatus.NO_CHANGES)  # pylint:disable=no-member
+        callback(SyncStatus(required=SyncStatus.NO_CHANGES))  # pylint:disable=no-member
 
-    def on_future_done(fut):
+    def on_future_done(fut) -> None:
         try:
             out = fut.result()
         except Exception as e:
@@ -57,7 +59,7 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None])
     mw.taskman.run_in_background(lambda: mw.col.sync_status(auth), on_future_done)
 
 
-def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception):
+def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
     if isinstance(err, SyncError):
         if err.is_auth_error():
             mw.pm.clear_sync_auth()
@@ -87,14 +89,14 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     auth = mw.pm.sync_auth()
     assert auth
 
-    def on_timer():
+    def on_timer() -> None:
         on_normal_sync_timer(mw)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut):
+    def on_future_done(fut) -> None:
         mw.col.db.begin()
         timer.stop()
         try:
@@ -171,14 +173,14 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
 def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.col.close_for_full_sync()
 
-    def on_timer():
+    def on_timer() -> None:
         on_full_sync_timer(mw)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut):
+    def on_future_done(fut) -> None:
         timer.stop()
         mw.col.reopen(after_full_sync=True)
         mw.reset()
@@ -199,14 +201,14 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.col.close_for_full_sync()
 
-    def on_timer():
+    def on_timer() -> None:
         on_full_sync_timer(mw)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut):
+    def on_future_done(fut) -> None:
         timer.stop()
         mw.col.reopen(after_full_sync=True)
         mw.reset()
@@ -235,7 +237,7 @@ def sync_login(
         if username and password:
             break
 
-    def on_future_done(fut):
+    def on_future_done(fut) -> None:
         try:
             auth = fut.result()
         except SyncError as e:

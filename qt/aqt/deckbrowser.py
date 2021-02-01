@@ -19,7 +19,7 @@ from aqt.utils import TR, askUser, getOnlyText, openLink, shortcut, showWarning,
 
 
 class DeckBrowserBottomBar:
-    def __init__(self, deck_browser: DeckBrowser):
+    def __init__(self, deck_browser: DeckBrowser) -> None:
         self.deck_browser = deck_browser
 
 
@@ -51,14 +51,14 @@ class DeckBrowser:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
 
-    def show(self):
+    def show(self) -> None:
         av_player.stop_and_clear_queue()
         self.web.set_bridge_command(self._linkHandler, self)
         self._renderPage()
         # redraw top bar for theme change
         self.mw.toolbar.redraw()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self._renderPage()
 
     # Event handlers
@@ -90,7 +90,7 @@ class DeckBrowser:
             self._collapse(int(arg))
         return False
 
-    def _selDeck(self, did):
+    def _selDeck(self, did) -> None:
         self.mw.col.decks.select(did)
         self.mw.onOverview()
 
@@ -108,14 +108,14 @@ class DeckBrowser:
 </center>
 """
 
-    def _renderPage(self, reuse=False):
+    def _renderPage(self, reuse=False) -> None:
         if not reuse:
             self._dueTree = self.mw.col.sched.deck_due_tree()
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
-    def __renderPage(self, offset):
+    def __renderPage(self, offset) -> None:
         content = DeckBrowserContent(
             tree=self._renderDeckTree(self._dueTree),
             stats=self._renderStats(),
@@ -137,10 +137,10 @@ class DeckBrowser:
             self._scrollToOffset(offset)
         gui_hooks.deck_browser_did_render(self)
 
-    def _scrollToOffset(self, offset):
+    def _scrollToOffset(self, offset) -> None:
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
-    def _renderStats(self):
+    def _renderStats(self) -> str:
         return '<div id="studiedToday"><span>{}</span></div>'.format(
             self.mw.col.studied_today(),
         )
@@ -170,7 +170,7 @@ class DeckBrowser:
 
         due = node.review_count + node.learn_count
 
-        def indent():
+        def indent() -> str:
             return "&nbsp;" * 6 * (node.level - 1)
 
         if node.deck_id == ctx.current_deck_id:
@@ -202,7 +202,7 @@ class DeckBrowser:
             node.name,
         )
         # due counts
-        def nonzeroColour(cnt, klass):
+        def nonzeroColour(cnt: int, klass: str) -> str:
             if not cnt:
                 klass = "zero-count"
             return f'<span class="{klass}">{cnt}</span>'
@@ -222,7 +222,7 @@ class DeckBrowser:
                 buf += self._render_deck_node(child, ctx)
         return buf
 
-    def _topLevelDragRow(self):
+    def _topLevelDragRow(self) -> str:
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
     # Options
@@ -260,7 +260,7 @@ class DeckBrowser:
             return
         self.show()
 
-    def _options(self, did):
+    def _options(self, did) -> None:
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
         self.mw.col.decks.select(did)
@@ -297,10 +297,10 @@ class DeckBrowser:
     def _delete(self, did: int) -> None:
         if self.ask_delete_deck(did):
 
-            def do_delete():
+            def do_delete() -> None:
                 return self.mw.col.decks.rem(did, True)
 
-            def on_done(fut: Future):
+            def on_done(fut: Future) -> None:
                 self.show()
                 res = fut.result()  # Required to check for errors
 
@@ -316,7 +316,7 @@ class DeckBrowser:
         ["Ctrl+Shift+I", "import", tr(TR.DECKS_IMPORT_FILE)],
     ]
 
-    def _drawButtons(self):
+    def _drawButtons(self) -> None:
         buf = ""
         drawLinks = deepcopy(self.drawLinks)
         for b in drawLinks:
@@ -332,5 +332,5 @@ class DeckBrowser:
             web_context=DeckBrowserBottomBar(self),
         )
 
-    def _onShared(self):
+    def _onShared(self) -> None:
         openLink(aqt.appShared + "decks/")

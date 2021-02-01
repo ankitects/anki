@@ -145,7 +145,7 @@ class DeckConf(QDialog):
 
         self.mw.col.decks.save(d)
 
-    def reject(self):
+    def reject(self) -> None:
         self.ok = False
         QDialog.reject(self)
 
@@ -164,7 +164,7 @@ class DeckConf(QDialog):
     # Step load/save - fixme: share with std options screen
     ########################################################
 
-    def listToUser(self, l):
+    def listToUser(self, l) -> str:
         return " ".join([str(x) for x in l])
 
     def userToList(self, w, minSize=1) -> Optional[List[Union[float, int]]]:

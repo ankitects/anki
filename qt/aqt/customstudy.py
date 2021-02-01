@@ -57,7 +57,7 @@ class CustomStudy(QDialog):
         typeShow = False
         ok = tr(TR.CUSTOM_STUDY_OK)
 
-        def plus(num):
+        def plus(num) -> str:
             if num == 1000:
                 num = "1000+"
             return "<b>" + str(num) + "</b>"

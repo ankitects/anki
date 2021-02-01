@@ -113,13 +113,13 @@ class LoadMetaResult:
 
 
 class AnkiRestart(SystemExit):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.exitcode = kwargs.pop("exitcode", 0)
         super().__init__(*args, **kwargs)  # type: ignore
 
 
 class ProfileManager:
-    def __init__(self, base: Optional[str] = None) -> None:
+    def __init__(self, base: Optional[str] = None) -> None:  #
         ## Settings which should be forgotten each Anki restart
         self.session: Dict[str, Any] = {}
         self.name: Optional[str] = None
@@ -185,7 +185,7 @@ class ProfileManager:
                 self.base = newBase
                 shutil.move(oldBase, self.base)
 
-    def _tryToMigrateFolder(self, oldBase):
+    def _tryToMigrateFolder(self, oldBase) -> None:
         from PyQt5 import QtGui, QtWidgets
 
         app = QtWidgets.QApplication([])
@@ -269,7 +269,7 @@ class ProfileManager:
                 fn = super().find_class(module, name)
                 if module == "sip" and name == "_unpickle_type":
 
-                    def wrapper(mod, obj, args):
+                    def wrapper(mod, obj, args) -> Any:
                         if mod.startswith("PyQt4") and obj == "QByteArray":
                             # can't trust str objects from python 2
                             return QByteArray()
@@ -534,7 +534,7 @@ create table if not exists profiles
     def setDefaultLang(self, idx: int) -> None:
         # create dialog
         class NoCloseDiag(QDialog):
-            def reject(self):
+            def reject(self) -> None:
                 pass
 
         d = self.langDiag = NoCloseDiag()
@@ -665,7 +665,7 @@ create table if not exists profiles
                 pass
         return RecordingDriver.QtAudioInput
 
-    def set_recording_driver(self, driver: RecordingDriver):
+    def set_recording_driver(self, driver: RecordingDriver) -> None:
         self.profile["recordingDriver"] = driver.value
 
     ######################################################################

@@ -438,7 +438,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
 
 
 class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
-    def __init__(self, taskman: TaskManager):
+    def __init__(self, taskman: TaskManager) -> None:
         super().__init__(taskman)
         self.args.append("-slave")
 
@@ -494,7 +494,7 @@ def encode_mp3(mw: aqt.AnkiQt, src_wav: str, on_done: Callable[[str], None]) -> 
     "Encode the provided wav file to .mp3, and call on_done() with the path."
     dst_mp3 = src_wav.replace(".wav", "%d.mp3" % time.time())
 
-    def _on_done(fut: Future):
+    def _on_done(fut: Future) -> None:
         fut.result()
         on_done(dst_mp3)
 
@@ -509,7 +509,7 @@ class Recorder(ABC):
     # seconds to wait before recording
     STARTUP_DELAY = 0.3
 
-    def __init__(self, output_path: str):
+    def __init__(self, output_path: str) -> None:
         self.output_path = output_path
 
     def start(self, on_done: Callable[[], None]) -> None:
@@ -517,7 +517,7 @@ class Recorder(ABC):
         self._started_at = time.time()
         on_done()
 
-    def stop(self, on_done: Callable[[str], None]):
+    def stop(self, on_done: Callable[[str], None]) -> None:
         "Stop recording, then call on_done() when finished."
         on_done(self.output_path)
 
@@ -525,7 +525,7 @@ class Recorder(ABC):
         "Seconds since recording started."
         return time.time() - self._started_at
 
-    def on_timer(self):
+    def on_timer(self) -> None:
         "Will be called periodically."
 
 
@@ -534,7 +534,7 @@ class Recorder(ABC):
 
 
 class QtAudioInputRecorder(Recorder):
-    def __init__(self, output_path: str, mw: aqt.AnkiQt, parent: QWidget):
+    def __init__(self, output_path: str, mw: aqt.AnkiQt, parent: QWidget) -> None:
         super().__init__(output_path)
 
         self.mw = mw
@@ -567,11 +567,11 @@ class QtAudioInputRecorder(Recorder):
         self._iodevice.readyRead.connect(self._on_read_ready)  # type: ignore
         super().start(on_done)
 
-    def _on_read_ready(self):
+    def _on_read_ready(self) -> None:
         self._buffer += self._iodevice.readAll()
 
-    def stop(self, on_done: Callable[[str], None]):
-        def on_stop_timer():
+    def stop(self, on_done: Callable[[str], None]) -> None:
+        def on_stop_timer() -> None:
             # read anything remaining in buffer & stop
             self._on_read_ready()
             self._audio_input.stop()
@@ -580,7 +580,7 @@ class QtAudioInputRecorder(Recorder):
                 showWarning(f"recording failed: {err}")
                 return
 
-            def write_file():
+            def write_file() -> None:
                 # swallow the first 300ms to allow audio device to quiesce
                 wait = int(44100 * self.STARTUP_DELAY)
                 if len(self._buffer) <= wait:
@@ -595,7 +595,7 @@ class QtAudioInputRecorder(Recorder):
                 wf.writeframes(self._buffer)
                 wf.close()
 
-            def and_then(fut):
+            def and_then(fut) -> None:
                 fut.result()
                 Recorder.stop(self, on_done)
 
@@ -672,7 +672,7 @@ class PyAudioThreadedRecorder(threading.Thread):
 
 
 class PyAudioRecorder(Recorder):
-    def __init__(self, mw: aqt.AnkiQt, output_path: str):
+    def __init__(self, mw: aqt.AnkiQt, output_path: str) -> None:
         super().__init__(output_path)
         self.mw = mw
 
@@ -686,7 +686,7 @@ class PyAudioRecorder(Recorder):
         while self.duration() < 1:
             time.sleep(0.1)
 
-        def func(fut):
+        def func(fut) -> None:
             Recorder.stop(self, on_done)
 
         self.thread.finish = True
@@ -715,7 +715,7 @@ class RecordDialog(QDialog):
         self._start_recording()
         self._setup_dialog()
 
-    def _setup_dialog(self):
+    def _setup_dialog(self) -> None:
         self.setWindowTitle("Anki")
         icon = QLabel()
         icon.setPixmap(QPixmap(":/icons/media-record.png"))
@@ -740,10 +740,10 @@ class RecordDialog(QDialog):
         restoreGeom(self, "audioRecorder2")
         self.show()
 
-    def _save_diag(self):
+    def _save_diag(self) -> None:
         saveGeom(self, "audioRecorder2")
 
-    def _start_recording(self):
+    def _start_recording(self) -> None:
         driver = self.mw.pm.recording_driver()
         if driver is RecordingDriver.PyAudio:
             self._recorder = PyAudioRecorder(self.mw, namedtmp("rec.wav"))
@@ -755,18 +755,18 @@ class RecordDialog(QDialog):
             assert_exhaustive(driver)
         self._recorder.start(self._start_timer)
 
-    def _start_timer(self):
+    def _start_timer(self) -> None:
         self._timer = t = QTimer(self._parent)
         t.timeout.connect(self._on_timer)  # type: ignore
         t.setSingleShot(False)
         t.start(100)
 
-    def _on_timer(self):
+    def _on_timer(self) -> None:
         self._recorder.on_timer()
         duration = self._recorder.duration()
         self.label.setText(tr(TR.MEDIA_RECORDINGTIME, secs="%0.1f" % duration))
 
-    def accept(self):
+    def accept(self) -> None:
         self._timer.stop()
 
         try:
@@ -775,10 +775,10 @@ class RecordDialog(QDialog):
         finally:
             QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self._timer.stop()
 
-        def cleanup(out: str):
+        def cleanup(out: str) -> None:
             os.unlink(out)
 
         try:
@@ -790,7 +790,7 @@ class RecordDialog(QDialog):
 def record_audio(
     parent: QWidget, mw: aqt.AnkiQt, encode: bool, on_done: Callable[[str], None]
 ):
-    def after_record(path: str):
+    def after_record(path: str) -> None:
         if not encode:
             on_done(path)
         else:

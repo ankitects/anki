@@ -605,7 +605,7 @@ class AddonManager:
     def _addon_schema_path(self, dir: str) -> str:
         return os.path.join(self.addonsFolder(dir), "config.schema.json")
 
-    def _addon_schema(self, dir: str):
+    def _addon_schema(self, dir: str) -> Any:
         path = self._addon_schema_path(dir)
         try:
             if not os.path.exists(path):

@@ -10,7 +10,7 @@ import os
 import sys
 import tempfile
 import traceback
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import anki.lang
 from anki import version as _version
@@ -102,10 +102,10 @@ class DialogManager:
             self._dialogs[name][1] = instance
             return instance
 
-    def markClosed(self, name: str):
+    def markClosed(self, name: str) -> None:
         self._dialogs[name] = [self._dialogs[name][0], None]
 
-    def allClosed(self):
+    def allClosed(self) -> bool:
         return not any(x[1] for x in self._dialogs.values())
 
     def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
@@ -119,7 +119,7 @@ class DialogManager:
             if not instance:
                 continue
 
-            def callback():
+            def callback() -> None:
                 if self.allClosed():
                     onsuccess()
                 else:
@@ -189,12 +189,12 @@ def setupLangAndBackend(
         pass
 
     # add _ and ngettext globals used by legacy code
-    def fn__(arg):
+    def fn__(arg) -> None:
         print("".join(traceback.format_stack()[-2]))
         print("_ global will break in the future; please see anki/lang.py")
         return arg
 
-    def fn_ngettext(a, b, c):
+    def fn_ngettext(a, b, c) -> None:
         print("".join(traceback.format_stack()[-2]))
         print("ngettext global will break in the future; please see anki/lang.py")
         return b
@@ -244,11 +244,11 @@ class AnkiApp(QApplication):
     KEY = "anki" + checksum(getpass.getuser())
     TMOUT = 30000
 
-    def __init__(self, argv):
+    def __init__(self, argv) -> None:
         QApplication.__init__(self, argv)
         self._argv = argv
 
-    def secondInstance(self):
+    def secondInstance(self) -> bool:
         # we accept only one command line argument. if it's missing, send
         # a blank screen to just raise the existing window
         opts, args = parseArgs(self._argv)
@@ -267,7 +267,7 @@ class AnkiApp(QApplication):
             self._srv.listen(self.KEY)
             return False
 
-    def sendMsg(self, txt):
+    def sendMsg(self, txt) -> bool:
         sock = QLocalSocket(self)
         sock.connectToServer(self.KEY, QIODevice.WriteOnly)
         if not sock.waitForConnected(self.TMOUT):
@@ -286,7 +286,7 @@ class AnkiApp(QApplication):
         sock.disconnectFromServer()
         return True
 
-    def onRecv(self):
+    def onRecv(self) -> None:
         sock = self._srv.nextPendingConnection()
         if not sock.waitForReadyRead(self.TMOUT):
             sys.stderr.write(sock.errorString())
@@ -298,14 +298,14 @@ class AnkiApp(QApplication):
     # OS X file/url handler
     ##################################################
 
-    def event(self, evt):
+    def event(self, evt) -> bool:
         if evt.type() == QEvent.FileOpen:
             self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
         return QApplication.event(self, evt)
 
 
-def parseArgs(argv):
+def parseArgs(argv) -> Tuple[argparse.Namespace, List[str]]:
     "Returns (opts, args)."
     # py2app fails to strip this in some instances, then anki dies
     # as there's no such profile
@@ -330,7 +330,7 @@ def parseArgs(argv):
     return parser.parse_known_args(argv[1:])
 
 
-def setupGL(pm):
+def setupGL(pm) -> None:
     if isMac:
         return
 
@@ -343,7 +343,7 @@ def setupGL(pm):
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
 
     # catch opengl errors
-    def msgHandler(category, ctx, msg):
+    def msgHandler(category, ctx, msg) -> None:
         if category == QtDebugMsg:
             category = "debug"
         elif category == QtInfoMsg:
@@ -400,7 +400,7 @@ def setupGL(pm):
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
-def write_profile_results():
+def write_profile_results() -> None:
 
     profiler.disable()
     profiler.dump_stats("anki.prof")
@@ -408,7 +408,7 @@ def write_profile_results():
     print("use 'bazel run qt:profile' to explore")
 
 
-def run():
+def run() -> None:
     try:
         _run()
     except Exception as e:
@@ -420,7 +420,7 @@ def run():
         )
 
 
-def _run(argv=None, exec=True):
+def _run(argv=None, exec=True) -> Optional[AnkiApp]:
     """Start AnkiQt application or reuse an existing instance if one exists.
 
     If the function is invoked with exec=False, the AnkiQt will not enter
@@ -441,12 +441,12 @@ def _run(argv=None, exec=True):
 
     if opts.version:
         print(f"Anki {appVersion}")
-        return
+        return None
     elif opts.syncserver:
         from anki.syncserver import serve
 
         serve()
-        return
+        return None
 
     if PROFILE_CODE:
 
@@ -465,7 +465,7 @@ def _run(argv=None, exec=True):
     except AnkiRestart as error:
         if error.exitcode:
             sys.exit(error.exitcode)
-        return
+        return None
     except:
         # will handle below
         traceback.print_exc()
@@ -500,7 +500,7 @@ def _run(argv=None, exec=True):
     app = AnkiApp(argv)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
-        return
+        return None
 
     if not pm:
         QMessageBox.critical(
@@ -508,7 +508,7 @@ def _run(argv=None, exec=True):
             tr(TR.QT_MISC_ERROR),
             tr(TR.PROFILES_COULD_NOT_CREATE_DATA_FOLDER),
         )
-        return
+        return None
 
     # disable icons on mac; this must be done before window created
     if isMac:
@@ -548,7 +548,7 @@ def _run(argv=None, exec=True):
             tr(TR.QT_MISC_ERROR),
             tr(TR.QT_MISC_NO_TEMP_FOLDER),
         )
-        return
+        return None
 
     if pmLoadResult.firstTime:
         pm.setDefaultLang(lang[0])
@@ -590,3 +590,5 @@ def _run(argv=None, exec=True):
 
     if PROFILE_CODE:
         write_profile_results()
+
+    return None
