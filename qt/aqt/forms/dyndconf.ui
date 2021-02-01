@@ -22,16 +22,8 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
        <widget class="QPushButton" name="search_button">
-        <property name="font">
-         <font>
-          <underline>true</underline>
-         </font>
-        </property>
         <property name="toolTip">
          <string>SEARCH_VIEW_IN_BROWSER</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton { text-align: left; color: blue; padding: 0; border: 0 }</string>
         </property>
         <property name="text">
          <string>ACTIONS_SEARCH</string>
