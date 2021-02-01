@@ -51,3 +51,4 @@ class Previewer(QDialog):
 
     def refresh(self):
         self.form.web.load_ts_page("previewer")
+        self.form.web.eval('anki.previewer(document.getElementById("main"));')

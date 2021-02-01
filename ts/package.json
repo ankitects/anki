@@ -50,6 +50,7 @@
     },
     "dependencies": {
         "@fluent/bundle": "^0.15.1",
+        "bootstrap": "^5.0.0-beta1",
         "css-browser-selector": "^0.6.5",
         "d3": "^6.5.0",
         "intl-pluralrules": "^1.2.2",

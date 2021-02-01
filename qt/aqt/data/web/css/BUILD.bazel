@@ -32,6 +32,7 @@ filegroup(
         "core.css",
         "css_local",
         "editor",
+        "//qt/aqt/data/web/css/vendor",
     ],
     visibility = ["//qt:__subpackages__"],
 )

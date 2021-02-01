@@ -99,6 +99,14 @@
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
+    "bootstrap@5.0.0-beta1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/twbs/bootstrap",
+        "publisher": "The Bootstrap Authors",
+        "url": "https://github.com/twbs/bootstrap/graphs/contributors",
+        "path": "node_modules/bootstrap",
+        "licenseFile": "node_modules/bootstrap/LICENSE"
+    },
     "commander@2.20.3": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",

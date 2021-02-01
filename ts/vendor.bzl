@@ -94,3 +94,25 @@ def copy_css_browser_selector(name = "css-browser-selector", visibility = ["//vi
         ],
         visibility = visibility,
     )
+
+def copy_bootstrap_js(name = "bootstrap_js", visibility = ["//visibility:public"]):
+    vendor_js_lib(
+        name = name,
+        pkg = _pkg_from_name(name),
+        include = [
+            "dist/js/bootstrap.min.js",
+        ],
+        strip_prefix = "dist/js/",
+        visibility = visibility,
+    )
+
+def copy_bootstrap_css(name = "bootstrap_css", visibility = ["//visibility:public"]):
+    vendor_js_lib(
+        name = name,
+        pkg = _pkg_from_name(name),
+        include = [
+            "dist/css/bootstrap.min.css",
+        ],
+        strip_prefix = "dist/css/",
+        visibility = visibility,
+    )

@@ -1,5 +1,3 @@
-import type { SvelteComponent } from "svelte/internal";
-
 import { setupI18n } from "anki/i18n";
 import { checkNightMode } from "anki/nightmode";
 
