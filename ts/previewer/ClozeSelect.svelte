@@ -1,9 +1,14 @@
 <script lang="typescript">
+    export const maximumCloze = 999;
     export let clozeNumber = 1;
-    export let maximumCloze = 999;
+
+    let decrementDisabled = false;
+    let incrementDisabled = false;
 
     const clozeChanged = () => {
         clozeNumber = Math.min(maximumCloze, Math.max(1, clozeNumber));
+        decrementDisabled = clozeNumber === 1;
+        incrementDisabled = clozeNumber === maximumCloze;
     }
 
     const decrementCloze = () => {
@@ -15,6 +20,8 @@
         clozeNumber++;
         clozeChanged();
     }
+
+    clozeChanged();
 </script>
 
 <style>
@@ -38,8 +45,8 @@
 </style>
 
 <div class="btn-group mx-1">
-    <button type="button" class="btn btn-primary" on:click={decrementCloze}><i class="bi bi-dash"></i></button>
-    <span class="input-group-text rounded-0">Cloze</span>
+    <button type="button" class="btn btn-primary" on:click={decrementCloze} disabled={decrementDisabled}><i class="bi bi-dash"></i></button>
+    <span class="input-group-text user-select-none rounded-0">Cloze</span>
     <input class="form-control rounded-0" id="number" type=number min="1" max={maximumCloze} on:change={clozeChanged} bind:value={clozeNumber}>
-    <button type="button" class="btn btn-primary" on:click={incrementCloze}><i class="bi bi-plus"></i></button>
+    <button type="button" class="btn btn-primary" on:click={incrementCloze} disabled={incrementDisabled}><i class="bi bi-plus"></i></button>
 </div>
