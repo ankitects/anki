@@ -68,7 +68,7 @@ class TagLimit(QDialog):
                 idx = self.dialog.inactiveList.indexFromItem(item)
                 self.dialog.inactiveList.selectionModel().select(idx, mode)
 
-    def reject(self):
+    def reject(self) -> None:
         self.tags = ""
         QDialog.reject(self)
 

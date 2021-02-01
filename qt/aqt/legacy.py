@@ -6,7 +6,7 @@
 Legacy support
 """
 
-from typing import List
+from typing import Any, List
 
 import anki
 import aqt
@@ -31,7 +31,14 @@ def stripSounds(text) -> str:
     return aqt.mw.col.media.strip_av_tags(text)
 
 
-def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
+def fmtTimeSpan(
+    time: Any,
+    pad: Any = 0,
+    point: Any = 0,
+    short: Any = False,
+    inTime: Any = False,
+    unit: Any = 99,
+) -> Any:
     print("fmtTimeSpan() has become col.format_timespan()")
     return aqt.mw.col.format_timespan(time)
 

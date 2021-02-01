@@ -23,7 +23,7 @@ from aqt.utils import (
 
 
 class FieldDialog(QDialog):
-    def __init__(self, mw: AnkiQt, nt: NoteType, parent=None):
+    def __init__(self, mw: AnkiQt, nt: NoteType, parent=None) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.col = self.mw.col
@@ -68,7 +68,7 @@ class FieldDialog(QDialog):
         qconnect(f.sortField.clicked, self.onSortField)
         qconnect(f.buttonBox.helpRequested, self.onHelp)
 
-    def onDrop(self, ev):
+    def onDrop(self, ev) -> None:
         fieldList = self.form.fieldList
         indicatorPos = fieldList.dropIndicatorPosition()
         dropPos = fieldList.indexAt(ev.pos()).row()
@@ -113,7 +113,7 @@ class FieldDialog(QDialog):
                 return None
         return txt
 
-    def onRename(self):
+    def onRename(self) -> None:
         idx = self.currentIdx
         f = self.model["flds"][idx]
         name = self._uniqueName(tr(TR.ACTIONS_NEW_NAME), self.currentIdx, f["name"])
@@ -141,9 +141,10 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.form.fieldList.setCurrentRow(len(self.model["flds"]) - 1)
 
-    def onDelete(self):
+    def onDelete(self) -> None:
         if len(self.model["flds"]) < 2:
-            return showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
+            showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
+            return
         count = self.mm.useCount(self.model)
         c = tr(TR.BROWSING_NOTE_COUNT, count=count)
         if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val=c)):
@@ -157,7 +158,7 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
-    def onPosition(self, delta=-1):
+    def onPosition(self, delta=-1) -> None:
         idx = self.currentIdx
         l = len(self.model["flds"])
         txt = getOnlyText(tr(TR.FIELDS_NEW_POSITION_1, val=l), default=str(idx + 1))
@@ -171,16 +172,16 @@ class FieldDialog(QDialog):
             return
         self.moveField(pos)
 
-    def onSortField(self):
+    def onSortField(self) -> None:
         if not self.change_tracker.mark_schema():
-            return False
+            return
         # don't allow user to disable; it makes no sense
         self.form.sortField.setChecked(True)
         self.mm.set_sort_index(self.model, self.form.fieldList.currentRow())
 
-    def moveField(self, pos):
+    def moveField(self, pos) -> None:
         if not self.change_tracker.mark_schema():
-            return False
+            return
         self.saveField()
         f = self.model["flds"][self.currentIdx]
         self.mm.reposition_field(self.model, f, pos - 1)
@@ -231,10 +232,10 @@ class FieldDialog(QDialog):
     def accept(self) -> None:
         self.saveField()
 
-        def save():
+        def save() -> None:
             self.mm.save(self.model)
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             try:
                 fut.result()
             except TemplateError as e:
@@ -247,5 +248,5 @@ class FieldDialog(QDialog):
 
         self.mw.taskman.with_progress(save, on_done, self)
 
-    def onHelp(self):
+    def onHelp(self) -> None:
         openHelp(HelpPage.CUSTOMIZING_FIELDS)

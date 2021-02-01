@@ -12,6 +12,7 @@ import threading
 import time
 import traceback
 from http import HTTPStatus
+from typing import Tuple
 
 import flask
 import flask_cors  # type: ignore
@@ -52,11 +53,11 @@ class MediaServer(threading.Thread):
     _ready = threading.Event()
     daemon = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs):
+    def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.is_shutdown = False
 
-    def run(self):
+    def run(self) -> None:
         try:
             if devMode:
                 # idempotent if logging has already been set up
@@ -97,7 +98,7 @@ class MediaServer(threading.Thread):
 
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
-def allroutes(pathin):
+def allroutes(pathin) -> Response:
     try:
         directory, path = _redirectWebExports(pathin)
     except TypeError:
@@ -171,7 +172,7 @@ def allroutes(pathin):
         )
 
 
-def _redirectWebExports(path):
+def _redirectWebExports(path) -> Tuple[str, str]:
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):

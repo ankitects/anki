@@ -65,7 +65,7 @@ class AddCards(QDialog):
         )
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
 
-    def helpRequested(self):
+    def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
     def setupButtons(self) -> None:
@@ -161,7 +161,7 @@ class AddCards(QDialog):
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
-    def editHistory(self, nid):
+    def editHistory(self, nid) -> None:
         self.mw.browser_search(SearchTerm(nid=nid))
 
     def addNote(self, note) -> Optional[Note]:
@@ -225,7 +225,7 @@ class AddCards(QDialog):
         QDialog.reject(self)
 
     def ifCanClose(self, onOk: Callable) -> None:
-        def afterSave():
+        def afterSave() -> None:
             ok = self.editor.fieldsAreBlank(self.previousNote) or askUser(
                 tr(TR.ADDING_CLOSE_AND_LOSE_CURRENT_INPUT), defaultno=True
             )
@@ -234,8 +234,8 @@ class AddCards(QDialog):
 
         self.editor.saveNow(afterSave)
 
-    def closeWithCallback(self, cb):
-        def doClose():
+    def closeWithCallback(self, cb) -> None:
+        def doClose() -> None:
             self._reject()
             cb()
 

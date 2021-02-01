@@ -43,7 +43,7 @@ class ProgressManager:
         timer to fire even when there is no collection, but will still
         only fire when there is no current progress dialog."""
 
-        def handler():
+        def handler() -> None:
             if requiresCollection and not self.mw.col:
                 # no current collection; timer is no longer valid
                 print("Ignored progress func as collection unloaded: %s" % repr(func))
@@ -225,14 +225,14 @@ class ProgressDialog(QDialog):
         self._closingDown = True
         self.hide()
 
-    def closeEvent(self, evt):
+    def closeEvent(self, evt) -> None:
         if self._closingDown:
             evt.accept()
         else:
             self.wantCancel = True
             evt.ignore()
 
-    def keyPressEvent(self, evt):
+    def keyPressEvent(self, evt) -> None:
         if evt.key() == Qt.Key_Escape:
             evt.ignore()
             self.wantCancel = True

@@ -40,7 +40,9 @@ class Previewer(QDialog):
     _timer: Optional[QTimer] = None
     _show_both_sides = False
 
-    def __init__(self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]):
+    def __init__(
+        self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]
+    ) -> None:
         super().__init__(None, Qt.Window)
         self._open = True
         self._parent = parent
@@ -259,14 +261,14 @@ class MultiCardPreviewer(Previewer):
         qconnect(self._prev.clicked, self._on_prev)
         qconnect(self._next.clicked, self._on_next)
 
-    def _on_prev(self):
+    def _on_prev(self) -> None:
         if self._state == "answer" and not self._show_both_sides:
             self._state = "question"
             self.render_card()
         else:
             self._on_prev_card()
 
-    def _on_prev_card(self):
+    def _on_prev_card(self) -> None:
         pass
 
     def _on_next(self) -> None:
@@ -276,7 +278,7 @@ class MultiCardPreviewer(Previewer):
         else:
             self._on_next_card()
 
-    def _on_next_card(self):
+    def _on_next_card(self) -> None:
         pass
 
     def _updateButtons(self) -> None:
@@ -315,7 +317,7 @@ class BrowserPreviewer(MultiCardPreviewer):
             self._last_card_id = c.id
             return changed
 
-    def _on_prev_card(self):
+    def _on_prev_card(self) -> None:
         self._parent.editor.saveNow(
             lambda: self._parent._moveCur(QAbstractItemView.MoveUp)
         )

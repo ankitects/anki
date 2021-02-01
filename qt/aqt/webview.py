@@ -22,7 +22,7 @@ serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
 
 class AnkiWebPage(QWebEnginePage):
-    def __init__(self, onBridgeCmd):
+    def __init__(self, onBridgeCmd) -> None:
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
         self._setupBridge()
@@ -31,7 +31,7 @@ class AnkiWebPage(QWebEnginePage):
     def _setupBridge(self) -> None:
         class Bridge(QObject):
             @pyqtSlot(str, result=str)  # type: ignore
-            def cmd(self, str):
+            def cmd(self, str) -> Any:
                 return json.dumps(self.onCmd(str))
 
         self._bridge = Bridge()
@@ -74,7 +74,7 @@ class AnkiWebPage(QWebEnginePage):
         script.setRunsOnSubFrames(False)
         self.profile().scripts().insert(script)
 
-    def javaScriptConsoleMessage(self, level, msg, line, srcID):
+    def javaScriptConsoleMessage(self, level, msg, line, srcID) -> None:
         # not translated because console usually not visible,
         # and may only accept ascii text
         if srcID.startswith("data"):
@@ -101,7 +101,7 @@ class AnkiWebPage(QWebEnginePage):
         # https://github.com/ankitects/anki/pull/560
         sys.stdout.write(buf)
 
-    def acceptNavigationRequest(self, url, navType, isMainFrame):
+    def acceptNavigationRequest(self, url, navType, isMainFrame) -> bool:
         if not self.open_links_externally:
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
@@ -120,10 +120,10 @@ class AnkiWebPage(QWebEnginePage):
         openLink(url)
         return False
 
-    def _onCmd(self, str):
+    def _onCmd(self, str) -> None:
         return self._onBridgeCmd(str)
 
-    def javaScriptAlert(self, url: QUrl, text: str):
+    def javaScriptAlert(self, url: QUrl, text: str) -> None:
         showInfo(text)
 
 
@@ -150,7 +150,7 @@ class WebContent:
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
 
-            def on_webview_will_set_content(web_content: WebContent, context):
+            def on_webview_will_set_content(web_content: WebContent, context) -> None:
                 web_content.body += "<my_html>"
                 web_content.head += "<my_head>"
 
@@ -173,7 +173,7 @@ class WebContent:
           Then append the subpaths to the corresponding web_content fields
           within a function subscribing to gui_hooks.webview_will_set_content:
 
-              def on_webview_will_set_content(web_content: WebContent, context):
+              def on_webview_will_set_content(web_content: WebContent, context) -> None:
                   addon_package = mw.addonManager.addonFromModule(__name__)
                   web_content.css.append(
                       f"/_addons/{addon_package}/web/my-addon.css")
@@ -251,7 +251,7 @@ class AnkiWebView(QWebEngineView):
     def set_open_links_externally(self, enable: bool) -> None:
         self._page.open_links_externally = enable
 
-    def onEsc(self):
+    def onEsc(self) -> None:
         w = self.parent()
         while w:
             if isinstance(w, QDialog) or isinstance(w, QMainWindow):
@@ -266,7 +266,7 @@ class AnkiWebView(QWebEngineView):
                 break
             w = w.parent()
 
-    def onCopy(self):
+    def onCopy(self) -> None:
         if not self.selectedText():
             ctx = self._page.contextMenuData()
             if ctx and ctx.mediaType() == QWebEngineContextMenuData.MediaTypeImage:
@@ -274,16 +274,16 @@ class AnkiWebView(QWebEngineView):
         else:
             self.triggerPageAction(QWebEnginePage.Copy)
 
-    def onCut(self):
+    def onCut(self) -> None:
         self.triggerPageAction(QWebEnginePage.Cut)
 
-    def onPaste(self):
+    def onPaste(self) -> None:
         self.triggerPageAction(QWebEnginePage.Paste)
 
-    def onMiddleClickPaste(self):
+    def onMiddleClickPaste(self) -> None:
         self.triggerPageAction(QWebEnginePage.Paste)
 
-    def onSelectAll(self):
+    def onSelectAll(self) -> None:
         self.triggerPageAction(QWebEnginePage.SelectAll)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
@@ -293,7 +293,7 @@ class AnkiWebView(QWebEngineView):
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
-    def dropEvent(self, evt):
+    def dropEvent(self, evt) -> None:
         pass
 
     def setHtml(self, html: str) -> None:  #  type: ignore
@@ -312,7 +312,7 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
-    def load(self, url: QUrl):
+    def load(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
         super().load(url)
@@ -364,7 +364,7 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
-    def _getWindowColor(self):
+    def _getWindowColor(self) -> QColor:
         if theme_manager.night_mode:
             return theme_manager.qcolor("window-bg")
         if isMac:
@@ -508,7 +508,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
     def _evalWithCallback(self, js: str, cb: Callable[[Any], Any]) -> None:
         if cb:
 
-            def handler(val):
+            def handler(val) -> None:
                 if self._shouldIgnoreWebEvent():
                     print("ignored late js callback", cb)
                     return
@@ -597,18 +597,18 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         self.onBridgeCmd = func
         self._bridge_context = context
 
-    def hide_while_preserving_layout(self):
+    def hide_while_preserving_layout(self) -> None:
         "Hide but keep existing size."
         sp = self.sizePolicy()
         sp.setRetainSizeWhenHidden(True)
         self.setSizePolicy(sp)
         self.hide()
 
-    def inject_dynamic_style_and_show(self):
+    def inject_dynamic_style_and_show(self) -> None:
         "Add dynamic styling, and reveal."
         css = self.standard_css()
 
-        def after_style(arg):
+        def after_style(arg) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
 

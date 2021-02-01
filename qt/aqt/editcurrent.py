@@ -48,7 +48,7 @@ class EditCurrent(QDialog):
             return
         self.editor.setNote(n)
 
-    def reopen(self, mw):
+    def reopen(self, mw) -> None:
         tooltip("Please finish editing the existing card first.")
         self.onReset()
 
@@ -74,8 +74,8 @@ class EditCurrent(QDialog):
         aqt.dialogs.markClosed("EditCurrent")
         QDialog.reject(self)
 
-    def closeWithCallback(self, onsuccess):
-        def callback():
+    def closeWithCallback(self, onsuccess) -> None:
+        def callback() -> None:
             self._saveAndClose()
             onsuccess()
 

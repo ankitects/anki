@@ -15,7 +15,7 @@ from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, t
 def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
     mw.progress.start()
 
-    def on_done(fut):
+    def on_done(fut) -> None:
         mw.progress.finish()
         report: EmptyCardsReport = fut.result()
         if not report.notes:
@@ -54,7 +54,7 @@ class EmptyCardsDialog(QDialog):
         style = "<style>.allempty { color: red; }</style>"
         self.form.webview.stdHtml(style + html, context=self)
 
-        def on_finished(code):
+        def on_finished(code) -> None:
             saveGeom(self, "emptycards")
 
         qconnect(self.finished, on_finished)
@@ -65,16 +65,16 @@ class EmptyCardsDialog(QDialog):
         self._delete_button.setAutoDefault(False)
         self._delete_button.clicked.connect(self._on_delete)
 
-    def _on_note_link_clicked(self, link):
+    def _on_note_link_clicked(self, link) -> None:
         self.mw.browser_search(link)
 
     def _on_delete(self) -> None:
         self.mw.progress.start()
 
-        def delete():
+        def delete() -> int:
             return self._delete_cards(self.form.keep_notes.isChecked())
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             self.mw.progress.finish()
             try:
                 count = fut.result()

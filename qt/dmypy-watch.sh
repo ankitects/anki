@@ -9,5 +9,5 @@
 
 (sleep 1 && touch aqt)
 . ~/pyenv/bin/activate
-fswatch -o aqt | xargs -n1 -I{} sh -c 'printf \\033c; dmypy run aqt'
+fswatch -o aqt | xargs -n1 -I{} sh -c 'printf \\033c\\n; dmypy run aqt'
 

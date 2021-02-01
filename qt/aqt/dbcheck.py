@@ -9,7 +9,7 @@ from aqt.qt import *
 from aqt.utils import showText, tooltip
 
 
-def on_progress(mw: aqt.main.AnkiQt):
+def on_progress(mw: aqt.main.AnkiQt) -> None:
     progress = mw.col.latest_progress()
     if progress.kind != ProgressKind.DatabaseCheck:
         return
@@ -24,14 +24,14 @@ def on_progress(mw: aqt.main.AnkiQt):
 
 
 def check_db(mw: aqt.AnkiQt) -> None:
-    def on_timer():
+    def on_timer() -> None:
         on_progress(mw)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
     timer.start(100)
 
-    def on_future_done(fut):
+    def on_future_done(fut) -> None:
         timer.stop()
         ret, ok = fut.result()
 

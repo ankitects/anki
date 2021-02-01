@@ -4,7 +4,7 @@
 import copy
 import json
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Match, Optional
 
 import aqt
 from anki.cards import Card
@@ -140,7 +140,7 @@ class CardLayout(QDialog):
         combo.setEnabled(not self._isCloze())
         self.ignore_change_signals = False
 
-    def _summarizedName(self, idx: int, tmpl: Dict):
+    def _summarizedName(self, idx: int, tmpl: Dict) -> str:
         return "{}: {}: {} -> {}".format(
             idx + 1,
             tmpl["name"],
@@ -284,7 +284,7 @@ class CardLayout(QDialog):
 
         self.fill_fields_from_template()
 
-    def on_search_changed(self, text: str):
+    def on_search_changed(self, text: str) -> None:
         editor = self.tform.edit_area
         if not editor.find(text):
             # try again from top
@@ -294,7 +294,7 @@ class CardLayout(QDialog):
             if not editor.find(text):
                 tooltip("No matches found.")
 
-    def on_search_next(self):
+    def on_search_next(self) -> None:
         text = self.tform.search_edit.text()
         self.on_search_changed(text)
 
@@ -341,7 +341,7 @@ class CardLayout(QDialog):
         self.fill_empty_action_toggled = not self.fill_empty_action_toggled
         self.on_preview_toggled()
 
-    def on_night_mode_action_toggled(self):
+    def on_night_mode_action_toggled(self) -> None:
         self.night_mode_is_enabled = not self.night_mode_is_enabled
         self.on_preview_toggled()
 
@@ -520,7 +520,7 @@ class CardLayout(QDialog):
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
 
-        def answerRepl(match):
+        def answerRepl(match: Match) -> str:
             res = self.mw.reviewer.correct("exomple", "an example")
             if hadHR:
                 res = "<hr id=answer>" + res
@@ -556,14 +556,15 @@ class CardLayout(QDialog):
     # Card operations
     ######################################################################
 
-    def onRemove(self):
+    def onRemove(self) -> None:
         if len(self.templates) < 2:
-            return showInfo(tr(TR.CARD_TEMPLATES_AT_LEAST_ONE_CARD_TYPE_IS))
+            showInfo(tr(TR.CARD_TEMPLATES_AT_LEAST_ONE_CARD_TYPE_IS))
+            return
 
-        def get_count():
+        def get_count() -> int:
             return self.mm.template_use_count(self.model["id"], self.ord)
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             card_cnt = fut.result()
 
             template = self.current_template()
@@ -593,7 +594,7 @@ class CardLayout(QDialog):
 
         self.redraw_everything()
 
-    def onRename(self):
+    def onRename(self) -> None:
         template = self.current_template()
         name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=template["name"]).replace(
             '"', ""
@@ -604,7 +605,7 @@ class CardLayout(QDialog):
         template["name"] = name
         self.redraw_everything()
 
-    def onReorder(self):
+    def onReorder(self) -> None:
         n = len(self.templates)
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
@@ -629,7 +630,7 @@ class CardLayout(QDialog):
         self.ord = new_idx
         self.redraw_everything()
 
-    def _newCardName(self):
+    def _newCardName(self) -> str:
         n = len(self.templates) + 1
         while 1:
             name = without_unicode_isolation(tr(TR.CARD_TEMPLATES_CARD, val=n))
@@ -638,7 +639,7 @@ class CardLayout(QDialog):
             n += 1
         return name
 
-    def onAddCard(self):
+    def onAddCard(self) -> None:
         cnt = self.mw.col.models.useCount(self.model)
         txt = tr(TR.CARD_TEMPLATES_THIS_WILL_CREATE_CARD_PROCEED, count=cnt)
         if not askUser(txt):
@@ -654,12 +655,12 @@ class CardLayout(QDialog):
         self.ord = len(self.templates) - 1
         self.redraw_everything()
 
-    def onFlip(self):
+    def onFlip(self) -> None:
         old = self.current_template()
         self._flipQA(old, old)
         self.redraw_everything()
 
-    def _flipQA(self, src, dst):
+    def _flipQA(self, src, dst) -> None:
         m = re.match("(?s)(.+)<hr id=answer>(.+)", src["afmt"])
         if not m:
             showInfo(tr(TR.CARD_TEMPLATES_ANKI_COULDNT_FIND_THE_LINE_BETWEEN))
@@ -667,7 +668,6 @@ class CardLayout(QDialog):
         self.change_tracker.mark_basic()
         dst["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src["qfmt"]
         dst["qfmt"] = m.group(2).strip()
-        return True
 
     def onMore(self) -> None:
         m = QMenu(self)
@@ -728,7 +728,7 @@ class CardLayout(QDialog):
                 if key in t:
                     del t[key]
 
-    def onTargetDeck(self):
+    def onTargetDeck(self) -> None:
         from aqt.tagedit import TagEdit
 
         t = self.current_template()
@@ -760,7 +760,7 @@ class CardLayout(QDialog):
         else:
             t["did"] = self.col.decks.id(te.text())
 
-    def onAddField(self):
+    def onAddField(self) -> None:
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
@@ -780,7 +780,7 @@ class CardLayout(QDialog):
                 form.size.value(),
             )
 
-    def _addField(self, field, font, size):
+    def _addField(self, field, font, size) -> None:
         text = self.tform.edit_area.toPlainText()
         text += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font,
@@ -795,10 +795,10 @@ class CardLayout(QDialog):
     ######################################################################
 
     def accept(self) -> None:
-        def save():
+        def save() -> None:
             self.mm.save(self.model)
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             try:
                 fut.result()
             except TemplateError as e:
@@ -829,5 +829,5 @@ class CardLayout(QDialog):
         self.rendered_card = None
         self.mw = None
 
-    def onHelp(self):
+    def onHelp(self) -> None:
         openHelp(HelpPage.TEMPLATES)

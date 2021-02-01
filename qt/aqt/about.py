@@ -13,20 +13,20 @@ from aqt.utils import TR, disable_help_button, supportText, tooltip, tr
 
 
 class ClosableQDialog(QDialog):
-    def reject(self):
+    def reject(self) -> None:
         aqt.dialogs.markClosed("About")
         QDialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         aqt.dialogs.markClosed("About")
         QDialog.accept(self)
 
-    def closeWithCallback(self, callback):
+    def closeWithCallback(self, callback) -> None:
         self.reject()
         callback()
 
 
-def show(mw):
+def show(mw) -> QDialog:
     dialog = ClosableQDialog(mw)
     disable_help_button(dialog)
     mw.setupDialogGC(dialog)
@@ -55,7 +55,7 @@ def show(mw):
             modified = "mod"
         return f"{name} ['{addon.dir_name}', {installed}, '{addon.human_version}', {modified}]"
 
-    def onCopy():
+    def onCopy() -> None:
         addmgr = mw.addonManager
         active = []
         activeids = []
