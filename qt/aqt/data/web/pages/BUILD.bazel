@@ -19,11 +19,21 @@ copy_files_into_group(
     package = "//ts/congrats",
 )
 
+copy_page(
+    name = "previewer_page",
+    srcs = [
+        "previewer.html",
+        "previewer.js",
+    ],
+    package = "//ts/previewer",
+)
+
 filegroup(
     name = "pages",
     srcs = [
-        "congrats_page",
         "graphs_page",
+        "congrats_page",
+        "previewer_page"
     ],
     visibility = ["//qt:__subpackages__"],
 )

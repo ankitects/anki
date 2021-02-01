@@ -29,6 +29,7 @@ from . import modelopts
 from . import models
 from . import preferences
 from . import preview
+from . import previewer
 from . import profiles
 from . import progress
 from . import reposition

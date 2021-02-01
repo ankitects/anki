@@ -66,7 +66,7 @@ rollup_bundle(
     ] + svelte_names,
 )
 
-exports_files(["index.html"])
+exports_files(["previewer.html"])
 
 # Tests
 ################
