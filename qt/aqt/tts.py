@@ -525,7 +525,7 @@ if isWin:
         id: Any
 
     class WindowsRTTTSFilePlayer(TTSProcessPlayer):
-        voice_list = None
+        voice_list: List[Any] = []
         tmppath = os.path.join(tmpdir(), "tts.wav")
 
         def import_voices(self) -> None:
