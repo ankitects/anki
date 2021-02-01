@@ -69,7 +69,7 @@ except ImportError as e:
 # - make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, addons, browser, editcurrent  # isort:skip
+from aqt import addcards, addons, browser, editcurrent, dyndeckconf  # isort:skip
 from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
@@ -80,6 +80,7 @@ class DialogManager:
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
+        "DynDeckConfDialog": [dyndeckconf.DeckConf, None],
         "DeckStats": [stats.DeckStats, None],
         "NewDeckStats": [stats.NewDeckStats, None],
         "About": [about.show, None],
@@ -87,7 +88,7 @@ class DialogManager:
         "sync_log": [mediasync.MediaSyncDialog, None],
     }
 
-    def open(self, name: str, *args: Any) -> Any:
+    def open(self, name: str, *args: Any, **kwargs: Any) -> Any:
         (creator, instance) = self._dialogs[name]
         if instance:
             if instance.windowState() & Qt.WindowMinimized:
@@ -95,12 +96,11 @@ class DialogManager:
             instance.activateWindow()
             instance.raise_()
             if hasattr(instance, "reopen"):
-                instance.reopen(*args)
-            return instance
+                instance.reopen(*args, **kwargs)
         else:
-            instance = creator(*args)
+            instance = creator(*args, **kwargs)
             self._dialogs[name][1] = instance
-            return instance
+        return instance
 
     def markClosed(self, name: str) -> None:
         self._dialogs[name] = [self._dialogs[name][0], None]

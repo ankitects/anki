@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
-    <height>472</height>
+    <width>757</width>
+    <height>589</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,26 +15,76 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>DECKS_DECK</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>ACTIONS_NAME</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLineEdit" name="name">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>ACTIONS_FILTER</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>DECKS_LIMIT_TO</string>
+       <widget class="QPushButton" name="search_button">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
+        <property name="toolTip">
+         <string>SEARCH_VIEW_IN_BROWSER</string>
+        </property>
         <property name="text">
          <string>ACTIONS_SEARCH</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="1" column="2" colspan="4">
+       <widget class="QLineEdit" name="search"/>
+      </item>
+      <item row="2" column="2">
        <widget class="QSpinBox" name="limit">
         <property name="maximumSize">
          <size>
@@ -50,18 +100,22 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="4" colspan="2">
+       <widget class="QComboBox" name="order"/>
+      </item>
+      <item row="2" column="3">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>DECKS_CARDS_SELECTED_BY</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="4">
-       <widget class="QLineEdit" name="search"/>
-      </item>
-      <item row="1" column="3" colspan="2">
-       <widget class="QComboBox" name="order"/>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>DECKS_LIMIT_TO</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -72,23 +126,32 @@
       <string>DECKS_FILTER_2</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="search_button_2">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>SEARCH_VIEW_IN_BROWSER</string>
+        </property>
         <property name="text">
-         <string>DECKS_LIMIT_TO</string>
+         <string>ACTIONS_SEARCH</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item row="1" column="3" colspan="2">
-       <widget class="QComboBox" name="order_2"/>
       </item>
       <item row="0" column="1" colspan="4">
        <widget class="QLineEdit" name="search_2"/>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>ACTIONS_SEARCH</string>
+         <string>DECKS_LIMIT_TO</string>
         </property>
        </widget>
       </item>
@@ -107,6 +170,9 @@
          <number>99999</number>
         </property>
        </widget>
+      </item>
+      <item row="1" column="3" colspan="2">
+       <widget class="QComboBox" name="order_2"/>
       </item>
       <item row="1" column="2">
        <widget class="QLabel" name="label_4">
@@ -203,16 +269,19 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
+  <tabstop>name</tabstop>
+  <tabstop>search_button</tabstop>
   <tabstop>search</tabstop>
   <tabstop>limit</tabstop>
   <tabstop>order</tabstop>
+  <tabstop>search_button_2</tabstop>
   <tabstop>search_2</tabstop>
   <tabstop>limit_2</tabstop>
   <tabstop>order_2</tabstop>
