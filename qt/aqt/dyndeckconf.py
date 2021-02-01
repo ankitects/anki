@@ -29,7 +29,11 @@ class DeckConf(QDialog):
     """Dialogue to modify and build a filtered deck."""
 
     def __init__(
-        self, mw: AnkiQt, search: Optional[str] = None, deck: Optional[Deck] = None
+        self,
+        mw: AnkiQt,
+        search: Optional[str] = None,
+        search_2: Optional[str] = None,
+        deck: Optional[Deck] = None,
     ):
         """If 'deck' is an existing filtered deck, load and modify its settings.
         Otherwise, build a new one and derive settings from the current deck.
@@ -60,10 +64,10 @@ class DeckConf(QDialog):
             self.new_dyn_deck()
             self.loadConf()
             self.set_default_searches(self.old_deck["name"])
-        if search is not None:
-            self.form.search.setText(search)
 
+        self.set_custom_searches(search, search_2)
         qconnect(self.form.search_button.clicked, self.on_search_button)
+        qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
         color = theme_manager.str_color("link")
         self.setStyleSheet(
             f"""QPushButton[flat=true] {{ text-align: left; color: {color}; padding: 0; border: 0 }}
@@ -78,8 +82,6 @@ class DeckConf(QDialog):
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
         self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
-        self.form.search.setFocus()
-        self.form.search.selectAll()
         if self.mw.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
         restoreGeom(self, "dyndeckconf")
@@ -87,12 +89,13 @@ class DeckConf(QDialog):
         self.show()
 
     def reopen(
-        self, _mw: AnkiQt, search: Optional[str] = None, _deck: Optional[Deck] = None
+        self,
+        _mw: AnkiQt,
+        search: Optional[str] = None,
+        search_2: Optional[str] = None,
+        _deck: Optional[Deck] = None,
     ):
-        if search is not None:
-            self.form.search.setText(search)
-            self.form.search.setFocus()
-            self.form.search.selectAll()
+        self.set_custom_searches(search, search_2)
 
     def new_dyn_deck(self):
         suffix: int = 1
@@ -118,6 +121,20 @@ class DeckConf(QDialog):
             )
         )
 
+    def set_custom_searches(
+        self, search: Optional[str], search_2: Optional[str]
+    ) -> None:
+        if search is not None:
+            self.form.search.setText(search)
+        self.form.search.setFocus()
+        self.form.search.selectAll()
+        if search_2 is not None:
+            self.form.secondFilter.setChecked(True)
+            self.form.filter2group.setVisible(True)
+            self.form.search_2.setText(search_2)
+            self.form.search_2.setFocus()
+            self.form.search_2.selectAll()
+
     def initialSetup(self):
         import anki.consts as cs
 
@@ -126,12 +143,18 @@ class DeckConf(QDialog):
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
-    def on_search_button(self):
+    def on_search_button(self) -> None:
+        self._on_search_button(self.form.search)
+
+    def on_search_button_2(self) -> None:
+        self._on_search_button(self.form.search_2)
+
+    def _on_search_button(self, line: QLineEdit) -> None:
         try:
-            search = self.mw.col.build_search_string(self.form.search.text())
+            search = self.mw.col.build_search_string(line.text())
         except InvalidInput as err:
-            self.form.search.setFocus()
-            self.form.search.selectAll()
+            line.setFocus()
+            line.selectAll()
             show_invalid_search_error(err)
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
