@@ -437,7 +437,12 @@ class Browser(QMainWindow):
     col: Collection
     editor: Optional[Editor]
 
-    def __init__(self, mw: AnkiQt) -> None:
+    def __init__(
+        self,
+        mw: AnkiQt,
+        card: Optional[Card] = None,
+        search: Optional[Tuple[Union[str, SearchTerm]]] = None,
+    ) -> None:
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
@@ -461,7 +466,7 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
-        self.setupSearch()
+        self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
         self.show()
 
@@ -600,17 +605,41 @@ class Browser(QMainWindow):
         ]
         self.columns.sort(key=itemgetter(1))
 
+    def reopen(
+        self,
+        _mw: AnkiQt,
+        card: Optional[Card] = None,
+        search: Optional[Tuple[Union[str, SearchTerm]]] = None,
+    ) -> None:
+        if search is not None:
+            self.search_for_terms(*search)
+            self.form.searchEdit.setFocus()
+        elif card:
+            self.show_single_card(card)
+            self.form.searchEdit.setFocus()
+
     # Searching
     ######################################################################
 
-    def setupSearch(self):
+    def setupSearch(
+        self,
+        card: Optional[Card] = None,
+        search: Optional[Tuple[Union[str, SearchTerm]]] = None,
+    ):
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.lineEdit().setPlaceholderText(
             tr(TR.BROWSING_SEARCH_BAR_HINT)
         )
         self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
-        self.search_for(self.col.build_search_string(SearchTerm(deck="current")), "")
+        if search is not None:
+            self.search_for_terms(*search)
+        elif card:
+            self.show_single_card(card)
+        else:
+            self.search_for(
+                self.col.build_search_string(SearchTerm(deck="current")), ""
+            )
         self.form.searchEdit.setFocus()
 
     # search triggered by user
@@ -669,15 +698,17 @@ class Browser(QMainWindow):
         )
         return selected
 
-    def show_single_card(self, card: Optional[Card]):
-        """Try to search for the according note and select the given card."""
+    def search_for_terms(self, *search_terms: Union[str, SearchTerm]):
+        search = self.col.build_search_string(*search_terms)
+        self.form.searchEdit.setEditText(search)
+        self.onSearchActivated()
 
-        nid: Optional[int] = card and card.nid or 0
-        if nid:
+    def show_single_card(self, card: Card):
+        if card.nid:
 
             def on_show_single_card():
                 self.card = card
-                search = self.col.build_search_string(SearchTerm(nid=nid))
+                search = self.col.build_search_string(SearchTerm(nid=card.nid))
                 search = gui_hooks.default_search(search, card)
                 self.search_for(search, "")
                 self.focusCid(card.id)

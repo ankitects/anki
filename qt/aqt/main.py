@@ -27,7 +27,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import Collection, SearchTerm
+from anki.collection import Collection
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag
@@ -1044,8 +1044,7 @@ title="%s" %s>%s</button>""" % (
         aqt.dialogs.open("AddCards", self)
 
     def onBrowse(self) -> None:
-        browser = aqt.dialogs.open("Browser", self)
-        browser.show_single_card(self.reviewer.card)
+        aqt.dialogs.open("Browser", self, card=self.reviewer.card)
 
     def onEditCurrent(self):
         aqt.dialogs.open("EditCurrent", self)
@@ -1598,14 +1597,3 @@ title="%s" %s>%s</button>""" % (
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
-
-    # Helpers for all windows
-    ##########################################################################
-
-    def browser_search(self, *terms: Union[str, SearchTerm]) -> None:
-        """Wrapper for col.build_search_string() to look up the result in the browser."""
-
-        search = self.col.build_search_string(*terms)
-        browser = aqt.dialogs.open("Browser", self)
-        browser.form.searchEdit.lineEdit().setText(search)
-        browser.onSearchActivated()
