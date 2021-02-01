@@ -1051,15 +1051,13 @@ title="%s" %s>%s</button>""" % (
         aqt.dialogs.open("EditCurrent", self)
 
     def onDeckConf(self, deck=None):
+        import aqt.deckconf
+
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
-            import aqt
-
             aqt.dialogs.open("DynDeckConfDialog", self, deck=deck)
         else:
-            import aqt.deckconf
-
             aqt.deckconf.DeckConf(self, deck)
 
     def onOverview(self):

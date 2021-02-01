@@ -8,6 +8,7 @@ from anki.collection import SearchTerm
 from anki.decks import Deck
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
+from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -26,7 +27,9 @@ from aqt.utils import (
 class DeckConf(QDialog):
     """Dialogue to modify and build a filtered deck."""
 
-    def __init__(self, mw, search: Optional[str] = None, deck: Optional[Deck] = None):
+    def __init__(
+        self, mw: AnkiQt, search: Optional[str] = None, deck: Optional[Deck] = None
+    ):
         """If 'deck' is an existing filtered deck, load and modify its settings.
         Otherwise, build a new one and derive settings from the current deck.
         """
@@ -75,7 +78,9 @@ class DeckConf(QDialog):
 
         self.show()
 
-    def reopen(self, _mw, search: Optional[str] = None, _deck: Optional[Deck] = None):
+    def reopen(
+        self, _mw: AnkiQt, search: Optional[str] = None, _deck: Optional[Deck] = None
+    ):
         if search is not None:
             self.form.search.setText(search)
         self.form.search.selectAll()
@@ -90,7 +95,7 @@ class DeckConf(QDialog):
         self.did = self.mw.col.decks.new_filtered(name)
         self.deck = self.mw.col.decks.current()
 
-    def set_default_searches(self, deck_name):
+    def set_default_searches(self, deck_name: str):
         self.form.search.setText(
             self.mw.col.build_search_string(
                 SearchTerm(deck=deck_name),
@@ -112,7 +117,7 @@ class DeckConf(QDialog):
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
-    def _onReschedToggled(self, _state):
+    def _onReschedToggled(self, _state: int):
         self.form.previewDelayWidget.setVisible(
             not self.form.resched.isChecked() and self.mw.col.schedVer() > 1
         )
@@ -206,11 +211,15 @@ class DeckConf(QDialog):
     # Step load/save - fixme: share with std options screen
     ########################################################
 
-    def listToUser(self, l):
-        return " ".join([str(x) for x in l])
+    def listToUser(self, values: List[Union[float, int]]) -> str:
+        return " ".join(
+            [str(int(val)) if int(val) == val else str(val) for val in values]
+        )
 
-    def userToList(self, w, minSize=1) -> Optional[List[Union[float, int]]]:
-        items = str(w.text()).split(" ")
+    def userToList(
+        self, line: QLineEdit, minSize: int = 1
+    ) -> Optional[List[Union[float, int]]]:
+        items = str(line.text()).split(" ")
         ret = []
         for item in items:
             if not item:
