@@ -2,8 +2,8 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
 
 py_binary(
-    name = "mypy_protobuf",
-    srcs = [requirement("mypy-protobuf").replace(":pkg", ":mypy_protobuf.py")],
+    name = "protoc-gen-mypy",
+    srcs = ["protoc-gen-mypy.py"],
     visibility = [
         "//visibility:public",
     ],
@@ -17,7 +17,7 @@ py_binary(
         "//visibility:public",
     ],
     deps = [
-        ":mypy_protobuf",
+        ":protoc-gen-mypy",
         "@rules_python//python/runfiles",
     ],
 )
