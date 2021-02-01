@@ -713,7 +713,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.setEditText(search)
         self.onSearchActivated()
 
-    def show_single_card(self, card: Card):
+    def show_single_card(self, card: Card) -> None:
         if card.nid:
 
             def on_show_single_card() -> None:
@@ -1197,11 +1197,11 @@ where id in %s"""
         if nids:
             ChangeModel(self, nids)
 
-    def createFilteredDeck(self):
+    def createFilteredDeck(self) -> None:
         search = self.form.searchEdit.lineEdit().text()
         aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
 
-    def createFilteredDeck2(self):
+    def createFilteredDeck2(self) -> None:
         search = self.form.searchEdit.lineEdit().text()
         aqt.dialogs.open("DynDeckConfDialog", self.mw, search_2=search)
 
