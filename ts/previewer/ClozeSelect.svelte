@@ -18,10 +18,6 @@
 </script>
 
 <style>
-    .input-group-text, .form-control {
-        border-radius: 0;
-    }
-
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -43,7 +39,7 @@
 
 <div class="btn-group mx-1">
     <button type="button" class="btn btn-primary" on:click={decrementCloze}><i class="bi bi-dash"></i></button>
-    <span class="input-group-text">Cloze</span>
-    <input class="form-control" id="number" type=number min="1" max={maximumCloze} on:change={clozeChanged} bind:value={clozeNumber}>
+    <span class="input-group-text rounded-0">Cloze</span>
+    <input class="form-control rounded-0" id="number" type=number min="1" max={maximumCloze} on:change={clozeChanged} bind:value={clozeNumber}>
     <button type="button" class="btn btn-primary" on:click={incrementCloze}><i class="bi bi-plus"></i></button>
 </div>
