@@ -88,7 +88,7 @@ class DialogManager:
         "sync_log": [mediasync.MediaSyncDialog, None],
     }
 
-    def open(self, name: str, *args: Any) -> Any:
+    def open(self, name: str, *args: Any, **kwargs: Any) -> Any:
         (creator, instance) = self._dialogs[name]
         if instance:
             if instance.windowState() & Qt.WindowMinimized:
@@ -96,12 +96,11 @@ class DialogManager:
             instance.activateWindow()
             instance.raise_()
             if hasattr(instance, "reopen"):
-                instance.reopen(*args)
-            return instance
+                instance.reopen(*args, **kwargs)
         else:
-            instance = creator(*args)
+            instance = creator(*args, **kwargs)
             self._dialogs[name][1] = instance
-            return instance
+        return instance
 
     def markClosed(self, name: str):
         self._dialogs[name] = [self._dialogs[name][0], None]

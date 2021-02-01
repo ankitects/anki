@@ -1160,7 +1160,8 @@ where id in %s"""
             ChangeModel(self, nids)
 
     def filterToDeck(self):
-        aqt.dialogs.open("DynDeckConfDialog", self.mw, self.form.searchEdit.lineEdit().text())
+        search = self.form.searchEdit.lineEdit().text()
+        aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
 
     # Preview
     ######################################################################
