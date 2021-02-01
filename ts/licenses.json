@@ -99,6 +99,13 @@
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
+    "bootstrap-icons@1.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/twbs/icons",
+        "publisher": "mdo",
+        "path": "node_modules/bootstrap-icons",
+        "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
+    },
     "bootstrap@5.0.0-beta1": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",

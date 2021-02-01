@@ -95,7 +95,7 @@ def copy_css_browser_selector(name = "css-browser-selector", visibility = ["//vi
         visibility = visibility,
     )
 
-def copy_bootstrap_js(name = "bootstrap_js", visibility = ["//visibility:public"]):
+def copy_bootstrap_js(name = "bootstrap-js", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
         pkg = _pkg_from_name(name),
@@ -106,7 +106,7 @@ def copy_bootstrap_js(name = "bootstrap_js", visibility = ["//visibility:public"
         visibility = visibility,
     )
 
-def copy_bootstrap_css(name = "bootstrap_css", visibility = ["//visibility:public"]):
+def copy_bootstrap_css(name = "bootstrap-css", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
         pkg = _pkg_from_name(name),
@@ -114,5 +114,18 @@ def copy_bootstrap_css(name = "bootstrap_css", visibility = ["//visibility:publi
             "dist/css/bootstrap.min.css",
         ],
         strip_prefix = "dist/css/",
+        visibility = visibility,
+    )
+
+def copy_bootstrap_icons(name = "bootstrap-icons", visibility = ["//visibility:public"]):
+    vendor_js_lib(
+        name = name,
+        pkg = _pkg_from_name(name),
+        include = [
+            "font/bootstrap-icons.css",
+            "font/fonts/bootstrap-icons.woff",
+            "font/fonts/bootstrap-icons.woff2",
+        ],
+        strip_prefix = "font/",
         visibility = visibility,
     )
