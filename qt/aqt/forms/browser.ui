@@ -232,6 +232,7 @@
     <addaction name="actionClose"/>
     <addaction name="separator"/>
     <addaction name="actionCreateFilteredDeck"/>
+    <addaction name="actionCreateFilteredDeck2"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -591,6 +592,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionCreateFilteredDeck2">
+   <property name="text">
+    <string>BROWSING_CREATE_FILTERED_DECK_2</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+G</string>
    </property>
   </action>
  </widget>

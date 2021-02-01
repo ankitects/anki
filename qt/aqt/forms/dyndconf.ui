@@ -20,22 +20,6 @@
       <string>ACTIONS_FILTER</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
-       <widget class="QPushButton" name="search_button">
-        <property name="toolTip">
-         <string>SEARCH_VIEW_IN_BROWSER</string>
-        </property>
-        <property name="text">
-         <string>ACTIONS_SEARCH</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
@@ -43,12 +27,8 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>DECKS_CARDS_SELECTED_BY</string>
-        </property>
-       </widget>
+      <item row="1" column="2" colspan="4">
+       <widget class="QLineEdit" name="search"/>
       </item>
       <item row="2" column="2">
        <widget class="QSpinBox" name="limit">
@@ -69,8 +49,28 @@
       <item row="2" column="4" colspan="2">
        <widget class="QComboBox" name="order"/>
       </item>
-      <item row="1" column="2" colspan="4">
-       <widget class="QLineEdit" name="search"/>
+      <item row="2" column="3">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>DECKS_CARDS_SELECTED_BY</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="search_button">
+        <property name="toolTip">
+         <string>SEARCH_VIEW_IN_BROWSER</string>
+        </property>
+        <property name="text">
+         <string>ACTIONS_SEARCH</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -94,13 +94,6 @@
       <item row="0" column="1" colspan="4">
        <widget class="QLineEdit" name="search_2"/>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>ACTIONS_SEARCH</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QSpinBox" name="limit_2">
         <property name="maximumSize">
@@ -121,6 +114,22 @@
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>DECKS_CARDS_SELECTED_BY</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="search_button_2">
+        <property name="toolTip">
+         <string>SEARCH_VIEW_IN_BROWSER</string>
+        </property>
+        <property name="text">
+         <string>ACTIONS_SEARCH</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

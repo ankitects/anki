@@ -25,6 +25,7 @@ browsing-clear-unused = Clear Unused
 browsing-clear-unused-tags = Clear Unused Tags
 browsing-created = Created
 browsing-create-filtered-deck = Create Filtered Deck...
+browsing-create-filtered-deck_2 = Create Filtered Deck (2nd Filter)...
 browsing-ctrlandshiftande = Ctrl+Shift+E
 browsing-current-deck = Current Deck
 browsing-current-note-type = Current note type:
