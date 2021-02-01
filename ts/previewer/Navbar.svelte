@@ -1,6 +1,9 @@
 <script lang="typescript">
+    import type { SvelteComponent } from "svelte/internal";
     import FrontBackButtons from "./FrontBackButtons.svelte";
     import OptionsDropup from "./OptionsDropup.svelte";
+
+    export let extraControls: SvelteComponent;
 
     let showFront = true;
     let fillEmptyFields = false;
@@ -14,7 +17,8 @@
         <FrontBackButtons bind:showFront />
 
         <!-- right buttons -->
-        <div>
+        <div class="d-flex">
+            <svelte:component this={extraControls} />
             <OptionsDropup
                 bind:fillEmptyFields
                 bind:nightMode
