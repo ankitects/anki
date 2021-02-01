@@ -231,7 +231,7 @@
     <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
-    <addaction name="actionFilterToDeck"/>
+    <addaction name="actionCreateFilteredDeck"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -585,9 +585,9 @@
     <string notr="true">Ctrl+Shift+E</string>
    </property>
   </action>
-  <action name="actionFilterToDeck">
+  <action name="actionCreateFilteredDeck">
    <property name="text">
-    <string>BROWSING_FILTER_TO_DECK</string>
+    <string>BROWSING_CREATE_FILTERED_DECK</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>

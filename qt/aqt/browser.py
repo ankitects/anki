@@ -481,7 +481,7 @@ class Browser(QMainWindow):
         qconnect(f.actionSelectNotes.triggered, self.selectNotes)
         if not isMac:
             f.actionClose.setVisible(False)
-        qconnect(f.actionFilterToDeck.triggered, self.filterToDeck)
+        qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
         qconnect(f.actionAdd_Tags.triggered, lambda: self.addTags())
@@ -1190,7 +1190,7 @@ where id in %s"""
         if nids:
             ChangeModel(self, nids)
 
-    def filterToDeck(self):
+    def createFilteredDeck(self):
         search = self.form.searchEdit.lineEdit().text()
         aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
 
