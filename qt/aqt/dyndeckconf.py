@@ -5,10 +5,10 @@ from typing import Callable, List, Optional
 
 import aqt
 from anki.collection import SearchTerm
-from anki.decks import Deck
+from anki.decks import Deck, DeckRenameError
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -65,6 +65,8 @@ class DeckConf(QDialog):
             self.loadConf()
             self.set_default_searches(self.old_deck["name"])
 
+        self.form.name.setText(self.deck["name"])
+        self.form.name.setPlaceholderText(self.deck["name"])
         self.set_custom_searches(search, search_2)
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
@@ -202,6 +204,11 @@ class DeckConf(QDialog):
     def saveConf(self):
         f = self.form
         d = self.deck
+
+        if f.name.text() and d["name"] != f.name.text():
+            self.mw.col.decks.rename(d, f.name.text())
+            gui_hooks.sidebar_should_refresh_decks()
+
         d["resched"] = f.resched.isChecked()
         d["delays"] = None
 
@@ -236,8 +243,9 @@ class DeckConf(QDialog):
         try:
             self.saveConf()
         except InvalidInput as err:
-            show_invalid_search_error(err)
-            return
+            return show_invalid_search_error(err)
+        except DeckRenameError as err:
+            return showWarning(err.description)
         if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
             if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
                 return
