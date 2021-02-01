@@ -100,7 +100,7 @@ def copy_bootstrap_js(name = "bootstrap_js", visibility = ["//visibility:public"
         name = name,
         pkg = _pkg_from_name(name),
         include = [
-            "dist/js/bootstrap.min.js",
+            "dist/js/bootstrap.bundle.min.js",
         ],
         strip_prefix = "dist/js/",
         visibility = visibility,
