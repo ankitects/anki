@@ -35,3 +35,5 @@ search-card-modified = Card Modified
 
 ##
 
+# Tooltip for search lines outside browser
+search-view-in-browser = View in browser

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
+    <width>416</width>
     <height>472</height>
    </rect>
   </property>
@@ -21,20 +21,44 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
+       <widget class="QPushButton" name="search_button">
+        <property name="font">
+         <font>
+          <underline>true</underline>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>SEARCH_VIEW_IN_BROWSER</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton { text-align: left; color: blue; padding: 0; border: 0 }</string>
+        </property>
+        <property name="text">
+         <string>ACTIONS_SEARCH</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>DECKS_LIMIT_TO</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="2" column="3">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>ACTIONS_SEARCH</string>
+         <string>DECKS_CARDS_SELECTED_BY</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="2">
        <widget class="QSpinBox" name="limit">
         <property name="maximumSize">
          <size>
@@ -50,18 +74,11 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>DECKS_CARDS_SELECTED_BY</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="4">
-       <widget class="QLineEdit" name="search"/>
-      </item>
-      <item row="1" column="3" colspan="2">
+      <item row="2" column="4" colspan="2">
        <widget class="QComboBox" name="order"/>
+      </item>
+      <item row="1" column="2" colspan="4">
+       <widget class="QLineEdit" name="search"/>
       </item>
      </layout>
     </widget>
