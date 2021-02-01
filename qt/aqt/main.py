@@ -1056,7 +1056,7 @@ title="%s" %s>%s</button>""" % (
         if deck["dyn"]:
             import aqt
 
-            aqt.dialogs.open("DynDeckConfDialog", self, None, deck)
+            aqt.dialogs.open("DynDeckConfDialog", self, deck=deck)
         else:
             import aqt.deckconf
 
