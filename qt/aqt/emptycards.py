@@ -68,7 +68,7 @@ class EmptyCardsDialog(QDialog):
     def _on_note_link_clicked(self, link):
         self.mw.browser_search(link)
 
-    def _on_delete(self):
+    def _on_delete(self) -> None:
         self.mw.progress.start()
 
         def delete():

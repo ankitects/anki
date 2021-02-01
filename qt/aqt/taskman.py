@@ -78,7 +78,7 @@ class TaskManager(QObject):
 
         self.run_in_background(task, wrapped_done)
 
-    def _on_closures_pending(self):
+    def _on_closures_pending(self) -> None:
         """Run any pending closures. This runs in the main thread."""
         with self._closures_lock:
             closures = self._closures

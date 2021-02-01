@@ -57,7 +57,7 @@ class Models(QDialog):
     # Models
     ##########################################################################
 
-    def maybe_select_provided_notetype(self):
+    def maybe_select_provided_notetype(self) -> None:
         if not self.selected_notetype_id:
             self.form.modelsList.setCurrentRow(0)
             return

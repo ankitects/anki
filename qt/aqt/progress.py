@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import time
-from typing import Optional
+from typing import Callable, Optional
 
 import aqt.forms
 from aqt.qt import *
@@ -15,13 +15,13 @@ from aqt.utils import TR, disable_help_button, tr
 
 
 class ProgressManager:
-    def __init__(self, mw):
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
         self.app = QApplication.instance()
         self.inDB = False
         self.blockUpdates = False
         self._show_timer: Optional[QTimer] = None
-        self._win = None
+        self._win: Optional[ProgressDialog] = None
         self._levels = 0
 
     # Safer timers
@@ -29,7 +29,9 @@ class ProgressManager:
     # A custom timer which avoids firing while a progress dialog is active
     # (likely due to some long-running DB operation)
 
-    def timer(self, ms, func, repeat, requiresCollection=True):
+    def timer(
+        self, ms: int, func: Callable, repeat: bool, requiresCollection: bool = True
+    ) -> QTimer:
         """Create and start a standard Anki timer.
 
         If the timer fires while a progress window is shown:
@@ -136,7 +138,7 @@ class ProgressManager:
             self._updating = False
             self._lastUpdate = time.time()
 
-    def finish(self):
+    def finish(self) -> None:
         self._levels -= 1
         self._levels = max(0, self._levels)
         if self._levels == 0:
@@ -147,13 +149,13 @@ class ProgressManager:
                 self._show_timer.stop()
                 self._show_timer = None
 
-    def clear(self):
+    def clear(self) -> None:
         "Restore the interface after an error."
         if self._levels:
             self._levels = 1
             self.finish()
 
-    def _maybeShow(self):
+    def _maybeShow(self) -> None:
         if not self._levels:
             return
         if self._shown:
@@ -181,17 +183,17 @@ class ProgressManager:
         self._win = None
         self._shown = 0
 
-    def _setBusy(self):
+    def _setBusy(self) -> None:
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
 
-    def _unsetBusy(self):
+    def _unsetBusy(self) -> None:
         self.app.restoreOverrideCursor()
 
-    def busy(self):
+    def busy(self) -> int:
         "True if processing."
         return self._levels
 
-    def _on_show_timer(self):
+    def _on_show_timer(self) -> None:
         self._show_timer = None
         self._showWin()
 
@@ -209,7 +211,7 @@ class ProgressManager:
 
 
 class ProgressDialog(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget) -> None:
         QDialog.__init__(self, parent)
         disable_help_button(self)
         self.form = aqt.forms.progress.Ui_Dialog()
@@ -219,7 +221,7 @@ class ProgressDialog(QDialog):
         # required for smooth progress bars
         self.form.progressBar.setStyleSheet("QProgressBar::chunk { width: 1px; }")
 
-    def cancel(self):
+    def cancel(self) -> None:
         self._closingDown = True
         self.hide()
 

@@ -41,7 +41,7 @@ class FieldDialog(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
-        self.currentIdx = None
+        self.currentIdx: Optional[int] = None
         self.oldSortField = self.model["sortf"]
         self.fillFields()
         self.setupSignals()
@@ -52,13 +52,13 @@ class FieldDialog(QDialog):
 
     ##########################################################################
 
-    def fillFields(self):
+    def fillFields(self) -> None:
         self.currentIdx = None
         self.form.fieldList.clear()
         for c, f in enumerate(self.model["flds"]):
             self.form.fieldList.addItem("{}: {}".format(c + 1, f["name"]))
 
-    def setupSignals(self):
+    def setupSignals(self) -> None:
         f = self.form
         qconnect(f.fieldList.currentRowChanged, self.onRowChange)
         qconnect(f.fieldAdd.clicked, self.onAdd)
@@ -86,29 +86,31 @@ class FieldDialog(QDialog):
             movePos -= 1
         self.moveField(movePos + 1)  # convert to 1 based.
 
-    def onRowChange(self, idx):
+    def onRowChange(self, idx: int) -> None:
         if idx == -1:
             return
         self.saveField()
         self.loadField(idx)
 
-    def _uniqueName(self, prompt, ignoreOrd=None, old=""):
+    def _uniqueName(
+        self, prompt: str, ignoreOrd: Optional[int] = None, old: str = ""
+    ) -> Optional[str]:
         txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
-            return
+            return None
         if txt[0] in "#^/":
             showWarning(tr(TR.FIELDS_NAME_FIRST_LETTER_NOT_VALID))
-            return
+            return None
         for letter in """:{"}""":
             if letter in txt:
                 showWarning(tr(TR.FIELDS_NAME_INVALID_LETTER))
-                return
+                return None
         for f in self.model["flds"]:
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
             if f["name"] == txt:
                 showWarning(tr(TR.FIELDS_THAT_FIELD_NAME_IS_ALREADY_USED))
-                return
+                return None
         return txt
 
     def onRename(self):
@@ -127,7 +129,7 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.form.fieldList.setCurrentRow(idx)
 
-    def onAdd(self):
+    def onAdd(self) -> None:
         name = self._uniqueName(tr(TR.FIELDS_FIELD_NAME))
         if not name:
             return
@@ -185,7 +187,7 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.form.fieldList.setCurrentRow(pos - 1)
 
-    def loadField(self, idx):
+    def loadField(self, idx: int) -> None:
         self.currentIdx = idx
         fld = self.model["flds"][idx]
         f = self.form
@@ -195,7 +197,7 @@ class FieldDialog(QDialog):
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
 
-    def saveField(self):
+    def saveField(self) -> None:
         # not initialized yet?
         if self.currentIdx is None:
             return
@@ -219,14 +221,14 @@ class FieldDialog(QDialog):
             fld["rtl"] = rtl
             self.change_tracker.mark_basic()
 
-    def reject(self):
+    def reject(self) -> None:
         if self.change_tracker.changed():
             if not askUser("Discard changes?"):
                 return
 
         QDialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         self.saveField()
 
         def save():

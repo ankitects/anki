@@ -9,12 +9,13 @@ import traceback
 import unicodedata
 import zipfile
 from concurrent.futures import Future
-from typing import Optional
+from typing import Any, Optional
 
 import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -106,14 +107,14 @@ class ImportDialog(QDialog):
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         self.exec_()
 
-    def setupOptions(self):
+    def setupOptions(self) -> None:
         self.model = self.mw.col.models.current()
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.mw, self.frm.modelArea, label=False
         )
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
-    def modelChanged(self, unused=None):
+    def modelChanged(self, unused: Any = None) -> None:
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
@@ -142,7 +143,7 @@ class ImportDialog(QDialog):
         self.showMapping(hook=updateDelim)
         self.updateDelimiterButtonText()
 
-    def updateDelimiterButtonText(self):
+    def updateDelimiterButtonText(self) -> None:
         if not self.importer.needDelimiter:
             return
         if self.importer.delimiter:
@@ -164,7 +165,7 @@ class ImportDialog(QDialog):
         txt = tr(TR.IMPORTING_FIELDS_SEPARATED_BY, val=d)
         self.frm.autoDetect.setText(txt)
 
-    def accept(self):
+    def accept(self) -> None:
         self.importer.mapping = self.mapping
         if not self.importer.mappingOk():
             showWarning(tr(TR.IMPORTING_THE_FIRST_FIELD_OF_THE_NOTE))
@@ -211,19 +212,21 @@ class ImportDialog(QDialog):
 
         self.mw.taskman.run_in_background(self.importer.run, on_done)
 
-    def setupMappingFrame(self):
+    def setupMappingFrame(self) -> None:
         # qt seems to have a bug with adding/removing from a grid, so we add
         # to a separate object and add/remove that instead
         self.frame = QFrame(self.frm.mappingArea)
         self.frm.mappingArea.setWidget(self.frame)
         self.mapbox = QVBoxLayout(self.frame)
         self.mapbox.setContentsMargins(0, 0, 0, 0)
-        self.mapwidget = None
+        self.mapwidget: Optional[QWidget] = None
 
     def hideMapping(self):
         self.frm.mappingGroup.hide()
 
-    def showMapping(self, keepMapping=False, hook=None):
+    def showMapping(
+        self, keepMapping: bool = False, hook: Optional[Callable] = None
+    ) -> None:
         if hook:
             hook()
         if not keepMapping:
@@ -295,7 +298,7 @@ def showUnicodeWarning():
     showWarning(tr(TR.IMPORTING_SELECTED_FILE_WAS_NOT_IN_UTF8))
 
 
-def onImport(mw):
+def onImport(mw: AnkiQt) -> None:
     filt = ";;".join([x[0] for x in importing.Importers])
     file = getFile(mw, tr(TR.ACTIONS_IMPORT), None, key="import", filter=filt)
     if not file:
@@ -314,7 +317,7 @@ def onImport(mw):
     importFile(mw, file)
 
 
-def importFile(mw, file):
+def importFile(mw: AnkiQt, file: str) -> None:
     importerClass = None
     done = False
     for i in importing.Importers:
@@ -406,7 +409,7 @@ def invalidZipMsg():
     return tr(TR.IMPORTING_THIS_FILE_DOES_NOT_APPEAR_TO)
 
 
-def setupApkgImport(mw, importer):
+def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     base = os.path.basename(importer.file).lower()
     full = (
         (base == "collection.apkg")
@@ -424,6 +427,7 @@ def setupApkgImport(mw, importer):
         return False
 
     replaceWithApkg(mw, importer.file, mw.restoringBackup)
+    return False
 
 
 def replaceWithApkg(mw, file, backup):

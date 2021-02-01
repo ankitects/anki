@@ -26,7 +26,7 @@ from aqt.qt import *
 from aqt.utils import aqt_data_folder
 
 
-def _getExportFolder():
+def _getExportFolder() -> str:
     data_folder = aqt_data_folder()
     webInSrcFolder = os.path.abspath(os.path.join(data_folder, "web"))
     if os.path.exists(webInSrcFolder):
@@ -83,7 +83,7 @@ class MediaServer(threading.Thread):
             if not self.is_shutdown:
                 raise
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.is_shutdown = True
         sockets = list(self.server._map.values())  # type: ignore
         for socket in sockets:
@@ -91,7 +91,7 @@ class MediaServer(threading.Thread):
         # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L93-L104
         self.server.task_dispatcher.shutdown()
 
-    def getPort(self):
+    def getPort(self) -> int:
         self._ready.wait()
         return int(self.server.effective_port)  # type: ignore
 

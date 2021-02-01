@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import aqt
 from anki.collection import SearchTerm
 from anki.consts import *
@@ -35,7 +36,7 @@ class CustomStudy(QDialog):
         f.radioNew.click()
         self.exec_()
 
-    def setupSignals(self):
+    def setupSignals(self) -> None:
         f = self.form
         qconnect(f.radioNew.clicked, lambda: self.onRadioChange(RADIO_NEW))
         qconnect(f.radioRev.clicked, lambda: self.onRadioChange(RADIO_REV))
@@ -44,7 +45,7 @@ class CustomStudy(QDialog):
         qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
         qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
 
-    def onRadioChange(self, idx):
+    def onRadioChange(self, idx: int) -> None:
         f = self.form
         sp = f.spin
         smin = 1
@@ -123,7 +124,7 @@ class CustomStudy(QDialog):
         f.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
         self.radioIdx = idx
 
-    def accept(self):
+    def accept(self) -> None:
         f = self.form
         i = self.radioIdx
         spin = f.spin.value()
@@ -132,13 +133,15 @@ class CustomStudy(QDialog):
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(spin, 0)
             self.mw.reset()
-            return QDialog.accept(self)
+            QDialog.accept(self)
+            return
         elif i == RADIO_REV:
             self.deck["extendRev"] = spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(0, spin)
             self.mw.reset()
-            return QDialog.accept(self)
+            QDialog.accept(self)
+            return
         elif i == RADIO_CRAM:
             tags = self._getTags()
         # the rest create a filtered deck
@@ -146,7 +149,8 @@ class CustomStudy(QDialog):
         if cur:
             if not cur["dyn"]:
                 showInfo(tr(TR.CUSTOM_STUDY_MUST_RENAME_DECK))
-                return QDialog.accept(self)
+                QDialog.accept(self)
+                return
             else:
                 # safe to empty
                 self.mw.col.sched.empty_filtered_deck(cur["id"])
@@ -211,7 +215,8 @@ class CustomStudy(QDialog):
         # generate cards
         self.created_custom_study = True
         if not self.mw.col.sched.rebuild_filtered_deck(dyn["id"]):
-            return showWarning(tr(TR.CUSTOM_STUDY_NO_CARDS_MATCHED_THE_CRITERIA_YOU))
+            showWarning(tr(TR.CUSTOM_STUDY_NO_CARDS_MATCHED_THE_CRITERIA_YOU))
+            return
         self.mw.moveToState("overview")
         QDialog.accept(self)
 
@@ -222,7 +227,7 @@ class CustomStudy(QDialog):
             # fixme: clean up the empty custom study deck
         QDialog.reject(self)
 
-    def _getTags(self):
+    def _getTags(self) -> str:
         from aqt.taglimit import TagLimit
 
         return TagLimit(self.mw, self).tags

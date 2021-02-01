@@ -119,11 +119,11 @@ class AnkiRestart(SystemExit):
 
 
 class ProfileManager:
-    def __init__(self, base=None):
+    def __init__(self, base: Optional[str] = None) -> None:
         ## Settings which should be forgotten each Anki restart
-        self.session = {}
-        self.name = None
-        self.db = None
+        self.session: Dict[str, Any] = {}
+        self.name: Optional[str] = None
+        self.db: Optional[DB] = None
         self.profile: Optional[Dict] = None
         # instantiate base folder
         self.base: str
@@ -170,7 +170,7 @@ class ProfileManager:
                 return p
             return os.path.expanduser("~/Documents/Anki")
 
-    def maybeMigrateFolder(self):
+    def maybeMigrateFolder(self) -> None:
         newBase = self.base
         oldBase = self._oldFolderLocation()
 
@@ -206,7 +206,7 @@ class ProfileManager:
         confirmation.setText(
             "Anki needs to move its data folder from Documents/Anki to a new location. Proceed?"
         )
-        retval = confirmation.exec()
+        retval = confirmation.exec_()
 
         if retval == QMessageBox.Ok:
             progress = QMessageBox()
@@ -228,7 +228,7 @@ class ProfileManager:
             completion.setWindowTitle(window_title)
             completion.setText("Migration complete. Please start Anki again.")
             completion.show()
-            completion.exec()
+            completion.exec_()
         else:
             diag = QMessageBox()
             diag.setIcon(QMessageBox.Warning)
@@ -239,7 +239,7 @@ class ProfileManager:
                 "Migration aborted. If you would like to keep the old folder location, please "
                 "see the Startup Options section of the manual. Anki will now quit."
             )
-            diag.exec()
+            diag.exec_()
 
         raise AnkiRestart(exitcode=0)
 
@@ -424,7 +424,7 @@ class ProfileManager:
             os.makedirs(path)
         return path
 
-    def _setBaseFolder(self, cmdlineBase: None) -> None:
+    def _setBaseFolder(self, cmdlineBase: Optional[str]) -> None:
         if cmdlineBase:
             self.base = os.path.abspath(cmdlineBase)
         elif os.environ.get("ANKI_BASE"):
