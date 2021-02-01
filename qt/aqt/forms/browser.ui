@@ -590,7 +590,7 @@
     <string>BROWSING_FILTER_TO_DECK</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Q</string>
+    <string notr="true">Ctrl+G</string>
    </property>
   </action>
  </widget>
