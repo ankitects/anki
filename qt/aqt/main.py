@@ -14,7 +14,7 @@ import weakref
 import zipfile
 from argparse import Namespace
 from threading import Thread
-from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, Union, cast
+from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, cast
 
 import anki
 import aqt
@@ -27,10 +27,9 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import Collection, SearchTerm
+from anki.collection import Collection
 from anki.decks import Deck
 from anki.hooks import runHook
-from anki.lang import without_unicode_isolation
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
@@ -1055,22 +1054,19 @@ title="%s" %s>%s</button>""" % (
         aqt.dialogs.open("AddCards", self)
 
     def onBrowse(self) -> None:
-        browser = aqt.dialogs.open("Browser", self)
-        browser.show_single_card(self.reviewer.card)
+        aqt.dialogs.open("Browser", self, card=self.reviewer.card)
 
     def onEditCurrent(self) -> None:
         aqt.dialogs.open("EditCurrent", self)
 
-    def onDeckConf(self, deck=None) -> None:
+    def onDeckConf(self, deck: Optional[Deck] = None) -> None:
+        import aqt.deckconf
+
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
-            import aqt.dyndeckconf
-
-            aqt.dyndeckconf.DeckConf(self, deck=deck)
+            aqt.dialogs.open("DynDeckConfDialog", self, deck=deck)
         else:
-            import aqt.deckconf
-
             aqt.deckconf.DeckConf(self, deck)
 
     def onOverview(self) -> None:
@@ -1145,25 +1141,8 @@ title="%s" %s>%s</button>""" % (
     # Cramming
     ##########################################################################
 
-    def onCram(self, search: str = "") -> None:
-        import aqt.dyndeckconf
-
-        n = 1
-        deck = self.col.decks.current()
-        if not search:
-            if not deck["dyn"]:
-                search = self.col.build_search_string(SearchTerm(deck=deck["name"]))
-        while self.col.decks.id_for_name(
-            without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
-        ):
-            n += 1
-        name = without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
-        did = self.col.decks.new_filtered(name)
-        diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
-        if not diag.ok:
-            # user cancelled first config
-            self.col.decks.rem(did)
-            self.col.decks.select(deck["id"])
+    def onCram(self) -> None:
+        aqt.dialogs.open("DynDeckConfDialog", self)
 
     # Menu, title bar & status
     ##########################################################################
@@ -1630,14 +1609,3 @@ title="%s" %s>%s</button>""" % (
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
-
-    # Helpers for all windows
-    ##########################################################################
-
-    def browser_search(self, *terms: Union[str, SearchTerm]) -> None:
-        """Wrapper for col.build_search_string() to look up the result in the browser."""
-
-        search = self.col.build_search_string(*terms)
-        browser = aqt.dialogs.open("Browser", self)
-        browser.form.searchEdit.lineEdit().setText(search)
-        browser.onSearchActivated()
