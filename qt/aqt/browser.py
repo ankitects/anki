@@ -450,6 +450,11 @@ class Browser(QMainWindow):
         card: Optional[Card] = None,
         search: Optional[Tuple[Union[str, SearchTerm]]] = None,
     ) -> None:
+        """
+        card  : try to search for its note and select it
+        search: set and perform search; caller must ensure validity
+        """
+
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
