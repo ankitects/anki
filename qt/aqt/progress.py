@@ -71,7 +71,12 @@ class ProgressManager:
     ##########################################################################
 
     def start(
-        self, max=0, min=0, label=None, parent=None, immediate=False
+        self,
+        max: int = 0,
+        min: int = 0,
+        label: Optional[str] = None,
+        parent: Optional[QDialog] = None,
+        immediate: bool = False,
     ) -> Optional[ProgressDialog]:
         self._levels += 1
         if self._levels > 1:
@@ -106,10 +111,10 @@ class ProgressManager:
 
     def update(
         self,
-        label=None,
-        value=None,
-        process=True,
-        maybeShow=True,
+        label: Optional[str] = None,
+        value: Optional[int] = None,
+        process: bool = True,
+        maybeShow: bool = True,
         max: Optional[int] = None,
     ) -> None:
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
@@ -225,14 +230,14 @@ class ProgressDialog(QDialog):
         self._closingDown = True
         self.hide()
 
-    def closeEvent(self, evt) -> None:
+    def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closingDown:
             evt.accept()
         else:
             self.wantCancel = True
             evt.ignore()
 
-    def keyPressEvent(self, evt) -> None:
+    def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key_Escape:
             evt.ignore()
             self.wantCancel = True

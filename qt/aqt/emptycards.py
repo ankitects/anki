@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 from concurrent.futures import Future
+from typing import Any
 
 import aqt
 from anki.collection import EmptyCardsReport, NoteWithEmptyCards
@@ -55,7 +56,7 @@ class EmptyCardsDialog(QDialog):
         style = "<style>.allempty { color: red; }</style>"
         self.form.webview.stdHtml(style + html, context=self)
 
-        def on_finished(code) -> None:
+        def on_finished(code: Any) -> None:
             saveGeom(self, "emptycards")
 
         qconnect(self.finished, on_finished)
@@ -66,7 +67,7 @@ class EmptyCardsDialog(QDialog):
         self._delete_button.setAutoDefault(False)
         self._delete_button.clicked.connect(self._on_delete)
 
-    def _on_note_link_clicked(self, link) -> None:
+    def _on_note_link_clicked(self, link: str) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(link,))
 
     def _on_delete(self) -> None:

@@ -92,7 +92,7 @@ class Preferences(QDialog):
         except:
             return codes.index("en_US")
 
-    def onLangIdxChanged(self, idx) -> None:
+    def onLangIdxChanged(self, idx: int) -> None:
         code = anki.lang.langs[idx][1]
         self.mw.pm.setLang(code)
         showInfo(
@@ -176,7 +176,7 @@ class Preferences(QDialog):
     # Scheduler version
     ######################################################################
 
-    def _updateSchedVer(self, wantNew) -> None:
+    def _updateSchedVer(self, wantNew: bool) -> None:
         haveNew = self.mw.col.schedVer() == 2
 
         # nothing to do?

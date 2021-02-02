@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from concurrent.futures import Future
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import aqt
 from anki.collection import MediaSyncProgress, ProgressKind
@@ -185,11 +185,13 @@ class MediaSyncDialog(QDialog):
         aqt.dialogs.markClosed("sync_log")
         QDialog.reject(self)
 
-    def reopen(self, mw, syncer, close_when_done: bool = False) -> None:
+    def reopen(
+        self, mw: aqt.AnkiQt, syncer: Any, close_when_done: bool = False
+    ) -> None:
         self._close_when_done = close_when_done
         self.show()
 
-    def _on_abort(self, *args) -> None:
+    def _on_abort(self, *_args: Any) -> None:
         self._syncer.abort()
         self.abort_button.setHidden(True)
 

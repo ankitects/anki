@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Callable, List, Optional
+from typing import Any, Callable, List, Optional
 
 import aqt.deckchooser
 import aqt.editor
@@ -48,7 +48,7 @@ class AddCards(QDialog):
         self.setupButtons()
         self.onReset()
         self.history: List[int] = []
-        self.previousNote = None
+        self.previousNote: Optional[Note] = None
         restoreGeom(self, "add")
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.current_note_type_did_change.append(self.onModelChange)
@@ -102,7 +102,7 @@ class AddCards(QDialog):
     def show_notetype_selector(self) -> None:
         self.editor.saveNow(self.modelChooser.onModelChange)
 
-    def onModelChange(self, unused=None) -> None:
+    def onModelChange(self, unused: Any = None) -> None:
         oldNote = self.editor.note
         note = self.mw.col.newNote()
         self.previousNote = None
@@ -161,10 +161,10 @@ class AddCards(QDialog):
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
-    def editHistory(self, nid) -> None:
+    def editHistory(self, nid: int) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(SearchTerm(nid=nid),))
 
-    def addNote(self, note) -> Optional[Note]:
+    def addNote(self, note: Note) -> Optional[Note]:
         note.model()["did"] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
         problem = None
@@ -234,7 +234,7 @@ class AddCards(QDialog):
 
         self.editor.saveNow(afterSave)
 
-    def closeWithCallback(self, cb) -> None:
+    def closeWithCallback(self, cb: Callable[[], None]) -> None:
         def doClose() -> None:
             self._reject()
             cb()

@@ -155,7 +155,7 @@ class ExportDialog(QDialog):
                 os.unlink(file)
 
             # progress handler
-            def exported_media(cnt) -> None:
+            def exported_media(cnt: int) -> None:
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
                         label=tr(TR.EXPORTING_EXPORTED_MEDIA_FILE, count=cnt)

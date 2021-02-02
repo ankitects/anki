@@ -9,7 +9,7 @@ from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, t
 
 
 class EditCurrent(QDialog):
-    def __init__(self, mw) -> None:
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -48,7 +48,7 @@ class EditCurrent(QDialog):
             return
         self.editor.setNote(n)
 
-    def reopen(self, mw) -> None:
+    def reopen(self, mw: aqt.AnkiQt) -> None:
         tooltip("Please finish editing the existing card first.")
         self.onReset()
 
@@ -74,7 +74,7 @@ class EditCurrent(QDialog):
         aqt.dialogs.markClosed("EditCurrent")
         QDialog.reject(self)
 
-    def closeWithCallback(self, onsuccess) -> None:
+    def closeWithCallback(self, onsuccess: Callable[[], None]) -> None:
         def callback() -> None:
             self._saveAndClose()
             onsuccess()

@@ -349,7 +349,7 @@ class AnkiQt(QMainWindow):
             dir=self.pm.backupFolder(),
         )
 
-    def _openBackup(self, path) -> None:
+    def _openBackup(self, path: str) -> None:
         try:
             # move the existing collection to the trash, as it may not open
             self.pm.trashCollection()

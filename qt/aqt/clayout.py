@@ -585,7 +585,7 @@ class CardLayout(QDialog):
 
         self.mw.taskman.with_progress(get_count, on_done)
 
-    def onRemoveInner(self, template) -> None:
+    def onRemoveInner(self, template: Dict) -> None:
         self.mm.remove_template(self.model, template)
 
         # ensure current ordinal is within bounds
@@ -661,7 +661,7 @@ class CardLayout(QDialog):
         self._flipQA(old, old)
         self.redraw_everything()
 
-    def _flipQA(self, src, dst) -> None:
+    def _flipQA(self, src: Dict, dst: Dict) -> None:
         m = re.match("(?s)(.+)<hr id=answer>(.+)", src["afmt"])
         if not m:
             showInfo(tr(TR.CARD_TEMPLATES_ANKI_COULDNT_FIND_THE_LINE_BETWEEN))
@@ -781,7 +781,7 @@ class CardLayout(QDialog):
                 form.size.value(),
             )
 
-    def _addField(self, field, font, size) -> None:
+    def _addField(self, field: str, font: str, size: int) -> None:
         text = self.tform.edit_area.toPlainText()
         text += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font,

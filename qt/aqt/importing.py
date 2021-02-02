@@ -9,7 +9,7 @@ import traceback
 import unicodedata
 import zipfile
 from concurrent.futures import Future
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import anki.importing as importing
 import aqt.deckchooser
@@ -35,7 +35,7 @@ from aqt.utils import (
 
 
 class ChangeMap(QDialog):
-    def __init__(self, mw: AnkiQt, model, current) -> None:
+    def __init__(self, mw: AnkiQt, model: Dict, current: str) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.model = model
@@ -79,8 +79,11 @@ class ChangeMap(QDialog):
 
 
 # called by importFile() when importing a mappable file like .csv
+# ImportType = Union[Importer,AnkiPackageImporter, TextImporter]
+
+
 class ImportDialog(QDialog):
-    def __init__(self, mw: AnkiQt, importer) -> None:
+    def __init__(self, mw: AnkiQt, importer: Any) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.importer = importer
@@ -258,7 +261,7 @@ class ImportDialog(QDialog):
             self.grid.addWidget(button, num, 2)
             qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
 
-    def changeMappingNum(self, n) -> None:
+    def changeMappingNum(self, n: int) -> None:
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
         try:
             # make sure we don't have it twice
@@ -286,7 +289,7 @@ class ImportDialog(QDialog):
     def helpRequested(self) -> None:
         openHelp(HelpPage.IMPORTING)
 
-    def importModeChanged(self, newImportMode) -> None:
+    def importModeChanged(self, newImportMode: int) -> None:
         if newImportMode == 0:
             self.frm.tagModified.setEnabled(True)
         else:
@@ -430,11 +433,11 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     return False
 
 
-def replaceWithApkg(mw, file, backup) -> None:
+def replaceWithApkg(mw: aqt.AnkiQt, file: str, backup: bool) -> None:
     mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
 
 
-def _replaceWithApkg(mw, filename, backup) -> None:
+def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
     mw.progress.start(immediate=True)
 
     def do_import() -> None:
@@ -457,7 +460,7 @@ def _replaceWithApkg(mw, filename, backup) -> None:
             json.loads(z.read("media").decode("utf8")).items()
         ):
             mw.taskman.run_on_main(
-                lambda n=n: mw.progress.update(
+                lambda n=n: mw.progress.update(  # type: ignore
                     tr(TR.IMPORTING_PROCESSED_MEDIA_FILE, count=n)
                 )
             )

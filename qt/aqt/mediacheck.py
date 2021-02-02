@@ -66,6 +66,7 @@ class MediaChecker:
             return
 
         assert isinstance(progress.val, str)
+        val = progress.val
 
         try:
             if self.progress_dialog.wantCancel:
@@ -74,7 +75,7 @@ class MediaChecker:
             # dialog may not be active
             pass
 
-        self.mw.taskman.run_on_main(lambda: self.mw.progress.update(progress.val))
+        self.mw.taskman.run_on_main(lambda: self.mw.progress.update(val))
 
     def _check(self) -> CheckMediaOut:
         "Run the check on a background thread."

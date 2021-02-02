@@ -8,7 +8,7 @@ import html
 import json
 import re
 import unicodedata as ucd
-from typing import Any, Callable, List, Match, Optional, Tuple, Union
+from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
@@ -443,12 +443,12 @@ class Reviewer:
 
         return re.sub(self.typeAnsPat, repl, buf)
 
-    def _contentForCloze(self, txt: str, idx) -> str:
+    def _contentForCloze(self, txt: str, idx: int) -> str:
         matches = re.findall(r"\{\{c%s::(.+?)\}\}" % idx, txt, re.DOTALL)
         if not matches:
             return None
 
-        def noHint(txt) -> str:
+        def noHint(txt: str) -> str:
             if "::" in txt:
                 return txt.split("::")[0]
             return txt
@@ -652,7 +652,7 @@ time = %(time)d;
     def _answerButtons(self) -> str:
         default = self._defaultEase()
 
-        def but(i, label) -> str:
+        def but(i: int, label: str) -> str:
             if i == default:
                 extra = """id="defease" class="focus" """
             else:
@@ -755,7 +755,7 @@ time = %(time)d;
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
-    def _addMenuItems(self, m, rows) -> None:
+    def _addMenuItems(self, m: QMenu, rows: Sequence) -> None:
         for row in rows:
             if not row:
                 m.addSeparator()
