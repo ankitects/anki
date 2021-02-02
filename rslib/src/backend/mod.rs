@@ -1438,6 +1438,17 @@ impl BackendService for Backend {
         self.with_col(|col| col.tag_tree())
     }
 
+    fn drag_drop_tags(&self, input: pb::DragDropTagsIn) -> BackendResult<Empty> {
+        let source_tags = input.source_tags;
+        let target_tag = if input.target_tag.is_empty() {
+            None
+        } else {
+            Some(input.target_tag)
+        };
+        self.with_col(|col| col.drag_drop_tags(&source_tags, target_tag))
+            .map(Into::into)
+    }
+
     // config/preferences
     //-------------------------------------------------------------------
 

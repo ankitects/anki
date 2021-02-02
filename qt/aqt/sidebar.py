@@ -222,6 +222,8 @@ class SidebarModel(QAbstractItemModel):
         if item.item_type in (
             SidebarItemType.DECK,
             SidebarItemType.DECK_ROOT,
+            SidebarItemType.TAG,
+            SidebarItemType.TAG_ROOT,
         ):
             flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
 
@@ -382,6 +384,8 @@ class SidebarTreeView(QTreeView):
     def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
         if target.item_type in (SidebarItemType.DECK, SidebarItemType.DECK_ROOT):
             return self._handle_drag_drop_decks(sources, target)
+        if target.item_type in (SidebarItemType.TAG, SidebarItemType.TAG_ROOT):
+            return self._handle_drag_drop_tags(sources, target)
         return False
 
     def _handle_drag_drop_decks(
@@ -399,6 +403,31 @@ class SidebarTreeView(QTreeView):
 
         self.mw.taskman.with_progress(
             lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
+        )
+        return True
+
+    def _handle_drag_drop_tags(
+        self, sources: List[SidebarItem], target: SidebarItem
+    ) -> bool:
+        source_ids = [
+            source.full_name
+            for source in sources
+            if source.item_type == SidebarItemType.TAG
+        ]
+        if not source_ids:
+            return False
+
+        def on_done(fut: Future) -> None:
+            fut.result()
+            self.refresh()
+
+        if target.item_type == SidebarItemType.TAG_ROOT:
+            target_name = ""
+        else:
+            target_name = target.full_name
+
+        self.mw.taskman.with_progress(
+            lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
         )
         return True
 

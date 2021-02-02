@@ -99,6 +99,11 @@ class TagManager:
     def remove(self, tag: str) -> None:
         self.col._backend.clear_tag(tag)
 
+    def drag_drop(self, source_tags: List[str], target_tag: str) -> None:
+        """Rename one or more source tags that were dropped on `target_tag`.
+        If target_tag is "", tags will be placed at the top level."""
+        self.col._backend.drag_drop_tags(source_tags=source_tags, target_tag=target_tag)
+
     # legacy routines
 
     def bulkAdd(self, ids: List[int], tags: str, add: bool = True) -> None:
