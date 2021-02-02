@@ -399,12 +399,19 @@ class SidebarTreeView(QTreeView):
             return False
 
         def on_done(fut: Future) -> None:
+            self.browser.model.endReset()
             fut.result()
             self.refresh()
+            self.mw.deckBrowser.refresh()
 
-        self.mw.taskman.with_progress(
-            lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
-        )
+        def on_save() -> None:
+            self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
+            self.browser.model.beginReset()
+            self.mw.taskman.with_progress(
+                lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
+            )
+
+        self.browser.editor.saveNow(on_save)
         return True
 
     def _handle_drag_drop_tags(
@@ -419,6 +426,8 @@ class SidebarTreeView(QTreeView):
             return False
 
         def on_done(fut: Future) -> None:
+            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
+            self.browser.model.endReset()
             fut.result()
             self.refresh()
 
@@ -427,9 +436,14 @@ class SidebarTreeView(QTreeView):
         else:
             target_name = target.full_name
 
-        self.mw.taskman.with_progress(
-            lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
-        )
+        def on_save() -> None:
+            self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
+            self.browser.model.beginReset()
+            self.mw.taskman.with_progress(
+                lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
+            )
+
+        self.browser.editor.saveNow(on_save)
         return True
 
     def onClickCurrent(self) -> None:
