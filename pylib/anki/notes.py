@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import pprint
+import copy
 from typing import Any, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
@@ -74,6 +75,27 @@ class Note:
 
     def joinedFields(self) -> str:
         return joinFields(self.fields)
+
+    def ephemeral_card(self, ord=0, *, fill_empty=False) -> anki.cards.Card:
+        card = anki.cards.Card(self.col)
+        card.ord = ord
+        card.did = 1
+
+        model = self.model()
+        template = copy.copy(model["tmpls"][ord])
+        # may differ in cloze case
+        template["ord"] = card.ord
+
+        output = anki.template.TemplateRenderContext.from_card_layout(
+            self,
+            card,
+            notetype=model,
+            template=template,
+            fill_empty=fill_empty,
+        ).render()
+        card.set_render_output(output)
+        card._note = self
+        return card
 
     def cards(self) -> List[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
