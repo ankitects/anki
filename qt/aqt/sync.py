@@ -46,6 +46,7 @@ def get_sync_status(
     auth = mw.pm.sync_auth()
     if not auth:
         callback(SyncStatus(required=SyncStatus.NO_CHANGES))  # pylint:disable=no-member
+        return
 
     def on_future_done(fut) -> None:
         try:
