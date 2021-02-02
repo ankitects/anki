@@ -13,13 +13,13 @@ class DeckChooser(QHBoxLayout):
         self, mw: AnkiQt, widget: QWidget, label: bool = True, start: Any = None
     ) -> None:
         QHBoxLayout.__init__(self)
-        self.widget = widget  # type: ignore
+        self._widget = widget  # type: ignore
         self.mw = mw
         self.label = label
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
         self.setupDecks()
-        self.widget.setLayout(self)
+        self._widget.setLayout(self)
         gui_hooks.current_note_type_did_change.append(self.onModelChangeNew)
 
     def setupDecks(self) -> None:
@@ -30,7 +30,7 @@ class DeckChooser(QHBoxLayout):
         self.deck = QPushButton(clicked=self.onDeckChange)  # type: ignore
         self.deck.setAutoDefault(False)
         self.deck.setToolTip(shortcut(tr(TR.QT_MISC_TARGET_DECK_CTRLANDD)))
-        QShortcut(QKeySequence("Ctrl+D"), self.widget, activated=self.onDeckChange)  # type: ignore
+        QShortcut(QKeySequence("Ctrl+D"), self._widget, activated=self.onDeckChange)  # type: ignore
         self.addWidget(self.deck)
         # starting label
         if self.mw.col.conf.get("addToCur", True):
@@ -59,10 +59,10 @@ class DeckChooser(QHBoxLayout):
         self.deck.setSizePolicy(sizePolicy)
 
     def show(self) -> None:
-        self.widget.show()  # type: ignore
+        self._widget.show()  # type: ignore
 
     def hide(self) -> None:
-        self.widget.hide()  # type: ignore
+        self._widget.hide()  # type: ignore
 
     def cleanup(self) -> None:
         gui_hooks.current_note_type_did_change.remove(self.onModelChangeNew)
@@ -88,7 +88,7 @@ class DeckChooser(QHBoxLayout):
             title=tr(TR.QT_MISC_CHOOSE_DECK),
             help=HelpPage.EDITING,
             cancel=False,
-            parent=self.widget,
+            parent=self._widget,
             geomKey="selectDeck",
         )
         if ret.name:

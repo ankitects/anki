@@ -4,6 +4,7 @@
 import copy
 import json
 import re
+from concurrent.futures import Future
 from typing import Any, Dict, List, Match, Optional
 
 import aqt
@@ -45,10 +46,10 @@ class CardLayout(QDialog):
         self,
         mw: AnkiQt,
         note: Note,
-        ord=0,
+        ord: int = 0,
         parent: Optional[QWidget] = None,
         fill_empty: bool = False,
-    ):
+    ) -> None:
         QDialog.__init__(self, parent or mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = aqt.mw
@@ -564,7 +565,7 @@ class CardLayout(QDialog):
         def get_count() -> int:
             return self.mm.template_use_count(self.model["id"], self.ord)
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             card_cnt = fut.result()
 
             template = self.current_template()
@@ -798,7 +799,7 @@ class CardLayout(QDialog):
         def save() -> None:
             self.mm.save(self.model)
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             try:
                 fut.result()
             except TemplateError as e:

@@ -22,7 +22,7 @@ TYPE_ALL = 3
 
 
 class CustomStudy(QDialog):
-    def __init__(self, mw) -> None:
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
@@ -57,7 +57,7 @@ class CustomStudy(QDialog):
         typeShow = False
         ok = tr(TR.CUSTOM_STUDY_OK)
 
-        def plus(num) -> str:
+        def plus(num: Union[int, str]) -> str:
             if num == 1000:
                 num = "1000+"
             return "<b>" + str(num) + "</b>"

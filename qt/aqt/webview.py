@@ -5,7 +5,7 @@ import dataclasses
 import json
 import re
 import sys
-from typing import Any, Callable, List, Optional, Sequence, Tuple
+from typing import Any, Callable, List, Optional, Sequence, Tuple, cast
 
 import anki
 from anki.lang import is_rtl
@@ -20,9 +20,11 @@ serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 # Page for debug messages
 ##########################################################################
 
+BridgeCommandHandler = Callable[[str], Any]
+
 
 class AnkiWebPage(QWebEnginePage):
-    def __init__(self, onBridgeCmd) -> None:
+    def __init__(self, onBridgeCmd: BridgeCommandHandler) -> None:
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
         self._setupBridge()
@@ -31,7 +33,7 @@ class AnkiWebPage(QWebEnginePage):
     def _setupBridge(self) -> None:
         class Bridge(QObject):
             @pyqtSlot(str, result=str)  # type: ignore
-            def cmd(self, str) -> Any:
+            def cmd(self, str: str) -> Any:
                 return json.dumps(self.onCmd(str))
 
         self._bridge = Bridge()
@@ -74,7 +76,13 @@ class AnkiWebPage(QWebEnginePage):
         script.setRunsOnSubFrames(False)
         self.profile().scripts().insert(script)
 
-    def javaScriptConsoleMessage(self, level, msg, line, srcID) -> None:
+    def javaScriptConsoleMessage(
+        self,
+        level: QWebEnginePage.JavaScriptConsoleMessageLevel,
+        msg: str,
+        line: int,
+        srcID: str,
+    ) -> None:
         # not translated because console usually not visible,
         # and may only accept ascii text
         if srcID.startswith("data"):
@@ -82,13 +90,15 @@ class AnkiWebPage(QWebEnginePage):
         else:
             srcID = serverbaseurl.sub("", srcID[:80], 1)
         if level == QWebEnginePage.InfoMessageLevel:
-            level = "info"
+            level_str = "info"
         elif level == QWebEnginePage.WarningMessageLevel:
-            level = "warning"
+            level_str = "warning"
         elif level == QWebEnginePage.ErrorMessageLevel:
-            level = "error"
+            level_str = "error"
+        else:
+            level_str = str(level)
         buf = "JS %(t)s %(f)s:%(a)d %(b)s" % dict(
-            t=level, a=line, f=srcID, b=msg + "\n"
+            t=level_str, a=line, f=srcID, b=msg + "\n"
         )
         if "MathJax localStorage" in buf:
             # silence localStorage noise
@@ -101,7 +111,9 @@ class AnkiWebPage(QWebEnginePage):
         # https://github.com/ankitects/anki/pull/560
         sys.stdout.write(buf)
 
-    def acceptNavigationRequest(self, url, navType, isMainFrame) -> bool:
+    def acceptNavigationRequest(
+        self, url: QUrl, navType: Any, isMainFrame: bool
+    ) -> bool:
         if not self.open_links_externally:
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
@@ -113,14 +125,14 @@ class AnkiWebPage(QWebEnginePage):
         # catch buggy <a href='#' onclick='func()'> links
         from aqt import mw
 
-        if url.matches(QUrl(mw.serverURL()), QUrl.RemoveFragment):
+        if url.matches(QUrl(mw.serverURL()), cast(Any, QUrl.RemoveFragment)):
             print("onclick handler needs to return false")
             return False
         # load all other links in browser
         openLink(url)
         return False
 
-    def _onCmd(self, str) -> None:
+    def _onCmd(self, str: str) -> None:
         return self._onBridgeCmd(str)
 
     def javaScriptAlert(self, url: QUrl, text: str) -> None:
@@ -293,7 +305,7 @@ class AnkiWebView(QWebEngineView):
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
-    def dropEvent(self, evt) -> None:
+    def dropEvent(self, evt: QDropEvent) -> None:
         pass
 
     def setHtml(self, html: str) -> None:  #  type: ignore
@@ -348,7 +360,7 @@ class AnkiWebView(QWebEngineView):
             QWebEngineSettings.PlaybackRequiresUserGesture, value
         )
 
-    def _getQtIntScale(self, screen) -> int:
+    def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
         # - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,
         #   and a dpi of 150% = 2x
@@ -434,7 +446,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         js: Optional[List[str]] = None,
         head: str = "",
         context: Optional[Any] = None,
-    ):
+    ) -> None:
 
         web_content = WebContent(
             body=body,
@@ -508,7 +520,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
     def _evalWithCallback(self, js: str, cb: Callable[[Any], Any]) -> None:
         if cb:
 
-            def handler(val) -> None:
+            def handler(val: Any) -> None:
                 if self._shouldIgnoreWebEvent():
                     print("ignored late js callback", cb)
                     return
@@ -608,7 +620,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         "Add dynamic styling, and reveal."
         css = self.standard_css()
 
-        def after_style(arg) -> None:
+        def after_style(arg: Any) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
 

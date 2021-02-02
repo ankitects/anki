@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from concurrent.futures import Future
 
 import aqt
 from anki.collection import EmptyCardsReport, NoteWithEmptyCards
@@ -15,7 +16,7 @@ from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, t
 def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
     mw.progress.start()
 
-    def on_done(fut) -> None:
+    def on_done(fut: Future) -> None:
         mw.progress.finish()
         report: EmptyCardsReport = fut.result()
         if not report.notes:
@@ -74,7 +75,7 @@ class EmptyCardsDialog(QDialog):
         def delete() -> int:
             return self._delete_cards(self.form.keep_notes.isChecked())
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             self.mw.progress.finish()
             try:
                 count = fut.result()

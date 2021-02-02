@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from concurrent.futures import Future
+
 import aqt
 from anki.collection import DatabaseCheckProgress, ProgressKind
 from aqt.qt import *
@@ -31,7 +33,7 @@ def check_db(mw: aqt.AnkiQt) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(100)
 
-    def on_future_done(fut) -> None:
+    def on_future_done(fut: Future) -> None:
         timer.stop()
         ret, ok = fut.result()
 

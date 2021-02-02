@@ -68,10 +68,10 @@ class TaskManager(QObject):
         parent: Optional[QWidget] = None,
         label: Optional[str] = None,
         immediate: bool = False,
-    ):
+    ) -> None:
         self.mw.progress.start(parent=parent, label=label, immediate=immediate)
 
-        def wrapped_done(fut) -> None:
+        def wrapped_done(fut: Future) -> None:
             self.mw.progress.finish()
             if on_done:
                 on_done(fut)

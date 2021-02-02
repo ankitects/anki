@@ -136,7 +136,7 @@ class DialogManager:
 
     def register_dialog(
         self, name: str, creator: Union[Callable, type], instance: Optional[Any] = None
-    ):
+    ) -> None:
         """Allows add-ons to register a custom dialog to be managed by Anki's dialog
         manager, which ensures that only one copy of the window is open at once,
         and that the dialog cleans up asynchronously when the collection closes
@@ -189,12 +189,12 @@ def setupLangAndBackend(
         pass
 
     # add _ and ngettext globals used by legacy code
-    def fn__(arg) -> None:
+    def fn__(arg) -> None:  # type: ignore
         print("".join(traceback.format_stack()[-2]))
         print("_ global will break in the future; please see anki/lang.py")
         return arg
 
-    def fn_ngettext(a, b, c) -> None:
+    def fn_ngettext(a, b, c) -> None:  # type: ignore
         print("".join(traceback.format_stack()[-2]))
         print("ngettext global will break in the future; please see anki/lang.py")
         return b
@@ -244,7 +244,7 @@ class AnkiApp(QApplication):
     KEY = "anki" + checksum(getpass.getuser())
     TMOUT = 30000
 
-    def __init__(self, argv) -> None:
+    def __init__(self, argv: List[str]) -> None:
         QApplication.__init__(self, argv)
         self._argv = argv
 
@@ -267,7 +267,7 @@ class AnkiApp(QApplication):
             self._srv.listen(self.KEY)
             return False
 
-    def sendMsg(self, txt) -> bool:
+    def sendMsg(self, txt: str) -> bool:
         sock = QLocalSocket(self)
         sock.connectToServer(self.KEY, QIODevice.WriteOnly)
         if not sock.waitForConnected(self.TMOUT):
@@ -298,14 +298,14 @@ class AnkiApp(QApplication):
     # OS X file/url handler
     ##################################################
 
-    def event(self, evt) -> bool:
+    def event(self, evt: QEvent) -> bool:
         if evt.type() == QEvent.FileOpen:
             self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
         return QApplication.event(self, evt)
 
 
-def parseArgs(argv) -> Tuple[argparse.Namespace, List[str]]:
+def parseArgs(argv: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     "Returns (opts, args)."
     # py2app fails to strip this in some instances, then anki dies
     # as there's no such profile
@@ -330,7 +330,7 @@ def parseArgs(argv) -> Tuple[argparse.Namespace, List[str]]:
     return parser.parse_known_args(argv[1:])
 
 
-def setupGL(pm) -> None:
+def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     if isMac:
         return
 
@@ -343,7 +343,7 @@ def setupGL(pm) -> None:
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
 
     # catch opengl errors
-    def msgHandler(category, ctx, msg) -> None:
+    def msgHandler(category: Any, ctx: Any, msg: Any) -> None:
         if category == QtDebugMsg:
             category = "debug"
         elif category == QtInfoMsg:
@@ -420,7 +420,7 @@ def run() -> None:
         )
 
 
-def _run(argv=None, exec=True) -> Optional[AnkiApp]:
+def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiApp]:
     """Start AnkiQt application or reuse an existing instance if one exists.
 
     If the function is invoked with exec=False, the AnkiQt will not enter

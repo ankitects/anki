@@ -468,6 +468,7 @@ def disable_help_button(widget: QWidget) -> None:
 def getFile(
     parent: QDialog,
     title: str,
+    # single file returned unless multi=True
     cb: Optional[Callable[[Union[str, Sequence[str]]], None]],
     filter: str = "*.*",
     dir: Optional[str] = None,

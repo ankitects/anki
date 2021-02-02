@@ -165,7 +165,7 @@ hooks = [
     ),
     Hook(
         name="debug_console_did_evaluate_python",
-        args=["output: str", "query: str", "debug_window: QDialog"],
+        args=["output: str", "query: str", "debug_window: aqt.forms.debug.Ui_Dialog"],
         return_type="str",
         doc="""Allows processing the debug result. E.g. logging queries and
         result, saving last query to display it later...""",

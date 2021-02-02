@@ -56,7 +56,7 @@ class LatestVersionFinder(QThread):
             self.clockIsOff.emit(diff)  # type: ignore
 
 
-def askAndUpdate(mw, ver) -> None:
+def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
     baseStr = tr(TR.QT_MISC_ANKI_UPDATEDANKI_HAS_BEEN_RELEASED, val=ver)
     msg = QMessageBox(mw)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)  # type: ignore
@@ -73,6 +73,6 @@ def askAndUpdate(mw, ver) -> None:
         openLink(aqt.appWebsite)
 
 
-def showMessages(mw, data) -> None:
+def showMessages(mw: aqt.AnkiQt, data: Dict) -> None:
     showText(data["msg"], parent=mw, type="html")
     mw.pm.meta["lastMsg"] = data["msgId"]

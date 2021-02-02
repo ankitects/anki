@@ -35,6 +35,7 @@ from dataclasses import dataclass
 from operator import attrgetter
 from typing import Any, List, Optional, cast
 
+import anki
 from anki import hooks
 from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, isWin, tmpdir
@@ -125,7 +126,9 @@ def all_tts_voices() -> List[TTSVoice]:
     return all_voices
 
 
-def on_tts_voices(text: str, field, filter: str, ctx) -> str:
+def on_tts_voices(
+    text: str, field: str, filter: str, ctx: anki.template.TemplateRenderContext
+) -> str:
     if filter != "tts-voices":
         return text
     voices = all_tts_voices()
@@ -572,7 +575,7 @@ if isWin:
             # then tell player to advance, which will cause the file to be played
             cb()
 
-        async def speakText(self, tag: TTSTag, voice_id) -> None:
+        async def speakText(self, tag: TTSTag, voice_id: Any) -> None:
             import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
             import winrt.windows.storage.streams as streams  # type: ignore
 
