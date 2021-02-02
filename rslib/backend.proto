@@ -220,6 +220,7 @@ service BackendService {
   rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
+  rpc DragDropTags(DragDropTagsIn) returns (Empty);
 
   // config
 
@@ -860,6 +861,11 @@ message TagTreeNode {
   repeated TagTreeNode children = 2;
   uint32 level = 3;
   bool expanded = 4;
+}
+
+message DragDropTagsIn {
+  repeated string source_tags = 1;
+  string target_tag = 2;
 }
 
 message SetConfigJsonIn {

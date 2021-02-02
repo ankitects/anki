@@ -90,6 +90,23 @@ fn immediate_parent_name_str(tag_name: &str) -> Option<&str> {
     tag_name.rsplitn(2, "::").nth(1)
 }
 
+/// Arguments are expected in 'human' form with an :: separator.
+pub(crate) fn drag_drop_tag_name(dragged: &str, dropped: Option<&str>) -> Option<String> {
+    let dragged_base = dragged.rsplit("::").next().unwrap();
+    if let Some(dropped) = dropped {
+        if dropped.starts_with(dragged) {
+            // foo onto foo::bar, or foo onto itself -> no-op
+            None
+        } else {
+            // foo::bar onto baz -> baz::bar
+            Some(format!("{}::{}", dropped, dragged_base))
+        }
+    } else {
+        // foo::bar onto top level -> bar
+        Some(dragged_base.into())
+    }
+}
+
 /// For the given tag, check if immediate parent exists. If so, add
 /// tag and return.
 /// If the immediate parent is missing, check and add any missing parents.
@@ -363,6 +380,88 @@ impl Collection {
             })
         })
     }
+
+    pub fn drag_drop_tags(
+        &mut self,
+        source_tags: &[String],
+        target_tag: Option<String>,
+    ) -> Result<()> {
+        let source_tags_and_outputs: Vec<_> = source_tags
+            .iter()
+            // generate resulting names and filter out invalid ones
+            .flat_map(|source_tag| {
+                if let Some(output_name) = drag_drop_tag_name(source_tag, target_tag.as_deref()) {
+                    Some((source_tag, output_name))
+                } else {
+                    // invalid rename, ignore this tag
+                    None
+                }
+            })
+            .collect();
+
+        let regexps_and_replacements = source_tags_and_outputs
+            .iter()
+            // convert the names into regexps/replacements
+            .map(|(tag, output)| {
+                Regex::new(&format!(
+                    r#"(?ix)
+                    ^
+                    {}
+                    # optional children
+                    (::.+)?
+                    $
+                    "#,
+                    regex::escape(tag)
+                ))
+                .map_err(|_| AnkiError::invalid_input("invalid regex"))
+                .map(|regex| (regex, output))
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        // locate notes that match them
+        let mut nids = vec![];
+        self.storage.for_each_note_tags(|nid, tags| {
+            for tag in split_tags(&tags) {
+                for (regex, _) in &regexps_and_replacements {
+                    if regex.is_match(&tag) {
+                        nids.push(nid);
+                        break;
+                    }
+                }
+            }
+
+            Ok(())
+        })?;
+
+        if nids.is_empty() {
+            return Ok(());
+        }
+
+        // update notes
+        self.transact(None, |col| {
+            // clear the existing original tags
+            for (source_tag, _) in &source_tags_and_outputs {
+                col.storage.clear_tag(source_tag)?;
+            }
+
+            col.transform_notes(&nids, |note, _nt| {
+                let mut changed = false;
+                for (re, repl) in &regexps_and_replacements {
+                    if note.replace_tags(re, NoExpand(&repl).by_ref()) {
+                        changed = true;
+                    }
+                }
+
+                Ok(TransformNoteOutput {
+                    changed,
+                    generate_cards: false,
+                    mark_modified: true,
+                })
+            })
+        })?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -592,6 +691,84 @@ mod test {
         col.clear_unused_tags()?;
         assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
         assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
+
+        Ok(())
+    }
+
+    fn alltags(col: &Collection) -> Vec<String> {
+        col.storage
+            .all_tags()
+            .unwrap()
+            .into_iter()
+            .map(|t| t.name)
+            .collect()
+    }
+
+    #[test]
+    fn dragdrop() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        for tag in &[
+            "another",
+            "parent1::child1::grandchild1",
+            "parent1::child1",
+            "parent1",
+            "parent2",
+            "yet::another",
+        ] {
+            let mut note = nt.new_note();
+            note.tags.push(tag.to_string());
+            col.add_note(&mut note, DeckID(1))?;
+        }
+
+        // two decks with the same base name; they both get mapped
+        // to parent1::another
+        col.drag_drop_tags(
+            &["another".to_string(), "yet::another".to_string()],
+            Some("parent1".to_string()),
+        )?;
+
+        assert_eq!(
+            alltags(&col),
+            &[
+                "parent1",
+                "parent1::another",
+                "parent1::child1",
+                "parent1::child1::grandchild1",
+                "parent2",
+            ]
+        );
+
+        // child and children moved to parent2
+        col.drag_drop_tags(
+            &["parent1::child1".to_string()],
+            Some("parent2".to_string()),
+        )?;
+
+        assert_eq!(
+            alltags(&col),
+            &[
+                "parent1",
+                "parent1::another",
+                "parent2",
+                "parent2::child1",
+                "parent2::child1::grandchild1",
+            ]
+        );
+
+        // empty target reparents to root
+        col.drag_drop_tags(&["parent1::another".to_string()], None)?;
+
+        assert_eq!(
+            alltags(&col),
+            &[
+                "another",
+                "parent1",
+                "parent2",
+                "parent2::child1",
+                "parent2::child1::grandchild1",
+            ]
+        );
 
         Ok(())
     }
