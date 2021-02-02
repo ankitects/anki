@@ -222,7 +222,7 @@ def setupLangAndBackend(
 
     # load qt translations
     _qtrans = QTranslator()
-    qt_dir = os.path.join(ldir, "qt")
+    qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
     qt_lang = lang.replace("-", "_")
     if _qtrans.load("qtbase_" + qt_lang, qt_dir):
         app.installTranslator(_qtrans)
