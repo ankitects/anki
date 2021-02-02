@@ -450,6 +450,11 @@ class Browser(QMainWindow):
         card: Optional[Card] = None,
         search: Optional[Tuple[Union[str, SearchTerm]]] = None,
     ) -> None:
+        """
+        card  : try to search for its note and select it
+        search: set and perform search; caller must ensure validity
+        """
+
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
@@ -489,9 +494,7 @@ class Browser(QMainWindow):
         if not isMac:
             f.actionClose.setVisible(False)
         qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
-        qconnect(f.actionCreateFilteredDeck2.triggered, self.createFilteredDeck2)
-        if self.mw.col.schedVer() == 1:
-            f.menuEdit.removeAction(f.actionCreateFilteredDeck2)
+        f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
         qconnect(f.actionAdd_Tags.triggered, lambda: self.addTags())
@@ -1201,11 +1204,13 @@ where id in %s"""
 
     def createFilteredDeck(self) -> None:
         search = self.form.searchEdit.lineEdit().text()
-        aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
-
-    def createFilteredDeck2(self) -> None:
-        search = self.form.searchEdit.lineEdit().text()
-        aqt.dialogs.open("DynDeckConfDialog", self.mw, search_2=search)
+        if (
+            self.mw.col.schedVer() != 1
+            and self.mw.app.keyboardModifiers() & Qt.AltModifier
+        ):
+            aqt.dialogs.open("DynDeckConfDialog", self.mw, search_2=search)
+        else:
+            aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
 
     # Preview
     ######################################################################
