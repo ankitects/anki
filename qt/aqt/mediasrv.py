@@ -53,8 +53,8 @@ class MediaServer(threading.Thread):
     _ready = threading.Event()
     daemon = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
+        super().__init__()
         self.is_shutdown = False
 
     def run(self) -> None:
@@ -98,7 +98,7 @@ class MediaServer(threading.Thread):
 
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
-def allroutes(pathin) -> Response:
+def allroutes(pathin: str) -> Response:
     try:
         directory, path = _redirectWebExports(pathin)
     except TypeError:
@@ -172,7 +172,7 @@ def allroutes(pathin) -> Response:
         )
 
 
-def _redirectWebExports(path) -> Tuple[str, str]:
+def _redirectWebExports(path: str) -> Tuple[str, str]:
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):

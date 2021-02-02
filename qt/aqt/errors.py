@@ -16,7 +16,7 @@ from aqt.utils import TR, showText, showWarning, supportText, tr
 
 if not os.environ.get("DEBUG"):
 
-    def excepthook(etype, val, tb) -> None:
+    def excepthook(etype, val, tb) -> None:  # type: ignore
         sys.stderr.write(
             "Caught exception:\n%s\n"
             % ("".join(traceback.format_exception(etype, val, tb)))

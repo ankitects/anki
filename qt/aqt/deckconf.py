@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from operator import itemgetter
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from PyQt5.QtWidgets import QLineEdit
 
@@ -107,7 +107,7 @@ class DeckConf(QDialog):
             a.setEnabled(False)
         m.exec_(QCursor.pos())
 
-    def onConfChange(self, idx) -> None:
+    def onConfChange(self, idx: int) -> None:
         if self.ignoreConfChange:
             return
         if self.conf:
@@ -174,7 +174,7 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l) -> str:
+    def listToUser(self, l: List[Union[int, float]]) -> str:
         def num_to_user(n: Union[int, float]) -> str:
             if n == round(n):
                 return str(int(n))
@@ -183,7 +183,7 @@ class DeckConf(QDialog):
 
         return " ".join(map(num_to_user, l))
 
-    def parentLimText(self, type="new") -> str:
+    def parentLimText(self, type: str = "new") -> str:
         # top level?
         if "::" not in self.deck["name"]:
             return ""
@@ -248,7 +248,7 @@ class DeckConf(QDialog):
     # New order
     ##################################################
 
-    def onNewOrderChanged(self, new) -> None:
+    def onNewOrderChanged(self, new: bool) -> None:
         old = self.conf["new"]["order"]
         if old == new:
             return

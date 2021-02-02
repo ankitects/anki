@@ -194,7 +194,7 @@ class AddonManager:
     def all_addon_meta(self) -> Iterable[AddonMeta]:
         return map(self.addon_meta, self.allAddons())
 
-    def addonsFolder(self, dir=None) -> str:
+    def addonsFolder(self, dir: Optional[str] = None) -> str:
         root = self.mw.pm.addonFolder()
         if not dir:
             return root
@@ -677,8 +677,7 @@ class AddonManager:
         addon = self.addonFromModule(module)
         self._webExports[addon] = pattern
 
-    # CHECK
-    def getWebExports(self, addon) -> str:
+    def getWebExports(self, addon: str) -> str:
         return self._webExports.get(addon)
 
 
@@ -908,7 +907,7 @@ class AddonsDialog(QDialog):
 
 
 class GetAddons(QDialog):
-    def __init__(self, dlg) -> None:
+    def __init__(self, dlg: QDialog) -> None:
         QDialog.__init__(self, dlg)
         self.addonsDlg = dlg
         self.mgr = dlg.mgr
@@ -1061,7 +1060,7 @@ class DownloaderInstaller(QObject):
         self.client = client
         qconnect(self.progressSignal, self._progress_callback)
 
-        def bg_thread_progress(up, down) -> None:
+        def bg_thread_progress(up: int, down: int) -> None:
             self.progressSignal.emit(up, down)  # type: ignore
 
         self.client.progress_hook = bg_thread_progress
@@ -1276,7 +1275,7 @@ def prompt_to_update(
 
 
 class ConfigEditor(QDialog):
-    def __init__(self, dlg, addon, conf) -> None:
+    def __init__(self, dlg: QDialog, addon: str, conf: Dict) -> None:
         super().__init__(dlg)
         self.addon = addon
         self.conf = conf

@@ -25,7 +25,9 @@ from aqt.utils import (
 
 
 class FieldDialog(QDialog):
-    def __init__(self, mw: AnkiQt, nt: NoteType, parent=None) -> None:
+    def __init__(
+        self, mw: AnkiQt, nt: NoteType, parent: Optional[QDialog] = None
+    ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.col = self.mw.col
@@ -70,7 +72,7 @@ class FieldDialog(QDialog):
         qconnect(f.sortField.clicked, self.onSortField)
         qconnect(f.buttonBox.helpRequested, self.onHelp)
 
-    def onDrop(self, ev) -> None:
+    def onDrop(self, ev: QDropEvent) -> None:
         fieldList = self.form.fieldList
         indicatorPos = fieldList.dropIndicatorPosition()
         dropPos = fieldList.indexAt(ev.pos()).row()
@@ -160,7 +162,7 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
-    def onPosition(self, delta=-1) -> None:
+    def onPosition(self, delta: int = -1) -> None:
         idx = self.currentIdx
         l = len(self.model["flds"])
         txt = getOnlyText(tr(TR.FIELDS_NEW_POSITION_1, val=l), default=str(idx + 1))
@@ -181,7 +183,7 @@ class FieldDialog(QDialog):
         self.form.sortField.setChecked(True)
         self.mm.set_sort_index(self.model, self.form.fieldList.currentRow())
 
-    def moveField(self, pos) -> None:
+    def moveField(self, pos: int) -> None:
         if not self.change_tracker.mark_schema():
             return
         self.saveField()

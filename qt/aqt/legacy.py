@@ -16,17 +16,17 @@ from aqt.theme import theme_manager
 ##########################################################################
 
 
-def bodyClass(col, card) -> str:
+def bodyClass(col, card) -> str:  # type: ignore
     print("bodyClass() deprecated")
     return theme_manager.body_classes_for_card_ord(card.ord)
 
 
-def allSounds(text) -> List:
+def allSounds(text) -> List:  # type: ignore
     print("allSounds() deprecated")
     return aqt.mw.col.media._extract_filenames(text)
 
 
-def stripSounds(text) -> str:
+def stripSounds(text) -> str:  # type: ignore
     print("stripSounds() deprecated")
     return aqt.mw.col.media.strip_av_tags(text)
 

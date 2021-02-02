@@ -269,7 +269,7 @@ class ProfileManager:
                 fn = super().find_class(module, name)
                 if module == "sip" and name == "_unpickle_type":
 
-                    def wrapper(mod, obj, args) -> Any:
+                    def wrapper(mod, obj, args) -> Any:  # type: ignore
                         if mod.startswith("PyQt4") and obj == "QByteArray":
                             # can't trust str objects from python 2
                             return QByteArray()

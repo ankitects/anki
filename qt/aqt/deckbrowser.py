@@ -90,8 +90,8 @@ class DeckBrowser:
             self._collapse(int(arg))
         return False
 
-    def _selDeck(self, did) -> None:
-        self.mw.col.decks.select(did)
+    def _selDeck(self, did: str) -> None:
+        self.mw.col.decks.select(int(did))
         self.mw.onOverview()
 
     # HTML generation
@@ -108,14 +108,14 @@ class DeckBrowser:
 </center>
 """
 
-    def _renderPage(self, reuse=False) -> None:
+    def _renderPage(self, reuse: bool = False) -> None:
         if not reuse:
             self._dueTree = self.mw.col.sched.deck_due_tree()
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
-    def __renderPage(self, offset) -> None:
+    def __renderPage(self, offset: int) -> None:
         content = DeckBrowserContent(
             tree=self._renderDeckTree(self._dueTree),
             stats=self._renderStats(),
@@ -137,7 +137,7 @@ class DeckBrowser:
             self._scrollToOffset(offset)
         gui_hooks.deck_browser_did_render(self)
 
-    def _scrollToOffset(self, offset) -> None:
+    def _scrollToOffset(self, offset: int) -> None:
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
     def _renderStats(self) -> str:
@@ -260,10 +260,10 @@ class DeckBrowser:
             return
         self.show()
 
-    def _options(self, did) -> None:
+    def _options(self, did: str) -> None:
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
-        self.mw.col.decks.select(did)
+        self.mw.col.decks.select(int(did))
         self.mw.onDeckConf()
 
     def _collapse(self, did: int) -> None:

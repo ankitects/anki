@@ -21,12 +21,12 @@ class ClosableQDialog(QDialog):
         aqt.dialogs.markClosed("About")
         QDialog.accept(self)
 
-    def closeWithCallback(self, callback) -> None:
+    def closeWithCallback(self, callback: Callable[[], None]) -> None:
         self.reject()
         callback()
 
 
-def show(mw) -> QDialog:
+def show(mw: aqt.AnkiQt) -> QDialog:
     dialog = ClosableQDialog(mw)
     disable_help_button(dialog)
     mw.setupDialogGC(dialog)
