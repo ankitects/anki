@@ -1399,16 +1399,17 @@ impl BackendService for Backend {
     // tags
     //-------------------------------------------------------------------
 
-    fn all_tags(&self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
-        let tags: Vec<pb::Tag> = self.with_col(|col| {
-            Ok(col
-                .storage
-                .all_tags()?
-                .into_iter()
-                .map(|t| t.into())
-                .collect())
-        })?;
-        Ok(pb::AllTagsOut { tags })
+    fn all_tags(&self, _input: Empty) -> BackendResult<pb::StringList> {
+        Ok(pb::StringList {
+            vals: self.with_col(|col| {
+                Ok(col
+                    .storage
+                    .all_tags()?
+                    .into_iter()
+                    .map(|t| t.name)
+                    .collect())
+            })?,
+        })
     }
 
     fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Empty> {

@@ -41,6 +41,10 @@ message Bool {
   bool val = 1;
 }
 
+message StringList {
+  repeated string vals = 1;
+}
+
 // IDs used in RPC calls
 ///////////////////////////////////////////////////////////
 
@@ -212,7 +216,7 @@ service BackendService {
   // tags
 
   rpc ClearUnusedTags(Empty) returns (Empty);
-  rpc AllTags(Empty) returns (AllTagsOut);
+  rpc AllTags(Empty) returns (StringList);
   rpc SetTagCollapsed(SetTagCollapsedIn) returns (Empty);
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
@@ -842,19 +846,9 @@ message AddOrUpdateDeckConfigLegacyIn {
   bool preserve_usn_and_mtime = 2;
 }
 
-message AllTagsOut {
-  repeated Tag tags = 1;
-}
-
 message SetTagCollapsedIn {
   string name = 1;
   bool collapsed = 2;
-}
-
-message Tag {
-  string name = 1;
-  sint32 usn = 2;
-  bool collapsed = 3;
 }
 
 message GetChangedTagsOut {

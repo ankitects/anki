@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto::{Tag as TagProto, TagTreeNode},
+    backend_proto::TagTreeNode,
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
@@ -19,26 +19,6 @@ pub struct Tag {
     pub name: String,
     pub usn: Usn,
     pub collapsed: bool,
-}
-
-impl From<Tag> for TagProto {
-    fn from(t: Tag) -> Self {
-        TagProto {
-            name: t.name,
-            usn: t.usn.0,
-            collapsed: t.collapsed,
-        }
-    }
-}
-
-impl From<TagProto> for Tag {
-    fn from(t: TagProto) -> Self {
-        Tag {
-            name: t.name,
-            usn: Usn(t.usn),
-            collapsed: t.collapsed,
-        }
-    }
 }
 
 impl Tag {
