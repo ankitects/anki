@@ -7,7 +7,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 import anki
 import aqt
@@ -113,24 +113,31 @@ def showInfo(
 
 
 def showText(
-    txt,
-    parent=None,
-    type="text",
-    run=True,
-    geomKey=None,
-    minWidth=500,
-    minHeight=400,
-    title="Anki",
-    copyBtn=False,
-):
+    txt: str,
+    parent: Optional[QWidget] = None,
+    type: str = "text",
+    run: bool = True,
+    geomKey: Optional[str] = None,
+    minWidth: int = 500,
+    minHeight: int = 400,
+    title: str = "Anki",
+    copyBtn: bool = False,
+    plain_text_edit: bool = False,
+) -> Optional[Tuple[QDialog, QDialogButtonBox]]:
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
     diag.setWindowTitle(title)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
-    text = QTextBrowser()
-    text.setOpenExternalLinks(True)
+    if plain_text_edit:
+        # used by the importer
+        text = QPlainTextEdit()
+        text.setReadOnly(True)
+        text.setWordWrapMode(QTextOption.NoWrap)
+    else:
+        text = QTextBrowser()
+        text.setOpenExternalLinks(True)
     if type == "text":
         text.setPlainText(txt)
     else:
@@ -165,6 +172,7 @@ def showText(
         restoreGeom(diag, geomKey)
     if run:
         diag.exec_()
+        return None
     else:
         return diag, box
 

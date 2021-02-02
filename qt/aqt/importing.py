@@ -391,7 +391,7 @@ def importFile(mw, file):
                 if "\n" not in log:
                     tooltip(log)
                 else:
-                    showText(log)
+                    showText(log, plain_text_edit=True)
 
             mw.reset()
 
