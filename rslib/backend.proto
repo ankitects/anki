@@ -865,7 +865,7 @@ message TagTreeNode {
   string name = 1;
   repeated TagTreeNode children = 2;
   uint32 level = 3;
-  bool collapsed = 4;
+  bool expanded = 4;
 }
 
 message SetConfigJsonIn {

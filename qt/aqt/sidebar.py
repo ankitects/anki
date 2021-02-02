@@ -548,7 +548,7 @@ class SidebarTreeView(QTreeView):
                     icon,
                     self._filter_func(SearchTerm(tag=head + node.name)),
                     toggle_expand(),
-                    not node.collapsed,
+                    node.expanded,
                     item_type=SidebarItemType.TAG,
                     full_name=head + node.name,
                 )
