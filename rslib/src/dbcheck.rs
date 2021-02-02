@@ -242,7 +242,7 @@ impl Collection {
         let usn = self.usn()?;
         let stamp = TimestampMillis::now();
 
-        let collapsed_tags = self.storage.collapsed_tags()?;
+        let expanded_tags = self.storage.expanded_tags()?;
         self.storage.clear_tags()?;
 
         let total_notes = self.storage.total_notes()?;
@@ -296,7 +296,7 @@ impl Collection {
 
         // the note rebuilding process took care of adding tags back, so we just need
         // to ensure to restore the collapse state
-        self.storage.restore_collapsed_tags(&collapsed_tags)?;
+        self.storage.restore_expanded_tags(&expanded_tags)?;
 
         // if the collection is empty and the user has deleted all note types, ensure at least
         // one note type exists
@@ -646,12 +646,12 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckID(1))?;
 
-        col.set_tag_collapsed("two", true)?;
+        col.set_tag_expanded("one", true)?;
 
         col.check_database(progress_fn)?;
 
-        assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
-        assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
+        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
 
         Ok(())
     }

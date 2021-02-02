@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, List, Match, Optional, Sequence, Tuple
+from typing import Collection, List, Match, Optional, Sequence
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -28,18 +28,14 @@ class TagManager:
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
 
-    # all tags
+    # legacy add-on code expects a List return type
     def all(self) -> List[str]:
-        return [t.name for t in self.col._backend.all_tags()]
+        return list(self.col._backend.all_tags())
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)
         del d["col"]
         return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
-
-    # # List of (tag, usn)
-    def allItems(self) -> List[Tuple[str, int]]:
-        return [(t.name, t.usn) for t in self.col._backend.all_tags()]
 
     def tree(self) -> TagTreeNode:
         return self.col._backend.tag_tree()
@@ -72,9 +68,9 @@ class TagManager:
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
-    def set_collapsed(self, tag: str, collapsed: bool) -> None:
-        "Set browser collapse state for tag, registering the tag if missing."
-        self.col._backend.set_tag_collapsed(name=tag, collapsed=collapsed)
+    def set_expanded(self, tag: str, expanded: bool) -> None:
+        "Set browser expansion state for tag, registering the tag if missing."
+        self.col._backend.set_tag_expanded(name=tag, expanded=expanded)
 
     # Bulk addition/removal from notes
     #############################################################

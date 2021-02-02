@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto::{Tag as TagProto, TagTreeNode},
+    backend_proto::TagTreeNode,
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
@@ -18,27 +18,7 @@ use unicase::UniCase;
 pub struct Tag {
     pub name: String,
     pub usn: Usn,
-    pub collapsed: bool,
-}
-
-impl From<Tag> for TagProto {
-    fn from(t: Tag) -> Self {
-        TagProto {
-            name: t.name,
-            usn: t.usn.0,
-            collapsed: t.collapsed,
-        }
-    }
-}
-
-impl From<TagProto> for Tag {
-    fn from(t: TagProto) -> Self {
-        Tag {
-            name: t.name,
-            usn: Usn(t.usn),
-            collapsed: t.collapsed,
-        }
-    }
+    pub expanded: bool,
 }
 
 impl Tag {
@@ -46,7 +26,7 @@ impl Tag {
         Tag {
             name,
             usn,
-            collapsed: false,
+            expanded: false,
         }
     }
 }
@@ -171,7 +151,7 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
                     name: (*split_name.last().unwrap()).into(),
                     children: vec![],
                     level: parent.level + 1,
-                    collapsed: tag.collapsed,
+                    expanded: tag.expanded,
                 });
                 tags.next();
             }
@@ -273,13 +253,13 @@ impl Collection {
     }
 
     pub fn clear_unused_tags(&self) -> Result<()> {
-        let collapsed: HashSet<_> = self.storage.collapsed_tags()?.into_iter().collect();
+        let expanded: HashSet<_> = self.storage.expanded_tags()?.into_iter().collect();
         self.storage.clear_tags()?;
         let usn = self.usn()?;
         for name in self.storage.all_tags_in_notes()? {
             let name = normalize_tag_name(&name).into();
             self.storage.register_tag(&Tag {
-                collapsed: collapsed.contains(&name),
+                expanded: expanded.contains(&name),
                 name,
                 usn,
             })?;
@@ -288,7 +268,7 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn set_tag_collapsed(&self, name: &str, collapsed: bool) -> Result<()> {
+    pub(crate) fn set_tag_expanded(&self, name: &str, expanded: bool) -> Result<()> {
         let mut name = name;
         let tag;
         if self.storage.get_tag(name)?.is_none() {
@@ -297,7 +277,7 @@ impl Collection {
             self.storage.register_tag(&tag)?;
             name = &tag.name;
         }
-        self.storage.set_tag_collapsed(name, collapsed)
+        self.storage.set_tag_collapsed(name, !expanded)
     }
 
     fn replace_tags_for_notes_inner<R: Replacer>(
@@ -503,6 +483,7 @@ mod test {
             name: name.into(),
             level,
             children,
+
             ..Default::default()
         }
     }
@@ -607,10 +588,10 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckID(1))?;
 
-        col.set_tag_collapsed("two", true)?;
+        col.set_tag_expanded("one", true)?;
         col.clear_unused_tags()?;
-        assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
-        assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
+        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
 
         Ok(())
     }
