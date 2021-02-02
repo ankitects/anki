@@ -55,6 +55,8 @@ class SidebarItemType(Enum):
     TEMPLATE = 8
     SAVED_SEARCH_ROOT = 9
     DECK_ROOT = 10
+    NOTETYPE_ROOT = 11
+    TAG_ROOT = 12
 
 
 #  used by an add-on hook
@@ -113,10 +115,11 @@ class SidebarItem:
             if self._search_matches_child:
                 return True
             # if search matches top level, expand children one level
-            # FIXME: add types for other roots
             return self._search_matches_self and self.item_type in (
                 SidebarItemType.SAVED_SEARCH_ROOT,
                 SidebarItemType.DECK_ROOT,
+                SidebarItemType.NOTETYPE_ROOT,
+                SidebarItemType.TAG_ROOT,
             )
 
     def is_highlighted(self) -> bool:
@@ -558,6 +561,7 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_TAGS,
             icon=icon,
             collapse_key=ConfigBoolKey.COLLAPSE_TAGS,
+            type=SidebarItemType.TAG_ROOT,
         )
         render(root, tree.children)
 
@@ -604,6 +608,7 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_NOTETYPES,
             icon=icon,
             collapse_key=ConfigBoolKey.COLLAPSE_NOTETYPES,
+            type=SidebarItemType.NOTETYPE_ROOT,
         )
 
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
