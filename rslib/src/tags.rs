@@ -46,7 +46,7 @@ impl Tag {
         Tag {
             name,
             usn,
-            collapsed: false,
+            collapsed: true,
         }
     }
 }
