@@ -12,6 +12,7 @@ import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.models import NoteType
 from anki.utils import joinFields
+from anki.consts import MODEL_STD
 
 
 class Note:
@@ -82,7 +83,11 @@ class Note:
         card.did = 1
 
         model = self.model()
-        template = copy.copy(model["tmpls"][ord])
+        template = copy.copy(
+            model["tmpls"][ord]
+            if model["type"] == MODEL_STD
+            else model["tmpls"][0]
+        )
         # may differ in cloze case
         template["ord"] = card.ord
 
