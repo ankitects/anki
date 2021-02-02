@@ -171,7 +171,7 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
                     name: (*split_name.last().unwrap()).into(),
                     children: vec![],
                     level: parent.level + 1,
-                    collapsed: tag.collapsed,
+                    expanded: !tag.collapsed,
                 });
                 tags.next();
             }
@@ -273,13 +273,13 @@ impl Collection {
     }
 
     pub fn clear_unused_tags(&self) -> Result<()> {
-        let collapsed: HashSet<_> = self.storage.collapsed_tags()?.into_iter().collect();
+        let expanded: HashSet<_> = self.storage.expanded_tags()?.into_iter().collect();
         self.storage.clear_tags()?;
         let usn = self.usn()?;
         for name in self.storage.all_tags_in_notes()? {
             let name = normalize_tag_name(&name).into();
             self.storage.register_tag(&Tag {
-                collapsed: collapsed.contains(&name),
+                collapsed: !expanded.contains(&name),
                 name,
                 usn,
             })?;
@@ -503,6 +503,7 @@ mod test {
             name: name.into(),
             level,
             children,
+
             ..Default::default()
         }
     }
@@ -607,7 +608,7 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckID(1))?;
 
-        col.set_tag_collapsed("two", true)?;
+        col.set_tag_collapsed("one", false)?;
         col.clear_unused_tags()?;
         assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
         assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
