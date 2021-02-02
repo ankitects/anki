@@ -11,7 +11,7 @@ fn row_to_tag(row: &Row) -> Result<Tag> {
     Ok(Tag {
         name: row.get(0)?,
         usn: row.get(1)?,
-        collapsed: row.get(2)?,
+        expanded: !row.get(2)?,
     })
 }
 
@@ -52,7 +52,7 @@ impl SqliteStorage {
     pub(crate) fn register_tag(&self, tag: &Tag) -> Result<()> {
         self.db
             .prepare_cached(include_str!("add.sql"))?
-            .execute(params![tag.name, tag.usn, tag.collapsed])?;
+            .execute(params![tag.name, tag.usn, !tag.expanded])?;
         Ok(())
     }
 

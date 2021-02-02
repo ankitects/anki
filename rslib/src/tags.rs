@@ -18,7 +18,7 @@ use unicase::UniCase;
 pub struct Tag {
     pub name: String,
     pub usn: Usn,
-    pub collapsed: bool,
+    pub expanded: bool,
 }
 
 impl Tag {
@@ -26,7 +26,7 @@ impl Tag {
         Tag {
             name,
             usn,
-            collapsed: true,
+            expanded: false,
         }
     }
 }
@@ -151,7 +151,7 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
                     name: (*split_name.last().unwrap()).into(),
                     children: vec![],
                     level: parent.level + 1,
-                    expanded: !tag.collapsed,
+                    expanded: tag.expanded,
                 });
                 tags.next();
             }
@@ -259,7 +259,7 @@ impl Collection {
         for name in self.storage.all_tags_in_notes()? {
             let name = normalize_tag_name(&name).into();
             self.storage.register_tag(&Tag {
-                collapsed: !expanded.contains(&name),
+                expanded: expanded.contains(&name),
                 name,
                 usn,
             })?;
@@ -268,7 +268,7 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn set_tag_collapsed(&self, name: &str, collapsed: bool) -> Result<()> {
+    pub(crate) fn set_tag_expanded(&self, name: &str, expanded: bool) -> Result<()> {
         let mut name = name;
         let tag;
         if self.storage.get_tag(name)?.is_none() {
@@ -277,7 +277,7 @@ impl Collection {
             self.storage.register_tag(&tag)?;
             name = &tag.name;
         }
-        self.storage.set_tag_collapsed(name, collapsed)
+        self.storage.set_tag_collapsed(name, !expanded)
     }
 
     fn replace_tags_for_notes_inner<R: Replacer>(
@@ -588,10 +588,10 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckID(1))?;
 
-        col.set_tag_collapsed("one", false)?;
+        col.set_tag_expanded("one", true)?;
         col.clear_unused_tags()?;
-        assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
-        assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
+        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
 
         Ok(())
     }

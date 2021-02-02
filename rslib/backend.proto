@@ -217,7 +217,7 @@ service BackendService {
 
   rpc ClearUnusedTags(Empty) returns (Empty);
   rpc AllTags(Empty) returns (StringList);
-  rpc SetTagCollapsed(SetTagCollapsedIn) returns (Empty);
+  rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
 
@@ -846,9 +846,9 @@ message AddOrUpdateDeckConfigLegacyIn {
   bool preserve_usn_and_mtime = 2;
 }
 
-message SetTagCollapsedIn {
+message SetTagExpandedIn {
   string name = 1;
-  bool collapsed = 2;
+  bool expanded = 2;
 }
 
 message GetChangedTagsOut {
