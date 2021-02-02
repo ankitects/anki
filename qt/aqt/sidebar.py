@@ -313,6 +313,7 @@ class SidebarTreeView(QTreeView):
         self.setUniformRowHeights(True)
         self.setHeaderHidden(True)
         self.setIndentation(15)
+        self.setAutoExpandDelay(600)
         # this doesn't play nicely with shift+click to OR items - we may want
         # to put it behind a 'multi-select' mode
         # self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
