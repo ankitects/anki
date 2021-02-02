@@ -1,9 +1,14 @@
 <script lang="typescript">
-    export const cardTypeNames = ["CardTypeName", "CardTypeName2"];
-    export let currentCardType = 0;
+    export let cardTypeNames: string[] = ["CardTypeName"];
+    export let currentCardType: number = 0;
 
     let previousDisabled = false;
     let nextDisabled = false;
+
+    $: {
+        cardTypeNames;
+        currentCardType = 0;
+    }
 
     $: currentItem = cardTypeNames[currentCardType];
 

@@ -4,11 +4,13 @@
     import OptionsDropup from "./OptionsDropup.svelte";
 
     export let extraControls: SvelteComponent;
+    export let cardTypeNames: string[];
+    export let currentCardNumber: number;
 
-    let showFront = true;
-    let fillEmptyFields = false;
-    let nightMode = false;
-    let addMobileClass = false;
+    export let showFront: boolean;
+    export let fillEmptyFields: boolean;
+    export let nightMode: boolean;
+    export let addMobileClass: boolean;
 </script>
 
 <nav class="navbar navbar-light bg-light fixed-bottom">
@@ -18,7 +20,10 @@
 
         <!-- right buttons -->
         <div class="d-flex">
-            <svelte:component this={extraControls} />
+            <svelte:component
+                this={extraControls}
+                {cardTypeNames}
+                bind:currentCardNumber />
             <OptionsDropup bind:fillEmptyFields bind:nightMode bind:addMobileClass />
         </div>
     </div>

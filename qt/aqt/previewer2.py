@@ -3,7 +3,11 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import json
+
 import aqt
+from anki.consts import MODEL_STD
+from anki.notes import Note
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -49,6 +53,15 @@ class Previewer(QDialog):
     def _on_bridge_cmd(self, cmd: str) -> bool:
         return False
 
+    def show_note(self, note: Note) -> None:
+        data = json.dumps([[card.question(), card.answer()] for card in note.cards()])
+        model = note.model()
+
+        if model["type"] == MODEL_STD:
+            card_type_names = [tmpl["name"] for tmpl in model["tmpls"]]
+            self.form.web.eval(f"anki.setPreviewerNote({data}, {card_type_names})")
+        else:
+            self.form.web.eval(f"anki.setPreviewerClozeNote({data})")
+
     def refresh(self):
         self.form.web.load_ts_page("previewer")
-        self.form.web.eval('anki.previewer(document.getElementById("main"));')
