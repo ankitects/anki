@@ -13,8 +13,9 @@ import time
 import weakref
 import zipfile
 from argparse import Namespace
+from concurrent.futures import Future
 from threading import Thread
-from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple, cast
 
 import anki
 import aqt
@@ -337,13 +338,13 @@ class AnkiQt(QMainWindow):
         ):
             return
 
-        def doOpen(path) -> None:
+        def doOpen(path: str) -> None:
             self._openBackup(path)
 
         getFile(
             self.profileDiag,
             tr(TR.QT_MISC_REVERT_TO_BACKUP),
-            cb=doOpen,
+            cb=doOpen,  # type: ignore
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
         )
@@ -370,7 +371,7 @@ class AnkiQt(QMainWindow):
         def downgrade() -> List[str]:
             return self.pm.downgrade(profiles)
 
-        def on_done(future) -> None:
+        def on_done(future: Future) -> None:
             self.progress.finish()
             problems = future.result()
             if not problems:
@@ -568,7 +569,7 @@ class AnkiQt(QMainWindow):
     ##########################################################################
 
     class BackupThread(Thread):
-        def __init__(self, path, data) -> None:
+        def __init__(self, path: str, data: bytes) -> None:
             Thread.__init__(self)
             self.path = path
             self.data = data
@@ -629,7 +630,7 @@ class AnkiQt(QMainWindow):
     # State machine
     ##########################################################################
 
-    def moveToState(self, state: str, *args) -> None:
+    def moveToState(self, state: str, *args: Any) -> None:
         # print("-> move from", self.state, "to", state)
         oldState = self.state or "dummy"
         cleanup = getattr(self, "_" + oldState + "Cleanup", None)
@@ -804,7 +805,7 @@ title="%s" %s>%s</button>""" % (
         signal.signal(signal.SIGINT, self.onUnixSignal)
         signal.signal(signal.SIGTERM, self.onUnixSignal)
 
-    def onUnixSignal(self, signum, frame) -> None:
+    def onUnixSignal(self, signum: Any, frame: Any) -> None:
         # schedule a rollback & quit
         def quit() -> None:
             self.col.db.rollback()
@@ -1184,14 +1185,14 @@ title="%s" %s>%s</button>""" % (
         qconnect(self.autoUpdate.clockIsOff, self.clockIsOff)
         self.autoUpdate.start()
 
-    def newVerAvail(self, ver) -> None:
+    def newVerAvail(self, ver: str) -> None:
         if self.pm.meta.get("suppressUpdate", None) != ver:
             aqt.update.askAndUpdate(self, ver)
 
-    def newMsg(self, data) -> None:
+    def newMsg(self, data: Dict) -> None:
         aqt.update.showMessages(self, data)
 
-    def clockIsOff(self, diff) -> None:
+    def clockIsOff(self, diff: int) -> None:
         if devMode:
             print("clock is off; ignoring")
             return
@@ -1374,11 +1375,11 @@ title="%s" %s>%s</button>""" % (
         d.show()
 
     def _captureOutput(self, on: bool) -> None:
-        mw = self
+        mw2 = self
 
         class Stream:
-            def write(self, data) -> None:
-                mw._output += data
+            def write(self, data: str) -> None:
+                mw2._output += data
 
         if on:
             self._output = ""
@@ -1428,7 +1429,7 @@ title="%s" %s>%s</button>""" % (
         self._card_repr(card)
         return card
 
-    def onDebugPrint(self, frm) -> None:
+    def onDebugPrint(self, frm: aqt.forms.debug.Ui_Dialog) -> None:
         cursor = frm.text.textCursor()
         position = cursor.position()
         cursor.select(QTextCursor.LineUnderCursor)
@@ -1441,7 +1442,7 @@ title="%s" %s>%s</button>""" % (
             frm.text.setTextCursor(cursor)
         self.onDebugRet(frm)
 
-    def onDebugRet(self, frm) -> None:
+    def onDebugRet(self, frm: aqt.forms.debug.Ui_Dialog) -> None:
         import pprint
         import traceback
 

@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from concurrent.futures import Future
 from operator import itemgetter
 from typing import Any, List, Optional, Sequence
 
@@ -93,7 +94,7 @@ class Models(QDialog):
 
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             self.updateModelsList(fut.result())
             self.maybe_select_provided_notetype()
 
@@ -113,7 +114,7 @@ class Models(QDialog):
             self.mm.save(nt)
             return self.col.models.all_use_counts()
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             self.updateModelsList(fut.result())
 
         self.mw.taskman.with_progress(save, on_done, self)
@@ -163,7 +164,7 @@ class Models(QDialog):
             self.mm.rem(nt)
             return self.col.models.all_use_counts()
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             self.updateModelsList(fut.result())
 
         self.mw.taskman.with_progress(save, on_done, self)

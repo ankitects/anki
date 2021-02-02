@@ -92,7 +92,7 @@ class TagEdit(QLineEdit):
         self.completer.setCompletionPrefix(self.text())
         self.completer.complete()
 
-    def focusOutEvent(self, evt) -> None:
+    def focusOutEvent(self, evt: QFocusEvent) -> None:
         QLineEdit.focusOutEvent(self, evt)
         self.lostFocus.emit()  # type: ignore
         self.completer.popup().hide()
@@ -109,7 +109,6 @@ class TagCompleter(QCompleter):
         model: QStringListModel,
         parent: QWidget,
         edit: TagEdit,
-        *args,
     ) -> None:
         QCompleter.__init__(self, model, parent)
         self.tags: List[str] = []

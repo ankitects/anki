@@ -39,7 +39,7 @@ def debug() -> None:
 
 if os.environ.get("DEBUG"):
 
-    def info(type, value, tb) -> None:
+    def info(type, value, tb) -> None:  # type: ignore
         for line in traceback.format_exception(type, value, tb):
             sys.stdout.write(line)
         pyqtRemoveInputHook()

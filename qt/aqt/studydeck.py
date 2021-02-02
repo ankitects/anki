@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Optional
+from typing import List, Optional
 
 import aqt
 from aqt import gui_hooks
@@ -25,17 +25,17 @@ from aqt.utils import (
 class StudyDeck(QDialog):
     def __init__(
         self,
-        mw,
-        names=None,
-        accept=None,
-        title=None,
+        mw: aqt.AnkiQt,
+        names: Callable = None,
+        accept: str = None,
+        title: str = None,
         help: HelpPageArgument = HelpPage.KEYBOARD_SHORTCUTS,
-        current=None,
-        cancel=True,
-        parent=None,
-        dyn=False,
-        buttons=None,
-        geomKey="default",
+        current: Optional[str] = None,
+        cancel: bool = True,
+        parent: Optional[QDialog] = None,
+        dyn: bool = False,
+        buttons: Optional[List[str]] = None,
+        geomKey: str = "default",
     ) -> None:
         QDialog.__init__(self, parent or mw)
         if buttons is None:
@@ -65,18 +65,18 @@ class StudyDeck(QDialog):
         if title:
             self.setWindowTitle(title)
         if not names:
-            names = [
+            names_ = [
                 d.name
                 for d in self.mw.col.decks.all_names_and_ids(
                     include_filtered=dyn, skip_empty_default=True
                 )
             ]
             self.nameFunc = None
-            self.origNames = names
+            self.origNames = names_
         else:
             self.nameFunc = names
             self.origNames = names()
-        self.name = None
+        self.name: Optional[str] = None
         self.ok = self.form.buttonBox.addButton(
             accept or tr(TR.DECKS_STUDY), QDialogButtonBox.AcceptRole
         )

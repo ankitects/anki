@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import time
+from typing import Any
 
 import aqt
 from aqt import gui_hooks
@@ -60,7 +61,7 @@ class NewDeckStats(QDialog):
         aqt.dialogs.markClosed("NewDeckStats")
         QDialog.reject(self)
 
-    def closeWithCallback(self, callback) -> None:
+    def closeWithCallback(self, callback: Callable[[], None]) -> None:
         self.reject()
         callback()
 
@@ -84,10 +85,11 @@ class NewDeckStats(QDialog):
         self.form.web.page().printToPdf(path)
         tooltip(tr(TR.STATISTICS_SAVED))
 
-    def changePeriod(self, n) -> None:
+    # legacy add-ons
+    def changePeriod(self, n: Any) -> None:
         pass
 
-    def changeScope(self, type) -> None:
+    def changeScope(self, type: Any) -> None:
         pass
 
     def _on_bridge_cmd(self, cmd: str) -> bool:
@@ -149,7 +151,7 @@ class DeckStats(QDialog):
         aqt.dialogs.markClosed("DeckStats")
         QDialog.reject(self)
 
-    def closeWithCallback(self, callback) -> None:
+    def closeWithCallback(self, callback: Callable[[], None]) -> None:
         self.reject()
         callback()
 

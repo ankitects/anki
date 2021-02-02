@@ -20,7 +20,7 @@ class ModelChooser(QHBoxLayout):
         and the caller can call .onModelChange() to pull up the dialog when they
         are ready."""
         QHBoxLayout.__init__(self)
-        self.widget = widget  # type: ignore
+        self._widget = widget  # type: ignore
         self.mw = mw
         self.deck = mw.col
         self.label = label
@@ -32,7 +32,7 @@ class ModelChooser(QHBoxLayout):
         self.setSpacing(8)
         self.setupModels()
         gui_hooks.state_did_reset.append(self.onReset)
-        self.widget.setLayout(self)
+        self._widget.setLayout(self)
 
     def setupModels(self) -> None:
         if self.label:
@@ -41,7 +41,7 @@ class ModelChooser(QHBoxLayout):
         # models box
         self.models = QPushButton()
         self.models.setToolTip(shortcut(tr(TR.QT_MISC_CHANGE_NOTE_TYPE_CTRLANDN)))
-        QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.on_activated)  # type: ignore
+        QShortcut(QKeySequence("Ctrl+N"), self._widget, activated=self.on_activated)  # type: ignore
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
         qconnect(self.models.clicked, self.onModelChange)
@@ -57,15 +57,15 @@ class ModelChooser(QHBoxLayout):
         self.updateModels()
 
     def show(self) -> None:
-        self.widget.show()  # type: ignore
+        self._widget.show()  # type: ignore
 
     def hide(self) -> None:
-        self.widget.hide()  # type: ignore
+        self._widget.hide()  # type: ignore
 
     def onEdit(self) -> None:
         import aqt.models
 
-        aqt.models.Models(self.mw, self.widget)
+        aqt.models.Models(self.mw, self._widget)
 
     def onModelChange(self) -> None:
         from aqt.studydeck import StudyDeck
@@ -84,7 +84,7 @@ class ModelChooser(QHBoxLayout):
             title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
             help=HelpPage.NOTE_TYPE,
             current=current,
-            parent=self.widget,
+            parent=self._widget,
             buttons=[edit],
             cancel=True,
             geomKey="selectModel",

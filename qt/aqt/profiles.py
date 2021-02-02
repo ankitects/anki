@@ -113,9 +113,9 @@ class LoadMetaResult:
 
 
 class AnkiRestart(SystemExit):
-    def __init__(self, *args, **kwargs) -> None:
-        self.exitcode = kwargs.pop("exitcode", 0)
-        super().__init__(*args, **kwargs)  # type: ignore
+    def __init__(self, exitcode: int = 0) -> None:
+        self.exitcode = exitcode
+        super().__init__()
 
 
 class ProfileManager:
@@ -136,7 +136,7 @@ class ProfileManager:
         return res
 
     # profile load on startup
-    def openProfile(self, profile) -> None:
+    def openProfile(self, profile: str) -> None:
         if profile:
             if profile not in self.profiles():
                 QMessageBox.critical(
@@ -185,7 +185,7 @@ class ProfileManager:
                 self.base = newBase
                 shutil.move(oldBase, self.base)
 
-    def _tryToMigrateFolder(self, oldBase) -> None:
+    def _tryToMigrateFolder(self, oldBase: str) -> None:
         from PyQt5 import QtGui, QtWidgets
 
         app = QtWidgets.QApplication([])
@@ -257,7 +257,7 @@ class ProfileManager:
 
         return n
 
-    def _unpickle(self, data) -> Any:
+    def _unpickle(self, data: bytes) -> Any:
         class Unpickler(pickle.Unpickler):
             def find_class(self, module: str, name: str) -> Any:
                 if module == "PyQt5.sip":
@@ -282,7 +282,7 @@ class ProfileManager:
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()
 
-    def _pickle(self, obj) -> bytes:
+    def _pickle(self, obj: Any) -> bytes:
         # pyqt needs to be updated to fix
         # 'PY_SSIZE_T_CLEAN will be required for '#' formats' warning
         # check if this is still required for pyqt6
@@ -290,7 +290,7 @@ class ProfileManager:
             warnings.simplefilter("ignore")
             return pickle.dumps(obj, protocol=4)
 
-    def load(self, name) -> bool:
+    def load(self, name: str) -> bool:
         assert name != "_global"
         data = self.db.scalar(
             "select cast(data as blob) from profiles where name = ?", name
@@ -316,14 +316,14 @@ class ProfileManager:
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
 
-    def create(self, name) -> None:
+    def create(self, name: str) -> None:
         prof = profileConf.copy()
         self.db.execute(
             "insert or ignore into profiles values (?, ?)", name, self._pickle(prof)
         )
         self.db.commit()
 
-    def remove(self, name) -> None:
+    def remove(self, name: str) -> None:
         p = self.profileFolder()
         if os.path.exists(p):
             send2trash(p)
@@ -335,7 +335,7 @@ class ProfileManager:
         if os.path.exists(p):
             send2trash(p)
 
-    def rename(self, name) -> None:
+    def rename(self, name: str) -> None:
         oldName = self.name
         oldFolder = self.profileFolder()
         self.name = name
@@ -379,7 +379,7 @@ class ProfileManager:
     # Folder handling
     ######################################################################
 
-    def profileFolder(self, create=True) -> str:
+    def profileFolder(self, create: bool = True) -> str:
         path = os.path.join(self.base, self.name)
         if create:
             self._ensureExists(path)
@@ -397,7 +397,7 @@ class ProfileManager:
     # Downgrade
     ######################################################################
 
-    def downgrade(self, profiles=List[str]) -> List[str]:
+    def downgrade(self, profiles: List[str]) -> List[str]:
         "Downgrade all profiles. Return a list of profiles that couldn't be opened."
         problem_profiles = []
         for name in profiles:
@@ -449,7 +449,7 @@ class ProfileManager:
                 os.makedirs(dataDir)
             return os.path.join(dataDir, "Anki2")
 
-    def _loadMeta(self, retrying=False) -> LoadMetaResult:
+    def _loadMeta(self, retrying: bool = False) -> LoadMetaResult:
         result = LoadMetaResult()
         result.firstTime = False
         result.loadError = retrying
@@ -560,7 +560,7 @@ create table if not exists profiles
             return self.setDefaultLang(f.lang.currentRow())
         self.setLang(code)
 
-    def setLang(self, code) -> None:
+    def setLang(self, code: str) -> None:
         self.meta["defaultLang"] = code
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
@@ -602,7 +602,7 @@ create table if not exists profiles
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
 
-    def set_last_addon_update_check(self, secs) -> None:
+    def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
 
     def night_mode(self) -> bool:

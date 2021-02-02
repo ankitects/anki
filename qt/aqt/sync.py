@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import enum
 import os
+from concurrent.futures import Future
 from typing import Callable, Tuple
 
 import aqt
@@ -48,7 +49,7 @@ def get_sync_status(
         callback(SyncStatus(required=SyncStatus.NO_CHANGES))  # pylint:disable=no-member
         return
 
-    def on_future_done(fut) -> None:
+    def on_future_done(fut: Future) -> None:
         try:
             out = fut.result()
         except Exception as e:
@@ -97,7 +98,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut) -> None:
+    def on_future_done(fut: Future) -> None:
         mw.col.db.begin()
         timer.stop()
         try:
@@ -181,7 +182,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut) -> None:
+    def on_future_done(fut: Future) -> None:
         timer.stop()
         mw.col.reopen(after_full_sync=True)
         mw.reset()
@@ -209,7 +210,7 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut) -> None:
+    def on_future_done(fut: Future) -> None:
         timer.stop()
         mw.col.reopen(after_full_sync=True)
         mw.reset()
@@ -229,7 +230,10 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 
 
 def sync_login(
-    mw: aqt.main.AnkiQt, on_success: Callable[[], None], username="", password=""
+    mw: aqt.main.AnkiQt,
+    on_success: Callable[[], None],
+    username: str = "",
+    password: str = "",
 ) -> None:
     while True:
         (username, password) = get_id_and_pass_from_user(mw, username, password)
@@ -238,7 +242,7 @@ def sync_login(
         if username and password:
             break
 
-    def on_future_done(fut) -> None:
+    def on_future_done(fut: Future) -> None:
         try:
             auth = fut.result()
         except SyncError as e:
@@ -282,7 +286,7 @@ def ask_user_to_decide_direction() -> FullSyncChoice:
 
 
 def get_id_and_pass_from_user(
-    mw: aqt.main.AnkiQt, username="", password=""
+    mw: aqt.main.AnkiQt, username: str = "", password: str = ""
 ) -> Tuple[str, str]:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")

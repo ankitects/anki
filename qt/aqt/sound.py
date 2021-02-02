@@ -595,7 +595,7 @@ class QtAudioInputRecorder(Recorder):
                 wf.writeframes(self._buffer)
                 wf.close()
 
-            def and_then(fut) -> None:
+            def and_then(fut: Future) -> None:
                 fut.result()
                 Recorder.stop(self, on_done)
 
@@ -686,7 +686,7 @@ class PyAudioRecorder(Recorder):
         while self.duration() < 1:
             time.sleep(0.1)
 
-        def func(fut) -> None:
+        def func(fut: Future) -> None:
             Recorder.stop(self, on_done)
 
         self.thread.finish = True
@@ -789,7 +789,7 @@ class RecordDialog(QDialog):
 
 def record_audio(
     parent: QWidget, mw: aqt.AnkiQt, encode: bool, on_done: Callable[[str], None]
-):
+) -> None:
     def after_record(path: str) -> None:
         if not encode:
             on_done(path)
@@ -812,7 +812,7 @@ def play(filename: str) -> None:
     av_player.play_file(filename)
 
 
-def playFromText(text) -> None:
+def playFromText(text: Any) -> None:
     print("playFromText() deprecated")
 
 

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from concurrent.futures import Future
+
 import aqt
 from anki.consts import *
 from anki.errors import TemplateError
@@ -235,7 +237,7 @@ class FieldDialog(QDialog):
         def save() -> None:
             self.mm.save(self.model)
 
-        def on_done(fut) -> None:
+        def on_done(fut: Future) -> None:
             try:
                 fut.result()
             except TemplateError as e:
