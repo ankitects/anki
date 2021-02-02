@@ -10,7 +10,7 @@ from anki.consts import *
 from anki.decks import DeckManager
 from anki.importing.base import Importer
 from anki.lang import TR
-from anki.utils import intTime, joinFields, splitFields
+from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
 
 GUID = 1
 MID = 2
@@ -71,7 +71,9 @@ class Anki2Importer(Importer):
     ######################################################################
 
     def _logNoteRow(self, action: str, noteRow: List[str]) -> None:
-        self.log.append("[%s] %s" % (action, noteRow[6].replace("\x1f", ", ")))
+        self.log.append(
+            "[%s] %s" % (action, stripHTMLMedia(noteRow[6].replace("\x1f", ", ")))
+        )
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
