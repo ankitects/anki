@@ -35,6 +35,10 @@ impl SqliteStorage {
             self.upgrade_tags_to_schema17()?;
             self.db.execute_batch("update col set ver = 17")?;
         }
+        // fixme: on the next schema upgrade, change _collapsed to _expanded
+        // in DeckCommon and invert existing values, so that we can avoid
+        // serializing the values in the default case, and use
+        // DeckCommon::default() in new_normal() and new_filtered()
 
         Ok(())
     }
