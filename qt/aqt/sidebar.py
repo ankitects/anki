@@ -149,8 +149,8 @@ class SidebarModel(QAbstractItemModel):
     def item_for_index(self, idx: QModelIndex) -> SidebarItem:
         return idx.internalPointer()
 
-    def search(self, text: str) -> None:
-        self.root.search(text.lower())
+    def search(self, text: str) -> bool:
+        return self.root.search(text.lower())
 
     # Qt API
     ######################################################################
@@ -349,6 +349,7 @@ class SidebarTreeView(QTreeView):
         self.mw.taskman.run_in_background(self._root_tree, on_done)
 
     def search_for(self, text: str) -> None:
+        self.showColumn(0)
         if not text.strip():
             self.current_search = None
             self.refresh()
@@ -357,7 +358,7 @@ class SidebarTreeView(QTreeView):
         self.current_search = text
         # start from a collapsed state, as it's faster
         self.collapseAll()
-        self.model().search(text)
+        self.setColumnHidden(0, not self.model().search(text))
         expand_where_necessary(self.model(), self, searching=True)
 
     def drawRow(
