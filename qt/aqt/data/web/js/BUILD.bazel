@@ -1,6 +1,6 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-load("//qt/aqt/data/web/pages:defs.bzl", "copy_page")
+load("//ts:copy.bzl", "copy_files_into_group")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 
@@ -30,7 +30,7 @@ filegroup(
     output_group = "es5_sources",
 )
 
-copy_page(
+copy_files_into_group(
     name = "editor",
     srcs = [
         "editor.js",
