@@ -55,6 +55,8 @@ class SidebarItemType(Enum):
     TEMPLATE = 8
     SAVED_SEARCH_ROOT = 9
     DECK_ROOT = 10
+    NOTETYPE_ROOT = 11
+    TAG_ROOT = 12
 
 
 #  used by an add-on hook
@@ -93,6 +95,8 @@ class SidebarItem:
         self.parentItem: Optional["SidebarItem"] = None
         self.tooltip: Optional[str] = None
         self.row_in_parent: Optional[int] = None
+        self._search_matches_self = False
+        self._search_matches_child = False
 
     def addChild(self, cb: "SidebarItem") -> None:
         self.children.append(cb)
@@ -103,6 +107,31 @@ class SidebarItem:
             return self.children.index(child)
         except ValueError:
             return None
+
+    def is_expanded(self, searching: bool) -> bool:
+        if not searching:
+            return self.expanded
+        else:
+            if self._search_matches_child:
+                return True
+            # if search matches top level, expand children one level
+            return self._search_matches_self and self.item_type in (
+                SidebarItemType.SAVED_SEARCH_ROOT,
+                SidebarItemType.DECK_ROOT,
+                SidebarItemType.NOTETYPE_ROOT,
+                SidebarItemType.TAG_ROOT,
+            )
+
+    def is_highlighted(self) -> bool:
+        return self._search_matches_self
+
+    def search(self, lowered_text: str) -> bool:
+        "True if we or child matched."
+        self._search_matches_self = lowered_text in self.name.lower()
+        self._search_matches_child = any(
+            [child.search(lowered_text) for child in self.children]
+        )
+        return self._search_matches_self or self._search_matches_child
 
 
 class SidebarModel(QAbstractItemModel):
@@ -119,6 +148,9 @@ class SidebarModel(QAbstractItemModel):
 
     def item_for_index(self, idx: QModelIndex) -> SidebarItem:
         return idx.internalPointer()
+
+    def search(self, text: str) -> bool:
+        return self.root.search(text.lower())
 
     # Qt API
     ######################################################################
@@ -204,24 +236,20 @@ class SidebarModel(QAbstractItemModel):
 
 
 def expand_where_necessary(
-    model: SidebarModel, tree: QTreeView, parent: Optional[QModelIndex] = None
+    model: SidebarModel,
+    tree: QTreeView,
+    parent: Optional[QModelIndex] = None,
+    searching: bool = False,
 ) -> None:
     parent = parent or QModelIndex()
     for row in range(model.rowCount(parent)):
         idx = model.index(row, 0, parent)
         if not idx.isValid():
             continue
-        expand_where_necessary(model, tree, idx)
-        item = model.item_for_index(idx)
-        if item and item.expanded:
-            tree.setExpanded(idx, True)
-
-
-class FilterModel(QSortFilterProxyModel):
-    def item_for_index(self, idx: QModelIndex) -> Optional[SidebarItem]:
-        if not idx.isValid():
-            return None
-        return self.mapToSource(idx).internalPointer()
+        expand_where_necessary(model, tree, idx, searching)
+        if item := model.item_for_index(idx):
+            if item.is_expanded(searching):
+                tree.setExpanded(idx, True)
 
 
 class SidebarSearchBar(QLineEdit):
@@ -297,7 +325,7 @@ class SidebarTreeView(QTreeView):
         bgcolor = QPalette().window().color().name()
         self.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
 
-    def model(self) -> Union[FilterModel, SidebarModel]:
+    def model(self) -> SidebarModel:
         return super().model()
 
     def refresh(self) -> None:
@@ -321,38 +349,27 @@ class SidebarTreeView(QTreeView):
         self.mw.taskman.run_in_background(self._root_tree, on_done)
 
     def search_for(self, text: str) -> None:
+        self.showColumn(0)
         if not text.strip():
             self.current_search = None
             self.refresh()
             return
-        if not isinstance(self.model(), FilterModel):
-            filter_model = FilterModel(self)
-            filter_model.setSourceModel(self.model())
-            filter_model.setFilterCaseSensitivity(False)  # type: ignore
-            filter_model.setRecursiveFilteringEnabled(True)
-            self.setModel(filter_model)
-        else:
-            filter_model = self.model()
 
         self.current_search = text
-        # Without collapsing first, can be very slow. Surely there's
-        # a better way than this?
+        # start from a collapsed state, as it's faster
         self.collapseAll()
-        filter_model.setFilterFixedString(text)
-        self.expandAll()
+        self.setColumnHidden(0, not self.model().search(text))
+        expand_where_necessary(self.model(), self, searching=True)
 
     def drawRow(
         self, painter: QPainter, options: QStyleOptionViewItem, idx: QModelIndex
     ) -> None:
-        if self.current_search is None:
-            return super().drawRow(painter, options, idx)
-        if not (item := self.model().item_for_index(idx)):
-            return super().drawRow(painter, options, idx)
-        if self.current_search.lower() in item.name.lower():
-            brush = QBrush(theme_manager.qcolor("suspended-bg"))
-            painter.save()
-            painter.fillRect(options.rect, brush)
-            painter.restore()
+        if self.current_search and (item := self.model().item_for_index(idx)):
+            if item.is_highlighted():
+                brush = QBrush(theme_manager.qcolor("suspended-bg"))
+                painter.save()
+                painter.fillRect(options.rect, brush)
+                painter.restore()
         return super().drawRow(painter, options, idx)
 
     def dropEvent(self, event: QDropEvent) -> None:
@@ -522,8 +539,8 @@ class SidebarTreeView(QTreeView):
 
                 def toggle_expand() -> Callable[[bool], None]:
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda expanded: self.mw.col.tags.set_collapsed(
-                        full_name, not expanded
+                    return lambda expanded: self.mw.col.tags.set_expanded(
+                        full_name, expanded
                     )
 
                 item = SidebarItem(
@@ -531,7 +548,7 @@ class SidebarTreeView(QTreeView):
                     icon,
                     self._filter_func(SearchTerm(tag=head + node.name)),
                     toggle_expand(),
-                    not node.collapsed,
+                    node.expanded,
                     item_type=SidebarItemType.TAG,
                     full_name=head + node.name,
                 )
@@ -545,6 +562,7 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_TAGS,
             icon=icon,
             collapse_key=ConfigBoolKey.COLLAPSE_TAGS,
+            type=SidebarItemType.TAG_ROOT,
         )
         render(root, tree.children)
 
@@ -591,6 +609,7 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_NOTETYPES,
             icon=icon,
             collapse_key=ConfigBoolKey.COLLAPSE_NOTETYPES,
+            type=SidebarItemType.NOTETYPE_ROOT,
         )
 
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):

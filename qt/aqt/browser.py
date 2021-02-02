@@ -949,6 +949,8 @@ QTableView {{ gridline-color: {grid} }}
         l = QVBoxLayout()
         l.addWidget(searchBar)
         l.addWidget(self.sidebar)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.setSpacing(0)
         w = QWidget()
         w.setLayout(l)
         dw.setWidget(w)

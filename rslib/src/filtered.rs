@@ -133,7 +133,11 @@ impl Deck {
             name: "".into(),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
-            common: DeckCommon::default(),
+            common: DeckCommon {
+                study_collapsed: true,
+                browser_collapsed: true,
+                ..Default::default()
+            },
             kind: DeckKind::Filtered(filt),
         }
     }

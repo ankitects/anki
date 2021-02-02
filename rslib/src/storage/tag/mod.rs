@@ -11,7 +11,7 @@ fn row_to_tag(row: &Row) -> Result<Tag> {
     Ok(Tag {
         name: row.get(0)?,
         usn: row.get(1)?,
-        collapsed: row.get(2)?,
+        expanded: !row.get(2)?,
     })
 }
 
@@ -24,17 +24,17 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn collapsed_tags(&self) -> Result<Vec<String>> {
+    pub(crate) fn expanded_tags(&self) -> Result<Vec<String>> {
         self.db
-            .prepare_cached("select tag from tags where collapsed = true")?
+            .prepare_cached("select tag from tags where collapsed = false")?
             .query_and_then(NO_PARAMS, |r| r.get::<_, String>(0).map_err(Into::into))?
             .collect::<Result<Vec<_>>>()
     }
 
-    pub(crate) fn restore_collapsed_tags(&self, tags: &[String]) -> Result<()> {
+    pub(crate) fn restore_expanded_tags(&self, tags: &[String]) -> Result<()> {
         let mut stmt = self
             .db
-            .prepare_cached("update tags set collapsed = true where tag = ?")?;
+            .prepare_cached("update tags set collapsed = false where tag = ?")?;
         for tag in tags {
             stmt.execute(&[tag])?;
         }
@@ -52,7 +52,7 @@ impl SqliteStorage {
     pub(crate) fn register_tag(&self, tag: &Tag) -> Result<()> {
         self.db
             .prepare_cached(include_str!("add.sql"))?
-            .execute(params![tag.name, tag.usn, tag.collapsed])?;
+            .execute(params![tag.name, tag.usn, !tag.expanded])?;
         Ok(())
     }
 
