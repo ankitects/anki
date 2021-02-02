@@ -204,6 +204,7 @@ def showText(
     minHeight: int = 400,
     title: str = "Anki",
     copyBtn: bool = False,
+    plain_text_edit: bool = False,
 ) -> Optional[Tuple[QDialog, QDialogButtonBox]]:
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -212,8 +213,14 @@ def showText(
     disable_help_button(diag)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
-    text = QTextBrowser()
-    text.setOpenExternalLinks(True)
+    if plain_text_edit:
+        # used by the importer
+        text = QPlainTextEdit()
+        text.setReadOnly(True)
+        text.setWordWrapMode(QTextOption.NoWrap)
+    else:
+        text = QTextBrowser()
+        text.setOpenExternalLinks(True)
     if type == "text":
         text.setPlainText(txt)
     else:
