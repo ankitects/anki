@@ -16,9 +16,9 @@ var onUpdateHook: Array<Callback>;
 var onShownHook: Array<Callback>;
 
 function _runHook(arr: Array<Callback>): Promise<void[]> {
-    var promises = [];
+    const promises = [];
 
-    for (var i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++) {
         promises.push(arr[i]());
     }
 
@@ -38,7 +38,18 @@ async function _updateQA(
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
-    var qa = $("#qa");
+    const qa = $("#qa");
+    const renderError = (kind: string) => (error: Error): void => {
+        const errorMessage = String(error).substring(0, 2000);
+        const errorStack = String(error.stack).substring(0, 2000);
+
+        qa.html(
+            `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(
+                /\n/g,
+                "<br />"
+            )
+        );
+    };
 
     // fade out current text
     await qa.fadeTo(fadeTime, 0).promise();
@@ -46,23 +57,19 @@ async function _updateQA(
     // update text
     try {
         qa.html(html);
-    } catch (err) {
-        qa.html(
-            (
-                `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
-                String(err.stack).substring(0, 2000)
-            ).replace(/\n/g, "<br />")
-        );
+    } catch (error) {
+        renderError("HTML")(error);
     }
-    await _runHook(onUpdateHook);
 
     // wait for mathjax to ready
-    await MathJax.startup.promise.then(() => {
-        // clear MathJax buffers from previous typesets
-        MathJax.typesetClear();
+    await MathJax.startup.promise
+        .then(() => {
+            // clear MathJax buffers from previous typesets
+            MathJax.typesetClear();
 
-        return MathJax.typesetPromise(qa.slice(0, 1));
-    });
+            return MathJax.typesetPromise(qa.slice(0, 1));
+        })
+        .catch(renderError("MathJax"));
 
     // and reveal when processing is done
     await qa.fadeTo(fadeTime, 1).promise();
