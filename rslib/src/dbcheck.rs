@@ -646,12 +646,12 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckID(1))?;
 
-        col.set_tag_collapsed("one", false)?;
+        col.set_tag_expanded("one", true)?;
 
         col.check_database(progress_fn)?;
 
-        assert_eq!(col.storage.get_tag("one")?.unwrap().collapsed, false);
-        assert_eq!(col.storage.get_tag("two")?.unwrap().collapsed, true);
+        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
 
         Ok(())
     }

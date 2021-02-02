@@ -1412,10 +1412,10 @@ impl BackendService for Backend {
         })
     }
 
-    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> BackendResult<pb::Empty> {
+    fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                col.set_tag_collapsed(&input.name, input.collapsed)?;
+                col.set_tag_expanded(&input.name, input.expanded)?;
                 Ok(().into())
             })
         })

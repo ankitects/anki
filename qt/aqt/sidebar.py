@@ -539,8 +539,8 @@ class SidebarTreeView(QTreeView):
 
                 def toggle_expand() -> Callable[[bool], None]:
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda expanded: self.mw.col.tags.set_collapsed(
-                        full_name, not expanded
+                    return lambda expanded: self.mw.col.tags.set_expanded(
+                        full_name, expanded
                     )
 
                 item = SidebarItem(

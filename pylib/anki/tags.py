@@ -68,9 +68,9 @@ class TagManager:
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
-    def set_collapsed(self, tag: str, collapsed: bool) -> None:
-        "Set browser collapse state for tag, registering the tag if missing."
-        self.col._backend.set_tag_collapsed(name=tag, collapsed=collapsed)
+    def set_expanded(self, tag: str, expanded: bool) -> None:
+        "Set browser expansion state for tag, registering the tag if missing."
+        self.col._backend.set_tag_expanded(name=tag, expanded=expanded)
 
     # Bulk addition/removal from notes
     #############################################################
