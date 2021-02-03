@@ -61,6 +61,8 @@ async function _updateQA(
         renderError("HTML")(error);
     }
 
+    await _runHook(onUpdateHook);
+
     // wait for mathjax to ready
     await MathJax.startup.promise
         .then(() => {
@@ -70,7 +72,6 @@ async function _updateQA(
             return MathJax.typesetPromise(qa.slice(0, 1));
         })
         .catch(renderError("MathJax"));
-    await _runHook(onUpdateHook);
 
     // and reveal when processing is done
     await qa.fadeTo(fadeTime, 1).promise();
