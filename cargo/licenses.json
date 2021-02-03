@@ -1441,7 +1441,7 @@
   },
   {
     "name": "proc-macro-nested",
-    "version": "0.1.7",
+    "version": "0.1.6",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/proc-macro-hack",
     "license": "Apache-2.0 OR MIT",
