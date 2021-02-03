@@ -70,6 +70,7 @@ async function _updateQA(
             return MathJax.typesetPromise(qa.slice(0, 1));
         })
         .catch(renderError("MathJax"));
+    await _runHook(onUpdateHook);
 
     // and reveal when processing is done
     await qa.fadeTo(fadeTime, 1).promise();
