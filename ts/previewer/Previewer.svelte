@@ -9,17 +9,19 @@
     import ClozeSelect from "./ClozeSelect.svelte";
     import BrowserSelect from "./BrowserSelect.svelte";
 
-    export let input: PreviewerInput = [];
-    export let mode: PreviewerMode | null;
+    export let input: PreviewerInput = [["", ""]];
+    export let mode: PreviewerMode | null = null;
     export let cardTypeNames: string[] = [];
 
     let select = null;
-    let currentCardNumber = 0;
+    let currentCardType = 0;
 
     let showFront = true;
     let fillEmptyFields = false;
     let nightMode = false;
     let addMobileClass = false;
+
+    let displayed = "";
 
     $: {
         switch (mode) {
@@ -27,14 +29,26 @@
                 select = CardTypeSelect;
         }
     }
+
+    $: {
+        input;
+        currentCardType;
+        showFront;
+        console.log(input, currentCardType, showFront)
+        displayed = input[currentCardType][showFront ? 0 : 1];
+    }
 </script>
 
-<CardDisplay {input} />
+<CardDisplay
+    {displayed}
+    {fillEmptyFields}
+    {nightMode}
+    {addMobileClass} />
 <Navbar
     bind:showFront
     bind:fillEmptyFields
     bind:nightMode
     bind:addMobileClass
     extraControls={select}
-    bind:currentCardNumber
+    bind:currentCardType
     bind:cardTypeNames />

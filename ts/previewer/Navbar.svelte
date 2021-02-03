@@ -5,7 +5,7 @@
 
     export let extraControls: SvelteComponent;
     export let cardTypeNames: string[];
-    export let currentCardNumber: number;
+    export let currentCardType: number;
 
     export let showFront: boolean;
     export let fillEmptyFields: boolean;
@@ -23,7 +23,7 @@
             <svelte:component
                 this={extraControls}
                 {cardTypeNames}
-                bind:currentCardNumber />
+                bind:currentCardType />
             <OptionsDropup bind:fillEmptyFields bind:nightMode bind:addMobileClass />
         </div>
     </div>

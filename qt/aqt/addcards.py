@@ -11,9 +11,11 @@ from anki.consts import MODEL_CLOZE
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
+from aqt.editor import Editor
 from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player
+from aqt.previewer2 import Previewer
 from aqt.utils import (
     TR,
     HelpPage,
@@ -56,7 +58,34 @@ class AddCards(QDialog):
         self.show()
 
     def setupEditor(self) -> None:
+        def add_preview_button(leftbuttons: List[str], editor: Editor) -> None:
+            preview_shortcut = "Ctrl+Shift+P"
+            leftbuttons.insert(
+                0,
+                editor.addButton(
+                    None,
+                    "preview",
+                    lambda _editor: self.toggle_preview(),
+                    tr(
+                        TR.BROWSING_PREVIEW_SELECTED_CARD,
+                        val=shortcut(preview_shortcut),
+                    ),
+                    tr(TR.ACTIONS_PREVIEW),
+                    id="previewButton",
+                    keys=preview_shortcut,
+                    disables=False,
+                    rightside=False,
+                    toggleable=True,
+                ),
+            )
+
+        gui_hooks.editor_did_init_left_buttons.append(add_preview_button)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
+        gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
+
+    def toggle_preview(self) -> None:
+        self.previewer = aqt.dialogs.open("Previewer", self.mw)
+        self.previewer.show_note(self.editor.note)
 
     def setupChoosers(self) -> None:
         self.modelChooser = aqt.modelchooser.ModelChooser(

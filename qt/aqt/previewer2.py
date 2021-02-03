@@ -6,8 +6,9 @@ from __future__ import annotations
 import json
 
 import aqt
-from anki.consts import MODEL_STD
+from anki.consts import MODEL_STD, MODEL_CLOZE
 from anki.notes import Note
+from anki.models import NoteType
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -20,6 +21,10 @@ from aqt.utils import (
     saveGeom,
     tr,
 )
+
+
+def is_cloze(model: NoteType) -> bool:
+    return model["type"] == MODEL_CLOZE
 
 
 class Previewer(QDialog):
@@ -57,7 +62,7 @@ class Previewer(QDialog):
         data = json.dumps([[card.question(), card.answer()] for card in note.cards()])
         model = note.model()
 
-        if model["type"] == MODEL_STD:
+        if is_cloze(model):
             card_type_names = [tmpl["name"] for tmpl in model["tmpls"]]
             self.form.web.eval(f"anki.setPreviewerNote({data}, {card_type_names})")
         else:

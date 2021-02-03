@@ -19,7 +19,7 @@ copy_files_into_group(
     package = "//ts/congrats",
 )
 
-copy_page(
+copy_files_into_group(
     name = "previewer_page",
     srcs = [
         "previewer.html",
