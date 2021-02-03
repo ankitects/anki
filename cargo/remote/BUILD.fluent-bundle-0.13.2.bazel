@@ -52,11 +52,11 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__fluent_langneg__0_13_0//:fluent_langneg",
-        "@raze__fluent_syntax__0_10_1//:fluent_syntax",
-        "@raze__intl_memoizer__0_5_0//:intl_memoizer",
-        "@raze__intl_pluralrules__7_0_0//:intl_pluralrules",
+        "@raze__fluent_syntax__0_10_3//:fluent_syntax",
+        "@raze__intl_memoizer__0_5_1//:intl_memoizer",
+        "@raze__intl_pluralrules__7_0_1//:intl_pluralrules",
         "@raze__rental__0_5_5//:rental",
-        "@raze__smallvec__1_6_0//:smallvec",
+        "@raze__smallvec__1_6_1//:smallvec",
         "@raze__unic_langid__0_9_0//:unic_langid",
     ],
 )

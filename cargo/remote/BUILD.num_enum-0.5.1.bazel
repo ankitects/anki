@@ -42,7 +42,7 @@ rust_library(
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__derivative__2_1_3//:derivative",
+        "@raze__derivative__2_2_0//:derivative",
         "@raze__num_enum_derive__0_5_1//:num_enum_derive",
     ],
     rustc_flags = [

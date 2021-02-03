@@ -79,14 +79,14 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":prost_build_build_script",
-        "@raze__bytes__1_0_0//:bytes",
+        "@raze__bytes__1_0_1//:bytes",
         "@raze__heck__0_3_2//:heck",
         "@raze__itertools__0_9_0//:itertools",
-        "@raze__log__0_4_11//:log",
+        "@raze__log__0_4_14//:log",
         "@raze__multimap__0_8_2//:multimap",
         "@raze__petgraph__0_5_1//:petgraph",
         "@raze__prost__0_7_0//:prost",
         "@raze__prost_types__0_7_0//:prost_types",
-        "@raze__tempfile__3_1_0//:tempfile",
+        "@raze__tempfile__3_2_0//:tempfile",
     ],
 )

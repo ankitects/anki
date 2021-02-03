@@ -53,7 +53,7 @@ rust_library(
     version = "0.21.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__ring__0_16_19//:ring",
+        "@raze__ring__0_16_20//:ring",
         "@raze__untrusted__0_7_1//:untrusted",
     ],
 )

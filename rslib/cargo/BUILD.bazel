@@ -1,6 +1,3 @@
-# Copyright: Ankitects Pty Ltd and contributors
-# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 """
 @generated
 cargo-raze generated Bazel file.
@@ -98,7 +95,7 @@ alias(
 
 alias(
     name = "flate2",
-    actual = "@raze__flate2__1_0_19//:flate2",
+    actual = "@raze__flate2__1_0_20//:flate2",
     tags = [
         "cargo-raze",
         "manual",
@@ -116,7 +113,7 @@ alias(
 
 alias(
     name = "fluent_syntax",
-    actual = "@raze__fluent_syntax__0_10_1//:fluent_syntax",
+    actual = "@raze__fluent_syntax__0_10_3//:fluent_syntax",
     tags = [
         "cargo-raze",
         "manual",
@@ -125,7 +122,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_8//:futures",
+    actual = "@raze__futures__0_3_12//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -152,7 +149,7 @@ alias(
 
 alias(
     name = "intl_memoizer",
-    actual = "@raze__intl_memoizer__0_5_0//:intl_memoizer",
+    actual = "@raze__intl_memoizer__0_5_1//:intl_memoizer",
     tags = [
         "cargo-raze",
         "manual",
@@ -179,7 +176,7 @@ alias(
 
 alias(
     name = "nom",
-    actual = "@raze__nom__6_0_1//:nom",
+    actual = "@raze__nom__6_1_0//:nom",
     tags = [
         "cargo-raze",
         "manual",
@@ -224,7 +221,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_2//:pin_project",
+    actual = "@raze__pin_project__1_0_4//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -260,7 +257,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_4_2//:regex",
+    actual = "@raze__regex__1_4_3//:regex",
     tags = [
         "cargo-raze",
         "manual",
@@ -296,7 +293,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_118//:serde",
+    actual = "@raze__serde__1_0_123//:serde",
     tags = [
         "cargo-raze",
         "manual",
@@ -314,7 +311,7 @@ alias(
 
 alias(
     name = "serde_derive",
-    actual = "@raze__serde_derive__1_0_118//:serde_derive",
+    actual = "@raze__serde_derive__1_0_123//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",
@@ -368,7 +365,7 @@ alias(
 
 alias(
     name = "slog_async",
-    actual = "@raze__slog_async__2_5_0//:slog_async",
+    actual = "@raze__slog_async__2_6_0//:slog_async",
     tags = [
         "cargo-raze",
         "manual",
@@ -395,7 +392,7 @@ alias(
 
 alias(
     name = "tempfile",
-    actual = "@raze__tempfile__3_1_0//:tempfile",
+    actual = "@raze__tempfile__3_2_0//:tempfile",
     tags = [
         "cargo-raze",
         "manual",
@@ -404,7 +401,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__0_2_24//:tokio",
+    actual = "@raze__tokio__0_2_25//:tokio",
     tags = [
         "cargo-raze",
         "manual",

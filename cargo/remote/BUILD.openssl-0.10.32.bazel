@@ -85,7 +85,7 @@ rust_library(
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__foreign_types__0_3_2//:foreign_types",
         "@raze__lazy_static__1_4_0//:lazy_static",
-        "@raze__libc__0_2_81//:libc",
+        "@raze__libc__0_2_85//:libc",
         "@raze__openssl_sys__0_9_60//:openssl_sys",
     ],
 )
