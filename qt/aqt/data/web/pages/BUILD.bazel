@@ -1,6 +1,6 @@
-load("defs.bzl", "copy_page")
+load("//ts:copy.bzl", "copy_files_into_group")
 
-copy_page(
+copy_files_into_group(
     name = "graphs_page",
     srcs = [
         "graphs.css",
@@ -10,7 +10,7 @@ copy_page(
     package = "//ts/graphs",
 )
 
-copy_page(
+copy_files_into_group(
     name = "congrats_page",
     srcs = [
         "congrats.html",
