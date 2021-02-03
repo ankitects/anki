@@ -9,7 +9,7 @@
     import ClozeSelect from "./ClozeSelect.svelte";
     import BrowserSelect from "./BrowserSelect.svelte";
 
-    export let input: PreviewerInput = [["", ""]];
+    export let cards: [string, string][] = [["", ""]];
     export let mode: PreviewerMode | null = null;
     export let cardTypeNames: string[] = [];
 
@@ -27,15 +27,18 @@
         switch (mode) {
             case PreviewerMode.StandardCards:
                 select = CardTypeSelect;
+                break;
+            case PreviewerMode.ClozeCards:
+                select = ClozeSelect;
+                break;
         }
     }
 
     $: {
-        input;
+        cards;
         currentCardType;
         showFront;
-        console.log(input, currentCardType, showFront)
-        displayed = input[currentCardType][showFront ? 0 : 1];
+        displayed = cards[currentCardType][showFront ? 0 : 1];
     }
 </script>
 

@@ -28,13 +28,12 @@ def is_cloze(model: NoteType) -> bool:
 
 
 class Previewer(QDialog):
-    def __init__(self, mw: aqt.main.AnkiQt):
-        QDialog.__init__(self, mw, Qt.Window)
-        mw.setupDialogGC(self)
-        self.mw = mw
+    def __init__(self, parent: QDialog):
+        QDialog.__init__(self, parent, Qt.Window)
+        self.parent = parent
         self.name = "previewer"
         self.form = aqt.forms.previewer.Ui_Dialog()
-        self.setMinimumWidth(700)
+        self.setMinimumWidth(400);
         disable_help_button(self)
         f = self.form
         f.setupUi(self)
@@ -59,14 +58,16 @@ class Previewer(QDialog):
         return False
 
     def show_note(self, note: Note) -> None:
-        data = json.dumps([[card.question(), card.answer()] for card in note.cards()])
         model = note.model()
 
         if is_cloze(model):
-            card_type_names = [tmpl["name"] for tmpl in model["tmpls"]]
-            self.form.web.eval(f"anki.setPreviewerNote({data}, {card_type_names})")
-        else:
+            cards = [note.ephemeral_card(index) for index in note.cloze_numbers_in_fields()]
+            data = json.dumps([[card.question(), card.answer()] for card in cards])
             self.form.web.eval(f"anki.setPreviewerClozeNote({data})")
+        else:
+            cards = [[note.ephemeral_card(index), tmp["name"]] for index, tmp in enumerate(model["tmpls"])]
+            data = json.dumps([[card.question(), card.answer(), tmplname] for card, tmplname in cards])
+            self.form.web.eval(f"anki.setPreviewerNote({data})")
 
     def refresh(self):
         self.form.web.load_ts_page("previewer")

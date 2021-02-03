@@ -17,13 +17,28 @@ const previewer = setupI18n().then(
         })
 );
 
-export function setPreviewerNote(input: PreviewerInput, cardTypeNames: string[]): void {
+export function setPreviewerNote(input: PreviewerInput): void {
     previewer.then((previewer: Previewer) => {
+        const cards = input.map(([front, back]) => [front, back]);
+        const cardTypeNames = input.map(([,, cardTypeName]) => cardTypeName);
+
         previewer.$set({
-            input,
+            cards,
             cardTypeNames,
             mode: PreviewerMode.StandardCards,
         });
+
+        return previewer;
+    });
+}
+
+export function setPreviewerClozeNote(input: PreviewerInput): void {
+    previewer.then((previewer: Previewer) => {
+        previewer.$set({
+            cards: input,
+            mode: PreviewerMode.ClozeCards,
+        });
+
         return previewer;
     });
 }

@@ -1,4 +1,4 @@
-export type PreviewerInput = [string, string][];
+export type PreviewerInput = [string, string, string?][];
 
 export enum PreviewerMode {
     StandardCards = 1,
