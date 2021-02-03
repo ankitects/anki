@@ -44,8 +44,6 @@ from aqt.qt import *
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    from anki.lang import TRValue
-
     TextFormat = Union[Literal["plain", "rich"]]
 
 
@@ -68,7 +66,7 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(key: TRValue, **kwargs: Union[str, int, float]) -> str:
+def tr(key: TR.V, **kwargs: Union[str, int, float]) -> str:
     "Shortcut to access Fluent translations."
     return anki.lang.current_i18n.translate(key, **kwargs)
 

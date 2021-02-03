@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import locale
 import re
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
@@ -14,11 +14,6 @@ import anki._backend.fluent_pb2 as _fluent_pb
 # public exports
 TR = _fluent_pb.FluentString
 FormatTimeSpanContext = _pb.FormatTimespanIn.Context  # pylint: disable=no-member
-
-# pylint: disable=no-member
-if TYPE_CHECKING:
-    TRValue = _fluent_pb.FluentStringValue
-    FormatTimeSpanContextValue = _pb.FormatTimespanIn.ContextValue
 
 langs = sorted(
     [

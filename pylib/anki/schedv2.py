@@ -7,17 +7,7 @@ import pprint
 import random
 import time
 from heapq import *
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -35,13 +25,6 @@ SchedTimingToday = _pb.SchedTimingTodayOut
 
 UnburyCurrentDeckMode = _pb.UnburyCardsInCurrentDeckIn.Mode  # pylint:disable=no-member
 BuryOrSuspendMode = _pb.BuryOrSuspendCardsIn.Mode  # pylint:disable=no-member
-if TYPE_CHECKING:
-    UnburyCurrentDeckModeValue = (
-        _pb.UnburyCardsInCurrentDeckIn.ModeValue  # pylint:disable=no-member
-    )
-    BuryOrSuspendModeValue = (
-        _pb.BuryOrSuspendCardsIn.ModeValue  # pylint:disable=no-member
-    )
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -1332,7 +1315,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     def unbury_cards_in_current_deck(
         self,
-        mode: UnburyCurrentDeckModeValue = UnburyCurrentDeckMode.ALL,
+        mode: UnburyCurrentDeckMode.V = UnburyCurrentDeckMode.ALL,
     ) -> None:
         self.col._backend.unbury_cards_in_current_deck(mode)
 

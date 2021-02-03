@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, List, Tuple
+from typing import Callable, List, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
@@ -12,18 +12,13 @@ from anki.utils import from_json_bytes
 # pylint: disable=no-member
 StockNotetypeKind = _pb.StockNoteType.Kind
 
-# pylint: disable=no-member
-if TYPE_CHECKING:
-    StockNotetypeKindValue = _pb.StockNoteType.KindValue
-
-
 # add-on authors can add ("note type name", function_like_addBasicModel)
 # to this list to have it shown in the add/clone note type screen
 models: List[Tuple] = []
 
 
 def _add_stock_notetype(
-    col: anki.collection.Collection, kind: StockNotetypeKindValue
+    col: anki.collection.Collection, kind: StockNotetypeKind.V
 ) -> anki.models.NoteType:
     m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
     col.models.add(m)
