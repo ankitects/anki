@@ -49,6 +49,10 @@
         justify-content: center;
     }
 
+    .counts-table td {
+        white-space: nowrap;
+    }
+
     table {
         border-spacing: 1em 0;
     }
