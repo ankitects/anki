@@ -1,3 +1,5 @@
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
 def copy_files(ctx, files):
     cmds = []
     inputs = []
@@ -51,3 +53,18 @@ def copy_select_files(ctx, files, include, exclude, base, unwanted_prefix):
                 wanted.append((f, output))
 
     return copy_files(ctx, wanted)
+
+def copy_files_into_group(name, package, srcs):
+    outs = []
+    for src in srcs:
+        copy_file(
+            name = src + "_copy",
+            src = package + ":" + src,
+            out = src,
+        )
+
+    native.filegroup(
+        name = name,
+        srcs = srcs,
+        visibility = ["//qt:__subpackages__"],
+    )

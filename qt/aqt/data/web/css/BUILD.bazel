@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
-load("//qt/aqt/data/web/pages:defs.bzl", "copy_page")
+load("//ts:copy.bzl", "copy_files_into_group")
 load("compile_sass.bzl", "compile_sass")
 
 compile_sass(
@@ -17,7 +17,7 @@ copy_file(
     out = "core.css",
 )
 
-copy_page(
+copy_files_into_group(
     name = "editor",
     srcs = [
         "editor.css",
