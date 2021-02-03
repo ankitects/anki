@@ -93,7 +93,7 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/node@13.13.38": {
+    "@types/node@13.13.40": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -121,14 +121,6 @@
         "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-array",
         "licenseFile": "node_modules/d3-array/LICENSE"
-    },
-    "d3-array@2.9.1": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/d3/d3-array",
-        "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
-        "path": "node_modules/d3-scale/node_modules/d3-array",
-        "licenseFile": "node_modules/d3-scale/node_modules/d3-array/LICENSE"
     },
     "d3-axis@2.0.0": {
         "licenses": "BSD-3-Clause",
