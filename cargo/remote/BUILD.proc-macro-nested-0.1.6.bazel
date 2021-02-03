@@ -52,7 +52,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.7",
+    version = "0.1.6",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -74,7 +74,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.7",
+    version = "0.1.6",
     # buildifier: leave-alone
     deps = [
         ":proc_macro_nested_build_script",

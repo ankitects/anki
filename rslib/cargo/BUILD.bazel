@@ -229,6 +229,15 @@ alias(
 )
 
 alias(
+    name = "proc_macro_nested",
+    actual = "@raze__proc_macro_nested__0_1_6//:proc_macro_nested",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "prost",
     actual = "@raze__prost__0_7_0//:prost",
     tags = [

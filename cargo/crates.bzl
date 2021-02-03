@@ -1593,12 +1593,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__proc_macro_nested__0_1_7",
-        url = "https://crates.io/api/v1/crates/proc-macro-nested/0.1.7/download",
+        name = "raze__proc_macro_nested__0_1_6",
+        url = "https://crates.io/api/v1/crates/proc-macro-nested/0.1.6/download",
         type = "tar.gz",
-        sha256 = "bc881b2c22681370c6a780e47af9840ef841837bc98118431d4e1868bd0c1086",
-        strip_prefix = "proc-macro-nested-0.1.7",
-        build_file = Label("//cargo/remote:BUILD.proc-macro-nested-0.1.7.bazel"),
+        sha256 = "eba180dafb9038b050a4c280019bbedf9f2467b61e5d892dcad585bb57aadc5a",
+        strip_prefix = "proc-macro-nested-0.1.6",
+        build_file = Label("//cargo/remote:BUILD.proc-macro-nested-0.1.6.bazel"),
     )
 
     maybe(
