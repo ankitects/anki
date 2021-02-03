@@ -50,6 +50,7 @@ class AddCards(QDialog):
         self.onReset()
         self.history: List[int] = []
         self.previousNote: Optional[Note] = None
+        self.previewer: Optional[Previewer] = None
         restoreGeom(self, "add")
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.current_note_type_did_change.append(self.onModelChange)
@@ -84,8 +85,17 @@ class AddCards(QDialog):
         gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
     def toggle_preview(self) -> None:
-        self.previewer = aqt.dialogs.open("Previewer", self.mw)
-        self.previewer.show_note(self.editor.note)
+        if self.previewer:
+            self.previewer.reject()
+            self._on_preview_closed()
+        else:
+            self.previewer = aqt.dialogs.open("Previewer", self.mw)
+            self.previewer.show_note(self.editor.note)
+
+    def _on_preview_closed(self) -> None:
+        if self.editor.web:
+            self.editor.web.eval("$('#previewButton').removeClass('highlighted')")
+        self.previewer = None
 
     def setupChoosers(self) -> None:
         self.modelChooser = aqt.modelchooser.ModelChooser(
