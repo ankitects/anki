@@ -13,7 +13,7 @@ import time
 import traceback
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
 import anki.find
@@ -56,13 +56,6 @@ NoteWithEmptyCards = _pb.NoteWithEmptyCards
 GraphPreferences = _pb.GraphPreferences
 BuiltinSortKind = _pb.SortOrder.Builtin.Kind  # pylint: disable=no-member
 Preferences = _pb.Preferences
-
-# pylint: disable=no-member
-if TYPE_CHECKING:
-    from anki.lang import FormatTimeSpanContextValue, TRValue
-
-    ConfigBoolKeyValue = _pb.ConfigBool.KeyValue
-    BuiltinSortKindValue = _pb.SortOrder.Builtin.KindValue
 
 
 class Collection:
@@ -118,13 +111,13 @@ class Collection:
     # I18n/messages
     ##########################################################################
 
-    def tr(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
+    def tr(self, key: TR.V, **kwargs: Union[str, int, float]) -> str:
         return self._backend.translate(key, **kwargs)
 
     def format_timespan(
         self,
         seconds: float,
-        context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
+        context: FormatTimeSpanContext.V = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         return self._backend.format_timespan(seconds=seconds, context=context)
 
@@ -468,7 +461,7 @@ class Collection:
     def find_cards(
         self,
         query: str,
-        order: Union[bool, str, BuiltinSortKindValue] = False,
+        order: Union[bool, str, BuiltinSortKind.V] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
         if isinstance(order, str):
@@ -539,6 +532,7 @@ class Collection:
     # Search Strings
     ##########################################################################
 
+    # pylint: disable=no-member
     def build_search_string(
         self,
         *terms: Union[str, SearchTerm],
@@ -592,10 +586,10 @@ class Collection:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self._backend.get_all_config())
 
-    def get_config_bool(self, key: ConfigBoolKeyValue) -> bool:
+    def get_config_bool(self, key: ConfigBoolKey.V) -> bool:
         return self._backend.get_config_bool(key)
 
-    def set_config_bool(self, key: ConfigBoolKeyValue, value: bool) -> None:
+    def set_config_bool(self, key: ConfigBoolKey.V, value: bool) -> None:
         self.setMod()
         self._backend.set_config_bool(key=key, value=value)
 

@@ -116,7 +116,7 @@ def after_full_sync() -> None:
 
 def get_method(
     method_str: str,
-) -> Optional[SyncServerMethodIn.MethodValue]:  # pylint: disable=no-member
+) -> Optional[SyncServerMethodIn.Method.V]:  # pylint: disable=no-member
     s = method_str
     if s == "hostKey":
         return Method.HOST_KEY

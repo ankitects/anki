@@ -6,17 +6,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future
 from enum import Enum
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    cast,
-)
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
 from anki.collection import ConfigBoolKey, SearchTerm
@@ -37,9 +27,6 @@ from aqt.utils import (
     showWarning,
     tr,
 )
-
-if TYPE_CHECKING:
-    from anki.collection import ConfigBoolKeyValue, TRValue
 
 
 class SidebarItemType(Enum):
@@ -512,9 +499,9 @@ class SidebarTreeView(QTreeView):
         self,
         *,
         root: SidebarItem,
-        name: TRValue,
+        name: TR.V,
         icon: str,
-        collapse_key: ConfigBoolKeyValue,
+        collapse_key: ConfigBoolKey.V,
         type: Optional[SidebarItemType] = None,
     ) -> SidebarItem:
         def update(expanded: bool) -> None:

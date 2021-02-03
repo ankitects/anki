@@ -72,7 +72,7 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy-protobuf==1.24
+mypy-protobuf==2.1
     # via -r requirements.in
 mypy==0.800
     # via -r requirements.in
@@ -156,7 +156,7 @@ wrapt==1.12.1
 # The following packages are considered to be unsafe in a requirements file:
 pip==21.0.1
     # via pip-tools
-setuptools==52.0.0
+setuptools==53.0.0
     # via jsonschema
 
 # manually added for now; ensure it and the earlier winrt are not removed on update

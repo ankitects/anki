@@ -4,21 +4,18 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import anki.buildinfo
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.errors import backend_exception_to_pylib
-from anki.lang import FormatTimeSpanContext
+from anki.lang import TR, FormatTimeSpanContext
 from anki.utils import from_json_bytes, to_json_bytes
 
 from . import backend_pb2 as pb
 from . import rsbridge
-
-if TYPE_CHECKING:
-    from anki.lang import FormatTimeSpanContextValue, TRValue
 
 # pylint: disable=c-extension-no-member
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
@@ -85,13 +82,13 @@ class RustBackend(RustBackendGenerated):
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
 
-    def translate(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
+    def translate(self, key: TR.V, **kwargs: Union[str, int, float]) -> str:
         return self.translate_string(translate_string_in(key, **kwargs))
 
     def format_time_span(
         self,
         seconds: float,
-        context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
+        context: FormatTimeSpanContext.V = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"
@@ -110,7 +107,7 @@ class RustBackend(RustBackendGenerated):
 
 
 def translate_string_in(
-    key: TRValue, **kwargs: Union[str, int, float]
+    key: TR.V, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:
     args = {}
     for (k, v) in kwargs.items():

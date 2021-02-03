@@ -7,11 +7,6 @@
 #
 # pylint: disable=unused-import
 
-from typing import TYPE_CHECKING
-
 from anki.decks import DeckTreeNode
 from anki.errors import InvalidInput, NotFoundError
 from anki.lang import FormatTimeSpanContext
-
-if TYPE_CHECKING:
-    from anki.lang import FormatTimeSpanContextValue, TRValue

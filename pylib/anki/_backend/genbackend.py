@@ -61,7 +61,7 @@ def python_type_inner(field):
     elif type == TYPE_MESSAGE:
         return fullname(field.message_type.full_name)
     elif type == TYPE_ENUM:
-        return fullname(field.enum_type.full_name) + "Value"
+        return fullname(field.enum_type.full_name) + ".V"
     else:
         raise Exception(f"unknown type: {type}")
 
