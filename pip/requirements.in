@@ -26,9 +26,7 @@ fluent.syntax
 # windows only
 psutil; sys.platform == "win32"
 pywin32; sys.platform == "win32"
-# pinned due to https://github.com/microsoft/xlang/issues/717
-winrt==1.0.20239.1; sys.platform == "win32" and platform_release == "10" and python_version == "3.8"
-winrt; sys.platform == "win32" and platform_release == "10" and python_version >= "3.9"
+winrt; sys.platform == "win32" and platform_release == "10"
 
 # transitive windows dependencies
 atomicwrites; sys.platform == "win32" # via pytest
