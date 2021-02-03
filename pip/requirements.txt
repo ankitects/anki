@@ -148,7 +148,7 @@ waitress==2.0.0b1
     # via -r requirements.in
 werkzeug==1.0.1
     # via flask
-winrt==1.0.20239.1 ; sys_platform == "win32" and platform_release == "10" and python_version == "3.8"
+winrt==1.0.21033.1 ; sys_platform == "win32" and platform_release == "10"
     # via -r requirements.in
 wrapt==1.12.1
     # via astroid
@@ -158,6 +158,3 @@ pip==21.0.1
     # via pip-tools
 setuptools==53.0.0
     # via jsonschema
-
-# manually added for now; ensure it and the earlier winrt are not removed on update
-winrt==1.0.20330.1; sys.platform == "win32" and platform_release == "10" and python_version >= "3.9"
