@@ -67,9 +67,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__crc32fast__1_2_1//:crc32fast",
-        "@raze__flate2__1_0_19//:flate2",
+        "@raze__flate2__1_0_20//:flate2",
         "@raze__podio__0_1_7//:podio",
-        "@raze__time__0_1_44//:time",
+        "@raze__time__0_1_43//:time",
     ],
 )
 

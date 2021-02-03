@@ -53,6 +53,6 @@ rust_library(
     version = "0.1.16",
     # buildifier: leave-alone
     deps = [
-        "@raze__tinyvec__1_1_0//:tinyvec",
+        "@raze__tinyvec__1_1_1//:tinyvec",
     ],
 )

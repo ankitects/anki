@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__bytes__0_5_6//:bytes",
-        "@raze__http__0_2_2//:http",
+        "@raze__http__0_2_3//:http",
     ],
 )
 
