@@ -3,59 +3,42 @@
 For info on contributing things other than code, such as translations, decks
 and add-ons, please see https://docs.ankiweb.net/#/contrib
 
-With most users now on 2.1, it's time to start paying down some of the
-technical debt that Anki's codebase has built up over the years. This is
-not an easy task - the code is tightly coupled together, not fully covered
-by unit tests, and mostly dynamically typed, meaning even small changes
-carry the risk of regressions.
+With most users now on 2.1, the past year has been focused on paying down some
+of the technical debt that Anki's codebase has built up over the years, and making
+changes that will make future maintenance and refactoring easier. A lot of Anki's
+"business logic" has been migrated to Rust, which AnkiMobile and AnkiDroid
+can also take advantage of - previously a lot of effort was wasted writing the same
+code for each platform, and then debugging differences in the implementations.
+Considerable effort has also been put into improving the Python side of things,
+with type hints added to the majority of the codebase, automatic linting/formatting,
+and refactoring of parts of the code.
 
-At the moment, the focus is on changes that will make future maintenance and
-refactoring easier - migrating parts of the codebase to Rust, improving tooling
-and linting, type hints in the Python code, and more unit tests.
-
-New features are not currently the top priority, unless they are easy wins as
-part of the refactoring process.
+The scheduling code and import/export code remains to be done, and this will likely
+take a number of months to work through. Until that is complete, new features
+will not be the top priority, unless they are easy wins as part of the refactoring
+process.
 
 If you are planning to contribute any non-trivial changes, please reach out
 on the support site before you begin work. Some areas (primarily pylib/) are
 likely to change/conflict with other work, and larger changes will likely need
-to wait until the refactoring process nears completion.
+to wait until the refactoring process is done.
 
 ## Help wanted
 
 If you'd like to contribute but don't know what to work on, please take a look
-at the issues on the following repo. It's quite bare at the moment, but will
-hopefully grow with time.
-
-https://github.com/ankitects/help-wanted
+at the [issues tab](https://github.com/ankitects/anki/issues) of the Anki repo
+on GitHub.
 
 ## Type hints
 
-Type hints have recently been added to parts of the Python codebase, mainly
-using automated tools. At the moment, large parts of the codebase are still
-missing type hints, and some of the hints that do exist are incorrect or too
-general.
+Most of Anki's Python code now has type hints, which improve code completion,
+and make it easier to discover errors during development. When adding new
+code, please make sure you add type hints as well, or the tests will fail.
 
-When running 'bazel test', Anki uses mypy to typecheck the code. Mypy is able to
-infer some types by itself, but adding more type signatures to the code
-increases the amount of code that mypy is able to analyze.
-
-Patches that improve the type hints would be appreciated. And if you're
-adding new functionality, please use type hints in the new code you write
-where practical.
-
-Parts of Anki's codebase use ad-hoc data structures like nested dictionaries
-and lists, and they can be difficult to fully type. Don't worry too much about
-getting the types perfect - even a partial type like Dict[str, Any] or
-List[Tuple] is an improvement over no types at all.
-
-Qt's stubs are not perfect, so you'll find when doing things like connecting
-signals, you may have to add the following to the end of a line to silence the
-spurious errors.
-
-```
- # type: ignore
-```
+Qt's stubs are not perfect, so you may sometimes need to use cast(), or silence
+a type error. When connecting signals, there's a qconnect() helper in aqt.utils
+that can be used to work around the type warnings without obscuring other errors
+such as a mistyped variable.
 
 In cases where you have two modules that reference each other, you can fix the
 import cycle by using fully qualified names in the types, and enabling
@@ -92,7 +75,7 @@ The hooks try to follow one of two formats:
 
 [module] [verb] [subject] - eg, browser_did_change_row, editor_did_update_tags
 
-The qt code tends to use the second form as the hooks tend to focus on
+The qt code tends to use the second form, as the hooks tend to focus on
 particular screens. The pylib code tends to use the first form, as the focus
 is usually subjects like cards, notes, etc.
 
@@ -122,16 +105,18 @@ You can do this automatically by adding the following into
 bazel test //...
 ```
 
+You may want to explicitly set PATH to your normal shell PATH in that script,
+as pre-commit does not use a login shell, and if your path differs Bazel will
+end up recompiling things unnecessarily.
+
 If your change is non-trivial and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
 
 ## Code Style
 
-You are welcome to use snake_case variable names and functions in newly
-introduced code, but please avoid renaming existing functions and global
-variables that use camelCaps. Variables local to a function are safer to
-rename, but please do so only when a function needs to be changed for other
-reasons as well.
+Please use standard Python snake_case variable names and functions in newly
+introduced code. Because add-ons often rely on existing function names, if
+renaming an existing function, please add a legacy alias to the old function.
 
 ## Do One Thing
 
