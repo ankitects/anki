@@ -8,6 +8,7 @@ from typing import Dict, Optional
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
 from aqt.colors import colors
+from aqt.platform import set_dark_mode
 from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
 
 
@@ -16,15 +17,22 @@ class ThemeManager:
     _icon_cache_light: Dict[str, QIcon] = {}
     _icon_cache_dark: Dict[str, QIcon] = {}
     _icon_size = 128
+    _dark_mode_available: Optional[bool] = None
 
     def macos_dark_mode(self) -> bool:
         "True if the user has night mode on, and has forced native widgets."
         if not isMac:
             return False
 
+        if not self._night_mode_preference:
+            return False
+
+        if self._dark_mode_available is None:
+            self._dark_mode_available = set_dark_mode(True)
+
         from aqt import mw
 
-        return self._night_mode_preference and mw.pm.dark_mode_widgets()
+        return self._dark_mode_available and mw.pm.dark_mode_widgets()
 
     def get_night_mode(self) -> bool:
         return self._night_mode_preference

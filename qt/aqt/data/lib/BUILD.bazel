@@ -1,0 +1,17 @@
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
+copy_file(
+    name = "ankihelper_dylib",
+    src = "//qt/mac:helper_dylib",
+    out = "libankihelper.dylib",
+    tags = ["manual"],
+)
+
+filegroup(
+    name = "lib",
+    srcs = [] + select({
+        "//platforms:macos_x86_64": ["libankihelper.dylib"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//qt:__subpackages__"],
+)

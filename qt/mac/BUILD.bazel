@@ -1,0 +1,19 @@
+load("@rules_cc//cc:defs.bzl", "objc_library")
+
+objc_library(
+    name = "helper_static",
+    srcs = ["AnkiHelper.m"],
+    enable_modules = True,
+    alwayslink = True,
+    sdk_frameworks = ["AppKit"],
+    tags = ["manual"],
+)
+
+apple_binary(
+    name = "helper_dylib",
+    binary_type = "dylib",
+    minimum_os_version = "10.14",
+    platform_type = "macos",
+    visibility = ["//qt:__subpackages__"],
+    deps = ["helper_static"],
+)
