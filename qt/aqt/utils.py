@@ -53,7 +53,10 @@ def aqt_data_folder() -> str:
     if os.path.exists(dir):
         return dir
     # packaged install?
-    dir2 = os.path.join(sys.prefix, "aqt_data")
+    if isMac:
+        dir2 = os.path.join(sys.prefix, "..", "Resources", "aqt_data")
+    else:
+        dir2 = os.path.join(sys.prefix, "aqt_data")
     if os.path.exists(dir2):
         return dir2
 
