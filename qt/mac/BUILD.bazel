@@ -4,9 +4,9 @@ objc_library(
     name = "helper_static",
     srcs = ["AnkiHelper.m"],
     enable_modules = True,
-    alwayslink = True,
     sdk_frameworks = ["AppKit"],
     tags = ["manual"],
+    alwayslink = True,
 )
 
 apple_binary(
@@ -14,6 +14,7 @@ apple_binary(
     binary_type = "dylib",
     minimum_os_version = "10.14",
     platform_type = "macos",
+    tags = ["manual"],
     visibility = ["//qt:__subpackages__"],
     deps = ["helper_static"],
 )
