@@ -2,6 +2,12 @@
 ignore-patterns=.*_pb2.*
 persistent = no
 
+[TYPECHECK]
+ignored-classes=
+  FormatTimespanIn,
+  UnburyCardsInCurrentDeckIn,
+  BuryOrSuspendCardsIn
+
 [MESSAGES CONTROL]
 disable=C,R,
   fixme,

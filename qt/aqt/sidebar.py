@@ -9,7 +9,7 @@ from enum import Enum, auto
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
-from anki.collection import ConfigBoolKey, SearchTerm
+from anki.collection import ConfigBool, SearchTerm
 from anki.decks import DeckTreeNode
 from anki.errors import DeckRenameError, InvalidInput
 from anki.tags import TagTreeNode
@@ -526,7 +526,7 @@ class SidebarTreeView(QTreeView):
         root: SidebarItem,
         name: TR.V,
         icon: Union[str, ColoredIcon],
-        collapse_key: ConfigBoolKey.V,
+        collapse_key: ConfigBool.Key.V,
         type: Optional[SidebarItemType] = None,
     ) -> SidebarItem:
         def update(expanded: bool) -> None:
@@ -557,7 +557,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_SAVED_SEARCHES,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_SAVED_SEARCHES,
+            collapse_key=ConfigBool.COLLAPSE_SAVED_SEARCHES,
             type=SidebarItemType.SAVED_SEARCH_ROOT,
         )
 
@@ -584,7 +584,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_RECENT,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_RECENT,
+            collapse_key=ConfigBool.COLLAPSE_RECENT,
             type=SidebarItemType.FLAG_ROOT,
         )
         type = SidebarItemType.FLAG
@@ -646,7 +646,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_CARD_STATE,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_CARD_STATE,
+            collapse_key=ConfigBool.COLLAPSE_CARD_STATE,
             type=SidebarItemType.CARD_STATE_ROOT,
         )
         type = SidebarItemType.CARD_STATE
@@ -693,7 +693,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_FLAGS,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_FLAGS,
+            collapse_key=ConfigBool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
         )
         type = SidebarItemType.FLAG
@@ -771,7 +771,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_TAGS,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_TAGS,
+            collapse_key=ConfigBool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
         render(root, tree.children)
@@ -810,7 +810,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_DECKS,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_DECKS,
+            collapse_key=ConfigBool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
         render(root, tree.children)
@@ -824,7 +824,7 @@ class SidebarTreeView(QTreeView):
             root=root,
             name=TR.BROWSING_SIDEBAR_NOTETYPES,
             icon=icon,
-            collapse_key=ConfigBoolKey.COLLAPSE_NOTETYPES,
+            collapse_key=ConfigBool.COLLAPSE_NOTETYPES,
             type=SidebarItemType.NOTETYPE_ROOT,
         )
 

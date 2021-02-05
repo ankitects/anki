@@ -11,7 +11,7 @@ from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.errors import backend_exception_to_pylib
-from anki.lang import TR, FormatTimeSpanContext
+from anki.lang import TR, FormatTimeSpan
 from anki.utils import from_json_bytes, to_json_bytes
 
 from . import backend_pb2 as pb
@@ -88,7 +88,7 @@ class RustBackend(RustBackendGenerated):
     def format_time_span(
         self,
         seconds: float,
-        context: FormatTimeSpanContext.V = FormatTimeSpanContext.INTERVALS,
+        context: FormatTimeSpan.Context.V = FormatTimeSpan.INTERVALS,
     ) -> str:
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"

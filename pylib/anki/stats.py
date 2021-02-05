@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
-from anki.lang import TR, FormatTimeSpanContext
+from anki.lang import TR, FormatTimeSpan
 from anki.utils import ids2str
 
 # Card stats
@@ -46,7 +46,7 @@ class CardStats:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
     def time(self, tm: float) -> str:
-        return self.col.format_timespan(tm, context=FormatTimeSpanContext.PRECISE)
+        return self.col.format_timespan(tm, context=FormatTimeSpan.PRECISE)
 
 
 # Collection stats

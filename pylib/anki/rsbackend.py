@@ -9,4 +9,4 @@
 
 from anki.decks import DeckTreeNode
 from anki.errors import InvalidInput, NotFoundError
-from anki.lang import FormatTimeSpanContext
+from anki.lang import FormatTimeSpan

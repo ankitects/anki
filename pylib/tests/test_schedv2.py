@@ -6,7 +6,7 @@ import time
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
-from anki.schedv2 import UnburyCurrentDeckMode
+from anki.schedv2 import UnburyCurrentDeck
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -612,13 +612,13 @@ def test_bury():
     col.reset()
     assert not col.sched.getCard()
 
-    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeckMode.USER_ONLY)
+    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeck.USER_ONLY)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     c2.load()
     assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
-    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeckMode.SCHED_ONLY)
+    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeck.SCHED_ONLY)
     c2.load()
     assert c2.queue == QUEUE_TYPE_NEW
 
