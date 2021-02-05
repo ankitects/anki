@@ -10,10 +10,6 @@ let changeTimer: number | null = null;
 let currentNoteId: number | null = null;
 
 declare global {
-    interface String {
-        format(...args: string[]): string;
-    }
-
     interface Selection {
         modify(s: string, t: string, u: string): void;
         addRange(r: Range): void;
@@ -21,15 +17,6 @@ declare global {
         getRangeAt(n: number): Range;
     }
 }
-
-/* kept for compatibility with add-ons */
-String.prototype.format = function (...args: string[]): string {
-    return this.replace(/\{\d+\}/g, (m: string): void => {
-        const match = m.match(/\d+/);
-
-        return match ? args[match[0]] : "";
-    });
-};
 
 export function setFGButton(col: string): void {
     document.getElementById("forecolor").style.backgroundColor = col;
@@ -122,39 +109,6 @@ function inListItem(): boolean {
     return inList;
 }
 
-export function insertNewline(): void {
-    if (!inPreEnvironment()) {
-        setFormat("insertText", "\n");
-        return;
-    }
-
-    // in some cases inserting a newline will not show any changes,
-    // as a trailing newline at the end of a block does not render
-    // differently. so in such cases we note the height has not
-    // changed and insert an extra newline.
-
-    const r = currentField.getSelection().getRangeAt(0);
-    if (!r.collapsed) {
-        // delete any currently selected text first, making
-        // sure the delete is undoable
-        setFormat("delete");
-    }
-
-    const oldHeight = currentField.clientHeight;
-    setFormat("inserthtml", "\n");
-    if (currentField.clientHeight === oldHeight) {
-        setFormat("inserthtml", "\n");
-    }
-}
-
-// is the cursor in an environment that respects whitespace?
-function inPreEnvironment(): boolean {
-    const anchor = currentField.getSelection().anchorNode;
-    const n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
-
-    return window.getComputedStyle(n).whiteSpace.startsWith("pre");
-}
-
 function onInput(): void {
     // make sure IME changes get saved
     triggerKeyTimer();
@@ -245,9 +199,9 @@ export function focusIfField(x: number, y: number): boolean {
     return false;
 }
 
-function onPaste(): void {
+function onPaste(event: ClipboardEvent): void {
     bridgeCommand("paste");
-    window.event.preventDefault();
+    event.preventDefault();
 }
 
 function caretToEnd(): void {
@@ -336,7 +290,7 @@ export function wrap(front: string, back: string): void {
 }
 
 /* currently unused */
-function wrapIntoText(front: string, back: string): void {
+export function wrapIntoText(front: string, back: string): void {
     wrapInternal(front, back, true);
 }
 
