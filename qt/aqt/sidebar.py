@@ -372,7 +372,7 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         if self.current_search and (item := self.model().item_for_index(idx)):
             if item.is_highlighted():
-                brush = QBrush(theme_manager.qcolor("suspended-bg"))
+                brush = QBrush(theme_manager.qcolor(colors.SUSPENDED_BG))
                 painter.save()
                 painter.fillRect(options.rect, brush)
                 painter.restore()

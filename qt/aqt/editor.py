@@ -27,7 +27,7 @@ from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp
-from aqt import AnkiQt, gui_hooks
+from aqt import AnkiQt, colors, gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player
@@ -629,7 +629,7 @@ class Editor:
         self.tags.setToolTip(
             shortcut(tr(TR.EDITING_JUMP_TO_TAGS_WITH_CTRLANDSHIFTANDT))
         )
-        border = theme_manager.str_color("border")
+        border = theme_manager.color(colors.BORDER)
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)

@@ -21,7 +21,7 @@ from anki.models import NoteType
 from anki.notes import Note
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
-from aqt import AnkiQt, gui_hooks
+from aqt import AnkiQt, colors, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.main import ResetReason
@@ -412,13 +412,13 @@ class StatusDelegate(QItemDelegate):
 
         col = None
         if c.userFlag() > 0:
-            col = theme_manager.qcolor(f"flag{c.userFlag()}-bg")
+            col = getattr(colors, f"FLAG{c.userFlag()}_BG")
         elif c.note().hasTag("Marked"):
-            col = theme_manager.qcolor("marked-bg")
+            col = colors.MARKED_BG
         elif c.queue == QUEUE_TYPE_SUSPENDED:
-            col = theme_manager.qcolor("suspended-bg")
+            col = colors.SUSPENDED_BG
         if col:
-            brush = QBrush(col)
+            brush = QBrush(theme_manager.qcolor(col))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
@@ -744,7 +744,7 @@ class Browser(QMainWindow):
                 "selection-color: black; }"
             )
         elif theme_manager.macos_dark_mode():
-            grid = theme_manager.str_color("frame-bg")
+            grid = colors.FRAME_BG
             self.form.tableView.setStyleSheet(
                 f"""
 QTableView {{ gridline-color: {grid} }}           

@@ -10,7 +10,7 @@ from typing import Any, Callable, List, Optional, Sequence, Tuple, cast
 import anki
 from anki.lang import is_rtl
 from anki.utils import isLin, isMac, isWin
-from aqt import gui_hooks
+from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import TR, openLink, showInfo, tr
@@ -378,7 +378,7 @@ class AnkiWebView(QWebEngineView):
 
     def _getWindowColor(self) -> QColor:
         if theme_manager.night_mode:
-            return theme_manager.qcolor("window-bg")
+            return theme_manager.qcolor(colors.WINDOW_BG)
         if isMac:
             # standard palette does not return correct window color on macOS
             return QColor("#ececec")
