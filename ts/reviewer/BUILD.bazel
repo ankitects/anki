@@ -5,19 +5,13 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 
 sass_binary(
-    name = "editor_css",
-    src = "editor.scss",
-    visibility = ["//visibility:public"],
-)
-
-sass_binary(
-    name = "editable_css",
-    src = "editable.scss",
+    name = "reviewer_css",
+    src = "reviewer.scss",
     visibility = ["//visibility:public"],
 )
 
 ts_library(
-    name = "editor_ts",
+    name = "reviewer_ts",
     srcs = glob(["*.ts"]),
     tsconfig = "//qt/aqt/data/web/js:tsconfig.json",
     deps = [
@@ -26,7 +20,7 @@ ts_library(
 )
 
 rollup_bundle(
-    name = "editor",
+    name = "reviewer",
     config_file = "//ts:rollup.aqt.config.js",
     entry_point = "index.ts",
     format = "iife",
@@ -35,7 +29,7 @@ rollup_bundle(
     sourcemap = "false",
     visibility = ["//visibility:public"],
     deps = [
-        "editor_ts",
+        "reviewer_ts",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-terser",

@@ -1,6 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+import { bridgeCommand } from "./lib";
+
 declare var MathJax: any;
 
 type Callback = () => void | Promise<void>;
@@ -29,7 +31,7 @@ function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
 }
 
-async function _updateQA(
+export async function _updateQA(
     html: string,
     fadeTime: number,
     onupdate: Callback,
@@ -78,7 +80,7 @@ async function _updateQA(
     await _runHook(onShownHook);
 }
 
-function _showQuestion(q: string, bodyclass: string): void {
+export function _showQuestion(q: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             q,
@@ -100,7 +102,7 @@ function _showQuestion(q: string, bodyclass: string): void {
     );
 }
 
-function _showAnswer(a: string, bodyclass: string): void {
+export function _showAnswer(a: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             a,
@@ -129,7 +131,7 @@ const _flagColours = {
     4: "#77aaff",
 };
 
-function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
+export function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
     var elem = $("#_flag");
     if (flag === 0) {
         elem.hide();
@@ -139,7 +141,7 @@ function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
     elem.css("color", _flagColours[flag]);
 }
 
-function _drawMark(mark: boolean): void {
+export function _drawMark(mark: boolean): void {
     var elem = $("#_mark");
     if (!mark) {
         elem.hide();
@@ -148,13 +150,13 @@ function _drawMark(mark: boolean): void {
     }
 }
 
-function _typeAnsPress(): void {
+export function _typeAnsPress(): void {
     if ((window.event as KeyboardEvent).keyCode === 13) {
-        pycmd("ans");
+        bridgeCommand("ans");
     }
 }
 
-function _emulateMobile(enabled: boolean): void {
+export function _emulateMobile(enabled: boolean): void {
     const list = document.documentElement.classList;
     if (enabled) {
         list.add("mobile");
