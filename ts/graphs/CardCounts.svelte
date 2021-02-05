@@ -33,7 +33,7 @@
     const total = i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS);
 </script>
 
-<style lang="scss">
+<style>
     svg {
         transition: opacity 1s;
     }
@@ -47,10 +47,10 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+    }
 
-        td {
-            white-space: nowrap;
-        }
+    .counts-table td {
+        white-space: nowrap;
     }
 
     table {
