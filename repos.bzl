@@ -125,7 +125,7 @@ def register_repos():
         urls = [
             "https://github.com/ankitects/rules_svelte/archive/anki-2021-02-06.tar.gz",
         ],
-        sha256 = "7069687c83754271f72c34c4d1b57c9812565b47754d3d673828c01a78a6f139",
+        sha256 = "f77a96ae5a354f8c3c24045f3bee8521bfe56224292d4f71184a3382784640eb",
     )
 
     # translations
