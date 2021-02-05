@@ -488,6 +488,7 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     # opt in to full hidpi support?
     if not os.environ.get("ANKI_NOHIGHDPI"):
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
         os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
 

@@ -33,8 +33,6 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
-    MenuList,
-    SubMenu,
     askUser,
     disable_help_button,
     getTag,
@@ -62,10 +60,6 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView
-
-# legacy add-on support
-# pylint: disable=unused-import
-from aqt.sidebar import SidebarItem, SidebarStage  # isort: skip
 
 
 @dataclass
@@ -486,7 +480,6 @@ class Browser(QMainWindow):
         # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
-        qconnect(f.filter.clicked, self.onFilterButton)
         # edit
         qconnect(f.actionUndo.triggered, self.mw.onUndo)
         qconnect(f.actionInvertSelection.triggered, self.invertSelection)
@@ -978,33 +971,14 @@ QTableView {{ gridline-color: {grid} }}
         self.showSidebar()
         self.sidebar.searchBar.setFocus()
 
-    # legacy
-    def maybeRefreshSidebar(self) -> None:
-        self.sidebar.refresh()
-
     def toggle_sidebar(self) -> None:
         want_visible = not self.sidebarDockWidget.isVisible()
         self.sidebarDockWidget.setVisible(want_visible)
         if want_visible:
             self.sidebar.refresh()
 
-    # Filter button and sidebar helpers
+    # Sidebar helpers
     ######################################################################
-
-    def onFilterButton(self) -> None:
-        ml = MenuList()
-
-        ml.addChild(self._todayFilters())
-        ml.addChild(self._cardStateFilters())
-        ml.addSeparator()
-
-        toggle_sidebar = QAction(tr(TR.BROWSING_SIDEBAR))
-        qconnect(toggle_sidebar.triggered, self.toggle_sidebar)
-        toggle_sidebar.setCheckable(True)
-        toggle_sidebar.setChecked(self.sidebarDockWidget.isVisible())
-        ml.addChild(toggle_sidebar)
-
-        ml.popupOver(self.form.filter)
 
     def update_search(self, *terms: Union[str, SearchTerm]) -> None:
         """Modify the current search string based on modified keys, then refresh."""
@@ -1029,84 +1003,6 @@ QTableView {{ gridline-color: {grid} }}
     # legacy
     def setFilter(self, *terms: str) -> None:
         self.set_filter_then_search(*terms)
-
-    def _simpleFilters(self, items: Sequence[Tuple[str, SearchTerm]]) -> MenuList:
-        ml = MenuList()
-        for row in items:
-            if row is None:
-                ml.addSeparator()
-            else:
-                label, filter_name = row
-                ml.addItem(label, self.sidebar._filter_func(filter_name))
-        return ml
-
-    def _todayFilters(self) -> SubMenu:
-        subm = SubMenu(tr(TR.BROWSING_TODAY))
-        subm.addChild(
-            self._simpleFilters(
-                (
-                    (tr(TR.BROWSING_ADDED_TODAY), SearchTerm(added_in_days=1)),
-                    (
-                        tr(TR.BROWSING_STUDIED_TODAY),
-                        SearchTerm(rated=SearchTerm.Rated(days=1)),
-                    ),
-                    (
-                        tr(TR.BROWSING_AGAIN_TODAY),
-                        SearchTerm(
-                            rated=SearchTerm.Rated(
-                                days=1, rating=SearchTerm.RATING_AGAIN
-                            )
-                        ),
-                    ),
-                )
-            )
-        )
-        return subm
-
-    def _cardStateFilters(self) -> SubMenu:
-        subm = SubMenu(tr(TR.BROWSING_CARD_STATE))
-        subm.addChild(
-            self._simpleFilters(
-                (
-                    (
-                        tr(TR.ACTIONS_NEW),
-                        SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
-                    ),
-                    (
-                        tr(TR.SCHEDULING_LEARNING),
-                        SearchTerm(card_state=SearchTerm.CARD_STATE_LEARN),
-                    ),
-                    (
-                        tr(TR.SCHEDULING_REVIEW),
-                        SearchTerm(card_state=SearchTerm.CARD_STATE_REVIEW),
-                    ),
-                    (
-                        tr(TR.FILTERING_IS_DUE),
-                        SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
-                    ),
-                    None,
-                    (
-                        tr(TR.BROWSING_SUSPENDED),
-                        SearchTerm(card_state=SearchTerm.CARD_STATE_SUSPENDED),
-                    ),
-                    (
-                        tr(TR.BROWSING_BURIED),
-                        SearchTerm(card_state=SearchTerm.CARD_STATE_BURIED),
-                    ),
-                    None,
-                    (tr(TR.ACTIONS_RED_FLAG), SearchTerm(flag=SearchTerm.FLAG_RED)),
-                    (
-                        tr(TR.ACTIONS_ORANGE_FLAG),
-                        SearchTerm(flag=SearchTerm.FLAG_ORANGE),
-                    ),
-                    (tr(TR.ACTIONS_GREEN_FLAG), SearchTerm(flag=SearchTerm.FLAG_GREEN)),
-                    (tr(TR.ACTIONS_BLUE_FLAG), SearchTerm(flag=SearchTerm.FLAG_BLUE)),
-                    (tr(TR.BROWSING_NO_FLAG), SearchTerm(flag=SearchTerm.FLAG_NONE)),
-                    (tr(TR.BROWSING_ANY_FLAG), SearchTerm(flag=SearchTerm.FLAG_ANY)),
-                )
-            )
-        )
-        return subm
 
     # Info
     ######################################################################

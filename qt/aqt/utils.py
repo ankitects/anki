@@ -805,12 +805,17 @@ def checkInvalidFilename(str: str, dirsep: bool = True) -> bool:
 
 # Menus
 ######################################################################
+# This code will be removed in the future, please don't rely on it.
 
 MenuListChild = Union["SubMenu", QAction, "MenuItem", "MenuList"]
 
 
 class MenuList:
     def __init__(self) -> None:
+        traceback.print_stack(file=sys.stdout)
+        print(
+            "MenuList will be removed; please copy it into your add-on's code if you need it."
+        )
         self.children: List[MenuListChild] = []
 
     def addItem(self, title: str, func: Callable) -> MenuItem:
