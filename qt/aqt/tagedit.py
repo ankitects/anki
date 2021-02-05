@@ -28,6 +28,7 @@ class TagEdit(QLineEdit):
             self.completer = QCompleter(self.model, parent)
         self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setFilterMode(Qt.MatchContains)
         self.setCompleter(self.completer)
 
     def setCol(self, col: Collection) -> None:
