@@ -2,14 +2,32 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import platform
-from typing import Dict, Optional
+from dataclasses import dataclass
+from typing import Dict, Optional, Tuple, Union
 
 from anki.utils import isMac
-from aqt import QApplication, gui_hooks, isWin
-from aqt.colors import colors
+from aqt import QApplication, colors, gui_hooks, isWin
 from aqt.platform import set_dark_mode
-from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
+from aqt.qt import QColor, QIcon, QPainter, QPalette, QPixmap, QStyleFactory, Qt
+
+
+@dataclass
+class ColoredIcon:
+    path: str
+    # (day, night)
+    color: Tuple[str, str]
+
+    def current_color(self, night_mode: bool) -> str:
+        if night_mode:
+            return self.color[1]
+        else:
+            return self.color[0]
+
+    def with_color(self, color: Tuple[str, str]) -> ColoredIcon:
+        return ColoredIcon(path=self.path, color=color)
 
 
 class ThemeManager:
@@ -43,22 +61,39 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
-    def icon_from_resources(self, path: str) -> QIcon:
+    def icon_from_resources(self, path: Union[str, ColoredIcon]) -> QIcon:
         "Fetch icon from Qt resources, and invert if in night mode."
         if self.night_mode:
             cache = self._icon_cache_light
         else:
             cache = self._icon_cache_dark
-        icon = cache.get(path)
+
+        if isinstance(path, str):
+            key = path
+        else:
+            key = f"{path.path}-{path.color}"
+
+        icon = cache.get(key)
         if icon:
             return icon
 
-        icon = QIcon(path)
-
-        if self.night_mode:
-            img = icon.pixmap(self._icon_size, self._icon_size).toImage()
-            img.invertPixels()
-            icon = QIcon(QPixmap(img))
+        if isinstance(path, str):
+            # default black/white
+            icon = QIcon(path)
+            if self.night_mode:
+                img = icon.pixmap(self._icon_size, self._icon_size).toImage()
+                img.invertPixels()
+                icon = QIcon(QPixmap(img))
+        else:
+            # specified colours
+            icon = QIcon(path.path)
+            img = icon.pixmap(16)
+            painter = QPainter(img)
+            painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+            painter.fillRect(img.rect(), QColor(path.current_color(self.night_mode)))
+            painter.end()
+            icon = QIcon(img)
+            return icon
 
         return cache.setdefault(path, icon)
 
@@ -94,10 +129,10 @@ class ThemeManager:
 
         Returns the color as a string hex code or color name."""
         idx = 1 if self.night_mode else 0
-        c = colors.get(key)
-        if c is None:
-            raise Exception("no such color:", key)
-        return c[idx]
+
+        key = key.replace("-", "_").upper()
+
+        return getattr(colors, key)[idx]
 
     def qcolor(self, key: str) -> QColor:
         """Get a color defined in _vars.scss as a QColor."""

@@ -32,4 +32,6 @@ for line in open(input_scss):
 
 with open(output_py, "w") as buf:
     buf.write("# this file is auto-generated from _vars.scss\n")
-    buf.write("colors = " + json.dumps(colors))
+    for color, (day, night) in colors.items():
+        color = color.replace("-", "_").upper()
+        buf.write(f"{color} = (\"{day}\", \"{night}\")\n")

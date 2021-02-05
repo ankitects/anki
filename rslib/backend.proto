@@ -821,6 +821,7 @@ message SearchTerm {
     Flag flag = 11;
     CardState card_state = 12;
     IdList nids = 13;
+    uint32 edited_in_days = 14;
   }
 }
 
@@ -1222,8 +1223,10 @@ message ConfigBool {
     COLLAPSE_TAGS = 2;
     COLLAPSE_NOTETYPES = 3;
     COLLAPSE_DECKS = 4;
-    COLLAPSE_FAVORITES = 5;
-    COLLAPSE_COMMON = 6;
+    COLLAPSE_SAVED_SEARCHES = 5;
+    COLLAPSE_RECENT = 6;
+    COLLAPSE_CARD_STATE = 7;
+    COLLAPSE_FLAGS = 8;
   }
   Key key = 1;
 }
