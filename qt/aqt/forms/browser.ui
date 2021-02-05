@@ -238,7 +238,7 @@
      <string>QT_ACCEL_GO</string>
     </property>
     <addaction name="actionFind"/>
-    <addaction name="actionTags"/>
+    <addaction name="actionSidebarFilter"/>
     <addaction name="actionSidebar"/>
     <addaction name="actionNote"/>
     <addaction name="actionCardList"/>
@@ -398,7 +398,7 @@
     <string notr="true">Ctrl+Alt+F</string>
    </property>
   </action>
-  <action name="actionTags">
+  <action name="actionSidebarFilter">
    <property name="text">
     <string>QT_ACCEL_FILTER</string>
    </property>

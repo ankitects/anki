@@ -524,7 +524,6 @@ class Browser(QMainWindow):
         qconnect(f.actionLastCard.triggered, self.onLastCard)
         qconnect(f.actionFind.triggered, self.onFind)
         qconnect(f.actionNote.triggered, self.onNote)
-        qconnect(f.actionTags.triggered, self.onFilterButton)
         qconnect(f.actionSidebar.triggered, self.focusSidebar)
         qconnect(f.actionCardList.triggered, self.onCardList)
         # help
@@ -946,7 +945,7 @@ QTableView {{ gridline-color: {grid} }}
         dw.setWidget(self.sidebar)
         self.sidebar.searchBar = searchBar = SidebarSearchBar(self.sidebar)
         qconnect(
-            QShortcut(QKeySequence("Ctrl+Shift+B"), self).activated,
+            self.form.actionSidebarFilter.triggered,
             self.focusSidebarSearchBar,
         )
         l = QVBoxLayout()
