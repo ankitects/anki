@@ -121,11 +121,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "build_bazel_rules_svelte",
-        strip_prefix = "rules_svelte-anki-2020-12-23",
+        strip_prefix = "rules_svelte-anki-2021-02-06",
         urls = [
-            "https://github.com/ankitects/rules_svelte/archive/anki-2020-12-23.tar.gz",
+            "https://github.com/ankitects/rules_svelte/archive/anki-2021-02-06.tar.gz",
         ],
-        sha256 = "eb0e910579b71242b44480b5dcc34c63d9a530d6fb7913139759ef397ff30bb2",
+        sha256 = "7069687c83754271f72c34c4d1b57c9812565b47754d3d673828c01a78a6f139",
     )
 
     # translations
