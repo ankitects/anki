@@ -13,7 +13,9 @@ import anki._backend.fluent_pb2 as _fluent_pb
 
 # public exports
 TR = _fluent_pb.FluentString
-FormatTimeSpanContext = _pb.FormatTimespanIn.Context  # pylint: disable=no-member
+FormatTimeSpan = _pb.FormatTimespanIn
+# legacy alias used by add-ons
+FormatTimeSpanContext = FormatTimeSpan
 
 langs = sorted(
     [

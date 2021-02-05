@@ -27,7 +27,7 @@ from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
 from anki.errors import AnkiError, DBError
-from anki.lang import TR, FormatTimeSpanContext
+from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
@@ -50,11 +50,11 @@ MediaSyncProgress = _pb.MediaSyncProgress
 FullSyncProgress = _pb.FullSyncProgress
 NormalSyncProgress = _pb.NormalSyncProgress
 DatabaseCheckProgress = _pb.DatabaseCheckProgress
-ConfigBoolKey = _pb.ConfigBool.Key  # pylint: disable=no-member
+ConfigBool = _pb.ConfigBool
 EmptyCardsReport = _pb.EmptyCardsReport
 NoteWithEmptyCards = _pb.NoteWithEmptyCards
 GraphPreferences = _pb.GraphPreferences
-BuiltinSortKind = _pb.SortOrder.Builtin.Kind  # pylint: disable=no-member
+BuiltinSort = _pb.SortOrder.Builtin
 Preferences = _pb.Preferences
 
 
@@ -117,7 +117,7 @@ class Collection:
     def format_timespan(
         self,
         seconds: float,
-        context: FormatTimeSpanContext.V = FormatTimeSpanContext.INTERVALS,
+        context: FormatTimeSpan.Context.V = FormatTimeSpan.INTERVALS,
     ) -> str:
         return self._backend.format_timespan(seconds=seconds, context=context)
 
@@ -461,7 +461,7 @@ class Collection:
     def find_cards(
         self,
         query: str,
-        order: Union[bool, str, BuiltinSortKind.V] = False,
+        order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
         if isinstance(order, str):
@@ -554,9 +554,9 @@ class Collection:
                 term = self._backend.filter_to_search(term)
             searches.append(term)
         if match_any:
-            sep = _pb.ConcatenateSearchesIn.Separator.OR
+            sep = _pb.ConcatenateSearchesIn.OR
         else:
-            sep = _pb.ConcatenateSearchesIn.Separator.AND
+            sep = _pb.ConcatenateSearchesIn.AND
         search_string = self._backend.concatenate_searches(sep=sep, searches=searches)
         if negate:
             search_string = self._backend.negate_search(search_string)
@@ -586,10 +586,10 @@ class Collection:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self._backend.get_all_config())
 
-    def get_config_bool(self, key: ConfigBoolKey.V) -> bool:
+    def get_config_bool(self, key: ConfigBool.Key.V) -> bool:
         return self._backend.get_config_bool(key)
 
-    def set_config_bool(self, key: ConfigBoolKey.V, value: bool) -> None:
+    def set_config_bool(self, key: ConfigBool.Key.V, value: bool) -> None:
         self.setMod()
         self._backend.set_config_bool(key=key, value=value)
 

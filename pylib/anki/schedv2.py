@@ -15,16 +15,15 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import Deck, DeckConfig, DeckManager, DeckTreeNode, QueueConfig
-from anki.lang import FormatTimeSpanContext
+from anki.lang import FormatTimeSpan
 from anki.notes import Note
 from anki.utils import from_json_bytes, ids2str, intTime
 
 CongratsInfo = _pb.CongratsInfoOut
 CountsForDeckToday = _pb.CountsForDeckTodayOut
 SchedTimingToday = _pb.SchedTimingTodayOut
-
-UnburyCurrentDeckMode = _pb.UnburyCardsInCurrentDeckIn.Mode  # pylint:disable=no-member
-BuryOrSuspendMode = _pb.BuryOrSuspendCardsIn.Mode  # pylint:disable=no-member
+UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
+BuryOrSuspend = _pb.BuryOrSuspendCardsIn
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -1254,7 +1253,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
             return self.col.tr(TR.SCHEDULING_END)
-        s = self.col.format_timespan(ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS)
+        s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s
@@ -1315,20 +1314,20 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     def unbury_cards_in_current_deck(
         self,
-        mode: UnburyCurrentDeckMode.V = UnburyCurrentDeckMode.ALL,
+        mode: UnburyCurrentDeck.Mode.V = UnburyCurrentDeck.ALL,
     ) -> None:
         self.col._backend.unbury_cards_in_current_deck(mode)
 
     def suspend_cards(self, ids: Sequence[int]) -> None:
         self.col._backend.bury_or_suspend_cards(
-            card_ids=ids, mode=BuryOrSuspendMode.SUSPEND
+            card_ids=ids, mode=BuryOrSuspend.SUSPEND
         )
 
     def bury_cards(self, ids: Sequence[int], manual: bool = True) -> None:
         if manual:
-            mode = BuryOrSuspendMode.BURY_USER
+            mode = BuryOrSuspend.BURY_USER
         else:
-            mode = BuryOrSuspendMode.BURY_SCHED
+            mode = BuryOrSuspend.BURY_SCHED
         self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
 
     def bury_note(self, note: Note) -> None:
@@ -1351,11 +1350,11 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
         )
         if type == "all":
-            mode = UnburyCurrentDeckMode.ALL
+            mode = UnburyCurrentDeck.ALL
         elif type == "manual":
-            mode = UnburyCurrentDeckMode.USER_ONLY
+            mode = UnburyCurrentDeck.USER_ONLY
         else:  # elif type == "siblings":
-            mode = UnburyCurrentDeckMode.SCHED_ONLY
+            mode = UnburyCurrentDeck.SCHED_ONLY
         self.unbury_cards_in_current_deck(mode)
 
     unsuspendCards = unsuspend_cards

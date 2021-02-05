@@ -13,7 +13,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, ConfigBoolKey, SearchTerm
+from anki.collection import Collection, ConfigBool, SearchTerm
 from anki.consts import *
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
@@ -850,13 +850,13 @@ QTableView {{ gridline-color: {grid} }}
             # default to descending for non-text fields
             if type == "noteFld":
                 ord = not ord
-            self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, ord)
+            self.col.set_config_bool(ConfigBool.BROWSER_SORT_BACKWARDS, ord)
             self.col.setMod()
             self.col.save()
             self.search()
         else:
-            if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS) != ord:
-                self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, ord)
+            if self.col.get_config_bool(ConfigBool.BROWSER_SORT_BACKWARDS) != ord:
+                self.col.set_config_bool(ConfigBool.BROWSER_SORT_BACKWARDS, ord)
                 self.col.setMod()
                 self.col.save()
                 self.model.reverse()
@@ -869,7 +869,7 @@ QTableView {{ gridline-color: {grid} }}
             hh.setSortIndicatorShown(False)
             return
         idx = self.model.activeCols.index(type)
-        if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS):
+        if self.col.get_config_bool(ConfigBool.BROWSER_SORT_BACKWARDS):
             ord = Qt.DescendingOrder
         else:
             ord = Qt.AscendingOrder
