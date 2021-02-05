@@ -196,7 +196,7 @@ export function renderCalendar(
                 d
             )
         )
-        .on("click", setFirstDayOfWeek);
+        .on("click", (_event: MouseEvent, d: number) => setFirstDayOfWeek(d));
 
     svg.select("g.days")
         .selectAll("rect")
