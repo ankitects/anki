@@ -551,7 +551,7 @@ class SidebarTreeView(QTreeView):
 
     def _saved_searches_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/heart.svg"
-        saved = self.col.get_config("savedFilters", {})
+        saved = self._get_saved_searches()
 
         root = self._section_root(
             root=root,
@@ -1002,18 +1002,29 @@ class SidebarTreeView(QTreeView):
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
 
+    # Saved searches
+    ##################
+
+    _saved_searches_key = "savedFilters"
+
+    def _get_saved_searches(self) -> Dict[str, str]:
+        return self.col.get_config(self._saved_searches_key, {})
+
+    def _set_saved_searches(self, searches: Dict[str, str]) -> None:
+        self.col.set_config(self._saved_searches_key, searches)
+
     def remove_saved_search(self, item: SidebarItem) -> None:
         name = item.name
         if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
             return
-        conf = self.col.get_config("savedFilters")
+        conf = self._get_saved_searches()
         del conf[name]
-        self.col.set_config("savedFilters", conf)
+        self._set_saved_searches(conf)
         self.refresh()
 
     def rename_saved_search(self, item: SidebarItem) -> None:
         old = item.name
-        conf = self.col.get_config("savedFilters")
+        conf = self._get_saved_searches()
         try:
             filt = conf[old]
         except KeyError:
@@ -1023,7 +1034,7 @@ class SidebarTreeView(QTreeView):
             return
         conf[new] = filt
         del conf[old]
-        self.col.set_config("savedFilters", conf)
+        self._set_saved_searches(conf)
         self.refresh()
 
     def save_current_search(self, _item: Any = None) -> None:
@@ -1037,9 +1048,9 @@ class SidebarTreeView(QTreeView):
             name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
             if not name:
                 return
-            conf = self.col.get_config("savedFilters")
+            conf = self._get_saved_searches()
             conf[name] = filt
-            self.col.set_config("savedFilters", conf)
+            self._set_saved_searches(conf)
             self.refresh()
 
     def manage_notetype(self, item: SidebarItem) -> None:
