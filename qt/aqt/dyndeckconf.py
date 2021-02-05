@@ -8,7 +8,7 @@ from anki.collection import SearchTerm
 from anki.decks import Deck, DeckRenameError
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
-from aqt import AnkiQt, gui_hooks
+from aqt import AnkiQt, colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -70,7 +70,7 @@ class DeckConf(QDialog):
         self.set_custom_searches(search, search_2)
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
-        color = theme_manager.str_color("link")
+        color = theme_manager.color(colors.LINK)
         self.setStyleSheet(
             f"""QPushButton[flat=true] {{ text-align: left; color: {color}; padding: 0; border: 0 }}
             QPushButton[flat=true]:hover {{ text-decoration: underline }}"""
