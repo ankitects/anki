@@ -199,9 +199,9 @@ export function focusIfField(x: number, y: number): boolean {
     return false;
 }
 
-function onPaste(): void {
+function onPaste(event: ClipboardEvent): void {
     bridgeCommand("paste");
-    window.event.preventDefault();
+    event.preventDefault();
 }
 
 function caretToEnd(): void {
