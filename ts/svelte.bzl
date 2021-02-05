@@ -24,6 +24,7 @@ def svelte_check(name = "svelte_check", srcs = []):
             "//ts:tsconfig.json",
             "//ts/lib",
             "//ts/lib:backend_proto",
+            "@npm//sass"
         ] + srcs,
         link_workspace_root = True,
     )
