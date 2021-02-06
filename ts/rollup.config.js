@@ -1,5 +1,7 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import ignore from "rollup-plugin-ignore";
 import { terser } from "rollup-plugin-terser";
 
 import process from "process";
@@ -18,7 +20,10 @@ export default {
             browser: true,
             dedupe: ["svelte", "protobufjs"],
         }),
+        json(),
         commonjs(),
+        // imported by sanitize-html->postcss
+        ignore(["path", "url"]),
         production && terser(),
     ],
     onwarn: function (warning, warn) {
