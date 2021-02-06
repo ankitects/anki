@@ -13,6 +13,15 @@ licenses([
 
 # Aliased targets
 alias(
+    name = "ammonia",
+    actual = "@raze__ammonia__3_1_0//:ammonia",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "askama",
     actual = "@raze__askama__0_10_5//:askama",
     tags = [
@@ -221,7 +230,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_4//:pin_project",
+    actual = "@raze__pin_project__1_0_5//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -329,7 +338,7 @@ alias(
 
 alias(
     name = "serde_json",
-    actual = "@raze__serde_json__1_0_61//:serde_json",
+    actual = "@raze__serde_json__1_0_62//:serde_json",
     tags = [
         "cargo-raze",
         "manual",

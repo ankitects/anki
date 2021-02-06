@@ -36,21 +36,18 @@ load(
 )
 
 cargo_build_script(
-    name = "wasm_bindgen_build_script",
+    name = "markup5ever_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
-        "default",
-        "serde",
-        "serde-serialize",
-        "serde_json",
-        "spans",
-        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__serde_derive__1_0_123//:serde_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -58,30 +55,25 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.70",
+    version = "0.10.0",
     visibility = ["//visibility:private"],
     deps = [
+        "@raze__phf_codegen__0_8_0//:phf_codegen",
+        "@raze__serde__1_0_123//:serde",
+        "@raze__serde_json__1_0_62//:serde_json",
+        "@raze__string_cache_codegen__0_5_1//:string_cache_codegen",
     ],
 )
 
 rust_library(
-    name = "wasm_bindgen",
+    name = "markup5ever",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "serde",
-        "serde-serialize",
-        "serde_json",
-        "spans",
-        "std",
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__wasm_bindgen_macro__0_2_70//:wasm_bindgen_macro",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -89,24 +81,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.70",
+    version = "0.10.0",
     # buildifier: leave-alone
     deps = [
-        ":wasm_bindgen_build_script",
-        "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__serde__1_0_123//:serde",
-        "@raze__serde_json__1_0_62//:serde_json",
+        ":markup5ever_build_script",
+        "@raze__log__0_4_14//:log",
+        "@raze__phf__0_8_0//:phf",
+        "@raze__string_cache__0_8_1//:string_cache",
+        "@raze__tendril__0_4_2//:tendril",
     ],
 )
-
-# Unsupported target "headless" with type "test" omitted
-
-# Unsupported target "must_use" with type "test" omitted
-
-# Unsupported target "non_wasm" with type "test" omitted
-
-# Unsupported target "std-crate-no-std-dep" with type "test" omitted
-
-# Unsupported target "unwrap_throw" with type "test" omitted
-
-# Unsupported target "wasm" with type "test" omitted

@@ -79,3 +79,4 @@ async-trait = "0.1.42"
 # transitive dependency; 0.1.7 is currently broken on Windows (perhaps
 # only in Bazel)
 proc-macro-nested = "=0.1.6"
+ammonia = "3.1.0"

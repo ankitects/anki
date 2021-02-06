@@ -25,18 +25,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MPL-2.0 OR (MIT OR Apache-2.0)"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
+# Unsupported target "fuzz" with type "example" omitted
+
 rust_library(
-    name = "slog_async",
+    name = "tendril",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
-    crate_root = "lib.rs",
+    crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2015",
@@ -47,12 +48,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "2.6.0",
+    version = "0.4.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__crossbeam_channel__0_5_0//:crossbeam_channel",
-        "@raze__slog__2_7_0//:slog",
-        "@raze__take_mut__0_2_2//:take_mut",
-        "@raze__thread_local__1_1_3//:thread_local",
+        "@raze__futf__0_1_4//:futf",
+        "@raze__mac__0_1_1//:mac",
+        "@raze__utf_8__0_7_5//:utf_8",
     ],
 )

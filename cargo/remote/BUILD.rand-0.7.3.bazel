@@ -54,6 +54,8 @@ rust_library(
         "getrandom",
         "getrandom_package",
         "libc",
+        "rand_pcg",
+        "small_rng",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -73,6 +75,7 @@ rust_library(
         "@raze__getrandom__0_1_16//:getrandom",
         "@raze__rand_chacha__0_2_2//:rand_chacha",
         "@raze__rand_core__0_5_1//:rand_core",
+        "@raze__rand_pcg__0_2_1//:rand_pcg",
     ] + selects.with_or({
         # cfg(unix)
         (
