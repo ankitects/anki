@@ -61,5 +61,7 @@
                 </p>
             {/if}
         {/if}
+
+        {@html info.deckDescription}
     </div>
 </div>
