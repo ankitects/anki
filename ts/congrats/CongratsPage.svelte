@@ -32,6 +32,11 @@
     .congrats-inner {
         max-width: 30em;
     }
+
+    .description {
+        border: 1px solid var(--border);
+        padding: 1em;
+    }
 </style>
 
 <div class="congrats-outer">
@@ -62,6 +67,10 @@
             {/if}
         {/if}
 
-        {@html info.deckDescription}
+        {#if info.deckDescription}
+            <div class="description">
+                {@html info.deckDescription}
+            </div>
+        {/if}
     </div>
 </div>

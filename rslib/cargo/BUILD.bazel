@@ -265,6 +265,15 @@ alias(
 )
 
 alias(
+    name = "pulldown_cmark",
+    actual = "@raze__pulldown_cmark__0_8_0//:pulldown_cmark",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "rand",
     actual = "@raze__rand__0_7_3//:rand",
     tags = [
