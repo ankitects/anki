@@ -54,6 +54,13 @@ py_binary(
     deps = fluent_syntax,
 )
 
+py_binary(
+    name = "duplicate-string",
+    srcs = ["duplicate-string.py"],
+    tags = ["manual"],
+    deps = fluent_syntax,
+)
+
 # export this file as a way of locating the top level folder in $(location ...)
 exports_files(
     ["BUILD.bazel"],

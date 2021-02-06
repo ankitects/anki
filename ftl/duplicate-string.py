@@ -9,32 +9,42 @@ import shutil
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Message, TextElement, Identifier, Pattern, Junk
 
-# clone an existing ftl string as a new key, optionally modifying it
+# clone an existing ftl string as a new key
 # eg:
-# $ python duplicate-string.py /path/to/templates/media-check.ftl window-title check-media-action
+# $ python duplicate-string.py \
+#   /source/templates/media-check.ftl window-title \
+#   /dest/templates/something.ftl key-name
+#
+# after running, you'll need to copy the output template file into Anki's source
 
-ftl_filename, old_key, new_key = sys.argv[1:]
-
-# # split up replacements
-# replacements = []
-# for repl in repls.split(","):
-#     if not repl:
-#         continue
-#     replacements.append(repl.split("="))
+src_filename, old_key, dst_filename, new_key = sys.argv[1:]
 
 # add file as prefix to key
-prefix = os.path.splitext(os.path.basename(ftl_filename))[0]
-old_key = f"{prefix}-{old_key}"
-new_key = f"{prefix}-{new_key}"
-
-# def transform_string(msg):
-#     for (old, new) in replacements:
-#         msg = msg.replace(old, f"{new}")
-#     # strip leading/trailing whitespace
-#     return msg.strip()
+src_prefix = os.path.splitext(os.path.basename(src_filename))[0]
+dst_prefix = os.path.splitext(os.path.basename(dst_filename))[0]
+old_key = f"{src_prefix}-{old_key}"
+new_key = f"{dst_prefix}-{new_key}"
 
 
-def dupe_key(fname, old, new):
+def get_entry(fname, key):
+    if not os.path.exists(fname):
+        return
+
+    with open(fname) as file:
+        orig = file.read()
+    obj = parse(orig)
+    for ent in obj.body:
+        if isinstance(ent, Junk):
+            raise Exception(f"file had junk! {fname} {ent}")
+        elif isinstance(ent, Message):
+            if ent.id.name == old_key:
+                return copy.deepcopy(ent)
+
+
+def write_entry(fname, key, entry):
+    assert entry
+    entry.id.name = key
+
     if not os.path.exists(fname):
         return
 
@@ -45,19 +55,7 @@ def dupe_key(fname, old, new):
         if isinstance(ent, Junk):
             raise Exception(f"file had junk! {fname} {ent}")
 
-    # locate the existing key
-    for item in obj.body:
-        if isinstance(item, Message):
-            if item.id.name == old:
-                item2 = copy.deepcopy(item)
-                item2.id.name = new
-                obj.body.append(item2)
-                break
-            # print(item.id.name)
-            # print(item.value.elements)
-            # for e in item.value.elements:
-            #     print(e.value)
-
+    obj.body.append(entry)
     modified = serialize(obj, with_junk=True)
     # escape leading dots
     modified = re.sub(r"(?ms)^( +)\.", '\\1{"."}', modified)
@@ -73,26 +71,49 @@ def dupe_key(fname, old, new):
         file.write(modified)
 
 
-i18ndir = os.path.join(os.path.dirname(ftl_filename), "..")
+# get all existing entries into lang -> entry
+entries = {}
+
+i18ndir = os.path.join(os.path.dirname(src_filename), "..")
 langs = os.listdir(i18ndir)
 
 for lang in langs:
-    if lang == "template":
+    if lang == "templates":
         # template
-        ftl_path = ftl_filename
+        ftl_path = src_filename
     else:
         # translation
-        ftl_path = ftl_filename.replace("templates", lang)
+        ftl_path = src_filename.replace("templates", lang)
         ftl_dir = os.path.dirname(ftl_path)
 
         if not os.path.exists(ftl_dir):
             continue
 
-    dupe_key(ftl_path, old_key, new_key)
+    entry = get_entry(ftl_path, old_key)
+    if entry:
+        entries[lang] = entry
+    else:
+        assert lang != "templates"
 
-# copy file from repo into src
-srcdir = os.path.join(i18ndir, "..", "..")
-src_filename = os.path.join(srcdir, os.path.basename(ftl_filename))
-shutil.copy(ftl_filename, src_filename)
+# write them into target files
+
+i18ndir = os.path.join(os.path.dirname(dst_filename), "..")
+langs = os.listdir(i18ndir)
+
+for lang in langs:
+    if lang == "templates":
+        # template
+        ftl_path = dst_filename
+    else:
+        # translation
+        ftl_path = dst_filename.replace("templates", lang)
+        ftl_dir = os.path.dirname(ftl_path)
+
+        if not os.path.exists(ftl_dir):
+            continue
+
+    if lang in entries:
+        entry = entries[lang]
+        write_entry(ftl_path, new_key, entry)
 
 print("done")
