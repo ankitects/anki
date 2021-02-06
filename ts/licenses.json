@@ -99,13 +99,6 @@
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
-    "colorette@1.2.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/jorgebucaran/colorette",
-        "publisher": "Jorge Bucaran",
-        "path": "node_modules/colorette",
-        "licenseFile": "node_modules/colorette/LICENSE.md"
-    },
     "commander@2.20.3": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",
@@ -369,75 +362,12 @@
         "path": "node_modules/d3",
         "licenseFile": "node_modules/d3/LICENSE"
     },
-    "deepmerge@4.2.2": {
-        "licenses": "MIT",
-        "repository": "https://github.com/TehShrike/deepmerge",
-        "path": "node_modules/deepmerge",
-        "licenseFile": "node_modules/deepmerge/license.txt"
-    },
     "delaunator@4.0.1": {
         "licenses": "ISC",
         "repository": "https://github.com/mapbox/delaunator",
         "publisher": "Vladimir Agafonkin",
         "path": "node_modules/delaunator",
         "licenseFile": "node_modules/delaunator/LICENSE"
-    },
-    "dom-serializer@1.2.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/cheeriojs/dom-renderer",
-        "publisher": "Felix Boehm",
-        "email": "me@feedic.com",
-        "path": "node_modules/dom-serializer",
-        "licenseFile": "node_modules/dom-serializer/LICENSE"
-    },
-    "domelementtype@2.1.0": {
-        "licenses": "BSD-2-Clause",
-        "repository": "https://github.com/fb55/domelementtype",
-        "publisher": "Felix Boehm",
-        "email": "me@feedic.com",
-        "path": "node_modules/domelementtype",
-        "licenseFile": "node_modules/domelementtype/LICENSE"
-    },
-    "domhandler@4.0.0": {
-        "licenses": "BSD-2-Clause",
-        "repository": "https://github.com/fb55/domhandler",
-        "publisher": "Felix Boehm",
-        "email": "me@feedic.com",
-        "path": "node_modules/domhandler",
-        "licenseFile": "node_modules/domhandler/LICENSE"
-    },
-    "domutils@2.4.4": {
-        "licenses": "BSD-2-Clause",
-        "repository": "https://github.com/fb55/domutils",
-        "publisher": "Felix Boehm",
-        "email": "me@feedic.com",
-        "path": "node_modules/domutils",
-        "licenseFile": "node_modules/domutils/LICENSE"
-    },
-    "entities@2.2.0": {
-        "licenses": "BSD-2-Clause",
-        "repository": "https://github.com/fb55/entities",
-        "publisher": "Felix Boehm",
-        "email": "me@feedic.com",
-        "path": "node_modules/entities",
-        "licenseFile": "node_modules/entities/LICENSE"
-    },
-    "escape-string-regexp@4.0.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/sindresorhus/escape-string-regexp",
-        "publisher": "Sindre Sorhus",
-        "email": "sindresorhus@gmail.com",
-        "url": "https://sindresorhus.com",
-        "path": "node_modules/sanitize-html/node_modules/escape-string-regexp",
-        "licenseFile": "node_modules/sanitize-html/node_modules/escape-string-regexp/license"
-    },
-    "htmlparser2@6.0.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/fb55/htmlparser2",
-        "publisher": "Felix Boehm",
-        "email": "me@feedic.com",
-        "path": "node_modules/sanitize-html/node_modules/htmlparser2",
-        "licenseFile": "node_modules/sanitize-html/node_modules/htmlparser2/LICENSE"
     },
     "iconv-lite@0.4.24": {
         "licenses": "MIT",
@@ -463,14 +393,6 @@
         "path": "node_modules/intl-pluralrules",
         "licenseFile": "node_modules/intl-pluralrules/LICENSE"
     },
-    "is-plain-object@5.0.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/jonschlinkert/is-plain-object",
-        "publisher": "Jon Schlinkert",
-        "url": "https://github.com/jonschlinkert",
-        "path": "node_modules/sanitize-html/node_modules/is-plain-object",
-        "licenseFile": "node_modules/sanitize-html/node_modules/is-plain-object/LICENSE"
-    },
     "jquery-ui-dist@1.12.1": {
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery-ui",
@@ -486,15 +408,6 @@
         "url": "https://github.com/jquery/jquery/blob/3.5.1/AUTHORS.txt",
         "path": "node_modules/jquery",
         "licenseFile": "node_modules/jquery/LICENSE.txt"
-    },
-    "klona@2.0.4": {
-        "licenses": "MIT",
-        "repository": "https://github.com/lukeed/klona",
-        "publisher": "Luke Edwards",
-        "email": "luke.edwards05@gmail.com",
-        "url": "https://lukeed.com",
-        "path": "node_modules/klona",
-        "licenseFile": "node_modules/klona/license"
     },
     "lodash.debounce@4.0.8": {
         "licenses": "MIT",
@@ -528,30 +441,6 @@
         "path": "node_modules/mathjax",
         "licenseFile": "node_modules/mathjax/LICENSE"
     },
-    "nanoid@3.1.20": {
-        "licenses": "MIT",
-        "repository": "https://github.com/ai/nanoid",
-        "publisher": "Andrey Sitnik",
-        "email": "andrey@sitnik.ru",
-        "path": "node_modules/nanoid",
-        "licenseFile": "node_modules/nanoid/LICENSE"
-    },
-    "parse-srcset@1.0.2": {
-        "licenses": "MIT",
-        "repository": "https://github.com/albell/parse-srcset",
-        "publisher": "Alex Bell",
-        "email": "alex@bellandwhistle.net",
-        "path": "node_modules/parse-srcset",
-        "licenseFile": "node_modules/parse-srcset/LICENSE"
-    },
-    "postcss@8.2.4": {
-        "licenses": "MIT",
-        "repository": "https://github.com/postcss/postcss",
-        "publisher": "Andrey Sitnik",
-        "email": "andrey@sitnik.ru",
-        "path": "node_modules/postcss",
-        "licenseFile": "node_modules/postcss/LICENSE"
-    },
     "protobufjs@6.10.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/protobufjs/protobuf.js",
@@ -576,21 +465,6 @@
         "url": "https://github.com/ChALkeR",
         "path": "node_modules/safer-buffer",
         "licenseFile": "node_modules/safer-buffer/LICENSE"
-    },
-    "sanitize-html@2.3.2": {
-        "licenses": "MIT",
-        "repository": "https://github.com/apostrophecms/sanitize-html",
-        "publisher": "Apostrophe Technologies, Inc.",
-        "path": "node_modules/sanitize-html",
-        "licenseFile": "node_modules/sanitize-html/LICENSE"
-    },
-    "source-map@0.6.1": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/mozilla/source-map",
-        "publisher": "Nick Fitzgerald",
-        "email": "nfitzgerald@mozilla.com",
-        "path": "node_modules/source-map",
-        "licenseFile": "node_modules/source-map/LICENSE"
     }
 }
 
