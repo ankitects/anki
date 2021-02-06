@@ -114,7 +114,7 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
-        if not self.open_links_externally:
+        if not self.open_links_externally or "_anki/pages" in url.path():
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
         if not isMainFrame:
@@ -636,7 +636,7 @@ document.head.appendChild(style);
     def load_ts_page(self, name: str) -> None:
         from aqt import mw
 
-        self.set_open_links_externally(False)
+        self.set_open_links_externally(True)
         if theme_manager.night_mode:
             extra = "#night"
         else:
