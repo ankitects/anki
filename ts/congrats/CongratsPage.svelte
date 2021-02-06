@@ -1,5 +1,7 @@
 <script lang="ts">
     import { I18n } from "anki/i18n";
+    import { basicHtml } from "anki/html_sanitizer";
+
     import pb from "anki/backend_proto";
     import { buildNextLearnMsg } from "./lib";
     import { bridgeLink } from "anki/bridgecommand";
@@ -62,6 +64,6 @@
             {/if}
         {/if}
 
-        {@html info.deckDescription}
+        {@html basicHtml(info.deckDescription)}
     </div>
 </div>

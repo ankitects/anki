@@ -36,7 +36,9 @@ ts_library(
         "fluent_proto",
         "@npm//@fluent/bundle",
         "@npm//@types/long",
+        "@npm//@types/sanitize-html",
         "@npm//intl-pluralrules",
+        "@npm//sanitize-html",
         "@npm//tslib",
     ],
 )
