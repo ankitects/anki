@@ -36,6 +36,15 @@
     "description": "Fast multiple substring searching."
   },
   {
+    "name": "ammonia",
+    "version": "3.1.0",
+    "authors": "Michael Howell <michael@notriddle.com>",
+    "repository": "https://github.com/rust-ammonia/ammonia",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "HTML Sanitization"
+  },
+  {
     "name": "anki",
     "version": "0.0.0",
     "authors": "Ankitects Pty Ltd and contributors",
@@ -451,7 +460,7 @@
   },
   {
     "name": "encoding_rs",
-    "version": "0.8.26",
+    "version": "0.8.28",
     "authors": "Henri Sivonen <hsivonen@hsivonen.fi>",
     "repository": "https://github.com/hsivonen/encoding_rs",
     "license": "Apache-2.0 OR MIT",
@@ -619,6 +628,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "Trait generalization over the primitive types"
+  },
+  {
+    "name": "futf",
+    "version": "0.1.4",
+    "authors": "Keegan McAllister <kmcallister@mozilla.com>",
+    "repository": "https://github.com/servo/futf",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Handling fragments of UTF-8"
   },
   {
     "name": "futures",
@@ -801,6 +819,15 @@
     "description": "Encoding and decoding data into/from hexadecimal representation."
   },
   {
+    "name": "html5ever",
+    "version": "0.25.1",
+    "authors": "The html5ever Project Developers",
+    "repository": "https://github.com/servo/html5ever",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "High-performance browser-grade HTML5 parser"
+  },
+  {
     "name": "htmlescape",
     "version": "0.3.1",
     "authors": "Viktor Dahl <pazaconyoman@gmail.com>",
@@ -865,7 +892,7 @@
   },
   {
     "name": "hyper",
-    "version": "0.13.9",
+    "version": "0.13.10",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/hyper",
     "license": "MIT",
@@ -901,7 +928,7 @@
   },
   {
     "name": "idna",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "authors": "The rust-url developers",
     "repository": "https://github.com/servo/rust-url/",
     "license": "Apache-2.0 OR MIT",
@@ -1080,6 +1107,42 @@
     "description": "A lightweight logging facade for Rust"
   },
   {
+    "name": "mac",
+    "version": "0.1.1",
+    "authors": "Jonathan Reem <jonathan.reem@gmail.com>",
+    "repository": "https://github.com/reem/rust-mac.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A collection of great and ubiqutitous macros."
+  },
+  {
+    "name": "maplit",
+    "version": "1.0.2",
+    "authors": "bluss",
+    "repository": "https://github.com/bluss/maplit",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Collection “literal” macros for HashMap, HashSet, BTreeMap, and BTreeSet."
+  },
+  {
+    "name": "markup5ever",
+    "version": "0.10.0",
+    "authors": "The html5ever Project Developers",
+    "repository": "https://github.com/servo/html5ever",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Common code for xml5ever and html5ever"
+  },
+  {
+    "name": "markup5ever_rcdom",
+    "version": "0.1.0",
+    "authors": "The html5ever Project Developers",
+    "repository": "https://github.com/servo/html5ever",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Basic, unsupported DOM structure for use by tests in html5ever/xml5ever"
+  },
+  {
     "name": "matches",
     "version": "0.1.8",
     "authors": "Simon Sapin <simon.sapin@exyr.org>",
@@ -1168,6 +1231,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Extensions to the standard library's networking types as proposed in RFC 1158."
+  },
+  {
+    "name": "new_debug_unreachable",
+    "version": "1.0.4",
+    "authors": "Matt Brubeck <mbrubeck@limpet.net>|Jonathan Reem <jonathan.reem@gmail.com>",
+    "repository": "https://github.com/mbrubeck/rust-debug-unreachable",
+    "license": "MIT",
+    "license_file": null,
+    "description": "panic in debug, intrinsics::unreachable() in release (fork of debug_unreachable)"
   },
   {
     "name": "nodrop",
@@ -1332,6 +1404,42 @@
     "description": "Graph data structure library. Provides graph types and graph algorithms."
   },
   {
+    "name": "phf",
+    "version": "0.8.0",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-phf",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Runtime support for perfect hash function data structures"
+  },
+  {
+    "name": "phf_codegen",
+    "version": "0.8.0",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-phf",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Codegen library for PHF types"
+  },
+  {
+    "name": "phf_generator",
+    "version": "0.8.0",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-phf",
+    "license": "MIT",
+    "license_file": null,
+    "description": "PHF generation logic"
+  },
+  {
+    "name": "phf_shared",
+    "version": "0.8.0",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-phf",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Support code shared by PHF libraries"
+  },
+  {
     "name": "pin-project",
     "version": "0.4.27",
     "authors": "Taiki Endo <te316e89@gmail.com>",
@@ -1342,7 +1450,7 @@
   },
   {
     "name": "pin-project",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "authors": "Taiki Endo <te316e89@gmail.com>",
     "repository": "https://github.com/taiki-e/pin-project",
     "license": "Apache-2.0 OR MIT",
@@ -1360,7 +1468,7 @@
   },
   {
     "name": "pin-project-internal",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "authors": "Taiki Endo <te316e89@gmail.com>",
     "repository": "https://github.com/taiki-e/pin-project",
     "license": "Apache-2.0 OR MIT",
@@ -1420,6 +1528,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Implementation of the crypto-simd API for x86"
+  },
+  {
+    "name": "precomputed-hash",
+    "version": "0.1.1",
+    "authors": "Emilio Cobos Álvarez <emilio@crisal.io>",
+    "repository": "https://github.com/emilio/precomputed-hash",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A library intending to be a base dependency to expose a precomputed hash"
   },
   {
     "name": "proc-macro-crate",
@@ -1609,6 +1726,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "HC128 random number generator"
+  },
+  {
+    "name": "rand_pcg",
+    "version": "0.2.1",
+    "authors": "The Rand Project Developers",
+    "repository": "https://github.com/rust-random/rand",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Selected PCG random number generators"
   },
   {
     "name": "redox_syscall",
@@ -1837,7 +1963,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.61",
+    "version": "1.0.62",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",
@@ -1888,6 +2014,15 @@
     "license": "BSD-3-Clause",
     "license_file": null,
     "description": "Minimal implementation of SHA1 for Rust."
+  },
+  {
+    "name": "siphasher",
+    "version": "0.3.3",
+    "authors": "Frank Denis <github@pureftpd.org>",
+    "repository": "https://github.com/jedisct1/rust-siphash",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "SipHash-2-4, SipHash-1-3 and 128-bit variants in pure Rust"
   },
   {
     "name": "slab",
@@ -1998,6 +2133,24 @@
     "description": "Compile-time assertions to ensure that invariants are met."
   },
   {
+    "name": "string_cache",
+    "version": "0.8.1",
+    "authors": "The Servo Project Developers",
+    "repository": "https://github.com/servo/string-cache",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A string interning library for Rust, developed as part of the Servo project."
+  },
+  {
+    "name": "string_cache_codegen",
+    "version": "0.5.1",
+    "authors": "The Servo Project Developers",
+    "repository": "https://github.com/servo/string-cache",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A codegen library for string-cache, developed as part of the Servo project."
+  },
+  {
     "name": "subtle",
     "version": "2.4.0",
     "authors": "Isis Lovecruft <isis@patternsinthevoid.net>|Henry de Valence <hdevalence@hdevalence.ca>",
@@ -2052,6 +2205,15 @@
     "description": "A library for managing temporary files and directories."
   },
   {
+    "name": "tendril",
+    "version": "0.4.2",
+    "authors": "Keegan McAllister <mcallister.keegan@gmail.com>|Simon Sapin <simon.sapin@exyr.org>|Chris Morgan <me@chrismorgan.info>",
+    "repository": "https://github.com/servo/tendril",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Compact buffer/string type for zero-copy parsing"
+  },
+  {
     "name": "term",
     "version": "0.6.1",
     "authors": "The Rust Project Developers|Steven Allen",
@@ -2089,7 +2251,7 @@
   },
   {
     "name": "thread_local",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/thread_local-rs",
     "license": "Apache-2.0 OR MIT",
@@ -2206,7 +2368,7 @@
   },
   {
     "name": "tracing",
-    "version": "0.1.22",
+    "version": "0.1.23",
     "authors": "Eliza Weisman <eliza@buoyant.io>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tracing",
     "license": "MIT",
@@ -2365,6 +2527,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "URL library for Rust, based on the WHATWG URL Standard"
+  },
+  {
+    "name": "utf-8",
+    "version": "0.7.5",
+    "authors": "Simon Sapin <simon.sapin@exyr.org>",
+    "repository": "https://github.com/SimonSapin/rust-utf8",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Incremental, zero-copy UTF-8 decoding with error handling"
   },
   {
     "name": "utime",
@@ -2590,6 +2761,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "myrrlyn’s utility collection"
+  },
+  {
+    "name": "xml5ever",
+    "version": "0.16.1",
+    "authors": "The xml5ever project developers",
+    "repository": "https://github.com/servo/html5ever",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Push based streaming parser for xml"
   },
   {
     "name": "zip",

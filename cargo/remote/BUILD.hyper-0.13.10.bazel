@@ -92,7 +92,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.13.9",
+    version = "0.13.10",
     # buildifier: leave-alone
     deps = [
         "@raze__bytes__0_5_6//:bytes",
@@ -105,11 +105,11 @@ rust_library(
         "@raze__httparse__1_3_5//:httparse",
         "@raze__httpdate__0_3_2//:httpdate",
         "@raze__itoa__0_4_7//:itoa",
-        "@raze__pin_project__1_0_4//:pin_project",
+        "@raze__pin_project__1_0_5//:pin_project",
         "@raze__socket2__0_3_19//:socket2",
         "@raze__tokio__0_2_25//:tokio",
         "@raze__tower_service__0_3_1//:tower_service",
-        "@raze__tracing__0_1_22//:tracing",
+        "@raze__tracing__0_1_23//:tracing",
         "@raze__want__0_3_0//:want",
     ] + selects.with_or({
         # cfg(any(target_os = "linux", target_os = "macos"))

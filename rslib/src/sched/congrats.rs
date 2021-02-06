@@ -23,7 +23,7 @@ impl Collection {
         let info = self.storage.congrats_info(&deck, today)?;
         let is_filtered_deck = deck.is_filtered();
         let deck_description = if let DeckKind::Normal(normal) = &deck.kind {
-            normal.description.clone()
+            ammonia::clean(&normal.description)
         } else {
             String::new()
         };
@@ -64,6 +64,7 @@ mod test {
                 is_filtered_deck: false,
                 secs_until_next_learn: 0,
                 bridge_commands_supported: true,
+                deck_description: "".to_string()
             }
         )
     }

@@ -56,6 +56,6 @@ rust_library(
     deps = [
         "@raze__chrono__0_4_19//:chrono",
         "@raze__serde__1_0_123//:serde",
-        "@raze__serde_json__1_0_61//:serde_json",
+        "@raze__serde_json__1_0_62//:serde_json",
     ],
 )

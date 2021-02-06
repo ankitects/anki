@@ -25,19 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "thread_local" with type "bench" omitted
-
 rust_library(
-    name = "thread_local",
+    name = "string_cache_codegen",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2018",
@@ -48,9 +46,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.1.2",
+    version = "0.5.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__once_cell__1_5_2//:once_cell",
+        "@raze__phf_generator__0_8_0//:phf_generator",
+        "@raze__phf_shared__0_8_0//:phf_shared",
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__quote__1_0_8//:quote",
     ],
 )
