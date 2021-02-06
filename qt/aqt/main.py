@@ -565,6 +565,13 @@ class AnkiQt(QMainWindow):
         if not corrupt and not self.restoringBackup:
             self.backup()
 
+    def _close_for_full_download(self) -> None:
+        "Backup and prepare collection to be overwritten."
+        self.col.close(downgrade=False)
+        self.backup()
+        self.col.reopen(after_full_sync=False)
+        self.col.close_for_full_sync()
+
     # Backup and auto-optimize
     ##########################################################################
 
@@ -585,6 +592,9 @@ class AnkiQt(QMainWindow):
             z.close()
 
     def backup(self) -> None:
+        "Read data into memory, and complete backup on a background thread."
+        assert not self.col or not self.col.db
+
         nbacks = self.pm.profile["numBackups"]
         if not nbacks or devMode:
             return
@@ -615,7 +625,8 @@ class AnkiQt(QMainWindow):
             fname = backups.pop(0)
             path = os.path.join(dir, fname)
             os.unlink(path)
-        gui_hooks.backup_did_complete()
+
+        self.taskman.run_on_main(gui_hooks.backup_did_complete)
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
