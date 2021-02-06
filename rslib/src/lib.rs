@@ -19,6 +19,7 @@ mod fluent_proto;
 pub mod i18n;
 pub mod latex;
 pub mod log;
+mod markdown;
 pub mod media;
 pub mod notes;
 pub mod notetype;

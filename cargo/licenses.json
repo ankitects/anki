@@ -729,6 +729,15 @@
     "description": "Generic types implementing functionality of arrays"
   },
   {
+    "name": "getopts",
+    "version": "0.2.21",
+    "authors": "The Rust Project Developers",
+    "repository": "https://github.com/rust-lang/getopts",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "getopts-like option parsing."
+  },
+  {
     "name": "getrandom",
     "version": "0.1.16",
     "authors": "The Rand Project Developers",
@@ -1611,6 +1620,15 @@
     "description": "A Protocol Buffers implementation for the Rust Language."
   },
   {
+    "name": "pulldown-cmark",
+    "version": "0.8.0",
+    "authors": "Raph Levien <raph.levien@gmail.com>|Marcus Klaas de Vries <mail@marcusklaas.nl>",
+    "repository": "https://github.com/raphlinus/pulldown-cmark",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A pull parser for CommonMark"
+  },
+  {
     "name": "pyo3",
     "version": "0.13.1",
     "authors": "PyO3 Project and Contributors <https://github.com/PyO3>",
@@ -2491,6 +2509,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "This crate provides Grapheme Cluster, Word and Sentence boundaries according to Unicode Standard Annex #29 rules."
+  },
+  {
+    "name": "unicode-width",
+    "version": "0.1.8",
+    "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
+    "repository": "https://github.com/unicode-rs/unicode-width",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Determine displayed width of `char` and `str` types according to Unicode Standard Annex #11 rules."
   },
   {
     "name": "unicode-xid",

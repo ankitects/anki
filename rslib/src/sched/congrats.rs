@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::backend_proto as pb;
-use crate::decks::DeckKind;
 use crate::prelude::*;
 
 #[derive(Debug)]
@@ -22,11 +21,7 @@ impl Collection {
         let today = self.timing_today()?.days_elapsed;
         let info = self.storage.congrats_info(&deck, today)?;
         let is_filtered_deck = deck.is_filtered();
-        let deck_description = if let DeckKind::Normal(normal) = &deck.kind {
-            ammonia::clean(&normal.description)
-        } else {
-            String::new()
-        };
+        let deck_description = deck.rendered_description();
         let secs_until_next_learn = ((info.next_learn_due as i64)
             - self.learn_ahead_secs() as i64
             - TimestampSecs::now().0)

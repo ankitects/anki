@@ -803,6 +803,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__getopts__0_2_21",
+        url = "https://crates.io/api/v1/crates/getopts/0.2.21/download",
+        type = "tar.gz",
+        sha256 = "14dbbfd5c71d70241ecf9e6f13737f7b5ce823821063188d7e46c41d371eebd5",
+        strip_prefix = "getopts-0.2.21",
+        build_file = Label("//cargo/remote:BUILD.getopts-0.2.21.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__getrandom__0_1_16",
         url = "https://crates.io/api/v1/crates/getrandom/0.1.16/download",
         type = "tar.gz",
@@ -1783,6 +1793,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__pulldown_cmark__0_8_0",
+        url = "https://crates.io/api/v1/crates/pulldown-cmark/0.8.0/download",
+        type = "tar.gz",
+        sha256 = "ffade02495f22453cd593159ea2f59827aae7f53fa8323f756799b670881dcf8",
+        strip_prefix = "pulldown-cmark-0.8.0",
+        build_file = Label("//cargo/remote:BUILD.pulldown-cmark-0.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__pyo3__0_13_1",
         url = "https://crates.io/api/v1/crates/pyo3/0.13.1/download",
         type = "tar.gz",
@@ -2749,6 +2769,16 @@ def raze_fetch_remote_crates():
         sha256 = "bb0d2e7be6ae3a5fa87eed5fb451aff96f2573d2694942e40543ae0bbe19c796",
         strip_prefix = "unicode-segmentation-1.7.1",
         build_file = Label("//cargo/remote:BUILD.unicode-segmentation-1.7.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__unicode_width__0_1_8",
+        url = "https://crates.io/api/v1/crates/unicode-width/0.1.8/download",
+        type = "tar.gz",
+        sha256 = "9337591893a19b88d8d87f2cec1e73fad5cdfd10e5a6f349f498ad6ea2ffb1e3",
+        strip_prefix = "unicode-width-0.1.8",
+        build_file = Label("//cargo/remote:BUILD.unicode-width-0.1.8.bazel"),
     )
 
     maybe(

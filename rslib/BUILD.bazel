@@ -97,6 +97,7 @@ rust_library(
         "//rslib/cargo:once_cell",
         "//rslib/cargo:pin_project",
         "//rslib/cargo:prost",
+        "//rslib/cargo:pulldown_cmark",
         "//rslib/cargo:rand",
         "//rslib/cargo:regex",
         "//rslib/cargo:reqwest",

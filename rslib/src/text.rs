@@ -226,6 +226,18 @@ pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
     without_html.into_owned().into()
 }
 
+#[allow(dead_code)]
+pub(crate) fn sanitize_html(html: &str) -> String {
+    ammonia::clean(html)
+}
+
+pub(crate) fn sanitize_html_no_images(html: &str) -> String {
+    ammonia::Builder::default()
+        .rm_tags(&["img"])
+        .clean(html)
+        .to_string()
+}
+
 pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
     if !is_nfc(s) {
         s.chars().nfc().collect::<String>().into()

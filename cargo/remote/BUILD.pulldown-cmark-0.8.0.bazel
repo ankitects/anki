@@ -1,0 +1,138 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated Targets
+# buildifier: disable=load-on-top
+load(
+    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "pulldown_cmark_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "default",
+        "getopts",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.8.0",
+    visibility = ["//visibility:private"],
+    deps = [
+    ],
+)
+
+# Unsupported target "html_rendering" with type "bench" omitted
+
+# Unsupported target "lib" with type "bench" omitted
+
+rust_binary(
+    # Prefix bin name to disambiguate from (probable) collision with lib name
+    # N.B.: The exact form of this is subject to change.
+    name = "cargo_bin_pulldown_cmark",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "getopts",
+    ],
+    crate_root = "src/main.rs",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.8.0",
+    # buildifier: leave-alone
+    deps = [
+        # Binaries get an implicit dependency on their crate's lib
+        ":pulldown_cmark",
+        ":pulldown_cmark_build_script",
+        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__getopts__0_2_21//:getopts",
+        "@raze__memchr__2_3_4//:memchr",
+        "@raze__unicase__2_6_0//:unicase",
+    ],
+)
+
+# Unsupported target "broken-link-callbacks" with type "example" omitted
+
+# Unsupported target "event-filter" with type "example" omitted
+
+# Unsupported target "string-to-string" with type "example" omitted
+
+rust_library(
+    name = "pulldown_cmark",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "getopts",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.8.0",
+    # buildifier: leave-alone
+    deps = [
+        ":pulldown_cmark_build_script",
+        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__getopts__0_2_21//:getopts",
+        "@raze__memchr__2_3_4//:memchr",
+        "@raze__unicase__2_6_0//:unicase",
+    ],
+)
+
+# Unsupported target "errors" with type "test" omitted
+
+# Unsupported target "html" with type "test" omitted
+
+# Unsupported target "lib" with type "test" omitted

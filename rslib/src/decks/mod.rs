@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend_proto as pb;
 pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
     DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
 };
+use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
     collection::Collection,
     deckconf::DeckConfID,
@@ -90,6 +90,17 @@ impl Deck {
             (self.common.new_studied, self.common.review_studied)
         } else {
             (0, 0)
+        }
+    }
+
+    pub fn rendered_description(&self) -> String {
+        if let DeckKind::Normal(normal) = &self.kind {
+            let description = render_markdown(&normal.description);
+            // before allowing images, we'll need to handle relative image
+            // links on the various platforms
+            sanitize_html_no_images(&description)
+        } else {
+            String::new()
         }
     }
 }
