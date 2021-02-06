@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::backend_proto as pb;
+use crate::decks::DeckKind;
 use crate::prelude::*;
 
 #[derive(Debug)]
@@ -21,6 +22,11 @@ impl Collection {
         let today = self.timing_today()?.days_elapsed;
         let info = self.storage.congrats_info(&deck, today)?;
         let is_filtered_deck = deck.is_filtered();
+        let deck_description = if let DeckKind::Normal(normal) = &deck.kind {
+            normal.description.clone()
+        } else {
+            String::new()
+        };
         let secs_until_next_learn = ((info.next_learn_due as i64)
             - self.learn_ahead_secs() as i64
             - TimestampSecs::now().0)
@@ -34,6 +40,7 @@ impl Collection {
             is_filtered_deck,
             secs_until_next_learn,
             bridge_commands_supported: true,
+            deck_description,
         })
     }
 }

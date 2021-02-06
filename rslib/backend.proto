@@ -1166,6 +1166,7 @@ message CongratsInfoOut {
   bool have_user_buried = 6;
   bool is_filtered_deck = 7;
   bool bridge_commands_supported = 8;
+  string deck_description = 9;
 }
 
 message UnburyCardsInCurrentDeckIn {
