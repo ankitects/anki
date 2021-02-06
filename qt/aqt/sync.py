@@ -173,14 +173,16 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
 
 
 def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
-    mw.col.close_for_full_sync()
-
     def on_timer() -> None:
         on_full_sync_timer(mw)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
     timer.start(150)
+
+    def download() -> None:
+        mw._close_for_full_download()
+        mw.col.full_download(mw.pm.sync_auth())
 
     def on_future_done(fut: Future) -> None:
         timer.stop()
@@ -194,7 +196,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         return on_done()
 
     mw.taskman.with_progress(
-        lambda: mw.col.full_download(mw.pm.sync_auth()),
+        download,
         on_future_done,
         label=tr(TR.SYNC_DOWNLOADING_FROM_ANKIWEB),
     )
