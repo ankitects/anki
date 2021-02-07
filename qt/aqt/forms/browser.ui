@@ -299,6 +299,11 @@
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
   </widget>
+  <action name="actionReschedule">
+   <property name="text">
+    <string notr="true">QT_ACCEL_RESCHEDULE</string>
+   </property>
+  </action>
   <action name="actionSelectAll">
    <property name="text">
     <string>QT_ACCEL_SELECT_ALL</string>
