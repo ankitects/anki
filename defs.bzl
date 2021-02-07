@@ -10,7 +10,7 @@ load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 
-anki_version = "2.1.39"
+anki_version = "2.1.40"
 
 def setup_deps():
     bazel_skylib_workspace()
