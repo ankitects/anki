@@ -1077,23 +1077,6 @@ def test_forget():
     assert col.sched.counts() == (1, 0, 0)
 
 
-def test_resched():
-    col = getEmptyCol()
-    note = col.newNote()
-    note["Front"] = "one"
-    col.addNote(note)
-    c = note.cards()[0]
-    col.sched.reschedCards([c.id], 0, 0)
-    c.load()
-    assert c.due == col.sched.today
-    assert c.ivl == 1
-    assert c.queue == CARD_TYPE_REV and c.type == QUEUE_TYPE_REV
-    col.sched.reschedCards([c.id], 1, 1)
-    c.load()
-    assert c.due == col.sched.today + 1
-    assert c.ivl == +1
-
-
 def test_norelearn():
     col = getEmptyCol()
     # add a note

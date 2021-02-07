@@ -32,7 +32,6 @@ from . import preview
 from . import profiles
 from . import progress
 from . import reposition
-from . import reschedule
 from . import setgroup
 from . import setlang
 from . import stats

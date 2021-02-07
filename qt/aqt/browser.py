@@ -28,6 +28,7 @@ from aqt.main import ResetReason
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
+from aqt.scheduling import forget_cards, set_due_date_dialog
 from aqt.sidebar import SidebarSearchBar, SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -503,7 +504,8 @@ class Browser(QMainWindow):
         qconnect(f.actionChange_Deck.triggered, self.setDeck)
         qconnect(f.action_Info.triggered, self.showCardInfo)
         qconnect(f.actionReposition.triggered, self.reposition)
-        qconnect(f.actionReschedule.triggered, self.reschedule)
+        qconnect(f.action_set_due_date.triggered, self.set_due_date)
+        qconnect(f.action_forget.triggered, self.forget_cards)
         qconnect(f.actionToggle_Suspend.triggered, self.onSuspend)
         qconnect(f.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
         qconnect(f.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
@@ -1384,32 +1386,33 @@ where id in %s"""
         self.mw.requireReset(reason=ResetReason.BrowserReposition, context=self)
         self.model.endReset()
 
-    # Rescheduling
+    # Scheduling
     ######################################################################
 
-    def reschedule(self) -> None:
-        self.editor.saveNow(self._reschedule)
-
-    def _reschedule(self) -> None:
-        d = QDialog(self)
-        disable_help_button(d)
-        d.setWindowModality(Qt.WindowModal)
-        frm = aqt.forms.reschedule.Ui_Dialog()
-        frm.setupUi(d)
-        if not d.exec_():
-            return
-        self.model.beginReset()
-        self.mw.checkpoint(tr(TR.BROWSING_RESCHEDULE))
-        if frm.asNew.isChecked():
-            self.col.sched.forgetCards(self.selectedCards())
-        else:
-            fmin = frm.min.value()
-            fmax = frm.max.value()
-            fmax = max(fmin, fmax)
-            self.col.sched.reschedCards(self.selectedCards(), fmin, fmax)
-        self.search()
+    def _after_schedule(self) -> None:
+        self.model.reset()
         self.mw.requireReset(reason=ResetReason.BrowserReschedule, context=self)
-        self.model.endReset()
+
+    def set_due_date(self) -> None:
+        self.editor.saveNow(
+            lambda: set_due_date_dialog(
+                mw=self.mw,
+                parent=self,
+                card_ids=self.selectedCards(),
+                default="0",
+                on_done=self._after_schedule,
+            )
+        )
+
+    def forget_cards(self) -> None:
+        self.editor.saveNow(
+            lambda: forget_cards(
+                mw=self.mw,
+                parent=self,
+                card_ids=self.selectedCards(),
+                on_done=self._after_schedule,
+            )
+        )
 
     # Edit: selection
     ######################################################################

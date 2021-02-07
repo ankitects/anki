@@ -262,7 +262,8 @@
     </widget>
     <addaction name="actionChange_Deck"/>
     <addaction name="separator"/>
-    <addaction name="actionReschedule"/>
+    <addaction name="action_set_due_date"/>
+    <addaction name="action_forget"/>
     <addaction name="actionReposition"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Suspend"/>
@@ -298,14 +299,6 @@
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
   </widget>
-  <action name="actionReschedule">
-   <property name="text">
-    <string>QT_ACCEL_RESCHEDULE</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+R</string>
-   </property>
-  </action>
   <action name="actionSelectAll">
    <property name="text">
     <string>QT_ACCEL_SELECT_ALL</string>
@@ -465,7 +458,7 @@
     <string>BROWSING_REMOVE_TAGS</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Shift+D</string>
+    <string notr="true">Ctrl+Alt+Shift+A</string>
    </property>
   </action>
   <action name="actionToggle_Suspend">
@@ -584,6 +577,19 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>
+   </property>
+  </action>
+  <action name="action_set_due_date">
+   <property name="text">
+    <string>QT_ACCEL_SET_DUE_DATE</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="action_forget">
+   <property name="text">
+    <string>QT_ACCEL_FORGET</string>
    </property>
   </action>
  </widget>

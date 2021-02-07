@@ -16,6 +16,7 @@ use cutoff::{
     sched_timing_today, v1_creation_date_adjusted_to_hour, v1_rollover_from_creation_stamp,
     SchedTimingToday,
 };
+pub use reviews::parse_due_date_str;
 
 impl Collection {
     pub fn timing_today(&self) -> Result<SchedTimingToday> {

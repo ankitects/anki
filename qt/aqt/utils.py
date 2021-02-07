@@ -397,6 +397,7 @@ def getText(
     geomKey: Optional[str] = None,
     **kwargs: Any,
 ) -> Tuple[str, int]:
+    "Returns (string, succeeded)."
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     d = GetTextDialog(

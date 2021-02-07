@@ -33,3 +33,4 @@ actions-search = Search
 actions-shortcut-key = Shortcut key: { $val }
 actions-suspend-card = Suspend Card
 actions-set-due-date = Set Due Date
+actions-forget = Forget

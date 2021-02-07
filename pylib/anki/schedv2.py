@@ -1397,20 +1397,17 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         if toBury:
             self.bury_cards(toBury, manual=False)
 
-    # Resetting
+    # Resetting/rescheduling
     ##########################################################################
 
     def schedule_cards_as_new(self, card_ids: List[int]) -> None:
         "Put cards at the end of the new queue."
         self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
-    def schedule_cards_as_reviews(
-        self, card_ids: List[int], min_interval: int, max_interval: int
-    ) -> None:
-        "Make cards review cards, with a new interval randomly selected from range."
-        self.col._backend.schedule_cards_as_reviews(
-            card_ids=card_ids, min_interval=min_interval, max_interval=max_interval
-        )
+    def set_due_date(self, card_ids: List[int], days: str) -> None:
+        """Set cards to be due in `days`, turning them into review cards if necessary.
+        `days` can be of the form '5' or '5..7'"""
+        self.col._backend.set_due_date(card_ids=card_ids, days=days)
 
     def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."
@@ -1430,8 +1427,12 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
     # legacy
 
+    def reschedCards(
+        self, card_ids: List[int], min_interval: int, max_interval: int
+    ) -> None:
+        self.set_due_date(card_ids, f"{min_interval}..{max_interval}")
+
     forgetCards = schedule_cards_as_new
-    reschedCards = schedule_cards_as_reviews
 
     # Repositioning new cards
     ##########################################################################
