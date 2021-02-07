@@ -34,6 +34,7 @@ import pyaudio
 # legacy compat
 import anki.storage
 import anki.sync
+import anki.rsbackend
 
 # platform-specifics
 from anki.utils import isLin, isMac, isWin
