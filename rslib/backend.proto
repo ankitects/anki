@@ -113,8 +113,8 @@ service BackendService {
   rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (Empty);
   rpc EmptyFilteredDeck(DeckID) returns (Empty);
   rpc RebuildFilteredDeck(DeckID) returns (UInt32);
-  rpc ScheduleCardsAsReviews(ScheduleCardsAsReviewsIn) returns (Empty);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (Empty);
+  rpc SetDueDate(SetDueDateIn) returns (Empty);
   rpc SortCards(SortCardsIn) returns (Empty);
   rpc SortDeck(SortDeckIn) returns (Empty);
 
@@ -1188,15 +1188,14 @@ message BuryOrSuspendCardsIn {
   Mode mode = 2;
 }
 
-message ScheduleCardsAsReviewsIn {
-  repeated int64 card_ids = 1;
-  uint32 min_interval = 2;
-  uint32 max_interval = 3;
-}
-
 message ScheduleCardsAsNewIn {
   repeated int64 card_ids = 1;
   bool log = 2;
+}
+
+message SetDueDateIn {
+  repeated int64 card_ids = 1;
+  string days = 2;
 }
 
 message SortCardsIn {

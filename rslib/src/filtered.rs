@@ -64,6 +64,17 @@ impl Card {
         }
     }
 
+    /// Returns original_due if set, else due.
+    /// original_due will be set in filtered decks, and in relearning in
+    /// the old scheduler.
+    pub(crate) fn original_or_current_due(&self) -> i32 {
+        if self.original_due > 0 {
+            self.original_due
+        } else {
+            self.due
+        }
+    }
+
     pub(crate) fn remove_from_filtered_deck_restoring_queue(&mut self, sched: SchedulerVersion) {
         if self.original_deck_id.0 == 0 {
             // not in a filtered deck

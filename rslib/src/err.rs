@@ -5,7 +5,7 @@ use crate::i18n::{tr_args, tr_strs, I18n, TR};
 pub use failure::{Error, Fail};
 use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
 use reqwest::StatusCode;
-use std::{io, str::Utf8Error};
+use std::{io, num::ParseIntError, str::Utf8Error};
 use tempfile::PathPersistError;
 
 pub type Result<T> = std::result::Result<T, AnkiError>;
@@ -41,6 +41,9 @@ pub enum AnkiError {
 
     #[fail(display = "Protobuf encode/decode error: {}", info)]
     ProtoError { info: String },
+
+    #[fail(display = "Unable to parse number")]
+    ParseNumError,
 
     #[fail(display = "The user interrupted the operation.")]
     Interrupted,
@@ -465,5 +468,11 @@ impl<'a> NomParseError<&'a str> for ParseError<'a> {
 
     fn append(_: &str, _: NomErrorKind, other: Self) -> Self {
         other
+    }
+}
+
+impl From<ParseIntError> for AnkiError {
+    fn from(_err: ParseIntError) -> Self {
+        AnkiError::ParseNumError
     }
 }

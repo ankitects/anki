@@ -143,3 +143,19 @@ scheduling-deck-updated =
         [one] { $count } deck updated.
        *[other] { $count } decks updated.
     }
+scheduling-set-due-date-prompt =
+    { $cards ->
+        [one] Show card in how many days?
+       *[other] Show cards in how many days? (eg 1, or 1..7)
+    }
+scheduling-set-due-date-changed-cards =
+    { $cards ->
+        [one] Changed card's due date.
+       *[other] Changed due date of { $cards } cards.
+    }
+scheduling-set-due-date-invalid-input = Expected a number or range (eg 1, or 1..7)
+scheduling-forgot-cards =
+    { $cards ->
+        [one] { $cards } card placed at the end of the new card queue.
+       *[other] { $cards } cards placed at the end of the new card queue.
+    }

@@ -24,12 +24,7 @@ impl Card {
         } else {
             self.queue = match self.ctype {
                 CardType::Learn | CardType::Relearn => {
-                    let original_due = if self.original_due > 0 {
-                        self.original_due
-                    } else {
-                        self.due
-                    };
-                    if original_due > 1_000_000_000 {
+                    if self.original_or_current_due() > 1_000_000_000 {
                         // previous interval was in seconds
                         CardQueue::Learn
                     } else {

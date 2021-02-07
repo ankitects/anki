@@ -31,8 +31,11 @@ use crate::{
         all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeID, NoteTypeSchema11,
         RenderCardOutput,
     },
-    sched::new::NewCardSortOrder,
-    sched::timespan::{answer_button_time, time_span},
+    sched::{
+        new::NewCardSortOrder,
+        parse_due_date_str,
+        timespan::{answer_button_time, time_span},
+    },
     search::{
         concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
         BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode, StateKind,
@@ -161,6 +164,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::DeckIsFiltered => V::DeckIsFiltered(Empty {}),
         AnkiError::SearchError(_) => V::InvalidInput(pb::Empty {}),
         AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
+        AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -660,24 +664,18 @@ impl BackendService for Backend {
         self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
     }
 
-    fn schedule_cards_as_reviews(
-        &self,
-        input: pb::ScheduleCardsAsReviewsIn,
-    ) -> BackendResult<Empty> {
-        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
-        let (min, max) = (input.min_interval, input.max_interval);
-        self.with_col(|col| {
-            col.reschedule_cards_as_reviews(&cids, min, max)
-                .map(Into::into)
-        })
-    }
-
     fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
             let log = input.log;
             col.reschedule_cards_as_new(&cids, log).map(Into::into)
         })
+    }
+
+    fn set_due_date(&self, input: pb::SetDueDateIn) -> BackendResult<pb::Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (min, max) = parse_due_date_str(&input.days)?;
+        self.with_col(|col| col.set_due_date(&cids, min, max).map(Into::into))
     }
 
     fn sort_cards(&self, input: pb::SortCardsIn) -> BackendResult<Empty> {

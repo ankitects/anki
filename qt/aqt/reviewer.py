@@ -18,6 +18,7 @@ from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.profiles import VideoDriver
 from aqt.qt import *
+from aqt.scheduling import set_due_date_dialog
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
@@ -300,6 +301,7 @@ class Reviewer:
             ("!", self.onSuspend),
             ("@", self.onSuspendCard),
             ("Ctrl+Delete", self.onDelete),
+            ("Ctrl+Shift+D", self.on_set_due),
             ("v", self.onReplayRecorded),
             ("Shift+v", self.onRecordVoice),
             ("o", self.onOptions),
@@ -732,6 +734,7 @@ time = %(time)d;
             [tr(TR.STUDYING_MARK_NOTE), "*", self.onMark],
             [tr(TR.STUDYING_BURY_CARD), "-", self.onBuryCard],
             [tr(TR.STUDYING_BURY_NOTE), "=", self.onBuryNote],
+            [tr(TR.ACTIONS_SET_DUE_DATE), "Ctrl+Shift+D", self.on_set_due],
             [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.onSuspendCard],
             [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.onSuspend],
             [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.onDelete],
@@ -797,6 +800,18 @@ time = %(time)d;
             f.addTag("marked")
         f.flush()
         self._drawMark()
+
+    def on_set_due(self) -> None:
+        if self.mw.state != "review" or not self.card:
+            return
+
+        set_due_date_dialog(
+            mw=self.mw,
+            parent=self.mw,
+            card_ids=[self.card.id],
+            default="1",
+            on_done=self.mw.reset,
+        )
 
     def onSuspend(self) -> None:
         self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))

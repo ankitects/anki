@@ -110,10 +110,10 @@ impl Collection {
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
                 let original = card.clone();
-                if log {
-                    col.log_manually_scheduled_review(&card, usn, 0)?;
-                }
                 card.schedule_as_new(position);
+                if log {
+                    col.log_manually_scheduled_review(&card, &original, usn)?;
+                }
                 col.update_card(&mut card, &original, usn)?;
                 position += 1;
             }
