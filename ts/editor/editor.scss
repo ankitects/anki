@@ -56,15 +56,19 @@ body {
     background: var(--bg-color);
 }
 
-.topbuts > * {
-    margin: 0 1px;
+.topbuts {
+    margin-bottom: 2px;
 
-    &:first-child {
-        margin-left: 0;
-    }
+    & > * {
+        margin: 0 1px;
 
-    &:last-child {
-        margin-right: 0;
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
     }
 }
 
