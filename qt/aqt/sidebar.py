@@ -36,10 +36,10 @@ class SidebarItemType(Enum):
     SAVED_SEARCH = auto()
     TODAY_ROOT = auto()
     TODAY = auto()
-    CARD_STATE_ROOT = auto()
-    CARD_STATE = auto()
     FLAG_ROOT = auto()
     FLAG = auto()
+    CARD_STATE_ROOT = auto()
+    CARD_STATE = auto()
     DECK_ROOT = auto()
     DECK = auto()
     NOTETYPE_ROOT = auto()
@@ -62,8 +62,8 @@ class SidebarStage(Enum):
     ROOT = auto()
     SAVED_SEARCHES = auto()
     TODAY = auto()
-    SCHEDULING = auto()
     FLAGS = auto()
+    CARD_STATE = auto()
     DECKS = auto()
     NOTETYPES = auto()
     TAGS = auto()
@@ -515,7 +515,7 @@ class SidebarTreeView(QTreeView):
     def _build_stage(self, root: SidebarItem, stage: SidebarStage) -> None:
         if stage is SidebarStage.SAVED_SEARCHES:
             self._saved_searches_tree(root)
-        elif stage is SidebarStage.SCHEDULING:
+        elif stage is SidebarStage.CARD_STATE:
             self._card_state_tree(root)
         elif stage is SidebarStage.TODAY:
             self._today_tree(root)
