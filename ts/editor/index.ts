@@ -1,10 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { filterHTML } from "./filterHtml";
 import { nodeIsInline } from "./helpers";
 import { bridgeCommand } from "./lib";
 import { saveField } from "./changeTimer";
+import { filterHTML } from "./htmlFilter";
 import { updateButtonState, maybeDisableButtons } from "./toolbar";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
@@ -12,6 +12,7 @@ import { onFocus, onBlur } from "./focusHandlers";
 export { setNoteId, getNoteId } from "./noteId";
 export { preventButtonFocus, toggleEditorButton, setFGButton } from "./toolbar";
 export { saveNow } from "./changeTimer";
+export { wrap, wrapIntoText } from "./wrap";
 
 declare global {
     interface Selection {
@@ -46,6 +47,18 @@ export function focusIfField(x: number, y: number): boolean {
         }
     }
     return false;
+}
+
+export function pasteHTML(
+    html: string,
+    internal: boolean,
+    extendedMode: boolean
+): void {
+    html = filterHTML(html, internal, extendedMode);
+
+    if (html !== "") {
+        setFormat("inserthtml", html);
+    }
 }
 
 function onPaste(evt: ClipboardEvent): void {
@@ -304,20 +317,6 @@ export function setFonts(fonts: [string, number, boolean][]): void {
     });
 }
 
-function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
-    const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
-    return match[1] + front + match[2] + back + match[3];
-}
-
-export function wrap(front: string, back: string): void {
-    wrapInternal(front, back, false);
-}
-
-/* currently unused */
-export function wrapIntoText(front: string, back: string): void {
-    wrapInternal(front, back, true);
-}
-
 export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
@@ -325,41 +324,3 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
         updateButtonState();
     }
 }
-
-function wrapInternal(front: string, back: string, plainText: boolean): void {
-    const currentField = getCurrentField()!;
-    const s = currentField.getSelection();
-    let r = s.getRangeAt(0);
-    const content = r.cloneContents();
-    const span = document.createElement("span");
-    span.appendChild(content);
-
-    if (plainText) {
-        const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
-        setFormat("inserttext", new_);
-    } else {
-        const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
-        setFormat("inserthtml", new_);
-    }
-
-    if (!span.innerHTML) {
-        // run with an empty selection; move cursor back past postfix
-        r = s.getRangeAt(0);
-        r.setStart(r.startContainer, r.startOffset - back.length);
-        r.collapse(true);
-        s.removeAllRanges();
-        s.addRange(r);
-    }
-}
-
-export let pasteHTML = function (
-    html: string,
-    internal: boolean,
-    extendedMode: boolean
-): void {
-    html = filterHTML(html, internal, extendedMode);
-
-    if (html !== "") {
-        setFormat("inserthtml", html);
-    }
-};
