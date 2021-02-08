@@ -10,7 +10,8 @@ html {
     flex-direction: column;
     margin: 5px;
 
-    & > *, & > * > * {
+    & > *,
+    & > * > * {
         margin: 1px 0;
 
         &:first-child {

@@ -5,7 +5,6 @@ import { filterHTML } from "./filterHtml";
 import { nodeIsElement, nodeIsInline } from "./helpers";
 import { bridgeCommand } from "./lib";
 
-let currentField: EditingArea | null = null;
 let changeTimer: number | null = null;
 let currentNoteId: number | null = null;
 
@@ -19,18 +18,18 @@ declare global {
 }
 
 export function getCurrentField(): EditingArea | null {
-    return currentField;
-}
-
-export function getCurrentNoteId(): number | null {
-    return currentNoteId;
+    return document.activeElement instanceof EditingArea
+        ? document.activeElement
+        : null;
 }
 
 export function setFGButton(col: string): void {
-    document.getElementById("forecolor").style.backgroundColor = col;
+    document.getElementById("forecolor")!.style.backgroundColor = col;
 }
 
 export function saveNow(keepFocus: boolean): void {
+    const currentField = getCurrentField();
+
     if (!currentField) {
         return;
     }
@@ -38,22 +37,24 @@ export function saveNow(keepFocus: boolean): void {
     clearChangeTimer();
 
     if (keepFocus) {
-        saveField("key");
+        saveField(currentField, "key");
     } else {
         // triggers onBlur, which saves
         currentField.blurEditable();
     }
 }
 
-function triggerKeyTimer(): void {
+function triggerKeyTimer(currentField: EditingArea): void {
     clearChangeTimer();
     changeTimer = setTimeout(function () {
         updateButtonState();
-        saveField("key");
+        saveField(currentField, "key");
     }, 600);
 }
 
 function onKey(evt: KeyboardEvent): void {
+    const currentField = evt.currentTarget as EditingArea;
+
     // esc clears focus, allowing dialog to close
     if (evt.code === "Escape") {
         currentField.blurEditable();
@@ -61,7 +62,7 @@ function onKey(evt: KeyboardEvent): void {
     }
 
     // prefer <br> instead of <div></div>
-    if (evt.code === "Enter" && !inListItem()) {
+    if (evt.code === "Enter" && !inListItem(currentField)) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
     }
@@ -84,13 +85,15 @@ function onKey(evt: KeyboardEvent): void {
         }
     }
 
-    triggerKeyTimer();
+    triggerKeyTimer(currentField);
 }
 
 function onKeyUp(evt: KeyboardEvent): void {
+    const currentField = evt.currentTarget as EditingArea;
+
     // Avoid div element on remove
     if (evt.code === "Enter" || evt.code === "Backspace") {
-        const anchor = currentField.getSelection().anchorNode;
+        const anchor = currentField.getSelection().anchorNode as Node;
 
         if (
             nodeIsElement(anchor) &&
@@ -104,8 +107,8 @@ function onKeyUp(evt: KeyboardEvent): void {
     }
 }
 
-function inListItem(): boolean {
-    const anchor = currentField.getSelection().anchorNode;
+function inListItem(currentField: EditingArea): boolean {
+    const anchor = currentField.getSelection()!.anchorNode!;
 
     let inList = false;
     let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
@@ -117,9 +120,9 @@ function inListItem(): boolean {
     return inList;
 }
 
-function onInput(): void {
+function onInput(event: Event): void {
     // make sure IME changes get saved
-    triggerKeyTimer();
+    triggerKeyTimer(event.currentTarget as EditingArea);
 }
 
 function updateButtonState(): void {
@@ -141,7 +144,7 @@ export function toggleEditorButton(buttonid: string): void {
 export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
-        saveField("key");
+        saveField(getCurrentField() as EditingArea, "key");
         updateButtonState();
     }
 }
@@ -154,17 +157,12 @@ function clearChangeTimer(): void {
 }
 
 function onFocus(evt: FocusEvent): void {
-    const elem = evt.currentTarget as EditingArea;
-    if (currentField === elem) {
-        // anki window refocused; current element unchanged
-        return;
-    }
-    elem.focusEditable();
-    currentField = elem;
+    const currentField = evt.currentTarget as EditingArea;
+    currentField.focusEditable();
     bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
     // do this twice so that there's no flicker on newer versions
-    caretToEnd();
+    caretToEnd(currentField);
     // scroll if bottom of element off the screen
     function pos(elem: HTMLElement): number {
         let cur = 0;
@@ -175,12 +173,12 @@ function onFocus(evt: FocusEvent): void {
         return cur;
     }
 
-    const y = pos(elem);
+    const y = pos(currentField);
     if (
-        window.pageYOffset + window.innerHeight < y + elem.offsetHeight ||
+        window.pageYOffset + window.innerHeight < y + currentField.offsetHeight ||
         window.pageYOffset > y
     ) {
-        window.scroll(0, y + elem.offsetHeight - window.innerHeight);
+        window.scroll(0, y + currentField.offsetHeight - window.innerHeight);
     }
 }
 
@@ -198,21 +196,18 @@ export function focusIfField(x: number, y: number): boolean {
         let elem = elements[i] as EditingArea;
         if (elem instanceof EditingArea) {
             elem.focusEditable();
-            // the focus event may not fire if the window is not active, so make sure
-            // the current field is set
-            currentField = elem;
             return true;
         }
     }
     return false;
 }
 
-function onPaste(event: ClipboardEvent): void {
+function onPaste(evt: ClipboardEvent): void {
     bridgeCommand("paste");
-    event.preventDefault();
+    evt.preventDefault();
 }
 
-function caretToEnd(): void {
+function caretToEnd(currentField: EditingArea): void {
     const range = document.createRange();
     range.selectNodeContents(currentField.editable);
     range.collapse(false);
@@ -221,17 +216,14 @@ function caretToEnd(): void {
     selection.addRange(range);
 }
 
-function onBlur(): void {
-    if (!currentField) {
-        return;
-    }
+function onBlur(evt: FocusEvent): void {
+    const currentField = evt.currentTarget as EditingArea;
 
     if (document.activeElement === currentField) {
         // other widget or window focused; current field unchanged
-        saveField("key");
+        saveField(currentField, "key");
     } else {
-        saveField("blur");
-        currentField = null;
+        saveField(currentField, "blur");
         disableButtons();
     }
 }
@@ -251,20 +243,15 @@ function containsInlineContent(field: Element): boolean {
     return true;
 }
 
-function saveField(type: "blur" | "key"): void {
+function saveField(currentField: EditingArea, type: "blur" | "key"): void {
     clearChangeTimer();
-    if (!currentField) {
-        // no field has been focused yet
-        return;
-    }
-
     bridgeCommand(
-        `${type}:${currentField.ord}:${currentNoteId}:${currentField.fieldHTML}`
+        `${type}:${currentField.ord}:${getCurrentNoteId()}:${currentField.fieldHTML}`
     );
 }
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
-    const match = text.match(/^(\s*)([^]*?)(\s*)$/);
+    const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
     return match[1] + front + match[2] + back + match[3];
 }
 
@@ -303,11 +290,13 @@ export function wrapIntoText(front: string, back: string): void {
 }
 
 function wrapInternal(front: string, back: string, plainText: boolean): void {
+    const currentField = getCurrentField()!;
     const s = currentField.getSelection();
     let r = s.getRangeAt(0);
     const content = r.cloneContents();
     const span = document.createElement("span");
     span.appendChild(content);
+
     if (plainText) {
         const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
         setFormat("inserttext", new_);
@@ -315,6 +304,7 @@ function wrapInternal(front: string, back: string, plainText: boolean): void {
         const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
         setFormat("inserthtml", new_);
     }
+
     if (!span.innerHTML) {
         // run with an empty selection; move cursor back past postfix
         r = s.getRangeAt(0);
@@ -364,14 +354,14 @@ class EditingArea extends HTMLDivElement {
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");
         rootStyle.setAttribute("href", "./_anki/css/editable.css");
-        this.shadowRoot.appendChild(rootStyle);
+        this.shadowRoot!.appendChild(rootStyle);
 
         this.baseStyle = document.createElement("style");
         this.baseStyle.setAttribute("rel", "stylesheet");
-        this.shadowRoot.appendChild(this.baseStyle);
+        this.shadowRoot!.appendChild(this.baseStyle);
 
         this.editable = document.createElement("anki-editable") as Editable;
-        this.shadowRoot.appendChild(this.editable);
+        this.shadowRoot!.appendChild(this.editable);
     }
 
     get ord(): number {
@@ -435,7 +425,7 @@ class EditingArea extends HTMLDivElement {
     }
 
     getSelection(): Selection {
-        return this.shadowRoot.getSelection();
+        return this.shadowRoot!.getSelection()!;
     }
 
     focusEditable(): void {
@@ -498,7 +488,7 @@ class EditorField extends HTMLDivElement {
 customElements.define("anki-editor-field", EditorField, { extends: "div" });
 
 function adjustFieldAmount(amount: number): void {
-    const fieldsContainer = document.getElementById("fields");
+    const fieldsContainer = document.getElementById("fields")!;
 
     while (fieldsContainer.childElementCount < amount) {
         const newField = document.createElement("div", {
@@ -509,12 +499,12 @@ function adjustFieldAmount(amount: number): void {
     }
 
     while (fieldsContainer.childElementCount > amount) {
-        fieldsContainer.removeChild(fieldsContainer.lastElementChild);
+        fieldsContainer.removeChild(fieldsContainer.lastElementChild as Node);
     }
 }
 
 export function getEditorField(n: number): EditorField | null {
-    const fields = document.getElementById("fields").children;
+    const fields = document.getElementById("fields")!.children;
     return (fields[n] as EditorField) ?? null;
 }
 
@@ -522,7 +512,7 @@ export function forEditorField<T>(
     values: T[],
     func: (field: EditorField, value: T) => void
 ): void {
-    const fields = document.getElementById("fields").children;
+    const fields = document.getElementById("fields")!.children;
     for (let i = 0; i < fields.length; i++) {
         const field = fields[i] as EditorField;
         func(field, values[i]);
@@ -549,7 +539,7 @@ export function setBackgrounds(cols: ("dupe" | "")[]) {
         field.editingArea.classList.toggle("dupe", value === "dupe")
     );
     document
-        .querySelector("#dupes")
+        .getElementById("dupes")!
         .classList.toggle("is-inactive", !cols.includes("dupe"));
 }
 
@@ -561,6 +551,10 @@ export function setFonts(fonts: [string, number, boolean][]): void {
 
 export function setNoteId(id: number): void {
     currentNoteId = id;
+}
+
+export function getCurrentNoteId(): number | null {
+    return currentNoteId;
 }
 
 export let pasteHTML = function (
