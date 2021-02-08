@@ -299,10 +299,9 @@ class SidebarTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setIndentation(15)
         self.setAutoExpandDelay(600)
-        # this doesn't play nicely with shift+click to OR items - we may want
-        # to put it behind a 'multi-select' mode
-        # self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-
+        # pylint: disable=no-member
+        mode = QAbstractItemView.SelectionMode.ExtendedSelection  # type: ignore
+        self.setSelectionMode(mode)
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDragDropOverwriteMode(False)
 
@@ -396,6 +395,18 @@ class SidebarTreeView(QTreeView):
             self._on_click_current()
         else:
             super().keyPressEvent(event)
+
+    # don't extend selection when shift+clicking with mouse (conflicts
+    # with OR-ing). User can still shift+up/down to select contiguously.
+    def selectionCommand(
+        self, index: QModelIndex, event: QEvent = None
+    ) -> QItemSelectionModel.SelectionFlags:
+        flags = super().selectionCommand(index, event)
+        mods = self.mw.app.keyboardModifiers()
+        if isinstance(event, QMouseEvent) and mods & Qt.ShiftModifier:
+            # pylint: disable=no-member
+            flags &= ~QItemSelectionModel.SelectionFlag.Current  # type: ignore
+        return flags
 
     ###########
 
