@@ -5,11 +5,19 @@ function wrappedExceptForWhitespace(text: string, front: string, back: string): 
     return match[1] + front + match[2] + back + match[3];
 }
 
+function moveCursorPastPostfix(selection: Selection, postfix: string): void {
+    const range = selection.getRangeAt(0);
+    range.setStart(range.startContainer, range.startOffset - postfix.length);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
 function wrapInternal(front: string, back: string, plainText: boolean): void {
     const currentField = getCurrentField()!;
-    const s = currentField.getSelection();
-    let r = s.getRangeAt(0);
-    const content = r.cloneContents();
+    const selection = currentField.getSelection();
+    const range = selection.getRangeAt(0);
+    const content = range.cloneContents();
     const span = document.createElement("span");
     span.appendChild(content);
 
@@ -22,12 +30,7 @@ function wrapInternal(front: string, back: string, plainText: boolean): void {
     }
 
     if (!span.innerHTML) {
-        // run with an empty selection; move cursor back past postfix
-        r = s.getRangeAt(0);
-        r.setStart(r.startContainer, r.startOffset - back.length);
-        r.collapse(true);
-        s.removeAllRanges();
-        s.addRange(r);
+        moveCursorPastPostfix(selection, back);
     }
 }
 
