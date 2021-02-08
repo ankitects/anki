@@ -11,6 +11,7 @@ import { onFocus, onBlur } from "./focusHandlers";
 
 export { setNoteId, getNoteId } from "./noteId";
 export { preventButtonFocus, toggleEditorButton, setFGButton } from "./toolbar";
+export { saveNow } from "./changeTimer";
 
 declare global {
     interface Selection {
