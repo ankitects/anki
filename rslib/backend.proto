@@ -535,42 +535,36 @@ message SyncError {
 ///////////////////////////////////////////////////////////
 
 message Progress {
+  message MediaSync {
+    string checked = 1;
+    string added = 2;
+    string removed = 3;
+  }
+
+  message FullSync {
+    uint32 transferred = 1;
+    uint32 total = 2;
+  }
+
+  message NormalSync {
+    string stage = 1;
+    string added = 2;
+    string removed = 3;
+  }
+
+  message DatabaseCheck {
+    string stage = 1;
+    uint32 stage_total = 2;
+    uint32 stage_current = 3;
+  }
   oneof value {
     Empty none = 1;
-    MediaSyncProgress media_sync = 2;
+    MediaSync media_sync = 2;
     string media_check = 3;
-    FullSyncProgress full_sync = 4;
-    NormalSyncProgress normal_sync = 5;
-    DatabaseCheckProgress database_check = 6;
+    FullSync full_sync = 4;
+    NormalSync normal_sync = 5;
+    DatabaseCheck database_check = 6;
   }
-}
-
-message MediaSyncProgress {
-  string checked = 1;
-  string added = 2;
-  string removed = 3;
-}
-
-message FullSyncProgress {
-  uint32 transferred = 1;
-  uint32 total = 2;
-}
-
-message MediaSyncUploadProgress {
-  uint32 files = 1;
-  uint32 deletions = 2;
-}
-
-message NormalSyncProgress {
-  string stage = 1;
-  string added = 2;
-  string removed = 3;
-}
-
-message DatabaseCheckProgress {
-  string stage = 1;
-  uint32 stage_total = 2;
-  uint32 stage_current = 3;
 }
 
 // Messages

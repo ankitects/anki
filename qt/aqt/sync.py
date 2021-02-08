@@ -9,7 +9,6 @@ from concurrent.futures import Future
 from typing import Callable, Tuple
 
 import aqt
-from anki.collection import FullSyncProgress, NormalSyncProgress, ProgressKind
 from anki.errors import Interrupted, SyncError
 from anki.lang import TR, without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus
@@ -73,15 +72,15 @@ def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
 
 def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
     progress = mw.col.latest_progress()
-    if progress.kind != ProgressKind.NormalSync:
+    if not progress.HasField("normal_sync"):
         return
+    sync_progress = progress.normal_sync
 
-    assert isinstance(progress.val, NormalSyncProgress)
     mw.progress.update(
-        label=f"{progress.val.added}\n{progress.val.removed}",
+        label=f"{sync_progress.added}\n{sync_progress.removed}",
         process=False,
     )
-    mw.progress.set_title(progress.val.stage)
+    mw.progress.set_title(sync_progress.stage)
 
     if mw.progress.want_cancel():
         mw.col.abort_sync()
@@ -153,17 +152,17 @@ def confirm_full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> N
 
 def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
     progress = mw.col.latest_progress()
-    if progress.kind != ProgressKind.FullSync:
+    if not progress.HasField("full_sync"):
         return
+    sync_progress = progress.full_sync
 
-    assert isinstance(progress.val, FullSyncProgress)
-    if progress.val.transferred == progress.val.total:
+    if sync_progress.transferred == sync_progress.total:
         label = tr(TR.SYNC_CHECKING)
     else:
         label = None
     mw.progress.update(
-        value=progress.val.transferred,
-        max=progress.val.total,
+        value=sync_progress.transferred,
+        max=sync_progress.total,
         process=False,
         label=label,
     )

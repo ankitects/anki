@@ -9,7 +9,7 @@ from concurrent.futures import Future
 from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
-from anki.collection import ProgressKind, SearchTerm
+from anki.collection import SearchTerm
 from anki.errors import Interrupted
 from anki.lang import TR
 from anki.media import CheckMediaOut
@@ -62,11 +62,9 @@ class MediaChecker:
 
     def _on_progress(self) -> None:
         progress = self.mw.col.latest_progress()
-        if progress.kind != ProgressKind.MediaCheck:
+        if not progress.HasField("media_check"):
             return
-
-        assert isinstance(progress.val, str)
-        val = progress.val
+        label = progress.media_check
 
         try:
             if self.progress_dialog.wantCancel:
@@ -75,7 +73,7 @@ class MediaChecker:
             # dialog may not be active
             pass
 
-        self.mw.taskman.run_on_main(lambda: self.mw.progress.update(val))
+        self.mw.taskman.run_on_main(lambda: self.mw.progress.update(label=label))
 
     def _check(self) -> CheckMediaOut:
         "Run the check on a background thread."

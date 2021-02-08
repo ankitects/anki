@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import copy
-import enum
 import os
 import pprint
 import re
@@ -12,7 +11,6 @@ import sys
 import time
 import traceback
 import weakref
-from dataclasses import dataclass
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
@@ -46,10 +44,7 @@ from anki.utils import (
 
 # public exports
 SearchTerm = _pb.SearchTerm
-MediaSyncProgress = _pb.MediaSyncProgress
-FullSyncProgress = _pb.FullSyncProgress
-NormalSyncProgress = _pb.NormalSyncProgress
-DatabaseCheckProgress = _pb.DatabaseCheckProgress
+Progress = _pb.Progress
 Config = _pb.Config
 EmptyCardsReport = _pb.EmptyCardsReport
 NoteWithEmptyCards = _pb.NoteWithEmptyCards
@@ -125,7 +120,7 @@ class Collection:
     ##########################################################################
 
     def latest_progress(self) -> Progress:
-        return Progress.from_proto(self._backend.latest_progress())
+        return self._backend.latest_progress()
 
     # Scheduler
     ##########################################################################
@@ -872,43 +867,6 @@ table.review-log {{ {revlog_style} }}
 
     def set_preferences(self, prefs: Preferences) -> None:
         self._backend.set_preferences(prefs)
-
-
-class ProgressKind(enum.Enum):
-    NoProgress = 0
-    MediaSync = 1
-    MediaCheck = 2
-    FullSync = 3
-    NormalSync = 4
-    DatabaseCheck = 5
-
-
-@dataclass
-class Progress:
-    kind: ProgressKind
-    val: Union[
-        MediaSyncProgress,
-        FullSyncProgress,
-        NormalSyncProgress,
-        DatabaseCheckProgress,
-        str,
-    ]
-
-    @staticmethod
-    def from_proto(proto: _pb.Progress) -> Progress:
-        kind = proto.WhichOneof("value")
-        if kind == "media_sync":
-            return Progress(kind=ProgressKind.MediaSync, val=proto.media_sync)
-        elif kind == "media_check":
-            return Progress(kind=ProgressKind.MediaCheck, val=proto.media_check)
-        elif kind == "full_sync":
-            return Progress(kind=ProgressKind.FullSync, val=proto.full_sync)
-        elif kind == "normal_sync":
-            return Progress(kind=ProgressKind.NormalSync, val=proto.normal_sync)
-        elif kind == "database_check":
-            return Progress(kind=ProgressKind.DatabaseCheck, val=proto.database_check)
-        else:
-            return Progress(kind=ProgressKind.NoProgress, val="")
 
 
 # legacy name
