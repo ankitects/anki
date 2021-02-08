@@ -304,7 +304,12 @@ impl From<pb::SearchTerm> for Node<'_> {
                     escape_anki_wildcards(&s).into_owned().into(),
                 )),
                 Filter::Deck(s) => Node::Search(SearchNode::Deck(
-                    escape_anki_wildcards(&s).into_owned().into(),
+                    if s == "*" {
+                        s
+                    } else {
+                        escape_anki_wildcards(&s).into_owned()
+                    }
+                    .into(),
                 )),
                 Filter::Note(s) => Node::Search(SearchNode::NoteType(
                     escape_anki_wildcards(&s).into_owned().into(),
