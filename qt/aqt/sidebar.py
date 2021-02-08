@@ -684,6 +684,7 @@ class SidebarTreeView(QTreeView):
 
     def _flags_tree(self, root: SidebarItem) -> None:
         icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
+        search = self._filter_func
         root = self._section_root(
             root=root,
             name=TR.BROWSING_SIDEBAR_FLAGS,
@@ -691,9 +692,9 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
         )
-        type = SidebarItemType.FLAG
-        search = self._filter_func
+        root.on_click = search(SearchTerm(flag=SearchTerm.FLAG_ANY))
 
+        type = SidebarItemType.FLAG
         root.add_simple(
             TR.ACTIONS_RED_FLAG,
             icon=icon.with_color(colors.FLAG1_FG),
@@ -717,12 +718,6 @@ class SidebarTreeView(QTreeView):
             icon=icon.with_color(colors.FLAG4_FG),
             type=type,
             on_click=search(SearchTerm(flag=SearchTerm.FLAG_BLUE)),
-        )
-        root.add_simple(
-            TR.BROWSING_ANY_FLAG,
-            icon=icon.with_color(colors.TEXT_FG),
-            type=type,
-            on_click=search(SearchTerm(flag=SearchTerm.FLAG_ANY)),
         )
         root.add_simple(
             TR.BROWSING_NO_FLAG,
