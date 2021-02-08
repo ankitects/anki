@@ -58,9 +58,15 @@ class MediaChecker:
             self._progress_timer.stop()
             self._progress_timer = None
         if enabled:
-            self._progress_timer = self.mw.progress.timer(100, self._on_progress, True)
+            self._progress_timer = timer = QTimer()
+            timer.setSingleShot(False)
+            timer.setInterval(100)
+            qconnect(timer.timeout, self._on_progress)
+            timer.start()
 
     def _on_progress(self) -> None:
+        if not self.mw.col:
+            return
         progress = self.mw.col.latest_progress()
         if not progress.HasField("media_check"):
             return
