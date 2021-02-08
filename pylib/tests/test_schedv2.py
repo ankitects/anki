@@ -1124,13 +1124,7 @@ def test_resched():
     assert c.due == col.sched.today
     assert c.ivl == 1
     assert c.queue == QUEUE_TYPE_REV and c.type == CARD_TYPE_REV
-    # make it due tomorrow, which increases its interval by a day
-    col.sched.reschedCards([c.id], 1, 1)
-    c.load()
-    assert c.due == col.sched.today + 1
-    assert c.ivl == 2
-    # but if it was new, that would not happen
-    col.sched.forgetCards([c.id])
+    # make it due tomorrow
     col.sched.reschedCards([c.id], 1, 1)
     c.load()
     assert c.due == col.sched.today + 1

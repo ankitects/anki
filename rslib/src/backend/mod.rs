@@ -676,8 +676,8 @@ impl BackendService for Backend {
 
     fn set_due_date(&self, input: pb::SetDueDateIn) -> BackendResult<pb::Empty> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
-        let (min, max) = parse_due_date_str(&input.days)?;
-        self.with_col(|col| col.set_due_date(&cids, min, max).map(Into::into))
+        let spec = parse_due_date_str(&input.days)?;
+        self.with_col(|col| col.set_due_date(&cids, spec).map(Into::into))
     }
 
     fn sort_cards(&self, input: pb::SortCardsIn) -> BackendResult<Empty> {

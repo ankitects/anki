@@ -1430,7 +1430,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     def reschedCards(
         self, card_ids: List[int], min_interval: int, max_interval: int
     ) -> None:
-        self.set_due_date(card_ids, f"{min_interval}..{max_interval}")
+        self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
     forgetCards = schedule_cards_as_new
 

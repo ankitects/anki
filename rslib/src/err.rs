@@ -197,6 +197,17 @@ impl AnkiError {
                     tr_args!("reason" => reason.into_owned()),
                 )
             }
+            AnkiError::InvalidInput { info } => {
+                if info.is_empty() {
+                    i18n.tr(TR::ErrorsInvalidInputEmpty).into()
+                } else {
+                    i18n.trn(
+                        TR::ErrorsInvalidInputDetails,
+                        tr_args!("details" => info.to_owned()),
+                    )
+                }
+            }
+            AnkiError::ParseNumError => i18n.tr(TR::ErrorsParseNumberFail).into(),
             _ => format!("{:?}", self),
         }
     }

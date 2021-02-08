@@ -146,16 +146,19 @@ scheduling-deck-updated =
 scheduling-set-due-date-prompt =
     { $cards ->
         [one] Show card in how many days?
-       *[other] Show cards in how many days? (eg 1, or 1..7)
+       *[other] Show cards in how many days?
     }
-scheduling-set-due-date-changed-cards =
+scheduling-set-due-date-prompt-hint =
+    0 = today
+    1! = tomorrow+reset review interval
+    3-7 = random choice of 3-7 days
+scheduling-set-due-date-done =
     { $cards ->
-        [one] Changed card's due date.
-       *[other] Changed due date of { $cards } cards.
+        [one] Set due date of { $cards } card.
+       *[other] Set due date of { $cards } cards.
     }
-scheduling-set-due-date-invalid-input = Expected a number or range (eg 1, or 1..7)
 scheduling-forgot-cards =
     { $cards ->
-        [one] { $cards } card placed at the end of the new card queue.
-       *[other] { $cards } cards placed at the end of the new card queue.
+        [one] Forgot { $card } card.
+       *[other] Forgot { $cards } cards.
     }
