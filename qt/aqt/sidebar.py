@@ -815,12 +815,13 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.DECK_ROOT,
         )
         root.on_click = self._filter_func(SearchTerm(deck="*"))
-        root.add_simple(
+        current = root.add_simple(
             name=tr(TR.BROWSING_CURRENT_DECK),
             icon=icon,
             type=SidebarItemType.DECK,
             on_click=self._filter_func(SearchTerm(deck="current")),
         )
+        current.id = self.mw.col.decks.selected()
 
         render(root, tree.children)
 
