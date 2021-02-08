@@ -912,14 +912,13 @@ message AddNoteIn {
 }
 
 message EmptyCardsReport {
+  message NoteWithEmptyCards {
+    int64 note_id = 1;
+    repeated int64 card_ids = 2;
+    bool will_delete_note = 3;
+  }
   string report = 1;
   repeated NoteWithEmptyCards notes = 2;
-}
-
-message NoteWithEmptyCards {
-  int64 note_id = 1;
-  repeated int64 card_ids = 2;
-  bool will_delete_note = 3;
 }
 
 message DeckNames {
