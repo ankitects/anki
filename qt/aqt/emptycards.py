@@ -8,7 +8,7 @@ from concurrent.futures import Future
 from typing import Any
 
 import aqt
-from anki.collection import EmptyCardsReport, NoteWithEmptyCards
+from anki.collection import EmptyCardsReport
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
 from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, tr
@@ -89,7 +89,7 @@ class EmptyCardsDialog(QDialog):
 
     def _delete_cards(self, keep_notes: bool) -> int:
         to_delete = []
-        note: NoteWithEmptyCards
+        note: EmptyCardsReport.NoteWithEmptyCards
         for note in self.report.notes:
             if keep_notes and note.will_delete_note:
                 # leave first card

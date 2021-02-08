@@ -438,10 +438,12 @@ impl BackendService for Backend {
 
             let mut outnotes = vec![];
             for (_ntid, notes) in empty {
-                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
-                    note_id: e.nid.0,
-                    will_delete_note: e.empty.len() == e.current_count,
-                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                outnotes.extend(notes.into_iter().map(|e| {
+                    pb::empty_cards_report::NoteWithEmptyCards {
+                        note_id: e.nid.0,
+                        will_delete_note: e.empty.len() == e.current_count,
+                        card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                    }
                 }))
             }
             Ok(pb::EmptyCardsReport {

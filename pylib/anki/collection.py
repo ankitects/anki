@@ -47,7 +47,6 @@ SearchTerm = _pb.SearchTerm
 Progress = _pb.Progress
 Config = _pb.Config
 EmptyCardsReport = _pb.EmptyCardsReport
-NoteWithEmptyCards = _pb.NoteWithEmptyCards
 GraphPreferences = _pb.GraphPreferences
 BuiltinSort = _pb.SortOrder.Builtin
 Preferences = _pb.Preferences
