@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
 import aqt
-from anki.collection import MediaSyncProgress, ProgressKind
+from anki.collection import Progress
 from anki.errors import Interrupted, NetworkError
 from anki.lang import TR
 from anki.types import assert_exhaustive
@@ -18,7 +18,7 @@ from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
 from aqt.utils import disable_help_button, showWarning, tr
 
-LogEntry = Union[MediaSyncProgress, str]
+LogEntry = Union[Progress.MediaSync, str]
 
 
 @dataclass
@@ -37,11 +37,10 @@ class MediaSyncer:
 
     def _on_progress(self) -> None:
         progress = self.mw.col.latest_progress()
-        if progress.kind != ProgressKind.MediaSync:
+        if not progress.HasField("media_sync"):
             return
-
-        assert isinstance(progress.val, MediaSyncProgress)
-        self._log_and_notify(progress.val)
+        sync_progress = progress.media_sync
+        self._log_and_notify(sync_progress)
 
     def start(self) -> None:
         "Start media syncing in the background, if it's not already running."
@@ -202,13 +201,13 @@ class MediaSyncDialog(QDialog):
     def _entry_to_text(self, entry: LogEntryWithTime) -> str:
         if isinstance(entry.entry, str):
             txt = entry.entry
-        elif isinstance(entry.entry, MediaSyncProgress):
+        elif isinstance(entry.entry, Progress.MediaSync):
             txt = self._logentry_to_text(entry.entry)
         else:
             assert_exhaustive(entry.entry)
         return self._time_and_text(entry.time, txt)
 
-    def _logentry_to_text(self, e: MediaSyncProgress) -> str:
+    def _logentry_to_text(self, e: Progress.MediaSync) -> str:
         return f"{e.added}, {e.removed}, {e.checked}"
 
     def _on_log_entry(self, entry: LogEntryWithTime) -> None:
