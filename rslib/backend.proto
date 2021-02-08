@@ -1220,7 +1220,7 @@ message Config {
       COLLAPSE_NOTETYPES = 3;
       COLLAPSE_DECKS = 4;
       COLLAPSE_SAVED_SEARCHES = 5;
-      COLLAPSE_RECENT = 6;
+      COLLAPSE_TODAY = 6;
       COLLAPSE_CARD_STATE = 7;
       COLLAPSE_FLAGS = 8;
     }

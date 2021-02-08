@@ -34,8 +34,8 @@ class SidebarItemType(Enum):
     ROOT = auto()
     SAVED_SEARCH_ROOT = auto()
     SAVED_SEARCH = auto()
-    RECENT_ROOT = auto()
-    RECENT = auto()
+    TODAY_ROOT = auto()
+    TODAY = auto()
     CARD_STATE_ROOT = auto()
     CARD_STATE = auto()
     FLAG_ROOT = auto()
@@ -61,7 +61,7 @@ class SidebarItemType(Enum):
 class SidebarStage(Enum):
     ROOT = auto()
     SAVED_SEARCHES = auto()
-    RECENT = auto()
+    TODAY = auto()
     SCHEDULING = auto()
     FLAGS = auto()
     DECKS = auto()
@@ -517,8 +517,8 @@ class SidebarTreeView(QTreeView):
             self._saved_searches_tree(root)
         elif stage is SidebarStage.SCHEDULING:
             self._card_state_tree(root)
-        elif stage is SidebarStage.RECENT:
-            self._recent_tree(root)
+        elif stage is SidebarStage.TODAY:
+            self._today_tree(root)
         elif stage is SidebarStage.FLAGS:
             self._flags_tree(root)
         elif stage is SidebarStage.DECKS:
@@ -587,19 +587,19 @@ class SidebarTreeView(QTreeView):
             )
             root.add_child(item)
 
-    # Tree: Recent
+    # Tree: Today
     ###########################
 
-    def _recent_tree(self, root: SidebarItem) -> None:
+    def _today_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/clock.svg"
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_RECENT,
+            name=TR.BROWSING_TODAY,
             icon=icon,
-            collapse_key=Config.Bool.COLLAPSE_RECENT,
-            type=SidebarItemType.RECENT_ROOT,
+            collapse_key=Config.Bool.COLLAPSE_TODAY,
+            type=SidebarItemType.TODAY_ROOT,
         )
-        type = SidebarItemType.RECENT
+        type = SidebarItemType.TODAY
         search = self._filter_func
 
         root.add_simple(
@@ -635,12 +635,6 @@ class SidebarTreeView(QTreeView):
                     rated=SearchTerm.Rated(days=1, rating=SearchTerm.RATING_AGAIN)
                 )
             ),
-        )
-        root.add_simple(
-            name=TR.BROWSING_SIDEBAR_DUE_TOMORROW,
-            icon=icon,
-            type=type,
-            on_click=search(SearchTerm(due_in_days=1)),
         )
 
     # Tree: Card State
