@@ -138,6 +138,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("paste", onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
+        this.addEventListener("click", updateButtonState);
 
         const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
         baseStyleSheet.insertRule("anki-editable {}", 0);
@@ -152,6 +153,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("paste", onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
+        this.removeEventListener("click", updateButtonState);
     }
 
     initialize(color: string, content: string): void {
