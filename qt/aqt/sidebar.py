@@ -246,6 +246,7 @@ class SidebarSearchBar(QLineEdit):
         self.timer = QTimer(self)
         self.timer.setInterval(600)
         self.timer.setSingleShot(True)
+        self.setStyleSheet("QLineEdit { padding-left: 3px }")
         qconnect(self.timer.timeout, self.onSearch)
         qconnect(self.textChanged, self.onTextChanged)
 
@@ -310,7 +311,7 @@ class SidebarTreeView(QTreeView):
 
         # match window background color
         bgcolor = QPalette().window().color().name()
-        self.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
+        self.setStyleSheet("QTreeView { padding: 3px; background: '%s'; }" % bgcolor)
 
     def model(self) -> SidebarModel:
         return super().model()
