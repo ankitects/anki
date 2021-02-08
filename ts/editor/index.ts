@@ -18,6 +18,14 @@ declare global {
     }
 }
 
+export function getCurrentField(): EditingArea | null {
+    return currentField;
+}
+
+export function getCurrentNoteId(): number | null {
+    return currentNoteId;
+}
+
 export function setFGButton(col: string): void {
     document.getElementById("forecolor").style.backgroundColor = col;
 }
