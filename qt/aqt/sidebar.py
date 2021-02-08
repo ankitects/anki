@@ -592,12 +592,6 @@ class SidebarTreeView(QTreeView):
         search = self._filter_func
 
         root.add_simple(
-            TR.BROWSING_CURRENT_DECK,
-            icon=icon,
-            type=type,
-            on_click=search(SearchTerm(deck="current")),
-        )
-        root.add_simple(
             name=TR.BROWSING_SIDEBAR_DUE_TODAY,
             icon=icon,
             type=type,
@@ -814,6 +808,14 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
+        root.on_click = self._filter_func(SearchTerm(deck="*"))
+        root.add_simple(
+            name=tr(TR.BROWSING_CURRENT_DECK),
+            icon=icon,
+            type=SidebarItemType.DECK,
+            on_click=self._filter_func(SearchTerm(deck="current")),
+        )
+
         render(root, tree.children)
 
     # Tree: Notetypes
