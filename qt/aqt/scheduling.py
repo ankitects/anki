@@ -8,7 +8,6 @@ from typing import List
 
 import aqt
 from anki.collection import Config
-from anki.errors import InvalidInput
 from anki.lang import TR
 from aqt.qt import *
 from aqt.utils import getText, showWarning, tooltip, tr
@@ -26,9 +25,15 @@ def set_due_date_dialog(
         return
 
     default = mw.col.get_config_string(default_key)
+    prompt = "\n".join(
+        [
+            tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
+            tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT_HINT),
+        ]
+    )
 
     (days, success) = getText(
-        prompt=tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
+        prompt=prompt,
         parent=parent,
         default=default,
         title=tr(TR.ACTIONS_SET_DUE_DATE),
@@ -45,16 +50,12 @@ def set_due_date_dialog(
         try:
             fut.result()
         except Exception as e:
-            if isinstance(e, InvalidInput):
-                err = tr(TR.SCHEDULING_SET_DUE_DATE_INVALID_INPUT)
-            else:
-                err = str(e)
-            showWarning(err)
+            showWarning(str(e))
             on_done()
             return
 
         tooltip(
-            tr(TR.SCHEDULING_SET_DUE_DATE_CHANGED_CARDS, cards=len(card_ids)),
+            tr(TR.SCHEDULING_SET_DUE_DATE_DONE, cards=len(card_ids)),
             parent=parent,
         )
 
