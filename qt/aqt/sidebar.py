@@ -586,9 +586,9 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_RECENT,
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_RECENT,
-            type=SidebarItemType.FLAG_ROOT,
+            type=SidebarItemType.RECENT_ROOT,
         )
-        type = SidebarItemType.FLAG
+        type = SidebarItemType.RECENT
         search = self._filter_func
 
         root.add_simple(
