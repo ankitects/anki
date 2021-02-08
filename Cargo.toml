@@ -8,7 +8,8 @@ license = "AGPL-3.0-or-later"
 members = ["rslib", "pylib/rsbridge"]
 
 [lib]
-name = "dummy"
+# dummy top level for tooling
+name = "anki"
 path = "src/lib.rs"
 
 [package.metadata.raze]

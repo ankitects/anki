@@ -50,7 +50,7 @@ MediaSyncProgress = _pb.MediaSyncProgress
 FullSyncProgress = _pb.FullSyncProgress
 NormalSyncProgress = _pb.NormalSyncProgress
 DatabaseCheckProgress = _pb.DatabaseCheckProgress
-ConfigBool = _pb.ConfigBool
+Config = _pb.Config
 EmptyCardsReport = _pb.EmptyCardsReport
 NoteWithEmptyCards = _pb.NoteWithEmptyCards
 GraphPreferences = _pb.GraphPreferences
@@ -586,12 +586,19 @@ class Collection:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self._backend.get_all_config())
 
-    def get_config_bool(self, key: ConfigBool.Key.V) -> bool:
+    def get_config_bool(self, key: Config.Bool.Key.V) -> bool:
         return self._backend.get_config_bool(key)
 
-    def set_config_bool(self, key: ConfigBool.Key.V, value: bool) -> None:
+    def set_config_bool(self, key: Config.Bool.Key.V, value: bool) -> None:
         self.setMod()
         self._backend.set_config_bool(key=key, value=value)
+
+    def get_config_string(self, key: Config.String.Key.V) -> str:
+        return self._backend.get_config_string(key)
+
+    def set_config_string(self, key: Config.String.Key.V, value: str) -> None:
+        self.setMod()
+        self._backend.set_config_string(key=key, value=value)
 
     # Stats
     ##########################################################################

@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
+from anki.collection import Config
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.profiles import VideoDriver
@@ -809,7 +810,7 @@ time = %(time)d;
             mw=self.mw,
             parent=self.mw,
             card_ids=[self.card.id],
-            default="1",
+            default_key=Config.String.SET_DUE_REVIEWER,
             on_done=self.mw.reset,
         )
 

@@ -5,7 +5,9 @@ ignore = forms,hooks_gen.py
 
 [TYPECHECK]
 ignored-modules=win32file,pywintypes,socket,win32pipe,winrt,pyaudio
-ignored-classes=SearchTerm,ConfigBool
+ignored-classes=
+  SearchTerm,
+  Config,
 
 [REPORTS]
 output-format=colorized

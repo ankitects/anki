@@ -5,7 +5,8 @@ use crate::{
     backend_proto as pb, collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
     timestamp::TimestampSecs,
 };
-use pb::config_bool::Key as BoolKey;
+use pb::config::bool::Key as BoolKey;
+use pb::config::string::Key as StringKey;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
@@ -63,6 +64,8 @@ pub(crate) enum ConfigKey {
     PreviewBothSides,
     Rollover,
     SchedulerVersion,
+    SetDueBrowser,
+    SetDueReviewer,
     ShowDayLearningCardsFirst,
     ShowIntervalsAboveAnswerButtons,
     ShowRemainingDueCountsInStudy,
@@ -102,6 +105,8 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::PreviewBothSides => "previewBothSides",
             ConfigKey::Rollover => "rollover",
             ConfigKey::SchedulerVersion => "schedVer",
+            ConfigKey::SetDueBrowser => "setDueBrowser",
+            ConfigKey::SetDueReviewer => "setDueReviewer",
             ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
             ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
             ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
@@ -121,6 +126,15 @@ impl From<BoolKey> for ConfigKey {
             BoolKey::CollapseSavedSearches => ConfigKey::CollapseSavedSearches,
             BoolKey::CollapseTags => ConfigKey::CollapseTags,
             BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,
+        }
+    }
+}
+
+impl From<StringKey> for ConfigKey {
+    fn from(key: StringKey) -> Self {
+        match key {
+            StringKey::SetDueBrowser => ConfigKey::SetDueBrowser,
+            StringKey::SetDueReviewer => ConfigKey::SetDueReviewer,
         }
     }
 }
@@ -345,7 +359,7 @@ impl Collection {
     }
 
     #[allow(clippy::match_single_binding)]
-    pub(crate) fn get_bool(&self, config: pb::ConfigBool) -> bool {
+    pub(crate) fn get_bool(&self, config: pb::config::Bool) -> bool {
         match config.key() {
             // all options default to false at the moment
             other => self.get_config_default(ConfigKey::from(other)),
@@ -353,6 +367,21 @@ impl Collection {
     }
 
     pub(crate) fn set_bool(&self, input: pb::SetConfigBoolIn) -> Result<()> {
+        self.set_config(ConfigKey::from(input.key()), &input.value)
+    }
+
+    pub(crate) fn get_string(&self, config: pb::config::String) -> String {
+        let key = config.key();
+        let default = match key {
+            StringKey::SetDueBrowser => "0",
+            StringKey::SetDueReviewer => "1",
+            // other => "",
+        };
+        self.get_config_optional(ConfigKey::from(key))
+            .unwrap_or_else(|| default.to_string())
+    }
+
+    pub(crate) fn set_string(&self, input: pb::SetConfigStringIn) -> Result<()> {
         self.set_config(ConfigKey::from(input.key()), &input.value)
     }
 }
