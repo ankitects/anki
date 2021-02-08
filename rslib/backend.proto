@@ -228,8 +228,10 @@ service BackendService {
   rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
   rpc RemoveConfig(String) returns (Empty);
   rpc GetAllConfig(Empty) returns (Json);
-  rpc GetConfigBool(ConfigBool) returns (Bool);
+  rpc GetConfigBool(Config.Bool) returns (Bool);
   rpc SetConfigBool(SetConfigBoolIn) returns (Empty);
+  rpc GetConfigString(Config.String) returns (String);
+  rpc SetConfigString(SetConfigStringIn) returns (Empty);
 
   // preferences
 
@@ -1216,22 +1218,37 @@ message SetDeckIn {
   int64 deck_id = 2;
 }
 
-message ConfigBool {
-  enum Key {
-    BROWSER_SORT_BACKWARDS = 0;
-    PREVIEW_BOTH_SIDES = 1;
-    COLLAPSE_TAGS = 2;
-    COLLAPSE_NOTETYPES = 3;
-    COLLAPSE_DECKS = 4;
-    COLLAPSE_SAVED_SEARCHES = 5;
-    COLLAPSE_RECENT = 6;
-    COLLAPSE_CARD_STATE = 7;
-    COLLAPSE_FLAGS = 8;
+message Config {
+  message Bool {
+    enum Key {
+      BROWSER_SORT_BACKWARDS = 0;
+      PREVIEW_BOTH_SIDES = 1;
+      COLLAPSE_TAGS = 2;
+      COLLAPSE_NOTETYPES = 3;
+      COLLAPSE_DECKS = 4;
+      COLLAPSE_SAVED_SEARCHES = 5;
+      COLLAPSE_RECENT = 6;
+      COLLAPSE_CARD_STATE = 7;
+      COLLAPSE_FLAGS = 8;
+    }
+    Key key = 1;
   }
-  Key key = 1;
+
+  message String {
+    enum Key {
+      SET_DUE_BROWSER = 0;
+      SET_DUE_REVIEWER = 1;
+    }
+    Key key = 1;
+  }
 }
 
 message SetConfigBoolIn {
-  ConfigBool.Key key = 1;
+  Config.Bool.Key key = 1;
   bool value = 2;
+}
+
+message SetConfigStringIn {
+  Config.String.Key key = 1;
+  string value = 2;
 }

@@ -1,7 +1,7 @@
 # coding: utf-8
 import pytest
 
-from anki.collection import BuiltinSort, ConfigBool
+from anki.collection import BuiltinSort, Config
 from anki.consts import *
 from tests.shared import getEmptyCol, isNearCutoff
 
@@ -121,7 +121,7 @@ def test_findCards():
     col.flush()
     assert col.findCards("", order=True)[-1] in latestCardIds
     assert col.findCards("", order=True)[0] == firstCardId
-    col.set_config_bool(ConfigBool.BROWSER_SORT_BACKWARDS, True)
+    col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, True)
     col.flush()
     assert col.findCards("", order=True)[0] in latestCardIds
     assert (

@@ -7,6 +7,7 @@ from concurrent.futures import Future
 from typing import List
 
 import aqt
+from anki.collection import Config
 from anki.errors import InvalidInput
 from anki.lang import TR
 from aqt.qt import *
@@ -18,11 +19,13 @@ def set_due_date_dialog(
     mw: aqt.AnkiQt,
     parent: QDialog,
     card_ids: List[int],
-    default: str,
+    default_key: Config.String.Key.V,
     on_done: Callable[[], None],
 ) -> None:
     if not card_ids:
         return
+
+    default = mw.col.get_config_string(default_key)
 
     (days, success) = getText(
         prompt=tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
@@ -33,7 +36,12 @@ def set_due_date_dialog(
     if not success or not days.strip():
         return
 
-    def on_done_wrapper(fut: Future) -> None:
+    def set_due() -> None:
+        mw.col.sched.set_due_date(card_ids, days)
+        if days != default:
+            mw.col.set_config_string(default_key, days)
+
+    def after_set(fut: Future) -> None:
         try:
             fut.result()
         except Exception as e:
@@ -53,9 +61,7 @@ def set_due_date_dialog(
         on_done()
 
     mw.checkpoint(tr(TR.ACTIONS_SET_DUE_DATE))
-    mw.taskman.with_progress(
-        lambda: mw.col.sched.set_due_date(card_ids, days), on_done_wrapper
-    )
+    mw.taskman.with_progress(set_due, after_set)
 
 
 def forget_cards(

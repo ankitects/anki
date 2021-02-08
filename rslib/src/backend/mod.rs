@@ -1493,7 +1493,7 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
-    fn get_config_bool(&self, input: pb::ConfigBool) -> BackendResult<pb::Bool> {
+    fn get_config_bool(&self, input: pb::config::Bool) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             Ok(pb::Bool {
                 val: col.get_bool(input),
@@ -1503,6 +1503,19 @@ impl BackendService for Backend {
 
     fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> BackendResult<pb::Empty> {
         self.with_col(|col| col.transact(None, |col| col.set_bool(input)))
+            .map(Into::into)
+    }
+
+    fn get_config_string(&self, input: pb::config::String) -> BackendResult<pb::String> {
+        self.with_col(|col| {
+            Ok(pb::String {
+                val: col.get_string(input),
+            })
+        })
+    }
+
+    fn set_config_string(&self, input: pb::SetConfigStringIn) -> BackendResult<pb::Empty> {
+        self.with_col(|col| col.transact(None, |col| col.set_string(input)))
             .map(Into::into)
     }
 }
