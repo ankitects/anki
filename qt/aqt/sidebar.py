@@ -396,18 +396,6 @@ class SidebarTreeView(QTreeView):
         else:
             super().keyPressEvent(event)
 
-    # don't extend selection when shift+clicking with mouse (conflicts
-    # with OR-ing). User can still shift+up/down to select contiguously.
-    def selectionCommand(
-        self, index: QModelIndex, event: QEvent = None
-    ) -> QItemSelectionModel.SelectionFlags:
-        flags = super().selectionCommand(index, event)
-        mods = self.mw.app.keyboardModifiers()
-        if isinstance(event, QMouseEvent) and mods & Qt.ShiftModifier:
-            # pylint: disable=no-member
-            flags &= ~QItemSelectionModel.SelectionFlag.Current  # type: ignore
-        return flags
-
     ###########
 
     def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
