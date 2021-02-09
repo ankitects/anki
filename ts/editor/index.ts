@@ -207,7 +207,7 @@ export class EditingArea extends HTMLDivElement {
 
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 
-class EditorField extends HTMLDivElement {
+export class EditorField extends HTMLDivElement {
     labelContainer: HTMLDivElement;
     label: HTMLSpanElement;
     editingArea: EditingArea;
