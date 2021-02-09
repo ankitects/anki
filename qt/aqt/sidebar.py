@@ -274,8 +274,7 @@ class SidebarTreeView(QTreeView):
         self.col = self.mw.col
         self.current_search: Optional[str] = None
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
+        self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.context_menus: Dict[SidebarItemType, Sequence[Tuple[str, Callable]]] = {
             SidebarItemType.DECK: (
                 (tr(TR.ACTIONS_RENAME), self.rename_deck),
@@ -407,13 +406,23 @@ class SidebarTreeView(QTreeView):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
         if event.button() == Qt.LeftButton:
-            self._on_click_current()
+            if not self._keyboard_modified_pressed():
+                self._on_click_current()
+        elif event.button() == Qt.RightButton:
+            if self._keyboard_modified_pressed():
+                self._on_click_current()
+            else:
+                self.onContextMenu(event.pos())
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self._on_click_current()
         else:
             super().keyPressEvent(event)
+
+    def _keyboard_modified_pressed(self) -> bool:
+        mods = self.mw.app.keyboardModifiers()
+        return bool(mods & (Qt.ShiftModifier | Qt.AltModifier | Qt.ControlModifier))
 
     ###########
 
