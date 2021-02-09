@@ -247,7 +247,20 @@ class SidebarSearchBar(QLineEdit):
         self.timer = QTimer(self)
         self.timer.setInterval(600)
         self.timer.setSingleShot(True)
-        self.setStyleSheet("QLineEdit { padding-left: 3px }")
+        self.setFrame(False)
+        border = theme_manager.color(colors.MEDIUM_BORDER)
+        styles = [
+            "padding: 1px",
+            "padding-left: 3px",
+            f"border-bottom: 1px solid {border}",
+        ]
+        if _want_right_border():
+            styles.append(
+                f"border-right: 1px solid {border}",
+            )
+
+        self.setStyleSheet("QLineEdit { %s }" % ";".join(styles))
+
         qconnect(self.timer.timeout, self.onSearch)
         qconnect(self.textChanged, self.onTextChanged)
 
@@ -265,6 +278,10 @@ class SidebarSearchBar(QLineEdit):
             self.onSearch()
         else:
             QLineEdit.keyPressEvent(self, evt)
+
+
+def _want_right_border() -> bool:
+    return not isMac or theme_manager.night_mode
 
 
 class SidebarTreeView(QTreeView):
@@ -308,9 +325,19 @@ class SidebarTreeView(QTreeView):
         qconnect(self.expanded, self._on_expansion)
         qconnect(self.collapsed, self._on_collapse)
 
-        # match window background color
+        # match window background color and tweak style
         bgcolor = QPalette().window().color().name()
-        self.setStyleSheet("QTreeView { padding: 3px; background: '%s'; }" % bgcolor)
+        border = theme_manager.color(colors.MEDIUM_BORDER)
+        styles = [
+            "padding: 3px",
+            "padding-right: 0px",
+            "border: 0",
+            f"background: {bgcolor}",
+        ]
+        if _want_right_border():
+            styles.append(f"border-right: 1px solid {border}")
+
+        self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
 
     def model(self) -> SidebarModel:
         return super().model()
