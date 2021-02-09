@@ -39,6 +39,8 @@ impl Deck {
     pub fn new_normal() -> Deck {
         let mut norm = NormalDeck::default();
         norm.config_id = 1;
+        // enable in the future
+        // norm.markdown_description = true;
 
         Deck {
             id: DeckID(0),
@@ -95,10 +97,14 @@ impl Deck {
 
     pub fn rendered_description(&self) -> String {
         if let DeckKind::Normal(normal) = &self.kind {
-            let description = render_markdown(&normal.description);
-            // before allowing images, we'll need to handle relative image
-            // links on the various platforms
-            sanitize_html_no_images(&description)
+            if normal.markdown_description {
+                let description = render_markdown(&normal.description);
+                // before allowing images, we'll need to handle relative image
+                // links on the various platforms
+                sanitize_html_no_images(&description)
+            } else {
+                String::new()
+            }
         } else {
             String::new()
         }

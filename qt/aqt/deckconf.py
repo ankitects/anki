@@ -236,6 +236,7 @@ class DeckConf(QDialog):
         f.autoplaySounds.setChecked(c["autoplay"])
         f.replayQuestion.setChecked(c.get("replayq", True))
         # description
+        f.enable_markdown.setChecked(self.deck.get("md", False))
         f.desc.setPlainText(self.deck["desc"])
         gui_hooks.deck_conf_did_load_config(self, self.deck, self.conf)
 
@@ -320,6 +321,7 @@ class DeckConf(QDialog):
         c["autoplay"] = f.autoplaySounds.isChecked()
         c["replayq"] = f.replayQuestion.isChecked()
         # description
+        self.deck["md"] = f.enable_markdown.isChecked()
         self.deck["desc"] = f.desc.toPlainText()
         gui_hooks.deck_conf_will_save_config(self, self.deck, self.conf)
         self.mw.col.decks.save(self.deck)

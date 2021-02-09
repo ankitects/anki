@@ -23,6 +23,7 @@ use crate::{
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
     log::default_logger,
+    markdown::render_markdown,
     media::check::MediaChecker,
     media::sync::MediaSyncProgress,
     media::MediaManager,
@@ -48,7 +49,7 @@ use crate::{
         SyncStage,
     },
     template::RenderedNode,
-    text::{escape_anki_wildcards, extract_av_tags, strip_av_tags, AVTag},
+    text::{escape_anki_wildcards, extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -1400,6 +1401,15 @@ impl BackendService for Backend {
         serde_json::to_vec(&self.i18n.resources_for_js())
             .map(Into::into)
             .map_err(Into::into)
+    }
+
+    fn render_markdown(&self, input: pb::RenderMarkdownIn) -> BackendResult<pb::String> {
+        let mut text = render_markdown(&input.markdown);
+        if input.sanitize {
+            // currently no images
+            text = sanitize_html_no_images(&text);
+        }
+        Ok(text.into())
     }
 
     // tags
