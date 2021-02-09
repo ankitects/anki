@@ -90,6 +90,9 @@ scheduling-how-to-custom-study = If you wish to study outside of the regular sch
 # used in scheduling-how-to-custom-study
 # "... you can use the custom study feature."
 scheduling-custom-study = custom study
+
+## Other scheduling strings
+
 scheduling-always-include-question-side-when-replaying = Always include question side when replaying audio
 scheduling-at-least-one-step-is-required = At least one step is required.
 scheduling-automatically-play-audio = Automatically play audio
