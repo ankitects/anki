@@ -128,3 +128,4 @@ browsing-added-today = Added
 browsing-again-today = Again
 browsing-edited-today = Edited
 browsing-sidebar-due-today = Due
+browsing-sidebar-untagged = Untagged
