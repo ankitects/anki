@@ -1,18 +1,26 @@
-import type { EditingArea } from ".";
+import type { EditingArea, EditorField } from ".";
 
 import { bridgeCommand } from "./lib";
 import { enableButtons, disableButtons } from "./toolbar";
 import { saveField } from "./changeTimer";
 
-function isElementInViewport(element: Element): boolean {
+enum ViewportRelativePosition {
+    Contained,
+    ExceedTop,
+    ExceedBottom,
+}
+
+function isFieldInViewport(
+    element: Element,
+    toolbarHeight: number
+): ViewportRelativePosition {
     const rect = element.getBoundingClientRect();
 
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
+    return rect.top <= toolbarHeight
+        ? ViewportRelativePosition.ExceedTop
+        : rect.bottom >= (window.innerHeight || document.documentElement.clientHeight)
+        ? ViewportRelativePosition.ExceedBottom
+        : ViewportRelativePosition.Contained;
 }
 
 function caretToEnd(currentField: EditingArea): void {
@@ -34,21 +42,29 @@ export function onFocus(evt: FocusEvent): void {
         return;
     }
 
+    const editorField = currentField.parentElement! as EditorField;
+    const toolbarHeight = document.getElementById("topbutsOuter")!.clientHeight;
+    switch (isFieldInViewport(editorField, toolbarHeight)) {
+        case ViewportRelativePosition.ExceedBottom:
+            editorField.scrollIntoView(false);
+            break;
+        case ViewportRelativePosition.ExceedTop:
+            editorField.scrollIntoView(true);
+            window.scrollBy(0, -toolbarHeight);
+            break;
+    }
+
     currentField.focusEditable();
     bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
     // do this twice so that there's no flicker on newer versions
     caretToEnd(currentField);
-    // scroll if bottom of element off the screen
-    if (!isElementInViewport(currentField)) {
-        currentField.scrollIntoView(false /* alignToBottom */);
-    }
 }
 
 export function onBlur(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
 
-    if (currentField === previousActiveElement) {
+    if (currentField === document.activeElement) {
         // other widget or window focused; current field unchanged
         saveField(currentField, "key");
         previousActiveElement = currentField;
