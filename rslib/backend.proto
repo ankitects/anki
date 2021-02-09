@@ -207,11 +207,12 @@ service BackendService {
   rpc FullDownload(SyncAuth) returns (Empty);
   rpc SyncServerMethod(SyncServerMethodIn) returns (Json);
 
-  // translation/messages
+  // translation/messages/text manipulation
 
   rpc TranslateString(TranslateStringIn) returns (String);
   rpc FormatTimespan(FormatTimespanIn) returns (String);
   rpc I18nResources(Empty) returns (Json);
+  rpc RenderMarkdown(RenderMarkdownIn) returns (String);
 
   // tags
 
@@ -303,6 +304,8 @@ message DeckCommon {
   // but not currently used for anything
   int32 learning_studied = 6;
 
+  reserved 8 to 13;
+
   bytes other = 255;
 }
 
@@ -318,6 +321,9 @@ message NormalDeck {
   uint32 extend_new = 2;
   uint32 extend_review = 3;
   string description = 4;
+  bool markdown_description = 5;
+
+  reserved 6 to 11;
 }
 
 message FilteredDeck {
@@ -1244,4 +1250,9 @@ message SetConfigBoolIn {
 message SetConfigStringIn {
   Config.String.Key key = 1;
   string value = 2;
+}
+
+message RenderMarkdownIn {
+  string markdown = 1;
+  bool sanitize = 2;
 }

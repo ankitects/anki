@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
+    <width>638</width>
     <height>514</height>
    </rect>
   </property>
@@ -667,6 +667,16 @@
         <widget class="QLabel" name="label_22">
          <property name="text">
           <string>SCHEDULING_DESCRIPTION_TO_SHOW_ON_OVERVIEW_SCREEN</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="enable_markdown">
+         <property name="toolTip">
+          <string>DECK_CONFIG_DESCRIPTION_MARKDOWN_HINT</string>
+         </property>
+         <property name="text">
+          <string>DECK_CONFIG_DESCRIPTION_MARKDOWN</string>
          </property>
         </widget>
        </item>

@@ -867,6 +867,10 @@ table.review-log {{ {revlog_style} }}
     def set_preferences(self, prefs: Preferences) -> None:
         self._backend.set_preferences(prefs)
 
+    def render_markdown(self, text: str, sanitize: bool = True) -> str:
+        "Not intended for public consumption at this time."
+        return self._backend.render_markdown(markdown=text, sanitize=sanitize)
+
 
 # legacy name
 _Collection = Collection

@@ -185,6 +185,8 @@ class Overview:
             desc += " " + tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)
         else:
             desc = deck.get("desc", "")
+            if deck.get("md", False):
+                desc = self.mw.col.render_markdown(desc)
         if not desc:
             return "<p>"
         if deck["dyn"]:

@@ -75,6 +75,10 @@ mod dynfix {
     }
 }
 
+fn is_false(b: &bool) -> bool {
+    !b
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct DeckCommonSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -95,6 +99,8 @@ pub struct DeckCommonSchema11 {
     browser_collapsed: bool,
     #[serde(default)]
     desc: String,
+    #[serde(default, rename = "md", skip_serializing_if = "is_false")]
+    markdown_description: bool,
     #[serde(rename = "dyn")]
     dynamic: u8,
     #[serde(flatten)]
@@ -218,6 +224,7 @@ impl Default for NormalDeckSchema11 {
                 today: Default::default(),
                 other: Default::default(),
                 dynamic: 0,
+                markdown_description: false,
             },
             conf: 1,
             extend_new: 0,
@@ -292,6 +299,7 @@ impl From<NormalDeckSchema11> for NormalDeck {
             config_id: deck.conf,
             extend_new: deck.extend_new.max(0) as u32,
             extend_review: deck.extend_rev.max(0) as u32,
+            markdown_description: deck.common.markdown_description,
             description: deck.common.desc,
         }
     }
@@ -364,6 +372,10 @@ impl From<Deck> for DeckCommonSchema11 {
                 1
             } else {
                 0
+            },
+            markdown_description: match &deck.kind {
+                DeckKind::Normal(n) => n.markdown_description,
+                DeckKind::Filtered(_) => false,
             },
             desc: match deck.kind {
                 DeckKind::Normal(n) => n.description,
