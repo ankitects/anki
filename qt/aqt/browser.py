@@ -674,6 +674,9 @@ class Browser(QMainWindow):
         self.form.searchEdit.lineEdit().setText(prompt)
         self.search()
 
+    def current_search(self) -> str:
+        return self.form.searchEdit.lineEdit().text()
+
     def search(self) -> None:
         """Search triggered programmatically. Caller must have saved note first."""
 
@@ -979,32 +982,10 @@ QTableView {{ gridline-color: {grid} }}
         if want_visible:
             self.sidebar.refresh()
 
-    # Sidebar helpers
-    ######################################################################
-
-    def update_search(self, *terms: Union[str, SearchTerm]) -> None:
-        """Modify the current search string based on modified keys, then refresh."""
-        try:
-            search = self.col.build_search_string(*terms)
-            mods = self.mw.app.keyboardModifiers()
-            if mods & Qt.AltModifier:
-                search = self.col.build_search_string(search, negate=True)
-            cur = str(self.form.searchEdit.lineEdit().text())
-            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                search = self.col.replace_search_term(cur, search)
-            elif mods & Qt.ControlModifier:
-                search = self.col.build_search_string(cur, search)
-            elif mods & Qt.ShiftModifier:
-                search = self.col.build_search_string(cur, search, match_any=True)
-        except InvalidInput as e:
-            show_invalid_search_error(e)
-        else:
-            self.form.searchEdit.lineEdit().setText(search)
-            self.onSearchActivated()
-
     # legacy
+
     def setFilter(self, *terms: str) -> None:
-        self.set_filter_then_search(*terms)
+        self.sidebar.update_search(*terms)
 
     # Info
     ######################################################################

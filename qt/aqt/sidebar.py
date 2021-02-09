@@ -364,6 +364,25 @@ class SidebarTreeView(QTreeView):
                 if item.is_expanded(searching):
                     self.setExpanded(idx, True)
 
+    def update_search(self, *terms: Union[str, SearchTerm]) -> None:
+        """Modify the current search string based on modified keys, then refresh."""
+        try:
+            search = self.col.build_search_string(*terms)
+            mods = self.mw.app.keyboardModifiers()
+            if mods & Qt.AltModifier:
+                search = self.col.build_search_string(search, negate=True)
+            current = self.browser.current_search()
+            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                search = self.col.replace_search_term(current, search)
+            elif mods & Qt.ControlModifier:
+                search = self.col.build_search_string(current, search)
+            elif mods & Qt.ShiftModifier:
+                search = self.col.build_search_string(current, search, match_any=True)
+        except InvalidInput as e:
+            show_invalid_search_error(e)
+        else:
+            self.browser.search_for(search)
+
     # Qt API
     ###########
 
@@ -544,7 +563,7 @@ class SidebarTreeView(QTreeView):
         return top
 
     def _filter_func(self, *terms: Union[str, SearchTerm]) -> Callable:
-        return lambda: self.browser.update_search(self.col.build_search_string(*terms))
+        return lambda: self.update_search(self.col.build_search_string(*terms))
 
     # Tree: Saved Searches
     ###########################
