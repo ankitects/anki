@@ -1,6 +1,6 @@
 import { nodeIsElement } from "./helpers";
 
-export let filterHTML = function (
+export function filterHTML(
     html: string,
     internal: boolean,
     extendedMode: boolean
@@ -21,7 +21,7 @@ export let filterHTML = function (
     }
     outHtml = outHtml.trim();
     return outHtml;
-};
+}
 
 let allowedTagsBasic = {};
 let allowedTagsExtended = {};
