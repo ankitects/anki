@@ -46,8 +46,14 @@ function gatherData(data: pb.BackendProto.GraphsOut, range: GraphRange): Hour[] 
     const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
-        if (review.reviewKind == ReviewKind.EARLY_REVIEW) {
-            continue;
+        switch (review.reviewKind) {
+            case ReviewKind.LEARNING:
+            case ReviewKind.REVIEW:
+            case ReviewKind.RELEARNING:
+                break; // from switch
+            case ReviewKind.EARLY_REVIEW:
+            case ReviewKind.MANUAL:
+                continue; // next loop iteration
         }
         if (cutoff && (review.id as number) < cutoff) {
             continue;
