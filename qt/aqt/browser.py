@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
@@ -222,7 +221,7 @@ class DataModel(QAbstractTableModel):
 
     def saveSelection(self) -> None:
         cards = self.browser.selectedCards()
-        self.selectedCards = dict([(id, True) for id in cards])
+        self.selectedCards = {id: True for id in cards}
         if getattr(self.browser, "card", None):
             self.focusedCard = self.browser.card.id
         else:

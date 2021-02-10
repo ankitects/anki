@@ -1,5 +1,4 @@
 # Copyright: Ankitects Pty Ltd and contributors
-# -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import aqt.editor
 from aqt import gui_hooks

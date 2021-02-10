@@ -1,5 +1,4 @@
 # Copyright: Ankitects Pty Ltd and contributors
-# -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import dataclasses
 import json
@@ -543,7 +542,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
             elif name == "setHtml":
                 self._setHtml(*args)
             else:
-                raise Exception("unknown action: {}".format(name))
+                raise Exception(f"unknown action: {name}")
 
     def _openLinksExternally(self, url: str) -> None:
         openLink(url)

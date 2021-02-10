@@ -1,5 +1,4 @@
 # Copyright: Ankitects Pty Ltd and contributors
-# -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
@@ -446,7 +445,7 @@ class AnkiQt(QMainWindow):
                 if getattr(w, "silentlyClose", None):
                     w.close()
                 else:
-                    print("Window should have been closed: {}".format(w))
+                    print(f"Window should have been closed: {w}")
 
     def unloadProfileAndExit(self) -> None:
         self.unloadProfile(self.cleanupAndExit)
@@ -1447,7 +1446,7 @@ title="%s" %s>%s</button>""" % (
         line = cursor.selectedText()
         pfx, sfx = "pp(", ")"
         if not line.startswith(pfx):
-            line = "{}{}{}".format(pfx, line, sfx)
+            line = f"{pfx}{line}{sfx}"
             cursor.insertText(line)
             cursor.setPosition(position + len(pfx))
             frm.text.setTextCursor(cursor)

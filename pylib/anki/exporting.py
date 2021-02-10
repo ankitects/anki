@@ -199,7 +199,7 @@ class AnkiExporter(Exporter):
         # create a new collection at the target
         try:
             os.unlink(path)
-        except (IOError, OSError):
+        except OSError:
             pass
         self.dst = Collection(path)
         self.src = self.col

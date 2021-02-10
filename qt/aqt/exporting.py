@@ -121,7 +121,7 @@ class ExportDialog(QDialog):
             deck_name = self.decks[self.frm.deck.currentIndex()]
             deck_name = re.sub('[\\\\/?<>:*|"^]', "_", deck_name)
 
-        filename = "{0}{1}".format(deck_name, self.exporter.ext)
+        filename = f"{deck_name}{self.exporter.ext}"
         if callable(self.exporter.key):
             key_str = self.exporter.key(self.col)
         else:
@@ -149,7 +149,7 @@ class ExportDialog(QDialog):
             try:
                 f = open(file, "wb")
                 f.close()
-            except (OSError, IOError) as e:
+            except OSError as e:
                 showWarning(tr(TR.EXPORTING_COULDNT_SAVE_FILE, val=str(e)))
             else:
                 os.unlink(file)

@@ -78,7 +78,7 @@ class HttpClient:
     def _agentName(self) -> str:
         from anki import version
 
-        return "Anki {}".format(version)
+        return f"Anki {version}"
 
 
 # allow user to accept invalid certs in work/school settings
