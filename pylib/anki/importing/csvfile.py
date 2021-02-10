@@ -78,7 +78,7 @@ class TextImporter(NoteImporter):
             return re.sub(r"^\#.*$", "__comment", s)
 
         self.data = [
-            sub(x) + "\n" for x in self.data.split("\n") if sub(x) != "__comment"
+            f"{sub(x)}\n" for x in self.data.split("\n") if sub(x) != "__comment"
         ]
         if self.data:
             if self.data[0].startswith("tags:"):

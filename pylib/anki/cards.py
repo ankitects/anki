@@ -123,7 +123,7 @@ class Card:
 
     # legacy
     def css(self) -> str:
-        return "<style>%s</style>" % self.render_output().css
+        return f"<style>{self.render_output().css}</style>"
 
     def render_output(
         self, reload: bool = False, browser: bool = False

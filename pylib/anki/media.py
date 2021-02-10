@@ -24,7 +24,7 @@ from anki.utils import intTime
 
 def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
     media_folder = re.sub(r"(?i)\.(anki2)$", ".media", col_path)
-    media_db = media_folder + ".db2"
+    media_db = f"{media_folder}.db2"
     return (media_folder, media_db)
 
 

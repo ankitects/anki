@@ -58,13 +58,13 @@ class TagManager:
     def byDeck(self, did: int, children: bool = False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
-            query = basequery + " AND c.did=?"
+            query = f"{basequery} AND c.did=?"
             res = self.col.db.list(query, did)
             return list(set(self.split(" ".join(res))))
         dids = [did]
         for name, id in self.col.decks.children(did):
             dids.append(id)
-        query = basequery + " AND c.did IN " + ids2str(dids)
+        query = f"{basequery} AND c.did IN {ids2str(dids)}"
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
@@ -127,7 +127,7 @@ class TagManager:
         "Join tags into a single string, with leading and trailing spaces."
         if not tags:
             return ""
-        return " %s " % " ".join(tags)
+        return f" {' '.join(tags)} "
 
     def addToStr(self, addtags: str, tags: str) -> str:
         "Add tags if they don't exist, and canonify."
@@ -142,7 +142,7 @@ class TagManager:
 
         def wildcard(pat: str, repl: str) -> Match:
             pat = re.escape(pat).replace("\\*", ".*")
-            return re.match("^" + pat + "$", repl, re.IGNORECASE)
+            return re.match(f"^{pat}$", repl, re.IGNORECASE)
 
         currentTags = self.split(tags)
         for tag in self.split(deltags):

@@ -141,7 +141,7 @@ def timestampID(db: DBProxy, table: str) -> int:
     # be careful not to create multiple objects without flushing them, or they
     # may share an ID.
     t = intTime(1000)
-    while db.scalar("select id from %s where id = ?" % table, t):
+    while db.scalar(f"select id from {table} where id = ?", t):
         t += 1
     return t
 
@@ -150,7 +150,7 @@ def maxID(db: DBProxy) -> int:
     "Return the first safe ID to use."
     now = intTime(1000)
     for tbl in "cards", "notes":
-        now = max(now, db.scalar("select max(id) from %s" % tbl) or 0)
+        now = max(now, db.scalar(f"select max(id) from {tbl}") or 0)
     return now + 1
 
 
@@ -326,14 +326,14 @@ def platDesc() -> str:
         try:
             system = platform.system()
             if isMac:
-                theos = "mac:%s" % (platform.mac_ver()[0])
+                theos = f"mac:{platform.mac_ver()[0]}"
             elif isWin:
-                theos = "win:%s" % (platform.win32_ver()[0])
+                theos = f"win:{platform.win32_ver()[0]}"
             elif system == "Linux":
                 import distro  # pytype: disable=import-error # pylint: disable=import-error
 
                 r = distro.linux_distribution(full_distribution_name=False)
-                theos = "lin:%s:%s" % (r[0], r[1])
+                theos = f"lin:{r[0]}:{r[1]}"
             else:
                 theos = system
             break
@@ -365,7 +365,7 @@ class TimedLog:
 def versionWithBuild() -> str:
     from anki.buildinfo import buildhash, version
 
-    return "%s (%s)" % (version, buildhash)
+    return f"{version} ({buildhash})"
 
 
 def pointVersion() -> int:

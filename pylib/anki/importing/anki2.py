@@ -265,7 +265,7 @@ class Anki2Importer(Importer):
             tmpname = "::".join(DeckManager.path(name)[1:])
             name = self.deckPrefix
             if tmpname:
-                name += "::" + tmpname
+                name += f"::{tmpname}"
         # manually create any parents so we can pull in descriptions
         head = ""
         for parent in DeckManager.immediate_parent_path(name):
@@ -441,7 +441,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
                 return match.group(0)
             # if model-local file exists from a previous import, use that
             name, ext = os.path.splitext(fname)
-            lname = "%s_%s%s" % (name, mid, ext)
+            lname = f"{name}_{mid}{ext}"
             if self.dst.media.have(lname):
                 return match.group(0).replace(fname, lname)
             # if missing or the same, pass unmodified

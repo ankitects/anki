@@ -103,4 +103,4 @@ class DeckRenameError(Exception):
         self.description = description
 
     def __str__(self) -> str:
-        return "Couldn't rename deck: " + self.description
+        return f"Couldn't rename deck: {self.description}"

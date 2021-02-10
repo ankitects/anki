@@ -229,7 +229,7 @@ class NoteImporter(Importer):
         else:
             unchanged = 0
         part3 = self.col.tr(TR.IMPORTING_NOTE_UNCHANGED, count=unchanged)
-        self.log.append("%s, %s, %s." % (part1, part2, part3))
+        self.log.append(f"{part1}, {part2}, {part3}.")
         self.log.extend(updateLog)
         self.total = len(self._ids)
 

@@ -118,7 +118,7 @@ class Scheduler:
             self._answerRevCard(card, ease)
             review_delta = +1
         else:
-            raise Exception("Invalid queue '%s'" % card)
+            raise Exception(f"Invalid queue '{card}'")
 
         self.update_stats(
             card.did,
@@ -1120,7 +1120,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         )
 
     def remFromDyn(self, cids: List[int]) -> None:
-        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
+        self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
 
     # Leeches
     ##########################################################################

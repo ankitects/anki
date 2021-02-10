@@ -329,7 +329,7 @@ class Collection:
     ##########################################################################
 
     def nextID(self, type: str, inc: bool = True) -> Any:
-        type = "next" + type.capitalize()
+        type = f"next{type.capitalize()}"
         id = self.conf.get(type, 1)
         if inc:
             self.conf[type] = id + 1
@@ -368,7 +368,7 @@ class Collection:
     def remove_notes_by_card(self, card_ids: List[int]) -> None:
         if hooks.notes_will_be_deleted.count():
             nids = self.db.list(
-                "select nid from cards where id in " + ids2str(card_ids)
+                f"select nid from cards where id in {ids2str(card_ids)}"
             )
             hooks.notes_will_be_deleted(self, nids)
         self._backend.remove_notes(note_ids=[], card_ids=card_ids)
@@ -503,7 +503,7 @@ class Collection:
             return fields[mid]
 
         for nid, mid, flds in self.db.all(
-            "select id, mid, flds from notes where id in " + ids2str(nids)
+            f"select id, mid, flds from notes where id in {ids2str(nids)}"
         ):
             flds = splitFields(flds)
             ord = ordForMid(mid)
@@ -794,7 +794,7 @@ table.review-log {{ {revlog_style} }}
             fn,
             ", ".join([customRepr(x) for x in args]),
         )
-        self._logHnd.write(buf + "\n")
+        self._logHnd.write(f"{buf}\n")
         if devMode:
             print(buf)
 
@@ -803,7 +803,7 @@ table.review-log {{ {revlog_style} }}
             return
         lpath = re.sub(r"\.anki2$", ".log", self.path)
         if os.path.exists(lpath) and os.path.getsize(lpath) > 10 * 1024 * 1024:
-            lpath2 = lpath + ".old"
+            lpath2 = f"{lpath}.old"
             if os.path.exists(lpath2):
                 os.unlink(lpath2)
             os.rename(lpath, lpath2)
