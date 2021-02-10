@@ -440,7 +440,7 @@ and notes.mid = ? and cards.ord = ?""",
         d = []
         nfields = len(newModel["flds"])
         for (nid, flds) in self.col.db.execute(
-            "select id, flds from notes where id in " + ids2str(nids)
+            f"select id, flds from notes where id in {ids2str(nids)}"
         ):
             newflds = {}
             flds = splitFields(flds)
@@ -473,7 +473,7 @@ and notes.mid = ? and cards.ord = ?""",
         d = []
         deleted = []
         for (cid, ord) in self.col.db.execute(
-            "select id, ord from cards where nid in " + ids2str(nids)
+            f"select id, ord from cards where nid in {ids2str(nids)}"
         ):
             # if the src model is a cloze, we ignore the map, as the gui
             # doesn't currently support mapping them

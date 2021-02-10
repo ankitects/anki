@@ -385,7 +385,7 @@ class DeckManager:
 
     def setDeck(self, cids: List[int], did: int) -> None:
         self.col.db.execute(
-            "update cards set did=?,usn=?,mod=? where id in " + ids2str(cids),
+            f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",
             did,
             self.col.usn(),
             intTime(),
@@ -397,7 +397,7 @@ class DeckManager:
         dids = [did]
         for name, id in self.children(did):
             dids.append(id)
-        return self.col.db.list("select id from cards where did in " + ids2str(dids))
+        return self.col.db.list(f"select id from cards where did in {ids2str(dids)}")
 
     def for_card_ids(self, cids: List[int]) -> List[int]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
@@ -465,12 +465,12 @@ class DeckManager:
         name = self.get(did)["name"]
         actv = []
         for g in self.all_names_and_ids():
-            if g.name.startswith(name + "::"):
+            if g.name.startswith(f"{name}::"):
                 actv.append((g.name, g.id))
         return actv
 
     def child_ids(self, parent_name: str) -> Iterable[int]:
-        prefix = parent_name + "::"
+        prefix = f"{parent_name}::"
         return (d.id for d in self.all_names_and_ids() if d.name.startswith(prefix))
 
     def deck_and_child_ids(self, deck_id: int) -> List[int]:
@@ -519,7 +519,7 @@ class DeckManager:
             if not parents_names:
                 parents_names.append(part)
             else:
-                parents_names.append(parents_names[-1] + "::" + part)
+                parents_names.append(f"{parents_names[-1]}::{part}")
         parents: List[Deck] = []
         # convert to objects
         for parent_name in parents_names:

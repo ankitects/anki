@@ -111,7 +111,7 @@ def _save_latex_image(
     svg: bool,
 ) -> Optional[str]:
     # add header/footer
-    latex = header + "\n" + extracted.latex_body + "\n" + footer
+    latex = f"{header}\n{extracted.latex_body}\n{footer}"
     # it's only really secure if run in a jail, but these are the most common
     tmplatex = latex.replace("\\includegraphics", "")
     for bad in (
@@ -127,7 +127,7 @@ def _save_latex_image(
         "\\shipout",
     ):
         # don't mind if the sequence is only part of a command
-        bad_re = "\\" + bad + "[^a-zA-Z]"
+        bad_re = f"\\{bad}[^a-zA-Z]"
         if re.search(bad_re, tmplatex):
             return col.tr(TR.MEDIA_FOR_SECURITY_REASONS_IS_NOT, val=bad)
 
@@ -146,7 +146,7 @@ def _save_latex_image(
     texfile.write(latex)
     texfile.close()
     oldcwd = os.getcwd()
-    png_or_svg = namedtmp("tmp.%s" % ext)
+    png_or_svg = namedtmp(f"tmp.{ext}")
     try:
         # generate png/svg
         os.chdir(tmpdir())
@@ -165,14 +165,14 @@ def _save_latex_image(
 
 
 def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
-    msg = col.tr(TR.MEDIA_ERROR_EXECUTING, val=type) + "<br>"
-    msg += col.tr(TR.MEDIA_GENERATED_FILE, val=texpath) + "<br>"
+    msg = f"{col.tr(TR.MEDIA_ERROR_EXECUTING, val=type)}<br>"
+    msg += f"{col.tr(TR.MEDIA_GENERATED_FILE, val=texpath)}<br>"
     try:
         with open(namedtmp("latex_log.txt", rm=False)) as f:
             log = f.read()
         if not log:
             raise Exception()
-        msg += "<small><pre>" + html.escape(log) + "</pre></small>"
+        msg += f"<small><pre>{html.escape(log)}</pre></small>"
     except:
         msg += col.tr(TR.MEDIA_HAVE_YOU_INSTALLED_LATEX_AND_DVIPNGDVISVGM)
     return msg

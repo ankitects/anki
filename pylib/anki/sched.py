@@ -77,7 +77,7 @@ class Scheduler(V2):
             self._answerRevCard(card, ease)
             review_delta = +1
         else:
-            raise Exception("Invalid queue '%s'" % card)
+            raise Exception(f"Invalid queue '{card}'")
 
         self.update_stats(
             card.did,
@@ -374,7 +374,7 @@ limit %d"""
     def removeLrn(self, ids: Optional[List[int]] = None) -> None:
         "Remove cards from the learning queues."
         if ids:
-            extra = " and id in " + ids2str(ids)
+            extra = f" and id in {ids2str(ids)}"
         else:
             # benchmarks indicate it's about 10x faster to search all decks
             # with the index than scan the table

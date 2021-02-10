@@ -25,7 +25,7 @@ class AnkiPackageImporter(Anki2Importer):
         except KeyError:
             suffix = ".anki2"
 
-        col = z.read("collection" + suffix)
+        col = z.read(f"collection{suffix}")
         colpath = tmpfile(suffix=".anki2")
         with open(colpath, "wb") as f:
             f.write(col)
