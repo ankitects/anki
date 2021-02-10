@@ -570,7 +570,9 @@ if isWin:
                 ret.result()
             except RuntimeError:
                 # fixme: i18n if this turns out to happen frequently
-                tooltip("TTS failed to play. Please check available languages in system settings.")
+                tooltip(
+                    "TTS failed to play. Please check available languages in system settings."
+                )
                 return
 
             # inject file into the top of the audio queue

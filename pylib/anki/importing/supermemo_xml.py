@@ -258,16 +258,11 @@ class SupermemoXmlImporter(NoteImporter):
             #  clean whitespaces
             #  set Capital letters for first char of the word
             tmp = list(
-                set(
-                    [
-                        re.sub(r"(\[[0-9]+\])", " ", i).replace("_", " ")
-                        for i in item.lTitle
-                    ]
-                )
+                {re.sub(r"(\[[0-9]+\])", " ", i).replace("_", " ") for i in item.lTitle}
             )
-            tmp = list(set([re.sub(r"(\W)", " ", i) for i in tmp]))
-            tmp = list(set([re.sub("^[0-9 ]+$", "", i) for i in tmp]))
-            tmp = list(set([capwords(i).replace(" ", "") for i in tmp]))
+            tmp = list({re.sub(r"(\W)", " ", i) for i in tmp})
+            tmp = list({re.sub("^[0-9 ]+$", "", i) for i in tmp})
+            tmp = list({capwords(i).replace(" ", "") for i in tmp})
             tags = [j[0].lower() + j[1:] for j in tmp if j.strip() != ""]
 
             note.tags += tags
@@ -310,13 +305,13 @@ class SupermemoXmlImporter(NoteImporter):
 
         try:
             return urllib.request.urlopen(source)
-        except (IOError, OSError):
+        except OSError:
             pass
 
         # try to open with native open function (if source is pathname)
         try:
             return open(source)
-        except (IOError, OSError):
+        except OSError:
             pass
 
         # treat source as string

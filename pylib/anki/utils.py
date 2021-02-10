@@ -243,7 +243,7 @@ def namedtmp(name: str, rm: bool = True) -> str:
     if rm:
         try:
             os.unlink(path)
-        except (OSError, IOError):
+        except OSError:
             pass
     return path
 

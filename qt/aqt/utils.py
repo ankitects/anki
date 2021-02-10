@@ -1,5 +1,4 @@
 # Copyright: Ankitects Pty Ltd and contributors
-# -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
@@ -531,7 +530,7 @@ def getSaveFile(
         parent,
         title,
         path,
-        "{0} (*{1})".format(key, ext),
+        f"{key} (*{ext})",
         options=QFileDialog.DontConfirmOverwrite,
     )[0]
     if file:

@@ -1,5 +1,4 @@
 # Copyright: Ankitects Pty Ltd and contributors
-# -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
@@ -819,7 +818,7 @@ class AddonsDialog(QDialog):
         if not addon:
             return
         if re.match(r"^\d+$", addon):
-            openLink(aqt.appShared + "info/{}".format(addon))
+            openLink(aqt.appShared + f"info/{addon}")
         else:
             showWarning(tr(TR.ADDONS_ADDON_WAS_NOT_DOWNLOADED_FROM_ANKIWEB))
 
@@ -865,7 +864,7 @@ class AddonsDialog(QDialog):
 
     def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
-            key = tr(TR.ADDONS_PACKAGED_ANKI_ADDON) + " (*{})".format(self.mgr.ext)
+            key = tr(TR.ADDONS_PACKAGED_ANKI_ADDON) + f" (*{self.mgr.ext})"
             paths_ = getFile(
                 self, tr(TR.ADDONS_INSTALL_ADDONS), None, key, key="addons", multi=True
             )
@@ -1158,9 +1157,7 @@ def _fetch_update_info_batch(
     if resp.status_code == 200:
         return resp.json()
     else:
-        raise Exception(
-            "Unexpected response code from AnkiWeb: {}".format(resp.status_code)
-        )
+        raise Exception(f"Unexpected response code from AnkiWeb: {resp.status_code}")
 
 
 def check_and_prompt_for_updates(

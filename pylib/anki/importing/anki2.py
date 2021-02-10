@@ -409,7 +409,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
         try:
             with open(path, "rb") as f:
                 return f.read()
-        except (IOError, OSError):
+        except OSError:
             return b""
 
     def _srcMediaData(self, fname: str) -> bytes:
@@ -425,7 +425,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
         try:
             with open(path, "wb") as f:
                 f.write(data)
-        except (OSError, IOError):
+        except OSError:
             # the user likely used subdirectories
             pass
 

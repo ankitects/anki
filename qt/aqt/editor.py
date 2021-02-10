@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import base64
@@ -310,8 +309,8 @@ class Editor:
             elif os.path.isabs(icon):
                 iconstr = self.resourceToData(icon)
             else:
-                iconstr = "/_anki/imgs/{}.png".format(icon)
-            imgelm = """<img class=topbut src="{}">""".format(iconstr)
+                iconstr = f"/_anki/imgs/{icon}.png"
+            imgelm = f"""<img class=topbut src="{iconstr}">"""
         else:
             imgelm = ""
         if label or not imgelm:
@@ -319,7 +318,7 @@ class Editor:
         else:
             labelelm = ""
         if id:
-            idstr = "id={}".format(id)
+            idstr = f"id={id}"
         else:
             idstr = ""
         if toggleable:

@@ -71,7 +71,7 @@ class TextImporter(NoteImporter):
 
     def openFile(self) -> None:
         self.dialect = None
-        self.fileobj = open(self.file, "r", encoding="utf-8-sig")
+        self.fileobj = open(self.file, encoding="utf-8-sig")
         self.data = self.fileobj.read()
 
         def sub(s):
