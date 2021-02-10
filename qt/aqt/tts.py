@@ -41,6 +41,7 @@ from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, isWin, tmpdir
 from aqt import gui_hooks
 from aqt.sound import OnDoneCallback, SimpleProcessPlayer
+from aqt.utils import tooltip
 
 
 @dataclass
@@ -565,7 +566,12 @@ if isWin:
             asyncio.run(self.speakText(tag, voice.id))
 
         def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
-            ret.result()
+            try:
+                ret.result()
+            except RuntimeError:
+                # fixme: i18n if this turns out to happen frequently
+                tooltip("TTS failed to play. Please check available languages in system settings.")
+                return
 
             # inject file into the top of the audio queue
             from aqt.sound import av_player
