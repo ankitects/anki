@@ -3,11 +3,9 @@
 
 use crate::{
     decks::DeckID as DeckIDType,
-    err::Result,
     notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
+    search::parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
 };
-use itertools::Itertools;
 use std::mem;
 
 #[derive(Debug, PartialEq)]
@@ -16,59 +14,33 @@ pub enum BoolSeparator {
     Or,
 }
 
-/// Take an Anki-style search string and convert it into an equivalent
-/// search string with normalized syntax.
-pub fn normalize_search(input: &str) -> Result<String> {
-    Ok(write_nodes(&parse(input)?))
+/// Take an existing search, and AND/OR it with the provided additional search.
+/// This is required because when the user has "a AND b" in an existing search and
+/// wants to add "c", we want "a AND b AND c", not "(a AND b) AND C", which is what we'd
+/// get if we tried to join the existing search string with a new SearchTerm on the
+/// client side.
+pub fn concatenate_searches(
+    sep: BoolSeparator,
+    mut existing: Vec<Node>,
+    additional: Node,
+) -> String {
+    if !existing.is_empty() {
+        existing.push(match sep {
+            BoolSeparator::And => Node::And,
+            BoolSeparator::Or => Node::Or,
+        });
+    }
+    existing.push(additional);
+    write_nodes(&existing)
 }
 
-/// Take an Anki-style search string and return the negated counterpart.
-/// Empty searches (whole collection) remain unchanged.
-pub fn negate_search(input: &str) -> Result<String> {
-    let mut nodes = parse(input)?;
-    use Node::*;
-    Ok(if nodes.len() == 1 {
-        let node = nodes.remove(0);
-        match node {
-            Not(n) => write_node(&n),
-            Search(SearchNode::WholeCollection) => "".to_string(),
-            Group(_) | Search(_) => write_node(&Not(Box::new(node))),
-            _ => unreachable!(),
-        }
-    } else {
-        write_node(&Not(Box::new(Group(nodes))))
-    })
-}
-
-/// Take arbitrary Anki-style search strings and return their concatenation where they
-/// are separated by the provided boolean operator.
-/// Empty searches (whole collection) are left out.
-pub fn concatenate_searches(sep: BoolSeparator, searches: &[String]) -> Result<String> {
-    let bool_node = vec![match sep {
-        BoolSeparator::And => Node::And,
-        BoolSeparator::Or => Node::Or,
-    }];
-    Ok(write_nodes(
-        searches
-            .iter()
-            .map(|s| parse(s))
-            .collect::<Result<Vec<Vec<Node>>>>()?
-            .iter()
-            .filter(|v| v[0] != Node::Search(SearchNode::WholeCollection))
-            .intersperse(&&bool_node)
-            .flat_map(|v| v.iter()),
-    ))
-}
-
-/// Take two Anki-style search strings. If the second one evaluates to a single search
-/// node, replace with it all search terms of the same kind in the first search.
-/// Then return the possibly modified first search.
-pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
-    let mut nodes = parse(search)?;
-    let new = parse(replacement)?;
-    if let [Node::Search(search_node)] = &new[..] {
-        fn update_node_vec<'a>(old_nodes: &mut [Node<'a>], new_node: &SearchNode<'a>) {
-            fn update_node<'a>(old_node: &mut Node<'a>, new_node: &SearchNode<'a>) {
+/// Given an existing parsed search, if the provided `replacement` is a single search node such
+/// as a deck:xxx search, replace any instances of that search in `existing` with the new value.
+/// Then return the possibly modified first search as a string.
+pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String {
+    if let Node::Search(search_node) = replacement {
+        fn update_node_vec(old_nodes: &mut [Node], new_node: &SearchNode) {
+            fn update_node(old_node: &mut Node, new_node: &SearchNode) {
                 match old_node {
                     Node::Not(n) => update_node(n, new_node),
                     Node::Group(ns) => update_node_vec(ns, new_node),
@@ -82,16 +54,13 @@ pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
             }
             old_nodes.iter_mut().for_each(|n| update_node(n, new_node));
         }
-        update_node_vec(&mut nodes, search_node);
+        update_node_vec(&mut existing, &search_node);
     }
-    Ok(write_nodes(&nodes))
+    write_nodes(&existing)
 }
 
-pub fn write_nodes<'a, I>(nodes: I) -> String
-where
-    I: IntoIterator<Item = &'a Node<'a>>,
-{
-    nodes.into_iter().map(|node| write_node(node)).collect()
+pub fn write_nodes(nodes: &[Node]) -> String {
+    nodes.iter().map(|node| write_node(node)).collect()
 }
 
 fn write_node(node: &Node) -> String {
@@ -125,7 +94,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NoteIDs(s) => format!("\"nid:{}\"", s),
         CardIDs(s) => format!("\"cid:{}\"", s),
         Property { operator, kind } => write_property(operator, kind),
-        WholeCollection => "".to_string(),
+        WholeCollection => "\"deck:*\"".to_string(),
         Regex(s) => quote(&format!("re:{}", s)),
         NoCombining(s) => quote(&format!("nc:{}", s)),
         WordBoundary(s) => quote(&format!("w:{}", s)),
@@ -206,6 +175,14 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::err::Result;
+    use crate::search::parse_search as parse;
+
+    /// Take an Anki-style search string and convert it into an equivalent
+    /// search string with normalized syntax.
+    fn normalize_search(input: &str) -> Result<String> {
+        Ok(write_nodes(&parse(input)?))
+    }
 
     #[test]
     fn normalizing() -> Result<()> {
@@ -225,35 +202,39 @@ mod test {
     }
 
     #[test]
-    fn negating() -> Result<()> {
-        assert_eq!(r#"-("foo" AND "bar")"#, negate_search("foo bar").unwrap());
-        assert_eq!(r#""foo""#, negate_search("-foo").unwrap());
-        assert_eq!(r#"("foo")"#, negate_search("-(foo)").unwrap());
-        assert_eq!("", negate_search("").unwrap());
-
-        Ok(())
-    }
-
-    #[test]
     fn concatenating() -> Result<()> {
         assert_eq!(
+            concatenate_searches(
+                BoolSeparator::And,
+                vec![Node::Search(SearchNode::UnqualifiedText("foo".to_string()))],
+                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
+            ),
             r#""foo" AND "bar""#,
-            concatenate_searches(BoolSeparator::And, &["foo".to_string(), "bar".to_string()])
-                .unwrap()
         );
         assert_eq!(
-            r#""foo" OR "bar""#,
             concatenate_searches(
                 BoolSeparator::Or,
-                &["foo".to_string(), "".to_string(), "bar".to_string()]
-            )
-            .unwrap()
+                vec![Node::Search(SearchNode::UnqualifiedText("foo".to_string()))],
+                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
+            ),
+            r#""foo" OR "bar""#,
         );
         assert_eq!(
-            "",
-            concatenate_searches(BoolSeparator::Or, &["".to_string()]).unwrap()
+            concatenate_searches(
+                BoolSeparator::Or,
+                vec![Node::Search(SearchNode::WholeCollection)],
+                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
+            ),
+            r#""deck:*" OR "bar""#,
         );
-        assert_eq!("", concatenate_searches(BoolSeparator::Or, &[]).unwrap());
+        assert_eq!(
+            concatenate_searches(
+                BoolSeparator::Or,
+                vec![],
+                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
+            ),
+            r#""bar""#,
+        );
 
         Ok(())
     }
@@ -261,24 +242,30 @@ mod test {
     #[test]
     fn replacing() -> Result<()> {
         assert_eq!(
+            replace_search_node(parse("deck:baz bar")?, parse("deck:foo")?.pop().unwrap()),
             r#""deck:foo" AND "bar""#,
-            replace_search_term("deck:baz bar", "deck:foo").unwrap()
         );
         assert_eq!(
+            replace_search_node(
+                parse("tag:foo Or tag:bar")?,
+                parse("tag:baz")?.pop().unwrap()
+            ),
             r#""tag:baz" OR "tag:baz""#,
-            replace_search_term("tag:foo Or tag:bar", "tag:baz").unwrap()
         );
         assert_eq!(
+            replace_search_node(
+                parse("foo or (-foo tag:baz)")?,
+                parse("bar")?.pop().unwrap()
+            ),
             r#""bar" OR (-"bar" AND "tag:baz")"#,
-            replace_search_term("foo or (-foo tag:baz)", "bar").unwrap()
         );
         assert_eq!(
-            r#""is:due""#,
-            replace_search_term("is:due", "-is:new").unwrap()
+            replace_search_node(parse("is:due")?, parse("-is:new")?.pop().unwrap()),
+            r#""is:due""#
         );
         assert_eq!(
-            r#""added:1""#,
-            replace_search_term("added:1", "is:due").unwrap()
+            replace_search_node(parse("added:1")?, parse("is:due")?.pop().unwrap()),
+            r#""added:1""#
         );
 
         Ok(())

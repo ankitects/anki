@@ -3,7 +3,7 @@
 from typing import Callable, List, Optional
 
 import aqt
-from anki.collection import SearchTerm
+from anki.collection import SearchNode
 from anki.decks import Deck, DeckRenameError
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
@@ -111,14 +111,14 @@ class DeckConf(QDialog):
     def set_default_searches(self, deck_name: str) -> None:
         self.form.search.setText(
             self.mw.col.build_search_string(
-                SearchTerm(deck=deck_name),
-                SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
+                SearchNode(deck=deck_name),
+                SearchNode(card_state=SearchNode.CARD_STATE_DUE),
             )
         )
         self.form.search_2.setText(
             self.mw.col.build_search_string(
-                SearchTerm(deck=deck_name),
-                SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
+                SearchNode(deck=deck_name),
+                SearchNode(card_state=SearchNode.CARD_STATE_NEW),
             )
         )
 

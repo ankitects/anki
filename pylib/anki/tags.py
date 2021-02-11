@@ -90,7 +90,7 @@ class TagManager:
 
     def rename(self, old: str, new: str) -> int:
         "Rename provided tag, returning number of changed notes."
-        nids = self.col.find_notes(anki.collection.SearchTerm(tag=old))
+        nids = self.col.find_notes(anki.collection.SearchNode(tag=old))
         if not nids:
             return 0
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)

@@ -51,11 +51,9 @@ fn want_release_gil(method: u32) -> bool {
                 | BackendMethod::LatestProgress
                 | BackendMethod::SetWantsAbort
                 | BackendMethod::I18nResources
-                | BackendMethod::NormalizeSearch
-                | BackendMethod::NegateSearch
-                | BackendMethod::ConcatenateSearches
-                | BackendMethod::ReplaceSearchTerm
-                | BackendMethod::FilterToSearch
+                | BackendMethod::JoinSearchNodes
+                | BackendMethod::ReplaceSearchNode
+                | BackendMethod::BuildSearchString
         )
     } else {
         false
