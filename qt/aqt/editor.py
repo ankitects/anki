@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 import aqt
 import aqt.sound
 from anki.cards import Card
-from anki.collection import SearchTerm
+from anki.collection import SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
@@ -546,8 +546,8 @@ class Editor:
             "Browser",
             self.mw,
             search=(
-                SearchTerm(
-                    dupe=SearchTerm.Dupe(
+                SearchNode(
+                    dupe=SearchNode.Dupe(
                         notetype_id=self.note.model()["id"],
                         first_field=self.note.fields[0],
                     )

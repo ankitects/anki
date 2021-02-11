@@ -37,7 +37,7 @@ pub fn concatenate_searches(
 /// Given an existing parsed search, if the provided `replacement` is a single search node such
 /// as a deck:xxx search, replace any instances of that search in `existing` with the new value.
 /// Then return the possibly modified first search as a string.
-pub fn replace_search_term(mut existing: Vec<Node>, replacement: Node) -> String {
+pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String {
     if let Node::Search(search_node) = replacement {
         fn update_node_vec(old_nodes: &mut [Node], new_node: &SearchNode) {
             fn update_node(old_node: &mut Node, new_node: &SearchNode) {
@@ -242,29 +242,29 @@ mod test {
     #[test]
     fn replacing() -> Result<()> {
         assert_eq!(
-            replace_search_term(parse("deck:baz bar")?, parse("deck:foo")?.pop().unwrap()),
+            replace_search_node(parse("deck:baz bar")?, parse("deck:foo")?.pop().unwrap()),
             r#""deck:foo" AND "bar""#,
         );
         assert_eq!(
-            replace_search_term(
+            replace_search_node(
                 parse("tag:foo Or tag:bar")?,
                 parse("tag:baz")?.pop().unwrap()
             ),
             r#""tag:baz" OR "tag:baz""#,
         );
         assert_eq!(
-            replace_search_term(
+            replace_search_node(
                 parse("foo or (-foo tag:baz)")?,
                 parse("bar")?.pop().unwrap()
             ),
             r#""bar" OR (-"bar" AND "tag:baz")"#,
         );
         assert_eq!(
-            replace_search_term(parse("is:due")?, parse("-is:new")?.pop().unwrap()),
+            replace_search_node(parse("is:due")?, parse("-is:new")?.pop().unwrap()),
             r#""is:due""#
         );
         assert_eq!(
-            replace_search_term(parse("added:1")?, parse("is:due")?.pop().unwrap()),
+            replace_search_node(parse("added:1")?, parse("is:due")?.pop().unwrap()),
             r#""added:1""#
         );
 

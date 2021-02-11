@@ -8,7 +8,7 @@ from enum import Enum, auto
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
-from anki.collection import Config, SearchTerm
+from anki.collection import Config, SearchNode
 from anki.decks import DeckTreeNode
 from anki.errors import DeckRenameError, InvalidInput
 from anki.tags import TagTreeNode
@@ -391,20 +391,20 @@ class SidebarTreeView(QTreeView):
                 if item.is_expanded(searching):
                     self.setExpanded(idx, True)
 
-    def update_search(self, *terms: Union[str, SearchTerm]) -> None:
+    def update_search(self, *terms: Union[str, SearchNode]) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
         mods = self.mw.app.keyboardModifiers()
-        previous = SearchTerm(unparsed_search=self.browser.current_search())
-        current = self.mw.col.group_search_terms(*terms)
+        previous = SearchNode(parsable_text=self.browser.current_search())
+        current = self.mw.col.group_searches(*terms)
 
         # if Alt pressed, invert
         if mods & Qt.AltModifier:
-            current = SearchTerm(negated=current)
+            current = SearchNode(negated=current)
 
         try:
             if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
                 # If Ctrl+Shift, replace searches nodes of the same type.
-                search = self.col.replace_search_term(previous, current)
+                search = self.col.replace_in_search_node(previous, current)
             elif mods & Qt.ControlModifier:
                 # If Ctrl, AND with previous
                 search = self.col.join_searches(previous, current, "AND")
@@ -597,7 +597,7 @@ class SidebarTreeView(QTreeView):
 
         return top
 
-    def _filter_func(self, *terms: Union[str, SearchTerm]) -> Callable:
+    def _filter_func(self, *terms: Union[str, SearchNode]) -> Callable:
         return lambda: self.update_search(*terms)
 
     # Tree: Saved Searches
@@ -648,33 +648,33 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_DUE_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchTerm(due_on_day=0)),
+            on_click=search(SearchNode(due_on_day=0)),
         )
         root.add_simple(
             name=TR.BROWSING_ADDED_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchTerm(added_in_days=1)),
+            on_click=search(SearchNode(added_in_days=1)),
         )
         root.add_simple(
             name=TR.BROWSING_EDITED_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchTerm(edited_in_days=1)),
+            on_click=search(SearchNode(edited_in_days=1)),
         )
         root.add_simple(
             name=TR.BROWSING_STUDIED_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchTerm(rated=SearchTerm.Rated(days=1))),
+            on_click=search(SearchNode(rated=SearchNode.Rated(days=1))),
         )
         root.add_simple(
             name=TR.BROWSING_AGAIN_TODAY,
             icon=icon,
             type=type,
             on_click=search(
-                SearchTerm(
-                    rated=SearchTerm.Rated(days=1, rating=SearchTerm.RATING_AGAIN)
+                SearchNode(
+                    rated=SearchNode.Rated(days=1, rating=SearchNode.RATING_AGAIN)
                 )
             ),
         )
@@ -683,8 +683,8 @@ class SidebarTreeView(QTreeView):
             icon=icon,
             type=type,
             on_click=search(
-                SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
-                SearchTerm(negated=SearchTerm(due_on_day=0)),
+                SearchNode(card_state=SearchNode.CARD_STATE_DUE),
+                SearchNode(negated=SearchNode(due_on_day=0)),
             ),
         )
 
@@ -707,32 +707,32 @@ class SidebarTreeView(QTreeView):
             TR.ACTIONS_NEW,
             icon=icon.with_color(colors.NEW_COUNT),
             type=type,
-            on_click=search(SearchTerm(card_state=SearchTerm.CARD_STATE_NEW)),
+            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_NEW)),
         )
 
         root.add_simple(
             name=TR.SCHEDULING_LEARNING,
             icon=icon.with_color(colors.LEARN_COUNT),
             type=type,
-            on_click=search(SearchTerm(card_state=SearchTerm.CARD_STATE_LEARN)),
+            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_LEARN)),
         )
         root.add_simple(
             name=TR.SCHEDULING_REVIEW,
             icon=icon.with_color(colors.REVIEW_COUNT),
             type=type,
-            on_click=search(SearchTerm(card_state=SearchTerm.CARD_STATE_REVIEW)),
+            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_REVIEW)),
         )
         root.add_simple(
             name=TR.BROWSING_SUSPENDED,
             icon=icon.with_color(colors.SUSPENDED_FG),
             type=type,
-            on_click=search(SearchTerm(card_state=SearchTerm.CARD_STATE_SUSPENDED)),
+            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED)),
         )
         root.add_simple(
             name=TR.BROWSING_BURIED,
             icon=icon.with_color(colors.BURIED_FG),
             type=type,
-            on_click=search(SearchTerm(card_state=SearchTerm.CARD_STATE_BURIED)),
+            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_BURIED)),
         )
 
     # Tree: Flags
@@ -748,38 +748,38 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
         )
-        root.on_click = search(SearchTerm(flag=SearchTerm.FLAG_ANY))
+        root.on_click = search(SearchNode(flag=SearchNode.FLAG_ANY))
 
         type = SidebarItemType.FLAG
         root.add_simple(
             TR.ACTIONS_RED_FLAG,
             icon=icon.with_color(colors.FLAG1_FG),
             type=type,
-            on_click=search(SearchTerm(flag=SearchTerm.FLAG_RED)),
+            on_click=search(SearchNode(flag=SearchNode.FLAG_RED)),
         )
         root.add_simple(
             TR.ACTIONS_ORANGE_FLAG,
             icon=icon.with_color(colors.FLAG2_FG),
             type=type,
-            on_click=search(SearchTerm(flag=SearchTerm.FLAG_ORANGE)),
+            on_click=search(SearchNode(flag=SearchNode.FLAG_ORANGE)),
         )
         root.add_simple(
             TR.ACTIONS_GREEN_FLAG,
             icon=icon.with_color(colors.FLAG3_FG),
             type=type,
-            on_click=search(SearchTerm(flag=SearchTerm.FLAG_GREEN)),
+            on_click=search(SearchNode(flag=SearchNode.FLAG_GREEN)),
         )
         root.add_simple(
             TR.ACTIONS_BLUE_FLAG,
             icon=icon.with_color(colors.FLAG4_FG),
             type=type,
-            on_click=search(SearchTerm(flag=SearchTerm.FLAG_BLUE)),
+            on_click=search(SearchNode(flag=SearchNode.FLAG_BLUE)),
         )
         root.add_simple(
             TR.BROWSING_NO_FLAG,
             icon=icon.with_color(colors.DISABLED),
             type=type,
-            on_click=search(SearchTerm(flag=SearchTerm.FLAG_NONE)),
+            on_click=search(SearchNode(flag=SearchNode.FLAG_NONE)),
         )
 
     # Tree: Tags
@@ -802,7 +802,7 @@ class SidebarTreeView(QTreeView):
                 item = SidebarItem(
                     node.name,
                     icon,
-                    self._filter_func(SearchTerm(tag=head + node.name)),
+                    self._filter_func(SearchNode(tag=head + node.name)),
                     toggle_expand(),
                     node.expanded,
                     item_type=SidebarItemType.TAG,
@@ -820,12 +820,12 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
-        root.on_click = self._filter_func(SearchTerm(negated=SearchTerm(tag="none")))
+        root.on_click = self._filter_func(SearchNode(negated=SearchNode(tag="none")))
         root.add_simple(
             name=tr(TR.BROWSING_SIDEBAR_UNTAGGED),
             icon=icon,
             type=SidebarItemType.TAG_NONE,
-            on_click=self._filter_func(SearchTerm(tag="none")),
+            on_click=self._filter_func(SearchNode(tag="none")),
         )
 
         render(root, tree.children)
@@ -848,7 +848,7 @@ class SidebarTreeView(QTreeView):
                 item = SidebarItem(
                     node.name,
                     icon,
-                    self._filter_func(SearchTerm(deck=head + node.name)),
+                    self._filter_func(SearchNode(deck=head + node.name)),
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
@@ -867,12 +867,12 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
-        root.on_click = self._filter_func(SearchTerm(deck="*"))
+        root.on_click = self._filter_func(SearchNode(deck="*"))
         current = root.add_simple(
             name=tr(TR.BROWSING_CURRENT_DECK),
             icon=icon,
             type=SidebarItemType.DECK,
-            on_click=self._filter_func(SearchTerm(deck="current")),
+            on_click=self._filter_func(SearchNode(deck="current")),
         )
         current.id = self.mw.col.decks.selected()
 
@@ -895,7 +895,7 @@ class SidebarTreeView(QTreeView):
             item = SidebarItem(
                 nt["name"],
                 icon,
-                self._filter_func(SearchTerm(note=nt["name"])),
+                self._filter_func(SearchNode(note=nt["name"])),
                 item_type=SidebarItemType.NOTETYPE,
                 id=nt["id"],
             )
@@ -905,7 +905,7 @@ class SidebarTreeView(QTreeView):
                     tmpl["name"],
                     icon,
                     self._filter_func(
-                        SearchTerm(note=nt["name"]), SearchTerm(template=c)
+                        SearchNode(note=nt["name"]), SearchNode(template=c)
                     ),
                     item_type=SidebarItemType.NOTETYPE_TEMPLATE,
                     full_name=f"{nt['name']}::{tmpl['name']}",

@@ -90,11 +90,11 @@ service BackendService {
 
   // searching
 
-  rpc FilterToSearch(SearchTerm) returns (String);
+  rpc BuildSearchString(SearchNode) returns (String);
   rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
-  rpc ConcatenateSearches(ConcatenateSearchesIn) returns (String);
-  rpc ReplaceSearchTerm(ReplaceSearchTermIn) returns (String);
+  rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
+  rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
 
   // scheduling
@@ -771,7 +771,7 @@ message SearchNotesOut {
   repeated int64 note_ids = 2;
 }
 
-message SearchTerm {
+message SearchNode {
   message Dupe {
     int64 notetype_id = 1;
     string first_field = 2;
@@ -808,17 +808,17 @@ message SearchTerm {
     repeated int64 ids = 1;
   }
   message Group {
-    enum Operator {
+    enum Joiner {
       AND = 0;
       OR = 1;
     }
-    repeated SearchTerm terms = 1;
-    Operator op = 2;
+    repeated SearchNode nodes = 1;
+    Joiner joiner = 2;
   }
   oneof filter {
     Group group = 1;
-    SearchTerm negated = 2;
-    string unparsed_search = 3;
+    SearchNode negated = 2;
+    string parsable_text = 3;
     uint32 template = 4;
     int64 nid = 5;
     Dupe dupe = 6;
@@ -837,19 +837,15 @@ message SearchTerm {
   }
 }
 
-message ConcatenateSearchesIn {
-  enum Separator {
-    AND = 0;
-    OR = 1;
-  }
-  Separator sep = 1;
-  SearchTerm existing_search = 2;
-  SearchTerm additional_search = 3;
+message JoinSearchNodesIn {
+  SearchNode.Group.Joiner joiner = 1;
+  SearchNode existing_node = 2;
+  SearchNode additional_node = 3;
 }
 
-message ReplaceSearchTermIn {
-  SearchTerm search = 1;
-  SearchTerm replacement = 2;
+message ReplaceSearchNodeIn {
+  SearchNode existing_node = 1;
+  SearchNode replacement_node = 2;
 }
 
 message CloseCollectionIn {

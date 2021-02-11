@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, Config, SearchTerm
+from anki.collection import Collection, Config, SearchNode
 from anki.consts import *
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
@@ -442,7 +442,7 @@ class Browser(QMainWindow):
         self,
         mw: AnkiQt,
         card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchTerm]]] = None,
+        search: Optional[Tuple[Union[str, SearchNode]]] = None,
     ) -> None:
         """
         card  : try to search for its note and select it
@@ -615,7 +615,7 @@ class Browser(QMainWindow):
         self,
         _mw: AnkiQt,
         card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchTerm]]] = None,
+        search: Optional[Tuple[Union[str, SearchNode]]] = None,
     ) -> None:
         if search is not None:
             self.search_for_terms(*search)
@@ -630,7 +630,7 @@ class Browser(QMainWindow):
     def setupSearch(
         self,
         card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchTerm]]] = None,
+        search: Optional[Tuple[Union[str, SearchNode]]] = None,
     ) -> None:
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
@@ -644,7 +644,7 @@ class Browser(QMainWindow):
             self.show_single_card(card)
         else:
             self.search_for(
-                self.col.build_search_string(SearchTerm(deck="current")), ""
+                self.col.build_search_string(SearchNode(deck="current")), ""
             )
         self.form.searchEdit.setFocus()
 
@@ -707,7 +707,7 @@ class Browser(QMainWindow):
         )
         return selected
 
-    def search_for_terms(self, *search_terms: Union[str, SearchTerm]) -> None:
+    def search_for_terms(self, *search_terms: Union[str, SearchNode]) -> None:
         search = self.col.build_search_string(*search_terms)
         self.form.searchEdit.setEditText(search)
         self.onSearchActivated()
@@ -717,7 +717,7 @@ class Browser(QMainWindow):
 
             def on_show_single_card() -> None:
                 self.card = card
-                search = self.col.build_search_string(SearchTerm(nid=card.nid))
+                search = self.col.build_search_string(SearchNode(nid=card.nid))
                 search = gui_hooks.default_search(search, card)
                 self.search_for(search, "")
                 self.focusCid(card.id)
@@ -1407,7 +1407,7 @@ where id in %s"""
         tv.selectionModel().clear()
 
         search = self.col.build_search_string(
-            SearchTerm(nids=SearchTerm.IdList(ids=nids))
+            SearchNode(nids=SearchNode.IdList(ids=nids))
         )
         self.search_for(search)
 
@@ -1626,7 +1626,7 @@ where id in %s"""
                 % (
                     html.escape(
                         self.col.build_search_string(
-                            SearchTerm(nids=SearchTerm.IdList(ids=nids))
+                            SearchNode(nids=SearchNode.IdList(ids=nids))
                         )
                     ),
                     tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
