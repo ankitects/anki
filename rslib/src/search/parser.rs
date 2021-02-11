@@ -46,6 +46,16 @@ impl Node {
             Node::Not(Box::new(self))
         }
     }
+
+    /// If we're a group, return the contained elements.
+    /// If we're a single node, return ourselves in an one-element vec.
+    pub fn into_node_list(self) -> Vec<Node> {
+        if let Node::Group(nodes) = self {
+            nodes
+        } else {
+            vec![self]
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
