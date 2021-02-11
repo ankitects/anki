@@ -825,6 +825,7 @@ message SearchTerm {
     IdList nids = 13;
     uint32 edited_in_days = 14;
     SearchTerm negated = 15;
+    int32 due_on_day = 16;
   }
 }
 

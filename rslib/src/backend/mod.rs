@@ -340,6 +340,10 @@ impl From<pb::SearchTerm> for Node<'_> {
                     operator: "<=".to_string(),
                     kind: PropertyKind::Due(i),
                 }),
+                Filter::DueOnDay(i) => Node::Search(SearchNode::Property {
+                    operator: "=".to_string(),
+                    kind: PropertyKind::Due(i),
+                }),
                 Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
                 Filter::CardState(state) => Node::Search(SearchNode::State(
                     pb::search_term::CardState::from_i32(state)
