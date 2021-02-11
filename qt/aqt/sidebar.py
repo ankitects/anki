@@ -315,10 +315,9 @@ class SidebarTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setIndentation(15)
         self.setAutoExpandDelay(600)
-        if not self.mw.pm.sidebar_left_click_modifiers():
-            # pylint: disable=no-member
-            mode = QAbstractItemView.SelectionMode.ExtendedSelection  # type: ignore
-            self.setSelectionMode(mode)
+        # pylint: disable=no-member
+        mode = QAbstractItemView.SelectionMode.ExtendedSelection  # type: ignore
+        self.setSelectionMode(mode)
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDragDropOverwriteMode(False)
 
@@ -434,10 +433,7 @@ class SidebarTreeView(QTreeView):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
         if event.button() == Qt.LeftButton:
-            if (
-                not self._keyboard_modified_pressed()
-                or self.mw.pm.sidebar_left_click_modifiers()
-            ):
+            if not self._keyboard_modified_pressed():
                 self._on_click_current()
         elif event.button() == Qt.RightButton:
             if self._keyboard_modified_pressed():

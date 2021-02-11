@@ -668,9 +668,6 @@ create table if not exists profiles
     def set_recording_driver(self, driver: RecordingDriver) -> None:
         self.profile["recordingDriver"] = driver.value
 
-    def sidebar_left_click_modifiers(self) -> bool:
-        return self.profile.get("sidebarLeftClick", False)
-
     ######################################################################
 
     def apply_profile_options(self) -> None:
