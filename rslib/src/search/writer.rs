@@ -67,8 +67,8 @@ pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
     let mut nodes = parse(search)?;
     let new = parse(replacement)?;
     if let [Node::Search(search_node)] = &new[..] {
-        fn update_node_vec<'a>(old_nodes: &mut [Node<'a>], new_node: &SearchNode<'a>) {
-            fn update_node<'a>(old_node: &mut Node<'a>, new_node: &SearchNode<'a>) {
+        fn update_node_vec(old_nodes: &mut [Node], new_node: &SearchNode) {
+            fn update_node(old_node: &mut Node, new_node: &SearchNode) {
                 match old_node {
                     Node::Not(n) => update_node(n, new_node),
                     Node::Group(ns) => update_node_vec(ns, new_node),
@@ -89,7 +89,7 @@ pub fn replace_search_term(search: &str, replacement: &str) -> Result<String> {
 
 pub fn write_nodes<'a, I>(nodes: I) -> String
 where
-    I: IntoIterator<Item = &'a Node<'a>>,
+    I: IntoIterator<Item = &'a Node>,
 {
     nodes.into_iter().map(|node| write_node(node)).collect()
 }
