@@ -66,7 +66,7 @@ class NewDeckStats(QDialog):
 
     def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
-        name = "anki-" + tr(TR.STATISTICS_STATS) + name
+        name = f"anki-{tr(TR.STATISTICS_STATS)}{name}"
         file = getSaveFile(
             self,
             title=tr(TR.STATISTICS_SAVE_PDF),
@@ -156,7 +156,7 @@ class DeckStats(QDialog):
 
     def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
-        name = "anki-" + tr(TR.STATISTICS_STATS) + name
+        name = f"anki-{tr(TR.STATISTICS_STATS)}{name}"
         file = getSaveFile(
             self,
             title=tr(TR.STATISTICS_SAVE_PDF),
@@ -189,7 +189,7 @@ class DeckStats(QDialog):
         self.report = stats.report(type=self.period)
         self.form.web.title = "deck stats"
         self.form.web.stdHtml(
-            "<html><body>" + self.report + "</body></html>",
+            f"<html><body>{self.report}</body></html>",
             js=["js/vendor/jquery.min.js", "js/vendor/plot.js"],
             context=self,
         )

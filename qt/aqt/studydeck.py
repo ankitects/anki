@@ -45,7 +45,7 @@ class StudyDeck(QDialog):
         self.form.filter.installEventFilter(self)
         self.cancel = cancel
         gui_hooks.state_did_reset.append(self.onReset)
-        self.geomKey = "studyDeck-" + geomKey
+        self.geomKey = f"studyDeck-{geomKey}"
         restoreGeom(self, self.geomKey)
         disable_help_button(self)
         if not cancel:

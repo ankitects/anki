@@ -115,7 +115,7 @@ class CardLayout(QDialog):
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
         self.topAreaForm.setupUi(self.topArea)
         self.topAreaForm.templateOptions.setText(
-            tr(TR.ACTIONS_OPTIONS) + " " + downArrow()
+            f"{tr(TR.ACTIONS_OPTIONS)} {downArrow()}"
         )
         qconnect(self.topAreaForm.templateOptions.clicked, self.onMore)
         qconnect(
@@ -305,7 +305,7 @@ class CardLayout(QDialog):
         qconnect(pform.preview_front.clicked, self.on_preview_toggled)
         qconnect(pform.preview_back.clicked, self.on_preview_toggled)
         pform.preview_settings.setText(
-            tr(TR.CARD_TEMPLATES_PREVIEW_SETTINGS) + " " + downArrow()
+            f"{tr(TR.CARD_TEMPLATES_PREVIEW_SETTINGS)} {downArrow()}"
         )
         qconnect(pform.preview_settings.clicked, self.on_preview_settings)
 
@@ -491,7 +491,7 @@ class CardLayout(QDialog):
             text = a
 
         # use _showAnswer to avoid the longer delay
-        self.preview_web.eval("_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass))
+        self.preview_web.eval(f"_showAnswer({json.dumps(text)},'{bodyclass}');")
         self.preview_web.eval(
             f"_emulateMobile({json.dumps(self.mobile_emulation_enabled)});"
         )
@@ -522,14 +522,14 @@ class CardLayout(QDialog):
         def answerRepl(match: Match) -> str:
             res = self.mw.reviewer.correct("exomple", "an example")
             if hadHR:
-                res = "<hr id=answer>" + res
+                res = f"<hr id=answer>{res}"
             return res
 
         repl: Union[str, Callable]
 
         if type == "q":
             repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
-            repl = "<center>%s</center>" % repl
+            repl = f"<center>{repl}</center>"
         else:
             repl = answerRepl
         return re.sub(r"\[\[type:.+?\]\]", repl, txt)

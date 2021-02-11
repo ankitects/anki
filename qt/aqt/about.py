@@ -81,7 +81,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
 (add-on provided name [Add-on folder, installed at, version, is config changed])
 {newline.join(sorted(inactive))}
 """
-        info = "    " + "    ".join(info.splitlines(True))
+        info = f"    {'    '.join(info.splitlines(True))}"
         QApplication.clipboard().setText(info)
         tooltip(tr(TR.ABOUT_COPIED_TO_CLIPBOARD), parent=dialog)
 
@@ -93,9 +93,9 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
-    abouttext += "<p>" + tr(TR.ABOUT_ANKI_IS_A_FRIENDLY_INTELLIGENT_SPACED)
-    abouttext += "<p>" + tr(TR.ABOUT_ANKI_IS_LICENSED_UNDER_THE_AGPL3)
-    abouttext += "<p>" + tr(TR.ABOUT_VERSION, val=versionWithBuild()) + "<br>"
+    abouttext += f"<p>{tr(TR.ABOUT_ANKI_IS_A_FRIENDLY_INTELLIGENT_SPACED)}"
+    abouttext += f"<p>{tr(TR.ABOUT_ANKI_IS_LICENSED_UNDER_THE_AGPL3)}"
+    abouttext += f"<p>{tr(TR.ABOUT_VERSION, val=versionWithBuild())}<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
         QT_VERSION_STR,
@@ -211,8 +211,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += "<p>" + tr(
         TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES, cont=", ".join(allusers)
     )
-    abouttext += "<p>" + tr(TR.ABOUT_IF_YOU_HAVE_CONTRIBUTED_AND_ARE)
-    abouttext += "<p>" + tr(TR.ABOUT_A_BIG_THANKS_TO_ALL_THE)
+    abouttext += f"<p>{tr(TR.ABOUT_IF_YOU_HAVE_CONTRIBUTED_AND_ARE)}"
+    abouttext += f"<p>{tr(TR.ABOUT_A_BIG_THANKS_TO_ALL_THE)}"
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()

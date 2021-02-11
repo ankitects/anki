@@ -479,7 +479,7 @@ def getFile(
     "Ask the user for a file."
     assert not dir or not key
     if not dir:
-        dirkey = key + "Directory"
+        dirkey = f"{key}Directory"
         dir = aqt.mw.pm.profile.get(dirkey, "")
     else:
         dirkey = None
@@ -521,7 +521,7 @@ def getSaveFile(
 ) -> str:
     """Ask the user for a file to save. Use DIR_DESCRIPTION as config
     variable. The file dialog will default to open with FNAME."""
-    config_key = dir_description + "Directory"
+    config_key = f"{dir_description}Directory"
 
     defaultPath = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
     base = aqt.mw.pm.profile.get(config_key, defaultPath)
@@ -644,8 +644,8 @@ def restore_is_checked(widget: QWidget, key: str) -> None:
 
 
 def save_combo_index_for_session(widget: QComboBox, key: str) -> None:
-    textKey = key + "ComboActiveText"
-    indexKey = key + "ComboActiveIndex"
+    textKey = f"{key}ComboActiveText"
+    indexKey = f"{key}ComboActiveIndex"
     aqt.mw.pm.session[textKey] = widget.currentText()
     aqt.mw.pm.session[indexKey] = widget.currentIndex()
 
@@ -653,8 +653,8 @@ def save_combo_index_for_session(widget: QComboBox, key: str) -> None:
 def restore_combo_index_for_session(
     widget: QComboBox, history: List[str], key: str
 ) -> None:
-    textKey = key + "ComboActiveText"
-    indexKey = key + "ComboActiveIndex"
+    textKey = f"{key}ComboActiveText"
+    indexKey = f"{key}ComboActiveIndex"
     text = aqt.mw.pm.session.get(textKey)
     index = aqt.mw.pm.session.get(indexKey)
     if text is not None and index is not None:
@@ -696,10 +696,10 @@ def mungeQA(col: Collection, txt: str) -> str:
 
 def openFolder(path: str) -> None:
     if isWin:
-        subprocess.Popen(["explorer", "file://" + path])
+        subprocess.Popen(["explorer", f"file://{path}"])
     else:
         with noBundledLibs():
-            QDesktopServices.openUrl(QUrl("file://" + path))
+            QDesktopServices.openUrl(QUrl(f"file://{path}"))
 
 
 def shortcut(key: str) -> str:
@@ -755,13 +755,11 @@ def tooltip(
     closeTooltip()
     aw = parent or aqt.mw.app.activeWindow() or aqt.mw
     lab = CustomLabel(
-        """\
-<table cellpadding=10>
+        f"""<table cellpadding=10>
 <tr>
-<td>%s</td>
+<td>{msg}</td>
 </tr>
-</table>"""
-        % msg,
+</table>""",
         aw,
     )
     lab.setFrameStyle(QFrame.Panel)
@@ -886,9 +884,9 @@ def supportText() -> str:
     from aqt import mw
 
     if isWin:
-        platname = "Windows " + platform.win32_ver()[0]
+        platname = f"Windows {platform.win32_ver()[0]}"
     elif isMac:
-        platname = "Mac " + platform.mac_ver()[0]
+        platname = f"Mac {platform.mac_ver()[0]}"
     else:
         platname = "Linux"
 

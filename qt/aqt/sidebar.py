@@ -805,7 +805,7 @@ class SidebarTreeView(QTreeView):
                     full_name=head + node.name,
                 )
                 root.add_child(item)
-                newhead = head + node.name + "::"
+                newhead = f"{head + node.name}::"
                 render(item, node.children, newhead)
 
         tree = self.col.tags.tree()
@@ -854,7 +854,7 @@ class SidebarTreeView(QTreeView):
                     full_name=head + node.name,
                 )
                 root.add_child(item)
-                newhead = head + node.name + "::"
+                newhead = f"{head + node.name}::"
                 render(item, node.children, newhead)
 
         tree = self.col.decks.deck_tree()
@@ -906,7 +906,7 @@ class SidebarTreeView(QTreeView):
                         SearchTerm(note=nt["name"]), SearchTerm(template=c)
                     ),
                     item_type=SidebarItemType.NOTETYPE_TEMPLATE,
-                    full_name=nt["name"] + "::" + tmpl["name"],
+                    full_name=f"{nt['name']}::{tmpl['name']}",
                 )
                 item.add_child(child)
 

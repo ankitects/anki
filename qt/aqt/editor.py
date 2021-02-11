@@ -130,7 +130,7 @@ class Editor:
                 None,
                 "fields",
                 tr(TR.EDITING_CUSTOMIZE_FIELDS),
-                tr(TR.EDITING_FIELDS) + "...",
+                f"{tr(TR.EDITING_FIELDS)}...",
                 disables=False,
                 rightside=False,
             ),
@@ -138,7 +138,7 @@ class Editor:
                 None,
                 "cards",
                 tr(TR.EDITING_CUSTOMIZE_CARD_TEMPLATES_CTRLANDL),
-                tr(TR.EDITING_CARDS) + "...",
+                f"{tr(TR.EDITING_CARDS)}...",
                 disables=False,
                 rightside=False,
             ),
@@ -239,7 +239,7 @@ class Editor:
         with open(path, "rb") as fp:
             data = fp.read()
             data64 = b"".join(base64.encodebytes(data).splitlines())
-            return "data:%s;base64,%s" % (mime, data64.decode("ascii"))
+            return f"data:{mime};base64,{data64.decode('ascii')}"
 
     def addButton(
         self,
@@ -314,7 +314,7 @@ class Editor:
         else:
             imgelm = ""
         if label or not imgelm:
-            labelelm = """<span class=blabel>{}</span>""".format(label or cmd)
+            labelelm = f"""<span class=blabel>{label or cmd}</span>"""
         else:
             labelelm = ""
         if id:
@@ -539,7 +539,7 @@ class Editor:
         if err == 2:
             cols[0] = "dupe"
 
-        self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
+        self.web.eval(f"setBackgrounds({json.dumps(cols)});")
 
     def showDupes(self) -> None:
         aqt.dialogs.open(
@@ -734,23 +734,23 @@ class Editor:
             self._wrapWithColour(self.fcolour)
 
     def _updateForegroundButton(self) -> None:
-        self.web.eval("setFGButton('%s')" % self.fcolour)
+        self.web.eval(f"setFGButton('{self.fcolour}')")
 
     def onColourChanged(self) -> None:
         self._updateForegroundButton()
         self.mw.pm.profile["lastColour"] = self.fcolour
 
     def _wrapWithColour(self, colour: str) -> None:
-        self.web.eval("setFormat('forecolor', '%s')" % colour)
+        self.web.eval(f"setFormat('forecolor', '{colour}')")
 
     # Audio/video/images
     ######################################################################
 
     def onAddMedia(self) -> None:
         extension_filter = " ".join(
-            "*." + extension for extension in sorted(itertools.chain(pics, audio))
+            f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
-        key = tr(TR.EDITING_MEDIA) + " (" + extension_filter + ")"
+        key = f"{tr(TR.EDITING_MEDIA)} ({extension_filter})"
 
         def accept(file: str) -> None:
             self.addMedia(file, canDelete=True)
@@ -770,7 +770,7 @@ class Editor:
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval("setFormat('inserthtml', %s);" % json.dumps(html))
+        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         "Add to media folder and return local img or sound tag."
@@ -810,15 +810,15 @@ class Editor:
         ext = fname.split(".")[-1].lower()
         if ext in pics:
             name = urllib.parse.quote(fname.encode("utf8"))
-            return '<img src="%s">' % name
+            return f'<img src="{name}">'
         else:
             av_player.play_file(fname)
-            return "[sound:%s]" % html.escape(fname, quote=False)
+            return f"[sound:{html.escape(fname, quote=False)}]"
 
     def urlToFile(self, url: str) -> Optional[str]:
         l = url.lower()
         for suffix in pics + audio:
-            if l.endswith("." + suffix):
+            if l.endswith(f".{suffix}"):
                 return self._retrieveURL(url)
         # not a supported type
         return None
@@ -842,7 +842,7 @@ class Editor:
                 data = base64.b64decode(b64data, validate=True)
                 if ext == "jpeg":
                     ext = "jpg"
-                return self._addPastedImage(data, "." + ext)
+                return self._addPastedImage(data, f".{ext}")
 
         return ""
 
@@ -857,7 +857,7 @@ class Editor:
     def _addPastedImage(self, data: bytes, ext: str) -> str:
         # hash and write
         csum = checksum(data)
-        fname = "{}-{}{}".format("paste", csum, ext)
+        fname = f"paste-{csum}{ext}"
         return self._addMediaFromData(fname, data)
 
     def _retrieveURL(self, url: str) -> Optional[str]:
@@ -967,9 +967,7 @@ class Editor:
             ext = "true"
         else:
             ext = "false"
-        self.web.eval(
-            "pasteHTML(%s, %s, %s);" % (json.dumps(html), json.dumps(internal), ext)
-        )
+        self.web.eval(f"pasteHTML({json.dumps(html)}, {json.dumps(internal)}, {ext});")
 
     def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
         def pasteIfField(ret: bool) -> None:
@@ -1187,8 +1185,8 @@ class EditorWebView(AnkiWebView):
                     token = html.escape(token).replace("\t", " " * 4)
                     # if there's more than one consecutive space,
                     # use non-breaking spaces for the second one on
-                    def repl(match: Match) -> None:
-                        return match.group(1).replace(" ", "&nbsp;") + " "
+                    def repl(match: Match) -> str:
+                        return f"{match.group(1).replace(' ', '&nbsp;')} "
 
                     token = re.sub(" ( +)", repl, token)
                     processed.append(token)
@@ -1247,7 +1245,7 @@ class EditorWebView(AnkiWebView):
         if not mime.hasHtml():
             return
         html = mime.html()
-        mime.setHtml("<!--anki-->" + html)
+        mime.setHtml(f"<!--anki-->{html}")
         clip.setMimeData(mime)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:

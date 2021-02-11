@@ -59,7 +59,7 @@ class CustomStudy(QDialog):
         def plus(num: Union[int, str]) -> str:
             if num == 1000:
                 num = "1000+"
-            return "<b>" + str(num) + "</b>"
+            return f"<b>{str(num)}</b>"
 
         if idx == RADIO_NEW:
             new = self.mw.col.sched.totalNewForCurrentDeck()

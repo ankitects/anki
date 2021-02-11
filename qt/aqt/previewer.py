@@ -214,9 +214,9 @@ class Previewer(QDialog):
                 av_player.clear_queue_and_maybe_interrupt()
 
             txt = self.mw.prepare_card_text_for_display(txt)
-            txt = gui_hooks.card_will_show(txt, c, "preview" + self._state.capitalize())
+            txt = gui_hooks.card_will_show(txt, c, f"preview{self._state.capitalize()}")
             self._last_state = self._state_and_mod()
-        self._web.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
+        self._web.eval(f"{func}({json.dumps(txt)},'{bodyclass}');")
         self._card_changed = False
 
     def _on_show_both_sides(self, toggle: bool) -> None:

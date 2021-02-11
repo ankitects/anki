@@ -240,7 +240,7 @@ def _packagedCmd(cmd: List[str]) -> Tuple[Any, Dict[str, str]]:
         del env["LD_LIBRARY_PATH"]
     if isMac:
         dir = os.path.dirname(os.path.abspath(__file__))
-        exeDir = os.path.abspath(dir + "/../../Resources/audio")
+        exeDir = os.path.abspath(f"{dir}/../../Resources/audio")
     else:
         exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
         if isWin and not cmd[0].endswith(".exe"):
@@ -353,7 +353,7 @@ class SimpleMpvPlayer(SimpleProcessPlayer, VideoPlayer):
 
     def __init__(self, taskman: TaskManager, base_folder: str) -> None:
         super().__init__(taskman)
-        self.args += ["--config-dir=" + base_folder]
+        self.args += [f"--config-dir={base_folder}"]
 
 
 class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
@@ -377,7 +377,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         mpvPath, self.popenEnv = _packagedCmd(["mpv"])
         self.executable = mpvPath[0]
         self._on_done: Optional[OnDoneCallback] = None
-        self.default_argv += ["--config-dir=" + base_path]
+        self.default_argv += [f"--config-dir={base_path}"]
         super().__init__(window_id=None, debug=False)
 
     def on_init(self) -> None:
@@ -764,7 +764,7 @@ class RecordDialog(QDialog):
     def _on_timer(self) -> None:
         self._recorder.on_timer()
         duration = self._recorder.duration()
-        self.label.setText(tr(TR.MEDIA_RECORDINGTIME, secs="%0.1f" % duration))
+        self.label.setText(tr(TR.MEDIA_RECORDINGTIME, secs=f"{duration:0.1f}"))
 
     def accept(self) -> None:
         self._timer.stop()

@@ -288,7 +288,7 @@ class DeckBrowser:
 
         extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
         if askUser(
-            tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"]) + " " + extra
+            f"{tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck['name'])} {extra}"
         ):
             return True
         return False
@@ -332,4 +332,4 @@ class DeckBrowser:
         )
 
     def _onShared(self) -> None:
-        openLink(aqt.appShared + "decks/")
+        openLink(f"{aqt.appShared}decks/")

@@ -95,13 +95,13 @@ class ErrorHandler(QObject):
 
         if self.mw.addonManager.dirty:
             txt = markdown(tr(TR.ERRORS_ADDONS_ACTIVE_POPUP))
-            error = supportText() + self._addonText(error) + "\n" + error
+            error = f"{supportText() + self._addonText(error)}\n{error}"
         else:
             txt = markdown(tr(TR.ERRORS_STANDARD_POPUP))
-            error = supportText() + "\n" + error
+            error = f"{supportText()}\n{error}"
 
         # show dialog
-        txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
+        txt = f"{txt}<div style='white-space: pre-wrap'>{error}</div>"
         showText(txt, type="html", copyBtn=True)
 
     def _addonText(self, error: str) -> str:
@@ -113,6 +113,6 @@ class ErrorHandler(QObject):
             mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
         ]
         # highlight importance of first add-on:
-        addons[0] = "<b>{}</b>".format(addons[0])
+        addons[0] = f"<b>{addons[0]}</b>"
         addons_str = ", ".join(addons)
-        return tr(TR.ADDONS_POSSIBLY_INVOLVED, addons=addons_str) + "\n"
+        return f"{tr(TR.ADDONS_POSSIBLY_INVOLVED, addons=addons_str)}\n"

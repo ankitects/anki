@@ -194,7 +194,7 @@ class ImportDialog(QDialog):
                 showUnicodeWarning()
                 return
             except Exception as e:
-                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                msg = f"{tr(TR.IMPORTING_FAILED_DEBUG_INFO)}\n"
                 err = repr(str(e))
                 if "1-character string" in err:
                     msg += err
@@ -205,7 +205,7 @@ class ImportDialog(QDialog):
                 showText(msg)
                 return
             else:
-                txt = tr(TR.IMPORTING_IMPORTING_COMPLETE) + "\n"
+                txt = f"{tr(TR.IMPORTING_IMPORTING_COMPLETE)}\n"
                 if self.importer.log:
                     txt += "\n".join(self.importer.log)
                 self.close()
@@ -326,7 +326,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
         if done:
             break
         for mext in re.findall(r"[( ]?\*\.(.+?)[) ]", i[0]):
-            if file.endswith("." + mext):
+            if file.endswith(f".{mext}"):
                 importerClass = i[1]
                 done = True
                 break
@@ -352,7 +352,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
             if msg == "'unknownFormat'":
                 showWarning(tr(TR.IMPORTING_UNKNOWN_FILE_FORMAT))
             else:
-                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                msg = f"{tr(TR.IMPORTING_FAILED_DEBUG_INFO)}\n"
                 msg += str(traceback.format_exc())
                 showText(msg)
             return
@@ -392,7 +392,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 elif "readonly" in err:
                     showWarning(tr(TR.IMPORTING_UNABLE_TO_IMPORT_FROM_A_READONLY))
                 else:
-                    msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                    msg = f"{tr(TR.IMPORTING_FAILED_DEBUG_INFO)}\n"
                     msg += str(traceback.format_exc())
                     showText(msg)
             else:

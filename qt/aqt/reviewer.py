@@ -97,9 +97,7 @@ class Reviewer:
             mins = int(round(elapsed[0] / 60))
             part2 = tr(TR.STUDYING_MINUTE, count=mins)
             fin = tr(TR.STUDYING_FINISH)
-            diag = askUserDialog(
-                "%s %s" % (part1, part2), [tr(TR.STUDYING_CONTINUE), fin]
-            )
+            diag = askUserDialog(f"{part1} {part2}", [tr(TR.STUDYING_CONTINUE), fin])
             diag.setIcon(QMessageBox.Information)
             if diag.run() == fin:
                 return self.mw.moveToState("deckBrowser")
@@ -142,15 +140,13 @@ class Reviewer:
         fade = ""
         if self.mw.pm.video_driver() == VideoDriver.Software:
             fade = "<script>qFade=0;</script>"
-        return """
+        return f"""
 <div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
-{}
+{fade}
 <div id=qa></div>
-{}
-""".format(
-            fade, extra
-        )
+{extra}
+"""
 
     def _initWeb(self) -> None:
         self._reps = 0
@@ -207,7 +203,7 @@ class Reviewer:
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
-        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
+        self.web.eval(f"_showQuestion({json.dumps(q)},'{bodyclass}');")
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
@@ -220,10 +216,10 @@ class Reviewer:
         return card.autoplay()
 
     def _drawFlag(self) -> None:
-        self.web.eval("_drawFlag(%s);" % self.card.userFlag())
+        self.web.eval(f"_drawFlag({self.card.userFlag()});")
 
     def _drawMark(self) -> None:
-        self.web.eval("_drawMark(%s);" % json.dumps(self.card.note().hasTag("marked")))
+        self.web.eval(f"_drawMark({json.dumps(self.card.note().hasTag('marked'))});")
 
     # Showing the answer
     ##########################################################################
@@ -248,7 +244,7 @@ class Reviewer:
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
-        self.web.eval("_showAnswer(%s);" % json.dumps(a))
+        self.web.eval(f"_showAnswer({json.dumps(a)});")
         self._showEaseButtons()
         self.mw.web.setFocus()
         # user hook
@@ -399,13 +395,12 @@ class Reviewer:
                 return re.sub(self.typeAnsPat, "", buf)
         return re.sub(
             self.typeAnsPat,
-            """
+            f"""
 <center>
 <input type=text id=typeans onkeypress="_typeAnsPress();"
-   style="font-family: '%s'; font-size: %spx;">
+   style="font-family: '{self.typeFont}'; font-size: {self.typeSize}px;">
 </center>
-"""
-            % (self.typeFont, self.typeSize),
+""",
             buf,
         )
 
@@ -440,7 +435,7 @@ class Reviewer:
             if hadHR:
                 # a hack to ensure the q/a separator falls before the answer
                 # comparison when user is using {{FrontSide}}
-                s = "<hr id=answer>" + s
+                s = f"<hr id=answer>{s}"
             return s
 
         return re.sub(self.typeAnsPat, repl, buf)
@@ -506,13 +501,13 @@ class Reviewer:
         givenElems, correctElems = self.tokenizeComparison(given, correct)
 
         def good(s: str) -> str:
-            return "<span class=typeGood>" + html.escape(s) + "</span>"
+            return f"<span class=typeGood>{html.escape(s)}</span>"
 
         def bad(s: str) -> str:
-            return "<span class=typeBad>" + html.escape(s) + "</span>"
+            return f"<span class=typeBad>{html.escape(s)}</span>"
 
         def missed(s: str) -> str:
-            return "<span class=typeMissed>" + html.escape(s) + "</span>"
+            return f"<span class=typeMissed>{html.escape(s)}</span>"
 
         if given == correct:
             res = good(given)
@@ -531,14 +526,14 @@ class Reviewer:
                     res += good(txt)
                 else:
                     res += missed(txt)
-        res = "<div><code id=typeans>" + res + "</code></div>"
+        res = f"<div><code id=typeans>{res}</code></div>"
         return res
 
     def _noLoneMarks(self, s: str) -> str:
         # ensure a combining character at the start does not join to
         # previous text
         if s and ucd.category(s[0]).startswith("M"):
-            return "\xa0" + s
+            return f"\xa0{s}"
         return s
 
     def _getTypedAnswer(self) -> None:
@@ -602,7 +597,7 @@ time = %(time)d;
 
     def _showEaseButtons(self) -> None:
         middle = self._answerButtons()
-        self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
+        self.bottom.web.eval(f"showAnswer({json.dumps(middle)});")
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
@@ -613,11 +608,11 @@ time = %(time)d;
         else:
             counts = list(self.mw.col.sched.counts(self.card))
         idx = self.mw.col.sched.countIdx(self.card)
-        counts[idx] = "<u>%s</u>" % (counts[idx])
+        counts[idx] = f"<u>{counts[idx]}</u>"
         space = " + "
-        ctxt = "<span class=new-count>%s</span>" % counts[0]
-        ctxt += space + "<span class=learn-count>%s</span>" % counts[1]
-        ctxt += space + "<span class=review-count>%s</span>" % counts[2]
+        ctxt = f"<span class=new-count>{counts[0]}</span>"
+        ctxt += f"{space}<span class=learn-count>{counts[1]}</span>"
+        ctxt += f"{space}<span class=review-count>{counts[2]}</span>"
         return ctxt
 
     def _defaultEase(self) -> int:
@@ -683,7 +678,7 @@ time = %(time)d;
         if not self.mw.col.conf["estTimes"]:
             return "<div class=spacer></div>"
         txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
-        return "<span class=nobold>%s</span><br>" % txt
+        return f"<span class=nobold>{txt}</span><br>"
 
     # Leeches
     ##########################################################################
@@ -692,7 +687,7 @@ time = %(time)d;
         # for now
         s = tr(TR.STUDYING_CARD_WAS_A_LEECH)
         if card.queue < 0:
-            s += " " + tr(TR.STUDYING_IT_HAS_BEEN_SUSPENDED)
+            s += f" {tr(TR.STUDYING_IT_HAS_BEEN_SUSPENDED)}"
         tooltip(s)
 
     # Context menu
