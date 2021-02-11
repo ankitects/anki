@@ -55,6 +55,7 @@ use crate::{
 };
 use fluent::FluentValue;
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
+use itertools::Itertools;
 use log::error;
 use once_cell::sync::OnceCell;
 use pb::{sync_status_out, BackendService};
@@ -297,6 +298,7 @@ impl From<pb::DeckConfigId> for DeckConfID {
 
 impl From<pb::SearchTerm> for Node<'_> {
     fn from(msg: pb::SearchTerm) -> Self {
+        use pb::search_term::group::Operator;
         use pb::search_term::Filter;
         use pb::search_term::Flag;
         if let Some(filter) = msg.filter {
@@ -359,6 +361,19 @@ impl From<pb::SearchTerm> for Node<'_> {
                     Flag::Blue => Node::Search(SearchNode::Flag(4)),
                 },
                 Filter::Negated(term) => Node::Not(Box::new((*term).into())),
+                Filter::Group(group) => {
+                    let operator = match group.op() {
+                        Operator::And => Node::And,
+                        Operator::Or => Node::Or,
+                    };
+                    let joined = group
+                        .terms
+                        .into_iter()
+                        .map(Into::into)
+                        .intersperse(operator)
+                        .collect();
+                    Node::Group(joined)
+                }
             }
         } else {
             Node::Search(SearchNode::WholeCollection)

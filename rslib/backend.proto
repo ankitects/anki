@@ -809,9 +809,17 @@ message SearchTerm {
   message IdList {
     repeated int64 ids = 1;
   }
+  message Group {
+    enum Operator {
+      AND = 0;
+      OR = 1;
+    }
+    repeated SearchTerm terms = 1;
+    Operator op = 2;
+  }
   oneof filter {
-    string tag = 1;
-    string deck = 2;
+    Group group = 1;
+    SearchTerm negated = 2;
     string note = 3;
     uint32 template = 4;
     int64 nid = 5;
@@ -824,8 +832,9 @@ message SearchTerm {
     CardState card_state = 12;
     IdList nids = 13;
     uint32 edited_in_days = 14;
-    SearchTerm negated = 15;
+    string deck = 15;
     int32 due_on_day = 16;
+    string tag = 17;
   }
 }
 

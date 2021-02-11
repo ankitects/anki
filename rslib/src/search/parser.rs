@@ -30,7 +30,7 @@ fn parse_error(input: &str) -> nom::Err<ParseError<'_>> {
     nom::Err::Error(ParseError::Anki(input, FailKind::Other(None)))
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Node<'a> {
     And,
     Or,
