@@ -354,6 +354,7 @@ impl From<pb::SearchTerm> for Node<'_> {
                     Flag::Green => Node::Search(SearchNode::Flag(3)),
                     Flag::Blue => Node::Search(SearchNode::Flag(4)),
                 },
+                Filter::Negated(term) => Node::Not(Box::new((*term).into())),
             }
         } else {
             Node::Search(SearchNode::WholeCollection)

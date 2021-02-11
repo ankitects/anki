@@ -824,6 +824,7 @@ message SearchTerm {
     CardState card_state = 12;
     IdList nids = 13;
     uint32 edited_in_days = 14;
+    SearchTerm negated = 15;
   }
 }
 
