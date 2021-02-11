@@ -640,7 +640,7 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_SIDEBAR_DUE_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchTerm(card_state=SearchTerm.CARD_STATE_DUE)),
+            on_click=search(SearchTerm(due_on_day=0)),
         )
         root.add_simple(
             name=TR.BROWSING_ADDED_TODAY,
@@ -668,6 +668,15 @@ class SidebarTreeView(QTreeView):
                 SearchTerm(
                     rated=SearchTerm.Rated(days=1, rating=SearchTerm.RATING_AGAIN)
                 )
+            ),
+        )
+        root.add_simple(
+            name=TR.BROWSING_SIDEBAR_OVERDUE,
+            icon=icon,
+            type=type,
+            on_click=search(
+                SearchTerm(card_state=SearchTerm.CARD_STATE_DUE),
+                SearchTerm(negated=SearchTerm(due_on_day=0)),
             ),
         )
 

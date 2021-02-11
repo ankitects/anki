@@ -129,3 +129,4 @@ browsing-again-today = Again
 browsing-edited-today = Edited
 browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
+browsing-sidebar-overdue = Overdue
