@@ -392,19 +392,27 @@ class SidebarTreeView(QTreeView):
                     self.setExpanded(idx, True)
 
     def update_search(self, *terms: Union[str, SearchTerm]) -> None:
-        """Modify the current search string based on modified keys, then refresh."""
+        """Modify the current search string based on modifier keys, then refresh."""
+        mods = self.mw.app.keyboardModifiers()
+        previous = SearchTerm(unparsed_search=self.browser.current_search())
+        current = self.mw.col.group_search_terms(*terms)
+
+        # if Alt pressed, invert
+        if mods & Qt.AltModifier:
+            current = SearchTerm(negated=current)
+
         try:
-            search = self.col.build_search_string(*terms)
-            mods = self.mw.app.keyboardModifiers()
-            if mods & Qt.AltModifier:
-                search = self.col.build_search_string(search, negate=True)
-            current = self.browser.current_search()
             if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
-                search = self.col.replace_search_term(current, search)
+                # If Ctrl+Shift, replace searches nodes of the same type.
+                search = self.col.replace_search_term(previous, current)
             elif mods & Qt.ControlModifier:
-                search = self.col.build_search_string(current, search)
+                # If Ctrl, AND with previous
+                search = self.col.join_searches(previous, current, "AND")
             elif mods & Qt.ShiftModifier:
-                search = self.col.build_search_string(current, search, match_any=True)
+                # If Shift, OR with previous
+                search = self.col.join_searches(previous, current, "OR")
+            else:
+                search = self.col.build_search_string(current)
         except InvalidInput as e:
             show_invalid_search_error(e)
         else:
@@ -590,7 +598,7 @@ class SidebarTreeView(QTreeView):
         return top
 
     def _filter_func(self, *terms: Union[str, SearchTerm]) -> Callable:
-        return lambda: self.update_search(self.col.build_search_string(*terms))
+        return lambda: self.update_search(*terms)
 
     # Tree: Saved Searches
     ###########################

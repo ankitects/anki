@@ -38,6 +38,16 @@ pub enum Node {
     Search(SearchNode),
 }
 
+impl Node {
+    pub fn negated(self) -> Node {
+        if let Node::Not(inner) = self {
+            *inner
+        } else {
+            Node::Not(Box::new(self))
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum SearchNode {
     // text without a colon
@@ -115,7 +125,7 @@ pub enum RatingKind {
 }
 
 /// Parse the input string into a list of nodes.
-pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
+pub fn parse(input: &str) -> Result<Vec<Node>> {
     let input = input.trim();
     if input.is_empty() {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
@@ -979,5 +989,15 @@ mod test {
         assert!(matches!(failkind("prop:ease<1,3"), SearchErrorKind::InvalidNumber { .. }));
 
         Ok(())
+    }
+
+    #[test]
+    fn negating() {
+        let node = Node::Search(SearchNode::UnqualifiedText("foo".to_string()));
+        let neg_node = Node::Not(Box::new(Node::Search(SearchNode::UnqualifiedText(
+            "foo".to_string(),
+        ))));
+        assert_eq!(node.clone().negated(), neg_node);
+        assert_eq!(node.clone().negated().negated(), node);
     }
 }

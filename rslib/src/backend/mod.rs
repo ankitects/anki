@@ -38,9 +38,8 @@ use crate::{
         timespan::{answer_button_time, time_span},
     },
     search::{
-        concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode, StateKind,
-        TemplateKind,
+        concatenate_searches, parse_search, replace_search_term, write_nodes, BoolSeparator, Node,
+        PropertyKind, RatingKind, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -62,8 +61,8 @@ use pb::{sync_status_out, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use slog::warn;
-use std::collections::HashSet;
 use std::convert::TryFrom;
+use std::{collections::HashSet, convert::TryInto};
 use std::{
     result,
     sync::{Arc, Mutex},
@@ -296,12 +295,14 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
-impl From<pb::SearchTerm> for Node {
-    fn from(msg: pb::SearchTerm) -> Self {
+impl TryFrom<pb::SearchTerm> for Node {
+    type Error = AnkiError;
+
+    fn try_from(msg: pb::SearchTerm) -> std::result::Result<Self, Self::Error> {
         use pb::search_term::group::Operator;
         use pb::search_term::Filter;
         use pb::search_term::Flag;
-        if let Some(filter) = msg.filter {
+        Ok(if let Some(filter) = msg.filter {
             match filter {
                 Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
                 Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
@@ -351,24 +352,40 @@ impl From<pb::SearchTerm> for Node {
                     Flag::Green => Node::Search(SearchNode::Flag(3)),
                     Flag::Blue => Node::Search(SearchNode::Flag(4)),
                 },
-                Filter::Negated(term) => Node::Not(Box::new((*term).into())),
-                Filter::Group(group) => {
-                    let operator = match group.op() {
-                        Operator::And => Node::And,
-                        Operator::Or => Node::Or,
-                    };
-                    let joined = group
-                        .terms
-                        .into_iter()
-                        .map(Into::into)
-                        .intersperse(operator)
-                        .collect();
-                    Node::Group(joined)
+                Filter::Negated(term) => Node::try_from(*term)?.negated(),
+                Filter::Group(mut group) => {
+                    match group.terms.len() {
+                        0 => return Err(AnkiError::invalid_input("empty group")),
+                        // a group of 1 doesn't need to be a group
+                        1 => group.terms.pop().unwrap().try_into()?,
+                        // 2+ nodes
+                        _ => {
+                            let operator = match group.op() {
+                                Operator::And => Node::And,
+                                Operator::Or => Node::Or,
+                            };
+                            let parsed: Vec<_> = group
+                                .terms
+                                .into_iter()
+                                .map(TryFrom::try_from)
+                                .collect::<Result<_>>()?;
+                            let joined = parsed.into_iter().intersperse(operator).collect();
+                            Node::Group(joined)
+                        }
+                    }
+                }
+                Filter::UnparsedSearch(text) => {
+                    let mut nodes = parse_search(&text)?;
+                    if nodes.len() == 1 {
+                        nodes.pop().unwrap()
+                    } else {
+                        Node::Group(nodes)
+                    }
                 }
             }
         } else {
             Node::Search(SearchNode::WholeCollection)
-        }
+        })
     }
 }
 
@@ -532,11 +549,7 @@ impl BackendService for Backend {
     //-----------------------------------------------
 
     fn filter_to_search(&self, input: pb::SearchTerm) -> Result<pb::String> {
-        Ok(write_nodes(&[input.into()]).into())
-    }
-
-    fn normalize_search(&self, input: pb::String) -> Result<pb::String> {
-        Ok(normalize_search(&input.val)?.into())
+        Ok(write_nodes(&[input.try_into()?]).into())
     }
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
@@ -558,16 +571,31 @@ impl BackendService for Backend {
         })
     }
 
-    fn negate_search(&self, input: pb::String) -> Result<pb::String> {
-        Ok(negate_search(&input.val)?.into())
-    }
-
     fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
-        Ok(concatenate_searches(input.sep().into(), &input.searches)?.into())
+        let sep = input.sep().into();
+        let existing_nodes = {
+            let node = input.existing_search.unwrap_or_default().try_into()?;
+            if let Node::Group(nodes) = node {
+                nodes
+            } else {
+                vec![node]
+            }
+        };
+        let additional_node = input.additional_search.unwrap_or_default().try_into()?;
+        Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
     }
 
     fn replace_search_term(&self, input: pb::ReplaceSearchTermIn) -> Result<pb::String> {
-        Ok(replace_search_term(&input.search, &input.replacement)?.into())
+        let existing = {
+            let node = input.search.unwrap_or_default().try_into()?;
+            if let Node::Group(nodes) = node {
+                nodes
+            } else {
+                vec![node]
+            }
+        };
+        let replacement = input.replacement.unwrap_or_default().try_into()?;
+        Ok(replace_search_term(existing, replacement).into())
     }
 
     fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {

@@ -91,10 +91,8 @@ service BackendService {
   // searching
 
   rpc FilterToSearch(SearchTerm) returns (String);
-  rpc NormalizeSearch(String) returns (String);
   rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
-  rpc NegateSearch(String) returns (String);
   rpc ConcatenateSearches(ConcatenateSearchesIn) returns (String);
   rpc ReplaceSearchTerm(ReplaceSearchTermIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
@@ -820,7 +818,7 @@ message SearchTerm {
   oneof filter {
     Group group = 1;
     SearchTerm negated = 2;
-    string note = 3;
+    string unparsed_search = 3;
     uint32 template = 4;
     int64 nid = 5;
     Dupe dupe = 6;
@@ -835,6 +833,7 @@ message SearchTerm {
     string deck = 15;
     int32 due_on_day = 16;
     string tag = 17;
+    string note = 18;
   }
 }
 
@@ -844,12 +843,13 @@ message ConcatenateSearchesIn {
     OR = 1;
   }
   Separator sep = 1;
-  repeated string searches = 2;
+  SearchTerm existing_search = 2;
+  SearchTerm additional_search = 3;
 }
 
 message ReplaceSearchTermIn {
-  string search = 1;
-  string replacement = 2;
+  SearchTerm search = 1;
+  SearchTerm replacement = 2;
 }
 
 message CloseCollectionIn {

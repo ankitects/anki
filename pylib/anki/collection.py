@@ -11,7 +11,7 @@ import sys
 import time
 import traceback
 import weakref
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Literal, Optional, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
 import anki.find
@@ -526,37 +526,71 @@ class Collection:
     # Search Strings
     ##########################################################################
 
-    # pylint: disable=no-member
+    def group_search_terms(self, *terms: Union[str, SearchTerm]) -> SearchTerm:
+        """Join provided search terms and strings into a single SearchTerm.
+        If multiple terms provided, they will be ANDed together into a group.
+        If a single term is provided, it is returned as-is.
+        """
+        assert terms
+
+        # convert raw text to SearchTerms
+        search_terms = [
+            term if isinstance(term, SearchTerm) else SearchTerm(unparsed_search=term)
+            for term in terms
+        ]
+
+        # if there's more than one, wrap it in an implicit AND
+        if len(search_terms) > 1:
+            return SearchTerm(group=SearchTerm.Group(terms=search_terms))
+        else:
+            return search_terms[0]
+
     def build_search_string(
         self,
         *terms: Union[str, SearchTerm],
-        negate: bool = False,
-        match_any: bool = False,
     ) -> str:
-        """Helper function for the backend's search string operations.
+        """Join provided search terms together, and return a normalized search string.
 
-        Pass terms as strings to normalize.
-        Pass fields of backend.proto/FilterToSearchIn as valid SearchTerms.
-        Pass multiple terms to concatenate (defaults to 'and', 'or' when 'match_any=True').
-        Pass 'negate=True' to negate the end result.
-        May raise InvalidInput.
+        Terms are joined by an implicit AND. You can make an explict AND or OR
+        by wrapping in a group:
+
+            terms = [... one or more SearchTerms()]
+            group = SearchTerm.Group(op=SearchTerm.Group.OR, terms=terms)
+            term = SearchTerm(group=group)
+
+        To negate, wrap in a negated search term:
+
+            term = SearchTerm(negated=term)
+
+        Invalid search terms will throw an exception.
+        """
+        term = self.group_search_terms(*terms)
+        return self._backend.filter_to_search(term)
+
+    # pylint: disable=no-member
+    def join_searches(
+        self,
+        existing_term: SearchTerm,
+        additional_term: SearchTerm,
+        operator: Literal["AND", "OR"],
+    ) -> str:
+        """
+        AND or OR `additional_term` to `existing_term`, without wrapping `existing_term` in brackets.
+        If you're building a search query yourself, prefer using SearchTerm(group=SearchTerm.Group(...))
         """
 
-        searches = []
-        for term in terms:
-            if isinstance(term, SearchTerm):
-                term = self._backend.filter_to_search(term)
-            searches.append(term)
-        if match_any:
-            sep = _pb.ConcatenateSearchesIn.OR
-        else:
+        if operator == "AND":
             sep = _pb.ConcatenateSearchesIn.AND
-        search_string = self._backend.concatenate_searches(sep=sep, searches=searches)
-        if negate:
-            search_string = self._backend.negate_search(search_string)
+        else:
+            sep = _pb.ConcatenateSearchesIn.OR
+
+        search_string = self._backend.concatenate_searches(
+            sep=sep, existing_search=existing_term, additional_search=additional_term
+        )
+
         return search_string
 
-    def replace_search_term(self, search: str, replacement: str) -> str:
+    def replace_search_term(self, search: SearchTerm, replacement: SearchTerm) -> str:
         return self._backend.replace_search_term(search=search, replacement=replacement)
 
     # Config
