@@ -43,7 +43,8 @@ from anki.utils import (
 )
 
 # public exports
-SearchTerm = _pb.SearchTerm
+SearchNode = _pb.SearchNode
+SearchJoiner = Literal["AND", "OR"]
 Progress = _pb.Progress
 Config = _pb.Config
 EmptyCardsReport = _pb.EmptyCardsReport
@@ -471,7 +472,7 @@ class Collection:
             )
         return self._backend.search_cards(search=query, order=mode)
 
-    def find_notes(self, *terms: Union[str, SearchTerm]) -> Sequence[int]:
+    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[int]:
         return self._backend.search_notes(self.build_search_string(*terms))
 
     def find_and_replace(
@@ -487,7 +488,7 @@ class Collection:
 
     # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        nids = self.findNotes(search, SearchTerm(field_name=fieldName))
+        nids = self.findNotes(search, SearchNode(field_name=fieldName))
         # go through notes
         vals: Dict[str, List[int]] = {}
         dupes = []
@@ -526,72 +527,85 @@ class Collection:
     # Search Strings
     ##########################################################################
 
-    def group_search_terms(self, *terms: Union[str, SearchTerm]) -> SearchTerm:
-        """Join provided search terms and strings into a single SearchTerm.
-        If multiple terms provided, they will be ANDed together into a group.
-        If a single term is provided, it is returned as-is.
-        """
-        assert terms
-
-        # convert raw text to SearchTerms
-        search_terms = [
-            term if isinstance(term, SearchTerm) else SearchTerm(unparsed_search=term)
-            for term in terms
-        ]
-
-        # if there's more than one, wrap it in an implicit AND
-        if len(search_terms) > 1:
-            return SearchTerm(group=SearchTerm.Group(terms=search_terms))
-        else:
-            return search_terms[0]
-
     def build_search_string(
         self,
-        *terms: Union[str, SearchTerm],
+        *nodes: Union[str, SearchNode],
+        joiner: SearchJoiner = "AND",
     ) -> str:
-        """Join provided search terms together, and return a normalized search string.
-
-        Terms are joined by an implicit AND. You can make an explict AND or OR
-        by wrapping in a group:
-
-            terms = [... one or more SearchTerms()]
-            group = SearchTerm.Group(op=SearchTerm.Group.OR, terms=terms)
-            term = SearchTerm(group=group)
+        """Join one or more searches, and return a normalized search string.
 
         To negate, wrap in a negated search term:
 
-            term = SearchTerm(negated=term)
+            term = SearchNode(negated=col.group_searches(...))
 
-        Invalid search terms will throw an exception.
+        Invalid searches will throw an exception.
         """
-        term = self.group_search_terms(*terms)
-        return self._backend.filter_to_search(term)
+        term = self.group_searches(*nodes, joiner=joiner)
+        return self._backend.build_search_string(term)
 
-    # pylint: disable=no-member
+    def group_searches(
+        self,
+        *nodes: Union[str, SearchNode],
+        joiner: SearchJoiner = "AND",
+    ) -> SearchNode:
+        """Join provided search nodes and strings into a single SearchNode.
+        If a single SearchNode is provided, it is returned as-is.
+        At least one node must be provided.
+        """
+        assert nodes
+
+        # convert raw text to SearchNodes
+        search_nodes = [
+            node if isinstance(node, SearchNode) else SearchNode(parsable_text=node)
+            for node in nodes
+        ]
+
+        # if there's more than one, wrap them in a group
+        if len(search_nodes) > 1:
+            return SearchNode(
+                group=SearchNode.Group(
+                    nodes=search_nodes, joiner=self._pb_search_separator(joiner)
+                )
+            )
+        else:
+            return search_nodes[0]
+
     def join_searches(
         self,
-        existing_term: SearchTerm,
-        additional_term: SearchTerm,
+        existing_node: SearchNode,
+        additional_node: SearchNode,
         operator: Literal["AND", "OR"],
     ) -> str:
         """
         AND or OR `additional_term` to `existing_term`, without wrapping `existing_term` in brackets.
-        If you're building a search query yourself, prefer using SearchTerm(group=SearchTerm.Group(...))
+        Used by the Browse screen to avoid adding extra brackets when joining.
+        If you're building a search query yourself, you probably don't need this.
         """
-
-        if operator == "AND":
-            sep = _pb.ConcatenateSearchesIn.AND
-        else:
-            sep = _pb.ConcatenateSearchesIn.OR
-
-        search_string = self._backend.concatenate_searches(
-            sep=sep, existing_search=existing_term, additional_search=additional_term
+        search_string = self._backend.join_search_nodes(
+            joiner=self._pb_search_separator(operator),
+            existing_node=existing_node,
+            additional_node=additional_node,
         )
 
         return search_string
 
-    def replace_search_term(self, search: SearchTerm, replacement: SearchTerm) -> str:
-        return self._backend.replace_search_term(search=search, replacement=replacement)
+    def replace_in_search_node(
+        self, existing_node: SearchNode, replacement_node: SearchNode
+    ) -> str:
+        """If nodes of the same type as `replacement_node` are found in existing_node, replace them.
+
+        You can use this to replace any "deck" clauses in a search with a different deck for example.
+        """
+        return self._backend.replace_search_node(
+            existing_node=existing_node, replacement_node=replacement_node
+        )
+
+    def _pb_search_separator(self, operator: SearchJoiner) -> SearchNode.Group.Joiner.V:
+        # pylint: disable=no-member
+        if operator == "AND":
+            return SearchNode.Group.Joiner.AND
+        else:
+            return SearchNode.Group.Joiner.OR
 
     # Config
     ##########################################################################

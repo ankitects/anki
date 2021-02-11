@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt
-from anki.collection import SearchTerm
+from anki.collection import SearchNode
 from anki.consts import *
 from aqt.qt import *
 from aqt.utils import TR, disable_help_button, showInfo, showWarning, tr
@@ -164,20 +164,20 @@ class CustomStudy(QDialog):
         # and then set various options
         if i == RADIO_FORGOT:
             search = self.mw.col.build_search_string(
-                SearchTerm(
-                    rated=SearchTerm.Rated(days=spin, rating=SearchTerm.RATING_AGAIN)
+                SearchNode(
+                    rated=SearchNode.Rated(days=spin, rating=SearchNode.RATING_AGAIN)
                 )
             )
             dyn["terms"][0] = [search, DYN_MAX_SIZE, DYN_RANDOM]
             dyn["resched"] = False
         elif i == RADIO_AHEAD:
-            search = self.mw.col.build_search_string(SearchTerm(due_in_days=spin))
+            search = self.mw.col.build_search_string(SearchNode(due_in_days=spin))
             dyn["terms"][0] = [search, DYN_MAX_SIZE, DYN_DUE]
             dyn["resched"] = True
         elif i == RADIO_PREVIEW:
             search = self.mw.col.build_search_string(
-                SearchTerm(card_state=SearchTerm.CARD_STATE_NEW),
-                SearchTerm(added_in_days=spin),
+                SearchNode(card_state=SearchNode.CARD_STATE_NEW),
+                SearchNode(added_in_days=spin),
             )
             dyn["terms"][0] = [search, DYN_MAX_SIZE, DYN_OLDEST]
             dyn["resched"] = False
@@ -185,19 +185,19 @@ class CustomStudy(QDialog):
             type = f.cardType.currentRow()
             if type == TYPE_NEW:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(card_state=SearchTerm.CARD_STATE_NEW)
+                    SearchNode(card_state=SearchNode.CARD_STATE_NEW)
                 )
                 ord = DYN_ADDED
                 dyn["resched"] = True
             elif type == TYPE_DUE:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(card_state=SearchTerm.CARD_STATE_DUE)
+                    SearchNode(card_state=SearchNode.CARD_STATE_DUE)
                 )
                 ord = DYN_DUE
                 dyn["resched"] = True
             elif type == TYPE_REVIEW:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(negated=SearchTerm(card_state=SearchTerm.CARD_STATE_NEW))
+                    SearchNode(negated=SearchNode(card_state=SearchNode.CARD_STATE_NEW))
                 )
                 ord = DYN_RANDOM
                 dyn["resched"] = True
@@ -208,7 +208,7 @@ class CustomStudy(QDialog):
             dyn["terms"][0] = [(terms + tags).strip(), spin, ord]
         # add deck limit
         dyn["terms"][0][0] = self.mw.col.build_search_string(
-            dyn["terms"][0][0], SearchTerm(deck=self.deck["name"])
+            dyn["terms"][0][0], SearchNode(deck=self.deck["name"])
         )
         self.mw.col.decks.save(dyn)
         # generate cards

@@ -9,7 +9,7 @@ from concurrent.futures import Future
 from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
-from anki.collection import SearchTerm
+from anki.collection import SearchNode
 from anki.errors import Interrupted
 from anki.lang import TR
 from anki.media import CheckMediaOut
@@ -154,7 +154,7 @@ class MediaChecker:
 
         if out is not None:
             nid, err = out
-            aqt.dialogs.open("Browser", self.mw, search=(SearchTerm(nid=nid),))
+            aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
             showText(err, type="html")
         else:
             tooltip(tr(TR.MEDIA_CHECK_ALL_LATEX_RENDERED))
