@@ -296,41 +296,32 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
-impl From<pb::SearchTerm> for Node<'_> {
+impl From<pb::SearchTerm> for Node {
     fn from(msg: pb::SearchTerm) -> Self {
         use pb::search_term::group::Operator;
         use pb::search_term::Filter;
         use pb::search_term::Flag;
         if let Some(filter) = msg.filter {
             match filter {
-                Filter::Tag(s) => Node::Search(SearchNode::Tag(
-                    escape_anki_wildcards(&s).into_owned().into(),
-                )),
-                Filter::Deck(s) => Node::Search(SearchNode::Deck(
-                    if s == "*" {
-                        s
-                    } else {
-                        escape_anki_wildcards(&s).into_owned()
-                    }
-                    .into(),
-                )),
-                Filter::Note(s) => Node::Search(SearchNode::NoteType(
-                    escape_anki_wildcards(&s).into_owned().into(),
-                )),
+                Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
+                Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
+                    s
+                } else {
+                    escape_anki_wildcards(&s)
+                })),
+                Filter::Note(s) => Node::Search(SearchNode::NoteType(escape_anki_wildcards(&s))),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
-                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string().into())),
-                Filter::Nids(nids) => {
-                    Node::Search(SearchNode::NoteIDs(nids.into_id_string().into()))
-                }
+                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string())),
+                Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string())),
                 Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                     note_type_id: dupe.notetype_id.into(),
-                    text: dupe.first_field.into(),
+                    text: dupe.first_field,
                 }),
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                    field: escape_anki_wildcards(&s).into_owned().into(),
-                    text: "*".to_string().into(),
+                    field: escape_anki_wildcards(&s),
+                    text: "*".to_string(),
                     is_re: false,
                 }),
                 Filter::Rated(rated) => Node::Search(SearchNode::Rated {
