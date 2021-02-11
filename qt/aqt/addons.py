@@ -309,7 +309,7 @@ class AddonManager:
         meta = self.addon_meta(dir)
         name = meta.human_name()
         if not meta.enabled:
-            name += " " + tr(TR.ADDONS_DISABLED)
+            name += f" {tr(TR.ADDONS_DISABLED)}"
         return name
 
     # Conflict resolution
@@ -741,11 +741,9 @@ class AddonsDialog(QDialog):
         name = addon.human_name()
 
         if not addon.enabled:
-            return name + " " + tr(TR.ADDONS_DISABLED2)
+            return f"{name} {tr(TR.ADDONS_DISABLED2)}"
         elif not addon.compatible():
-            return (
-                name + " " + tr(TR.ADDONS_REQUIRES, val=self.compatible_string(addon))
-            )
+            return f"{name} {tr(TR.ADDONS_REQUIRES, val=self.compatible_string(addon))}"
 
         return name
 
@@ -818,7 +816,7 @@ class AddonsDialog(QDialog):
         if not addon:
             return
         if re.match(r"^\d+$", addon):
-            openLink(aqt.appShared + f"info/{addon}")
+            openLink(f"{aqt.appShared}info/{addon}")
         else:
             showWarning(tr(TR.ADDONS_ADDON_WAS_NOT_DOWNLOADED_FROM_ANKIWEB))
 
@@ -864,7 +862,7 @@ class AddonsDialog(QDialog):
 
     def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
-            key = tr(TR.ADDONS_PACKAGED_ANKI_ADDON) + f" (*{self.mgr.ext})"
+            key = f"{tr(TR.ADDONS_PACKAGED_ANKI_ADDON)} (*{self.mgr.ext})"
             paths_ = getFile(
                 self, tr(TR.ADDONS_INSTALL_ADDONS), None, key, key="addons", multi=True
             )
@@ -924,7 +922,7 @@ class GetAddons(QDialog):
         saveGeom(self, "getaddons")
 
     def onBrowse(self) -> None:
-        openLink(aqt.appShared + "addons/2.1")
+        openLink(f"{aqt.appShared}addons/2.1")
 
     def accept(self) -> None:
         # get codes
@@ -946,7 +944,7 @@ def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadErr
     "Fetch a single add-on from AnkiWeb."
     try:
         resp = client.get(
-            aqt.appShared + f"download/{id}?v=2.1&p={current_point_version}"
+            f"{aqt.appShared}download/{id}?v=2.1&p={current_point_version}"
         )
         if resp.status_code != 200:
             return DownloadError(status_code=resp.status_code)
@@ -1107,7 +1105,7 @@ def show_log_to_user(parent: QWidget, log: List[DownloadLogEntry]) -> None:
         text = tr(TR.ADDONS_ONE_OR_MORE_ERRORS_OCCURRED)
     else:
         text = tr(TR.ADDONS_DOWNLOAD_COMPLETE_PLEASE_RESTART_ANKI_TO)
-    text += "<br><br>" + download_log_to_html(log)
+    text += f"<br><br>{download_log_to_html(log)}"
 
     if have_problem:
         showWarning(text, textFormat="rich", parent=parent)
@@ -1153,7 +1151,7 @@ def _fetch_update_info_batch(
     """Get update info from AnkiWeb.
 
     Chunk must not contain more than 25 ids."""
-    resp = client.get(aqt.appShared + "updates/" + ",".join(chunk) + "?v=3")
+    resp = client.get(f"{aqt.appShared}updates/{','.join(chunk)}?v=3")
     if resp.status_code == 200:
         return resp.json()
     else:
@@ -1366,7 +1364,7 @@ class ConfigEditor(QDialog):
             showInfo(msg)
             return
         except Exception as e:
-            showInfo(tr(TR.ADDONS_INVALID_CONFIGURATION) + " " + repr(e))
+            showInfo(f"{tr(TR.ADDONS_INVALID_CONFIGURATION)} {repr(e)}")
             return
 
         if not isinstance(new_conf, dict):
@@ -1419,7 +1417,7 @@ def installAddonPackages(
     if log:
         log_html = "<br>".join(log)
         if advise_restart:
-            log_html += "<br><br>" + tr(TR.ADDONS_PLEASE_RESTART_ANKI_TO_COMPLETE_THE)
+            log_html += f"<br><br>{tr(TR.ADDONS_PLEASE_RESTART_ANKI_TO_COMPLETE_THE)}"
         if len(log) == 1 and not strictly_modal:
             tooltip(log_html, parent=parent)
         else:

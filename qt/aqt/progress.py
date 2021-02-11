@@ -45,7 +45,7 @@ class ProgressManager:
         def handler() -> None:
             if requiresCollection and not self.mw.col:
                 # no current collection; timer is no longer valid
-                print("Ignored progress func as collection unloaded: %s" % repr(func))
+                print(f"Ignored progress func as collection unloaded: {repr(func)}")
                 return
 
             if not self._levels:

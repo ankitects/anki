@@ -522,7 +522,7 @@ create table if not exists profiles
                 without_unicode_isolation(
                     tr(
                         TR.PROFILES_FOLDER_README,
-                        link=appHelpSite + "files?id=startup-options",
+                        link=f"{appHelpSite}files?id=startup-options",
                     )
                 )
             )

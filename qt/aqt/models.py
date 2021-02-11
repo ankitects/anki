@@ -128,7 +128,7 @@ class Models(QDialog):
         self.models = notetypes
         for m in self.models:
             mUse = tr(TR.BROWSING_NOTE_COUNT, count=m.use_count)
-            item = QListWidgetItem("%s [%s]" % (m.name, mUse))
+            item = QListWidgetItem(f"{m.name} [{mUse}]")
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 

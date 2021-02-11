@@ -80,7 +80,7 @@ class Overview:
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
         elif url == "review":
-            openLink(aqt.appShared + "info/%s?v=%s" % (self.sid, self.sidVer))
+            openLink(f"{aqt.appShared}info/{self.sid}?v={self.sidVer}")
         elif url == "studymore" or url == "customStudy":
             self.onStudyMore()
         elif url == "unbury":
@@ -180,8 +180,8 @@ class Overview:
     def _desc(self, deck: Dict[str, Any]) -> str:
         if deck["dyn"]:
             desc = tr(TR.STUDYING_THIS_IS_A_SPECIAL_DECK_FOR)
-            desc += " " + tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)
-            desc += " " + tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)
+            desc += f" {tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)}"
+            desc += f" {tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)}"
         else:
             desc = deck.get("desc", "")
             if deck.get("md", False):
@@ -192,7 +192,7 @@ class Overview:
             dyn = "dyn"
         else:
             dyn = ""
-        return '<div class="descfont descmid description %s">%s</div>' % (dyn, desc)
+        return f'<div class="descfont descmid description {dyn}">{desc}</div>'
 
     def _table(self) -> Optional[str]:
         counts = list(self.mw.col.sched.counts())

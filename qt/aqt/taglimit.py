@@ -98,12 +98,12 @@ class TagLimit(QDialog):
         if yes:
             arr = []
             for req in yes:
-                arr.append('tag:"%s"' % req)
-            self.tags += "(" + " or ".join(arr) + ")"
+                arr.append(f'tag:"{req}"')
+            self.tags += f"({' or '.join(arr)})"
         if no:
             arr = []
             for req in no:
-                arr.append('-tag:"%s"' % req)
-            self.tags += " " + " ".join(arr)
+                arr.append(f'-tag:"{req}"')
+            self.tags += f" {' '.join(arr)}"
         saveGeom(self, "tagLimit")
         QDialog.accept(self)

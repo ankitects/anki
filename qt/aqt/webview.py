@@ -97,7 +97,7 @@ class AnkiWebPage(QWebEnginePage):
         else:
             level_str = str(level)
         buf = "JS %(t)s %(f)s:%(a)d %(b)s" % dict(
-            t=level_str, a=line, f=srcID, b=msg + "\n"
+            t=level_str, a=line, f=srcID, b=f"{msg}\n"
         )
         if "MathJax localStorage" in buf:
             # silence localStorage noise
@@ -392,10 +392,10 @@ class AnkiWebView(QWebEngineView):
             family = tr(TR.QT_MISC_SEGOE_UI)
             button_style = "button { font-family:%s; }" % family
             button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
-            font = "font-size:12px;font-family:%s;" % family
+            font = f"font-size:12px;font-family:{family};"
         elif isMac:
             family = "Helvetica"
-            font = 'font-size:15px;font-family:"%s";' % family
+            font = f'font-size:15px;font-family:"{family}";'
             button_style = """
 button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
@@ -403,7 +403,7 @@ border-radius:5px; font-family: Helvetica }"""
             family = self.font().family()
             color_hl_txt = palette.color(QPalette.HighlightedText).name()
             color_btn = palette.color(QPalette.Button).name()
-            font = 'font-size:14px;font-family:"%s";' % family
+            font = f'font-size:14px;font-family:"{family}";'
             button_style = """
 /* Buttons */
 button{ 
@@ -503,7 +503,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         return f"http://127.0.0.1:{mw.mediaServer.getPort()}{subpath}{path}"
 
     def bundledScript(self, fname: str) -> str:
-        return '<script src="%s"></script>' % self.webBundlePath(fname)
+        return f'<script src="{self.webBundlePath(fname)}"></script>'
 
     def bundledCSS(self, fname: str) -> str:
         return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(
@@ -641,5 +641,5 @@ document.head.appendChild(style);
         else:
             extra = ""
         self.hide_while_preserving_layout()
-        self.load(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html" + extra))
+        self.load(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.inject_dynamic_style_and_show()

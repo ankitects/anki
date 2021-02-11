@@ -84,7 +84,7 @@ class AddCards(QDialog):
         self.helpButton.setAutoDefault(False)
         bb.addButton(self.helpButton, QDialogButtonBox.HelpRole)
         # history
-        b = bb.addButton(tr(TR.ADDING_HISTORY) + " " + downArrow(), ar)
+        b = bb.addButton(f"{tr(TR.ADDING_HISTORY)} {downArrow()}", ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:
@@ -149,7 +149,7 @@ class AddCards(QDialog):
                 fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
-                    txt = txt[:30] + "..."
+                    txt = f"{txt[:30]}..."
                 line = tr(TR.ADDING_EDIT, val=txt)
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
                 a = m.addAction(line)

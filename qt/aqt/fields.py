@@ -60,7 +60,7 @@ class FieldDialog(QDialog):
         self.currentIdx = None
         self.form.fieldList.clear()
         for c, f in enumerate(self.model["flds"]):
-            self.form.fieldList.addItem("{}: {}".format(c + 1, f["name"]))
+            self.form.fieldList.addItem(f"{c + 1}: {f['name']}")
 
     def setupSignals(self) -> None:
         f = self.form
@@ -244,7 +244,7 @@ class FieldDialog(QDialog):
                 fut.result()
             except TemplateError as e:
                 # fixme: i18n
-                showWarning("Unable to save changes: " + str(e))
+                showWarning(f"Unable to save changes: {str(e)}")
                 return
             self.mw.reset()
             tooltip("Changes saved.", parent=self.mw)

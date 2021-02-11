@@ -33,7 +33,7 @@ def _getExportFolder() -> str:
         return webInSrcFolder
     elif isMac:
         dir = os.path.dirname(os.path.abspath(__file__))
-        return os.path.abspath(dir + "/../../Resources/web")
+        return os.path.abspath(f"{dir}/../../Resources/web")
     else:
         if os.environ.get("TEST_TARGET"):
             # running tests in bazel; we have no data
@@ -110,7 +110,7 @@ def allroutes(pathin: str) -> Response:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
         return flask.make_response(
-            "Path for '%s - %s' is too long!" % (directory, path),
+            f"Path for '{directory} - {path}' is too long!",
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -121,13 +121,13 @@ def allroutes(pathin: str) -> Response:
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
     if not fullpath.startswith(directory):
         return flask.make_response(
-            "Path for '%s - %s' is a security leak!" % (directory, path),
+            f"Path for '{directory} - {path}' is a security leak!",
             HTTPStatus.FORBIDDEN,
         )
 
     if isdir:
         return flask.make_response(
-            "Path for '%s - %s' is a directory (not supported)!" % (directory, path),
+            f"Path for '{directory} - {path}' is a directory (not supported)!",
             HTTPStatus.FORBIDDEN,
         )
 
@@ -221,7 +221,7 @@ def _redirectWebExports(path: str) -> Tuple[str, str]:
             addMgr = aqt.mw.addonManager
         except AttributeError as error:
             if devMode:
-                print("_redirectWebExports: %s" % error)
+                print(f"_redirectWebExports: {error}")
             return None
 
         try:

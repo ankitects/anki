@@ -86,7 +86,7 @@ def _err_unless_zero(result):
     if result == 0:
         return result
     else:
-        raise WinPathsException("Failed to retrieve windows path: %s" % result)
+        raise WinPathsException(f"Failed to retrieve windows path: {result}")
 
 
 _SHGetFolderPath = windll.shell32.SHGetFolderPathW

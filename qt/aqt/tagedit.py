@@ -137,4 +137,4 @@ class TagCompleter(QCompleter):
             self.tags.remove("")
         except ValueError:
             pass
-        return " ".join(self.tags) + " "
+        return f"{' '.join(self.tags)} "

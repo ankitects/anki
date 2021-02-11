@@ -397,7 +397,7 @@ class AnkiQt(QMainWindow):
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle(self.pm.name + " - Anki")
+        self.setWindowTitle(f"{self.pm.name} - Anki")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -489,7 +489,7 @@ class AnkiQt(QMainWindow):
                 )
             else:
                 showWarning(
-                    tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
+                    f"{tr(TR.ERRORS_UNABLE_OPEN_COLLECTION)}\n{traceback.format_exc()}"
                 )
             # clean up open collection if possible
             try:
@@ -643,14 +643,14 @@ class AnkiQt(QMainWindow):
     def moveToState(self, state: str, *args: Any) -> None:
         # print("-> move from", self.state, "to", state)
         oldState = self.state or "dummy"
-        cleanup = getattr(self, "_" + oldState + "Cleanup", None)
+        cleanup = getattr(self, f"_{oldState}Cleanup", None)
         if cleanup:
             # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
         gui_hooks.state_will_change(state, oldState)
-        getattr(self, "_" + state + "State")(oldState, *args)
+        getattr(self, f"_{state}State")(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.show()
         gui_hooks.state_did_change(state, oldState)
@@ -730,14 +730,13 @@ class AnkiQt(QMainWindow):
         i = tr(TR.QT_MISC_WAITING_FOR_EDITING_TO_FINISH)
         b = self.button("refresh", tr(TR.QT_MISC_RESUME_NOW), id="resume")
         self.web.stdHtml(
-            """
-<center><div style="height: 100%%">
+            f"""
+<center><div style="height: 100%">
 <div style="position:relative; vertical-align: middle;">
-%s<br><br>
-%s</div></div></center>
+{i}<br><br>
+{b}</div></div></center>
 <script>$('#resume').focus()</script>
-"""
-            % (i, b),
+""",
             context=web_context,
         )
         self.bottomWeb.hide()
@@ -755,7 +754,7 @@ class AnkiQt(QMainWindow):
         id: str = "",
         extra: str = "",
     ) -> str:
-        class_ = "but " + class_
+        class_ = f"but {class_}"
         if key:
             key = tr(TR.ACTIONS_SHORTCUT_KEY, val=key)
         else:
@@ -989,7 +988,7 @@ title="%s" %s>%s</button>""" % (
     def setStateShortcuts(self, shortcuts: List[Tuple[str, Callable]]) -> None:
         gui_hooks.state_shortcuts_will_change(self.state, shortcuts)
         # legacy hook
-        runHook(self.state + "StateShortcuts", shortcuts)
+        runHook(f"{self.state}StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
     def clearStateShortcuts(self) -> None:
@@ -1285,7 +1284,7 @@ title="%s" %s>%s</button>""" % (
             if not existed:
                 f.write(b"nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
-                "select id, mid, flds from notes where id in %s" % ids2str(nids)
+                f"select id, mid, flds from notes where id in {ids2str(nids)}"
             ):
                 fields = splitFields(flds)
                 f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
@@ -1471,9 +1470,9 @@ title="%s" %s>%s</button>""" % (
         buf = ""
         for c, line in enumerate(text.strip().split("\n")):
             if c == 0:
-                buf += ">>> %s\n" % line
+                buf += f">>> {line}\n"
             else:
-                buf += "... %s\n" % line
+                buf += f"... {line}\n"
         try:
             to_append = buf + (self._output or "<no output>")
             to_append = gui_hooks.debug_console_did_evaluate_python(
@@ -1616,7 +1615,7 @@ title="%s" %s>%s</button>""" % (
         self.mediaServer.start()
 
     def baseHTML(self) -> str:
-        return '<base href="%s">' % self.serverURL()
+        return f'<base href="{self.serverURL()}">'
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()

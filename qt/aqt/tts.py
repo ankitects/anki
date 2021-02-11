@@ -141,7 +141,7 @@ def on_tts_voices(
         f"{{{{tts {v.lang} voices={v.name}}}}}"  # pylint: disable=no-member
         for v in voices
     )
-    return buf + "</div>"
+    return f"{buf}</div>"
 
 
 hooks.field_filter.append(on_tts_voices)
@@ -199,7 +199,7 @@ class MacTTSPlayer(TTSProcessPlayer):
             return None
 
         original_name = m.group(1).strip()
-        tidy_name = "Apple_" + original_name.replace(" ", "_")
+        tidy_name = f"Apple_{original_name.replace(' ', '_')}"
         return MacVoice(name=tidy_name, original_name=original_name, lang=m.group(2))
 
 

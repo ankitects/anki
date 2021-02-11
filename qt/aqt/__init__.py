@@ -232,7 +232,7 @@ def setupLangAndBackend(
     else:
         qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
     qt_lang = lang.replace("-", "_")
-    if _qtrans.load("qtbase_" + qt_lang, qt_dir):
+    if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 
     return anki.lang.current_i18n
@@ -249,7 +249,7 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = "anki" + checksum(getpass.getuser())
+    KEY = f"anki{checksum(getpass.getuser())}"
     TMOUT = 30000
 
     def __init__(self, argv: List[str]) -> None:
@@ -319,7 +319,7 @@ def parseArgs(argv: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     # as there's no such profile
     if isMac and len(argv) > 1 and argv[1].startswith("-psn"):
         argv = [argv[0]]
-    parser = argparse.ArgumentParser(description="Anki " + appVersion)
+    parser = argparse.ArgumentParser(description=f"Anki {appVersion}")
     parser.usage = "%(prog)s [OPTIONS] [file to import/add-on to install]"
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
@@ -424,7 +424,7 @@ def run() -> None:
         QMessageBox.critical(
             None,
             "Startup Error",
-            "Please notify support of this error:\n\n" + traceback.format_exc(),
+            f"Please notify support of this error:\n\n{traceback.format_exc()}",
         )
 
 
