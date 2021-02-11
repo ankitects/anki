@@ -6,7 +6,6 @@ use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::{
-        concatenate_searches_in::Separator as BoolSeparatorProto,
         sort_order::builtin::Kind as SortKindProto, sort_order::Value as SortOrderProto,
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
     },
@@ -38,9 +37,8 @@ use crate::{
         timespan::{answer_button_time, time_span},
     },
     search::{
-        concatenate_searches, negate_search, normalize_search, replace_search_term, write_nodes,
-        BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode, StateKind,
-        TemplateKind,
+        concatenate_searches, parse_search, replace_search_node, write_nodes, BoolSeparator, Node,
+        PropertyKind, RatingKind, SearchNode, SortMode, StateKind, TemplateKind,
     },
     stats::studied_today,
     sync::{
@@ -55,14 +53,15 @@ use crate::{
 };
 use fluent::FluentValue;
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
+use itertools::Itertools;
 use log::error;
 use once_cell::sync::OnceCell;
 use pb::{sync_status_out, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use slog::warn;
-use std::collections::HashSet;
 use std::convert::TryFrom;
+use std::{collections::HashSet, convert::TryInto};
 use std::{
     result,
     sync::{Arc, Mutex},
@@ -267,7 +266,7 @@ impl From<pb::NoteId> for NoteID {
     }
 }
 
-impl pb::search_term::IdList {
+impl pb::search_node::IdList {
     fn into_id_string(self) -> String {
         self.ids
             .iter()
@@ -295,40 +294,34 @@ impl From<pb::DeckConfigId> for DeckConfID {
     }
 }
 
-impl From<pb::SearchTerm> for Node<'_> {
-    fn from(msg: pb::SearchTerm) -> Self {
-        use pb::search_term::Filter;
-        use pb::search_term::Flag;
-        if let Some(filter) = msg.filter {
+impl TryFrom<pb::SearchNode> for Node {
+    type Error = AnkiError;
+
+    fn try_from(msg: pb::SearchNode) -> std::result::Result<Self, Self::Error> {
+        use pb::search_node::group::Joiner;
+        use pb::search_node::Filter;
+        use pb::search_node::Flag;
+        Ok(if let Some(filter) = msg.filter {
             match filter {
-                Filter::Tag(s) => Node::Search(SearchNode::Tag(
-                    escape_anki_wildcards(&s).into_owned().into(),
-                )),
-                Filter::Deck(s) => Node::Search(SearchNode::Deck(
-                    if s == "*" {
-                        s
-                    } else {
-                        escape_anki_wildcards(&s).into_owned()
-                    }
-                    .into(),
-                )),
-                Filter::Note(s) => Node::Search(SearchNode::NoteType(
-                    escape_anki_wildcards(&s).into_owned().into(),
-                )),
+                Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
+                Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
+                    s
+                } else {
+                    escape_anki_wildcards(&s)
+                })),
+                Filter::Note(s) => Node::Search(SearchNode::NoteType(escape_anki_wildcards(&s))),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
-                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string().into())),
-                Filter::Nids(nids) => {
-                    Node::Search(SearchNode::NoteIDs(nids.into_id_string().into()))
-                }
+                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string())),
+                Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string())),
                 Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                     note_type_id: dupe.notetype_id.into(),
-                    text: dupe.first_field.into(),
+                    text: dupe.first_field,
                 }),
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                    field: escape_anki_wildcards(&s).into_owned().into(),
-                    text: "*".to_string().into(),
+                    field: escape_anki_wildcards(&s),
+                    text: "*".to_string(),
                     is_re: false,
                 }),
                 Filter::Rated(rated) => Node::Search(SearchNode::Rated {
@@ -346,7 +339,7 @@ impl From<pb::SearchTerm> for Node<'_> {
                 }),
                 Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
                 Filter::CardState(state) => Node::Search(SearchNode::State(
-                    pb::search_term::CardState::from_i32(state)
+                    pb::search_node::CardState::from_i32(state)
                         .unwrap_or_default()
                         .into(),
                 )),
@@ -358,45 +351,74 @@ impl From<pb::SearchTerm> for Node<'_> {
                     Flag::Green => Node::Search(SearchNode::Flag(3)),
                     Flag::Blue => Node::Search(SearchNode::Flag(4)),
                 },
-                Filter::Negated(term) => Node::Not(Box::new((*term).into())),
+                Filter::Negated(term) => Node::try_from(*term)?.negated(),
+                Filter::Group(mut group) => {
+                    match group.nodes.len() {
+                        0 => return Err(AnkiError::invalid_input("empty group")),
+                        // a group of 1 doesn't need to be a group
+                        1 => group.nodes.pop().unwrap().try_into()?,
+                        // 2+ nodes
+                        _ => {
+                            let joiner = match group.joiner() {
+                                Joiner::And => Node::And,
+                                Joiner::Or => Node::Or,
+                            };
+                            let parsed: Vec<_> = group
+                                .nodes
+                                .into_iter()
+                                .map(TryFrom::try_from)
+                                .collect::<Result<_>>()?;
+                            let joined = parsed.into_iter().intersperse(joiner).collect();
+                            Node::Group(joined)
+                        }
+                    }
+                }
+                Filter::ParsableText(text) => {
+                    let mut nodes = parse_search(&text)?;
+                    if nodes.len() == 1 {
+                        nodes.pop().unwrap()
+                    } else {
+                        Node::Group(nodes)
+                    }
+                }
             }
         } else {
             Node::Search(SearchNode::WholeCollection)
-        }
+        })
     }
 }
 
-impl From<BoolSeparatorProto> for BoolSeparator {
-    fn from(sep: BoolSeparatorProto) -> Self {
+impl From<pb::search_node::group::Joiner> for BoolSeparator {
+    fn from(sep: pb::search_node::group::Joiner) -> Self {
         match sep {
-            BoolSeparatorProto::And => BoolSeparator::And,
-            BoolSeparatorProto::Or => BoolSeparator::Or,
+            pb::search_node::group::Joiner::And => BoolSeparator::And,
+            pb::search_node::group::Joiner::Or => BoolSeparator::Or,
         }
     }
 }
 
-impl From<pb::search_term::Rating> for RatingKind {
-    fn from(r: pb::search_term::Rating) -> Self {
+impl From<pb::search_node::Rating> for RatingKind {
+    fn from(r: pb::search_node::Rating) -> Self {
         match r {
-            pb::search_term::Rating::Again => RatingKind::AnswerButton(1),
-            pb::search_term::Rating::Hard => RatingKind::AnswerButton(2),
-            pb::search_term::Rating::Good => RatingKind::AnswerButton(3),
-            pb::search_term::Rating::Easy => RatingKind::AnswerButton(4),
-            pb::search_term::Rating::Any => RatingKind::AnyAnswerButton,
-            pb::search_term::Rating::ByReschedule => RatingKind::ManualReschedule,
+            pb::search_node::Rating::Again => RatingKind::AnswerButton(1),
+            pb::search_node::Rating::Hard => RatingKind::AnswerButton(2),
+            pb::search_node::Rating::Good => RatingKind::AnswerButton(3),
+            pb::search_node::Rating::Easy => RatingKind::AnswerButton(4),
+            pb::search_node::Rating::Any => RatingKind::AnyAnswerButton,
+            pb::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
         }
     }
 }
 
-impl From<pb::search_term::CardState> for StateKind {
-    fn from(k: pb::search_term::CardState) -> Self {
+impl From<pb::search_node::CardState> for StateKind {
+    fn from(k: pb::search_node::CardState) -> Self {
         match k {
-            pb::search_term::CardState::New => StateKind::New,
-            pb::search_term::CardState::Learn => StateKind::Learning,
-            pb::search_term::CardState::Review => StateKind::Review,
-            pb::search_term::CardState::Due => StateKind::Due,
-            pb::search_term::CardState::Suspended => StateKind::Suspended,
-            pb::search_term::CardState::Buried => StateKind::Buried,
+            pb::search_node::CardState::New => StateKind::New,
+            pb::search_node::CardState::Learn => StateKind::Learning,
+            pb::search_node::CardState::Review => StateKind::Review,
+            pb::search_node::CardState::Due => StateKind::Due,
+            pb::search_node::CardState::Suspended => StateKind::Suspended,
+            pb::search_node::CardState::Buried => StateKind::Buried,
         }
     }
 }
@@ -525,12 +547,8 @@ impl BackendService for Backend {
     // searching
     //-----------------------------------------------
 
-    fn filter_to_search(&self, input: pb::SearchTerm) -> Result<pb::String> {
-        Ok(write_nodes(&[input.into()]).into())
-    }
-
-    fn normalize_search(&self, input: pb::String) -> Result<pb::String> {
-        Ok(normalize_search(&input.val)?.into())
+    fn build_search_string(&self, input: pb::SearchNode) -> Result<pb::String> {
+        Ok(write_nodes(&[input.try_into()?]).into())
     }
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
@@ -552,16 +570,31 @@ impl BackendService for Backend {
         })
     }
 
-    fn negate_search(&self, input: pb::String) -> Result<pb::String> {
-        Ok(negate_search(&input.val)?.into())
+    fn join_search_nodes(&self, input: pb::JoinSearchNodesIn) -> Result<pb::String> {
+        let sep = input.joiner().into();
+        let existing_nodes = {
+            let node = input.existing_node.unwrap_or_default().try_into()?;
+            if let Node::Group(nodes) = node {
+                nodes
+            } else {
+                vec![node]
+            }
+        };
+        let additional_node = input.additional_node.unwrap_or_default().try_into()?;
+        Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
     }
 
-    fn concatenate_searches(&self, input: pb::ConcatenateSearchesIn) -> Result<pb::String> {
-        Ok(concatenate_searches(input.sep().into(), &input.searches)?.into())
-    }
-
-    fn replace_search_term(&self, input: pb::ReplaceSearchTermIn) -> Result<pb::String> {
-        Ok(replace_search_term(&input.search, &input.replacement)?.into())
+    fn replace_search_node(&self, input: pb::ReplaceSearchNodeIn) -> Result<pb::String> {
+        let existing = {
+            let node = input.existing_node.unwrap_or_default().try_into()?;
+            if let Node::Group(nodes) = node {
+                nodes
+            } else {
+                vec![node]
+            }
+        };
+        let replacement = input.replacement_node.unwrap_or_default().try_into()?;
+        Ok(replace_search_node(existing, replacement).into())
     }
 
     fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {

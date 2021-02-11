@@ -17,7 +17,6 @@ use nom::{
     sequence::{preceded, separated_pair},
 };
 use regex::{Captures, Regex};
-use std::borrow::Cow;
 
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
@@ -30,53 +29,63 @@ fn parse_error(input: &str) -> nom::Err<ParseError<'_>> {
     nom::Err::Error(ParseError::Anki(input, FailKind::Other(None)))
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Node<'a> {
+#[derive(Debug, PartialEq, Clone)]
+pub enum Node {
     And,
     Or,
-    Not(Box<Node<'a>>),
-    Group(Vec<Node<'a>>),
-    Search(SearchNode<'a>),
+    Not(Box<Node>),
+    Group(Vec<Node>),
+    Search(SearchNode),
+}
+
+impl Node {
+    pub fn negated(self) -> Node {
+        if let Node::Not(inner) = self {
+            *inner
+        } else {
+            Node::Not(Box::new(self))
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum SearchNode<'a> {
+pub enum SearchNode {
     // text without a colon
-    UnqualifiedText(Cow<'a, str>),
+    UnqualifiedText(String),
     // foo:bar, where foo doesn't match a term below
     SingleField {
-        field: Cow<'a, str>,
-        text: Cow<'a, str>,
+        field: String,
+        text: String,
         is_re: bool,
     },
     AddedInDays(u32),
     EditedInDays(u32),
-    CardTemplate(TemplateKind<'a>),
-    Deck(Cow<'a, str>),
+    CardTemplate(TemplateKind),
+    Deck(String),
     DeckID(DeckID),
     NoteTypeID(NoteTypeID),
-    NoteType(Cow<'a, str>),
+    NoteType(String),
     Rated {
         days: u32,
         ease: RatingKind,
     },
-    Tag(Cow<'a, str>),
+    Tag(String),
     Duplicates {
         note_type_id: NoteTypeID,
-        text: Cow<'a, str>,
+        text: String,
     },
     State(StateKind),
     Flag(u8),
-    NoteIDs(Cow<'a, str>),
-    CardIDs(&'a str),
+    NoteIDs(String),
+    CardIDs(String),
     Property {
         operator: String,
         kind: PropertyKind,
     },
     WholeCollection,
-    Regex(Cow<'a, str>),
-    NoCombining(Cow<'a, str>),
-    WordBoundary(Cow<'a, str>),
+    Regex(String),
+    NoCombining(String),
+    WordBoundary(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -103,9 +112,9 @@ pub enum StateKind {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum TemplateKind<'a> {
+pub enum TemplateKind {
     Ordinal(u16),
-    Name(Cow<'a, str>),
+    Name(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -116,7 +125,7 @@ pub enum RatingKind {
 }
 
 /// Parse the input string into a list of nodes.
-pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
+pub fn parse(input: &str) -> Result<Vec<Node>> {
     let input = input.trim();
     if input.is_empty() {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
@@ -303,7 +312,7 @@ fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
 fn search_node_for_text_with_argument<'a>(
     key: &'a str,
     val: &'a str,
-) -> ParseResult<'a, SearchNode<'a>> {
+) -> ParseResult<'a, SearchNode> {
     Ok(match key.to_ascii_lowercase().as_str() {
         "deck" => SearchNode::Deck(unescape(val)?),
         "note" => SearchNode::NoteType(unescape(val)?),
@@ -319,7 +328,7 @@ fn search_node_for_text_with_argument<'a>(
         "did" => parse_did(val)?,
         "mid" => parse_mid(val)?,
         "nid" => SearchNode::NoteIDs(check_id_list(val, key)?.into()),
-        "cid" => SearchNode::CardIDs(check_id_list(val, key)?),
+        "cid" => SearchNode::CardIDs(check_id_list(val, key)?.into()),
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
@@ -579,7 +588,7 @@ fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
     }
 }
 
-fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchNode<'a>> {
+fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchNode> {
     Ok(if let Some(stripped) = val.strip_prefix("re:") {
         SearchNode::SingleField {
             field: unescape(key)?,
@@ -596,25 +605,25 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchN
 }
 
 /// For strings without unescaped ", convert \" to "
-fn unescape_quotes(s: &str) -> Cow<str> {
+fn unescape_quotes(s: &str) -> String {
     if s.contains('"') {
-        s.replace(r#"\""#, "\"").into()
+        s.replace(r#"\""#, "\"")
     } else {
         s.into()
     }
 }
 
 /// For non-globs like dupe text without any assumption about the content
-fn unescape_quotes_and_backslashes(s: &str) -> Cow<str> {
+fn unescape_quotes_and_backslashes(s: &str) -> String {
     if s.contains('"') || s.contains('\\') {
-        s.replace(r#"\""#, "\"").replace(r"\\", r"\").into()
+        s.replace(r#"\""#, "\"").replace(r"\\", r"\")
     } else {
         s.into()
     }
 }
 
 /// Unescape chars with special meaning to the parser.
-fn unescape(txt: &str) -> ParseResult<Cow<str>> {
+fn unescape(txt: &str) -> ParseResult<String> {
     if let Some(seq) = invalid_escape_sequence(txt) {
         Err(parse_failure(txt, FailKind::UnknownEscape(seq)))
     } else {
@@ -631,6 +640,7 @@ fn unescape(txt: &str) -> ParseResult<Cow<str>> {
                 r"\-" => "-",
                 _ => unreachable!(),
             })
+            .into()
         } else {
             txt.into()
         })
@@ -979,5 +989,15 @@ mod test {
         assert!(matches!(failkind("prop:ease<1,3"), SearchErrorKind::InvalidNumber { .. }));
 
         Ok(())
+    }
+
+    #[test]
+    fn negating() {
+        let node = Node::Search(SearchNode::UnqualifiedText("foo".to_string()));
+        let neg_node = Node::Not(Box::new(Node::Search(SearchNode::UnqualifiedText(
+            "foo".to_string(),
+        ))));
+        assert_eq!(node.clone().negated(), neg_node);
+        assert_eq!(node.clone().negated().negated(), node);
     }
 }

@@ -90,13 +90,11 @@ service BackendService {
 
   // searching
 
-  rpc FilterToSearch(SearchTerm) returns (String);
-  rpc NormalizeSearch(String) returns (String);
+  rpc BuildSearchString(SearchNode) returns (String);
   rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
-  rpc NegateSearch(String) returns (String);
-  rpc ConcatenateSearches(ConcatenateSearchesIn) returns (String);
-  rpc ReplaceSearchTerm(ReplaceSearchTermIn) returns (String);
+  rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
+  rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
 
   // scheduling
@@ -773,7 +771,7 @@ message SearchNotesOut {
   repeated int64 note_ids = 2;
 }
 
-message SearchTerm {
+message SearchNode {
   message Dupe {
     int64 notetype_id = 1;
     string first_field = 2;
@@ -809,10 +807,18 @@ message SearchTerm {
   message IdList {
     repeated int64 ids = 1;
   }
+  message Group {
+    enum Joiner {
+      AND = 0;
+      OR = 1;
+    }
+    repeated SearchNode nodes = 1;
+    Joiner joiner = 2;
+  }
   oneof filter {
-    string tag = 1;
-    string deck = 2;
-    string note = 3;
+    Group group = 1;
+    SearchNode negated = 2;
+    string parsable_text = 3;
     uint32 template = 4;
     int64 nid = 5;
     Dupe dupe = 6;
@@ -824,23 +830,22 @@ message SearchTerm {
     CardState card_state = 12;
     IdList nids = 13;
     uint32 edited_in_days = 14;
-    SearchTerm negated = 15;
+    string deck = 15;
     int32 due_on_day = 16;
+    string tag = 17;
+    string note = 18;
   }
 }
 
-message ConcatenateSearchesIn {
-  enum Separator {
-    AND = 0;
-    OR = 1;
-  }
-  Separator sep = 1;
-  repeated string searches = 2;
+message JoinSearchNodesIn {
+  SearchNode.Group.Joiner joiner = 1;
+  SearchNode existing_node = 2;
+  SearchNode additional_node = 3;
 }
 
-message ReplaceSearchTermIn {
-  string search = 1;
-  string replacement = 2;
+message ReplaceSearchNodeIn {
+  SearchNode existing_node = 1;
+  SearchNode replacement_node = 2;
 }
 
 message CloseCollectionIn {

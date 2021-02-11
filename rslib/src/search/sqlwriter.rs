@@ -134,7 +134,9 @@ impl SqlWriter<'_> {
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
             SearchNode::CardTemplate(template) => match template {
                 TemplateKind::Ordinal(_) => self.write_template(template)?,
-                TemplateKind::Name(name) => self.write_template(&TemplateKind::Name(norm(name)))?,
+                TemplateKind::Name(name) => {
+                    self.write_template(&TemplateKind::Name(norm(name).into()))?
+                }
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NoteTypeID(ntid) => {
@@ -532,7 +534,7 @@ impl RequiredTable {
     }
 }
 
-impl Node<'_> {
+impl Node {
     fn required_table(&self) -> RequiredTable {
         match self {
             Node::And => RequiredTable::CardsOrNotes,
@@ -546,7 +548,7 @@ impl Node<'_> {
     }
 }
 
-impl SearchNode<'_> {
+impl SearchNode {
     fn required_table(&self) -> RequiredTable {
         match self {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,

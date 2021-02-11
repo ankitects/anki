@@ -11,7 +11,7 @@ import sys
 import time
 import traceback
 import weakref
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Literal, Optional, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
 import anki.find
@@ -43,7 +43,8 @@ from anki.utils import (
 )
 
 # public exports
-SearchTerm = _pb.SearchTerm
+SearchNode = _pb.SearchNode
+SearchJoiner = Literal["AND", "OR"]
 Progress = _pb.Progress
 Config = _pb.Config
 EmptyCardsReport = _pb.EmptyCardsReport
@@ -471,7 +472,7 @@ class Collection:
             )
         return self._backend.search_cards(search=query, order=mode)
 
-    def find_notes(self, *terms: Union[str, SearchTerm]) -> Sequence[int]:
+    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[int]:
         return self._backend.search_notes(self.build_search_string(*terms))
 
     def find_and_replace(
@@ -487,7 +488,7 @@ class Collection:
 
     # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        nids = self.findNotes(search, SearchTerm(field_name=fieldName))
+        nids = self.findNotes(search, SearchNode(field_name=fieldName))
         # go through notes
         vals: Dict[str, List[int]] = {}
         dupes = []
@@ -526,38 +527,85 @@ class Collection:
     # Search Strings
     ##########################################################################
 
-    # pylint: disable=no-member
     def build_search_string(
         self,
-        *terms: Union[str, SearchTerm],
-        negate: bool = False,
-        match_any: bool = False,
+        *nodes: Union[str, SearchNode],
+        joiner: SearchJoiner = "AND",
     ) -> str:
-        """Helper function for the backend's search string operations.
+        """Join one or more searches, and return a normalized search string.
 
-        Pass terms as strings to normalize.
-        Pass fields of backend.proto/FilterToSearchIn as valid SearchTerms.
-        Pass multiple terms to concatenate (defaults to 'and', 'or' when 'match_any=True').
-        Pass 'negate=True' to negate the end result.
-        May raise InvalidInput.
+        To negate, wrap in a negated search term:
+
+            term = SearchNode(negated=col.group_searches(...))
+
+        Invalid searches will throw an exception.
         """
+        term = self.group_searches(*nodes, joiner=joiner)
+        return self._backend.build_search_string(term)
 
-        searches = []
-        for term in terms:
-            if isinstance(term, SearchTerm):
-                term = self._backend.filter_to_search(term)
-            searches.append(term)
-        if match_any:
-            sep = _pb.ConcatenateSearchesIn.OR
+    def group_searches(
+        self,
+        *nodes: Union[str, SearchNode],
+        joiner: SearchJoiner = "AND",
+    ) -> SearchNode:
+        """Join provided search nodes and strings into a single SearchNode.
+        If a single SearchNode is provided, it is returned as-is.
+        At least one node must be provided.
+        """
+        assert nodes
+
+        # convert raw text to SearchNodes
+        search_nodes = [
+            node if isinstance(node, SearchNode) else SearchNode(parsable_text=node)
+            for node in nodes
+        ]
+
+        # if there's more than one, wrap them in a group
+        if len(search_nodes) > 1:
+            return SearchNode(
+                group=SearchNode.Group(
+                    nodes=search_nodes, joiner=self._pb_search_separator(joiner)
+                )
+            )
         else:
-            sep = _pb.ConcatenateSearchesIn.AND
-        search_string = self._backend.concatenate_searches(sep=sep, searches=searches)
-        if negate:
-            search_string = self._backend.negate_search(search_string)
+            return search_nodes[0]
+
+    def join_searches(
+        self,
+        existing_node: SearchNode,
+        additional_node: SearchNode,
+        operator: Literal["AND", "OR"],
+    ) -> str:
+        """
+        AND or OR `additional_term` to `existing_term`, without wrapping `existing_term` in brackets.
+        Used by the Browse screen to avoid adding extra brackets when joining.
+        If you're building a search query yourself, you probably don't need this.
+        """
+        search_string = self._backend.join_search_nodes(
+            joiner=self._pb_search_separator(operator),
+            existing_node=existing_node,
+            additional_node=additional_node,
+        )
+
         return search_string
 
-    def replace_search_term(self, search: str, replacement: str) -> str:
-        return self._backend.replace_search_term(search=search, replacement=replacement)
+    def replace_in_search_node(
+        self, existing_node: SearchNode, replacement_node: SearchNode
+    ) -> str:
+        """If nodes of the same type as `replacement_node` are found in existing_node, replace them.
+
+        You can use this to replace any "deck" clauses in a search with a different deck for example.
+        """
+        return self._backend.replace_search_node(
+            existing_node=existing_node, replacement_node=replacement_node
+        )
+
+    def _pb_search_separator(self, operator: SearchJoiner) -> SearchNode.Group.Joiner.V:
+        # pylint: disable=no-member
+        if operator == "AND":
+            return SearchNode.Group.Joiner.AND
+        else:
+            return SearchNode.Group.Joiner.OR
 
     # Config
     ##########################################################################
