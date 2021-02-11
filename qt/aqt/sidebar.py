@@ -812,9 +812,7 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
-        root.on_click = self._filter_func(
-            self.col.build_search_string(SearchTerm(tag="none"), negate=True)
-        )
+        root.on_click = self._filter_func(SearchTerm(negated=SearchTerm(tag="none")))
         root.add_simple(
             name=tr(TR.BROWSING_SIDEBAR_UNTAGGED),
             icon=icon,

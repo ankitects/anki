@@ -197,7 +197,7 @@ class CustomStudy(QDialog):
                 dyn["resched"] = True
             elif type == TYPE_REVIEW:
                 terms = self.mw.col.build_search_string(
-                    SearchTerm(card_state=SearchTerm.CARD_STATE_NEW), negate=True
+                    SearchTerm(negated=SearchTerm(card_state=SearchTerm.CARD_STATE_NEW))
                 )
                 ord = DYN_RANDOM
                 dyn["resched"] = True
