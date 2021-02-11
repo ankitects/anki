@@ -548,7 +548,8 @@ impl BackendService for Backend {
     //-----------------------------------------------
 
     fn build_search_string(&self, input: pb::SearchNode) -> Result<pb::String> {
-        Ok(write_nodes(&[input.try_into()?]).into())
+        let node: Node = input.try_into()?;
+        Ok(write_nodes(&node.into_node_list()).into())
     }
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
@@ -573,12 +574,8 @@ impl BackendService for Backend {
     fn join_search_nodes(&self, input: pb::JoinSearchNodesIn) -> Result<pb::String> {
         let sep = input.joiner().into();
         let existing_nodes = {
-            let node = input.existing_node.unwrap_or_default().try_into()?;
-            if let Node::Group(nodes) = node {
-                nodes
-            } else {
-                vec![node]
-            }
+            let node: Node = input.existing_node.unwrap_or_default().try_into()?;
+            node.into_node_list()
         };
         let additional_node = input.additional_node.unwrap_or_default().try_into()?;
         Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
