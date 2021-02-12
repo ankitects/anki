@@ -476,7 +476,8 @@ class CardLayout(QDialog):
 
         c = self.rendered_card = self.note.ephemeral_card(
             self.ord,
-            custom_note_type=self.current_template(),
+            custom_note_type=self.model,
+            custom_template=self.current_template(),
             fill_empty=self.fill_empty_action_toggled,
         )
 
