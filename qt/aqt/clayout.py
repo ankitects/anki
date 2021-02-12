@@ -1,18 +1,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import copy
 import json
 import re
 from concurrent.futures import Future
 from typing import Any, Dict, List, Match, Optional
 
 import aqt
-from anki.cards import Card
 from anki.consts import *
 from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
 from anki.notes import Note
-from anki.template import TemplateRenderContext
 from aqt import AnkiQt, gui_hooks
 from aqt.forms.browserdisp import Ui_Dialog
 from aqt.qt import *
