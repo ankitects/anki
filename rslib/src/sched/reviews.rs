@@ -15,39 +15,18 @@ use regex::Regex;
 impl Card {
     /// Make card due in `days_from_today`.
     /// If card is not a review card, convert it into one.
-    /// Relearning cards have their interval preserved. Normal review
-    /// cards have their interval adjusted based on change between the
-    /// previous and new due date.
+    /// Review/relearning cards have their interval preserved unless
+    /// `force_reset` is true.
     fn set_due_date(&mut self, today: u32, days_from_today: u32, force_reset: bool) {
         let new_due = (today + days_from_today) as i32;
-        let new_interval = if force_reset {
-            days_from_today
-        } else if let Some(old_due) = self.current_review_due_day() {
-            // review cards have their interval shifted based on actual elapsed time
-            let days_early = old_due - new_due;
-            ((self.interval as i32) - days_early).max(0) as u32
-        } else if self.ctype == CardType::Relearn {
-            // We can't know how early or late this card entered relearning
-            // without consulting the revlog, which may not exist. If the user
-            // has their deck set up to reduce but not zero the interval on
-            // failure, the card may potentially have an interval of weeks or
-            // months, so we'll favour that if it's larger than the chosen
-            // `days_from_today`
-            self.interval.max(days_from_today)
-        } else {
-            // other cards are given a new starting interval
-            days_from_today
-        };
+        let new_interval =
+            if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
+                days_from_today
+            } else {
+                self.interval
+            };
 
         self.schedule_as_review(new_interval, new_due);
-    }
-
-    // For review cards not in relearning, return the day the card is due.
-    fn current_review_due_day(&self) -> Option<i32> {
-        match self.ctype {
-            CardType::New | CardType::Learn | CardType::Relearn => None,
-            CardType::Review => Some(self.original_or_current_due()),
-        }
     }
 
     fn schedule_as_review(&mut self, interval: u32, due: i32) {
@@ -184,9 +163,7 @@ mod test {
         // reschedule it again the next day, shifting it from day 7 to day 9
         c.set_due_date(6, 3, false);
         assert_eq!(c.due, 9);
-        // we moved it 2 days forward from its original 2 day interval, and the
-        // interval should match the new delay
-        assert_eq!(c.interval, 4);
+        assert_eq!(c.interval, 2);
 
         // we can bring cards forward too - return it to its original due date
         c.set_due_date(6, 1, false);
@@ -194,11 +171,12 @@ mod test {
         assert_eq!(c.interval, 2);
 
         // we can force the interval to be reset instead of shifted
-        c.set_due_date(6, 2, true);
-        assert_eq!(c.due, 8);
-        assert_eq!(c.interval, 2);
+        c.set_due_date(6, 3, true);
+        assert_eq!(c.due, 9);
+        assert_eq!(c.interval, 3);
 
         // should work in a filtered deck
+        c.interval = 2;
         c.original_due = 7;
         c.original_deck_id = DeckID(1);
         c.due = -10000;
@@ -210,20 +188,12 @@ mod test {
         assert_eq!(c.original_due, 0);
         assert_eq!(c.original_deck_id, DeckID(0));
 
-        // when relearning, a larger delay than the interval will win
+        // relearning treated like review
         c.ctype = CardType::Relearn;
         c.original_due = c.due;
         c.due = 12345678;
         c.set_due_date(6, 10, false);
         assert_eq!(c.due, 16);
-        assert_eq!(c.interval, 10);
-
-        // but a shorter delay will preserve the current interval
-        c.ctype = CardType::Relearn;
-        c.original_due = c.due;
-        c.due = 12345678;
-        c.set_due_date(6, 1, false);
-        assert_eq!(c.due, 7);
-        assert_eq!(c.interval, 10);
+        assert_eq!(c.interval, 2);
     }
 }
