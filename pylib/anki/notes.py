@@ -11,7 +11,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import MODEL_STD
-from anki.models import NoteType
+from anki.models import NoteType, Template
 from anki.utils import joinFields
 
 
@@ -82,18 +82,18 @@ class Note:
         ord: int = 0,
         *,
         custom_note_type: NoteType = None,
+        custom_template: Template = None,
         fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
         card.did = 1
 
-        model = self.model()
+        model = custom_note_type or self.model()
         template = copy.copy(
-            custom_note_type or (
-                model["tmpls"][ord]
-                if model["type"] == MODEL_STD
-                else model["tmpls"][0]
+            custom_template
+            or (
+                model["tmpls"][ord] if model["type"] == MODEL_STD else model["tmpls"][0]
             )
         )
         # may differ in cloze case
