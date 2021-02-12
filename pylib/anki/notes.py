@@ -78,7 +78,11 @@ class Note:
         return joinFields(self.fields)
 
     def ephemeral_card(
-        self, ord: int = 0, *, fill_empty: bool = False
+        self,
+        ord: int = 0,
+        *,
+        custom_note_type: NoteType = None,
+        fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
@@ -86,7 +90,11 @@ class Note:
 
         model = self.model()
         template = copy.copy(
-            model["tmpls"][ord] if model["type"] == MODEL_STD else model["tmpls"][0]
+            custom_note_type or (
+                model["tmpls"][ord]
+                if model["type"] == MODEL_STD
+                else model["tmpls"][0]
+            )
         )
         # may differ in cloze case
         template["ord"] = card.ord

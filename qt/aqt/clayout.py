@@ -474,7 +474,11 @@ class CardLayout(QDialog):
     def _renderPreview(self) -> None:
         self.cancelPreviewTimer()
 
-        c = self.rendered_card = self.ephemeral_card_for_rendering()
+        c = self.rendered_card = self.note.ephemeral_card(
+            self.ord,
+            custom_note_type=self.current_template(),
+            fill_empty=self.fill_empty_action_toggled,
+        )
 
         ti = self.maybeTextInput
 
@@ -534,24 +538,6 @@ class CardLayout(QDialog):
         else:
             repl = answerRepl
         return re.sub(r"\[\[type:.+?\]\]", repl, txt)
-
-    def ephemeral_card_for_rendering(self) -> Card:
-        card = Card(self.col)
-        card.ord = self.ord
-        card.did = 1
-        template = copy.copy(self.current_template())
-        # may differ in cloze case
-        template["ord"] = card.ord
-        output = TemplateRenderContext.from_card_layout(
-            self.note,
-            card,
-            notetype=self.model,
-            template=template,
-            fill_empty=self.fill_empty_action_toggled,
-        ).render()
-        card.set_render_output(output)
-        card._note = self.note
-        return card
 
     # Card operations
     ######################################################################
