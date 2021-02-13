@@ -1,7 +1,4 @@
-This repo contains all the code for the computer version of Anki.
-
-If you'd like to try development builds of Anki but don't feel comfortable
-building the code, please see https://betas.ankiweb.net/#/
+This repo contains all the code for the computer version of [CodeQuiz](https://daveight.github.io/codequiz/).
 
 For more information on building, please see [README.development](README.development).
 
