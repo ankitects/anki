@@ -70,6 +70,7 @@ fn apply_filter<'a>(
         "kanji" => kanji_filter(text),
         "kana" => kana_filter(text),
         "type" => type_filter(field_name),
+        "code" => code_filter(field_name),
         "type-cloze" => type_cloze_filter(field_name),
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
@@ -156,6 +157,11 @@ fn furigana_filter(text: &str) -> Cow<str> {
 /// convert to [[type:...]] for the gui code to process
 fn type_filter<'a>(field_name: &str) -> Cow<'a, str> {
     format!("[[type:{}]]", field_name).into()
+}
+
+/// convert to [[code:...]] for the gui code to process
+fn code_filter<'a>(field_name: &str) -> Cow<'a, str> {
+    format!("[[code:{}]]", field_name).into()
 }
 
 fn type_cloze_filter<'a>(field_name: &str) -> Cow<'a, str> {

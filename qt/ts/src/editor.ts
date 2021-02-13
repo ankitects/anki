@@ -54,6 +54,11 @@ function onKey(evt: KeyboardEvent) {
         currentField.blur();
         return;
     }
+    if (evt.which === 13) {
+        document.execCommand("insertHTML", false, "<br><br>");
+        evt.preventDefault();
+        return;
+    }
     // shift+tab goes to previous field
     if (navigator.platform === "MacIntel" && evt.which === 9 && evt.shiftKey) {
         evt.preventDefault();

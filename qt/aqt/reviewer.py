@@ -8,10 +8,12 @@ import difflib
 import html
 import json
 import re
+import threading
 import unicodedata as ucd
-from typing import Callable, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
-from PyQt5.QtCore import Qt
+from testing.framework.anki_testing_api import get_solution_template, run_tests, stop_tests
+from testing.framework.runners.console_logger import ConsoleLogger
 
 from anki import hooks
 from anki.cards import Card
@@ -22,13 +24,21 @@ from aqt.qt import *
 from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip
+from aqt.utils import (
+    askUserDialog,
+    downArrow,
+    qtMenuShortcutWorkaround,
+    tooltip,
+)
 
 
 class ReviewerBottomBar:
     def __init__(self, reviewer: Reviewer) -> None:
         self.reviewer = reviewer
 
+
+THEMES = ['dracula', 'agate', 'github', 'solarized-dark', 'code-brewer', 'solarized-light', 'railscasts', 'monokai-sublime',
+          'mono-blue', 'zenburn', 'androidstudio', 'atom-one-light', 'rainbow', 'atom-one-dark', 'tommorow', 'vs']
 
 def replay_audio(card: Card, question_side: bool) -> None:
     if question_side:
@@ -54,6 +64,8 @@ class Reviewer:
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
+        self._synchronizer = threading.Event()
+        self._logger = ConsoleLogger(mw.web)
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
@@ -147,14 +159,24 @@ class Reviewer:
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
+        theme = THEMES[0]
+        if 'defaultCodeTheme' in self.mw.pm.meta:
+            theme = self.mw.pm.meta['defaultCodeTheme']
         self.web.stdHtml(
             self.revHtml(),
-            css=["reviewer.css"],
+            css=["markdown.css", "font.css", "reviewer.css", "highlight/" + theme + ".css"],
+            inactive_css=["highlight/" + t + ".css" for t in THEMES if t != theme],
             js=[
                 "jquery.js",
                 "browsersel.js",
                 "mathjax/conf.js",
                 "mathjax/MathJax.js",
+                "prism.js",
+                "highlight.js",
+                "jqmeter.js",
+                "codejar/codejar.js",
+                "codejar/linenumbers.js",
+                "markdown-it.js",
                 "reviewer.js",
             ],
             context=self,
@@ -178,6 +200,7 @@ class Reviewer:
         self._reps += 1
         self.state = "question"
         self.typedAnswer: str = None
+        self._isCodeQuestion = False
         c = self.card
         # grab the question and play audio
         q = c.q()
@@ -201,6 +224,7 @@ class Reviewer:
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
+        self._codingBuffer = {}
         # if we have a type answer field, focus main web
         if self.typeCorrect:
             self.mw.web.setFocus()
@@ -240,16 +264,16 @@ class Reviewer:
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
-        self.web.eval("_showAnswer(%s);" % json.dumps(a))
+        self.web.eval("_showAnswer(%s, '', %s);" % (json.dumps(a), json.dumps(self._isCodeQuestion).lower()))
         self._showEaseButtons()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
 
     # Answering a card
     ############################################################
-
     def _answerCard(self, ease: int) -> None:
         "Reschedule card and show next."
+        self._synchronizer.set()
         if self.mw.state != "review":
             # showing resetRequired screen; ignore key
             return
@@ -337,10 +361,21 @@ class Reviewer:
             self._answerCard(int(url[4:]))
         elif url == "edit":
             self.mw.onEditCurrent()
+        elif url == "selectlang":
+            self.showSelectLangContextMenu()
+        elif url == "selecttheme":
+            self.showSelectSkinContextMenu()
         elif url == "more":
             self.showContextMenu()
+        elif url == "run":
+            self.web.evalWithCallback("codeansJar ? codeansJar.toString() : null", self._runTests)
+        elif url == "stop":
+            self.stopTests()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
+        elif url.startswith("lang:"):
+            lang = url.split(":")[1]
+            self.onCodeLangSelected(lang)
         else:
             print("unrecognized anki link:", url)
 
@@ -348,12 +383,70 @@ class Reviewer:
     ##########################################################################
 
     typeAnsPat = r"\[\[type:(.+?)\]\]"
+    codeAnsPat = r"\[\[code:(.+?)\]\]"
 
     def typeAnsFilter(self, buf: str) -> str:
         if self.state == "question":
-            return self.typeAnsQuestionFilter(buf)
+            m = re.search(self.typeAnsPat, buf)
+            if m:
+                return self.typeAnsQuestionFilter(buf)
+            m = re.search(self.codeAnsPat, buf)
+            if m:
+                self._isCodeQuestion = True
+                return self.codeQuestionFilter(buf)
+            else:
+                return buf
         else:
             return self.typeAnsAnswerFilter(buf)
+
+    def codeQuestionFilter(self, buf: str) -> str:
+        m = re.search(self.codeAnsPat, buf)
+        fld = m.group(1)
+        for f in self.card.model()["flds"]:
+            if f["name"] == fld:
+                self.typeFont = f["font"]
+                self.typeSize = f["size"]
+                break
+
+        return re.sub(
+            self.codeAnsPat,
+            """<br>
+            <div id="test-pannel">
+                <div class="inner">
+                    <button id="start-testing" class="run" onclick="pycmd('run')">Run <div class="icon"></div></button>
+                    <button id="stop-testing" class="stop disabled" onclick="pycmd('stop')" disabled="disabled">Stop <div class="icon"></div></button>
+                    <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
+                    <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
+                </div>
+                <div id="codeans" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
+                <div id="log" class="editor hljs"></div>
+                <div id="progressbar"></div>
+            </div>
+            """
+            % dict(
+                typeFont=self.typeFont,
+                typeSize=self.typeSize,
+                selSkinLabel='Skin',
+                selLanguageLabel='Language',
+                language=self._getCurrentLang(),
+                downArrow=downArrow(),
+                template=html.escape(get_solution_template(self.card, self._getCurrentLang()))),
+            buf,
+        )
+
+    def _runTests(self, src):
+        self.web.eval("_activateStopButton()")
+        self._logger.activate()
+        run_tests(self.card, src, self._getCurrentLang(), self._logger, lambda: self.web.eval("_activateRunButton()"))
+
+    def _switchLang(self, lang, src):
+        self._codingBuffer[self._getCurrentLang()] = src
+        self.mw.pm.setCodeLang(lang)
+        if lang in self._codingBuffer:
+            src = self._codingBuffer[lang]
+        else:
+            src = get_solution_template(self.card, lang)
+        self.web.eval("_reloadCode(%s, %s);" % (json.dumps(src), json.dumps(lang)))
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self.typeCorrect = None
@@ -402,6 +495,9 @@ Please run Tools>Empty Cards"""
             buf,
         )
 
+    def log(self, text):
+        self.web.eval("_showConsoleLog(%s);" % json.dumps(text + "<br/>"))
+
     def typeAnsAnswerFilter(self, buf: str) -> str:
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
@@ -418,25 +514,34 @@ Please run Tools>Empty Cards"""
         cor = cor.replace("\xa0", " ")
         cor = cor.strip()
         given = self.typedAnswer
-        # compare with typed answer
-        res = self.correct(given, cor, showBad=False)
-        # and update the type answer area
-        def repl(match):
-            # can't pass a string in directly, and can't use re.escape as it
-            # escapes too much
-            s = """
-<span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
-                self.typeFont,
-                self.typeSize,
-                res,
-            )
-            if hadHR:
-                # a hack to ensure the q/a separator falls before the answer
-                # comparison when user is using {{FrontSide}}
-                s = "<hr id=answer>" + s
-            return s
+        if self._isCodeQuestion:
+            # and update the type answer area
+            def repl(match):
+                # can't pass a string in directly, and can't use re.escape as it
+                # escapes too much
+                return "<hr id=answer>"
+            return re.sub(self.codeAnsPat, repl, buf)
+        else:
+            # compare with typed answer
+            res = self.correct(given, cor, showBad=False)
 
-        return re.sub(self.typeAnsPat, repl, buf)
+            # and update the type answer area
+            def repl(match):
+                # can't pass a string in directly, and can't use re.escape as it
+                # escapes too much
+                s = """
+    <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
+                    self.typeFont,
+                    self.typeSize,
+                    res,
+                )
+                if hadHR:
+                    # a hack to ensure the q/a separator falls before the answer
+                    # comparison when user is using {{FrontSide}}
+                    s = "<hr id=answer>" + s
+                return s
+
+            return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt: str, idx) -> str:
         matches = re.findall(r"\{\{c%s::(.+?)\}\}" % idx, txt, re.DOTALL)
@@ -690,6 +795,40 @@ time = %(time)d;
     # Context menu
     ##########################################################################
 
+    def _skinContextMenu(self):
+        curr = THEMES[0]
+        if 'defaultCodeTheme' in self.mw.pm.meta:
+            curr = self.mw.pm.meta['defaultCodeTheme']
+        menu = []
+        for theme in THEMES:
+            def addThemMenuItem(t=theme):
+                return [t, '', lambda: self.onThemeSelected(t), dict(checked=curr==t)]
+            menu.append(addThemMenuItem(theme))
+        return menu
+
+    def _langContextMenu(self):
+        lang = self._getCurrentLang()
+        return [
+            [
+                "Java",
+                "",
+                lambda: self.onCodeLangSelected("java"),
+                dict(checked=lang == "java"),
+            ],
+            [
+                "Python",
+                "",
+                lambda: self.onCodeLangSelected("python"),
+                dict(checked=lang == "python"),
+            ],
+        ]
+
+    def _getCurrentLang(self):
+        lang = 'java'
+        if 'defaultCodeLang' in self.mw.pm.meta:
+            lang = self.mw.pm.meta['defaultCodeLang']
+        return lang
+
     # note the shortcuts listed here also need to be defined above
     def _contextMenu(self):
         currentFlag = self.card and self.card.userFlag()
@@ -740,6 +879,24 @@ time = %(time)d;
         ]
         return opts
 
+    def showSelectSkinContextMenu(self) -> None:
+        opts = self._skinContextMenu()
+        m = QMenu(self.mw)
+        self._addMenuItems(m, opts)
+
+        gui_hooks.reviewer_will_show_context_menu(self, m)
+        qtMenuShortcutWorkaround(m)
+        m.exec_(QCursor.pos())
+
+    def showSelectLangContextMenu(self) -> None:
+        opts = self._langContextMenu()
+        m = QMenu(self.mw)
+        self._addMenuItems(m, opts)
+
+        gui_hooks.reviewer_will_show_context_menu(self, m)
+        qtMenuShortcutWorkaround(m)
+        m.exec_(QCursor.pos())
+
     def showContextMenu(self) -> None:
         opts = self._contextMenu()
         m = QMenu(self.mw)
@@ -782,6 +939,16 @@ time = %(time)d;
         self.card.setUserFlag(flag)
         self.card.flush()
         self._drawFlag()
+
+    def onThemeSelected(self, theme) -> None:
+        self.mw.pm.setCodeTheme(theme)
+        self.web.eval("_switchSkin('%s');" % theme)
+
+    def onCodeLangSelected(self, lang) -> None:
+        self.web.evalWithCallback(
+            "codeansJar ? codeansJar.toString() : null",
+            lambda src: self._switchLang(lang, src),
+        )
 
     def onMark(self) -> None:
         f = self.card.note()
@@ -841,3 +1008,10 @@ time = %(time)d;
             tooltip(_("You haven't recorded your voice yet."))
             return
         av_player.play_file(self._recordedAudio)
+
+    def stopTests(self):
+        lang = self._getCurrentLang()
+        stop_tests(lang)
+        self.web.eval("_activateRunButton()")
+        self._logger.log("<br/><br/><span class='cancel'>Execution was interrupted.</span><br/><br/>")
+        self._logger.deactivate()

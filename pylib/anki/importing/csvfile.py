@@ -8,6 +8,8 @@ from typing import Any, List, Optional, TextIO, Union
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter
 from anki.lang import _
+import ctypes as ct
+csv.field_size_limit(int(ct.c_ulong(-1).value // 2))
 
 
 class TextImporter(NoteImporter):

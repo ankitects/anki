@@ -46,6 +46,10 @@ def addClozeModel(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CLOZE)
 
 
+def addCodeTypingModel(col: Collection) -> NoteType:
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CODING_TASK)
+
+
 def get_stock_notetypes(
     col: Collection,
 ) -> List[Tuple[str, Callable[[Collection], NoteType]]]:
@@ -55,6 +59,7 @@ def get_stock_notetypes(
         (StockNoteType.STOCK_NOTE_TYPE_BASIC, addBasicModel),
         (StockNoteType.STOCK_NOTE_TYPE_BASIC_TYPING, addBasicTypingModel),
         (StockNoteType.STOCK_NOTE_TYPE_BASIC_AND_REVERSED, addForwardReverse),
+        (StockNoteType.STOCK_NOTE_TYPE_CODING_TASK, addCodeTypingModel),
         (
             StockNoteType.STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED,
             addForwardOptionalReverse,

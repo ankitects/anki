@@ -185,6 +185,7 @@ class WebContent:
     body: str = ""
     head: str = ""
     css: List[str] = dataclasses.field(default_factory=lambda: [])
+    inactive_css: List[str] = dataclasses.field(default_factory=lambda: [])
     js: List[str] = dataclasses.field(default_factory=lambda: [])
 
 
@@ -424,6 +425,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         self,
         body: str,
         css: Optional[List[str]] = None,
+        inactive_css: Optional[List[str]] = None,
         js: Optional[List[str]] = None,
         head: str = "",
         context: Optional[Any] = None,
@@ -434,6 +436,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
             head=head,
             js=["webview.js"] + (["jquery.js"] if js is None else js),
             css=["webview.css"] + ([] if css is None else css),
+            inactive_css=inactive_css,
         )
 
         gui_hooks.webview_will_set_content(web_content, context)
@@ -448,6 +451,10 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
             csstxt += f"<style>{self.standard_css()}</style>"
 
         csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
+        if web_content.inactive_css is not None:
+            csstxt += "\n".join(
+                self.bundledCSS(fname, True) for fname in web_content.inactive_css
+            )
         jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
 
         from aqt import mw
@@ -487,9 +494,10 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
     def bundledScript(self, fname: str) -> str:
         return '<script src="%s"></script>' % self.webBundlePath(fname)
 
-    def bundledCSS(self, fname: str) -> str:
-        return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(
-            fname
+    def bundledCSS(self, fname: str, disabled=False) -> str:
+        return '<link rel="stylesheet" type="text/css" href="%s" %s>' % (
+            self.webBundlePath(fname),
+            "disabled" if disabled else "",
         )
 
     def eval(self, js: str) -> None:

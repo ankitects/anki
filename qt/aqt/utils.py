@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 import subprocess
@@ -847,3 +848,12 @@ def startup_info() -> Any:
     si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
     return si
+
+
+def run_async(f):
+    "Execute function asynchronously"
+
+    def wrapped(*args, **kwargs):
+        return asyncio.get_event_loop().run_in_executor(None, f, *args, *kwargs)
+
+    return wrapped

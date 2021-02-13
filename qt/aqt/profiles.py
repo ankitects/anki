@@ -399,16 +399,16 @@ and no other programs are accessing your profile folders, then try again."""
         if isWin:
             from aqt.winpaths import get_appdata
 
-            return os.path.join(get_appdata(), "Anki2")
+            return os.path.join(get_appdata(), "CodeQuiz")
         elif isMac:
-            return os.path.expanduser("~/Library/Application Support/Anki2")
+            return os.path.expanduser("~/Library/Application Support/CodeQuiz")
         else:
             dataDir = os.environ.get(
                 "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
             )
             if not os.path.exists(dataDir):
                 os.makedirs(dataDir)
-            return os.path.join(dataDir, "Anki2")
+            return os.path.join(dataDir, "CodeQuiz")
 
     def _loadMeta(self, retrying=False) -> LoadMetaResult:
         result = LoadMetaResult()
@@ -541,6 +541,18 @@ create table if not exists profiles
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
         anki.lang.set_lang(code, locale_dir())
+
+    def setCodeLang(self, codelang):
+        self.meta["defaultCodeLang"] = codelang
+        sql = "update profiles set data = ? where name = ?"
+        self.db.execute(sql, self._pickle(self.meta), "_global")
+        self.db.commit()
+
+    def setCodeTheme(self, codetheme):
+        self.meta["defaultCodeTheme"] = codetheme
+        sql = "update profiles set data = ? where name = ?"
+        self.db.execute(sql, self._pickle(self.meta), "_global")
+        self.db.commit()
 
     # OpenGL
     ######################################################################

@@ -1,6 +1,6 @@
 [package]
 name = "ankirspy"
-version = "2.1.35"  # automatically updated
+version = "1.0.0"  # automatically updated
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 license = "AGPL-3.0-or-later"
