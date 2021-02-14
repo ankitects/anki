@@ -152,7 +152,26 @@ class DeckConf(QDialog):
 
     def _on_search_button(self, line: QLineEdit) -> None:
         try:
-            search = self.mw.col.build_search_string(line.text())
+            node = self.mw.col.group_searches(
+                line.text(),
+                SearchNode(
+                    negated=SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED)
+                ),
+                SearchNode(negated=SearchNode(card_state=SearchNode.CARD_STATE_BURIED)),
+                SearchNode(negated=SearchNode(deck="filtered")),
+            )
+
+            if self.mw.col.schedVer() == 1:
+                search = self.mw.col.join_searches(
+                    node,
+                    SearchNode(
+                        negated=SearchNode(card_state=SearchNode.CARD_STATE_LEARN)
+                    ),
+                    "AND",
+                )
+            else:
+                search = self.mw.col.build_search_string(node)
+
         except InvalidInput as err:
             line.setFocus()
             line.selectAll()
