@@ -10,10 +10,14 @@ anki-editable {
     }
 }
 
-img.drawing {
-    zoom: 50%;
+img {
+    max-width: 100%;
 
-    .nightMode & {
-        filter: unquote("invert() hue-rotate(180deg)");
+    &.drawing {
+        zoom: 50%;
+
+        .nightMode & {
+            filter: unquote("invert() hue-rotate(180deg)");
+        }
     }
 }
