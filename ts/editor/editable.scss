@@ -2,7 +2,7 @@ anki-editable {
     display: block;
     overflow-wrap: break-word;
     overflow: auto;
-    padding: 5px;
+    padding: 6px;
 
     &:empty::after {
         content: "\a";
