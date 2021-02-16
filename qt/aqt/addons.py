@@ -1032,7 +1032,9 @@ def download_and_install_addon(
         return (id, result)
 
     fname = result.filename.replace("_", " ")
-    name = os.path.splitext(fname)[0]
+    name = os.path.splitext(fname)[0].strip()
+    if not name:
+        name = str(id)
 
     manifest = dict(
         package=str(id),
