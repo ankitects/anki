@@ -2,7 +2,7 @@ anki-editable {
     display: block;
     overflow-wrap: break-word;
     overflow: auto;
-    padding: 5px;
+    padding: 6px;
 
     &:empty::after {
         content: "\a";
@@ -10,10 +10,14 @@ anki-editable {
     }
 }
 
-img.drawing {
-    zoom: 50%;
+img {
+    max-width: 100%;
 
-    .nightMode & {
-        filter: unquote("invert() hue-rotate(180deg)");
+    &.drawing {
+        zoom: 50%;
+
+        .nightMode & {
+            filter: unquote("invert() hue-rotate(180deg)");
+        }
     }
 }
