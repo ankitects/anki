@@ -334,7 +334,7 @@ impl Collection {
         let tags = split_tags(tags)
             .map(|tag| {
                 let tag = if regex { tag.into() } else { to_re(tag) };
-                Regex::new(&format!("(?i)^{}(::.*)?", tag))
+                Regex::new(&format!("(?i)^{}(::.*)?$", tag))
                     .map_err(|_| AnkiError::invalid_input("invalid regex"))
             })
             .collect::<Result<Vec<Regex>>>()?;
@@ -565,6 +565,14 @@ mod test {
         col.replace_tags_for_notes(&[note.id], "bar::foo", "foo::bar", false)?;
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(&note.tags, &["foo::bar", "foo::bar::bar", "foo::bar::foo",]);
+
+        // ensure replacements fully match
+        let mut note = col.storage.get_note(note.id)?.unwrap();
+        note.tags = vec!["foobar".into(), "barfoo".into(), "foo".into()];
+        col.update_note(&mut note)?;
+        col.replace_tags_for_notes(&[note.id], "foo", "", false)?;
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(&note.tags, &["barfoo", "foobar"]);
 
         // tag children are also cleared when clearing their parent
         col.storage.clear_tags()?;
