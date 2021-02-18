@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import pprint
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -50,6 +50,7 @@ class Note:
         self.tags = list(n.tags)
         self.fields = list(n.fields)
         self._fmap = self.col.models.fieldMap(self.model())
+        self._cards: Dict[int, anki.cards.Card] = {}
 
     def to_backend_note(self) -> _pb.Note:
         hooks.note_will_flush(self)
@@ -74,6 +75,14 @@ class Note:
 
     def joinedFields(self) -> str:
         return joinFields(self.fields)
+
+    def card(self, card: int, reload: bool = False) -> Optional[anki.cards.Card]:
+        if reload or card not in self._cards:
+            try:
+                self._cards[card] = self.col.getCard(self.card_ids()[card])
+            except IndexError:
+                return None
+        return self._cards[card]
 
     def cards(self) -> List[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
