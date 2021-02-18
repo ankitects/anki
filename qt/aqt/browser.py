@@ -4,23 +4,31 @@
 from __future__ import annotations
 
 import html
-import time
 from concurrent.futures import Future
 from dataclasses import dataclass
-from operator import itemgetter
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, ConfigBoolKey, SearchTerm
+from anki.collection import Collection, SearchTerm
 from anki.consts import *
 from anki.errors import InvalidInput
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
 from anki.stats import CardStats
-from anki.utils import htmlToTextLine, ids2str, isMac, isWin
+from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -29,7 +37,7 @@ from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
 from aqt.sidebar import SidebarSearchBar, SidebarTreeView
-from aqt.theme import theme_manager
+from aqt.table import Table
 from aqt.utils import (
     TR,
     HelpPage,
@@ -44,7 +52,6 @@ from aqt.utils import (
     restore_combo_index_for_session,
     restore_is_checked,
     restoreGeom,
-    restoreHeader,
     restoreSplitter,
     restoreState,
     save_combo_history,
@@ -68,6 +75,10 @@ from aqt.webview import AnkiWebView
 from aqt.sidebar import SidebarItem, SidebarStage  # isort: skip
 
 
+if TYPE_CHECKING:
+    from anki.lang import TRValue
+
+
 @dataclass
 class FindDupesDialog:
     dialog: QDialog
@@ -80,356 +91,7 @@ class SearchContext:
     browser: Browser
     order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
-    card_ids: Optional[Sequence[int]] = None
-
-
-# Data model
-##########################################################################
-
-
-class DataModel(QAbstractTableModel):
-    def __init__(self, browser: Browser) -> None:
-        QAbstractTableModel.__init__(self)
-        self.browser = browser
-        self.col = browser.col
-        self.sortKey = None
-        self.activeCols = self.col.get_config(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"]
-        )
-        self.cards: Sequence[int] = []
-        self.cardObjs: Dict[int, Card] = {}
-
-    def getCard(self, index: QModelIndex) -> Card:
-        id = self.cards[index.row()]
-        if not id in self.cardObjs:
-            self.cardObjs[id] = self.col.getCard(id)
-        return self.cardObjs[id]
-
-    def refreshNote(self, note: Note) -> None:
-        refresh = False
-        for c in note.cards():
-            if c.id in self.cardObjs:
-                del self.cardObjs[c.id]
-                refresh = True
-        if refresh:
-            self.layoutChanged.emit()  # type: ignore
-
-    # Model interface
-    ######################################################################
-
-    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        if parent and parent.isValid():
-            return 0
-        return len(self.cards)
-
-    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        if parent and parent.isValid():
-            return 0
-        return len(self.activeCols)
-
-    def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
-        if not index.isValid():
-            return
-        if role == Qt.FontRole:
-            if self.activeCols[index.column()] not in ("question", "answer", "noteFld"):
-                return
-            c = self.getCard(index)
-            t = c.template()
-            if not t.get("bfont"):
-                return
-            f = QFont()
-            f.setFamily(cast(str, t.get("bfont", "arial")))
-            f.setPixelSize(cast(int, t.get("bsize", 12)))
-            return f
-
-        elif role == Qt.TextAlignmentRole:
-            align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
-            if self.activeCols[index.column()] not in (
-                "question",
-                "answer",
-                "template",
-                "deck",
-                "noteFld",
-                "note",
-                "noteTags",
-            ):
-                align |= Qt.AlignHCenter
-            return align
-        elif role == Qt.DisplayRole or role == Qt.EditRole:
-            return self.columnData(index)
-        else:
-            return
-
-    def headerData(
-        self, section: int, orientation: Qt.Orientation, role: int = 0
-    ) -> Optional[str]:
-        if orientation == Qt.Vertical:
-            return None
-        elif role == Qt.DisplayRole and section < len(self.activeCols):
-            type = self.columnType(section)
-            txt = None
-            for stype, name in self.browser.columns:
-                if type == stype:
-                    txt = name
-                    break
-            # give the user a hint an invalid column was added by an add-on
-            if not txt:
-                txt = tr(TR.BROWSING_ADDON)
-            return txt
-        else:
-            return None
-
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
-        return cast(Qt.ItemFlags, Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-
-    # Filtering
-    ######################################################################
-
-    def search(self, txt: str) -> None:
-        self.beginReset()
-        self.cards = []
-        try:
-            ctx = SearchContext(search=txt, browser=self.browser)
-            gui_hooks.browser_will_search(ctx)
-            if ctx.card_ids is None:
-                ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
-            gui_hooks.browser_did_search(ctx)
-            self.cards = ctx.card_ids
-        except Exception as err:
-            raise err
-        finally:
-            self.endReset()
-
-    def reset(self) -> None:
-        self.beginReset()
-        self.endReset()
-
-    # caller must have called editor.saveNow() before calling this or .reset()
-    def beginReset(self) -> None:
-        self.browser.editor.setNote(None, hide=False)
-        self.browser.mw.progress.start()
-        self.saveSelection()
-        self.beginResetModel()
-        self.cardObjs = {}
-
-    def endReset(self) -> None:
-        self.endResetModel()
-        self.restoreSelection()
-        self.browser.mw.progress.finish()
-
-    def reverse(self) -> None:
-        self.browser.editor.saveNow(self._reverse)
-
-    def _reverse(self) -> None:
-        self.beginReset()
-        self.cards = list(reversed(self.cards))
-        self.endReset()
-
-    def saveSelection(self) -> None:
-        cards = self.browser.selectedCards()
-        self.selectedCards = dict([(id, True) for id in cards])
-        if getattr(self.browser, "card", None):
-            self.focusedCard = self.browser.card.id
-        else:
-            self.focusedCard = None
-
-    def restoreSelection(self) -> None:
-        if not self.cards:
-            return
-        sm = self.browser.form.tableView.selectionModel()
-        sm.clear()
-        # restore selection
-        items = QItemSelection()
-        count = 0
-        firstIdx = None
-        focusedIdx = None
-        for row, id in enumerate(self.cards):
-            # if the id matches the focused card, note the index
-            if self.focusedCard == id:
-                focusedIdx = self.index(row, 0)
-                items.select(focusedIdx, focusedIdx)
-                self.focusedCard = None
-            # if the card was previously selected, select again
-            if id in self.selectedCards:
-                count += 1
-                idx = self.index(row, 0)
-                items.select(idx, idx)
-                # note down the first card of the selection, in case we don't
-                # have a focused card
-                if not firstIdx:
-                    firstIdx = idx
-        # focus previously focused or first in selection
-        idx = focusedIdx or firstIdx
-        tv = self.browser.form.tableView
-        if idx:
-            row = idx.row()
-            pos = tv.rowViewportPosition(row)
-            visible = pos >= 0 and pos < tv.viewport().height()
-            tv.selectRow(row)
-
-            # we save and then restore the horizontal scroll position because
-            # scrollTo() also scrolls horizontally which is confusing
-            if not visible:
-                h = tv.horizontalScrollBar().value()
-                tv.scrollTo(idx, tv.PositionAtCenter)
-                tv.horizontalScrollBar().setValue(h)
-            if count < 500:
-                # discard large selections; they're too slow
-                sm.select(
-                    items, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows
-                )
-        else:
-            tv.selectRow(0)
-
-    # Column data
-    ######################################################################
-
-    def columnType(self, column: int) -> str:
-        return self.activeCols[column]
-
-    def time_format(self) -> str:
-        return "%Y-%m-%d"
-
-    def columnData(self, index: QModelIndex) -> str:
-        col = index.column()
-        type = self.columnType(col)
-        c = self.getCard(index)
-        if type == "question":
-            return self.question(c)
-        elif type == "answer":
-            return self.answer(c)
-        elif type == "noteFld":
-            f = c.note()
-            return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
-        elif type == "template":
-            t = c.template()["name"]
-            if c.model()["type"] == MODEL_CLOZE:
-                t = f"{t} {c.ord + 1}"
-            return cast(str, t)
-        elif type == "cardDue":
-            # catch invalid dates
-            try:
-                t = self.nextDue(c, index)
-            except:
-                t = ""
-            if c.queue < 0:
-                t = f"({t})"
-            return t
-        elif type == "noteCrt":
-            return time.strftime(self.time_format(), time.localtime(c.note().id / 1000))
-        elif type == "noteMod":
-            return time.strftime(self.time_format(), time.localtime(c.note().mod))
-        elif type == "cardMod":
-            return time.strftime(self.time_format(), time.localtime(c.mod))
-        elif type == "cardReps":
-            return str(c.reps)
-        elif type == "cardLapses":
-            return str(c.lapses)
-        elif type == "noteTags":
-            return " ".join(c.note().tags)
-        elif type == "note":
-            return c.model()["name"]
-        elif type == "cardIvl":
-            if c.type == CARD_TYPE_NEW:
-                return tr(TR.BROWSING_NEW)
-            elif c.type == CARD_TYPE_LRN:
-                return tr(TR.BROWSING_LEARNING)
-            return self.col.format_timespan(c.ivl * 86400)
-        elif type == "cardEase":
-            if c.type == CARD_TYPE_NEW:
-                return tr(TR.BROWSING_NEW)
-            return "%d%%" % (c.factor / 10)
-        elif type == "deck":
-            if c.odid:
-                # in a cram deck
-                return "%s (%s)" % (
-                    self.browser.mw.col.decks.name(c.did),
-                    self.browser.mw.col.decks.name(c.odid),
-                )
-            # normal deck
-            return self.browser.mw.col.decks.name(c.did)
-        else:
-            return ""
-
-    def question(self, c: Card) -> str:
-        return htmlToTextLine(c.q(browser=True))
-
-    def answer(self, c: Card) -> str:
-        if c.template().get("bafmt"):
-            # they have provided a template, use it verbatim
-            c.q(browser=True)
-            return htmlToTextLine(c.a())
-        # need to strip question from answer
-        q = self.question(c)
-        a = htmlToTextLine(c.a())
-        if a.startswith(q):
-            return a[len(q) :].strip()
-        return a
-
-    def nextDue(self, c: Card, index: QModelIndex) -> str:
-        date: float
-        if c.odid:
-            return tr(TR.BROWSING_FILTERED)
-        elif c.queue == QUEUE_TYPE_LRN:
-            date = c.due
-        elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
-            return tr(TR.STATISTICS_DUE_FOR_NEW_CARD, number=c.due)
-        elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
-            c.type == CARD_TYPE_REV and c.queue < 0
-        ):
-            date = time.time() + ((c.due - self.col.sched.today) * 86400)
-        else:
-            return ""
-        return time.strftime(self.time_format(), time.localtime(date))
-
-    def isRTL(self, index: QModelIndex) -> bool:
-        col = index.column()
-        type = self.columnType(col)
-        if type != "noteFld":
-            return False
-
-        c = self.getCard(index)
-        nt = c.note().model()
-        return nt["flds"][self.col.models.sortIdx(nt)]["rtl"]
-
-
-# Line painter
-######################################################################
-
-
-class StatusDelegate(QItemDelegate):
-    def __init__(self, browser: Browser, model: DataModel) -> None:
-        QItemDelegate.__init__(self, browser)
-        self.browser = browser
-        self.model = model
-
-    def paint(
-        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
-    ) -> None:
-        try:
-            c = self.model.getCard(index)
-        except:
-            # in the the middle of a reset; return nothing so this row is not
-            # rendered until we have a chance to reset the model
-            return
-
-        if self.model.isRTL(index):
-            option.direction = Qt.RightToLeft
-
-        col = None
-        if c.userFlag() > 0:
-            col = theme_manager.qcolor(f"flag{c.userFlag()}-bg")
-        elif c.note().hasTag("Marked"):
-            col = theme_manager.qcolor("marked-bg")
-        elif c.queue == QUEUE_TYPE_SUSPENDED:
-            col = theme_manager.qcolor("suspended-bg")
-        if col:
-            brush = QBrush(col)
-            painter.save()
-            painter.fillRect(option.rect, brush)
-            painter.restore()
-
-        return QItemDelegate.paint(self, painter, option, index)
+    item_ids: Optional[Sequence[int]] = None
 
 
 # Browser window
@@ -439,9 +101,9 @@ class StatusDelegate(QItemDelegate):
 
 
 class Browser(QMainWindow):
-    model: DataModel
     mw: AnkiQt
     col: Collection
+    table: Table
     editor: Optional[Editor]
 
     def __init__(
@@ -469,14 +131,11 @@ class Browser(QMainWindow):
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
-        self.card: Optional[Card] = None
-        self.setupColumns()
-        self.setupTable()
+        self.item: Optional[Union[Card, Note]] = None
         self.setupMenus()
-        self.setupHeaders()
         self.setupHooks()
         self.setupEditor()
-        self.updateFont()
+        self.setup_table()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
@@ -487,6 +146,7 @@ class Browser(QMainWindow):
         # actions
         f = self.form
         qconnect(f.filter.clicked, self.onFilterButton)
+        qconnect(f.radio_cards.toggled, self.on_table_state_changed)
         # edit
         qconnect(f.actionUndo.triggered, self.mw.onUndo)
         qconnect(f.actionInvertSelection.triggered, self.invertSelection)
@@ -538,32 +198,6 @@ class Browser(QMainWindow):
         gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)
 
-        # context menu
-        self.form.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
-        qconnect(self.form.tableView.customContextMenuRequested, self.onContextMenu)
-
-    def onContextMenu(self, _point: QPoint) -> None:
-        m = QMenu()
-        for act in self.form.menu_Cards.actions():
-            m.addAction(act)
-        m.addSeparator()
-        for act in self.form.menu_Notes.actions():
-            m.addAction(act)
-        gui_hooks.browser_will_show_context_menu(self, m)
-        qtMenuShortcutWorkaround(m)
-        m.exec_(QCursor.pos())
-
-    def updateFont(self) -> None:
-        # we can't choose different line heights efficiently, so we need
-        # to pick a line height big enough for any card template
-        curmax = 16
-        for m in self.col.models.all():
-            for t in m["tmpls"]:
-                bsize = t.get("bsize", 0)
-                if bsize > curmax:
-                    curmax = bsize
-        self.form.tableView.verticalHeader().setDefaultSectionSize(curmax + 6)
-
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closeEventHasCleanedUp:
             evt.accept()
@@ -597,26 +231,6 @@ class Browser(QMainWindow):
             self.close()
         else:
             super().keyPressEvent(evt)
-
-    def setupColumns(self) -> None:
-        self.columns = [
-            ("question", tr(TR.BROWSING_QUESTION)),
-            ("answer", tr(TR.BROWSING_ANSWER)),
-            ("template", tr(TR.BROWSING_CARD)),
-            ("deck", tr(TR.DECKS_DECK)),
-            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
-            ("noteCrt", tr(TR.BROWSING_CREATED)),
-            ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
-            ("cardMod", tr(TR.SEARCH_CARD_MODIFIED)),
-            ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
-            ("cardIvl", tr(TR.BROWSING_INTERVAL)),
-            ("cardEase", tr(TR.BROWSING_EASE)),
-            ("cardReps", tr(TR.SCHEDULING_REVIEWS)),
-            ("cardLapses", tr(TR.SCHEDULING_LAPSES)),
-            ("noteTags", tr(TR.EDITING_TAGS)),
-            ("note", tr(TR.BROWSING_NOTE)),
-        ]
-        self.columns.sort(key=itemgetter(1))
 
     def reopen(
         self,
@@ -684,12 +298,9 @@ class Browser(QMainWindow):
         """Search triggered programmatically. Caller must have saved note first."""
 
         try:
-            self.model.search(self._lastSearchTxt)
+            self.table.search(self._lastSearchTxt)
         except Exception as err:
             show_invalid_search_error(err)
-        if not self.model.cards:
-            # no row change will fire
-            self._onRowChanged(None, None)
 
     def update_history(self) -> None:
         sh = self.mw.pm.profile["searchHistory"]
@@ -702,12 +313,15 @@ class Browser(QMainWindow):
         self.mw.pm.profile["searchHistory"] = sh
 
     def updateTitle(self) -> int:
-        selected = len(self.form.tableView.selectionModel().selectedRows())
-        cur = len(self.model.cards)
+        selected = self.table.len_selection()
+        cur = self.table.len()
+        title = (
+            TR.BROWSING_WINDOW_TITLE
+            if self.table.is_card_state()
+            else TR.BROWSING_WINDOW_TITLE_NOTES
+        )
         self.setWindowTitle(
-            without_unicode_isolation(
-                tr(TR.BROWSING_WINDOW_TITLE, total=cur, selected=selected)
-            )
+            without_unicode_isolation(tr(title, total=cur, selected=selected))
         )
         return selected
 
@@ -719,46 +333,27 @@ class Browser(QMainWindow):
     def show_single_card(self, card: Card) -> None:
         if card.nid:
 
-            def on_show_single_card() -> None:
+            def _show_single_card() -> None:
                 self.card = card
                 search = self.col.build_search_string(SearchTerm(nid=card.nid))
                 search = gui_hooks.default_search(search, card)
                 self.search_for(search, "")
-                self.focusCid(card.id)
+                self.table.select_single_card(card.id)
 
-            self.editor.saveNow(on_show_single_card)
+            self.editor.saveNow(_show_single_card)
 
     def onReset(self) -> None:
         self.sidebar.refresh()
-        self.editor.setNote(None)
+        self.begin_reset()
         self.search()
 
-    # Table view & editor
+    # Table and Editor
     ######################################################################
 
-    def setupTable(self) -> None:
-        self.model = DataModel(self)
-        self.form.tableView.setSortingEnabled(True)
-        self.form.tableView.setModel(self.model)
-        self.form.tableView.selectionModel()
-        self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
-        qconnect(
-            self.form.tableView.selectionModel().selectionChanged, self.onRowChanged
-        )
-        self.form.tableView.setWordWrap(False)
-        if not theme_manager.night_mode:
-            self.form.tableView.setStyleSheet(
-                "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
-                "selection-color: black; }"
-            )
-        elif theme_manager.macos_dark_mode():
-            grid = theme_manager.str_color("frame-bg")
-            self.form.tableView.setStyleSheet(
-                f"""
-QTableView {{ gridline-color: {grid} }}           
-            """
-            )
-        self.singleCard = False
+    def setup_table(self) -> None:
+        self.table = Table(self)
+        self.form.radio_cards.setChecked(self.table.is_card_state())
+        self.table.set_view(self.form.tableView)
 
     def setupEditor(self) -> None:
         def add_preview_button(leftbuttons: List[str], editor: Editor) -> None:
@@ -786,154 +381,69 @@ QTableView {{ gridline-color: {grid} }}
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
-    def onRowChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
-        "Update current note and hide/show editor."
-        self.editor.saveNow(lambda: self._onRowChanged(current, previous))
+    def save_now(self, callback: Callable) -> None:
+        self.editor.saveNow(callback)
 
-    def _onRowChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
+    def begin_reset(self) -> None:
+        """Must be called before modifying the current note from outside the editor to prevent
+        overwriting the changes with the cache. Unsaved changes in the editor will be lost.
+        After the modification, _onRowChanged() must be triggered, e.g. by end_reset() or search(),
+        to move the editor to a consistent state.
+        """
+        self.editor.setNote(None, hide=False)
+
+    def end_reset(self) -> None:
+        """Redraw the table with reloaded collection data triggering _onRowChanged()."""
+        self.table.reset()
+
+    def on_table_state_changed(self) -> None:
+        self.mw.progress.start()
+        self.editor.saveNow(
+            lambda: self.table.toggle_state(self.form.radio_cards.isChecked())
+        )
+        self.mw.progress.finish()
+
+    def on_column_toggled(self, checked: bool, column: str) -> None:
+        self.editor.saveNow(lambda: self.table.toggle_column(checked, column))
+
+    def onSortChanged(self, idx: int, ord: int) -> None:
+        ord_bool = bool(ord)
+        self.editor.saveNow(lambda: self.table.change_sort_column(idx, ord_bool))
+
+    def onRowChanged(self, _new: QItemSelection, _last: QItemSelection) -> None:
+        "Update current note and hide/show editor."
+        self.editor.saveNow(self._onRowChanged)
+
+    def _onRowChanged(self) -> None:
+        """Update window title, editor, previewer etc. after the table selection has changed."""
         if self._closeEventHasCleanedUp:
             return
-        update = self.updateTitle()
-        show = self.model.cards and update == 1
-        self.form.splitter.widget(1).setVisible(bool(show))
-        idx = self.form.tableView.selectionModel().currentIndex()
-        if idx.isValid():
-            self.card = self.model.getCard(idx)
+        self.updateTitle()
+        card = self.table.get_single_selected_card()
+        self.form.splitter.widget(1).setVisible(card is not None)
 
-        if not show:
+        if card is None:
             self.editor.setNote(None)
             self.singleCard = False
             self._renderPreview()
         else:
-            self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
+            self.card = card
+            self.editor.setNote(card.note(), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = self.card
+            self.editor.card = card
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
 
     def refreshCurrentCard(self, note: Note) -> None:
-        self.model.refreshNote(note)
+        self.table.refresh_note(note)
         self._renderPreview()
 
     def onLoadNote(self, editor: Editor) -> None:
         self.refreshCurrentCard(editor.note)
 
-    def currentRow(self) -> int:
-        idx = self.form.tableView.selectionModel().currentIndex()
-        return idx.row()
-
-    # Headers & sorting
+    # Sidebar
     ######################################################################
-
-    def setupHeaders(self) -> None:
-        vh = self.form.tableView.verticalHeader()
-        hh = self.form.tableView.horizontalHeader()
-        if not isWin:
-            vh.hide()
-            hh.show()
-        restoreHeader(hh, "editor")
-        hh.setHighlightSections(False)
-        hh.setMinimumSectionSize(50)
-        hh.setSectionsMovable(True)
-        self.setColumnSizes()
-        hh.setContextMenuPolicy(Qt.CustomContextMenu)
-        qconnect(hh.customContextMenuRequested, self.onHeaderContext)
-        self.setSortIndicator()
-        qconnect(hh.sortIndicatorChanged, self.onSortChanged)
-        qconnect(hh.sectionMoved, self.onColumnMoved)
-
-    def onSortChanged(self, idx: int, ord: int) -> None:
-        ord_bool = bool(ord)
-        self.editor.saveNow(lambda: self._onSortChanged(idx, ord_bool))
-
-    def _onSortChanged(self, idx: int, ord: bool) -> None:
-        type = self.model.activeCols[idx]
-        noSort = ("question", "answer")
-        if type in noSort:
-            showInfo(tr(TR.BROWSING_SORTING_ON_THIS_COLUMN_IS_NOT))
-            type = self.col.conf["sortType"]
-        if self.col.conf["sortType"] != type:
-            self.col.conf["sortType"] = type
-            # default to descending for non-text fields
-            if type == "noteFld":
-                ord = not ord
-            self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, ord)
-            self.col.setMod()
-            self.col.save()
-            self.search()
-        else:
-            if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS) != ord:
-                self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, ord)
-                self.col.setMod()
-                self.col.save()
-                self.model.reverse()
-        self.setSortIndicator()
-
-    def setSortIndicator(self) -> None:
-        hh = self.form.tableView.horizontalHeader()
-        type = self.col.conf["sortType"]
-        if type not in self.model.activeCols:
-            hh.setSortIndicatorShown(False)
-            return
-        idx = self.model.activeCols.index(type)
-        if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS):
-            ord = Qt.DescendingOrder
-        else:
-            ord = Qt.AscendingOrder
-        hh.blockSignals(True)
-        hh.setSortIndicator(idx, ord)
-        hh.blockSignals(False)
-        hh.setSortIndicatorShown(True)
-
-    def onHeaderContext(self, pos: QPoint) -> None:
-        gpos = self.form.tableView.mapToGlobal(pos)
-        m = QMenu()
-        for type, name in self.columns:
-            a = m.addAction(name)
-            a.setCheckable(True)
-            a.setChecked(type in self.model.activeCols)
-            qconnect(a.toggled, lambda b, t=type: self.toggleField(t))
-        gui_hooks.browser_header_will_show_context_menu(self, m)
-        m.exec_(gpos)
-
-    def toggleField(self, type: str) -> None:
-        self.editor.saveNow(lambda: self._toggleField(type))
-
-    def _toggleField(self, type: str) -> None:
-        self.model.beginReset()
-        if type in self.model.activeCols:
-            if len(self.model.activeCols) < 2:
-                self.model.endReset()
-                showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
-                return
-            self.model.activeCols.remove(type)
-            adding = False
-        else:
-            self.model.activeCols.append(type)
-            adding = True
-        self.col.conf["activeCols"] = self.model.activeCols
-        # sorted field may have been hidden
-        self.setSortIndicator()
-        self.setColumnSizes()
-        self.model.endReset()
-        # if we added a column, scroll to it
-        if adding:
-            row = self.currentRow()
-            idx = self.model.index(row, len(self.model.activeCols) - 1)
-            self.form.tableView.scrollTo(idx)
-
-    def setColumnSizes(self) -> None:
-        hh = self.form.tableView.horizontalHeader()
-        hh.setSectionResizeMode(QHeaderView.Interactive)
-        hh.setSectionResizeMode(
-            hh.logicalIndex(len(self.model.activeCols) - 1), QHeaderView.Stretch
-        )
-        # this must be set post-resize or it doesn't work
-        hh.setCascadingSectionResizes(False)
-
-    def onColumnMoved(self, *args: Any) -> None:
-        self.setColumnSizes()
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(tr(TR.BROWSING_SIDEBAR), self)
@@ -1113,7 +623,7 @@ QTableView {{ gridline-color: {grid} }}
     ######################################################################
 
     def showCardInfo(self) -> None:
-        if not self.card:
+        if not self.table.has_current():
             return
 
         info, cs = self._cardInfoData()
@@ -1135,7 +645,7 @@ QTableView {{ gridline-color: {grid} }}
         card_info_dialog.show()
 
     def _cardInfoData(self) -> Tuple[str, CardStats]:
-        cs = CardStats(self.col, self.card)
+        cs = CardStats(self.col, self.table.get_current_card())
         rep = cs.report(include_revlog=True)
         return rep, cs
 
@@ -1148,33 +658,8 @@ QTableView {{ gridline-color: {grid} }}
     # Menu helpers
     ######################################################################
 
-    def selectedCards(self) -> List[int]:
-        return [
-            self.model.cards[idx.row()]
-            for idx in self.form.tableView.selectionModel().selectedRows()
-        ]
-
-    def selectedNotes(self) -> List[int]:
-        return self.col.db.list(
-            """
-select distinct nid from cards
-where id in %s"""
-            % ids2str(
-                [
-                    self.model.cards[idx.row()]
-                    for idx in self.form.tableView.selectionModel().selectedRows()
-                ]
-            )
-        )
-
-    def selectedNotesAsCards(self) -> List[int]:
-        return self.col.db.list(
-            "select id from cards where nid in (%s)"
-            % ",".join([str(s) for s in self.selectedNotes()])
-        )
-
     def oneModelNotes(self) -> List[int]:
-        sf = self.selectedNotes()
+        sf = self.table.get_selected_note_ids()
         if not sf:
             return []
         mods = self.col.db.scalar(
@@ -1250,33 +735,14 @@ where id in %s"""
         self._deleteNotes()
 
     def _deleteNotes(self) -> None:
-        nids = self.selectedNotes()
+        nids = self.table.get_selected_note_ids()
         if not nids:
             return
         self.mw.checkpoint(tr(TR.BROWSING_DELETE_NOTES))
-        self.model.beginReset()
-        # figure out where to place the cursor after the deletion
-        curRow = self.form.tableView.selectionModel().currentIndex().row()
-        selectedRows = [
-            i.row() for i in self.form.tableView.selectionModel().selectedRows()
-        ]
-        if min(selectedRows) < curRow < max(selectedRows):
-            # last selection in middle; place one below last selected item
-            move = sum(1 for i in selectedRows if i > curRow)
-            newRow = curRow - move
-        elif max(selectedRows) <= curRow:
-            # last selection at bottom; place one below bottommost selection
-            newRow = max(selectedRows) - len(nids) + 1
-        else:
-            # last selection at top; place one above topmost selection
-            newRow = min(selectedRows) - 1
+        self.begin_reset()
+        self.table.set_current_to_unselected_note()
         self.col.remove_notes(nids)
         self.search()
-        if len(self.model.cards):
-            newRow = min(newRow, len(self.model.cards) - 1)
-            newRow = max(newRow, 0)
-            self.model.focusedCard = self.model.cards[newRow]
-        self.model.endReset()
         self.mw.reset()
         tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
 
@@ -1289,7 +755,7 @@ where id in %s"""
     def _setDeck(self) -> None:
         from aqt.studydeck import StudyDeck
 
-        cids = self.selectedCards()
+        cids = self.table.get_selected_card_ids()
         if not cids:
             return
         did = self.mw.col.db.scalar("select did from cards where id = ?", cids[0])
@@ -1309,10 +775,10 @@ where id in %s"""
         if deck["dyn"]:
             showWarning(tr(TR.BROWSING_CARDS_CANT_BE_MANUALLY_MOVED_INTO))
             return
-        self.model.beginReset()
         self.mw.checkpoint(tr(TR.BROWSING_CHANGE_DECK))
+        self.begin_reset()
         self.col.set_deck(cids, did)
-        self.model.endReset()
+        self.end_reset()
         self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
 
     # Tags
@@ -1348,9 +814,9 @@ where id in %s"""
             label = tr(TR.BROWSING_ADD_TAGS)
         if label:
             self.mw.checkpoint(label)
-        self.model.beginReset()
-        func(self.selectedNotes(), tags)
-        self.model.endReset()
+        self.begin_reset()
+        func(self.table.get_selected_note_ids(), tags)
+        self.end_reset()
         self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
 
     def deleteTags(
@@ -1379,26 +845,30 @@ where id in %s"""
     ######################################################################
 
     def isSuspended(self) -> bool:
-        return bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
+        return bool(
+            self.table.has_current()
+            and self.table.get_current_card().queue == QUEUE_TYPE_SUSPENDED
+        )
 
     def onSuspend(self) -> None:
         self.editor.saveNow(self._onSuspend)
 
     def _onSuspend(self) -> None:
         sus = not self.isSuspended()
-        c = self.selectedCards()
+        c = self.table.get_selected_card_ids()
+        self.begin_reset()
         if sus:
             self.col.sched.suspend_cards(c)
         else:
             self.col.sched.unsuspend_cards(c)
-        self.model.reset()
+        self.end_reset()
         self.mw.requireReset(reason=ResetReason.BrowserSuspend, context=self)
 
     # Exporting
     ######################################################################
 
     def _on_export_notes(self) -> None:
-        cids = self.selectedNotesAsCards()
+        cids = self.table.get_card_ids_from_selected_note_ids()
         if cids:
             ExportDialog(self.mw, cids=cids)
 
@@ -1406,19 +876,20 @@ where id in %s"""
     ######################################################################
 
     def onSetFlag(self, n: int) -> None:
-        if not self.card:
+        if not self.table.has_current():
             return
         self.editor.saveNow(lambda: self._on_set_flag(n))
 
     def _on_set_flag(self, n: int) -> None:
         # flag needs toggling off?
-        if n == self.card.userFlag():
+        if n == self.table.get_current_card().userFlag():
             n = 0
-        self.col.setUserFlag(n, self.selectedCards())
-        self.model.reset()
+        self.begin_reset()
+        self.col.setUserFlag(n, self.table.get_selected_card_ids())
+        self.end_reset()
 
     def _updateFlagsMenu(self) -> None:
-        flag = self.card and self.card.userFlag()
+        flag = self.table.has_current() and self.table.get_current_card().userFlag()
         flag = flag or 0
 
         f = self.form
@@ -1443,7 +914,9 @@ where id in %s"""
             self.deleteTags(tags="marked")
 
     def isMarked(self) -> bool:
-        return bool(self.card and self.card.note().hasTag("Marked"))
+        return bool(
+            self.table.has_current() and self.table.get_current_note().hasTag("Marked")
+        )
 
     # Repositioning
     ######################################################################
@@ -1452,7 +925,7 @@ where id in %s"""
         self.editor.saveNow(self._reposition)
 
     def _reposition(self) -> None:
-        cids = self.selectedCards()
+        cids = self.table.get_selected_card_ids()
         cids2 = self.col.db.list(
             f"select id from cards where type = {CARD_TYPE_NEW} and id in "
             + ids2str(cids)
@@ -1476,7 +949,6 @@ where id in %s"""
         frm.start.selectAll()
         if not d.exec_():
             return
-        self.model.beginReset()
         self.mw.checkpoint(tr(TR.ACTIONS_REPOSITION))
         self.col.sched.sortCards(
             cids,
@@ -1487,7 +959,6 @@ where id in %s"""
         )
         self.search()
         self.mw.requireReset(reason=ResetReason.BrowserReposition, context=self)
-        self.model.endReset()
 
     # Rescheduling
     ######################################################################
@@ -1503,18 +974,16 @@ where id in %s"""
         frm.setupUi(d)
         if not d.exec_():
             return
-        self.model.beginReset()
         self.mw.checkpoint(tr(TR.BROWSING_RESCHEDULE))
         if frm.asNew.isChecked():
-            self.col.sched.forgetCards(self.selectedCards())
+            self.col.sched.forgetCards(self.table.get_selected_card_ids())
         else:
             fmin = frm.min.value()
             fmax = frm.max.value()
             fmax = max(fmin, fmax)
-            self.col.sched.reschedCards(self.selectedCards(), fmin, fmax)
+            self.col.sched.reschedCards(self.table.get_selected_card_ids(), fmin, fmax)
         self.search()
         self.mw.requireReset(reason=ResetReason.BrowserReschedule, context=self)
-        self.model.endReset()
 
     # Edit: selection
     ######################################################################
@@ -1523,7 +992,7 @@ where id in %s"""
         self.editor.saveNow(self._selectNotes)
 
     def _selectNotes(self) -> None:
-        nids = self.selectedNotes()
+        nids = self.table.get_selected_note_ids()
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
@@ -1584,7 +1053,7 @@ where id in %s"""
         self.editor.saveNow(self._onFindReplace)
 
     def _onFindReplace(self) -> None:
-        nids = self.selectedNotes()
+        nids = self.table.get_selected_note_ids()
         if not nids:
             return
         import anki.find
@@ -1641,7 +1110,7 @@ where id in %s"""
 
         self.mw.checkpoint(tr(TR.BROWSING_FIND_AND_REPLACE))
         # starts progress dialog as well
-        self.model.beginReset()
+        self.begin_reset()
 
         def do_search() -> int:
             return self.col.find_and_replace(
@@ -1651,7 +1120,6 @@ where id in %s"""
         def on_done(fut: Future) -> None:
             self.search()
             self.mw.requireReset(reason=ResetReason.BrowserFindReplace, context=self)
-            self.model.endReset()
 
             total = len(nids)
             try:
@@ -1762,14 +1230,14 @@ where id in %s"""
     def _onTagDupes(self, res: List[Any]) -> None:
         if not res:
             return
-        self.model.beginReset()
         self.mw.checkpoint(tr(TR.BROWSING_TAG_DUPLICATES))
+        self.begin_reset()
         nids = set()
         for _, nidlist in res:
             nids.update(nidlist)
         self.col.tags.bulkAdd(list(nids), tr(TR.BROWSING_DUPLICATE))
         self.mw.progress.finish()
-        self.model.endReset()
+        self.end_reset()
         self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
         tooltip(tr(TR.BROWSING_NOTES_TAGGED))
 
@@ -1781,7 +1249,7 @@ where id in %s"""
     ######################################################################
 
     def _moveCur(self, dir: int, idx: QModelIndex = None) -> None:
-        if not self.model.cards:
+        if not self.table.has_current():
             return
         tv = self.form.tableView
         if idx is None:
@@ -1793,39 +1261,25 @@ where id in %s"""
             | QItemSelectionModel.Rows,
         )
 
+    def has_previous_card(self) -> bool:
+        return self.table.has_previous()
+
+    def has_next_card(self) -> bool:
+        return self.table.has_next()
+
     def onPreviousCard(self) -> None:
         self.focusTo = self.editor.currentField
-        self.editor.saveNow(self._onPreviousCard)
-
-    def _onPreviousCard(self) -> None:
-        self._moveCur(QAbstractItemView.MoveUp)
+        self.editor.saveNow(self.table.to_previous_row)
 
     def onNextCard(self) -> None:
         self.focusTo = self.editor.currentField
-        self.editor.saveNow(self._onNextCard)
-
-    def _onNextCard(self) -> None:
-        self._moveCur(QAbstractItemView.MoveDown)
+        self.editor.saveNow(self.table.to_next_row)
 
     def onFirstCard(self) -> None:
-        sm = self.form.tableView.selectionModel()
-        idx = sm.currentIndex()
-        self._moveCur(None, self.model.index(0, 0))
-        if not self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-            return
-        idx2 = sm.currentIndex()
-        item = QItemSelection(idx2, idx)
-        sm.select(item, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
+        self.table.to_first_row()
 
     def onLastCard(self) -> None:
-        sm = self.form.tableView.selectionModel()
-        idx = sm.currentIndex()
-        self._moveCur(None, self.model.index(len(self.model.cards) - 1, 0))
-        if not self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-            return
-        idx2 = sm.currentIndex()
-        item = QItemSelection(idx, idx2)
-        sm.select(item, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
+        self.table.to_last_row()
 
     def onFind(self) -> None:
         # workaround for PyQt focus bug
@@ -1844,14 +1298,6 @@ where id in %s"""
     def onCardList(self) -> None:
         self.form.tableView.setFocus()
 
-    def focusCid(self, cid: int) -> None:
-        try:
-            row = list(self.model.cards).index(cid)
-        except ValueError:
-            return
-        self.form.tableView.clearSelection()
-        self.form.tableView.selectRow(row)
-
 
 # Change model dialog
 ######################################################################
@@ -1862,7 +1308,7 @@ class ChangeModel(QDialog):
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids
-        self.oldModel = browser.card.note().model()
+        self.oldModel = browser.table.get_current_note().model()
         self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
         disable_help_button(self)
@@ -2024,11 +1470,10 @@ class ChangeModel(QDialog):
         b = self.browser
         b.mw.col.modSchema(check=True)
         b.mw.progress.start()
-        b.model.beginReset()
+        b.begin_reset()
         mm = b.mw.col.models
         mm.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
         b.search()
-        b.model.endReset()
         b.mw.progress.finish()
         b.mw.reset()
         self.cleanup()

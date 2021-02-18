@@ -120,6 +120,7 @@ browsing-note-deleted =
        *[other] { $count } notes deleted.
     }
 browsing-window-title = Browse ({ $selected } of { $total } cards selected)
+browsing-window-title-notes = Browse ({ $selected } of { $total } notes selected)
 browsing-sidebar-expand-children = Expand Children
 browsing-sidebar-collapse-children = Collapse Children
 browsing-sidebar-decks = Decks

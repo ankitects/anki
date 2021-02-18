@@ -83,7 +83,7 @@
            <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>12</number>
+           <number>6</number>
           </property>
           <property name="horizontalSpacing">
            <number>12</number>
@@ -111,6 +111,30 @@
            <widget class="QPushButton" name="filter">
             <property name="text">
              <string>BROWSING_FILTER</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="view_state" stretch="0,1">
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QRadioButton" name="radio_cards">
+            <property name="text">
+             <string>QT_ACCEL_CARDS</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radio_notes">
+            <property name="text">
+             <string>QT_ACCEL_NOTES</string>
             </property>
            </widget>
           </item>
