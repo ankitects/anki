@@ -399,14 +399,14 @@ class SidebarTreeView(QTreeView):
             return False
 
         def on_done(fut: Future) -> None:
-            self.browser.model.endReset()
+            self.browser.end_reset()
             fut.result()
             self.refresh()
             self.mw.deckBrowser.refresh()
 
         def on_save() -> None:
             self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
-            self.browser.model.beginReset()
+            self.browser.begin_reset()
             self.mw.taskman.with_progress(
                 lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
             )
@@ -427,7 +427,7 @@ class SidebarTreeView(QTreeView):
 
         def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-            self.browser.model.endReset()
+            self.browser.end_reset()
             fut.result()
             self.refresh()
 
@@ -438,7 +438,7 @@ class SidebarTreeView(QTreeView):
 
         def on_save() -> None:
             self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
-            self.browser.model.beginReset()
+            self.browser.begin_reset()
             self.mw.taskman.with_progress(
                 lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
             )
@@ -776,12 +776,12 @@ class SidebarTreeView(QTreeView):
 
         def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
-            self.browser.model.endReset()
+            self.browser.end_reset()
             fut.result()
             self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
-        self.browser.model.beginReset()
+        self.browser.begin_reset()
         self.mw.taskman.run_in_background(do_remove, on_done)
 
     def rename_tag(self, item: "aqt.browser.SidebarItem") -> None:
@@ -799,7 +799,7 @@ class SidebarTreeView(QTreeView):
 
         def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-            self.browser.model.endReset()
+            self.browser.end_reset()
 
             count = fut.result()
             if not count:
@@ -809,7 +809,7 @@ class SidebarTreeView(QTreeView):
             self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
-        self.browser.model.beginReset()
+        self.browser.begin_reset()
         self.mw.taskman.run_in_background(do_rename, on_done)
 
     def delete_deck(self, item: "aqt.browser.SidebarItem") -> None:
@@ -825,12 +825,12 @@ class SidebarTreeView(QTreeView):
             def on_done(fut: Future) -> None:
                 self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
                 self.browser.search()
-                self.browser.model.endReset()
+                self.browser.end_reset()
                 self.refresh()
                 res = fut.result()  # Required to check for errors
 
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
-            self.browser.model.beginReset()
+            self.browser.begin_reset()
             self.mw.taskman.run_in_background(do_delete, on_done)
 
     def remove_saved_search(self, item: "aqt.browser.SidebarItem") -> None:
