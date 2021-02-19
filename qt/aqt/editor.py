@@ -750,16 +750,16 @@ class Editor:
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
-        key = f"{tr(TR.EDITING_MEDIA)} ({extension_filter})"
+        filter = f"{tr(TR.EDITING_MEDIA)} ({extension_filter})"
 
         def accept(file: str) -> None:
             self.addMedia(file, canDelete=True)
 
         file = getFile(
-            self.widget,
-            tr(TR.EDITING_ADD_MEDIA),
-            cast(Callable[[Any], None], accept),
-            key,
+            parent=self.widget,
+            title=tr(TR.EDITING_ADD_MEDIA),
+            cb=cast(Callable[[Any], None], accept),
+            filter=filter,
             key="media",
         )
         self.parentWindow.activateWindow()
