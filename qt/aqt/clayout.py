@@ -187,6 +187,12 @@ class CardLayout(QDialog):
             self,
             activated=self.tform.style_button.click,
         )
+        for i in range(min(len(self.cloze_numbers), 9)):
+            QShortcut(  # type: ignore
+                QKeySequence(f"Alt+{i+1}"),
+                self,
+                activated=lambda n=i: self.pform.cloze_number_combo.setCurrentIndex(n),
+            )
 
     # Main area setup
     ##########################################################################
