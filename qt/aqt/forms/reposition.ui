@@ -75,7 +75,7 @@
       <string>BROWSING_SHIFT_POSITION_OF_EXISTING_CARDS</string>
      </property>
      <property name="checked">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>
