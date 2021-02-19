@@ -441,24 +441,27 @@ class Collection:
     # Finding cards
     ##########################################################################
 
-    # if order=True, use the sort order stored in the collection config
-    # if order=False, do no ordering
-    #
-    # if order is a string, that text is added after 'order by' in the sql statement.
-    # you must add ' asc' or ' desc' to the order, as Anki will replace asc with
-    # desc and vice versa when reverse is set in the collection config, eg
-    # order="c.ivl asc, c.due desc"
-    #
-    # if order is an int enum, sort using that builtin sort, eg
-    # col.find_cards("", order=BuiltinSortKind.CARD_DUE)
-    # the reverse argument only applies when a BuiltinSortKind is provided;
-    # otherwise the collection config defines whether reverse is set or not
     def find_cards(
         self,
         query: str,
         order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
+        """Return card ids matching the provided search.
+
+        if order=True, use the sort order stored in the collection config
+        if order=False, do no ordering
+
+        if order is a string, that text is added after 'order by' in the sql statement.
+        you must add ' asc' or ' desc' to the order, as Anki will replace asc with
+        desc and vice versa when reverse is set in the collection config, eg
+        order="c.ivl asc, c.due desc"
+
+        if order is an int enum, sort using that builtin sort, eg
+        col.find_cards("", order=BuiltinSortKind.CARD_DUE)
+        the reverse argument only applies when a BuiltinSortKind is provided;
+        otherwise the collection config defines whether reverse is set or not
+        """
         if isinstance(order, str):
             mode = _pb.SortOrder(custom=order)
         elif isinstance(order, bool):
@@ -473,6 +476,16 @@ class Collection:
         return self._backend.search_cards(search=query, order=mode)
 
     def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[int]:
+        """Return note ids matching the provided search or searches.
+
+        If more than one search is provided, they will be ANDed together.
+
+        Eg: col.find_notes("test", "another") will search for "test AND another"
+        and return matching note ids.
+
+        Eg: col.find_notes(SearchNode(deck="test"), "foo") will return notes
+        that have a card in deck called "test", and have the text "foo".
+        """
         return self._backend.search_notes(self.build_search_string(*terms))
 
     def find_and_replace(
