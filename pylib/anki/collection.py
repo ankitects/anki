@@ -449,18 +449,21 @@ class Collection:
     ) -> Sequence[int]:
         """Return card ids matching the provided search.
 
-        if order=True, use the sort order stored in the collection config
-        if order=False, do no ordering
+        To programmatically construct a search string, see .build_search_string().
 
-        if order is a string, that text is added after 'order by' in the sql statement.
-        you must add ' asc' or ' desc' to the order, as Anki will replace asc with
+        If order=True, use the sort order stored in the collection config
+        If order=False, do no ordering
+
+        If order is a string, that text is added after 'order by' in the sql statement.
+        You must add ' asc' or ' desc' to the order, as Anki will replace asc with
         desc and vice versa when reverse is set in the collection config, eg
-        order="c.ivl asc, c.due desc"
+        order="c.ivl asc, c.due desc".
 
-        if order is an int enum, sort using that builtin sort, eg
-        col.find_cards("", order=BuiltinSortKind.CARD_DUE)
-        the reverse argument only applies when a BuiltinSortKind is provided;
-        otherwise the collection config defines whether reverse is set or not
+        If order is a BuiltinSort.Kind value, sort using that builtin sort, eg
+        col.find_cards("", order=BuiltinSort.Kind.CARD_DUE)
+
+        The reverse argument only applies when a BuiltinSort.Kind is provided;
+        otherwise the collection config defines whether reverse is set or not.
         """
         if isinstance(order, str):
             mode = _pb.SortOrder(custom=order)
