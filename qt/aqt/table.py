@@ -139,7 +139,9 @@ class Table:
             pass
 
     def _set_current(self, row: int, column: int = 0) -> None:
-        index = self.model.index(row, self._view.horizontalHeader().logicalIndex(column))
+        index = self.model.index(
+            row, self._view.horizontalHeader().logicalIndex(column)
+        )
         self._view.selectionModel().setCurrentIndex(index, QItemSelectionModel.NoUpdate)
 
     # Update table
@@ -165,38 +167,38 @@ class Table:
             return
         self._save_selection()
         self.state = self.model.toggle_state()
+        self._set_sort_indicator()
+        self._set_column_sizes()
         self._restore_selection(self._toggled_selection)
 
     def toggle_column(self, checked: bool, column: str) -> None:
-        def callback() -> None:
-            # sorted field may have been hidden
-            self._set_sort_indicator()
-            self._set_column_sizes()
-
         if checked:
-            new_column = self.model.add_column(column, callback)
+            new_column = self.model.add_column(column)
             self._scroll_to_column(new_column)
         else:
             if self.model.len_columns() < 2:
                 showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
                 return
-            self.model.remove_column(column, callback)
+            self.model.remove_column(column)
+        # sorted field may have been hidden
+        self._set_sort_indicator()
+        self._set_column_sizes()
 
     def change_sort_column(self, index: int, order: bool) -> None:
-        sort_column = self.model.get_active_column(index)
+        sort_column = self.model.active_column(index)
         if sort_column in ("question", "answer"):
             showInfo(tr(TR.BROWSING_SORTING_ON_THIS_COLUMN_IS_NOT))
-            sort_column = self.col.get_config("sortType")
-        if self.col.get_config("sortType") != sort_column:
-            self.col.set_config("sortType", sort_column)
+            sort_column = self.state.sort_column
+        if self.state.sort_column != sort_column:
+            self.state.sort_column = sort_column
             # default to descending for non-text fields
             if sort_column == "noteFld":
                 order = not order
-            self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, order)
+            self.state.sort_backwards = order
             self.browser.search()
         else:
-            if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS) != order:
-                self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, order)
+            if self.state.sort_backwards != order:
+                self.state.sort_backwards = order
                 self.model.reverse()
         self._set_sort_indicator()
 
@@ -313,7 +315,7 @@ class Table:
         for column, name in self.state.columns:
             a = m.addAction(name)
             a.setCheckable(True)
-            a.setChecked(self.model.get_active_column_index(column) is not None)
+            a.setChecked(self.model.active_column_index(column) is not None)
             qconnect(
                 a.toggled,
                 lambda checked, column=column: self.browser.on_column_toggled(
@@ -352,7 +354,9 @@ class Table:
         self._selected_items = []
         self._current_item = None
 
-    def _qualify_selected_rows(self, rows: List[int], current: Optional[int]) -> List[int]:
+    def _qualify_selected_rows(
+        self, rows: List[int], current: Optional[int]
+    ) -> List[int]:
         """Return between 1 and SELECTION_LIMIT rows, as far as possible from rows or current."""
         if rows:
             if len(rows) < self.SELECTION_LIMIT:
@@ -441,12 +445,11 @@ class Table:
 
     def _set_sort_indicator(self) -> None:
         hh = self._view.horizontalHeader()
-        sort_column = self.col.get_config("sortType")
-        index = self.model.get_active_column_index(sort_column)
+        index = self.model.active_column_index(self.state.sort_column)
         if index is None:
             hh.setSortIndicatorShown(False)
             return
-        if self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS):
+        if self.state.sort_backwards:
             order = Qt.DescendingOrder
         else:
             order = Qt.AscendingOrder
@@ -463,6 +466,10 @@ class Table:
         )
         # this must be set post-resize or it doesn't work
         hh.setCascadingSectionResizes(False)
+
+
+# ItemStates
+######################################################################
 
 
 class ItemState(ABC):
@@ -558,9 +565,25 @@ class ItemState(ABC):
     def get_item_color(self, item: int) -> Optional[str]:
         """Return the item's row's color for the view."""
 
+    @property
+    @abstractmethod
+    def sort_column(self) -> str:
+        """Return the sort column from the config."""
 
-# ItemStates
-######################################################################
+    @sort_column.setter
+    @abstractmethod
+    def sort_column(self, column: str) -> None:
+        """Save the sort column in the config."""
+
+    @property
+    @abstractmethod
+    def sort_backwards(self) -> bool:
+        """Return the sort order from the config."""
+
+    @sort_backwards.setter
+    @abstractmethod
+    def sort_backwards(self, order: bool) -> None:
+        """Save the sort order in the config."""
 
 
 class CardState(ItemState):
@@ -651,6 +674,22 @@ class CardState(ItemState):
             return theme_manager.qcolor("marked-bg")
         return None
 
+    @property
+    def sort_column(self) -> str:
+        return self.col.get_config("sortType")
+
+    @sort_column.setter
+    def sort_column(self, column: str) -> None:
+        self.col.set_config("sortType", column)
+
+    @property
+    def sort_backwards(self) -> bool:
+        return self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS)
+
+    @sort_backwards.setter
+    def sort_backwards(self, order: bool) -> None:
+        self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, order)
+
 
 class NoteState(ItemState):
     _columns: Optional[List[Tuple[str, str]]] = None
@@ -727,6 +766,22 @@ class NoteState(ItemState):
         if card.queue == QUEUE_TYPE_SUSPENDED:
             return theme_manager.qcolor("suspended-bg")
         return None
+
+    @property
+    def sort_column(self) -> str:
+        return self.col.get_config("noteSortType")
+
+    @sort_column.setter
+    def sort_column(self, column: str) -> None:
+        self.col.set_config("noteSortType", column)
+
+    @property
+    def sort_backwards(self) -> bool:
+        return self.col.get_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS)
+
+    @sort_backwards.setter
+    def sort_backwards(self, order: bool) -> None:
+        self.col.set_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS, order)
 
 
 # Data model
@@ -841,51 +896,47 @@ class DataModel(QAbstractTableModel):
 
     # Columns
 
-    def get_active_column(self, index: int) -> str:
+    def active_column(self, index: int) -> str:
         return self._active_columns[index]
 
-    def get_active_column_index(self, column: str) -> Optional[int]:
+    def active_column_index(self, column: str) -> Optional[int]:
         return (
             self._active_columns.index(column)
             if column in self._active_columns
             else None
         )
 
-    def add_column(self, column: str, callback: Callable) -> int:
-        """Add a new column and return its index, calling callback before ending reset."""
+    def add_column(self, column: str) -> int:
         self.beginResetModel()
         self._active_columns.append(column)
         self.state.save_columns(self._active_columns)
-        callback()
         self.endResetModel()
         return self.len_columns() - 1
 
-    def remove_column(self, column: str, callback: Callable) -> None:
-        """Remove a column, calling callback before ending reset."""
+    def remove_column(self, column: str) -> None:
         self.beginResetModel()
         self._active_columns.remove(column)
         self.state.save_columns(self._active_columns)
-        callback()
         self.endResetModel()
 
     # Model interface
     ######################################################################
 
-    def rowCount(self, browser: QModelIndex = QModelIndex()) -> int:
-        if browser and browser.isValid():
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        if parent and parent.isValid():
             return 0
-        return len(self._items)
+        return self.len_rows()
 
-    def columnCount(self, browser: QModelIndex = QModelIndex()) -> int:
-        if browser and browser.isValid():
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        if parent and parent.isValid():
             return 0
-        return len(self._active_columns)
+        return self.len_columns()
 
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
             return
         if role == Qt.FontRole:
-            if self._active_columns[index.column()] not in (
+            if self.active_column(index.column()) not in (
                 "question",
                 "answer",
                 "noteFld",
@@ -901,7 +952,7 @@ class DataModel(QAbstractTableModel):
 
         elif role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
-            if self._active_columns[index.column()] not in (
+            if self.active_column(index.column()) not in (
                 "question",
                 "answer",
                 "template",
@@ -923,7 +974,7 @@ class DataModel(QAbstractTableModel):
         if orientation == Qt.Vertical:
             return None
         elif role == Qt.DisplayRole and section < self.len_columns():
-            column = self.columnType(section)
+            column = self.active_column(section)
             txt = None
             for stype, name in self.state.columns:
                 if column == stype:
@@ -942,14 +993,11 @@ class DataModel(QAbstractTableModel):
     # Column data
     ######################################################################
 
-    def columnType(self, column: int) -> str:
-        return self._active_columns[column]
-
     def time_format(self) -> str:
         return "%Y-%m-%d"
 
     def columnData(self, index: QModelIndex) -> str:
-        column = self.get_active_column(index.column())
+        column = self.active_column(index.column())
 
         note = self.get_note(index.row())
         if column == "noteFld":
@@ -1042,7 +1090,7 @@ class DataModel(QAbstractTableModel):
         return time.strftime(self.time_format(), time.localtime(date))
 
     def isRTL(self, index: QModelIndex) -> bool:
-        column = self.get_active_column(index.column())
+        column = self.active_column(index.column())
         if column != "noteFld":
             return False
         model = self.get_note(index.row()).model()

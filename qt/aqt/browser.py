@@ -296,7 +296,6 @@ class Browser(QMainWindow):
 
     def search(self) -> None:
         """Search triggered programmatically. Caller must have saved note first."""
-
         try:
             self.table.search(self._lastSearchTxt)
         except Exception as err:
