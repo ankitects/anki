@@ -32,27 +32,4 @@ impl Card {
             self.ease_factor = INITIAL_EASE_FACTOR_THOUSANDS;
         }
     }
-
-    fn all_remaining_steps(&self) -> u32 {
-        self.remaining_steps % 1000
-    }
-
-    #[allow(dead_code)]
-    fn remaining_steps_today(&self) -> u32 {
-        self.remaining_steps / 1000
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn current_learning_delay_seconds(&self, delays: &[u32]) -> Option<u32> {
-        if self.queue == CardQueue::Learn {
-            let remaining = self.all_remaining_steps();
-            delays
-                .iter()
-                .nth_back(remaining.saturating_sub(0) as usize)
-                .or(Some(&0))
-                .map(|n| n * 60)
-        } else {
-            None
-        }
-    }
 }

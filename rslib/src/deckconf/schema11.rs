@@ -243,7 +243,7 @@ impl From<DeckConfSchema11> for DeckConf {
                 lapse_multiplier: c.lapse.mult,
                 interval_multiplier: c.rev.ivl_fct,
                 maximum_review_interval: c.rev.max_ivl,
-                minimum_review_interval: c.lapse.min_int,
+                minimum_lapse_interval: c.lapse.min_int,
                 graduating_interval_good: c.new.ints.good as u32,
                 graduating_interval_easy: c.new.ints.easy as u32,
                 new_card_order: match c.new.order {
@@ -327,7 +327,7 @@ impl From<DeckConf> for DeckConfSchema11 {
                     _ => LeechAction::Suspend,
                 },
                 leech_fails: i.leech_threshold,
-                min_int: i.minimum_review_interval,
+                min_int: i.minimum_lapse_interval,
                 mult: i.lapse_multiplier,
                 other: lapse_other,
             },

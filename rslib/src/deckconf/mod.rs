@@ -5,6 +5,7 @@ use crate::{
     collection::Collection,
     define_newtype,
     err::{AnkiError, Result},
+    sched::states::review::INITIAL_EASE_FACTOR,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
@@ -15,7 +16,7 @@ pub use crate::backend_proto::{
 };
 pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
 /// Old deck config and cards table store 250% as 2500.
-pub const INITIAL_EASE_FACTOR_THOUSANDS: u16 = 2500;
+pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
 
 mod schema11;
 
@@ -54,7 +55,7 @@ impl Default for DeckConf {
                 lapse_multiplier: 0.0,
                 interval_multiplier: 1.0,
                 maximum_review_interval: 36_500,
-                minimum_review_interval: 1,
+                minimum_lapse_interval: 1,
                 graduating_interval_good: 1,
                 graduating_interval_easy: 4,
                 new_card_order: NewCardOrder::Due as i32,

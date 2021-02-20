@@ -117,7 +117,7 @@ pub fn strip_av_tags(text: &str) -> Cow<str> {
 }
 
 /// Extract audio tags from string, replacing them with [anki:play] refs
-pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>, Vec<AVTag>) {
+pub fn extract_av_tags(text: &str, question_side: bool) -> (Cow<str>, Vec<AVTag>) {
     let mut tags = vec![];
     let context = if question_side { 'q' } else { 'a' };
     let replaced_text = AV_TAGS.replace_all(text, |caps: &Captures| {

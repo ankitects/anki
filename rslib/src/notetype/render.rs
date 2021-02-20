@@ -76,9 +76,10 @@ impl Collection {
         }
 
         // no existing card; synthesize one
-        let mut card = Card::default();
-        card.template_idx = card_ord;
-        Ok(card)
+        Ok(Card {
+            template_idx: card_ord,
+            ..Default::default()
+        })
     }
 
     fn render_card_inner(

@@ -58,10 +58,6 @@ pub struct NoteType {
 
 impl Default for NoteType {
     fn default() -> Self {
-        let mut conf = NoteTypeConfig::default();
-        conf.css = DEFAULT_CSS.into();
-        conf.latex_pre = DEFAULT_LATEX_HEADER.into();
-        conf.latex_post = DEFAULT_LATEX_FOOTER.into();
         NoteType {
             id: NoteTypeID(0),
             name: "".into(),
@@ -69,7 +65,12 @@ impl Default for NoteType {
             usn: Usn(0),
             fields: vec![],
             templates: vec![],
-            config: conf,
+            config: NoteTypeConfig {
+                css: DEFAULT_CSS.into(),
+                latex_pre: DEFAULT_LATEX_HEADER.into(),
+                latex_post: DEFAULT_LATEX_FOOTER.into(),
+                ..Default::default()
+            },
         }
     }
 }

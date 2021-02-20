@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::decks::DeckID;
 use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
@@ -9,6 +8,7 @@ use crate::{
     collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
     undo::Undoable,
 };
+use crate::{deckconf::DeckConf, decks::DeckID};
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::collections::HashSet;
@@ -107,6 +107,17 @@ impl Card {
         self.remove_from_filtered_deck_restoring_queue(sched);
         self.deck_id = deck;
     }
+
+    /// Return the total number of steps left to do, ignoring the
+    /// "steps today" number packed into the DB representation.
+    pub fn remaining_steps(&self) -> u32 {
+        self.remaining_steps % 1000
+    }
+
+    /// Return ease factor as a multiplier (eg 2.5)
+    pub fn ease_factor(&self) -> f32 {
+        (self.ease_factor as f32) / 1000.0
+    }
 }
 #[derive(Debug)]
 pub(crate) struct UpdateCardUndo(Card);
@@ -122,15 +133,17 @@ impl Undoable for UpdateCardUndo {
 }
 
 impl Card {
-    pub fn new(nid: NoteID, ord: u16, deck_id: DeckID, due: i32) -> Self {
-        let mut card = Card::default();
-        card.note_id = nid;
-        card.template_idx = ord;
-        card.deck_id = deck_id;
-        card.due = due;
-        card
+    pub fn new(note_id: NoteID, template_idx: u16, deck_id: DeckID, due: i32) -> Self {
+        Card {
+            note_id,
+            template_idx,
+            deck_id,
+            due,
+            ..Default::default()
+        }
     }
 }
+
 impl Collection {
     #[cfg(test)]
     pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardID, func: F) -> Result<Card>
@@ -216,6 +229,17 @@ impl Collection {
             }
             Ok(())
         })
+    }
+
+    /// Get deck config for the given card. If missing, return default values.
+    pub(crate) fn deck_config_for_card(&mut self, card: &Card) -> Result<DeckConf> {
+        if let Some(deck) = self.get_deck(card.original_or_current_deck_id())? {
+            if let Some(conf_id) = deck.config_id() {
+                return Ok(self.get_deck_config(conf_id, true)?.unwrap());
+            }
+        }
+
+        Ok(DeckConf::default())
     }
 }
 
