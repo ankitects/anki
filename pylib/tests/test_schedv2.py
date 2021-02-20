@@ -150,7 +150,6 @@ def test_learn():
     col.sched.answerCard(c, 1)
     # it should have three reps left to graduation
     assert c.left % 1000 == 3
-    assert c.left // 1000 == 3
     # it should be due in 30 seconds
     t = round(c.due - time.time())
     assert t >= 25 and t <= 40
@@ -160,7 +159,6 @@ def test_learn():
     dueIn = c.due - time.time()
     assert 178 <= dueIn <= 180 * 1.25
     assert c.left % 1000 == 2
-    assert c.left // 1000 == 2
     # check log is accurate
     log = col.db.first("select * from revlog order by id desc")
     assert log[3] == 3
@@ -172,7 +170,6 @@ def test_learn():
     dueIn = c.due - time.time()
     assert 599 <= dueIn <= 600 * 1.25
     assert c.left % 1000 == 1
-    assert c.left // 1000 == 1
     # the next pass should graduate the card
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_LRN
@@ -752,7 +749,7 @@ def test_filt_keep_lrn_state():
     col.sched.answerCard(c, 1)
 
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
-    assert c.left == 3003
+    assert c.left % 1000 == 3
 
     col.sched.answerCard(c, 3)
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
@@ -765,7 +762,7 @@ def test_filt_keep_lrn_state():
     # card should still be in learning state
     c.load()
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
-    assert c.left == 2002
+    assert c.left % 1000 == 2
 
     # should be able to advance learning steps
     col.sched.answerCard(c, 3)
@@ -776,7 +773,7 @@ def test_filt_keep_lrn_state():
     col.sched.empty_filtered_deck(did)
     c.load()
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
-    assert c.left == 1001
+    assert c.left % 1000 == 1
     assert c.due - intTime() > 60 * 60
 
 
