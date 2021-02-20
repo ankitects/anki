@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import time
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from operator import itemgetter
 from typing import (
     TYPE_CHECKING,
@@ -172,17 +172,15 @@ class Table:
         self._restore_selection(self._toggled_selection)
 
     def toggle_column(self, checked: bool, column: str) -> None:
-        if checked:
-            new_column = self.model.add_column(column)
-            self._scroll_to_column(new_column)
-        else:
-            if self.model.len_columns() < 2:
-                showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
-                return
-            self.model.remove_column(column)
-        # sorted field may have been hidden
-        self._set_sort_indicator()
+        if not checked and self.model.len_columns() < 2:
+            showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
+            return
+        self.model.toggle_column(column)
         self._set_column_sizes()
+        # sorted field may have been hidden or revealed
+        self._set_sort_indicator()
+        if checked:
+            self._scroll_to_column(self.model.len_columns() - 1)
 
     def change_sort_column(self, index: int, order: bool) -> None:
         sort_column = self.model.active_column(index)
@@ -492,6 +490,36 @@ class ItemState(ABC):
     def card_ids_from_note_ids(self, items: Sequence[int]) -> List[int]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
+    # Columns and sorting
+
+    @abstractproperty
+    def columns(self) -> List[Tuple[str, str]]:
+        """Return all for the state available columns."""
+
+    @abstractproperty
+    def active_columns(self) -> List[str]:
+        """Return the saved or default columns for the state."""
+
+    @abstractmethod
+    def toggle_active_column(self, column: str) -> None:
+        """Add or remove an active column."""
+
+    @abstractproperty
+    def sort_column(self) -> str:
+        """Return the sort column from the config."""
+
+    @sort_column.setter
+    def sort_column(self, column: str) -> None:
+        """Save the sort column in the config."""
+
+    @abstractproperty
+    def sort_backwards(self) -> bool:
+        """Return the sort order from the config."""
+
+    @sort_backwards.setter
+    def sort_backwards(self, order: bool) -> None:
+        """Save the sort order in the config."""
+
     # Get objects
 
     @abstractmethod
@@ -546,52 +574,84 @@ class ItemState(ABC):
     def refresh_note(self, note: Note) -> bool:
         """Delete cached objects associated with the note and return True if there were any."""
 
-    # Columns
-
-    @property
-    @abstractmethod
-    def columns(self) -> List[Tuple[str, str]]:
-        """Return all for the state available columns."""
-
-    @abstractmethod
-    def get_active_columns(self) -> List[str]:
-        """Return the saved or default columns for the state."""
-
-    @abstractmethod
-    def save_columns(self, columns: List[str]) -> None:
-        """Save the columns in the config for the state."""
+    # Miscellaneous
 
     @abstractmethod
     def get_item_color(self, item: int) -> Optional[str]:
         """Return the item's row's color for the view."""
 
-    @property
-    @abstractmethod
-    def sort_column(self) -> str:
-        """Return the sort column from the config."""
-
-    @sort_column.setter
-    @abstractmethod
-    def sort_column(self, column: str) -> None:
-        """Save the sort column in the config."""
-
-    @property
-    @abstractmethod
-    def sort_backwards(self) -> bool:
-        """Return the sort order from the config."""
-
-    @sort_backwards.setter
-    @abstractmethod
-    def sort_backwards(self, order: bool) -> None:
-        """Save the sort order in the config."""
-
 
 class CardState(ItemState):
-    _columns: Optional[List[Tuple[str, str]]] = None
+    _columns: List[Tuple[str, str]]
+    _active_columns: List[str]
+    _sort_column: str
+    _sort_backwards: bool
 
     def __init__(self, col: Collection) -> None:
-        self._cards: Dict[int, Card] = {}
         super().__init__(col)
+        self._cards: Dict[int, Card] = {}
+        self._load_columns()
+        self._load_active_columns()
+        self._sort_column = self.col.get_config("sortType")
+        self._sort_backwards = self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS)
+
+    def _load_columns(self) -> None:
+        self._columns = [
+            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
+            ("noteCrt", tr(TR.BROWSING_CREATED)),
+            ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
+            ("noteTags", tr(TR.EDITING_TAGS)),
+            ("note", tr(TR.BROWSING_NOTE)),
+            ("question", tr(TR.BROWSING_QUESTION)),
+            ("answer", tr(TR.BROWSING_ANSWER)),
+            ("template", tr(TR.BROWSING_CARD)),
+            ("deck", tr(TR.DECKS_DECK)),
+            ("cardMod", tr(TR.SEARCH_CARD_MODIFIED)),
+            ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
+            ("cardIvl", tr(TR.BROWSING_INTERVAL)),
+            ("cardEase", tr(TR.BROWSING_EASE)),
+            ("cardReps", tr(TR.SCHEDULING_REVIEWS)),
+            ("cardLapses", tr(TR.SCHEDULING_LAPSES)),
+        ]
+        self._columns.sort(key=itemgetter(1))
+
+    def _load_active_columns(self) -> None:
+        self._active_columns = self.col.get_config(
+            "activeCols", ["noteFld", "template", "cardDue", "deck"]
+        )
+
+    @property
+    def columns(self) -> List[Tuple[str, str]]:
+        return self._columns
+
+    @property
+    def active_columns(self) -> List[str]:
+        return self._active_columns
+
+    def toggle_active_column(self, column: str) -> None:
+        if column in self._active_columns:
+            self._active_columns.remove(column)
+        else:
+            self._active_columns.append(column)
+        self.col.set_config("activeCols", self._active_columns)
+
+    @property
+    def sort_column(self) -> str:
+        return self._sort_column
+
+    @sort_column.setter
+    def sort_column(self, column: str) -> None:
+        self.col.set_config("sortType", column)
+        self._sort_column = column
+
+    @property
+    def sort_backwards(self) -> bool:
+        return self._sort_backwards
+
+    @sort_backwards.setter
+    def sort_backwards(self, order: bool) -> None:
+        self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, order)
+        self._sort_backwards = order
 
     def get_card(self, item: int) -> Card:
         if not item in self._cards:
@@ -633,37 +693,6 @@ class CardState(ItemState):
                 refresh = True
         return refresh
 
-    @property
-    def columns(self) -> List[Tuple[str, str]]:
-        if self._columns is None:
-            self._columns = [
-                ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
-                ("noteCrt", tr(TR.BROWSING_CREATED)),
-                ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
-                ("noteTags", tr(TR.EDITING_TAGS)),
-                ("note", tr(TR.BROWSING_NOTE)),
-                ("question", tr(TR.BROWSING_QUESTION)),
-                ("answer", tr(TR.BROWSING_ANSWER)),
-                ("template", tr(TR.BROWSING_CARD)),
-                ("deck", tr(TR.DECKS_DECK)),
-                ("cardMod", tr(TR.SEARCH_CARD_MODIFIED)),
-                ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
-                ("cardIvl", tr(TR.BROWSING_INTERVAL)),
-                ("cardEase", tr(TR.BROWSING_EASE)),
-                ("cardReps", tr(TR.SCHEDULING_REVIEWS)),
-                ("cardLapses", tr(TR.SCHEDULING_LAPSES)),
-            ]
-            self._columns.sort(key=itemgetter(1))
-        return self._columns
-
-    def get_active_columns(self) -> List[str]:
-        return self.col.get_config(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"]
-        )
-
-    def save_columns(self, columns: List[str]) -> None:
-        self.col.set_config("activeCols", columns)
-
     def get_item_color(self, item: int) -> Optional[str]:
         card = self.get_card(item)
         if card.userFlag() > 0:
@@ -674,29 +703,68 @@ class CardState(ItemState):
             return theme_manager.qcolor("marked-bg")
         return None
 
+
+class NoteState(ItemState):
+    _columns: List[Tuple[str, str]]
+    _active_columns: List[str]
+    _sort_column: str
+    _sort_backwards: bool
+
+    def __init__(self, col: Collection) -> None:
+        super().__init__(col)
+        self._notes: Dict[int, Note] = {}
+        self._load_columns()
+        self._load_active_columns()
+        self._sort_column = self.col.get_config("noteSortType")
+        self._sort_backwards = self.col.get_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS)
+
+    def _load_columns(self) -> None:
+        self._columns = [
+            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
+            ("noteCrt", tr(TR.BROWSING_CREATED)),
+            ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
+            ("noteTags", tr(TR.EDITING_TAGS)),
+            ("note", tr(TR.BROWSING_NOTE)),
+        ]
+        self._columns.sort(key=itemgetter(1))
+
+    def _load_active_columns(self) -> None:
+        self._active_columns = self.col.get_config(
+            "activeNoteCols", ["noteFld", "note", "noteCrt", "noteMod"]
+        )
+
+    @property
+    def columns(self) -> List[Tuple[str, str]]:
+        return self._columns
+
+    @property
+    def active_columns(self) -> List[str]:
+        return self._active_columns
+
+    def toggle_active_column(self, column: str) -> None:
+        if column in self._active_columns:
+            self._active_columns.remove(column)
+        else:
+            self._active_columns.append(column)
+        self.col.set_config("activeNoteCols", self._active_columns)
+
     @property
     def sort_column(self) -> str:
-        return self.col.get_config("sortType")
+        return self._sort_column
 
     @sort_column.setter
     def sort_column(self, column: str) -> None:
-        self.col.set_config("sortType", column)
+        self.col.set_config("noteSortType", column)
+        self._sort_column = column
 
     @property
     def sort_backwards(self) -> bool:
-        return self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS)
+        return self._sort_backwards
 
     @sort_backwards.setter
     def sort_backwards(self, order: bool) -> None:
-        self.col.set_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS, order)
-
-
-class NoteState(ItemState):
-    _columns: Optional[List[Tuple[str, str]]] = None
-
-    def __init__(self, col: Collection) -> None:
-        self._notes: Dict[int, Note] = {}
-        super().__init__(col)
+        self.col.set_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS, order)
+        self._sort_backwards = order
 
     def get_card(self, item: int) -> Card:
         return self.get_note(item).card(0)
@@ -736,27 +804,6 @@ class NoteState(ItemState):
             return True
         return False
 
-    @property
-    def columns(self) -> List[Tuple[str, str]]:
-        if self._columns is None:
-            self._columns = [
-                ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
-                ("noteCrt", tr(TR.BROWSING_CREATED)),
-                ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
-                ("noteTags", tr(TR.EDITING_TAGS)),
-                ("note", tr(TR.BROWSING_NOTE)),
-            ]
-            self._columns.sort(key=itemgetter(1))
-        return self._columns
-
-    def get_active_columns(self) -> List[str]:
-        return self.col.get_config(
-            "activeNoteCols", ["noteFld", "note", "noteCrt", "noteMod"]
-        )
-
-    def save_columns(self, columns: List[str]) -> None:
-        self.col.set_config("activeNoteCols", columns)
-
     def get_item_color(self, item: int) -> Optional[str]:
         if self.get_note(item).hasTag("Marked"):
             return theme_manager.qcolor("marked-bg")
@@ -767,26 +814,9 @@ class NoteState(ItemState):
             return theme_manager.qcolor("suspended-bg")
         return None
 
-    @property
-    def sort_column(self) -> str:
-        return self.col.get_config("noteSortType")
-
-    @sort_column.setter
-    def sort_column(self, column: str) -> None:
-        self.col.set_config("noteSortType", column)
-
-    @property
-    def sort_backwards(self) -> bool:
-        return self.col.get_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS)
-
-    @sort_backwards.setter
-    def sort_backwards(self, order: bool) -> None:
-        self.col.set_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS, order)
-
 
 # Data model
 ##########################################################################
-
 
 class DataModel(QAbstractTableModel):
     def __init__(self, col: Collection, state: ItemState) -> None:
@@ -794,7 +824,6 @@ class DataModel(QAbstractTableModel):
         self.col: Collection = col
         self.state: ItemState = state
         self._items: Sequence[int] = []
-        self._active_columns: List[str] = self.state.get_active_columns()
 
     # Public methods
     ######################################################################
@@ -808,7 +837,7 @@ class DataModel(QAbstractTableModel):
         return len(self._items)
 
     def len_columns(self) -> int:
-        return len(self._active_columns)
+        return len(self.state.active_columns)
 
     def is_card_state(self) -> bool:
         return self.state.is_card_state()
@@ -870,7 +899,6 @@ class DataModel(QAbstractTableModel):
         self.begin_reset()
         self.state = self.state.toggle_state()
         self._items = self.state.get_new_items(self._items)
-        self._active_columns = self.state.get_active_columns()
         self.end_reset()
         return self.state
 
@@ -897,26 +925,18 @@ class DataModel(QAbstractTableModel):
     # Columns
 
     def active_column(self, index: int) -> str:
-        return self._active_columns[index]
+        return self.state.active_columns[index]
 
     def active_column_index(self, column: str) -> Optional[int]:
         return (
-            self._active_columns.index(column)
-            if column in self._active_columns
+            self.state.active_columns.index(column)
+            if column in self.state.active_columns
             else None
         )
 
-    def add_column(self, column: str) -> int:
+    def toggle_column(self, column: str) -> None:
         self.beginResetModel()
-        self._active_columns.append(column)
-        self.state.save_columns(self._active_columns)
-        self.endResetModel()
-        return self.len_columns() - 1
-
-    def remove_column(self, column: str) -> None:
-        self.beginResetModel()
-        self._active_columns.remove(column)
-        self.state.save_columns(self._active_columns)
+        self.state.toggle_active_column(column)
         self.endResetModel()
 
     # Model interface
