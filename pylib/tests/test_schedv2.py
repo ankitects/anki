@@ -182,6 +182,7 @@ def test_learn():
     # or normal removal
     c.type = CARD_TYPE_NEW
     c.queue = QUEUE_TYPE_LRN
+    c.flush()
     col.sched.answerCard(c, 4)
     assert c.type == CARD_TYPE_REV
     assert c.queue == QUEUE_TYPE_REV
@@ -560,17 +561,20 @@ def test_nextIvl():
     assert ni(c, 4) == 4 * 86400
     # lapsed cards
     ##################################################
-    c.type = CARD_TYPE_REV
+    c.type = CARD_TYPE_RELEARNING
     c.ivl = 100
     c.factor = STARTING_FACTOR
+    c.flush()
     assert ni(c, 1) == 60
     assert ni(c, 3) == 100 * 86400
     assert ni(c, 4) == 101 * 86400
     # review cards
     ##################################################
+    c.type = CARD_TYPE_REV
     c.queue = QUEUE_TYPE_REV
     c.ivl = 100
     c.factor = STARTING_FACTOR
+    c.flush()
     # failing it should put it at 60s
     assert ni(c, 1) == 60
     # or 1 day if relearn is false
