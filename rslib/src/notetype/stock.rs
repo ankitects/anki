@@ -43,8 +43,10 @@ fn fieldref<S: AsRef<str>>(name: S) -> String {
 }
 
 pub(crate) fn basic(i18n: &I18n) -> NoteType {
-    let mut nt = NoteType::default();
-    nt.name = i18n.tr(TR::NotetypesBasicName).into();
+    let mut nt = NoteType {
+        name: i18n.tr(TR::NotetypesBasicName).into(),
+        ..Default::default()
+    };
     let front = i18n.tr(TR::NotetypesFrontField);
     let back = i18n.tr(TR::NotetypesBackField);
     nt.add_field(front.as_ref());

@@ -37,11 +37,6 @@ pub struct Deck {
 
 impl Deck {
     pub fn new_normal() -> Deck {
-        let mut norm = NormalDeck::default();
-        norm.config_id = 1;
-        // enable in the future
-        // norm.markdown_description = true;
-
         Deck {
             id: DeckID(0),
             name: "".into(),
@@ -52,7 +47,12 @@ impl Deck {
                 browser_collapsed: true,
                 ..Default::default()
             },
-            kind: DeckKind::Normal(norm),
+            kind: DeckKind::Normal(NormalDeck {
+                config_id: 1,
+                // enable in the future
+                // markdown_description = true,
+                ..Default::default()
+            }),
         }
     }
 

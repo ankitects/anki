@@ -18,6 +18,17 @@ pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
     i18n.trn(key, args)
 }
 
+/// Short string like '4d' to place above answer buttons.
+/// Times within the collapse time are represented like '<10m'
+pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, i18n: &I18n) -> String {
+    let string = answer_button_time(seconds as f32, i18n);
+    if seconds < collapse_secs {
+        format!("<{}", string)
+    } else {
+        string
+    }
+}
+
 /// Describe the given seconds using the largest appropriate unit.
 /// If precise is true, show to two decimal places, eg
 /// eg 70 seconds -> "1.17 minutes"

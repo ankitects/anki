@@ -115,6 +115,9 @@ service BackendService {
   rpc SetDueDate(SetDueDateIn) returns (Empty);
   rpc SortCards(SortCardsIn) returns (Empty);
   rpc SortDeck(SortDeckIn) returns (Empty);
+  rpc GetNextCardStates(CardID) returns (NextCardStates);
+  rpc DescribeNextStates(NextCardStates) returns (StringList);
+  rpc AnswerCard(AnswerCardIn) returns (Empty);
 
   // stats
 
@@ -268,7 +271,7 @@ message DeckConfigInner {
   float interval_multiplier = 15;
 
   uint32 maximum_review_interval = 16;
-  uint32 minimum_review_interval = 17;
+  uint32 minimum_lapse_interval = 17;
 
   uint32 graduating_interval_good = 18;
   uint32 graduating_interval_easy = 19;
@@ -1262,4 +1265,74 @@ message SetConfigStringIn {
 message RenderMarkdownIn {
   string markdown = 1;
   bool sanitize = 2;
+}
+
+message SchedulingState {
+  message New {
+    uint32 position = 1;
+  }
+  message Learning {
+    uint32 remaining_steps = 1;
+    uint32 scheduled_secs = 2;
+  }
+  message Review {
+    uint32 scheduled_days = 1;
+    uint32 elapsed_days = 2;
+    float ease_factor = 3;
+    uint32 lapses = 4;
+  }
+  message Relearning {
+    Review review = 1;
+    Learning learning = 2;
+  }
+  message Normal {
+    oneof value {
+      New new = 1;
+      Learning learning = 2;
+      Review review = 3;
+      Relearning relearning = 4;
+    }
+  }
+  message Preview {
+    uint32 scheduled_secs = 1;
+    Normal original_state = 2;
+  }
+  message ReschedulingFilter {
+    Normal original_state = 1;
+  }
+  message Filtered {
+    oneof value {
+      Preview preview = 1;
+      ReschedulingFilter rescheduling = 2;
+    }
+  }
+
+  oneof value {
+    Normal normal = 1;
+    Filtered filtered = 2;
+  }
+}
+
+message NextCardStates {
+  SchedulingState current = 1;
+  SchedulingState again = 2;
+  SchedulingState hard = 3;
+  SchedulingState good = 4;
+  SchedulingState easy = 5;
+}
+
+message AnswerCardIn {
+  enum Rating {
+    AGAIN = 0;
+    HARD = 1;
+    GOOD = 2;
+    EASY = 3;
+  }
+
+  int64 card_id = 1;
+  SchedulingState current_state = 2;
+  SchedulingState new_state = 3;
+  Rating rating = 4;
+  int64 answered_at = 5;
+  uint32 milliseconds_taken = 6;
 }

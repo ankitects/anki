@@ -417,7 +417,7 @@ fn render_into(
                     current_text: "".into(),
                 });
             }
-            Replacement { key, filters } if key == "" && !filters.is_empty() => {
+            Replacement { key, filters } if key.is_empty() && !filters.is_empty() => {
                 // if a filter is provided, we accept an empty field name to
                 // mean 'pass an empty string to the filter, and it will add
                 // its own text'

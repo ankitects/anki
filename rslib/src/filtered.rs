@@ -75,6 +75,14 @@ impl Card {
         }
     }
 
+    pub(crate) fn original_or_current_deck_id(&self) -> DeckID {
+        if self.original_deck_id.0 > 0 {
+            self.original_deck_id
+        } else {
+            self.deck_id
+        }
+    }
+
     pub(crate) fn remove_from_filtered_deck_restoring_queue(&mut self, sched: SchedulerVersion) {
         if self.original_deck_id.0 == 0 {
             // not in a filtered deck

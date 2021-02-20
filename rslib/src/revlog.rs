@@ -43,6 +43,7 @@ pub enum RevlogReviewKind {
     Relearning = 2,
     EarlyReview = 3,
     Manual = 4,
+    // Preview = 5,
 }
 
 impl Default for RevlogReviewKind {

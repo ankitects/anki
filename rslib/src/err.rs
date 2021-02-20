@@ -8,7 +8,7 @@ use reqwest::StatusCode;
 use std::{io, num::ParseIntError, str::Utf8Error};
 use tempfile::PathPersistError;
 
-pub type Result<T> = std::result::Result<T, AnkiError>;
+pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
 #[derive(Debug, Fail, PartialEq)]
 pub enum AnkiError {
