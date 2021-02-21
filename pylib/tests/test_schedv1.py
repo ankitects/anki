@@ -13,6 +13,7 @@ def getEmptyCol():
     col = getEmptyColOrig()
     # only safe in test environment
     col.set_config("schedVer", 1)
+    col._loadScheduler()
     return col
 
 
