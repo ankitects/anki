@@ -75,3 +75,13 @@ body {
         filter: invert(180);
     }
 }
+
+.callout {
+    background: var(--medium-border);
+    padding: 1em;
+    margin: 1em;
+
+    div {
+        margin: 1em;
+    }
+}

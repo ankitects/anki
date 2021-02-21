@@ -66,6 +66,14 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_decks_map(&self) -> Result<HashMap<DeckID, Deck>> {
+        self.db
+            .prepare(include_str!("get_deck.sql"))?
+            .query_and_then(NO_PARAMS, row_to_deck)?
+            .map(|res| res.map(|d| (d.id, d)))
+            .collect()
+    }
+
     /// Get all deck names in sorted, human-readable form (::)
     pub(crate) fn get_all_deck_names(&self) -> Result<Vec<(DeckID, String)>> {
         self.db

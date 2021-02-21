@@ -118,6 +118,7 @@ service BackendService {
   rpc GetNextCardStates(CardID) returns (NextCardStates);
   rpc DescribeNextStates(NextCardStates) returns (StringList);
   rpc AnswerCard(AnswerCardIn) returns (Empty);
+  rpc UpgradeScheduler(Empty) returns (Empty);
 
   // stats
 
@@ -997,7 +998,9 @@ message CollectionSchedulingSettings {
     NEW_FIRST = 2;
   }
 
+  // read only
   uint32 scheduler_version = 1;
+
   uint32 rollover = 2;
   uint32 learn_ahead_secs = 3;
   NewReviewMix new_review_mix = 4;

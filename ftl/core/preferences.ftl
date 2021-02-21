@@ -1,4 +1,3 @@
-preferences-anki-21-scheduler-beta = Anki 2.1 scheduler (beta)
 preferences-automatically-sync-on-profile-openclose = Automatically sync on profile open/close
 preferences-backups = Backups
 preferences-backups2 = backups
@@ -36,3 +35,4 @@ preferences-timebox-time-limit = Timebox time limit
 preferences-user-interface-size = User interface size
 preferences-when-adding-default-to-current-deck = When adding, default to current deck
 preferences-you-can-restore-backups-via-fileswitch = You can restore backups via File>Switch Profile.
+preferences-legacy-timezone-handling = Legacy timezone handling (buggy, but required for AnkiDroid <= 2.14)

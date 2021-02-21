@@ -711,6 +711,11 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn upgrade_scheduler(&self, _input: Empty) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.upgrade_to_v2_scheduler()))
+            .map(Into::into)
+    }
+
     // statistics
     //-----------------------------------------------
 

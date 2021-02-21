@@ -91,6 +91,14 @@ scheduling-how-to-custom-study = If you wish to study outside of the regular sch
 # "... you can use the custom study feature."
 scheduling-custom-study = custom study
 
+## Scheduler upgrade
+
+scheduling-update-soon = You are currently using Anki's old scheduler, which will be retired soon. Please make sure all of your devices are in sync, and then update to the new scheduler.
+scheduling-update-done = Scheduler updated successfully.
+scheduling-update-button = Update
+scheduling-update-later-button = Later
+scheduling-update-more-info-button = Learn More
+
 ## Other scheduling strings
 
 scheduling-always-include-question-side-when-replaying = Always include question side when replaying audio

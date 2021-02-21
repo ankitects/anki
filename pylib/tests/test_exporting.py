@@ -12,7 +12,7 @@ from tests.shared import getEmptyCol as getEmptyColOrig
 
 def getEmptyCol():
     col = getEmptyColOrig()
-    col.changeSchedulerVer(2)
+    col.upgrade_to_v2_scheduler()
     return col
 
 

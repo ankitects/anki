@@ -14,10 +14,7 @@ use crate::{
 };
 use itertools::Itertools;
 use slog::debug;
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::{collections::HashSet, sync::Arc};
 
 #[derive(Debug, Default, PartialEq)]
 pub struct CheckDatabaseOutput {
@@ -200,12 +197,7 @@ impl Collection {
     }
 
     fn check_filtered_cards(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
-        let decks: HashMap<_, _> = self
-            .storage
-            .get_all_decks()?
-            .into_iter()
-            .map(|d| (d.id, d))
-            .collect();
+        let decks = self.storage.get_decks_map()?;
 
         let mut wrong = 0;
         for (cid, did) in self.storage.all_filtered_cards_by_deck()? {

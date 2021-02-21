@@ -30,7 +30,7 @@ class Anki2Importer(Importer):
 
         # set later, defined here for typechecking
         self._decks: Dict[int, int] = {}
-        self.mustResetLearning = False
+        self.source_needs_upgrade = False
 
     def run(self, media: None = None) -> None:
         self._prepareFiles()
@@ -44,7 +44,7 @@ class Anki2Importer(Importer):
 
     def _prepareFiles(self) -> None:
         importingV2 = self.file.endswith(".anki21")
-        self.mustResetLearning = False
+        self.source_needs_upgrade = False
 
         self.dst = self.col
         self.src = Collection(self.file)
@@ -52,7 +52,9 @@ class Anki2Importer(Importer):
         if not importingV2 and self.col.schedVer() != 1:
             # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
-                self.mustResetLearning = True
+                self.source_needs_upgrade = True
+        elif importingV2 and self.col.schedVer() == 1:
+            raise Exception("must upgrade to new scheduler to import this file")
 
     def _import(self) -> None:
         self._decks = {}
@@ -300,9 +302,8 @@ class Anki2Importer(Importer):
     ######################################################################
 
     def _importCards(self) -> None:
-        if self.mustResetLearning:
-            self.src.modSchema(check=False)
-            self.src.changeSchedulerVer(2)
+        if self.source_needs_upgrade:
+            self.src.upgrade_to_v2_scheduler()
         # build map of (guid, ord) -> cid and used id cache
         self._cards: Dict[Tuple[str, int], int] = {}
         existing = {}

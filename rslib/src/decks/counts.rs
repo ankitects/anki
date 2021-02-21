@@ -19,7 +19,11 @@ impl Collection {
         learn_cutoff: u32,
         limit_to: Option<&str>,
     ) -> Result<HashMap<DeckID, DueCounts>> {
-        self.storage
-            .due_counts(self.sched_ver(), days_elapsed, learn_cutoff, limit_to)
+        self.storage.due_counts(
+            self.scheduler_version(),
+            days_elapsed,
+            learn_cutoff,
+            limit_to,
+        )
     }
 }

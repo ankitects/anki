@@ -185,7 +185,7 @@ impl Collection {
 
     // Unlike the old Python code, this also marks the cards as modified.
     fn return_cards_to_home_deck(&mut self, cids: &[CardID]) -> Result<()> {
-        let sched = self.sched_ver();
+        let sched = self.scheduler_version();
         let usn = self.usn()?;
         for cid in cids {
             if let Some(mut card) = self.storage.get_card(*cid)? {
@@ -208,7 +208,7 @@ impl Collection {
         let ctx = DeckFilterContext {
             target_deck: did,
             config,
-            scheduler: self.sched_ver(),
+            scheduler: self.scheduler_version(),
             usn: self.usn()?,
             today: self.timing_today()?.days_elapsed,
         };
