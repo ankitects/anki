@@ -386,7 +386,10 @@ class DeckBrowser:
         self.mw.col.upgrade_to_v2_scheduler()
 
         # not translated, as 2.15 should not be too far off
-        if askUser("Do you sync with AnkiDroid 2.14 or earlier?", defaultno=True):
+        if askUser(
+            "Do you use AnkiDroid <= 2.14, or plan to use it in the near future? If unsure, choose No. You can adjust the setting later in the preferences screen.",
+            defaultno=True,
+        ):
             prefs = self.mw.col.get_preferences()
             prefs.sched.new_timezone = False
             self.mw.col.set_preferences(prefs)
