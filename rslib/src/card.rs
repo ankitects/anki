@@ -216,7 +216,7 @@ impl Collection {
             return Err(AnkiError::DeckIsFiltered);
         }
         self.storage.set_search_table_to_card_ids(cards, false)?;
-        let sched = self.sched_ver();
+        let sched = self.scheduler_version();
         let usn = self.usn()?;
         self.transact(None, |col| {
             for mut card in col.storage.all_searched_cards()? {

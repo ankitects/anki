@@ -12,6 +12,7 @@ pub mod new;
 mod reviews;
 pub mod states;
 pub mod timespan;
+mod upgrade;
 
 use chrono::FixedOffset;
 use cutoff::{
@@ -32,7 +33,7 @@ impl Collection {
     pub(crate) fn timing_for_timestamp(&self, now: TimestampSecs) -> Result<SchedTimingToday> {
         let current_utc_offset = self.local_utc_offset_for_user()?;
 
-        let rollover_hour = match self.sched_ver() {
+        let rollover_hour = match self.scheduler_version() {
             SchedulerVersion::V1 => None,
             SchedulerVersion::V2 => {
                 let configured_rollover = self.get_v2_rollover();
@@ -89,7 +90,7 @@ impl Collection {
     }
 
     pub fn rollover_for_current_scheduler(&self) -> Result<u8> {
-        match self.sched_ver() {
+        match self.scheduler_version() {
             SchedulerVersion::V1 => Ok(v1_rollover_from_creation_stamp(
                 self.storage.creation_stamp()?.0,
             )),
@@ -98,7 +99,7 @@ impl Collection {
     }
 
     pub(crate) fn set_rollover_for_current_scheduler(&self, hour: u8) -> Result<()> {
-        match self.sched_ver() {
+        match self.scheduler_version() {
             SchedulerVersion::V1 => {
                 self.storage
                     .set_creation_stamp(TimestampSecs(v1_creation_date_adjusted_to_hour(

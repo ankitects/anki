@@ -18,7 +18,7 @@ impl Collection {
         })
     }
 
-    pub fn set_preferences(&self, prefs: Preferences) -> Result<()> {
+    pub fn set_preferences(&mut self, prefs: Preferences) -> Result<()> {
         if let Some(sched) = prefs.sched {
             self.set_collection_scheduling_settings(sched)?;
         }
@@ -28,7 +28,7 @@ impl Collection {
 
     pub fn get_collection_scheduling_settings(&self) -> Result<CollectionSchedulingSettings> {
         Ok(CollectionSchedulingSettings {
-            scheduler_version: match self.sched_ver() {
+            scheduler_version: match self.scheduler_version() {
                 crate::config::SchedulerVersion::V1 => 1,
                 crate::config::SchedulerVersion::V2 => 2,
             },
@@ -48,7 +48,7 @@ impl Collection {
     }
 
     pub(crate) fn set_collection_scheduling_settings(
-        &self,
+        &mut self,
         settings: CollectionSchedulingSettings,
     ) -> Result<()> {
         let s = settings;
@@ -79,7 +79,6 @@ impl Collection {
             self.set_creation_utc_offset(None)?;
         }
 
-        // fixme: currently scheduler change unhandled
         Ok(())
     }
 }

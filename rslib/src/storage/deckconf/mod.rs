@@ -30,6 +30,14 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfID, DeckConf>> {
+        self.db
+            .prepare_cached(include_str!("get.sql"))?
+            .query_and_then(NO_PARAMS, row_to_deckconf)?
+            .map(|res| res.map(|d| (d.id, d)))
+            .collect()
+    }
+
     pub(crate) fn get_deck_config(&self, dcid: DeckConfID) -> Result<Option<DeckConf>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?

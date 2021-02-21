@@ -103,7 +103,7 @@ impl Collection {
     ) -> Result<()> {
         use pb::bury_or_suspend_cards_in::Mode;
         let usn = self.usn()?;
-        let sched = self.sched_ver();
+        let sched = self.scheduler_version();
 
         for original in self.storage.all_searched_cards()? {
             let mut card = original.clone();

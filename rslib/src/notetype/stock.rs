@@ -110,8 +110,10 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
 }
 
 pub(crate) fn cloze(i18n: &I18n) -> NoteType {
-    let mut nt = NoteType::default();
-    nt.name = i18n.tr(TR::NotetypesClozeName).into();
+    let mut nt = NoteType {
+        name: i18n.tr(TR::NotetypesClozeName).into(),
+        ..Default::default()
+    };
     let text = i18n.tr(TR::NotetypesTextField);
     nt.add_field(text.as_ref());
     let back_extra = i18n.tr(TR::NotetypesBackExtraField);

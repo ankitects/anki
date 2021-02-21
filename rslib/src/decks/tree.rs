@@ -224,12 +224,7 @@ impl Collection {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names);
 
-        let decks_map: HashMap<_, _> = self
-            .storage
-            .get_all_decks()?
-            .into_iter()
-            .map(|d| (d.id, d))
-            .collect();
+        let decks_map = self.storage.get_decks_map()?;
 
         add_collapsed_and_filtered(&mut tree, &decks_map, now.is_none());
         if self.default_deck_is_empty()? {
@@ -247,12 +242,7 @@ impl Collection {
             let days_elapsed = self.timing_for_timestamp(now)?.days_elapsed;
             let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
             let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
-            let dconf: HashMap<_, _> = self
-                .storage
-                .all_deck_config()?
-                .into_iter()
-                .map(|d| (d.id, d))
-                .collect();
+            let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
             apply_limits(
                 &mut tree,

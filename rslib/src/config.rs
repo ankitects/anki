@@ -254,9 +254,14 @@ impl Collection {
         self.set_config(ConfigKey::NextNewCardPosition, &pos)
     }
 
-    pub(crate) fn sched_ver(&self) -> SchedulerVersion {
+    pub(crate) fn scheduler_version(&self) -> SchedulerVersion {
         self.get_config_optional(ConfigKey::SchedulerVersion)
             .unwrap_or(SchedulerVersion::V1)
+    }
+
+    /// Caution: this only updates the config setting.
+    pub(crate) fn set_scheduler_version_config_key(&self, ver: SchedulerVersion) -> Result<()> {
+        self.set_config(ConfigKey::SchedulerVersion, &ver)
     }
 
     pub(crate) fn learn_ahead_secs(&self) -> u32 {

@@ -8,7 +8,6 @@ from aqt.qt import *
 from aqt.utils import (
     TR,
     HelpPage,
-    askUser,
     disable_help_button,
     openHelp,
     showInfo,
@@ -124,10 +123,9 @@ class Preferences(QDialog):
 
         if s.scheduler_version < 2:
             f.dayLearnFirst.setVisible(False)
-            f.new_timezone.setVisible(False)
+            f.legacy_timezone.setVisible(False)
         else:
-            f.newSched.setChecked(True)
-            f.new_timezone.setChecked(s.new_timezone)
+            f.legacy_timezone.setChecked(not s.new_timezone)
 
     def setup_video_driver(self) -> None:
         self.video_drivers = VideoDriver.all_for_platform()
@@ -163,32 +161,11 @@ class Preferences(QDialog):
         s.learn_ahead_secs = f.lrnCutoff.value() * 60
         s.day_learn_first = f.dayLearnFirst.isChecked()
         s.rollover = f.dayOffset.value()
-        s.new_timezone = f.new_timezone.isChecked()
+        s.new_timezone = not f.legacy_timezone.isChecked()
 
-        # if moving this, make sure scheduler change is moved to Rust or
-        # happens afterwards
         self.mw.col.set_preferences(self.prefs)
 
-        self._updateSchedVer(f.newSched.isChecked())
         d.setMod()
-
-    # Scheduler version
-    ######################################################################
-
-    def _updateSchedVer(self, wantNew: bool) -> None:
-        haveNew = self.mw.col.schedVer() == 2
-
-        # nothing to do?
-        if haveNew == wantNew:
-            return
-
-        if not askUser(tr(TR.PREFERENCES_THIS_WILL_RESET_ANY_CARDS_IN)):
-            return
-
-        if wantNew:
-            self.mw.col.changeSchedulerVer(2)
-        else:
-            self.mw.col.changeSchedulerVer(1)
 
     # Network
     ######################################################################

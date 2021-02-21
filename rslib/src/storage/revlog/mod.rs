@@ -133,4 +133,10 @@ impl SqliteStorage {
             .unwrap()
             .map_err(Into::into)
     }
+
+    pub(crate) fn upgrade_revlog_to_v2(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("v2_upgrade.sql"))
+            .map_err(Into::into)
+    }
 }

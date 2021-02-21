@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>406</height>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -199,16 +199,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="newSched">
+        <widget class="QCheckBox" name="legacy_timezone">
          <property name="text">
-          <string>PREFERENCES_ANKI_21_SCHEDULER_BETA</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="new_timezone">
-         <property name="text">
-          <string notr="true">New timezone handling (not yet supported by AnkiDroid)</string>
+          <string>PREFERENCES_LEGACY_TIMEZONE_HANDLING</string>
          </property>
         </widget>
        </item>
@@ -604,8 +597,7 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>dayLearnFirst</tabstop>
-  <tabstop>newSched</tabstop>
-  <tabstop>new_timezone</tabstop>
+  <tabstop>legacy_timezone</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>

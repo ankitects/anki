@@ -4,8 +4,8 @@
 pub use crate::{
     card::{Card, CardID},
     collection::Collection,
-    deckconf::DeckConfID,
-    decks::DeckID,
+    deckconf::{DeckConf, DeckConfID},
+    decks::{Deck, DeckID, DeckKind},
     err::{AnkiError, Result},
     i18n::{tr_args, tr_strs, TR},
     notes::{Note, NoteID},

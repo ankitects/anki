@@ -11,7 +11,8 @@ from tests.shared import getEmptyCol as getEmptyColOrig
 
 def getEmptyCol():
     col = getEmptyColOrig()
-    col.changeSchedulerVer(1)
+    # only safe in test environment
+    col.set_config("schedVer", 1)
     return col
 
 

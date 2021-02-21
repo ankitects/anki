@@ -10,11 +10,21 @@ from typing import Any
 import aqt
 from anki.decks import DeckTreeNode
 from anki.errors import DeckRenameError
+from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import TR, askUser, getOnlyText, openLink, shortcut, showWarning, tr
+from aqt.utils import (
+    TR,
+    askUser,
+    getOnlyText,
+    openLink,
+    shortcut,
+    showInfo,
+    showWarning,
+    tr,
+)
 
 
 class DeckBrowserBottomBar:
@@ -49,6 +59,7 @@ class DeckBrowser:
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
+        self._v1_message_dismissed_at = 0
 
     def show(self) -> None:
         av_player.stop_and_clear_queue()
@@ -87,6 +98,13 @@ class DeckBrowser:
             self._handle_drag_and_drop(int(source), int(target or 0))
         elif cmd == "collapse":
             self._collapse(int(arg))
+        elif cmd == "v2upgrade":
+            self._confirm_upgrade()
+        elif cmd == "v2upgradeinfo":
+            openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+        elif cmd == "v2upgradelater":
+            self._v1_message_dismissed_at = intTime()
+            self.refresh()
         return False
 
     def _selDeck(self, did: str) -> None:
@@ -121,7 +139,7 @@ class DeckBrowser:
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
-            self._body % content.__dict__,
+            self._v1_upgrade_message() + self._body % content.__dict__,
             css=["css/deckbrowser.css"],
             js=[
                 "js/vendor/jquery.min.js",
@@ -333,3 +351,45 @@ class DeckBrowser:
 
     def _onShared(self) -> None:
         openLink(f"{aqt.appShared}decks/")
+
+    ######################################################################
+
+    def _v1_upgrade_message(self) -> str:
+        if self.mw.col.schedVer() == 2:
+            return ""
+        if (intTime() - self._v1_message_dismissed_at) < 86_400:
+            return ""
+
+        return f"""
+<center>
+<div class=callout>
+    <div>
+      {tr(TR.SCHEDULING_UPDATE_SOON)}
+    </div>
+    <div>
+      <button onclick='pycmd("v2upgrade")'>
+        {tr(TR.SCHEDULING_UPDATE_BUTTON)}
+      </button>
+      <button onclick='pycmd("v2upgradeinfo")'>
+        {tr(TR.SCHEDULING_UPDATE_MORE_INFO_BUTTON)}
+      </button>
+      <button onclick='pycmd("v2upgradelater")'>
+        {tr(TR.SCHEDULING_UPDATE_LATER_BUTTON)}
+      </button>
+    </div>
+</div>
+</center>
+"""
+
+    def _confirm_upgrade(self) -> None:
+        self.mw.col.modSchema(check=True)
+        self.mw.col.upgrade_to_v2_scheduler()
+
+        # not translated, as 2.15 should not be too far off
+        if askUser("Do you sync with AnkiDroid 2.14 or earlier?", defaultno=True):
+            prefs = self.mw.col.get_preferences()
+            prefs.sched.new_timezone = False
+            self.mw.col.set_preferences(prefs)
+
+        showInfo(tr(TR.SCHEDULING_UPDATE_DONE))
+        self.refresh()

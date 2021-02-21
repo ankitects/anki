@@ -140,25 +140,9 @@ class Collection:
         elif ver == 2:
             self.sched = V2Scheduler(self)
 
-    def changeSchedulerVer(self, ver: int) -> None:
-        if ver == self.schedVer():
-            return
-        if ver not in self.supportedSchedulerVersions:
-            raise Exception("Unsupported scheduler version")
-
-        self.modSchema(check=True)
+    def upgrade_to_v2_scheduler(self) -> None:
+        self._backend.upgrade_scheduler()
         self.clearUndo()
-
-        v2Sched = V2Scheduler(self)
-
-        if ver == 1:
-            v2Sched.moveToV1()
-        else:
-            v2Sched.moveToV2()
-
-        self.conf["schedVer"] = ver
-        self.setMod()
-
         self._loadScheduler()
 
     # DB-related

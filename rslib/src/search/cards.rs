@@ -91,7 +91,12 @@ impl Collection {
 
     /// Place the matched card ids into a temporary 'search_cids' table
     /// instead of returning them. Use clear_searched_cards() to remove it.
-    pub(crate) fn search_cards_into_table(&mut self, search: &str, mode: SortMode) -> Result<()> {
+    /// Returns number of added cards.
+    pub(crate) fn search_cards_into_table(
+        &mut self,
+        search: &str,
+        mode: SortMode,
+    ) -> Result<usize> {
         let top_node = Node::Group(parse(search)?);
         let writer = SqlWriter::new(self);
         let want_order = mode != SortMode::NoOrder;
@@ -107,9 +112,11 @@ impl Collection {
         }
         let sql = format!("insert into search_cids {}", sql);
 
-        self.storage.db.prepare(&sql)?.execute(&args)?;
-
-        Ok(())
+        self.storage
+            .db
+            .prepare(&sql)?
+            .execute(&args)
+            .map_err(Into::into)
     }
 
     /// If the sort mode is based on a config setting, look it up.

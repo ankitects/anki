@@ -13,7 +13,7 @@ from tests.shared import getEmptyCol as getEmptyColOrig
 
 def getEmptyCol():
     col = getEmptyColOrig()
-    col.changeSchedulerVer(2)
+    col.upgrade_to_v2_scheduler()
     return col
 
 
@@ -1178,64 +1178,6 @@ def test_failmult():
     assert c.ivl == 50
     col.sched.answerCard(c, 1)
     assert c.ivl == 25
-
-
-def test_moveVersions():
-    col = getEmptyCol()
-    col.changeSchedulerVer(1)
-
-    n = col.newNote()
-    n["Front"] = "one"
-    col.addNote(n)
-
-    # make it a learning card
-    col.reset()
-    c = col.sched.getCard()
-    col.sched.answerCard(c, 1)
-
-    # the move to v2 should reset it to new
-    col.changeSchedulerVer(2)
-    c.load()
-    assert c.queue == QUEUE_TYPE_NEW
-    assert c.type == CARD_TYPE_NEW
-
-    # fail it again, and manually bury it
-    col.reset()
-    c = col.sched.getCard()
-    col.sched.answerCard(c, 1)
-    col.sched.bury_cards([c.id])
-    c.load()
-    assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
-
-    # revert to version 1
-    col.changeSchedulerVer(1)
-
-    # card should have moved queues
-    c.load()
-    assert c.queue == QUEUE_TYPE_SIBLING_BURIED
-
-    # and it should be new again when unburied
-    col.sched.unbury_cards_in_current_deck()
-    c.load()
-    assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
-
-    # make sure relearning cards transition correctly to v1
-    col.changeSchedulerVer(2)
-    # card with 100 day interval, answering again
-    col.sched.reschedCards([c.id], 100, 100)
-    c.load()
-    c.due = 0
-    c.flush()
-    conf = col.sched._cardConf(c)
-    conf["lapse"]["mult"] = 0.5
-    col.decks.save(conf)
-    col.sched.reset()
-    c = col.sched.getCard()
-    col.sched.answerCard(c, 1)
-    # due should be correctly set when removed from learning early
-    col.changeSchedulerVer(1)
-    c.load()
-    assert c.due == 50
 
 
 # cards with a due date earlier than the collection should retain
