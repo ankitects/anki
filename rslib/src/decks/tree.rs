@@ -5,6 +5,7 @@ use super::{Deck, DeckKind, DueCounts};
 use crate::{
     backend_proto::DeckTreeNode,
     collection::Collection,
+    config::SchedulerVersion,
     deckconf::{DeckConf, DeckConfID},
     decks::DeckID,
     err::Result,
@@ -120,6 +121,44 @@ fn apply_limits(
     // add child counts to our count, capped to remaining limit
     node.new_count = (node.new_count + child_new_total).min(remaining_new);
     node.review_count = (node.review_count + child_rev_total).min(remaining_rev);
+}
+
+/// Apply parent new limits to children, and add child counts to parents.
+/// Unlike v1, reviews are not capped by their parents, and we return the
+/// uncapped review amount to add to the parent. This is a bit of a hack, and
+/// just tides us over until the v2 queue building code can be reworked.
+/// Counts are (new, review).
+fn apply_limits_v2(
+    node: &mut DeckTreeNode,
+    today: u32,
+    decks: &HashMap<DeckID, Deck>,
+    dconf: &HashMap<DeckConfID, DeckConf>,
+    parent_limits: (u32, u32),
+) -> u32 {
+    let original_rev_count = node.review_count;
+
+    let (mut remaining_new, remaining_rev) =
+        remaining_counts_for_deck(DeckID(node.deck_id), today, decks, dconf);
+
+    // cap remaining to parent limits
+    remaining_new = remaining_new.min(parent_limits.0);
+
+    // apply our limit to children and tally their counts
+    let mut child_new_total = 0;
+    let mut child_rev_total = 0;
+    for child in &mut node.children {
+        child_rev_total +=
+            apply_limits_v2(child, today, decks, dconf, (remaining_new, remaining_rev));
+        child_new_total += child.new_count;
+        // no limit on learning cards
+        node.learn_count += child.learn_count;
+    }
+
+    // add child counts to our count, capped to remaining limit
+    node.new_count = (node.new_count + child_new_total).min(remaining_new);
+    node.review_count = (node.review_count + child_rev_total).min(remaining_rev);
+
+    original_rev_count + child_rev_total
 }
 
 fn remaining_counts_for_deck(
@@ -244,13 +283,23 @@ impl Collection {
             let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
-            apply_limits(
-                &mut tree,
-                days_elapsed,
-                &decks_map,
-                &dconf,
-                (std::u32::MAX, std::u32::MAX),
-            );
+            if self.scheduler_version() == SchedulerVersion::V2 {
+                apply_limits_v2(
+                    &mut tree,
+                    days_elapsed,
+                    &decks_map,
+                    &dconf,
+                    (std::u32::MAX, std::u32::MAX),
+                );
+            } else {
+                apply_limits(
+                    &mut tree,
+                    days_elapsed,
+                    &decks_map,
+                    &dconf,
+                    (std::u32::MAX, std::u32::MAX),
+                );
+            }
         }
 
         Ok(tree)

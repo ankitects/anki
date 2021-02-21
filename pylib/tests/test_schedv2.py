@@ -445,21 +445,21 @@ def test_review_limits():
     tree = col.sched.deck_due_tree().children
     # (('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
     assert tree[0].review_count == 5  # parent
-    assert tree[0].children[0].review_count == 5  # child
+    assert tree[0].children[0].review_count == 10  # child
 
     # .counts() should match
     col.decks.select(child["id"])
     col.sched.reset()
-    assert col.sched.counts() == (0, 0, 5)
+    assert col.sched.counts() == (0, 0, 10)
 
     # answering a card in the child should decrement parent count
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
-    assert col.sched.counts() == (0, 0, 4)
+    assert col.sched.counts() == (0, 0, 9)
 
     tree = col.sched.deck_due_tree().children
     assert tree[0].review_count == 4  # parent
-    assert tree[0].children[0].review_count == 4  # child
+    assert tree[0].children[0].review_count == 9  # child
 
 
 def test_button_spacing():
