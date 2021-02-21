@@ -442,11 +442,13 @@ class SidebarTreeView(QTreeView):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
         if event.button() == Qt.LeftButton:
-            self._on_click_current()
+            idx = self.indexAt(event.pos())
+            self._on_click_index(idx)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            self._on_click_current()
+            idx = self.currentIndex()
+            self._on_click_index(idx)
         else:
             super().keyPressEvent(event)
 
@@ -516,8 +518,7 @@ class SidebarTreeView(QTreeView):
         self.browser.editor.saveNow(on_save)
         return True
 
-    def _on_click_current(self) -> None:
-        idx = self.currentIndex()
+    def _on_click_index(self, idx: QModelIndex) -> None:
         if item := self.model().item_for_index(idx):
             if item.on_click:
                 item.on_click()
