@@ -480,6 +480,8 @@ limit ?"""
 
         self._answerCard(card, ease)
 
+        self._maybe_requeue_card(card)
+
         card.mod = intTime()
         card.usn = self.col.usn()
         card.flush()
@@ -521,6 +523,33 @@ limit ?"""
         # no longer applies
         if card.odue:
             card.odue = 0
+
+    def _maybe_requeue_card(self, card: Card) -> None:
+        # preview cards
+        if card.queue == QUEUE_TYPE_PREVIEW:
+            # adjust the count immediately, and rely on the once a minute
+            # checks to requeue it
+            self.lrnCount += 1
+            return
+
+        # learning cards
+        if not card.queue == QUEUE_TYPE_LRN:
+            return
+        if card.due >= (intTime() + self.col.conf["collapseTime"]):
+            return
+
+        # card is due within collapse time, so we'll want to add it
+        # back to the learning queue
+        self.lrnCount += 1
+
+        # if the queue is not empty and there's nothing else to do, make
+        # sure we don't put it at the head of the queue and end up showing
+        # it twice in a row
+        if self._lrnQueue and not self.revCount and not self.newCount:
+            smallestDue = self._lrnQueue[0][0]
+            card.due = max(card.due, smallestDue + 1)
+
+        heappush(self._lrnQueue, (card.due, card.id))
 
     def _cardConf(self, card: Card) -> DeckConfig:
         return self.col.decks.confForDid(card.did)
@@ -637,15 +666,6 @@ limit ?"""
             fuzz = random.randrange(0, max(1, maxExtra))
             card.due = min(self.dayCutoff - 1, card.due + fuzz)
             card.queue = QUEUE_TYPE_LRN
-            if card.due < (intTime() + self.col.conf["collapseTime"]):
-                self.lrnCount += 1
-                # if the queue is not empty and there's nothing else to do, make
-                # sure we don't put it at the head of the queue and end up showing
-                # it twice in a row
-                if self._lrnQueue and not self.revCount and not self.newCount:
-                    smallestDue = self._lrnQueue[0][0]
-                    card.due = max(card.due, smallestDue + 1)
-                heappush(self._lrnQueue, (card.due, card.id))
         else:
             # the card is due in one or more days, so we need to use the
             # day learn queue
@@ -799,7 +819,6 @@ limit ?"""
             # repeat after delay
             card.queue = QUEUE_TYPE_PREVIEW
             card.due = intTime() + self._previewDelay(card)
-            self.lrnCount += 1
         else:
             # BUTTON_TWO
             # restore original card state and remove from filtered deck
