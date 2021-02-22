@@ -17,6 +17,7 @@ use super::{
         NextCardStates, NormalState, PreviewState, RelearnState, ReschedulingFilterState,
         ReviewState, StateContext,
     },
+    timespan::answer_button_time_collapsible,
 };
 
 #[derive(Copy, Clone)]
@@ -422,6 +423,51 @@ impl RevlogEntryPartial {
 }
 
 impl Collection {
+    pub fn describe_next_states(&self, choices: NextCardStates) -> Result<Vec<String>> {
+        let collapse_time = self.learn_ahead_secs();
+        let now = TimestampSecs::now();
+        let timing = self.timing_for_timestamp(now)?;
+        let secs_until_rollover = (timing.next_day_at - now.0).max(0) as u32;
+        Ok(vec![
+            answer_button_time_collapsible(
+                choices
+                    .again
+                    .interval_kind()
+                    .maybe_as_days(secs_until_rollover)
+                    .as_seconds(),
+                collapse_time,
+                &self.i18n,
+            ),
+            answer_button_time_collapsible(
+                choices
+                    .hard
+                    .interval_kind()
+                    .maybe_as_days(secs_until_rollover)
+                    .as_seconds(),
+                collapse_time,
+                &self.i18n,
+            ),
+            answer_button_time_collapsible(
+                choices
+                    .good
+                    .interval_kind()
+                    .maybe_as_days(secs_until_rollover)
+                    .as_seconds(),
+                collapse_time,
+                &self.i18n,
+            ),
+            answer_button_time_collapsible(
+                choices
+                    .easy
+                    .interval_kind()
+                    .maybe_as_days(secs_until_rollover)
+                    .as_seconds(),
+                collapse_time,
+                &self.i18n,
+            ),
+        ])
+    }
+
     pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<()> {
         self.transact(None, |col| col.answer_card_inner(answer))
     }
