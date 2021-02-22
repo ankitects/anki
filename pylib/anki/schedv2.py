@@ -231,26 +231,8 @@ order by due"""
         did = self.col.decks.current()["id"]
         self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
 
-    # legacy
-
-    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
-        did = card.did
-        if type == "new":
-            self.update_stats(did, new_delta=cnt)
-        elif type == "rev":
-            self.update_stats(did, review_delta=cnt)
-        elif type == "time":
-            self.update_stats(did, milliseconds_delta=cnt)
-
     # Deck list
     ##########################################################################
-
-    def deckDueTree(self) -> List:
-        "List of (base name, did, rev, lrn, new, children)"
-        print(
-            "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
-        )
-        return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
 
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.
@@ -1086,42 +1068,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         else:
             card.queue = card.type
 
-    # legacy
-
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
-        did = did or self.col.decks.selected()
-        count = self.rebuild_filtered_deck(did) or None
-        if not count:
-            return None
-        # and change to our new deck
-        self.col.decks.select(did)
-        return count
-
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
-        if lim is None:
-            self.empty_filtered_deck(did)
-            return
-
-        queue = f"""
-queue = (case when queue < 0 then queue
-              when type in (1,{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 1 else
-  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
-else
-  type
-end)
-"""
-        self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (queue, lim),
-            self.col.usn(),
-        )
-
-    def remFromDyn(self, cids: List[int]) -> None:
-        self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
-
     # Leeches
     ##########################################################################
 
@@ -1227,14 +1173,6 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     def congratulations_info(self) -> CongratsInfo:
         return self.col._backend.congrats_info()
 
-    def finishedMsg(self) -> str:
-        print("finishedMsg() is obsolete")
-        return ""
-
-    def _nextDueMsg(self) -> str:
-        print("_nextDueMsg() is obsolete")
-        return ""
-
     def haveBuriedSiblings(self) -> bool:
         return self.congratulations_info().have_sched_buried
 
@@ -1333,34 +1271,6 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     def bury_note(self, note: Note) -> None:
         self.bury_cards(note.card_ids())
 
-    # legacy
-
-    def unburyCards(self) -> None:
-        print(
-            "please use unbury_cards() or unbury_cards_in_current_deck instead of unburyCards()"
-        )
-        self.unbury_cards_in_current_deck()
-
-    def buryNote(self, nid: int) -> None:
-        note = self.col.getNote(nid)
-        self.bury_cards(note.card_ids())
-
-    def unburyCardsForDeck(self, type: str = "all") -> None:
-        print(
-            "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
-        )
-        if type == "all":
-            mode = UnburyCurrentDeck.ALL
-        elif type == "manual":
-            mode = UnburyCurrentDeck.USER_ONLY
-        else:  # elif type == "siblings":
-            mode = UnburyCurrentDeck.SCHED_ONLY
-        self.unbury_cards_in_current_deck(mode)
-
-    unsuspendCards = unsuspend_cards
-    buryCards = bury_cards
-    suspendCards = suspend_cards
-
     # Sibling spacing
     ##########################################################################
 
@@ -1425,15 +1335,6 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         # and forget any non-new cards, changing their due numbers
         self.col._backend.schedule_cards_as_new(card_ids=nonNew, log=False)
 
-    # legacy
-
-    def reschedCards(
-        self, card_ids: List[int], min_interval: int, max_interval: int
-    ) -> None:
-        self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
-
-    forgetCards = schedule_cards_as_new
-
     # Repositioning new cards
     ##########################################################################
 
@@ -1474,3 +1375,96 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.randomizeCards(did)
+
+    # Legacy aliases and helpers
+    ##########################################################################
+
+    def reschedCards(
+        self, card_ids: List[int], min_interval: int, max_interval: int
+    ) -> None:
+        self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
+
+    def buryNote(self, nid: int) -> None:
+        note = self.col.getNote(nid)
+        self.bury_cards(note.card_ids())
+
+    def unburyCards(self) -> None:
+        print(
+            "please use unbury_cards() or unbury_cards_in_current_deck instead of unburyCards()"
+        )
+        self.unbury_cards_in_current_deck()
+
+    def unburyCardsForDeck(self, type: str = "all") -> None:
+        print(
+            "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
+        )
+        if type == "all":
+            mode = UnburyCurrentDeck.ALL
+        elif type == "manual":
+            mode = UnburyCurrentDeck.USER_ONLY
+        else:  # elif type == "siblings":
+            mode = UnburyCurrentDeck.SCHED_ONLY
+        self.unbury_cards_in_current_deck(mode)
+
+    def finishedMsg(self) -> str:
+        print("finishedMsg() is obsolete")
+        return ""
+
+    def _nextDueMsg(self) -> str:
+        print("_nextDueMsg() is obsolete")
+        return ""
+
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+        did = did or self.col.decks.selected()
+        count = self.rebuild_filtered_deck(did) or None
+        if not count:
+            return None
+        # and change to our new deck
+        self.col.decks.select(did)
+        return count
+
+    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+        if lim is None:
+            self.empty_filtered_deck(did)
+            return
+
+        queue = f"""
+queue = (case when queue < 0 then queue
+              when type in (1,{CARD_TYPE_RELEARNING}) then
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else
+  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
+else
+  type
+end)
+"""
+        self.col.db.execute(
+            """
+update cards set did = odid, %s,
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
+            % (queue, lim),
+            self.col.usn(),
+        )
+
+    def remFromDyn(self, cids: List[int]) -> None:
+        self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
+
+    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
+        did = card.did
+        if type == "new":
+            self.update_stats(did, new_delta=cnt)
+        elif type == "rev":
+            self.update_stats(did, review_delta=cnt)
+        elif type == "time":
+            self.update_stats(did, milliseconds_delta=cnt)
+
+    def deckDueTree(self) -> List:
+        "List of (base name, did, rev, lrn, new, children)"
+        print(
+            "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
+        )
+        return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
+
+    unsuspendCards = unsuspend_cards
+    buryCards = bury_cards
+    suspendCards = suspend_cards
+    forgetCards = schedule_cards_as_new
