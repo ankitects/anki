@@ -1,6 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+"""
+This file contains experimental scheduler changes, and is not currently
+used by Anki.
+"""
+
 from __future__ import annotations
 
 import pprint
