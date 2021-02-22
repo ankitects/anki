@@ -3,11 +3,24 @@
 
 import throttle from "lodash.throttle";
 
-const tooltipDiv: HTMLDivElement = document.createElement("div");
-tooltipDiv.className = "graph-tooltip";
-document.body.appendChild(tooltipDiv);
+function getOrCreateTooltipDiv(): HTMLDivElement {
+    const existingTooltip = document.getElementById("graphTooltip") as HTMLDivElement;
+
+    if (existingTooltip) {
+        return existingTooltip;
+    }
+
+    const tooltipDiv: HTMLDivElement = document.createElement("div");
+    tooltipDiv.id = "graphTooltip";
+    tooltipDiv.className = "graph-tooltip";
+    document.body.appendChild(tooltipDiv);
+
+    return tooltipDiv
+}
 
 function showTooltipInner(msg: string, x: number, y: number): void {
+    const tooltipDiv = getOrCreateTooltipDiv();
+
     tooltipDiv.innerHTML = msg;
 
     // move tooltip away from edge as user approaches right side
@@ -26,6 +39,8 @@ function showTooltipInner(msg: string, x: number, y: number): void {
 export const showTooltip = throttle(showTooltipInner, 16);
 
 export function hideTooltip(): void {
+    const tooltipDiv = getOrCreateTooltipDiv();
+
     showTooltip.cancel();
     tooltipDiv.style.opacity = "0";
 }
