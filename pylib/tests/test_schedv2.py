@@ -283,7 +283,6 @@ def test_learn_day():
     col.sched.answerCard(c, 3)
     # two reps to graduate, 1 more today
     assert c.left % 1000 == 3
-    assert c.left // 1000 == 1
     assert col.sched.counts() == (0, 1, 0)
     c = col.sched.getCard()
     ni = col.sched.nextIvl
