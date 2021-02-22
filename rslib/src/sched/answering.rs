@@ -32,7 +32,7 @@ pub struct CardAnswer {
     pub current_state: CardState,
     pub new_state: CardState,
     pub rating: Rating,
-    pub answered_at: TimestampSecs,
+    pub answered_at: TimestampMillis,
     pub milliseconds_taken: u32,
 }
 
@@ -404,10 +404,11 @@ impl RevlogEntryPartial {
         usn: Usn,
         cid: CardID,
         button_chosen: u8,
+        answered_at: TimestampMillis,
         taken_millis: u32,
     ) -> RevlogEntry {
         RevlogEntry {
-            id: TimestampMillis::now(),
+            id: answered_at,
             cid,
             usn,
             button_chosen,
@@ -450,6 +451,7 @@ impl Collection {
                 usn,
                 answer.card_id,
                 button_chosen,
+                answer.answered_at,
                 answer.milliseconds_taken,
             );
             self.storage.add_revlog_entry(&revlog)?;

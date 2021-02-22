@@ -14,7 +14,7 @@ impl From<pb::AnswerCardIn> for CardAnswer {
             rating: answer.rating().into(),
             current_state: answer.current_state.unwrap_or_default().into(),
             new_state: answer.new_state.unwrap_or_default().into(),
-            answered_at: TimestampSecs(answer.answered_at),
+            answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
         }
     }

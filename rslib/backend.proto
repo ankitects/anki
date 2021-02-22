@@ -1336,6 +1336,6 @@ message AnswerCardIn {
   SchedulingState current_state = 2;
   SchedulingState new_state = 3;
   Rating rating = 4;
-  int64 answered_at = 5;
+  int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
 }
