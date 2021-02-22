@@ -1,9 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use rand::prelude::*;
-use rand::rngs::StdRng;
-
 use crate::revlog::RevlogReviewKind;
 
 use super::{
@@ -81,11 +78,11 @@ impl ReviewState {
             lapses: self.lapses + 1,
         };
 
-        if let Some(learn_interval) = ctx.relearn_steps.again_delay_secs_relearn() {
+        if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_relearn() {
             RelearnState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
-                    scheduled_secs: learn_interval,
+                    scheduled_secs: ctx.with_learning_fuzz(again_delay),
                 },
                 review: again_review,
             }
@@ -143,16 +140,18 @@ impl ReviewState {
         // fixme: floor() is to match python
 
         let hard_interval =
-            constrain_passing_interval(ctx, current_interval * hard_factor, hard_minimum);
+            constrain_passing_interval(ctx, current_interval * hard_factor, hard_minimum, true);
         let good_interval = constrain_passing_interval(
             ctx,
             (current_interval + (days_late / 2.0).floor()) * self.ease_factor,
             hard_interval + 1,
+            true,
         );
         let easy_interval = constrain_passing_interval(
             ctx,
             (current_interval + days_late) * self.ease_factor * ctx.easy_multiplier,
             good_interval + 1,
+            true,
         );
 
         (hard_interval, good_interval, easy_interval)
@@ -169,11 +168,16 @@ impl ReviewState {
         let hard_interval = {
             let factor = ctx.hard_multiplier;
             let half_usual = factor / 2.0;
-            constrain_passing_interval(ctx, (elapsed * factor).max(scheduled * half_usual), 0)
+            constrain_passing_interval(
+                ctx,
+                (elapsed * factor).max(scheduled * half_usual),
+                0,
+                false,
+            )
         };
 
         let good_interval =
-            constrain_passing_interval(ctx, (elapsed * self.ease_factor).max(scheduled), 0);
+            constrain_passing_interval(ctx, (elapsed * self.ease_factor).max(scheduled), 0, false);
 
         let easy_interval = {
             // currently flooring() f64s to match python output
@@ -184,6 +188,7 @@ impl ReviewState {
                 ((elapsed as f64 * self.ease_factor as f64).max(scheduled as f64) * reduced_bonus)
                     .floor() as f32,
                 0,
+                false,
             )
         };
 
@@ -191,44 +196,21 @@ impl ReviewState {
     }
 }
 
-fn fuzz_range(interval: f32, factor: f32, minimum: f32) -> (f32, f32) {
-    let delta = (interval * factor).max(minimum).max(1.0);
-    (interval - delta, interval + delta)
-}
-
 /// Transform the provided hard/good/easy interval.
 /// - Apply configured interval multiplier.
 /// - Apply fuzz.
 /// - Ensure it is at least `minimum`, and at least 1.
 /// - Ensure it is at or below the configured maximum interval.
-fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32) -> u32 {
+fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, fuzz: bool) -> u32 {
     // fixme: floor is to match python
-    let interval = interval.floor();
-    with_review_fuzz(ctx.fuzz_seed, interval * ctx.interval_multiplier)
+    let interval = interval.floor() * ctx.interval_multiplier;
+    let interval = if fuzz {
+        ctx.with_review_fuzz(interval)
+    } else {
+        interval.floor() as u32
+    };
+    interval
         .max(minimum)
         .min(ctx.maximum_review_interval)
         .max(1)
-}
-
-fn with_review_fuzz(seed: Option<u64>, interval: f32) -> u32 {
-    // fixme: floor() is to match python
-    let interval = interval.floor();
-    if let Some(seed) = seed {
-        let mut rng = StdRng::seed_from_u64(seed);
-        let (lower, upper) = if interval < 2.0 {
-            (1.0, 1.0)
-        } else if interval < 3.0 {
-            (2.0, 3.0)
-        } else if interval < 7.0 {
-            fuzz_range(interval, 0.25, 0.0)
-        } else if interval < 30.0 {
-            fuzz_range(interval, 0.15, 2.0)
-        } else {
-            fuzz_range(interval, 0.05, 4.0)
-        };
-        rng.gen_range(lower, upper + 1.0)
-    } else {
-        interval
-    }
-    .round() as u32
 }

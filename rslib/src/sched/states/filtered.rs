@@ -28,7 +28,7 @@ impl FilteredState {
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
         match self {
-            FilteredState::Preview(state) => state.next_states(),
+            FilteredState::Preview(state) => state.next_states(ctx),
             FilteredState::Rescheduling(state) => state.next_states(ctx),
         }
     }

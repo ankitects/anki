@@ -67,6 +67,11 @@ impl AnswerContext {
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
             in_filtered_deck: self.deck.is_filtered(),
+            preview_step: if let DeckKind::Filtered(deck) = &self.deck.kind {
+                deck.preview_delay
+            } else {
+                0
+            },
         }
     }
 
@@ -540,7 +545,7 @@ impl Collection {
             config: self.deck_config_for_card(card)?,
             timing,
             now: TimestampSecs::now(),
-            fuzz_seed: None,
+            fuzz_seed: get_fuzz_seed(card),
         })
     }
 
@@ -550,5 +555,15 @@ impl Collection {
         let current = ctx.current_card_state(&card);
         let state_ctx = ctx.state_context();
         Ok(current.next_states(&state_ctx))
+    }
+}
+
+/// Return a consistent seed for a given card at a given number of reps.
+/// If in test environment, disable fuzzing.
+fn get_fuzz_seed(card: &Card) -> Option<u64> {
+    if *crate::timestamp::TESTING {
+        None
+    } else {
+        Some((card.id.0 as u64).wrapping_add(card.reps as u64))
     }
 }
