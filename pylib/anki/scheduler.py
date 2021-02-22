@@ -543,6 +543,9 @@ limit ?"""
     def _cardConf(self, card: Card) -> DeckConfig:
         return self.col.decks.confForDid(card.did)
 
+    def _home_config(self, card: Card) -> DeckConfig:
+        return self.col.decks.confForDid(card.odid or card.did)
+
     def _deckLimit(self) -> str:
         return ids2str(self.col.decks.active())
 
@@ -1124,10 +1127,9 @@ limit ?"""
 
     def _burySiblings(self, card: Card) -> None:
         toBury: List[int] = []
-        nconf = self._newConf(card)
-        buryNew = nconf.get("bury", True)
-        rconf = self._revConf(card)
-        buryRev = rconf.get("bury", True)
+        conf = self._home_config(card)
+        bury_new = conf["new"].get("bury", True)
+        bury_rev = conf["rev"].get("bury", True)
         # loop through and remove from queues
         for cid, queue in self.col.db.execute(
             f"""
@@ -1139,11 +1141,11 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         ):
             if queue == QUEUE_TYPE_REV:
                 queue_obj = self._revQueue
-                if buryRev:
+                if bury_rev:
                     toBury.append(cid)
             else:
                 queue_obj = self._newQueue
-                if buryNew:
+                if bury_new:
                     toBury.append(cid)
 
             # even if burying disabled, we still discard to give same-day spacing
