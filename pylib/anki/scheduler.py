@@ -25,20 +25,9 @@ SchedTimingToday = _pb.SchedTimingTodayOut
 UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
 BuryOrSuspend = _pb.BuryOrSuspendCardsIn
 
-# card types: 0=new, 1=lrn, 2=rev, 3=relrn
-# queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
-#   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
-
-# revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
-# positive revlog intervals are in days (rev), negative in seconds (lrn)
-# odue/odid store original due/did when cards moved to filtered deck
-
 
 class Scheduler:
-    name = "std2"
-    haveCustomStudy = True
     _burySiblingsOnAnswer = True
-    revCount: int
 
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
