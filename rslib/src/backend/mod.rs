@@ -34,7 +34,7 @@ use crate::{
         new::NewCardSortOrder,
         parse_due_date_str,
         states::NextCardStates,
-        timespan::{answer_button_time, answer_button_time_collapsible, time_span},
+        timespan::{answer_button_time, time_span},
     },
     search::{
         concatenate_searches, parse_search, replace_search_node, write_nodes, BoolSeparator, Node,
@@ -678,32 +678,9 @@ impl BackendService for Backend {
     }
 
     fn describe_next_states(&self, input: pb::NextCardStates) -> BackendResult<pb::StringList> {
-        let collapse_time = self.with_col(|col| Ok(col.learn_ahead_secs()))?;
-        let choices: NextCardStates = input.into();
-
-        Ok(vec![
-            answer_button_time_collapsible(
-                choices.again.interval_kind().as_seconds(),
-                collapse_time,
-                &self.i18n,
-            ),
-            answer_button_time_collapsible(
-                choices.hard.interval_kind().as_seconds(),
-                collapse_time,
-                &self.i18n,
-            ),
-            answer_button_time_collapsible(
-                choices.good.interval_kind().as_seconds(),
-                collapse_time,
-                &self.i18n,
-            ),
-            answer_button_time_collapsible(
-                choices.easy.interval_kind().as_seconds(),
-                collapse_time,
-                &self.i18n,
-            ),
-        ]
-        .into())
+        let states: NextCardStates = input.into();
+        self.with_col(|col| col.describe_next_states(states))
+            .map(Into::into)
     }
 
     fn answer_card(&self, input: pb::AnswerCardIn) -> BackendResult<pb::Empty> {
