@@ -15,7 +15,7 @@ function getOrCreateTooltipDiv(): HTMLDivElement {
     tooltipDiv.className = "graph-tooltip";
     document.body.appendChild(tooltipDiv);
 
-    return tooltipDiv
+    return tooltipDiv;
 }
 
 function showTooltipInner(msg: string, x: number, y: number): void {
