@@ -30,6 +30,7 @@ from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
 from anki.sched import Scheduler as V1Scheduler
+from anki.scheduler import Scheduler as V2TestScheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
@@ -138,7 +139,10 @@ class Collection:
         if ver == 1:
             self.sched = V1Scheduler(self)
         elif ver == 2:
-            self.sched = V2Scheduler(self)
+            if os.getenv("TEST_SCHEDULER"):
+                self.sched = V2TestScheduler(self)  # type: ignore
+            else:
+                self.sched = V2Scheduler(self)
 
     def upgrade_to_v2_scheduler(self) -> None:
         self._backend.upgrade_scheduler()
