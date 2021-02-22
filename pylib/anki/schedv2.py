@@ -161,52 +161,6 @@ class Scheduler:
             self.revCount = node.review_count
             self._immediate_learn_count = node.learn_count
 
-    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
-        counts = [self.newCount, self.lrnCount, self.revCount]
-        if card:
-            idx = self.countIdx(card)
-            counts[idx] += 1
-        new, lrn, rev = counts
-        return (new, lrn, rev)
-
-    def _is_finished(self) -> bool:
-        "Don't use this, it is a stop-gap until this code is refactored."
-        return not any((self.newCount, self.revCount, self._immediate_learn_count))
-
-    def dueForecast(self, days: int = 7) -> List[Any]:
-        "Return counts over next DAYS. Includes today."
-        daysd: Dict[int, int] = dict(
-            self.col.db.all(  # type: ignore
-                f"""
-select due, count() from cards
-where did in %s and queue = {QUEUE_TYPE_REV}
-and due between ? and ?
-group by due
-order by due"""
-                % self._deckLimit(),
-                self.today,
-                self.today + days - 1,
-            )
-        )
-        for d in range(days):
-            d = self.today + d
-            if d not in daysd:
-                daysd[d] = 0
-        # return in sorted order
-        ret = [x[1] for x in sorted(daysd.items())]
-        return ret
-
-    def countIdx(self, card: Card) -> int:
-        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            return QUEUE_TYPE_LRN
-        return card.queue
-
-    def answerButtons(self, card: Card) -> int:
-        conf = self._cardConf(card)
-        if card.odid and not conf["resched"]:
-            return 2
-        return 4
-
     # Rev/lrn/time daily stats
     ##########################################################################
 
@@ -226,10 +180,6 @@ order by due"""
 
     def counts_for_deck_today(self, deck_id: int) -> CountsForDeckToday:
         return self.col._backend.counts_for_deck_today(deck_id)
-
-    def extendLimits(self, new: int, rev: int) -> None:
-        did = self.col.decks.current()["id"]
-        self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
 
     # Getting the next card
     ##########################################################################
@@ -1054,29 +1004,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         else:
             card.queue = card.type
 
-    # Leeches
-    ##########################################################################
-
-    def _checkLeech(self, card: Card, conf: QueueConfig) -> bool:
-        "Leech handler. True if card was a leech."
-        lf = conf["leechFails"]
-        if not lf:
-            return False
-        # if over threshold or every half threshold reps after that
-        if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
-            # add a leech tag
-            f = card.note()
-            f.addTag("leech")
-            f.flush()
-            # handle
-            a = conf["leechAction"]
-            if a == LEECH_SUSPEND:
-                card.queue = QUEUE_TYPE_SUSPENDED
-            # notify UI
-            hooks.card_did_leech(card)
-            return True
-        return False
-
     # Tools
     ##########################################################################
 
@@ -1156,16 +1083,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Next times
     ##########################################################################
 
-    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
-        "Return the next interval for CARD as a string."
-        ivl_secs = self.nextIvl(card, ease)
-        if not ivl_secs:
-            return self.col.tr(TR.SCHEDULING_END)
-        s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
-        if ivl_secs < self.col.conf["collapseTime"]:
-            s = "<" + s
-        return s
-
     def nextIvl(self, card: Card, ease: int) -> Any:
         "Return the next interval for CARD, in seconds."
         # preview mode?
@@ -1211,6 +1128,29 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             else:
                 return self._delayForGrade(conf, left)
 
+    # Leeches
+    ##########################################################################
+
+    def _checkLeech(self, card: Card, conf: QueueConfig) -> bool:
+        "Leech handler. True if card was a leech."
+        lf = conf["leechFails"]
+        if not lf:
+            return False
+        # if over threshold or every half threshold reps after that
+        if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
+            # add a leech tag
+            f = card.note()
+            f.addTag("leech")
+            f.flush()
+            # handle
+            a = conf["leechAction"]
+            if a == LEECH_SUSPEND:
+                card.queue = QUEUE_TYPE_SUSPENDED
+            # notify UI
+            hooks.card_did_leech(card)
+            return True
+        return False
+
     # Sibling spacing
     ##########################################################################
 
@@ -1247,6 +1187,38 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         if toBury:
             self.bury_cards(toBury, manual=False)
 
+    # Review-related UI helpers
+    ##########################################################################
+
+    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+        counts = [self.newCount, self.lrnCount, self.revCount]
+        if card:
+            idx = self.countIdx(card)
+            counts[idx] += 1
+        new, lrn, rev = counts
+        return (new, lrn, rev)
+
+    def countIdx(self, card: Card) -> int:
+        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+            return QUEUE_TYPE_LRN
+        return card.queue
+
+    def answerButtons(self, card: Card) -> int:
+        conf = self._cardConf(card)
+        if card.odid and not conf["resched"]:
+            return 2
+        return 4
+
+    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
+        "Return the next interval for CARD as a string."
+        ivl_secs = self.nextIvl(card, ease)
+        if not ivl_secs:
+            return self.col.tr(TR.SCHEDULING_END)
+        s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
+        if ivl_secs < self.col.conf["collapseTime"]:
+            s = "<" + s
+        return s
+
     # Deck list
     ##########################################################################
 
@@ -1270,6 +1242,14 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     def haveBuried(self) -> bool:
         info = self.congratulations_info()
         return info.have_sched_buried or info.have_user_buried
+
+    def extendLimits(self, new: int, rev: int) -> None:
+        did = self.col.decks.current()["id"]
+        self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
+
+    def _is_finished(self) -> bool:
+        "Don't use this, it is a stop-gap until this code is refactored."
+        return not any((self.newCount, self.revCount, self._immediate_learn_count))
 
     # Filtered deck handling
     ##########################################################################
