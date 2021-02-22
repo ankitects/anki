@@ -57,7 +57,7 @@ def test_review():
     c = col.sched.getCard()
     assert c.queue == QUEUE_TYPE_NEW
     col.sched.answerCard(c, 3)
-    assert c.left == 1001
+    assert c.left % 1000 == 1
     assert col.sched.counts() == (0, 1, 0)
     assert c.queue == QUEUE_TYPE_LRN
     # undo
@@ -67,7 +67,7 @@ def test_review():
     assert col.sched.counts() == (1, 0, 0)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
-    assert c.left != 1001
+    assert c.left % 1000 != 1
     assert not col.undoName()
     # we should be able to undo multiple answers too
     note = col.newNote()
