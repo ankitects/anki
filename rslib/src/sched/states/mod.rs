@@ -12,6 +12,9 @@ pub(crate) mod rescheduling_filter;
 pub(crate) mod review;
 pub(crate) mod steps;
 
+use rand::prelude::*;
+use rand::rngs::StdRng;
+
 pub use {
     filtered::FilteredState, learning::LearnState, new::NewState, normal::NormalState,
     preview_filter::PreviewState, relearning::RelearnState,
@@ -75,6 +78,64 @@ pub(crate) struct StateContext<'a> {
 
     // filtered
     pub in_filtered_deck: bool,
+    pub preview_step: u32,
+}
+
+impl<'a> StateContext<'a> {
+    pub(crate) fn with_review_fuzz(&self, interval: f32) -> u32 {
+        // fixme: floor() is to match python
+        let interval = interval.floor();
+        if let Some(seed) = self.fuzz_seed {
+            let mut rng = StdRng::seed_from_u64(seed);
+            let (lower, upper) = if interval < 2.0 {
+                (1.0, 1.0)
+            } else if interval < 3.0 {
+                (2.0, 3.0)
+            } else if interval < 7.0 {
+                fuzz_range(interval, 0.25, 0.0)
+            } else if interval < 30.0 {
+                fuzz_range(interval, 0.15, 2.0)
+            } else {
+                fuzz_range(interval, 0.05, 4.0)
+            };
+            if lower >= upper {
+                lower
+            } else {
+                rng.gen_range(lower, upper)
+            }
+        } else {
+            interval
+        }
+        .round() as u32
+    }
+
+    /// Add up to 25% increase to seconds, but no more than 5 minutes.
+    pub(crate) fn with_learning_fuzz(&self, secs: u32) -> u32 {
+        if let Some(seed) = self.fuzz_seed {
+            let mut rng = StdRng::seed_from_u64(seed);
+            let upper_exclusive = secs + ((secs as f32) * 0.25).min(300.0).floor() as u32;
+            if secs >= upper_exclusive {
+                secs
+            } else {
+                rng.gen_range(secs, upper_exclusive)
+            }
+        } else {
+            secs
+        }
+    }
+
+    pub(crate) fn fuzzed_graduating_interval_good(&self) -> u32 {
+        self.with_review_fuzz(self.graduating_interval_good as f32)
+    }
+
+    pub(crate) fn fuzzed_graduating_interval_easy(&self) -> u32 {
+        self.with_review_fuzz(self.graduating_interval_easy as f32)
+    }
+}
+
+fn fuzz_range(interval: f32, factor: f32, minimum: f32) -> (f32, f32) {
+    let delta = (interval * factor).max(minimum).max(1.0);
+    (interval - delta, interval + delta + 1.0)
 }
 
 #[derive(Debug)]

@@ -33,11 +33,11 @@ impl RelearnState {
     }
 
     fn answer_again(self, ctx: &StateContext) -> CardState {
-        if let Some(learn_interval) = ctx.relearn_steps.again_delay_secs_relearn() {
+        if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_relearn() {
             RelearnState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
-                    scheduled_secs: learn_interval,
+                    scheduled_secs: ctx.with_learning_fuzz(again_delay),
                 },
                 review: ReviewState {
                     scheduled_days: self.review.failing_review_interval(ctx),
@@ -52,13 +52,13 @@ impl RelearnState {
     }
 
     fn answer_hard(self, ctx: &StateContext) -> CardState {
-        if let Some(learn_interval) = ctx
+        if let Some(hard_delay) = ctx
             .relearn_steps
             .hard_delay_secs(self.learning.remaining_steps)
         {
             RelearnState {
                 learning: LearnState {
-                    scheduled_secs: learn_interval,
+                    scheduled_secs: ctx.with_learning_fuzz(hard_delay),
                     ..self.learning
                 },
                 review: ReviewState {
@@ -73,13 +73,13 @@ impl RelearnState {
     }
 
     fn answer_good(self, ctx: &StateContext) -> CardState {
-        if let Some(learn_interval) = ctx
+        if let Some(good_delay) = ctx
             .relearn_steps
             .good_delay_secs(self.learning.remaining_steps)
         {
             RelearnState {
                 learning: LearnState {
-                    scheduled_secs: learn_interval,
+                    scheduled_secs: ctx.with_learning_fuzz(good_delay),
                     remaining_steps: ctx
                         .relearn_steps
                         .remaining_for_good(self.learning.remaining_steps),

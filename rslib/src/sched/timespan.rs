@@ -6,7 +6,7 @@ use crate::i18n::{tr_args, I18n, TR};
 /// Short string like '4d' to place above answer buttons.
 pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
-    let args = tr_args!["amount" => span.as_rounded_unit()];
+    let args = tr_args!["amount" => span.as_rounded_unit_for_answer_buttons()];
     let key = match span.unit() {
         TimespanUnit::Seconds => TR::SchedulingAnswerButtonTimeSeconds,
         TimespanUnit::Minutes => TR::SchedulingAnswerButtonTimeMinutes,
@@ -114,8 +114,21 @@ impl Timespan {
     /// truncates to one decimal place.
     pub fn as_rounded_unit(self) -> f32 {
         match self.unit {
-            // seconds/days as integer
+            // seconds/minutes/days as integer
             TimespanUnit::Seconds | TimespanUnit::Days => self.as_unit().round(),
+            // other values shown to 1 decimal place
+            _ => (self.as_unit() * 10.0).round() / 10.0,
+        }
+    }
+
+    /// Round seconds, minutes and days to integers, otherwise
+    /// truncates to one decimal place.
+    pub fn as_rounded_unit_for_answer_buttons(self) -> f32 {
+        match self.unit {
+            // seconds/minutes/days as integer
+            TimespanUnit::Seconds | TimespanUnit::Minutes | TimespanUnit::Days => {
+                self.as_unit().round()
+            }
             // other values shown to 1 decimal place
             _ => (self.as_unit() * 10.0).round() / 10.0,
         }
@@ -161,7 +174,7 @@ mod test {
         let log = log::terminal();
         let i18n = I18n::new(&["zz"], "", log);
         assert_eq!(answer_button_time(30.0, &i18n), "30s");
-        assert_eq!(answer_button_time(70.0, &i18n), "1.2m");
+        assert_eq!(answer_button_time(70.0, &i18n), "1m");
         assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.1mo");
     }
 

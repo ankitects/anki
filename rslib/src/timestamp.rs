@@ -52,7 +52,7 @@ impl TimestampMillis {
 }
 
 lazy_static! {
-    static ref TESTING: bool = env::var("SHIFT_CLOCK_HACK").is_ok();
+    pub(crate) static ref TESTING: bool = env::var("ANKI_TEST_MODE").is_ok();
 }
 
 fn elapsed() -> time::Duration {
