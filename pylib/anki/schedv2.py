@@ -231,14 +231,6 @@ order by due"""
         did = self.col.decks.current()["id"]
         self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
 
-    # Deck list
-    ##########################################################################
-
-    def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
-        """Returns a tree of decks with counts.
-        If top_deck_id provided, counts are limited to that node."""
-        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=intTime())
-
     # Getting the next card
     ##########################################################################
 
@@ -1041,12 +1033,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Filtered deck handling
     ##########################################################################
 
-    def rebuild_filtered_deck(self, deck_id: int) -> int:
-        return self.col._backend.rebuild_filtered_deck(deck_id)
-
-    def empty_filtered_deck(self, deck_id: int) -> None:
-        self.col._backend.empty_filtered_deck(deck_id)
-
     def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:
             card.did = card.odid
@@ -1167,23 +1153,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def _timing_today(self) -> SchedTimingToday:
         return self.col._backend.sched_timing_today()
 
-    # Deck finished state
-    ##########################################################################
-
-    def congratulations_info(self) -> CongratsInfo:
-        return self.col._backend.congrats_info()
-
-    def haveBuriedSiblings(self) -> bool:
-        return self.congratulations_info().have_sched_buried
-
-    def haveManuallyBuried(self) -> bool:
-        return self.congratulations_info().have_user_buried
-
-    def haveBuried(self) -> bool:
-        info = self.congratulations_info()
-        return info.have_sched_buried or info.have_user_buried
-
-    # Next time reports
+    # Next times
     ##########################################################################
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
@@ -1241,36 +1211,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             else:
                 return self._delayForGrade(conf, left)
 
-    # Suspending & burying
-    ##########################################################################
-
-    def unsuspend_cards(self, ids: List[int]) -> None:
-        self.col._backend.restore_buried_and_suspended_cards(ids)
-
-    def unbury_cards(self, ids: List[int]) -> None:
-        self.col._backend.restore_buried_and_suspended_cards(ids)
-
-    def unbury_cards_in_current_deck(
-        self,
-        mode: UnburyCurrentDeck.Mode.V = UnburyCurrentDeck.ALL,
-    ) -> None:
-        self.col._backend.unbury_cards_in_current_deck(mode)
-
-    def suspend_cards(self, ids: Sequence[int]) -> None:
-        self.col._backend.bury_or_suspend_cards(
-            card_ids=ids, mode=BuryOrSuspend.SUSPEND
-        )
-
-    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> None:
-        if manual:
-            mode = BuryOrSuspend.BURY_USER
-        else:
-            mode = BuryOrSuspend.BURY_SCHED
-        self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
-
-    def bury_note(self, note: Note) -> None:
-        self.bury_cards(note.card_ids())
-
     # Sibling spacing
     ##########################################################################
 
@@ -1306,6 +1246,69 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         # then bury
         if toBury:
             self.bury_cards(toBury, manual=False)
+
+    # Deck list
+    ##########################################################################
+
+    def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
+        """Returns a tree of decks with counts.
+        If top_deck_id provided, counts are limited to that node."""
+        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=intTime())
+
+    # Deck finished state
+    ##########################################################################
+
+    def congratulations_info(self) -> CongratsInfo:
+        return self.col._backend.congrats_info()
+
+    def haveBuriedSiblings(self) -> bool:
+        return self.congratulations_info().have_sched_buried
+
+    def haveManuallyBuried(self) -> bool:
+        return self.congratulations_info().have_user_buried
+
+    def haveBuried(self) -> bool:
+        info = self.congratulations_info()
+        return info.have_sched_buried or info.have_user_buried
+
+    # Filtered deck handling
+    ##########################################################################
+
+    def rebuild_filtered_deck(self, deck_id: int) -> int:
+        return self.col._backend.rebuild_filtered_deck(deck_id)
+
+    def empty_filtered_deck(self, deck_id: int) -> None:
+        self.col._backend.empty_filtered_deck(deck_id)
+
+    # Suspending & burying
+    ##########################################################################
+
+    def unsuspend_cards(self, ids: List[int]) -> None:
+        self.col._backend.restore_buried_and_suspended_cards(ids)
+
+    def unbury_cards(self, ids: List[int]) -> None:
+        self.col._backend.restore_buried_and_suspended_cards(ids)
+
+    def unbury_cards_in_current_deck(
+        self,
+        mode: UnburyCurrentDeck.Mode.V = UnburyCurrentDeck.ALL,
+    ) -> None:
+        self.col._backend.unbury_cards_in_current_deck(mode)
+
+    def suspend_cards(self, ids: Sequence[int]) -> None:
+        self.col._backend.bury_or_suspend_cards(
+            card_ids=ids, mode=BuryOrSuspend.SUSPEND
+        )
+
+    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> None:
+        if manual:
+            mode = BuryOrSuspend.BURY_USER
+        else:
+            mode = BuryOrSuspend.BURY_SCHED
+        self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
+
+    def bury_note(self, note: Note) -> None:
+        self.bury_cards(note.card_ids())
 
     # Resetting/rescheduling
     ##########################################################################
