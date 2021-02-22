@@ -25,7 +25,7 @@ def test_clock():
 
 def checkRevIvl(col, c, targetIvl):
     min, max = col.sched._fuzzIvlRange(targetIvl)
-    return min <= c.ivl <= max
+    assert min <= c.ivl <= max
 
 
 def test_basics():
@@ -186,7 +186,7 @@ def test_learn():
     col.sched.answerCard(c, 4)
     assert c.type == CARD_TYPE_REV
     assert c.queue == QUEUE_TYPE_REV
-    assert checkRevIvl(col, c, 4)
+    checkRevIvl(col, c, 4)
     # revlog should have been updated each time
     assert col.db.scalar("select count() from revlog where type = 0") == 5
 
@@ -358,7 +358,7 @@ def test_reviews():
     col.sched.answerCard(c, 2)
     assert c.queue == QUEUE_TYPE_REV
     # the new interval should be (100) * 1.2 = 120
-    assert checkRevIvl(col, c, 120)
+    checkRevIvl(col, c, 120)
     assert c.due == col.sched.today + c.ivl
     # factor should have been decremented
     assert c.factor == 2350
@@ -371,7 +371,7 @@ def test_reviews():
     c.flush()
     col.sched.answerCard(c, 3)
     # the new interval should be (100 + 8/2) * 2.5 = 260
-    assert checkRevIvl(col, c, 260)
+    checkRevIvl(col, c, 260)
     assert c.due == col.sched.today + c.ivl
     # factor should have been left alone
     assert c.factor == STARTING_FACTOR
@@ -381,7 +381,7 @@ def test_reviews():
     c.flush()
     col.sched.answerCard(c, 4)
     # the new interval should be (100 + 8) * 2.5 * 1.3 = 351
-    assert checkRevIvl(col, c, 351)
+    checkRevIvl(col, c, 351)
     assert c.due == col.sched.today + c.ivl
     # factor should have been increased
     assert c.factor == 2650
@@ -715,7 +715,7 @@ def test_filt_reviewing_early_normal():
 
     # answer 'good'
     col.sched.answerCard(c, 3)
-    checkRevIvl(col, c, 90)
+    checkRevIvl(col, c, int(75 * 2.5))
     assert c.due == col.sched.today + c.ivl
     assert not c.odue
     # should not be in learning
