@@ -5,6 +5,7 @@ persistent = no
 [TYPECHECK]
 ignored-classes=
   FormatTimespanIn,
+  AnswerCardIn,
   UnburyCardsInCurrentDeckIn,
   BuryOrSuspendCardsIn
 

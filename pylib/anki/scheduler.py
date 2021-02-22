@@ -15,8 +15,8 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import Deck, DeckConfig, DeckManager, DeckTreeNode, QueueConfig
-from anki.lang import FormatTimeSpan
 from anki.notes import Note
+from anki.types import assert_exhaustive
 from anki.utils import from_json_bytes, ids2str, intTime
 
 CongratsInfo = _pb.CongratsInfoOut
@@ -476,42 +476,33 @@ limit ?"""
         card.flush()
 
     def _answerCard(self, card: Card, ease: int) -> None:
-        if self._previewingCard(card):
-            self._answerCardPreview(card, ease)
-            return
-
-        card.reps += 1
-
-        new_delta = 0
-        review_delta = 0
-
-        if card.queue == QUEUE_TYPE_NEW:
-            # came from the new queue, move to learning
-            card.queue = QUEUE_TYPE_LRN
-            card.type = CARD_TYPE_LRN
-            # init reps to graduation
-            card.left = self._startingLeft(card)
-            new_delta = +1
-
-        if card.queue in (QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
-            self._answerLrnCard(card, ease)
-        elif card.queue == QUEUE_TYPE_REV:
-            self._answerRevCard(card, ease)
-            review_delta = +1
+        states = self.col._backend.get_next_card_states(card.id)
+        if ease == BUTTON_ONE:
+            new_state = states.again
+            rating = _pb.AnswerCardIn.AGAIN
+        elif ease == BUTTON_TWO:
+            new_state = states.hard
+            rating = _pb.AnswerCardIn.HARD
+        elif ease == BUTTON_THREE:
+            new_state = states.good
+            rating = _pb.AnswerCardIn.GOOD
+        elif ease == BUTTON_FOUR:
+            new_state = states.easy
+            rating = _pb.AnswerCardIn.EASY
         else:
-            raise Exception(f"Invalid queue '{card}'")
+            assert False, "invalid ease"
 
-        self.update_stats(
-            card.did,
-            new_delta=new_delta,
-            review_delta=review_delta,
-            milliseconds_delta=+card.timeTaken(),
+        self.col._backend.answer_card(
+            card_id=card.id,
+            current_state=states.current,
+            new_state=new_state,
+            rating=rating,
+            answered_at_millis=intTime(1000),
+            milliseconds_taken=card.timeTaken(),
         )
 
-        # once a card has been answered once, the original due date
-        # no longer applies
-        if card.odue:
-            card.odue = 0
+        # fixme: tests assume card will be mutated, so we need to reload it
+        card.load()
 
     def _maybe_requeue_card(self, card: Card) -> None:
         # preview cards
@@ -1053,51 +1044,59 @@ limit ?"""
 
     # Next times
     ##########################################################################
+    # fixme: move these into tests_schedv2 in the future
+
+    def _interval_for_state(self, state: _pb.SchedulingState) -> int:
+        kind = state.WhichOneof("value")
+        if kind == "normal":
+            return self._interval_for_normal_state(state.normal)
+        elif kind == "filtered":
+            return self._interval_for_filtered_state(state.filtered)
+        else:
+            assert_exhaustive(kind)
+            return 0  # unreachable
+
+    def _interval_for_normal_state(self, normal: _pb.SchedulingState.Normal) -> int:
+        kind = normal.WhichOneof("value")
+        if kind == "new":
+            return 0
+        elif kind == "review":
+            return normal.review.scheduled_days * 86400
+        elif kind == "learning":
+            return normal.learning.scheduled_secs
+        elif kind == "relearning":
+            return normal.relearning.learning.scheduled_secs
+        else:
+            assert_exhaustive(kind)
+            return 0  # unreachable
+
+    def _interval_for_filtered_state(
+        self, filtered: _pb.SchedulingState.Filtered
+    ) -> int:
+        kind = filtered.WhichOneof("value")
+        if kind == "preview":
+            return filtered.preview.scheduled_secs
+        elif kind == "rescheduling":
+            return self._interval_for_normal_state(filtered.rescheduling.original_state)
+        else:
+            assert_exhaustive(kind)
+            return 0  # unreachable
 
     def nextIvl(self, card: Card, ease: int) -> Any:
-        "Return the next interval for CARD, in seconds."
-        # preview mode?
-        if self._previewingCard(card):
-            if ease == BUTTON_ONE:
-                return self._previewDelay(card)
-            return 0
-
-        # (re)learning?
-        if card.queue in (QUEUE_TYPE_NEW, QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
-            return self._nextLrnIvl(card, ease)
-        elif ease == BUTTON_ONE:
-            # lapse
-            conf = self._lapseConf(card)
-            if conf["delays"]:
-                return conf["delays"][0] * 60
-            return self._lapseIvl(card, conf) * 86400
-        else:
-            # review
-            early = card.odid and (card.odue > self.today)
-            if early:
-                return self._earlyReviewIvl(card, ease) * 86400
-            else:
-                return self._nextRevIvl(card, ease, fuzz=False) * 86400
-
-    # this isn't easily extracted from the learn code
-    def _nextLrnIvl(self, card: Card, ease: int) -> Any:
-        if card.queue == QUEUE_TYPE_NEW:
-            card.left = self._startingLeft(card)
-        conf = self._lrnConf(card)
+        "Don't use this - it is only required by tests, and will be moved in the future."
+        states = self.col._backend.get_next_card_states(card.id)
         if ease == BUTTON_ONE:
-            # fail
-            return self._delayForGrade(conf, len(conf["delays"]))
+            new_state = states.again
         elif ease == BUTTON_TWO:
-            return self._delayForRepeatingGrade(conf, card.left)
+            new_state = states.hard
+        elif ease == BUTTON_THREE:
+            new_state = states.good
         elif ease == BUTTON_FOUR:
-            return self._graduatingIvl(card, conf, True, fuzz=False) * 86400
-        else:  # ease == BUTTON_THREE
-            left = card.left % 1000 - 1
-            if left <= 0:
-                # graduate
-                return self._graduatingIvl(card, conf, False, fuzz=False) * 86400
-            else:
-                return self._delayForGrade(conf, left)
+            new_state = states.easy
+        else:
+            assert False, "invalid ease"
+
+        return self._interval_for_state(new_state)
 
     # Leeches
     ##########################################################################
@@ -1181,13 +1180,8 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
-        ivl_secs = self.nextIvl(card, ease)
-        if not ivl_secs:
-            return self.col.tr(TR.SCHEDULING_END)
-        s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
-        if ivl_secs < self.col.conf["collapseTime"]:
-            s = "<" + s
-        return s
+        states = self.col._backend.get_next_card_states(card.id)
+        return self.col._backend.describe_next_states(states)[ease - 1]
 
     # Deck list
     ##########################################################################
