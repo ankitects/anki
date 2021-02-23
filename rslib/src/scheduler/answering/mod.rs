@@ -2,12 +2,15 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod current_state;
+mod learn;
 mod preview;
+mod relearn;
+mod review;
 mod revlog;
 
 use crate::{
     backend_proto,
-    card::{CardQueue, CardType},
+    card::CardQueue,
     deckconf::{DeckConf, LeechAction},
     decks::Deck,
     prelude::*,
@@ -17,10 +20,7 @@ use revlog::RevlogEntryPartial;
 
 use super::{
     cutoff::SchedTimingToday,
-    states::{
-        CardState, FilteredState, IntervalKind, LearnState, NewState, NextCardStates, NormalState,
-        RelearnState, ReschedulingFilterState, ReviewState,
-    },
+    states::{CardState, FilteredState, NextCardStates, NormalState, ReschedulingFilterState},
     timespan::answer_button_time_collapsible,
 };
 
@@ -94,105 +94,6 @@ impl CardStateUpdater {
         }
 
         Ok(revlog)
-    }
-
-    fn apply_new_state(
-        &mut self,
-        current: CardState,
-        next: NewState,
-    ) -> Result<Option<RevlogEntryPartial>> {
-        self.card.ctype = CardType::New;
-        self.card.queue = CardQueue::New;
-        self.card.due = next.position as i32;
-
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            0.0,
-            self.secs_until_rollover(),
-        ))
-    }
-
-    fn apply_learning_state(
-        &mut self,
-        current: CardState,
-        next: LearnState,
-    ) -> Result<Option<RevlogEntryPartial>> {
-        self.card.remaining_steps = next.remaining_steps;
-        self.card.ctype = CardType::Learn;
-
-        let interval = next
-            .interval_kind()
-            .maybe_as_days(self.secs_until_rollover());
-        match interval {
-            IntervalKind::InSecs(secs) => {
-                self.card.queue = CardQueue::Learn;
-                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
-            }
-            IntervalKind::InDays(days) => {
-                self.card.queue = CardQueue::DayLearn;
-                self.card.due = (self.timing.days_elapsed + days) as i32;
-            }
-        }
-
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            0.0,
-            self.secs_until_rollover(),
-        ))
-    }
-
-    fn apply_review_state(
-        &mut self,
-        current: CardState,
-        next: ReviewState,
-    ) -> Result<Option<RevlogEntryPartial>> {
-        self.card.remove_from_filtered_deck_before_reschedule();
-        self.card.queue = CardQueue::Review;
-        self.card.ctype = CardType::Review;
-        self.card.interval = next.scheduled_days;
-        self.card.due = (self.timing.days_elapsed + next.scheduled_days) as i32;
-        self.card.ease_factor = (next.ease_factor * 1000.0).round() as u16;
-        self.card.lapses = next.lapses;
-
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            next.ease_factor,
-            self.secs_until_rollover(),
-        ))
-    }
-
-    fn apply_relearning_state(
-        &mut self,
-        current: CardState,
-        next: RelearnState,
-    ) -> Result<Option<RevlogEntryPartial>> {
-        self.card.interval = next.review.scheduled_days;
-        self.card.remaining_steps = next.learning.remaining_steps;
-        self.card.ctype = CardType::Relearn;
-
-        let interval = next
-            .interval_kind()
-            .maybe_as_days(self.secs_until_rollover());
-        match interval {
-            IntervalKind::InSecs(secs) => {
-                self.card.queue = CardQueue::Learn;
-                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
-            }
-            IntervalKind::InDays(days) => {
-                self.card.queue = CardQueue::DayLearn;
-                self.card.due = (self.timing.days_elapsed + days) as i32;
-            }
-        }
-
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            next.review.ease_factor,
-            self.secs_until_rollover(),
-        ))
     }
 
     fn apply_rescheduling_filter_state(
