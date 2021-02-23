@@ -1,3 +1,5 @@
+@use 'ts/sass/scrollbar';
+
 anki-editable {
     display: block;
     overflow-wrap: break-word;
@@ -8,16 +10,20 @@ anki-editable {
         content: "\a";
         white-space: pre;
     }
+
+    * {
+        max-width: 100%;
+    }
 }
 
-img {
-    max-width: 100%;
+:host-context(.nightMode) * {
+    @include scrollbar.night-mode;
+}
 
-    &.drawing {
-        zoom: 50%;
+img.drawing {
+    zoom: 50%;
 
-        .nightMode & {
-            filter: unquote("invert() hue-rotate(180deg)");
-        }
+    .nightMode & {
+        filter: unquote("invert() hue-rotate(180deg)");
     }
 }
