@@ -39,6 +39,7 @@ pub(crate) fn schema11_config_as_string() -> String {
 
 pub(crate) enum ConfigKey {
     AnswerTimeLimitSecs,
+    BrowserCardState,
     BrowserSortKind,
     BrowserNoteSortKind,
     BrowserSortReverse,
@@ -78,6 +79,7 @@ impl From<ConfigKey> for &'static str {
     fn from(c: ConfigKey) -> Self {
         match c {
             ConfigKey::AnswerTimeLimitSecs => "timeLim",
+            ConfigKey::BrowserCardState => "cardState",
             ConfigKey::BrowserSortKind => "sortType",
             ConfigKey::BrowserNoteSortKind => "noteSortType",
             ConfigKey::BrowserSortReverse => "sortBackwards",
@@ -112,6 +114,7 @@ impl From<ConfigKey> for &'static str {
 impl From<BoolKey> for ConfigKey {
     fn from(key: BoolKey) -> Self {
         match key {
+            BoolKey::BrowserCardState => ConfigKey::BrowserCardState,
             BoolKey::BrowserSortBackwards => ConfigKey::BrowserSortReverse,
             BoolKey::BrowserNoteSortBackwards => ConfigKey::BrowserNoteSortReverse,
             BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,

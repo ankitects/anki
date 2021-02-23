@@ -45,7 +45,7 @@ class Table:
         self.col: Collection = browser.col
         self.state: ItemState = (
             CardState(self.col)
-            if self.col.get_config("cardState", True)
+            if self.col.get_config_bool(ConfigBoolKey.BROWSER_CARD_STATE)
             else NoteState(self.col)
         )
         self.model = DataModel(self.col, self.state)
@@ -167,6 +167,7 @@ class Table:
             return
         self._save_selection()
         self.state = self.model.toggle_state()
+        self.col.set_config_bool(ConfigBoolKey.BROWSER_CARD_STATE, self.is_card_state())
         self._set_sort_indicator()
         self._set_column_sizes()
         self._restore_selection(self._toggled_selection)

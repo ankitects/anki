@@ -352,6 +352,7 @@ class Browser(QMainWindow):
     def setup_table(self) -> None:
         self.table = Table(self)
         self.form.radio_cards.setChecked(self.table.is_card_state())
+        self.form.radio_notes.setChecked(not self.table.is_card_state())
         self.table.set_view(self.form.tableView)
 
     def setupEditor(self) -> None:

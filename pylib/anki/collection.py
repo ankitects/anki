@@ -484,7 +484,9 @@ class Collection:
         order: Union[bool, str, BuiltinSortKindValue] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
-        return self._backend.search_cards(search=query, order=self.build_sort_mode(order, reverse))
+        return self._backend.search_cards(
+            search=query, order=self.build_sort_mode(order, reverse)
+        )
 
     def find_notes(
         self,
@@ -492,7 +494,9 @@ class Collection:
         order: Union[bool, str, BuiltinSortKindValue] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
-        return self._backend.search_notes(search=query, order=self.build_sort_mode(order, reverse))
+        return self._backend.search_notes(
+            search=query, order=self.build_sort_mode(order, reverse)
+        )
 
     def find_and_replace(
         self,
@@ -507,7 +511,9 @@ class Collection:
 
     # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        nids = self.find_notes(self.build_search_string(search, SearchTerm(field_name=fieldName)))
+        nids = self.find_notes(
+            self.build_search_string(search, SearchTerm(field_name=fieldName))
+        )
         # go through notes
         vals: Dict[str, List[int]] = {}
         dupes = []
