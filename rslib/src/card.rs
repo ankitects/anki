@@ -232,6 +232,7 @@ impl Collection {
     }
 
     /// Get deck config for the given card. If missing, return default values.
+    #[allow(dead_code)]
     pub(crate) fn deck_config_for_card(&mut self, card: &Card) -> Result<DeckConf> {
         if let Some(deck) = self.get_deck(card.original_or_current_deck_id())? {
             if let Some(conf_id) = deck.config_id() {
