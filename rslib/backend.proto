@@ -117,6 +117,7 @@ service BackendService {
   rpc SortDeck(SortDeckIn) returns (Empty);
   rpc GetNextCardStates(CardID) returns (NextCardStates);
   rpc DescribeNextStates(NextCardStates) returns (StringList);
+  rpc StateIsLeech(SchedulingState) returns (Bool);
   rpc AnswerCard(AnswerCardIn) returns (Empty);
   rpc UpgradeScheduler(Empty) returns (Empty);
 
@@ -1283,6 +1284,7 @@ message SchedulingState {
     uint32 elapsed_days = 2;
     float ease_factor = 3;
     uint32 lapses = 4;
+    bool leeched = 5;
   }
   message Relearning {
     Review review = 1;

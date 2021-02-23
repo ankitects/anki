@@ -32,7 +32,7 @@ pub(crate) struct TransformNoteOutput {
     pub mark_modified: bool,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Note {
     pub id: NoteID,
     pub guid: String,
@@ -466,6 +466,32 @@ impl Collection {
         } else {
             Ok(DuplicateState::Empty)
         }
+    }
+
+    /// Update the tags of the provided note, canonifying before save. Requires a transaction.
+    /// Fixme: this currently pulls in the note type, and does more work than necessary. We
+    /// could add a separate method to the storage layer to just update the tags in the future,
+    /// though  it does slightly complicate the undo story.
+    pub(crate) fn update_note_tags<F>(&mut self, nid: NoteID, mutator: F) -> Result<()>
+    where
+        F: Fn(&mut Vec<String>),
+    {
+        self.transform_notes(&[nid], |note, _nt| {
+            let mut tags = note.tags.clone();
+            mutator(&mut tags);
+            let changed = if tags != note.tags {
+                note.tags = tags;
+                true
+            } else {
+                false
+            };
+            Ok(TransformNoteOutput {
+                changed,
+                generate_cards: false,
+                mark_modified: true,
+            })
+        })
+        .map(|_| ())
     }
 }
 

@@ -19,6 +19,7 @@ pub struct ReviewState {
     pub elapsed_days: u32,
     pub ease_factor: f32,
     pub lapses: u32,
+    pub leeched: bool,
 }
 
 impl Default for ReviewState {
@@ -28,6 +29,7 @@ impl Default for ReviewState {
             elapsed_days: 0,
             ease_factor: INITIAL_EASE_FACTOR,
             lapses: 0,
+            leeched: false,
         }
     }
 }
@@ -71,11 +73,14 @@ impl ReviewState {
     }
 
     fn answer_again(self, ctx: &StateContext) -> CardState {
+        let lapses = self.lapses + 1;
+        let leeched = leech_threshold_met(lapses, ctx.leech_threshold);
         let again_review = ReviewState {
             scheduled_days: self.failing_review_interval(ctx),
             elapsed_days: 0,
             ease_factor: (self.ease_factor + EASE_FACTOR_AGAIN_DELTA).max(MINIMUM_EASE_FACTOR),
-            lapses: self.lapses + 1,
+            lapses,
+            leeched,
         };
 
         if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_relearn() {
@@ -196,6 +201,18 @@ impl ReviewState {
     }
 }
 
+/// True when lapses is at threshold, or every half threshold after that.
+/// Non-even thresholds round up the half threshold.
+fn leech_threshold_met(lapses: u32, threshold: u32) -> bool {
+    if threshold > 0 {
+        let half_threshold = (threshold as f32 / 2.0).ceil().max(1.0) as u32;
+        // at threshold, and every half threshold after that, rounding up
+        lapses >= threshold && (lapses - threshold) % half_threshold == 0
+    } else {
+        false
+    }
+}
+
 /// Transform the provided hard/good/easy interval.
 /// - Apply configured interval multiplier.
 /// - Apply fuzz.
@@ -213,4 +230,38 @@ fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, f
         .max(minimum)
         .min(ctx.maximum_review_interval)
         .max(1)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn leech_threshold() {
+        assert_eq!(leech_threshold_met(0, 3), false);
+        assert_eq!(leech_threshold_met(1, 3), false);
+        assert_eq!(leech_threshold_met(2, 3), false);
+        assert_eq!(leech_threshold_met(3, 3), true);
+        assert_eq!(leech_threshold_met(4, 3), false);
+        assert_eq!(leech_threshold_met(5, 3), true);
+        assert_eq!(leech_threshold_met(6, 3), false);
+        assert_eq!(leech_threshold_met(7, 3), true);
+
+        assert_eq!(leech_threshold_met(7, 8), false);
+        assert_eq!(leech_threshold_met(8, 8), true);
+        assert_eq!(leech_threshold_met(9, 8), false);
+        assert_eq!(leech_threshold_met(10, 8), false);
+        assert_eq!(leech_threshold_met(11, 8), false);
+        assert_eq!(leech_threshold_met(12, 8), true);
+        assert_eq!(leech_threshold_met(13, 8), false);
+
+        // 0 means off
+        assert_eq!(leech_threshold_met(0, 0), false);
+
+        // no div by zero; half of 1 is 1
+        assert_eq!(leech_threshold_met(0, 1), false);
+        assert_eq!(leech_threshold_met(1, 1), true);
+        assert_eq!(leech_threshold_met(2, 1), true);
+        assert_eq!(leech_threshold_met(3, 1), true);
+    }
 }
