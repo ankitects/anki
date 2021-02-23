@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind};
+use super::{
+    parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
+    SearchItems,
+};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -21,55 +24,57 @@ use std::{borrow::Cow, fmt::Write};
 pub(crate) struct SqlWriter<'a> {
     col: &'a mut Collection,
     sql: String,
+    items: SearchItems,
     args: Vec<String>,
     normalize_note_text: bool,
     table: RequiredTable,
 }
 
+impl SearchItems {
+    fn required_table(&self) -> RequiredTable {
+        match self {
+            SearchItems::Cards => RequiredTable::Cards,
+            SearchItems::Notes => RequiredTable::Notes,
+        }
+    }
+}
+
 impl SqlWriter<'_> {
-    pub(crate) fn new(col: &mut Collection) -> SqlWriter<'_> {
+    pub(crate) fn new(col: &mut Collection, items: SearchItems) -> SqlWriter<'_> {
         let normalize_note_text = col.normalize_note_text();
         let sql = String::new();
         let args = vec![];
         SqlWriter {
             col,
             sql,
+            items,
             args,
             normalize_note_text,
-            table: RequiredTable::CardsOrNotes,
+            table: items.required_table(),
         }
     }
 
-    pub(super) fn build_cards_query(
+    pub(super) fn build_query(
         mut self,
         node: &Node,
         table: RequiredTable,
     ) -> Result<(String, Vec<String>)> {
-        self.table = table.combine(node.required_table());
-        self.write_cards_table_sql();
+        self.table = self.table.combine(table.combine(node.required_table()));
+        self.write_table_sql();
         self.write_node_to_sql(&node)?;
         Ok((self.sql, self.args))
     }
 
-    pub(super) fn build_notes_query(mut self, node: &Node) -> Result<(String, Vec<String>)> {
-        self.table = RequiredTable::Notes.combine(node.required_table());
-        self.write_notes_table_sql();
-        self.write_node_to_sql(&node)?;
-        Ok((self.sql, self.args))
-    }
-
-    fn write_cards_table_sql(&mut self) {
+    fn write_table_sql(&mut self) {
         let sql = match self.table {
             RequiredTable::Cards => "select c.id from cards c where ",
-            _ => "select c.id from cards c, notes n where c.nid=n.id and ",
-        };
-        self.sql.push_str(sql);
-    }
-
-    fn write_notes_table_sql(&mut self) {
-        let sql = match self.table {
             RequiredTable::Notes => "select n.id from notes n where ",
-            _ => "select distinct n.id from cards c, notes n where c.nid=n.id and ",
+            _ => match self.items {
+                SearchItems::Cards => "select c.id from cards c, notes n where c.nid=n.id and ",
+                SearchItems::Notes => {
+                    "select distinct n.id from cards c, notes n where c.nid=n.id and "
+                }
+            },
         };
         self.sql.push_str(sql);
     }

@@ -92,8 +92,8 @@ service BackendService {
 
   rpc FilterToSearch(SearchTerm) returns (String);
   rpc NormalizeSearch(String) returns (String);
-  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
-  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
+  rpc SearchCards(SearchIn) returns (SearchOut);
+  rpc SearchNotes(SearchIn) returns (SearchOut);
   rpc NegateSearch(String) returns (String);
   rpc ConcatenateSearches(ConcatenateSearchesIn) returns (String);
   rpc ReplaceSearchTerm(ReplaceSearchTermIn) returns (String);
@@ -726,13 +726,13 @@ message OpenCollectionIn {
   string log_path = 4;
 }
 
-message SearchCardsIn {
+message SearchIn {
   string search = 1;
-  SortOrder order = 2;
+  SortOrder order = 3;
 }
 
-message SearchCardsOut {
-  repeated int64 card_ids = 1;
+message SearchOut {
+  repeated int64 ids = 1;
 }
 
 message SortOrder {
@@ -761,14 +761,6 @@ message SortOrder {
     string custom = 3;
     Builtin builtin = 4;
   }
-}
-
-message SearchNotesIn {
-  string search = 1;
-}
-
-message SearchNotesOut {
-  repeated int64 note_ids = 2;
 }
 
 message SearchTerm {
@@ -1218,12 +1210,13 @@ message SetDeckIn {
 message ConfigBool {
   enum Key {
     BROWSER_SORT_BACKWARDS = 0;
-    PREVIEW_BOTH_SIDES = 1;
-    COLLAPSE_TAGS = 2;
-    COLLAPSE_NOTETYPES = 3;
-    COLLAPSE_DECKS = 4;
-    COLLAPSE_FAVORITES = 5;
-    COLLAPSE_COMMON = 6;
+    BROWSER_NOTE_SORT_BACKWARDS = 1;
+    PREVIEW_BOTH_SIDES = 2;
+    COLLAPSE_TAGS = 3;
+    COLLAPSE_NOTETYPES = 4;
+    COLLAPSE_DECKS = 5;
+    COLLAPSE_FAVORITES = 6;
+    COLLAPSE_COMMON = 7;
   }
   Key key = 1;
 }

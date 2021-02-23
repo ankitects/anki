@@ -40,7 +40,9 @@ pub(crate) fn schema11_config_as_string() -> String {
 pub(crate) enum ConfigKey {
     AnswerTimeLimitSecs,
     BrowserSortKind,
+    BrowserNoteSortKind,
     BrowserSortReverse,
+    BrowserNoteSortReverse,
     CardCountsSeparateInactive,
     CollapseCommon,
     CollapseDecks,
@@ -77,7 +79,9 @@ impl From<ConfigKey> for &'static str {
         match c {
             ConfigKey::AnswerTimeLimitSecs => "timeLim",
             ConfigKey::BrowserSortKind => "sortType",
+            ConfigKey::BrowserNoteSortKind => "noteSortType",
             ConfigKey::BrowserSortReverse => "sortBackwards",
+            ConfigKey::BrowserNoteSortReverse => "noteSortBackwards",
             ConfigKey::CardCountsSeparateInactive => "cardCountsSeparateInactive",
             ConfigKey::CollapseCommon => "collapseCommon",
             ConfigKey::CollapseDecks => "collapseDecks",
@@ -109,6 +113,7 @@ impl From<BoolKey> for ConfigKey {
     fn from(key: BoolKey) -> Self {
         match key {
             BoolKey::BrowserSortBackwards => ConfigKey::BrowserSortReverse,
+            BoolKey::BrowserNoteSortBackwards => ConfigKey::BrowserNoteSortReverse,
             BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,
             BoolKey::CollapseTags => ConfigKey::CollapseTags,
             BoolKey::CollapseNotetypes => ConfigKey::CollapseNotetypes,
@@ -170,8 +175,17 @@ impl Collection {
         self.get_config_default(ConfigKey::BrowserSortKind)
     }
 
+    pub(crate) fn get_browser_note_sort_kind(&self) -> SortKind {
+        self.get_config_default(ConfigKey::BrowserNoteSortKind)
+    }
+
     pub(crate) fn get_browser_sort_reverse(&self) -> bool {
         let b: BoolLike = self.get_config_default(ConfigKey::BrowserSortReverse);
+        b.0
+    }
+
+    pub(crate) fn get_browser_note_sort_reverse(&self) -> bool {
+        let b: BoolLike = self.get_config_default(ConfigKey::BrowserNoteSortReverse);
         b.0
     }
 

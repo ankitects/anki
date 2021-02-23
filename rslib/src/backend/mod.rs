@@ -515,21 +515,22 @@ impl BackendService for Backend {
         Ok(normalize_search(&input.val)?.into())
     }
 
-    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+    fn search_cards(&self, input: pb::SearchIn) -> Result<pb::SearchOut> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchCardsOut {
-                card_ids: cids.into_iter().map(|v| v.0).collect(),
+            let cids = col.search::<CardID>(&input.search, order)?;
+            Ok(pb::SearchOut {
+                ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
-    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+    fn search_notes(&self, input: pb::SearchIn) -> Result<pb::SearchOut> {
         self.with_col(|col| {
-            let nids = col.search_notes(&input.search)?;
-            Ok(pb::SearchNotesOut {
-                note_ids: nids.into_iter().map(|v| v.0).collect(),
+            let order = input.order.unwrap_or_default().value.into();
+            let nids = col.search::<NoteID>(&input.search, order)?;
+            Ok(pb::SearchOut {
+                ids: nids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
