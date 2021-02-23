@@ -167,7 +167,7 @@ impl Timespan {
 mod test {
     use crate::i18n::I18n;
     use crate::log;
-    use crate::sched::timespan::{answer_button_time, time_span, MONTH};
+    use crate::scheduler::timespan::{answer_button_time, time_span, MONTH};
 
     #[test]
     fn answer_buttons() {

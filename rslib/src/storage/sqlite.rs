@@ -5,7 +5,7 @@ use crate::config::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining};
+use crate::{i18n::I18n, scheduler::cutoff::v1_creation_date, text::without_combining};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;

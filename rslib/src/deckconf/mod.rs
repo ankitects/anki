@@ -5,7 +5,7 @@ use crate::{
     collection::Collection,
     define_newtype,
     err::{AnkiError, Result},
-    sched::states::review::INITIAL_EASE_FACTOR,
+    scheduler::states::review::INITIAL_EASE_FACTOR,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
