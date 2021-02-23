@@ -31,7 +31,7 @@ export function onFocus(evt: FocusEvent): void {
     const previousFocus = evt.relatedTarget as EditingArea;
 
     if (previousFocus === previousActiveElement || !previousFocus) {
-        focusField(currentField)
+        focusField(currentField);
     }
 }
 
