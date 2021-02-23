@@ -4,30 +4,31 @@
         <meta charset="utf-8" />
         <meta name="viewport" id="viewport" content="width=device-width" />
         <link href="graphs.css" rel="stylesheet" />
+        <script src="../js/vendor/protobuf.min.js"></script>
+        <script src="graphs.js"></script>
     </head>
     <body>
         <div id="main"></div>
+
+        <script>
+            anki.graphs(
+                document.getElementById("main"),
+                [
+                    anki.TodayStats,
+                    anki.FutureDue,
+                    anki.CalendarGraph,
+                    anki.ReviewsGraph,
+                    anki.CardCounts,
+                    anki.IntervalsGraph,
+                    anki.EaseGraph,
+                    anki.HourGraph,
+                    anki.ButtonsGraph,
+                    anki.AddedGraph,
+                ],
+                {
+                    controller: anki.RangeBox,
+                }
+            );
+        </script>
     </body>
-    <script src="../js/vendor/protobuf.min.js"></script>
-    <script src="graphs.js"></script>
-    <script>
-        anki.graphs(
-            document.getElementById("main"),
-            [
-                anki.TodayStats,
-                anki.FutureDue,
-                anki.CalendarGraph,
-                anki.ReviewsGraph,
-                anki.CardCounts,
-                anki.IntervalsGraph,
-                anki.EaseGraph,
-                anki.HourGraph,
-                anki.ButtonsGraph,
-                anki.AddedGraph,
-            ],
-            {
-                controller: anki.RangeBox,
-            }
-        );
-    </script>
 </html>
