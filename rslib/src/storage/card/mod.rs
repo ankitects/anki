@@ -7,7 +7,7 @@ use crate::{
     decks::{Deck, DeckID, DeckKind},
     err::Result,
     notes::NoteID,
-    sched::congrats::CongratsInfo,
+    scheduler::congrats::CongratsInfo,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };

@@ -4,7 +4,7 @@
 use crate::{
     backend_proto as pb,
     prelude::*,
-    sched::answering::{CardAnswer, Rating},
+    scheduler::answering::{CardAnswer, Rating},
 };
 
 impl From<pb::AnswerCardIn> for CardAnswer {

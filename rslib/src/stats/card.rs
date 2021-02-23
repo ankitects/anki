@@ -6,7 +6,7 @@ use crate::{
     i18n::I18n,
     prelude::*,
     revlog::{RevlogEntry, RevlogReviewKind},
-    sched::timespan::time_span,
+    scheduler::timespan::time_span,
 };
 use askama::Template;
 use chrono::prelude::*;

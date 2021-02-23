@@ -26,7 +26,7 @@ pub mod notetype;
 mod preferences;
 pub mod prelude;
 pub mod revlog;
-pub mod sched;
+pub mod scheduler;
 pub mod search;
 pub mod serde;
 mod stats;

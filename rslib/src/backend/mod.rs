@@ -30,7 +30,7 @@ use crate::{
     notetype::{
         all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeSchema11, RenderCardOutput,
     },
-    sched::{
+    scheduler::{
         new::NewCardSortOrder,
         parse_due_date_str,
         states::{CardState, NextCardStates},
@@ -71,7 +71,7 @@ use tokio::runtime::{self, Runtime};
 mod dbproxy;
 mod generic;
 mod http_sync_server;
-mod sched;
+mod scheduler;
 
 struct ThrottlingProgressHandler {
     state: Arc<Mutex<ProgressState>>,
@@ -2059,8 +2059,8 @@ fn pbcard_to_native(c: pb::Card) -> Result<Card> {
     })
 }
 
-impl From<crate::sched::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
-    fn from(t: crate::sched::cutoff::SchedTimingToday) -> pb::SchedTimingTodayOut {
+impl From<crate::scheduler::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
+    fn from(t: crate::scheduler::cutoff::SchedTimingToday) -> pb::SchedTimingTodayOut {
         pb::SchedTimingTodayOut {
             days_elapsed: t.days_elapsed,
             next_day_at: t.next_day_at,

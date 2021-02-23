@@ -12,7 +12,7 @@ mod review;
 
 use crate::{
     backend_proto as pb,
-    sched::states::{CardState, NewState, NextCardStates, NormalState},
+    scheduler::states::{CardState, NewState, NextCardStates, NormalState},
 };
 
 impl From<NextCardStates> for pb::NextCardStates {
