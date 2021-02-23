@@ -76,6 +76,35 @@ impl Deck {
         }
     }
 
+    // used by tests at the moment
+
+    #[allow(dead_code)]
+    pub(crate) fn normal(&self) -> Result<&NormalDeck> {
+        if let DeckKind::Normal(normal) = &self.kind {
+            Ok(normal)
+        } else {
+            Err(AnkiError::invalid_input("deck not normal"))
+        }
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn normal_mut(&mut self) -> Result<&mut NormalDeck> {
+        if let DeckKind::Normal(normal) = &mut self.kind {
+            Ok(normal)
+        } else {
+            Err(AnkiError::invalid_input("deck not normal"))
+        }
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn filtered_mut(&mut self) -> Result<&mut FilteredDeck> {
+        if let DeckKind::Filtered(filtered) = &mut self.kind {
+            Ok(filtered)
+        } else {
+            Err(AnkiError::invalid_input("deck not filtered"))
+        }
+    }
+
     pub fn human_name(&self) -> String {
         self.name.replace("\x1f", "::")
     }
