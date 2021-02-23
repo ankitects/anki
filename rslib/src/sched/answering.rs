@@ -37,14 +37,12 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
 }
 
-// FIXME: suspension
-// fixme: fuzz learning intervals, graduating intervals
 // fixme: 4 buttons for previewing
 // fixme: log previewing
-// fixme: - undo
+// fixme: undo
 
-/// Information needed when answering a card.
-struct AnswerContext {
+struct CardStateUpdater {
+    card: Card,
     deck: Deck,
     config: DeckConf,
     timing: SchedTimingToday,
@@ -52,7 +50,7 @@ struct AnswerContext {
     fuzz_seed: Option<u64>,
 }
 
-impl AnswerContext {
+impl CardStateUpdater {
     fn state_context(&self) -> StateContext<'_> {
         StateContext {
             fuzz_seed: self.fuzz_seed,
@@ -80,16 +78,13 @@ impl AnswerContext {
         (self.timing.next_day_at - self.now.0).max(0) as u32
     }
 
-    fn normal_study_state(
-        &self,
-        ctype: CardType,
-        due: i32,
-        interval: u32,
-        lapses: u32,
-        ease_factor: f32,
-        remaining_steps: u32,
-    ) -> NormalState {
-        match ctype {
+    fn normal_study_state(&self, due: i32) -> NormalState {
+        let interval = self.card.interval;
+        let lapses = self.card.lapses;
+        let ease_factor = self.card.ease_factor();
+        let remaining_steps = self.card.remaining_steps();
+
+        match self.card.ctype {
             CardType::New => NormalState::New(NewState {
                 position: due.max(0) as u32,
             }),
@@ -126,36 +121,28 @@ impl AnswerContext {
         }
     }
 
-    // FIXME: context depends on deck conf, but card passed in later - needs rethink
-    fn current_card_state(&self, card: &Card) -> CardState {
-        let interval = card.interval;
-        let lapses = card.lapses;
-        let ease_factor = card.ease_factor();
-        let remaining_steps = card.remaining_steps();
-        let ctype = card.ctype;
-
+    fn current_card_state(&self) -> CardState {
         let due = match &self.deck.kind {
             DeckKind::Normal(_) => {
                 // if not in a filtered deck, ensure due time is not before today,
                 // which avoids tripping up test_nextIvl() in the Python tests
-                if matches!(ctype, CardType::Review) {
-                    card.due.min(self.timing.days_elapsed as i32)
+                if matches!(self.card.ctype, CardType::Review) {
+                    self.card.due.min(self.timing.days_elapsed as i32)
                 } else {
-                    card.due
+                    self.card.due
                 }
             }
             DeckKind::Filtered(_) => {
-                if card.original_due != 0 {
-                    card.original_due
+                if self.card.original_due != 0 {
+                    self.card.original_due
                 } else {
                     // v2 scheduler resets original_due on first answer
-                    card.due
+                    self.card.due
                 }
             }
         };
 
-        let normal_state =
-            self.normal_study_state(ctype, due, interval, lapses, ease_factor, remaining_steps);
+        let normal_state = self.normal_study_state(due);
 
         match &self.deck.kind {
             // normal decks have normal state
@@ -178,6 +165,10 @@ impl AnswerContext {
         }
     }
 
+    fn into_card(self) -> Card {
+        self.card
+    }
+
     fn learn_steps(&self) -> LearningSteps<'_> {
         LearningSteps::new(&self.config.inner.learn_steps)
     }
@@ -185,38 +176,35 @@ impl AnswerContext {
     fn relearn_steps(&self) -> LearningSteps<'_> {
         LearningSteps::new(&self.config.inner.relearn_steps)
     }
-}
 
-impl Card {
     fn apply_study_state(
         &mut self,
         current: CardState,
         next: CardState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
         // any non-preview answer resets card.odue and increases reps
         if !matches!(current, CardState::Filtered(FilteredState::Preview(_))) {
-            self.reps += 1;
-            self.original_due = 0;
+            self.card.reps += 1;
+            self.card.original_due = 0;
         }
 
         let revlog = match next {
             CardState::Normal(normal) => match normal {
-                NormalState::New(next) => self.apply_new_state(current, next, ctx),
-                NormalState::Learning(next) => self.apply_learning_state(current, next, ctx),
-                NormalState::Review(next) => self.apply_review_state(current, next, ctx),
-                NormalState::Relearning(next) => self.apply_relearning_state(current, next, ctx),
+                NormalState::New(next) => self.apply_new_state(current, next),
+                NormalState::Learning(next) => self.apply_learning_state(current, next),
+                NormalState::Review(next) => self.apply_review_state(current, next),
+                NormalState::Relearning(next) => self.apply_relearning_state(current, next),
             },
             CardState::Filtered(filtered) => match filtered {
-                FilteredState::Preview(next) => self.apply_preview_state(current, next, ctx),
+                FilteredState::Preview(next) => self.apply_preview_state(current, next),
                 FilteredState::Rescheduling(next) => {
-                    self.apply_rescheduling_state(current, next, ctx)
+                    self.apply_rescheduling_filter_state(current, next)
                 }
             },
         }?;
 
-        if next.leeched() && ctx.config.inner.leech_action() == LeechAction::Suspend {
-            self.queue = CardQueue::Suspended;
+        if next.leeched() && self.config.inner.leech_action() == LeechAction::Suspend {
+            self.card.queue = CardQueue::Suspended;
         }
 
         Ok(revlog)
@@ -226,17 +214,16 @@ impl Card {
         &mut self,
         current: CardState,
         next: NewState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
-        self.ctype = CardType::New;
-        self.queue = CardQueue::New;
-        self.due = next.position as i32;
+        self.card.ctype = CardType::New;
+        self.card.queue = CardQueue::New;
+        self.card.due = next.position as i32;
 
         Ok(RevlogEntryPartial::maybe_new(
             current,
             next.into(),
             0.0,
-            ctx.secs_until_rollover(),
+            self.secs_until_rollover(),
         ))
     }
 
@@ -244,22 +231,21 @@ impl Card {
         &mut self,
         current: CardState,
         next: LearnState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
-        self.remaining_steps = next.remaining_steps;
-        self.ctype = CardType::Learn;
+        self.card.remaining_steps = next.remaining_steps;
+        self.card.ctype = CardType::Learn;
 
         let interval = next
             .interval_kind()
-            .maybe_as_days(ctx.secs_until_rollover());
+            .maybe_as_days(self.secs_until_rollover());
         match interval {
             IntervalKind::InSecs(secs) => {
-                self.queue = CardQueue::Learn;
-                self.due = TimestampSecs::now().0 as i32 + secs as i32;
+                self.card.queue = CardQueue::Learn;
+                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
             }
             IntervalKind::InDays(days) => {
-                self.queue = CardQueue::DayLearn;
-                self.due = (ctx.timing.days_elapsed + days) as i32;
+                self.card.queue = CardQueue::DayLearn;
+                self.card.due = (self.timing.days_elapsed + days) as i32;
             }
         }
 
@@ -267,7 +253,7 @@ impl Card {
             current,
             next.into(),
             0.0,
-            ctx.secs_until_rollover(),
+            self.secs_until_rollover(),
         ))
     }
 
@@ -275,22 +261,20 @@ impl Card {
         &mut self,
         current: CardState,
         next: ReviewState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
-        self.remove_from_filtered_deck_before_reschedule();
-
-        self.queue = CardQueue::Review;
-        self.ctype = CardType::Review;
-        self.interval = next.scheduled_days;
-        self.due = (ctx.timing.days_elapsed + next.scheduled_days) as i32;
-        self.ease_factor = (next.ease_factor * 1000.0).round() as u16;
-        self.lapses = next.lapses;
+        self.card.remove_from_filtered_deck_before_reschedule();
+        self.card.queue = CardQueue::Review;
+        self.card.ctype = CardType::Review;
+        self.card.interval = next.scheduled_days;
+        self.card.due = (self.timing.days_elapsed + next.scheduled_days) as i32;
+        self.card.ease_factor = (next.ease_factor * 1000.0).round() as u16;
+        self.card.lapses = next.lapses;
 
         Ok(RevlogEntryPartial::maybe_new(
             current,
             next.into(),
             next.ease_factor,
-            ctx.secs_until_rollover(),
+            self.secs_until_rollover(),
         ))
     }
 
@@ -298,23 +282,22 @@ impl Card {
         &mut self,
         current: CardState,
         next: RelearnState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
-        self.interval = next.review.scheduled_days;
-        self.remaining_steps = next.learning.remaining_steps;
-        self.ctype = CardType::Relearn;
+        self.card.interval = next.review.scheduled_days;
+        self.card.remaining_steps = next.learning.remaining_steps;
+        self.card.ctype = CardType::Relearn;
 
         let interval = next
             .interval_kind()
-            .maybe_as_days(ctx.secs_until_rollover());
+            .maybe_as_days(self.secs_until_rollover());
         match interval {
             IntervalKind::InSecs(secs) => {
-                self.queue = CardQueue::Learn;
-                self.due = TimestampSecs::now().0 as i32 + secs as i32;
+                self.card.queue = CardQueue::Learn;
+                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
             }
             IntervalKind::InDays(days) => {
-                self.queue = CardQueue::DayLearn;
-                self.due = (ctx.timing.days_elapsed + days) as i32;
+                self.card.queue = CardQueue::DayLearn;
+                self.card.due = (self.timing.days_elapsed + days) as i32;
             }
         }
 
@@ -322,7 +305,7 @@ impl Card {
             current,
             next.into(),
             next.review.ease_factor,
-            ctx.secs_until_rollover(),
+            self.secs_until_rollover(),
         ))
     }
 
@@ -332,15 +315,14 @@ impl Card {
         &mut self,
         current: CardState,
         next: PreviewState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
         self.ensure_filtered()?;
-        self.queue = CardQueue::PreviewRepeat;
+        self.card.queue = CardQueue::PreviewRepeat;
 
         let interval = next.interval_kind();
         match interval {
             IntervalKind::InSecs(secs) => {
-                self.due = TimestampSecs::now().0 as i32 + secs as i32;
+                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
             }
             IntervalKind::InDays(_days) => {
                 unreachable!()
@@ -351,23 +333,21 @@ impl Card {
             current,
             next.into(),
             0.0,
-            ctx.secs_until_rollover(),
+            self.secs_until_rollover(),
         ))
     }
 
-    // fixme: better name
-    fn apply_rescheduling_state(
+    fn apply_rescheduling_filter_state(
         &mut self,
         current: CardState,
         next: ReschedulingFilterState,
-        ctx: &AnswerContext,
     ) -> Result<Option<RevlogEntryPartial>> {
         self.ensure_filtered()?;
-        self.apply_study_state(current, next.original_state.into(), ctx)
+        self.apply_study_state(current, next.original_state.into())
     }
 
     fn ensure_filtered(&self) -> Result<()> {
-        if self.original_deck_id.0 == 0 {
+        if self.card.original_deck_id.0 == 0 {
             Err(AnkiError::invalid_input(
                 "card answering can't transition into filtered state",
             ))
@@ -376,6 +356,8 @@ impl Card {
         }
     }
 }
+
+impl Card {}
 
 impl Rating {
     fn as_number(self) -> u8 {
@@ -488,12 +470,14 @@ impl Collection {
     }
 
     fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {
-        let mut card = self
+        let card = self
             .storage
             .get_card(answer.card_id)?
             .ok_or(AnkiError::NotFound)?;
-        let answer_context = self.answer_context(&card)?;
-        let current_state = answer_context.current_card_state(&card);
+        let original = card.clone();
+        let usn = self.usn()?;
+        let mut answer_context = self.answer_context(card)?;
+        let current_state = answer_context.current_card_state();
         if current_state != answer.current_state {
             // fixme: unique error
             return Err(AnkiError::invalid_input(format!(
@@ -501,11 +485,9 @@ impl Collection {
                 current_state, answer.current_state,
             )));
         }
-        let original = card.clone();
-        let usn = self.usn()?;
 
         if let Some(revlog_partial) =
-            card.apply_study_state(current_state, answer.new_state, &answer_context)?
+            answer_context.apply_study_state(current_state, answer.new_state)?
         {
             let button_chosen = answer.rating.as_number();
             let revlog = revlog_partial.into_revlog_entry(
@@ -516,10 +498,6 @@ impl Collection {
                 answer.milliseconds_taken,
             );
             self.storage.add_revlog_entry(&revlog)?;
-        }
-        self.update_card(&mut card, &original, usn)?;
-        if answer.new_state.leeched() {
-            self.add_leech_tag(card.note_id)?;
         }
 
         // fixme: we're reusing code used by python, which means re-feteching the target deck
@@ -544,28 +522,54 @@ impl Collection {
             },
         )?;
 
+        let mut card = answer_context.into_card();
+        self.update_card(&mut card, &original, usn)?;
+        if answer.new_state.leeched() {
+            self.add_leech_tag(card.note_id)?;
+        }
+
         Ok(())
     }
 
-    fn answer_context(&mut self, card: &Card) -> Result<AnswerContext> {
+    fn answer_context(&mut self, card: Card) -> Result<CardStateUpdater> {
         let timing = self.timing_today()?;
-        Ok(AnswerContext {
-            // fixme: fetching deck twice
-            deck: self
-                .storage
-                .get_deck(card.deck_id)?
-                .ok_or(AnkiError::NotFound)?,
-            config: self.deck_config_for_card(card)?,
+        let deck = self
+            .storage
+            .get_deck(card.deck_id)?
+            .ok_or(AnkiError::NotFound)?;
+        let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
+        Ok(CardStateUpdater {
+            fuzz_seed: get_fuzz_seed(&card),
+            card,
+            deck,
+            config,
             timing,
             now: TimestampSecs::now(),
-            fuzz_seed: get_fuzz_seed(card),
         })
+    }
+
+    fn home_deck_config(
+        &self,
+        config_id: Option<DeckConfID>,
+        home_deck_id: DeckID,
+    ) -> Result<DeckConf> {
+        let config_id = if let Some(config_id) = config_id {
+            config_id
+        } else {
+            let home_deck = self
+                .storage
+                .get_deck(home_deck_id)?
+                .ok_or(AnkiError::NotFound)?;
+            home_deck.config_id().ok_or(AnkiError::NotFound)?
+        };
+
+        Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())
     }
 
     pub fn get_next_card_states(&mut self, cid: CardID) -> Result<NextCardStates> {
         let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
-        let ctx = self.answer_context(&card)?;
-        let current = ctx.current_card_state(&card);
+        let ctx = self.answer_context(card)?;
+        let current = ctx.current_card_state();
         let state_ctx = ctx.state_context();
         Ok(current.next_states(&state_ctx))
     }
