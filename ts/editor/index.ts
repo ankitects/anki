@@ -5,7 +5,7 @@ import { nodeIsInline } from "./helpers";
 import { bridgeCommand } from "./lib";
 import { saveField } from "./changeTimer";
 import { filterHTML } from "./htmlFilter";
-import { updateButtonState, maybeDisableButtons } from "./toolbar";
+import { updateButtonState } from "./toolbar";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
 
@@ -298,8 +298,6 @@ export function setFields(fields: [string, string][]): void {
     forEditorField(fields, (field, [name, fieldContent]) =>
         field.initialize(name, color, fieldContent)
     );
-
-    maybeDisableButtons();
 }
 
 export function setBackgrounds(cols: ("dupe" | "")[]) {
