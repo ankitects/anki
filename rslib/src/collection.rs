@@ -42,7 +42,13 @@ pub fn open_collection<P: Into<PathBuf>>(
 
 #[cfg(test)]
 pub fn open_test_collection() -> Collection {
-    open_test_collection_with_server(false)
+    use crate::config::SchedulerVersion;
+    let col = open_test_collection_with_server(false);
+    // our unit tests assume v2 is the default, but at the time of writing v1
+    // is still the default
+    col.set_scheduler_version_config_key(SchedulerVersion::V2)
+        .unwrap();
+    col
 }
 
 #[cfg(test)]

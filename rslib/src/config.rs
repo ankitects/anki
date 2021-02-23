@@ -70,7 +70,7 @@ pub(crate) enum ConfigKey {
     ShowIntervalsAboveAnswerButtons,
     ShowRemainingDueCountsInStudy,
 }
-#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
+#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
 #[repr(u8)]
 pub(crate) enum SchedulerVersion {
     V1 = 1,
