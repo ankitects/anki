@@ -5,37 +5,14 @@ use crate::{
     card::CardType,
     decks::DeckKind,
     scheduler::states::{
-        steps::LearningSteps, CardState, LearnState, NewState, NormalState, PreviewState,
-        RelearnState, ReschedulingFilterState, ReviewState, StateContext,
+        CardState, LearnState, NewState, NormalState, PreviewState, RelearnState,
+        ReschedulingFilterState, ReviewState,
     },
 };
 
 use super::CardStateUpdater;
 
 impl CardStateUpdater {
-    pub(crate) fn state_context(&self) -> StateContext<'_> {
-        StateContext {
-            fuzz_seed: self.fuzz_seed,
-            steps: self.learn_steps(),
-            graduating_interval_good: self.config.inner.graduating_interval_good,
-            graduating_interval_easy: self.config.inner.graduating_interval_easy,
-            hard_multiplier: self.config.inner.hard_multiplier,
-            easy_multiplier: self.config.inner.easy_multiplier,
-            interval_multiplier: self.config.inner.interval_multiplier,
-            maximum_review_interval: self.config.inner.maximum_review_interval,
-            leech_threshold: self.config.inner.leech_threshold,
-            relearn_steps: self.relearn_steps(),
-            lapse_multiplier: self.config.inner.lapse_multiplier,
-            minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
-            in_filtered_deck: self.deck.is_filtered(),
-            preview_step: if let DeckKind::Filtered(deck) = &self.deck.kind {
-                deck.preview_delay
-            } else {
-                0
-            },
-        }
-    }
-
     pub(crate) fn current_card_state(&self) -> CardState {
         let due = match &self.deck.kind {
             DeckKind::Normal(_) => {
@@ -121,13 +98,5 @@ impl CardStateUpdater {
             }
             .into(),
         }
-    }
-
-    fn learn_steps(&self) -> LearningSteps<'_> {
-        LearningSteps::new(&self.config.inner.learn_steps)
-    }
-
-    fn relearn_steps(&self) -> LearningSteps<'_> {
-        LearningSteps::new(&self.config.inner.relearn_steps)
     }
 }
