@@ -70,6 +70,7 @@ class DeckConf(QDialog):
         self.set_custom_searches(search, search_2)
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
+        qconnect(self.form.hint_button.clicked, self.on_hint_button)
         color = theme_manager.color(colors.LINK)
         self.setStyleSheet(
             f"""QPushButton[flat=true] {{ text-align: left; color: {color}; padding: 0; border: 0 }}
@@ -157,6 +158,54 @@ class DeckConf(QDialog):
         except InvalidInput as err:
             line.setFocus()
             line.selectAll()
+            show_invalid_search_error(err)
+        else:
+            aqt.dialogs.open("Browser", self.mw, search=(search,))
+
+    def on_hint_button(self) -> None:
+        """Open the browser to show cards that match the typed-in filters but cannot be included
+        due to internal limitations.
+        """
+        manual_filters = [self.form.search.text()]
+        if self.form.secondFilter.isChecked():
+            manual_filters.append(self.form.search_2.text())
+
+        implicit_filters = [
+            SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
+            SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
+        ]
+
+        if self.col.schedVer() == 1:
+            # v1 scheduler cannot include learning cards
+            if self.did is None:
+                # rebuild will reset learning cards from this deck so they can be included
+                implicit_filters.append(
+                    self.col.group_searches(
+                        SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
+                        SearchNode(negated=SearchNode(deck=self.deck["name"])),
+                    )
+                )
+            else:
+                implicit_filters.append(
+                    SearchNode(card_state=SearchNode.CARD_STATE_LEARN)
+                )
+
+        if self.did is None:
+            # rebuild; old filtered deck will be emptied, so cards can be included
+            implicit_filters.append(
+                self.col.group_searches(
+                    SearchNode(deck="filtered"),
+                    SearchNode(negated=SearchNode(deck=self.deck["name"])),
+                )
+            )
+        else:
+            implicit_filters.append(SearchNode(deck="filtered"))
+
+        manual_filter = self.col.group_searches(*manual_filters, joiner="OR")
+        implicit_filter = self.col.group_searches(*implicit_filters, joiner="OR")
+        try:
+            search = self.col.build_search_string(manual_filter, implicit_filter)
+        except InvalidInput as err:
             show_invalid_search_error(err)
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
