@@ -71,10 +71,13 @@ class DeckConf(QDialog):
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
         qconnect(self.form.hint_button.clicked, self.on_hint_button)
-        color = theme_manager.color(colors.LINK)
+        blue = theme_manager.color(colors.LINK)
+        grey = theme_manager.color(colors.DISABLED)
         self.setStyleSheet(
-            f"""QPushButton[flat=true] {{ text-align: left; color: {color}; padding: 0; border: 0 }}
-            QPushButton[flat=true]:hover {{ text-decoration: underline }}"""
+            f"""QPushButton[label] {{ padding: 0; border: 0 }}
+            QPushButton[label]:hover {{ text-decoration: underline }}
+            QPushButton[label="search"] {{ text-align: left; color: {blue} }}
+            QPushButton[label="hint"] {{ text-align: right; color: {grey} }}"""
         )
         disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
