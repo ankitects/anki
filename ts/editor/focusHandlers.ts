@@ -1,30 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import type { EditingArea, EditorField } from ".";
+import type { EditingArea } from ".";
 
 import { bridgeCommand } from "./lib";
 import { enableButtons, disableButtons } from "./toolbar";
 import { saveField } from "./changeTimer";
-
-enum ViewportRelativePosition {
-    Contained,
-    ExceedTop,
-    ExceedBottom,
-}
-
-function isFieldInViewport(
-    element: Element,
-    toolbarHeight: number
-): ViewportRelativePosition {
-    const rect = element.getBoundingClientRect();
-
-    return rect.top <= toolbarHeight
-        ? ViewportRelativePosition.ExceedTop
-        : rect.bottom >= (window.innerHeight || document.documentElement.clientHeight)
-        ? ViewportRelativePosition.ExceedBottom
-        : ViewportRelativePosition.Contained;
-}
 
 function caretToEnd(currentField: EditingArea): void {
     const range = document.createRange();
@@ -35,45 +16,30 @@ function caretToEnd(currentField: EditingArea): void {
     selection.addRange(range);
 }
 
+function focusField(field: EditingArea) {
+    field.focusEditable();
+    bridgeCommand(`focus:${field.ord}`);
+    enableButtons();
+    caretToEnd(field);
+}
+
 // For distinguishing focus by refocusing window from deliberate focus
 let previousActiveElement: EditingArea | null = null;
 
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
+    const previousFocus = evt.relatedTarget as EditingArea;
 
-    if (currentField === previousActiveElement) {
-        return;
+    if (previousFocus === previousActiveElement || !previousFocus) {
+        focusField(currentField)
     }
-
-    const editorField = currentField.parentElement! as EditorField;
-    const toolbarHeight = document.getElementById("topbutsOuter")!.clientHeight;
-    switch (isFieldInViewport(editorField, toolbarHeight)) {
-        case ViewportRelativePosition.ExceedBottom:
-            editorField.scrollIntoView(false);
-            break;
-        case ViewportRelativePosition.ExceedTop:
-            editorField.scrollIntoView(true);
-            window.scrollBy(0, -toolbarHeight);
-            break;
-    }
-
-    currentField.focusEditable();
-    bridgeCommand(`focus:${currentField.ord}`);
-    enableButtons();
-    // do this twice so that there's no flicker on newer versions
-    caretToEnd(currentField);
 }
 
 export function onBlur(evt: FocusEvent): void {
-    const currentField = evt.currentTarget as EditingArea;
+    const previousFocus = evt.currentTarget as EditingArea;
 
-    if (currentField === document.activeElement) {
-        // other widget or window focused; current field unchanged
-        saveField(currentField, "key");
-        previousActiveElement = currentField;
-    } else {
-        saveField(currentField, "blur");
-        disableButtons();
-        previousActiveElement = null;
-    }
+    saveField(previousFocus, previousFocus === document.activeElement ? "key" : "blur");
+    // other widget or window focused; current field unchanged
+    previousActiveElement = previousFocus;
+    disableButtons();
 }

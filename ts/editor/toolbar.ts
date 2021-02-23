@@ -1,8 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { EditingArea } from ".";
-
 export function updateButtonState(): void {
     const buts = ["bold", "italic", "underline", "superscript", "subscript"];
     for (const name of buts) {
@@ -28,15 +26,6 @@ export function disableButtons(): void {
 
 export function enableButtons(): void {
     $("button.linkb").prop("disabled", false);
-}
-
-// disable the buttons if a field is not currently focused
-export function maybeDisableButtons(): void {
-    if (document.activeElement instanceof EditingArea) {
-        enableButtons();
-    } else {
-        disableButtons();
-    }
 }
 
 export function setFGButton(col: string): void {
