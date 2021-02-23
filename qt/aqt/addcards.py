@@ -145,7 +145,9 @@ class AddCards(QDialog):
     def onHistory(self) -> None:
         m = QMenu(self)
         for nid in self.history:
-            if self.mw.col.findNotes(SearchTerm(nid=nid)):
+            if self.mw.col.find_notes(
+                self.col.build_search_string(SearchTerm(nid=nid))
+            ):
                 note = self.mw.col.getNote(nid)
                 fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))

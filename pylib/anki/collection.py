@@ -465,27 +465,34 @@ class Collection:
     # col.find_cards("", order=BuiltinSortKind.CARD_DUE)
     # the reverse argument only applies when a BuiltinSortKind is provided;
     # otherwise the collection config defines whether reverse is set or not
+    @staticmethod
+    def build_sort_mode(
+        order: Union[bool, str, BuiltinSortKindValue],
+        reverse: bool,
+    ) -> _pb.SortOrder:
+        if isinstance(order, str):
+            return _pb.SortOrder(custom=order)
+        if isinstance(order, bool):
+            if order is True:
+                return _pb.SortOrder(from_config=_pb.Empty())
+            return _pb.SortOrder(none=_pb.Empty())
+        return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse))
+
     def find_cards(
         self,
         query: str,
         order: Union[bool, str, BuiltinSortKindValue] = False,
         reverse: bool = False,
     ) -> Sequence[int]:
-        if isinstance(order, str):
-            mode = _pb.SortOrder(custom=order)
-        elif isinstance(order, bool):
-            if order is True:
-                mode = _pb.SortOrder(from_config=_pb.Empty())
-            else:
-                mode = _pb.SortOrder(none=_pb.Empty())
-        else:
-            mode = _pb.SortOrder(
-                builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
-            )
-        return self._backend.search_cards(search=query, order=mode)
+        return self._backend.search_cards(search=query, order=self.build_sort_mode(order, reverse))
 
-    def find_notes(self, *terms: Union[str, SearchTerm]) -> Sequence[int]:
-        return self._backend.search_notes(self.build_search_string(*terms))
+    def find_notes(
+        self,
+        query: str,
+        order: Union[bool, str, BuiltinSortKindValue] = False,
+        reverse: bool = False,
+    ) -> Sequence[int]:
+        return self._backend.search_notes(search=query, order=self.build_sort_mode(order, reverse))
 
     def find_and_replace(
         self,
@@ -500,7 +507,7 @@ class Collection:
 
     # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        nids = self.findNotes(search, SearchTerm(field_name=fieldName))
+        nids = self.find_notes(self.build_search_string(search, SearchTerm(field_name=fieldName)))
         # go through notes
         vals: Dict[str, List[int]] = {}
         dupes = []

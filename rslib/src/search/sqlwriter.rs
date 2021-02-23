@@ -598,7 +598,7 @@ mod test {
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
         let node = Node::Group(parse(search).unwrap());
-        let mut writer = SqlWriter::new(req);
+        let mut writer = SqlWriter::new(req, SearchItems::Cards);
         writer.table = RequiredTable::Notes.combine(node.required_table());
         writer.write_node_to_sql(&node).unwrap();
         (writer.sql, writer.args)

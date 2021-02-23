@@ -197,7 +197,9 @@ class Table:
         else:
             if self.state.sort_backwards != order:
                 self.state.sort_backwards = order
+                self._save_selection()
                 self.model.reverse()
+                self._restore_selection(self._intersected_selection)
         self._set_sort_indicator()
 
     # Move cursor
@@ -593,7 +595,9 @@ class CardState(ItemState):
         self._load_columns()
         self._load_active_columns()
         self._sort_column = self.col.get_config("sortType")
-        self._sort_backwards = self.col.get_config_bool(ConfigBoolKey.BROWSER_SORT_BACKWARDS)
+        self._sort_backwards = self.col.get_config_bool(
+            ConfigBoolKey.BROWSER_SORT_BACKWARDS
+        )
 
     def _load_columns(self) -> None:
         self._columns = [
@@ -716,7 +720,9 @@ class NoteState(ItemState):
         self._load_columns()
         self._load_active_columns()
         self._sort_column = self.col.get_config("noteSortType")
-        self._sort_backwards = self.col.get_config_bool(ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS)
+        self._sort_backwards = self.col.get_config_bool(
+            ConfigBoolKey.BROWSER_NOTE_SORT_BACKWARDS
+        )
 
     def _load_columns(self) -> None:
         self._columns = [
@@ -775,7 +781,7 @@ class NoteState(ItemState):
         return self._notes[item]
 
     def find_items(self, search: str, order: Union[bool, str]) -> Sequence[int]:
-        return self.col.find_notes(search)
+        return self.col.find_notes(search, order)
 
     def get_item_from_card_id(self, card: int) -> int:
         return self.get_card(card).note().id
@@ -817,6 +823,7 @@ class NoteState(ItemState):
 
 # Data model
 ##########################################################################
+
 
 class DataModel(QAbstractTableModel):
     def __init__(self, col: Collection, state: ItemState) -> None:
