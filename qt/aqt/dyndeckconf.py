@@ -40,12 +40,13 @@ class DeckConf(QDialog):
 
         QDialog.__init__(self, mw)
         self.mw = mw
+        self.col = self.mw.col
         self.did: Optional[int] = None
         self.form = aqt.forms.dyndconf.Ui_Dialog()
         self.form.setupUi(self)
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         self.initialSetup()
-        self.old_deck = self.mw.col.decks.current()
+        self.old_deck = self.col.decks.current()
 
         if deck and deck["dyn"]:
             # modify existing dyn deck
@@ -83,7 +84,7 @@ class DeckConf(QDialog):
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         )
         self.form.buttonBox.button(QDialogButtonBox.Ok).setText(label)
-        if self.mw.col.schedVer() == 1:
+        if self.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
         restoreGeom(self, "dyndeckconf")
 
@@ -100,23 +101,23 @@ class DeckConf(QDialog):
 
     def new_dyn_deck(self) -> None:
         suffix: int = 1
-        while self.mw.col.decks.id_for_name(
+        while self.col.decks.id_for_name(
             without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
         ):
             suffix += 1
         name: str = without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
-        self.did = self.mw.col.decks.new_filtered(name)
-        self.deck = self.mw.col.decks.current()
+        self.did = self.col.decks.new_filtered(name)
+        self.deck = self.col.decks.current()
 
     def set_default_searches(self, deck_name: str) -> None:
         self.form.search.setText(
-            self.mw.col.build_search_string(
+            self.col.build_search_string(
                 SearchNode(deck=deck_name),
                 SearchNode(card_state=SearchNode.CARD_STATE_DUE),
             )
         )
         self.form.search_2.setText(
-            self.mw.col.build_search_string(
+            self.col.build_search_string(
                 SearchNode(deck=deck_name),
                 SearchNode(card_state=SearchNode.CARD_STATE_NEW),
             )
@@ -152,7 +153,7 @@ class DeckConf(QDialog):
 
     def _on_search_button(self, line: QLineEdit) -> None:
         try:
-            search = self.mw.col.build_search_string(line.text())
+            search = self.col.build_search_string(line.text())
         except InvalidInput as err:
             line.setFocus()
             line.selectAll()
@@ -162,7 +163,7 @@ class DeckConf(QDialog):
 
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(
-            not self.form.resched.isChecked() and self.mw.col.schedVer() > 1
+            not self.form.resched.isChecked() and self.col.schedVer() > 1
         )
 
     def loadConf(self, deck: Optional[Deck] = None) -> None:
@@ -175,7 +176,7 @@ class DeckConf(QDialog):
         search, limit, order = d["terms"][0]
         f.search.setText(search)
 
-        if self.mw.col.schedVer() == 1:
+        if self.col.schedVer() == 1:
             if d["delays"]:
                 f.steps.setText(self.listToUser(d["delays"]))
                 f.stepsOn.setChecked(True)
@@ -205,35 +206,36 @@ class DeckConf(QDialog):
         d = self.deck
 
         if f.name.text() and d["name"] != f.name.text():
-            self.mw.col.decks.rename(d, f.name.text())
+            self.col.decks.rename(d, f.name.text())
             gui_hooks.sidebar_should_refresh_decks()
 
         d["resched"] = f.resched.isChecked()
         d["delays"] = None
 
-        if self.mw.col.schedVer() == 1 and f.stepsOn.isChecked():
+        if self.col.schedVer() == 1 and f.stepsOn.isChecked():
             steps = self.userToList(f.steps)
             if steps:
                 d["delays"] = steps
             else:
                 d["delays"] = None
 
-        search = self.mw.col.build_search_string(f.search.text())
+        search = self.col.build_search_string(f.search.text())
         terms = [[search, f.limit.value(), f.order.currentIndex()]]
 
         if f.secondFilter.isChecked():
-            search_2 = self.mw.col.build_search_string(f.search_2.text())
+            search_2 = self.col.build_search_string(f.search_2.text())
             terms.append([search_2, f.limit_2.value(), f.order_2.currentIndex()])
 
         d["terms"] = terms
         d["previewDelay"] = f.previewDelay.value()
 
-        self.mw.col.decks.save(d)
+        self.col.decks.save(d)
 
     def reject(self) -> None:
         if self.did:
-            self.mw.col.decks.rem(self.did)
-            self.mw.col.decks.select(self.old_deck["id"])
+            self.col.decks.rem(self.did)
+            self.col.decks.select(self.old_deck["id"])
+            self.mw.reset()
         saveGeom(self, "dyndeckconf")
         QDialog.reject(self)
         aqt.dialogs.markClosed("DynDeckConfDialog")
@@ -246,7 +248,7 @@ class DeckConf(QDialog):
         except DeckRenameError as err:
             showWarning(err.description)
         else:
-            if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
+            if not self.col.sched.rebuild_filtered_deck(self.deck["id"]):
                 if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
                     return
             saveGeom(self, "dyndeckconf")
