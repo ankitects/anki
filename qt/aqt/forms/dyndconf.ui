@@ -251,6 +251,25 @@
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="hint_button">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string>SEARCH_VIEW_IN_BROWSER</string>
+     </property>
+     <property name="text">
+      <string>DECKS_UNMOVABLE_CARDS</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
