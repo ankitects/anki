@@ -465,22 +465,20 @@ limit ?"""
     ##########################################################################
 
     def answerCard(self, card: Card, ease: int) -> None:
-        self.col.log()
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
+
         self.col.markReview(card)
+
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
 
-        self._answerCard(card, ease)
+        new_state = self._answerCard(card, ease)
 
-        self._maybe_requeue_card(card)
+        if not self._handle_leech(card, new_state):
+            self._maybe_requeue_card(card)
 
-        card.mod = intTime()
-        card.usn = self.col.usn()
-        card.flush()
-
-    def _answerCard(self, card: Card, ease: int) -> None:
+    def _answerCard(self, card: Card, ease: int) -> _pb.SchedulingState:
         states = self.col._backend.get_next_card_states(card.id)
         if ease == BUTTON_ONE:
             new_state = states.again
@@ -508,6 +506,22 @@ limit ?"""
 
         # fixme: tests assume card will be mutated, so we need to reload it
         card.load()
+
+        return new_state
+
+    def _handle_leech(self, card: Card, new_state: _pb.SchedulingState) -> bool:
+        "True if was leech."
+        if self.col._backend.state_is_leech(new_state):
+            if hooks.card_did_leech.count() > 0:
+                hooks.card_did_leech(card)
+                # leech hooks assumed that card mutations would be saved for them
+                card.mod = intTime()
+                card.usn = self.col.usn()
+                card.flush()
+
+            return True
+        else:
+            return False
 
     def _maybe_requeue_card(self, card: Card) -> None:
         # preview cards
@@ -603,29 +617,6 @@ limit ?"""
             assert False, "invalid ease"
 
         return self._interval_for_state(new_state)
-
-    # Leeches
-    ##########################################################################
-
-    def _checkLeech(self, card: Card, conf: QueueConfig) -> bool:
-        "Leech handler. True if card was a leech."
-        lf = conf["leechFails"]
-        if not lf:
-            return False
-        # if over threshold or every half threshold reps after that
-        if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
-            # add a leech tag
-            f = card.note()
-            f.addTag("leech")
-            f.flush()
-            # handle
-            a = conf["leechAction"]
-            if a == LEECH_SUSPEND:
-                card.queue = QUEUE_TYPE_SUSPENDED
-            # notify UI
-            hooks.card_did_leech(card)
-            return True
-        return False
 
     # Sibling spacing
     ##########################################################################

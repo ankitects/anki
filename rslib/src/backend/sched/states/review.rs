@@ -10,6 +10,7 @@ impl From<pb::scheduling_state::Review> for ReviewState {
             elapsed_days: state.elapsed_days,
             ease_factor: state.ease_factor,
             lapses: state.lapses,
+            leeched: state.leeched,
         }
     }
 }
@@ -21,6 +22,7 @@ impl From<ReviewState> for pb::scheduling_state::Review {
             elapsed_days: state.elapsed_days,
             ease_factor: state.ease_factor,
             lapses: state.lapses,
+            leeched: state.leeched,
         }
     }
 }

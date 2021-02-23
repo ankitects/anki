@@ -4,7 +4,7 @@
 use crate::{
     backend_proto,
     card::{CardQueue, CardType},
-    deckconf::DeckConf,
+    deckconf::{DeckConf, LeechAction},
     decks::{Deck, DeckKind},
     prelude::*,
     revlog::{RevlogEntry, RevlogReviewKind},
@@ -63,6 +63,7 @@ impl AnswerContext {
             easy_multiplier: self.config.inner.easy_multiplier,
             interval_multiplier: self.config.inner.interval_multiplier,
             maximum_review_interval: self.config.inner.maximum_review_interval,
+            leech_threshold: self.config.inner.leech_threshold,
             relearn_steps: self.relearn_steps(),
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
@@ -105,6 +106,7 @@ impl AnswerContext {
                     as u32,
                 ease_factor,
                 lapses,
+                leeched: false,
             }
             .into(),
             CardType::Relearn => RelearnState {
@@ -117,6 +119,7 @@ impl AnswerContext {
                     elapsed_days: interval,
                     ease_factor,
                     lapses,
+                    leeched: false,
                 },
             }
             .into(),
@@ -197,7 +200,7 @@ impl Card {
             self.original_due = 0;
         }
 
-        match next {
+        let revlog = match next {
             CardState::Normal(normal) => match normal {
                 NormalState::New(next) => self.apply_new_state(current, next, ctx),
                 NormalState::Learning(next) => self.apply_learning_state(current, next, ctx),
@@ -210,7 +213,13 @@ impl Card {
                     self.apply_rescheduling_state(current, next, ctx)
                 }
             },
+        }?;
+
+        if next.leeched() && ctx.config.inner.leech_action() == LeechAction::Suspend {
+            self.queue = CardQueue::Suspended;
         }
+
+        Ok(revlog)
     }
 
     fn apply_new_state(
@@ -386,6 +395,7 @@ pub struct RevlogEntryPartial {
 }
 
 impl RevlogEntryPartial {
+    /// Returns None in the Preview case, since preview cards do not currently log.
     fn maybe_new(
         current: CardState,
         next: CardState,
@@ -508,6 +518,9 @@ impl Collection {
             self.storage.add_revlog_entry(&revlog)?;
         }
         self.update_card(&mut card, &original, usn)?;
+        if answer.new_state.leeched() {
+            self.add_leech_tag(card.note_id)?;
+        }
 
         // fixme: we're reusing code used by python, which means re-feteching the target deck
         // - might want to avoid that in the future
@@ -555,6 +568,10 @@ impl Collection {
         let current = ctx.current_card_state(&card);
         let state_ctx = ctx.state_context();
         Ok(current.next_states(&state_ctx))
+    }
+
+    fn add_leech_tag(&mut self, nid: NoteID) -> Result<()> {
+        self.update_note_tags(nid, |tags| tags.push("leech".into()))
     }
 }
 

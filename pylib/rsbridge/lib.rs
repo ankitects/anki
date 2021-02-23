@@ -54,6 +54,7 @@ fn want_release_gil(method: u32) -> bool {
                 | BackendMethod::JoinSearchNodes
                 | BackendMethod::ReplaceSearchNode
                 | BackendMethod::BuildSearchString
+                | BackendMethod::StateIsLeech
         )
     } else {
         false

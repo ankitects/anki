@@ -3,7 +3,9 @@
 
 use crate::revlog::RevlogReviewKind;
 
-use super::{IntervalKind, NextCardStates, PreviewState, ReschedulingFilterState, StateContext};
+use super::{
+    IntervalKind, NextCardStates, PreviewState, ReschedulingFilterState, ReviewState, StateContext,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FilteredState {
@@ -30,6 +32,13 @@ impl FilteredState {
         match self {
             FilteredState::Preview(state) => state.next_states(ctx),
             FilteredState::Rescheduling(state) => state.next_states(ctx),
+        }
+    }
+
+    pub(crate) fn review_state(self) -> Option<ReviewState> {
+        match self {
+            FilteredState::Preview(state) => state.original_state.review_state(),
+            FilteredState::Rescheduling(state) => state.original_state.review_state(),
         }
     }
 }

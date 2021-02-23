@@ -15,6 +15,12 @@ impl From<String> for pb::String {
     }
 }
 
+impl From<bool> for pb::Bool {
+    fn from(val: bool) -> Self {
+        pb::Bool { val }
+    }
+}
+
 impl From<i64> for pb::Int64 {
     fn from(val: i64) -> Self {
         pb::Int64 { val }

@@ -54,6 +54,18 @@ impl CardState {
             CardState::Filtered(state) => state.next_states(&ctx),
         }
     }
+
+    /// Returns underlying review state, if it exists.
+    pub(crate) fn review_state(self) -> Option<ReviewState> {
+        match self {
+            CardState::Normal(state) => state.review_state(),
+            CardState::Filtered(state) => state.review_state(),
+        }
+    }
+
+    pub(crate) fn leeched(self) -> bool {
+        self.review_state().map(|r| r.leeched).unwrap_or_default()
+    }
 }
 
 /// Info required during state transitions.
@@ -70,6 +82,7 @@ pub(crate) struct StateContext<'a> {
     pub easy_multiplier: f32,
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
+    pub leech_threshold: u32,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,

@@ -33,7 +33,7 @@ use crate::{
     sched::{
         new::NewCardSortOrder,
         parse_due_date_str,
-        states::NextCardStates,
+        states::{CardState, NextCardStates},
         timespan::{answer_button_time, time_span},
     },
     search::{
@@ -681,6 +681,11 @@ impl BackendService for Backend {
         let states: NextCardStates = input.into();
         self.with_col(|col| col.describe_next_states(states))
             .map(Into::into)
+    }
+
+    fn state_is_leech(&self, input: pb::SchedulingState) -> BackendResult<pb::Bool> {
+        let state: CardState = input.into();
+        Ok(state.leeched().into())
     }
 
     fn answer_card(&self, input: pb::AnswerCardIn) -> BackendResult<pb::Empty> {

@@ -405,6 +405,7 @@ def test_reviews():
     assert c.queue == QUEUE_TYPE_SUSPENDED
     c.load()
     assert c.queue == QUEUE_TYPE_SUSPENDED
+    assert "leech" in c.note().tags
 
 
 def test_review_limits():

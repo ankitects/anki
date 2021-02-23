@@ -130,7 +130,7 @@ pub struct LapseConfSchema11 {
 
 impl Default for LeechAction {
     fn default() -> Self {
-        LeechAction::Suspend
+        LeechAction::TagOnly
     }
 }
 
