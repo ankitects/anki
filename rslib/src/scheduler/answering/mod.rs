@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod current_state;
-mod learn;
+mod current;
+mod learning;
 mod preview;
-mod relearn;
+mod relearning;
+mod rescheduling_filter;
 mod review;
 mod revlog;
 
@@ -20,7 +21,9 @@ use revlog::RevlogEntryPartial;
 
 use super::{
     cutoff::SchedTimingToday,
-    states::{CardState, FilteredState, NextCardStates, NormalState, ReschedulingFilterState},
+    states::{
+        steps::LearningSteps, CardState, FilteredState, NextCardStates, NormalState, StateContext,
+    },
     timespan::answer_button_time_collapsible,
 };
 
@@ -42,9 +45,11 @@ pub struct CardAnswer {
 }
 
 // fixme: 4 buttons for previewing
-// fixme: log previewing
+// fixme: log preview review
 // fixme: undo
 
+/// Holds the information required to determine a given card's
+/// current state, and to apply a state change to it.
 struct CardStateUpdater {
     card: Card,
     deck: Deck,
@@ -55,6 +60,40 @@ struct CardStateUpdater {
 }
 
 impl CardStateUpdater {
+    /// Returns information required when transitioning from one card state to
+    /// another with `next_states()`. This separate structure decouples the
+    /// state handling code from the rest of the Anki codebase.
+    pub(crate) fn state_context(&self) -> StateContext<'_> {
+        StateContext {
+            fuzz_seed: self.fuzz_seed,
+            steps: self.learn_steps(),
+            graduating_interval_good: self.config.inner.graduating_interval_good,
+            graduating_interval_easy: self.config.inner.graduating_interval_easy,
+            hard_multiplier: self.config.inner.hard_multiplier,
+            easy_multiplier: self.config.inner.easy_multiplier,
+            interval_multiplier: self.config.inner.interval_multiplier,
+            maximum_review_interval: self.config.inner.maximum_review_interval,
+            leech_threshold: self.config.inner.leech_threshold,
+            relearn_steps: self.relearn_steps(),
+            lapse_multiplier: self.config.inner.lapse_multiplier,
+            minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
+            in_filtered_deck: self.deck.is_filtered(),
+            preview_step: if let DeckKind::Filtered(deck) = &self.deck.kind {
+                deck.preview_delay
+            } else {
+                0
+            },
+        }
+    }
+
+    fn learn_steps(&self) -> LearningSteps<'_> {
+        LearningSteps::new(&self.config.inner.learn_steps)
+    }
+
+    fn relearn_steps(&self) -> LearningSteps<'_> {
+        LearningSteps::new(&self.config.inner.relearn_steps)
+    }
+
     fn secs_until_rollover(&self) -> u32 {
         (self.timing.next_day_at - self.now.0).max(0) as u32
     }
@@ -96,15 +135,6 @@ impl CardStateUpdater {
         Ok(revlog)
     }
 
-    fn apply_rescheduling_filter_state(
-        &mut self,
-        current: CardState,
-        next: ReschedulingFilterState,
-    ) -> Result<Option<RevlogEntryPartial>> {
-        self.ensure_filtered()?;
-        self.apply_study_state(current, next.original_state.into())
-    }
-
     fn ensure_filtered(&self) -> Result<()> {
         if self.card.original_deck_id.0 == 0 {
             Err(AnkiError::invalid_input(
@@ -115,8 +145,6 @@ impl CardStateUpdater {
         }
     }
 }
-
-impl Card {}
 
 impl Rating {
     fn as_number(self) -> u8 {
@@ -130,6 +158,16 @@ impl Rating {
 }
 
 impl Collection {
+    /// Return the next states that will be applied for each answer button.
+    pub fn get_next_card_states(&mut self, cid: CardID) -> Result<NextCardStates> {
+        let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
+        let ctx = self.card_state_updater(card)?;
+        let current = ctx.current_card_state();
+        let state_ctx = ctx.state_context();
+        Ok(current.next_states(&state_ctx))
+    }
+
+    /// Describe the next intervals, to display on the answer buttons.
     pub fn describe_next_states(&self, choices: NextCardStates) -> Result<Vec<String>> {
         let collapse_time = self.learn_ahead_secs();
         let now = TimestampSecs::now();
@@ -175,6 +213,7 @@ impl Collection {
         ])
     }
 
+    /// Answer card, writing its new state to the database.
     pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<()> {
         self.transact(None, |col| col.answer_card_inner(answer))
     }
@@ -186,53 +225,22 @@ impl Collection {
             .ok_or(AnkiError::NotFound)?;
         let original = card.clone();
         let usn = self.usn()?;
-        let mut answer_context = self.answer_context(card)?;
-        let current_state = answer_context.current_card_state();
+
+        let mut updater = self.card_state_updater(card)?;
+        let current_state = updater.current_card_state();
         if current_state != answer.current_state {
-            // fixme: unique error
             return Err(AnkiError::invalid_input(format!(
                 "card was modified: {:#?} {:#?}",
                 current_state, answer.current_state,
             )));
         }
 
-        if let Some(revlog_partial) =
-            answer_context.apply_study_state(current_state, answer.new_state)?
-        {
-            let button_chosen = answer.rating.as_number();
-            let revlog = revlog_partial.into_revlog_entry(
-                usn,
-                answer.card_id,
-                button_chosen,
-                answer.answered_at,
-                answer.milliseconds_taken,
-            );
-            self.storage.add_revlog_entry(&revlog)?;
+        if let Some(revlog_partial) = updater.apply_study_state(current_state, answer.new_state)? {
+            self.add_partial_revlog(revlog_partial, usn, &answer)?;
         }
+        self.update_deck_stats_from_answer(usn, &answer, &updater)?;
 
-        // fixme: we're reusing code used by python, which means re-feteching the target deck
-        // - might want to avoid that in the future
-        self.update_deck_stats(
-            answer_context.timing.days_elapsed,
-            usn,
-            backend_proto::UpdateStatsIn {
-                deck_id: answer_context.deck.id.0,
-                new_delta: if matches!(current_state, CardState::Normal(NormalState::New(_))) {
-                    1
-                } else {
-                    0
-                },
-                review_delta: if matches!(current_state, CardState::Normal(NormalState::Review(_)))
-                {
-                    1
-                } else {
-                    0
-                },
-                millisecond_delta: answer.milliseconds_taken as i32,
-            },
-        )?;
-
-        let mut card = answer_context.into_card();
+        let mut card = updater.into_card();
         self.update_card(&mut card, &original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
@@ -241,7 +249,53 @@ impl Collection {
         Ok(())
     }
 
-    fn answer_context(&mut self, card: Card) -> Result<CardStateUpdater> {
+    fn add_partial_revlog(
+        &self,
+        partial: RevlogEntryPartial,
+        usn: Usn,
+        answer: &CardAnswer,
+    ) -> Result<()> {
+        let revlog = partial.into_revlog_entry(
+            usn,
+            answer.card_id,
+            answer.rating.as_number(),
+            answer.answered_at,
+            answer.milliseconds_taken,
+        );
+        self.storage.add_revlog_entry(&revlog)
+    }
+
+    fn update_deck_stats_from_answer(
+        &mut self,
+        usn: Usn,
+        answer: &CardAnswer,
+        updater: &CardStateUpdater,
+    ) -> Result<()> {
+        self.update_deck_stats(
+            updater.timing.days_elapsed,
+            usn,
+            backend_proto::UpdateStatsIn {
+                deck_id: updater.deck.id.0,
+                new_delta: if matches!(answer.current_state, CardState::Normal(NormalState::New(_)))
+                {
+                    1
+                } else {
+                    0
+                },
+                review_delta: if matches!(
+                    answer.current_state,
+                    CardState::Normal(NormalState::Review(_))
+                ) {
+                    1
+                } else {
+                    0
+                },
+                millisecond_delta: answer.milliseconds_taken as i32,
+            },
+        )
+    }
+
+    fn card_state_updater(&mut self, card: Card) -> Result<CardStateUpdater> {
         let timing = self.timing_today()?;
         let deck = self
             .storage
@@ -274,14 +328,6 @@ impl Collection {
         };
 
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())
-    }
-
-    pub fn get_next_card_states(&mut self, cid: CardID) -> Result<NextCardStates> {
-        let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
-        let ctx = self.answer_context(card)?;
-        let current = ctx.current_card_state();
-        let state_ctx = ctx.state_context();
-        Ok(current.next_states(&state_ctx))
     }
 
     fn add_leech_tag(&mut self, nid: NoteID) -> Result<()> {
