@@ -185,12 +185,12 @@ class DeckConf(QDialog):
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
 
-    def _second_filter(self) -> Tuple[str]:
+    def _second_filter(self) -> Tuple[str, ...]:
         if self.form.secondFilter.isChecked():
             return (self.form.search_2.text(),)
         return ()
 
-    def _learning_search_node(self) -> Tuple[SearchNode]:
+    def _learning_search_node(self) -> Tuple[SearchNode, ...]:
         """Return a search node that matches learning cards if the old scheduler is enabled.
         If it's a rebuild, exclude cards from this filtered deck as those will be reset.
         """
