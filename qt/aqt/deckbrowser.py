@@ -88,11 +88,7 @@ class DeckBrowser:
         elif cmd == "import":
             self.mw.onImport()
         elif cmd == "create":
-            deck = getOnlyText(tr(TR.DECKS_NAME_FOR_DECK))
-            if deck:
-                self.mw.col.decks.id(deck)
-                gui_hooks.sidebar_should_refresh_decks()
-                self.refresh()
+            self._on_create()
         elif cmd == "drag":
             source, target = arg.split(",")
             self._handle_drag_and_drop(int(source), int(target or 0))
@@ -351,6 +347,17 @@ class DeckBrowser:
 
     def _onShared(self) -> None:
         openLink(f"{aqt.appShared}decks/")
+
+    def _on_create(self) -> None:
+        deck = getOnlyText(tr(TR.DECKS_NAME_FOR_DECK))
+        if deck:
+            try:
+                self.mw.col.decks.id(deck)
+            except DeckRenameError as err:
+                show_rename_deck_error(err)
+                return
+            gui_hooks.sidebar_should_refresh_decks()
+            self.refresh()
 
     ######################################################################
 

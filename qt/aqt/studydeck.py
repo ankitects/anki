@@ -4,6 +4,7 @@
 from typing import List, Optional
 
 import aqt
+from anki.decks import DeckRenameError
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -16,6 +17,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     shortcut,
+    show_rename_deck_error,
     showInfo,
     tr,
 )
@@ -164,7 +166,11 @@ class StudyDeck(QDialog):
         n = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=default)
         n = n.strip()
         if n:
-            did = self.mw.col.decks.id(n)
+            try:
+                did = self.mw.col.decks.id(n)
+            except DeckRenameError as err:
+                show_rename_deck_error(err)
+                return
             # deck name may not be the same as user input. ex: ", ::
             self.name = self.mw.col.decks.name(did)
             # make sure we clean up reset hook when manually exiting
