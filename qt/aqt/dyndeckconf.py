@@ -1,6 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import aqt
 from anki.collection import SearchNode
@@ -169,41 +169,13 @@ class DeckConf(QDialog):
         """Open the browser to show cards that match the typed-in filters but cannot be included
         due to internal limitations.
         """
-        manual_filters = [self.form.search.text()]
-        if self.form.secondFilter.isChecked():
-            manual_filters.append(self.form.search_2.text())
-
-        implicit_filters = [
+        manual_filters = (self.form.search.text(), *self._second_filter())
+        implicit_filters = (
             SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
             SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
-        ]
-
-        if self.col.schedVer() == 1:
-            # v1 scheduler cannot include learning cards
-            if self.did is None:
-                # rebuild will reset learning cards from this deck so they can be included
-                implicit_filters.append(
-                    self.col.group_searches(
-                        SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
-                        SearchNode(negated=SearchNode(deck=self.deck["name"])),
-                    )
-                )
-            else:
-                implicit_filters.append(
-                    SearchNode(card_state=SearchNode.CARD_STATE_LEARN)
-                )
-
-        if self.did is None:
-            # rebuild; old filtered deck will be emptied, so cards can be included
-            implicit_filters.append(
-                self.col.group_searches(
-                    SearchNode(deck="filtered"),
-                    SearchNode(negated=SearchNode(deck=self.deck["name"])),
-                )
-            )
-        else:
-            implicit_filters.append(SearchNode(deck="filtered"))
-
+            *self._learning_search_node(),
+            *self._filtered_search_node(),
+        )
         manual_filter = self.col.group_searches(*manual_filters, joiner="OR")
         implicit_filter = self.col.group_searches(*implicit_filters, joiner="OR")
         try:
@@ -212,6 +184,38 @@ class DeckConf(QDialog):
             show_invalid_search_error(err)
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
+
+    def _second_filter(self) -> Tuple[str]:
+        if self.form.secondFilter.isChecked():
+            return (self.form.search_2.text(),)
+        return ()
+
+    def _learning_search_node(self) -> Tuple[SearchNode]:
+        """Return a search node that matches learning cards if the old scheduler is enabled.
+        If it's a rebuild, exclude cards from this filtered deck as those will be reset.
+        """
+        if self.col.schedVer() == 1:
+            if self.did is None:
+                return (
+                    self.col.group_searches(
+                        SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
+                        SearchNode(negated=SearchNode(deck=self.deck["name"])),
+                    ),
+                )
+            return (SearchNode(card_state=SearchNode.CARD_STATE_LEARN),)
+        return ()
+
+    def _filtered_search_node(self) -> Tuple[SearchNode]:
+        """Return a search node that matches cards in filtered decks, if applicable excluding those
+        in the deck being rebuild."""
+        if self.did is None:
+            return (
+                self.col.group_searches(
+                    SearchNode(deck="filtered"),
+                    SearchNode(negated=SearchNode(deck=self.deck["name"])),
+                ),
+            )
+        return (SearchNode(deck="filtered"),)
 
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(
