@@ -2,7 +2,8 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 @use 'ts/sass/core';
-@use 'buttons';
+@use 'ts/sass/scrollbar';
+@use 'ts/sass/buttons';
 
 // core.scss sets border-box, but we need to
 // keep the old behaviour for now to avoid breaking
@@ -20,29 +21,6 @@ h1 {
   margin-bottom: 0.2em;
 }
 
-body.nightMode {
-  &::-webkit-scrollbar {
-    background: var(--window-bg);
-
-    &:horizontal {
-      height: 12px;
-    }
-
-    &:vertical {
-      width: 12px;
-    }
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: buttons.$fusion-button-hover-bg;
-    border-radius: 8px;
-
-    &:horizontal {
-      min-width: 50px;
-    }
-
-    &:vertical {
-      min-height: 50px;
-    }
-  }
+.nightMode {
+    @include scrollbar.night-mode;
 }
