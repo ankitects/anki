@@ -19,6 +19,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     show_invalid_search_error,
+    show_rename_deck_error,
     showWarning,
     tr,
 )
@@ -244,7 +245,7 @@ class DeckConf(QDialog):
         except InvalidInput as err:
             show_invalid_search_error(err)
         except DeckRenameError as err:
-            showWarning(err.description)
+            show_rename_deck_error(err)
         else:
             if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
                 if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):

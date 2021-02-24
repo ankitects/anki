@@ -23,8 +23,8 @@ from aqt.utils import (
     askUser,
     getOnlyText,
     show_invalid_search_error,
+    show_rename_deck_error,
     showInfo,
-    showWarning,
     tr,
 )
 
@@ -993,8 +993,8 @@ class SidebarTreeView(QTreeView):
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
-        except DeckRenameError as e:
-            showWarning(e.description)
+        except DeckRenameError as err:
+            show_rename_deck_error(err)
             return
         self.refresh()
         self.mw.deckBrowser.refresh()
