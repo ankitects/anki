@@ -21,8 +21,8 @@ from aqt.utils import (
     getOnlyText,
     openLink,
     shortcut,
+    show_rename_deck_error,
     showInfo,
-    showWarning,
     tr,
 )
 
@@ -272,8 +272,8 @@ class DeckBrowser:
         try:
             self.mw.col.decks.rename(deck, newName)
             gui_hooks.sidebar_should_refresh_decks()
-        except DeckRenameError as e:
-            showWarning(e.description)
+        except DeckRenameError as err:
+            show_rename_deck_error(err)
             return
         self.show()
 

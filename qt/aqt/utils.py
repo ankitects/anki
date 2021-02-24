@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import (
 import anki
 import aqt
 from anki import Collection
-from anki.errors import InvalidInput
+from anki.errors import DeckRenameError, InvalidInput
 from anki.lang import TR  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
@@ -144,6 +144,14 @@ def show_invalid_search_error(err: Exception) -> None:
     if isinstance(err, InvalidInput):
         text = markdown(text)
     showWarning(text)
+
+
+def show_rename_deck_error(err: DeckRenameError) -> None:
+    if err.description == "deck was filtered":
+        reason = tr(TR.ERRORS_REASON_FILTERED_PARENT)
+    else:
+        reason = "unknown reason."
+    showWarning(tr(TR.ERRORS_INVALID_DECK_NAME, reason=reason))
 
 
 def showInfo(
