@@ -262,6 +262,11 @@ class SidebarToolbar(QToolBar):
             action.setCheckable(True)
             self._action_group.addAction(action)
 
+    def _on_action_group_triggered(self, action) -> None:
+        tool = self._tools[self._action_group.actions().index(action)][0]
+        self.sidebar.tool = tool
+
+
 class SidebarSearchBar(QLineEdit):
     def __init__(self, sidebar: SidebarTreeView) -> None:
         QLineEdit.__init__(self, sidebar)
@@ -340,9 +345,6 @@ class SidebarTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setIndentation(15)
         self.setAutoExpandDelay(600)
-        # pylint: disable=no-member
-        # mode = QAbstractItemView.SelectionMode.ExtendedSelection  # type: ignore
-        # self.setSelectionMode(mode)
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDragDropOverwriteMode(False)
 
@@ -362,6 +364,23 @@ class SidebarTreeView(QTreeView):
             styles.append(f"border-right: 1px solid {border}")
 
         self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
+
+    @property
+    def tool(self) -> SidebarTool:
+        return self._tool
+
+    @tool.setter
+    def tool(self, tool: SidebarTool) -> None:
+        if self._tool == tool:
+            return
+        self._tool = tool
+        if tool == SidebarTool.SELECT:
+            # pylint: disable=no-member
+            mode = QAbstractItemView.SelectionMode.ExtendedSelection  # type: ignore
+        elif tool == SidebarTool.SEARCH:
+            # pylint: disable=no-member
+            mode = QAbstractItemView.SelectionMode.SingleSelection  # type: ignore
+        self.setSelectionMode(mode)
 
     def model(self) -> SidebarModel:
         return super().model()
@@ -465,7 +484,7 @@ class SidebarTreeView(QTreeView):
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
-        if event.button() == Qt.LeftButton:
+        if self.tool == SidebarTool.SEARCH and event.button() == Qt.LeftButton:
             idx = self.indexAt(event.pos())
             self._on_click_index(idx)
 
