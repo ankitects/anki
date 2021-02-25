@@ -1,4 +1,6 @@
 actions-add = Add
+actions-all-selected = All selected
+actions-any-selected = Any selected
 actions-blue-flag = Blue Flag
 actions-cancel = Cancel
 actions-choose = Choose
