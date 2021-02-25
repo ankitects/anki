@@ -8,7 +8,7 @@ from enum import Enum, auto
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 
 import aqt
-from anki.collection import Config, SearchNode
+from anki.collection import Config, SearchJoiner, SearchNode
 from anki.decks import DeckTreeNode
 from anki.errors import DeckRenameError, InvalidInput
 from anki.tags import TagTreeNode
@@ -446,11 +446,15 @@ class SidebarTreeView(QTreeView):
                 if item.is_expanded(searching):
                     self.setExpanded(idx, True)
 
-    def update_search(self, *terms: Union[str, SearchNode]) -> None:
+    def update_search(
+        self,
+        *terms: Union[str, SearchNode],
+        joiner: SearchJoiner = "AND",
+    ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
         mods = self.mw.app.keyboardModifiers()
         previous = SearchNode(parsable_text=self.browser.current_search())
-        current = self.mw.col.group_searches(*terms)
+        current = self.mw.col.group_searches(*terms, joiner=joiner)
 
         # if Alt pressed, invert
         if mods & Qt.AltModifier:
@@ -489,9 +493,8 @@ class SidebarTreeView(QTreeView):
 
     def dropEvent(self, event: QDropEvent) -> None:
         model = self.model()
-        source_items = [model.item_for_index(idx) for idx in self.selectedIndexes()]
         target_item = model.item_for_index(self.indexAt(event.pos()))
-        if self.handle_drag_drop(source_items, target_item):
+        if self.handle_drag_drop(self._selected_items(), target_item):
             event.acceptProposedAction()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -726,7 +729,9 @@ class SidebarTreeView(QTreeView):
             name=TR.BROWSING_AGAIN_TODAY,
             icon=icon,
             type=type,
-            search_node=SearchNode(rated=SearchNode.Rated(days=1, rating=SearchNode.RATING_AGAIN)),
+            search_node=SearchNode(
+                rated=SearchNode.Rated(days=1, rating=SearchNode.RATING_AGAIN)
+            ),
         )
         root.add_simple(
             name=TR.BROWSING_SIDEBAR_OVERDUE,
@@ -984,26 +989,34 @@ class SidebarTreeView(QTreeView):
                 a = m.addAction(act_name)
                 qconnect(a.triggered, lambda _, func=act_func: func(item))
 
+        self._maybe_add_search_actions(m)
+
         if idx:
             self.maybe_add_tree_actions(m, item, idx)
 
         if not m.children():
             return
 
-        # until we support multiple selection, show user that only the current
-        # item is being operated on by clearing the selection
-        if idx:
-            sm = self.selectionModel()
-            sm.clear()
-            sm.select(
-                idx,
-                cast(
-                    QItemSelectionModel.SelectionFlag,
-                    QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows,
-                ),
-            )
-
         m.exec_(QCursor.pos())
+
+    def _maybe_add_search_actions(self, menu: QMenu) -> None:
+        nodes = [
+            item.search_node for item in self._selected_items() if item.search_node
+        ]
+        if not nodes:
+            return
+        menu.addSeparator()
+        if len(nodes) == 1:
+            menu.addAction(tr(TR.ACTIONS_SEARCH), lambda: self.update_search(*nodes))
+            return
+        sub_menu = menu.addMenu(tr(TR.ACTIONS_SEARCH))
+        sub_menu.addAction(
+            tr(TR.ACTIONS_ALL_SELECTED), lambda: self.update_search(*nodes)
+        )
+        sub_menu.addAction(
+            tr(TR.ACTIONS_ANY_SELECTED),
+            lambda: self.update_search(*nodes, joiner="OR"),
+        )
 
     def maybe_add_tree_actions(
         self, menu: QMenu, item: SidebarItem, parent: QModelIndex
@@ -1170,3 +1183,9 @@ class SidebarTreeView(QTreeView):
         Models(
             self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
         )
+
+    # Helpers
+    ##################
+
+    def _selected_items(self) -> List[SidebarItem]:
+        return [self.model().item_for_index(idx) for idx in self.selectedIndexes()]
