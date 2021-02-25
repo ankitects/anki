@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="64"
+   height="64"
+   viewBox="0 0 16.933333 16.933334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="select.svg">
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       effect="powermask"
+       id="path-effect2895"
+       is_visible="true"
+       lpeversion="1"
+       uri="#mask-powermask-path-effect2895"
+       invert="false"
+       hide_mask="false"
+       background="true"
+       background_color="#ffffffff" />
+    <linearGradient
+       id="linearGradient866"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#838799;stop-opacity:1;"
+         offset="0"
+         id="stop864" />
+    </linearGradient>
+    <marker
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.8) translate(12.5,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path2747" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 8.466667 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="16.933333 : 8.466667 : 1"
+       inkscape:persp3d-origin="8.4666665 : 5.6444447 : 1"
+       id="perspective2694" />
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask-powermask-path-effect2895">
+      <path
+         id="mask-powermask-path-effect2895_box"
+         style="fill:#ffffff;fill-opacity:1"
+         d="M -0.69833337,-0.69833337 H 15.250417 V 12.075417 H -0.69833337 Z" />
+      <rect
+         style="opacity:1;mix-blend-mode:normal;fill:#000000;fill-opacity:0.997319;fill-rule:nonzero;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect2893"
+         width="5.5562496"
+         height="5.0270834"
+         x="9.7895832"
+         y="8.7312498"
+         ry="0.20946184"
+         d="m 9.999045,8.7312498 h 5.137326 c 0.116042,0 0.209462,0.09342 0.209462,0.2094618 v 4.6081594 c 0,0.116042 -0.09342,0.209462 -0.209462,0.209462 H 9.999045 c -0.1160418,0 -0.2094618,-0.09342 -0.2094618,-0.209462 V 8.9407116 c 0,-0.1160418 0.09342,-0.2094618 0.2094618,-0.2094618 z" />
+    </mask>
+    <filter
+       id="mask-powermask-path-effect2895_inverse"
+       inkscape:label="filtermask-powermask-path-effect2895"
+       style="color-interpolation-filters:sRGB"
+       height="100"
+       width="100"
+       x="-50"
+       y="-50">
+      <feColorMatrix
+         id="mask-powermask-path-effect2895_primitive1"
+         values="1"
+         type="saturate"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         id="mask-powermask-path-effect2895_primitive2"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0 "
+         in="fbSourceGraphic" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="12.921875"
+     inkscape:cx="30.176126"
+     inkscape:cy="29.137257"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid833" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Back"
+     style="opacity:0.997">
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.455;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.82, 1.82;stroke-dashoffset:3.3215;stroke-opacity:1;paint-order:normal"
+       id="rect2692"
+       width="13.493751"
+       height="10.31875"
+       x="0.52916664"
+       y="0.52916664"
+       sodipodi:type="rect"
+       mask="url(#mask-powermask-path-effect2895)"
+       inkscape:path-effect="#path-effect2895"
+       d="M 0.52916664,0.52916664 H 14.022917 V 10.847917 H 0.52916664 Z" />
+  </g>
+  <g
+     inkscape:label="Front"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <path
+       style="opacity:1;fill:#ffffff;fill-opacity:0.99731904;stroke:#000000;stroke-width:0.435;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 10.31875,5.7546873 v 8.8238547 l 2.129895,-1.217083 1.217083,3.042708 1.521355,-0.608542 L 13.97,12.752917 h 2.434166 z"
+       id="path2710"
+       sodipodi:nodetypes="cccccccc" />
+  </g>
+</svg>
