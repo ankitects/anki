@@ -81,6 +81,7 @@ class SidebarItem:
         name: str,
         icon: Union[str, ColoredIcon],
         on_click: Callable[[], None] = None,
+        search_node: Optional[SearchNode] = None,
         on_expanded: Callable[[bool], None] = None,
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
@@ -95,6 +96,7 @@ class SidebarItem:
         self.item_type = item_type
         self.id = id
         self.on_click = on_click
+        self.search_node = search_node
         self.on_expanded = on_expanded
         self.children: List["SidebarItem"] = []
         self.tooltip: Optional[str] = None
@@ -113,7 +115,7 @@ class SidebarItem:
         name: Union[str, TR.V],
         icon: Union[str, ColoredIcon],
         type: SidebarItemType,
-        on_click: Callable[[], None],
+        search_node: Optional[SearchNode],
     ) -> SidebarItem:
         "Add child sidebar item, and return it."
         if not isinstance(name, str):
@@ -121,7 +123,7 @@ class SidebarItem:
         item = SidebarItem(
             name=name,
             icon=icon,
-            on_click=on_click,
+            search_node=search_node,
             item_type=type,
         )
         self.add_child(item)
@@ -575,6 +577,8 @@ class SidebarTreeView(QTreeView):
         if item := self.model().item_for_index(idx):
             if item.on_click:
                 item.on_click()
+            elif self.tool == SidebarTool.SEARCH and (search := item.search_node):
+                self.update_search(search)
 
     def _on_expansion(self, idx: QModelIndex) -> None:
         if self.current_search:
@@ -651,9 +655,6 @@ class SidebarTreeView(QTreeView):
 
         return top
 
-    def _filter_func(self, *terms: Union[str, SearchNode]) -> Callable:
-        return lambda: self.update_search(*terms)
-
     # Tree: Saved Searches
     ###########################
 
@@ -678,7 +679,7 @@ class SidebarTreeView(QTreeView):
             item = SidebarItem(
                 name,
                 icon,
-                self._filter_func(filt),
+                search_node=SearchNode(parsable_text=filt),
                 item_type=SidebarItemType.SAVED_SEARCH,
             )
             root.add_child(item)
@@ -696,47 +697,42 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.TODAY_ROOT,
         )
         type = SidebarItemType.TODAY
-        search = self._filter_func
 
         root.add_simple(
             name=TR.BROWSING_SIDEBAR_DUE_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchNode(due_on_day=0)),
+            search_node=SearchNode(due_on_day=0),
         )
         root.add_simple(
             name=TR.BROWSING_ADDED_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchNode(added_in_days=1)),
+            search_node=SearchNode(added_in_days=1),
         )
         root.add_simple(
             name=TR.BROWSING_EDITED_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchNode(edited_in_days=1)),
+            search_node=SearchNode(edited_in_days=1),
         )
         root.add_simple(
             name=TR.BROWSING_STUDIED_TODAY,
             icon=icon,
             type=type,
-            on_click=search(SearchNode(rated=SearchNode.Rated(days=1))),
+            search_node=SearchNode(rated=SearchNode.Rated(days=1)),
         )
         root.add_simple(
             name=TR.BROWSING_AGAIN_TODAY,
             icon=icon,
             type=type,
-            on_click=search(
-                SearchNode(
-                    rated=SearchNode.Rated(days=1, rating=SearchNode.RATING_AGAIN)
-                )
-            ),
+            search_node=SearchNode(rated=SearchNode.Rated(days=1, rating=SearchNode.RATING_AGAIN)),
         )
         root.add_simple(
             name=TR.BROWSING_SIDEBAR_OVERDUE,
             icon=icon,
             type=type,
-            on_click=search(
+            search_node=self.col.group_searches(
                 SearchNode(card_state=SearchNode.CARD_STATE_DUE),
                 SearchNode(negated=SearchNode(due_on_day=0)),
             ),
@@ -755,38 +751,37 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.CARD_STATE_ROOT,
         )
         type = SidebarItemType.CARD_STATE
-        search = self._filter_func
 
         root.add_simple(
             TR.ACTIONS_NEW,
             icon=icon.with_color(colors.NEW_COUNT),
             type=type,
-            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_NEW)),
+            search_node=SearchNode(card_state=SearchNode.CARD_STATE_NEW),
         )
 
         root.add_simple(
             name=TR.SCHEDULING_LEARNING,
             icon=icon.with_color(colors.LEARN_COUNT),
             type=type,
-            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_LEARN)),
+            search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
             name=TR.SCHEDULING_REVIEW,
             icon=icon.with_color(colors.REVIEW_COUNT),
             type=type,
-            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_REVIEW)),
+            search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
         )
         root.add_simple(
             name=TR.BROWSING_SUSPENDED,
             icon=icon.with_color(colors.SUSPENDED_FG),
             type=type,
-            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED)),
+            search_node=SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
         )
         root.add_simple(
             name=TR.BROWSING_BURIED,
             icon=icon.with_color(colors.BURIED_FG),
             type=type,
-            on_click=search(SearchNode(card_state=SearchNode.CARD_STATE_BURIED)),
+            search_node=SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
         )
 
     # Tree: Flags
@@ -794,7 +789,6 @@ class SidebarTreeView(QTreeView):
 
     def _flags_tree(self, root: SidebarItem) -> None:
         icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
-        search = self._filter_func
         root = self._section_root(
             root=root,
             name=TR.BROWSING_SIDEBAR_FLAGS,
@@ -802,38 +796,38 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
         )
-        root.on_click = search(SearchNode(flag=SearchNode.FLAG_ANY))
+        root.search_node = SearchNode(flag=SearchNode.FLAG_ANY)
 
         type = SidebarItemType.FLAG
         root.add_simple(
             TR.ACTIONS_RED_FLAG,
             icon=icon.with_color(colors.FLAG1_FG),
             type=type,
-            on_click=search(SearchNode(flag=SearchNode.FLAG_RED)),
+            search_node=SearchNode(flag=SearchNode.FLAG_RED),
         )
         root.add_simple(
             TR.ACTIONS_ORANGE_FLAG,
             icon=icon.with_color(colors.FLAG2_FG),
             type=type,
-            on_click=search(SearchNode(flag=SearchNode.FLAG_ORANGE)),
+            search_node=SearchNode(flag=SearchNode.FLAG_ORANGE),
         )
         root.add_simple(
             TR.ACTIONS_GREEN_FLAG,
             icon=icon.with_color(colors.FLAG3_FG),
             type=type,
-            on_click=search(SearchNode(flag=SearchNode.FLAG_GREEN)),
+            search_node=SearchNode(flag=SearchNode.FLAG_GREEN),
         )
         root.add_simple(
             TR.ACTIONS_BLUE_FLAG,
             icon=icon.with_color(colors.FLAG4_FG),
             type=type,
-            on_click=search(SearchNode(flag=SearchNode.FLAG_BLUE)),
+            search_node=SearchNode(flag=SearchNode.FLAG_BLUE),
         )
         root.add_simple(
             TR.BROWSING_NO_FLAG,
             icon=icon.with_color(colors.DISABLED),
             type=type,
-            on_click=search(SearchNode(flag=SearchNode.FLAG_NONE)),
+            search_node=SearchNode(flag=SearchNode.FLAG_NONE),
         )
 
     # Tree: Tags
@@ -854,11 +848,11 @@ class SidebarTreeView(QTreeView):
                     )
 
                 item = SidebarItem(
-                    node.name,
-                    icon,
-                    self._filter_func(SearchNode(tag=head + node.name)),
-                    toggle_expand(),
-                    node.expanded,
+                    name=node.name,
+                    icon=icon,
+                    search_node=SearchNode(tag=head + node.name),
+                    on_expanded=toggle_expand(),
+                    expanded=node.expanded,
                     item_type=SidebarItemType.TAG,
                     full_name=head + node.name,
                 )
@@ -874,12 +868,12 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
-        root.on_click = self._filter_func(SearchNode(negated=SearchNode(tag="none")))
+        root.search_node = SearchNode(negated=SearchNode(tag="none"))
         root.add_simple(
             name=tr(TR.BROWSING_SIDEBAR_UNTAGGED),
             icon=icon,
             type=SidebarItemType.TAG_NONE,
-            on_click=self._filter_func(SearchNode(tag="none")),
+            search_node=SearchNode(tag="none"),
         )
 
         render(root, tree.children)
@@ -900,11 +894,11 @@ class SidebarTreeView(QTreeView):
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
 
                 item = SidebarItem(
-                    node.name,
-                    icon,
-                    self._filter_func(SearchNode(deck=head + node.name)),
-                    toggle_expand(),
-                    not node.collapsed,
+                    name=node.name,
+                    icon=icon,
+                    search_node=SearchNode(deck=head + node.name),
+                    on_expanded=toggle_expand(),
+                    expanded=not node.collapsed,
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,
                     full_name=head + node.name,
@@ -921,12 +915,12 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
-        root.on_click = self._filter_func(SearchNode(deck="*"))
+        root.search_node = SearchNode(deck="*")
         current = root.add_simple(
             name=tr(TR.BROWSING_CURRENT_DECK),
             icon=icon,
             type=SidebarItemType.DECK,
-            on_click=self._filter_func(SearchNode(deck="current")),
+            search_node=SearchNode(deck="current"),
         )
         current.id = self.mw.col.decks.selected()
 
@@ -949,7 +943,7 @@ class SidebarTreeView(QTreeView):
             item = SidebarItem(
                 nt["name"],
                 icon,
-                self._filter_func(SearchNode(note=nt["name"])),
+                search_node=SearchNode(note=nt["name"]),
                 item_type=SidebarItemType.NOTETYPE,
                 id=nt["id"],
             )
@@ -958,7 +952,7 @@ class SidebarTreeView(QTreeView):
                 child = SidebarItem(
                     tmpl["name"],
                     icon,
-                    self._filter_func(
+                    search_node=self.col.group_searches(
                         SearchNode(note=nt["name"]), SearchNode(template=c)
                     ),
                     item_type=SidebarItemType.NOTETYPE_TEMPLATE,
