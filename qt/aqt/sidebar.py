@@ -254,17 +254,22 @@ class SidebarToolbar(QToolBar):
         self.sidebar = sidebar
         self._action_group = QActionGroup(self)
         qconnect(self._action_group.triggered, self._on_action_group_triggered)
-        self._add_tools()
+        self._setup_tools()
 
-    def _add_tools(self) -> None:
+    def _setup_tools(self) -> None:
         for row in self._tools:
             action = self.addAction(theme_manager.icon_from_resources(row[1]), row[2])
             action.setCheckable(True)
             self._action_group.addAction(action)
+        saved = self.sidebar.col.get_config("sidebarTool", 0)
+        active = saved if saved < len(self._tools) else 0
+        self._action_group.actions()[active].setChecked(True)
+        self.sidebar.tool = self._tools[active][0]
 
     def _on_action_group_triggered(self, action) -> None:
-        tool = self._tools[self._action_group.actions().index(action)][0]
-        self.sidebar.tool = tool
+        index = self._action_group.actions().index(action)
+        self.sidebar.col.set_config("sidebarTool", index)
+        self.sidebar.tool = self._tools[index][0]
 
 
 class SidebarSearchBar(QLineEdit):
@@ -371,8 +376,6 @@ class SidebarTreeView(QTreeView):
 
     @tool.setter
     def tool(self, tool: SidebarTool) -> None:
-        if self._tool == tool:
-            return
         self._tool = tool
         if tool == SidebarTool.SELECT:
             # pylint: disable=no-member
