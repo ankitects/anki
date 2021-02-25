@@ -10,5 +10,7 @@
         <file>icons/clock.svg</file>
         <file>icons/card-state.svg</file>
         <file>icons/flag.svg</file>
+        <file>icons/select.svg</file>
+        <file>icons/magnifying_glass.svg</file>
     </qresource>
 </RCC>
