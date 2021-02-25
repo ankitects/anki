@@ -32,6 +32,7 @@ from aqt.utils import (
 class SidebarTool(Enum):
     SELECT = auto()
     SEARCH = auto()
+    EDIT = auto()
 
 
 class SidebarItemType(Enum):
@@ -247,6 +248,7 @@ class SidebarToolbar(QToolBar):
     _tools: Tuple[SidebarTool, str, str] = (
         (SidebarTool.SELECT, ":/icons/select.svg", "select"),
         (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", "search"),
+        (SidebarTool.EDIT, ":/icons/edit.svg", "edit"),
     )
 
     def __init__(self, sidebar: SidebarTreeView) -> None:
@@ -350,7 +352,6 @@ class SidebarTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setIndentation(15)
         self.setAutoExpandDelay(600)
-        self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDragDropOverwriteMode(False)
 
         qconnect(self.expanded, self._on_expansion)
@@ -379,11 +380,17 @@ class SidebarTreeView(QTreeView):
         self._tool = tool
         if tool == SidebarTool.SELECT:
             # pylint: disable=no-member
-            mode = QAbstractItemView.SelectionMode.ExtendedSelection  # type: ignore
+            selection_mode = QAbstractItemView.ExtendedSelection  # type: ignore
+            drag_drop_mode = QAbstractItemView.NoDragDrop
         elif tool == SidebarTool.SEARCH:
             # pylint: disable=no-member
-            mode = QAbstractItemView.SelectionMode.SingleSelection  # type: ignore
-        self.setSelectionMode(mode)
+            selection_mode = QAbstractItemView.SingleSelection  # type: ignore
+            drag_drop_mode = QAbstractItemView.NoDragDrop
+        elif tool == SidebarTool.EDIT:
+            selection_mode = QAbstractItemView.SingleSelection  # type: ignore
+            drag_drop_mode = QAbstractItemView.InternalMove
+        self.setSelectionMode(selection_mode)
+        self.setDragDropMode(drag_drop_mode)
 
     def model(self) -> SidebarModel:
         return super().model()

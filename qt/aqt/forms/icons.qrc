@@ -12,5 +12,6 @@
         <file>icons/flag.svg</file>
         <file>icons/select.svg</file>
         <file>icons/magnifying_glass.svg</file>
+        <file>icons/edit.svg</file>
     </qresource>
 </RCC>
