@@ -245,9 +245,9 @@ class SidebarModel(QAbstractItemModel):
 
 
 class SidebarToolbar(QToolBar):
-    _tools: Tuple[SidebarTool, str, str] = (
-        (SidebarTool.SELECT, ":/icons/select.svg", "select"),
+    _tools: Tuple[Tuple[SidebarTool, str, str], ...] = (
         (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", "search"),
+        (SidebarTool.SELECT, ":/icons/select.svg", "select"),
         (SidebarTool.EDIT, ":/icons/edit.svg", "edit"),
     )
 
@@ -268,7 +268,7 @@ class SidebarToolbar(QToolBar):
         self._action_group.actions()[active].setChecked(True)
         self.sidebar.tool = self._tools[active][0]
 
-    def _on_action_group_triggered(self, action) -> None:
+    def _on_action_group_triggered(self, action: QAction) -> None:
         index = self._action_group.actions().index(action)
         self.sidebar.col.set_config("sidebarTool", index)
         self.sidebar.tool = self._tools[index][0]
