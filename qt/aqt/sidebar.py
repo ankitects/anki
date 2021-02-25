@@ -29,6 +29,11 @@ from aqt.utils import (
 )
 
 
+class SidebarTool(Enum):
+    SELECT = auto()
+    SEARCH = auto()
+
+
 class SidebarItemType(Enum):
     ROOT = auto()
     SAVED_SEARCH_ROOT = auto()
@@ -237,6 +242,25 @@ class SidebarModel(QAbstractItemModel):
 
         return cast(Qt.ItemFlags, flags)
 
+
+class SidebarToolbar(QToolBar):
+    _tools: Tuple[SidebarTool, str, str] = (
+        (SidebarTool.SELECT, ":/icons/select.svg", "select"),
+        (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", "search"),
+    )
+
+    def __init__(self, sidebar: SidebarTreeView) -> None:
+        super().__init__()
+        self.sidebar = sidebar
+        self._action_group = QActionGroup(self)
+        qconnect(self._action_group.triggered, self._on_action_group_triggered)
+        self._add_tools()
+
+    def _add_tools(self) -> None:
+        for row in self._tools:
+            action = self.addAction(theme_manager.icon_from_resources(row[1]), row[2])
+            action.setCheckable(True)
+            self._action_group.addAction(action)
 
 class SidebarSearchBar(QLineEdit):
     def __init__(self, sidebar: SidebarTreeView) -> None:
