@@ -4,7 +4,7 @@
 from typing import List, Optional
 
 import aqt
-from anki.decks import DeckRenameError
+from anki.errors import DeckIsFilteredError
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -17,8 +17,8 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     shortcut,
-    show_rename_deck_error,
     showInfo,
+    showWarning,
     tr,
 )
 
@@ -168,8 +168,8 @@ class StudyDeck(QDialog):
         if n:
             try:
                 did = self.mw.col.decks.id(n)
-            except DeckRenameError as err:
-                show_rename_deck_error(err)
+            except DeckIsFilteredError as err:
+                showWarning(str(err))
                 return
             # deck name may not be the same as user input. ex: ", ::
             self.name = self.mw.col.decks.name(did)
