@@ -5,7 +5,7 @@ from __future__ import annotations
 from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 import aqt
 from anki.decks import DeckTreeNode
@@ -296,20 +296,26 @@ class DeckBrowser:
         self.show()
 
     def ask_delete_deck(self, did: int) -> bool:
-        deck = self.mw.col.decks.get(did)
-        if deck["dyn"]:
+        return self.ask_delete_decks([did])
+
+    def ask_delete_decks(self, dids: List[int]) -> bool:
+        decks = [self.mw.col.decks.get(did) for did in dids]
+        if all([deck["dyn"] for deck in decks]):
             return True
 
-        count = self.mw.col.decks.card_count(did, include_subdecks=True)
+        count = self.mw.col.decks.card_count(dids, include_subdecks=True)
         if not count:
             return True
 
-        extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
-        if askUser(
-            f"{tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck['name'])} {extra}"
-        ):
-            return True
-        return False
+        if len(dids) == 1:
+            extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
+            return askUser(
+                f"{tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=decks[0]['name'])} {extra}"
+            )
+
+        return askUser(
+            tr(TR.DECKS_CONFIRM_DELETION, deck_count=len(dids), card_count=count)
+        )
 
     def _delete(self, did: int) -> None:
         if self.ask_delete_deck(did):

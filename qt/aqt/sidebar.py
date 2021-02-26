@@ -1108,15 +1108,15 @@ class SidebarTreeView(QTreeView):
         self.browser.model.beginReset()
         self.mw.taskman.run_in_background(do_rename, on_done)
 
-    def delete_deck(self, item: SidebarItem) -> None:
-        self.browser.editor.saveNow(lambda: self._delete_deck(item))
+    def delete_deck(self, _item: SidebarItem) -> None:
+        self.browser.editor.saveNow(self._delete_decks)
 
-    def _delete_deck(self, item: SidebarItem) -> None:
-        did = item.id
-        if self.mw.deckBrowser.ask_delete_deck(did):
+    def _delete_decks(self) -> None:
+        dids = self._selected_decks()
+        if self.mw.deckBrowser.ask_delete_decks(dids):
 
             def do_delete() -> None:
-                return self.mw.col.decks.rem(did, True)
+                return self.mw.col.decks.remove(dids)
 
             def on_done(fut: Future) -> None:
                 self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
@@ -1190,3 +1190,10 @@ class SidebarTreeView(QTreeView):
 
     def _selected_items(self) -> List[SidebarItem]:
         return [self.model().item_for_index(idx) for idx in self.selectedIndexes()]
+
+    def _selected_decks(self) -> List[int]:
+        return [
+            item.id
+            for item in self._selected_items()
+            if item.item_type == SidebarItemType.DECK
+        ]

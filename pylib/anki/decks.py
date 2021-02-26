@@ -135,7 +135,10 @@ class DeckManager:
         if isinstance(did, str):
             did = int(did)
         assert cardsToo and childrenToo
-        self.col._backend.remove_deck(did)
+        self.remove([did])
+
+    def remove(self, dids: List[int]) -> None:
+        self.col._backend.remove_decks(dids)
 
     def all_names_and_ids(
         self, skip_empty_default: bool = False, include_filtered: bool = True
@@ -212,10 +215,15 @@ class DeckManager:
     def count(self) -> int:
         return len(self.all_names_and_ids())
 
-    def card_count(self, did: int, include_subdecks: bool) -> Any:
-        dids: List[int] = [did]
+    def card_count(
+        self, dids: Union[int, Iterable[int]], include_subdecks: bool
+    ) -> Any:
+        if isinstance(dids, int):
+            dids = {dids}
+        else:
+            dids = set(dids)
         if include_subdecks:
-            dids += [r[1] for r in self.children(did)]
+            dids.update([child[1] for did in dids for child in self.children(did)])
         count = self.col.db.scalar(
             "select count() from cards where did in {0} or "
             "odid in {0}".format(ids2str(dids))
