@@ -37,8 +37,6 @@ class StudyDeck(QDialog):
         geomKey: str = "default",
     ) -> None:
         QDialog.__init__(self, parent or mw)
-        if buttons is None:
-            buttons = []
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
@@ -52,7 +50,7 @@ class StudyDeck(QDialog):
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel)
             )
-        if buttons:
+        if buttons is not None:
             for b in buttons:
                 self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
         else:
