@@ -3,7 +3,7 @@
 
 use crate::{
     backend_proto as pb,
-    card::{Card, CardID, CardQueue, CardType},
+    card::{Card, CardID, CardQueue},
     collection::Collection,
     config::SchedulerVersion,
     err::Result,
@@ -22,19 +22,7 @@ impl Card {
         ) {
             false
         } else {
-            self.queue = match self.ctype {
-                CardType::Learn | CardType::Relearn => {
-                    if self.original_or_current_due() > 1_000_000_000 {
-                        // previous interval was in seconds
-                        CardQueue::Learn
-                    } else {
-                        // previous interval was in days
-                        CardQueue::DayLearn
-                    }
-                }
-                CardType::New => CardQueue::New,
-                CardType::Review => CardQueue::Review,
-            };
+            self.restore_queue_from_type();
             true
         }
     }
