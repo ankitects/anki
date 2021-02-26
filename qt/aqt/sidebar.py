@@ -259,6 +259,7 @@ class SidebarToolbar(QToolBar):
         self._action_group = QActionGroup(self)
         qconnect(self._action_group.triggered, self._on_action_group_triggered)
         self._setup_tools()
+        self.setIconSize(QSize(18, 18))
 
     def _setup_tools(self) -> None:
         for row in self._tools:

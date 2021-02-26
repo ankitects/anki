@@ -946,14 +946,14 @@ QTableView {{ gridline-color: {grid} }}
             self.form.actionSidebarFilter.triggered,
             self.focusSidebarSearchBar,
         )
-        l = QVBoxLayout()
-        l.addWidget(toolbar)
-        l.addWidget(searchBar)
-        l.addWidget(self.sidebar)
-        l.setContentsMargins(0, 0, 0, 0)
-        l.setSpacing(0)
+        grid = QGridLayout()
+        grid.addWidget(searchBar, 0, 0)
+        grid.addWidget(toolbar, 0, 1)
+        grid.addWidget(self.sidebar, 1, 0, 1, 2)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setSpacing(0)
         w = QWidget()
-        w.setLayout(l)
+        w.setLayout(grid)
         dw.setWidget(w)
         self.sidebarDockWidget.setFloating(False)
 
