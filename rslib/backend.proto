@@ -68,6 +68,10 @@ message DeckID {
   int64 did = 1;
 }
 
+message DeckIDs {
+  repeated int64 dids = 1;
+}
+
 message DeckConfigID {
   int64 dcid = 1;
 }
@@ -146,7 +150,7 @@ service BackendService {
   rpc GetDeckLegacy(DeckID) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
-  rpc RemoveDeck(DeckID) returns (Empty);
+  rpc RemoveDecks(DeckIDs) returns (Empty);
   rpc DragDropDecks(DragDropDecksIn) returns (Empty);
 
   // deck config
