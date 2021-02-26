@@ -2,6 +2,7 @@ decks-add-new-deck-ctrlandn = Add New Deck (Ctrl+N)
 decks-are-you-sure-you-wish-to = Are you sure you wish to delete { $val }?
 decks-build = Build
 decks-cards-selected-by = cards selected by
+decks-confirm-deletion = Are you sure you wish to delete { $deck_count } decks including { $card_count } cards?
 decks-create-deck = Create Deck
 decks-custom-steps-in-minutes = Custom steps (in minutes)
 decks-deck = Deck
