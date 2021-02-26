@@ -69,6 +69,12 @@ impl From<pb::DeckId> for DeckID {
     }
 }
 
+impl From<pb::DeckIDs> for Vec<DeckID> {
+    fn from(dids: pb::DeckIDs) -> Self {
+        dids.dids.into_iter().map(DeckID).collect()
+    }
+}
+
 impl From<pb::DeckConfigId> for DeckConfID {
     fn from(dcid: pb::DeckConfigId) -> Self {
         DeckConfID(dcid.dcid)

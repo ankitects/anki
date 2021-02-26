@@ -898,8 +898,8 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
-    fn remove_deck(&self, input: pb::DeckId) -> BackendResult<Empty> {
-        self.with_col(|col| col.remove_deck_and_child_decks(input.into()))
+    fn remove_decks(&self, input: pb::DeckIDs) -> BackendResult<Empty> {
+        self.with_col(|col| col.remove_decks_and_child_decks(input.into()))
             .map(Into::into)
     }
 

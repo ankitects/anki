@@ -1522,7 +1522,7 @@ mod test {
         col1.remove_cards_and_orphaned_notes(&[cardid])?;
         let usn = col1.usn()?;
         col1.remove_note_only(noteid, usn)?;
-        col1.remove_deck_and_child_decks(deckid)?;
+        col1.remove_decks_and_child_decks(vec![deckid])?;
 
         let out = ctx.normal_sync(&mut col1).await;
         assert_eq!(out.required, SyncActionRequired::NoChanges);
