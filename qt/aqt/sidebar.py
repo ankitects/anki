@@ -616,11 +616,6 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.SAVED_SEARCH_ROOT,
         )
 
-        def on_click() -> None:
-            self.show_context_menu(root, None)
-
-        root.on_click = on_click
-
         for name, filt in sorted(saved.items()):
             item = SidebarItem(
                 name,
