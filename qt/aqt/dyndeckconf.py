@@ -4,8 +4,8 @@ from typing import Callable, List, Optional
 
 import aqt
 from anki.collection import SearchNode
-from anki.decks import Deck, DeckRenameError
-from anki.errors import InvalidInput
+from anki.decks import Deck
+from anki.errors import DeckIsFilteredError, InvalidInput
 from anki.lang import without_unicode_isolation
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.qt import *
@@ -19,7 +19,6 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     show_invalid_search_error,
-    show_rename_deck_error,
     showWarning,
     tr,
 )
@@ -244,8 +243,8 @@ class DeckConf(QDialog):
             self.saveConf()
         except InvalidInput as err:
             show_invalid_search_error(err)
-        except DeckRenameError as err:
-            show_rename_deck_error(err)
+        except DeckIsFilteredError as err:
+            showWarning(str(err))
         else:
             if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
                 if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):

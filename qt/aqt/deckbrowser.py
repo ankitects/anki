@@ -9,7 +9,7 @@ from typing import Any
 
 import aqt
 from anki.decks import DeckTreeNode
-from anki.errors import DeckRenameError
+from anki.errors import DeckIsFilteredError
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -21,8 +21,8 @@ from aqt.utils import (
     getOnlyText,
     openLink,
     shortcut,
-    show_rename_deck_error,
     showInfo,
+    showWarning,
     tr,
 )
 
@@ -268,8 +268,8 @@ class DeckBrowser:
         try:
             self.mw.col.decks.rename(deck, newName)
             gui_hooks.sidebar_should_refresh_decks()
-        except DeckRenameError as err:
-            show_rename_deck_error(err)
+        except DeckIsFilteredError as err:
+            showWarning(str(err))
             return
         self.show()
 
@@ -353,8 +353,8 @@ class DeckBrowser:
         if deck:
             try:
                 self.mw.col.decks.id(deck)
-            except DeckRenameError as err:
-                show_rename_deck_error(err)
+            except DeckIsFilteredError as err:
+                showWarning(str(err))
                 return
             gui_hooks.sidebar_should_refresh_decks()
             self.refresh()

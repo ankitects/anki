@@ -10,7 +10,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
 import aqt
 from anki.collection import Config, SearchNode
 from anki.decks import DeckTreeNode
-from anki.errors import DeckRenameError, InvalidInput
+from anki.errors import DeckIsFilteredError, InvalidInput
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
@@ -23,8 +23,8 @@ from aqt.utils import (
     askUser,
     getOnlyText,
     show_invalid_search_error,
-    show_rename_deck_error,
     showInfo,
+    showWarning,
     tr,
 )
 
@@ -993,8 +993,8 @@ class SidebarTreeView(QTreeView):
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
-        except DeckRenameError as err:
-            show_rename_deck_error(err)
+        except DeckIsFilteredError as err:
+            showWarning(str(err))
             return
         self.refresh()
         self.mw.deckBrowser.refresh()
