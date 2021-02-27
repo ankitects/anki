@@ -135,3 +135,15 @@ button.highlighted {
         color: var(--link);
     }
 }
+
+.sticky-icon {
+    color: var(--bs-dark);
+
+    .nightMode & {
+        color: var(--bs-light);
+    }
+
+    &.is-active {
+        color: var(--bs-danger);
+    }
+}

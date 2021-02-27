@@ -211,20 +211,54 @@ export class EditingArea extends HTMLDivElement {
 
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 
+export class LabelContainer extends HTMLDivElement {
+    sticky: HTMLSpanElement
+    label: HTMLSpanElement
+
+    constructor() {
+        super();
+        this.className = "d-flex";
+
+        this.sticky = document.createElement("span");
+        this.sticky.className = "bi bi-pin-angle-fill me-1 sticky-icon";
+        this.appendChild(this.sticky);
+
+        this.label = document.createElement("span");
+        this.label.className = "fieldname";
+        this.appendChild(this.label);
+
+        this.toggleSticky = this.toggleSticky.bind(this);
+    }
+
+    connectedCallback(): void {
+        this.sticky.addEventListener("click", this.toggleSticky);
+    }
+
+    disconnectedCallback(): void {
+        this.sticky.removeEventListener("click", this.toggleSticky);
+    }
+
+    initialize(labelName: string): void {
+        this.label.innerText = labelName;
+    }
+
+    toggleSticky(): void {
+        this.sticky.classList.toggle('is-active');
+    }
+}
+
+customElements.define("anki-label-container", LabelContainer, { extends: "div" });
+
 export class EditorField extends HTMLDivElement {
-    labelContainer: HTMLDivElement;
-    label: HTMLSpanElement;
+    labelContainer: LabelContainer;
     editingArea: EditingArea;
 
     constructor() {
         super();
-        this.labelContainer = document.createElement("div");
-        this.labelContainer.className = "fname";
+        this.labelContainer = document.createElement("div", {
+            is: "anki-label-container",
+        }) as LabelContainer;
         this.appendChild(this.labelContainer);
-
-        this.label = document.createElement("span");
-        this.label.className = "fieldname";
-        this.labelContainer.appendChild(this.label);
 
         this.editingArea = document.createElement("div", {
             is: "anki-editing-area",
@@ -248,7 +282,7 @@ export class EditorField extends HTMLDivElement {
     }
 
     initialize(label: string, color: string, content: string): void {
-        this.label.innerText = label;
+        this.labelContainer.initialize(label);
         this.editingArea.initialize(color, content);
     }
 
