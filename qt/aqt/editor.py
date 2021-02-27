@@ -221,6 +221,7 @@ class Editor:
             _html % (bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
             css=[
                 "css/vendor/bootstrap.min.css",
+                "css/vendor/bootstrap-icons.css",
                 "css/editor.css",
             ],
             js=[
