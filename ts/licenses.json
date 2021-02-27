@@ -7,14 +7,6 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
-    "@popperjs/core@2.8.6": {
-        "licenses": "MIT",
-        "repository": "https://github.com/popperjs/popper-core",
-        "publisher": "Federico Zivolo",
-        "email": "federico.zivolo@gmail.com",
-        "path": "node_modules/@popperjs/core",
-        "licenseFile": "node_modules/@popperjs/core/LICENSE.md"
-    },
     "@protobufjs/aspromise@1.1.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/dcodeIO/protobuf.js",
