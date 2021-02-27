@@ -105,10 +105,11 @@ button.highlighted {
 
     #topbutsright & {
         border-bottom: 3px solid black;
-    }
+        border-radius: 3px;
 
-    .nightMode #topbutsright & {
-        border-bottom: 3px solid white;
+        .nightMode & {
+            border-bottom-color: white;
+        }
     }
 }
 
