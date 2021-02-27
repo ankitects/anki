@@ -7,6 +7,14 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
+    "@popperjs/core@2.8.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/popperjs/popper-core",
+        "publisher": "Federico Zivolo",
+        "email": "federico.zivolo@gmail.com",
+        "path": "node_modules/@popperjs/core",
+        "licenseFile": "node_modules/@popperjs/core/LICENSE.md"
+    },
     "@protobufjs/aspromise@1.1.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/dcodeIO/protobuf.js",
@@ -98,6 +106,21 @@
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
+    },
+    "bootstrap-icons@1.4.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/twbs/icons",
+        "publisher": "mdo",
+        "path": "node_modules/bootstrap-icons",
+        "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
+    },
+    "bootstrap@5.0.0-beta2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/twbs/bootstrap",
+        "publisher": "The Bootstrap Authors",
+        "url": "https://github.com/twbs/bootstrap/graphs/contributors",
+        "path": "node_modules/bootstrap",
+        "licenseFile": "node_modules/bootstrap/LICENSE"
     },
     "commander@2.20.3": {
         "licenses": "MIT",
