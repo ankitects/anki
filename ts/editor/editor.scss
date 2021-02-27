@@ -56,9 +56,15 @@ body {
 }
 
 .topbut {
+    display: inline-block;
     width: 16px;
     height: 16px;
     margin-top: 4px;
+    vertical-align: -.125em;
+}
+
+.topbut--rounded {
+    border-radius: 5px;
 }
 
 .rainbow {

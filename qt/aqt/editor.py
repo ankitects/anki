@@ -179,19 +179,16 @@ class Editor:
                 "colour",
                 tr(TR.EDITING_SET_FOREGROUND_COLOUR_F7),
                 """
-<div id="forecolor"
-     style="display: inline-block; background: #000; border-radius: 5px;"
-     class="topbut"
->""",
+<span id="forecolor" class="topbut topbut--rounded" style="background: #000"></span>
+"""
             ),
             self._addButton(
                 None,
                 "changeCol",
                 tr(TR.EDITING_CHANGE_COLOUR_F8),
                 """
-<div style="display: inline-block; border-radius: 5px;"
-     class="topbut rainbow"
->""",
+<span class="topbut topbut--rounded rainbow"></span>
+"""
             ),
             self._addButton(
                 "text_cloze", "cloze", tr(TR.EDITING_CLOZE_DELETION_CTRLANDSHIFTANDC)
@@ -321,7 +318,7 @@ class Editor:
         else:
             imgelm = ""
         if label or not imgelm:
-            labelelm = f"""<span class=blabel>{label or cmd}</span>"""
+            labelelm = label or cmd
         else:
             labelelm = ""
         if id:
