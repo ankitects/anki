@@ -129,14 +129,3 @@ def copy_bootstrap_icons(name = "bootstrap-icons", visibility = ["//visibility:p
         strip_prefix = "font/",
         visibility = visibility,
     )
-
-def copy_popperjs(name = "popperjs", visibility = ["//visibility:public"]):
-    vendor_js_lib(
-        name = name,
-        pkg = "@npm//@popperjs/core:core__files",
-        include = [
-            "external/npm/node_modules/@popperjs/core/dist/umd/popper.min.js",
-        ],
-        strip_prefix = "external/npm/node_modules/@popperjs/core/dist/umd/",
-        visibility = visibility,
-    )
