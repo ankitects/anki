@@ -29,6 +29,7 @@ from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *
+from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -180,7 +181,7 @@ class Editor:
                 tr(TR.EDITING_SET_FOREGROUND_COLOUR_F7),
                 """
 <span id="forecolor" class="topbut topbut--rounded" style="background: #000"></span>
-"""
+""",
             ),
             self._addButton(
                 None,
@@ -188,7 +189,7 @@ class Editor:
                 tr(TR.EDITING_CHANGE_COLOUR_F8),
                 """
 <span class="topbut topbut--rounded rainbow"></span>
-"""
+""",
             ),
             self._addButton(
                 "text_cloze", "cloze", tr(TR.EDITING_CLOZE_DELETION_CTRLANDSHIFTANDC)
@@ -472,6 +473,16 @@ class Editor:
         else:
             print("uncaught cmd", cmd)
 
+        if cmd.startswith("toggleSticky"):
+            (type, num) = cmd.split(":", 1)
+            ord = int(num)
+
+            fld = self.note.model()["flds"][ord]
+            fld["sticky"] = not fld["sticky"]
+
+            change_tracker = ChangeTracker(self.mw)
+            change_tracker.mark_basic()
+
     def mungeHTML(self, txt: str) -> str:
         return gui_hooks.editor_will_munge_html(txt, self)
 
@@ -520,6 +531,11 @@ class Editor:
             json.dumps(focusTo),
             json.dumps(self.note.id),
         )
+
+        if self.addMode:
+            sticky = [field["sticky"] for field in self.note.model()["flds"]]
+            js += " setSticky(%s);" % json.dumps(sticky)
+
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(js, oncallback)
 
