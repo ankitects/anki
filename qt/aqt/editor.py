@@ -477,7 +477,10 @@ class Editor:
             ord = int(num)
 
             fld = self.note.model()["flds"][ord]
-            fld["sticky"] = not fld["sticky"]
+            new_state = not fld["sticky"]
+            fld["sticky"] = new_state
+
+            return new_state
 
     def mungeHTML(self, txt: str) -> str:
         return gui_hooks.editor_will_munge_html(txt, self)
