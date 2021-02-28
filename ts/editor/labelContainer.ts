@@ -9,7 +9,7 @@ export class LabelContainer extends HTMLDivElement {
         this.className = "d-flex";
 
         this.sticky = document.createElement("span");
-        this.sticky.className = "bi bi-pin-angle-fill me-1 sticky-icon";
+        this.sticky.className = "bi me-1 sticky-icon";
         this.sticky.hidden = true;
         this.appendChild(this.sticky);
 
@@ -32,14 +32,22 @@ export class LabelContainer extends HTMLDivElement {
         this.label.innerText = labelName;
     }
 
+    setSticky(state: boolean): void {
+        this.sticky.classList.toggle("bi-lock-fill", state);
+        this.sticky.classList.toggle("bi-unlock-fill", !state);
+    }
+
     activateSticky(initialState: boolean): void {
-        this.sticky.classList.toggle("is-active", initialState);
+        this.setSticky(initialState);
         this.sticky.hidden = false;
     }
 
     toggleSticky(): void {
-        bridgeCommand(`toggleSticky:${this.getAttribute("ord")}`, () => {
-            this.sticky.classList.toggle("is-active");
-        });
+        bridgeCommand(
+            `toggleSticky:${this.getAttribute("ord")}`,
+            (newState: boolean): void => {
+                this.setSticky(newState);
+            }
+        );
     }
 }

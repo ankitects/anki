@@ -143,8 +143,4 @@ button.highlighted {
     .nightMode & {
         color: var(--bs-light);
     }
-
-    &.is-active {
-        color: var(--bs-danger);
-    }
 }
