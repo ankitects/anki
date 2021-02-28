@@ -700,6 +700,7 @@ class SidebarTreeView(QTreeView):
                 icon,
                 search_node=SearchNode(parsable_text=filt),
                 item_type=SidebarItemType.SAVED_SEARCH,
+                editable=True
             )
             root.add_child(item)
 
@@ -1151,7 +1152,8 @@ class SidebarTreeView(QTreeView):
             new_name = re.sub(re.escape(item.name) + '$', text, item.full_name)
             if item.item_type == SidebarItemType.DECK:
                 return self.rename_deck(item, new_name)
-            return False
+            if item.item_type == SidebarItemType.SAVED_SEARCH:
+                return self.rename_saved_search(item, new_name)
         return False
 
     # Saved searches
@@ -1174,20 +1176,21 @@ class SidebarTreeView(QTreeView):
         self._set_saved_searches(conf)
         self.refresh()
 
-    def rename_saved_search(self, item: SidebarItem) -> None:
+    def rename_saved_search(self, item: SidebarItem, new_name: str = None) -> bool:
         old = item.name
         conf = self._get_saved_searches()
         try:
             filt = conf[old]
         except KeyError:
-            return
-        new = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
+            return False
+        new = new_name or getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
         if new == old or not new:
-            return
+            return False
         conf[new] = filt
         del conf[old]
         self._set_saved_searches(conf)
         self.refresh()
+        return True
 
     def save_current_search(self, _item: Any = None) -> None:
         try:
