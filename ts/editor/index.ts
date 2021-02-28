@@ -115,7 +115,7 @@ export function setFields(fields: [string, string][]): void {
     );
 }
 
-export function setBackgrounds(cols: ("dupe" | "")[]) {
+export function setBackgrounds(cols: ("dupe" | "")[]): void {
     forEditorField(cols, (field, value) =>
         field.editingArea.classList.toggle("dupe", value === "dupe")
     );
