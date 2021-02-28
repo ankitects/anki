@@ -29,7 +29,6 @@ from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -479,9 +478,6 @@ class Editor:
 
             fld = self.note.model()["flds"][ord]
             fld["sticky"] = not fld["sticky"]
-
-            change_tracker = ChangeTracker(self.mw)
-            change_tracker.mark_basic()
 
     def mungeHTML(self, txt: str) -> str:
         return gui_hooks.editor_will_munge_html(txt, self)
