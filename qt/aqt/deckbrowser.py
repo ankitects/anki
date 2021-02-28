@@ -287,7 +287,11 @@ class DeckBrowser:
         self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: int, target: int) -> None:
-        self.mw.col.decks.drag_drop_decks([source], target)
+        try:
+            self.mw.col.decks.drag_drop_decks([source], target)
+        except Exception as e:
+            showWarning(str(e))
+            return
         gui_hooks.sidebar_should_refresh_decks()
         self.show()
 
