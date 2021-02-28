@@ -12,7 +12,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
-from anki.errors import DeckIsFilteredError, DeckRenameError, NotFoundError
+from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
 
 # public exports
@@ -246,12 +246,9 @@ class DeckManager:
 
     def update(self, g: Deck, preserve_usn: bool = True) -> None:
         "Add or update an existing deck. Used for syncing and merging."
-        try:
-            g["id"] = self.col._backend.add_or_update_deck_legacy(
-                deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
-            )
-        except DeckIsFilteredError as exc:
-            raise DeckRenameError("deck was filtered") from exc
+        g["id"] = self.col._backend.add_or_update_deck_legacy(
+            deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
+        )
 
     def rename(self, g: Deck, newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
