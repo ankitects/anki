@@ -429,7 +429,7 @@ class Editor:
     # JS->Python bridge
     ######################################################################
 
-    def onBridgeCmd(self, cmd: str) -> None:
+    def onBridgeCmd(self, cmd: str) -> Any:
         if not self.note:
             # shutdown
             return
