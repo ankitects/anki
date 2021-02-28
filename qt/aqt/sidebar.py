@@ -877,6 +877,7 @@ class SidebarTreeView(QTreeView):
                     expanded=node.expanded,
                     item_type=SidebarItemType.TAG,
                     full_name=head + node.name,
+                    editable=True,
                 )
                 root.add_child(item)
                 newhead = f"{head + node.name}::"
@@ -1098,13 +1099,16 @@ class SidebarTreeView(QTreeView):
         self.browser.model.beginReset()
         self.mw.taskman.run_in_background(do_remove, on_done)
 
-    def rename_tag(self, item: SidebarItem) -> None:
-        self.browser.editor.saveNow(lambda: self._rename_tag(item))
+    def rename_tag(self, item: SidebarItem, new_name: str = None) -> None:
+        # block repainting until callback
+        self.setUpdatesEnabled(False)
+        self.browser.editor.saveNow(lambda: self._rename_tag(item, new_name))
 
-    def _rename_tag(self, item: SidebarItem) -> None:
+    def _rename_tag(self, item: SidebarItem, new_name: str = None) -> None:
         old_name = item.full_name
-        new_name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
+        new_name = new_name or getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
         if new_name == old_name or not new_name:
+            self.setUpdatesEnabled(True)
             return
 
         def do_rename() -> int:
@@ -1154,6 +1158,8 @@ class SidebarTreeView(QTreeView):
                 return self.rename_deck(item, new_name)
             if item.item_type == SidebarItemType.SAVED_SEARCH:
                 return self.rename_saved_search(item, new_name)
+            if item.item_type == SidebarItemType.TAG:
+                self.rename_tag(item, new_name)
         return False
 
     # Saved searches
