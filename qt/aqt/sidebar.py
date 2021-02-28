@@ -472,7 +472,11 @@ class SidebarTreeView(QTreeView):
 
         def on_done(fut: Future) -> None:
             self.browser.model.endReset()
-            fut.result()
+            try:
+                fut.result()
+            except Exception as e:
+                showWarning(str(e))
+                return
             self.refresh()
             self.mw.deckBrowser.refresh()
 

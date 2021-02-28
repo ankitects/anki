@@ -605,6 +605,9 @@ impl Collection {
             let mut target_name = None;
             if let Some(target) = target {
                 if let Some(target) = col.storage.get_deck(target)? {
+                    if target.is_filtered() {
+                        return Err(AnkiError::DeckIsFiltered);
+                    }
                     target_deck = target;
                     target_name = Some(target_deck.name.as_str());
                 }
