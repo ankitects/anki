@@ -2,6 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 body {
+    color: var(--text-fg);
     background-color: var(--bg-color);
 }
 
@@ -61,7 +62,7 @@ body {
     width: 16px;
     height: 16px;
     margin-top: 4px;
-    vertical-align: -.125em;
+    vertical-align: -0.125em;
 }
 
 .topbut--rounded {

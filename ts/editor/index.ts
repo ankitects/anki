@@ -212,8 +212,8 @@ export class EditingArea extends HTMLDivElement {
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 
 export class LabelContainer extends HTMLDivElement {
-    sticky: HTMLSpanElement
-    label: HTMLSpanElement
+    sticky: HTMLSpanElement;
+    label: HTMLSpanElement;
 
     constructor() {
         super();
@@ -221,6 +221,7 @@ export class LabelContainer extends HTMLDivElement {
 
         this.sticky = document.createElement("span");
         this.sticky.className = "bi bi-pin-angle-fill me-1 sticky-icon";
+        this.sticky.hidden = true;
         this.appendChild(this.sticky);
 
         this.label = document.createElement("span");
@@ -242,8 +243,15 @@ export class LabelContainer extends HTMLDivElement {
         this.label.innerText = labelName;
     }
 
+    activateSticky(initialState: boolean): void {
+        this.sticky.classList.toggle("is-active", initialState);
+        this.sticky.hidden = false;
+    }
+
     toggleSticky(): void {
-        this.sticky.classList.toggle('is-active');
+        bridgeCommand(`toggleSticky:${this.getAttribute("ord")}`, () => {
+            this.sticky.classList.toggle("is-active");
+        });
     }
 }
 
@@ -278,6 +286,7 @@ export class EditorField extends HTMLDivElement {
         switch (name) {
             case "ord":
                 this.editingArea.setAttribute("ord", newValue);
+                this.labelContainer.setAttribute("ord", newValue);
         }
     }
 
@@ -350,6 +359,12 @@ export function setBackgrounds(cols: ("dupe" | "")[]) {
 export function setFonts(fonts: [string, number, boolean][]): void {
     forEditorField(fonts, (field, [fontFamily, fontSize, isRtl]) => {
         field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
+    });
+}
+
+export function setSticky(stickies: boolean[]): void {
+    forEditorField(stickies, (field, isSticky) => {
+        field.labelContainer.activateSticky(isSticky);
     });
 }
 
