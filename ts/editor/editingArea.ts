@@ -10,9 +10,8 @@ function onPaste(evt: ClipboardEvent): void {
     evt.preventDefault();
 }
 
-function onCutOrCopy(): boolean {
+function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
-    return true;
 }
 
 export class EditingArea extends HTMLDivElement {
