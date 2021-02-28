@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 from concurrent.futures import Future
 from enum import Enum, auto
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
@@ -87,6 +88,7 @@ class SidebarItem:
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,
         full_name: str = None,
+        editable: bool = False,
     ) -> None:
         self.name = name
         if not full_name:
@@ -97,6 +99,7 @@ class SidebarItem:
         self.id = id
         self.on_click = on_click
         self.search_node = search_node
+        self.editable = editable
         self.on_expanded = on_expanded
         self.children: List["SidebarItem"] = []
         self.tooltip: Optional[str] = None
@@ -151,8 +154,9 @@ class SidebarItem:
 
 
 class SidebarModel(QAbstractItemModel):
-    def __init__(self, root: SidebarItem) -> None:
+    def __init__(self, sidebar: SidebarTreeView, root: SidebarItem) -> None:
         super().__init__()
+        self.sidebar = sidebar
         self.root = root
         self._cache_rows(root)
 
@@ -214,17 +218,19 @@ class SidebarModel(QAbstractItemModel):
         if not index.isValid():
             return QVariant()
 
-        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole):
+        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole, Qt.EditRole):
             return QVariant()
 
         item: SidebarItem = index.internalPointer()
 
-        if role == Qt.DisplayRole:
+        if role in (Qt.DisplayRole, Qt.EditRole):
             return QVariant(item.name)
-        elif role == Qt.ToolTipRole:
+        if role == Qt.ToolTipRole:
             return QVariant(item.tooltip)
-        else:
-            return QVariant(theme_manager.icon_from_resources(item.icon))
+        return QVariant(theme_manager.icon_from_resources(item.icon))
+
+    def setData(self, index: QModelIndex, text: str, _role: int) -> bool:
+        return self.sidebar.rename_node(index.internalPointer(), text)
 
     def supportedDropActions(self) -> Qt.DropActions:
         return cast(Qt.DropActions, Qt.MoveAction)
@@ -242,6 +248,8 @@ class SidebarModel(QAbstractItemModel):
             SidebarItemType.TAG_ROOT,
         ):
             flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+        if item.editable:
+            flags |= Qt.ItemIsEditable
 
         return cast(Qt.ItemFlags, flags)
 
@@ -385,15 +393,19 @@ class SidebarTreeView(QTreeView):
             # pylint: disable=no-member
             selection_mode = QAbstractItemView.ExtendedSelection  # type: ignore
             drag_drop_mode = QAbstractItemView.NoDragDrop
+            edit_triggers = QAbstractItemView.EditKeyPressed
         elif tool == SidebarTool.SEARCH:
             # pylint: disable=no-member
             selection_mode = QAbstractItemView.SingleSelection  # type: ignore
             drag_drop_mode = QAbstractItemView.NoDragDrop
+            edit_triggers = QAbstractItemView.EditKeyPressed
         elif tool == SidebarTool.EDIT:
             selection_mode = QAbstractItemView.SingleSelection  # type: ignore
             drag_drop_mode = QAbstractItemView.InternalMove
+            edit_triggers = QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed
         self.setSelectionMode(selection_mode)
         self.setDragDropMode(drag_drop_mode)
+        self.setEditTriggers(edit_triggers)
 
     def model(self) -> SidebarModel:
         return super().model()
@@ -405,7 +417,7 @@ class SidebarTreeView(QTreeView):
 
         def on_done(fut: Future) -> None:
             root = fut.result()
-            model = SidebarModel(root)
+            model = SidebarModel(self, root)
 
             # from PyQt5.QtTest import QAbstractItemModelTester
             # tester = QAbstractItemModelTester(model)
@@ -415,7 +427,10 @@ class SidebarTreeView(QTreeView):
                 self.search_for(self.current_search)
             else:
                 self._expand_where_necessary(model)
+            self.setUpdatesEnabled(True)
 
+        # block repainting during refreshing to avoid flickering
+        self.setUpdatesEnabled(False)
         self.mw.taskman.run_in_background(self._root_tree, on_done)
 
     def search_for(self, text: str) -> None:
@@ -908,6 +923,7 @@ class SidebarTreeView(QTreeView):
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,
                     full_name=head + node.name,
+                    editable=True,
                 )
                 root.add_child(item)
                 newhead = f"{head + node.name}::"
@@ -1044,21 +1060,22 @@ class SidebarTreeView(QTreeView):
             lambda: set_children_collapsed(True),
         )
 
-    def rename_deck(self, item: SidebarItem) -> None:
+    def rename_deck(self, item: SidebarItem, new_name: Optional[str] = None) -> bool:
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
-        new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
+        new_name = new_name or getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
         new_name = new_name.replace('"', "")
         if not new_name or new_name == old_name:
-            return
+            return False
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
         except DeckRenameError as e:
             showWarning(e.description)
-            return
+            return False
         self.refresh()
         self.mw.deckBrowser.refresh()
+        return True
 
     def remove_tag(self, item: SidebarItem) -> None:
         self.browser.editor.saveNow(lambda: self._remove_tag(item))
@@ -1128,6 +1145,14 @@ class SidebarTreeView(QTreeView):
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
+
+    def rename_node(self, item: SidebarItem, text: str) -> bool:
+        if text.replace('"', ""):
+            new_name = re.sub(re.escape(item.name) + '$', text, item.full_name)
+            if item.item_type == SidebarItemType.DECK:
+                return self.rename_deck(item, new_name)
+            return False
+        return False
 
     # Saved searches
     ##################
