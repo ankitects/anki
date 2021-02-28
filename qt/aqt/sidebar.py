@@ -229,7 +229,9 @@ class SidebarModel(QAbstractItemModel):
             return QVariant(item.tooltip)
         return QVariant(theme_manager.icon_from_resources(item.icon))
 
-    def setData(self, index: QModelIndex, text: str, _role: int) -> bool:
+    def setData(
+        self, index: QModelIndex, text: QVariant, _role: int = Qt.EditRole
+    ) -> bool:
         return self.sidebar.rename_node(index.internalPointer(), text)
 
     def supportedDropActions(self) -> Qt.DropActions:
@@ -390,19 +392,20 @@ class SidebarTreeView(QTreeView):
     def tool(self, tool: SidebarTool) -> None:
         self._tool = tool
         if tool == SidebarTool.SELECT:
-            # pylint: disable=no-member
-            selection_mode = QAbstractItemView.ExtendedSelection  # type: ignore
+            selection_mode = QAbstractItemView.ExtendedSelection
             drag_drop_mode = QAbstractItemView.NoDragDrop
             edit_triggers = QAbstractItemView.EditKeyPressed
         elif tool == SidebarTool.SEARCH:
-            # pylint: disable=no-member
-            selection_mode = QAbstractItemView.SingleSelection  # type: ignore
+            selection_mode = QAbstractItemView.SingleSelection
             drag_drop_mode = QAbstractItemView.NoDragDrop
             edit_triggers = QAbstractItemView.EditKeyPressed
         elif tool == SidebarTool.EDIT:
-            selection_mode = QAbstractItemView.SingleSelection  # type: ignore
+            selection_mode = QAbstractItemView.SingleSelection
             drag_drop_mode = QAbstractItemView.InternalMove
-            edit_triggers = QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed
+            edit_triggers = cast(
+                QAbstractItemView.EditTriggers,
+                QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed,
+            )
         self.setSelectionMode(selection_mode)
         self.setDragDropMode(drag_drop_mode)
         self.setEditTriggers(edit_triggers)
