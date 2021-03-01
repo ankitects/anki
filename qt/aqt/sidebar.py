@@ -353,7 +353,7 @@ class SidebarTreeView(QTreeView):
             ),
             SidebarItemType.SAVED_SEARCH: (
                 (tr(TR.ACTIONS_RENAME), self.rename_saved_search),
-                (tr(TR.ACTIONS_DELETE), self.remove_saved_search),
+                (tr(TR.ACTIONS_DELETE), self.remove_saved_searches),
             ),
             SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
             SidebarItemType.SAVED_SEARCH_ROOT: (
@@ -1177,12 +1177,17 @@ class SidebarTreeView(QTreeView):
     def _set_saved_searches(self, searches: Dict[str, str]) -> None:
         self.col.set_config(self._saved_searches_key, searches)
 
-    def remove_saved_search(self, item: SidebarItem) -> None:
-        name = item.name
-        if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
+    def remove_saved_searches(self, _item: SidebarItem) -> None:
+        selected = self._selected_saved_searches()
+        if len(selected) == 1:
+            query = tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=selected[0])
+        else:
+            query = tr(TR.BROWSING_CONFIRM_SAVED_SEARCHES_DELETION, count=len(selected))
+        if not askUser(query):
             return
         conf = self._get_saved_searches()
-        del conf[name]
+        for name in selected:
+            del conf[name]
         self._set_saved_searches(conf)
         self.refresh()
 
@@ -1233,4 +1238,11 @@ class SidebarTreeView(QTreeView):
             item.id
             for item in self._selected_items()
             if item.item_type == SidebarItemType.DECK
+        ]
+
+    def _selected_saved_searches(self) -> List[str]:
+        return [
+            item.name
+            for item in self._selected_items()
+            if item.item_type == SidebarItemType.SAVED_SEARCH
         ]
