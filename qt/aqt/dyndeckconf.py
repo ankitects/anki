@@ -76,8 +76,8 @@ class DeckConf(QDialog):
         self.setStyleSheet(
             f"""QPushButton[label] {{ padding: 0; border: 0 }}
             QPushButton[label]:hover {{ text-decoration: underline }}
-            QPushButton[label="search"] {{ text-align: left; color: {blue} }}
-            QPushButton[label="hint"] {{ text-align: right; color: {grey} }}"""
+            QPushButton[label="search"] {{ color: {blue} }}
+            QPushButton[label="hint"] {{ color: {grey} }}"""
         )
         disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
