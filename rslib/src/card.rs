@@ -118,6 +118,10 @@ impl Card {
     pub fn ease_factor(&self) -> f32 {
         (self.ease_factor as f32) / 1000.0
     }
+
+    pub fn is_intraday_learning(&self) -> bool {
+        matches!(self.queue, CardQueue::Learn | CardQueue::PreviewRepeat)
+    }
 }
 #[derive(Debug)]
 pub(crate) struct UpdateCardUndo(Card);

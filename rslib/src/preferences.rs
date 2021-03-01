@@ -8,7 +8,7 @@ use crate::{
     },
     collection::Collection,
     err::Result,
-    scheduler::cutoff::local_minutes_west_for_stamp,
+    scheduler::timing::local_minutes_west_for_stamp,
 };
 
 impl Collection {

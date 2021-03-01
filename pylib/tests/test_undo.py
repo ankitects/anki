@@ -50,31 +50,29 @@ def test_review():
     note = col.newNote()
     note["Front"] = "one"
     col.addNote(note)
+    note = col.newNote()
+    note["Front"] = "two"
+    col.addNote(note)
     col.reset()
     assert not col.undoName()
     # answer
-    assert col.sched.counts() == (1, 0, 0)
+    assert col.sched.counts() == (2, 0, 0)
     c = col.sched.getCard()
     assert c.queue == QUEUE_TYPE_NEW
     col.sched.answerCard(c, 3)
     assert c.left % 1000 == 1
-    assert col.sched.counts() == (0, 1, 0)
+    assert col.sched.counts() == (1, 1, 0)
     assert c.queue == QUEUE_TYPE_LRN
     # undo
     assert col.undoName()
     col.undo()
     col.reset()
-    assert col.sched.counts() == (1, 0, 0)
+    assert col.sched.counts() == (2, 0, 0)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     assert c.left % 1000 != 1
     assert not col.undoName()
     # we should be able to undo multiple answers too
-    note = col.newNote()
-    note["Front"] = "two"
-    col.addNote(note)
-    col.reset()
-    assert col.sched.counts() == (2, 0, 0)
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
     c = col.sched.getCard()

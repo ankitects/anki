@@ -698,6 +698,25 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn get_queued_cards(
+        &self,
+        input: pb::GetQueuedCardsIn,
+    ) -> BackendResult<pb::GetQueuedCardsOut> {
+        self.with_col(|col| col.get_queued_cards(input.fetch_limit, input.intraday_learning_only))
+    }
+
+    fn clear_card_queues(&self, _input: pb::Empty) -> BackendResult<pb::Empty> {
+        self.with_col(|col| {
+            col.clear_queues();
+            Ok(().into())
+        })
+    }
+
+    fn requeue_undone_card(&self, input: pb::CardId) -> BackendResult<pb::Empty> {
+        self.with_col(|col| col.requeue_undone_card(input.into()))
+            .map(Into::into)
+    }
+
     // statistics
     //-----------------------------------------------
 
@@ -2059,8 +2078,8 @@ fn pbcard_to_native(c: pb::Card) -> Result<Card> {
     })
 }
 
-impl From<crate::scheduler::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
-    fn from(t: crate::scheduler::cutoff::SchedTimingToday) -> pb::SchedTimingTodayOut {
+impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayOut {
+    fn from(t: crate::scheduler::timing::SchedTimingToday) -> pb::SchedTimingTodayOut {
         pb::SchedTimingTodayOut {
             days_elapsed: t.days_elapsed,
             next_day_at: t.next_day_at,

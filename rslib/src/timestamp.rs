@@ -35,6 +35,10 @@ impl TimestampSecs {
     pub fn datetime(self, utc_offset: FixedOffset) -> DateTime<FixedOffset> {
         utc_offset.timestamp(self.0, 0)
     }
+
+    pub fn adding_secs(self, secs: i64) -> Self {
+        TimestampSecs(self.0 + secs)
+    }
 }
 
 impl TimestampMillis {

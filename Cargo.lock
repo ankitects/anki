@@ -62,6 +62,7 @@ dependencies = [
  "flate2",
  "fluent",
  "fluent-syntax",
+ "fnv",
  "futures",
  "hex",
  "htmlescape",

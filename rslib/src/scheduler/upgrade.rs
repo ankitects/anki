@@ -10,7 +10,7 @@ use crate::{
     search::SortMode,
 };
 
-use super::cutoff::local_minutes_west_for_stamp;
+use super::timing::local_minutes_west_for_stamp;
 
 struct V1FilteredDeckInfo {
     /// True if the filtered deck had rescheduling enabled.

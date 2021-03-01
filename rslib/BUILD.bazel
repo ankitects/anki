@@ -84,6 +84,7 @@ rust_library(
         "//rslib/cargo:failure",
         "//rslib/cargo:flate2",
         "//rslib/cargo:fluent",
+        "//rslib/cargo:fnv",
         "//rslib/cargo:futures",
         "//rslib/cargo:hex",
         "//rslib/cargo:htmlescape",

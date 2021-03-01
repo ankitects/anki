@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::types::Usn;
@@ -11,6 +10,7 @@ use crate::{
     storage::SqliteStorage,
     undo::UndoManager,
 };
+use crate::{err::Result, scheduler::queue::CardQueues};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -63,6 +63,7 @@ pub struct CollectionState {
     pub(crate) undo: UndoManager,
     pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
     pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
+    pub(crate) card_queues: Option<CardQueues>,
 }
 
 pub struct Collection {
