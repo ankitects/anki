@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import copy
+import os
 import time
 from typing import Tuple
 
@@ -13,18 +14,18 @@ from anki.schedv2 import UnburyCurrentDeck
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
+
 # This file is used to exercise both the legacy Python 2.1 scheduler,
 # and the experimental new one in Rust. Most tests run on both, but a few
 # tests have been implemented separately where the behaviour differs.
-is_2021 = "2021" in __file__
-new_sched_only = pytest.mark.skipif(not is_2021, reason="2021 only")
-old_sched_only = pytest.mark.skipif(is_2021, reason="old only")
+def is_2021() -> bool:
+    return "2021" in os.getenv("PYTEST_CURRENT_TEST")
 
 
 def getEmptyCol():
     col = getEmptyColOrig()
     col.upgrade_to_v2_scheduler()
-    if is_2021:
+    if is_2021():
         col.set_2021_test_scheduler_enabled(True)
     return col
 
@@ -315,7 +316,7 @@ def test_learn_day():
     c.due -= 1
     c.flush()
     col.reset()
-    if is_2021:
+    if is_2021():
         # it appears in the review queue
         assert col.sched.counts() == (0, 0, 1)
     else:
@@ -468,8 +469,9 @@ def review_limits_setup() -> Tuple[anki.collection.Collection, Dict]:
     return col, child
 
 
-@old_sched_only
 def test_review_limits():
+    if is_2021():
+        pytest.skip("old sched only")
     col, child = review_limits_setup()
 
     tree = col.sched.deck_due_tree().children
@@ -492,8 +494,9 @@ def test_review_limits():
     assert tree[0].children[0].review_count == 9  # child
 
 
-@new_sched_only
 def test_review_limits_new():
+    if not is_2021():
+        pytest.skip("new sched only")
     col, child = review_limits_setup()
 
     tree = col.sched.deck_due_tree().children
@@ -917,8 +920,9 @@ def test_ordcycle():
         col.sched.answerCard(c, 4)
 
 
-@old_sched_only
 def test_counts_idx():
+    if is_2021():
+        pytest.skip("old sched only")
     col = getEmptyCol()
     note = col.newNote()
     note["Front"] = "one"
@@ -942,8 +946,9 @@ def test_counts_idx():
     assert col.sched.counts() == (0, 1, 0)
 
 
-@new_sched_only
 def test_counts_idx_new():
+    if not is_2021():
+        pytest.skip("new sched only")
     col = getEmptyCol()
     note = col.newNote()
     note["Front"] = "one"
@@ -1154,7 +1159,7 @@ def test_deckFlow():
     col.addNote(note)
     col.reset()
     assert col.sched.counts() == (3, 0, 0)
-    if is_2021:
+    if is_2021():
         # cards arrive in position order by default
         for i in "one", "two", "three":
             c = col.sched.getCard()
