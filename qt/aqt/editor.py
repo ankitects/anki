@@ -179,7 +179,7 @@ class Editor:
                 "colour",
                 tr(TR.EDITING_SET_FOREGROUND_COLOUR_F7),
                 """
-<span id="forecolor" class="topbut topbut--rounded" style="background: #000"></span>
+<span id="forecolor" class="topbut rounded" style="background: #000"></span>
 """,
             ),
             self._addButton(
@@ -187,7 +187,7 @@ class Editor:
                 "changeCol",
                 tr(TR.EDITING_CHANGE_COLOUR_F8),
                 """
-<span class="topbut topbut--rounded rainbow"></span>
+<span class="topbut rounded rainbow"></span>
 """,
             ),
             self._addButton(
@@ -315,7 +315,7 @@ class Editor:
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = f"/_anki/imgs/{icon}.png"
-            imgelm = f"""<img class=topbut src="{iconstr}">"""
+            imgelm = f"""<img class="topbut" src="{iconstr}">"""
         else:
             imgelm = ""
         if label or not imgelm:
@@ -334,7 +334,7 @@ class Editor:
         if rightside:
             class_ = "linkb"
         else:
-            class_ = ""
+            class_ = "rounded"
         if not disables:
             class_ += " perm"
         return """<button tabindex=-1
