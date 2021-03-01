@@ -5,7 +5,6 @@ mod current;
 mod learning;
 mod preview;
 mod relearning;
-mod rescheduling_filter;
 mod review;
 mod revlog;
 
@@ -44,7 +43,6 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
 }
 
-// fixme: 4 buttons for previewing
 // fixme: log preview review
 // fixme: undo
 
@@ -107,25 +105,52 @@ impl CardStateUpdater {
         current: CardState,
         next: CardState,
     ) -> Result<Option<RevlogEntryPartial>> {
-        // any non-preview answer resets card.odue and increases reps
-        if !matches!(current, CardState::Filtered(FilteredState::Preview(_))) {
-            self.card.reps += 1;
-            self.card.original_due = 0;
-        }
+        let revlog = match next {
+            CardState::Normal(normal) => {
+                // transitioning from filtered state?
+                if let CardState::Filtered(filtered) = &current {
+                    match filtered {
+                        FilteredState::Preview(_) => {
+                            return Err(AnkiError::invalid_input(
+                                "should set finished=true, not return different state",
+                            ));
+                        }
+                        FilteredState::Rescheduling(_) => {
+                            // card needs to be removed from normal filtered deck, then scheduled normally
+                            self.card.remove_from_filtered_deck_before_reschedule();
+                        }
+                    }
+                }
+                // apply normal scheduling
+                self.apply_normal_study_state(current, normal)
+            }
+            CardState::Filtered(filtered) => {
+                self.ensure_filtered()?;
+                match filtered {
+                    FilteredState::Preview(next) => self.apply_preview_state(current, next),
+                    FilteredState::Rescheduling(next) => {
+                        self.apply_normal_study_state(current, next.original_state)
+                    }
+                }
+            }
+        }?;
+
+        Ok(revlog)
+    }
+
+    fn apply_normal_study_state(
+        &mut self,
+        current: CardState,
+        next: NormalState,
+    ) -> Result<Option<RevlogEntryPartial>> {
+        self.card.reps += 1;
+        self.card.original_due = 0;
 
         let revlog = match next {
-            CardState::Normal(normal) => match normal {
-                NormalState::New(next) => self.apply_new_state(current, next),
-                NormalState::Learning(next) => self.apply_learning_state(current, next),
-                NormalState::Review(next) => self.apply_review_state(current, next),
-                NormalState::Relearning(next) => self.apply_relearning_state(current, next),
-            },
-            CardState::Filtered(filtered) => match filtered {
-                FilteredState::Preview(next) => self.apply_preview_state(current, next),
-                FilteredState::Rescheduling(next) => {
-                    self.apply_rescheduling_filter_state(current, next)
-                }
-            },
+            NormalState::New(next) => self.apply_new_state(current, next),
+            NormalState::Learning(next) => self.apply_learning_state(current, next),
+            NormalState::Review(next) => self.apply_review_state(current, next),
+            NormalState::Relearning(next) => self.apply_relearning_state(current, next),
         }?;
 
         if next.leeched() && self.config.inner.leech_action() == LeechAction::Suspend {
@@ -173,6 +198,7 @@ impl Collection {
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
         let secs_until_rollover = (timing.next_day_at - now.0).max(0) as u32;
+
         Ok(vec![
             answer_button_time_collapsible(
                 choices

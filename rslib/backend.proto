@@ -1319,7 +1319,7 @@ message SchedulingState {
   }
   message Preview {
     uint32 scheduled_secs = 1;
-    Normal original_state = 2;
+    bool finished = 2;
   }
   message ReschedulingFilter {
     Normal original_state = 1;

@@ -857,9 +857,16 @@ def test_preview():
     col.reset()
     # grab the first card
     c = col.sched.getCard()
-    assert col.sched.answerButtons(c) == 2
+
+    if is_2021():
+        passing_grade = 4
+    else:
+        passing_grade = 2
+
+    assert col.sched.answerButtons(c) == passing_grade
     assert col.sched.nextIvl(c, 1) == 600
-    assert col.sched.nextIvl(c, 2) == 0
+    assert col.sched.nextIvl(c, passing_grade) == 0
+
     # failing it will push its due time back
     due = c.due
     col.sched.answerCard(c, 1)
@@ -870,7 +877,7 @@ def test_preview():
     assert c2.id != c.id
 
     # passing it will remove it
-    col.sched.answerCard(c2, 2)
+    col.sched.answerCard(c2, passing_grade)
     assert c2.queue == QUEUE_TYPE_NEW
     assert c2.reps == 0
     assert c2.type == CARD_TYPE_NEW
