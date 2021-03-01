@@ -589,6 +589,9 @@ class Editor:
         qconnect(
             form.buttonBox.helpRequested, lambda: openHelp(HelpPage.EDITING_FEATURES)
         )
+        font = QFont("Courier")
+        font.setStyleHint(QFont.TypeWriter)
+        form.textEdit.setFont(font)
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
         form.textEdit.moveCursor(QTextCursor.End)
