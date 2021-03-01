@@ -969,6 +969,7 @@ title="%s" %s>%s</button>""" % (
             ("a", self.onAddCard),
             ("b", self.onBrowse),
             ("t", self.onStats),
+            ("Ctrl+t", self.onStats),
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
