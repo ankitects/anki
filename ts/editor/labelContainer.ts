@@ -6,16 +6,16 @@ export class LabelContainer extends HTMLDivElement {
 
     constructor() {
         super();
-        this.className = "d-flex";
+        this.className = "d-flex justify-content-between";
+
+        this.label = document.createElement("span");
+        this.label.className = "fieldname";
+        this.appendChild(this.label);
 
         this.sticky = document.createElement("span");
         this.sticky.className = "bi me-1 sticky-icon";
         this.sticky.hidden = true;
         this.appendChild(this.sticky);
-
-        this.label = document.createElement("span");
-        this.label.className = "fieldname";
-        this.appendChild(this.label);
 
         this.toggleSticky = this.toggleSticky.bind(this);
     }
