@@ -1102,8 +1102,9 @@ class SidebarTreeView(QTreeView):
         self.mw.taskman.run_in_background(do_remove, on_done)
 
     def rename_tag(self, item: SidebarItem, new_name: str = None) -> None:
-        # block repainting until callback
-        self.setUpdatesEnabled(False)
+        if new_name:
+            # call came from model; block repainting until collection is updated
+            self.setUpdatesEnabled(False)
         self.browser.editor.saveNow(lambda: self._rename_tag(item, new_name))
 
     def _rename_tag(self, item: SidebarItem, new_name: str = None) -> None:
