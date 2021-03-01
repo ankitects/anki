@@ -31,7 +31,7 @@ decks-reschedule-cards-based-on-my-answers = Reschedule cards based on my answer
 decks-study = Study
 decks-study-deck = Study Deck
 decks-the-provided-search-did-not-match = The provided search did not match any cards. Would you like to revise it?
-decks-unmovable-cards = Some cards may be excluded despite matching the search.
+decks-unmovable-cards = Show any excluded cards
 decks-it-has-card =
     { $count ->
         [one] It has { $count } card.
