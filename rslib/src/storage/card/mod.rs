@@ -189,8 +189,9 @@ impl super::SqliteStorage {
                     id: row.get(1)?,
                     note_id: row.get(2)?,
                     due: row.get(3).ok().unwrap_or_default(),
-                    extra: row.get::<_, u32>(4)? as u64,
+                    interval: row.get(4)?,
                     mtime: row.get(5)?,
+                    hash: 0,
                 },
             ) {
                 break;

@@ -26,8 +26,8 @@ pub(crate) struct DueCard {
     pub note_id: NoteID,
     pub mtime: TimestampSecs,
     pub due: i32,
-    /// Used to store interval, and for shuffling
-    pub extra: u64,
+    pub interval: u32,
+    pub hash: u64,
 }
 
 /// Temporary holder for new cards that will be built into a queue.

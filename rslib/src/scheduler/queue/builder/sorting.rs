@@ -10,7 +10,7 @@ impl QueueBuilder {
         match self.new_order {
             NewCardOrder::Random => {
                 self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
-                self.new.sort_unstable_by(|a, b| a.extra.cmp(&b.extra));
+                self.new.sort_unstable_by(shuffle_new_card);
             }
             NewCardOrder::Due => {
                 self.new.sort_unstable_by(|a, b| a.due.cmp(&b.due));
@@ -30,30 +30,48 @@ impl QueueBuilder {
                 self.day_learning.sort_unstable_by(shuffle_by_day);
             }
             ReviewCardOrder::Shuffled => {
-                self.review.sort_unstable_by(|a, b| a.extra.cmp(&b.extra));
-                self.day_learning
-                    .sort_unstable_by(|a, b| a.extra.cmp(&b.extra));
+                self.review.sort_unstable_by(shuffle_due_card);
+                self.day_learning.sort_unstable_by(shuffle_due_card);
             }
             ReviewCardOrder::IntervalsAscending => {
-                // fixme: implement; may require separate field if we want
-                // to shuffle cards that share an interval
+                self.review.sort_unstable_by(intervals_ascending);
+                self.day_learning.sort_unstable_by(shuffle_due_card);
             }
             ReviewCardOrder::IntervalsDescending => {
-                // fixme: implement; may require separate field if we want
-                // to shuffle cards that share an interval
+                self.review
+                    .sort_unstable_by(|a, b| intervals_ascending(b, a));
+                self.day_learning.sort_unstable_by(shuffle_due_card);
             }
         }
     }
 }
 
+fn shuffle_new_card(a: &NewCard, b: &NewCard) -> Ordering {
+    a.extra.cmp(&b.extra)
+}
+
+fn shuffle_by_day(a: &DueCard, b: &DueCard) -> Ordering {
+    (a.due, a.hash).cmp(&(b.due, b.hash))
+}
+
+fn shuffle_due_card(a: &DueCard, b: &DueCard) -> Ordering {
+    a.hash.cmp(&b.hash)
+}
+
+fn intervals_ascending(a: &DueCard, b: &DueCard) -> Ordering {
+    (a.interval, a.hash).cmp(&(a.interval, b.hash))
+}
+
 // We sort based on a hash so that if the queue is rebuilt, remaining
-// cards come back in the same order.
+// cards come back in the same approximate order (mixing + due learning cards
+// may still result in a different card)
+
 impl DueCard {
     fn hash_id_and_mtime(&mut self) {
         let mut hasher = FnvHasher::default();
         hasher.write_i64(self.id.0);
         hasher.write_i64(self.mtime.0);
-        self.extra = hasher.finish();
+        self.hash = hasher.finish();
     }
 }
 
@@ -64,8 +82,4 @@ impl NewCard {
         hasher.write_i64(self.mtime.0);
         self.extra = hasher.finish();
     }
-}
-
-fn shuffle_by_day(a: &DueCard, b: &DueCard) -> Ordering {
-    (a.due, a.extra).cmp(&(b.due, b.extra))
 }
