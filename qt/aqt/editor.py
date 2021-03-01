@@ -433,6 +433,7 @@ class Editor:
         if not self.note:
             # shutdown
             return
+
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
             (type, ord_str, nid_str, txt) = cmd.split(":", 3)
@@ -462,17 +463,14 @@ class Editor:
             else:
                 gui_hooks.editor_did_fire_typing_timer(self.note)
                 self.checkValid()
+
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
             self.currentField = int(num)
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
-        elif cmd in self._links:
-            self._links[cmd](self)
-        else:
-            print("uncaught cmd", cmd)
 
-        if cmd.startswith("toggleSticky"):
+        elif cmd.startswith("toggleSticky"):
             (type, num) = cmd.split(":", 1)
             ord = int(num)
 
@@ -481,6 +479,12 @@ class Editor:
             fld["sticky"] = new_state
 
             return new_state
+
+        elif cmd in self._links:
+            self._links[cmd](self)
+
+        else:
+            print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt: str) -> str:
         return gui_hooks.editor_will_munge_html(txt, self)
