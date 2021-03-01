@@ -33,8 +33,8 @@ export class LabelContainer extends HTMLDivElement {
     }
 
     setSticky(state: boolean): void {
-        this.sticky.classList.toggle("bi-lock-fill", state);
-        this.sticky.classList.toggle("bi-unlock-fill", !state);
+        this.sticky.classList.toggle("bi-pin-angle-fill", state);
+        this.sticky.classList.toggle("bi-pin-angle", !state);
     }
 
     activateSticky(initialState: boolean): void {
