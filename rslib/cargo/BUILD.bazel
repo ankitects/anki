@@ -130,6 +130,15 @@ alias(
 )
 
 alias(
+    name = "fnv",
+    actual = "@raze__fnv__1_0_7//:fnv",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "futures",
     actual = "@raze__futures__0_3_12//:futures",
     tags = [

@@ -5,8 +5,8 @@ use crate::{
     backend_proto as pb, collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
     timestamp::TimestampSecs,
 };
-use pb::config::bool::Key as BoolKey;
-use pb::config::string::Key as StringKey;
+pub use pb::config::bool::Key as BoolKey;
+pub use pb::config::string::Key as StringKey;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
@@ -63,6 +63,7 @@ pub(crate) enum ConfigKey {
     NormalizeNoteText,
     PreviewBothSides,
     Rollover,
+    Sched2021,
     SchedulerVersion,
     SetDueBrowser,
     SetDueReviewer,
@@ -104,6 +105,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::NormalizeNoteText => "normalize_note_text",
             ConfigKey::PreviewBothSides => "previewBothSides",
             ConfigKey::Rollover => "rollover",
+            ConfigKey::Sched2021 => "sched2021",
             ConfigKey::SchedulerVersion => "schedVer",
             ConfigKey::SetDueBrowser => "setDueBrowser",
             ConfigKey::SetDueReviewer => "setDueReviewer",
@@ -126,6 +128,7 @@ impl From<BoolKey> for ConfigKey {
             BoolKey::CollapseTags => ConfigKey::CollapseTags,
             BoolKey::CollapseToday => ConfigKey::CollapseToday,
             BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,
+            BoolKey::Sched2021 => ConfigKey::Sched2021,
         }
     }
 }
@@ -365,7 +368,12 @@ impl Collection {
 
     #[allow(clippy::match_single_binding)]
     pub(crate) fn get_bool(&self, config: pb::config::Bool) -> bool {
-        match config.key() {
+        self.get_bool_key(config.key())
+    }
+
+    #[allow(clippy::match_single_binding)]
+    pub(crate) fn get_bool_key(&self, key: BoolKey) -> bool {
+        match key {
             // all options default to false at the moment
             other => self.get_config_default(ConfigKey::from(other)),
         }
@@ -421,10 +429,17 @@ impl Default for SortKind {
     }
 }
 
+// 2021 scheduler moves this into deck config
 pub(crate) enum NewReviewMix {
     Mix = 0,
     ReviewsFirst = 1,
     NewFirst = 2,
+}
+
+impl Default for NewReviewMix {
+    fn default() -> Self {
+        NewReviewMix::Mix
+    }
 }
 
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]

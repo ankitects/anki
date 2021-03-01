@@ -120,6 +120,9 @@ service BackendService {
   rpc StateIsLeech(SchedulingState) returns (Bool);
   rpc AnswerCard(AnswerCardIn) returns (Empty);
   rpc UpgradeScheduler(Empty) returns (Empty);
+  rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
+  rpc ClearCardQueues(Empty) returns (Empty);
+  rpc RequeueUndoneCard(CardID) returns (Empty);
 
   // stats
 
@@ -252,7 +255,17 @@ message DeckConfigInner {
     NEW_CARD_ORDER_DUE = 0;
     NEW_CARD_ORDER_RANDOM = 1;
   }
-
+  enum ReviewCardOrder {
+    REVIEW_CARD_ORDER_SHUFFLED_BY_DAY = 0;
+    REVIEW_CARD_ORDER_SHUFFLED = 1;
+    REVIEW_CARD_ORDER_INTERVALS_ASCENDING = 2;
+    REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 3;
+  }
+  enum ReviewMix {
+    REVIEW_MIX_MIX_WITH_REVIEWS = 0;
+    REVIEW_MIX_AFTER_REVIEWS = 1;
+    REVIEW_MIX_BEFORE_REVIEWS = 2;
+  }
   enum LeechAction {
     LEECH_ACTION_SUSPEND = 0;
     LEECH_ACTION_TAG_ONLY = 1;
@@ -265,6 +278,7 @@ message DeckConfigInner {
 
   uint32 new_per_day = 9;
   uint32 reviews_per_day = 10;
+  uint32 new_per_day_minimum = 29;
 
   float initial_ease = 11;
   float easy_multiplier = 12;
@@ -279,6 +293,10 @@ message DeckConfigInner {
   uint32 graduating_interval_easy = 19;
 
   NewCardOrder new_card_order = 20;
+  ReviewCardOrder review_order = 32;
+
+  ReviewMix new_mix = 30;
+  ReviewMix interday_learning_mix = 31;
 
   LeechAction leech_action = 21;
   uint32 leech_threshold = 22;
@@ -1243,6 +1261,7 @@ message Config {
       COLLAPSE_TODAY = 6;
       COLLAPSE_CARD_STATE = 7;
       COLLAPSE_FLAGS = 8;
+      SCHED_2021 = 9;
     }
     Key key = 1;
   }
@@ -1340,4 +1359,35 @@ message AnswerCardIn {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
+}
+
+message GetQueuedCardsIn {
+  uint32 fetch_limit = 1;
+  bool intraday_learning_only = 2;
+}
+
+message GetQueuedCardsOut {
+  enum Queue {
+    New = 0;
+    Learning = 1;
+    Review = 2;
+  }
+
+  message QueuedCard {
+    Card card = 1;
+    Queue queue = 5;
+    NextCardStates next_states = 6;
+  }
+
+  message QueuedCards {
+    repeated QueuedCard cards = 1;
+    uint32 new_count = 2;
+    uint32 learning_count = 3;
+    uint32 review_count = 4;
+  }
+
+  oneof value {
+    QueuedCards queued_cards = 1;
+    CongratsInfoOut congrats_info = 2;
+  }
 }

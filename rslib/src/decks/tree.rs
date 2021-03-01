@@ -5,7 +5,7 @@ use super::{Deck, DeckKind, DueCounts};
 use crate::{
     backend_proto::DeckTreeNode,
     collection::Collection,
-    config::SchedulerVersion,
+    config::{BoolKey, SchedulerVersion},
     deckconf::{DeckConf, DeckConfID},
     decks::DeckID,
     err::Result,
@@ -123,12 +123,11 @@ fn apply_limits(
     node.review_count = (node.review_count + child_rev_total).min(remaining_rev);
 }
 
-/// Apply parent new limits to children, and add child counts to parents.
-/// Unlike v1, reviews are not capped by their parents, and we return the
-/// uncapped review amount to add to the parent. This is a bit of a hack, and
-/// just tides us over until the v2 queue building code can be reworked.
+/// Apply parent new limits to children, and add child counts to parents. Unlike
+/// v1 and the 2021 scheduler, reviews are not capped by their parents, and we
+/// return the uncapped review amount to add to the parent.
 /// Counts are (new, review).
-fn apply_limits_v2(
+fn apply_limits_v2_old(
     node: &mut DeckTreeNode,
     today: u32,
     decks: &HashMap<DeckID, Deck>,
@@ -148,7 +147,7 @@ fn apply_limits_v2(
     let mut child_rev_total = 0;
     for child in &mut node.children {
         child_rev_total +=
-            apply_limits_v2(child, today, decks, dconf, (remaining_new, remaining_rev));
+            apply_limits_v2_old(child, today, decks, dconf, (remaining_new, remaining_rev));
         child_new_total += child.new_count;
         // no limit on learning cards
         node.learn_count += child.learn_count;
@@ -283,8 +282,10 @@ impl Collection {
             let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
-            if self.scheduler_version() == SchedulerVersion::V2 {
-                apply_limits_v2(
+            if self.scheduler_version() == SchedulerVersion::V2
+                && !self.get_bool_key(BoolKey::Sched2021)
+            {
+                apply_limits_v2_old(
                     &mut tree,
                     days_elapsed,
                     &decks_map,

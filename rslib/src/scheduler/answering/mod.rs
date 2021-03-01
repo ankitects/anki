@@ -20,11 +20,11 @@ use crate::{
 use revlog::RevlogEntryPartial;
 
 use super::{
-    cutoff::SchedTimingToday,
     states::{
         steps::LearningSteps, CardState, FilteredState, NextCardStates, NormalState, StateContext,
     },
     timespan::answer_button_time_collapsible,
+    timing::SchedTimingToday,
 };
 
 #[derive(Copy, Clone)]
@@ -239,12 +239,15 @@ impl Collection {
             self.add_partial_revlog(revlog_partial, usn, &answer)?;
         }
         self.update_deck_stats_from_answer(usn, &answer, &updater)?;
+        let timing = updater.timing;
 
         let mut card = updater.into_card();
         self.update_card(&mut card, &original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
         }
+
+        self.update_queues_after_answering_card(&card, timing)?;
 
         Ok(())
     }

@@ -6,6 +6,7 @@ use chrono::{Date, Duration, FixedOffset, Local, TimeZone, Timelike};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct SchedTimingToday {
+    pub now: TimestampSecs,
     /// The number of days that have passed since the collection was created.
     pub days_elapsed: u32,
     /// Timestamp of the next day rollover.
@@ -43,6 +44,7 @@ pub fn sched_timing_today_v2_new(
     let days_elapsed = days_elapsed(created_date, today, rollover_passed);
 
     SchedTimingToday {
+        now: current_secs,
         days_elapsed,
         next_day_at,
     }
@@ -119,6 +121,7 @@ fn sched_timing_today_v1(crt: TimestampSecs, now: TimestampSecs) -> SchedTimingT
     let days_elapsed = (now.0 - crt.0) / 86_400;
     let next_day_at = crt.0 + (days_elapsed + 1) * 86_400;
     SchedTimingToday {
+        now,
         days_elapsed: days_elapsed as u32,
         next_day_at,
     }
@@ -147,6 +150,7 @@ fn sched_timing_today_v2_legacy(
     }
 
     SchedTimingToday {
+        now,
         days_elapsed: days_elapsed as u32,
         next_day_at,
     }
@@ -351,6 +355,7 @@ mod test {
         assert_eq!(
             sched_timing_today_v1(TimestampSecs(1575226800), now),
             SchedTimingToday {
+                now,
                 days_elapsed: 107,
                 next_day_at: 1584558000
             }
@@ -359,6 +364,7 @@ mod test {
         assert_eq!(
             sched_timing_today_v2_legacy(TimestampSecs(1533564000), 0, now, aest_offset()),
             SchedTimingToday {
+                now,
                 days_elapsed: 589,
                 next_day_at: 1584540000
             }
@@ -367,6 +373,7 @@ mod test {
         assert_eq!(
             sched_timing_today_v2_legacy(TimestampSecs(1524038400), 4, now, aest_offset()),
             SchedTimingToday {
+                now,
                 days_elapsed: 700,
                 next_day_at: 1584554400
             }

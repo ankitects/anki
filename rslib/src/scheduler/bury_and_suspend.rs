@@ -10,7 +10,7 @@ use crate::{
     search::SortMode,
 };
 
-use super::cutoff::SchedTimingToday;
+use super::timing::SchedTimingToday;
 use pb::unbury_cards_in_current_deck_in::Mode as UnburyDeckMode;
 
 impl Card {

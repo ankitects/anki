@@ -162,6 +162,38 @@ impl SqliteStorage {
             .collect()
     }
 
+    /// Return the provided deck with its parents and children in an ordered list, and
+    /// the number of parent decks that need to be skipped to get to the chosen deck.
+    pub(crate) fn deck_with_parents_and_children(
+        &self,
+        deck_id: DeckID,
+    ) -> Result<(Vec<Deck>, usize)> {
+        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        let mut parents = self.parent_decks(&deck)?;
+        parents.reverse();
+        let parent_count = parents.len();
+
+        let prefix_start = format!("{}\x1f", deck.name);
+        let prefix_end = format!("{}\x20", deck.name);
+        parents.push(deck);
+
+        let decks = parents
+            .into_iter()
+            .map(Result::Ok)
+            .chain(
+                self.db
+                    .prepare_cached(concat!(
+                        include_str!("get_deck.sql"),
+                        " where name > ? and name < ?"
+                    ))?
+                    .query_and_then(&[prefix_start, prefix_end], row_to_deck)?,
+            )
+            .collect::<Result<_>>()?;
+
+        Ok((decks, parent_count))
+    }
+
+    /// Return the parents of `child`, with the most immediate parent coming first.
     pub(crate) fn parent_decks(&self, child: &Deck) -> Result<Vec<Deck>> {
         let mut decks: Vec<Deck> = vec![];
         while let Some(parent_name) =

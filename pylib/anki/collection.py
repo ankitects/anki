@@ -139,7 +139,7 @@ class Collection:
         if ver == 1:
             self.sched = V1Scheduler(self)
         elif ver == 2:
-            if os.getenv("TEST_SCHEDULER"):
+            if self.is_2021_test_scheduler_enabled():
                 self.sched = V2TestScheduler(self)  # type: ignore
             else:
                 self.sched = V2Scheduler(self)
@@ -148,6 +148,14 @@ class Collection:
         self._backend.upgrade_scheduler()
         self.clearUndo()
         self._loadScheduler()
+
+    def is_2021_test_scheduler_enabled(self) -> bool:
+        return self.get_config_bool(Config.Bool.SCHED_2021)
+
+    def set_2021_test_scheduler_enabled(self, enabled: bool) -> None:
+        if self.is_2021_test_scheduler_enabled() != enabled:
+            self.set_config_bool(Config.Bool.SCHED_2021, enabled)
+            self._loadScheduler()
 
     # DB-related
     ##########################################################################
@@ -774,11 +782,14 @@ table.review-log {{ {revlog_style} }}
             c.nid,
         )
         # and finally, update daily counts
-        n = c.queue
-        if c.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            n = QUEUE_TYPE_LRN
-        type = ("new", "lrn", "rev")[n]
-        self.sched._updateStats(c, type, -1)
+        if self.sched.is_2021:
+            self._backend.requeue_undone_card(c.id)
+        else:
+            n = c.queue
+            if c.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+                n = QUEUE_TYPE_LRN
+            type = ("new", "lrn", "rev")[n]
+            self.sched._updateStats(c, type, -1)
         self.sched.reps -= 1
         return c.id
 

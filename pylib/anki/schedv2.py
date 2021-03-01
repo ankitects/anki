@@ -39,6 +39,7 @@ class Scheduler:
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
     revCount: int
+    is_2021 = False
 
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
@@ -102,7 +103,6 @@ class Scheduler:
             self.col.log(card)
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
-            self.reps += 1
             card.startTimer()
             return card
         return None

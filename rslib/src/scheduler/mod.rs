@@ -6,20 +6,21 @@ use crate::{collection::Collection, config::SchedulerVersion, err::Result, prelu
 pub mod answering;
 pub mod bury_and_suspend;
 pub(crate) mod congrats;
-pub mod cutoff;
 mod learning;
 pub mod new;
+pub(crate) mod queue;
 mod reviews;
 pub mod states;
 pub mod timespan;
+pub mod timing;
 mod upgrade;
 
 use chrono::FixedOffset;
-use cutoff::{
+pub use reviews::parse_due_date_str;
+use timing::{
     sched_timing_today, v1_creation_date_adjusted_to_hour, v1_rollover_from_creation_stamp,
     SchedTimingToday,
 };
-pub use reviews::parse_due_date_str;
 
 impl Collection {
     pub fn timing_today(&self) -> Result<SchedTimingToday> {
