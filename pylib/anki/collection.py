@@ -702,13 +702,19 @@ table.review-log {{ {revlog_style} }}
 
     # Timeboxing
     ##########################################################################
+    # fixme: there doesn't seem to be a good reason why this code is in main.py
+    # instead of covered in reviewer, and the reps tracking is covered by both
+    # the scheduler and reviewer.py. in the future, we should probably move
+    # reps tracking to reviewer.py, and remove the startTimebox() calls from
+    # other locations like overview.py. We just need to make sure not to reset
+    # the count on things like edits, which we probably could do by checking
+    # the previous state in moveToState.
 
     def startTimebox(self) -> None:
         self._startTime = time.time()
         self._startReps = self.sched.reps
 
-    # FIXME: Use Literal[False] when on Python 3.8
-    def timeboxReached(self) -> Union[bool, Tuple[Any, int]]:
+    def timeboxReached(self) -> Union[Literal[False], Tuple[Any, int]]:
         "Return (elapsedTime, reps) if timebox reached, or False."
         if not self.conf["timeLim"]:
             # timeboxing disabled

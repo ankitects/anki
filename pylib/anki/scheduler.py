@@ -28,7 +28,6 @@ UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
 BuryOrSuspend = _pb.BuryOrSuspendCardsIn
 
 # fixme: reviewer.cardQueue/editCurrent/undo handling/retaining current card
-# fixme: .reps
 
 
 class Scheduler:
@@ -36,8 +35,7 @@ class Scheduler:
 
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
-        # fixme: only used by the timeboxing code, and was double-incremented
-        # for ages - just move to gui?
+        # don't rely on this, it will likely be removed out in the future
         self.reps = 0
 
     # Timing
