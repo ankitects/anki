@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import type { EditingArea } from ".";
+import { EditingArea } from ".";
 
 import { bridgeCommand } from "./lib";
 import { enableButtons, disableButtons } from "./toolbar";
@@ -30,7 +30,10 @@ export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     const previousFocus = evt.relatedTarget as EditingArea;
 
-    if (previousFocus === previousActiveElement || !previousFocus) {
+    if (
+        previousFocus === previousActiveElement ||
+        !(previousFocus instanceof EditingArea)
+    ) {
         focusField(currentField);
     }
 }
