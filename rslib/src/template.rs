@@ -558,27 +558,29 @@ pub fn render_card(
         .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
 
     // check if the front side was empty
-    if is_cloze {
-        if cloze_is_empty(field_map, card_ord) {
-            let info = format!(
-                "<div>{}<br><a href='{}'>{}</a></div>",
-                i18n.trn(
-                    TR::CardTemplateRenderingMissingCloze,
-                    tr_args!["number"=>card_ord+1]
-                ),
-                TEMPLATE_BLANK_CLOZE_LINK,
-                i18n.tr(TR::CardTemplateRenderingMoreInfo)
-            );
-            qnodes.push(RenderedNode::Text { text: info });
-        }
-    } else if !qtmpl.renders_with_fields(context.nonempty_fields) {
-        let info = format!(
+    let empty_message = if is_cloze && cloze_is_empty(field_map, card_ord) {
+        Some(format!(
+            "<div>{}<br><a href='{}'>{}</a></div>",
+            i18n.trn(
+                TR::CardTemplateRenderingMissingCloze,
+                tr_args!["number"=>card_ord+1]
+            ),
+            TEMPLATE_BLANK_CLOZE_LINK,
+            i18n.tr(TR::CardTemplateRenderingMoreInfo)
+        ))
+    } else if !is_cloze && !qtmpl.renders_with_fields(context.nonempty_fields) {
+        Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
             i18n.tr(TR::CardTemplateRenderingEmptyFront),
             TEMPLATE_BLANK_LINK,
             i18n.tr(TR::CardTemplateRenderingMoreInfo)
-        );
-        qnodes.push(RenderedNode::Text { text: info });
+        ))
+    } else {
+        None
+    };
+    if let Some(text) = empty_message {
+        qnodes.push(RenderedNode::Text { text: text.clone() });
+        return Ok((qnodes, vec![RenderedNode::Text { text }]));
     }
 
     // answer side
