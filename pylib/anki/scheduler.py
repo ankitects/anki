@@ -239,9 +239,6 @@ class Scheduler:
         return card.queue
 
     def answerButtons(self, card: Card) -> int:
-        conf = self._cardConf(card)
-        if card.odid and not conf["resched"]:
-            return 2
         return 4
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
