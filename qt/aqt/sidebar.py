@@ -400,7 +400,7 @@ class SidebarTreeView(QTreeView):
             drag_drop_mode = QAbstractItemView.NoDragDrop
             edit_triggers = QAbstractItemView.EditKeyPressed
         elif tool == SidebarTool.EDIT:
-            selection_mode = QAbstractItemView.SingleSelection
+            selection_mode = QAbstractItemView.ExtendedSelection
             drag_drop_mode = QAbstractItemView.InternalMove
             edit_triggers = cast(
                 QAbstractItemView.EditTriggers,
