@@ -49,6 +49,7 @@ class Scheduler(V2):
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
         card.reps += 1
+        self.reps += 1
         # former is for logging new cards, latter also covers filt. decks
         card.wasNew = card.type == CARD_TYPE_NEW  # type: ignore
         wasNewQ = card.queue == QUEUE_TYPE_NEW

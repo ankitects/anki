@@ -489,6 +489,7 @@ limit ?"""
             self._answerCardPreview(card, ease)
             return
 
+        self.reps += 1
         card.reps += 1
 
         new_delta = 0
