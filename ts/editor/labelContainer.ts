@@ -1,5 +1,16 @@
 import { bridgeCommand } from "./lib";
 
+
+function removeHoverIcon(evt: Event): void {
+    const icon = evt.currentTarget as HTMLElement;
+    icon.classList.remove("icon--hover")
+}
+
+function hoverIcon(evt: Event): void {
+    const icon = evt.currentTarget as HTMLElement;
+    icon.classList.add("icon--hover");
+}
+
 export class LabelContainer extends HTMLDivElement {
     sticky: HTMLSpanElement;
     label: HTMLSpanElement;
@@ -13,7 +24,7 @@ export class LabelContainer extends HTMLDivElement {
         this.appendChild(this.label);
 
         this.sticky = document.createElement("span");
-        this.sticky.className = "bi me-1 sticky-icon";
+        this.sticky.className = "bi me-1 bi-sticky icon";
         this.sticky.hidden = true;
         this.appendChild(this.sticky);
 
@@ -22,10 +33,14 @@ export class LabelContainer extends HTMLDivElement {
 
     connectedCallback(): void {
         this.sticky.addEventListener("click", this.toggleSticky);
+        this.sticky.addEventListener("mouseenter", hoverIcon);
+        this.sticky.addEventListener("mouseleave", removeHoverIcon);
     }
 
     disconnectedCallback(): void {
         this.sticky.removeEventListener("click", this.toggleSticky);
+        this.sticky.removeEventListener("mouseenter", hoverIcon);
+        this.sticky.removeEventListener("mouseleave", removeHoverIcon);
     }
 
     initialize(labelName: string): void {
@@ -33,8 +48,7 @@ export class LabelContainer extends HTMLDivElement {
     }
 
     setSticky(state: boolean): void {
-        this.sticky.classList.toggle("bi-pin-angle-fill", state);
-        this.sticky.classList.toggle("bi-pin-angle", !state);
+        this.sticky.classList.toggle("is-inactive", state);
     }
 
     activateSticky(initialState: boolean): void {
@@ -42,12 +56,13 @@ export class LabelContainer extends HTMLDivElement {
         this.sticky.hidden = false;
     }
 
-    toggleSticky(): void {
+    toggleSticky(evt: Event): void {
         bridgeCommand(
             `toggleSticky:${this.getAttribute("ord")}`,
             (newState: boolean): void => {
                 this.setSticky(newState);
             }
         );
+        removeHoverIcon(evt);
     }
 }

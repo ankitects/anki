@@ -133,10 +133,15 @@ button.highlighted {
     }
 }
 
-.sticky-icon {
-    color: var(--bs-dark);
+.icon {
+    cursor: pointer;
+    color: var(--text-fg);
 
-    .nightMode & {
-        color: var(--bs-light);
+    &.is-inactive::before {
+        opacity: 0.1;
+    }
+
+    &.icon--hover::before {
+        opacity: 0.5;
     }
 }
