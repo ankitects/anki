@@ -349,7 +349,7 @@ class SidebarTreeView(QTreeView):
             ),
             SidebarItemType.TAG: (
                 (tr(TR.ACTIONS_RENAME), self.rename_tag),
-                (tr(TR.ACTIONS_DELETE), self.remove_tag),
+                (tr(TR.ACTIONS_DELETE), self.remove_tags),
             ),
             SidebarItemType.SAVED_SEARCH: (
                 (tr(TR.ACTIONS_RENAME), self.rename_saved_search),
@@ -1081,15 +1081,14 @@ class SidebarTreeView(QTreeView):
         self.refresh()
         self.mw.deckBrowser.refresh()
 
-    def remove_tag(self, item: SidebarItem) -> None:
-        self.browser.editor.saveNow(lambda: self._remove_tag(item))
+    def remove_tags(self, item: SidebarItem) -> None:
+        self.browser.editor.saveNow(lambda: self._remove_tags(item))
 
-    def _remove_tag(self, item: SidebarItem) -> None:
-        old_name = item.full_name
+    def _remove_tags(self, _item: SidebarItem) -> None:
+        tags = self._selected_tags()
 
         def do_remove() -> None:
-            self.mw.col.tags.remove(old_name)
-            self.col.tags.rename(old_name, "")
+            self.col._backend.expunge_tags(" ".join(tags))
 
         def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
@@ -1245,4 +1244,11 @@ class SidebarTreeView(QTreeView):
             item.name
             for item in self._selected_items()
             if item.item_type == SidebarItemType.SAVED_SEARCH
+        ]
+
+    def _selected_tags(self) -> List[str]:
+        return [
+            item.full_name
+            for item in self._selected_items()
+            if item.item_type == SidebarItemType.TAG
         ]

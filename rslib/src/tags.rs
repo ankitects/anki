@@ -285,6 +285,37 @@ impl Collection {
         Ok(())
     }
 
+    /// Take tags as a whitespace-separated string and remove them from all notes and the storage.
+    pub fn expunge_tags(&mut self, tags: &str) -> Result<usize> {
+        let tag_group = format!("({})", regex::escape(tags.trim()).replace(' ', "|"));
+        let nids = self.nids_for_tags(&tag_group)?;
+        let re = Regex::new(&format!("(?i)^{}(::.*)?$", tag_group))?;
+        self.transact(None, |col| {
+            col.storage.clear_tag_group(&tag_group)?;
+            col.transform_notes(&nids, |note, _nt| {
+                Ok(TransformNoteOutput {
+                    changed: note.remove_tags(&re),
+                    generate_cards: false,
+                    mark_modified: true,
+                })
+            })
+        })
+    }
+
+    /// Take tags as a regexp group, i.e. separated with pipes and wrapped in brackets, and return
+    /// the ids of all notes with one of them.
+    fn nids_for_tags(&mut self, tag_group: &str) -> Result<Vec<NoteID>> {
+        let mut stmt = self
+            .storage
+            .db
+            .prepare("select id from notes where tags regexp ?")?;
+        let args = format!("(?i).* {}(::| ).*", tag_group);
+        let nids = stmt
+            .query_map(&[args], |row| row.get(0))?
+            .collect::<std::result::Result<_, _>>()?;
+        Ok(nids)
+    }
+
     pub(crate) fn set_tag_expanded(&self, name: &str, expanded: bool) -> Result<()> {
         let mut name = name;
         let tag;

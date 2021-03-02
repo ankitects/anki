@@ -1418,6 +1418,13 @@ impl BackendService for Backend {
         })
     }
 
+    fn expunge_tags(&self, tags: pb::String) -> BackendResult<pb::Empty> {
+        self.with_col(|col| {
+            col.expunge_tags(tags.val.as_str())?;
+            Ok(().into())
+        })
+    }
+
     fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {

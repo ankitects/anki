@@ -73,6 +73,15 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Clear all matching tags where tag_group is a regexp group that should not match whitespace.
+    pub(crate) fn clear_tag_group(&self, tag_group: &str) -> Result<()> {
+        self.db
+            .prepare_cached("delete from tags where tag regexp ?")?
+            .execute(&[format!("(?i)^{}($|::)", tag_group)])?;
+
+        Ok(())
+    }
+
     pub(crate) fn set_tag_collapsed(&self, tag: &str, collapsed: bool) -> Result<()> {
         self.db
             .prepare_cached("update tags set collapsed = ? where tag = ?")?
