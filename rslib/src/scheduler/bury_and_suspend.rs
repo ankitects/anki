@@ -7,6 +7,7 @@ use crate::{
     collection::Collection,
     config::SchedulerVersion,
     err::Result,
+    prelude::*,
     search::SortMode,
 };
 
@@ -129,6 +130,19 @@ impl Collection {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.bury_or_suspend_searched_cards(mode)
         })
+    }
+
+    pub(crate) fn bury_siblings(
+        &mut self,
+        cid: CardID,
+        nid: NoteID,
+        include_new: bool,
+        include_reviews: bool,
+    ) -> Result<()> {
+        use pb::bury_or_suspend_cards_in::Mode;
+        self.storage
+            .search_siblings_for_bury(cid, nid, include_new, include_reviews)?;
+        self.bury_or_suspend_searched_cards(Mode::BurySched)
     }
 }
 

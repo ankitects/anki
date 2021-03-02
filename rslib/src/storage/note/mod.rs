@@ -21,19 +21,19 @@ pub(crate) fn join_fields(fields: &[String]) -> String {
 }
 
 fn row_to_note(row: &Row) -> Result<Note> {
-    Ok(Note {
-        id: row.get(0)?,
-        guid: row.get(1)?,
-        notetype_id: row.get(2)?,
-        mtime: row.get(3)?,
-        usn: row.get(4)?,
-        tags: split_tags(row.get_raw(5).as_str()?)
+    Ok(Note::new_from_storage(
+        row.get(0)?,
+        row.get(1)?,
+        row.get(2)?,
+        row.get(3)?,
+        row.get(4)?,
+        split_tags(row.get_raw(5).as_str()?)
             .map(Into::into)
             .collect(),
-        fields: split_fields(row.get_raw(6).as_str()?),
-        sort_field: None,
-        checksum: None,
-    })
+        split_fields(row.get_raw(6).as_str()?),
+        Some(row.get(7)?),
+        Some(row.get(8).unwrap_or_default()),
+    ))
 }
 
 impl super::SqliteStorage {
@@ -45,7 +45,7 @@ impl super::SqliteStorage {
             .transpose()
     }
 
-    /// Caller must call note.prepare_for_update() prior to calling this.
+    /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
         assert!(note.id.0 != 0);
         let mut stmt = self.db.prepare_cached(include_str!("update.sql"))?;

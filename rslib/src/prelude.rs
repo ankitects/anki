@@ -3,7 +3,7 @@
 
 pub use crate::{
     card::{Card, CardID},
-    collection::Collection,
+    collection::{Collection, CollectionOp},
     deckconf::{DeckConf, DeckConfID},
     decks::{Deck, DeckID, DeckKind},
     err::{AnkiError, Result},

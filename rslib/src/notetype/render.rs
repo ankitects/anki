@@ -169,7 +169,7 @@ fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &NoteType, i18n: &I18n) {
     if let Ok(tmpl) = ParsedTemplate::from_text(qfmt) {
         let cloze_fields = tmpl.cloze_fields();
 
-        for (val, field) in note.fields.iter_mut().zip(nt.fields.iter()) {
+        for (val, field) in note.fields_mut().iter_mut().zip(nt.fields.iter()) {
             if field_is_empty(val) {
                 if cloze_fields.contains(&field.name.as_str()) {
                     *val = i18n.tr(TR::CardTemplatesSampleCloze).into();

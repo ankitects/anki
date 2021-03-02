@@ -7,6 +7,7 @@ mod preview;
 mod relearning;
 mod review;
 mod revlog;
+mod undo;
 
 use crate::{
     backend_proto,
@@ -44,7 +45,6 @@ pub struct CardAnswer {
 }
 
 // fixme: log preview review
-// fixme: undo
 
 /// Holds the information required to determine a given card's
 /// current state, and to apply a state change to it.
@@ -241,7 +241,9 @@ impl Collection {
 
     /// Answer card, writing its new state to the database.
     pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<()> {
-        self.transact(None, |col| col.answer_card_inner(answer))
+        self.transact(Some(CollectionOp::AnswerCard), |col| {
+            col.answer_card_inner(answer)
+        })
     }
 
     fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {
@@ -267,6 +269,8 @@ impl Collection {
         self.update_deck_stats_from_answer(usn, &answer, &updater)?;
         let timing = updater.timing;
 
+        self.maybe_bury_siblings(&original, &updater.config)?;
+
         let mut card = updater.into_card();
         self.update_card(&mut card, &original, usn)?;
         if answer.new_state.leeched() {
@@ -278,8 +282,21 @@ impl Collection {
         Ok(())
     }
 
+    fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConf) -> Result<()> {
+        if config.inner.bury_new || config.inner.bury_reviews {
+            self.bury_siblings(
+                card.id,
+                card.note_id,
+                config.inner.bury_new,
+                config.inner.bury_reviews,
+            )?;
+        }
+
+        Ok(())
+    }
+
     fn add_partial_revlog(
-        &self,
+        &mut self,
         partial: RevlogEntryPartial,
         usn: Usn,
         answer: &CardAnswer,
@@ -291,7 +308,8 @@ impl Collection {
             answer.answered_at,
             answer.milliseconds_taken,
         );
-        self.storage.add_revlog_entry(&revlog)
+        self.add_revlog_entry(revlog)?;
+        Ok(())
     }
 
     fn update_deck_stats_from_answer(
@@ -367,7 +385,7 @@ impl Collection {
 /// Return a consistent seed for a given card at a given number of reps.
 /// If in test environment, disable fuzzing.
 fn get_fuzz_seed(card: &Card) -> Option<u64> {
-    if *crate::timestamp::TESTING {
+    if *crate::timestamp::TESTING || cfg!(test) {
         None
     } else {
         Some((card.id.0 as u64).wrapping_add(card.reps as u64))

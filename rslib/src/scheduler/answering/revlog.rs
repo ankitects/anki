@@ -44,7 +44,7 @@ impl RevlogEntryPartial {
         taken_millis: u32,
     ) -> RevlogEntry {
         RevlogEntry {
-            id: answered_at,
+            id: answered_at.into(),
             cid,
             usn,
             button_chosen,

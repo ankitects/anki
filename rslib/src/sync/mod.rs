@@ -904,7 +904,7 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_tags(&self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
+    fn merge_tags(&mut self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
         for tag in tags {
             self.register_tag(&mut Tag::new(tag, latest_usn))?;
         }
@@ -925,7 +925,7 @@ impl Collection {
 
     fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
         for entry in entries {
-            self.storage.add_revlog_entry(&entry)?;
+            self.storage.add_revlog_entry(&entry, false)?;
         }
         Ok(())
     }
@@ -1134,17 +1134,18 @@ impl From<Card> for CardEntry {
 
 impl From<NoteEntry> for Note {
     fn from(e: NoteEntry) -> Self {
-        Note {
-            id: e.id,
-            guid: e.guid,
-            notetype_id: e.ntid,
-            mtime: e.mtime,
-            usn: e.usn,
-            tags: split_tags(&e.tags).map(ToString::to_string).collect(),
-            fields: e.fields.split('\x1f').map(ToString::to_string).collect(),
-            sort_field: None,
-            checksum: None,
-        }
+        let fields = e.fields.split('\x1f').map(ToString::to_string).collect();
+        Note::new_from_storage(
+            e.id,
+            e.guid,
+            e.ntid,
+            e.mtime,
+            e.usn,
+            split_tags(&e.tags).map(ToString::to_string).collect(),
+            fields,
+            None,
+            None,
+        )
     }
 }
 
@@ -1152,12 +1153,12 @@ impl From<Note> for NoteEntry {
     fn from(e: Note) -> Self {
         NoteEntry {
             id: e.id,
+            fields: e.fields().iter().join("\x1f"),
             guid: e.guid,
             ntid: e.notetype_id,
             mtime: e.mtime,
             usn: e.usn,
             tags: join_tags(&e.tags),
-            fields: e.fields.into_iter().join("\x1f"),
             sfld: String::new(),
             csum: String::new(),
             flags: 0,
@@ -1324,7 +1325,7 @@ mod test {
     fn col1_setup(col: &mut Collection) {
         let nt = col.get_notetype_by_name("Basic").unwrap().unwrap();
         let mut note = nt.new_note();
-        note.fields[0] = "1".into();
+        note.set_field(0, "1").unwrap();
         col.add_note(&mut note, DeckID(1)).unwrap();
 
         // // set our schema time back, so when initial server
@@ -1392,18 +1393,21 @@ mod test {
 
         // add another note+card+tag
         let mut note = nt.new_note();
-        note.fields[0] = "2".into();
+        note.set_field(0, "2")?;
         note.tags.push("tag".into());
         col1.add_note(&mut note, deck.id)?;
 
         // mock revlog entry
-        col1.storage.add_revlog_entry(&RevlogEntry {
-            id: TimestampMillis(123),
-            cid: CardID(456),
-            usn: Usn(-1),
-            interval: 10,
-            ..Default::default()
-        })?;
+        col1.storage.add_revlog_entry(
+            &RevlogEntry {
+                id: RevlogID(123),
+                cid: CardID(456),
+                usn: Usn(-1),
+                interval: 10,
+                ..Default::default()
+            },
+            true,
+        )?;
 
         // config + creation
         col1.set_config("test", &"test1")?;
@@ -1486,7 +1490,7 @@ mod test {
 
         // make some modifications
         let mut note = col2.storage.get_note(note.id)?.unwrap();
-        note.fields[1] = "new".into();
+        note.set_field(1, "new")?;
         note.tags.push("tag2".into());
         col2.update_note(&mut note)?;
 
