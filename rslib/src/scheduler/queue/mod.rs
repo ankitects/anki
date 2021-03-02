@@ -14,7 +14,7 @@ use std::{
 use crate::{backend_proto as pb, card::CardQueue, prelude::*, timestamp::TimestampSecs};
 pub(crate) use builder::{DueCard, NewCard};
 
-use super::timing::SchedTimingToday;
+use super::{states::NextCardStates, timing::SchedTimingToday};
 
 #[derive(Debug)]
 pub(crate) struct CardQueues {
@@ -154,7 +154,9 @@ impl Collection {
     ) -> Result<pb::GetQueuedCardsOut> {
         if let Some(next_cards) = self.next_cards(fetch_limit, intraday_learning_only)? {
             Ok(pb::GetQueuedCardsOut {
-                value: Some(pb::get_queued_cards_out::Value::QueuedCards(next_cards)),
+                value: Some(pb::get_queued_cards_out::Value::QueuedCards(
+                    next_cards.into(),
+                )),
             })
         } else {
             Ok(pb::GetQueuedCardsOut {
@@ -209,7 +211,7 @@ impl Collection {
         &mut self,
         _fetch_limit: u32,
         _intraday_learning_only: bool,
-    ) -> Result<Option<pb::get_queued_cards_out::QueuedCards>> {
+    ) -> Result<Option<QueuedCards>> {
         let queues = self.get_queues()?;
         let mut cards = vec![];
         if let Some(entry) = queues.next_entry(TimestampSecs::now()) {
@@ -226,14 +228,10 @@ impl Collection {
             // fixme: pass in card instead of id
             let next_states = self.get_next_card_states(card.id)?;
 
-            cards.push(pb::get_queued_cards_out::QueuedCard {
-                card: Some(card.into()),
-                next_states: Some(next_states.into()),
-                queue: match entry.kind {
-                    QueueEntryKind::New => 0,
-                    QueueEntryKind::Learning => 1,
-                    QueueEntryKind::Review => 2,
-                },
+            cards.push(QueuedCard {
+                card,
+                next_states,
+                kind: entry.kind,
             });
         }
 
@@ -241,12 +239,25 @@ impl Collection {
             Ok(None)
         } else {
             let counts = self.get_queues()?.counts();
-            Ok(Some(pb::get_queued_cards_out::QueuedCards {
+            Ok(Some(QueuedCards {
                 cards,
-                new_count: counts.new as u32,
-                learning_count: counts.learning as u32,
-                review_count: counts.review as u32,
+                new_count: counts.new,
+                learning_count: counts.learning,
+                review_count: counts.review,
             }))
         }
     }
+}
+
+pub(crate) struct QueuedCard {
+    pub card: Card,
+    pub kind: QueueEntryKind,
+    pub next_states: NextCardStates,
+}
+
+pub(crate) struct QueuedCards {
+    pub cards: Vec<QueuedCard>,
+    pub new_count: usize,
+    pub learning_count: usize,
+    pub review_count: usize,
 }
