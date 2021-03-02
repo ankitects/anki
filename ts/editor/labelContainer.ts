@@ -1,9 +1,8 @@
 import { bridgeCommand } from "./lib";
 
-
 function removeHoverIcon(evt: Event): void {
     const icon = evt.currentTarget as HTMLElement;
-    icon.classList.remove("icon--hover")
+    icon.classList.remove("icon--hover");
 }
 
 function hoverIcon(evt: Event): void {
