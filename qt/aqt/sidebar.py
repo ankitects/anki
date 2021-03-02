@@ -169,6 +169,9 @@ class SidebarModel(QAbstractItemModel):
     def item_for_index(self, idx: QModelIndex) -> SidebarItem:
         return idx.internalPointer()
 
+    def index_for_item(self, item: SidebarItem) -> QModelIndex:
+        return self.createIndex(item._row_in_parent, 0, item)
+
     def search(self, text: str) -> bool:
         return self.root.search(text.lower())
 
@@ -413,7 +416,9 @@ class SidebarTreeView(QTreeView):
     def model(self) -> SidebarModel:
         return super().model()
 
-    def refresh(self) -> None:
+    def refresh(
+        self, is_current: Optional[Callable[[SidebarItem], bool]] = None
+    ) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return
@@ -431,10 +436,33 @@ class SidebarTreeView(QTreeView):
             else:
                 self._expand_where_necessary(model)
             self.setUpdatesEnabled(True)
+            if is_current:
+                self.restore_current(is_current)
 
         # block repainting during refreshing to avoid flickering
         self.setUpdatesEnabled(False)
         self.mw.taskman.run_in_background(self._root_tree, on_done)
+
+    def restore_current(self, is_current: Callable[[SidebarItem], bool]) -> None:
+        if current := self.find_item(is_current):
+            index = self.model().index_for_item(current)
+            self.selectionModel().select(index, QItemSelectionModel.SelectCurrent)
+            self.scrollTo(index)
+
+    def find_item(
+        self,
+        is_target: Callable[[SidebarItem], bool],
+        parent: Optional[SidebarItem] = None,
+    ) -> Optional[SidebarItem]:
+        def find_item_rec(parent: SidebarItem) -> Optional[SidebarItem]:
+            if is_target(parent):
+                return parent
+            for child in parent.children:
+                if item := find_item_rec(child):
+                    return item
+            return None
+
+        return find_item_rec(parent or self.model().root)
 
     def search_for(self, text: str) -> None:
         self.showColumn(0)
@@ -1078,7 +1106,10 @@ class SidebarTreeView(QTreeView):
         except DeckRenameError as e:
             showWarning(e.description)
             return
-        self.refresh()
+        self.refresh(
+            lambda item_: item_.item_type == SidebarItemType.DECK
+            and item_.id == item.id
+        )
         self.mw.deckBrowser.refresh()
 
     def remove_tags(self, item: SidebarItem) -> None:
@@ -1126,7 +1157,10 @@ class SidebarTreeView(QTreeView):
                 showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
                 return
 
-            self.refresh()
+            self.refresh(
+                lambda item: item.item_type == SidebarItemType.TAG
+                and item.full_name == new_name
+            )
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
@@ -1203,7 +1237,10 @@ class SidebarTreeView(QTreeView):
         conf[new] = filt
         del conf[old]
         self._set_saved_searches(conf)
-        self.refresh()
+        self.refresh(
+            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
+            and item.name == new_name
+        )
 
     def save_current_search(self, _item: Any = None) -> None:
         try:
@@ -1219,7 +1256,10 @@ class SidebarTreeView(QTreeView):
             conf = self._get_saved_searches()
             conf[name] = filt
             self._set_saved_searches(conf)
-            self.refresh()
+            self.refresh(
+                lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
+                and item.name == name
+            )
 
     def manage_notetype(self, item: SidebarItem) -> None:
         Models(
