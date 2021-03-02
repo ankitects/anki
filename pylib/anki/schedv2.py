@@ -14,7 +14,7 @@ import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, DeckManager, DeckTreeNode, QueueConfig
+from anki.decks import Deck, DeckConfig, DeckTreeNode, QueueConfig
 from anki.lang import FormatTimeSpan
 from anki.notes import Note
 from anki.utils import from_json_bytes, ids2str, intTime
@@ -390,9 +390,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         d = self.col.decks.get(self.col.decks.selected(), default=False)
         return self._deckRevLimitSingle(d)
 
-    def _deckRevLimitSingle(
-        self, d: Dict[str, Any], parentLimit: Optional[int] = None
-    ) -> int:
+    def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:
         # invalid deck selected?
         if not d:
             return 0
@@ -403,28 +401,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         c = self.col.decks.confForDid(d["id"])
         lim = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
 
-        if parentLimit is not None:
-            lim = min(parentLimit, lim)
-        elif "::" in d["name"]:
-            for parent in self.col.decks.parents(d["id"]):
-                # pass in dummy parentLimit so we don't do parent lookup again
-                lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
-
-    def _revForDeck(
-        self, did: int, lim: int, childMap: DeckManager.childMapNode
-    ) -> Any:
-        dids = [did] + self.col.decks.childDids(did, childMap)
-        lim = min(lim, self.reportLimit)
-        return self.col.db.scalar(
-            f"""
-select count() from
-(select 1 from cards where did in %s and queue = {QUEUE_TYPE_REV}
-and due <= ? limit ?)"""
-            % ids2str(dids),
-            self.today,
-            lim,
-        )
 
     def _resetRev(self) -> None:
         self._revQueue: List[int] = []
