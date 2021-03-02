@@ -12,7 +12,7 @@ import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, QueueConfig
+from anki.decks import QueueConfig
 from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
@@ -427,25 +427,6 @@ and due <= ? limit ?)""",
 
     def _deckRevLimit(self, did: int) -> int:
         return self._deckNewLimit(did, self._deckRevLimitSingle)
-
-    def _deckRevLimitSingle(self, d: Deck) -> int:  # type: ignore[override]
-        if d["dyn"]:
-            return self.reportLimit
-        c = self.col.decks.confForDid(d["id"])
-        limit = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
-        return hooks.scheduler_review_limit_for_single_deck(limit, d)
-
-    def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]
-        lim = min(lim, self.reportLimit)
-        return self.col.db.scalar(
-            f"""
-select count() from
-(select 1 from cards where did = ? and queue = {QUEUE_TYPE_REV}
-and due <= ? limit ?)""",
-            did,
-            self.today,
-            lim,
-        )
 
     def _resetRev(self) -> None:
         self._revQueue: List[Any] = []
