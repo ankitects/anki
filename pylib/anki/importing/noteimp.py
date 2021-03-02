@@ -250,7 +250,7 @@ class NoteImporter(Importer):
             self.col.tags.join(n.tags),
             n.fieldsStr,
             "",
-            "",
+            0,
             0,
             "",
         ]

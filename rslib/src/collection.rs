@@ -78,9 +78,10 @@ pub struct Collection {
     pub(crate) state: CollectionState,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CollectionOp {
     UpdateCard,
+    AnswerCard,
 }
 
 impl Collection {

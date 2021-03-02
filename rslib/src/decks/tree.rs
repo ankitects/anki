@@ -391,7 +391,7 @@ mod test {
         // add some new cards
         let nt = col.get_notetype_by_name("Cloze")?.unwrap();
         let mut note = nt.new_note();
-        note.fields[0] = "{{c1::}} {{c2::}} {{c3::}} {{c4::}}".into();
+        note.set_field(0, "{{c1::}} {{c2::}} {{c3::}} {{c4::}}")?;
         col.add_note(&mut note, child_deck.id)?;
 
         let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;

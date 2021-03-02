@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState;
 use crate::{
     backend_proto as pb,
     collection::Collection,
@@ -14,6 +13,7 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
+use crate::{backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState, undo::Undo};
 use itertools::Itertools;
 use num_integer::Integer;
 use regex::{Regex, Replacer};
@@ -40,7 +40,7 @@ pub struct Note {
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub tags: Vec<String>,
-    pub(crate) fields: Vec<String>,
+    fields: Vec<String>,
     pub(crate) sort_field: Option<String>,
     pub(crate) checksum: Option<u32>,
 }
@@ -60,8 +60,44 @@ impl Note {
         }
     }
 
+    #[allow(clippy::clippy::too_many_arguments)]
+    pub(crate) fn new_from_storage(
+        id: NoteID,
+        guid: String,
+        notetype_id: NoteTypeID,
+        mtime: TimestampSecs,
+        usn: Usn,
+        tags: Vec<String>,
+        fields: Vec<String>,
+        sort_field: Option<String>,
+        checksum: Option<u32>,
+    ) -> Self {
+        Self {
+            id,
+            guid,
+            notetype_id,
+            mtime,
+            usn,
+            tags,
+            fields,
+            sort_field,
+            checksum,
+        }
+    }
+
     pub fn fields(&self) -> &Vec<String> {
         &self.fields
+    }
+
+    pub(crate) fn fields_mut(&mut self) -> &mut Vec<String> {
+        self.mark_dirty();
+        &mut self.fields
+    }
+
+    // Ensure we get an error if caller forgets to call prepare_for_update().
+    fn mark_dirty(&mut self) {
+        self.sort_field = None;
+        self.checksum = None;
     }
 
     pub fn set_field(&mut self, idx: usize, text: impl Into<String>) -> Result<()> {
@@ -72,6 +108,7 @@ impl Note {
         }
 
         self.fields[idx] = text.into();
+        self.mark_dirty();
 
         Ok(())
     }
@@ -252,7 +289,7 @@ fn invalid_char_for_field(c: char) -> bool {
 }
 
 impl Collection {
-    fn canonify_note_tags(&self, note: &mut Note, usn: Usn) -> Result<()> {
+    fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
         if !note.tags.is_empty() {
             let tags = std::mem::replace(&mut note.tags, vec![]);
             note.tags = self.canonify_tags(tags, usn)?.0;
@@ -286,13 +323,10 @@ impl Collection {
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        if let Some(existing_note) = self.storage.get_note(note.id)? {
-            if &existing_note == note {
-                // nothing to do
-                return Ok(());
-            }
-        } else {
-            return Err(AnkiError::NotFound);
+        let existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
+        if &existing_note == note {
+            // nothing to do
+            return Ok(());
         }
 
         self.transact(None, |col| {
@@ -301,7 +335,7 @@ impl Collection {
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
             let norm = col.normalize_note_text();
-            col.update_note_inner_generating_cards(&ctx, note, true, norm)
+            col.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm)
         })
     }
 
@@ -309,11 +343,13 @@ impl Collection {
         &mut self,
         ctx: &CardGenContext,
         note: &mut Note,
+        original: &Note,
         mark_note_modified: bool,
         normalize_text: bool,
     ) -> Result<()> {
         self.update_note_inner_without_cards(
             note,
+            original,
             ctx.notetype,
             ctx.usn,
             mark_note_modified,
@@ -325,6 +361,7 @@ impl Collection {
     pub(crate) fn update_note_inner_without_cards(
         &mut self,
         note: &mut Note,
+        original: &Note,
         nt: &NoteType,
         usn: Usn,
         mark_note_modified: bool,
@@ -332,10 +369,28 @@ impl Collection {
     ) -> Result<()> {
         self.canonify_note_tags(note, usn)?;
         note.prepare_for_update(nt, normalize_text)?;
-        if mark_note_modified {
+        self.update_note_inner_undo_and_mtime_only(
+            note,
+            original,
+            if mark_note_modified { Some(usn) } else { None },
+        )
+    }
+
+    /// Bumps modification time if usn provided, saves in the undo queue, and commits to DB.
+    /// No validation, card generation or normalization is done.
+    pub(crate) fn update_note_inner_undo_and_mtime_only(
+        &mut self,
+        note: &mut Note,
+        original: &Note,
+        update_usn: Option<Usn>,
+    ) -> Result<()> {
+        if let Some(usn) = update_usn {
             note.set_modified(usn);
         }
-        self.storage.update_note(note)
+        self.save_undo(Box::new(NoteUpdated(original.clone())));
+        self.storage.update_note(note)?;
+
+        Ok(())
     }
 
     /// Remove a note. Cards must already have been deleted.
@@ -407,6 +462,7 @@ impl Collection {
             for (_, nid) in group {
                 // grab the note and transform it
                 let mut note = self.storage.get_note(nid)?.unwrap();
+                let original = note.clone();
                 let out = transformer(&mut note, &nt)?;
                 if !out.changed {
                     continue;
@@ -417,12 +473,14 @@ impl Collection {
                     self.update_note_inner_generating_cards(
                         &ctx,
                         &mut note,
+                        &original,
                         out.mark_modified,
                         norm,
                     )?;
                 } else {
                     self.update_note_inner_without_cards(
                         &mut note,
+                        &original,
                         &nt,
                         usn,
                         out.mark_modified,
@@ -492,6 +550,19 @@ impl Collection {
             })
         })
         .map(|_| ())
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct NoteUpdated(Note);
+
+impl Undo for NoteUpdated {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection, usn: Usn) -> Result<()> {
+        let current = col
+            .storage
+            .get_note(self.0.id)?
+            .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
+        col.update_note_inner_undo_and_mtime_only(&mut self.0.clone(), &current, Some(usn))
     }
 }
 

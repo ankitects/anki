@@ -312,6 +312,28 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// Place matching card ids into the search table.
+    pub(crate) fn search_siblings_for_bury(
+        &self,
+        cid: CardID,
+        nid: NoteID,
+        include_new: bool,
+        include_reviews: bool,
+    ) -> Result<()> {
+        self.setup_searched_cards_table()?;
+        self.db
+            .prepare_cached(include_str!("siblings_for_bury.sql"))?
+            .execute(params![
+                cid,
+                nid,
+                include_new,
+                CardQueue::New as i8,
+                include_reviews,
+                CardQueue::Review as i8
+            ])?;
+        Ok(())
+    }
+
     pub(crate) fn note_ids_of_cards(&self, cids: &[CardID]) -> Result<HashSet<NoteID>> {
         let mut stmt = self
             .db

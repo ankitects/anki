@@ -1449,7 +1449,7 @@ impl BackendService for Backend {
     fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                col.storage.clear_tag(tag.val.as_str())?;
+                col.storage.clear_tag_and_children(tag.val.as_str())?;
                 Ok(().into())
             })
         })

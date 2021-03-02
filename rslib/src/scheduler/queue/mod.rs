@@ -247,8 +247,16 @@ impl Collection {
             }))
         }
     }
+
+    #[cfg(test)]
+    pub(crate) fn next_card(&mut self) -> Result<Option<QueuedCard>> {
+        Ok(self
+            .next_cards(1, false)?
+            .map(|mut resp| resp.cards.pop().unwrap()))
+    }
 }
 
+#[derive(Debug)]
 pub(crate) struct QueuedCard {
     pub card: Card,
     pub kind: QueueEntryKind,

@@ -8,6 +8,7 @@ use crate::{
     notes::{NoteID, TransformNoteOutput},
     text::{normalize_to_nfc, to_re},
     types::Usn,
+    undo::Undo,
 };
 
 use regex::{NoExpand, Regex, Replacer};
@@ -195,7 +196,11 @@ impl Collection {
 
     /// Given a list of tags, fix case, ordering and duplicates.
     /// Returns true if any new tags were added.
-    pub(crate) fn canonify_tags(&self, tags: Vec<String>, usn: Usn) -> Result<(Vec<String>, bool)> {
+    pub(crate) fn canonify_tags(
+        &mut self,
+        tags: Vec<String>,
+        usn: Usn,
+    ) -> Result<(Vec<String>, bool)> {
         let mut seen = HashSet::new();
         let mut added = false;
 
@@ -223,7 +228,7 @@ impl Collection {
     /// in the tags list. True if the tag was added and not already in tag list.
     /// In the case the tag is already registered, tag will be mutated to match the existing
     /// name.
-    pub(crate) fn register_tag(&self, tag: &mut Tag) -> Result<bool> {
+    pub(crate) fn register_tag(&mut self, tag: &mut Tag) -> Result<bool> {
         let normalized_name = normalize_tag_name(&tag.name);
         if normalized_name.is_empty() {
             // this should not be possible
@@ -238,9 +243,21 @@ impl Collection {
             } else if let Cow::Owned(new_name) = normalized_name {
                 tag.name = new_name;
             }
-            self.storage.register_tag(&tag)?;
+            self.register_tag_inner(&tag)?;
             Ok(true)
         }
+    }
+
+    /// Adds an already-validated tag to the DB and undo list.
+    /// Caller is responsible for setting usn.
+    pub(crate) fn register_tag_inner(&mut self, tag: &Tag) -> Result<()> {
+        self.save_undo(Box::new(AddedTag(tag.clone())));
+        self.storage.register_tag(&tag)
+    }
+
+    pub(crate) fn remove_single_tag(&mut self, tag: &Tag, _usn: Usn) -> Result<()> {
+        self.save_undo(Box::new(RemovedTag(tag.clone())));
+        self.storage.remove_single_tag(&tag.name)
     }
 
     /// If parent tag(s) exist and differ in case, return a rewritten tag.
@@ -271,7 +288,7 @@ impl Collection {
 
     pub fn clear_unused_tags(&self) -> Result<()> {
         let expanded: HashSet<_> = self.storage.expanded_tags()?.into_iter().collect();
-        self.storage.clear_tags()?;
+        self.storage.clear_all_tags()?;
         let usn = self.usn()?;
         for name in self.storage.all_tags_in_notes()? {
             let name = normalize_tag_name(&name).into();
@@ -441,7 +458,7 @@ impl Collection {
         self.transact(None, |col| {
             // clear the existing original tags
             for (source_tag, _) in &source_tags_and_outputs {
-                col.storage.clear_tag(source_tag)?;
+                col.storage.clear_tag_and_children(source_tag)?;
             }
 
             col.transform_notes(&nids, |note, _nt| {
@@ -461,6 +478,25 @@ impl Collection {
         })?;
 
         Ok(())
+    }
+}
+
+#[derive(Debug)]
+struct AddedTag(Tag);
+
+#[derive(Debug)]
+struct RemovedTag(Tag);
+
+impl Undo for AddedTag {
+    fn undo(self: Box<Self>, col: &mut Collection, usn: Usn) -> Result<()> {
+        col.remove_single_tag(&self.0, usn)
+    }
+}
+
+impl Undo for RemovedTag {
+    fn undo(mut self: Box<Self>, col: &mut Collection, usn: Usn) -> Result<()> {
+        self.0.usn = usn;
+        col.register_tag_inner(&self.0)
     }
 }
 
@@ -575,11 +611,11 @@ mod test {
         assert_eq!(&note.tags, &["barfoo", "foobar"]);
 
         // tag children are also cleared when clearing their parent
-        col.storage.clear_tags()?;
+        col.storage.clear_all_tags()?;
         for name in vec!["a", "a::b", "A::b::c"] {
             col.register_tag(&mut Tag::new(name.to_string(), Usn(0)))?;
         }
-        col.storage.clear_tag("a")?;
+        col.storage.clear_tag_and_children("a")?;
         assert_eq!(col.storage.all_tags()?, vec![]);
 
         Ok(())
@@ -624,7 +660,7 @@ mod test {
 
         // differing case should result in only one parent case being added -
         // the first one
-        col.storage.clear_tags()?;
+        col.storage.clear_all_tags()?;
         *(&mut note.tags[0]) = "foo::BAR::a".into();
         *(&mut note.tags[1]) = "FOO::bar::b".into();
         col.update_note(&mut note)?;
@@ -642,7 +678,7 @@ mod test {
         );
 
         // things should work even if the immediate parent is not missing
-        col.storage.clear_tags()?;
+        col.storage.clear_all_tags()?;
         *(&mut note.tags[0]) = "foo::bar::baz".into();
         *(&mut note.tags[1]) = "foo::bar::baz::quux".into();
         col.update_note(&mut note)?;
@@ -661,7 +697,7 @@ mod test {
 
         // numbers have a smaller ascii number than ':', so a naive sort on
         // '::' would result in one::two being nested under one1.
-        col.storage.clear_tags()?;
+        col.storage.clear_all_tags()?;
         *(&mut note.tags[0]) = "one".into();
         *(&mut note.tags[1]) = "one1".into();
         note.tags.push("one::two".into());
@@ -676,7 +712,7 @@ mod test {
         );
 
         // children should match the case of their parents
-        col.storage.clear_tags()?;
+        col.storage.clear_all_tags()?;
         *(&mut note.tags[0]) = "FOO".into();
         *(&mut note.tags[1]) = "foo::BAR".into();
         *(&mut note.tags[2]) = "foo::bar::baz".into();

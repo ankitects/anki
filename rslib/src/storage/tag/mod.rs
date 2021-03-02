@@ -65,7 +65,24 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn clear_tag(&self, tag: &str) -> Result<()> {
+    // for undo in the future
+    #[allow(dead_code)]
+    pub(crate) fn get_tag_and_children(&self, name: &str) -> Result<Vec<Tag>> {
+        self.db
+            .prepare_cached("select tag, usn, collapsed from tags where tag regexp ?")?
+            .query_and_then(&[format!("(?i)^{}($|::)", regex::escape(name))], row_to_tag)?
+            .collect()
+    }
+
+    pub(crate) fn remove_single_tag(&self, tag: &str) -> Result<()> {
+        self.db
+            .prepare_cached("delete from tags where tag = ?")?
+            .execute(&[tag])?;
+
+        Ok(())
+    }
+
+    pub(crate) fn clear_tag_and_children(&self, tag: &str) -> Result<()> {
         self.db
             .prepare_cached("delete from tags where tag regexp ?")?
             .execute(&[format!("(?i)^{}($|::)", regex::escape(tag))])?;
@@ -81,7 +98,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn clear_tags(&self) -> Result<()> {
+    pub(crate) fn clear_all_tags(&self) -> Result<()> {
         self.db.execute("delete from tags", NO_PARAMS)?;
         Ok(())
     }
