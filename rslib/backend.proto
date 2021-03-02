@@ -225,6 +225,7 @@ service BackendService {
 
   rpc ClearUnusedTags(Empty) returns (Empty);
   rpc AllTags(Empty) returns (StringList);
+  rpc ExpungeTags(String) returns (Empty);
   rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
