@@ -24,7 +24,7 @@ export class LabelContainer extends HTMLDivElement {
         this.appendChild(this.label);
 
         this.sticky = document.createElement("span");
-        this.sticky.className = "bi me-1 bi-sticky icon";
+        this.sticky.className = "bi me-1 bi-pin-angle icon";
         this.sticky.hidden = true;
         this.appendChild(this.sticky);
 
