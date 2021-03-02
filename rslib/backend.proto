@@ -1375,8 +1375,8 @@ message GetQueuedCardsOut {
 
   message QueuedCard {
     Card card = 1;
-    Queue queue = 5;
-    NextCardStates next_states = 6;
+    Queue queue = 2;
+    NextCardStates next_states = 3;
   }
 
   message QueuedCards {
