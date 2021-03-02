@@ -111,6 +111,7 @@ customElements.define("anki-editable", Editable);
 export class EditingArea extends HTMLDivElement {
     editable: Editable;
     baseStyle: HTMLStyleElement;
+    userStyle: HTMLStyleElement;
 
     constructor() {
         super();
@@ -125,6 +126,10 @@ export class EditingArea extends HTMLDivElement {
         this.baseStyle = document.createElement("style");
         this.baseStyle.setAttribute("rel", "stylesheet");
         this.shadowRoot!.appendChild(this.baseStyle);
+
+        this.userStyle = document.createElement("style");
+        this.userStyle.setAttribute("rel", "stylesheet");
+        this.shadowRoot!.appendChild(this.userStyle);
 
         this.editable = document.createElement("anki-editable") as Editable;
         this.shadowRoot!.appendChild(this.editable);
@@ -188,6 +193,11 @@ export class EditingArea extends HTMLDivElement {
         firstRule.style.direction = direction;
     }
 
+    setUserStyling(style: HTMLStyleElement): void {
+        this.userStyle.parentNode.replaceChild(style, this.userStyle);
+        this.userStyle = style;
+    }
+
     isRightToLeft(): boolean {
         return this.editable.style.direction === "rtl";
     }
@@ -232,6 +242,7 @@ export class EditorField extends HTMLDivElement {
         return ["ord"];
     }
 
+
     set ord(n: number) {
         this.setAttribute("ord", String(n));
     }
@@ -250,6 +261,10 @@ export class EditorField extends HTMLDivElement {
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
         this.editingArea.setBaseStyling(fontFamily, fontSize, direction);
+    }
+
+    setUserStyling(style: HTMLStyleElement): void {
+        this.editingArea.setUserStyling(style);
     }
 }
 
@@ -312,6 +327,16 @@ export function setBackgrounds(cols: ("dupe" | "")[]) {
 export function setFonts(fonts: [string, number, boolean][]): void {
     forEditorField(fonts, (field, [fontFamily, fontSize, isRtl]) => {
         field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
+    });
+}
+
+export function setUserStyling(css: string): void {
+    const userStyle = document.createElement("style");
+    userStyle.setAttribute("rel", "stylesheet");
+    userStyle.innerText = css;
+
+    forEditorField([], (field) => {
+        field.setUserStyling(userStyle.cloneNode(true) as HTMLStyleElement);
     });
 }
 
