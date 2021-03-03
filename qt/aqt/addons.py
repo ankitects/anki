@@ -1150,9 +1150,11 @@ class ChooseAddonsToUpdateList(QListWidget):
         self.updated_addons = sorted(
             updated_addons, key=lambda addon: addon.suitable_branch_last_modified
         )
+        self.ignore_check_evt = False
         self.setup()
-        qconnect(self.itemClicked, self.toggle_check)
-        qconnect(self.itemDoubleClicked, self.double_click)
+        qconnect(self.itemClicked, self.on_click)
+        qconnect(self.itemChanged, self.on_check)
+        qconnect(self.itemDoubleClicked, self.on_double_click)
 
     def setup(self) -> None:
         header_item = QListWidgetItem("", self)
@@ -1178,41 +1180,51 @@ class ChooseAddonsToUpdateList(QListWidget):
             item.setData(self.ADDON_ID_ROLE, addon_id)
         self.refresh_header_check_state()
 
-    def toggle_check(self, item: QListWidgetItem) -> None:
+    def on_click(self, item: QListWidgetItem) -> None:
         if item == self.header_item:
-            if item.checkState() == Qt.Checked:
-                check = Qt.Checked
-            else:
-                check = Qt.Unchecked
-            self.check_all_items(check)
             return
-        # Normal Item
         if item.checkState() == Qt.Checked:
-            item.setCheckState(Qt.Unchecked)
+            self.check_item(item, Qt.Unchecked)
         else:
-            item.setCheckState(Qt.Checked)
+            self.check_item(item, Qt.Checked)
         self.refresh_header_check_state()
 
-    def double_click(self, item: QListWidgetItem) -> None:
+    def on_check(self, item: QListWidgetItem) -> None:
+        if self.ignore_check_evt:
+            return
+        if item == self.header_item:
+            if item.checkState() == Qt.Checked:
+                check = Qt.Checked
+            else:
+                check = Qt.Unchecked
+            self.header_checked(check)
+
+    def on_double_click(self, item: QListWidgetItem) -> None:
         if item == self.header_item:
             if item.checkState() == Qt.Checked:
                 check = Qt.Unchecked
             else:
                 check = Qt.Checked
-            self.header_item.setCheckState(check)
-            self.check_all_items(check)
+            self.check_item(self.header_item, check)
+            self.header_checked(check)
 
-    def check_all_items(self, check: Qt.CheckState = Qt.Checked) -> None:
+    def check_item(self, item: QListWidgetItem, check: Qt.CheckState) -> None:
+        "call item.setCheckState without triggering on_check"
+        self.ignore_check_evt = True
+        item.setCheckState(check)
+        self.ignore_check_evt = False
+
+    def header_checked(self, check: Qt.CheckState) -> None:
         for i in range(1, self.count()):
-            self.item(i).setCheckState(check)
+            self.check_item(self.item(i), check)
 
     def refresh_header_check_state(self) -> None:
         for i in range(1, self.count()):
             item = self.item(i)
             if item.checkState() == Qt.Unchecked:
-                self.header_item.setCheckState(Qt.Unchecked)
+                self.check_item(self.header_item, Qt.Unchecked)
                 return
-        self.header_item.setCheckState(Qt.Checked)
+        self.check_item(self.header_item, Qt.Checked)
 
     def get_selected_addon_ids(self) -> List[int]:
         addon_ids = []
@@ -1229,7 +1241,6 @@ class ChooseAddonsToUpdateList(QListWidget):
             addon_id = item.data(self.ADDON_ID_ROLE)
             addon_meta = self.mgr.addon_meta(str(addon_id))
             checked = item.checkState() == Qt.Checked
-            print(checked)
             addon_meta.update_enabled = checked
             self.mgr.write_addon_meta(addon_meta)
 
