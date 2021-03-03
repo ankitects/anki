@@ -364,16 +364,9 @@ class SidebarTreeView(QTreeView):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus: Dict[SidebarItemType, Sequence[Tuple[str, Callable]]] = {
-            SidebarItemType.DECK: (
-                (tr(TR.ACTIONS_RENAME), self.rename_deck),
-                (tr(TR.ACTIONS_DELETE), self.delete_deck),
-            ),
-            SidebarItemType.TAG: (
-                (tr(TR.ACTIONS_RENAME), self.rename_tag),
-                (tr(TR.ACTIONS_DELETE), self.remove_tags),
-            ),
+            SidebarItemType.DECK: ((tr(TR.ACTIONS_DELETE), self.delete_deck),),
+            SidebarItemType.TAG: ((tr(TR.ACTIONS_DELETE), self.remove_tags),),
             SidebarItemType.SAVED_SEARCH: (
-                (tr(TR.ACTIONS_RENAME), self.rename_saved_search),
                 (tr(TR.ACTIONS_DELETE), self.remove_saved_searches),
             ),
             SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
@@ -1040,8 +1033,13 @@ class SidebarTreeView(QTreeView):
 
     # idx is only None when triggering the context menu from a left click on
     # saved searches - perhaps there is a better way to handle that?
-    def show_context_menu(self, item: SidebarItem, idx: Optional[QModelIndex]) -> None:
+    def show_context_menu(
+        self, item: SidebarItem, index: Optional[QModelIndex]
+    ) -> None:
         m = QMenu()
+
+        if item.item_type.is_editable():
+            m.addAction(tr(TR.ACTIONS_RENAME), lambda: self.edit(index))
 
         if item.item_type in self.context_menus:
             for action in self.context_menus[item.item_type]:
@@ -1115,13 +1113,12 @@ class SidebarTreeView(QTreeView):
                 lambda: set_children_expanded(False),
             )
 
-    def rename_deck(self, item: SidebarItem, new_name: Optional[str] = None) -> None:
+    def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
-        new_name = new_name or getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
-        new_name = new_name.replace('"', "")
-        if not new_name or new_name == old_name:
-            return
+        new_name = re.sub(
+            re.escape(item.name) + "$", new_name.replace("\\", r"\\"), old_name
+        )
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
@@ -1153,18 +1150,18 @@ class SidebarTreeView(QTreeView):
         self.browser.model.beginReset()
         self.mw.taskman.run_in_background(do_remove, on_done)
 
-    def rename_tag(self, item: SidebarItem, new_name: str = None) -> None:
-        if new_name:
-            # call came from model; block repainting until collection is updated
+    def rename_tag(self, item: SidebarItem, new_name: str) -> None:
+        new_name = new_name.replace(" ", "")
+        if new_name and new_name != item.name:
+            # block repainting until collection is updated
             self.setUpdatesEnabled(False)
-        self.browser.editor.saveNow(lambda: self._rename_tag(item, new_name))
+            self.browser.editor.saveNow(lambda: self._rename_tag(item, new_name))
 
-    def _rename_tag(self, item: SidebarItem, new_name: str = None) -> None:
+    def _rename_tag(self, item: SidebarItem, new_name: str) -> None:
         old_name = item.full_name
-        new_name = new_name or getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old_name)
-        if new_name == old_name or not new_name:
-            self.setUpdatesEnabled(True)
-            return
+        new_name = re.sub(
+            re.escape(item.name) + "$", new_name.replace("\\", r"\\"), old_name
+        )
 
         def do_rename() -> int:
             self.mw.col.tags.remove(old_name)
@@ -1211,9 +1208,6 @@ class SidebarTreeView(QTreeView):
 
     def rename_notetype(self, item: SidebarItem, new_name: str) -> None:
         notetype = self.col.models.get(item.id)
-        new_name = new_name.replace('"', "")
-        if not notetype or not new_name or new_name == notetype["name"]:
-            return
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME))
         notetype["name"] = new_name
         self.col.models.save(notetype)
@@ -1225,12 +1219,8 @@ class SidebarTreeView(QTreeView):
 
     def rename_template(self, item: SidebarItem, new_name: str) -> None:
         notetype = self.col.models.get(item._parent_item.id)
-        template = notetype["tmpls"][item.id]
-        new_name = new_name.replace('"', "")
-        if not new_name or new_name == template["name"]:
-            return
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME))
-        template["name"] = new_name
+        notetype["tmpls"][item.id]["name"] = new_name
         self.col.models.save(notetype)
         self.refresh(
             lambda other: other.item_type == SidebarItemType.NOTETYPE_TEMPLATE
@@ -1240,22 +1230,18 @@ class SidebarTreeView(QTreeView):
         self.browser.model.reset()
 
     def rename_node(self, item: SidebarItem, text: str) -> bool:
-        def full_new_name() -> str:
-            return re.sub(
-                re.escape(item.name) + "$", text.replace("\\", r"\\"), item.full_name
-            )
-
-        if text.replace('"', ""):
+        new_name = text.replace('"', "")
+        if new_name and new_name != item.name:
             if item.item_type == SidebarItemType.DECK:
-                self.rename_deck(item, full_new_name())
+                self.rename_deck(item, new_name)
             elif item.item_type == SidebarItemType.SAVED_SEARCH:
-                self.rename_saved_search(item, text)
+                self.rename_saved_search(item, new_name)
             elif item.item_type == SidebarItemType.TAG:
-                self.rename_tag(item, full_new_name())
+                self.rename_tag(item, new_name)
             elif item.item_type == SidebarItemType.NOTETYPE:
-                self.rename_notetype(item, text)
+                self.rename_notetype(item, new_name)
             elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
-                self.rename_template(item, text)
+                self.rename_template(item, new_name)
         # renaming may be asynchronous so always return False
         return False
 
@@ -1284,18 +1270,15 @@ class SidebarTreeView(QTreeView):
         self._set_saved_searches(conf)
         self.refresh()
 
-    def rename_saved_search(self, item: SidebarItem, new_name: str = None) -> None:
-        old = item.name
+    def rename_saved_search(self, item: SidebarItem, new_name: str) -> None:
+        old_name = item.name
         conf = self._get_saved_searches()
         try:
-            filt = conf[old]
+            filt = conf[old_name]
         except KeyError:
             return
-        new = new_name or getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
-        if new == old or not new:
-            return
-        conf[new] = filt
-        del conf[old]
+        conf[new_name] = filt
+        del conf[old_name]
         self._set_saved_searches(conf)
         self.refresh(
             lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
