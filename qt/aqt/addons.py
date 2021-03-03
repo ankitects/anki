@@ -1152,9 +1152,11 @@ class ChooseAddonsToUpdateList(QListWidget):
         )
         self.ignore_check_evt = False
         self.setup()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
         qconnect(self.itemClicked, self.on_click)
         qconnect(self.itemChanged, self.on_check)
         qconnect(self.itemDoubleClicked, self.on_double_click)
+        qconnect(self.customContextMenuRequested, self.on_context_menu)
 
     def setup(self) -> None:
         header_item = QListWidgetItem("", self)
@@ -1207,6 +1209,14 @@ class ChooseAddonsToUpdateList(QListWidget):
             checked = self.checked(item)
             self.check_item(self.header_item, self.bool_to_check(not checked))
             self.header_checked(self.bool_to_check(not checked))
+
+    def on_context_menu(self, point: QPoint) -> None:
+        item = self.itemAt(point)
+        addon_id = item.data(self.ADDON_ID_ROLE)
+        m = QMenu()
+        a = m.addAction(tr(TR.ADDONS_VIEW_ADDON_PAGE))
+        qconnect(a.triggered, lambda _: openLink(f"{aqt.appShared}info/{addon_id}"))
+        m.exec_(QCursor.pos())
 
     def check_item(self, item: QListWidgetItem, check: Qt.CheckState) -> None:
         "call item.setCheckState without triggering on_check"
