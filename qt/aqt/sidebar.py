@@ -47,6 +47,7 @@ class SidebarItemType(Enum):
     CARD_STATE_ROOT = auto()
     CARD_STATE = auto()
     DECK_ROOT = auto()
+    DECK_CURRENT = auto()
     DECK = auto()
     NOTETYPE_ROOT = auto()
     NOTETYPE = auto()
@@ -64,6 +65,8 @@ class SidebarItemType(Enum):
     def is_section_root(self) -> bool:
         return self in self.section_roots()
 
+    def is_editable(self) -> bool:
+        return self in (SidebarItemType.SAVED_SEARCH, SidebarItemType.DECK, SidebarItemType.TAG)
 
 class SidebarStage(Enum):
     ROOT = auto()
@@ -88,7 +91,6 @@ class SidebarItem:
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,
         full_name: str = None,
-        editable: bool = False,
     ) -> None:
         self.name = name
         if not full_name:
@@ -99,7 +101,6 @@ class SidebarItem:
         self.id = id
         self.on_click = on_click
         self.search_node = search_node
-        self.editable = editable
         self.on_expanded = on_expanded
         self.children: List["SidebarItem"] = []
         self.tooltip: Optional[str] = None
@@ -253,7 +254,7 @@ class SidebarModel(QAbstractItemModel):
             SidebarItemType.TAG_ROOT,
         ):
             flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
-        if item.editable:
+        if item.item_type.is_editable():
             flags |= Qt.ItemIsEditable
 
         return cast(Qt.ItemFlags, flags)
@@ -731,7 +732,6 @@ class SidebarTreeView(QTreeView):
                 icon,
                 search_node=SearchNode(parsable_text=filt),
                 item_type=SidebarItemType.SAVED_SEARCH,
-                editable=True,
             )
             root.add_child(item)
 
@@ -908,7 +908,6 @@ class SidebarTreeView(QTreeView):
                     expanded=node.expanded,
                     item_type=SidebarItemType.TAG,
                     full_name=head + node.name,
-                    editable=True,
                 )
                 root.add_child(item)
                 newhead = f"{head + node.name}::"
@@ -956,7 +955,6 @@ class SidebarTreeView(QTreeView):
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,
                     full_name=head + node.name,
-                    editable=True,
                 )
                 root.add_child(item)
                 newhead = f"{head + node.name}::"
@@ -974,7 +972,7 @@ class SidebarTreeView(QTreeView):
         current = root.add_simple(
             name=tr(TR.BROWSING_CURRENT_DECK),
             icon=icon,
-            type=SidebarItemType.DECK,
+            type=SidebarItemType.DECK_CURRENT,
             search_node=SearchNode(deck="current"),
         )
         current.id = self.mw.col.decks.selected()
