@@ -46,10 +46,10 @@ def write_entry(fname, key, entry):
     entry.id.name = key
 
     if not os.path.exists(fname):
-        return
-
-    with open(fname) as file:
-        orig = file.read()
+        orig = ""
+    else:
+        with open(fname) as file:
+            orig = file.read()
     obj = parse(orig)
     for ent in obj.body:
         if isinstance(ent, Junk):
