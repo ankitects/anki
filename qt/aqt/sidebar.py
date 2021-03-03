@@ -1048,9 +1048,7 @@ class SidebarTreeView(QTreeView):
                 qconnect(a.triggered, lambda _, func=act_func: func(item))
 
         self._maybe_add_search_actions(m)
-
-        if idx:
-            self.maybe_add_tree_actions(m, item, idx)
+        self._maybe_add_tree_actions(m)
 
         if not m.children():
             return
@@ -1076,30 +1074,43 @@ class SidebarTreeView(QTreeView):
             lambda: self.update_search(*nodes, joiner="OR"),
         )
 
-    def maybe_add_tree_actions(
-        self, menu: QMenu, item: SidebarItem, parent: QModelIndex
-    ) -> None:
+    def _maybe_add_tree_actions(self, menu: QMenu) -> None:
+        def set_expanded(expanded: bool) -> None:
+            for index in self.selectedIndexes():
+                self.setExpanded(index, expanded)
+
+        def set_children_expanded(expanded: bool) -> None:
+            for index in self.selectedIndexes():
+                self.setExpanded(index, True)
+                for row in range(self.model().rowCount(index)):
+                    self.setExpanded(self.model().index(row, 0, index), expanded)
+
         if self.current_search:
             return
-        if not any(bool(c.children) for c in item.children):
+
+        selected_items = self._selected_items()
+        if not any(item.children for item in selected_items):
             return
 
-        def set_children_collapsed(collapsed: bool) -> None:
-            m = self.model()
-            self.setExpanded(parent, True)
-            for row in range(m.rowCount(parent)):
-                idx = m.index(row, 0, parent)
-                self.setExpanded(idx, not collapsed)
-
         menu.addSeparator()
-        menu.addAction(
-            tr(TR.BROWSING_SIDEBAR_EXPAND_CHILDREN),
-            lambda: set_children_collapsed(False),
-        )
-        menu.addAction(
-            tr(TR.BROWSING_SIDEBAR_COLLAPSE_CHILDREN),
-            lambda: set_children_collapsed(True),
-        )
+        if any(not item.expanded for item in selected_items):
+            menu.addAction(tr(TR.BROWSING_SIDEBAR_EXPAND), lambda: set_expanded(True))
+        if any(item.expanded for item in selected_items):
+            menu.addAction(
+                tr(TR.BROWSING_SIDEBAR_COLLAPSE), lambda: set_expanded(False)
+            )
+        if any(
+            not c.expanded for i in selected_items for c in i.children if c.children
+        ):
+            menu.addAction(
+                tr(TR.BROWSING_SIDEBAR_EXPAND_CHILDREN),
+                lambda: set_children_expanded(True),
+            )
+        if any(c.expanded for i in selected_items for c in i.children if c.children):
+            menu.addAction(
+                tr(TR.BROWSING_SIDEBAR_COLLAPSE_CHILDREN),
+                lambda: set_children_expanded(False),
+            )
 
     def rename_deck(self, item: SidebarItem, new_name: Optional[str] = None) -> None:
         deck = self.mw.col.decks.get(item.id)
