@@ -105,6 +105,7 @@ class AddonMeta:
     max_point_version: int
     branch_index: int
     human_version: Optional[str]
+    update_enabled: bool
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
@@ -140,6 +141,7 @@ class AddonMeta:
             max_point_version=json_meta.get("max_point_version", 0) or 0,
             branch_index=json_meta.get("branch_index", 0) or 0,
             human_version=json_meta.get("human_version"),
+            update_enabled=json_meta.get("update_enabled", True),
         )
 
 
@@ -243,6 +245,7 @@ class AddonManager:
         json_obj["branch_index"] = addon.branch_index
         if addon.human_version is not None:
             json_obj["human_version"] = addon.human_version
+        json_obj["update_enabled"] = addon.update_enabled
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
@@ -1152,15 +1155,15 @@ class ChooseAddonsToUpdateList(QListWidget):
         qconnect(self.itemDoubleClicked, self.double_click)
 
     def setup(self) -> None:
-        check_state = Qt.Unchecked
         header_item = QListWidgetItem("", self)
         header_item.setFlags(Qt.ItemFlag(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
         header_item.setBackground(Qt.lightGray)
-        header_item.setCheckState(check_state)
         self.header_item = header_item
         for update_info in self.updated_addons:
             addon_id = update_info.id
-            addon_name = self.mgr.addon_meta(str(addon_id)).human_name()
+            addon_meta = self.mgr.addon_meta(str(addon_id))
+            update_enabled = addon_meta.update_enabled
+            addon_name = addon_meta.human_name()
             update_timestamp = update_info.suitable_branch_last_modified
             update_time = datetime.fromtimestamp(update_timestamp)
 
@@ -1168,8 +1171,12 @@ class ChooseAddonsToUpdateList(QListWidget):
             item = QListWidgetItem(addon_label, self)
             # Not user checkable because it overlaps with itemClicked signal
             item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled))
-            item.setCheckState(check_state)
+            if update_enabled:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
             item.setData(self.ADDON_ID_ROLE, addon_id)
+        self.refresh_header_check_state()
 
     def toggle_check(self, item: QListWidgetItem) -> None:
         if item == self.header_item:
@@ -1182,11 +1189,9 @@ class ChooseAddonsToUpdateList(QListWidget):
         # Normal Item
         if item.checkState() == Qt.Checked:
             item.setCheckState(Qt.Unchecked)
-            self.header_item.setCheckState(Qt.Unchecked)
         else:
             item.setCheckState(Qt.Checked)
-            if self.every_item_is_checked():
-                self.header_item.setCheckState(Qt.Checked)
+        self.refresh_header_check_state()
 
     def double_click(self, item: QListWidgetItem) -> None:
         if item == self.header_item:
@@ -1201,20 +1206,32 @@ class ChooseAddonsToUpdateList(QListWidget):
         for i in range(1, self.count()):
             self.item(i).setCheckState(check)
 
-    def every_item_is_checked(self) -> bool:
+    def refresh_header_check_state(self) -> None:
         for i in range(1, self.count()):
             item = self.item(i)
             if item.checkState() == Qt.Unchecked:
-                return False
-        return True
+                self.header_item.setCheckState(Qt.Unchecked)
+                return
+        self.header_item.setCheckState(Qt.Checked)
 
     def get_selected_addon_ids(self) -> List[int]:
         addon_ids = []
         for i in range(1, self.count()):
             item = self.item(i)
             if item.checkState() == Qt.Checked:
-                addon_ids.append(item.data(self.ADDON_ID_ROLE))
+                addon_id = item.data(self.ADDON_ID_ROLE)
+                addon_ids.append(addon_id)
         return addon_ids
+
+    def save_check_state(self) -> None:
+        for i in range(1, self.count()):
+            item = self.item(i)
+            addon_id = item.data(self.ADDON_ID_ROLE)
+            addon_meta = self.mgr.addon_meta(str(addon_id))
+            checked = item.checkState() == Qt.Checked
+            print(checked)
+            addon_meta.update_enabled = checked
+            self.mgr.write_addon_meta(addon_meta)
 
 
 class ChooseAddonsToUpdateDialog(QDialog):
@@ -1249,6 +1266,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
         "Returns a list of selected addons' ids"
         ret = self.exec_()
         saveGeom(self, "addonsChooseUpdate")
+        self.addons_list_widget.save_check_state()
         if ret == QDialog.Accepted:
             return self.addons_list_widget.get_selected_addon_ids()
         else:
