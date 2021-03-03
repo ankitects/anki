@@ -70,6 +70,7 @@ class SidebarItemType(Enum):
             SidebarItemType.SAVED_SEARCH,
             SidebarItemType.DECK,
             SidebarItemType.TAG,
+            SidebarItemType.NOTETYPE,
         )
 
 
@@ -1206,6 +1207,19 @@ class SidebarTreeView(QTreeView):
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
 
+    def rename_notetype(self, item: SidebarItem, new_name: str) -> None:
+        notetype = self.col.models.get(item.id)
+        new_name = new_name.replace('"', "")
+        if not notetype or not new_name or new_name == notetype["name"]:
+            return
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME))
+        notetype["name"] = new_name
+        self.col.models.save(notetype)
+        self.refresh(
+            lambda item_: item_.item_type == SidebarItemType.NOTETYPE
+            and item_.id == item.id
+        )
+
     def rename_node(self, item: SidebarItem, text: str) -> bool:
         if text.replace('"', ""):
             new_name = re.sub(
@@ -1217,6 +1231,8 @@ class SidebarTreeView(QTreeView):
                 self.rename_saved_search(item, new_name)
             if item.item_type == SidebarItemType.TAG:
                 self.rename_tag(item, new_name)
+            if item.item_type == SidebarItemType.NOTETYPE:
+                self.rename_notetype(item, new_name)
         # renaming may be asynchronous so always return False
         return False
 
