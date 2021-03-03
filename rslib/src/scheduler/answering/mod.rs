@@ -262,15 +262,12 @@ impl Collection {
                 current_state, answer.current_state,
             )));
         }
-
         if let Some(revlog_partial) = updater.apply_study_state(current_state, answer.new_state)? {
             self.add_partial_revlog(revlog_partial, usn, &answer)?;
         }
         self.update_deck_stats_from_answer(usn, &answer, &updater)?;
-        let timing = updater.timing;
-
         self.maybe_bury_siblings(&original, &updater.config)?;
-
+        let timing = updater.timing;
         let mut card = updater.into_card();
         self.update_card(&mut card, &original, usn)?;
         if answer.new_state.leeched() {

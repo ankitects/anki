@@ -882,7 +882,7 @@ impl Collection {
             if proceed {
                 let mut deck = deck.into();
                 self.ensure_deck_name_unique(&mut deck, latest_usn)?;
-                self.storage.add_or_update_deck(&deck)?;
+                self.storage.add_or_update_deck_with_existing_id(&deck)?;
                 self.state.deck_cache.remove(&deck.id);
             }
         }

@@ -92,6 +92,9 @@ mod test {
             assert_eq!(note.tags, vec!["leech".to_string()]);
             assert_eq!(col.storage.all_tags()?.is_empty(), false);
 
+            let deck = col.get_deck(DeckID(1))?.unwrap();
+            assert_eq!(deck.common.review_studied, 1);
+
             Ok(())
         };
 
@@ -112,6 +115,9 @@ mod test {
             let note = col.storage.get_note(nid)?.unwrap();
             assert_eq!(note.tags.is_empty(), true);
             assert_eq!(col.storage.all_tags()?.is_empty(), true);
+
+            let deck = col.get_deck(DeckID(1))?.unwrap();
+            assert_eq!(deck.common.review_studied, 0);
 
             Ok(())
         };
