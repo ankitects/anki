@@ -457,7 +457,9 @@ class SidebarTreeView(QTreeView):
     def restore_current(self, is_current: Callable[[SidebarItem], bool]) -> None:
         if current := self.find_item(is_current):
             index = self.model().index_for_item(current)
-            self.selectionModel().select(index, QItemSelectionModel.SelectCurrent)
+            self.selectionModel().setCurrentIndex(
+                index, QItemSelectionModel.SelectCurrent
+            )
             self.scrollTo(index)
 
     def find_item(
