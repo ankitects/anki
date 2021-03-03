@@ -71,6 +71,7 @@ class SidebarItemType(Enum):
             SidebarItemType.DECK,
             SidebarItemType.TAG,
             SidebarItemType.NOTETYPE,
+            SidebarItemType.NOTETYPE_TEMPLATE,
         )
 
 
@@ -1021,6 +1022,7 @@ class SidebarTreeView(QTreeView):
                     ),
                     item_type=SidebarItemType.NOTETYPE_TEMPLATE,
                     full_name=f"{nt['name']}::{tmpl['name']}",
+                    id=tmpl["ord"],
                 )
                 item.add_child(child)
 
@@ -1127,8 +1129,8 @@ class SidebarTreeView(QTreeView):
             showWarning(e.description)
             return
         self.refresh(
-            lambda item_: item_.item_type == SidebarItemType.DECK
-            and item_.id == item.id
+            lambda other: other.item_type == SidebarItemType.DECK
+            and other.id == item.id
         )
         self.mw.deckBrowser.refresh()
 
@@ -1216,23 +1218,44 @@ class SidebarTreeView(QTreeView):
         notetype["name"] = new_name
         self.col.models.save(notetype)
         self.refresh(
-            lambda item_: item_.item_type == SidebarItemType.NOTETYPE
-            and item_.id == item.id
+            lambda other: other.item_type == SidebarItemType.NOTETYPE
+            and other.id == item.id
         )
+        self.browser.model.reset()
+
+    def rename_template(self, item: SidebarItem, new_name: str) -> None:
+        notetype = self.col.models.get(item._parent_item.id)
+        template = notetype["tmpls"][item.id]
+        new_name = new_name.replace('"', "")
+        if not new_name or new_name == template["name"]:
+            return
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME))
+        template["name"] = new_name
+        self.col.models.save(notetype)
+        self.refresh(
+            lambda other: other.item_type == SidebarItemType.NOTETYPE_TEMPLATE
+            and other._parent_item.id == item._parent_item.id
+            and other.id == item.id
+        )
+        self.browser.model.reset()
 
     def rename_node(self, item: SidebarItem, text: str) -> bool:
-        if text.replace('"', ""):
-            new_name = re.sub(
+        def full_new_name() -> str:
+            return re.sub(
                 re.escape(item.name) + "$", text.replace("\\", r"\\"), item.full_name
             )
+
+        if text.replace('"', ""):
             if item.item_type == SidebarItemType.DECK:
-                self.rename_deck(item, new_name)
-            if item.item_type == SidebarItemType.SAVED_SEARCH:
-                self.rename_saved_search(item, new_name)
-            if item.item_type == SidebarItemType.TAG:
-                self.rename_tag(item, new_name)
-            if item.item_type == SidebarItemType.NOTETYPE:
-                self.rename_notetype(item, new_name)
+                self.rename_deck(item, full_new_name())
+            elif item.item_type == SidebarItemType.SAVED_SEARCH:
+                self.rename_saved_search(item, text)
+            elif item.item_type == SidebarItemType.TAG:
+                self.rename_tag(item, full_new_name())
+            elif item.item_type == SidebarItemType.NOTETYPE:
+                self.rename_notetype(item, text)
+            elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
+                self.rename_template(item, text)
         # renaming may be asynchronous so always return False
         return False
 
