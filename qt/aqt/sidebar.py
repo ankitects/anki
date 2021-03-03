@@ -110,7 +110,7 @@ class SidebarItem:
         self.children: List["SidebarItem"] = []
         self.tooltip: Optional[str] = None
         self._parent_item: Optional["SidebarItem"] = None
-        self._is_expanded = expanded
+        self._expanded = expanded
         self._row_in_parent: Optional[int] = None
         self._search_matches_self = False
         self._search_matches_child = False
@@ -138,14 +138,24 @@ class SidebarItem:
         self.add_child(item)
         return item
 
-    def is_expanded(self, searching: bool) -> bool:
+    @property
+    def expanded(self) -> bool:
+        return self._expanded
+
+    @expanded.setter
+    def expanded(self, expanded: bool) -> None:
+        if self.expanded != expanded:
+            self._expanded = expanded
+            if self.on_expanded:
+                self.on_expanded(expanded)
+
+    def show_expanded(self, searching: bool) -> bool:
         if not searching:
-            return self._is_expanded
-        else:
-            if self._search_matches_child:
-                return True
-            # if search matches top level, expand children one level
-            return self._search_matches_self and self.item_type.is_section_root()
+            return self.expanded
+        if self._search_matches_child:
+            return True
+        # if search matches top level, expand children one level
+        return self._search_matches_self and self.item_type.is_section_root()
 
     def is_highlighted(self) -> bool:
         return self._search_matches_self
@@ -496,7 +506,7 @@ class SidebarTreeView(QTreeView):
                 continue
             self._expand_where_necessary(model, idx, searching)
             if item := model.item_for_index(idx):
-                if item.is_expanded(searching):
+                if item.show_expanded(searching):
                     self.setExpanded(idx, True)
 
     def update_search(
@@ -639,19 +649,14 @@ class SidebarTreeView(QTreeView):
     def _on_expansion(self, idx: QModelIndex) -> None:
         if self.current_search:
             return
-        self._on_expand_or_collapse(idx, True)
+        if item := self.model().item_for_index(idx):
+            item.expanded = True
 
     def _on_collapse(self, idx: QModelIndex) -> None:
         if self.current_search:
             return
-        self._on_expand_or_collapse(idx, False)
-
-    def _on_expand_or_collapse(self, idx: QModelIndex, expanded: bool) -> None:
-        item = self.model().item_for_index(idx)
-        if item and item._is_expanded != expanded:
-            item._is_expanded = expanded
-            if item.on_expanded:
-                item.on_expanded(expanded)
+        if item := self.model().item_for_index(idx):
+            item.expanded = False
 
     # Tree building
     ###########################
