@@ -66,7 +66,12 @@ class SidebarItemType(Enum):
         return self in self.section_roots()
 
     def is_editable(self) -> bool:
-        return self in (SidebarItemType.SAVED_SEARCH, SidebarItemType.DECK, SidebarItemType.TAG)
+        return self in (
+            SidebarItemType.SAVED_SEARCH,
+            SidebarItemType.DECK,
+            SidebarItemType.TAG,
+        )
+
 
 class SidebarStage(Enum):
     ROOT = auto()
@@ -1187,7 +1192,9 @@ class SidebarTreeView(QTreeView):
 
     def rename_node(self, item: SidebarItem, text: str) -> bool:
         if text.replace('"', ""):
-            new_name = re.sub(re.escape(item.name) + "$", text, item.full_name)
+            new_name = re.sub(
+                re.escape(item.name) + "$", text.replace("\\", r"\\"), item.full_name
+            )
             if item.item_type == SidebarItemType.DECK:
                 self.rename_deck(item, new_name)
             if item.item_type == SidebarItemType.SAVED_SEARCH:
