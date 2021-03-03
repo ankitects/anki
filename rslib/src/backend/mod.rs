@@ -825,7 +825,7 @@ impl BackendService for Backend {
             if input.preserve_usn_and_mtime {
                 col.transact(None, |col| {
                     let usn = col.usn()?;
-                    col.add_or_update_single_deck(&mut deck, usn)
+                    col.add_or_update_single_deck_with_existing_id(&mut deck, usn)
                 })?;
             } else {
                 col.add_or_update_deck(&mut deck)?;
