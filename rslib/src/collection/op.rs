@@ -9,6 +9,7 @@ pub enum CollectionOp {
     AnswerCard,
     Bury,
     Suspend,
+    UnburyUnsuspend,
 }
 
 impl Collection {
@@ -18,6 +19,7 @@ impl Collection {
             CollectionOp::AnswerCard => TR::UndoAnswerCard,
             CollectionOp::Bury => TR::StudyingBury,
             CollectionOp::Suspend => TR::StudyingSuspend,
+            CollectionOp::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
         };
 
         self.i18n.tr(key).to_string()
