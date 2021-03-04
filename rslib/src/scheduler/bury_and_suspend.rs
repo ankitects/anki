@@ -69,7 +69,8 @@ impl Collection {
     }
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<()> {
-        self.transact(None, |col| {
+        self.transact(Some(CollectionOp::UnburyUnsuspend), |col| {
+            col.clear_study_queues();
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.unsuspend_or_unbury_searched_cards()
         })

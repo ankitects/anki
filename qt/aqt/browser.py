@@ -505,7 +505,7 @@ class Browser(QMainWindow):
         qconnect(f.actionReposition.triggered, self.reposition)
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
         qconnect(f.action_forget.triggered, self.forget_cards)
-        qconnect(f.actionToggle_Suspend.triggered, self.onSuspend)
+        qconnect(f.actionToggle_Suspend.triggered, self.suspend_selected_cards)
         qconnect(f.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
         qconnect(f.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
         qconnect(f.actionGreen_Flag.triggered, lambda: self.onSetFlag(3))
@@ -1255,14 +1255,14 @@ where id in %s"""
     # Suspending
     ######################################################################
 
-    def isSuspended(self) -> bool:
+    def current_card_is_suspended(self) -> bool:
         return bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
 
-    def onSuspend(self) -> None:
-        self.editor.saveNow(self._onSuspend)
+    def suspend_selected_cards(self) -> None:
+        self.editor.saveNow(self._suspend_selected_cards)
 
-    def _onSuspend(self) -> None:
-        want_suspend = not self.isSuspended()
+    def _suspend_selected_cards(self) -> None:
+        want_suspend = not self.current_card_is_suspended()
         c = self.selectedCards()
         if want_suspend:
             self.col.sched.suspend_cards(c)
