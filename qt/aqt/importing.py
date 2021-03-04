@@ -10,8 +10,6 @@ import zipfile
 from concurrent.futures import Future
 from typing import Any, Dict, Optional
 
-from qt.aqt.utils import getText
-
 import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
@@ -25,7 +23,7 @@ from aqt.utils import (
     askUser,
     disable_help_button,
     getFile,
-    getOnlyText,
+    getText,
     openHelp,
     showInfo,
     showText,
