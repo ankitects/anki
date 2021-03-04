@@ -323,8 +323,8 @@ impl Collection {
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        let existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
-        if &existing_note == note {
+        let mut existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
+        if !note_modified(&mut existing_note, note) {
             // nothing to do
             return Ok(());
         }
@@ -546,6 +546,18 @@ impl Collection {
         })
         .map(|_| ())
     }
+}
+
+/// The existing note pulled from the DB will have sfld and csum set, but the
+/// note we receive from the frontend won't. Temporarily zero them out and
+/// compare, then restore them again.
+fn note_modified(existing_note: &mut Note, note: &Note) -> bool {
+    let sort_field = existing_note.sort_field.take();
+    let checksum = existing_note.checksum.take();
+    let notes_differ = existing_note != note;
+    existing_note.sort_field = sort_field;
+    existing_note.checksum = checksum;
+    notes_differ
 }
 
 #[derive(Debug)]
