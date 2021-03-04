@@ -91,7 +91,6 @@ class SidebarItem:
         self,
         name: str,
         icon: Union[str, ColoredIcon],
-        on_click: Callable[[], None] = None,
         search_node: Optional[SearchNode] = None,
         on_expanded: Callable[[bool], None] = None,
         expanded: bool = False,
@@ -106,7 +105,6 @@ class SidebarItem:
         self.icon = icon
         self.item_type = item_type
         self.id = id
-        self.on_click = on_click
         self.search_node = search_node
         self.on_expanded = on_expanded
         self.children: List["SidebarItem"] = []
@@ -561,12 +559,13 @@ class SidebarTreeView(QTreeView):
         super().mouseReleaseEvent(event)
         if self.tool == SidebarTool.SEARCH and event.button() == Qt.LeftButton:
             idx = self.indexAt(event.pos())
-            self._on_click_index(idx)
+            self._search_for_indicated(idx)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             idx = self.currentIndex()
-            self._on_click_index(idx)
+            if not self.isPersistentEditorOpen(idx):
+                self._search_for_indicated(idx)
         else:
             super().keyPressEvent(event)
 
@@ -636,12 +635,10 @@ class SidebarTreeView(QTreeView):
         self.browser.editor.saveNow(on_save)
         return True
 
-    def _on_click_index(self, idx: QModelIndex) -> None:
-        if item := self.model().item_for_index(idx):
-            if item.on_click:
-                item.on_click()
-            elif self.tool == SidebarTool.SEARCH and (search := item.search_node):
-                self.update_search(search)
+    def _search_for_indicated(self, index: QModelIndex) -> None:
+        if item := self.model().item_for_index(index):
+            if search_node := item.search_node:
+                self.update_search(search_node)
 
     def _on_expansion(self, idx: QModelIndex) -> None:
         if self.current_search:
@@ -727,11 +724,6 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_SAVED_SEARCHES,
             type=SidebarItemType.SAVED_SEARCH_ROOT,
         )
-
-        def on_click() -> None:
-            self.show_context_menu(root, None)
-
-        root.on_click = on_click
 
         for name, filt in sorted(saved.items()):
             item = SidebarItem(
