@@ -4,6 +4,6 @@ undo-undo-action = Undo { $val }
 undo-action-undone = { $action } Undone
 undo-redo-action = Redo { $action }
 undo-action-redone = { $action } Redone
-
 undo-answer-card = Answer Card
-
+undo-undo = Undo
+undo-redo = Redo
