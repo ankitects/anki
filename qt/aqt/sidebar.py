@@ -74,6 +74,13 @@ class SidebarItemType(Enum):
             SidebarItemType.NOTETYPE_TEMPLATE,
         )
 
+    def is_deletable(self) -> bool:
+        return self in (
+            SidebarItemType.SAVED_SEARCH,
+            SidebarItemType.DECK,
+            SidebarItemType.TAG,
+        )
+
 
 class SidebarStage(Enum):
     ROOT = auto()
@@ -362,11 +369,6 @@ class SidebarTreeView(QTreeView):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus: Dict[SidebarItemType, Sequence[Tuple[str, Callable]]] = {
-            SidebarItemType.DECK: ((tr(TR.ACTIONS_DELETE), self.delete_deck),),
-            SidebarItemType.TAG: ((tr(TR.ACTIONS_DELETE), self.remove_tags),),
-            SidebarItemType.SAVED_SEARCH: (
-                (tr(TR.ACTIONS_DELETE), self.remove_saved_searches),
-            ),
             SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
             SidebarItemType.SAVED_SEARCH_ROOT: (
                 (tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search),
@@ -559,13 +561,15 @@ class SidebarTreeView(QTreeView):
         super().mouseReleaseEvent(event)
         if self.tool == SidebarTool.SEARCH and event.button() == Qt.LeftButton:
             idx = self.indexAt(event.pos())
-            self._search_for_indicated(idx)
+            self._on_search(idx)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
+        index = self.currentIndex()
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            idx = self.currentIndex()
-            if not self.isPersistentEditorOpen(idx):
-                self._search_for_indicated(idx)
+            if not self.isPersistentEditorOpen(index):
+                self._on_search(index)
+        elif event.key() == Qt.Key_Delete:
+            self._on_delete(index)
         else:
             super().keyPressEvent(event)
 
@@ -635,10 +639,19 @@ class SidebarTreeView(QTreeView):
         self.browser.editor.saveNow(on_save)
         return True
 
-    def _search_for_indicated(self, index: QModelIndex) -> None:
+    def _on_search(self, index: QModelIndex) -> None:
         if item := self.model().item_for_index(index):
             if search_node := item.search_node:
                 self.update_search(search_node)
+
+    def _on_delete(self, index: QModelIndex) -> None:
+        if item := self.model().item_for_index(index):
+            if item.item_type == SidebarItemType.SAVED_SEARCH:
+                self.remove_saved_searches(item)
+            elif item.item_type == SidebarItemType.DECK:
+                self.delete_decks(item)
+            elif item.item_type == SidebarItemType.TAG:
+                self.remove_tags(item)
 
     def _on_expansion(self, idx: QModelIndex) -> None:
         if self.current_search:
@@ -1032,6 +1045,8 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         m = QMenu()
 
+        if item.item_type.is_deletable():
+            m.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(index))
         if item.item_type.is_editable():
             m.addAction(tr(TR.ACTIONS_RENAME), lambda: self.edit(index))
 
@@ -1179,7 +1194,7 @@ class SidebarTreeView(QTreeView):
         self.browser.model.beginReset()
         self.mw.taskman.run_in_background(do_rename, on_done)
 
-    def delete_deck(self, _item: SidebarItem) -> None:
+    def delete_decks(self, _item: SidebarItem) -> None:
         self.browser.editor.saveNow(self._delete_decks)
 
     def _delete_decks(self) -> None:
