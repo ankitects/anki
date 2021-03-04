@@ -34,7 +34,8 @@ pub struct DeckConfSchema11 {
     dynamic: bool,
 
     // 2021 scheduler options: these were not in schema 11, but we need to persist them
-    // so the settings are not lost on upgrade/downgrade
+    // so the settings are not lost on upgrade/downgrade.
+    // NOTE: if adding new ones, make sure to update clear_other_duplicates()
     #[serde(default)]
     new_mix: i32,
     #[serde(default)]
@@ -278,7 +279,7 @@ impl From<DeckConfSchema11> for DeckConf {
     }
 }
 
-// schema 15 -> schema 11
+// latest schema -> schema 11
 impl From<DeckConf> for DeckConfSchema11 {
     fn from(c: DeckConf) -> DeckConfSchema11 {
         // split extra json up
@@ -290,6 +291,7 @@ impl From<DeckConf> for DeckConfSchema11 {
             top_other = Default::default();
         } else {
             top_other = serde_json::from_slice(&c.inner.other).unwrap_or_default();
+            clear_other_duplicates(&mut top_other);
             if let Some(new) = top_other.remove("new") {
                 let val: HashMap<String, Value> = serde_json::from_value(new).unwrap_or_default();
                 new_other = val;
@@ -357,5 +359,23 @@ impl From<DeckConf> for DeckConfSchema11 {
             interday_learning_mix: i.interday_learning_mix,
             review_order: i.review_order,
         }
+    }
+}
+
+fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
+    // Older clients may have received keys from a newer client when
+    // syncing, which get bundled into `other`. If they then upgrade, then
+    // downgrade their collection to schema11, serde will serialize the
+    // new default keys, but then add them again from `other`, leading
+    // to the keys being duplicated in the resulting json - which older
+    // clients then can't read. So we need to strip out any new keys we
+    // add.
+    for key in &[
+        "newMix",
+        "newPerDayMinimum",
+        "interdayLearningMix",
+        "reviewOrder",
+    ] {
+        top_other.remove(*key);
     }
 }
