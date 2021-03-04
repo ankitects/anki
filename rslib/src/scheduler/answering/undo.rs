@@ -66,7 +66,7 @@ mod test {
         col.storage.update_card(&card)?;
 
         // fail it, which should cause it to be marked as a leech
-        col.clear_queues();
+        col.clear_study_queues();
         let queued = col.next_card()?.unwrap();
         dbg!(&queued);
         col.answer_card(&CardAnswer {

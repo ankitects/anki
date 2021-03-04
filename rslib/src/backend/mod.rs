@@ -707,7 +707,7 @@ impl BackendService for Backend {
 
     fn clear_card_queues(&self, _input: pb::Empty) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
-            col.clear_queues();
+            col.clear_study_queues();
             Ok(().into())
         })
     }

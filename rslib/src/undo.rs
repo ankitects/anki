@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::backend_proto as pb;
-use crate::i18n::TR;
 use crate::{
     collection::{Collection, CollectionOp},
     err::Result,
@@ -143,14 +142,6 @@ impl Collection {
     #[inline]
     pub(crate) fn save_undo(&mut self, item: Box<dyn Undo>) {
         self.state.undo.save(item)
-    }
-
-    pub fn describe_collection_op(&self, op: CollectionOp) -> String {
-        match op {
-            CollectionOp::UpdateCard => todo!(),
-            CollectionOp::AnswerCard => self.i18n.tr(TR::UndoAnswerCard),
-        }
-        .to_string()
     }
 
     pub fn undo_status(&self) -> pb::UndoStatus {
