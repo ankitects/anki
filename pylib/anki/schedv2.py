@@ -451,7 +451,7 @@ limit ?"""
         self.col.log()
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
-        self.col.markReview(card)
+        self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
 

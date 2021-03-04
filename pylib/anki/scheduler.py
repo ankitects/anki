@@ -121,8 +121,6 @@ class Scheduler:
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
 
-        self.col.markReview(card)
-
         new_state = self._answerCard(card, ease)
 
         self._handle_leech(card, new_state)

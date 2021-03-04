@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::backend_proto as pb;
+use crate::i18n::TR;
 use crate::{
     collection::{Collection, CollectionOp},
     err::Result,
-    types::Usn,
 };
 use std::{collections::VecDeque, fmt};
 
@@ -12,7 +13,7 @@ const UNDO_LIMIT: usize = 30;
 
 pub(crate) trait Undo: fmt::Debug + Send {
     /// Undo the recorded action.
-    fn undo(self: Box<Self>, col: &mut Collection, usn: Usn) -> Result<()>;
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()>;
 }
 
 #[derive(Debug)]
@@ -54,9 +55,7 @@ impl UndoManager {
 
     pub(crate) fn begin_step(&mut self, op: Option<CollectionOp>) {
         if op.is_none() {
-            // action doesn't support undoing; clear the queue
-            self.undo_steps.clear();
-            self.redo_steps.clear();
+            self.clear();
         } else if self.mode == UndoMode::NormalOp {
             // a normal op clears the redo queue
             self.redo_steps.clear();
@@ -65,6 +64,15 @@ impl UndoManager {
             kind: op,
             changes: vec![],
         });
+    }
+
+    pub(crate) fn clear(&mut self) {
+        self.undo_steps.clear();
+        self.redo_steps.clear();
+    }
+
+    pub(crate) fn clear_redo(&mut self) {
+        self.redo_steps.clear();
     }
 
     pub(crate) fn end_step(&mut self) {
@@ -105,9 +113,8 @@ impl Collection {
             let changes = step.changes;
             self.state.undo.mode = UndoMode::Undoing;
             let res = self.transact(Some(step.kind), |col| {
-                let usn = col.usn()?;
                 for change in changes.into_iter().rev() {
-                    change.undo(col, usn)?;
+                    change.undo(col)?;
                 }
                 Ok(())
             });
@@ -122,9 +129,8 @@ impl Collection {
             let changes = step.changes;
             self.state.undo.mode = UndoMode::Redoing;
             let res = self.transact(Some(step.kind), |col| {
-                let usn = col.usn()?;
                 for change in changes.into_iter().rev() {
-                    change.undo(col, usn)?;
+                    change.undo(col)?;
                 }
                 Ok(())
             });
@@ -137,6 +143,27 @@ impl Collection {
     #[inline]
     pub(crate) fn save_undo(&mut self, item: Box<dyn Undo>) {
         self.state.undo.save(item)
+    }
+
+    pub fn describe_collection_op(&self, op: CollectionOp) -> String {
+        match op {
+            CollectionOp::UpdateCard => todo!(),
+            CollectionOp::AnswerCard => self.i18n.tr(TR::UndoAnswerCard),
+        }
+        .to_string()
+    }
+
+    pub fn undo_status(&self) -> pb::UndoStatus {
+        pb::UndoStatus {
+            undo: self
+                .can_undo()
+                .map(|op| self.describe_collection_op(op))
+                .unwrap_or_default(),
+            redo: self
+                .can_redo()
+                .map(|op| self.describe_collection_op(op))
+                .unwrap_or_default(),
+        }
     }
 }
 

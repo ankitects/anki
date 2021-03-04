@@ -13,7 +13,7 @@ use std::{
 
 use super::{
     limits::{remaining_limits_capped_to_parents, RemainingLimits},
-    CardQueues, LearningQueueEntry, QueueEntry, QueueEntryKind,
+    CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind,
 };
 use crate::deckconf::{NewCardOrder, ReviewCardOrder, ReviewMix};
 use crate::prelude::*;
@@ -41,22 +41,22 @@ pub(crate) struct NewCard {
     pub extra: u64,
 }
 
-impl From<DueCard> for QueueEntry {
+impl From<DueCard> for MainQueueEntry {
     fn from(c: DueCard) -> Self {
-        QueueEntry {
+        MainQueueEntry {
             id: c.id,
             mtime: c.mtime,
-            kind: QueueEntryKind::Review,
+            kind: MainQueueEntryKind::Review,
         }
     }
 }
 
-impl From<NewCard> for QueueEntry {
+impl From<NewCard> for MainQueueEntry {
     fn from(c: NewCard) -> Self {
-        QueueEntry {
+        MainQueueEntry {
             id: c.id,
             mtime: c.mtime,
-            kind: QueueEntryKind::New,
+            kind: MainQueueEntryKind::New,
         }
     }
 }
@@ -113,9 +113,12 @@ impl QueueBuilder {
         let main_iter = merge_new(main_iter, self.new, self.new_review_mix);
 
         CardQueues {
-            new_count,
-            review_count,
-            learn_count,
+            counts: Counts {
+                new: new_count,
+                review: review_count,
+                learning: learn_count,
+            },
+            undo: Vec::new(),
             main: main_iter.collect(),
             due_learning,
             later_learning,
@@ -130,7 +133,7 @@ fn merge_day_learning(
     reviews: Vec<DueCard>,
     day_learning: Vec<DueCard>,
     mode: ReviewMix,
-) -> Box<dyn ExactSizeIterator<Item = QueueEntry>> {
+) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let day_learning_iter = day_learning.into_iter().map(Into::into);
     let reviews_iter = reviews.into_iter().map(Into::into);
 
@@ -142,10 +145,10 @@ fn merge_day_learning(
 }
 
 fn merge_new(
-    review_iter: impl ExactSizeIterator<Item = QueueEntry> + 'static,
+    review_iter: impl ExactSizeIterator<Item = MainQueueEntry> + 'static,
     new: Vec<NewCard>,
     mode: ReviewMix,
-) -> Box<dyn ExactSizeIterator<Item = QueueEntry>> {
+) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let new_iter = new.into_iter().map(Into::into);
 
     match mode {
@@ -191,7 +194,7 @@ impl Collection {
         let timing = self.timing_for_timestamp(now)?;
         let (decks, parent_count) = self.storage.deck_with_parents_and_children(deck_id)?;
         let config = self.storage.get_deck_config_map()?;
-        let limits = remaining_limits_capped_to_parents(&decks, &config);
+        let limits = remaining_limits_capped_to_parents(&decks, &config, timing.days_elapsed);
         let selected_deck_limits = limits[parent_count];
 
         let mut queues = QueueBuilder::default();

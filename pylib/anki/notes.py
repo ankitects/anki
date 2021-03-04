@@ -154,7 +154,7 @@ class Note:
     # Tags
     ##################################################
 
-    def hasTag(self, tag: str) -> Any:
+    def hasTag(self, tag: str) -> bool:
         return self.col.tags.inList(tag, self.tags)
 
     def stringTags(self) -> Any:

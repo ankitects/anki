@@ -127,12 +127,12 @@ impl Card {
 pub(crate) struct CardUpdated(Card);
 
 impl Undo for CardUpdated {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection, usn: Usn) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
         let current = col
             .storage
             .get_card(self.0.id)?
             .ok_or_else(|| AnkiError::invalid_input("card disappeared"))?;
-        col.update_card(&mut self.0.clone(), &current, usn)
+        col.update_card_inner(&mut self.0.clone(), &current)
     }
 }
 
@@ -164,12 +164,17 @@ impl Collection {
         Ok(card)
     }
 
+    /// Marks the card as modified, then saves it.
     pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card, usn: Usn) -> Result<()> {
+        card.set_modified(usn);
+        self.update_card_inner(card, original)
+    }
+
+    pub(crate) fn update_card_inner(&mut self, card: &mut Card, original: &Card) -> Result<()> {
         if card.id.0 == 0 {
             return Err(AnkiError::invalid_input("card id not set"));
         }
         self.save_undo(Box::new(CardUpdated(original.clone())));
-        card.set_modified(usn);
         self.storage.update_card(card)
     }
 

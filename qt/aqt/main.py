@@ -27,10 +27,11 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import Collection
+from anki.collection import BackendUndo, Checkpoint, Collection, ReviewUndo
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag
+from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
@@ -911,7 +912,7 @@ title="%s" %s>%s</button>""" % (
             self.media_syncer.start()
 
         def on_collection_sync_finished() -> None:
-            self.col.clearUndo()
+            self.col.clear_python_undo()
             self.col.models._clear_cache()
             gui_hooks.sync_did_finish()
             self.reset()
@@ -1024,29 +1025,63 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def onUndo(self) -> None:
-        n = self.col.undoName()
-        if not n:
+        reviewing = self.state == "review"
+        result = self.col.undo()
+
+        if result is None:
+            # should not happen
+            showInfo("nothing to undo")
+            self.maybeEnableUndo()
             return
-        cid = self.col.undo()
-        if cid and self.state == "review":
-            card = self.col.getCard(cid)
-            self.col.sched.reset()
-            self.reviewer.cardQueue.append(card)
-            self.reviewer.nextCard()
-            gui_hooks.review_did_undo(cid)
+
+        elif isinstance(result, ReviewUndo):
+            name = tr(TR.SCHEDULING_REVIEW)
+
+            # restore the undone card if reviewing
+            if reviewing:
+                cid = result.card.id
+                card = self.col.getCard(cid)
+                self.reviewer.cardQueue.append(card)
+                self.reviewer.nextCard()
+                gui_hooks.review_did_undo(cid)
+                self.maybeEnableUndo()
+                return
+
+        elif isinstance(result, BackendUndo):
+            name = result.name
+
+            # new scheduler takes care of rebuilding queue
+            if reviewing and self.col.sched.is_2021:
+                self.reviewer.nextCard()
+                self.maybeEnableUndo()
+                return
+
+        elif isinstance(result, Checkpoint):
+            name = result.name
+
         else:
-            self.reset()
-            tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val=n.lower()))
-            gui_hooks.state_did_revert(n)
+            assert_exhaustive(result)
+            assert False
+
+        self.reset()
+        tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val=name))
+        gui_hooks.state_did_revert(name)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
-        if self.col and self.col.undoName():
-            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO2, val=self.col.undoName()))
+        if self.col:
+            status = self.col.undo_status()
+            undo_action = status.undo or None
+        else:
+            undo_action = None
+
+        if undo_action:
+            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            self.form.actionUndo.setText(undo_action)
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
-            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO))
+            self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 

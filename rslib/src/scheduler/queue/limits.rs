@@ -12,12 +12,12 @@ pub(crate) struct RemainingLimits {
 }
 
 impl RemainingLimits {
-    pub(crate) fn new(deck: &Deck, config: Option<&DeckConf>) -> Self {
+    pub(crate) fn new(deck: &Deck, config: Option<&DeckConf>, today: u32) -> Self {
         if let Some(config) = config {
+            let (new_today, rev_today) = deck.new_rev_counts(today);
             RemainingLimits {
-                review: ((config.inner.reviews_per_day as i32) - deck.common.review_studied).max(0)
-                    as u32,
-                new: ((config.inner.new_per_day as i32) - deck.common.new_studied).max(0) as u32,
+                review: ((config.inner.reviews_per_day as i32) - rev_today).max(0) as u32,
+                new: ((config.inner.new_per_day as i32) - new_today).max(0) as u32,
             }
         } else {
             RemainingLimits {
@@ -36,8 +36,9 @@ impl RemainingLimits {
 pub(super) fn remaining_limits_capped_to_parents(
     decks: &[Deck],
     config: &HashMap<DeckConfID, DeckConf>,
+    today: u32,
 ) -> Vec<RemainingLimits> {
-    let mut limits = get_remaining_limits(decks, config);
+    let mut limits = get_remaining_limits(decks, config, today);
     cap_limits_to_parents(decks.iter().map(|d| d.name.as_str()), &mut limits);
     limits
 }
@@ -47,6 +48,7 @@ pub(super) fn remaining_limits_capped_to_parents(
 fn get_remaining_limits(
     decks: &[Deck],
     config: &HashMap<DeckConfID, DeckConf>,
+    today: u32,
 ) -> Vec<RemainingLimits> {
     decks
         .iter()
@@ -57,7 +59,7 @@ fn get_remaining_limits(
             } else {
                 None
             };
-            RemainingLimits::new(deck, config)
+            RemainingLimits::new(deck, config, today)
         })
         .collect()
 }

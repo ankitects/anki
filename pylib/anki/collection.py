@@ -11,6 +11,7 @@ import sys
 import time
 import traceback
 import weakref
+from dataclasses import dataclass, field
 from typing import Any, List, Literal, Optional, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
@@ -34,6 +35,7 @@ from anki.scheduler import Scheduler as V2TestScheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
+from anki.types import assert_exhaustive
 from anki.utils import (
     devMode,
     from_json_bytes,
@@ -52,11 +54,27 @@ EmptyCardsReport = _pb.EmptyCardsReport
 GraphPreferences = _pb.GraphPreferences
 BuiltinSort = _pb.SortOrder.Builtin
 Preferences = _pb.Preferences
+UndoStatus = _pb.UndoStatus
+
+
+@dataclass
+class ReviewUndo:
+    card: Card
+    was_leech: bool
+
+
+@dataclass
+class Checkpoint:
+    name: str
+
+
+@dataclass
+class BackendUndo:
+    name: str
 
 
 class Collection:
     sched: Union[V1Scheduler, V2Scheduler]
-    _undo: List[Any]
 
     def __init__(
         self,
@@ -74,7 +92,7 @@ class Collection:
 
         self.log(self.path, anki.version)
         self._lastSave = time.time()
-        self.clearUndo()
+        self._undo: _UndoInfo = None
         self.media = MediaManager(self, server)
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
@@ -146,7 +164,7 @@ class Collection:
 
     def upgrade_to_v2_scheduler(self) -> None:
         self._backend.upgrade_scheduler()
-        self.clearUndo()
+        self.clear_python_undo()
         self._loadScheduler()
 
     def is_2021_test_scheduler_enabled(self) -> bool:
@@ -228,7 +246,7 @@ class Collection:
             # outside of a transaction, we need to roll back
             self.db.rollback()
 
-        self._markOp(name)
+        self._save_checkpoint(name)
         self._lastSave = time.time()
 
     def autosave(self) -> Optional[bool]:
@@ -730,91 +748,136 @@ table.review-log {{ {revlog_style} }}
 
     # Undo
     ##########################################################################
-    # this data structure is a mess, and will be updated soon
-    # in the review case, [1, "Review", [firstReviewedCard, secondReviewedCard, ...], wasLeech]
-    # in the checkpoint case, [2, "action name"]
-    # wasLeech should have been recorded for each card, not globally
 
-    def clearUndo(self) -> None:
+    def undo_status(self) -> UndoStatus:
+        "Return the undo status. At the moment, redo is not supported."
+        # check backend first
+        status = self._backend.get_undo_status()
+        if status.undo or status.redo:
+            return status
+
+        if not self._undo:
+            return status
+
+        if isinstance(self._undo, _ReviewsUndo):
+            status.undo = self.tr(TR.SCHEDULING_REVIEW)
+        elif isinstance(self._undo, Checkpoint):
+            status.undo = self._undo.name
+        else:
+            assert_exhaustive(self._undo)
+            assert False
+
+        return status
+
+    def clear_python_undo(self) -> None:
+        """Clear the Python undo state.
+        The backend will automatically clear backend undo state when
+        any SQL DML is executed, or an operation that doesn't support undo
+        is run."""
         self._undo = None
 
-    def undoName(self) -> Any:
-        "Undo menu item name, or None if undo unavailable."
-        if not self._undo:
+    def undo(self) -> Union[None, BackendUndo, Checkpoint, ReviewUndo]:
+        """Returns ReviewUndo if undoing a v1/v2 scheduler review.
+        Returns None if the undo queue was empty."""
+        # backend?
+        status = self._backend.get_undo_status()
+        if status.undo:
+            self._backend.undo()
+            self.clear_python_undo()
+            return BackendUndo(name=status.undo)
+
+        if isinstance(self._undo, _ReviewsUndo):
+            return self._undo_review()
+        elif isinstance(self._undo, Checkpoint):
+            return self._undo_checkpoint()
+        elif self._undo is None:
             return None
-        return self._undo[1]
-
-    def undo(self) -> Any:
-        if self._undo[0] == 1:
-            return self._undoReview()
         else:
-            self._undoOp()
+            assert_exhaustive(self._undo)
+            assert False
 
-    def markReview(self, card: Card) -> None:
-        old: List[Any] = []
-        if self._undo:
-            if self._undo[0] == 1:
-                old = self._undo[2]
-            self.clearUndo()
-        wasLeech = card.note().hasTag("leech") or False
-        self._undo = [
-            1,
-            self.tr(TR.SCHEDULING_REVIEW),
-            old + [copy.copy(card)],
-            wasLeech,
-        ]
+    def save_card_review_undo_info(self, card: Card) -> None:
+        "Used by V1 and V2 schedulers to record state prior to review."
+        if not isinstance(self._undo, _ReviewsUndo):
+            self._undo = _ReviewsUndo()
 
-    def _undoReview(self) -> Any:
-        data = self._undo[2]
-        wasLeech = self._undo[3]
-        c = data.pop()  # pytype: disable=attribute-error
-        if not data:
-            self.clearUndo()
+        was_leech = card.note().hasTag("leech")
+        entry = ReviewUndo(card=copy.copy(card), was_leech=was_leech)
+        self._undo.entries.append(entry)
+
+    def _undo_checkpoint(self) -> Checkpoint:
+        assert isinstance(self._undo, Checkpoint)
+        self.rollback()
+        undo = self._undo
+        self.clear_python_undo()
+        return undo
+
+    def _save_checkpoint(self, name: Optional[str]) -> None:
+        "Call via .save(). If name not provided, clear any existing checkpoint."
+        if name:
+            self._undo = Checkpoint(name=name)
+        else:
+            # saving disables old checkpoint, but not review undo
+            if not isinstance(self._undo, _ReviewsUndo):
+                self.clear_python_undo()
+
+    def _undo_review(self) -> ReviewUndo:
+        "Undo a v1/v2 review."
+        assert isinstance(self._undo, _ReviewsUndo)
+        entry = self._undo.entries.pop()
+        if not self._undo.entries:
+            self.clear_python_undo()
+
+        card = entry.card
+
         # remove leech tag if it didn't have it before
-        if not wasLeech and c.note().hasTag("leech"):
-            c.note().delTag("leech")
-            c.note().flush()
+        if not entry.was_leech and card.note().hasTag("leech"):
+            card.note().delTag("leech")
+            card.note().flush()
+
         # write old data
-        c.flush()
+        card.flush()
+
         # and delete revlog entry if not previewing
-        conf = self.sched._cardConf(c)
+        conf = self.sched._cardConf(card)
         previewing = conf["dyn"] and not conf["resched"]
         if not previewing:
             last = self.db.scalar(
-                "select id from revlog where cid = ? " "order by id desc limit 1", c.id
+                "select id from revlog where cid = ? " "order by id desc limit 1",
+                card.id,
             )
             self.db.execute("delete from revlog where id = ?", last)
+
         # restore any siblings
         self.db.execute(
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
             intTime(),
             self.usn(),
-            c.nid,
+            card.nid,
         )
-        # and finally, update daily counts
-        if self.sched.is_2021:
-            self._backend.requeue_undone_card(c.id)
-        else:
-            n = c.queue
-            if c.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-                n = QUEUE_TYPE_LRN
-            type = ("new", "lrn", "rev")[n]
-            self.sched._updateStats(c, type, -1)
+
+        # update daily counts
+        n = card.queue
+        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+            n = QUEUE_TYPE_LRN
+        type = ("new", "lrn", "rev")[n]
+        self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
-        return c.id
 
-    def _markOp(self, name: Optional[str]) -> None:
-        "Call via .save()"
-        if name:
-            self._undo = [2, name]
-        else:
-            # saving disables old checkpoint, but not review undo
-            if self._undo and self._undo[0] == 2:
-                self.clearUndo()
+        # and refresh the queues
+        self.sched.reset()
 
-    def _undoOp(self) -> None:
-        self.rollback()
-        self.clearUndo()
+        return entry
+
+    # legacy
+
+    clearUndo = clear_python_undo
+    markReview = save_card_review_undo_info
+
+    def undoName(self) -> Optional[str]:
+        "Undo menu item name, or None if undo unavailable."
+        status = self.undo_status()
+        return status.undo or None
 
     # DB maintenance
     ##########################################################################
@@ -946,3 +1009,11 @@ table.review-log {{ {revlog_style} }}
 
 # legacy name
 _Collection = Collection
+
+
+@dataclass
+class _ReviewsUndo:
+    entries: List[ReviewUndo] = field(default_factory=list)
+
+
+_UndoInfo = Union[_ReviewsUndo, Checkpoint, None]

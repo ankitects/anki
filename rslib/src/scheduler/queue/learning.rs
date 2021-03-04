@@ -6,8 +6,16 @@ use std::{
     collections::VecDeque,
 };
 
-use super::{CardQueues, LearningQueueEntry};
+use super::CardQueues;
 use crate::{prelude::*, scheduler::timing::SchedTimingToday};
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
+pub(crate) struct LearningQueueEntry {
+    // due comes first, so the derived ordering sorts by due
+    pub due: TimestampSecs,
+    pub id: CardID,
+    pub mtime: TimestampSecs,
+}
 
 impl CardQueues {
     /// Check for any newly due cards, and then return the first, if any,
@@ -32,7 +40,7 @@ impl CardQueues {
     pub(super) fn pop_learning_entry(&mut self, id: CardID) -> Option<LearningQueueEntry> {
         if let Some(top) = self.due_learning.front() {
             if top.id == id {
-                self.learn_count -= 1;
+                self.counts.learning -= 1;
                 return self.due_learning.pop_front();
             }
         }
@@ -42,7 +50,7 @@ impl CardQueues {
         // so for now we also check the head of the later_due queue
         if let Some(top) = self.later_learning.peek() {
             if top.0.id == id {
-                // self.learn_count -= 1;
+                // self.counts.learning -= 1;
                 return self.later_learning.pop().map(|c| c.0);
             }
         }
@@ -52,20 +60,34 @@ impl CardQueues {
 
     /// Given the just-answered `card`, place it back in the learning queues if it's still
     /// due today. Avoid placing it in a position where it would be shown again immediately.
-    pub(super) fn maybe_requeue_learning_card(&mut self, card: &Card, timing: SchedTimingToday) {
-        if !card.is_intraday_learning() {
-            return;
+    pub(super) fn maybe_requeue_learning_card(
+        &mut self,
+        card: &Card,
+        timing: SchedTimingToday,
+    ) -> Option<LearningQueueEntry> {
+        // not due today?
+        if !card.is_intraday_learning() || card.due >= timing.next_day_at as i32 {
+            return None;
         }
 
+        let entry = LearningQueueEntry {
+            due: TimestampSecs(card.due as i64),
+            id: card.id,
+            mtime: card.mtime,
+        };
+
+        Some(self.requeue_learning_entry(entry, timing))
+    }
+
+    /// Caller must have validated learning entry is due today.
+    pub(super) fn requeue_learning_entry(
+        &mut self,
+        mut entry: LearningQueueEntry,
+        timing: SchedTimingToday,
+    ) -> LearningQueueEntry {
         let learn_ahead_limit = timing.now.adding_secs(self.learn_ahead_secs);
 
-        if card.due < learn_ahead_limit.0 as i32 {
-            let mut entry = LearningQueueEntry {
-                due: TimestampSecs(card.due as i64),
-                id: card.id,
-                mtime: card.mtime,
-            };
-
+        if entry.due < learn_ahead_limit {
             if self.learning_collapsed() {
                 if let Some(next) = self.due_learning.front() {
                     if next.due >= entry.due {
@@ -83,13 +105,12 @@ impl CardQueues {
                 // not collapsed; can add normally
                 self.push_due_learning_card(entry);
             }
-        } else if card.due < timing.next_day_at as i32 {
-            self.later_learning.push(Reverse(LearningQueueEntry {
-                due: TimestampSecs(card.due as i64),
-                id: card.id,
-                mtime: card.mtime,
-            }));
-        };
+        } else {
+            // due outside current learn ahead limit, but later today
+            self.later_learning.push(Reverse(entry));
+        }
+
+        entry
     }
 
     fn learning_collapsed(&self) -> bool {
@@ -98,7 +119,7 @@ impl CardQueues {
 
     /// Adds card, maintaining correct sort order, and increments learning count.
     pub(super) fn push_due_learning_card(&mut self, entry: LearningQueueEntry) {
-        self.learn_count += 1;
+        self.counts.learning += 1;
         let target_idx =
             binary_search_by(&self.due_learning, |e| e.due.cmp(&entry.due)).unwrap_or_else(|e| e);
         self.due_learning.insert(target_idx, entry);
@@ -111,6 +132,26 @@ impl CardQueues {
             }
             let entry = self.later_learning.pop().unwrap().0;
             self.push_due_learning_card(entry);
+        }
+    }
+
+    pub(super) fn remove_requeued_learning_card_after_undo(&mut self, id: CardID) {
+        let due_idx = self
+            .due_learning
+            .iter()
+            .enumerate()
+            .find_map(|(idx, entry)| if entry.id == id { Some(idx) } else { None });
+        if let Some(idx) = due_idx {
+            self.counts.learning -= 1;
+            self.due_learning.remove(idx);
+        } else {
+            // card may be in the later_learning binary heap - we can't remove
+            // it in place, so we have to rebuild it
+            self.later_learning = self
+                .later_learning
+                .drain()
+                .filter(|e| e.0.id != id)
+                .collect();
         }
     }
 }

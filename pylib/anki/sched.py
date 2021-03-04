@@ -45,7 +45,7 @@ class Scheduler(V2):
     def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()
         assert 1 <= ease <= 4
-        self.col.markReview(card)
+        self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
         card.reps += 1

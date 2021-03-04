@@ -255,7 +255,7 @@ impl Collection {
         self.storage.register_tag(&tag)
     }
 
-    pub(crate) fn remove_single_tag(&mut self, tag: &Tag, _usn: Usn) -> Result<()> {
+    pub(crate) fn remove_single_tag(&mut self, tag: &Tag) -> Result<()> {
         self.save_undo(Box::new(RemovedTag(tag.clone())));
         self.storage.remove_single_tag(&tag.name)
     }
@@ -488,14 +488,13 @@ struct AddedTag(Tag);
 struct RemovedTag(Tag);
 
 impl Undo for AddedTag {
-    fn undo(self: Box<Self>, col: &mut Collection, usn: Usn) -> Result<()> {
-        col.remove_single_tag(&self.0, usn)
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
+        col.remove_single_tag(&self.0)
     }
 }
 
 impl Undo for RemovedTag {
-    fn undo(mut self: Box<Self>, col: &mut Collection, usn: Usn) -> Result<()> {
-        self.0.usn = usn;
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
         col.register_tag_inner(&self.0)
     }
 }
