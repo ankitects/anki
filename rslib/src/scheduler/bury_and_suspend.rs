@@ -12,7 +12,10 @@ use crate::{
 };
 
 use super::timing::SchedTimingToday;
-use pb::unbury_cards_in_current_deck_in::Mode as UnburyDeckMode;
+use pb::{
+    bury_or_suspend_cards_in::Mode as BuryOrSuspendMode,
+    unbury_cards_in_current_deck_in::Mode as UnburyDeckMode,
+};
 
 impl Card {
     /// True if card was buried/suspended prior to the call.
@@ -86,20 +89,16 @@ impl Collection {
 
     /// Bury/suspend cards in search table, and clear it.
     /// Marks the cards as modified.
-    fn bury_or_suspend_searched_cards(
-        &mut self,
-        mode: pb::bury_or_suspend_cards_in::Mode,
-    ) -> Result<()> {
-        use pb::bury_or_suspend_cards_in::Mode;
+    fn bury_or_suspend_searched_cards(&mut self, mode: BuryOrSuspendMode) -> Result<()> {
         let usn = self.usn()?;
         let sched = self.scheduler_version();
 
         for original in self.storage.all_searched_cards()? {
             let mut card = original.clone();
             let desired_queue = match mode {
-                Mode::Suspend => CardQueue::Suspended,
-                Mode::BurySched => CardQueue::SchedBuried,
-                Mode::BuryUser => {
+                BuryOrSuspendMode::Suspend => CardQueue::Suspended,
+                BuryOrSuspendMode::BurySched => CardQueue::SchedBuried,
+                BuryOrSuspendMode::BuryUser => {
                     if sched == SchedulerVersion::V1 {
                         // v1 scheduler only had one bury type
                         CardQueue::SchedBuried
@@ -124,9 +123,14 @@ impl Collection {
     pub fn bury_or_suspend_cards(
         &mut self,
         cids: &[CardID],
-        mode: pb::bury_or_suspend_cards_in::Mode,
+        mode: BuryOrSuspendMode,
     ) -> Result<()> {
-        self.transact(None, |col| {
+        let op = match mode {
+            BuryOrSuspendMode::Suspend => CollectionOp::Suspend,
+            BuryOrSuspendMode::BurySched | BuryOrSuspendMode::BuryUser => CollectionOp::Bury,
+        };
+        self.transact(Some(op), |col| {
+            col.clear_study_queues();
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.bury_or_suspend_searched_cards(mode)
         })
@@ -139,10 +143,9 @@ impl Collection {
         include_new: bool,
         include_reviews: bool,
     ) -> Result<()> {
-        use pb::bury_or_suspend_cards_in::Mode;
         self.storage
             .search_siblings_for_bury(cid, nid, include_new, include_reviews)?;
-        self.bury_or_suspend_searched_cards(Mode::BurySched)
+        self.bury_or_suspend_searched_cards(BuryOrSuspendMode::BurySched)
     }
 }
 

@@ -292,10 +292,10 @@ class Reviewer:
             ("Ctrl+3", lambda: self.setFlag(3)),
             ("Ctrl+4", lambda: self.setFlag(4)),
             ("*", self.onMark),
-            ("=", self.onBuryNote),
-            ("-", self.onBuryCard),
-            ("!", self.onSuspend),
-            ("@", self.onSuspendCard),
+            ("=", self.bury_current_note),
+            ("-", self.bury_current_card),
+            ("!", self.suspend_current_note),
+            ("@", self.suspend_current_card),
             ("Ctrl+Delete", self.onDelete),
             ("Ctrl+Shift+D", self.on_set_due),
             ("v", self.onReplayRecorded),
@@ -727,11 +727,11 @@ time = %(time)d;
                 ],
             ],
             [tr(TR.STUDYING_MARK_NOTE), "*", self.onMark],
-            [tr(TR.STUDYING_BURY_CARD), "-", self.onBuryCard],
-            [tr(TR.STUDYING_BURY_NOTE), "=", self.onBuryNote],
+            [tr(TR.STUDYING_BURY_CARD), "-", self.bury_current_card],
+            [tr(TR.STUDYING_BURY_NOTE), "=", self.bury_current_note],
             [tr(TR.ACTIONS_SET_DUE_DATE), "Ctrl+Shift+D", self.on_set_due],
-            [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.onSuspendCard],
-            [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.onSuspend],
+            [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.suspend_current_card],
+            [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.suspend_current_note],
             [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.onDelete],
             [tr(TR.ACTIONS_OPTIONS), "O", self.onOptions],
             None,
@@ -808,17 +808,25 @@ time = %(time)d;
             on_done=self.mw.reset,
         )
 
-    def onSuspend(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))
+    def suspend_current_note(self) -> None:
         self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
+        self.mw.reset()
         tooltip(tr(TR.STUDYING_NOTE_SUSPENDED))
-        self.mw.reset()
 
-    def onSuspendCard(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))
+    def suspend_current_card(self) -> None:
         self.mw.col.sched.suspend_cards([self.card.id])
-        tooltip(tr(TR.STUDYING_CARD_SUSPENDED))
         self.mw.reset()
+        tooltip(tr(TR.STUDYING_CARD_SUSPENDED))
+
+    def bury_current_card(self) -> None:
+        self.mw.col.sched.bury_cards([self.card.id])
+        self.mw.reset()
+        tooltip(tr(TR.STUDYING_CARD_BURIED))
+
+    def bury_current_note(self) -> None:
+        self.mw.col.sched.bury_note(self.card.note())
+        self.mw.reset()
+        tooltip(tr(TR.STUDYING_NOTE_BURIED))
 
     def onDelete(self) -> None:
         # need to check state because the shortcut is global to the main
@@ -830,18 +838,6 @@ time = %(time)d;
         self.mw.col.remove_notes([self.card.note().id])
         self.mw.reset()
         tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
-
-    def onBuryCard(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_BURY))
-        self.mw.col.sched.bury_cards([self.card.id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_CARD_BURIED))
-
-    def onBuryNote(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_BURY))
-        self.mw.col.sched.bury_note(self.card.note())
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_BURIED))
 
     def onRecordVoice(self) -> None:
         def after_record(path: str) -> None:
@@ -855,3 +851,10 @@ time = %(time)d;
             tooltip(tr(TR.STUDYING_YOU_HAVENT_RECORDED_YOUR_VOICE_YET))
             return
         av_player.play_file(self._recordedAudio)
+
+    # legacy
+
+    onBuryCard = bury_current_card
+    onBuryNote = bury_current_note
+    onSuspend = suspend_current_note
+    onSuspendCard = suspend_current_card

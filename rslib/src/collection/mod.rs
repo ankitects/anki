@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod op;
+
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::types::Usn;
@@ -11,6 +13,7 @@ use crate::{
     undo::UndoManager,
 };
 use crate::{err::Result, scheduler::queue::CardQueues};
+pub use op::CollectionOp;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -76,12 +79,6 @@ pub struct Collection {
     pub(crate) log: Logger,
     pub(crate) server: bool,
     pub(crate) state: CollectionState,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum CollectionOp {
-    UpdateCard,
-    AnswerCard,
 }
 
 impl Collection {

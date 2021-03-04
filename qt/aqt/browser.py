@@ -1262,9 +1262,9 @@ where id in %s"""
         self.editor.saveNow(self._onSuspend)
 
     def _onSuspend(self) -> None:
-        sus = not self.isSuspended()
+        want_suspend = not self.isSuspended()
         c = self.selectedCards()
-        if sus:
+        if want_suspend:
             self.col.sched.suspend_cards(c)
         else:
             self.col.sched.unsuspend_cards(c)

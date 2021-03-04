@@ -132,11 +132,12 @@ impl Collection {
         }
     }
 
-    pub(crate) fn clear_queues(&mut self) {
-        // clearing the queue will remove any undone reviews from the undo queue,
-        // causing problems if we then try to redo them
-        self.state.undo.clear_redo();
+    pub(crate) fn clear_study_queues(&mut self) {
         self.state.card_queues = None;
+        // clearing the queue will remove any undone reviews from the undo queue,
+        // causing problems if we then try to redo them, so we need to clear the
+        // redo queue as well
+        self.state.undo.clear_redo();
     }
 
     pub(crate) fn update_queues_after_answering_card(
