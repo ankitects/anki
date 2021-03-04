@@ -1279,6 +1279,10 @@ class SidebarTreeView(QTreeView):
             filt = conf[old_name]
         except KeyError:
             return
+        if new_name in conf and not askUser(
+            tr(TR.BROWSING_CONFIRM_SAVED_SEARCH_OVERWRITE, name=new_name)
+        ):
+            return
         conf[new_name] = filt
         del conf[old_name]
         self._set_saved_searches(conf)
@@ -1294,17 +1298,21 @@ class SidebarTreeView(QTreeView):
             )
         except InvalidInput as e:
             show_invalid_search_error(e)
-        else:
-            name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
-            if not name:
-                return
-            conf = self._get_saved_searches()
-            conf[name] = filt
-            self._set_saved_searches(conf)
-            self.refresh(
-                lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
-                and item.name == name
-            )
+            return
+        name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
+        if not name:
+            return
+        conf = self._get_saved_searches()
+        if name in conf and not askUser(
+            tr(TR.BROWSING_CONFIRM_SAVED_SEARCH_OVERWRITE, name=name)
+        ):
+            return
+        conf[name] = filt
+        self._set_saved_searches(conf)
+        self.refresh(
+            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
+            and item.name == name
+        )
 
     def manage_notetype(self, item: SidebarItem) -> None:
         Models(
