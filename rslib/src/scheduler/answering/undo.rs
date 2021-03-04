@@ -95,6 +95,8 @@ mod test {
             let deck = col.get_deck(DeckID(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 1);
 
+            assert_eq!(col.next_card()?.is_some(), false);
+
             Ok(())
         };
 
@@ -119,6 +121,8 @@ mod test {
             let deck = col.get_deck(DeckID(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 0);
 
+            assert_eq!(col.next_card()?.is_some(), true);
+
             Ok(())
         };
 
@@ -134,8 +138,6 @@ mod test {
         assert_pre_review_state(&mut col)?;
         col.undo()?;
         assert_initial_state(&mut col)?;
-
-        // fixme: make sure queue state updated, esp. on redo
 
         Ok(())
     }

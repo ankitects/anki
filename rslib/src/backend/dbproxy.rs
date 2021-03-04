@@ -75,6 +75,7 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
             args,
             first_row_only,
         } => {
+            maybe_clear_undo(col, &sql);
             if first_row_only {
                 db_query_row(&col.storage, &sql, &args)?
             } else {
@@ -94,9 +95,30 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
             col.storage.rollback_trx()?;
             DBResult::None
         }
-        DBRequest::ExecuteMany { sql, args } => db_execute_many(&col.storage, &sql, &args)?,
+        DBRequest::ExecuteMany { sql, args } => {
+            maybe_clear_undo(col, &sql);
+            db_execute_many(&col.storage, &sql, &args)?
+        }
     };
     Ok(serde_json::to_vec(&resp)?)
+}
+
+fn maybe_clear_undo(col: &mut Collection, sql: &str) {
+    if !is_dql(sql) {
+        println!("clearing undo due to {}", sql);
+        col.state.undo.clear();
+    }
+}
+
+/// Anything other than a select statement is false.
+fn is_dql(sql: &str) -> bool {
+    let head: String = sql
+        .trim_start()
+        .chars()
+        .take(10)
+        .map(|c| c.to_ascii_lowercase())
+        .collect();
+    head.starts_with("select ")
 }
 
 pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {

@@ -369,24 +369,19 @@ impl Collection {
     ) -> Result<()> {
         self.canonify_note_tags(note, usn)?;
         note.prepare_for_update(nt, normalize_text)?;
-        self.update_note_inner_undo_and_mtime_only(
-            note,
-            original,
-            if mark_note_modified { Some(usn) } else { None },
-        )
+        if mark_note_modified {
+            note.set_modified(usn);
+        }
+        self.update_note_inner_undo_only(note, original)
     }
 
-    /// Bumps modification time if usn provided, saves in the undo queue, and commits to DB.
+    /// Saves in the undo queue, and commits to DB.
     /// No validation, card generation or normalization is done.
-    pub(crate) fn update_note_inner_undo_and_mtime_only(
+    pub(crate) fn update_note_inner_undo_only(
         &mut self,
         note: &mut Note,
         original: &Note,
-        update_usn: Option<Usn>,
     ) -> Result<()> {
-        if let Some(usn) = update_usn {
-            note.set_modified(usn);
-        }
         self.save_undo(Box::new(NoteUpdated(original.clone())));
         self.storage.update_note(note)?;
 
@@ -557,12 +552,12 @@ impl Collection {
 pub(crate) struct NoteUpdated(Note);
 
 impl Undo for NoteUpdated {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection, usn: Usn) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
         let current = col
             .storage
             .get_note(self.0.id)?
             .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
-        col.update_note_inner_undo_and_mtime_only(&mut self.0.clone(), &current, Some(usn))
+        col.update_note_inner_undo_only(&mut self.0.clone(), &current)
     }
 }
 

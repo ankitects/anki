@@ -271,11 +271,11 @@ impl Collection {
             let usn = col.usn()?;
 
             col.prepare_deck_for_update(deck, usn)?;
+            deck.set_modified(usn);
 
             if deck.id.0 == 0 {
                 // TODO: undo support
                 col.match_or_create_parents(deck, usn)?;
-                deck.set_modified(usn);
                 col.storage.add_deck(deck)
             } else if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
                 let name_changed = existing_deck.name != deck.name;
@@ -285,7 +285,7 @@ impl Collection {
                     // rename children
                     col.rename_child_decks(&existing_deck, &deck.name, usn)?;
                 }
-                col.update_single_deck_no_check(deck, &existing_deck, usn)?;
+                col.update_single_deck_inner_undo_only(deck, &existing_deck)?;
                 if name_changed {
                     // after updating, we need to ensure all grandparents exist, which may not be the case
                     // in the parent->child case
@@ -313,15 +313,13 @@ impl Collection {
     }
 
     /// Update an individual, existing deck. Caller is responsible for ensuring deck
-    /// is normalized, matches parents, and is not a duplicate name. Bumps mtime.
-    pub(crate) fn update_single_deck_no_check(
+    /// is normalized, matches parents, is not a duplicate name, and bumping mtime.
+    pub(crate) fn update_single_deck_inner_undo_only(
         &mut self,
         deck: &mut Deck,
         original: &Deck,
-        usn: Usn,
     ) -> Result<()> {
         self.state.deck_cache.clear();
-        deck.set_modified(usn);
         self.save_undo(Box::new(DeckUpdated(original.clone())));
         self.storage.update_deck(deck)
     }
@@ -372,7 +370,8 @@ impl Collection {
             let child_only = &child_components[old_component_count..];
             let new_name = format!("{}\x1f{}", new_name, child_only.join("\x1f"));
             child.name = new_name;
-            self.update_single_deck_no_check(&mut child, &original, usn)?;
+            child.set_modified(usn);
+            self.update_single_deck_inner_undo_only(&mut child, &original)?;
         }
 
         Ok(())
@@ -601,7 +600,8 @@ impl Collection {
         let original = deck.clone();
         deck.reset_stats_if_day_changed(today);
         mutator(&mut deck.common);
-        self.update_single_deck_no_check(deck, &original, usn)
+        deck.set_modified(usn);
+        self.update_single_deck_inner_undo_only(deck, &original)
     }
 
     pub fn drag_drop_decks(
@@ -651,12 +651,12 @@ impl Collection {
 pub(crate) struct DeckUpdated(Deck);
 
 impl Undo for DeckUpdated {
-    fn undo(mut self: Box<Self>, col: &mut crate::collection::Collection, usn: Usn) -> Result<()> {
+    fn undo(mut self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
         let current = col
             .storage
             .get_deck(self.0.id)?
             .ok_or_else(|| AnkiError::invalid_input("deck disappeared"))?;
-        col.update_single_deck_no_check(&mut self.0, &current, usn)
+        col.update_single_deck_inner_undo_only(&mut self.0, &current)
     }
 }
 

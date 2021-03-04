@@ -118,7 +118,7 @@ pub(crate) struct RevlogAdded(RevlogEntry);
 pub(crate) struct RevlogRemoved(RevlogEntry);
 
 impl Undo for RevlogAdded {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection, _usn: Usn) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
         col.storage.remove_revlog_entry(self.0.id)?;
         col.save_undo(Box::new(RevlogRemoved(self.0)));
         Ok(())
@@ -126,7 +126,7 @@ impl Undo for RevlogAdded {
 }
 
 impl Undo for RevlogRemoved {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection, _usn: Usn) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
         col.storage.add_revlog_entry(&self.0, false)?;
         col.save_undo(Box::new(RevlogAdded(self.0)));
         Ok(())

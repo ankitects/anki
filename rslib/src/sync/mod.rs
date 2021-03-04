@@ -326,6 +326,7 @@ where
             SyncActionRequired::NoChanges => Ok(state.into()),
             SyncActionRequired::FullSyncRequired { .. } => Ok(state.into()),
             SyncActionRequired::NormalSyncRequired => {
+                self.col.state.undo.clear();
                 self.col.storage.begin_trx()?;
                 self.col
                     .unbury_if_day_rolled_over(self.col.timing_today()?)?;

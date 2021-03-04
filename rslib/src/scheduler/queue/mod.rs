@@ -2,28 +2,40 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod builder;
+mod entry;
 mod learning;
 mod limits;
 mod main;
+mod undo;
 
 use std::{
     cmp::Reverse,
     collections::{BinaryHeap, VecDeque},
 };
 
-use crate::{backend_proto as pb, card::CardQueue, prelude::*, timestamp::TimestampSecs};
+use crate::{backend_proto as pb, prelude::*, timestamp::TimestampSecs};
 pub(crate) use builder::{DueCard, NewCard};
+pub(crate) use {
+    entry::{QueueEntry, QueueEntryKind},
+    learning::LearningQueueEntry,
+    main::{MainQueueEntry, MainQueueEntryKind},
+};
+
+use self::undo::QueueUpdateAfterAnsweringCard;
 
 use super::{states::NextCardStates, timing::SchedTimingToday};
 
 #[derive(Debug)]
 pub(crate) struct CardQueues {
-    new_count: usize,
-    review_count: usize,
-    learn_count: usize,
+    counts: Counts,
 
-    main: VecDeque<QueueEntry>,
+    /// Any undone items take precedence.
+    undo: Vec<QueueEntry>,
+
+    main: VecDeque<MainQueueEntry>,
+
     due_learning: VecDeque<LearningQueueEntry>,
+
     later_learning: BinaryHeap<Reverse<LearningQueueEntry>>,
 
     selected_deck: DeckID,
@@ -31,118 +43,71 @@ pub(crate) struct CardQueues {
     learn_ahead_secs: i64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub(crate) struct Counts {
-    new: usize,
-    learning: usize,
-    review: usize,
+    pub new: usize,
+    pub learning: usize,
+    pub review: usize,
+}
+
+#[derive(Debug)]
+pub(crate) struct QueuedCard {
+    pub card: Card,
+    pub kind: QueueEntryKind,
+    pub next_states: NextCardStates,
+}
+
+pub(crate) struct QueuedCards {
+    pub cards: Vec<QueuedCard>,
+    pub new_count: usize,
+    pub learning_count: usize,
+    pub review_count: usize,
 }
 
 impl CardQueues {
     /// Get the next due card, if there is one.
     fn next_entry(&mut self, now: TimestampSecs) -> Option<QueueEntry> {
-        self.next_learning_entry_due_before_now(now)
+        self.next_undo_entry()
             .map(Into::into)
-            .or_else(|| self.next_main_entry())
+            .or_else(|| self.next_learning_entry_due_before_now(now).map(Into::into))
+            .or_else(|| self.next_main_entry().map(Into::into))
             .or_else(|| self.next_learning_entry_learning_ahead().map(Into::into))
     }
 
-    /// Remove the provided card from the top of the learning or main queues.
+    /// Remove the provided card from the top of the queues.
     /// If it was not at the top, return an error.
-    fn pop_answered(&mut self, id: CardID) -> Result<()> {
-        if self.pop_main_entry(id).is_none() && self.pop_learning_entry(id).is_none() {
-            Err(AnkiError::invalid_input("not at top of queue"))
+    fn pop_answered(&mut self, id: CardID) -> Result<QueueEntry> {
+        if let Some(entry) = self.pop_undo_entry(id) {
+            Ok(entry)
+        } else if let Some(entry) = self.pop_main_entry(id) {
+            Ok(entry.into())
+        } else if let Some(entry) = self.pop_learning_entry(id) {
+            Ok(entry.into())
         } else {
-            Ok(())
+            Err(AnkiError::invalid_input("not at top of queue"))
         }
     }
 
-    fn counts(&self) -> Counts {
-        Counts {
-            new: self.new_count,
-            learning: self.learn_count,
-            review: self.review_count,
-        }
+    pub(crate) fn counts(&self) -> Counts {
+        self.counts
     }
 
     fn is_stale(&self, deck: DeckID, current_day: u32) -> bool {
         self.selected_deck != deck || self.current_day != current_day
     }
 
-    fn update_after_answering_card(&mut self, card: &Card, timing: SchedTimingToday) -> Result<()> {
-        self.pop_answered(card.id)?;
-        self.maybe_requeue_learning_card(card, timing);
-        Ok(())
-    }
+    fn update_after_answering_card(
+        &mut self,
+        card: &Card,
+        timing: SchedTimingToday,
+    ) -> Result<QueueUpdateAfterAnsweringCard> {
+        let entry = self.pop_answered(card.id)?;
+        let requeued_learning = self.maybe_requeue_learning_card(card, timing);
 
-    /// Add a just-undone card back to the appropriate queue, updating counts.
-    pub(crate) fn push_undone_card(&mut self, card: &Card) {
-        if card.is_intraday_learning() {
-            self.push_due_learning_card(LearningQueueEntry {
-                due: TimestampSecs(card.due as i64),
-                id: card.id,
-                mtime: card.mtime,
-            })
-        } else {
-            self.push_main_entry(card.into())
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct QueueEntry {
-    id: CardID,
-    mtime: TimestampSecs,
-    kind: QueueEntryKind,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) enum QueueEntryKind {
-    New,
-    /// Includes day-learning cards
-    Review,
-    Learning,
-}
-
-impl PartialOrd for QueueEntry {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.id.partial_cmp(&other.id)
-    }
-}
-
-impl From<&Card> for QueueEntry {
-    fn from(card: &Card) -> Self {
-        let kind = match card.queue {
-            CardQueue::Learn | CardQueue::PreviewRepeat => QueueEntryKind::Learning,
-            CardQueue::New => QueueEntryKind::New,
-            CardQueue::Review | CardQueue::DayLearn => QueueEntryKind::Review,
-            CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried => {
-                unreachable!()
-            }
-        };
-        QueueEntry {
-            id: card.id,
-            mtime: card.mtime,
-            kind,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
-struct LearningQueueEntry {
-    // due comes first, so the derived ordering sorts by due
-    due: TimestampSecs,
-    id: CardID,
-    mtime: TimestampSecs,
-}
-
-impl From<LearningQueueEntry> for QueueEntry {
-    fn from(e: LearningQueueEntry) -> Self {
-        Self {
-            id: e.id,
-            mtime: e.mtime,
-            kind: QueueEntryKind::Learning,
-        }
+        Ok(QueueUpdateAfterAnsweringCard {
+            entry,
+            learning_requeue: requeued_learning,
+        })
     }
 }
 
@@ -168,14 +133,10 @@ impl Collection {
     }
 
     pub(crate) fn clear_queues(&mut self) {
+        // clearing the queue will remove any undone reviews from the undo queue,
+        // causing problems if we then try to redo them
+        self.state.undo.clear_redo();
         self.state.card_queues = None;
-    }
-
-    /// FIXME: remove this once undoing is moved into backend
-    pub(crate) fn requeue_undone_card(&mut self, card_id: CardID) -> Result<()> {
-        let card = self.storage.get_card(card_id)?.ok_or(AnkiError::NotFound)?;
-        self.get_queues()?.push_undone_card(&card);
-        Ok(())
     }
 
     pub(crate) fn update_queues_after_answering_card(
@@ -184,14 +145,16 @@ impl Collection {
         timing: SchedTimingToday,
     ) -> Result<()> {
         if let Some(queues) = &mut self.state.card_queues {
-            queues.update_after_answering_card(card, timing)
+            let mutation = queues.update_after_answering_card(card, timing)?;
+            self.save_undo(Box::new(mutation));
+            Ok(())
         } else {
             // we currenly allow the queues to be empty for unit tests
             Ok(())
         }
     }
 
-    fn get_queues(&mut self) -> Result<&mut CardQueues> {
+    pub(crate) fn get_queues(&mut self) -> Result<&mut CardQueues> {
         let timing = self.timing_today()?;
         let deck = self.get_current_deck_id();
         let need_rebuild = self
@@ -217,9 +180,9 @@ impl Collection {
         if let Some(entry) = queues.next_entry(TimestampSecs::now()) {
             let card = self
                 .storage
-                .get_card(entry.id)?
+                .get_card(entry.card_id())?
                 .ok_or(AnkiError::NotFound)?;
-            if card.mtime != entry.mtime {
+            if card.mtime != entry.mtime() {
                 return Err(AnkiError::invalid_input(
                     "bug: card modified without updating queue",
                 ));
@@ -231,7 +194,7 @@ impl Collection {
             cards.push(QueuedCard {
                 card,
                 next_states,
-                kind: entry.kind,
+                kind: entry.kind(),
             });
         }
 
@@ -254,18 +217,4 @@ impl Collection {
             .next_cards(1, false)?
             .map(|mut resp| resp.cards.pop().unwrap()))
     }
-}
-
-#[derive(Debug)]
-pub(crate) struct QueuedCard {
-    pub card: Card,
-    pub kind: QueueEntryKind,
-    pub next_states: NextCardStates,
-}
-
-pub(crate) struct QueuedCards {
-    pub cards: Vec<QueuedCard>,
-    pub new_count: usize,
-    pub learning_count: usize,
-    pub review_count: usize,
 }

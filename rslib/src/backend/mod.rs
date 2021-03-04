@@ -712,11 +712,6 @@ impl BackendService for Backend {
         })
     }
 
-    fn requeue_undone_card(&self, input: pb::CardId) -> BackendResult<pb::Empty> {
-        self.with_col(|col| col.requeue_undone_card(input.into()))
-            .map(Into::into)
-    }
-
     // statistics
     //-----------------------------------------------
 
@@ -1317,6 +1312,24 @@ impl BackendService for Backend {
                 .map(|problems| pb::CheckDatabaseOut {
                     problems: problems.to_i18n_strings(&col.i18n),
                 })
+        })
+    }
+
+    fn get_undo_status(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
+        self.with_col(|col| Ok(col.undo_status()))
+    }
+
+    fn undo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
+        self.with_col(|col| {
+            col.undo()?;
+            Ok(col.undo_status())
+        })
+    }
+
+    fn redo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
+        self.with_col(|col| {
+            col.redo()?;
+            Ok(col.undo_status())
         })
     }
 
