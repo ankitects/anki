@@ -23,9 +23,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313708"
-     inkscape:cx="32.130617"
-     inkscape:cy="14.656091"
+     inkscape:zoom="8.3298966"
+     inkscape:cx="30.544751"
+     inkscape:cy="35.370349"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -52,7 +52,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -62,13 +62,22 @@
      id="layer1">
     <path
        id="rect883"
-       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.607;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 11.90625,9.2604167 0,6.8791663 H 0.79375 V 2.6458333 l 8.4666667,0"
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.207;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 11.90625,11.1125 0,5.027083 H 0.79375 V 2.6458333 l 7.14375,0"
        sodipodi:nodetypes="ccccc" />
     <path
        id="rect899"
-       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.507;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 13.232445,1.7717731 7.7759707,7.0241793 6.5251288,10.064477 9.6108749,8.9303738 15.067347,3.6779648 13.232445,1.7717731 14.304678,0.7396394 16.139583,2.6458333 15.067347,3.6779648"
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.12547;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 12.890429,1.8932006 6.7920163,7.763537 6.0854167,10.558572 8.8427916,9.8939896 14.941202,4.0236502 12.890429,1.8932006 l 1.198378,-1.1535612 2.050776,2.130452 -1.198381,1.1535588"
        sodipodi:nodetypes="ccccccccc" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.904716;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3362"
+       width="0.9508357"
+       height="2.3770893"
+       x="8.6597252"
+       y="10.528829"
+       ry="0.089140847"
+       transform="rotate(-43.602828)" />
   </g>
 </svg>
