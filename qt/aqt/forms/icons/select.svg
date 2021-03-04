@@ -19,6 +19,36 @@
      id="defs2">
     <inkscape:path-effect
        effect="powermask"
+       id="path-effect4000"
+       is_visible="true"
+       lpeversion="1"
+       uri="#mask-powermask-path-effect4000"
+       invert="false"
+       hide_mask="false"
+       background="true"
+       background_color="#ffffffff" />
+    <inkscape:path-effect
+       effect="powermask"
+       id="path-effect3981"
+       is_visible="true"
+       lpeversion="1"
+       uri="#mask-powermask-path-effect3981"
+       invert="false"
+       hide_mask="false"
+       background="true"
+       background_color="#ffffffff" />
+    <inkscape:path-effect
+       effect="powermask"
+       id="path-effect3966"
+       is_visible="true"
+       lpeversion="1"
+       uri="#mask-powermask-path-effect3966"
+       invert="false"
+       hide_mask="false"
+       background="true"
+       background_color="#ffffffff" />
+    <inkscape:path-effect
+       effect="powermask"
        id="path-effect2895"
        is_visible="true"
        lpeversion="1"
@@ -56,38 +86,21 @@
        inkscape:vp_z="16.933333 : 8.466667 : 1"
        inkscape:persp3d-origin="8.4666665 : 5.6444447 : 1"
        id="perspective2694" />
-    <mask
-       maskUnits="userSpaceOnUse"
-       id="mask-powermask-path-effect2895">
-      <path
-         id="mask-powermask-path-effect2895_box"
-         style="fill:#ffffff;fill-opacity:1"
-         d="M -0.69833337,-0.69833337 H 15.250417 V 12.075417 H -0.69833337 Z" />
-      <rect
-         style="opacity:1;mix-blend-mode:normal;fill:#000000;fill-opacity:0.997319;fill-rule:nonzero;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
-         id="rect2893"
-         width="5.5562496"
-         height="5.0270834"
-         x="9.7895832"
-         y="8.7312498"
-         ry="0.20946184"
-         d="m 9.999045,8.7312498 h 5.137326 c 0.116042,0 0.209462,0.09342 0.209462,0.2094618 v 4.6081594 c 0,0.116042 -0.09342,0.209462 -0.209462,0.209462 H 9.999045 c -0.1160418,0 -0.2094618,-0.09342 -0.2094618,-0.209462 V 8.9407116 c 0,-0.1160418 0.09342,-0.2094618 0.2094618,-0.2094618 z" />
-    </mask>
     <filter
-       id="mask-powermask-path-effect2895_inverse"
-       inkscape:label="filtermask-powermask-path-effect2895"
+       id="mask-powermask-path-effect4000_inverse"
+       inkscape:label="filtermask-powermask-path-effect4000"
        style="color-interpolation-filters:sRGB"
        height="100"
        width="100"
        x="-50"
        y="-50">
       <feColorMatrix
-         id="mask-powermask-path-effect2895_primitive1"
+         id="mask-powermask-path-effect4000_primitive1"
          values="1"
          type="saturate"
          result="fbSourceGraphic" />
       <feColorMatrix
-         id="mask-powermask-path-effect2895_primitive2"
+         id="mask-powermask-path-effect4000_primitive2"
          values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0 "
          in="fbSourceGraphic" />
     </filter>
@@ -99,11 +112,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="12.921875"
-     inkscape:cx="30.176126"
-     inkscape:cy="29.137257"
+     inkscape:zoom="9.1371454"
+     inkscape:cx="33.803843"
+     inkscape:cy="32.605832"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
@@ -132,18 +145,14 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Back"
-     style="opacity:0.997">
+     style="display:inline;opacity:0.997">
     <path
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.455;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.82, 1.82;stroke-dashoffset:3.3215;stroke-opacity:1;paint-order:normal"
        id="rect2692"
-       width="13.493751"
-       height="10.31875"
-       x="0.52916664"
-       y="0.52916664"
-       sodipodi:type="rect"
-       mask="url(#mask-powermask-path-effect2895)"
-       inkscape:path-effect="#path-effect2895"
-       d="M 0.52916664,0.52916664 H 14.022917 V 10.847917 H 0.52916664 Z" />
+       transform="translate(0.26458378,0.26458346)"
+       mask="none"
+       d="m 7.4083329,10.847917 -6.87916626,0 V 0.52916664 H 14.022917 l 0,5.29166656"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.165;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:2.33,2.33;stroke-dashoffset:8.621;stroke-opacity:1;paint-order:normal"
+       sodipodi:nodetypes="ccccc" />
   </g>
   <g
      inkscape:label="Front"
@@ -151,8 +160,8 @@
      id="layer1"
      style="display:inline">
     <path
-       style="opacity:1;fill:#ffffff;fill-opacity:0.99731904;stroke:#000000;stroke-width:0.435;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 10.31875,5.7546873 v 8.8238547 l 2.129895,-1.217083 1.217083,3.042708 1.521355,-0.608542 L 13.97,12.752917 h 2.434166 z"
+       style="opacity:1;fill:#000000;fill-opacity:0.997319;stroke:#000000;stroke-width:0.535;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 10.433094,5.9254024 v 8.8238546 l 2.129895,-1.217083 1.217083,3.042708 1.521355,-0.608542 -1.217083,-3.042708 h 2.434166 z"
        id="path2710"
        sodipodi:nodetypes="cccccccc" />
   </g>
