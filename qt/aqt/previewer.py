@@ -222,7 +222,6 @@ class Previewer(QDialog):
     def _on_show_both_sides(self, toggle: bool) -> None:
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
-        self.mw.col.setMod()
         if self._state == "answer" and not toggle:
             self._state = "question"
         self.render_card()
