@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from concurrent.futures import Future
 from enum import Enum, auto
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
+from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
 from anki.collection import Config, SearchJoiner, SearchNode
@@ -368,13 +368,6 @@ class SidebarTreeView(QTreeView):
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
-        self.context_menus: Dict[SidebarItemType, Sequence[Tuple[str, Callable]]] = {
-            SidebarItemType.NOTETYPE: ((tr(TR.ACTIONS_MANAGE), self.manage_notetype),),
-            SidebarItemType.SAVED_SEARCH_ROOT: (
-                (tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search),
-            ),
-        }
-
         self.setUniformRowHeights(True)
         self.setHeaderHidden(True)
         self.setIndentation(15)
@@ -1044,19 +1037,11 @@ class SidebarTreeView(QTreeView):
         self, item: SidebarItem, index: Optional[QModelIndex]
     ) -> None:
         m = QMenu()
-
+        self._maybe_add_type_specific_actions(m, item)
         if item.item_type.is_deletable():
             m.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(index))
         if item.item_type.is_editable():
             m.addAction(tr(TR.ACTIONS_RENAME), lambda: self.edit(index))
-
-        if item.item_type in self.context_menus:
-            for action in self.context_menus[item.item_type]:
-                act_name = action[0]
-                act_func = action[1]
-                a = m.addAction(act_name)
-                qconnect(a.triggered, lambda _, func=act_func: func(item))
-
         self._maybe_add_search_actions(m)
         self._maybe_add_tree_actions(m)
 
@@ -1064,6 +1049,14 @@ class SidebarTreeView(QTreeView):
             return
 
         m.exec_(QCursor.pos())
+
+    def _maybe_add_type_specific_actions(self, menu: QMenu, item: SidebarItem) -> None:
+        if item.item_type in (SidebarItemType.NOTETYPE, SidebarItemType.NOTETYPE_ROOT):
+            menu.addAction(tr(TR.ACTIONS_MANAGE), lambda: self.manage_notetype(item))
+        elif item.item_type == SidebarItemType.SAVED_SEARCH_ROOT:
+            menu.addAction(
+                tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search
+            )
 
     def _maybe_add_search_actions(self, menu: QMenu) -> None:
         nodes = [
@@ -1298,7 +1291,7 @@ class SidebarTreeView(QTreeView):
             and item.name == new_name
         )
 
-    def save_current_search(self, _item: Any = None) -> None:
+    def save_current_search(self) -> None:
         try:
             filt = self.col.build_search_string(
                 self.browser.form.searchEdit.lineEdit().text()
