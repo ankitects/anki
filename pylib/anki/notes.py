@@ -66,8 +66,10 @@ class Note:
         )
 
     def flush(self) -> None:
+        """This preserves any current checkpoint.
+        For an undo entry, use col.update_note() instead."""
         assert self.id != 0
-        self.col._backend.update_note(self.to_backend_note())
+        self.col._backend.update_note(note=self.to_backend_note(), skip_undo_entry=True)
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)
@@ -154,16 +156,10 @@ class Note:
     # Tags
     ##################################################
 
-    def hasTag(self, tag: str) -> bool:
+    def has_tag(self, tag: str) -> bool:
         return self.col.tags.inList(tag, self.tags)
 
-    def stringTags(self) -> Any:
-        return self.col.tags.join(self.col.tags.canonify(self.tags))
-
-    def setTagsFromStr(self, tags: str) -> None:
-        self.tags = self.col.tags.split(tags)
-
-    def delTag(self, tag: str) -> None:
+    def remove_tag(self, tag: str) -> None:
         rem = []
         for t in self.tags:
             if t.lower() == tag.lower():
@@ -171,9 +167,19 @@ class Note:
         for r in rem:
             self.tags.remove(r)
 
-    def addTag(self, tag: str) -> None:
-        # duplicates will be stripped on save
+    def add_tag(self, tag: str) -> None:
+        "Add tag. Duplicates will be stripped on save."
         self.tags.append(tag)
+
+    def stringTags(self) -> Any:
+        return self.col.tags.join(self.col.tags.canonify(self.tags))
+
+    def setTagsFromStr(self, tags: str) -> None:
+        self.tags = self.col.tags.split(tags)
+
+    hasTag = has_tag
+    addTag = add_tag
+    delTag = remove_tag
 
     # Unique/duplicate check
     ##################################################

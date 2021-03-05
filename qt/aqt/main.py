@@ -506,7 +506,7 @@ class AnkiQt(QMainWindow):
         # make sure we don't get into an inconsistent state if an add-on
         # has broken the deck browser or the did_load hook
         try:
-            self.maybeEnableUndo()
+            self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.moveToState("deckBrowser")
         except Exception as e:
@@ -688,7 +688,7 @@ class AnkiQt(QMainWindow):
             if not guiOnly:
                 self.col.reset()
             gui_hooks.state_did_reset()
-            self.maybeEnableUndo()
+            self.update_undo_actions()
             self.moveToState(self.state)
 
     def requireReset(
@@ -1032,7 +1032,7 @@ title="%s" %s>%s</button>""" % (
         if result is None:
             # should not happen
             showInfo("nothing to undo")
-            self.maybeEnableUndo()
+            self.update_undo_actions()
             return
 
         elif isinstance(result, ReviewUndo):
@@ -1070,9 +1070,11 @@ title="%s" %s>%s</button>""" % (
 
         tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
         gui_hooks.state_did_revert(name)
-        self.maybeEnableUndo()
+        self.update_undo_actions()
 
-    def maybeEnableUndo(self) -> None:
+    def update_undo_actions(self) -> None:
+        """Update menu text and enable/disable menu item as appropriate.
+        Plural as this may handle redo in the future too."""
         if self.col:
             status = self.col.undo_status()
             undo_action = status.undo or None
@@ -1091,11 +1093,13 @@ title="%s" %s>%s</button>""" % (
 
     def checkpoint(self, name: str) -> None:
         self.col.save(name)
-        self.maybeEnableUndo()
+        self.update_undo_actions()
 
     def autosave(self) -> None:
         self.col.autosave()
-        self.maybeEnableUndo()
+        self.update_undo_actions()
+
+    maybeEnableUndo = update_undo_actions
 
     # Other menu operations
     ##########################################################################

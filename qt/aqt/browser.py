@@ -413,7 +413,7 @@ class StatusDelegate(QItemDelegate):
         col = None
         if c.userFlag() > 0:
             col = getattr(colors, f"FLAG{c.userFlag()}_BG")
-        elif c.note().hasTag("Marked"):
+        elif c.note().has_tag("Marked"):
             col = colors.MARKED_BG
         elif c.queue == QUEUE_TYPE_SUSPENDED:
             col = colors.SUSPENDED_BG
@@ -1317,7 +1317,7 @@ where id in %s"""
             self.remove_tags_from_selected_notes(tags="marked")
 
     def isMarked(self) -> bool:
-        return bool(self.card and self.card.note().hasTag("Marked"))
+        return bool(self.card and self.card.note().has_tag("Marked"))
 
     # Repositioning
     ######################################################################
