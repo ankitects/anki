@@ -15,6 +15,7 @@ pub enum UndoableOp {
     UnburyUnsuspend,
     AddNote,
     RemoveNote,
+    UpdateTag,
 }
 
 impl UndoableOp {
@@ -33,6 +34,7 @@ impl Collection {
             UndoableOp::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
             UndoableOp::AddNote => TR::UndoAddNote,
             UndoableOp::RemoveNote => TR::StudyingDeleteNote,
+            UndoableOp::UpdateTag => TR::UndoUpdateTag,
         };
 
         self.i18n.tr(key).to_string()

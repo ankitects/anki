@@ -88,6 +88,9 @@ class TagManager:
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
 
+    def bulk_remove(self, nids: Sequence[int], tags: str) -> int:
+        return self.bulk_update(nids, tags, "", False)
+
     def rename(self, old: str, new: str) -> int:
         "Rename provided tag, returning number of changed notes."
         nids = self.col.find_notes(anki.collection.SearchNode(tag=old))

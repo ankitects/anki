@@ -1087,7 +1087,7 @@ impl BackendService for Backend {
 
     fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> BackendResult<pb::UInt32> {
         self.with_col(|col| {
-            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
+            col.add_tags_to_notes(&to_nids(input.nids), &input.tags)
                 .map(|n| n as u32)
         })
         .map(Into::into)

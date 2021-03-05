@@ -104,13 +104,13 @@ def test_addDelTags():
     note2["Front"] = "2"
     col.addNote(note2)
     # adding for a given id
-    col.tags.bulkAdd([note.id], "foo")
+    col.tags.bulk_add([note.id], "foo")
     note.load()
     note2.load()
     assert "foo" in note.tags
     assert "foo" not in note2.tags
     # should be canonified
-    col.tags.bulkAdd([note.id], "foo aaa")
+    col.tags.bulk_add([note.id], "foo aaa")
     note.load()
     assert note.tags[0] == "aaa"
     assert len(note.tags) == 2

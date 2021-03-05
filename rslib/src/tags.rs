@@ -6,6 +6,7 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
+    prelude::*,
     text::{normalize_to_nfc, to_re},
     types::Usn,
     undo::Undo,
@@ -320,7 +321,7 @@ impl Collection {
         tags: &[Regex],
         mut repl: R,
     ) -> Result<usize> {
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOp::UpdateTag), |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut changed = false;
                 for re in tags {
@@ -362,7 +363,7 @@ impl Collection {
         }
     }
 
-    pub fn add_tags_for_notes(&mut self, nids: &[NoteID], tags: &str) -> Result<usize> {
+    pub fn add_tags_to_notes(&mut self, nids: &[NoteID], tags: &str) -> Result<usize> {
         let tags: Vec<_> = split_tags(tags).collect();
         let matcher = regex::RegexSet::new(
             tags.iter()
@@ -371,7 +372,7 @@ impl Collection {
         )
         .map_err(|_| AnkiError::invalid_input("invalid regex"))?;
 
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOp::UpdateTag), |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut need_to_add = true;
                 let mut match_count = 0;
@@ -575,13 +576,13 @@ mod test {
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.tags[0], "baz");
 
-        let cnt = col.add_tags_for_notes(&[note.id], "cee aye")?;
+        let cnt = col.add_tags_to_notes(&[note.id], "cee aye")?;
         assert_eq!(cnt, 1);
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(&note.tags, &["aye", "baz", "cee"]);
 
         // if all tags already on note, it doesn't get updated
-        let cnt = col.add_tags_for_notes(&[note.id], "cee aye")?;
+        let cnt = col.add_tags_to_notes(&[note.id], "cee aye")?;
         assert_eq!(cnt, 0);
 
         // empty replacement deletes tag
