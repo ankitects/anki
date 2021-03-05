@@ -296,7 +296,6 @@ class AnkiExporter(Exporter):
         self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
-        self.dst.setMod()
         self.postExport()
         self.dst.close(downgrade=True)
 

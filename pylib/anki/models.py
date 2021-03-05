@@ -166,7 +166,6 @@ class ModelManager:
 
     def setCurrent(self, m: NoteType) -> None:
         self.col.conf["curModel"] = m["id"]
-        self.col.setMod()
 
     # Retrieving and creating models
     #############################################################

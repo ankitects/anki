@@ -214,7 +214,7 @@ class Collection:
     ls = property(_get_ls, _set_ls)
 
     # legacy
-    def setMod(self, mod: Optional[int] = None) -> None:
+    def setMod(self) -> None:
         # this is now a no-op, as modifications to things like the config
         # will mark the collection modified automatically
         pass
@@ -322,7 +322,6 @@ class Collection:
             if check and not hooks.schema_will_change(proceed=True):
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
-        self.setMod()
         self.save()
 
     def schemaChanged(self) -> Any:
@@ -655,11 +654,9 @@ class Collection:
             return default
 
     def set_config(self, key: str, val: Any) -> None:
-        self.setMod()
         self.conf.set(key, val)
 
     def remove_config(self, key: str) -> None:
-        self.setMod()
         self.conf.remove(key)
 
     def all_config(self) -> Dict[str, Any]:
@@ -670,14 +667,12 @@ class Collection:
         return self._backend.get_config_bool(key)
 
     def set_config_bool(self, key: Config.Bool.Key.V, value: bool) -> None:
-        self.setMod()
         self._backend.set_config_bool(key=key, value=value)
 
     def get_config_string(self, key: Config.String.Key.V) -> str:
         return self._backend.get_config_string(key)
 
     def set_config_string(self, key: Config.String.Key.V, value: str) -> None:
-        self.setMod()
         self._backend.set_config_string(key=key, value=value)
 
     # Stats

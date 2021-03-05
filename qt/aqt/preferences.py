@@ -165,8 +165,6 @@ class Preferences(QDialog):
 
         self.mw.col.set_preferences(self.prefs)
 
-        d.setMod()
-
     # Network
     ######################################################################
 
@@ -209,7 +207,6 @@ class Preferences(QDialog):
         )
         if self.form.fullSync.isChecked():
             self.mw.col.modSchema(check=False)
-            self.mw.col.setMod()
 
     # Backup
     ######################################################################
