@@ -1,19 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod op;
-
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::types::Usn;
 use crate::{
     decks::{Deck, DeckID},
     notetype::{NoteType, NoteTypeID},
+    prelude::*,
     storage::SqliteStorage,
     undo::UndoManager,
 };
 use crate::{err::Result, scheduler::queue::CardQueues};
-pub use op::CollectionOp;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -84,12 +82,12 @@ pub struct Collection {
 impl Collection {
     /// Execute the provided closure in a transaction, rolling back if
     /// an error is returned.
-    pub(crate) fn transact<F, R>(&mut self, op: Option<CollectionOp>, func: F) -> Result<R>
+    pub(crate) fn transact<F, R>(&mut self, op: Option<UndoableOp>, func: F) -> Result<R>
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
         self.storage.begin_rust_trx()?;
-        self.state.undo.begin_step(op);
+        self.begin_undoable_operation(op);
 
         let mut res = func(self);
 
@@ -102,10 +100,10 @@ impl Collection {
         }
 
         if res.is_err() {
-            self.state.undo.discard_step();
+            self.discard_undo_and_study_queues();
             self.storage.rollback_rust_trx()?;
         } else {
-            self.state.undo.end_step();
+            self.end_undoable_operation();
         }
 
         res

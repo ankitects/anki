@@ -3,11 +3,11 @@
 
 use crate::{
     backend_proto as pb,
-    collection::{Collection, CollectionOp},
     decks::DeckID,
     define_newtype,
     err::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
+    prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
     timestamp::TimestampSecs,
@@ -298,7 +298,7 @@ impl Collection {
     }
 
     pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
-        self.transact(Some(CollectionOp::AddNote), |col| {
+        self.transact(Some(UndoableOp::AddNote), |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
@@ -424,7 +424,7 @@ impl Collection {
     /// Remove provided notes, and any cards that use them.
     pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<()> {
         let usn = self.usn()?;
-        self.transact(Some(CollectionOp::RemoveNote), |col| {
+        self.transact(Some(UndoableOp::RemoveNote), |col| {
             for nid in nids {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {
@@ -749,6 +749,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
+            assert_eq!(col.next_card()?.is_some(), false);
             Ok(())
         };
 
@@ -759,6 +760,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
+            assert_eq!(col.next_card()?.is_some(), true);
             Ok(())
         };
 
@@ -786,6 +788,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 3
             );
+            assert_eq!(col.next_card()?.is_some(), false);
             Ok(())
         };
 

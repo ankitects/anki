@@ -102,7 +102,7 @@ impl SyncServer for LocalServer {
         self.client_usn = client_usn;
         self.client_is_newer = client_is_newer;
 
-        self.col.state.undo.clear();
+        self.col.discard_undo_and_study_queues();
         self.col.storage.begin_rust_trx()?;
 
         // make sure any pending cards have been unburied first if necessary

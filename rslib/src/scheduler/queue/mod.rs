@@ -132,12 +132,11 @@ impl Collection {
         }
     }
 
+    /// This is automatically done when transact() is called for everything
+    /// except card answers, so unless you are modifying state outside of a
+    /// transaction, you probably don't need this.
     pub(crate) fn clear_study_queues(&mut self) {
         self.state.card_queues = None;
-        // clearing the queue will remove any undone reviews from the undo queue,
-        // causing problems if we then try to redo them, so we need to clear the
-        // redo queue as well
-        self.state.undo.clear_redo();
     }
 
     pub(crate) fn update_queues_after_answering_card(
