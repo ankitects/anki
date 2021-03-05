@@ -177,41 +177,17 @@ class Collection:
 
     # legacy properties; these will likely go away in the future
 
-    def _get_crt(self) -> int:
+    @property
+    def crt(self) -> int:
         return self.db.scalar("select crt from col")
 
-    def _set_crt(self, val: int) -> None:
-        self.db.execute("update col set crt=?", val)
+    @crt.setter
+    def crt(self, crt: int) -> None:
+        self.db.execute("update col set crt = ?", crt)
 
-    def _get_scm(self) -> int:
-        return self.db.scalar("select scm from col")
-
-    def _set_scm(self, val: int) -> None:
-        self.db.execute("update col set scm=?", val)
-
-    def _get_usn(self) -> int:
-        return self.db.scalar("select usn from col")
-
-    def _set_usn(self, val: int) -> None:
-        self.db.execute("update col set usn=?", val)
-
-    def _get_mod(self) -> int:
+    @property
+    def mod(self) -> int:
         return self.db.scalar("select mod from col")
-
-    def _set_mod(self, val: int) -> None:
-        self.db.execute("update col set mod=?", val)
-
-    def _get_ls(self) -> int:
-        return self.db.scalar("select ls from col")
-
-    def _set_ls(self, val: int) -> None:
-        self.db.execute("update col set ls=?", val)
-
-    crt = property(_get_crt, _set_crt)
-    mod = property(_get_mod, _set_mod)
-    _usn = property(_get_usn, _set_usn)
-    scm = property(_get_scm, _set_scm)
-    ls = property(_get_ls, _set_ls)
 
     # legacy
     def setMod(self) -> None:
@@ -324,12 +300,15 @@ class Collection:
         self.scm = intTime(1000)
         self.save()
 
-    def schemaChanged(self) -> Any:
+    def schemaChanged(self) -> bool:
         "True if schema changed since last sync."
-        return self.scm > self.ls
+        return self.db.scalar("select scm > ls from col")
 
-    def usn(self) -> Any:
-        return self._usn if self.server else -1
+    def usn(self) -> int:
+        if self.server:
+            return self.db.scalar("select usn from col")
+        else:
+            return -1
 
     def beforeUpload(self) -> None:
         "Called before a full upload."
