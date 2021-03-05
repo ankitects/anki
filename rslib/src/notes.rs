@@ -397,12 +397,22 @@ impl Collection {
 
     /// Remove a note. Cards must already have been deleted.
     pub(crate) fn remove_note_only(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
-        if let Some(_note) = self.storage.get_note(nid)? {
-            // fixme: undo
+        if let Some(note) = self.storage.get_note(nid)? {
+            self.save_undo(Box::new(NoteRemoved(note)));
             self.storage.remove_note(nid)?;
-            self.storage.add_note_grave(nid, usn)?;
+            self.add_note_grave(nid, usn)?;
         }
         Ok(())
+    }
+
+    fn add_note_grave(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
+        self.save_undo(Box::new(NoteGraveAdded(nid, usn)));
+        self.storage.add_note_grave(nid, usn)
+    }
+
+    fn remove_note_grave_for_undo(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
+        self.save_undo(Box::new(NoteGraveRemoved(nid, usn)));
+        self.storage.remove_note_grave(nid)
     }
 
     fn remove_note_for_undo(&mut self, note: Note) -> Result<()> {
@@ -414,11 +424,10 @@ impl Collection {
     /// Remove provided notes, and any cards that use them.
     pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<()> {
         let usn = self.usn()?;
-        self.transact(None, |col| {
+        self.transact(Some(CollectionOp::RemoveNote), |col| {
             for nid in nids {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {
-                    // fixme: undo
                     for card in col.storage.all_cards_of_note(nid)? {
                         col.remove_card_only(card, usn)?;
                     }
@@ -592,6 +601,24 @@ impl Undo for NoteRemoved {
 }
 
 #[derive(Debug)]
+pub(crate) struct NoteGraveAdded(NoteID, Usn);
+
+impl Undo for NoteGraveAdded {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.remove_note_grave_for_undo(self.0, self.1)
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct NoteGraveRemoved(NoteID, Usn);
+
+impl Undo for NoteGraveRemoved {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.add_note_grave(self.0, self.1)
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct NoteUpdated(Note);
 
 impl Undo for NoteUpdated {
@@ -718,12 +745,20 @@ mod test {
         let assert_initial = |col: &mut Collection| -> Result<()> {
             assert_eq!(col.search_notes("")?.len(), 0);
             assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
+            assert_eq!(
+                col.storage.db_scalar::<u32>("select count() from graves")?,
+                0
+            );
             Ok(())
         };
 
         let assert_after_add = |col: &mut Collection| -> Result<()> {
             assert_eq!(col.search_notes("")?.len(), 1);
             assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 2);
+            assert_eq!(
+                col.storage.db_scalar::<u32>("select count() from graves")?,
+                0
+            );
             Ok(())
         };
 
@@ -742,6 +777,27 @@ mod test {
         assert_after_add(&mut col)?;
         col.undo()?;
         assert_initial(&mut col)?;
+
+        let assert_after_remove = |col: &mut Collection| -> Result<()> {
+            assert_eq!(col.search_notes("")?.len(), 0);
+            assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
+            // 1 note + 2 cards
+            assert_eq!(
+                col.storage.db_scalar::<u32>("select count() from graves")?,
+                3
+            );
+            Ok(())
+        };
+
+        col.redo()?;
+        assert_after_add(&mut col)?;
+        let nids = col.search_notes("")?;
+        col.remove_notes(&nids)?;
+        assert_after_remove(&mut col)?;
+        col.undo()?;
+        assert_after_add(&mut col)?;
+        col.redo()?;
+        assert_after_remove(&mut col)?;
 
         Ok(())
     }

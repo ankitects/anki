@@ -11,6 +11,7 @@ pub enum CollectionOp {
     Suspend,
     UnburyUnsuspend,
     AddNote,
+    RemoveNote,
 }
 
 impl Collection {
@@ -22,6 +23,7 @@ impl Collection {
             CollectionOp::Suspend => TR::StudyingSuspend,
             CollectionOp::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
             CollectionOp::AddNote => TR::UndoAddNote,
+            CollectionOp::RemoveNote => TR::StudyingDeleteNote,
         };
 
         self.i18n.tr(key).to_string()
