@@ -34,16 +34,13 @@ pub(super) struct QueueUpdateAfterUndoingAnswer {
 
 impl Undo for QueueUpdateAfterUndoingAnswer {
     fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
-        let timing = col.timing_today()?;
-        let queues = col.get_queues()?;
-        let mut modified_learning = None;
-        if let Some(learning) = self.learning_requeue {
-            modified_learning = Some(queues.requeue_learning_entry(learning, timing));
-        }
-        queues.pop_undo_entry(self.entry.card_id());
+        // don't try to update existing queue when redoing; just
+        // rebuild it instead
+        col.clear_study_queues();
+        // but preserve undo state for a subsequent undo
         col.save_undo(Box::new(QueueUpdateAfterAnsweringCard {
             entry: self.entry,
-            learning_requeue: modified_learning,
+            learning_requeue: self.learning_requeue,
         }));
 
         Ok(())

@@ -296,7 +296,7 @@ class Reviewer:
             ("-", self.bury_current_card),
             ("!", self.suspend_current_note),
             ("@", self.suspend_current_card),
-            ("Ctrl+Delete", self.onDelete),
+            ("Ctrl+Delete", self.delete_current_note),
             ("Ctrl+Shift+D", self.on_set_due),
             ("v", self.onReplayRecorded),
             ("Shift+v", self.onRecordVoice),
@@ -732,7 +732,7 @@ time = %(time)d;
             [tr(TR.ACTIONS_SET_DUE_DATE), "Ctrl+Shift+D", self.on_set_due],
             [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.suspend_current_card],
             [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.suspend_current_note],
-            [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.onDelete],
+            [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.delete_current_note],
             [tr(TR.ACTIONS_OPTIONS), "O", self.onOptions],
             None,
             [tr(TR.ACTIONS_REPLAY_AUDIO), "R", self.replayAudio],
@@ -828,12 +828,11 @@ time = %(time)d;
         self.mw.reset()
         tooltip(tr(TR.STUDYING_NOTE_BURIED))
 
-    def onDelete(self) -> None:
+    def delete_current_note(self) -> None:
         # need to check state because the shortcut is global to the main
         # window
         if self.mw.state != "review" or not self.card:
             return
-        self.mw.checkpoint(tr(TR.ACTIONS_DELETE))
         cnt = len(self.card.note().cards())
         self.mw.col.remove_notes([self.card.note().id])
         self.mw.reset()
@@ -858,3 +857,4 @@ time = %(time)d;
     onBuryNote = bury_current_note
     onSuspend = suspend_current_note
     onSuspendCard = suspend_current_card
+    onDelete = delete_current_note

@@ -121,7 +121,6 @@ service BackendService {
   rpc AnswerCard(AnswerCardIn) returns (Empty);
   rpc UpgradeScheduler(Empty) returns (Empty);
   rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
-  rpc ClearCardQueues(Empty) returns (Empty);
 
   // stats
 

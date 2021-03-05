@@ -69,8 +69,7 @@ impl Collection {
     }
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<()> {
-        self.transact(Some(CollectionOp::UnburyUnsuspend), |col| {
-            col.clear_study_queues();
+        self.transact(Some(UndoableOp::UnburyUnsuspend), |col| {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.unsuspend_or_unbury_searched_cards()
         })
@@ -127,11 +126,10 @@ impl Collection {
         mode: BuryOrSuspendMode,
     ) -> Result<()> {
         let op = match mode {
-            BuryOrSuspendMode::Suspend => CollectionOp::Suspend,
-            BuryOrSuspendMode::BurySched | BuryOrSuspendMode::BuryUser => CollectionOp::Bury,
+            BuryOrSuspendMode::Suspend => UndoableOp::Suspend,
+            BuryOrSuspendMode::BurySched | BuryOrSuspendMode::BuryUser => UndoableOp::Bury,
         };
         self.transact(Some(op), |col| {
-            col.clear_study_queues();
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.bury_or_suspend_searched_cards(mode)
         })

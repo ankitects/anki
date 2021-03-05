@@ -6,6 +6,7 @@ mod test {
     use crate::{
         card::{CardQueue, CardType},
         collection::open_test_collection,
+        deckconf::LeechAction,
         prelude::*,
         scheduler::answering::{CardAnswer, Rating},
     };
@@ -22,9 +23,10 @@ mod test {
         note.set_field(1, "two")?;
         col.add_note(&mut note, DeckID(1))?;
 
-        // turn burying on
+        // turn burying and leech suspension on
         let mut conf = col.storage.get_deck_config(DeckConfID(1))?.unwrap();
         conf.inner.bury_new = true;
+        conf.inner.leech_action = LeechAction::Suspend as i32;
         col.storage.update_deck_conf(&conf)?;
 
         // get the first card
@@ -95,6 +97,7 @@ mod test {
             let deck = col.get_deck(DeckID(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 1);
 
+            dbg!(&col.next_card()?);
             assert_eq!(col.next_card()?.is_some(), false);
 
             Ok(())
@@ -130,10 +133,8 @@ mod test {
         assert_post_review_state(&mut col)?;
         col.undo()?;
         assert_pre_review_state(&mut col)?;
-
         col.redo()?;
         assert_post_review_state(&mut col)?;
-
         col.undo()?;
         assert_pre_review_state(&mut col)?;
         col.undo()?;

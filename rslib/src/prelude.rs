@@ -3,7 +3,7 @@
 
 pub use crate::{
     card::{Card, CardID},
-    collection::{Collection, CollectionOp},
+    collection::Collection,
     deckconf::{DeckConf, DeckConfID},
     decks::{Deck, DeckID, DeckKind},
     err::{AnkiError, Result},
@@ -13,5 +13,6 @@ pub use crate::{
     revlog::RevlogID,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
+    undo::UndoableOp,
 };
 pub use slog::{debug, Logger};

@@ -705,13 +705,6 @@ impl BackendService for Backend {
         self.with_col(|col| col.get_queued_cards(input.fetch_limit, input.intraday_learning_only))
     }
 
-    fn clear_card_queues(&self, _input: pb::Empty) -> BackendResult<pb::Empty> {
-        self.with_col(|col| {
-            col.clear_study_queues();
-            Ok(().into())
-        })
-    }
-
     // statistics
     //-----------------------------------------------
 

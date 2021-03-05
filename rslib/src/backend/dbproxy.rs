@@ -105,8 +105,8 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
 
 fn maybe_clear_undo(col: &mut Collection, sql: &str) {
     if !is_dql(sql) {
-        println!("clearing undo due to {}", sql);
-        col.state.undo.clear();
+        println!("clearing undo+study due to {}", sql);
+        col.discard_undo_and_study_queues();
     }
 }
 

@@ -1027,6 +1027,7 @@ title="%s" %s>%s</button>""" % (
     def onUndo(self) -> None:
         reviewing = self.state == "review"
         result = self.col.undo()
+        just_refresh_reviewer = False
 
         if result is None:
             # should not happen
@@ -1037,24 +1038,22 @@ title="%s" %s>%s</button>""" % (
         elif isinstance(result, ReviewUndo):
             name = tr(TR.SCHEDULING_REVIEW)
 
-            # restore the undone card if reviewing
             if reviewing:
+                # push the undone card to the top of the queue
                 cid = result.card.id
                 card = self.col.getCard(cid)
                 self.reviewer.cardQueue.append(card)
-                self.reviewer.nextCard()
+
                 gui_hooks.review_did_undo(cid)
-                self.maybeEnableUndo()
-                return
+
+                just_refresh_reviewer = True
 
         elif isinstance(result, BackendUndo):
             name = result.name
 
-            # new scheduler takes care of rebuilding queue
             if reviewing and self.col.sched.is_2021:
-                self.reviewer.nextCard()
-                self.maybeEnableUndo()
-                return
+                # new scheduler will have taken care of updating queue
+                just_refresh_reviewer = True
 
         elif isinstance(result, Checkpoint):
             name = result.name
@@ -1063,8 +1062,13 @@ title="%s" %s>%s</button>""" % (
             assert_exhaustive(result)
             assert False
 
-        self.reset()
-        tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val=name))
+        if just_refresh_reviewer:
+            self.reviewer.nextCard()
+        else:
+            # full queue+gui reset required
+            self.reset()
+
+        tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
         gui_hooks.state_did_revert(name)
         self.maybeEnableUndo()
 

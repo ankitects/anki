@@ -56,7 +56,8 @@ class Scheduler:
     ##########################################################################
 
     def reset(self) -> None:
-        self.col._backend.clear_card_queues()
+        # backend automatically resets queues as operations are performed
+        pass
 
     def get_queued_cards(
         self,
