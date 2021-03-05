@@ -8,3 +8,4 @@ undo-redo-action = Redo { $action }
 undo-action-redone = { $action } Redone
 undo-answer-card = Answer Card
 undo-unbury-unsuspend = Unbury/Unsuspend
+undo-add-note = Add Note

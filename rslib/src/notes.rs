@@ -3,7 +3,7 @@
 
 use crate::{
     backend_proto as pb,
-    collection::Collection,
+    collection::{Collection, CollectionOp},
     decks::DeckID,
     define_newtype,
     err::{AnkiError, Result},
@@ -298,7 +298,7 @@ impl Collection {
     }
 
     pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
-        self.transact(None, |col| {
+        self.transact(Some(CollectionOp::AddNote), |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
@@ -319,7 +319,14 @@ impl Collection {
         note.prepare_for_update(&ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
         self.storage.add_note(note)?;
+        self.save_undo(Box::new(NoteAdded(note.clone())));
         self.generate_cards_for_new_note(ctx, note, did)
+    }
+
+    fn add_note_for_undo(&mut self, note: Note) -> Result<()> {
+        self.storage.add_or_update_note(&note)?;
+        self.save_undo(Box::new(NoteAdded(note)));
+        Ok(())
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
@@ -395,6 +402,12 @@ impl Collection {
             self.storage.remove_note(nid)?;
             self.storage.add_note_grave(nid, usn)?;
         }
+        Ok(())
+    }
+
+    fn remove_note_for_undo(&mut self, note: Note) -> Result<()> {
+        self.storage.remove_note(note.id)?;
+        self.save_undo(Box::new(NoteRemoved(note)));
         Ok(())
     }
 
@@ -561,6 +574,24 @@ fn note_modified(existing_note: &mut Note, note: &Note) -> bool {
 }
 
 #[derive(Debug)]
+pub(crate) struct NoteAdded(Note);
+
+impl Undo for NoteAdded {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.remove_note_for_undo(self.0)
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct NoteRemoved(Note);
+
+impl Undo for NoteRemoved {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.add_note_for_undo(self.0)
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct NoteUpdated(Note);
 
 impl Undo for NoteUpdated {
@@ -578,7 +609,7 @@ mod test {
     use super::{anki_base91, field_checksum};
     use crate::{
         collection::open_test_collection, config::ConfigKey, decks::DeckID, err::Result,
-        search::SortMode,
+        prelude::*, search::SortMode,
     };
 
     #[test]
@@ -673,6 +704,44 @@ mod test {
         assert_eq!(col.search_cards("\u{6f22}", SortMode::NoOrder)?.len(), 0);
         // but original characters will
         assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn undo() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col
+            .get_notetype_by_name("basic (and reversed card)")?
+            .unwrap();
+
+        let assert_initial = |col: &mut Collection| -> Result<()> {
+            assert_eq!(col.search_notes("")?.len(), 0);
+            assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
+            Ok(())
+        };
+
+        let assert_after_add = |col: &mut Collection| -> Result<()> {
+            assert_eq!(col.search_notes("")?.len(), 1);
+            assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 2);
+            Ok(())
+        };
+
+        assert_initial(&mut col)?;
+
+        let mut note = nt.new_note();
+        note.set_field(0, "a")?;
+        note.set_field(1, "b")?;
+
+        col.add_note(&mut note, DeckID(1)).unwrap();
+
+        assert_after_add(&mut col)?;
+        col.undo()?;
+        assert_initial(&mut col)?;
+        col.redo()?;
+        assert_after_add(&mut col)?;
+        col.undo()?;
+        assert_initial(&mut col)?;
 
         Ok(())
     }

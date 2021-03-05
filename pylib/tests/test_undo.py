@@ -38,7 +38,7 @@ def test_op():
     note["Front"] = "one"
     col.addNote(note)
     col.reset()
-    assert col.undoName() == "add"
+    assert "add" in col.undoName().lower()
     c = col.sched.getCard()
     col.sched.answerCard(c, 2)
     assert col.undoName() == "Review"
@@ -54,7 +54,6 @@ def test_review():
     note["Front"] = "two"
     col.addNote(note)
     col.reset()
-    assert not col.undoName()
     # answer
     assert col.sched.counts() == (2, 0, 0)
     c = col.sched.getCard()
