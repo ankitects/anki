@@ -23,13 +23,6 @@ enum GraveKind {
 }
 
 impl SqliteStorage {
-    fn add_grave(&self, oid: i64, kind: GraveKind, usn: Usn) -> Result<()> {
-        self.db
-            .prepare_cached(include_str!("add.sql"))?
-            .execute(params![usn, oid, kind as u8])?;
-        Ok(())
-    }
-
     pub(crate) fn clear_all_graves(&self) -> Result<()> {
         self.db.execute("delete from graves", NO_PARAMS)?;
         Ok(())
@@ -45,6 +38,14 @@ impl SqliteStorage {
 
     pub(crate) fn add_deck_grave(&self, did: DeckID, usn: Usn) -> Result<()> {
         self.add_grave(did.0, GraveKind::Deck, usn)
+    }
+
+    pub(crate) fn remove_card_grave(&self, cid: CardID) -> Result<()> {
+        self.remove_grave(cid.0, GraveKind::Card)
+    }
+
+    pub(crate) fn remove_note_grave(&self, nid: NoteID) -> Result<()> {
+        self.remove_grave(nid.0, GraveKind::Note)
     }
 
     pub(crate) fn pending_graves(&self, pending_usn: Usn) -> Result<Graves> {
@@ -72,6 +73,21 @@ impl SqliteStorage {
         self.db
             .prepare("update graves set usn=? where usn=-1")?
             .execute(&[new_usn])?;
+        Ok(())
+    }
+
+    fn add_grave(&self, oid: i64, kind: GraveKind, usn: Usn) -> Result<()> {
+        self.db
+            .prepare_cached(include_str!("add.sql"))?
+            .execute(params![usn, oid, kind as u8])?;
+        Ok(())
+    }
+
+    /// Only useful when undoing
+    fn remove_grave(&self, oid: i64, kind: GraveKind) -> Result<()> {
+        self.db
+            .prepare_cached(include_str!("remove.sql"))?
+            .execute(params![oid, kind as u8])?;
         Ok(())
     }
 }

@@ -143,6 +143,24 @@ impl Undo for CardRemoved {
 }
 
 #[derive(Debug)]
+pub(crate) struct CardGraveAdded(CardID, Usn);
+
+impl Undo for CardGraveAdded {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.remove_card_grave_for_undo(self.0, self.1)
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct CardGraveRemoved(CardID, Usn);
+
+impl Undo for CardGraveRemoved {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.add_card_grave(self.0, self.1)
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct CardUpdated(Card);
 
 impl Undo for CardUpdated {
@@ -222,10 +240,8 @@ impl Collection {
         let mut nids = HashSet::new();
         for cid in cids {
             if let Some(card) = self.storage.get_card(*cid)? {
-                // fixme: undo
                 nids.insert(card.note_id);
-                self.storage.remove_card(*cid)?;
-                self.storage.add_card_grave(*cid, usn)?;
+                self.remove_card_only(card, usn)?;
             }
         }
         for nid in nids {
@@ -238,8 +254,8 @@ impl Collection {
     }
 
     pub(crate) fn remove_card_only(&mut self, card: Card, usn: Usn) -> Result<()> {
+        self.add_card_grave(card.id, usn)?;
         self.storage.remove_card(card.id)?;
-        self.storage.add_card_grave(card.id, usn)?;
         self.save_undo(Box::new(CardRemoved(card)));
 
         Ok(())
@@ -250,6 +266,16 @@ impl Collection {
         self.storage.remove_card(card.id)?;
         self.save_undo(Box::new(CardRemoved(card)));
         Ok(())
+    }
+
+    fn add_card_grave(&mut self, cid: CardID, usn: Usn) -> Result<()> {
+        self.save_undo(Box::new(CardGraveAdded(cid, usn)));
+        self.storage.add_card_grave(cid, usn)
+    }
+
+    fn remove_card_grave_for_undo(&mut self, cid: CardID, usn: Usn) -> Result<()> {
+        self.save_undo(Box::new(CardGraveRemoved(cid, usn)));
+        self.storage.remove_card_grave(cid)
     }
 
     pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<()> {
