@@ -123,6 +123,25 @@ impl Card {
         matches!(self.queue, CardQueue::Learn | CardQueue::PreviewRepeat)
     }
 }
+
+#[derive(Debug)]
+pub(crate) struct CardAdded(Card);
+
+impl Undo for CardAdded {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.remove_card_for_undo(self.0)
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct CardRemoved(Card);
+
+impl Undo for CardRemoved {
+    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+        col.add_card_for_undo(self.0)
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct CardUpdated(Card);
 
@@ -184,7 +203,16 @@ impl Collection {
         }
         card.mtime = TimestampSecs::now();
         card.usn = self.usn()?;
-        self.storage.add_card(card)
+        self.storage.add_card(card)?;
+        self.save_undo(Box::new(CardAdded(card.clone())));
+        Ok(())
+    }
+
+    /// Used for undoing
+    fn add_card_for_undo(&mut self, card: Card) -> Result<()> {
+        self.storage.add_or_update_card(&card)?;
+        self.save_undo(Box::new(CardAdded(card)));
+        Ok(())
     }
 
     /// Remove cards and any resulting orphaned notes.
@@ -210,10 +238,17 @@ impl Collection {
     }
 
     pub(crate) fn remove_card_only(&mut self, card: Card, usn: Usn) -> Result<()> {
-        // fixme: undo
         self.storage.remove_card(card.id)?;
         self.storage.add_card_grave(card.id, usn)?;
+        self.save_undo(Box::new(CardRemoved(card)));
 
+        Ok(())
+    }
+
+    /// Only used when undoing; does not add a grave.
+    fn remove_card_for_undo(&mut self, card: Card) -> Result<()> {
+        self.storage.remove_card(card.id)?;
+        self.save_undo(Box::new(CardRemoved(card)));
         Ok(())
     }
 

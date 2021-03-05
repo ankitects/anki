@@ -178,7 +178,6 @@ class AddCards(QDialog):
                 if not askUser(tr(TR.ADDING_YOU_HAVE_A_CLOZE_DELETION_NOTE)):
                     return None
         self.mw.col.add_note(note, self.deckChooser.selectedId())
-        self.mw.col.clear_python_undo()
         self.addHistory(note)
         self.previousNote = note
         self.mw.requireReset(reason=ResetReason.AddCardsAddNote, context=self)

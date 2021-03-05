@@ -10,6 +10,7 @@ pub enum CollectionOp {
     Bury,
     Suspend,
     UnburyUnsuspend,
+    AddNote,
 }
 
 impl Collection {
@@ -20,6 +21,7 @@ impl Collection {
             CollectionOp::Bury => TR::StudyingBury,
             CollectionOp::Suspend => TR::StudyingSuspend,
             CollectionOp::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
+            CollectionOp::AddNote => TR::UndoAddNote,
         };
 
         self.i18n.tr(key).to_string()
