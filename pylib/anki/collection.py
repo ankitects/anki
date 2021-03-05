@@ -322,8 +322,15 @@ class Collection:
     def getCard(self, id: int) -> Card:
         return Card(self, id)
 
-    def getNote(self, id: int) -> Note:
+    def get_note(self, id: int) -> Note:
         return Note(self, id=id)
+
+    def update_note(self, note: Note) -> None:
+        """Save note changes to database, and add an undo entry.
+        Unlike note.flush(), this will invalidate any current checkpoint."""
+        self._backend.update_note(note=note.to_backend_note(), skip_undo_entry=False)
+
+    getNote = get_note
 
     # Utils
     ##########################################################################
@@ -789,7 +796,7 @@ table.review-log {{ {revlog_style} }}
         if not isinstance(self._undo, _ReviewsUndo):
             self._undo = _ReviewsUndo()
 
-        was_leech = card.note().hasTag("leech")
+        was_leech = card.note().has_tag("leech")
         entry = ReviewUndo(card=copy.copy(card), was_leech=was_leech)
         self._undo.entries.append(entry)
 
@@ -824,8 +831,8 @@ table.review-log {{ {revlog_style} }}
         card = entry.card
 
         # remove leech tag if it didn't have it before
-        if not entry.was_leech and card.note().hasTag("leech"):
-            card.note().delTag("leech")
+        if not entry.was_leech and card.note().has_tag("leech"):
+            card.note().remove_tag("leech")
             card.note().flush()
 
         # write old data

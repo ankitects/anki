@@ -141,7 +141,7 @@ class Card:
 
     def note(self, reload: bool = False) -> Note:
         if not self._note or reload:
-            self._note = self.col.getNote(self.nid)
+            self._note = self.col.get_note(self.nid)
         return self._note
 
     def note_type(self) -> NoteType:

@@ -204,8 +204,8 @@ class Reviewer:
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
         self.web.eval(f"_showQuestion({json.dumps(q)},'{bodyclass}');")
-        self._drawFlag()
-        self._drawMark()
+        self._update_flag_icon()
+        self._update_mark_icon()
         self._showAnswerButton()
         self.mw.web.setFocus()
         # user hook
@@ -215,11 +215,14 @@ class Reviewer:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
         return card.autoplay()
 
-    def _drawFlag(self) -> None:
+    def _update_flag_icon(self) -> None:
         self.web.eval(f"_drawFlag({self.card.userFlag()});")
 
-    def _drawMark(self) -> None:
-        self.web.eval(f"_drawMark({json.dumps(self.card.note().hasTag('marked'))});")
+    def _update_mark_icon(self) -> None:
+        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag('marked'))});")
+
+    _drawMark = _update_mark_icon
+    _drawFlag = _update_flag_icon
 
     # Showing the answer
     ##########################################################################
@@ -291,7 +294,7 @@ class Reviewer:
             ("Ctrl+2", lambda: self.setFlag(2)),
             ("Ctrl+3", lambda: self.setFlag(3)),
             ("Ctrl+4", lambda: self.setFlag(4)),
-            ("*", self.onMark),
+            ("*", self.toggle_mark_on_current_note),
             ("=", self.bury_current_note),
             ("-", self.bury_current_card),
             ("!", self.suspend_current_note),
@@ -726,7 +729,7 @@ time = %(time)d;
                     ],
                 ],
             ],
-            [tr(TR.STUDYING_MARK_NOTE), "*", self.onMark],
+            [tr(TR.STUDYING_MARK_NOTE), "*", self.toggle_mark_on_current_note],
             [tr(TR.STUDYING_BURY_CARD), "-", self.bury_current_card],
             [tr(TR.STUDYING_BURY_NOTE), "=", self.bury_current_note],
             [tr(TR.ACTIONS_SET_DUE_DATE), "Ctrl+Shift+D", self.on_set_due],
@@ -785,16 +788,17 @@ time = %(time)d;
             flag = 0
         self.card.setUserFlag(flag)
         self.card.flush()
-        self._drawFlag()
+        self._update_flag_icon()
 
-    def onMark(self) -> None:
-        f = self.card.note()
-        if f.hasTag("marked"):
-            f.delTag("marked")
+    def toggle_mark_on_current_note(self) -> None:
+        note = self.card.note()
+        if note.has_tag("marked"):
+            note.remove_tag("marked")
         else:
-            f.addTag("marked")
-        f.flush()
-        self._drawMark()
+            note.add_tag("marked")
+        self.mw.col.update_note(note)
+        self._update_mark_icon()
+        self.mw.update_undo_actions()
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:
@@ -858,3 +862,4 @@ time = %(time)d;
     onSuspend = suspend_current_note
     onSuspendCard = suspend_current_card
     onDelete = delete_current_note
+    onMark = toggle_mark_on_current_note

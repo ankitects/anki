@@ -171,7 +171,7 @@ service BackendService {
 
   rpc NewNote(NoteTypeID) returns (Note);
   rpc AddNote(AddNoteIn) returns (NoteID);
-  rpc UpdateNote(Note) returns (Empty);
+  rpc UpdateNote(UpdateNoteIn) returns (Empty);
   rpc GetNote(NoteID) returns (Note);
   rpc RemoveNotes(RemoveNotesIn) returns (Empty);
   rpc AddNoteTags(AddNoteTagsIn) returns (UInt32);
@@ -946,6 +946,11 @@ message AddOrUpdateNotetypeIn {
 message AddNoteIn {
   Note note = 1;
   int64 deck_id = 2;
+}
+
+message UpdateNoteIn {
+  Note note = 1;
+  bool skip_undo_entry = 2;
 }
 
 message EmptyCardsReport {

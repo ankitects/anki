@@ -330,13 +330,21 @@ impl Collection {
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
+        self.update_note_with_op(note, Some(UndoableOp::UpdateNote))
+    }
+
+    pub(crate) fn update_note_with_op(
+        &mut self,
+        note: &mut Note,
+        op: Option<UndoableOp>,
+    ) -> Result<()> {
         let mut existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
         if !note_modified(&mut existing_note, note) {
             // nothing to do
             return Ok(());
         }
 
-        self.transact(None, |col| {
+        self.transact(op, |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;

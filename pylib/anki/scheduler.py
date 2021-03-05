@@ -411,7 +411,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
     def buryNote(self, nid: int) -> None:
-        note = self.col.getNote(nid)
+        note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 
     def unburyCards(self) -> None:

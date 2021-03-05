@@ -606,7 +606,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
             f = card.note()
-            f.addTag("leech")
+            f.add_tag("leech")
             f.flush()
             # handle
             a = conf["leechAction"]

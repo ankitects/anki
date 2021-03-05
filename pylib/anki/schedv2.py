@@ -1078,7 +1078,7 @@ limit ?"""
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
             f = card.note()
-            f.addTag("leech")
+            f.add_tag("leech")
             f.flush()
             # handle
             a = conf["leechAction"]
@@ -1323,7 +1323,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
     def buryNote(self, nid: int) -> None:
-        note = self.col.getNote(nid)
+        note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 
     def unburyCards(self) -> None:
