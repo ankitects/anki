@@ -490,8 +490,11 @@ class Browser(QMainWindow):
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
-        qconnect(f.actionAdd_Tags.triggered, lambda: self.addTags())
-        qconnect(f.actionRemove_Tags.triggered, lambda: self.deleteTags())
+        qconnect(f.actionAdd_Tags.triggered, lambda: self.add_tags_to_selected_notes())
+        qconnect(
+            f.actionRemove_Tags.triggered,
+            lambda: self.remove_tags_from_selected_notes(),
+        )
         qconnect(f.actionClear_Unused_Tags.triggered, self.clearUnusedTags)
         qconnect(f.actionToggle_Mark.triggered, lambda: self.onMark())
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
@@ -1193,52 +1196,45 @@ where id in %s"""
     # Tags
     ######################################################################
 
-    def addTags(
+    def add_tags_to_selected_notes(
         self,
         tags: Optional[str] = None,
-        label: Optional[str] = None,
-        prompt: Optional[str] = None,
-        func: Optional[Callable] = None,
     ) -> None:
-        self.editor.saveNow(lambda: self._addTags(tags, label, prompt, func))
+        "Shows prompt if tags not provided."
+        self.editor.saveNow(
+            lambda: self._update_tags_of_selected_notes(
+                func=self.col.tags.bulk_add,
+                tags=tags,
+                prompt=tr(TR.BROWSING_ENTER_TAGS_TO_ADD),
+            )
+        )
 
-    def _addTags(
+    def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
+        "Shows prompt if tags not provided."
+        self.editor.saveNow(
+            lambda: self._update_tags_of_selected_notes(
+                func=self.col.tags.bulk_remove,
+                tags=tags,
+                prompt=tr(TR.BROWSING_ENTER_TAGS_TO_DELETE),
+            )
+        )
+
+    def _update_tags_of_selected_notes(
         self,
+        func: Callable[[List[int], str], int],
         tags: Optional[str],
-        label: Optional[str],
         prompt: Optional[str],
-        func: Optional[Callable],
     ) -> None:
-        if prompt is None:
-            prompt = tr(TR.BROWSING_ENTER_TAGS_TO_ADD)
+        "If tags provided, prompt skipped. If tags not provided, prompt must be."
         if tags is None:
-            (tags, r) = getTag(self, self.col, prompt)
-        else:
-            r = True
-        if not r:
-            return
-        if func is None:
-            func = self.col.tags.bulkAdd
-        if label is None:
-            label = tr(TR.BROWSING_ADD_TAGS)
-        if label:
-            self.mw.checkpoint(label)
+            (tags, ok) = getTag(self, self.col, prompt)
+            if not ok:
+                return
+
         self.model.beginReset()
         func(self.selectedNotes(), tags)
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-
-    def deleteTags(
-        self, tags: Optional[str] = None, label: Optional[str] = None
-    ) -> None:
-        if label is None:
-            label = tr(TR.BROWSING_DELETE_TAGS)
-        self.addTags(
-            tags,
-            label,
-            tr(TR.BROWSING_ENTER_TAGS_TO_DELETE),
-            func=self.col.tags.bulkRem,
-        )
 
     def clearUnusedTags(self) -> None:
         self.editor.saveNow(self._clearUnusedTags)
@@ -1249,6 +1245,9 @@ where id in %s"""
             self.on_tag_list_update()
 
         self.mw.taskman.run_in_background(self.col.tags.registerNotes, on_done)
+
+    addTags = add_tags_to_selected_notes
+    deleteTags = remove_tags_from_selected_notes
 
     # Suspending
     ######################################################################
@@ -1313,9 +1312,9 @@ where id in %s"""
         if mark is None:
             mark = not self.isMarked()
         if mark:
-            self.addTags(tags="marked")
+            self.add_tags_to_selected_notes(tags="marked")
         else:
-            self.deleteTags(tags="marked")
+            self.remove_tags_from_selected_notes(tags="marked")
 
     def isMarked(self) -> bool:
         return bool(self.card and self.card.note().hasTag("Marked"))
@@ -1643,7 +1642,7 @@ where id in %s"""
         nids = set()
         for _, nidlist in res:
             nids.update(nidlist)
-        self.col.tags.bulkAdd(list(nids), tr(TR.BROWSING_DUPLICATE))
+        self.col.tags.bulk_add(list(nids), tr(TR.BROWSING_DUPLICATE))
         self.mw.progress.finish()
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
