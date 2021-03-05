@@ -22,7 +22,7 @@ def test_op():
     # it should be listed as undoable
     assert col.undoName() == "studyopts"
     # with about 5 minutes until it's clobbered
-    assert time.time() - col._lastSave < 1
+    assert time.time() - col._last_checkpoint_at < 1
     # undoing should restore the old value
     col.undo()
     assert not col.undoName()

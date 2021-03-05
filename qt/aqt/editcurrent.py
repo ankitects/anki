@@ -10,7 +10,7 @@ from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, t
 class EditCurrent(QDialog):
     def __init__(self, mw: aqt.AnkiQt) -> None:
         QDialog.__init__(self, None, Qt.Window)
-        mw.setupDialogGC(self)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)

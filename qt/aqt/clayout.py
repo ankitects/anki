@@ -47,7 +47,7 @@ class CardLayout(QDialog):
         fill_empty: bool = False,
     ) -> None:
         QDialog.__init__(self, parent or mw, Qt.Window)
-        mw.setupDialogGC(self)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = aqt.mw
         self.note = note
         self.ord = ord

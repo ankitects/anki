@@ -575,7 +575,7 @@ class Browser(QMainWindow):
         self.mw.maybeReset()
         aqt.dialogs.markClosed("Browser")
         self._closeEventHasCleanedUp = True
-        self.mw.gcWindow(self)
+        self.mw.deferred_delete_and_garbage_collect(self)
         self.close()
 
     def closeWithCallback(self, onsuccess: Callable) -> None:
@@ -1556,7 +1556,7 @@ where id in %s"""
 
     def _onFindDupes(self) -> None:
         d = QDialog(self)
-        self.mw.setupDialogGC(d)
+        self.mw.garbage_collect_on_dialog_finish(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")

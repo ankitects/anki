@@ -90,9 +90,6 @@ class Collection:
         self.path = os.path.abspath(path)
         self.reopen()
 
-        self.log(self.path, anki.version)
-        self._lastSave = time.time()
-        self._undo: _UndoInfo = None
         self.media = MediaManager(self, server)
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
@@ -230,15 +227,18 @@ class Collection:
         # to check if the backend updated the modification time.
         return self.db.last_begin_at != self.mod
 
-    def save(
-        self, name: Optional[str] = None, mod: Optional[int] = None, trx: bool = True
-    ) -> None:
+    def save(self, name: Optional[str] = None, trx: bool = True) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
         # commit needed?
-        if self.db.mod or self.modified_after_begin():
-            self.mod = intTime(1000) if mod is None else mod
+        if self.db.modified_in_python or self.modified_after_begin():
+            if self.db.modified_in_python:
+                self.db.execute("update col set mod = ?", intTime(1000))
+                self.db.modified_in_python = False
+            else:
+                # modifications made by the backend will have already bumped
+                # mtime
+                pass
             self.db.commit()
-            self.db.mod = False
             if trx:
                 self.db.begin()
         elif not trx:
@@ -247,14 +247,15 @@ class Collection:
             self.db.rollback()
 
         self._save_checkpoint(name)
-        self._lastSave = time.time()
 
-    def autosave(self) -> Optional[bool]:
-        "Save if 5 minutes has passed since last save. True if saved."
-        if time.time() - self._lastSave > 300:
+    def autosave(self) -> None:
+        """Save any pending changes.
+        If a checkpoint was taken in the last 5 minutes, don't save."""
+        if not self._have_outstanding_checkpoint():
+            # if there's no active checkpoint, we can save immediately
             self.save()
-            return True
-        return None
+        elif time.time() - self._last_checkpoint_at > 300:
+            self.save()
 
     def close(self, save: bool = True, downgrade: bool = False) -> None:
         "Disconnect from DB."
@@ -289,6 +290,9 @@ class Collection:
     def reopen(self, after_full_sync: bool = False) -> None:
         assert not self.db
         assert self.path.endswith(".anki2")
+
+        self._last_checkpoint_at = time.time()
+        self._undo: _UndoInfo = None
 
         (media_dir, media_db) = media_paths_from_col_path(self.path)
 
@@ -355,6 +359,7 @@ class Collection:
 
     def reset(self) -> None:
         "Rebuild the queue and reload data after DB modified."
+        self.autosave()
         self.sched.reset()
 
     # Deletion logging
@@ -752,17 +757,16 @@ table.review-log {{ {revlog_style} }}
     def undo_status(self) -> UndoStatus:
         "Return the undo status. At the moment, redo is not supported."
         # check backend first
-        status = self._backend.get_undo_status()
-        if status.undo or status.redo:
+        if status := self._check_backend_undo_status():
             return status
 
         if not self._undo:
-            return status
+            return UndoStatus()
 
         if isinstance(self._undo, _ReviewsUndo):
-            status.undo = self.tr(TR.SCHEDULING_REVIEW)
+            return UndoStatus(undo=self.tr(TR.SCHEDULING_REVIEW))
         elif isinstance(self._undo, Checkpoint):
-            status.undo = self._undo.name
+            return UndoStatus(undo=self._undo.name)
         else:
             assert_exhaustive(self._undo)
             assert False
@@ -796,6 +800,16 @@ table.review-log {{ {revlog_style} }}
             assert_exhaustive(self._undo)
             assert False
 
+    def _check_backend_undo_status(self) -> Optional[UndoStatus]:
+        """Return undo status if undo available on backend.
+        If backend has undo available, clear the Python undo state."""
+        status = self._backend.get_undo_status()
+        if status.undo or status.redo:
+            self.clear_python_undo()
+            return status
+        else:
+            return None
+
     def save_card_review_undo_info(self, card: Card) -> None:
         "Used by V1 and V2 schedulers to record state prior to review."
         if not isinstance(self._undo, _ReviewsUndo):
@@ -804,6 +818,10 @@ table.review-log {{ {revlog_style} }}
         was_leech = card.note().hasTag("leech")
         entry = ReviewUndo(card=copy.copy(card), was_leech=was_leech)
         self._undo.entries.append(entry)
+
+    def _have_outstanding_checkpoint(self) -> bool:
+        self._check_backend_undo_status()
+        return isinstance(self._undo, Checkpoint)
 
     def _undo_checkpoint(self) -> Checkpoint:
         assert isinstance(self._undo, Checkpoint)
@@ -814,6 +832,7 @@ table.review-log {{ {revlog_style} }}
 
     def _save_checkpoint(self, name: Optional[str]) -> None:
         "Call via .save(). If name not provided, clear any existing checkpoint."
+        self._last_checkpoint_at = time.time()
         if name:
             self._undo = Checkpoint(name=name)
         else:

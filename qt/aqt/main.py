@@ -148,7 +148,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self) -> None:
         self.col = None
         self.setupCrashLog()
-        self.disableGC()
+        self.disable_automatic_garbage_collection()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -1090,10 +1090,8 @@ title="%s" %s>%s</button>""" % (
         self.maybeEnableUndo()
 
     def autosave(self) -> None:
-        saved = self.col.autosave()
+        self.col.autosave()
         self.maybeEnableUndo()
-        if saved:
-            self.doGC()
 
     # Other menu operations
     ##########################################################################
@@ -1256,6 +1254,8 @@ title="%s" %s>%s</button>""" % (
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
         # check media sync every 5 minutes
         self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
+        # periodic garbage collection
+        self.progress.timer(15 * 60 * 1000, self.garbage_collect_now, False)
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
         self.progress.timer(1000, lambda: None, True, False)
@@ -1621,21 +1621,38 @@ title="%s" %s>%s</button>""" % (
 
     # GC
     ##########################################################################
-    # ensure gc runs in main thread
+    # The default Python garbage collection can trigger on any thread. This can
+    # cause crashes if Qt objects are garbage-collected, as Qt expects access
+    # only on the main thread. So Anki disables the default GC on startup, and
+    # instead runs it on a timer, and after dialog close.
+    # The gc after dialog close is necessary to free up the memory and extra
+    # processes that webviews spawn, as a lot of the GUI code creates ref cycles.
 
-    def setupDialogGC(self, obj: Any) -> None:
-        qconnect(obj.finished, lambda: self.gcWindow(obj))
+    def garbage_collect_on_dialog_finish(self, dialog: QDialog) -> None:
+        qconnect(
+            dialog.finished, lambda: self.deferred_delete_and_garbage_collect(dialog)
+        )
 
-    def gcWindow(self, obj: Any) -> None:
+    def deferred_delete_and_garbage_collect(self, obj: QObject) -> None:
         obj.deleteLater()
-        self.progress.timer(1000, self.doGC, False, requiresCollection=False)
+        self.progress.timer(
+            1000, self.garbage_collect_now, False, requiresCollection=False
+        )
 
-    def disableGC(self) -> None:
+    def disable_automatic_garbage_collection(self) -> None:
         gc.collect()
         gc.disable()
 
-    def doGC(self) -> None:
+    def garbage_collect_now(self) -> None:
+        # gc.collect() has optional arguments that will cause problems if
+        # it's passed directly to a QTimer, and pylint complains if we
+        # wrap it in a lambda, so we use this trivial wrapper
         gc.collect()
+
+    # legacy aliases
+
+    setupDialogGC = garbage_collect_on_dialog_finish
+    gcWindow = deferred_delete_and_garbage_collect
 
     # Crash log
     ##########################################################################
