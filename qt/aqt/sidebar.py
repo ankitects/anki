@@ -1103,9 +1103,9 @@ class SidebarTreeView(QTreeView):
             return
 
         menu.addSeparator()
-        if any(not item.expanded for item in selected_items):
+        if any(not item.expanded for item in selected_items if item.children):
             menu.addAction(tr(TR.BROWSING_SIDEBAR_EXPAND), lambda: set_expanded(True))
-        if any(item.expanded for item in selected_items):
+        if any(item.expanded for item in selected_items if item.children):
             menu.addAction(
                 tr(TR.BROWSING_SIDEBAR_COLLAPSE), lambda: set_expanded(False)
             )
