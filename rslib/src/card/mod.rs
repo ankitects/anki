@@ -183,7 +183,7 @@ impl Collection {
         }
         for nid in nids {
             if self.storage.note_is_orphaned(nid)? {
-                self.remove_note_only(nid, usn)?;
+                self.remove_note_only_undoable(nid, usn)?;
             }
         }
 

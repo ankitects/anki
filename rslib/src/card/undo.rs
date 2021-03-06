@@ -8,7 +8,7 @@ use crate::prelude::*;
 pub(crate) struct CardAdded(Card);
 
 impl Undo for CardAdded {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
         col.remove_card_only(self.0)
     }
 }
@@ -17,7 +17,7 @@ impl Undo for CardAdded {
 pub(crate) struct CardRemoved(Card);
 
 impl Undo for CardRemoved {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
         col.readd_deleted_card(self.0)
     }
 }
@@ -26,7 +26,7 @@ impl Undo for CardRemoved {
 pub(crate) struct CardGraveAdded(CardID, Usn);
 
 impl Undo for CardGraveAdded {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
         col.remove_card_grave(self.0, self.1)
     }
 }
@@ -35,7 +35,7 @@ impl Undo for CardGraveAdded {
 pub(crate) struct CardGraveRemoved(CardID, Usn);
 
 impl Undo for CardGraveRemoved {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
         col.add_card_grave_undoable(self.0, self.1)
     }
 }
@@ -44,7 +44,7 @@ impl Undo for CardGraveRemoved {
 pub(crate) struct CardUpdated(Card);
 
 impl Undo for CardUpdated {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
+    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
         let current = col
             .storage
             .get_card(self.0.id)?

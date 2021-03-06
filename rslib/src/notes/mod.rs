@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod undo;
+
+use crate::backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState;
 use crate::{
     backend_proto as pb,
     decks::DeckID,
@@ -13,7 +16,6 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
-use crate::{backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState, undo::Undo};
 use itertools::Itertools;
 use num_integer::Integer;
 use regex::{Regex, Replacer};
@@ -318,15 +320,8 @@ impl Collection {
         self.canonify_note_tags(note, ctx.usn)?;
         note.prepare_for_update(&ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
-        self.storage.add_note(note)?;
-        self.save_undo(Box::new(NoteAdded(note.clone())));
+        self.add_note_only_undoable(note)?;
         self.generate_cards_for_new_note(ctx, note, did)
-    }
-
-    fn add_note_for_undo(&mut self, note: Note) -> Result<()> {
-        self.storage.add_or_update_note(&note)?;
-        self.save_undo(Box::new(NoteAdded(note)));
-        Ok(())
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
@@ -387,46 +382,7 @@ impl Collection {
         if mark_note_modified {
             note.set_modified(usn);
         }
-        self.update_note_inner_undo_only(note, original)
-    }
-
-    /// Saves in the undo queue, and commits to DB.
-    /// No validation, card generation or normalization is done.
-    pub(crate) fn update_note_inner_undo_only(
-        &mut self,
-        note: &mut Note,
-        original: &Note,
-    ) -> Result<()> {
-        self.save_undo(Box::new(NoteUpdated(original.clone())));
-        self.storage.update_note(note)?;
-
-        Ok(())
-    }
-
-    /// Remove a note. Cards must already have been deleted.
-    pub(crate) fn remove_note_only(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
-        if let Some(note) = self.storage.get_note(nid)? {
-            self.save_undo(Box::new(NoteRemoved(note)));
-            self.storage.remove_note(nid)?;
-            self.add_note_grave(nid, usn)?;
-        }
-        Ok(())
-    }
-
-    fn add_note_grave(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
-        self.save_undo(Box::new(NoteGraveAdded(nid, usn)));
-        self.storage.add_note_grave(nid, usn)
-    }
-
-    fn remove_note_grave_for_undo(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
-        self.save_undo(Box::new(NoteGraveRemoved(nid, usn)));
-        self.storage.remove_note_grave(nid)
-    }
-
-    fn remove_note_for_undo(&mut self, note: Note) -> Result<()> {
-        self.storage.remove_note(note.id)?;
-        self.save_undo(Box::new(NoteRemoved(note)));
-        Ok(())
+        self.update_note_undoable(note, original)
     }
 
     /// Remove provided notes, and any cards that use them.
@@ -439,7 +395,7 @@ impl Collection {
                     for card in col.storage.all_cards_of_note(nid)? {
                         col.remove_card_and_add_grave_undoable(card, usn)?;
                     }
-                    col.remove_note_only(nid, usn)?;
+                    col.remove_note_only_undoable(nid, usn)?;
                 }
             }
 
@@ -588,55 +544,6 @@ fn note_modified(existing_note: &mut Note, note: &Note) -> bool {
     existing_note.sort_field = sort_field;
     existing_note.checksum = checksum;
     notes_differ
-}
-
-#[derive(Debug)]
-pub(crate) struct NoteAdded(Note);
-
-impl Undo for NoteAdded {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
-        col.remove_note_for_undo(self.0)
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct NoteRemoved(Note);
-
-impl Undo for NoteRemoved {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
-        col.add_note_for_undo(self.0)
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct NoteGraveAdded(NoteID, Usn);
-
-impl Undo for NoteGraveAdded {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
-        col.remove_note_grave_for_undo(self.0, self.1)
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct NoteGraveRemoved(NoteID, Usn);
-
-impl Undo for NoteGraveRemoved {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
-        col.add_note_grave(self.0, self.1)
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct NoteUpdated(Note);
-
-impl Undo for NoteUpdated {
-    fn undo(self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
-        let current = col
-            .storage
-            .get_note(self.0.id)?
-            .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
-        col.update_note_inner_undo_only(&mut self.0.clone(), &current)
-    }
 }
 
 #[cfg(test)]
