@@ -449,7 +449,7 @@ class Editor:
             self.note.fields[ord] = self.mungeHTML(txt)
 
             if not self.addMode:
-                self.note.flush()
+                self._save_current_note()
                 self.mw.requireReset(reason=ResetReason.EditorBridgeCmd, context=self)
             if type == "blur":
                 self.currentField = None
@@ -542,6 +542,10 @@ class Editor:
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(js, oncallback)
 
+    def _save_current_note(self) -> None:
+        "Call after note is updated with data from webview."
+        self.mw.col.update_note(self.note)
+
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
@@ -633,7 +637,7 @@ class Editor:
                 )
         self.note.fields[field] = html
         if not self.addMode:
-            self.note.flush()
+            self._save_current_note()
         self.loadNote(focusTo=field)
         saveGeom(d, "htmlEditor")
 
@@ -673,7 +677,7 @@ class Editor:
             return
         self.note.tags = self.mw.col.tags.split(self.tags.text())
         if not self.addMode:
-            self.note.flush()
+            self._save_current_note()
         gui_hooks.editor_did_update_tags(self.note)
 
     def saveAddModeVars(self) -> None:
