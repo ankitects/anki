@@ -14,9 +14,10 @@ use std::collections::VecDeque;
 const UNDO_LIMIT: usize = 30;
 
 #[derive(Debug)]
-struct UndoableOp {
-    kind: UndoableOpKind,
-    changes: Vec<UndoableChange>,
+pub(crate) struct UndoableOp {
+    pub kind: UndoableOpKind,
+    pub timestamp: TimestampSecs,
+    pub changes: Vec<UndoableChange>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -61,17 +62,20 @@ impl UndoManager {
         }
         self.current_step = op.map(|op| UndoableOp {
             kind: op,
+            timestamp: TimestampSecs::now(),
             changes: vec![],
         });
     }
 
     fn end_step(&mut self) {
         if let Some(step) = self.current_step.take() {
-            if self.mode == UndoMode::Undoing {
-                self.redo_steps.push(step);
-            } else {
-                self.undo_steps.truncate(UNDO_LIMIT - 1);
-                self.undo_steps.push_front(step);
+            if !step.changes.is_empty() {
+                if self.mode == UndoMode::Undoing {
+                    self.redo_steps.push(step);
+                } else {
+                    self.undo_steps.truncate(UNDO_LIMIT - 1);
+                    self.undo_steps.push_front(step);
+                }
             }
         }
         println!("ended, undo steps count now {}", self.undo_steps.len());
@@ -90,6 +94,10 @@ impl UndoManager {
 
     fn can_redo(&self) -> Option<UndoableOpKind> {
         self.redo_steps.last().map(|s| s.kind)
+    }
+
+    pub(crate) fn previous_op(&self) -> Option<&UndoableOp> {
+        self.undo_steps.front()
     }
 }
 
@@ -169,6 +177,10 @@ impl Collection {
     #[inline]
     pub(crate) fn save_undo(&mut self, item: impl Into<UndoableChange>) {
         self.state.undo.save(item.into());
+    }
+
+    pub(crate) fn previous_undo_op(&self) -> Option<&UndoableOp> {
+        self.state.undo.previous_op()
     }
 }
 

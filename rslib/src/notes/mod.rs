@@ -334,7 +334,7 @@ impl Collection {
         op: Option<UndoableOpKind>,
     ) -> Result<()> {
         let mut existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
-        if !note_modified(&mut existing_note, note) {
+        if !note_differs_from_db(&mut existing_note, note) {
             // nothing to do
             return Ok(());
         }
@@ -382,7 +382,7 @@ impl Collection {
         if mark_note_modified {
             note.set_modified(usn);
         }
-        self.update_note_undoable(note, original)
+        self.update_note_undoable(note, original, true)
     }
 
     /// Remove provided notes, and any cards that use them.
@@ -537,9 +537,12 @@ impl Collection {
 /// The existing note pulled from the DB will have sfld and csum set, but the
 /// note we receive from the frontend won't. Temporarily zero them out and
 /// compare, then restore them again.
-fn note_modified(existing_note: &mut Note, note: &Note) -> bool {
+/// Also set mtime to existing, since the frontend may have a stale mtime, and
+/// we'll bump it as we save in any case.
+fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
     let sort_field = existing_note.sort_field.take();
     let checksum = existing_note.checksum.take();
+    note.mtime = existing_note.mtime;
     let notes_differ = existing_note != note;
     existing_note.sort_field = sort_field;
     existing_note.checksum = checksum;
