@@ -178,7 +178,7 @@ class TemplateRenderContext:
                 fields["Card"] = self._template["name"]
             else:
                 fields["Card"] = ""
-            flag = self._card.userFlag()
+            flag = self._card.user_flag()
             fields["CardFlag"] = flag and f"flag{flag}" or ""
             self._fields = fields
 
@@ -239,7 +239,7 @@ class TemplateRenderContext:
         if self._template:
             # card layout screen
             out = self._col._backend.render_uncommitted_card(
-                note=self._note.to_backend_note(),
+                note=self._note._to_backend_note(),
                 card_ord=self._card.ord,
                 template=to_json_bytes(self._template),
                 fill_empty=self._fill_empty,

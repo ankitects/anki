@@ -411,8 +411,8 @@ class StatusDelegate(QItemDelegate):
             option.direction = Qt.RightToLeft
 
         col = None
-        if c.userFlag() > 0:
-            col = getattr(colors, f"FLAG{c.userFlag()}_BG")
+        if c.user_flag() > 0:
+            col = getattr(colors, f"FLAG{c.user_flag()}_BG")
         elif c.note().has_tag("Marked"):
             col = colors.MARKED_BG
         elif c.queue == QUEUE_TYPE_SUSPENDED:
@@ -1286,13 +1286,13 @@ where id in %s"""
 
     def _on_set_flag(self, n: int) -> None:
         # flag needs toggling off?
-        if n == self.card.userFlag():
+        if n == self.card.user_flag():
             n = 0
-        self.col.setUserFlag(n, self.selectedCards())
+        self.col.set_user_flag_for_cards(n, self.selectedCards())
         self.model.reset()
 
     def _updateFlagsMenu(self) -> None:
-        flag = self.card and self.card.userFlag()
+        flag = self.card and self.card.user_flag()
         flag = flag or 0
 
         f = self.form

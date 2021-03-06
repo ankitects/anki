@@ -3,12 +3,12 @@
 
 pub(crate) mod undo;
 
-use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{
     collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
 };
+use crate::{define_newtype, undo::UndoableOpKind};
 
 use crate::{deckconf::DeckConf, decks::DeckID};
 use num_enum::TryFromPrimitive;
@@ -139,6 +139,15 @@ impl Card {
 }
 
 impl Collection {
+    pub(crate) fn update_card_with_op(
+        &mut self,
+        card: &mut Card,
+        op: Option<UndoableOpKind>,
+    ) -> Result<()> {
+        let existing = self.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
+        self.transact(op, |col| col.update_card_inner(card, &existing, col.usn()?))
+    }
+
     #[cfg(test)]
     pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardID, func: F) -> Result<Card>
     where
@@ -150,12 +159,17 @@ impl Collection {
             .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
         let mut card = orig.clone();
         func(&mut card)?;
-        self.update_card(&mut card, &orig, self.usn()?)?;
+        self.update_card_inner(&mut card, &orig, self.usn()?)?;
         Ok(card)
     }
 
     /// Marks the card as modified, then saves it.
-    pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card, usn: Usn) -> Result<()> {
+    pub(crate) fn update_card_inner(
+        &mut self,
+        card: &mut Card,
+        original: &Card,
+        usn: Usn,
+    ) -> Result<()> {
         card.set_modified(usn);
         self.update_card_undoable(card, original)
     }
@@ -204,7 +218,7 @@ impl Collection {
                 }
                 let original = card.clone();
                 card.set_deck(deck_id, sched);
-                col.update_card(&mut card, &original, usn)?;
+                col.update_card_inner(&mut card, &original, usn)?;
             }
             Ok(())
         })

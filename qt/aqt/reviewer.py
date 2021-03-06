@@ -216,7 +216,7 @@ class Reviewer:
         return card.autoplay()
 
     def _update_flag_icon(self) -> None:
-        self.web.eval(f"_drawFlag({self.card.userFlag()});")
+        self.web.eval(f"_drawFlag({self.card.user_flag()});")
 
     def _update_mark_icon(self) -> None:
         self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag('marked'))});")
@@ -290,10 +290,10 @@ class Reviewer:
             ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
-            ("Ctrl+1", lambda: self.setFlag(1)),
-            ("Ctrl+2", lambda: self.setFlag(2)),
-            ("Ctrl+3", lambda: self.setFlag(3)),
-            ("Ctrl+4", lambda: self.setFlag(4)),
+            ("Ctrl+1", lambda: self.set_flag_on_current_card(1)),
+            ("Ctrl+2", lambda: self.set_flag_on_current_card(2)),
+            ("Ctrl+3", lambda: self.set_flag_on_current_card(3)),
+            ("Ctrl+4", lambda: self.set_flag_on_current_card(4)),
             ("*", self.toggle_mark_on_current_note),
             ("=", self.bury_current_note),
             ("-", self.bury_current_card),
@@ -698,7 +698,7 @@ time = %(time)d;
 
     # note the shortcuts listed here also need to be defined above
     def _contextMenu(self) -> List[Any]:
-        currentFlag = self.card and self.card.userFlag()
+        currentFlag = self.card and self.card.user_flag()
         opts = [
             [
                 tr(TR.STUDYING_FLAG_CARD),
@@ -706,25 +706,25 @@ time = %(time)d;
                     [
                         tr(TR.ACTIONS_RED_FLAG),
                         "Ctrl+1",
-                        lambda: self.setFlag(1),
+                        lambda: self.set_flag_on_current_card(1),
                         dict(checked=currentFlag == 1),
                     ],
                     [
                         tr(TR.ACTIONS_ORANGE_FLAG),
                         "Ctrl+2",
-                        lambda: self.setFlag(2),
+                        lambda: self.set_flag_on_current_card(2),
                         dict(checked=currentFlag == 2),
                     ],
                     [
                         tr(TR.ACTIONS_GREEN_FLAG),
                         "Ctrl+3",
-                        lambda: self.setFlag(3),
+                        lambda: self.set_flag_on_current_card(3),
                         dict(checked=currentFlag == 3),
                     ],
                     [
                         tr(TR.ACTIONS_BLUE_FLAG),
                         "Ctrl+4",
-                        lambda: self.setFlag(4),
+                        lambda: self.set_flag_on_current_card(4),
                         dict(checked=currentFlag == 4),
                     ],
                 ],
@@ -782,12 +782,13 @@ time = %(time)d;
     def onOptions(self) -> None:
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
 
-    def setFlag(self, flag: int) -> None:
+    def set_flag_on_current_card(self, flag: int) -> None:
         # need to toggle off?
-        if self.card.userFlag() == flag:
+        if self.card.user_flag() == flag:
             flag = 0
-        self.card.setUserFlag(flag)
-        self.card.flush()
+        self.card.set_user_flag(flag)
+        self.mw.col.update_card(self.card)
+        self.mw.update_undo_actions()
         self._update_flag_icon()
 
     def toggle_mark_on_current_note(self) -> None:
@@ -797,8 +798,8 @@ time = %(time)d;
         else:
             note.add_tag("marked")
         self.mw.col.update_note(note)
-        self._update_mark_icon()
         self.mw.update_undo_actions()
+        self._update_mark_icon()
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:
@@ -863,3 +864,4 @@ time = %(time)d;
     onSuspendCard = suspend_current_card
     onDelete = delete_current_note
     onMark = toggle_mark_on_current_note
+    setFlag = set_flag_on_current_card

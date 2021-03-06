@@ -25,7 +25,7 @@ impl UndoableOpKind {
 impl Collection {
     pub fn describe_op_kind(&self, op: UndoableOpKind) -> String {
         let key = match op {
-            UndoableOpKind::UpdateCard => todo!(),
+            UndoableOpKind::UpdateCard => TR::UndoUpdateCard,
             UndoableOpKind::AnswerCard => TR::UndoAnswerCard,
             UndoableOpKind::Bury => TR::StudyingBury,
             UndoableOpKind::Suspend => TR::StudyingSuspend,
