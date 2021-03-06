@@ -159,8 +159,10 @@ mod test {
     #[test]
     fn unbury() {
         let mut col = open_test_collection();
-        let mut card = Card::default();
-        card.queue = CardQueue::UserBuried;
+        let mut card = Card {
+            queue: CardQueue::UserBuried,
+            ..Default::default()
+        };
         col.add_card(&mut card).unwrap();
         let assert_count = |col: &mut Collection, cnt| {
             assert_eq!(

@@ -661,8 +661,8 @@ mod test {
         // differing case should result in only one parent case being added -
         // the first one
         col.storage.clear_all_tags()?;
-        *(&mut note.tags[0]) = "foo::BAR::a".into();
-        *(&mut note.tags[1]) = "FOO::bar::b".into();
+        note.tags[0] = "foo::BAR::a".into();
+        note.tags[1] = "FOO::bar::b".into();
         col.update_note(&mut note)?;
         assert_eq!(
             col.tag_tree()?,
@@ -679,8 +679,8 @@ mod test {
 
         // things should work even if the immediate parent is not missing
         col.storage.clear_all_tags()?;
-        *(&mut note.tags[0]) = "foo::bar::baz".into();
-        *(&mut note.tags[1]) = "foo::bar::baz::quux".into();
+        note.tags[0] = "foo::bar::baz".into();
+        note.tags[1] = "foo::bar::baz::quux".into();
         col.update_note(&mut note)?;
         assert_eq!(
             col.tag_tree()?,
@@ -698,8 +698,8 @@ mod test {
         // numbers have a smaller ascii number than ':', so a naive sort on
         // '::' would result in one::two being nested under one1.
         col.storage.clear_all_tags()?;
-        *(&mut note.tags[0]) = "one".into();
-        *(&mut note.tags[1]) = "one1".into();
+        note.tags[0] = "one".into();
+        note.tags[1] = "one1".into();
         note.tags.push("one::two".into());
         col.update_note(&mut note)?;
         assert_eq!(
@@ -713,9 +713,9 @@ mod test {
 
         // children should match the case of their parents
         col.storage.clear_all_tags()?;
-        *(&mut note.tags[0]) = "FOO".into();
-        *(&mut note.tags[1]) = "foo::BAR".into();
-        *(&mut note.tags[2]) = "foo::bar::baz".into();
+        note.tags[0] = "FOO".into();
+        note.tags[1] = "foo::BAR".into();
+        note.tags[2] = "foo::bar::baz".into();
         col.update_note(&mut note)?;
         assert_eq!(note.tags, vec!["FOO", "FOO::BAR", "FOO::BAR::baz"]);
 

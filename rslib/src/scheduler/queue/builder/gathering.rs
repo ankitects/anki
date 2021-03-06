@@ -116,8 +116,10 @@ mod test {
 
     #[test]
     fn new_siblings() {
-        let mut builder = QueueBuilder::default();
-        builder.bury_new = true;
+        let mut builder = QueueBuilder {
+            bury_new: true,
+            ..Default::default()
+        };
         let mut limits = RemainingLimits {
             review: 0,
             new: 100,
