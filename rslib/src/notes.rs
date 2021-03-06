@@ -437,7 +437,7 @@ impl Collection {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {
                     for card in col.storage.all_cards_of_note(nid)? {
-                        col.remove_card_only(card, usn)?;
+                        col.remove_card_and_add_grave_undoable(card, usn)?;
                     }
                     col.remove_note_only(nid, usn)?;
                 }
