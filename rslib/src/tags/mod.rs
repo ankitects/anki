@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod undo;
+pub(crate) mod undo;
 
 use crate::{
     backend_proto::TagTreeNode,
@@ -310,7 +310,7 @@ impl Collection {
         tags: &[Regex],
         mut repl: R,
     ) -> Result<usize> {
-        self.transact(Some(UndoableOp::UpdateTag), |col| {
+        self.transact(Some(UndoableOpKind::UpdateTag), |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut changed = false;
                 for re in tags {
@@ -361,7 +361,7 @@ impl Collection {
         )
         .map_err(|_| AnkiError::invalid_input("invalid regex"))?;
 
-        self.transact(Some(UndoableOp::UpdateTag), |col| {
+        self.transact(Some(UndoableOpKind::UpdateTag), |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut need_to_add = true;
                 let mut match_count = 0;

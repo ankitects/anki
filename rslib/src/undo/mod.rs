@@ -1,57 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod changes;
+mod ops;
+
+pub(crate) use changes::UndoableChange;
+pub use ops::UndoableOpKind;
+
 use crate::backend_proto as pb;
-use crate::{collection::Collection, err::Result, prelude::*};
-use std::{collections::VecDeque, fmt};
+use crate::prelude::*;
+use std::collections::VecDeque;
 
 const UNDO_LIMIT: usize = 30;
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum UndoableOp {
-    UpdateCard,
-    AnswerCard,
-    Bury,
-    Suspend,
-    UnburyUnsuspend,
-    AddNote,
-    RemoveNote,
-    UpdateTag,
-    UpdateNote,
-}
-
-impl UndoableOp {
-    pub(crate) fn needs_study_queue_reset(self) -> bool {
-        self != UndoableOp::AnswerCard
-    }
-}
-
-impl Collection {
-    pub fn describe_collection_op(&self, op: UndoableOp) -> String {
-        let key = match op {
-            UndoableOp::UpdateCard => todo!(),
-            UndoableOp::AnswerCard => TR::UndoAnswerCard,
-            UndoableOp::Bury => TR::StudyingBury,
-            UndoableOp::Suspend => TR::StudyingSuspend,
-            UndoableOp::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
-            UndoableOp::AddNote => TR::UndoAddNote,
-            UndoableOp::RemoveNote => TR::StudyingDeleteNote,
-            UndoableOp::UpdateTag => TR::UndoUpdateTag,
-            UndoableOp::UpdateNote => TR::UndoUpdateNote,
-        };
-
-        self.i18n.tr(key).to_string()
-    }
-}
-
-pub(crate) trait Undo: fmt::Debug + Send {
-    /// Undo the recorded action.
-    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()>;
-}
 
 #[derive(Debug)]
-struct UndoStep {
-    kind: UndoableOp,
-    changes: Vec<Box<dyn Undo>>,
+struct UndoableOp {
+    kind: UndoableOpKind,
+    changes: Vec<UndoableChange>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -71,21 +36,21 @@ impl Default for UndoMode {
 pub(crate) struct UndoManager {
     // undo steps are added to the front of a double-ended queue, so we can
     // efficiently cap the number of steps we retain in memory
-    undo_steps: VecDeque<UndoStep>,
+    undo_steps: VecDeque<UndoableOp>,
     // redo steps are added to the end
-    redo_steps: Vec<UndoStep>,
+    redo_steps: Vec<UndoableOp>,
     mode: UndoMode,
-    current_step: Option<UndoStep>,
+    current_step: Option<UndoableOp>,
 }
 
 impl UndoManager {
-    fn save(&mut self, item: Box<dyn Undo>) {
+    fn save(&mut self, item: UndoableChange) {
         if let Some(step) = self.current_step.as_mut() {
             step.changes.push(item)
         }
     }
 
-    fn begin_step(&mut self, op: Option<UndoableOp>) {
+    fn begin_step(&mut self, op: Option<UndoableOpKind>) {
         println!("begin: {:?}", op);
         if op.is_none() {
             self.undo_steps.clear();
@@ -94,7 +59,7 @@ impl UndoManager {
             // a normal op clears the redo queue
             self.redo_steps.clear();
         }
-        self.current_step = op.map(|op| UndoStep {
+        self.current_step = op.map(|op| UndoableOp {
             kind: op,
             changes: vec![],
         });
@@ -119,21 +84,21 @@ impl UndoManager {
             .unwrap_or(true)
     }
 
-    fn can_undo(&self) -> Option<UndoableOp> {
+    fn can_undo(&self) -> Option<UndoableOpKind> {
         self.undo_steps.front().map(|s| s.kind)
     }
 
-    fn can_redo(&self) -> Option<UndoableOp> {
+    fn can_redo(&self) -> Option<UndoableOpKind> {
         self.redo_steps.last().map(|s| s.kind)
     }
 }
 
 impl Collection {
-    pub fn can_undo(&self) -> Option<UndoableOp> {
+    pub fn can_undo(&self) -> Option<UndoableOpKind> {
         self.state.undo.can_undo()
     }
 
-    pub fn can_redo(&self) -> Option<UndoableOp> {
+    pub fn can_redo(&self) -> Option<UndoableOpKind> {
         self.state.undo.can_redo()
     }
 
@@ -173,17 +138,17 @@ impl Collection {
         pb::UndoStatus {
             undo: self
                 .can_undo()
-                .map(|op| self.describe_collection_op(op))
+                .map(|op| self.describe_op_kind(op))
                 .unwrap_or_default(),
             redo: self
                 .can_redo()
-                .map(|op| self.describe_collection_op(op))
+                .map(|op| self.describe_op_kind(op))
                 .unwrap_or_default(),
         }
     }
 
     /// If op is None, clears the undo/redo queues.
-    pub(crate) fn begin_undoable_operation(&mut self, op: Option<UndoableOp>) {
+    pub(crate) fn begin_undoable_operation(&mut self, op: Option<UndoableOpKind>) {
         self.state.undo.begin_step(op);
     }
 
@@ -202,8 +167,8 @@ impl Collection {
     }
 
     #[inline]
-    pub(crate) fn save_undo(&mut self, item: Box<dyn Undo>) {
-        self.state.undo.save(item)
+    pub(crate) fn save_undo(&mut self, item: impl Into<UndoableChange>) {
+        self.state.undo.save(item.into());
     }
 }
 
@@ -237,7 +202,7 @@ mod test {
 
         // record a few undo steps
         for i in 3..=4 {
-            col.transact(Some(UndoableOp::UpdateCard), |col| {
+            col.transact(Some(UndoableOpKind::UpdateCard), |col| {
                 col.get_and_update_card(cid, |card| {
                     card.interval = i;
                     Ok(())
@@ -249,41 +214,41 @@ mod test {
         }
 
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
-        assert_eq!(col.can_undo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // undo a step
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(UndoableOp::UpdateCard));
-        assert_eq!(col.can_redo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
 
         // and again
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 2);
         assert_eq!(col.can_undo(), None);
-        assert_eq!(col.can_redo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
 
         // redo a step
         col.redo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(UndoableOp::UpdateCard));
-        assert_eq!(col.can_redo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
 
         // and another
         col.redo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
-        assert_eq!(col.can_undo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and undo the redo
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(UndoableOp::UpdateCard));
-        assert_eq!(col.can_redo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
 
         // if any action is performed, it should clear the redo queue
-        col.transact(Some(UndoableOp::UpdateCard), |col| {
+        col.transact(Some(UndoableOpKind::UpdateCard), |col| {
             col.get_and_update_card(cid, |card| {
                 card.interval = 5;
                 Ok(())
@@ -293,7 +258,7 @@ mod test {
         })
         .unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
-        assert_eq!(col.can_undo(), Some(UndoableOp::UpdateCard));
+        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and any action that doesn't support undoing will clear both queues

@@ -13,6 +13,6 @@ pub use crate::{
     revlog::RevlogID,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
-    undo::UndoableOp,
+    undo::UndoableOpKind,
 };
 pub use slog::{debug, Logger};
