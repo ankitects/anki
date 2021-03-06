@@ -20,7 +20,6 @@ function focusField(field: EditingArea) {
     field.focusEditable();
     bridgeCommand(`focus:${field.ord}`);
     enableButtons();
-    caretToEnd(field);
 }
 
 // For distinguishing focus by refocusing window from deliberate focus
@@ -31,10 +30,14 @@ export function onFocus(evt: FocusEvent): void {
     const previousFocus = evt.relatedTarget as EditingArea;
 
     if (
-        previousFocus === previousActiveElement ||
-        !(previousFocus instanceof EditingArea)
+        !(previousFocus instanceof EditingArea) ||
+        previousFocus === previousActiveElement
     ) {
         focusField(currentField);
+
+        if (previousFocus) {
+            caretToEnd(currentField);
+        }
     }
 }
 
