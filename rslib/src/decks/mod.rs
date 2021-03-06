@@ -1,13 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod counts;
+mod schema11;
+mod tree;
+mod undo;
+
 pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
     DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
 };
-use crate::{
-    backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images, undo::Undo,
-};
+use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
     collection::Collection,
     deckconf::DeckConfID,
@@ -18,9 +21,6 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
-mod counts;
-mod schema11;
-mod tree;
 pub(crate) use counts::DueCounts;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
@@ -285,7 +285,7 @@ impl Collection {
                     // rename children
                     col.rename_child_decks(&existing_deck, &deck.name, usn)?;
                 }
-                col.update_single_deck_inner_undo_only(deck, &existing_deck)?;
+                col.update_single_deck_undoable(deck, &existing_deck)?;
                 if name_changed {
                     // after updating, we need to ensure all grandparents exist, which may not be the case
                     // in the parent->child case
@@ -310,18 +310,6 @@ impl Collection {
         self.state.deck_cache.clear();
         self.prepare_deck_for_update(deck, usn)?;
         self.storage.add_or_update_deck_with_existing_id(deck)
-    }
-
-    /// Update an individual, existing deck. Caller is responsible for ensuring deck
-    /// is normalized, matches parents, is not a duplicate name, and bumping mtime.
-    pub(crate) fn update_single_deck_inner_undo_only(
-        &mut self,
-        deck: &mut Deck,
-        original: &Deck,
-    ) -> Result<()> {
-        self.state.deck_cache.clear();
-        self.save_undo(Box::new(DeckUpdated(original.clone())));
-        self.storage.update_deck(deck)
     }
 
     pub(crate) fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
@@ -371,7 +359,7 @@ impl Collection {
             let new_name = format!("{}\x1f{}", new_name, child_only.join("\x1f"));
             child.name = new_name;
             child.set_modified(usn);
-            self.update_single_deck_inner_undo_only(&mut child, &original)?;
+            self.update_single_deck_undoable(&mut child, &original)?;
         }
 
         Ok(())
@@ -601,7 +589,7 @@ impl Collection {
         deck.reset_stats_if_day_changed(today);
         mutator(&mut deck.common);
         deck.set_modified(usn);
-        self.update_single_deck_inner_undo_only(deck, &original)
+        self.update_single_deck_undoable(deck, &original)
     }
 
     pub fn drag_drop_decks(
@@ -644,19 +632,6 @@ impl Collection {
 
             Ok(())
         })
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct DeckUpdated(Deck);
-
-impl Undo for DeckUpdated {
-    fn undo(mut self: Box<Self>, col: &mut crate::collection::Collection) -> Result<()> {
-        let current = col
-            .storage
-            .get_deck(self.0.id)?
-            .ok_or_else(|| AnkiError::invalid_input("deck disappeared"))?;
-        col.update_single_deck_inner_undo_only(&mut self.0, &current)
     }
 }
 
