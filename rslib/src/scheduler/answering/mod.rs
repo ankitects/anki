@@ -305,7 +305,7 @@ impl Collection {
             answer.answered_at,
             answer.milliseconds_taken,
         );
-        self.add_revlog_entry(revlog)?;
+        self.add_revlog_entry_undoable(revlog)?;
         Ok(())
     }
 

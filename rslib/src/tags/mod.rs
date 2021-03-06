@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod undo;
+
 use crate::{
     backend_proto::TagTreeNode,
     collection::Collection,
@@ -9,7 +11,6 @@ use crate::{
     prelude::*,
     text::{normalize_to_nfc, to_re},
     types::Usn,
-    undo::Undo,
 };
 
 use regex::{NoExpand, Regex, Replacer};
@@ -244,21 +245,9 @@ impl Collection {
             } else if let Cow::Owned(new_name) = normalized_name {
                 tag.name = new_name;
             }
-            self.register_tag_inner(&tag)?;
+            self.register_tag_undoable(&tag)?;
             Ok(true)
         }
-    }
-
-    /// Adds an already-validated tag to the DB and undo list.
-    /// Caller is responsible for setting usn.
-    pub(crate) fn register_tag_inner(&mut self, tag: &Tag) -> Result<()> {
-        self.save_undo(Box::new(AddedTag(tag.clone())));
-        self.storage.register_tag(&tag)
-    }
-
-    pub(crate) fn remove_single_tag(&mut self, tag: &Tag) -> Result<()> {
-        self.save_undo(Box::new(RemovedTag(tag.clone())));
-        self.storage.remove_single_tag(&tag.name)
     }
 
     /// If parent tag(s) exist and differ in case, return a rewritten tag.
@@ -479,24 +468,6 @@ impl Collection {
         })?;
 
         Ok(())
-    }
-}
-
-#[derive(Debug)]
-struct AddedTag(Tag);
-
-#[derive(Debug)]
-struct RemovedTag(Tag);
-
-impl Undo for AddedTag {
-    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
-        col.remove_single_tag(&self.0)
-    }
-}
-
-impl Undo for RemovedTag {
-    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
-        col.register_tag_inner(&self.0)
     }
 }
 
