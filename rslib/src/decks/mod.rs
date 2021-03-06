@@ -4,7 +4,7 @@
 mod counts;
 mod schema11;
 mod tree;
-mod undo;
+pub(crate) mod undo;
 
 pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,

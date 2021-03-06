@@ -50,7 +50,7 @@ use crate::{
     text::{escape_anki_wildcards, extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
-    undo::UndoableOp,
+    undo::UndoableOpKind,
 };
 use fluent::FluentValue;
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
@@ -1049,7 +1049,7 @@ impl BackendService for Backend {
             let op = if input.skip_undo_entry {
                 None
             } else {
-                Some(UndoableOp::UpdateNote)
+                Some(UndoableOpKind::UpdateNote)
             };
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
             col.update_note_with_op(&mut note, op)

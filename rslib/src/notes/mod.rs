@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod undo;
+pub(crate) mod undo;
 
 use crate::backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState;
 use crate::{
@@ -300,7 +300,7 @@ impl Collection {
     }
 
     pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
-        self.transact(Some(UndoableOp::AddNote), |col| {
+        self.transact(Some(UndoableOpKind::AddNote), |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
@@ -325,13 +325,13 @@ impl Collection {
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        self.update_note_with_op(note, Some(UndoableOp::UpdateNote))
+        self.update_note_with_op(note, Some(UndoableOpKind::UpdateNote))
     }
 
     pub(crate) fn update_note_with_op(
         &mut self,
         note: &mut Note,
-        op: Option<UndoableOp>,
+        op: Option<UndoableOpKind>,
     ) -> Result<()> {
         let mut existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
         if !note_modified(&mut existing_note, note) {
@@ -388,7 +388,7 @@ impl Collection {
     /// Remove provided notes, and any cards that use them.
     pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<()> {
         let usn = self.usn()?;
-        self.transact(Some(UndoableOp::RemoveNote), |col| {
+        self.transact(Some(UndoableOpKind::RemoveNote), |col| {
             for nid in nids {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {

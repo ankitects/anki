@@ -1,14 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod undo;
+pub(crate) mod undo;
 
 use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{
     collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
-    undo::Undo,
 };
 
 use crate::{deckconf::DeckConf, decks::DeckID};

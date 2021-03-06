@@ -2,48 +2,47 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{CardQueues, LearningQueueEntry, QueueEntry, QueueEntryKind};
-use crate::{prelude::*, undo::Undo};
+use crate::prelude::*;
 
 #[derive(Debug)]
-pub(super) struct QueueUpdateAfterAnsweringCard {
+pub(crate) enum UndoableQueueChange {
+    CardAnswered(Box<QueueUpdate>),
+    CardAnswerUndone(Box<QueueUpdate>),
+}
+
+#[derive(Debug)]
+pub(crate) struct QueueUpdate {
     pub entry: QueueEntry,
     pub learning_requeue: Option<LearningQueueEntry>,
 }
 
-impl Undo for QueueUpdateAfterAnsweringCard {
-    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
-        let queues = col.get_queues()?;
-        if let Some(learning) = self.learning_requeue {
-            queues.remove_requeued_learning_card_after_undo(learning.id);
+impl Collection {
+    pub(crate) fn undo_queue_change(&mut self, change: UndoableQueueChange) -> Result<()> {
+        match change {
+            UndoableQueueChange::CardAnswered(update) => {
+                let queues = self.get_queues()?;
+                if let Some(learning) = &update.learning_requeue {
+                    queues.remove_requeued_learning_card_after_undo(learning.id);
+                }
+                queues.push_undo_entry(update.entry);
+                self.save_undo(UndoableQueueChange::CardAnswerUndone(update));
+
+                Ok(())
+            }
+            UndoableQueueChange::CardAnswerUndone(update) => {
+                // don't try to update existing queue when redoing; just
+                // rebuild it instead
+                self.clear_study_queues();
+                // but preserve undo state for a subsequent undo
+                self.save_undo(UndoableQueueChange::CardAnswered(update));
+
+                Ok(())
+            }
         }
-        queues.push_undo_entry(self.entry);
-        col.save_undo(Box::new(QueueUpdateAfterUndoingAnswer {
-            entry: self.entry,
-            learning_requeue: self.learning_requeue,
-        }));
-
-        Ok(())
     }
-}
 
-#[derive(Debug)]
-pub(super) struct QueueUpdateAfterUndoingAnswer {
-    pub entry: QueueEntry,
-    pub learning_requeue: Option<LearningQueueEntry>,
-}
-
-impl Undo for QueueUpdateAfterUndoingAnswer {
-    fn undo(self: Box<Self>, col: &mut Collection) -> Result<()> {
-        // don't try to update existing queue when redoing; just
-        // rebuild it instead
-        col.clear_study_queues();
-        // but preserve undo state for a subsequent undo
-        col.save_undo(Box::new(QueueUpdateAfterAnsweringCard {
-            entry: self.entry,
-            learning_requeue: self.learning_requeue,
-        }));
-
-        Ok(())
+    pub(super) fn save_queue_update_undo(&mut self, change: Box<QueueUpdate>) {
+        self.save_undo(UndoableQueueChange::CardAnswered(change))
     }
 }
 

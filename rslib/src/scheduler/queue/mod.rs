@@ -6,7 +6,7 @@ mod entry;
 mod learning;
 mod limits;
 mod main;
-mod undo;
+pub(crate) mod undo;
 
 use std::{
     cmp::Reverse,
@@ -21,7 +21,7 @@ pub(crate) use {
     main::{MainQueueEntry, MainQueueEntryKind},
 };
 
-use self::undo::QueueUpdateAfterAnsweringCard;
+use self::undo::QueueUpdate;
 
 use super::{states::NextCardStates, timing::SchedTimingToday};
 
@@ -100,14 +100,14 @@ impl CardQueues {
         &mut self,
         card: &Card,
         timing: SchedTimingToday,
-    ) -> Result<QueueUpdateAfterAnsweringCard> {
+    ) -> Result<Box<QueueUpdate>> {
         let entry = self.pop_answered(card.id)?;
         let requeued_learning = self.maybe_requeue_learning_card(card, timing);
 
-        Ok(QueueUpdateAfterAnsweringCard {
+        Ok(Box::new(QueueUpdate {
             entry,
             learning_requeue: requeued_learning,
-        })
+        }))
     }
 }
 
@@ -146,7 +146,7 @@ impl Collection {
     ) -> Result<()> {
         if let Some(queues) = &mut self.state.card_queues {
             let mutation = queues.update_after_answering_card(card, timing)?;
-            self.save_undo(Box::new(mutation));
+            self.save_queue_update_undo(mutation);
             Ok(())
         } else {
             // we currenly allow the queues to be empty for unit tests
