@@ -269,7 +269,7 @@ impl Collection {
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
-        self.update_card(&mut card, &original, usn)?;
+        self.update_card_inner(&mut card, &original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
         }

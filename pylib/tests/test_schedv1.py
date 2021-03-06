@@ -559,6 +559,8 @@ def test_suspend():
 
 def test_cram():
     col = getEmptyCol()
+    opt = col.models.byName("Basic (and reversed card)")
+    col.models.setCurrent(opt)
     note = col.newNote()
     note["Front"] = "one"
     col.addNote(note)
@@ -654,10 +656,9 @@ def test_cram():
     c.load()
     assert col.sched.answerButtons(c) == 4
     # add a sibling so we can test minSpace, etc
-    c.col = None
-    c2 = copy.deepcopy(c)
-    c2.col = c.col = col
-    c2.id = 0
+    note["Back"] = "foo"
+    note.flush()
+    c2 = note.cards()[1]
     c2.ord = 1
     c2.due = 325
     c2.flush()

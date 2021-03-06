@@ -324,7 +324,8 @@ impl Collection {
         self.generate_cards_for_new_note(ctx, note, did)
     }
 
-    pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
+    #[cfg(test)]
+    pub(crate) fn update_note(&mut self, note: &mut Note) -> Result<()> {
         self.update_note_with_op(note, Some(UndoableOpKind::UpdateNote))
     }
 

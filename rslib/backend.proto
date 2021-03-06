@@ -162,8 +162,7 @@ service BackendService {
   // cards
 
   rpc GetCard(CardID) returns (Card);
-  rpc UpdateCard(Card) returns (Empty);
-  rpc AddCard(Card) returns (CardID);
+  rpc UpdateCard(UpdateCardIn) returns (Empty);
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
   rpc SetDeck(SetDeckIn) returns (Empty);
 
@@ -950,6 +949,11 @@ message AddNoteIn {
 
 message UpdateNoteIn {
   Note note = 1;
+  bool skip_undo_entry = 2;
+}
+
+message UpdateCardIn {
+  Card card = 1;
   bool skip_undo_entry = 2;
 }
 

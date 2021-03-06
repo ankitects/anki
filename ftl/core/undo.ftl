@@ -14,3 +14,4 @@ undo-unbury-unsuspend = Unbury/Unsuspend
 undo-add-note = Add Note
 undo-update-tag = Update Tag
 undo-update-note = Update Note
+undo-update-card = Update Card

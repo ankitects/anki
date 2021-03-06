@@ -319,8 +319,13 @@ class Collection:
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id: int) -> Card:
+    def get_card(self, id: int) -> Card:
         return Card(self, id)
+
+    def update_card(self, card: Card) -> None:
+        """Save card changes to database, and add an undo entry.
+        Unlike card.flush(), this will invalidate any current checkpoint."""
+        self._backend.update_card(card=card._to_backend_card(), skip_undo_entry=False)
 
     def get_note(self, id: int) -> Note:
         return Note(self, id=id)
@@ -328,8 +333,9 @@ class Collection:
     def update_note(self, note: Note) -> None:
         """Save note changes to database, and add an undo entry.
         Unlike note.flush(), this will invalidate any current checkpoint."""
-        self._backend.update_note(note=note.to_backend_note(), skip_undo_entry=False)
+        self._backend.update_note(note=note._to_backend_note(), skip_undo_entry=False)
 
+    getCard = get_card
     getNote = get_note
 
     # Utils
@@ -367,7 +373,7 @@ class Collection:
         return Note(self, self.models.current(forDeck))
 
     def add_note(self, note: Note, deck_id: int) -> None:
-        note.id = self._backend.add_note(note=note.to_backend_note(), deck_id=deck_id)
+        note.id = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
 
     def remove_notes(self, note_ids: Sequence[int]) -> None:
         hooks.notes_will_be_deleted(self, note_ids)
@@ -953,7 +959,7 @@ table.review-log {{ {revlog_style} }}
     # Card Flags
     ##########################################################################
 
-    def setUserFlag(self, flag: int, cids: List[int]) -> None:
+    def set_user_flag_for_cards(self, flag: int, cids: List[int]) -> None:
         assert 0 <= flag <= 7
         self.db.execute(
             "update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s"

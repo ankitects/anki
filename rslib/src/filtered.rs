@@ -184,7 +184,7 @@ impl Collection {
             if let Some(mut card) = self.storage.get_card(*cid)? {
                 let original = card.clone();
                 card.remove_from_filtered_deck_restoring_queue(sched);
-                self.update_card(&mut card, &original, usn)?;
+                self.update_card_inner(&mut card, &original, usn)?;
             }
         }
         Ok(())
@@ -249,7 +249,7 @@ impl Collection {
         for mut card in self.storage.all_searched_cards_in_search_order()? {
             let original = card.clone();
             card.move_into_filtered_deck(ctx, position);
-            self.update_card(&mut card, &original, ctx.usn)?;
+            self.update_card_inner(&mut card, &original, ctx.usn)?;
             position += 1;
         }
 

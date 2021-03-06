@@ -1,6 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod card;
+mod dbproxy;
+mod generic;
+mod http_sync_server;
+mod scheduler;
+
 pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
@@ -10,7 +16,6 @@ use crate::{
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
     },
     card::{Card, CardID},
-    card::{CardQueue, CardType},
     cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
     config::SortKind,
@@ -49,7 +54,6 @@ use crate::{
     template::RenderedNode,
     text::{escape_anki_wildcards, extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
-    types::Usn,
     undo::UndoableOpKind,
 };
 use fluent::FluentValue;
@@ -68,11 +72,6 @@ use std::{
     sync::{Arc, Mutex},
 };
 use tokio::runtime::{self, Runtime};
-
-mod dbproxy;
-mod generic;
-mod http_sync_server;
-mod scheduler;
 
 struct ThrottlingProgressHandler {
     state: Arc<Mutex<ProgressState>>,
@@ -985,24 +984,17 @@ impl BackendService for Backend {
         })
     }
 
-    fn update_card(&self, input: pb::Card) -> BackendResult<Empty> {
-        let mut card = pbcard_to_native(input)?;
+    fn update_card(&self, input: pb::UpdateCardIn) -> BackendResult<Empty> {
         self.with_col(|col| {
-            col.transact(None, |ctx| {
-                let orig = ctx
-                    .storage
-                    .get_card(card.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
-                ctx.update_card(&mut card, &orig, ctx.usn()?)
-            })
+            let op = if input.skip_undo_entry {
+                None
+            } else {
+                Some(UndoableOpKind::UpdateCard)
+            };
+            let mut card: Card = input.card.ok_or(AnkiError::NotFound)?.try_into()?;
+            col.update_card_with_op(&mut card, op)
         })
         .map(Into::into)
-    }
-
-    fn add_card(&self, input: pb::Card) -> BackendResult<pb::CardId> {
-        let mut card = pbcard_to_native(input)?;
-        self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
-        Ok(pb::CardId { cid: card.id.0 })
     }
 
     fn remove_cards(&self, input: pb::RemoveCardsIn) -> BackendResult<Empty> {
@@ -2061,33 +2053,6 @@ impl From<Card> for pb::Card {
             data: c.data,
         }
     }
-}
-
-fn pbcard_to_native(c: pb::Card) -> Result<Card> {
-    let ctype = CardType::try_from(c.ctype as u8)
-        .map_err(|_| AnkiError::invalid_input("invalid card type"))?;
-    let queue = CardQueue::try_from(c.queue as i8)
-        .map_err(|_| AnkiError::invalid_input("invalid card queue"))?;
-    Ok(Card {
-        id: CardID(c.id),
-        note_id: NoteID(c.note_id),
-        deck_id: DeckID(c.deck_id),
-        template_idx: c.template_idx as u16,
-        mtime: TimestampSecs(c.mtime_secs),
-        usn: Usn(c.usn),
-        ctype,
-        queue,
-        due: c.due,
-        interval: c.interval,
-        ease_factor: c.ease_factor as u16,
-        reps: c.reps,
-        lapses: c.lapses,
-        remaining_steps: c.remaining_steps,
-        original_due: c.original_due,
-        original_deck_id: DeckID(c.original_deck_id),
-        flags: c.flags as u8,
-        data: c.data,
-    })
 }
 
 impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayOut {

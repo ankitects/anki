@@ -62,7 +62,7 @@ impl Collection {
         for original in self.storage.all_searched_cards()? {
             let mut card = original.clone();
             if card.restore_queue_after_bury_or_suspend() {
-                self.update_card(&mut card, &original, usn)?;
+                self.update_card_inner(&mut card, &original, usn)?;
             }
         }
         self.storage.clear_searched_cards_table()
@@ -113,7 +113,7 @@ impl Collection {
                     card.remove_from_learning();
                 }
                 card.queue = desired_queue;
-                self.update_card(&mut card, &original, usn)?;
+                self.update_card_inner(&mut card, &original, usn)?;
             }
         }
 
