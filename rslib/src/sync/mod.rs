@@ -1379,8 +1379,10 @@ mod test {
         let mut deck = col1.get_or_create_normal_deck("new deck")?;
 
         // give it a new option group
-        let mut dconf = DeckConf::default();
-        dconf.name = "new dconf".into();
+        let mut dconf = DeckConf {
+            name: "new dconf".into(),
+            ..Default::default()
+        };
         col1.add_or_update_deck_config(&mut dconf, false)?;
         if let DeckKind::Normal(deck) = &mut deck.kind {
             deck.config_id = dconf.id.0;
