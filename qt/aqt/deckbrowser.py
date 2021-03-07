@@ -313,9 +313,7 @@ class DeckBrowser:
                 f"{tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=decks[0]['name'])} {extra}"
             )
 
-        return askUser(
-            tr(TR.DECKS_CONFIRM_DELETION, deck_count=len(dids), card_count=count)
-        )
+        return askUser(tr(TR.DECKS_CONFIRM_DELETION, count=count))
 
     def _delete(self, did: int) -> None:
         if self.ask_delete_deck(did):

@@ -1267,7 +1267,7 @@ class SidebarTreeView(QTreeView):
         if len(selected) == 1:
             query = tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=selected[0])
         else:
-            query = tr(TR.BROWSING_CONFIRM_SAVED_SEARCHES_DELETION, count=len(selected))
+            query = tr(TR.BROWSING_CONFIRM_SAVED_SEARCHES_DELETION)
         if not askUser(query):
             return
         conf = self._get_saved_searches()
