@@ -13,6 +13,7 @@ use serde_derive::Deserialize;
 use serde_json::json;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
+use strum::IntoStaticStr;
 
 /// These items are expected to exist in schema 11. When adding
 /// new config variables, you do not need to add them here -
@@ -38,10 +39,9 @@ pub(crate) fn schema11_config_as_string() -> String {
     serde_json::to_string(&obj).unwrap()
 }
 
+#[derive(IntoStaticStr)]
+#[strum(serialize_all = "camelCase")]
 pub(crate) enum ConfigKey {
-    AnswerTimeLimitSecs,
-    BrowserSortKind,
-    BrowserSortReverse,
     CardCountsSeparateInactive,
     CollapseCardState,
     CollapseDecks,
@@ -51,69 +51,43 @@ pub(crate) enum ConfigKey {
     CollapseTags,
     CollapseToday,
     CreationOffset,
-    CurrentDeckID,
-    CurrentNoteTypeID,
     FirstDayOfWeek,
     FutureDueShowBacklog,
-    LastUnburiedDay,
-    LearnAheadSecs,
     LocalOffset,
-    NewReviewMix,
-    NextNewCardPosition,
-    NormalizeNoteText,
     PreviewBothSides,
     Rollover,
     Sched2021,
-    SchedulerVersion,
     SetDueBrowser,
     SetDueReviewer,
-    ShowDayLearningCardsFirst,
-    ShowIntervalsAboveAnswerButtons,
-    ShowRemainingDueCountsInStudy,
-}
-#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
-#[repr(u8)]
-pub(crate) enum SchedulerVersion {
-    V1 = 1,
-    V2 = 2,
-}
 
-impl From<ConfigKey> for &'static str {
-    fn from(c: ConfigKey) -> Self {
-        match c {
-            ConfigKey::AnswerTimeLimitSecs => "timeLim",
-            ConfigKey::BrowserSortKind => "sortType",
-            ConfigKey::BrowserSortReverse => "sortBackwards",
-            ConfigKey::CardCountsSeparateInactive => "cardCountsSeparateInactive",
-            ConfigKey::CollapseCardState => "collapseCardState",
-            ConfigKey::CollapseDecks => "collapseDecks",
-            ConfigKey::CollapseFlags => "collapseFlags",
-            ConfigKey::CollapseNotetypes => "collapseNotetypes",
-            ConfigKey::CollapseSavedSearches => "collapseSavedSearches",
-            ConfigKey::CollapseTags => "collapseTags",
-            ConfigKey::CollapseToday => "collapseToday",
-            ConfigKey::CreationOffset => "creationOffset",
-            ConfigKey::CurrentDeckID => "curDeck",
-            ConfigKey::CurrentNoteTypeID => "curModel",
-            ConfigKey::FirstDayOfWeek => "firstDayOfWeek",
-            ConfigKey::FutureDueShowBacklog => "futureDueShowBacklog",
-            ConfigKey::LastUnburiedDay => "lastUnburied",
-            ConfigKey::LearnAheadSecs => "collapseTime",
-            ConfigKey::LocalOffset => "localOffset",
-            ConfigKey::NewReviewMix => "newSpread",
-            ConfigKey::NextNewCardPosition => "nextPos",
-            ConfigKey::NormalizeNoteText => "normalize_note_text",
-            ConfigKey::PreviewBothSides => "previewBothSides",
-            ConfigKey::Rollover => "rollover",
-            ConfigKey::Sched2021 => "sched2021",
-            ConfigKey::SchedulerVersion => "schedVer",
-            ConfigKey::SetDueBrowser => "setDueBrowser",
-            ConfigKey::SetDueReviewer => "setDueReviewer",
-            ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
-            ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
-            ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
-        }
-    }
+    #[strum(to_string = "timeLim")]
+    AnswerTimeLimitSecs,
+    #[strum(to_string = "sortType")]
+    BrowserSortKind,
+    #[strum(to_string = "sortBackwards")]
+    BrowserSortReverse,
+    #[strum(to_string = "curDeck")]
+    CurrentDeckID,
+    #[strum(to_string = "curModel")]
+    CurrentNoteTypeID,
+    #[strum(to_string = "lastUnburied")]
+    LastUnburiedDay,
+    #[strum(to_string = "collapseTime")]
+    LearnAheadSecs,
+    #[strum(to_string = "newSpread")]
+    NewReviewMix,
+    #[strum(to_string = "nextPos")]
+    NextNewCardPosition,
+    #[strum(to_string = "normalize_note_text")]
+    NormalizeNoteText,
+    #[strum(to_string = "schedVer")]
+    SchedulerVersion,
+    #[strum(to_string = "dayLearnFirst")]
+    ShowDayLearningCardsFirst,
+    #[strum(to_string = "estTimes")]
+    ShowIntervalsAboveAnswerButtons,
+    #[strum(to_string = "dueCounts")]
+    ShowRemainingDueCountsInStudy,
 }
 
 impl From<BoolKey> for ConfigKey {
@@ -142,6 +116,12 @@ impl From<StringKey> for ConfigKey {
     }
 }
 
+#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
+#[repr(u8)]
+pub(crate) enum SchedulerVersion {
+    V1 = 1,
+    V2 = 2,
+}
 /// This is a workaround for old clients that used ints to represent boolean
 /// values. For new config items, prefer using a bool directly.
 #[derive(Deserialize, Default)]
