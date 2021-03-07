@@ -22,11 +22,7 @@ browsing-change-to = Change { $val } to:
 browsing-clear-unused = Clear Unused
 browsing-clear-unused-tags = Clear Unused Tags
 browsing-confirm-saved-search-overwrite = A saved search with the name { $name } already exists. Do you want to overwrite it?
-browsing-confirm-saved-searches-deletion =
-    { $count ->
-        [one] Are you sure you want to delete the selected saved search?
-       *[other] Are you sure you want to delete the { $count } selected saved searches?
-    }
+browsing-confirm-saved-searches-deletion = Are you sure you want to delete all selected saved searches?
 browsing-created = Created
 browsing-ctrlandshiftande = Ctrl+Shift+E
 browsing-current-deck = Current Deck
