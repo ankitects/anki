@@ -1025,30 +1025,20 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def onContextMenu(self, point: QPoint) -> None:
-        idx: QModelIndex = self.indexAt(point)
-        item = self.model().item_for_index(idx)
-        if not item:
-            return
-        self.show_context_menu(item, idx)
+        index: QModelIndex = self.indexAt(point)
+        item = self.model().item_for_index(index)
+        if item and self.selectionModel().isSelected(index):
+            self.show_context_menu(item, index)
 
-    # idx is only None when triggering the context menu from a left click on
-    # saved searches - perhaps there is a better way to handle that?
-    def show_context_menu(
-        self, item: SidebarItem, index: Optional[QModelIndex]
-    ) -> None:
-        m = QMenu()
-        self._maybe_add_type_specific_actions(m, item)
-        if item.item_type.is_deletable():
-            m.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(index))
-        if item.item_type.is_editable():
-            m.addAction(tr(TR.ACTIONS_RENAME), lambda: self.edit(index))
-        self._maybe_add_search_actions(m)
-        self._maybe_add_tree_actions(m)
-
-        if not m.children():
-            return
-
-        m.exec_(QCursor.pos())
+    def show_context_menu(self, item: SidebarItem, index: QModelIndex) -> None:
+        menu = QMenu()
+        self._maybe_add_type_specific_actions(menu, item)
+        self._maybe_add_delete_action(menu, item, index)
+        self._maybe_add_rename_action(menu, item, index)
+        self._maybe_add_search_actions(menu)
+        self._maybe_add_tree_actions(menu)
+        if menu.children():
+            menu.exec_(QCursor.pos())
 
     def _maybe_add_type_specific_actions(self, menu: QMenu, item: SidebarItem) -> None:
         if item.item_type in (SidebarItemType.NOTETYPE, SidebarItemType.NOTETYPE_ROOT):
@@ -1057,6 +1047,20 @@ class SidebarTreeView(QTreeView):
             menu.addAction(
                 tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search
             )
+
+    def _maybe_add_delete_action(
+        self, menu: QMenu, item: SidebarItem, index: QModelIndex
+    ) -> None:
+        if item.item_type.is_deletable() and all(
+            s.item_type == item.item_type for s in self._selected_items()
+        ):
+            menu.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(index))
+
+    def _maybe_add_rename_action(
+        self, menu: QMenu, item: SidebarItem, index: QModelIndex
+    ) -> None:
+        if item.item_type.is_editable() and len(self._selected_items()) == 1:
+            menu.addAction(tr(TR.ACTIONS_RENAME), lambda: self.edit(index))
 
     def _maybe_add_search_actions(self, menu: QMenu) -> None:
         nodes = [
