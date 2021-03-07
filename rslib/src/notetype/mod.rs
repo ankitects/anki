@@ -28,6 +28,7 @@ use crate::{
     define_newtype,
     err::{AnkiError, Result},
     notes::Note,
+    prelude::*,
     template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
     timestamp::TimestampSecs,
@@ -424,7 +425,7 @@ impl Collection {
     /// or fields have been added/removed/reordered.
     pub fn update_notetype(&mut self, nt: &mut NoteType, preserve_usn: bool) -> Result<()> {
         let existing = self.get_notetype(nt.id)?;
-        let norm = self.normalize_note_text();
+        let norm = self.get_bool(BoolKey::NormalizeNoteText);
         nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
         self.transact(None, |col| {
             if let Some(existing_notetype) = existing {

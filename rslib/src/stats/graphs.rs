@@ -2,7 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto as pb, config::Weekday, prelude::*, revlog::RevlogEntry, search::SortMode,
+    backend_proto as pb,
+    config::{BoolKey, Weekday},
+    prelude::*,
+    revlog::RevlogEntry,
+    search::SortMode,
 };
 
 impl Collection {
@@ -50,9 +54,9 @@ impl Collection {
     pub(crate) fn get_graph_preferences(&self) -> Result<pb::GraphPreferences> {
         Ok(pb::GraphPreferences {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
-            card_counts_separate_inactive: self.get_card_counts_separate_inactive(),
+            card_counts_separate_inactive: self.get_bool(BoolKey::CardCountsSeparateInactive),
             browser_links_supported: true,
-            future_due_show_backlog: self.get_future_due_show_backlog(),
+            future_due_show_backlog: self.get_bool(BoolKey::FutureDueShowBacklog),
         })
     }
 
@@ -63,8 +67,11 @@ impl Collection {
             6 => Weekday::Saturday,
             _ => Weekday::Sunday,
         })?;
-        self.set_card_counts_separate_inactive(prefs.card_counts_separate_inactive)?;
-        self.set_future_due_show_backlog(prefs.future_due_show_backlog)?;
+        self.set_bool(
+            BoolKey::CardCountsSeparateInactive,
+            prefs.card_counts_separate_inactive,
+        )?;
+        self.set_bool(BoolKey::FutureDueShowBacklog, prefs.future_due_show_backlog)?;
         Ok(())
     }
 }

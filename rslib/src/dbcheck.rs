@@ -230,7 +230,7 @@ impl Collection {
         F: FnMut(DatabaseCheckProgress, bool),
     {
         let nids_by_notetype = self.storage.all_note_ids_by_notetype()?;
-        let norm = self.normalize_note_text();
+        let norm = self.get_bool(BoolKey::NormalizeNoteText);
         let usn = self.usn()?;
         let stamp = TimestampMillis::now();
 

@@ -305,7 +305,7 @@ impl Collection {
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
-            let norm = col.normalize_note_text();
+            let norm = col.get_bool(BoolKey::NormalizeNoteText);
             col.add_note_inner(&ctx, note, did, norm)
         })
     }
@@ -345,7 +345,7 @@ impl Collection {
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
-            let norm = col.normalize_note_text();
+            let norm = col.get_bool(BoolKey::NormalizeNoteText);
             col.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm)
         })
     }
@@ -431,7 +431,7 @@ impl Collection {
         F: FnMut(&mut Note, &NoteType) -> Result<TransformNoteOutput>,
     {
         let nids_by_notetype = self.storage.note_ids_by_notetype(nids)?;
-        let norm = self.normalize_note_text();
+        let norm = self.get_bool(BoolKey::NormalizeNoteText);
         let mut changed_notes = 0;
         let usn = self.usn()?;
 
@@ -479,7 +479,7 @@ impl Collection {
 
     pub(crate) fn note_is_duplicate_or_empty(&self, note: &Note) -> Result<DuplicateState> {
         if let Some(field1) = note.fields.get(0) {
-            let field1 = if self.normalize_note_text() {
+            let field1 = if self.get_bool(BoolKey::NormalizeNoteText) {
                 normalize_to_nfc(field1)
             } else {
                 field1.into()
@@ -554,8 +554,8 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 mod test {
     use super::{anki_base91, field_checksum};
     use crate::{
-        collection::open_test_collection, config::ConfigKey, decks::DeckID, err::Result,
-        prelude::*, search::SortMode,
+        collection::open_test_collection, config::BoolKey, decks::DeckID, err::Result, prelude::*,
+        search::SortMode,
     };
 
     #[test]
@@ -642,8 +642,7 @@ mod test {
         // if normalization turned off, note text is entered as-is
         let mut note = nt.new_note();
         note.fields[0] = "\u{fa47}".into();
-        col.set_config(ConfigKey::NormalizeNoteText, &false)
-            .unwrap();
+        col.set_config(BoolKey::NormalizeNoteText, &false).unwrap();
         col.add_note(&mut note, DeckID(1))?;
         assert_eq!(note.fields[0], "\u{fa47}");
         // normalized searches won't match

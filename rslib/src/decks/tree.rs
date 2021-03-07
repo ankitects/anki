@@ -283,7 +283,7 @@ impl Collection {
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
             if self.scheduler_version() == SchedulerVersion::V2
-                && !self.get_bool_key(BoolKey::Sched2021)
+                && !self.get_bool(BoolKey::Sched2021)
             {
                 apply_limits_v2_old(
                     &mut tree,
