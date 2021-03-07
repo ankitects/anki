@@ -189,7 +189,9 @@ export class EditingArea extends HTMLDivElement {
     }
 
     isRightToLeft(): boolean {
-        return this.editable.style.direction === "rtl";
+        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
+        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
+        return firstRule.style.direction === "rtl";
     }
 
     getSelection(): Selection {
