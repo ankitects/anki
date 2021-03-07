@@ -2373,6 +2373,26 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__strum__0_20_0",
+        url = "https://crates.io/api/v1/crates/strum/0.20.0/download",
+        type = "tar.gz",
+        sha256 = "7318c509b5ba57f18533982607f24070a55d353e90d4cae30c467cdb2ad5ac5c",
+        strip_prefix = "strum-0.20.0",
+        build_file = Label("//cargo/remote:BUILD.strum-0.20.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__strum_macros__0_20_1",
+        url = "https://crates.io/api/v1/crates/strum_macros/0.20.1/download",
+        type = "tar.gz",
+        sha256 = "ee8bc6b87a5112aeeab1f4a9f7ab634fe6cbefc4850006df31267f4cfb9e3149",
+        strip_prefix = "strum_macros-0.20.1",
+        build_file = Label("//cargo/remote:BUILD.strum_macros-0.20.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__subtle__2_4_0",
         url = "https://crates.io/api/v1/crates/subtle/2.4.0/download",
         type = "tar.gz",

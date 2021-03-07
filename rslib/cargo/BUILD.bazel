@@ -427,6 +427,15 @@ alias(
 )
 
 alias(
+    name = "strum",
+    actual = "@raze__strum__0_20_0//:strum",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "tempfile",
     actual = "@raze__tempfile__3_2_0//:tempfile",
     tags = [

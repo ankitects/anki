@@ -66,9 +66,9 @@ rust_library(
     compile_data = _anki_compile_data,
     crate_features = _anki_features,
     proc_macro_deps = [
+        "//rslib/cargo:async_trait",
         "//rslib/cargo:serde_derive",
         "//rslib/cargo:serde_repr",
-        "//rslib/cargo:async_trait",
     ],
     rustc_env = _anki_rustc_env,
     visibility = ["//visibility:public"],
@@ -113,6 +113,7 @@ rust_library(
         "//rslib/cargo:slog_async",
         "//rslib/cargo:slog_envlogger",
         "//rslib/cargo:slog_term",
+        "//rslib/cargo:strum",
         "//rslib/cargo:tempfile",
         "//rslib/cargo:tokio",
         "//rslib/cargo:unic_langid",
