@@ -1527,14 +1527,16 @@ impl BackendService for Backend {
     fn get_config_string(&self, input: pb::config::String) -> BackendResult<pb::String> {
         self.with_col(|col| {
             Ok(pb::String {
-                val: col.get_string(input),
+                val: col.get_string(input.key().into()),
             })
         })
     }
 
     fn set_config_string(&self, input: pb::SetConfigStringIn) -> BackendResult<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_string(input)))
-            .map(Into::into)
+        self.with_col(|col| {
+            col.transact(None, |col| col.set_string(input.key().into(), &input.value))
+        })
+        .map(Into::into)
     }
 
     fn get_preferences(&self, _input: Empty) -> BackendResult<pb::Preferences> {

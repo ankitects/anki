@@ -1,22 +1,35 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, config::BoolKey};
-use pb::config::bool::Key;
+use crate::{
+    backend_proto as pb,
+    config::{BoolKey, StringKey},
+};
+use pb::config::bool::Key as BoolKeyProto;
+use pb::config::string::Key as StringKeyProto;
 
-impl From<Key> for BoolKey {
-    fn from(k: Key) -> Self {
+impl From<BoolKeyProto> for BoolKey {
+    fn from(k: BoolKeyProto) -> Self {
         match k {
-            Key::BrowserSortBackwards => BoolKey::BrowserSortBackwards,
-            Key::PreviewBothSides => BoolKey::PreviewBothSides,
-            Key::CollapseTags => BoolKey::CollapseTags,
-            Key::CollapseNotetypes => BoolKey::CollapseNotetypes,
-            Key::CollapseDecks => BoolKey::CollapseDecks,
-            Key::CollapseSavedSearches => BoolKey::CollapseSavedSearches,
-            Key::CollapseToday => BoolKey::CollapseToday,
-            Key::CollapseCardState => BoolKey::CollapseCardState,
-            Key::CollapseFlags => BoolKey::CollapseFlags,
-            Key::Sched2021 => BoolKey::Sched2021,
+            BoolKeyProto::BrowserSortBackwards => BoolKey::BrowserSortBackwards,
+            BoolKeyProto::PreviewBothSides => BoolKey::PreviewBothSides,
+            BoolKeyProto::CollapseTags => BoolKey::CollapseTags,
+            BoolKeyProto::CollapseNotetypes => BoolKey::CollapseNotetypes,
+            BoolKeyProto::CollapseDecks => BoolKey::CollapseDecks,
+            BoolKeyProto::CollapseSavedSearches => BoolKey::CollapseSavedSearches,
+            BoolKeyProto::CollapseToday => BoolKey::CollapseToday,
+            BoolKeyProto::CollapseCardState => BoolKey::CollapseCardState,
+            BoolKeyProto::CollapseFlags => BoolKey::CollapseFlags,
+            BoolKeyProto::Sched2021 => BoolKey::Sched2021,
+        }
+    }
+}
+
+impl From<StringKeyProto> for StringKey {
+    fn from(k: StringKeyProto) -> Self {
+        match k {
+            StringKeyProto::SetDueBrowser => StringKey::SetDueBrowser,
+            StringKeyProto::SetDueReviewer => StringKey::SetDueReviewer,
         }
     }
 }
