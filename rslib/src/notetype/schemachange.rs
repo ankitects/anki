@@ -67,6 +67,7 @@ impl Collection {
                     note.prepare_for_update(nt, normalize_text)?;
                     self.storage.update_note(&note)?;
                 }
+                return Ok(());
             } else {
                 // nothing to do
                 return Ok(());
