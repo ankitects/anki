@@ -56,8 +56,8 @@ cargo_build_script(
     visibility = ["//visibility:private"],
     deps = [
         "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_8//:quote",
-        "@raze__syn__1_0_60//:syn",
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_62//:syn",
     ],
 )
 
