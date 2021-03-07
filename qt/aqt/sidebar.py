@@ -428,6 +428,7 @@ class SidebarTreeView(QTreeView):
             return
 
         def on_done(fut: Future) -> None:
+            self.setUpdatesEnabled(True)
             root = fut.result()
             model = SidebarModel(self, root)
 
@@ -439,7 +440,6 @@ class SidebarTreeView(QTreeView):
                 self.search_for(self.current_search)
             else:
                 self._expand_where_necessary(model)
-            self.setUpdatesEnabled(True)
             if is_current:
                 self.restore_current(is_current)
 
