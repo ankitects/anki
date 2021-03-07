@@ -7,6 +7,7 @@ use crate::{
         Preferences,
     },
     collection::Collection,
+    config::BoolKey,
     err::Result,
     scheduler::timing::local_minutes_west_for_stamp,
 };
@@ -39,11 +40,11 @@ impl Collection {
                 crate::config::NewReviewMix::ReviewsFirst => NewRevMixPB::ReviewsFirst,
                 crate::config::NewReviewMix::NewFirst => NewRevMixPB::NewFirst,
             } as i32,
-            show_remaining_due_counts: self.get_show_due_counts(),
-            show_intervals_on_buttons: self.get_show_intervals_above_buttons(),
+            show_remaining_due_counts: self.get_bool(BoolKey::ShowRemainingDueCountsInStudy),
+            show_intervals_on_buttons: self.get_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
             new_timezone: self.get_creation_utc_offset().is_some(),
-            day_learn_first: self.get_day_learn_first(),
+            day_learn_first: self.get_bool(BoolKey::ShowDayLearningCardsFirst),
         })
     }
 
@@ -53,10 +54,16 @@ impl Collection {
     ) -> Result<()> {
         let s = settings;
 
-        self.set_day_learn_first(s.day_learn_first)?;
+        self.set_bool(BoolKey::ShowDayLearningCardsFirst, s.day_learn_first)?;
+        self.set_bool(
+            BoolKey::ShowRemainingDueCountsInStudy,
+            s.show_remaining_due_counts,
+        )?;
+        self.set_bool(
+            BoolKey::ShowIntervalsAboveAnswerButtons,
+            s.show_intervals_on_buttons,
+        )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
-        self.set_show_due_counts(s.show_remaining_due_counts)?;
-        self.set_show_intervals_above_buttons(s.show_intervals_on_buttons)?;
         self.set_learn_ahead_secs(s.learn_ahead_secs)?;
 
         self.set_new_review_mix(match s.new_review_mix() {

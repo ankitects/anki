@@ -5,7 +5,6 @@ use crate::{
     backend_proto as pb, collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
     timestamp::TimestampSecs,
 };
-pub use pb::config::bool::Key as BoolKey;
 pub use pb::config::string::Key as StringKey;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
@@ -42,21 +41,10 @@ pub(crate) fn schema11_config_as_string() -> String {
 #[derive(IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub(crate) enum ConfigKey {
-    CardCountsSeparateInactive,
-    CollapseCardState,
-    CollapseDecks,
-    CollapseFlags,
-    CollapseNotetypes,
-    CollapseSavedSearches,
-    CollapseTags,
-    CollapseToday,
     CreationOffset,
     FirstDayOfWeek,
-    FutureDueShowBacklog,
     LocalOffset,
-    PreviewBothSides,
     Rollover,
-    Sched2021,
     SetDueBrowser,
     SetDueReviewer,
 
@@ -64,8 +52,6 @@ pub(crate) enum ConfigKey {
     AnswerTimeLimitSecs,
     #[strum(to_string = "sortType")]
     BrowserSortKind,
-    #[strum(to_string = "sortBackwards")]
-    BrowserSortReverse,
     #[strum(to_string = "curDeck")]
     CurrentDeckID,
     #[strum(to_string = "curModel")]
@@ -78,33 +64,35 @@ pub(crate) enum ConfigKey {
     NewReviewMix,
     #[strum(to_string = "nextPos")]
     NextNewCardPosition,
-    #[strum(to_string = "normalize_note_text")]
-    NormalizeNoteText,
     #[strum(to_string = "schedVer")]
     SchedulerVersion,
+}
+
+#[derive(Debug, Clone, Copy, IntoStaticStr)]
+#[strum(serialize_all = "camelCase")]
+pub enum BoolKey {
+    CardCountsSeparateInactive,
+    CollapseCardState,
+    CollapseDecks,
+    CollapseFlags,
+    CollapseNotetypes,
+    CollapseSavedSearches,
+    CollapseTags,
+    CollapseToday,
+    FutureDueShowBacklog,
+    PreviewBothSides,
+    Sched2021,
+
+    #[strum(to_string = "sortBackwards")]
+    BrowserSortBackwards,
+    #[strum(to_string = "normalize_note_text")]
+    NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
     ShowDayLearningCardsFirst,
     #[strum(to_string = "estTimes")]
     ShowIntervalsAboveAnswerButtons,
     #[strum(to_string = "dueCounts")]
     ShowRemainingDueCountsInStudy,
-}
-
-impl From<BoolKey> for ConfigKey {
-    fn from(key: BoolKey) -> Self {
-        match key {
-            BoolKey::BrowserSortBackwards => ConfigKey::BrowserSortReverse,
-            BoolKey::CollapseCardState => ConfigKey::CollapseCardState,
-            BoolKey::CollapseDecks => ConfigKey::CollapseDecks,
-            BoolKey::CollapseFlags => ConfigKey::CollapseFlags,
-            BoolKey::CollapseNotetypes => ConfigKey::CollapseNotetypes,
-            BoolKey::CollapseSavedSearches => ConfigKey::CollapseSavedSearches,
-            BoolKey::CollapseTags => ConfigKey::CollapseTags,
-            BoolKey::CollapseToday => ConfigKey::CollapseToday,
-            BoolKey::PreviewBothSides => ConfigKey::PreviewBothSides,
-            BoolKey::Sched2021 => ConfigKey::Sched2021,
-        }
-    }
 }
 
 impl From<StringKey> for ConfigKey {
@@ -169,13 +157,31 @@ impl Collection {
         self.storage.remove_config(key.into())
     }
 
-    pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
-        self.get_config_default(ConfigKey::BrowserSortKind)
+    pub(crate) fn get_bool(&self, key: BoolKey) -> bool {
+        match key {
+            BoolKey::BrowserSortBackwards => {
+                // older clients were storing this as an int
+                self.get_config_default::<BoolLike, _>(BoolKey::BrowserSortBackwards)
+                    .0
+            }
+
+            // some keys default to true
+            BoolKey::FutureDueShowBacklog
+            | BoolKey::ShowRemainingDueCountsInStudy
+            | BoolKey::CardCountsSeparateInactive
+            | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
+
+            // other options default to false
+            other => self.get_config_default(other),
+        }
     }
 
-    pub(crate) fn get_browser_sort_reverse(&self) -> bool {
-        let b: BoolLike = self.get_config_default(ConfigKey::BrowserSortReverse);
-        b.0
+    pub(crate) fn set_bool(&self, key: BoolKey, value: bool) -> Result<()> {
+        self.set_config(key, &value)
+    }
+
+    pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
+        self.get_config_default(ConfigKey::BrowserSortKind)
     }
 
     pub(crate) fn get_current_deck_id(&self) -> DeckID {
@@ -256,12 +262,6 @@ impl Collection {
         self.set_config(ConfigKey::LearnAheadSecs, &secs)
     }
 
-    /// This is a stop-gap solution until we can decouple searching from canonical storage.
-    pub(crate) fn normalize_note_text(&self) -> bool {
-        self.get_config_optional(ConfigKey::NormalizeNoteText)
-            .unwrap_or(true)
-    }
-
     pub(crate) fn get_new_review_mix(&self) -> NewReviewMix {
         match self.get_config_default::<u8, _>(ConfigKey::NewReviewMix) {
             1 => NewReviewMix::ReviewsFirst,
@@ -283,42 +283,6 @@ impl Collection {
         self.set_config(ConfigKey::FirstDayOfWeek, &weekday)
     }
 
-    pub(crate) fn get_card_counts_separate_inactive(&self) -> bool {
-        self.get_config_optional(ConfigKey::CardCountsSeparateInactive)
-            .unwrap_or(true)
-    }
-
-    pub(crate) fn set_card_counts_separate_inactive(&self, separate: bool) -> Result<()> {
-        self.set_config(ConfigKey::CardCountsSeparateInactive, &separate)
-    }
-
-    pub(crate) fn get_future_due_show_backlog(&self) -> bool {
-        self.get_config_optional(ConfigKey::FutureDueShowBacklog)
-            .unwrap_or(true)
-    }
-
-    pub(crate) fn set_future_due_show_backlog(&self, show: bool) -> Result<()> {
-        self.set_config(ConfigKey::FutureDueShowBacklog, &show)
-    }
-
-    pub(crate) fn get_show_due_counts(&self) -> bool {
-        self.get_config_optional(ConfigKey::ShowRemainingDueCountsInStudy)
-            .unwrap_or(true)
-    }
-
-    pub(crate) fn set_show_due_counts(&self, on: bool) -> Result<()> {
-        self.set_config(ConfigKey::ShowRemainingDueCountsInStudy, &on)
-    }
-
-    pub(crate) fn get_show_intervals_above_buttons(&self) -> bool {
-        self.get_config_optional(ConfigKey::ShowIntervalsAboveAnswerButtons)
-            .unwrap_or(true)
-    }
-
-    pub(crate) fn set_show_intervals_above_buttons(&self, on: bool) -> Result<()> {
-        self.set_config(ConfigKey::ShowIntervalsAboveAnswerButtons, &on)
-    }
-
     pub(crate) fn get_answer_time_limit_secs(&self) -> u32 {
         self.get_config_optional(ConfigKey::AnswerTimeLimitSecs)
             .unwrap_or_default()
@@ -328,15 +292,6 @@ impl Collection {
         self.set_config(ConfigKey::AnswerTimeLimitSecs, &secs)
     }
 
-    pub(crate) fn get_day_learn_first(&self) -> bool {
-        self.get_config_optional(ConfigKey::ShowDayLearningCardsFirst)
-            .unwrap_or_default()
-    }
-
-    pub(crate) fn set_day_learn_first(&self, on: bool) -> Result<()> {
-        self.set_config(ConfigKey::ShowDayLearningCardsFirst, &on)
-    }
-
     pub(crate) fn get_last_unburied_day(&self) -> u32 {
         self.get_config_optional(ConfigKey::LastUnburiedDay)
             .unwrap_or_default()
@@ -344,23 +299,6 @@ impl Collection {
 
     pub(crate) fn set_last_unburied_day(&self, day: u32) -> Result<()> {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
-    }
-
-    #[allow(clippy::match_single_binding)]
-    pub(crate) fn get_bool(&self, config: pb::config::Bool) -> bool {
-        self.get_bool_key(config.key())
-    }
-
-    #[allow(clippy::match_single_binding)]
-    pub(crate) fn get_bool_key(&self, key: BoolKey) -> bool {
-        match key {
-            // all options default to false at the moment
-            other => self.get_config_default(ConfigKey::from(other)),
-        }
-    }
-
-    pub(crate) fn set_bool(&self, input: pb::SetConfigBoolIn) -> Result<()> {
-        self.set_config(ConfigKey::from(input.key()), &input.value)
     }
 
     pub(crate) fn get_string(&self, config: pb::config::String) -> String {

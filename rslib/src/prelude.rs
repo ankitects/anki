@@ -4,6 +4,7 @@
 pub use crate::{
     card::{Card, CardID},
     collection::Collection,
+    config::BoolKey,
     deckconf::{DeckConf, DeckConfID},
     decks::{Deck, DeckID, DeckKind},
     err::{AnkiError, Result},

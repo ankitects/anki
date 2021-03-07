@@ -5,6 +5,7 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
+    prelude::*,
     text::normalize_to_nfc,
 };
 use regex::Regex;
@@ -46,7 +47,7 @@ impl Collection {
         field_name: Option<String>,
     ) -> Result<usize> {
         self.transact(None, |col| {
-            let norm = col.normalize_note_text();
+            let norm = col.get_bool(BoolKey::NormalizeNoteText);
             let search = if norm {
                 normalize_to_nfc(search_re)
             } else {

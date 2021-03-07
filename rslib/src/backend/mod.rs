@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod card;
+mod config;
 mod dbproxy;
 mod generic;
 mod http_sync_server;
@@ -1513,13 +1514,13 @@ impl BackendService for Backend {
     fn get_config_bool(&self, input: pb::config::Bool) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             Ok(pb::Bool {
-                val: col.get_bool(input),
+                val: col.get_bool(input.key().into()),
             })
         })
     }
 
     fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> BackendResult<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_bool(input)))
+        self.with_col(|col| col.transact(None, |col| col.set_bool(input.key().into(), input.value)))
             .map(Into::into)
     }
 
