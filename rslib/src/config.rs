@@ -2,10 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto as pb, collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
+    collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
     timestamp::TimestampSecs,
 };
-pub use pb::config::string::Key as StringKey;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
@@ -45,8 +44,6 @@ pub(crate) enum ConfigKey {
     FirstDayOfWeek,
     LocalOffset,
     Rollover,
-    SetDueBrowser,
-    SetDueReviewer,
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
@@ -95,13 +92,11 @@ pub enum BoolKey {
     ShowRemainingDueCountsInStudy,
 }
 
-impl From<StringKey> for ConfigKey {
-    fn from(key: StringKey) -> Self {
-        match key {
-            StringKey::SetDueBrowser => ConfigKey::SetDueBrowser,
-            StringKey::SetDueReviewer => ConfigKey::SetDueReviewer,
-        }
-    }
+#[derive(Debug, Clone, Copy, IntoStaticStr)]
+#[strum(serialize_all = "camelCase")]
+pub enum StringKey {
+    SetDueBrowser,
+    SetDueReviewer,
 }
 
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
@@ -178,6 +173,20 @@ impl Collection {
 
     pub(crate) fn set_bool(&self, key: BoolKey, value: bool) -> Result<()> {
         self.set_config(key, &value)
+    }
+
+    pub(crate) fn get_string(&self, key: StringKey) -> String {
+        let default = match key {
+            StringKey::SetDueBrowser => "0",
+            StringKey::SetDueReviewer => "1",
+            // other => "",
+        };
+        self.get_config_optional(key)
+            .unwrap_or_else(|| default.to_string())
+    }
+
+    pub(crate) fn set_string(&self, key: StringKey, val: &str) -> Result<()> {
+        self.set_config(key, &val)
     }
 
     pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
@@ -299,21 +308,6 @@ impl Collection {
 
     pub(crate) fn set_last_unburied_day(&self, day: u32) -> Result<()> {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
-    }
-
-    pub(crate) fn get_string(&self, config: pb::config::String) -> String {
-        let key = config.key();
-        let default = match key {
-            StringKey::SetDueBrowser => "0",
-            StringKey::SetDueReviewer => "1",
-            // other => "",
-        };
-        self.get_config_optional(ConfigKey::from(key))
-            .unwrap_or_else(|| default.to_string())
-    }
-
-    pub(crate) fn set_string(&self, input: pb::SetConfigStringIn) -> Result<()> {
-        self.set_config(ConfigKey::from(input.key()), &input.value)
     }
 }
 
