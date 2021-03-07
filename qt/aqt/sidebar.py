@@ -1142,6 +1142,8 @@ class SidebarTreeView(QTreeView):
 
     def _remove_tags(self, _item: SidebarItem) -> None:
         tags = self._selected_tags()
+        if not self.ask_remove_tags(tags):
+            return
 
         def do_remove() -> None:
             self.col._backend.expunge_tags(" ".join(tags))
@@ -1349,3 +1351,19 @@ class SidebarTreeView(QTreeView):
             for item in self._selected_items()
             if item.item_type == SidebarItemType.TAG
         ]
+
+    def ask_remove_tags(self, tags: List[str]) -> bool:
+        count = len(
+            self.col.find_notes(
+                self.col.build_search_string(
+                    *(SearchNode(tag=tag) for tag in tags), joiner="OR"
+                )
+            )
+        )
+        if not count:
+            return True
+        if len(tags) == 1:
+            return askUser(
+                tr(TR.BROWSING_SIDEBAR_REMOVE_TAG, name=tags[0], count=count)
+            )
+        return askUser(tr(TR.BROWSING_SIDEBAR_REMOVE_TAGS, count=count))
