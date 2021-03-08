@@ -662,7 +662,7 @@ class AnkiQt(QMainWindow):
 
     def _selectedDeck(self) -> Optional[Deck]:
         did = self.col.decks.selected()
-        if not self.col.decks.nameOrNone(did):
+        if not self.col.decks.name_if_exists(did):
             showInfo(tr(TR.QT_MISC_PLEASE_SELECT_A_DECK))
             return None
         return self.col.decks.get(did)

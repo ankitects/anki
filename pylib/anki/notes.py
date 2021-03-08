@@ -14,6 +14,8 @@ from anki.consts import MODEL_STD
 from anki.models import NoteType, Template
 from anki.utils import joinFields
 
+DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
+
 
 class Note:
     # not currently exposed
@@ -186,8 +188,9 @@ class Note:
     # Unique/duplicate check
     ##################################################
 
-    def dupeOrEmpty(self) -> int:
-        "1 if first is empty; 2 if first is a duplicate, 0 otherwise."
+    def duplicate_or_empty(self) -> DuplicateOrEmptyResult.V:
         return self.col._backend.note_is_duplicate_or_empty(
             self._to_backend_note()
         ).state
+
+    dupeOrEmpty = duplicate_or_empty

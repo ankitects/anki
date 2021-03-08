@@ -499,6 +499,7 @@ impl Collection {
         self.transact(None, |col| {
             col.storage.set_schema_modified()?;
             col.state.notetype_cache.remove(&ntid);
+            col.clear_aux_config_for_notetype(ntid)?;
             col.storage.remove_notetype(ntid)?;
             let all = col.storage.get_all_notetype_names()?;
             if all.is_empty() {

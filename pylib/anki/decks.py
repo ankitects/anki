@@ -374,7 +374,7 @@ class DeckManager:
             return deck["name"]
         return self.col.tr(TR.DECKS_NO_DECK)
 
-    def nameOrNone(self, did: int) -> Optional[str]:
+    def name_if_exists(self, did: int) -> Optional[str]:
         deck = self.get(did, default=False)
         if deck:
             return deck["name"]
@@ -562,3 +562,4 @@ class DeckManager:
     # legacy
 
     newDyn = new_filtered
+    nameOrNone = name_if_exists

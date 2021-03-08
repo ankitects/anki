@@ -41,6 +41,17 @@ impl SqliteStorage {
             .transpose()
     }
 
+    /// Prefix is expected to end with '_'.
+    pub(crate) fn get_config_prefix(&self, prefix: &str) -> Result<Vec<(String, Vec<u8>)>> {
+        let mut end = prefix.to_string();
+        assert_eq!(end.pop(), Some('_'));
+        end.push(std::char::from_u32('_' as u32 + 1).unwrap());
+        self.db
+            .prepare("select key, val from config where key > ? and key < ?")?
+            .query_and_then(params![prefix, &end], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect()
+    }
+
     pub(crate) fn get_all_config(&self) -> Result<HashMap<String, Value>> {
         self.db
             .prepare("select key, val from config")?

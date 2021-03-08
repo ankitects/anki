@@ -1,61 +1,79 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Any
 
-from aqt import AnkiQt, gui_hooks
+from typing import Optional
+
+from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import TR, HelpPage, shortcut, tr
 
 
 class DeckChooser(QHBoxLayout):
     def __init__(
-        self, mw: AnkiQt, widget: QWidget, label: bool = True, start: Any = None
+        self,
+        mw: AnkiQt,
+        widget: QWidget,
+        label: bool = True,
+        starting_deck_id: Optional[int] = None,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore
         self.mw = mw
-        self.label = label
+        self._setup_ui(show_label=label)
+
+        self._selected_deck_id = 0
+        # default to current deck if starting id not provided
+        if starting_deck_id is None:
+            starting_deck_id = self.mw.col.get_config("curDeck", default=1) or 1
+        self.selected_deck_id = starting_deck_id
+
+    def _setup_ui(self, show_label: bool) -> None:
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
-        self.setupDecks()
-        self._widget.setLayout(self)
-        gui_hooks.current_note_type_did_change.append(self.onModelChangeNew)
 
-    def setupDecks(self) -> None:
-        if self.label:
+        # text label before button?
+        if show_label:
             self.deckLabel = QLabel(tr(TR.DECKS_DECK))
             self.addWidget(self.deckLabel)
+
         # decks box
-        self.deck = QPushButton(clicked=self.onDeckChange)  # type: ignore
+        self.deck = QPushButton()
+        qconnect(self.deck.clicked, self.choose_deck)
         self.deck.setAutoDefault(False)
         self.deck.setToolTip(shortcut(tr(TR.QT_MISC_TARGET_DECK_CTRLANDD)))
-        QShortcut(QKeySequence("Ctrl+D"), self._widget, activated=self.onDeckChange)  # type: ignore
-        self.addWidget(self.deck)
-        # starting label
-        if self.mw.col.conf.get("addToCur", True):
-            col = self.mw.col
-            did = col.conf["curDeck"]
-            if col.decks.isDyn(did):
-                # if they're reviewing, try default to current card
-                c = self.mw.reviewer.card
-                if self.mw.state == "review" and c:
-                    if not c.odid:
-                        did = c.did
-                    else:
-                        did = c.odid
-                else:
-                    did = 1
-            self.setDeckName(
-                self.mw.col.decks.nameOrNone(did) or tr(TR.QT_MISC_DEFAULT)
-            )
-        else:
-            self.setDeckName(
-                self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
-                or tr(TR.QT_MISC_DEFAULT)
-            )
-        # layout
+        qconnect(
+            QShortcut(QKeySequence("Ctrl+D"), self._widget).activated, self.choose_deck
+        )
         sizePolicy = QSizePolicy(QSizePolicy.Policy(7), QSizePolicy.Policy(0))
         self.deck.setSizePolicy(sizePolicy)
+        self.addWidget(self.deck)
+
+        self._widget.setLayout(self)
+
+    def selected_deck_name(self) -> str:
+        return (
+            self.mw.col.decks.name_if_exists(self.selected_deck_id) or "missing default"
+        )
+
+    @property
+    def selected_deck_id(self) -> int:
+        self._ensure_selected_deck_valid()
+
+        return self._selected_deck_id
+
+    @selected_deck_id.setter
+    def selected_deck_id(self, id: int) -> None:
+        if id != self._selected_deck_id:
+            self._selected_deck_id = id
+            self._ensure_selected_deck_valid()
+            self._update_button_label()
+
+    def _ensure_selected_deck_valid(self) -> None:
+        if not self.mw.col.decks.get(self._selected_deck_id, default=False):
+            self.selected_deck_id = 1
+
+    def _update_button_label(self) -> None:
+        self.deck.setText(self.selected_deck_name().replace("&", "&&"))
 
     def show(self) -> None:
         self._widget.show()  # type: ignore
@@ -63,23 +81,10 @@ class DeckChooser(QHBoxLayout):
     def hide(self) -> None:
         self._widget.hide()  # type: ignore
 
-    def cleanup(self) -> None:
-        gui_hooks.current_note_type_did_change.remove(self.onModelChangeNew)
-
-    def onModelChangeNew(self, unused: Any = None) -> None:
-        self.onModelChange()
-
-    def onModelChange(self) -> None:
-        if not self.mw.col.conf.get("addToCur", True):
-            self.setDeckName(
-                self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
-                or tr(TR.QT_MISC_DEFAULT)
-            )
-
-    def onDeckChange(self) -> None:
+    def choose_deck(self) -> None:
         from aqt.studydeck import StudyDeck
 
-        current = self.deckName()
+        current = self.selected_deck_name()
         ret = StudyDeck(
             self.mw,
             current=current,
@@ -91,20 +96,15 @@ class DeckChooser(QHBoxLayout):
             geomKey="selectDeck",
         )
         if ret.name:
-            self.setDeckName(ret.name)
+            self.selected_deck_id = self.mw.col.decks.byName(ret.name)["id"]
 
-    def setDeckName(self, name: str) -> None:
-        self.deck.setText(name.replace("&", "&&"))
-        self._deckName = name
+    # legacy
 
-    def deckName(self) -> str:
-        return self._deckName
+    onDeckChange = choose_deck
+    deckName = selected_deck_name
 
     def selectedId(self) -> int:
-        # save deck name
-        name = self.deckName()
-        if not name.strip():
-            did = 1
-        else:
-            did = self.mw.col.decks.id(name)
-        return did
+        return self.selected_deck_id
+
+    def cleanup(self) -> None:
+        pass

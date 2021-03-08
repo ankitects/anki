@@ -2,14 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod bool;
+mod deck;
+mod notetype;
 pub(crate) mod schema11;
 mod string;
 
 pub use self::{bool::BoolKey, string::StringKey};
-use crate::{
-    collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
-    timestamp::TimestampSecs,
-};
+use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_derive::Deserialize;
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -92,13 +91,16 @@ impl Collection {
         self.storage.remove_config(key.into())
     }
 
-    pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
-        self.get_config_default(ConfigKey::BrowserSortKind)
+    /// Remove all keys starting with provided prefix, which must end with '_'.
+    pub(crate) fn remove_config_prefix(&self, key: &str) -> Result<()> {
+        for (key, _val) in self.storage.get_config_prefix(key)? {
+            self.storage.remove_config(&key)?;
+        }
+        Ok(())
     }
 
-    pub(crate) fn get_current_deck_id(&self) -> DeckID {
-        self.get_config_optional(ConfigKey::CurrentDeckID)
-            .unwrap_or(DeckID(1))
+    pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
+        self.get_config_default(ConfigKey::BrowserSortKind)
     }
 
     pub(crate) fn get_creation_utc_offset(&self) -> Option<i32> {
@@ -128,15 +130,6 @@ impl Collection {
 
     pub(crate) fn set_v2_rollover(&self, hour: u32) -> Result<()> {
         self.set_config(ConfigKey::Rollover, &hour)
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn get_current_notetype_id(&self) -> Option<NoteTypeID> {
-        self.get_config_optional(ConfigKey::CurrentNoteTypeID)
-    }
-
-    pub(crate) fn set_current_notetype_id(&self, id: NoteTypeID) -> Result<()> {
-        self.set_config(ConfigKey::CurrentNoteTypeID, &id)
     }
 
     pub(crate) fn get_next_card_position(&self) -> u32 {

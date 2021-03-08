@@ -170,6 +170,8 @@ service BackendService {
 
   rpc NewNote(NoteTypeID) returns (Note);
   rpc AddNote(AddNoteIn) returns (NoteID);
+  rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
+  rpc DefaultDeckForNotetype(NoteTypeID) returns (DeckID);
   rpc UpdateNote(UpdateNoteIn) returns (Empty);
   rpc GetNote(NoteID) returns (Note);
   rpc RemoveNotes(RemoveNotesIn) returns (Empty);
@@ -403,7 +405,7 @@ message NoteTypeConfig {
   Kind kind = 1;
   uint32 sort_field_idx = 2;
   string css = 3;
-  int64 target_deck_id = 4;
+  int64 target_deck_id = 4;  // moved into config var
   string latex_pre = 5;
   string latex_post = 6;
   bool latex_svg = 7;
@@ -1272,6 +1274,7 @@ message Config {
       COLLAPSE_CARD_STATE = 7;
       COLLAPSE_FLAGS = 8;
       SCHED_2021 = 9;
+      ADDING_DEFAULTS_TO_CURRENT_DECK = 10;
     }
     Key key = 1;
   }
@@ -1405,4 +1408,13 @@ message GetQueuedCardsOut {
 message UndoStatus {
   string undo = 1;
   string redo = 2;
+}
+
+message DefaultsForAddingIn {
+  int64 home_deck_of_current_review_card = 1;
+}
+
+message DeckAndNotetype {
+  int64 deck_id = 1;
+  int64 notetype_id = 2;
 }
