@@ -33,7 +33,6 @@ from aqt.utils import (
 class SidebarTool(Enum):
     SELECT = auto()
     SEARCH = auto()
-    EDIT = auto()
 
 
 class SidebarItemType(Enum):
@@ -277,10 +276,9 @@ class SidebarModel(QAbstractItemModel):
 
 
 class SidebarToolbar(QToolBar):
-    _tools: Tuple[Tuple[SidebarTool, str, str], ...] = (
-        (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", "search"),
-        (SidebarTool.SELECT, ":/icons/select.svg", "select"),
-        (SidebarTool.EDIT, ":/icons/edit.svg", "edit"),
+    _tools: Tuple[Tuple[SidebarTool, str, TR.V], ...] = (
+        (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", TR.ACTIONS_SEARCH),
+        (SidebarTool.SELECT, ":/icons/select.svg", TR.ACTIONS_SELECT),
     )
 
     def __init__(self, sidebar: SidebarTreeView) -> None:
@@ -293,7 +291,9 @@ class SidebarToolbar(QToolBar):
 
     def _setup_tools(self) -> None:
         for row in self._tools:
-            action = self.addAction(theme_manager.icon_from_resources(row[1]), row[2])
+            action = self.addAction(
+                theme_manager.icon_from_resources(row[1]), tr(row[2])
+            )
             action.setCheckable(True)
             self._action_group.addAction(action)
         saved = self.sidebar.col.get_config("sidebarTool", 0)
@@ -368,6 +368,7 @@ class SidebarTreeView(QTreeView):
         self.setIndentation(15)
         self.setAutoExpandDelay(600)
         self.setDragDropOverwriteMode(False)
+        self.setEditTriggers(QAbstractItemView.EditKeyPressed)
 
         qconnect(self.expanded, self._on_expansion)
         qconnect(self.collapsed, self._on_collapse)
@@ -393,24 +394,14 @@ class SidebarTreeView(QTreeView):
     @tool.setter
     def tool(self, tool: SidebarTool) -> None:
         self._tool = tool
-        if tool == SidebarTool.SELECT:
-            selection_mode = QAbstractItemView.ExtendedSelection
-            drag_drop_mode = QAbstractItemView.NoDragDrop
-            edit_triggers = QAbstractItemView.EditKeyPressed
-        elif tool == SidebarTool.SEARCH:
+        if tool == SidebarTool.SEARCH:
             selection_mode = QAbstractItemView.SingleSelection
             drag_drop_mode = QAbstractItemView.NoDragDrop
-            edit_triggers = QAbstractItemView.EditKeyPressed
-        elif tool == SidebarTool.EDIT:
+        else:
             selection_mode = QAbstractItemView.ExtendedSelection
             drag_drop_mode = QAbstractItemView.InternalMove
-            edit_triggers = cast(
-                QAbstractItemView.EditTriggers,
-                QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed,
-            )
         self.setSelectionMode(selection_mode)
         self.setDragDropMode(drag_drop_mode)
-        self.setEditTriggers(edit_triggers)
 
     def model(self) -> SidebarModel:
         return super().model()
