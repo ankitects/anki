@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::config::schema11_config_as_string;
+use crate::config::schema11::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};

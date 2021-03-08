@@ -1,41 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod bool;
+pub(crate) mod schema11;
+mod string;
+
+pub use self::{bool::BoolKey, string::StringKey};
 use crate::{
     collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
     timestamp::TimestampSecs,
 };
 use serde::{de::DeserializeOwned, Serialize};
-use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
-use serde_json::json;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
-
-/// These items are expected to exist in schema 11. When adding
-/// new config variables, you do not need to add them here -
-/// just create an accessor function below with an appropriate
-/// default on missing/invalid values instead.
-pub(crate) fn schema11_config_as_string() -> String {
-    let obj = json!({
-        "activeDecks": [1],
-        "curDeck": 1,
-        "newSpread": 0,
-        "collapseTime": 1200,
-        "timeLim": 0,
-        "estTimes": true,
-        "dueCounts": true,
-        "curModel": null,
-        "nextPos": 1,
-        "sortType": "noteFld",
-        "sortBackwards": false,
-        "addToCur": true,
-        "dayLearnFirst": false,
-        "schedVer": 1,
-    });
-    serde_json::to_string(&obj).unwrap()
-}
 
 #[derive(IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
@@ -65,51 +44,12 @@ pub(crate) enum ConfigKey {
     SchedulerVersion,
 }
 
-#[derive(Debug, Clone, Copy, IntoStaticStr)]
-#[strum(serialize_all = "camelCase")]
-pub enum BoolKey {
-    CardCountsSeparateInactive,
-    CollapseCardState,
-    CollapseDecks,
-    CollapseFlags,
-    CollapseNotetypes,
-    CollapseSavedSearches,
-    CollapseTags,
-    CollapseToday,
-    FutureDueShowBacklog,
-    PreviewBothSides,
-    Sched2021,
-
-    #[strum(to_string = "sortBackwards")]
-    BrowserSortBackwards,
-    #[strum(to_string = "normalize_note_text")]
-    NormalizeNoteText,
-    #[strum(to_string = "dayLearnFirst")]
-    ShowDayLearningCardsFirst,
-    #[strum(to_string = "estTimes")]
-    ShowIntervalsAboveAnswerButtons,
-    #[strum(to_string = "dueCounts")]
-    ShowRemainingDueCountsInStudy,
-}
-
-#[derive(Debug, Clone, Copy, IntoStaticStr)]
-#[strum(serialize_all = "camelCase")]
-pub enum StringKey {
-    SetDueBrowser,
-    SetDueReviewer,
-}
-
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
 #[repr(u8)]
 pub(crate) enum SchedulerVersion {
     V1 = 1,
     V2 = 2,
 }
-/// This is a workaround for old clients that used ints to represent boolean
-/// values. For new config items, prefer using a bool directly.
-#[derive(Deserialize, Default)]
-struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bool);
-
 impl Collection {
     /// Get config item, returning None if missing/invalid.
     pub(crate) fn get_config_optional<'a, T, K>(&self, key: K) -> Option<T>
@@ -150,43 +90,6 @@ impl Collection {
         K: Into<&'a str>,
     {
         self.storage.remove_config(key.into())
-    }
-
-    pub(crate) fn get_bool(&self, key: BoolKey) -> bool {
-        match key {
-            BoolKey::BrowserSortBackwards => {
-                // older clients were storing this as an int
-                self.get_config_default::<BoolLike, _>(BoolKey::BrowserSortBackwards)
-                    .0
-            }
-
-            // some keys default to true
-            BoolKey::FutureDueShowBacklog
-            | BoolKey::ShowRemainingDueCountsInStudy
-            | BoolKey::CardCountsSeparateInactive
-            | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
-
-            // other options default to false
-            other => self.get_config_default(other),
-        }
-    }
-
-    pub(crate) fn set_bool(&self, key: BoolKey, value: bool) -> Result<()> {
-        self.set_config(key, &value)
-    }
-
-    pub(crate) fn get_string(&self, key: StringKey) -> String {
-        let default = match key {
-            StringKey::SetDueBrowser => "0",
-            StringKey::SetDueReviewer => "1",
-            // other => "",
-        };
-        self.get_config_optional(key)
-            .unwrap_or_else(|| default.to_string())
-    }
-
-    pub(crate) fn set_string(&self, key: StringKey, val: &str) -> Result<()> {
-        self.set_config(key, &val)
     }
 
     pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
