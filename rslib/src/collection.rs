@@ -139,4 +139,9 @@ impl Collection {
         })?;
         self.storage.optimize()
     }
+
+    pub(crate) fn clear_caches(&mut self) {
+        self.state.deck_cache.clear();
+        self.state.notetype_cache.clear();
+    }
 }
