@@ -16,9 +16,14 @@ function caretToEnd(currentField: EditingArea): void {
     selection.addRange(range);
 }
 
-function focusField(field: EditingArea) {
+function focusField(field: EditingArea, moveCaretToEnd: boolean): void {
     field.focusEditable();
     bridgeCommand(`focus:${field.ord}`);
+
+    if (moveCaretToEnd) {
+        caretToEnd(field);
+    }
+
     enableButtons();
 }
 
@@ -33,11 +38,10 @@ export function onFocus(evt: FocusEvent): void {
         !(previousFocus instanceof EditingArea) ||
         previousFocus === previousActiveElement
     ) {
-        focusField(currentField);
+        const moveCaretToEnd =
+            Boolean(previousFocus) || !Boolean(previousActiveElement);
 
-        if (previousFocus) {
-            caretToEnd(currentField);
-        }
+        focusField(currentField, moveCaretToEnd);
     }
 }
 
