@@ -1,6 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+import type { EditingArea } from ".";
+
 export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
@@ -65,4 +67,13 @@ const INLINE_TAGS = [
 
 export function nodeIsInline(node: Node): boolean {
     return !nodeIsElement(node) || INLINE_TAGS.includes(node.tagName);
+}
+
+export function caretToEnd(currentField: EditingArea): void {
+    const range = document.createRange();
+    range.selectNodeContents(currentField.editable);
+    range.collapse(false);
+    const selection = currentField.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
 }
