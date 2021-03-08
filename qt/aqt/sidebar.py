@@ -266,16 +266,10 @@ class SidebarModel(QAbstractItemModel):
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if not index.isValid():
             return cast(Qt.ItemFlags, Qt.ItemIsEnabled)
-        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
-
+        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
         item: SidebarItem = index.internalPointer()
-        if item.item_type in (
-            SidebarItemType.DECK,
-            SidebarItemType.DECK_ROOT,
-            SidebarItemType.TAG,
-            SidebarItemType.TAG_ROOT,
-        ):
-            flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+        if item.item_type in self.sidebar.valid_drop_types:
+            flags |= Qt.ItemIsDropEnabled
         if item.item_type.is_editable():
             flags |= Qt.ItemIsEditable
 
@@ -365,6 +359,7 @@ class SidebarTreeView(QTreeView):
         self.mw = browser.mw
         self.col = self.mw.col
         self.current_search: Optional[str] = None
+        self.valid_drop_types: Tuple[SidebarItemType, ...] = ()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -436,6 +431,7 @@ class SidebarTreeView(QTreeView):
             # tester = QAbstractItemModelTester(model)
 
             self.setModel(model)
+            qconnect(self.selectionModel().selectionChanged, self._on_selection_changed)
             if self.current_search:
                 self.search_for(self.current_search)
             else:
@@ -567,6 +563,15 @@ class SidebarTreeView(QTreeView):
             super().keyPressEvent(event)
 
     ###########
+
+    def _on_selection_changed(self, _new: QItemSelection, _old: QItemSelection) -> None:
+        selected_types = [item.item_type for item in self._selected_items()]
+        if all(item_type == SidebarItemType.DECK for item_type in selected_types):
+            self.valid_drop_types = (SidebarItemType.DECK, SidebarItemType.DECK_ROOT)
+        elif all(item_type == SidebarItemType.TAG for item_type in selected_types):
+            self.valid_drop_types = (SidebarItemType.TAG, SidebarItemType.TAG_ROOT)
+        else:
+            self.valid_drop_types = ()
 
     def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
         if target.item_type in (SidebarItemType.DECK, SidebarItemType.DECK_ROOT):
