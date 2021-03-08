@@ -23,7 +23,7 @@ from aqt.utils import (
     askUser,
     disable_help_button,
     getFile,
-    getOnlyText,
+    getText,
     openHelp,
     showInfo,
     showText,
@@ -82,6 +82,8 @@ class ChangeMap(QDialog):
 
 
 class ImportDialog(QDialog):
+    _DEFAULT_FILE_DELIMITER = "\t"
+
     def __init__(self, mw: AnkiQt, importer: Any) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
@@ -122,28 +124,39 @@ class ImportDialog(QDialog):
         self.showMapping()
 
     def onDelimiter(self) -> None:
-        str = (
-            getOnlyText(
-                tr(TR.IMPORTING_BY_DEFAULT_ANKI_WILL_DETECT_THE),
-                self,
-                help=HelpPage.IMPORTING,
-            )
-            or "\t"
+
+        # Open a modal dialog to enter an delimiter
+        # Todo/Idea Constrain the maximum width, so it doesnt take up that much screen space
+        delim, ok = getText(
+            tr(TR.IMPORTING_BY_DEFAULT_ANKI_WILL_DETECT_THE),
+            self,
+            help=HelpPage.IMPORTING,
         )
-        str = str.replace("\\t", "\t")
-        if len(str) > 1:
-            showWarning(
-                tr(TR.IMPORTING_MULTICHARACTER_SEPARATORS_ARE_NOT_SUPPORTED_PLEASE)
-            )
-            return
-        self.hideMapping()
 
-        def updateDelim() -> None:
-            self.importer.delimiter = str
-            self.importer.updateDelimiter()
+        # If the modal dialog has been confirmed, update the delimiter
+        if ok:
+            # Check if the entered value is valid and if not fallback to default
+            # at the moment every single character entry as well as '\t' is valid
 
-        self.showMapping(hook=updateDelim)
-        self.updateDelimiterButtonText()
+            delim = delim if len(delim) > 0 else self._DEFAULT_FILE_DELIMITER
+            delim = delim.replace("\\t", "\t")  # un-escape it
+            if len(delim) > 1:
+                showWarning(
+                    tr(TR.IMPORTING_MULTICHARACTER_SEPARATORS_ARE_NOT_SUPPORTED_PLEASE)
+                )
+                return
+            self.hideMapping()
+
+            def updateDelim() -> None:
+                self.importer.delimiter = delim
+                self.importer.updateDelimiter()
+                self.updateDelimiterButtonText()
+
+            self.showMapping(hook=updateDelim)
+
+        else:
+            # If the operation has been canceled, do not do anything
+            pass
 
     def updateDelimiterButtonText(self) -> None:
         if not self.importer.needDelimiter:
