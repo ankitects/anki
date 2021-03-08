@@ -47,7 +47,7 @@ export class LabelContainer extends HTMLDivElement {
     }
 
     setSticky(state: boolean): void {
-        this.sticky.classList.toggle("is-inactive", state);
+        this.sticky.classList.toggle("is-inactive", !state);
     }
 
     activateSticky(initialState: boolean): void {
