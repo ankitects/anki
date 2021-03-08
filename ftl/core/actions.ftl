@@ -32,6 +32,7 @@ actions-replay-audio = Replay Audio
 actions-reposition = Reposition
 actions-save = Save
 actions-search = Search
+actions-select = Select
 actions-shortcut-key = Shortcut key: { $val }
 actions-suspend-card = Suspend Card
 actions-set-due-date = Set Due Date
