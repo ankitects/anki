@@ -28,7 +28,7 @@ from anki.decks import DeckManager
 from anki.errors import AnkiError, DBError
 from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager
+from anki.models import ModelManager, NoteType
 from anki.notes import Note
 from anki.sched import Scheduler as V1Scheduler
 from anki.scheduler import Scheduler as V2TestScheduler
@@ -55,6 +55,7 @@ GraphPreferences = _pb.GraphPreferences
 BuiltinSort = _pb.SortOrder.Builtin
 Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
+DefaultsForAdding = _pb.DeckAndNotetype
 
 
 @dataclass
@@ -360,12 +361,8 @@ class Collection:
     # Notes
     ##########################################################################
 
-    def noteCount(self) -> Any:
-        return self.db.scalar("select count() from notes")
-
-    def newNote(self, forDeck: bool = True) -> Note:
-        "Return a new note with the current model."
-        return Note(self, self.models.current(forDeck))
+    def new_note(self, notetype: NoteType) -> Note:
+        return Note(self, notetype)
 
     def add_note(self, note: Note, deck_id: int) -> None:
         note.id = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
@@ -385,7 +382,43 @@ class Collection:
     def card_ids_of_note(self, note_id: int) -> Sequence[int]:
         return self._backend.cards_of_note(note_id)
 
+    def defaults_for_adding(
+        self, *, current_review_card: Optional[Card]
+    ) -> DefaultsForAdding:
+        """Get starting deck and notetype for add screen.
+        An option in the preferences controls whether this will be based on the current deck
+        or current notetype.
+        """
+        if card := current_review_card:
+            home_deck = card.odid or card.did
+        else:
+            home_deck = 0
+
+        return self._backend.defaults_for_adding(
+            home_deck_of_current_review_card=home_deck,
+        )
+
+    def default_deck_for_notetype(self, notetype_id: int) -> Optional[int]:
+        """If 'change deck depending on notetype' is enabled in the preferences,
+        return the last deck used with the provided notetype, if any.."""
+        if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
+            return None
+
+        return (
+            self._backend.default_deck_for_notetype(
+                ntid=notetype_id,
+            )
+            or None
+        )
+
     # legacy
+
+    def noteCount(self) -> int:
+        return self.db.scalar("select count() from notes")
+
+    def newNote(self, forDeck: bool = True) -> Note:
+        "Return a new note with the current model."
+        return Note(self, self.models.current(forDeck))
 
     def addNote(self, note: Note) -> int:
         self.add_note(note, note.model()["did"])

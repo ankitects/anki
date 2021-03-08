@@ -321,7 +321,10 @@ impl Collection {
         note.prepare_for_update(&ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
         self.add_note_only_undoable(note)?;
-        self.generate_cards_for_new_note(ctx, note, did)
+        self.generate_cards_for_new_note(ctx, note, did)?;
+        self.set_last_deck_for_notetype(note.notetype_id, did)?;
+        self.set_last_notetype_for_deck(did, note.notetype_id)?;
+        self.set_current_notetype_id(note.notetype_id)
     }
 
     #[cfg(test)]

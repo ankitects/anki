@@ -468,6 +468,7 @@ impl Collection {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
             DeckKind::Filtered(_) => self.return_all_cards_in_filtered_deck(deck.id)?,
         }
+        self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
             let mut deck = deck.to_owned();
             // fixme: separate key

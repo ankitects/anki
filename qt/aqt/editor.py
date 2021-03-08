@@ -563,7 +563,7 @@ class Editor:
 
     def checkValid(self) -> None:
         cols = [""] * len(self.note.fields)
-        err = self.note.dupeOrEmpty()
+        err = self.note.duplicate_or_empty()
         if err == 2:
             cols[0] = "dupe"
 
@@ -680,18 +680,15 @@ class Editor:
             self._save_current_note()
         gui_hooks.editor_did_update_tags(self.note)
 
-    def saveAddModeVars(self) -> None:
-        if self.addMode:
-            # save tags to model
-            m = self.note.model()
-            m["tags"] = self.note.tags
-            self.mw.col.models.save(m, updateReqs=False)
-
     def hideCompleters(self) -> None:
         self.tags.hideCompleter()
 
     def onFocusTags(self) -> None:
         self.tags.setFocus()
+
+    # legacy
+    def saveAddModeVars(self) -> None:
+        pass
 
     # Format buttons
     ######################################################################

@@ -3,6 +3,7 @@
 
 #![deny(unused_must_use)]
 
+pub mod adding;
 pub mod backend;
 mod backend_proto;
 pub mod card;
