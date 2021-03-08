@@ -63,15 +63,19 @@ export function onKey(evt: KeyboardEvent): void {
 
 globalThis.addEventListener("keydown", (evt: KeyboardEvent) => {
     if (evt.code === "Tab") {
-        globalThis.addEventListener("focusin", (evt: FocusEvent) => {
-            const newFocusTarget = evt.target;
-            if (newFocusTarget instanceof EditingArea) {
-                caretToEnd(newFocusTarget);
-                updateButtonState();
-            }
-        }, { once: true })
+        globalThis.addEventListener(
+            "focusin",
+            (evt: FocusEvent) => {
+                const newFocusTarget = evt.target;
+                if (newFocusTarget instanceof EditingArea) {
+                    caretToEnd(newFocusTarget);
+                    updateButtonState();
+                }
+            },
+            { once: true }
+        );
     }
-})
+});
 
 export function onKeyUp(evt: KeyboardEvent): void {
     const currentField = evt.currentTarget as EditingArea;
