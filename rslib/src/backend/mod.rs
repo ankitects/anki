@@ -1851,7 +1851,7 @@ impl Backend {
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
-        self.with_col(|col| db_command_bytes(&col.storage, input))
+        self.with_col(|col| db_command_bytes(col, input))
     }
 
     pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {

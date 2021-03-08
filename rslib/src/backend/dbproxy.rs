@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
 use crate::storage::SqliteStorage;
+use crate::{collection::Collection, err::Result};
 use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
 use rusqlite::OptionalExtension;
 use serde_derive::{Deserialize, Serialize};
@@ -67,7 +67,7 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<Vec<u8>> {
+pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec<u8>> {
     let req: DBRequest = serde_json::from_slice(input)?;
     let resp = match req {
         DBRequest::Query {
@@ -76,24 +76,25 @@ pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<Vec<
             first_row_only,
         } => {
             if first_row_only {
-                db_query_row(ctx, &sql, &args)?
+                db_query_row(&col.storage, &sql, &args)?
             } else {
-                db_query(ctx, &sql, &args)?
+                db_query(&col.storage, &sql, &args)?
             }
         }
         DBRequest::Begin => {
-            ctx.begin_trx()?;
+            col.storage.begin_trx()?;
             DBResult::None
         }
         DBRequest::Commit => {
-            ctx.commit_trx()?;
+            col.storage.commit_trx()?;
             DBResult::None
         }
         DBRequest::Rollback => {
-            ctx.rollback_trx()?;
+            col.clear_caches();
+            col.storage.rollback_trx()?;
             DBResult::None
         }
-        DBRequest::ExecuteMany { sql, args } => db_execute_many(ctx, &sql, &args)?,
+        DBRequest::ExecuteMany { sql, args } => db_execute_many(&col.storage, &sql, &args)?,
     };
     Ok(serde_json::to_vec(&resp)?)
 }

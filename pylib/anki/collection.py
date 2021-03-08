@@ -245,7 +245,7 @@ class Collection:
                 self.save(trx=False)
             else:
                 self.db.rollback()
-            self.models._clear_cache()
+            self._clear_caches()
             self._backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
             self.media.close()
@@ -255,14 +255,18 @@ class Collection:
         # save and cleanup, but backend will take care of collection close
         if self.db:
             self.save(trx=False)
-            self.models._clear_cache()
+            self._clear_caches()
             self.db = None
             self.media.close()
             self._closeLog()
 
     def rollback(self) -> None:
+        self._clear_caches()
         self.db.rollback()
         self.db.begin()
+
+    def _clear_caches(self) -> None:
+        self.models._clear_cache()
 
     def reopen(self, after_full_sync: bool = False) -> None:
         assert not self.db
