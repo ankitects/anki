@@ -132,13 +132,17 @@ let filterInternalNode = function (elem: Element) {
 
 // filtering from external sources
 let filterNode = function (node: Node, extendedMode: boolean): void {
+    if (node.nodeType === Node.COMMENT_NODE) {
+        node.parentNode.removeChild(node);
+        return;
+    }
     if (!nodeIsElement(node)) {
         return;
     }
 
     // descend first, and take a copy of the child nodes as the loop will skip
     // elements due to node modifications otherwise
-    for (const child of [...node.children]) {
+    for (const child of [...node.childNodes]) {
         filterNode(child, extendedMode);
     }
 
