@@ -1325,9 +1325,10 @@ def check_and_prompt_for_updates(
     parent: QWidget,
     mgr: AddonManager,
     on_done: Callable[[List[DownloadLogEntry]], None],
+    requested_by_user: bool = True,
 ) -> None:
     def on_updates_received(client: HttpClient, items: List[Dict]) -> None:
-        handle_update_info(parent, mgr, client, items, on_done)
+        handle_update_info(parent, mgr, client, items, on_done, requested_by_user)
 
     check_for_updates(mgr, on_updates_received)
 
@@ -1396,6 +1397,7 @@ def handle_update_info(
     client: HttpClient,
     items: List[Dict],
     on_done: Callable[[List[DownloadLogEntry]], None],
+    requested_by_user: bool = True,
 ) -> None:
     update_info = mgr.extract_update_info(items)
     mgr.update_supported_versions(update_info)
@@ -1406,7 +1408,7 @@ def handle_update_info(
         on_done([])
         return
 
-    prompt_to_update(parent, mgr, client, updated_addons, on_done)
+    prompt_to_update(parent, mgr, client, updated_addons, on_done, requested_by_user)
 
 
 def prompt_to_update(
@@ -1415,7 +1417,16 @@ def prompt_to_update(
     client: HttpClient,
     updated_addons: List[UpdateInfo],
     on_done: Callable[[List[DownloadLogEntry]], None],
+    requested_by_user: bool = True,
 ) -> None:
+    if not requested_by_user:
+        prompt_update = False
+        for addon in updated_addons:
+            if mgr.addon_meta(str(addon.id)).update_enabled:
+                prompt_update = True
+        if not prompt_update:
+            return
+
     ids = ChooseAddonsToUpdateDialog(parent, mgr, updated_addons).ask()
     if not ids:
         return
