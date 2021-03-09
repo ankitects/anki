@@ -399,11 +399,14 @@ class SidebarTreeView(QTreeView):
         if tool == SidebarTool.SEARCH:
             selection_mode = QAbstractItemView.SingleSelection
             drag_drop_mode = QAbstractItemView.NoDragDrop
+            double_click_expands = False
         else:
             selection_mode = QAbstractItemView.ExtendedSelection
             drag_drop_mode = QAbstractItemView.InternalMove
+            double_click_expands = True
         self.setSelectionMode(selection_mode)
         self.setDragDropMode(drag_drop_mode)
+        self.setExpandsOnDoubleClick(double_click_expands)
 
     def model(self) -> SidebarModel:
         return super().model()
