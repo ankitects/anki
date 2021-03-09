@@ -6,6 +6,7 @@ mod deck;
 mod notetype;
 pub(crate) mod schema11;
 mod string;
+pub(crate) mod undo;
 
 pub use self::{bool::BoolKey, string::StringKey};
 use crate::prelude::*;
@@ -14,6 +15,26 @@ use serde_derive::Deserialize;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
+
+/// Only used when updating/undoing.
+#[derive(Debug)]
+pub(crate) struct ConfigEntry {
+    pub key: String,
+    pub value: Vec<u8>,
+    pub usn: Usn,
+    pub mtime: TimestampSecs,
+}
+
+impl ConfigEntry {
+    pub(crate) fn boxed(key: &str, value: Vec<u8>, usn: Usn, mtime: TimestampSecs) -> Box<Self> {
+        Box::new(Self {
+            key: key.into(),
+            value,
+            usn,
+            mtime,
+        })
+    }
+}
 
 #[derive(IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
@@ -76,19 +97,24 @@ impl Collection {
         self.get_config_optional(key).unwrap_or_default()
     }
 
-    pub(crate) fn set_config<'a, T: Serialize, K>(&self, key: K, val: &T) -> Result<()>
+    pub(crate) fn set_config<'a, T: Serialize, K>(&mut self, key: K, val: &T) -> Result<()>
     where
         K: Into<&'a str>,
     {
-        self.storage
-            .set_config_value(key.into(), val, self.usn()?, TimestampSecs::now())
+        let entry = ConfigEntry::boxed(
+            key.into(),
+            serde_json::to_vec(val)?,
+            self.usn()?,
+            TimestampSecs::now(),
+        );
+        self.set_config_undoable(entry)
     }
 
-    pub(crate) fn remove_config<'a, K>(&self, key: K) -> Result<()>
+    pub(crate) fn remove_config<'a, K>(&mut self, key: K) -> Result<()>
     where
         K: Into<&'a str>,
     {
-        self.storage.remove_config(key.into())
+        self.remove_config_undoable(key.into())
     }
 
     /// Remove all keys starting with provided prefix, which must end with '_'.
@@ -107,7 +133,7 @@ impl Collection {
         self.get_config_optional(ConfigKey::CreationOffset)
     }
 
-    pub(crate) fn set_creation_utc_offset(&self, mins: Option<i32>) -> Result<()> {
+    pub(crate) fn set_creation_utc_offset(&mut self, mins: Option<i32>) -> Result<()> {
         if let Some(mins) = mins {
             self.set_config(ConfigKey::CreationOffset, &mins)
         } else {
@@ -119,7 +145,7 @@ impl Collection {
         self.get_config_optional(ConfigKey::LocalOffset)
     }
 
-    pub(crate) fn set_configured_utc_offset(&self, mins: i32) -> Result<()> {
+    pub(crate) fn set_configured_utc_offset(&mut self, mins: i32) -> Result<()> {
         self.set_config(ConfigKey::LocalOffset, &mins)
     }
 
@@ -128,7 +154,7 @@ impl Collection {
             .map(|r| r.min(23))
     }
 
-    pub(crate) fn set_v2_rollover(&self, hour: u32) -> Result<()> {
+    pub(crate) fn set_v2_rollover(&mut self, hour: u32) -> Result<()> {
         self.set_config(ConfigKey::Rollover, &hour)
     }
 
@@ -136,7 +162,7 @@ impl Collection {
         self.get_config_default(ConfigKey::NextNewCardPosition)
     }
 
-    pub(crate) fn get_and_update_next_card_position(&self) -> Result<u32> {
+    pub(crate) fn get_and_update_next_card_position(&mut self) -> Result<u32> {
         let pos: u32 = self
             .get_config_optional(ConfigKey::NextNewCardPosition)
             .unwrap_or_default();
@@ -144,7 +170,7 @@ impl Collection {
         Ok(pos)
     }
 
-    pub(crate) fn set_next_card_position(&self, pos: u32) -> Result<()> {
+    pub(crate) fn set_next_card_position(&mut self, pos: u32) -> Result<()> {
         self.set_config(ConfigKey::NextNewCardPosition, &pos)
     }
 
@@ -154,7 +180,7 @@ impl Collection {
     }
 
     /// Caution: this only updates the config setting.
-    pub(crate) fn set_scheduler_version_config_key(&self, ver: SchedulerVersion) -> Result<()> {
+    pub(crate) fn set_scheduler_version_config_key(&mut self, ver: SchedulerVersion) -> Result<()> {
         self.set_config(ConfigKey::SchedulerVersion, &ver)
     }
 
@@ -163,7 +189,7 @@ impl Collection {
             .unwrap_or(1200)
     }
 
-    pub(crate) fn set_learn_ahead_secs(&self, secs: u32) -> Result<()> {
+    pub(crate) fn set_learn_ahead_secs(&mut self, secs: u32) -> Result<()> {
         self.set_config(ConfigKey::LearnAheadSecs, &secs)
     }
 
@@ -175,7 +201,7 @@ impl Collection {
         }
     }
 
-    pub(crate) fn set_new_review_mix(&self, mix: NewReviewMix) -> Result<()> {
+    pub(crate) fn set_new_review_mix(&mut self, mix: NewReviewMix) -> Result<()> {
         self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
     }
 
@@ -184,7 +210,7 @@ impl Collection {
             .unwrap_or(Weekday::Sunday)
     }
 
-    pub(crate) fn set_first_day_of_week(&self, weekday: Weekday) -> Result<()> {
+    pub(crate) fn set_first_day_of_week(&mut self, weekday: Weekday) -> Result<()> {
         self.set_config(ConfigKey::FirstDayOfWeek, &weekday)
     }
 
@@ -193,7 +219,7 @@ impl Collection {
             .unwrap_or_default()
     }
 
-    pub(crate) fn set_answer_time_limit_secs(&self, secs: u32) -> Result<()> {
+    pub(crate) fn set_answer_time_limit_secs(&mut self, secs: u32) -> Result<()> {
         self.set_config(ConfigKey::AnswerTimeLimitSecs, &secs)
     }
 
@@ -202,7 +228,7 @@ impl Collection {
             .unwrap_or_default()
     }
 
-    pub(crate) fn set_last_unburied_day(&self, day: u32) -> Result<()> {
+    pub(crate) fn set_last_unburied_day(&mut self, day: u32) -> Result<()> {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
     }
 }
@@ -274,7 +300,7 @@ mod test {
 
     #[test]
     fn get_set() {
-        let col = open_test_collection();
+        let mut col = open_test_collection();
 
         // missing key
         assert_eq!(col.get_config_optional::<Vec<i64>, _>("test"), None);

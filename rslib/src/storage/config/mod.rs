@@ -2,24 +2,17 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::SqliteStorage;
-use crate::{err::Result, timestamp::TimestampSecs, types::Usn};
+use crate::{config::ConfigEntry, err::Result, timestamp::TimestampSecs, types::Usn};
 use rusqlite::{params, NO_PARAMS};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 use std::collections::HashMap;
 
 impl SqliteStorage {
-    pub(crate) fn set_config_value<T: Serialize>(
-        &self,
-        key: &str,
-        val: &T,
-        usn: Usn,
-        mtime: TimestampSecs,
-    ) -> Result<()> {
-        let json = serde_json::to_vec(val)?;
+    pub(crate) fn set_config_entry(&self, entry: &ConfigEntry) -> Result<()> {
         self.db
             .prepare_cached(include_str!("add.sql"))?
-            .execute(params![key, usn, mtime, &json])?;
+            .execute(params![&entry.key, entry.usn, entry.mtime, &entry.value])?;
         Ok(())
     }
 
@@ -36,6 +29,22 @@ impl SqliteStorage {
             .query_and_then(&[key], |row| {
                 let blob = row.get_raw(0).as_blob()?;
                 serde_json::from_slice(blob).map_err(Into::into)
+            })?
+            .next()
+            .transpose()
+    }
+
+    /// Return the raw bytes and other metadata, for undoing.
+    pub(crate) fn get_config_entry(&self, key: &str) -> Result<Option<Box<ConfigEntry>>> {
+        self.db
+            .prepare_cached(include_str!("get_entry.sql"))?
+            .query_and_then(&[key], |row| {
+                Ok(ConfigEntry::boxed(
+                    key,
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                ))
             })?
             .next()
             .transpose()
@@ -70,7 +79,12 @@ impl SqliteStorage {
     ) -> Result<()> {
         self.db.execute("delete from config", NO_PARAMS)?;
         for (key, val) in conf.iter() {
-            self.set_config_value(key, val, usn, mtime)?;
+            self.set_config_entry(&ConfigEntry::boxed(
+                key,
+                serde_json::to_vec(&val)?,
+                usn,
+                mtime,
+            ))?;
         }
         Ok(())
     }

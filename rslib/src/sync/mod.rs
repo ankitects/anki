@@ -328,8 +328,8 @@ where
             SyncActionRequired::NormalSyncRequired => {
                 self.col.discard_undo_and_study_queues();
                 self.col.storage.begin_trx()?;
-                self.col
-                    .unbury_if_day_rolled_over(self.col.timing_today()?)?;
+                let timing = self.col.timing_today()?;
+                self.col.unbury_if_day_rolled_over(timing)?;
                 match self.normal_sync_inner(state).await {
                     Ok(success) => {
                         self.col.storage.commit_trx()?;

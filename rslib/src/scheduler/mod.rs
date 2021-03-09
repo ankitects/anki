@@ -23,7 +23,7 @@ use timing::{
 };
 
 impl Collection {
-    pub fn timing_today(&self) -> Result<SchedTimingToday> {
+    pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
         self.timing_for_timestamp(TimestampSecs::now())
     }
 
@@ -31,7 +31,7 @@ impl Collection {
         Ok(((self.timing_today()?.days_elapsed as i32) + delta).max(0) as u32)
     }
 
-    pub(crate) fn timing_for_timestamp(&self, now: TimestampSecs) -> Result<SchedTimingToday> {
+    pub(crate) fn timing_for_timestamp(&mut self, now: TimestampSecs) -> Result<SchedTimingToday> {
         let current_utc_offset = self.local_utc_offset_for_user()?;
 
         let rollover_hour = match self.scheduler_version() {
@@ -63,7 +63,7 @@ impl Collection {
     /// ensuring the config reflects the current value.
     /// In the server case, return the value set in the config, and
     /// fall back on UTC if it's missing/invalid.
-    pub(crate) fn local_utc_offset_for_user(&self) -> Result<FixedOffset> {
+    pub(crate) fn local_utc_offset_for_user(&mut self) -> Result<FixedOffset> {
         let config_tz = self
             .get_configured_utc_offset()
             .and_then(|v| FixedOffset::west_opt(v * 60))
@@ -99,7 +99,7 @@ impl Collection {
         }
     }
 
-    pub(crate) fn set_rollover_for_current_scheduler(&self, hour: u8) -> Result<()> {
+    pub(crate) fn set_rollover_for_current_scheduler(&mut self, hour: u8) -> Result<()> {
         match self.scheduler_version() {
             SchedulerVersion::V1 => {
                 self.storage

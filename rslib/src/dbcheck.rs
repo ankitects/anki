@@ -409,7 +409,7 @@ impl Collection {
         Ok(())
     }
 
-    fn update_next_new_position(&self) -> Result<()> {
+    fn update_next_new_position(&mut self) -> Result<()> {
         let pos = self.storage.max_new_card_position().unwrap_or(0);
         self.set_next_card_position(pos)
     }

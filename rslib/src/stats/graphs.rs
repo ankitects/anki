@@ -20,7 +20,7 @@ impl Collection {
         self.graph_data(all, days)
     }
 
-    fn graph_data(&self, all: bool, days: u32) -> Result<pb::GraphsOut> {
+    fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::GraphsOut> {
         let timing = self.timing_today()?;
         let revlog_start = TimestampSecs(if days > 0 {
             timing.next_day_at - (((days as i64) + 1) * 86_400)
@@ -60,7 +60,7 @@ impl Collection {
         })
     }
 
-    pub(crate) fn set_graph_preferences(&self, prefs: pb::GraphPreferences) -> Result<()> {
+    pub(crate) fn set_graph_preferences(&mut self, prefs: pb::GraphPreferences) -> Result<()> {
         self.set_first_day_of_week(match prefs.calendar_first_day_of_week {
             1 => Weekday::Monday,
             5 => Weekday::Friday,
