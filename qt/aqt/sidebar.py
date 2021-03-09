@@ -291,11 +291,12 @@ class SidebarToolbar(QToolBar):
         self.setStyle(QStyleFactory.create("fusion"))
 
     def _setup_tools(self) -> None:
-        for row in self._tools:
+        for row, tool in enumerate(self._tools):
             action = self.addAction(
-                theme_manager.icon_from_resources(row[1]), tr(row[2])
+                theme_manager.icon_from_resources(tool[1]), tr(tool[2])
             )
             action.setCheckable(True)
+            action.setShortcut(f"Alt+{row + 1}")
             self._action_group.addAction(action)
         saved = self.sidebar.col.get_config("sidebarTool", 0)
         active = saved if saved < len(self._tools) else 0
