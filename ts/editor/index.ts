@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { nodeIsInline } from "./helpers";
+import { nodeIsInline, caretToEnd } from "./helpers";
 import { bridgeCommand } from "./lib";
 import { saveField } from "./changeTimer";
 import { filterHTML } from "./htmlFilter";
@@ -34,6 +34,8 @@ export function focusField(n: number): void {
 
     if (field) {
         field.editingArea.focusEditable();
+        caretToEnd(field.editingArea);
+        updateButtonState();
     }
 }
 
