@@ -672,8 +672,11 @@ impl Collection {
 
     pub(crate) async fn full_download_inner(self, server: Box<dyn SyncServer>) -> Result<()> {
         let col_path = self.col_path.clone();
+        let col_folder = col_path
+            .parent()
+            .ok_or_else(|| AnkiError::invalid_input("couldn't get col_folder"))?;
         self.close(false)?;
-        let out_file = server.full_download().await?;
+        let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
         let db = open_and_check_sqlite_file(out_file.path())?;
         db.execute_batch("update col set ls=mod")?;

@@ -189,7 +189,7 @@ impl Backend {
     fn download(&self) -> Result<Vec<u8>> {
         let server = Box::new(self.col_into_server()?);
         let mut rt = Runtime::new().unwrap();
-        let file = rt.block_on(server.full_download())?;
+        let file = rt.block_on(server.full_download(None))?;
         let path = file.into_temp_path().keep()?;
         Ok(path.to_str().expect("path was not in utf8").into())
     }
