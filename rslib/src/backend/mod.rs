@@ -7,31 +7,29 @@ mod config;
 mod dbproxy;
 mod generic;
 mod http_sync_server;
+mod progress;
 mod scheduler;
+mod search;
 
 pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::{
-        sort_order::builtin::Kind as SortKindProto, sort_order::Value as SortOrderProto,
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
     },
     card::{Card, CardID},
     cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
-    config::SortKind,
-    dbcheck::DatabaseCheckProgress,
     deckconf::{DeckConf, DeckConfSchema11},
     decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
-    i18n::{tr_args, I18n, TR},
+    i18n::I18n,
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
     log::default_logger,
     markdown::render_markdown,
     media::check::MediaChecker,
-    media::sync::MediaSyncProgress,
     media::MediaManager,
     notes::{Note, NoteID},
     notetype::{
@@ -43,31 +41,26 @@ use crate::{
         states::{CardState, NextCardStates},
         timespan::{answer_button_time, time_span},
     },
-    search::{
-        concatenate_searches, parse_search, replace_search_node, write_nodes, BoolSeparator, Node,
-        PropertyKind, RatingKind, SearchNode, SortMode, StateKind, TemplateKind,
-    },
+    search::{concatenate_searches, replace_search_node, write_nodes, Node},
     stats::studied_today,
     sync::{
         get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,
         LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
-        SyncStage,
     },
     template::RenderedNode,
-    text::{escape_anki_wildcards, extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
+    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     undo::UndoableOpKind,
 };
 use fluent::FluentValue;
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
-use itertools::Itertools;
 use log::error;
 use once_cell::sync::OnceCell;
 use pb::{sync_status_out, BackendService};
+use progress::{AbortHandleSlot, Progress};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use slog::warn;
-use std::convert::TryFrom;
 use std::{collections::HashSet, convert::TryInto};
 use std::{
     result,
@@ -75,34 +68,7 @@ use std::{
 };
 use tokio::runtime::{self, Runtime};
 
-struct ThrottlingProgressHandler {
-    state: Arc<Mutex<ProgressState>>,
-    last_update: coarsetime::Instant,
-}
-
-impl ThrottlingProgressHandler {
-    /// Returns true if should continue.
-    fn update(&mut self, progress: impl Into<Progress>, throttle: bool) -> bool {
-        let now = coarsetime::Instant::now();
-        if throttle && now.duration_since(self.last_update).as_f64() < 0.1 {
-            return true;
-        }
-        self.last_update = now;
-        let mut guard = self.state.lock().unwrap();
-        guard.last_progress.replace(progress.into());
-        let want_abort = guard.want_abort;
-        guard.want_abort = false;
-        !want_abort
-    }
-}
-
-struct ProgressState {
-    want_abort: bool,
-    last_progress: Option<Progress>,
-}
-
-// fixme: this should support multiple abort handles.
-type AbortHandleSlot = Arc<Mutex<Option<AbortHandle>>>;
+use self::progress::{progress_to_proto, ProgressState};
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
@@ -134,15 +100,6 @@ impl RemoteSyncStatus {
         self.last_check = TimestampSecs::now();
         self.last_response = required
     }
-}
-
-#[derive(Clone, Copy)]
-enum Progress {
-    MediaSync(MediaSyncProgress),
-    MediaCheck(u32),
-    FullSync(FullSyncProgress),
-    NormalSync(NormalSyncProgress),
-    DatabaseCheck(DatabaseCheckProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -220,135 +177,6 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     );
 
     Ok(Backend::new(i18n, input.server))
-}
-
-impl TryFrom<pb::SearchNode> for Node {
-    type Error = AnkiError;
-
-    fn try_from(msg: pb::SearchNode) -> std::result::Result<Self, Self::Error> {
-        use pb::search_node::group::Joiner;
-        use pb::search_node::Filter;
-        use pb::search_node::Flag;
-        Ok(if let Some(filter) = msg.filter {
-            match filter {
-                Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
-                Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
-                    s
-                } else {
-                    escape_anki_wildcards(&s)
-                })),
-                Filter::Note(s) => Node::Search(SearchNode::NoteType(escape_anki_wildcards(&s))),
-                Filter::Template(u) => {
-                    Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
-                }
-                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string())),
-                Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string())),
-                Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                    note_type_id: dupe.notetype_id.into(),
-                    text: dupe.first_field,
-                }),
-                Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                    field: escape_anki_wildcards(&s),
-                    text: "*".to_string(),
-                    is_re: false,
-                }),
-                Filter::Rated(rated) => Node::Search(SearchNode::Rated {
-                    days: rated.days,
-                    ease: rated.rating().into(),
-                }),
-                Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
-                Filter::DueInDays(i) => Node::Search(SearchNode::Property {
-                    operator: "<=".to_string(),
-                    kind: PropertyKind::Due(i),
-                }),
-                Filter::DueOnDay(i) => Node::Search(SearchNode::Property {
-                    operator: "=".to_string(),
-                    kind: PropertyKind::Due(i),
-                }),
-                Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
-                Filter::CardState(state) => Node::Search(SearchNode::State(
-                    pb::search_node::CardState::from_i32(state)
-                        .unwrap_or_default()
-                        .into(),
-                )),
-                Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
-                    Flag::None => Node::Search(SearchNode::Flag(0)),
-                    Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
-                    Flag::Red => Node::Search(SearchNode::Flag(1)),
-                    Flag::Orange => Node::Search(SearchNode::Flag(2)),
-                    Flag::Green => Node::Search(SearchNode::Flag(3)),
-                    Flag::Blue => Node::Search(SearchNode::Flag(4)),
-                },
-                Filter::Negated(term) => Node::try_from(*term)?.negated(),
-                Filter::Group(mut group) => {
-                    match group.nodes.len() {
-                        0 => return Err(AnkiError::invalid_input("empty group")),
-                        // a group of 1 doesn't need to be a group
-                        1 => group.nodes.pop().unwrap().try_into()?,
-                        // 2+ nodes
-                        _ => {
-                            let joiner = match group.joiner() {
-                                Joiner::And => Node::And,
-                                Joiner::Or => Node::Or,
-                            };
-                            let parsed: Vec<_> = group
-                                .nodes
-                                .into_iter()
-                                .map(TryFrom::try_from)
-                                .collect::<Result<_>>()?;
-                            let joined = parsed.into_iter().intersperse(joiner).collect();
-                            Node::Group(joined)
-                        }
-                    }
-                }
-                Filter::ParsableText(text) => {
-                    let mut nodes = parse_search(&text)?;
-                    if nodes.len() == 1 {
-                        nodes.pop().unwrap()
-                    } else {
-                        Node::Group(nodes)
-                    }
-                }
-            }
-        } else {
-            Node::Search(SearchNode::WholeCollection)
-        })
-    }
-}
-
-impl From<pb::search_node::group::Joiner> for BoolSeparator {
-    fn from(sep: pb::search_node::group::Joiner) -> Self {
-        match sep {
-            pb::search_node::group::Joiner::And => BoolSeparator::And,
-            pb::search_node::group::Joiner::Or => BoolSeparator::Or,
-        }
-    }
-}
-
-impl From<pb::search_node::Rating> for RatingKind {
-    fn from(r: pb::search_node::Rating) -> Self {
-        match r {
-            pb::search_node::Rating::Again => RatingKind::AnswerButton(1),
-            pb::search_node::Rating::Hard => RatingKind::AnswerButton(2),
-            pb::search_node::Rating::Good => RatingKind::AnswerButton(3),
-            pb::search_node::Rating::Easy => RatingKind::AnswerButton(4),
-            pb::search_node::Rating::Any => RatingKind::AnyAnswerButton,
-            pb::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
-        }
-    }
-}
-
-impl From<pb::search_node::CardState> for StateKind {
-    fn from(k: pb::search_node::CardState) -> Self {
-        match k {
-            pb::search_node::CardState::New => StateKind::New,
-            pb::search_node::CardState::Learn => StateKind::Learning,
-            pb::search_node::CardState::Review => StateKind::Review,
-            pb::search_node::CardState::Due => StateKind::Due,
-            pb::search_node::CardState::Suspended => StateKind::Suspended,
-            pb::search_node::CardState::Buried => StateKind::Buried,
-        }
-    }
 }
 
 impl BackendService for Backend {
@@ -1614,18 +1442,6 @@ impl Backend {
         )
     }
 
-    fn new_progress_handler(&self) -> ThrottlingProgressHandler {
-        {
-            let mut guard = self.progress_state.lock().unwrap();
-            guard.want_abort = false;
-            guard.last_progress = None;
-        }
-        ThrottlingProgressHandler {
-            state: Arc::clone(&self.progress_state),
-            last_update: coarsetime::Instant::now(),
-        }
-    }
-
     fn runtime_handle(&self) -> runtime::Handle {
         self.runtime
             .get_or_init(|| {
@@ -1939,120 +1755,6 @@ impl From<RenderCardOutput> for pb::RenderCardOut {
     }
 }
 
-fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
-    let progress = if let Some(progress) = progress {
-        match progress {
-            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
-            Progress::MediaCheck(n) => {
-                let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
-                pb::progress::Value::MediaCheck(s)
-            }
-            Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
-                transferred: p.transferred_bytes as u32,
-                total: p.total_bytes as u32,
-            }),
-            Progress::NormalSync(p) => {
-                let stage = match p.stage {
-                    SyncStage::Connecting => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Syncing => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Finalizing => i18n.tr(TR::SyncChecking),
-                }
-                .to_string();
-                let added = i18n.trn(
-                    TR::SyncAddedUpdatedCount,
-                    tr_args![
-                            "up"=>p.local_update, "down"=>p.remote_update],
-                );
-                let removed = i18n.trn(
-                    TR::SyncMediaRemovedCount,
-                    tr_args![
-                            "up"=>p.local_remove, "down"=>p.remote_remove],
-                );
-                pb::progress::Value::NormalSync(pb::progress::NormalSync {
-                    stage,
-                    added,
-                    removed,
-                })
-            }
-            Progress::DatabaseCheck(p) => {
-                let mut stage_total = 0;
-                let mut stage_current = 0;
-                let stage = match p {
-                    DatabaseCheckProgress::Integrity => i18n.tr(TR::DatabaseCheckCheckingIntegrity),
-                    DatabaseCheckProgress::Optimize => i18n.tr(TR::DatabaseCheckRebuilding),
-                    DatabaseCheckProgress::Cards => i18n.tr(TR::DatabaseCheckCheckingCards),
-                    DatabaseCheckProgress::Notes { current, total } => {
-                        stage_total = total;
-                        stage_current = current;
-                        i18n.tr(TR::DatabaseCheckCheckingNotes)
-                    }
-                    DatabaseCheckProgress::History => i18n.tr(TR::DatabaseCheckCheckingHistory),
-                }
-                .to_string();
-                pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
-                    stage,
-                    stage_current,
-                    stage_total,
-                })
-            }
-        }
-    } else {
-        pb::progress::Value::None(pb::Empty {})
-    };
-    pb::Progress {
-        value: Some(progress),
-    }
-}
-
-fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::progress::MediaSync {
-    pb::progress::MediaSync {
-        checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
-        added: i18n.trn(
-            TR::SyncMediaAddedCount,
-            tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
-        ),
-        removed: i18n.trn(
-            TR::SyncMediaRemovedCount,
-            tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
-        ),
-    }
-}
-
-impl From<SortKindProto> for SortKind {
-    fn from(kind: SortKindProto) -> Self {
-        match kind {
-            SortKindProto::NoteCreation => SortKind::NoteCreation,
-            SortKindProto::NoteMod => SortKind::NoteMod,
-            SortKindProto::NoteField => SortKind::NoteField,
-            SortKindProto::NoteTags => SortKind::NoteTags,
-            SortKindProto::NoteType => SortKind::NoteType,
-            SortKindProto::CardMod => SortKind::CardMod,
-            SortKindProto::CardReps => SortKind::CardReps,
-            SortKindProto::CardDue => SortKind::CardDue,
-            SortKindProto::CardEase => SortKind::CardEase,
-            SortKindProto::CardLapses => SortKind::CardLapses,
-            SortKindProto::CardInterval => SortKind::CardInterval,
-            SortKindProto::CardDeck => SortKind::CardDeck,
-            SortKindProto::CardTemplate => SortKind::CardTemplate,
-        }
-    }
-}
-
-impl From<Option<SortOrderProto>> for SortMode {
-    fn from(order: Option<SortOrderProto>) -> Self {
-        use pb::sort_order::Value as V;
-        match order.unwrap_or(V::FromConfig(pb::Empty {})) {
-            V::None(_) => SortMode::NoOrder,
-            V::Custom(s) => SortMode::Custom(s),
-            V::FromConfig(_) => SortMode::FromConfig,
-            V::Builtin(b) => SortMode::Builtin {
-                kind: b.kind().into(),
-                reverse: b.reverse,
-            },
-        }
-    }
-}
-
 impl From<Card> for pb::Card {
     fn from(c: Card) -> Self {
         pb::Card {
@@ -2122,33 +1824,5 @@ impl From<pb::SyncAuth> for SyncAuth {
             hkey: a.hkey,
             host_number: a.host_number,
         }
-    }
-}
-
-impl From<FullSyncProgress> for Progress {
-    fn from(p: FullSyncProgress) -> Self {
-        Progress::FullSync(p)
-    }
-}
-
-impl From<MediaSyncProgress> for Progress {
-    fn from(p: MediaSyncProgress) -> Self {
-        Progress::MediaSync(p)
-    }
-}
-
-impl From<NormalSyncProgress> for Progress {
-    fn from(p: NormalSyncProgress) -> Self {
-        Progress::NormalSync(p)
-    }
-}
-
-impl pb::search_node::IdList {
-    fn into_id_string(self) -> String {
-        self.ids
-            .iter()
-            .map(|i| i.to_string())
-            .collect::<Vec<_>>()
-            .join(",")
     }
 }
