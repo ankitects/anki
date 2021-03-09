@@ -142,11 +142,19 @@ impl SyncServer for HTTPSyncClient {
         Ok(())
     }
 
-    /// Download collection into a temporary file, returning it.
-    /// Caller should persist the file in the correct path after checking it.
-    /// Progress func must be set first.
-    async fn full_download(mut self: Box<Self>) -> Result<NamedTempFile> {
-        let mut temp_file = NamedTempFile::new()?;
+    /// Download collection into a temporary file, returning it. Caller should
+    /// persist the file in the correct path after checking it. Progress func
+    /// must be set first. The caller should pass the collection's folder in as
+    /// the temp folder if it wishes to atomically .persist() it.
+    async fn full_download(
+        mut self: Box<Self>,
+        col_folder: Option<&Path>,
+    ) -> Result<NamedTempFile> {
+        let mut temp_file = if let Some(folder) = col_folder {
+            NamedTempFile::new_in(folder)
+        } else {
+            NamedTempFile::new()
+        }?;
         let (size, mut stream) = self.download_inner().await?;
         let mut progress = FullSyncProgress {
             transferred_bytes: 0,
@@ -410,7 +418,7 @@ mod test {
         syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
             println!("progress: {:?}", progress);
         })));
-        let out_path = syncer.full_download().await?;
+        let out_path = syncer.full_download(None).await?;
 
         let mut syncer = Box::new(HTTPSyncClient::new(None, 0));
         syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
