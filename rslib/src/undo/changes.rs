@@ -2,9 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    card::undo::UndoableCardChange, decks::undo::UndoableDeckChange,
-    notes::undo::UndoableNoteChange, prelude::*, revlog::undo::UndoableRevlogChange,
-    scheduler::queue::undo::UndoableQueueChange, tags::undo::UndoableTagChange,
+    card::undo::UndoableCardChange, config::undo::UndoableConfigChange,
+    decks::undo::UndoableDeckChange, notes::undo::UndoableNoteChange, prelude::*,
+    revlog::undo::UndoableRevlogChange, scheduler::queue::undo::UndoableQueueChange,
+    tags::undo::UndoableTagChange,
 };
 
 #[derive(Debug)]
@@ -15,6 +16,7 @@ pub(crate) enum UndoableChange {
     Tag(UndoableTagChange),
     Revlog(UndoableRevlogChange),
     Queue(UndoableQueueChange),
+    Config(UndoableConfigChange),
 }
 
 impl UndoableChange {
@@ -26,6 +28,7 @@ impl UndoableChange {
             UndoableChange::Tag(c) => col.undo_tag_change(c),
             UndoableChange::Revlog(c) => col.undo_revlog_change(c),
             UndoableChange::Queue(c) => col.undo_queue_change(c),
+            UndoableChange::Config(c) => col.undo_config_change(c),
         }
     }
 }
@@ -63,5 +66,11 @@ impl From<UndoableRevlogChange> for UndoableChange {
 impl From<UndoableQueueChange> for UndoableChange {
     fn from(c: UndoableQueueChange) -> Self {
         UndoableChange::Queue(c)
+    }
+}
+
+impl From<UndoableConfigChange> for UndoableChange {
+    fn from(c: UndoableConfigChange) -> Self {
+        UndoableChange::Config(c)
     }
 }

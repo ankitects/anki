@@ -28,7 +28,7 @@ impl Collection {
         self.get_config_optional(ConfigKey::CurrentNoteTypeID)
     }
 
-    pub(crate) fn set_current_notetype_id(&self, ntid: NoteTypeID) -> Result<()> {
+    pub(crate) fn set_current_notetype_id(&mut self, ntid: NoteTypeID) -> Result<()> {
         self.set_config(ConfigKey::CurrentNoteTypeID, &ntid)
     }
 
@@ -41,7 +41,7 @@ impl Collection {
         self.get_config_optional(key.as_str())
     }
 
-    pub(crate) fn set_last_deck_for_notetype(&self, id: NoteTypeID, did: DeckID) -> Result<()> {
+    pub(crate) fn set_last_deck_for_notetype(&mut self, id: NoteTypeID, did: DeckID) -> Result<()> {
         let key = NoteTypeConfigKey::LastDeckAddedTo.for_notetype(id);
         self.set_config(key.as_str(), &did)
     }
