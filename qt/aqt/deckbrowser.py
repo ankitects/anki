@@ -402,7 +402,7 @@ class DeckBrowser:
             defaultno=True,
         ):
             prefs = self.mw.col.get_preferences()
-            prefs.sched.new_timezone = False
+            prefs.scheduling.new_timezone = False
             self.mw.col.set_preferences(prefs)
 
         showInfo(tr(TR.SCHEDULING_UPDATE_DONE))

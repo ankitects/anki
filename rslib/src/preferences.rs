@@ -3,8 +3,7 @@
 
 use crate::{
     backend_proto::{
-        collection_scheduling_settings::NewReviewMix as NewRevMixPB, CollectionSchedulingSettings,
-        Preferences,
+        preferences::scheduling::NewReviewMix as NewRevMixPB, preferences::Scheduling, Preferences,
     },
     collection::Collection,
     config::BoolKey,
@@ -15,20 +14,20 @@ use crate::{
 impl Collection {
     pub fn get_preferences(&self) -> Result<Preferences> {
         Ok(Preferences {
-            sched: Some(self.get_collection_scheduling_settings()?),
+            scheduling: Some(self.get_collection_scheduling_settings()?),
         })
     }
 
     pub fn set_preferences(&mut self, prefs: Preferences) -> Result<()> {
-        if let Some(sched) = prefs.sched {
+        if let Some(sched) = prefs.scheduling {
             self.set_collection_scheduling_settings(sched)?;
         }
 
         Ok(())
     }
 
-    pub fn get_collection_scheduling_settings(&self) -> Result<CollectionSchedulingSettings> {
-        Ok(CollectionSchedulingSettings {
+    pub fn get_collection_scheduling_settings(&self) -> Result<Scheduling> {
+        Ok(Scheduling {
             scheduler_version: match self.scheduler_version() {
                 crate::config::SchedulerVersion::V1 => 1,
                 crate::config::SchedulerVersion::V2 => 2,
@@ -50,7 +49,7 @@ impl Collection {
 
     pub(crate) fn set_collection_scheduling_settings(
         &mut self,
-        settings: CollectionSchedulingSettings,
+        settings: Scheduling,
     ) -> Result<()> {
         let s = settings;
 
