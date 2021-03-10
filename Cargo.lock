@@ -97,7 +97,6 @@ dependencies = [
  "slog-term",
  "strum",
  "tempfile",
- "term",
  "tokio",
  "unic-langid",
  "unicase",
