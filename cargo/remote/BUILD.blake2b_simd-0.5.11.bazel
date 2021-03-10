@@ -25,27 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MPL-2.0 OR (MIT OR Apache-2.0)"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
-# Unsupported target "compact" with type "example" omitted
-
-# Unsupported target "compact-color" with type "example" omitted
-
-# Unsupported target "full" with type "example" omitted
-
-# Unsupported target "full-color" with type "example" omitted
-
-# Unsupported target "full-color-oorder" with type "example" omitted
-
-# Unsupported target "to-file" with type "example" omitted
-
 rust_library(
-    name = "slog_term",
+    name = "blake2b_simd",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -58,15 +48,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "2.8.0",
+    version = "0.5.11",
     # buildifier: leave-alone
     deps = [
-        "@raze__atty__0_2_14//:atty",
-        "@raze__chrono__0_4_19//:chrono",
-        "@raze__slog__2_7_0//:slog",
-        "@raze__term__0_7_0//:term",
-        "@raze__thread_local__1_1_3//:thread_local",
+        "@raze__arrayref__0_3_6//:arrayref",
+        "@raze__arrayvec__0_5_2//:arrayvec",
+        "@raze__constant_time_eq__0_1_5//:constant_time_eq",
     ],
 )
-
-# Unsupported target "term" with type "test" omitted

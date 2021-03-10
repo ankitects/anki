@@ -31,11 +31,12 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "dirs_sys_next",
+    name = "term",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,22 +49,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.2",
+    version = "0.6.1",
     # buildifier: leave-alone
     deps = [
+        "@raze__dirs__2_0_2//:dirs",
     ] + selects.with_or({
-        # cfg(unix)
-        (
-            "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-        ): [
-            "@raze__libc__0_2_88//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
         # cfg(windows)
         (
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -73,3 +63,5 @@ rust_library(
         "//conditions:default": [],
     }),
 )
+
+# Unsupported target "terminfo" with type "test" omitted

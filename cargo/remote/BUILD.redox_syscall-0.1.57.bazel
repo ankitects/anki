@@ -30,15 +30,24 @@ licenses([
 
 # Generated Targets
 
+alias(
+    name = "redox_syscall",
+    actual = ":syscall",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
 rust_library(
-    name = "redox_users",
+    name = "syscall",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -46,10 +55,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.4.0",
+    version = "0.1.57",
     # buildifier: leave-alone
     deps = [
-        "@raze__getrandom__0_2_2//:getrandom",
-        "@raze__redox_syscall__0_2_5//:redox_syscall",
     ],
 )

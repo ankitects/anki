@@ -25,18 +25,30 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MPL-2.0 OR (MIT OR Apache-2.0)"
 ])
 
 # Generated Targets
 
+# Unsupported target "compact" with type "example" omitted
+
+# Unsupported target "compact-color" with type "example" omitted
+
+# Unsupported target "full" with type "example" omitted
+
+# Unsupported target "full-color" with type "example" omitted
+
+# Unsupported target "full-color-oorder" with type "example" omitted
+
+# Unsupported target "to-file" with type "example" omitted
+
 rust_library(
-    name = "ghost",
+    name = "slog_term",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -46,11 +58,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.2",
+    version = "2.6.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_63//:syn",
+        "@raze__atty__0_2_14//:atty",
+        "@raze__chrono__0_4_19//:chrono",
+        "@raze__slog__2_7_0//:slog",
+        "@raze__term__0_6_1//:term",
+        "@raze__thread_local__1_1_3//:thread_local",
     ],
 )
+
+# Unsupported target "term" with type "test" omitted
