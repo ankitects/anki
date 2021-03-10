@@ -663,7 +663,7 @@ impl BackendService for Backend {
     }
 
     fn remove_decks(&self, input: pb::DeckIDs) -> BackendResult<Empty> {
-        self.with_col(|col| col.remove_decks_and_child_decks(input.into()))
+        self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckID>>::into(input)))
             .map(Into::into)
     }
 
