@@ -258,7 +258,6 @@ class DeckBrowser:
         self.mw.onExport(did=did)
 
     def _rename(self, did: int) -> None:
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         deck = self.mw.col.decks.get(did)
         oldName = deck["name"]
         newName = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=oldName)
@@ -271,6 +270,7 @@ class DeckBrowser:
         except DeckIsFilteredError as err:
             showWarning(str(err))
             return
+        self.mw.update_undo_actions()
         self.show()
 
     def _options(self, did: str) -> None:
@@ -318,10 +318,10 @@ class DeckBrowser:
                 return self.mw.col.decks.rem(did, True)
 
             def on_done(fut: Future) -> None:
+                self.mw.update_undo_actions()
                 self.show()
                 res = fut.result()  # Required to check for errors
 
-            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
             self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons

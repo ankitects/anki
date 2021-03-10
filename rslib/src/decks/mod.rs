@@ -10,7 +10,10 @@ pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
     DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
 };
-use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
+use crate::{
+    backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images,
+    undo::UndoableOpKind,
+};
 use crate::{
     collection::Collection,
     deckconf::DeckConfID,
@@ -263,21 +266,38 @@ impl Collection {
     }
 
     /// Add or update an existing deck modified by the user. May add parents,
-    /// or rename children as required.
+    /// or rename children as required. Prefer add_deck() or update_deck() to
+    /// be explicit about your intentions; this function mainly exists so we
+    /// can integrate with older Python code that behaved this way.
     pub(crate) fn add_or_update_deck(&mut self, deck: &mut Deck) -> Result<()> {
-        self.state.deck_cache.clear();
+        if deck.id.0 == 0 {
+            self.add_deck(deck)
+        } else {
+            self.update_deck(deck)
+        }
+    }
 
-        self.transact(None, |col| {
+    /// Add a new deck. The id must be 0, as it will be automatically assigned.
+    pub fn add_deck(&mut self, deck: &mut Deck) -> Result<()> {
+        if deck.id.0 != 0 {
+            return Err(AnkiError::invalid_input("deck to add must have id 0"));
+        }
+
+        self.transact(Some(UndoableOpKind::AddDeck), |col| {
             let usn = col.usn()?;
-
             col.prepare_deck_for_update(deck, usn)?;
             deck.set_modified(usn);
+            col.match_or_create_parents(deck, usn)?;
+            col.add_deck_undoable(deck)
+        })
+    }
 
-            if deck.id.0 == 0 {
-                // TODO: undo support
-                col.match_or_create_parents(deck, usn)?;
-                col.storage.add_deck(deck)
-            } else if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
+    pub(crate) fn update_deck(&mut self, deck: &mut Deck) -> Result<()> {
+        self.transact(Some(UndoableOpKind::UpdateDeck), |col| {
+            let usn = col.usn()?;
+            col.prepare_deck_for_update(deck, usn)?;
+            deck.set_modified(usn);
+            if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
                 let name_changed = existing_deck.name != deck.name;
                 if name_changed {
                     // match closest parent name
@@ -301,15 +321,13 @@ impl Collection {
     /// Add/update a single deck when syncing/importing. Ensures name is unique
     /// & normalized, but does not check parents/children or update mtime
     /// (unless the name was changed). Caller must set up transaction.
-    /// TODO: undo support
     pub(crate) fn add_or_update_single_deck_with_existing_id(
         &mut self,
         deck: &mut Deck,
         usn: Usn,
     ) -> Result<()> {
-        self.state.deck_cache.clear();
         self.prepare_deck_for_update(deck, usn)?;
-        self.storage.add_or_update_deck_with_existing_id(deck)
+        self.add_or_update_deck_with_existing_id_undoable(deck)
     }
 
     pub(crate) fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
@@ -367,12 +385,11 @@ impl Collection {
 
     /// Add a single, normal deck with the provided name for a child deck.
     /// Caller must have done necessarily validation on name.
-    fn add_parent_deck(&self, machine_name: &str, usn: Usn) -> Result<()> {
+    fn add_parent_deck(&mut self, machine_name: &str, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.name = machine_name.into();
         deck.set_modified(usn);
-        // fixme: undo
-        self.storage.add_deck(&mut deck)
+        self.add_deck_undoable(&mut deck)
     }
 
     /// If parent deck(s) exist, rewrite name to match their case.
@@ -404,7 +421,7 @@ impl Collection {
         }
     }
 
-    fn create_missing_parents(&self, mut machine_name: &str, usn: Usn) -> Result<()> {
+    fn create_missing_parents(&mut self, mut machine_name: &str, usn: Usn) -> Result<()> {
         while let Some(parent_name) = immediate_parent_name(machine_name) {
             if self.storage.get_deck_id(parent_name)?.is_none() {
                 self.add_parent_deck(parent_name, usn)?;
@@ -441,12 +458,8 @@ impl Collection {
     }
 
     pub fn remove_deck_and_child_decks(&mut self, did: DeckID) -> Result<()> {
-        // fixme: vet cache clearing
-        self.state.deck_cache.clear();
-
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOpKind::RemoveDeck), |col| {
             let usn = col.usn()?;
-
             if let Some(deck) = col.storage.get_deck(did)? {
                 let child_decks = col.storage.child_decks(&deck)?;
 
@@ -463,23 +476,20 @@ impl Collection {
     }
 
     pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<()> {
-        // fixme: undo
         match deck.kind {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
             DeckKind::Filtered(_) => self.return_all_cards_in_filtered_deck(deck.id)?,
         }
         self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
+            // if deleting the default deck, ensure there's a new one, and avoid the grave
             let mut deck = deck.to_owned();
-            // fixme: separate key
             deck.name = self.i18n.tr(TR::DeckConfigDefaultName).into();
             deck.set_modified(usn);
-            self.add_or_update_single_deck_with_existing_id(&mut deck, usn)?;
+            self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
         } else {
-            self.storage.remove_deck(deck.id)?;
-            self.storage.add_deck_grave(deck.id, usn)?;
+            self.remove_deck_and_add_grave_undoable(deck.clone(), usn)
         }
-        Ok(())
     }
 
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
