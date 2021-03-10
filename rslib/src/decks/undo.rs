@@ -78,6 +78,7 @@ impl Collection {
     }
 
     fn remove_deck_undoable(&mut self, deck: Deck) -> Result<()> {
+        self.state.deck_cache.clear();
         self.storage.remove_deck(deck.id)?;
         self.save_undo(UndoableDeckChange::Removed(Box::new(deck)));
         Ok(())
