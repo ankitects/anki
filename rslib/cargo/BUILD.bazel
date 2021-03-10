@@ -445,15 +445,6 @@ alias(
 )
 
 alias(
-    name = "term",
-    actual = "@raze__term__0_6_1//:term",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "tokio",
     actual = "@raze__tokio__0_2_25//:tokio",
     tags = [

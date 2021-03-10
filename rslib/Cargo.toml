@@ -26,6 +26,9 @@ unicase = "=2.6.0"
 # transitive dependency; 0.1.7 is currently broken on Windows (perhaps
 # only in Bazel)
 proc-macro-nested = "=0.1.6"
+# slog-term 2.7+ depends on term 0.7.0, which is currently broken on Windows,
+# as cargo-raze doesn't seem to be included the rustversion crate.
+slog-term = "=2.6.0"
 
 askama = "0.10.1"
 async-compression = { version = "0.3.5", features = ["stream", "gzip"] }
@@ -70,7 +73,6 @@ sha1 = "0.6.0"
 slog = { version = "2.5.2", features = ["max_level_trace", "release_max_level_debug"] }
 slog-async = "2.5.0"
 slog-envlogger = "2.2.0"
-slog-term = "2.6.0"
 tempfile = "3.1.0"
 tokio = { version = "0.2.21", features = ["fs", "rt-threaded"] }
 unic-langid = { version = "0.9", features = ["macros"] }
