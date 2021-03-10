@@ -989,7 +989,6 @@ class SidebarTreeView(QTreeView):
         new_name = new_name.replace('"', "")
         if not new_name or new_name == old_name:
             return
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
         except DeckIsFilteredError as err:
@@ -997,6 +996,7 @@ class SidebarTreeView(QTreeView):
             return
         self.refresh()
         self.mw.deckBrowser.refresh()
+        self.mw.update_undo_actions()
 
     def remove_tag(self, item: SidebarItem) -> None:
         self.browser.editor.saveNow(lambda: self._remove_tag(item))
@@ -1063,7 +1063,6 @@ class SidebarTreeView(QTreeView):
                 self.refresh()
                 res = fut.result()  # Required to check for errors
 
-            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
 

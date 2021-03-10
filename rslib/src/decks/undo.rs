@@ -6,12 +6,17 @@ use crate::prelude::*;
 #[derive(Debug)]
 
 pub(crate) enum UndoableDeckChange {
+    Added(Box<Deck>),
     Updated(Box<Deck>),
+    Removed(Box<Deck>),
+    GraveAdded(Box<(DeckID, Usn)>),
+    GraveRemoved(Box<(DeckID, Usn)>),
 }
 
 impl Collection {
     pub(crate) fn undo_deck_change(&mut self, change: UndoableDeckChange) -> Result<()> {
         match change {
+            UndoableDeckChange::Added(deck) => self.remove_deck_undoable(*deck),
             UndoableDeckChange::Updated(mut deck) => {
                 let current = self
                     .storage
@@ -19,7 +24,26 @@ impl Collection {
                     .ok_or_else(|| AnkiError::invalid_input("deck disappeared"))?;
                 self.update_single_deck_undoable(&mut *deck, &current)
             }
+            UndoableDeckChange::Removed(deck) => self.restore_deleted_deck(*deck),
+            UndoableDeckChange::GraveAdded(e) => self.remove_deck_grave(e.0, e.1),
+            UndoableDeckChange::GraveRemoved(e) => self.add_deck_grave_undoable(e.0, e.1),
         }
+    }
+
+    pub(super) fn add_deck_undoable(&mut self, deck: &mut Deck) -> Result<(), AnkiError> {
+        self.storage.add_deck(deck)?;
+        self.save_undo(UndoableDeckChange::Added(Box::new(deck.clone())));
+        Ok(())
+    }
+
+    pub(super) fn add_or_update_deck_with_existing_id_undoable(
+        &mut self,
+        deck: &mut Deck,
+    ) -> Result<(), AnkiError> {
+        self.state.deck_cache.clear();
+        self.storage.add_or_update_deck_with_existing_id(deck)?;
+        self.save_undo(UndoableDeckChange::Added(Box::new(deck.clone())));
+        Ok(())
     }
 
     /// Update an individual, existing deck. Caller is responsible for ensuring deck
@@ -33,5 +57,39 @@ impl Collection {
         self.state.deck_cache.clear();
         self.save_undo(UndoableDeckChange::Updated(Box::new(original.clone())));
         self.storage.update_deck(deck)
+    }
+
+    pub(crate) fn remove_deck_and_add_grave_undoable(
+        &mut self,
+        deck: Deck,
+        usn: Usn,
+    ) -> Result<()> {
+        self.state.deck_cache.clear();
+        self.add_deck_grave_undoable(deck.id, usn)?;
+        self.storage.remove_deck(deck.id)?;
+        self.save_undo(UndoableDeckChange::Removed(Box::new(deck)));
+        Ok(())
+    }
+
+    fn restore_deleted_deck(&mut self, deck: Deck) -> Result<()> {
+        self.storage.add_or_update_deck_with_existing_id(&deck)?;
+        self.save_undo(UndoableDeckChange::Added(Box::new(deck)));
+        Ok(())
+    }
+
+    fn remove_deck_undoable(&mut self, deck: Deck) -> Result<()> {
+        self.storage.remove_deck(deck.id)?;
+        self.save_undo(UndoableDeckChange::Removed(Box::new(deck)));
+        Ok(())
+    }
+
+    fn add_deck_grave_undoable(&mut self, did: DeckID, usn: Usn) -> Result<()> {
+        self.save_undo(UndoableDeckChange::GraveAdded(Box::new((did, usn))));
+        self.storage.add_deck_grave(did, usn)
+    }
+
+    fn remove_deck_grave(&mut self, did: DeckID, usn: Usn) -> Result<()> {
+        self.save_undo(UndoableDeckChange::GraveRemoved(Box::new((did, usn))));
+        self.storage.remove_deck_grave(did)
     }
 }
