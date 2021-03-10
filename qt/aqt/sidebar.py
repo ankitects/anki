@@ -1178,6 +1178,7 @@ class SidebarTreeView(QTreeView):
             return self.col.tags.rename(old_name, new_name)
 
         def on_done(fut: Future) -> None:
+            self.setUpdatesEnabled(True)
             self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
             self.browser.model.endReset()
 
