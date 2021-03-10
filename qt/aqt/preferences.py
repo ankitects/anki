@@ -112,7 +112,7 @@ class Preferences(QDialog):
 
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 
-        s = self.prefs.sched
+        s = self.prefs.scheduling
         f.lrnCutoff.setValue(int(s.learn_ahead_secs / 60.0))
         f.timeLimit.setValue(int(s.time_limit_secs / 60.0))
         f.showEstimates.setChecked(s.show_intervals_on_buttons)
@@ -153,7 +153,7 @@ class Preferences(QDialog):
         qc = d.conf
         qc["addToCur"] = not f.useCurrent.currentIndex()
 
-        s = self.prefs.sched
+        s = self.prefs.scheduling
         s.show_remaining_due_counts = f.showProgress.isChecked()
         s.show_intervals_on_buttons = f.showEstimates.isChecked()
         s.new_review_mix = f.newSpread.currentIndex()

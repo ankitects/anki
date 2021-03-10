@@ -1022,30 +1022,30 @@ message CheckDatabaseOut {
   repeated string problems = 1;
 }
 
-message CollectionSchedulingSettings {
-  enum NewReviewMix {
-    DISTRIBUTE = 0;
-    REVIEWS_FIRST = 1;
-    NEW_FIRST = 2;
+message Preferences {
+  message Scheduling {
+    enum NewReviewMix {
+      DISTRIBUTE = 0;
+      REVIEWS_FIRST = 1;
+      NEW_FIRST = 2;
+    }
+
+    // read only
+    uint32 scheduler_version = 1;
+
+    uint32 rollover = 2;
+    uint32 learn_ahead_secs = 3;
+    NewReviewMix new_review_mix = 4;
+    bool show_remaining_due_counts = 5;
+    bool show_intervals_on_buttons = 6;
+    uint32 time_limit_secs = 7;
+
+    // v2 only
+    bool new_timezone = 8;
+    bool day_learn_first = 9;
   }
 
-  // read only
-  uint32 scheduler_version = 1;
-
-  uint32 rollover = 2;
-  uint32 learn_ahead_secs = 3;
-  NewReviewMix new_review_mix = 4;
-  bool show_remaining_due_counts = 5;
-  bool show_intervals_on_buttons = 6;
-  uint32 time_limit_secs = 7;
-
-  // v2 only
-  bool new_timezone = 8;
-  bool day_learn_first = 9;
-}
-
-message Preferences {
-  CollectionSchedulingSettings sched = 1;
+  Scheduling scheduling = 1;
 }
 
 message ClozeNumbersInNoteOut {
