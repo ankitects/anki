@@ -179,19 +179,16 @@ class Editor:
                 "colour",
                 tr(TR.EDITING_SET_FOREGROUND_COLOUR_F7),
                 """
-<div id="forecolor"
-     style="display: inline-block; background: #000; border-radius: 5px;"
-     class="topbut"
->""",
+<span id="forecolor" class="topbut rounded" style="background: #000"></span>
+""",
             ),
             self._addButton(
                 None,
                 "changeCol",
                 tr(TR.EDITING_CHANGE_COLOUR_F8),
                 """
-<div style="display: inline-block; border-radius: 5px;"
-     class="topbut rainbow"
->""",
+<span class="topbut rounded rainbow"></span>
+""",
             ),
             self._addButton(
                 "text_cloze", "cloze", tr(TR.EDITING_CLOZE_DELETION_CTRLANDSHIFTANDC)
@@ -222,8 +219,16 @@ class Editor:
         # then load page
         self.web.stdHtml(
             _html % (bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
-            css=["css/editor.css"],
-            js=["js/vendor/jquery.min.js", "js/editor.js"],
+            css=[
+                "css/vendor/bootstrap.min.css",
+                "css/vendor/bootstrap-icons.css",
+                "css/editor.css",
+            ],
+            js=[
+                "js/vendor/jquery.min.js",
+                "js/vendor/bootstrap.bundle.min.js",
+                "js/editor.js",
+            ],
             context=self,
         )
         self.web.eval("preventButtonFocus();")
@@ -310,11 +315,11 @@ class Editor:
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = f"/_anki/imgs/{icon}.png"
-            imgelm = f"""<img class=topbut src="{iconstr}">"""
+            imgelm = f"""<img class="topbut" src="{iconstr}">"""
         else:
             imgelm = ""
         if label or not imgelm:
-            labelelm = f"""<span class=blabel>{label or cmd}</span>"""
+            labelelm = label or cmd
         else:
             labelelm = ""
         if id:
@@ -329,7 +334,7 @@ class Editor:
         if rightside:
             class_ = "linkb"
         else:
-            class_ = ""
+            class_ = "rounded"
         if not disables:
             class_ += " perm"
         return """<button tabindex=-1
@@ -424,10 +429,11 @@ class Editor:
     # JS->Python bridge
     ######################################################################
 
-    def onBridgeCmd(self, cmd: str) -> None:
+    def onBridgeCmd(self, cmd: str) -> Any:
         if not self.note:
             # shutdown
             return
+
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
             (type, ord_str, nid_str, txt) = cmd.split(":", 3)
@@ -457,13 +463,26 @@ class Editor:
             else:
                 gui_hooks.editor_did_fire_typing_timer(self.note)
                 self.checkValid()
+
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
             self.currentField = int(num)
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
+
+        elif cmd.startswith("toggleSticky"):
+            (type, num) = cmd.split(":", 1)
+            ord = int(num)
+
+            fld = self.note.model()["flds"][ord]
+            new_state = not fld["sticky"]
+            fld["sticky"] = new_state
+
+            return new_state
+
         elif cmd in self._links:
             self._links[cmd](self)
+
         else:
             print("uncaught cmd", cmd)
 
@@ -515,6 +534,11 @@ class Editor:
             json.dumps(focusTo),
             json.dumps(self.note.id),
         )
+
+        if self.addMode:
+            sticky = [field["sticky"] for field in self.note.model()["flds"]]
+            js += " setSticky(%s);" % json.dumps(sticky)
+
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(js, oncallback)
 

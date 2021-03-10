@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { EditingArea } from ".";
+import { EditingArea } from "./editingArea";
 import { caretToEnd, nodeIsElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
 import { updateButtonState } from "./toolbar";

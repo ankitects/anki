@@ -1,27 +1,15 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-html {
-    background: var(--bg-color);
+body {
+    color: var(--text-fg);
+    background-color: var(--bg-color);
 }
 
 #fields {
     display: flex;
     flex-direction: column;
     margin: 5px;
-
-    & > *,
-    & > * > * {
-        margin: 1px 0;
-
-        &:first-child {
-            margin-top: 0;
-        }
-
-        &:last-child {
-            margin-bottom: 0;
-        }
-    }
 }
 
 .field {
@@ -38,10 +26,6 @@ html {
     padding: 0;
 }
 
-body {
-    margin: 0;
-}
-
 #topbutsOuter {
     display: flex;
     flex-wrap: wrap;
@@ -54,6 +38,7 @@ body {
     padding: 2px;
 
     background: var(--bg-color);
+    font-size: 13px;
 }
 
 .topbuts {
@@ -73,9 +58,11 @@ body {
 }
 
 .topbut {
+    display: inline-block;
     width: 16px;
     height: 16px;
     margin-top: 4px;
+    vertical-align: -0.125em;
 }
 
 .rainbow {
@@ -122,10 +109,11 @@ button.highlighted {
 
     #topbutsright & {
         border-bottom: 3px solid black;
-    }
+        border-radius: 3px;
 
-    .nightMode #topbutsright & {
-        border-bottom: 3px solid white;
+        .nightMode & {
+            border-bottom-color: white;
+        }
     }
 }
 
@@ -142,5 +130,18 @@ button.highlighted {
 
     a {
         color: var(--link);
+    }
+}
+
+.icon {
+    cursor: pointer;
+    color: var(--text-fg);
+
+    &.is-inactive::before {
+        opacity: 0.1;
+    }
+
+    &.icon--hover::before {
+        opacity: 0.5;
     }
 }
