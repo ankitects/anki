@@ -1319,7 +1319,7 @@ impl BackendService for Backend {
     }
 
     fn set_preferences(&self, input: pb::Preferences) -> BackendResult<Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_preferences(input)))
+        self.with_col(|col| col.set_preferences(input))
             .map(Into::into)
     }
 }

@@ -80,7 +80,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="pasteInvert">
+        <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
           <string>PREFERENCES_PASTE_WITHOUT_SHIFT_KEY_STRIPS_FORMATTING</string>
          </property>
@@ -589,7 +589,7 @@
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
-  <tabstop>pasteInvert</tabstop>
+  <tabstop>paste_strips_formatting</tabstop>
   <tabstop>nightMode</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>recording_driver</tabstop>

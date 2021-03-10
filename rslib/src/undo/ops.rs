@@ -14,6 +14,7 @@ pub enum UndoableOpKind {
     RemoveNote,
     UpdateTag,
     UpdateNote,
+    UpdatePreferences,
 }
 
 impl UndoableOpKind {
@@ -34,6 +35,7 @@ impl Collection {
             UndoableOpKind::RemoveNote => TR::StudyingDeleteNote,
             UndoableOpKind::UpdateTag => TR::UndoUpdateTag,
             UndoableOpKind::UpdateNote => TR::UndoUpdateNote,
+            UndoableOpKind::UpdatePreferences => TR::PreferencesPreferences,
         };
 
         self.i18n.tr(key).to_string()

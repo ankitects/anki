@@ -1036,16 +1036,27 @@ message Preferences {
     uint32 rollover = 2;
     uint32 learn_ahead_secs = 3;
     NewReviewMix new_review_mix = 4;
-    bool show_remaining_due_counts = 5;
-    bool show_intervals_on_buttons = 6;
-    uint32 time_limit_secs = 7;
 
     // v2 only
-    bool new_timezone = 8;
-    bool day_learn_first = 9;
+    bool new_timezone = 5;
+    bool day_learn_first = 6;
+  }
+  message Reviewing {
+    bool hide_audio_play_buttons = 1;
+    bool interrupt_audio_when_answering = 2;
+    bool show_remaining_due_counts = 3;
+    bool show_intervals_on_buttons = 4;
+    uint32 time_limit_secs = 5;
+  }
+  message Editing {
+    bool adding_defaults_to_current_deck = 1;
+    bool paste_images_as_png = 2;
+    bool paste_strips_formatting = 3;
   }
 
   Scheduling scheduling = 1;
+  Reviewing reviewing = 2;
+  Editing editing = 3;
 }
 
 message ClozeNumbersInNoteOut {
@@ -1275,6 +1286,10 @@ message Config {
       COLLAPSE_FLAGS = 8;
       SCHED_2021 = 9;
       ADDING_DEFAULTS_TO_CURRENT_DECK = 10;
+      HIDE_AUDIO_PLAY_BUTTONS = 11;
+      INTERRUPT_AUDIO_WHEN_ANSWERING = 12;
+      PASTE_IMAGES_AS_PNG = 13;
+      PASTE_STRIPS_FORMATTING = 14;
     }
     Key key = 1;
   }

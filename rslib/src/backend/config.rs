@@ -22,6 +22,10 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::CollapseFlags => BoolKey::CollapseFlags,
             BoolKeyProto::Sched2021 => BoolKey::Sched2021,
             BoolKeyProto::AddingDefaultsToCurrentDeck => BoolKey::AddingDefaultsToCurrentDeck,
+            BoolKeyProto::HideAudioPlayButtons => BoolKey::HideAudioPlayButtons,
+            BoolKeyProto::InterruptAudioWhenAnswering => BoolKey::InterruptAudioWhenAnswering,
+            BoolKeyProto::PasteImagesAsPng => BoolKey::PasteImagesAsPng,
+            BoolKeyProto::PasteStripsFormatting => BoolKey::PasteStripsFormatting,
         }
     }
 }

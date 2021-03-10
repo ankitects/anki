@@ -89,14 +89,8 @@ profileConf: Dict[str, Any] = dict(
     numBackups=50,
     lastOptimize=intTime(),
     # editing
-    fullSearch=False,
     searchHistory=[],
     lastColour="#00f",
-    stripHTML=True,
-    pastePNG=False,
-    # not exposed in gui
-    deleteMedia=False,
-    preserveKeyboard=True,
     # syncing
     syncKey=None,
     syncMedia=True,
@@ -104,6 +98,10 @@ profileConf: Dict[str, Any] = dict(
     # importing
     allowHTML=False,
     importMode=1,
+    # these are not used, but Anki 2.1.42 and below
+    # expect these keys to exist
+    stripHTML=True,
+    deleteMedia=False,
 )
 
 
@@ -617,13 +615,6 @@ create table if not exists profiles
     # Profile-specific
     ######################################################################
 
-    def interrupt_audio(self) -> bool:
-        return self.profile.get("interrupt_audio", True)
-
-    def set_interrupt_audio(self, val: bool) -> None:
-        self.profile["interrupt_audio"] = val
-        aqt.sound.av_player.interrupt_current_audio = val
-
     def set_sync_key(self, val: Optional[str]) -> None:
         self.profile["syncKey"] = val
 
@@ -667,8 +658,3 @@ create table if not exists profiles
 
     def set_recording_driver(self, driver: RecordingDriver) -> None:
         self.profile["recordingDriver"] = driver.value
-
-    ######################################################################
-
-    def apply_profile_options(self) -> None:
-        aqt.sound.av_player.interrupt_current_audio = self.interrupt_audio()
