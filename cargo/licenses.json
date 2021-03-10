@@ -154,7 +154,7 @@
   },
   {
     "name": "async-trait",
-    "version": "0.1.47",
+    "version": "0.1.48",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/async-trait",
     "license": "Apache-2.0 OR MIT",
@@ -223,6 +223,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "A crate for manipulating memory, bit by bit"
+  },
+  {
+    "name": "blake2b_simd",
+    "version": "0.5.11",
+    "authors": "Jack O'Connor",
+    "repository": "https://github.com/oconnor663/blake2_simd",
+    "license": "MIT",
+    "license_file": null,
+    "description": "a pure Rust BLAKE2b implementation with dynamic SIMD"
   },
   {
     "name": "blake3",
@@ -414,22 +423,22 @@
     "description": "Traits for cryptographic hash functions"
   },
   {
-    "name": "dirs-next",
-    "version": "2.0.0",
-    "authors": "The @xdg-rs members",
-    "repository": "https://github.com/xdg-rs/dirs",
+    "name": "dirs",
+    "version": "2.0.2",
+    "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
+    "repository": "https://github.com/soc/dirs-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A tiny low-level library that provides platform-specific standard locations of directories for config, cache and other data on Linux, Windows, macOS and Redox by leveraging the mechanisms defined by the XDG base/user directory specifications on Linux, the Known Folder API on Windows, and the Standard Directory guidelines on macOS."
   },
   {
-    "name": "dirs-sys-next",
-    "version": "0.1.2",
-    "authors": "The @xdg-rs members",
-    "repository": "https://github.com/xdg-rs/dirs/tree/master/dirs-sys",
+    "name": "dirs-sys",
+    "version": "0.3.5",
+    "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
+    "repository": "https://github.com/dirs-dev/dirs-sys-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "description": "system-level helper functions for the dirs and directories crates"
+    "description": "System-level helper functions for the dirs and directories crates."
   },
   {
     "name": "dtoa",
@@ -1747,6 +1756,15 @@
   },
   {
     "name": "redox_syscall",
+    "version": "0.1.57",
+    "authors": "Jeremy Soller <jackpot51@gmail.com>",
+    "repository": "https://gitlab.redox-os.org/redox-os/syscall",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A Rust library to access raw Redox system calls"
+  },
+  {
+    "name": "redox_syscall",
     "version": "0.2.5",
     "authors": "Jeremy Soller <jackpot51@gmail.com>",
     "repository": "https://gitlab.redox-os.org/redox-os/syscall",
@@ -1756,7 +1774,7 @@
   },
   {
     "name": "redox_users",
-    "version": "0.4.0",
+    "version": "0.3.5",
     "authors": "Jose Narvaez <goyox86@gmail.com>|Wesley Hershberger <mggmugginsmc@gmail.com>",
     "repository": "https://gitlab.redox-os.org/redox-os/users",
     "license": "MIT",
@@ -1845,6 +1863,15 @@
     "description": "Ergonomic wrapper for SQLite"
   },
   {
+    "name": "rust-argon2",
+    "version": "0.8.3",
+    "authors": "Martijn Rijkeboer <mrr@sru-systems.com>",
+    "repository": "https://github.com/sru-systems/rust-argon2",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust implementation of the Argon2 password hashing function."
+  },
+  {
     "name": "rustc-demangle",
     "version": "0.1.18",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -1870,15 +1897,6 @@
     "license": "Apache-2.0 OR ISC OR MIT",
     "license_file": null,
     "description": "Rustls is a modern TLS library written in Rust."
-  },
-  {
-    "name": "rustversion",
-    "version": "1.0.4",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/rustversion",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Conditional compilation according to rustc compiler version"
   },
   {
     "name": "ryu",
@@ -1918,7 +1936,7 @@
   },
   {
     "name": "security-framework",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "authors": "Steven Fackler <sfackler@gmail.com>|Kornel <kornel@geekhood.net>",
     "repository": "https://github.com/kornelski/rust-security-framework",
     "license": "Apache-2.0 OR MIT",
@@ -2080,7 +2098,7 @@
   },
   {
     "name": "slog-term",
-    "version": "2.8.0",
+    "version": "2.6.0",
     "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
     "repository": "https://github.com/slog-rs/term",
     "license": "Apache-2.0 OR MIT OR MPL-2.0",
@@ -2179,7 +2197,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.62",
+    "version": "1.0.63",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -2233,7 +2251,7 @@
   },
   {
     "name": "term",
-    "version": "0.7.0",
+    "version": "0.6.1",
     "authors": "The Rust Project Developers|Steven Allen",
     "repository": "https://github.com/Stebalien/term",
     "license": "Apache-2.0 OR MIT",

@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "async_trait",
-    actual = "@raze__async_trait__0_1_47//:async_trait",
+    actual = "@raze__async_trait__0_1_48//:async_trait",
     tags = [
         "cargo-raze",
         "manual",
@@ -419,7 +419,7 @@ alias(
 
 alias(
     name = "slog_term",
-    actual = "@raze__slog_term__2_8_0//:slog_term",
+    actual = "@raze__slog_term__2_6_0//:slog_term",
     tags = [
         "cargo-raze",
         "manual",
@@ -438,6 +438,15 @@ alias(
 alias(
     name = "tempfile",
     actual = "@raze__tempfile__3_2_0//:tempfile",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "term",
+    actual = "@raze__term__0_6_1//:term",
     tags = [
         "cargo-raze",
         "manual",
