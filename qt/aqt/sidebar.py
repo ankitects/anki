@@ -12,9 +12,11 @@ import aqt
 from anki.collection import Config, SearchJoiner, SearchNode
 from anki.decks import DeckTreeNode
 from anki.errors import DeckRenameError, InvalidInput
+from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
+from aqt.clayout import CardLayout
 from aqt.main import ResetReason
 from aqt.models import Models
 from aqt.qt import *
@@ -69,8 +71,6 @@ class SidebarItemType(Enum):
             SidebarItemType.SAVED_SEARCH,
             SidebarItemType.DECK,
             SidebarItemType.TAG,
-            SidebarItemType.NOTETYPE,
-            SidebarItemType.NOTETYPE_TEMPLATE,
         )
 
     def is_deletable(self) -> bool:
@@ -1043,7 +1043,11 @@ class SidebarTreeView(QTreeView):
 
     def _maybe_add_type_specific_actions(self, menu: QMenu, item: SidebarItem) -> None:
         if item.item_type in (SidebarItemType.NOTETYPE, SidebarItemType.NOTETYPE_ROOT):
-            menu.addAction(tr(TR.ACTIONS_MANAGE), lambda: self.manage_notetype(item))
+            menu.addAction(
+                tr(TR.BROWSING_MANAGE_NOTE_TYPES), lambda: self.manage_notetype(item)
+            )
+        elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
+            menu.addAction(tr(TR.NOTETYPES_CARDS), lambda: self.manage_template(item))
         elif item.item_type == SidebarItemType.SAVED_SEARCH_ROOT:
             menu.addAction(
                 tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search
@@ -1215,29 +1219,6 @@ class SidebarTreeView(QTreeView):
             self.browser.model.beginReset()
             self.mw.taskman.run_in_background(do_delete, on_done)
 
-    def rename_notetype(self, item: SidebarItem, new_name: str) -> None:
-        notetype = self.col.models.get(item.id)
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME))
-        notetype["name"] = new_name
-        self.col.models.save(notetype)
-        self.refresh(
-            lambda other: other.item_type == SidebarItemType.NOTETYPE
-            and other.id == item.id
-        )
-        self.browser.model.reset()
-
-    def rename_template(self, item: SidebarItem, new_name: str) -> None:
-        notetype = self.col.models.get(item._parent_item.id)
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME))
-        notetype["tmpls"][item.id]["name"] = new_name
-        self.col.models.save(notetype)
-        self.refresh(
-            lambda other: other.item_type == SidebarItemType.NOTETYPE_TEMPLATE
-            and other._parent_item.id == item._parent_item.id
-            and other.id == item.id
-        )
-        self.browser.model.reset()
-
     def rename_node(self, item: SidebarItem, text: str) -> bool:
         new_name = text.replace('"', "")
         if new_name and new_name != item.name:
@@ -1247,10 +1228,6 @@ class SidebarTreeView(QTreeView):
                 self.rename_saved_search(item, new_name)
             elif item.item_type == SidebarItemType.TAG:
                 self.rename_tag(item, new_name)
-            elif item.item_type == SidebarItemType.NOTETYPE:
-                self.rename_notetype(item, new_name)
-            elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
-                self.rename_template(item, new_name)
         # renaming may be asynchronous so always return False
         return False
 
@@ -1325,6 +1302,10 @@ class SidebarTreeView(QTreeView):
         Models(
             self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
         )
+
+    def manage_template(self, item: SidebarItem) -> None:
+        note = Note(self.col, self.col.models.get(item._parent_item.id))
+        CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
 
     # Helpers
     ##################
