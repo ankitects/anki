@@ -27,7 +27,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import BackendUndo, Checkpoint, Collection, ReviewUndo
+from anki.collection import BackendUndo, Checkpoint, Collection, Config, ReviewUndo
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag
@@ -391,8 +391,6 @@ class AnkiQt(QMainWindow):
         if not self.loadCollection():
             return
 
-        self.pm.apply_profile_options()
-
         # show main window
         if self.pm.profile["mainWindowState"]:
             restoreGeom(self, "mainWindow")
@@ -467,10 +465,10 @@ class AnkiQt(QMainWindow):
 
     def _add_play_buttons(self, text: str) -> str:
         "Return card text with play buttons added, or stripped."
-        if self.pm.profile.get("showPlayButtons", True):
-            return aqt.sound.av_refs_to_play_icons(text)
-        else:
+        if self.col.get_config_bool(Config.Bool.HIDE_AUDIO_PLAY_BUTTONS):
             return anki.sound.strip_av_refs(text)
+        else:
+            return aqt.sound.av_refs_to_play_icons(text)
 
     def prepare_card_text_for_display(self, text: str) -> str:
         text = self.col.media.escape_media_filenames(text)
@@ -508,6 +506,7 @@ class AnkiQt(QMainWindow):
         try:
             self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
+            self.apply_collection_options()
             self.moveToState("deckBrowser")
         except Exception as e:
             # dump error to stderr so it gets picked up by errors.py
@@ -571,6 +570,12 @@ class AnkiQt(QMainWindow):
         self.backup()
         self.col.reopen(after_full_sync=False)
         self.col.close_for_full_sync()
+
+    def apply_collection_options(self) -> None:
+        "Setup audio after collection loaded."
+        aqt.sound.av_player.interrupt_current_audio = self.col.get_config_bool(
+            Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
+        )
 
     # Backup and auto-optimize
     ##########################################################################

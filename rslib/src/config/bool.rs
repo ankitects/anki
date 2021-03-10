@@ -18,6 +18,10 @@ pub enum BoolKey {
     CollapseTags,
     CollapseToday,
     FutureDueShowBacklog,
+    HideAudioPlayButtons,
+    InterruptAudioWhenAnswering,
+    PasteImagesAsPng,
+    PasteStripsFormatting,
     PreviewBothSides,
     Sched2021,
 
@@ -50,7 +54,9 @@ impl Collection {
             }
 
             // some keys default to true
-            BoolKey::AddingDefaultsToCurrentDeck
+            BoolKey::InterruptAudioWhenAnswering
+            | BoolKey::ShowIntervalsAboveAnswerButtons
+            | BoolKey::AddingDefaultsToCurrentDeck
             | BoolKey::FutureDueShowBacklog
             | BoolKey::ShowRemainingDueCountsInStudy
             | BoolKey::CardCountsSeparateInactive
