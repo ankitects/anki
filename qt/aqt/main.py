@@ -848,7 +848,10 @@ title="%s" %s>%s</button>""" % (
 
         if elap > 86_400:
             check_and_prompt_for_updates(
-                self, self.addonManager, self.on_updates_installed
+                self,
+                self.addonManager,
+                self.on_updates_installed,
+                requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(intTime())
 
