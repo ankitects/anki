@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import re
 from concurrent.futures import Future
 from enum import Enum, auto
 from typing import Dict, Iterable, List, Optional, Tuple, cast
@@ -102,12 +101,11 @@ class SidebarItem:
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,
-        full_name: str = None,
+        name_prefix: str = "",
     ) -> None:
         self.name = name
-        if not full_name:
-            full_name = name
-        self.full_name = full_name
+        self.name_prefix = name_prefix
+        self.full_name = name_prefix + name
         self.icon = icon
         self.item_type = item_type
         self.id = id
@@ -917,7 +915,7 @@ class SidebarTreeView(QTreeView):
                     on_expanded=toggle_expand(),
                     expanded=node.expanded,
                     item_type=SidebarItemType.TAG,
-                    full_name=head + node.name,
+                    name_prefix=head,
                 )
                 root.add_child(item)
                 newhead = f"{head + node.name}::"
@@ -964,7 +962,7 @@ class SidebarTreeView(QTreeView):
                     expanded=not node.collapsed,
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,
-                    full_name=head + node.name,
+                    name_prefix=head,
                 )
                 root.add_child(item)
                 newhead = f"{head + node.name}::"
@@ -1019,7 +1017,7 @@ class SidebarTreeView(QTreeView):
                         SearchNode(note=nt["name"]), SearchNode(template=c)
                     ),
                     item_type=SidebarItemType.NOTETYPE_TEMPLATE,
-                    full_name=f"{nt['name']}::{tmpl['name']}",
+                    name_prefix=f"{nt['name']}::",
                     id=tmpl["ord"],
                 )
                 item.add_child(child)
@@ -1130,10 +1128,7 @@ class SidebarTreeView(QTreeView):
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         deck = self.mw.col.decks.get(item.id)
-        old_name = deck["name"]
-        new_name = re.sub(
-            re.escape(item.name) + "$", new_name.replace("\\", r"\\"), old_name
-        )
+        new_name = item.name_prefix + new_name
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
@@ -1176,9 +1171,7 @@ class SidebarTreeView(QTreeView):
 
     def _rename_tag(self, item: SidebarItem, new_name: str) -> None:
         old_name = item.full_name
-        new_name = re.sub(
-            re.escape(item.name) + "$", new_name.replace("\\", r"\\"), old_name
-        )
+        new_name = item.name_prefix + new_name
 
         def do_rename() -> int:
             self.mw.col.tags.remove(old_name)
