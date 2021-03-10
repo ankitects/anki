@@ -440,14 +440,14 @@ impl Collection {
         self.storage.get_deck_id(&machine_name)
     }
 
-    pub fn remove_decks_and_child_decks(&mut self, dids: Vec<DeckID>) -> Result<()> {
+    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<()> {
         // fixme: vet cache clearing
         self.state.deck_cache.clear();
 
         self.transact(None, |col| {
             let usn = col.usn()?;
             for did in dids {
-                if let Some(deck) = col.storage.get_deck(did)? {
+                if let Some(deck) = col.storage.get_deck(*did)? {
                     let child_decks = col.storage.child_decks(&deck)?;
 
                     // top level
@@ -779,7 +779,7 @@ mod test {
 
         // delete top level
         let top = col.get_or_create_normal_deck("one")?;
-        col.remove_decks_and_child_decks(vec![top.id])?;
+        col.remove_decks_and_child_decks(&[top.id])?;
 
         // should have come back as "Default+" due to conflict
         assert_eq!(sorted_names(&col), vec!["default", "Default+"]);
