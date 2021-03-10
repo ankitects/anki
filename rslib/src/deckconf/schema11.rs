@@ -32,6 +32,19 @@ pub struct DeckConfSchema11 {
     pub(crate) lapse: LapseConfSchema11,
     #[serde(rename = "dyn", default, deserialize_with = "default_on_invalid")]
     dynamic: bool,
+
+    // 2021 scheduler options: these were not in schema 11, but we need to persist them
+    // so the settings are not lost on upgrade/downgrade.
+    // NOTE: if adding new ones, make sure to update clear_other_duplicates()
+    #[serde(default)]
+    new_mix: i32,
+    #[serde(default)]
+    new_per_day_minimum: u32,
+    #[serde(default)]
+    interday_learning_mix: i32,
+    #[serde(default)]
+    review_order: i32,
+
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }
@@ -191,6 +204,10 @@ impl Default for DeckConfSchema11 {
             rev: Default::default(),
             lapse: Default::default(),
             other: Default::default(),
+            new_mix: 0,
+            new_per_day_minimum: 0,
+            interday_learning_mix: 0,
+            review_order: 0,
         }
     }
 }
@@ -229,14 +246,9 @@ impl From<DeckConfSchema11> for DeckConf {
             inner: DeckConfigInner {
                 learn_steps: c.new.delays,
                 relearn_steps: c.lapse.delays,
-                disable_autoplay: !c.autoplay,
-                cap_answer_time_to_secs: c.max_taken.max(0) as u32,
-                visible_timer_secs: c.timer as u32,
-                skip_question_when_replaying_answer: !c.replayq,
                 new_per_day: c.new.per_day,
                 reviews_per_day: c.rev.per_day,
-                bury_new: c.new.bury,
-                bury_reviews: c.rev.bury,
+                new_per_day_minimum: c.new_per_day_minimum,
                 initial_ease: (c.new.initial_factor as f32) / 1000.0,
                 easy_multiplier: c.rev.ease4,
                 hard_multiplier: c.rev.hard_factor,
@@ -250,15 +262,24 @@ impl From<DeckConfSchema11> for DeckConf {
                     NewCardOrderSchema11::Random => NewCardOrder::Random,
                     NewCardOrderSchema11::Due => NewCardOrder::Due,
                 } as i32,
+                review_order: c.review_order,
+                new_mix: c.new_mix,
+                interday_learning_mix: c.interday_learning_mix,
                 leech_action: c.lapse.leech_action as i32,
                 leech_threshold: c.lapse.leech_fails,
+                disable_autoplay: !c.autoplay,
+                cap_answer_time_to_secs: c.max_taken.max(0) as u32,
+                visible_timer_secs: c.timer as u32,
+                skip_question_when_replaying_answer: !c.replayq,
+                bury_new: c.new.bury,
+                bury_reviews: c.rev.bury,
                 other: other_bytes,
             },
         }
     }
 }
 
-// schema 15 -> schema 11
+// latest schema -> schema 11
 impl From<DeckConf> for DeckConfSchema11 {
     fn from(c: DeckConf) -> DeckConfSchema11 {
         // split extra json up
@@ -270,6 +291,7 @@ impl From<DeckConf> for DeckConfSchema11 {
             top_other = Default::default();
         } else {
             top_other = serde_json::from_slice(&c.inner.other).unwrap_or_default();
+            clear_other_duplicates(&mut top_other);
             if let Some(new) = top_other.remove("new") {
                 let val: HashMap<String, Value> = serde_json::from_value(new).unwrap_or_default();
                 new_other = val;
@@ -332,6 +354,28 @@ impl From<DeckConf> for DeckConfSchema11 {
                 other: lapse_other,
             },
             other: top_other,
+            new_mix: i.new_mix,
+            new_per_day_minimum: i.new_per_day_minimum,
+            interday_learning_mix: i.interday_learning_mix,
+            review_order: i.review_order,
         }
+    }
+}
+
+fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
+    // Older clients may have received keys from a newer client when
+    // syncing, which get bundled into `other`. If they then upgrade, then
+    // downgrade their collection to schema11, serde will serialize the
+    // new default keys, but then add them again from `other`, leading
+    // to the keys being duplicated in the resulting json - which older
+    // clients then can't read. So we need to strip out any new keys we
+    // add.
+    for key in &[
+        "newMix",
+        "newPerDayMinimum",
+        "interdayLearningMix",
+        "reviewOrder",
+    ] {
+        top_other.remove(*key);
     }
 }

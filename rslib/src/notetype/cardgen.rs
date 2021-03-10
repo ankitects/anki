@@ -299,7 +299,12 @@ impl Collection {
 
     // not sure if entry() can be used due to get_deck_config() returning a result
     #[allow(clippy::map_entry)]
-    fn due_for_deck(&self, did: DeckID, dcid: DeckConfID, cache: &mut CardGenCache) -> Result<u32> {
+    fn due_for_deck(
+        &mut self,
+        did: DeckID,
+        dcid: DeckConfID,
+        cache: &mut CardGenCache,
+    ) -> Result<u32> {
         if !cache.deck_configs.contains_key(&did) {
             let conf = self.get_deck_config(dcid, true)?.unwrap();
             cache.deck_configs.insert(did, conf);

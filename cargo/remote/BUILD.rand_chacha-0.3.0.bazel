@@ -51,6 +51,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__ppv_lite86__0_2_10//:ppv_lite86",
-        "@raze__rand_core__0_6_1//:rand_core",
+        "@raze__rand_core__0_6_2//:rand_core",
     ],
 )

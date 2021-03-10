@@ -100,23 +100,53 @@ impl SqliteStorage {
             .db
             .prepare(include_str!("alloc_id.sql"))?
             .query_row(&[TimestampMillis::now()], |r| r.get(0))?;
-        self.update_deck(deck).map_err(|err| {
-            // restore id of 0
-            deck.id.0 = 0;
-            err
-        })
+        self.add_or_update_deck_with_existing_id(deck)
+            .map_err(|err| {
+                // restore id of 0
+                deck.id.0 = 0;
+                err
+            })
     }
 
     pub(crate) fn update_deck(&self, deck: &Deck) -> Result<()> {
         if deck.id.0 == 0 {
             return Err(AnkiError::invalid_input("deck with id 0"));
         }
-        self.add_or_update_deck(deck)
+        let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
+        let mut common = vec![];
+        deck.common.encode(&mut common)?;
+        let kind_enum = DeckKindProto {
+            kind: Some(deck.kind.clone()),
+        };
+        let mut kind = vec![];
+        kind_enum.encode(&mut kind)?;
+        let count = stmt.execute(params![
+            deck.name,
+            deck.mtime_secs,
+            deck.usn,
+            common,
+            kind,
+            deck.id
+        ])?;
+
+        if count == 0 {
+            Err(AnkiError::invalid_input(
+                "update_deck() called with non-existent deck",
+            ))
+        } else {
+            Ok(())
+        }
     }
 
-    /// Used for syncing; will keep existing ID.
-    pub(crate) fn add_or_update_deck(&self, deck: &Deck) -> Result<()> {
-        let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
+    /// Used for syncing; will keep existing ID. Shouldn't be used to add new decks locally,
+    /// since it does not allocate an id.
+    pub(crate) fn add_or_update_deck_with_existing_id(&self, deck: &Deck) -> Result<()> {
+        if deck.id.0 == 0 {
+            return Err(AnkiError::invalid_input("deck with id 0"));
+        }
+        let mut stmt = self
+            .db
+            .prepare_cached(include_str!("add_or_update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;
         let kind_enum = DeckKindProto {
@@ -162,6 +192,38 @@ impl SqliteStorage {
             .collect()
     }
 
+    /// Return the provided deck with its parents and children in an ordered list, and
+    /// the number of parent decks that need to be skipped to get to the chosen deck.
+    pub(crate) fn deck_with_parents_and_children(
+        &self,
+        deck_id: DeckID,
+    ) -> Result<(Vec<Deck>, usize)> {
+        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        let mut parents = self.parent_decks(&deck)?;
+        parents.reverse();
+        let parent_count = parents.len();
+
+        let prefix_start = format!("{}\x1f", deck.name);
+        let prefix_end = format!("{}\x20", deck.name);
+        parents.push(deck);
+
+        let decks = parents
+            .into_iter()
+            .map(Result::Ok)
+            .chain(
+                self.db
+                    .prepare_cached(concat!(
+                        include_str!("get_deck.sql"),
+                        " where name > ? and name < ?"
+                    ))?
+                    .query_and_then(&[prefix_start, prefix_end], row_to_deck)?,
+            )
+            .collect::<Result<_>>()?;
+
+        Ok((decks, parent_count))
+    }
+
+    /// Return the parents of `child`, with the most immediate parent coming first.
     pub(crate) fn parent_decks(&self, child: &Deck) -> Result<Vec<Deck>> {
         let mut decks: Vec<Deck> = vec![];
         while let Some(parent_name) =
@@ -170,6 +232,9 @@ impl SqliteStorage {
             if let Some(parent_did) = self.get_deck_id(parent_name)? {
                 let parent = self.get_deck(parent_did)?.unwrap();
                 decks.push(parent);
+            } else {
+                // missing parent
+                break;
             }
         }
 
@@ -275,7 +340,7 @@ impl SqliteStorage {
         deck.id.0 = 1;
         // fixme: separate key
         deck.name = i18n.tr(TR::DeckConfigDefaultName).into();
-        self.update_deck(&deck)
+        self.add_or_update_deck_with_existing_id(&deck)
     }
 
     pub(crate) fn upgrade_decks_to_schema15(&self, server: bool) -> Result<()> {
@@ -297,7 +362,7 @@ impl SqliteStorage {
                 deck.name.push('_');
                 deck.set_modified(usn);
             }
-            self.update_deck(&deck)?;
+            self.add_or_update_deck_with_existing_id(&deck)?;
         }
         self.db.execute("update col set decks = ''", NO_PARAMS)?;
         Ok(())

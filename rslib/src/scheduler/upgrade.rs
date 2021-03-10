@@ -10,7 +10,7 @@ use crate::{
     search::SortMode,
 };
 
-use super::cutoff::local_minutes_west_for_stamp;
+use super::timing::local_minutes_west_for_stamp;
 
 struct V1FilteredDeckInfo {
     /// True if the filtered deck had rescheduling enabled.
@@ -39,7 +39,12 @@ impl Card {
                 self.remaining_steps = self.remaining_steps.min(step_count);
             }
 
-            if !info.reschedule {
+            if info.reschedule {
+                // only new cards should be in the new queue
+                if self.queue == CardQueue::New && self.ctype != CardType::New {
+                    self.restore_queue_from_type();
+                }
+            } else {
                 // preview cards start in the review queue in v2
                 if self.queue == CardQueue::New {
                     self.queue = CardQueue::Review;
@@ -182,5 +187,15 @@ mod test {
         }));
         assert_eq!(c.ctype, CardType::New);
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
+
+        // (early) reviews should be moved back from the new queue
+        c.ctype = CardType::Review;
+        c.queue = CardQueue::New;
+        c.upgrade_to_v2(Some(V1FilteredDeckInfo {
+            reschedule: true,
+            original_step_count: None,
+        }));
+        assert_eq!(c.ctype, CardType::Review);
+        assert_eq!(c.queue, CardQueue::Review);
     }
 }

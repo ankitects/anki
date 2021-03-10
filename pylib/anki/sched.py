@@ -12,7 +12,7 @@ import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, QueueConfig
+from anki.decks import QueueConfig
 from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
@@ -45,10 +45,11 @@ class Scheduler(V2):
     def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()
         assert 1 <= ease <= 4
-        self.col.markReview(card)
+        self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
         card.reps += 1
+        self.reps += 1
         # former is for logging new cards, latter also covers filt. decks
         card.wasNew = card.type == CARD_TYPE_NEW  # type: ignore
         wasNewQ = card.queue == QUEUE_TYPE_NEW
@@ -427,25 +428,6 @@ and due <= ? limit ?)""",
     def _deckRevLimit(self, did: int) -> int:
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
-    def _deckRevLimitSingle(self, d: Deck) -> int:  # type: ignore[override]
-        if d["dyn"]:
-            return self.reportLimit
-        c = self.col.decks.confForDid(d["id"])
-        limit = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
-        return hooks.scheduler_review_limit_for_single_deck(limit, d)
-
-    def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]
-        lim = min(lim, self.reportLimit)
-        return self.col.db.scalar(
-            f"""
-select count() from
-(select 1 from cards where did = ? and queue = {QUEUE_TYPE_REV}
-and due <= ? limit ?)""",
-            did,
-            self.today,
-            lim,
-        )
-
     def _resetRev(self) -> None:
         self._revQueue: List[Any] = []
         self._revDids = self.col.decks.active()[:]
@@ -624,7 +606,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
             f = card.note()
-            f.addTag("leech")
+            f.add_tag("leech")
             f.flush()
             # handle
             a = conf["leechAction"]

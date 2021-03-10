@@ -7,49 +7,51 @@ $fusion-button-border: #646464;
 $fusion-button-base-bg: #454545;
 
 .isWin {
-  button {
-    font-size: 12px;
-  }
+    button {
+        font-size: 12px;
+    }
 }
 
 .isMac {
-  button {
-    font-size: 13px;
-  }
+    button {
+        font-size: 13px;
+    }
 }
 
 .isLin {
-  button {
-    font-size: 14px;
+    button {
+        font-size: 14px;
 
-    -webkit-appearance: none;
-    border-radius: 3px;
-    padding: 5px;
-    border: 1px solid var(--border);
-  }
+        -webkit-appearance: none;
+        border-radius: 3px;
+        padding: 5px;
+        border: 1px solid var(--border);
+    }
 }
 
 .nightMode {
-  button {
-    -webkit-appearance: none;
-    color: var(--text-fg);
+    button {
+        -webkit-appearance: none;
+        color: var(--text-fg);
 
-    /* match the fusion button gradient */
-    background: linear-gradient(0deg,
+        /* match the fusion button gradient */
+        background: linear-gradient(
+            0deg,
             $fusion-button-gradient-start 0%,
-            $fusion-button-gradient-end 100%);
-    box-shadow: 0 0 3px $fusion-button-outline;
-    border: 1px solid $fusion-button-border;
+            $fusion-button-gradient-end 100%
+        );
+        box-shadow: 0 0 3px $fusion-button-outline;
+        border: 1px solid $fusion-button-border;
 
-    border-radius: 2px;
-    padding: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-  }
+        border-radius: 2px;
+        padding: 10px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
 
-  button:hover {
-    background: $fusion-button-hover-bg;
-  }
+    button:hover {
+        background: $fusion-button-hover-bg;
+    }
 }
 
 /* imitate standard macOS dark mode buttons */

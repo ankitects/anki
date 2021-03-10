@@ -71,15 +71,15 @@ def test_noteAddDelete():
     c0 = note.cards()[0]
     assert "three" in c0.q()
     # it should not be a duplicate
-    assert not note.dupeOrEmpty()
+    assert not note.duplicate_or_empty()
     # now let's make a duplicate
     note2 = col.newNote()
     note2["Front"] = "one"
     note2["Back"] = ""
-    assert note2.dupeOrEmpty()
+    assert note2.duplicate_or_empty()
     # empty first field should not be permitted either
     note2["Front"] = " "
-    assert note2.dupeOrEmpty()
+    assert note2.duplicate_or_empty()
 
 
 def test_fieldChecksum():
@@ -104,13 +104,13 @@ def test_addDelTags():
     note2["Front"] = "2"
     col.addNote(note2)
     # adding for a given id
-    col.tags.bulkAdd([note.id], "foo")
+    col.tags.bulk_add([note.id], "foo")
     note.load()
     note2.load()
     assert "foo" in note.tags
     assert "foo" not in note2.tags
     # should be canonified
-    col.tags.bulkAdd([note.id], "foo aaa")
+    col.tags.bulk_add([note.id], "foo aaa")
     note.load()
     assert note.tags[0] == "aaa"
     assert len(note.tags) == 2

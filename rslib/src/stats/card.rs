@@ -126,7 +126,7 @@ impl Collection {
         })
     }
 
-    fn card_stats_to_string(&self, cs: CardStats) -> Result<String> {
+    fn card_stats_to_string(&mut self, cs: CardStats) -> Result<String> {
         let offset = self.local_utc_offset_for_user()?;
         let i18n = &self.i18n;
 

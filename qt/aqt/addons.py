@@ -10,6 +10,7 @@ import zipfile
 from collections import defaultdict
 from concurrent.futures import Future
 from dataclasses import dataclass
+from datetime import datetime
 from typing import IO, Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
@@ -104,6 +105,7 @@ class AddonMeta:
     max_point_version: int
     branch_index: int
     human_version: Optional[str]
+    update_enabled: bool
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
@@ -139,6 +141,7 @@ class AddonMeta:
             max_point_version=json_meta.get("max_point_version", 0) or 0,
             branch_index=json_meta.get("branch_index", 0) or 0,
             human_version=json_meta.get("human_version"),
+            update_enabled=json_meta.get("update_enabled", True),
         )
 
 
@@ -242,6 +245,7 @@ class AddonManager:
         json_obj["branch_index"] = addon.branch_index
         if addon.human_version is not None:
             json_obj["human_version"] = addon.human_version
+        json_obj["update_enabled"] = addon.update_enabled
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
@@ -551,19 +555,19 @@ class AddonManager:
         if updated:
             self.write_addon_meta(addon)
 
-    def updates_required(self, items: List[UpdateInfo]) -> List[int]:
+    def updates_required(self, items: List[UpdateInfo]) -> List[UpdateInfo]:
         """Return ids of add-ons requiring an update."""
         need_update = []
         for item in items:
             addon = self.addon_meta(str(item.id))
             # update if server mtime is newer
             if not addon.is_latest(item.suitable_branch_last_modified):
-                need_update.append(item.id)
+                need_update.append(item)
             elif not addon.compatible() and item.suitable_branch_last_modified > 0:
                 # Addon is currently disabled, and a suitable branch was found on the
                 # server. Ignore our stored mtime (which may have been set incorrectly
                 # in the past) and require an update.
-                need_update.append(item.id)
+                need_update.append(item)
 
         return need_update
 
@@ -1132,6 +1136,163 @@ def download_addons(
 ######################################################################
 
 
+class ChooseAddonsToUpdateList(QListWidget):
+    ADDON_ID_ROLE = 101
+
+    def __init__(
+        self,
+        parent: QWidget,
+        mgr: AddonManager,
+        updated_addons: List[UpdateInfo],
+    ) -> None:
+        QListWidget.__init__(self, parent)
+        self.mgr = mgr
+        self.updated_addons = sorted(
+            updated_addons, key=lambda addon: addon.suitable_branch_last_modified
+        )
+        self.ignore_check_evt = False
+        self.setup()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        qconnect(self.itemClicked, self.on_click)
+        qconnect(self.itemChanged, self.on_check)
+        qconnect(self.itemDoubleClicked, self.on_double_click)
+        qconnect(self.customContextMenuRequested, self.on_context_menu)
+
+    def setup(self) -> None:
+        header_item = QListWidgetItem("", self)
+        header_item.setFlags(Qt.ItemFlag(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
+        header_item.setBackground(Qt.lightGray)
+        self.header_item = header_item
+        for update_info in self.updated_addons:
+            addon_id = update_info.id
+            addon_meta = self.mgr.addon_meta(str(addon_id))
+            update_enabled = addon_meta.update_enabled
+            addon_name = addon_meta.human_name()
+            update_timestamp = update_info.suitable_branch_last_modified
+            update_time = datetime.fromtimestamp(update_timestamp)
+
+            addon_label = f"{update_time:%Y-%m-%d}   {addon_name}"
+            item = QListWidgetItem(addon_label, self)
+            # Not user checkable because it overlaps with itemClicked signal
+            item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled))
+            if update_enabled:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
+            item.setData(self.ADDON_ID_ROLE, addon_id)
+        self.refresh_header_check_state()
+
+    def bool_to_check(self, check_bool: bool) -> Qt.CheckState:
+        if check_bool:
+            return Qt.Checked
+        else:
+            return Qt.Unchecked
+
+    def checked(self, item: QListWidgetItem) -> bool:
+        return item.checkState() == Qt.Checked
+
+    def on_click(self, item: QListWidgetItem) -> None:
+        if item == self.header_item:
+            return
+        checked = self.checked(item)
+        self.check_item(item, self.bool_to_check(not checked))
+        self.refresh_header_check_state()
+
+    def on_check(self, item: QListWidgetItem) -> None:
+        if self.ignore_check_evt:
+            return
+        if item == self.header_item:
+            self.header_checked(item.checkState())
+
+    def on_double_click(self, item: QListWidgetItem) -> None:
+        if item == self.header_item:
+            checked = self.checked(item)
+            self.check_item(self.header_item, self.bool_to_check(not checked))
+            self.header_checked(self.bool_to_check(not checked))
+
+    def on_context_menu(self, point: QPoint) -> None:
+        item = self.itemAt(point)
+        addon_id = item.data(self.ADDON_ID_ROLE)
+        m = QMenu()
+        a = m.addAction(tr(TR.ADDONS_VIEW_ADDON_PAGE))
+        qconnect(a.triggered, lambda _: openLink(f"{aqt.appShared}info/{addon_id}"))
+        m.exec_(QCursor.pos())
+
+    def check_item(self, item: QListWidgetItem, check: Qt.CheckState) -> None:
+        "call item.setCheckState without triggering on_check"
+        self.ignore_check_evt = True
+        item.setCheckState(check)
+        self.ignore_check_evt = False
+
+    def header_checked(self, check: Qt.CheckState) -> None:
+        for i in range(1, self.count()):
+            self.check_item(self.item(i), check)
+
+    def refresh_header_check_state(self) -> None:
+        for i in range(1, self.count()):
+            item = self.item(i)
+            if not self.checked(item):
+                self.check_item(self.header_item, Qt.Unchecked)
+                return
+        self.check_item(self.header_item, Qt.Checked)
+
+    def get_selected_addon_ids(self) -> List[int]:
+        addon_ids = []
+        for i in range(1, self.count()):
+            item = self.item(i)
+            if self.checked(item):
+                addon_id = item.data(self.ADDON_ID_ROLE)
+                addon_ids.append(addon_id)
+        return addon_ids
+
+    def save_check_state(self) -> None:
+        for i in range(1, self.count()):
+            item = self.item(i)
+            addon_id = item.data(self.ADDON_ID_ROLE)
+            addon_meta = self.mgr.addon_meta(str(addon_id))
+            addon_meta.update_enabled = self.checked(item)
+            self.mgr.write_addon_meta(addon_meta)
+
+
+class ChooseAddonsToUpdateDialog(QDialog):
+    def __init__(
+        self, parent: QWidget, mgr: AddonManager, updated_addons: List[UpdateInfo]
+    ) -> None:
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(tr(TR.ADDONS_CHOOSE_UPDATE_WINDOW_TITLE))
+        self.setWindowModality(Qt.WindowModal)
+        self.mgr = mgr
+        self.updated_addons = updated_addons
+        self.setup()
+        restoreGeom(self, "addonsChooseUpdate")
+
+    def setup(self) -> None:
+        layout = QVBoxLayout()
+        label = QLabel(tr(TR.ADDONS_THE_FOLLOWING_ADDONS_HAVE_UPDATES_AVAILABLE))
+        layout.addWidget(label)
+        addons_list_widget = ChooseAddonsToUpdateList(
+            self, self.mgr, self.updated_addons
+        )
+        layout.addWidget(addons_list_widget)
+        self.addons_list_widget = addons_list_widget
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)  # type: ignore
+        qconnect(button_box.button(QDialogButtonBox.Ok).clicked, self.accept)
+        qconnect(button_box.button(QDialogButtonBox.Cancel).clicked, self.reject)
+        layout.addWidget(button_box)
+        self.setLayout(layout)
+
+    def ask(self) -> List[int]:
+        "Returns a list of selected addons' ids"
+        ret = self.exec_()
+        saveGeom(self, "addonsChooseUpdate")
+        self.addons_list_widget.save_check_state()
+        if ret == QDialog.Accepted:
+            return self.addons_list_widget.get_selected_addon_ids()
+        else:
+            return []
+
+
 def fetch_update_info(client: HttpClient, ids: List[int]) -> List[Dict]:
     """Fetch update info from AnkiWeb in one or more batches."""
     all_info: List[Dict] = []
@@ -1164,9 +1325,10 @@ def check_and_prompt_for_updates(
     parent: QWidget,
     mgr: AddonManager,
     on_done: Callable[[List[DownloadLogEntry]], None],
+    requested_by_user: bool = True,
 ) -> None:
     def on_updates_received(client: HttpClient, items: List[Dict]) -> None:
-        handle_update_info(parent, mgr, client, items, on_done)
+        handle_update_info(parent, mgr, client, items, on_done, requested_by_user)
 
     check_for_updates(mgr, on_updates_received)
 
@@ -1235,35 +1397,39 @@ def handle_update_info(
     client: HttpClient,
     items: List[Dict],
     on_done: Callable[[List[DownloadLogEntry]], None],
+    requested_by_user: bool = True,
 ) -> None:
     update_info = mgr.extract_update_info(items)
     mgr.update_supported_versions(update_info)
 
-    updated_ids = mgr.updates_required(update_info)
+    updated_addons = mgr.updates_required(update_info)
 
-    if not updated_ids:
+    if not updated_addons:
         on_done([])
         return
 
-    prompt_to_update(parent, mgr, client, updated_ids, on_done)
+    prompt_to_update(parent, mgr, client, updated_addons, on_done, requested_by_user)
 
 
 def prompt_to_update(
     parent: QWidget,
     mgr: AddonManager,
     client: HttpClient,
-    ids: List[int],
+    updated_addons: List[UpdateInfo],
     on_done: Callable[[List[DownloadLogEntry]], None],
+    requested_by_user: bool = True,
 ) -> None:
-    names = map(lambda x: mgr.addonName(str(x)), ids)
-    if not askUser(
-        tr(TR.ADDONS_THE_FOLLOWING_ADDONS_HAVE_UPDATES_AVAILABLE)
-        + "\n\n"
-        + "\n".join(names)
-    ):
-        # on_done is not called if the user cancels
-        return
+    if not requested_by_user:
+        prompt_update = False
+        for addon in updated_addons:
+            if mgr.addon_meta(str(addon.id)).update_enabled:
+                prompt_update = True
+        if not prompt_update:
+            return
 
+    ids = ChooseAddonsToUpdateDialog(parent, mgr, updated_addons).ask()
+    if not ids:
+        return
     download_addons(parent, mgr, ids, on_done, client)
 
 

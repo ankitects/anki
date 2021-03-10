@@ -4,6 +4,7 @@
 from typing import List, Optional
 
 import aqt
+from anki.errors import DeckIsFilteredError
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -17,6 +18,7 @@ from aqt.utils import (
     saveGeom,
     shortcut,
     showInfo,
+    showWarning,
     tr,
 )
 
@@ -37,8 +39,6 @@ class StudyDeck(QDialog):
         geomKey: str = "default",
     ) -> None:
         QDialog.__init__(self, parent or mw)
-        if buttons is None:
-            buttons = []
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
@@ -52,7 +52,7 @@ class StudyDeck(QDialog):
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel)
             )
-        if buttons:
+        if buttons is not None:
             for b in buttons:
                 self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
         else:
@@ -164,7 +164,11 @@ class StudyDeck(QDialog):
         n = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=default)
         n = n.strip()
         if n:
-            did = self.mw.col.decks.id(n)
+            try:
+                did = self.mw.col.decks.id(n)
+            except DeckIsFilteredError as err:
+                showWarning(str(err))
+                return
             # deck name may not be the same as user input. ex: ", ::
             self.name = self.mw.col.decks.name(did)
             # make sure we clean up reset hook when manually exiting

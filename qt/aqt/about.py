@@ -28,7 +28,7 @@ class ClosableQDialog(QDialog):
 def show(mw: aqt.AnkiQt) -> QDialog:
     dialog = ClosableQDialog(mw)
     disable_help_button(dialog)
-    mw.setupDialogGC(dialog)
+    mw.garbage_collect_on_dialog_finish(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
 

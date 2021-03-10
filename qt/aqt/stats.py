@@ -27,7 +27,7 @@ class NewDeckStats(QDialog):
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.Window)
-        mw.setupDialogGC(self)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.name = "deckStats"
         self.period = 0
@@ -108,7 +108,7 @@ class DeckStats(QDialog):
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.Window)
-        mw.setupDialogGC(self)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.name = "deckStats"
         self.period = 0

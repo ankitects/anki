@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{IntervalKind, NextCardStates, NormalState, StateContext};
+use super::{IntervalKind, NextCardStates, StateContext};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PreviewState {
     pub scheduled_secs: u32,
-    pub original_state: NormalState,
+    pub finished: bool,
 }
 
 impl PreviewState {
@@ -22,9 +22,22 @@ impl PreviewState {
                 ..self
             }
             .into(),
-            hard: self.original_state.into(),
-            good: self.original_state.into(),
-            easy: self.original_state.into(),
+            hard: PreviewState {
+                // ~15 minutes with the default setting
+                scheduled_secs: ctx.with_learning_fuzz(ctx.preview_step * 90),
+                ..self
+            }
+            .into(),
+            good: PreviewState {
+                scheduled_secs: ctx.with_learning_fuzz(ctx.preview_step * 120),
+                ..self
+            }
+            .into(),
+            easy: PreviewState {
+                scheduled_secs: 0,
+                finished: true,
+            }
+            .into(),
         }
     }
 }

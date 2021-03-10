@@ -14,6 +14,8 @@ from anki.consts import MODEL_STD
 from anki.models import NoteType, Template
 from anki.utils import joinFields
 
+DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
+
 
 class Note:
     # not currently exposed
@@ -53,7 +55,7 @@ class Note:
         self.fields = list(n.fields)
         self._fmap = self.col.models.fieldMap(self.model())
 
-    def to_backend_note(self) -> _pb.Note:
+    def _to_backend_note(self) -> _pb.Note:
         hooks.note_will_flush(self)
         return _pb.Note(
             id=self.id,
@@ -66,8 +68,12 @@ class Note:
         )
 
     def flush(self) -> None:
+        """This preserves any current checkpoint.
+        For an undo entry, use col.update_note() instead."""
         assert self.id != 0
-        self.col._backend.update_note(self.to_backend_note())
+        self.col._backend.update_note(
+            note=self._to_backend_note(), skip_undo_entry=True
+        )
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)
@@ -122,7 +128,7 @@ class Note:
     _model = property(model)
 
     def cloze_numbers_in_fields(self) -> Sequence[int]:
-        return self.col._backend.cloze_numbers_in_note(self.to_backend_note())
+        return self.col._backend.cloze_numbers_in_note(self._to_backend_note())
 
     # Dict interface
     ##################################################
@@ -154,16 +160,10 @@ class Note:
     # Tags
     ##################################################
 
-    def hasTag(self, tag: str) -> Any:
+    def has_tag(self, tag: str) -> bool:
         return self.col.tags.inList(tag, self.tags)
 
-    def stringTags(self) -> Any:
-        return self.col.tags.join(self.col.tags.canonify(self.tags))
-
-    def setTagsFromStr(self, tags: str) -> None:
-        self.tags = self.col.tags.split(tags)
-
-    def delTag(self, tag: str) -> None:
+    def remove_tag(self, tag: str) -> None:
         rem = []
         for t in self.tags:
             if t.lower() == tag.lower():
@@ -171,15 +171,26 @@ class Note:
         for r in rem:
             self.tags.remove(r)
 
-    def addTag(self, tag: str) -> None:
-        # duplicates will be stripped on save
+    def add_tag(self, tag: str) -> None:
+        "Add tag. Duplicates will be stripped on save."
         self.tags.append(tag)
+
+    def stringTags(self) -> Any:
+        return self.col.tags.join(self.col.tags.canonify(self.tags))
+
+    def setTagsFromStr(self, tags: str) -> None:
+        self.tags = self.col.tags.split(tags)
+
+    hasTag = has_tag
+    addTag = add_tag
+    delTag = remove_tag
 
     # Unique/duplicate check
     ##################################################
 
-    def dupeOrEmpty(self) -> int:
-        "1 if first is empty; 2 if first is a duplicate, 0 otherwise."
+    def duplicate_or_empty(self) -> DuplicateOrEmptyResult.V:
         return self.col._backend.note_is_duplicate_or_empty(
-            self.to_backend_note()
+            self._to_backend_note()
         ).state
+
+    dupeOrEmpty = duplicate_or_empty

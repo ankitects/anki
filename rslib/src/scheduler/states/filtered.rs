@@ -37,7 +37,7 @@ impl FilteredState {
 
     pub(crate) fn review_state(self) -> Option<ReviewState> {
         match self {
-            FilteredState::Preview(state) => state.original_state.review_state(),
+            FilteredState::Preview(_) => None,
             FilteredState::Rescheduling(state) => state.original_state.review_state(),
         }
     }

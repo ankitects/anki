@@ -204,8 +204,8 @@ class Reviewer:
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
         self.web.eval(f"_showQuestion({json.dumps(q)},'{bodyclass}');")
-        self._drawFlag()
-        self._drawMark()
+        self._update_flag_icon()
+        self._update_mark_icon()
         self._showAnswerButton()
         self.mw.web.setFocus()
         # user hook
@@ -215,11 +215,14 @@ class Reviewer:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
         return card.autoplay()
 
-    def _drawFlag(self) -> None:
-        self.web.eval(f"_drawFlag({self.card.userFlag()});")
+    def _update_flag_icon(self) -> None:
+        self.web.eval(f"_drawFlag({self.card.user_flag()});")
 
-    def _drawMark(self) -> None:
-        self.web.eval(f"_drawMark({json.dumps(self.card.note().hasTag('marked'))});")
+    def _update_mark_icon(self) -> None:
+        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag('marked'))});")
+
+    _drawMark = _update_mark_icon
+    _drawFlag = _update_flag_icon
 
     # Showing the answer
     ##########################################################################
@@ -287,16 +290,16 @@ class Reviewer:
             ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
-            ("Ctrl+1", lambda: self.setFlag(1)),
-            ("Ctrl+2", lambda: self.setFlag(2)),
-            ("Ctrl+3", lambda: self.setFlag(3)),
-            ("Ctrl+4", lambda: self.setFlag(4)),
-            ("*", self.onMark),
-            ("=", self.onBuryNote),
-            ("-", self.onBuryCard),
-            ("!", self.onSuspend),
-            ("@", self.onSuspendCard),
-            ("Ctrl+Delete", self.onDelete),
+            ("Ctrl+1", lambda: self.set_flag_on_current_card(1)),
+            ("Ctrl+2", lambda: self.set_flag_on_current_card(2)),
+            ("Ctrl+3", lambda: self.set_flag_on_current_card(3)),
+            ("Ctrl+4", lambda: self.set_flag_on_current_card(4)),
+            ("*", self.toggle_mark_on_current_note),
+            ("=", self.bury_current_note),
+            ("-", self.bury_current_card),
+            ("!", self.suspend_current_note),
+            ("@", self.suspend_current_card),
+            ("Ctrl+Delete", self.delete_current_note),
             ("Ctrl+Shift+D", self.on_set_due),
             ("v", self.onReplayRecorded),
             ("Shift+v", self.onRecordVoice),
@@ -695,7 +698,7 @@ time = %(time)d;
 
     # note the shortcuts listed here also need to be defined above
     def _contextMenu(self) -> List[Any]:
-        currentFlag = self.card and self.card.userFlag()
+        currentFlag = self.card and self.card.user_flag()
         opts = [
             [
                 tr(TR.STUDYING_FLAG_CARD),
@@ -703,36 +706,36 @@ time = %(time)d;
                     [
                         tr(TR.ACTIONS_RED_FLAG),
                         "Ctrl+1",
-                        lambda: self.setFlag(1),
+                        lambda: self.set_flag_on_current_card(1),
                         dict(checked=currentFlag == 1),
                     ],
                     [
                         tr(TR.ACTIONS_ORANGE_FLAG),
                         "Ctrl+2",
-                        lambda: self.setFlag(2),
+                        lambda: self.set_flag_on_current_card(2),
                         dict(checked=currentFlag == 2),
                     ],
                     [
                         tr(TR.ACTIONS_GREEN_FLAG),
                         "Ctrl+3",
-                        lambda: self.setFlag(3),
+                        lambda: self.set_flag_on_current_card(3),
                         dict(checked=currentFlag == 3),
                     ],
                     [
                         tr(TR.ACTIONS_BLUE_FLAG),
                         "Ctrl+4",
-                        lambda: self.setFlag(4),
+                        lambda: self.set_flag_on_current_card(4),
                         dict(checked=currentFlag == 4),
                     ],
                 ],
             ],
-            [tr(TR.STUDYING_MARK_NOTE), "*", self.onMark],
-            [tr(TR.STUDYING_BURY_CARD), "-", self.onBuryCard],
-            [tr(TR.STUDYING_BURY_NOTE), "=", self.onBuryNote],
+            [tr(TR.STUDYING_MARK_NOTE), "*", self.toggle_mark_on_current_note],
+            [tr(TR.STUDYING_BURY_CARD), "-", self.bury_current_card],
+            [tr(TR.STUDYING_BURY_NOTE), "=", self.bury_current_note],
             [tr(TR.ACTIONS_SET_DUE_DATE), "Ctrl+Shift+D", self.on_set_due],
-            [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.onSuspendCard],
-            [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.onSuspend],
-            [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.onDelete],
+            [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.suspend_current_card],
+            [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.suspend_current_note],
+            [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.delete_current_note],
             [tr(TR.ACTIONS_OPTIONS), "O", self.onOptions],
             None,
             [tr(TR.ACTIONS_REPLAY_AUDIO), "R", self.replayAudio],
@@ -779,22 +782,24 @@ time = %(time)d;
     def onOptions(self) -> None:
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
 
-    def setFlag(self, flag: int) -> None:
+    def set_flag_on_current_card(self, flag: int) -> None:
         # need to toggle off?
-        if self.card.userFlag() == flag:
+        if self.card.user_flag() == flag:
             flag = 0
-        self.card.setUserFlag(flag)
-        self.card.flush()
-        self._drawFlag()
+        self.card.set_user_flag(flag)
+        self.mw.col.update_card(self.card)
+        self.mw.update_undo_actions()
+        self._update_flag_icon()
 
-    def onMark(self) -> None:
-        f = self.card.note()
-        if f.hasTag("marked"):
-            f.delTag("marked")
+    def toggle_mark_on_current_note(self) -> None:
+        note = self.card.note()
+        if note.has_tag("marked"):
+            note.remove_tag("marked")
         else:
-            f.addTag("marked")
-        f.flush()
-        self._drawMark()
+            note.add_tag("marked")
+        self.mw.col.update_note(note)
+        self.mw.update_undo_actions()
+        self._update_mark_icon()
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:
@@ -808,40 +813,35 @@ time = %(time)d;
             on_done=self.mw.reset,
         )
 
-    def onSuspend(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))
+    def suspend_current_note(self) -> None:
         self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
+        self.mw.reset()
         tooltip(tr(TR.STUDYING_NOTE_SUSPENDED))
-        self.mw.reset()
 
-    def onSuspendCard(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))
+    def suspend_current_card(self) -> None:
         self.mw.col.sched.suspend_cards([self.card.id])
+        self.mw.reset()
         tooltip(tr(TR.STUDYING_CARD_SUSPENDED))
-        self.mw.reset()
 
-    def onDelete(self) -> None:
-        # need to check state because the shortcut is global to the main
-        # window
-        if self.mw.state != "review" or not self.card:
-            return
-        self.mw.checkpoint(tr(TR.ACTIONS_DELETE))
-        cnt = len(self.card.note().cards())
-        self.mw.col.remove_notes([self.card.note().id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
-
-    def onBuryCard(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_BURY))
+    def bury_current_card(self) -> None:
         self.mw.col.sched.bury_cards([self.card.id])
         self.mw.reset()
         tooltip(tr(TR.STUDYING_CARD_BURIED))
 
-    def onBuryNote(self) -> None:
-        self.mw.checkpoint(tr(TR.STUDYING_BURY))
+    def bury_current_note(self) -> None:
         self.mw.col.sched.bury_note(self.card.note())
         self.mw.reset()
         tooltip(tr(TR.STUDYING_NOTE_BURIED))
+
+    def delete_current_note(self) -> None:
+        # need to check state because the shortcut is global to the main
+        # window
+        if self.mw.state != "review" or not self.card:
+            return
+        cnt = len(self.card.note().cards())
+        self.mw.col.remove_notes([self.card.note().id])
+        self.mw.reset()
+        tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
 
     def onRecordVoice(self) -> None:
         def after_record(path: str) -> None:
@@ -855,3 +855,13 @@ time = %(time)d;
             tooltip(tr(TR.STUDYING_YOU_HAVENT_RECORDED_YOUR_VOICE_YET))
             return
         av_player.play_file(self._recordedAudio)
+
+    # legacy
+
+    onBuryCard = bury_current_card
+    onBuryNote = bury_current_note
+    onSuspend = suspend_current_note
+    onSuspendCard = suspend_current_card
+    onDelete = delete_current_note
+    onMark = toggle_mark_on_current_note
+    setFlag = set_flag_on_current_card

@@ -1,6 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod counts;
+mod schema11;
+mod tree;
+pub(crate) mod undo;
+
 pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
     DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
@@ -16,9 +21,6 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
-mod counts;
-mod schema11;
-mod tree;
 pub(crate) use counts::DueCounts;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
@@ -251,7 +253,7 @@ impl Collection {
     }
 
     /// Normalize deck name and rename if not unique. Bumps mtime and usn if
-    /// deck was modified.
+    /// name was changed, but otherwise leaves it the same.
     fn prepare_deck_for_update(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
         if let Cow::Owned(name) = normalize_native_name(&deck.name) {
             deck.name = name;
@@ -268,18 +270,28 @@ impl Collection {
         self.transact(None, |col| {
             let usn = col.usn()?;
 
+            col.prepare_deck_for_update(deck, usn)?;
             deck.set_modified(usn);
 
             if deck.id.0 == 0 {
-                col.prepare_deck_for_update(deck, usn)?;
+                // TODO: undo support
                 col.match_or_create_parents(deck, usn)?;
                 col.storage.add_deck(deck)
             } else if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
-                if existing_deck.name != deck.name {
-                    col.update_renamed_deck(existing_deck, deck, usn)
-                } else {
-                    col.add_or_update_single_deck(deck, usn)
+                let name_changed = existing_deck.name != deck.name;
+                if name_changed {
+                    // match closest parent name
+                    col.match_or_create_parents(deck, usn)?;
+                    // rename children
+                    col.rename_child_decks(&existing_deck, &deck.name, usn)?;
                 }
+                col.update_single_deck_undoable(deck, &existing_deck)?;
+                if name_changed {
+                    // after updating, we need to ensure all grandparents exist, which may not be the case
+                    // in the parent->child case
+                    col.create_missing_parents(&deck.name, usn)?;
+                }
+                Ok(())
             } else {
                 Err(AnkiError::invalid_input("updating non-existent deck"))
             }
@@ -289,10 +301,15 @@ impl Collection {
     /// Add/update a single deck when syncing/importing. Ensures name is unique
     /// & normalized, but does not check parents/children or update mtime
     /// (unless the name was changed). Caller must set up transaction.
-    pub(crate) fn add_or_update_single_deck(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
+    /// TODO: undo support
+    pub(crate) fn add_or_update_single_deck_with_existing_id(
+        &mut self,
+        deck: &mut Deck,
+        usn: Usn,
+    ) -> Result<()> {
         self.state.deck_cache.clear();
         self.prepare_deck_for_update(deck, usn)?;
-        self.storage.update_deck(deck)
+        self.storage.add_or_update_deck_with_existing_id(deck)
     }
 
     pub(crate) fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
@@ -316,7 +333,7 @@ impl Collection {
         deck.id = did;
         deck.name = format!("recovered{}", did);
         deck.set_modified(usn);
-        self.add_or_update_single_deck(&mut deck, usn)
+        self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
     }
 
     pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
@@ -331,37 +348,18 @@ impl Collection {
         }
     }
 
-    fn update_renamed_deck(&mut self, existing: Deck, updated: &mut Deck, usn: Usn) -> Result<()> {
-        self.state.deck_cache.clear();
-        // ensure name normalized
-        if let Cow::Owned(name) = normalize_native_name(&updated.name) {
-            updated.name = name;
-        }
-        // match closest parent name
-        self.match_or_create_parents(updated, usn)?;
-        // ensure new name is unique
-        self.ensure_deck_name_unique(updated, usn)?;
-        // rename children
-        self.rename_child_decks(&existing, &updated.name, usn)?;
-        // save deck
-        updated.set_modified(usn);
-        self.storage.update_deck(updated)?;
-        // after updating, we need to ensure all grandparents exist, which may not be the case
-        // in the parent->child case
-        self.create_missing_parents(&updated.name, usn)
-    }
-
     fn rename_child_decks(&mut self, old: &Deck, new_name: &str, usn: Usn) -> Result<()> {
         let children = self.storage.child_decks(old)?;
         let old_component_count = old.name.matches('\x1f').count() + 1;
 
         for mut child in children {
+            let original = child.clone();
             let child_components: Vec<_> = child.name.split('\x1f').collect();
             let child_only = &child_components[old_component_count..];
             let new_name = format!("{}\x1f{}", new_name, child_only.join("\x1f"));
             child.name = new_name;
             child.set_modified(usn);
-            self.storage.update_deck(&child)?;
+            self.update_single_deck_undoable(&mut child, &original)?;
         }
 
         Ok(())
@@ -471,12 +469,13 @@ impl Collection {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
             DeckKind::Filtered(_) => self.return_all_cards_in_filtered_deck(deck.id)?,
         }
+        self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
             let mut deck = deck.to_owned();
             // fixme: separate key
             deck.name = self.i18n.tr(TR::DeckConfigDefaultName).into();
             deck.set_modified(usn);
-            self.add_or_update_single_deck(&mut deck, usn)?;
+            self.add_or_update_single_deck_with_existing_id(&mut deck, usn)?;
         } else {
             self.storage.remove_deck(deck.id)?;
             self.storage.add_deck_grave(deck.id, usn)?;
@@ -588,10 +587,11 @@ impl Collection {
     where
         F: FnOnce(&mut DeckCommon),
     {
+        let original = deck.clone();
         deck.reset_stats_if_day_changed(today);
         mutator(&mut deck.common);
         deck.set_modified(usn);
-        self.add_or_update_single_deck(deck, usn)
+        self.update_single_deck_undoable(deck, &original)
     }
 
     pub fn drag_drop_decks(
@@ -606,6 +606,9 @@ impl Collection {
             let mut target_name = None;
             if let Some(target) = target {
                 if let Some(target) = col.storage.get_deck(target)? {
+                    if target.is_filtered() {
+                        return Err(AnkiError::DeckIsFiltered);
+                    }
                     target_deck = target;
                     target_name = Some(target_deck.name.as_str());
                 }

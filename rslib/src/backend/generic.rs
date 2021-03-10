@@ -75,6 +75,12 @@ impl From<pb::DeckIDs> for Vec<DeckID> {
     }
 }
 
+impl From<DeckID> for pb::DeckId {
+    fn from(did: DeckID) -> Self {
+        pb::DeckId { did: did.0 }
+    }
+}
+
 impl From<pb::DeckConfigId> for DeckConfID {
     fn from(dcid: pb::DeckConfigId) -> Self {
         DeckConfID(dcid.dcid)

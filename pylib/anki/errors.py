@@ -47,7 +47,15 @@ class ExistsError(Exception):
     pass
 
 
-class DeckIsFilteredError(Exception):
+class DeckRenameError(Exception):
+    """Legacy error, use DeckIsFilteredError instead."""
+
+    def __init__(self, description: str, *args: object) -> None:
+        super().__init__(description, *args)
+        self.description = description
+
+
+class DeckIsFilteredError(StringError, DeckRenameError):
     pass
 
 
@@ -78,7 +86,7 @@ def backend_exception_to_pylib(err: _pb.BackendError) -> Exception:
     elif val == "exists":
         return ExistsError()
     elif val == "deck_is_filtered":
-        return DeckIsFilteredError()
+        return DeckIsFilteredError(err.localized)
     elif val == "proto_error":
         return StringError(err.localized)
     else:
@@ -95,12 +103,3 @@ class AnkiError(Exception):
 
     def __str__(self) -> str:
         return self.type
-
-
-class DeckRenameError(Exception):
-    def __init__(self, description: str) -> None:
-        super().__init__()
-        self.description = description
-
-    def __str__(self) -> str:
-        return f"Couldn't rename deck: {self.description}"

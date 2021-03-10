@@ -1,9 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { EditingArea } from ".";
-import { nodeIsElement } from "./helpers";
+import { EditingArea } from "./editingArea";
+import { caretToEnd, nodeIsElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
+import { updateButtonState } from "./toolbar";
 
 function inListItem(currentField: EditingArea): boolean {
     const anchor = currentField.getSelection()!.anchorNode!;
@@ -21,6 +22,7 @@ function inListItem(currentField: EditingArea): boolean {
 export function onInput(event: Event): void {
     // make sure IME changes get saved
     triggerChangeTimer(event.currentTarget as EditingArea);
+    updateButtonState();
 }
 
 export function onKey(evt: KeyboardEvent): void {
@@ -58,6 +60,22 @@ export function onKey(evt: KeyboardEvent): void {
 
     triggerChangeTimer(currentField);
 }
+
+globalThis.addEventListener("keydown", (evt: KeyboardEvent) => {
+    if (evt.code === "Tab") {
+        globalThis.addEventListener(
+            "focusin",
+            (evt: FocusEvent) => {
+                const newFocusTarget = evt.target;
+                if (newFocusTarget instanceof EditingArea) {
+                    caretToEnd(newFocusTarget);
+                    updateButtonState();
+                }
+            },
+            { once: true }
+        );
+    }
+});
 
 export function onKeyUp(evt: KeyboardEvent): void {
     const currentField = evt.currentTarget as EditingArea;

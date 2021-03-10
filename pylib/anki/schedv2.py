@@ -14,7 +14,7 @@ import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, DeckManager, DeckTreeNode, QueueConfig
+from anki.decks import Deck, DeckConfig, DeckTreeNode, QueueConfig
 from anki.lang import FormatTimeSpan
 from anki.notes import Note
 from anki.utils import from_json_bytes, ids2str, intTime
@@ -39,6 +39,7 @@ class Scheduler:
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
     revCount: int
+    is_2021 = False
 
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
@@ -102,7 +103,6 @@ class Scheduler:
             self.col.log(card)
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
-            self.reps += 1
             card.startTimer()
             return card
         return None
@@ -390,9 +390,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         d = self.col.decks.get(self.col.decks.selected(), default=False)
         return self._deckRevLimitSingle(d)
 
-    def _deckRevLimitSingle(
-        self, d: Dict[str, Any], parentLimit: Optional[int] = None
-    ) -> int:
+    def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:
         # invalid deck selected?
         if not d:
             return 0
@@ -403,28 +401,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         c = self.col.decks.confForDid(d["id"])
         lim = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
 
-        if parentLimit is not None:
-            lim = min(parentLimit, lim)
-        elif "::" in d["name"]:
-            for parent in self.col.decks.parents(d["id"]):
-                # pass in dummy parentLimit so we don't do parent lookup again
-                lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
-
-    def _revForDeck(
-        self, did: int, lim: int, childMap: DeckManager.childMapNode
-    ) -> Any:
-        dids = [did] + self.col.decks.childDids(did, childMap)
-        lim = min(lim, self.reportLimit)
-        return self.col.db.scalar(
-            f"""
-select count() from
-(select 1 from cards where did in %s and queue = {QUEUE_TYPE_REV}
-and due <= ? limit ?)"""
-            % ids2str(dids),
-            self.today,
-            lim,
-        )
 
     def _resetRev(self) -> None:
         self._revQueue: List[int] = []
@@ -474,7 +451,7 @@ limit ?"""
         self.col.log()
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
-        self.col.markReview(card)
+        self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
 
@@ -489,6 +466,7 @@ limit ?"""
             self._answerCardPreview(card, ease)
             return
 
+        self.reps += 1
         card.reps += 1
 
         new_delta = 0
@@ -1100,7 +1078,7 @@ limit ?"""
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
             f = card.note()
-            f.addTag("leech")
+            f.add_tag("leech")
             f.flush()
             # handle
             a = conf["leechAction"]
@@ -1345,7 +1323,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
     def buryNote(self, nid: int) -> None:
-        note = self.col.getNote(nid)
+        note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 
     def unburyCards(self) -> None:

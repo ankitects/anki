@@ -9,6 +9,7 @@ use crate::{
     err::Result,
     notes::field_checksum,
     notetype::NoteTypeID,
+    prelude::*,
     storage::ids_to_string,
     text::{
         is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
@@ -28,7 +29,7 @@ pub(crate) struct SqlWriter<'a> {
 
 impl SqlWriter<'_> {
     pub(crate) fn new(col: &mut Collection) -> SqlWriter<'_> {
-        let normalize_note_text = col.normalize_note_text();
+        let normalize_note_text = col.get_bool(BoolKey::NormalizeNoteText);
         let sql = String::new();
         let args = vec![];
         SqlWriter {

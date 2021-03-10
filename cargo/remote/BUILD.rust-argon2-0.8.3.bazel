@@ -63,7 +63,7 @@ rust_library(
         "@raze__base64__0_13_0//:base64",
         "@raze__blake2b_simd__0_5_11//:blake2b_simd",
         "@raze__constant_time_eq__0_1_5//:constant_time_eq",
-        "@raze__crossbeam_utils__0_8_1//:crossbeam_utils",
+        "@raze__crossbeam_utils__0_8_3//:crossbeam_utils",
     ],
 )
 

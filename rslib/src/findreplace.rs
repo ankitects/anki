@@ -5,6 +5,7 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
+    prelude::*,
     text::normalize_to_nfc,
 };
 use regex::Regex;
@@ -46,7 +47,7 @@ impl Collection {
         field_name: Option<String>,
     ) -> Result<usize> {
         self.transact(None, |col| {
-            let norm = col.normalize_note_text();
+            let norm = col.get_bool(BoolKey::NormalizeNoteText);
             let search = if norm {
                 normalize_to_nfc(search_re)
             } else {
@@ -70,7 +71,7 @@ impl Collection {
             match field_ord {
                 None => {
                     // all fields
-                    for txt in &mut note.fields {
+                    for txt in note.fields_mut() {
                         if let Cow::Owned(otxt) = ctx.replace_text(txt) {
                             changed = true;
                             *txt = otxt;
@@ -79,7 +80,7 @@ impl Collection {
                 }
                 Some(ord) => {
                     // single field
-                    if let Some(txt) = note.fields.get_mut(ord) {
+                    if let Some(txt) = note.fields_mut().get_mut(ord) {
                         if let Cow::Owned(otxt) = ctx.replace_text(txt) {
                             changed = true;
                             *txt = otxt;
@@ -108,13 +109,13 @@ mod test {
 
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        note.fields[0] = "one aaa".into();
-        note.fields[1] = "two aaa".into();
+        note.set_field(0, "one aaa")?;
+        note.set_field(1, "two aaa")?;
         col.add_note(&mut note, DeckID(1))?;
 
         let nt = col.get_notetype_by_name("Cloze")?.unwrap();
         let mut note2 = nt.new_note();
-        note2.fields[0] = "three aaa".into();
+        note2.set_field(0, "three aaa")?;
         col.add_note(&mut note2, DeckID(1))?;
 
         let nids = col.search_notes("")?;
@@ -123,10 +124,10 @@ mod test {
 
         let note = col.storage.get_note(note.id)?.unwrap();
         // but the update should be limited to the specified field when it was available
-        assert_eq!(&note.fields, &["one BBB", "two BBB"]);
+        assert_eq!(&note.fields()[..], &["one BBB", "two BBB"]);
 
         let note2 = col.storage.get_note(note2.id)?.unwrap();
-        assert_eq!(&note2.fields, &["three BBB", ""]);
+        assert_eq!(&note2.fields()[..], &["three BBB", ""]);
 
         assert_eq!(
             col.storage.field_names_for_notes(&nids)?,
@@ -144,7 +145,7 @@ mod test {
 
         let note = col.storage.get_note(note.id)?.unwrap();
         // but the update should be limited to the specified field when it was available
-        assert_eq!(&note.fields, &["one ccc", "two BBB"]);
+        assert_eq!(&note.fields()[..], &["one ccc", "two BBB"]);
 
         Ok(())
     }

@@ -230,12 +230,12 @@ impl Collection {
         F: FnMut(DatabaseCheckProgress, bool),
     {
         let nids_by_notetype = self.storage.all_note_ids_by_notetype()?;
-        let norm = self.normalize_note_text();
+        let norm = self.get_bool(BoolKey::NormalizeNoteText);
         let usn = self.usn()?;
         let stamp = TimestampMillis::now();
 
         let expanded_tags = self.storage.expanded_tags()?;
-        self.storage.clear_tags()?;
+        self.storage.clear_all_tags()?;
 
         let total_notes = self.storage.total_notes()?;
         let mut checked_notes = 0;
@@ -247,7 +247,7 @@ impl Collection {
                 None => {
                     let first_note = self.storage.get_note(group.peek().unwrap().1)?.unwrap();
                     out.notetypes_recovered += 1;
-                    self.recover_notetype(stamp, first_note.fields.len(), ntid)?
+                    self.recover_notetype(stamp, first_note.fields().len(), ntid)?
                 }
                 Some(nt) => nt,
             };
@@ -264,6 +264,7 @@ impl Collection {
                 checked_notes += 1;
 
                 let mut note = self.get_note_fixing_invalid_utf8(nid, out)?;
+                let original = note.clone();
 
                 let cards = self.storage.existing_cards_for_note(nid)?;
 
@@ -271,7 +272,7 @@ impl Collection {
                 out.templates_missing += self.remove_cards_without_template(&nt, &cards)?;
 
                 // fix fields
-                if note.fields.len() != nt.fields.len() {
+                if note.fields().len() != nt.fields.len() {
                     note.fix_field_count(&nt);
                     note.tags.push("db-check".into());
                     out.field_count_mismatch += 1;
@@ -282,7 +283,7 @@ impl Collection {
 
                 // write note, updating tags and generating missing cards
                 let ctx = genctx.get_or_insert_with(|| CardGenContext::new(&nt, usn));
-                self.update_note_inner_generating_cards(&ctx, &mut note, false, norm)?;
+                self.update_note_inner_generating_cards(&ctx, &mut note, &original, false, norm)?;
             }
         }
 
@@ -408,7 +409,7 @@ impl Collection {
         Ok(())
     }
 
-    fn update_next_new_position(&self) -> Result<()> {
+    fn update_next_new_position(&mut self) -> Result<()> {
         let pos = self.storage.max_new_card_position().unwrap_or(0);
         self.set_next_card_position(pos)
     }
@@ -575,7 +576,7 @@ mod test {
             }
         );
         let note = col.storage.get_note(note.id)?.unwrap();
-        assert_eq!(&note.fields, &["a", "b; c; d"]);
+        assert_eq!(&note.fields()[..], &["a", "b; c; d"]);
 
         // missing fields get filled with blanks
         col.storage
@@ -590,7 +591,7 @@ mod test {
             }
         );
         let note = col.storage.get_note(note.id)?.unwrap();
-        assert_eq!(&note.fields, &["a", ""]);
+        assert_eq!(&note.fields()[..], &["a", ""]);
 
         Ok(())
     }

@@ -67,6 +67,7 @@ impl Collection {
                     note.prepare_for_update(nt, normalize_text)?;
                     self.storage.update_note(&note)?;
                 }
+                return Ok(());
             } else {
                 // nothing to do
                 return Ok(());
@@ -79,11 +80,11 @@ impl Collection {
         let usn = self.usn()?;
         for nid in nids {
             let mut note = self.storage.get_note(nid)?.unwrap();
-            note.fields = ords
+            *note.fields_mut() = ords
                 .iter()
                 .map(|f| {
                     if let Some(idx) = f {
-                        note.fields
+                        note.fields()
                             .get(*idx as usize)
                             .map(AsRef::as_ref)
                             .unwrap_or("")
@@ -201,24 +202,22 @@ mod test {
             .get_notetype(col.get_current_notetype_id().unwrap())?
             .unwrap();
         let mut note = nt.new_note();
-        assert_eq!(note.fields.len(), 2);
-        note.fields = vec!["one".into(), "two".into()];
+        assert_eq!(note.fields().len(), 2);
+        note.set_field(0, "one")?;
+        note.set_field(1, "two")?;
         col.add_note(&mut note, DeckID(1))?;
 
         nt.add_field("three");
         col.update_notetype(&mut nt, false)?;
 
         let note = col.storage.get_note(note.id)?.unwrap();
-        assert_eq!(
-            note.fields,
-            vec!["one".to_string(), "two".into(), "".into()]
-        );
+        assert_eq!(note.fields(), &["one".to_string(), "two".into(), "".into()]);
 
         nt.fields.remove(1);
         col.update_notetype(&mut nt, false)?;
 
         let note = col.storage.get_note(note.id)?.unwrap();
-        assert_eq!(note.fields, vec!["one".to_string(), "".into()]);
+        assert_eq!(note.fields(), &["one".to_string(), "".into()]);
 
         Ok(())
     }
@@ -252,8 +251,9 @@ mod test {
             .get_notetype(col.get_current_notetype_id().unwrap())?
             .unwrap();
         let mut note = nt.new_note();
-        assert_eq!(note.fields.len(), 2);
-        note.fields = vec!["one".into(), "two".into()];
+        assert_eq!(note.fields().len(), 2);
+        note.set_field(0, "one")?;
+        note.set_field(1, "two")?;
         col.add_note(&mut note, DeckID(1))?;
 
         assert_eq!(

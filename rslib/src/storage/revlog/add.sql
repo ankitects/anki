@@ -13,14 +13,15 @@ INSERT
 VALUES (
     (
       CASE
-        WHEN ?1 IN (
+        WHEN ?1
+        AND ?2 IN (
           SELECT id
           FROM revlog
         ) THEN (
           SELECT max(id) + 1
           FROM revlog
         )
-        ELSE ?1
+        ELSE ?2
       END
     ),
     ?,

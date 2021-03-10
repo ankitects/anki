@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
 use crate::storage::SqliteStorage;
+use crate::{collection::Collection, err::Result};
 use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
 use rusqlite::OptionalExtension;
 use serde_derive::{Deserialize, Serialize};
@@ -67,7 +67,7 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<Vec<u8>> {
+pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec<u8>> {
     let req: DBRequest = serde_json::from_slice(input)?;
     let resp = match req {
         DBRequest::Query {
@@ -75,27 +75,50 @@ pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<Vec<
             args,
             first_row_only,
         } => {
+            maybe_clear_undo(col, &sql);
             if first_row_only {
-                db_query_row(ctx, &sql, &args)?
+                db_query_row(&col.storage, &sql, &args)?
             } else {
-                db_query(ctx, &sql, &args)?
+                db_query(&col.storage, &sql, &args)?
             }
         }
         DBRequest::Begin => {
-            ctx.begin_trx()?;
+            col.storage.begin_trx()?;
             DBResult::None
         }
         DBRequest::Commit => {
-            ctx.commit_trx()?;
+            col.storage.commit_trx()?;
             DBResult::None
         }
         DBRequest::Rollback => {
-            ctx.rollback_trx()?;
+            col.clear_caches();
+            col.storage.rollback_trx()?;
             DBResult::None
         }
-        DBRequest::ExecuteMany { sql, args } => db_execute_many(ctx, &sql, &args)?,
+        DBRequest::ExecuteMany { sql, args } => {
+            maybe_clear_undo(col, &sql);
+            db_execute_many(&col.storage, &sql, &args)?
+        }
     };
     Ok(serde_json::to_vec(&resp)?)
+}
+
+fn maybe_clear_undo(col: &mut Collection, sql: &str) {
+    if !is_dql(sql) {
+        println!("clearing undo+study due to {}", sql);
+        col.discard_undo_and_study_queues();
+    }
+}
+
+/// Anything other than a select statement is false.
+fn is_dql(sql: &str) -> bool {
+    let head: String = sql
+        .trim_start()
+        .chars()
+        .take(10)
+        .map(|c| c.to_ascii_lowercase())
+        .collect();
+    head.starts_with("select ")
 }
 
 pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {

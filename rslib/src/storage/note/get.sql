@@ -4,5 +4,7 @@ SELECT id,
   mod,
   usn,
   tags,
-  flds
+  flds,
+  cast(sfld AS text),
+  csum
 FROM notes
