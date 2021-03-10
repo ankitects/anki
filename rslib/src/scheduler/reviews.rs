@@ -96,7 +96,7 @@ impl Collection {
                 let days_from_today = distribution.sample(&mut rng);
                 card.set_due_date(today, days_from_today, spec.force_reset);
                 col.log_manually_scheduled_review(&card, &original, usn)?;
-                col.update_card(&mut card, &original, usn)?;
+                col.update_card_inner(&mut card, &original, usn)?;
             }
             col.storage.clear_searched_cards_table()?;
             Ok(())

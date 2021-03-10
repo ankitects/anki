@@ -6,7 +6,11 @@ use super::{
     sqlwriter::{RequiredTable, SqlWriter},
 };
 use crate::{
-    card::CardID, card::CardType, collection::Collection, config::SortKind, err::Result,
+    card::CardID,
+    card::CardType,
+    collection::Collection,
+    config::{BoolKey, SortKind},
+    err::Result,
     search::parser::parse,
 };
 
@@ -124,7 +128,7 @@ impl Collection {
         if mode == &SortMode::FromConfig {
             *mode = SortMode::Builtin {
                 kind: self.get_browser_sort_kind(),
-                reverse: self.get_browser_sort_reverse(),
+                reverse: self.get_bool(BoolKey::BrowserSortBackwards),
             }
         }
     }

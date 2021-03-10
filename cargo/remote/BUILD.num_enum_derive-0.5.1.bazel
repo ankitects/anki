@@ -53,7 +53,7 @@ rust_library(
     deps = [
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__proc_macro_crate__0_1_5//:proc_macro_crate",
-        "@raze__quote__1_0_8//:quote",
-        "@raze__syn__1_0_60//:syn",
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_63//:syn",
     ],
 )

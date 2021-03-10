@@ -15,7 +15,6 @@ impl CardStateUpdater {
         current: CardState,
         next: ReviewState,
     ) -> Result<Option<RevlogEntryPartial>> {
-        self.card.remove_from_filtered_deck_before_reschedule();
         self.card.queue = CardQueue::Review;
         self.card.ctype = CardType::Review;
         self.card.interval = next.scheduled_days;

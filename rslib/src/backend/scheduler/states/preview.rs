@@ -7,7 +7,7 @@ impl From<pb::scheduling_state::Preview> for PreviewState {
     fn from(state: pb::scheduling_state::Preview) -> Self {
         PreviewState {
             scheduled_secs: state.scheduled_secs,
-            original_state: state.original_state.unwrap_or_default().into(),
+            finished: state.finished,
         }
     }
 }
@@ -16,7 +16,7 @@ impl From<PreviewState> for pb::scheduling_state::Preview {
     fn from(state: PreviewState) -> Self {
         pb::scheduling_state::Preview {
             scheduled_secs: state.scheduled_secs,
-            original_state: Some(state.original_state.into()),
+            finished: state.finished,
         }
     }
 }

@@ -3,8 +3,13 @@
 
 use super::NoteTypeKind;
 use crate::{
-    config::ConfigKey, err::Result, i18n::I18n, i18n::TR, notetype::NoteType,
-    storage::SqliteStorage, timestamp::TimestampSecs,
+    config::{ConfigEntry, ConfigKey},
+    err::Result,
+    i18n::I18n,
+    i18n::TR,
+    notetype::NoteType,
+    storage::SqliteStorage,
+    timestamp::TimestampSecs,
 };
 
 use crate::backend_proto::stock_note_type::Kind;
@@ -14,12 +19,12 @@ impl SqliteStorage {
         for (idx, mut nt) in all_stock_notetypes(i18n).into_iter().enumerate() {
             self.add_new_notetype(&mut nt)?;
             if idx == Kind::Basic as usize {
-                self.set_config_value(
+                self.set_config_entry(&ConfigEntry::boxed(
                     ConfigKey::CurrentNoteTypeID.into(),
-                    &nt.id,
+                    serde_json::to_vec(&nt.id)?,
                     self.usn(false)?,
                     TimestampSecs::now(),
-                )?;
+                ))?;
             }
         }
         Ok(())

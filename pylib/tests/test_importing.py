@@ -51,7 +51,7 @@ def test_anki2_mediadupes():
     imp = Anki2Importer(empty, col.path)
     imp.run()
     assert os.listdir(empty.media.dir()) == ["foo.mp3"]
-    n = empty.getNote(empty.db.scalar("select id from notes"))
+    n = empty.get_note(empty.db.scalar("select id from notes"))
     assert "foo.mp3" in n.fields[0]
     # if the local file content is different, and import should trigger a
     # rename
@@ -61,7 +61,7 @@ def test_anki2_mediadupes():
     imp = Anki2Importer(empty, col.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
-    n = empty.getNote(empty.db.scalar("select id from notes"))
+    n = empty.get_note(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
     # if the localized media file already exists, we rewrite the note and
     # media
@@ -72,7 +72,7 @@ def test_anki2_mediadupes():
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
-    n = empty.getNote(empty.db.scalar("select id from notes"))
+    n = empty.get_note(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
 
 
@@ -162,8 +162,8 @@ def test_csv():
     assert len(i.log) == 10
     assert i.total == 5
     # but importing should not clobber tags if they're unmapped
-    n = col.getNote(col.db.scalar("select id from notes"))
-    n.addTag("test")
+    n = col.get_note(col.db.scalar("select id from notes"))
+    n.add_tag("test")
     n.flush()
     i.run()
     n.load()
@@ -217,7 +217,7 @@ def test_tsv_tag_modified():
     n["Front"] = "1"
     n["Back"] = "2"
     n["Top"] = "3"
-    n.addTag("four")
+    n.add_tag("four")
     col.addNote(n)
 
     # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
@@ -253,8 +253,8 @@ def test_tsv_tag_multiple_tags():
     n["Front"] = "1"
     n["Back"] = "2"
     n["Top"] = "3"
-    n.addTag("four")
-    n.addTag("five")
+    n.add_tag("four")
+    n.add_tag("five")
     col.addNote(n)
 
     # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file

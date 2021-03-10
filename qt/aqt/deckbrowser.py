@@ -9,7 +9,7 @@ from typing import Any, List
 
 import aqt
 from anki.decks import DeckTreeNode
-from anki.errors import DeckRenameError
+from anki.errors import DeckIsFilteredError
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -88,11 +88,7 @@ class DeckBrowser:
         elif cmd == "import":
             self.mw.onImport()
         elif cmd == "create":
-            deck = getOnlyText(tr(TR.DECKS_NAME_FOR_DECK))
-            if deck:
-                self.mw.col.decks.id(deck)
-                gui_hooks.sidebar_should_refresh_decks()
-                self.refresh()
+            self._on_create()
         elif cmd == "drag":
             source, target = arg.split(",")
             self._handle_drag_and_drop(int(source), int(target or 0))
@@ -272,8 +268,8 @@ class DeckBrowser:
         try:
             self.mw.col.decks.rename(deck, newName)
             gui_hooks.sidebar_should_refresh_decks()
-        except DeckRenameError as e:
-            showWarning(e.description)
+        except DeckIsFilteredError as err:
+            showWarning(str(err))
             return
         self.show()
 
@@ -291,7 +287,11 @@ class DeckBrowser:
         self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: int, target: int) -> None:
-        self.mw.col.decks.drag_drop_decks([source], target)
+        try:
+            self.mw.col.decks.drag_drop_decks([source], target)
+        except Exception as e:
+            showWarning(str(e))
+            return
         gui_hooks.sidebar_should_refresh_decks()
         self.show()
 
@@ -355,6 +355,17 @@ class DeckBrowser:
 
     def _onShared(self) -> None:
         openLink(f"{aqt.appShared}decks/")
+
+    def _on_create(self) -> None:
+        deck = getOnlyText(tr(TR.DECKS_NAME_FOR_DECK))
+        if deck:
+            try:
+                self.mw.col.decks.id(deck)
+            except DeckIsFilteredError as err:
+                showWarning(str(err))
+                return
+            gui_hooks.sidebar_should_refresh_decks()
+            self.refresh()
 
     ######################################################################
 

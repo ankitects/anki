@@ -35,6 +35,10 @@ impl TimestampSecs {
     pub fn datetime(self, utc_offset: FixedOffset) -> DateTime<FixedOffset> {
         utc_offset.timestamp(self.0, 0)
     }
+
+    pub fn adding_secs(self, secs: i64) -> Self {
+        TimestampSecs(self.0 + secs)
+    }
 }
 
 impl TimestampMillis {
@@ -62,7 +66,7 @@ fn elapsed() -> time::Duration {
         let mut elap = time::SystemTime::now()
             .duration_since(time::SystemTime::UNIX_EPOCH)
             .unwrap();
-        let now = Local::now();
+        let now = Utc::now();
         if now.hour() >= 2 && now.hour() < 4 {
             elap -= time::Duration::from_secs(60 * 60 * 2);
         }

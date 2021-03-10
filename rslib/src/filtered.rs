@@ -18,6 +18,22 @@ use crate::{
 };
 
 impl Card {
+    pub(crate) fn restore_queue_from_type(&mut self) {
+        self.queue = match self.ctype {
+            CardType::Learn | CardType::Relearn => {
+                if self.due > 1_000_000_000 {
+                    // unix timestamp
+                    CardQueue::Learn
+                } else {
+                    // day number
+                    CardQueue::DayLearn
+                }
+            }
+            CardType::New => CardQueue::New,
+            CardType::Review => CardQueue::Review,
+        }
+    }
+
     pub(crate) fn move_into_filtered_deck(&mut self, ctx: &DeckFilterContext, position: i32) {
         // filtered and v1 learning cards are excluded, so odue should be guaranteed to be zero
         if self.original_due != 0 {
@@ -64,17 +80,6 @@ impl Card {
         }
     }
 
-    /// Returns original_due if set, else due.
-    /// original_due will be set in filtered decks, and in relearning in
-    /// the old scheduler.
-    pub(crate) fn original_or_current_due(&self) -> i32 {
-        if self.original_due > 0 {
-            self.original_due
-        } else {
-            self.due
-        }
-    }
-
     pub(crate) fn original_or_current_deck_id(&self) -> DeckID {
         if self.original_deck_id.0 > 0 {
             self.original_deck_id
@@ -116,19 +121,7 @@ impl Card {
                 }
 
                 if (self.queue as i8) >= 0 {
-                    self.queue = match self.ctype {
-                        CardType::Learn | CardType::Relearn => {
-                            if self.due > 1_000_000_000 {
-                                // unix timestamp
-                                CardQueue::Learn
-                            } else {
-                                // day number
-                                CardQueue::DayLearn
-                            }
-                        }
-                        CardType::New => CardQueue::New,
-                        CardType::Review => CardQueue::Review,
-                    }
+                    self.restore_queue_from_type();
                 }
             }
         }
@@ -191,7 +184,7 @@ impl Collection {
             if let Some(mut card) = self.storage.get_card(*cid)? {
                 let original = card.clone();
                 card.remove_from_filtered_deck_restoring_queue(sched);
-                self.update_card(&mut card, &original, usn)?;
+                self.update_card_inner(&mut card, &original, usn)?;
             }
         }
         Ok(())
@@ -256,7 +249,7 @@ impl Collection {
         for mut card in self.storage.all_searched_cards_in_search_order()? {
             let original = card.clone();
             card.move_into_filtered_deck(ctx, position);
-            self.update_card(&mut card, &original, ctx.usn)?;
+            self.update_card_inner(&mut card, &original, ctx.usn)?;
             position += 1;
         }
 

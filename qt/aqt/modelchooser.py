@@ -8,6 +8,8 @@ from aqt.utils import TR, HelpPage, shortcut, tr
 
 
 class ModelChooser(QHBoxLayout):
+    "New code should prefer NoteTypeChooser."
+
     def __init__(
         self,
         mw: AnkiQt,

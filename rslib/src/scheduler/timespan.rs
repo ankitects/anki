@@ -22,7 +22,9 @@ pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
 /// Times within the collapse time are represented like '<10m'
 pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, i18n: &I18n) -> String {
     let string = answer_button_time(seconds as f32, i18n);
-    if seconds < collapse_secs {
+    if seconds == 0 {
+        i18n.tr(TR::SchedulingEnd).into()
+    } else if seconds < collapse_secs {
         format!("<{}", string)
     } else {
         string

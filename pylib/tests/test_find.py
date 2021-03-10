@@ -61,7 +61,7 @@ def test_findCards():
     assert len(col.findCards("tag:monkey")) == 1
     assert len(col.findCards("tag:sheep -tag:monkey")) == 1
     assert len(col.findCards("-tag:sheep")) == 4
-    col.tags.bulkAdd(col.db.list("select id from notes"), "foo bar")
+    col.tags.bulk_add(col.db.list("select id from notes"), "foo bar")
     assert len(col.findCards("tag:foo")) == len(col.findCards("tag:bar")) == 5
     col.tags.bulkRem(col.db.list("select id from notes"), "foo")
     assert len(col.findCards("tag:foo")) == 0

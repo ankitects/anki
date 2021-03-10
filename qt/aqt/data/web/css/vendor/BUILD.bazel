@@ -1,0 +1,20 @@
+load("//ts:vendor.bzl", "copy_bootstrap_css", "copy_bootstrap_icons")
+
+copy_bootstrap_css(name = "bootstrap")
+
+copy_bootstrap_icons(name = "bootstrap-icons")
+
+files = [
+    "bootstrap",
+    "bootstrap-icons",
+]
+
+directories = []
+
+filegroup(
+    name = "vendor",
+    srcs = glob(["*.css"]) +
+           ["//qt/aqt/data/web/css/vendor:{}".format(file) for file in files] +
+           ["//qt/aqt/data/web/css/vendor/{}".format(dir) for dir in directories],
+    visibility = ["//qt:__subpackages__"],
+)

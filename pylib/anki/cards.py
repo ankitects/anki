@@ -74,19 +74,9 @@ class Card:
         self.flags = c.flags
         self.data = c.data
 
-    def _bugcheck(self) -> None:
-        if (
-            self.queue == QUEUE_TYPE_REV
-            and self.odue
-            and not self.col.decks.isDyn(self.did)
-        ):
-            hooks.card_odue_was_invalid()
-
-    def flush(self) -> None:
-        self._bugcheck()
-        hooks.card_will_flush(self)
+    def _to_backend_card(self) -> _pb.Card:
         # mtime & usn are set by backend
-        card = _pb.Card(
+        return _pb.Card(
             id=self.id,
             note_id=self.nid,
             deck_id=self.did,
@@ -104,10 +94,15 @@ class Card:
             flags=self.flags,
             data=self.data,
         )
+
+    def flush(self) -> None:
+        hooks.card_will_flush(self)
         if self.id != 0:
-            self.col._backend.update_card(card)
+            self.col._backend.update_card(
+                card=self._to_backend_card(), skip_undo_entry=True
+            )
         else:
-            self.id = self.col._backend.add_card(card)
+            raise Exception("card.flush() expects an existing card")
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.render_output(reload, browser).question_and_style()
@@ -141,7 +136,7 @@ class Card:
 
     def note(self, reload: bool = False) -> Note:
         if not self._note or reload:
-            self._note = self.col.getNote(self.nid)
+            self._note = self.col.get_note(self.nid)
         return self._note
 
     def note_type(self) -> NoteType:
@@ -197,9 +192,14 @@ class Card:
         del d["timerStarted"]
         return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
-    def userFlag(self) -> int:
+    def user_flag(self) -> int:
         return self.flags & 0b111
 
-    def setUserFlag(self, flag: int) -> None:
+    def set_user_flag(self, flag: int) -> None:
         assert 0 <= flag <= 7
         self.flags = (self.flags & ~0b111) | flag
+
+    # legacy
+
+    userFlag = user_flag
+    setUserFlag = set_user_flag

@@ -36,7 +36,10 @@ pub trait SyncServer {
     /// If `can_consume` is true, the local server will move or remove the file, instead
     /// creating a copy. The remote server ignores this argument.
     async fn full_upload(self: Box<Self>, col_path: &Path, can_consume: bool) -> Result<()>;
-    async fn full_download(self: Box<Self>) -> Result<NamedTempFile>;
+    /// If the calling code intends to .persist() the named temp file to
+    /// atomically update the collection, it should pass in the collection's
+    /// folder, as .persist() can't work across filesystems.
+    async fn full_download(self: Box<Self>, temp_folder: Option<&Path>) -> Result<NamedTempFile>;
 }
 
 pub struct LocalServer {
@@ -99,6 +102,7 @@ impl SyncServer for LocalServer {
         self.client_usn = client_usn;
         self.client_is_newer = client_is_newer;
 
+        self.col.discard_undo_and_study_queues();
         self.col.storage.begin_rust_trx()?;
 
         // make sure any pending cards have been unburied first if necessary
@@ -199,7 +203,12 @@ impl SyncServer for LocalServer {
         fs::rename(col_path, &target_col_path).map_err(Into::into)
     }
 
-    async fn full_download(mut self: Box<Self>) -> Result<NamedTempFile> {
+    /// The provided folder is ignored, as in the server case the local data
+    /// will be sent over the network, instead of written into a local file.
+    async fn full_download(
+        mut self: Box<Self>,
+        _col_folder: Option<&Path>,
+    ) -> Result<NamedTempFile> {
         // bump usn/mod & close
         self.col.transact(None, |col| col.storage.increment_usn())?;
         let col_path = self.col.col_path.clone();

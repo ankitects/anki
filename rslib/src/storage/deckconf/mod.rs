@@ -9,6 +9,7 @@ use crate::{
 };
 use prost::Message;
 use rusqlite::{params, Row, NO_PARAMS};
+use serde_json::Value;
 use std::collections::HashMap;
 
 fn row_to_deckconf(row: &Row) -> Result<DeckConf> {
@@ -139,13 +140,20 @@ impl SqliteStorage {
     }
 
     pub(super) fn upgrade_deck_conf_to_schema14(&self) -> Result<()> {
-        let conf = self
-            .db
-            .query_row_and_then("select dconf from col", NO_PARAMS, |row| {
-                let conf: Result<HashMap<DeckConfID, DeckConfSchema11>> =
-                    serde_json::from_str(row.get_raw(0).as_str()?).map_err(Into::into);
-                conf
-            })?;
+        let conf: HashMap<DeckConfID, DeckConfSchema11> =
+            self.db
+                .query_row_and_then("select dconf from col", NO_PARAMS, |row| -> Result<_> {
+                    let text = row.get_raw(0).as_str()?;
+                    // try direct parse
+                    serde_json::from_str(text)
+                        .or_else(|_| {
+                            // failed, and could be caused by duplicate keys. Serialize into
+                            // a value first to discard them, then try again
+                            let conf: Value = serde_json::from_str(text)?;
+                            serde_json::from_value(conf)
+                        })
+                        .map_err(Into::into)
+                })?;
         for (_, mut conf) in conf.into_iter() {
             self.add_deck_conf_schema14(&mut conf)?;
         }

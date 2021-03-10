@@ -47,7 +47,7 @@ class CardLayout(QDialog):
         fill_empty: bool = False,
     ) -> None:
         QDialog.__init__(self, parent or mw, Qt.Window)
-        mw.setupDialogGC(self)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = aqt.mw
         self.note = note
         self.ord = ord
@@ -700,8 +700,8 @@ class CardLayout(QDialog):
         f.afmt.setText(t.get("bafmt", ""))
         if t.get("bfont"):
             f.overrideFont.setChecked(True)
-        f.font.setCurrentFont(QFont(t.get("bfont", "Arial")))
-        f.fontSize.setValue(t.get("bsize", 12))
+        f.font.setCurrentFont(QFont(t.get("bfont") or "Arial"))
+        f.fontSize.setValue(t.get("bsize") or 12)
         qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
         d.exec_()
 

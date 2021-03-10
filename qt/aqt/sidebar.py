@@ -11,7 +11,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 import aqt
 from anki.collection import Config, SearchJoiner, SearchNode
 from anki.decks import DeckTreeNode
-from anki.errors import DeckRenameError, InvalidInput
+from anki.errors import DeckIsFilteredError, InvalidInput
 from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
@@ -587,7 +587,11 @@ class SidebarTreeView(QTreeView):
 
         def on_done(fut: Future) -> None:
             self.browser.model.endReset()
-            fut.result()
+            try:
+                fut.result()
+            except Exception as e:
+                showWarning(str(e))
+                return
             self.refresh()
             self.mw.deckBrowser.refresh()
 
@@ -1133,8 +1137,8 @@ class SidebarTreeView(QTreeView):
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
-        except DeckRenameError as e:
-            showWarning(e.description)
+        except DeckIsFilteredError as err:
+            showWarning(str(err))
             return
         self.refresh(
             lambda other: other.item_type == SidebarItemType.DECK

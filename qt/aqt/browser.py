@@ -411,9 +411,9 @@ class StatusDelegate(QItemDelegate):
             option.direction = Qt.RightToLeft
 
         col = None
-        if c.userFlag() > 0:
-            col = getattr(colors, f"FLAG{c.userFlag()}_BG")
-        elif c.note().hasTag("Marked"):
+        if c.user_flag() > 0:
+            col = getattr(colors, f"FLAG{c.user_flag()}_BG")
+        elif c.note().has_tag("Marked"):
             col = colors.MARKED_BG
         elif c.queue == QUEUE_TYPE_SUSPENDED:
             col = colors.SUSPENDED_BG
@@ -490,8 +490,11 @@ class Browser(QMainWindow):
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
-        qconnect(f.actionAdd_Tags.triggered, lambda: self.addTags())
-        qconnect(f.actionRemove_Tags.triggered, lambda: self.deleteTags())
+        qconnect(f.actionAdd_Tags.triggered, lambda: self.add_tags_to_selected_notes())
+        qconnect(
+            f.actionRemove_Tags.triggered,
+            lambda: self.remove_tags_from_selected_notes(),
+        )
         qconnect(f.actionClear_Unused_Tags.triggered, self.clearUnusedTags)
         qconnect(f.actionToggle_Mark.triggered, lambda: self.onMark())
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
@@ -505,7 +508,7 @@ class Browser(QMainWindow):
         qconnect(f.actionReposition.triggered, self.reposition)
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
         qconnect(f.action_forget.triggered, self.forget_cards)
-        qconnect(f.actionToggle_Suspend.triggered, self.onSuspend)
+        qconnect(f.actionToggle_Suspend.triggered, self.suspend_selected_cards)
         qconnect(f.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
         qconnect(f.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
         qconnect(f.actionGreen_Flag.triggered, lambda: self.onSetFlag(3))
@@ -575,7 +578,7 @@ class Browser(QMainWindow):
         self.mw.maybeReset()
         aqt.dialogs.markClosed("Browser")
         self._closeEventHasCleanedUp = True
-        self.mw.gcWindow(self)
+        self.mw.deferred_delete_and_garbage_collect(self)
         self.close()
 
     def closeWithCallback(self, onsuccess: Callable) -> None:
@@ -855,13 +858,11 @@ QTableView {{ gridline-color: {grid} }}
             if type == "noteFld":
                 ord = not ord
             self.col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, ord)
-            self.col.setMod()
             self.col.save()
             self.search()
         else:
             if self.col.get_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS) != ord:
                 self.col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, ord)
-                self.col.setMod()
                 self.col.save()
                 self.model.reverse()
         self.setSortIndicator()
@@ -1197,52 +1198,45 @@ where id in %s"""
     # Tags
     ######################################################################
 
-    def addTags(
+    def add_tags_to_selected_notes(
         self,
         tags: Optional[str] = None,
-        label: Optional[str] = None,
-        prompt: Optional[str] = None,
-        func: Optional[Callable] = None,
     ) -> None:
-        self.editor.saveNow(lambda: self._addTags(tags, label, prompt, func))
+        "Shows prompt if tags not provided."
+        self.editor.saveNow(
+            lambda: self._update_tags_of_selected_notes(
+                func=self.col.tags.bulk_add,
+                tags=tags,
+                prompt=tr(TR.BROWSING_ENTER_TAGS_TO_ADD),
+            )
+        )
 
-    def _addTags(
+    def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
+        "Shows prompt if tags not provided."
+        self.editor.saveNow(
+            lambda: self._update_tags_of_selected_notes(
+                func=self.col.tags.bulk_remove,
+                tags=tags,
+                prompt=tr(TR.BROWSING_ENTER_TAGS_TO_DELETE),
+            )
+        )
+
+    def _update_tags_of_selected_notes(
         self,
+        func: Callable[[List[int], str], int],
         tags: Optional[str],
-        label: Optional[str],
         prompt: Optional[str],
-        func: Optional[Callable],
     ) -> None:
-        if prompt is None:
-            prompt = tr(TR.BROWSING_ENTER_TAGS_TO_ADD)
+        "If tags provided, prompt skipped. If tags not provided, prompt must be."
         if tags is None:
-            (tags, r) = getTag(self, self.col, prompt)
-        else:
-            r = True
-        if not r:
-            return
-        if func is None:
-            func = self.col.tags.bulkAdd
-        if label is None:
-            label = tr(TR.BROWSING_ADD_TAGS)
-        if label:
-            self.mw.checkpoint(label)
+            (tags, ok) = getTag(self, self.col, prompt)
+            if not ok:
+                return
+
         self.model.beginReset()
         func(self.selectedNotes(), tags)
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-
-    def deleteTags(
-        self, tags: Optional[str] = None, label: Optional[str] = None
-    ) -> None:
-        if label is None:
-            label = tr(TR.BROWSING_DELETE_TAGS)
-        self.addTags(
-            tags,
-            label,
-            tr(TR.BROWSING_ENTER_TAGS_TO_DELETE),
-            func=self.col.tags.bulkRem,
-        )
 
     def clearUnusedTags(self) -> None:
         self.editor.saveNow(self._clearUnusedTags)
@@ -1254,19 +1248,22 @@ where id in %s"""
 
         self.mw.taskman.run_in_background(self.col.tags.registerNotes, on_done)
 
+    addTags = add_tags_to_selected_notes
+    deleteTags = remove_tags_from_selected_notes
+
     # Suspending
     ######################################################################
 
-    def isSuspended(self) -> bool:
+    def current_card_is_suspended(self) -> bool:
         return bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
 
-    def onSuspend(self) -> None:
-        self.editor.saveNow(self._onSuspend)
+    def suspend_selected_cards(self) -> None:
+        self.editor.saveNow(self._suspend_selected_cards)
 
-    def _onSuspend(self) -> None:
-        sus = not self.isSuspended()
+    def _suspend_selected_cards(self) -> None:
+        want_suspend = not self.current_card_is_suspended()
         c = self.selectedCards()
-        if sus:
+        if want_suspend:
             self.col.sched.suspend_cards(c)
         else:
             self.col.sched.unsuspend_cards(c)
@@ -1291,13 +1288,13 @@ where id in %s"""
 
     def _on_set_flag(self, n: int) -> None:
         # flag needs toggling off?
-        if n == self.card.userFlag():
+        if n == self.card.user_flag():
             n = 0
-        self.col.setUserFlag(n, self.selectedCards())
+        self.col.set_user_flag_for_cards(n, self.selectedCards())
         self.model.reset()
 
     def _updateFlagsMenu(self) -> None:
-        flag = self.card and self.card.userFlag()
+        flag = self.card and self.card.user_flag()
         flag = flag or 0
 
         f = self.form
@@ -1317,12 +1314,12 @@ where id in %s"""
         if mark is None:
             mark = not self.isMarked()
         if mark:
-            self.addTags(tags="marked")
+            self.add_tags_to_selected_notes(tags="marked")
         else:
-            self.deleteTags(tags="marked")
+            self.remove_tags_from_selected_notes(tags="marked")
 
     def isMarked(self) -> bool:
-        return bool(self.card and self.card.note().hasTag("Marked"))
+        return bool(self.card and self.card.note().has_tag("Marked"))
 
     # Repositioning
     ######################################################################
@@ -1558,7 +1555,7 @@ where id in %s"""
 
     def _onFindDupes(self) -> None:
         d = QDialog(self)
-        self.mw.setupDialogGC(d)
+        self.mw.garbage_collect_on_dialog_finish(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
@@ -1647,7 +1644,7 @@ where id in %s"""
         nids = set()
         for _, nidlist in res:
             nids.update(nidlist)
-        self.col.tags.bulkAdd(list(nids), tr(TR.BROWSING_DUPLICATE))
+        self.col.tags.bulk_add(list(nids), tr(TR.BROWSING_DUPLICATE))
         self.mw.progress.finish()
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)

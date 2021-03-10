@@ -22,12 +22,18 @@
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>ACTIONS_NAME</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="0" column="1">
        <widget class="QLineEdit" name="name">
         <property name="text">
          <string/>
@@ -36,22 +42,6 @@
          <string notr="true"/>
         </property>
        </widget>
-      </item>
-      <item row="0" column="1">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -64,6 +54,12 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
        <widget class="QPushButton" name="search_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -78,6 +74,9 @@
         </property>
         <property name="flat">
          <bool>true</bool>
+        </property>
+        <property name="label" stdset="0">
+         <string notr="true">search</string>
         </property>
        </widget>
       </item>
@@ -126,8 +125,17 @@
       <string>DECKS_FILTER_2</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="1" colspan="4">
+       <widget class="QLineEdit" name="search_2"/>
+      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="search_button_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -143,10 +151,13 @@
         <property name="flat">
          <bool>true</bool>
         </property>
+        <property name="label" stdset="0">
+         <string notr="true">search</string>
+        </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="4">
-       <widget class="QLineEdit" name="search_2"/>
+      <item row="1" column="3" colspan="2">
+       <widget class="QComboBox" name="order_2"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_6">
@@ -170,9 +181,6 @@
          <number>99999</number>
         </property>
        </widget>
-      </item>
-      <item row="1" column="3" colspan="2">
-       <widget class="QComboBox" name="order_2"/>
       </item>
       <item row="1" column="2">
        <widget class="QLabel" name="label_4">
@@ -249,6 +257,45 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="hint_button">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="toolTip">
+        <string>SEARCH_VIEW_IN_BROWSER</string>
+       </property>
+       <property name="text">
+        <string>DECKS_UNMOVABLE_CARDS</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <property name="label" stdset="0">
+        <string notr="true">hint</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">

@@ -5,9 +5,9 @@ mod current;
 mod learning;
 mod preview;
 mod relearning;
-mod rescheduling_filter;
 mod review;
 mod revlog;
+mod undo;
 
 use crate::{
     backend_proto,
@@ -20,11 +20,11 @@ use crate::{
 use revlog::RevlogEntryPartial;
 
 use super::{
-    cutoff::SchedTimingToday,
     states::{
         steps::LearningSteps, CardState, FilteredState, NextCardStates, NormalState, StateContext,
     },
     timespan::answer_button_time_collapsible,
+    timing::SchedTimingToday,
 };
 
 #[derive(Copy, Clone)]
@@ -44,9 +44,7 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
 }
 
-// fixme: 4 buttons for previewing
 // fixme: log preview review
-// fixme: undo
 
 /// Holds the information required to determine a given card's
 /// current state, and to apply a state change to it.
@@ -107,25 +105,52 @@ impl CardStateUpdater {
         current: CardState,
         next: CardState,
     ) -> Result<Option<RevlogEntryPartial>> {
-        // any non-preview answer resets card.odue and increases reps
-        if !matches!(current, CardState::Filtered(FilteredState::Preview(_))) {
-            self.card.reps += 1;
-            self.card.original_due = 0;
-        }
+        let revlog = match next {
+            CardState::Normal(normal) => {
+                // transitioning from filtered state?
+                if let CardState::Filtered(filtered) = &current {
+                    match filtered {
+                        FilteredState::Preview(_) => {
+                            return Err(AnkiError::invalid_input(
+                                "should set finished=true, not return different state",
+                            ));
+                        }
+                        FilteredState::Rescheduling(_) => {
+                            // card needs to be removed from normal filtered deck, then scheduled normally
+                            self.card.remove_from_filtered_deck_before_reschedule();
+                        }
+                    }
+                }
+                // apply normal scheduling
+                self.apply_normal_study_state(current, normal)
+            }
+            CardState::Filtered(filtered) => {
+                self.ensure_filtered()?;
+                match filtered {
+                    FilteredState::Preview(next) => self.apply_preview_state(current, next),
+                    FilteredState::Rescheduling(next) => {
+                        self.apply_normal_study_state(current, next.original_state)
+                    }
+                }
+            }
+        }?;
+
+        Ok(revlog)
+    }
+
+    fn apply_normal_study_state(
+        &mut self,
+        current: CardState,
+        next: NormalState,
+    ) -> Result<Option<RevlogEntryPartial>> {
+        self.card.reps += 1;
+        self.card.original_due = 0;
 
         let revlog = match next {
-            CardState::Normal(normal) => match normal {
-                NormalState::New(next) => self.apply_new_state(current, next),
-                NormalState::Learning(next) => self.apply_learning_state(current, next),
-                NormalState::Review(next) => self.apply_review_state(current, next),
-                NormalState::Relearning(next) => self.apply_relearning_state(current, next),
-            },
-            CardState::Filtered(filtered) => match filtered {
-                FilteredState::Preview(next) => self.apply_preview_state(current, next),
-                FilteredState::Rescheduling(next) => {
-                    self.apply_rescheduling_filter_state(current, next)
-                }
-            },
+            NormalState::New(next) => self.apply_new_state(current, next),
+            NormalState::Learning(next) => self.apply_learning_state(current, next),
+            NormalState::Review(next) => self.apply_review_state(current, next),
+            NormalState::Relearning(next) => self.apply_relearning_state(current, next),
         }?;
 
         if next.leeched() && self.config.inner.leech_action() == LeechAction::Suspend {
@@ -168,11 +193,12 @@ impl Collection {
     }
 
     /// Describe the next intervals, to display on the answer buttons.
-    pub fn describe_next_states(&self, choices: NextCardStates) -> Result<Vec<String>> {
+    pub fn describe_next_states(&mut self, choices: NextCardStates) -> Result<Vec<String>> {
         let collapse_time = self.learn_ahead_secs();
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
         let secs_until_rollover = (timing.next_day_at - now.0).max(0) as u32;
+
         Ok(vec![
             answer_button_time_collapsible(
                 choices
@@ -215,7 +241,9 @@ impl Collection {
 
     /// Answer card, writing its new state to the database.
     pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<()> {
-        self.transact(None, |col| col.answer_card_inner(answer))
+        self.transact(Some(UndoableOpKind::AnswerCard), |col| {
+            col.answer_card_inner(answer)
+        })
     }
 
     fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {
@@ -234,23 +262,38 @@ impl Collection {
                 current_state, answer.current_state,
             )));
         }
-
         if let Some(revlog_partial) = updater.apply_study_state(current_state, answer.new_state)? {
             self.add_partial_revlog(revlog_partial, usn, &answer)?;
         }
         self.update_deck_stats_from_answer(usn, &answer, &updater)?;
-
+        self.maybe_bury_siblings(&original, &updater.config)?;
+        let timing = updater.timing;
         let mut card = updater.into_card();
-        self.update_card(&mut card, &original, usn)?;
+        self.update_card_inner(&mut card, &original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
+        }
+
+        self.update_queues_after_answering_card(&card, timing)?;
+
+        Ok(())
+    }
+
+    fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConf) -> Result<()> {
+        if config.inner.bury_new || config.inner.bury_reviews {
+            self.bury_siblings(
+                card.id,
+                card.note_id,
+                config.inner.bury_new,
+                config.inner.bury_reviews,
+            )?;
         }
 
         Ok(())
     }
 
     fn add_partial_revlog(
-        &self,
+        &mut self,
         partial: RevlogEntryPartial,
         usn: Usn,
         answer: &CardAnswer,
@@ -262,7 +305,8 @@ impl Collection {
             answer.answered_at,
             answer.milliseconds_taken,
         );
-        self.storage.add_revlog_entry(&revlog)
+        self.add_revlog_entry_undoable(revlog)?;
+        Ok(())
     }
 
     fn update_deck_stats_from_answer(
@@ -338,7 +382,7 @@ impl Collection {
 /// Return a consistent seed for a given card at a given number of reps.
 /// If in test environment, disable fuzzing.
 fn get_fuzz_seed(card: &Card) -> Option<u64> {
-    if *crate::timestamp::TESTING {
+    if *crate::timestamp::TESTING || cfg!(test) {
         None
     } else {
         Some((card.id.0 as u64).wrapping_add(card.reps as u64))

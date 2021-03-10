@@ -1,30 +1,37 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod adding;
+mod card;
+mod config;
+mod dbproxy;
+mod err;
+mod generic;
+mod http_sync_server;
+mod progress;
+mod scheduler;
+mod search;
+mod sync;
+
 pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::{
-        sort_order::builtin::Kind as SortKindProto, sort_order::Value as SortOrderProto,
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
     },
     card::{Card, CardID},
-    card::{CardQueue, CardType},
     cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
-    config::SortKind,
-    dbcheck::DatabaseCheckProgress,
     deckconf::{DeckConf, DeckConfSchema11},
     decks::{Deck, DeckID, DeckSchema11},
-    err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
-    i18n::{tr_args, I18n, TR},
+    err::{AnkiError, Result},
+    i18n::I18n,
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
     log::default_logger,
     markdown::render_markdown,
     media::check::MediaChecker,
-    media::sync::MediaSyncProgress,
     media::MediaManager,
     notes::{Note, NoteID},
     notetype::{
@@ -36,31 +43,22 @@ use crate::{
         states::{CardState, NextCardStates},
         timespan::{answer_button_time, time_span},
     },
-    search::{
-        concatenate_searches, parse_search, replace_search_node, write_nodes, BoolSeparator, Node,
-        PropertyKind, RatingKind, SearchNode, SortMode, StateKind, TemplateKind,
-    },
+    search::{concatenate_searches, replace_search_node, write_nodes, Node},
     stats::studied_today,
-    sync::{
-        get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,
-        LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
-        SyncStage,
-    },
+    sync::{http::SyncRequest, LocalServer},
     template::RenderedNode,
-    text::{escape_anki_wildcards, extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
+    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
-    types::Usn,
+    undo::UndoableOpKind,
 };
 use fluent::FluentValue;
-use futures::future::{AbortHandle, AbortRegistration, Abortable};
-use itertools::Itertools;
+use futures::future::AbortHandle;
 use log::error;
 use once_cell::sync::OnceCell;
-use pb::{sync_status_out, BackendService};
+use pb::BackendService;
+use progress::{AbortHandleSlot, Progress};
 use prost::Message;
 use serde_json::Value as JsonValue;
-use slog::warn;
-use std::convert::TryFrom;
 use std::{collections::HashSet, convert::TryInto};
 use std::{
     result,
@@ -68,39 +66,11 @@ use std::{
 };
 use tokio::runtime::{self, Runtime};
 
-mod dbproxy;
-mod generic;
-mod http_sync_server;
-mod scheduler;
-
-struct ThrottlingProgressHandler {
-    state: Arc<Mutex<ProgressState>>,
-    last_update: coarsetime::Instant,
-}
-
-impl ThrottlingProgressHandler {
-    /// Returns true if should continue.
-    fn update(&mut self, progress: impl Into<Progress>, throttle: bool) -> bool {
-        let now = coarsetime::Instant::now();
-        if throttle && now.duration_since(self.last_update).as_f64() < 0.1 {
-            return true;
-        }
-        self.last_update = now;
-        let mut guard = self.state.lock().unwrap();
-        guard.last_progress.replace(progress.into());
-        let want_abort = guard.want_abort;
-        guard.want_abort = false;
-        !want_abort
-    }
-}
-
-struct ProgressState {
-    want_abort: bool,
-    last_progress: Option<Progress>,
-}
-
-// fixme: this should support multiple abort handles.
-type AbortHandleSlot = Arc<Mutex<Option<AbortHandle>>>;
+use self::{
+    err::anki_error_to_proto_error,
+    progress::{progress_to_proto, ProgressState},
+    sync::RemoteSyncStatus,
+};
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
@@ -121,90 +91,6 @@ struct BackendState {
     http_sync_server: Option<LocalServer>,
 }
 
-#[derive(Default, Debug)]
-pub(crate) struct RemoteSyncStatus {
-    last_check: TimestampSecs,
-    last_response: sync_status_out::Required,
-}
-
-impl RemoteSyncStatus {
-    fn update(&mut self, required: sync_status_out::Required) {
-        self.last_check = TimestampSecs::now();
-        self.last_response = required
-    }
-}
-
-#[derive(Clone, Copy)]
-enum Progress {
-    MediaSync(MediaSyncProgress),
-    MediaCheck(u32),
-    FullSync(FullSyncProgress),
-    NormalSync(NormalSyncProgress),
-    DatabaseCheck(DatabaseCheckProgress),
-}
-
-/// Convert an Anki error to a protobuf error.
-fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
-    use pb::backend_error::Value as V;
-    let localized = err.localized_description(i18n);
-    let value = match err {
-        AnkiError::InvalidInput { .. } => V::InvalidInput(pb::Empty {}),
-        AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),
-        AnkiError::IOError { .. } => V::IoError(pb::Empty {}),
-        AnkiError::DBError { .. } => V::DbError(pb::Empty {}),
-        AnkiError::NetworkError { kind, .. } => {
-            V::NetworkError(pb::NetworkError { kind: kind.into() })
-        }
-        AnkiError::SyncError { kind, .. } => V::SyncError(pb::SyncError { kind: kind.into() }),
-        AnkiError::Interrupted => V::Interrupted(Empty {}),
-        AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::JSONError { info } => V::JsonError(info),
-        AnkiError::ProtoError { info } => V::ProtoError(info),
-        AnkiError::NotFound => V::NotFoundError(Empty {}),
-        AnkiError::Existing => V::Exists(Empty {}),
-        AnkiError::DeckIsFiltered => V::DeckIsFiltered(Empty {}),
-        AnkiError::SearchError(_) => V::InvalidInput(pb::Empty {}),
-        AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
-        AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
-    };
-
-    pb::BackendError {
-        value: Some(value),
-        localized,
-    }
-}
-
-impl std::convert::From<NetworkErrorKind> for i32 {
-    fn from(e: NetworkErrorKind) -> Self {
-        use pb::network_error::NetworkErrorKind as V;
-        (match e {
-            NetworkErrorKind::Offline => V::Offline,
-            NetworkErrorKind::Timeout => V::Timeout,
-            NetworkErrorKind::ProxyAuth => V::ProxyAuth,
-            NetworkErrorKind::Other => V::Other,
-        }) as i32
-    }
-}
-
-impl std::convert::From<SyncErrorKind> for i32 {
-    fn from(e: SyncErrorKind) -> Self {
-        use pb::sync_error::SyncErrorKind as V;
-        (match e {
-            SyncErrorKind::Conflict => V::Conflict,
-            SyncErrorKind::ServerError => V::ServerError,
-            SyncErrorKind::ClientTooOld => V::ClientTooOld,
-            SyncErrorKind::AuthFailed => V::AuthFailed,
-            SyncErrorKind::ServerMessage => V::ServerMessage,
-            SyncErrorKind::ResyncRequired => V::ResyncRequired,
-            SyncErrorKind::DatabaseCheckRequired => V::DatabaseCheckRequired,
-            SyncErrorKind::Other => V::Other,
-            SyncErrorKind::ClockIncorrect => V::ClockIncorrect,
-            SyncErrorKind::SyncNotStarted => V::SyncNotStarted,
-        }) as i32
-    }
-}
-
 pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     let input: pb::BackendInit = match pb::BackendInit::decode(init_msg) {
         Ok(req) => req,
@@ -218,135 +104,6 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     );
 
     Ok(Backend::new(i18n, input.server))
-}
-
-impl TryFrom<pb::SearchNode> for Node {
-    type Error = AnkiError;
-
-    fn try_from(msg: pb::SearchNode) -> std::result::Result<Self, Self::Error> {
-        use pb::search_node::group::Joiner;
-        use pb::search_node::Filter;
-        use pb::search_node::Flag;
-        Ok(if let Some(filter) = msg.filter {
-            match filter {
-                Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
-                Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
-                    s
-                } else {
-                    escape_anki_wildcards(&s)
-                })),
-                Filter::Note(s) => Node::Search(SearchNode::NoteType(escape_anki_wildcards(&s))),
-                Filter::Template(u) => {
-                    Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
-                }
-                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string())),
-                Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string())),
-                Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                    note_type_id: dupe.notetype_id.into(),
-                    text: dupe.first_field,
-                }),
-                Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                    field: escape_anki_wildcards(&s),
-                    text: "*".to_string(),
-                    is_re: false,
-                }),
-                Filter::Rated(rated) => Node::Search(SearchNode::Rated {
-                    days: rated.days,
-                    ease: rated.rating().into(),
-                }),
-                Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
-                Filter::DueInDays(i) => Node::Search(SearchNode::Property {
-                    operator: "<=".to_string(),
-                    kind: PropertyKind::Due(i),
-                }),
-                Filter::DueOnDay(i) => Node::Search(SearchNode::Property {
-                    operator: "=".to_string(),
-                    kind: PropertyKind::Due(i),
-                }),
-                Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
-                Filter::CardState(state) => Node::Search(SearchNode::State(
-                    pb::search_node::CardState::from_i32(state)
-                        .unwrap_or_default()
-                        .into(),
-                )),
-                Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
-                    Flag::None => Node::Search(SearchNode::Flag(0)),
-                    Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
-                    Flag::Red => Node::Search(SearchNode::Flag(1)),
-                    Flag::Orange => Node::Search(SearchNode::Flag(2)),
-                    Flag::Green => Node::Search(SearchNode::Flag(3)),
-                    Flag::Blue => Node::Search(SearchNode::Flag(4)),
-                },
-                Filter::Negated(term) => Node::try_from(*term)?.negated(),
-                Filter::Group(mut group) => {
-                    match group.nodes.len() {
-                        0 => return Err(AnkiError::invalid_input("empty group")),
-                        // a group of 1 doesn't need to be a group
-                        1 => group.nodes.pop().unwrap().try_into()?,
-                        // 2+ nodes
-                        _ => {
-                            let joiner = match group.joiner() {
-                                Joiner::And => Node::And,
-                                Joiner::Or => Node::Or,
-                            };
-                            let parsed: Vec<_> = group
-                                .nodes
-                                .into_iter()
-                                .map(TryFrom::try_from)
-                                .collect::<Result<_>>()?;
-                            let joined = parsed.into_iter().intersperse(joiner).collect();
-                            Node::Group(joined)
-                        }
-                    }
-                }
-                Filter::ParsableText(text) => {
-                    let mut nodes = parse_search(&text)?;
-                    if nodes.len() == 1 {
-                        nodes.pop().unwrap()
-                    } else {
-                        Node::Group(nodes)
-                    }
-                }
-            }
-        } else {
-            Node::Search(SearchNode::WholeCollection)
-        })
-    }
-}
-
-impl From<pb::search_node::group::Joiner> for BoolSeparator {
-    fn from(sep: pb::search_node::group::Joiner) -> Self {
-        match sep {
-            pb::search_node::group::Joiner::And => BoolSeparator::And,
-            pb::search_node::group::Joiner::Or => BoolSeparator::Or,
-        }
-    }
-}
-
-impl From<pb::search_node::Rating> for RatingKind {
-    fn from(r: pb::search_node::Rating) -> Self {
-        match r {
-            pb::search_node::Rating::Again => RatingKind::AnswerButton(1),
-            pb::search_node::Rating::Hard => RatingKind::AnswerButton(2),
-            pb::search_node::Rating::Good => RatingKind::AnswerButton(3),
-            pb::search_node::Rating::Easy => RatingKind::AnswerButton(4),
-            pb::search_node::Rating::Any => RatingKind::AnyAnswerButton,
-            pb::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
-        }
-    }
-}
-
-impl From<pb::search_node::CardState> for StateKind {
-    fn from(k: pb::search_node::CardState) -> Self {
-        match k {
-            pb::search_node::CardState::New => StateKind::New,
-            pb::search_node::CardState::Learn => StateKind::Learning,
-            pb::search_node::CardState::Review => StateKind::Review,
-            pb::search_node::CardState::Due => StateKind::Due,
-            pb::search_node::CardState::Suspended => StateKind::Suspended,
-            pb::search_node::CardState::Buried => StateKind::Buried,
-        }
-    }
 }
 
 impl BackendService for Backend {
@@ -698,6 +455,13 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn get_queued_cards(
+        &self,
+        input: pb::GetQueuedCardsIn,
+    ) -> BackendResult<pb::GetQueuedCardsOut> {
+        self.with_col(|col| col.get_queued_cards(input.fetch_limit, input.intraday_learning_only))
+    }
+
     // statistics
     //-----------------------------------------------
 
@@ -806,7 +570,7 @@ impl BackendService for Backend {
             if input.preserve_usn_and_mtime {
                 col.transact(None, |col| {
                     let usn = col.usn()?;
-                    col.add_or_update_single_deck(&mut deck, usn)
+                    col.add_or_update_single_deck_with_existing_id(&mut deck, usn)
                 })?;
             } else {
                 col.add_or_update_deck(&mut deck)?;
@@ -977,24 +741,17 @@ impl BackendService for Backend {
         })
     }
 
-    fn update_card(&self, input: pb::Card) -> BackendResult<Empty> {
-        let mut card = pbcard_to_native(input)?;
+    fn update_card(&self, input: pb::UpdateCardIn) -> BackendResult<Empty> {
         self.with_col(|col| {
-            col.transact(None, |ctx| {
-                let orig = ctx
-                    .storage
-                    .get_card(card.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
-                ctx.update_card(&mut card, &orig, ctx.usn()?)
-            })
+            let op = if input.skip_undo_entry {
+                None
+            } else {
+                Some(UndoableOpKind::UpdateCard)
+            };
+            let mut card: Card = input.card.ok_or(AnkiError::NotFound)?.try_into()?;
+            col.update_card_with_op(&mut card, op)
         })
         .map(Into::into)
-    }
-
-    fn add_card(&self, input: pb::Card) -> BackendResult<pb::CardId> {
-        let mut card = pbcard_to_native(input)?;
-        self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
-        Ok(pb::CardId { cid: card.id.0 })
     }
 
     fn remove_cards(&self, input: pb::RemoveCardsIn) -> BackendResult<Empty> {
@@ -1036,10 +793,34 @@ impl BackendService for Backend {
         })
     }
 
-    fn update_note(&self, input: pb::Note) -> BackendResult<Empty> {
+    fn defaults_for_adding(
+        &self,
+        input: pb::DefaultsForAddingIn,
+    ) -> BackendResult<pb::DeckAndNotetype> {
         self.with_col(|col| {
-            let mut note: Note = input.into();
-            col.update_note(&mut note)
+            let home_deck: DeckID = input.home_deck_of_current_review_card.into();
+            col.defaults_for_adding(home_deck).map(Into::into)
+        })
+    }
+
+    fn default_deck_for_notetype(&self, input: pb::NoteTypeId) -> BackendResult<pb::DeckId> {
+        self.with_col(|col| {
+            Ok(col
+                .default_deck_for_notetype(input.into())?
+                .unwrap_or(DeckID(0))
+                .into())
+        })
+    }
+
+    fn update_note(&self, input: pb::UpdateNoteIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            let op = if input.skip_undo_entry {
+                None
+            } else {
+                Some(UndoableOpKind::UpdateNote)
+            };
+            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
+            col.update_note_with_op(&mut note, op)
         })
         .map(Into::into)
     }
@@ -1080,7 +861,7 @@ impl BackendService for Backend {
 
     fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> BackendResult<pb::UInt32> {
         self.with_col(|col| {
-            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
+            col.add_tags_to_notes(&to_nids(input.nids), &input.tags)
                 .map(|n| n as u32)
         })
         .map(Into::into)
@@ -1301,6 +1082,24 @@ impl BackendService for Backend {
         })
     }
 
+    fn get_undo_status(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
+        self.with_col(|col| Ok(col.undo_status()))
+    }
+
+    fn undo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
+        self.with_col(|col| {
+            col.undo()?;
+            Ok(col.undo_status())
+        })
+    }
+
+    fn redo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
+        self.with_col(|col| {
+            col.redo()?;
+            Ok(col.undo_status())
+        })
+    }
+
     // sync
     //-------------------------------------------------------------------
 
@@ -1437,7 +1236,7 @@ impl BackendService for Backend {
     fn clear_tag(&self, tag: pb::String) -> BackendResult<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                col.storage.clear_tag(tag.val.as_str())?;
+                col.storage.clear_tag_and_children(tag.val.as_str())?;
                 Ok(().into())
             })
         })
@@ -1497,27 +1296,29 @@ impl BackendService for Backend {
     fn get_config_bool(&self, input: pb::config::Bool) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             Ok(pb::Bool {
-                val: col.get_bool(input),
+                val: col.get_bool(input.key().into()),
             })
         })
     }
 
     fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> BackendResult<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_bool(input)))
+        self.with_col(|col| col.transact(None, |col| col.set_bool(input.key().into(), input.value)))
             .map(Into::into)
     }
 
     fn get_config_string(&self, input: pb::config::String) -> BackendResult<pb::String> {
         self.with_col(|col| {
             Ok(pb::String {
-                val: col.get_string(input),
+                val: col.get_string(input.key().into()),
             })
         })
     }
 
     fn set_config_string(&self, input: pb::SetConfigStringIn) -> BackendResult<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_string(input)))
-            .map(Into::into)
+        self.with_col(|col| {
+            col.transact(None, |col| col.set_string(input.key().into(), &input.value))
+        })
+        .map(Into::into)
     }
 
     fn get_preferences(&self, _input: Empty) -> BackendResult<pb::Preferences> {
@@ -1575,18 +1376,6 @@ impl Backend {
         )
     }
 
-    fn new_progress_handler(&self) -> ThrottlingProgressHandler {
-        {
-            let mut guard = self.progress_state.lock().unwrap();
-            guard.want_abort = false;
-            guard.last_progress = None;
-        }
-        ThrottlingProgressHandler {
-            state: Arc::clone(&self.progress_state),
-            last_update: coarsetime::Instant::now(),
-        }
-    }
-
     fn runtime_handle(&self) -> runtime::Handle {
         self.runtime
             .get_or_init(|| {
@@ -1601,245 +1390,8 @@ impl Backend {
             .clone()
     }
 
-    fn sync_abort_handle(
-        &self,
-    ) -> BackendResult<(
-        scopeguard::ScopeGuard<AbortHandleSlot, impl FnOnce(AbortHandleSlot)>,
-        AbortRegistration,
-    )> {
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-
-        // Register the new abort_handle.
-        let old_handle = self.sync_abort.lock().unwrap().replace(abort_handle);
-        if old_handle.is_some() {
-            // NOTE: In the future we would ideally be able to handle multiple
-            //       abort handles by just iterating over them all in
-            //       abort_sync). But for now, just log a warning if there was
-            //       already one present -- but don't abort it either.
-            let log = self.with_col(|col| Ok(col.log.clone()))?;
-            warn!(
-                log,
-                "new sync_abort handle registered, but old one was still present (old sync job might not be cancelled on abort)"
-            );
-        }
-        // Clear the abort handle after the caller is done and drops the guard.
-        let guard = scopeguard::guard(Arc::clone(&self.sync_abort), |sync_abort| {
-            sync_abort.lock().unwrap().take();
-        });
-        Ok((guard, abort_reg))
-    }
-
-    fn sync_media_inner(&self, input: pb::SyncAuth) -> Result<()> {
-        // mark media sync as active
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        {
-            let mut guard = self.state.lock().unwrap();
-            if guard.media_sync_abort.is_some() {
-                // media sync is already active
-                return Ok(());
-            } else {
-                guard.media_sync_abort = Some(abort_handle);
-            }
-        }
-
-        // get required info from collection
-        let mut guard = self.col.lock().unwrap();
-        let col = guard.as_mut().unwrap();
-        let folder = col.media_folder.clone();
-        let db = col.media_db.clone();
-        let log = col.log.clone();
-        drop(guard);
-
-        // start the sync
-        let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress| handler.update(progress, true);
-
-        let mgr = MediaManager::new(&folder, &db)?;
-        let rt = self.runtime_handle();
-        let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
-        let abortable_sync = Abortable::new(sync_fut, abort_reg);
-        let result = rt.block_on(abortable_sync);
-
-        // mark inactive
-        self.state.lock().unwrap().media_sync_abort.take();
-
-        // return result
-        match result {
-            Ok(sync_result) => sync_result,
-            Err(_) => {
-                // aborted sync
-                Err(AnkiError::Interrupted)
-            }
-        }
-    }
-
-    /// Abort the media sync. Won't return until aborted.
-    fn abort_media_sync_and_wait(&self) {
-        let guard = self.state.lock().unwrap();
-        if let Some(handle) = &guard.media_sync_abort {
-            handle.abort();
-            self.progress_state.lock().unwrap().want_abort = true;
-        }
-        drop(guard);
-
-        // block until it aborts
-        while self.state.lock().unwrap().media_sync_abort.is_some() {
-            std::thread::sleep(std::time::Duration::from_millis(100));
-            self.progress_state.lock().unwrap().want_abort = true;
-        }
-    }
-
-    fn sync_login_inner(&self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
-        let (_guard, abort_reg) = self.sync_abort_handle()?;
-
-        let rt = self.runtime_handle();
-        let sync_fut = sync_login(&input.username, &input.password);
-        let abortable_sync = Abortable::new(sync_fut, abort_reg);
-        let ret = match rt.block_on(abortable_sync) {
-            Ok(sync_result) => sync_result,
-            Err(_) => Err(AnkiError::Interrupted),
-        };
-        ret.map(|a| pb::SyncAuth {
-            hkey: a.hkey,
-            host_number: a.host_number,
-        })
-    }
-
-    fn sync_status_inner(&self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
-        // any local changes mean we can skip the network round-trip
-        let req = self.with_col(|col| col.get_local_sync_status())?;
-        if req != pb::sync_status_out::Required::NoChanges {
-            return Ok(req.into());
-        }
-
-        // return cached server response if only a short time has elapsed
-        {
-            let guard = self.state.lock().unwrap();
-            if guard.remote_sync_status.last_check.elapsed_secs() < 300 {
-                return Ok(guard.remote_sync_status.last_response.into());
-            }
-        }
-
-        // fetch and cache result
-        let rt = self.runtime_handle();
-        let time_at_check_begin = TimestampSecs::now();
-        let remote: SyncMeta = rt.block_on(get_remote_sync_meta(input.into()))?;
-        let response = self.with_col(|col| col.get_sync_status(remote).map(Into::into))?;
-
-        {
-            let mut guard = self.state.lock().unwrap();
-            // On startup, the sync status check will block on network access, and then automatic syncing begins,
-            // taking hold of the mutex. By the time we reach here, our network status may be out of date,
-            // so we discard it if stale.
-            if guard.remote_sync_status.last_check < time_at_check_begin {
-                guard.remote_sync_status.last_check = time_at_check_begin;
-                guard.remote_sync_status.last_response = response;
-            }
-        }
-
-        Ok(response.into())
-    }
-
-    fn sync_collection_inner(&self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
-        let (_guard, abort_reg) = self.sync_abort_handle()?;
-
-        let rt = self.runtime_handle();
-        let input_copy = input.clone();
-
-        let ret = self.with_col(|col| {
-            let mut handler = self.new_progress_handler();
-            let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
-                handler.update(progress, throttle);
-            };
-
-            let sync_fut = col.normal_sync(input.into(), progress_fn);
-            let abortable_sync = Abortable::new(sync_fut, abort_reg);
-
-            match rt.block_on(abortable_sync) {
-                Ok(sync_result) => sync_result,
-                Err(_) => {
-                    // if the user aborted, we'll need to clean up the transaction
-                    col.storage.rollback_trx()?;
-                    // and tell AnkiWeb to clean up
-                    let _handle = std::thread::spawn(move || {
-                        let _ = rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
-                    });
-
-                    Err(AnkiError::Interrupted)
-                }
-            }
-        });
-
-        let output: SyncOutput = ret?;
-        self.state
-            .lock()
-            .unwrap()
-            .remote_sync_status
-            .update(output.required.into());
-        Ok(output.into())
-    }
-
-    fn full_sync_inner(&self, input: pb::SyncAuth, upload: bool) -> Result<()> {
-        self.abort_media_sync_and_wait();
-
-        let rt = self.runtime_handle();
-
-        let mut col = self.col.lock().unwrap();
-        if col.is_none() {
-            return Err(AnkiError::CollectionNotOpen);
-        }
-
-        let col_inner = col.take().unwrap();
-
-        let (_guard, abort_reg) = self.sync_abort_handle()?;
-
-        let col_path = col_inner.col_path.clone();
-        let media_folder_path = col_inner.media_folder.clone();
-        let media_db_path = col_inner.media_db.clone();
-        let logger = col_inner.log.clone();
-
-        let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
-            handler.update(progress, throttle);
-        };
-
-        let result = if upload {
-            let sync_fut = col_inner.full_upload(input.into(), Box::new(progress_fn));
-            let abortable_sync = Abortable::new(sync_fut, abort_reg);
-            rt.block_on(abortable_sync)
-        } else {
-            let sync_fut = col_inner.full_download(input.into(), Box::new(progress_fn));
-            let abortable_sync = Abortable::new(sync_fut, abort_reg);
-            rt.block_on(abortable_sync)
-        };
-
-        // ensure re-opened regardless of outcome
-        col.replace(open_collection(
-            col_path,
-            media_folder_path,
-            media_db_path,
-            self.server,
-            self.i18n.clone(),
-            logger,
-        )?);
-
-        match result {
-            Ok(sync_result) => {
-                if sync_result.is_ok() {
-                    self.state
-                        .lock()
-                        .unwrap()
-                        .remote_sync_status
-                        .update(sync_status_out::Required::NoChanges);
-                }
-                sync_result
-            }
-            Err(_) => Err(AnkiError::Interrupted),
-        }
-    }
-
     pub fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
-        self.with_col(|col| db_command_bytes(&col.storage, input))
+        self.with_col(|col| db_command_bytes(col, input))
     }
 
     pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {
@@ -1900,120 +1452,6 @@ impl From<RenderCardOutput> for pb::RenderCardOut {
     }
 }
 
-fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
-    let progress = if let Some(progress) = progress {
-        match progress {
-            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
-            Progress::MediaCheck(n) => {
-                let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
-                pb::progress::Value::MediaCheck(s)
-            }
-            Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
-                transferred: p.transferred_bytes as u32,
-                total: p.total_bytes as u32,
-            }),
-            Progress::NormalSync(p) => {
-                let stage = match p.stage {
-                    SyncStage::Connecting => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Syncing => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Finalizing => i18n.tr(TR::SyncChecking),
-                }
-                .to_string();
-                let added = i18n.trn(
-                    TR::SyncAddedUpdatedCount,
-                    tr_args![
-                            "up"=>p.local_update, "down"=>p.remote_update],
-                );
-                let removed = i18n.trn(
-                    TR::SyncMediaRemovedCount,
-                    tr_args![
-                            "up"=>p.local_remove, "down"=>p.remote_remove],
-                );
-                pb::progress::Value::NormalSync(pb::progress::NormalSync {
-                    stage,
-                    added,
-                    removed,
-                })
-            }
-            Progress::DatabaseCheck(p) => {
-                let mut stage_total = 0;
-                let mut stage_current = 0;
-                let stage = match p {
-                    DatabaseCheckProgress::Integrity => i18n.tr(TR::DatabaseCheckCheckingIntegrity),
-                    DatabaseCheckProgress::Optimize => i18n.tr(TR::DatabaseCheckRebuilding),
-                    DatabaseCheckProgress::Cards => i18n.tr(TR::DatabaseCheckCheckingCards),
-                    DatabaseCheckProgress::Notes { current, total } => {
-                        stage_total = total;
-                        stage_current = current;
-                        i18n.tr(TR::DatabaseCheckCheckingNotes)
-                    }
-                    DatabaseCheckProgress::History => i18n.tr(TR::DatabaseCheckCheckingHistory),
-                }
-                .to_string();
-                pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
-                    stage,
-                    stage_current,
-                    stage_total,
-                })
-            }
-        }
-    } else {
-        pb::progress::Value::None(pb::Empty {})
-    };
-    pb::Progress {
-        value: Some(progress),
-    }
-}
-
-fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::progress::MediaSync {
-    pb::progress::MediaSync {
-        checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
-        added: i18n.trn(
-            TR::SyncMediaAddedCount,
-            tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
-        ),
-        removed: i18n.trn(
-            TR::SyncMediaRemovedCount,
-            tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
-        ),
-    }
-}
-
-impl From<SortKindProto> for SortKind {
-    fn from(kind: SortKindProto) -> Self {
-        match kind {
-            SortKindProto::NoteCreation => SortKind::NoteCreation,
-            SortKindProto::NoteMod => SortKind::NoteMod,
-            SortKindProto::NoteField => SortKind::NoteField,
-            SortKindProto::NoteTags => SortKind::NoteTags,
-            SortKindProto::NoteType => SortKind::NoteType,
-            SortKindProto::CardMod => SortKind::CardMod,
-            SortKindProto::CardReps => SortKind::CardReps,
-            SortKindProto::CardDue => SortKind::CardDue,
-            SortKindProto::CardEase => SortKind::CardEase,
-            SortKindProto::CardLapses => SortKind::CardLapses,
-            SortKindProto::CardInterval => SortKind::CardInterval,
-            SortKindProto::CardDeck => SortKind::CardDeck,
-            SortKindProto::CardTemplate => SortKind::CardTemplate,
-        }
-    }
-}
-
-impl From<Option<SortOrderProto>> for SortMode {
-    fn from(order: Option<SortOrderProto>) -> Self {
-        use pb::sort_order::Value as V;
-        match order.unwrap_or(V::FromConfig(pb::Empty {})) {
-            V::None(_) => SortMode::NoOrder,
-            V::Custom(s) => SortMode::Custom(s),
-            V::FromConfig(_) => SortMode::FromConfig,
-            V::Builtin(b) => SortMode::Builtin {
-                kind: b.kind().into(),
-                reverse: b.reverse,
-            },
-        }
-    }
-}
-
 impl From<Card> for pb::Card {
     fn from(c: Card) -> Self {
         pb::Card {
@@ -2039,104 +1477,11 @@ impl From<Card> for pb::Card {
     }
 }
 
-fn pbcard_to_native(c: pb::Card) -> Result<Card> {
-    let ctype = CardType::try_from(c.ctype as u8)
-        .map_err(|_| AnkiError::invalid_input("invalid card type"))?;
-    let queue = CardQueue::try_from(c.queue as i8)
-        .map_err(|_| AnkiError::invalid_input("invalid card queue"))?;
-    Ok(Card {
-        id: CardID(c.id),
-        note_id: NoteID(c.note_id),
-        deck_id: DeckID(c.deck_id),
-        template_idx: c.template_idx as u16,
-        mtime: TimestampSecs(c.mtime_secs),
-        usn: Usn(c.usn),
-        ctype,
-        queue,
-        due: c.due,
-        interval: c.interval,
-        ease_factor: c.ease_factor as u16,
-        reps: c.reps,
-        lapses: c.lapses,
-        remaining_steps: c.remaining_steps,
-        original_due: c.original_due,
-        original_deck_id: DeckID(c.original_deck_id),
-        flags: c.flags as u8,
-        data: c.data,
-    })
-}
-
-impl From<crate::scheduler::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
-    fn from(t: crate::scheduler::cutoff::SchedTimingToday) -> pb::SchedTimingTodayOut {
+impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayOut {
+    fn from(t: crate::scheduler::timing::SchedTimingToday) -> pb::SchedTimingTodayOut {
         pb::SchedTimingTodayOut {
             days_elapsed: t.days_elapsed,
             next_day_at: t.next_day_at,
         }
-    }
-}
-
-impl From<SyncOutput> for pb::SyncCollectionOut {
-    fn from(o: SyncOutput) -> Self {
-        pb::SyncCollectionOut {
-            host_number: o.host_number,
-            server_message: o.server_message,
-            required: match o.required {
-                SyncActionRequired::NoChanges => {
-                    pb::sync_collection_out::ChangesRequired::NoChanges as i32
-                }
-                SyncActionRequired::FullSyncRequired {
-                    upload_ok,
-                    download_ok,
-                } => {
-                    if !upload_ok {
-                        pb::sync_collection_out::ChangesRequired::FullDownload as i32
-                    } else if !download_ok {
-                        pb::sync_collection_out::ChangesRequired::FullUpload as i32
-                    } else {
-                        pb::sync_collection_out::ChangesRequired::FullSync as i32
-                    }
-                }
-                SyncActionRequired::NormalSyncRequired => {
-                    pb::sync_collection_out::ChangesRequired::NormalSync as i32
-                }
-            },
-        }
-    }
-}
-
-impl From<pb::SyncAuth> for SyncAuth {
-    fn from(a: pb::SyncAuth) -> Self {
-        SyncAuth {
-            hkey: a.hkey,
-            host_number: a.host_number,
-        }
-    }
-}
-
-impl From<FullSyncProgress> for Progress {
-    fn from(p: FullSyncProgress) -> Self {
-        Progress::FullSync(p)
-    }
-}
-
-impl From<MediaSyncProgress> for Progress {
-    fn from(p: MediaSyncProgress) -> Self {
-        Progress::MediaSync(p)
-    }
-}
-
-impl From<NormalSyncProgress> for Progress {
-    fn from(p: NormalSyncProgress) -> Self {
-        Progress::NormalSync(p)
-    }
-}
-
-impl pb::search_node::IdList {
-    fn into_id_string(self) -> String {
-        self.ids
-            .iter()
-            .map(|i| i.to_string())
-            .collect::<Vec<_>>()
-            .join(",")
     }
 }

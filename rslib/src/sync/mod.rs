@@ -326,9 +326,10 @@ where
             SyncActionRequired::NoChanges => Ok(state.into()),
             SyncActionRequired::FullSyncRequired { .. } => Ok(state.into()),
             SyncActionRequired::NormalSyncRequired => {
+                self.col.discard_undo_and_study_queues();
                 self.col.storage.begin_trx()?;
-                self.col
-                    .unbury_if_day_rolled_over(self.col.timing_today()?)?;
+                let timing = self.col.timing_today()?;
+                self.col.unbury_if_day_rolled_over(timing)?;
                 match self.normal_sync_inner(state).await {
                     Ok(success) => {
                         self.col.storage.commit_trx()?;
@@ -672,8 +673,11 @@ impl Collection {
 
     pub(crate) async fn full_download_inner(self, server: Box<dyn SyncServer>) -> Result<()> {
         let col_path = self.col_path.clone();
+        let col_folder = col_path
+            .parent()
+            .ok_or_else(|| AnkiError::invalid_input("couldn't get col_folder"))?;
         self.close(false)?;
-        let out_file = server.full_download().await?;
+        let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
         let db = open_and_check_sqlite_file(out_file.path())?;
         db.execute_batch("update col set ls=mod")?;
@@ -879,7 +883,7 @@ impl Collection {
             if proceed {
                 let mut deck = deck.into();
                 self.ensure_deck_name_unique(&mut deck, latest_usn)?;
-                self.storage.add_or_update_deck(&deck)?;
+                self.storage.add_or_update_deck_with_existing_id(&deck)?;
                 self.state.deck_cache.remove(&deck.id);
             }
         }
@@ -901,7 +905,7 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_tags(&self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
+    fn merge_tags(&mut self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
         for tag in tags {
             self.register_tag(&mut Tag::new(tag, latest_usn))?;
         }
@@ -922,7 +926,7 @@ impl Collection {
 
     fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
         for entry in entries {
-            self.storage.add_revlog_entry(&entry)?;
+            self.storage.add_revlog_entry(&entry, false)?;
         }
         Ok(())
     }
@@ -1131,17 +1135,18 @@ impl From<Card> for CardEntry {
 
 impl From<NoteEntry> for Note {
     fn from(e: NoteEntry) -> Self {
-        Note {
-            id: e.id,
-            guid: e.guid,
-            notetype_id: e.ntid,
-            mtime: e.mtime,
-            usn: e.usn,
-            tags: split_tags(&e.tags).map(ToString::to_string).collect(),
-            fields: e.fields.split('\x1f').map(ToString::to_string).collect(),
-            sort_field: None,
-            checksum: None,
-        }
+        let fields = e.fields.split('\x1f').map(ToString::to_string).collect();
+        Note::new_from_storage(
+            e.id,
+            e.guid,
+            e.ntid,
+            e.mtime,
+            e.usn,
+            split_tags(&e.tags).map(ToString::to_string).collect(),
+            fields,
+            None,
+            None,
+        )
     }
 }
 
@@ -1149,12 +1154,12 @@ impl From<Note> for NoteEntry {
     fn from(e: Note) -> Self {
         NoteEntry {
             id: e.id,
+            fields: e.fields().iter().join("\x1f"),
             guid: e.guid,
             ntid: e.notetype_id,
             mtime: e.mtime,
             usn: e.usn,
             tags: join_tags(&e.tags),
-            fields: e.fields.into_iter().join("\x1f"),
             sfld: String::new(),
             csum: String::new(),
             flags: 0,
@@ -1321,7 +1326,7 @@ mod test {
     fn col1_setup(col: &mut Collection) {
         let nt = col.get_notetype_by_name("Basic").unwrap().unwrap();
         let mut note = nt.new_note();
-        note.fields[0] = "1".into();
+        note.set_field(0, "1").unwrap();
         col.add_note(&mut note, DeckID(1)).unwrap();
 
         // // set our schema time back, so when initial server
@@ -1374,8 +1379,10 @@ mod test {
         let mut deck = col1.get_or_create_normal_deck("new deck")?;
 
         // give it a new option group
-        let mut dconf = DeckConf::default();
-        dconf.name = "new dconf".into();
+        let mut dconf = DeckConf {
+            name: "new dconf".into(),
+            ..Default::default()
+        };
         col1.add_or_update_deck_config(&mut dconf, false)?;
         if let DeckKind::Normal(deck) = &mut deck.kind {
             deck.config_id = dconf.id.0;
@@ -1389,18 +1396,21 @@ mod test {
 
         // add another note+card+tag
         let mut note = nt.new_note();
-        note.fields[0] = "2".into();
+        note.set_field(0, "2")?;
         note.tags.push("tag".into());
         col1.add_note(&mut note, deck.id)?;
 
         // mock revlog entry
-        col1.storage.add_revlog_entry(&RevlogEntry {
-            id: TimestampMillis(123),
-            cid: CardID(456),
-            usn: Usn(-1),
-            interval: 10,
-            ..Default::default()
-        })?;
+        col1.storage.add_revlog_entry(
+            &RevlogEntry {
+                id: RevlogID(123),
+                cid: CardID(456),
+                usn: Usn(-1),
+                interval: 10,
+                ..Default::default()
+            },
+            true,
+        )?;
 
         // config + creation
         col1.set_config("test", &"test1")?;
@@ -1483,7 +1493,7 @@ mod test {
 
         // make some modifications
         let mut note = col2.storage.get_note(note.id)?.unwrap();
-        note.fields[1] = "new".into();
+        note.set_field(1, "new")?;
         note.tags.push("tag2".into());
         col2.update_note(&mut note)?;
 
@@ -1521,7 +1531,7 @@ mod test {
         // fixme: inconsistent usn arg
         col1.remove_cards_and_orphaned_notes(&[cardid])?;
         let usn = col1.usn()?;
-        col1.remove_note_only(noteid, usn)?;
+        col1.remove_note_only_undoable(noteid, usn)?;
         col1.remove_decks_and_child_decks(vec![deckid])?;
 
         let out = ctx.normal_sync(&mut col1).await;

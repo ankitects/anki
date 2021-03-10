@@ -208,6 +208,7 @@ impl AnkiError {
                 }
             }
             AnkiError::ParseNumError => i18n.tr(TR::ErrorsParseNumberFail).into(),
+            AnkiError::DeckIsFiltered => i18n.tr(TR::ErrorsFilteredParentDeck).into(),
             _ => format!("{:?}", self),
         }
     }

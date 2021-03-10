@@ -1,16 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::types::Usn;
 use crate::{
     decks::{Deck, DeckID},
     notetype::{NoteType, NoteTypeID},
+    prelude::*,
     storage::SqliteStorage,
     undo::UndoManager,
 };
+use crate::{err::Result, scheduler::queue::CardQueues};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -43,7 +44,7 @@ pub fn open_collection<P: Into<PathBuf>>(
 #[cfg(test)]
 pub fn open_test_collection() -> Collection {
     use crate::config::SchedulerVersion;
-    let col = open_test_collection_with_server(false);
+    let mut col = open_test_collection_with_server(false);
     // our unit tests assume v2 is the default, but at the time of writing v1
     // is still the default
     col.set_scheduler_version_config_key(SchedulerVersion::V2)
@@ -63,6 +64,7 @@ pub struct CollectionState {
     pub(crate) undo: UndoManager,
     pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
     pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
+    pub(crate) card_queues: Option<CardQueues>,
 }
 
 pub struct Collection {
@@ -77,20 +79,15 @@ pub struct Collection {
     pub(crate) state: CollectionState,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum CollectionOp {
-    UpdateCard,
-}
-
 impl Collection {
     /// Execute the provided closure in a transaction, rolling back if
     /// an error is returned.
-    pub(crate) fn transact<F, R>(&mut self, op: Option<CollectionOp>, func: F) -> Result<R>
+    pub(crate) fn transact<F, R>(&mut self, op: Option<UndoableOpKind>, func: F) -> Result<R>
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
         self.storage.begin_rust_trx()?;
-        self.state.undo.begin_step(op);
+        self.begin_undoable_operation(op);
 
         let mut res = func(self);
 
@@ -103,10 +100,10 @@ impl Collection {
         }
 
         if res.is_err() {
-            self.state.undo.discard_step();
+            self.discard_undo_and_study_queues();
             self.storage.rollback_rust_trx()?;
         } else {
-            self.state.undo.end_step();
+            self.end_undoable_operation();
         }
 
         res
@@ -137,5 +134,10 @@ impl Collection {
             col.storage.set_last_sync(col.storage.get_schema_mtime()?)
         })?;
         self.storage.optimize()
+    }
+
+    pub(crate) fn clear_caches(&mut self) {
+        self.state.deck_cache.clear();
+        self.state.notetype_cache.clear();
     }
 }

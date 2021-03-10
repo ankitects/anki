@@ -27,10 +27,11 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import Collection
+from anki.collection import BackendUndo, Checkpoint, Collection, ReviewUndo
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag
+from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
@@ -147,7 +148,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self) -> None:
         self.col = None
         self.setupCrashLog()
-        self.disableGC()
+        self.disable_automatic_garbage_collection()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -505,7 +506,7 @@ class AnkiQt(QMainWindow):
         # make sure we don't get into an inconsistent state if an add-on
         # has broken the deck browser or the did_load hook
         try:
-            self.maybeEnableUndo()
+            self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.moveToState("deckBrowser")
         except Exception as e:
@@ -661,7 +662,7 @@ class AnkiQt(QMainWindow):
 
     def _selectedDeck(self) -> Optional[Deck]:
         did = self.col.decks.selected()
-        if not self.col.decks.nameOrNone(did):
+        if not self.col.decks.name_if_exists(did):
             showInfo(tr(TR.QT_MISC_PLEASE_SELECT_A_DECK))
             return None
         return self.col.decks.get(did)
@@ -687,7 +688,7 @@ class AnkiQt(QMainWindow):
             if not guiOnly:
                 self.col.reset()
             gui_hooks.state_did_reset()
-            self.maybeEnableUndo()
+            self.update_undo_actions()
             self.moveToState(self.state)
 
     def requireReset(
@@ -848,7 +849,10 @@ title="%s" %s>%s</button>""" % (
 
         if elap > 86_400:
             check_and_prompt_for_updates(
-                self, self.addonManager, self.on_updates_installed
+                self,
+                self.addonManager,
+                self.on_updates_installed,
+                requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(intTime())
 
@@ -908,7 +912,7 @@ title="%s" %s>%s</button>""" % (
             self.media_syncer.start()
 
         def on_collection_sync_finished() -> None:
-            self.col.clearUndo()
+            self.col.clear_python_undo()
             self.col.models._clear_cache()
             gui_hooks.sync_did_finish()
             self.reset()
@@ -1021,41 +1025,81 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def onUndo(self) -> None:
-        n = self.col.undoName()
-        if not n:
-            return
-        cid = self.col.undo()
-        if cid and self.state == "review":
-            card = self.col.getCard(cid)
-            self.col.sched.reset()
-            self.reviewer.cardQueue.append(card)
-            self.reviewer.nextCard()
-            gui_hooks.review_did_undo(cid)
-        else:
-            self.reset()
-            tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val=n.lower()))
-            gui_hooks.state_did_revert(n)
-        self.maybeEnableUndo()
+        reviewing = self.state == "review"
+        result = self.col.undo()
+        just_refresh_reviewer = False
 
-    def maybeEnableUndo(self) -> None:
-        if self.col and self.col.undoName():
-            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO2, val=self.col.undoName()))
+        if result is None:
+            # should not happen
+            showInfo("nothing to undo")
+            self.update_undo_actions()
+            return
+
+        elif isinstance(result, ReviewUndo):
+            name = tr(TR.SCHEDULING_REVIEW)
+
+            if reviewing:
+                # push the undone card to the top of the queue
+                cid = result.card.id
+                card = self.col.getCard(cid)
+                self.reviewer.cardQueue.append(card)
+
+                gui_hooks.review_did_undo(cid)
+
+                just_refresh_reviewer = True
+
+        elif isinstance(result, BackendUndo):
+            name = result.name
+
+            if reviewing and self.col.sched.is_2021:
+                # new scheduler will have taken care of updating queue
+                just_refresh_reviewer = True
+
+        elif isinstance(result, Checkpoint):
+            name = result.name
+
+        else:
+            assert_exhaustive(result)
+            assert False
+
+        if just_refresh_reviewer:
+            self.reviewer.nextCard()
+        else:
+            # full queue+gui reset required
+            self.reset()
+
+        tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
+        gui_hooks.state_did_revert(name)
+        self.update_undo_actions()
+
+    def update_undo_actions(self) -> None:
+        """Update menu text and enable/disable menu item as appropriate.
+        Plural as this may handle redo in the future too."""
+        if self.col:
+            status = self.col.undo_status()
+            undo_action = status.undo or None
+        else:
+            undo_action = None
+
+        if undo_action:
+            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            self.form.actionUndo.setText(undo_action)
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
-            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO))
+            self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
     def checkpoint(self, name: str) -> None:
         self.col.save(name)
-        self.maybeEnableUndo()
+        self.update_undo_actions()
 
     def autosave(self) -> None:
-        saved = self.col.autosave()
-        self.maybeEnableUndo()
-        if saved:
-            self.doGC()
+        self.col.autosave()
+        self.update_undo_actions()
+
+    maybeEnableUndo = update_undo_actions
 
     # Other menu operations
     ##########################################################################
@@ -1218,6 +1262,8 @@ title="%s" %s>%s</button>""" % (
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
         # check media sync every 5 minutes
         self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
+        # periodic garbage collection
+        self.progress.timer(15 * 60 * 1000, self.garbage_collect_now, False)
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
         self.progress.timer(1000, lambda: None, True, False)
@@ -1583,21 +1629,38 @@ title="%s" %s>%s</button>""" % (
 
     # GC
     ##########################################################################
-    # ensure gc runs in main thread
+    # The default Python garbage collection can trigger on any thread. This can
+    # cause crashes if Qt objects are garbage-collected, as Qt expects access
+    # only on the main thread. So Anki disables the default GC on startup, and
+    # instead runs it on a timer, and after dialog close.
+    # The gc after dialog close is necessary to free up the memory and extra
+    # processes that webviews spawn, as a lot of the GUI code creates ref cycles.
 
-    def setupDialogGC(self, obj: Any) -> None:
-        qconnect(obj.finished, lambda: self.gcWindow(obj))
+    def garbage_collect_on_dialog_finish(self, dialog: QDialog) -> None:
+        qconnect(
+            dialog.finished, lambda: self.deferred_delete_and_garbage_collect(dialog)
+        )
 
-    def gcWindow(self, obj: Any) -> None:
+    def deferred_delete_and_garbage_collect(self, obj: QObject) -> None:
         obj.deleteLater()
-        self.progress.timer(1000, self.doGC, False, requiresCollection=False)
+        self.progress.timer(
+            1000, self.garbage_collect_now, False, requiresCollection=False
+        )
 
-    def disableGC(self) -> None:
+    def disable_automatic_garbage_collection(self) -> None:
         gc.collect()
         gc.disable()
 
-    def doGC(self) -> None:
+    def garbage_collect_now(self) -> None:
+        # gc.collect() has optional arguments that will cause problems if
+        # it's passed directly to a QTimer, and pylint complains if we
+        # wrap it in a lambda, so we use this trivial wrapper
         gc.collect()
+
+    # legacy aliases
+
+    setupDialogGC = garbage_collect_on_dialog_finish
+    gcWindow = deferred_delete_and_garbage_collect
 
     # Crash log
     ##########################################################################

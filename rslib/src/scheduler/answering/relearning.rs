@@ -18,6 +18,7 @@ impl CardStateUpdater {
         self.card.interval = next.review.scheduled_days;
         self.card.remaining_steps = next.learning.remaining_steps;
         self.card.ctype = CardType::Relearn;
+        self.card.lapses = next.review.lapses;
 
         let interval = next
             .interval_kind()

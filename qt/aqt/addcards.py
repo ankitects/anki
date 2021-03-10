@@ -1,17 +1,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Any, Callable, List, Optional
+
+from typing import Callable, List, Optional
 
 import aqt.deckchooser
 import aqt.editor
 import aqt.forms
-import aqt.modelchooser
 from anki.collection import SearchNode
 from anki.consts import MODEL_CLOZE
-from anki.notes import Note
+from anki.notes import DuplicateOrEmptyResult, Note
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.main import ResetReason
+from aqt.notetypechooser import NoteTypeChooser
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
@@ -34,7 +35,7 @@ from aqt.utils import (
 class AddCards(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
         QDialog.__init__(self, None, Qt.Window)
-        mw.setupDialogGC(self)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
@@ -42,15 +43,13 @@ class AddCards(QDialog):
         disable_help_button(self)
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
-        self.setupChoosers()
+        self.setup_choosers()
         self.setupEditor()
         self.setupButtons()
-        self.onReset()
+        self._load_new_note()
         self.history: List[int] = []
-        self.previousNote: Optional[Note] = None
+        self._last_added_note: Optional[Note] = None
         restoreGeom(self, "add")
-        gui_hooks.state_did_reset.append(self.onReset)
-        gui_hooks.current_note_type_did_change.append(self.onModelChange)
         addCloseShortcut(self)
         gui_hooks.add_cards_did_init(self)
         self.show()
@@ -58,11 +57,20 @@ class AddCards(QDialog):
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
 
-    def setupChoosers(self) -> None:
-        self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.mw, self.form.modelArea, on_activated=self.show_notetype_selector
+    def setup_choosers(self) -> None:
+        defaults = self.mw.col.defaults_for_adding(
+            current_review_card=self.mw.reviewer.card
         )
-        self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
+        self.notetype_chooser = NoteTypeChooser(
+            mw=self.mw,
+            widget=self.form.modelArea,
+            starting_notetype_id=defaults.notetype_id,
+            on_button_activated=self.show_notetype_selector,
+            on_notetype_changed=self.on_notetype_change,
+        )
+        self.deck_chooser = aqt.deckchooser.DeckChooser(
+            self.mw, self.form.deckArea, starting_deck_id=defaults.deck_id
+        )
 
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
@@ -72,7 +80,7 @@ class AddCards(QDialog):
         ar = QDialogButtonBox.ActionRole
         # add
         self.addButton = bb.addButton(tr(TR.ACTIONS_ADD), ar)
-        qconnect(self.addButton.clicked, self.addCards)
+        qconnect(self.addButton.clicked, self.add_current_note)
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         self.addButton.setToolTip(shortcut(tr(TR.ADDING_ADD_SHORTCUT_CTRLANDENTER)))
         # close
@@ -99,42 +107,52 @@ class AddCards(QDialog):
         self.editor.setNote(note, focusTo=0)
 
     def show_notetype_selector(self) -> None:
-        self.editor.saveNow(self.modelChooser.onModelChange)
+        self.editor.saveNow(self.notetype_chooser.choose_notetype)
 
-    def onModelChange(self, unused: Any = None) -> None:
-        oldNote = self.editor.note
-        note = self.mw.col.newNote()
-        self.previousNote = None
-        if oldNote:
-            oldFields = list(oldNote.keys())
-            newFields = list(note.keys())
-            for n, f in enumerate(note.model()["flds"]):
-                fieldName = f["name"]
+    def on_notetype_change(self, notetype_id: int) -> None:
+        # need to adjust current deck?
+        if deck_id := self.mw.col.default_deck_for_notetype(notetype_id):
+            self.deck_chooser.selected_deck_id = deck_id
+
+        # only used for detecting changed sticky fields on close
+        self._last_added_note = None
+
+        # copy fields into new note with the new notetype
+        old = self.editor.note
+        new = self._new_note()
+        if old:
+            old_fields = list(old.keys())
+            new_fields = list(new.keys())
+            for n, f in enumerate(new.model()["flds"]):
+                field_name = f["name"]
                 # copy identical fields
-                if fieldName in oldFields:
-                    note[fieldName] = oldNote[fieldName]
-                elif n < len(oldNote.model()["flds"]):
+                if field_name in old_fields:
+                    new[field_name] = old[field_name]
+                elif n < len(old.model()["flds"]):
                     # set non-identical fields by field index
-                    oldFieldName = oldNote.model()["flds"][n]["name"]
-                    if oldFieldName not in newFields:
-                        note.fields[n] = oldNote.fields[n]
-        self.editor.note = note
-        # When on model change is called, reset is necessarily called.
-        # Reset load note, so it is not required to load it here.
+                    old_field_name = old.model()["flds"][n]["name"]
+                    if old_field_name not in new_fields:
+                        new.fields[n] = old.fields[n]
 
-    def onReset(self, model: None = None, keep: bool = False) -> None:
-        oldNote = self.editor.note
-        note = self.mw.col.newNote()
-        flds = note.model()["flds"]
-        # copy fields from old note
-        if oldNote:
-            for n in range(min(len(note.fields), len(oldNote.fields))):
-                if not keep or flds[n]["sticky"]:
-                    note.fields[n] = oldNote.fields[n]
+        # and update editor state
+        self.editor.note = new
+        self.editor.loadNote()
+
+    def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
+        note = self._new_note()
+        if old_note := sticky_fields_from:
+            flds = note.model()["flds"]
+            # copy fields from old note
+            if old_note:
+                for n in range(min(len(note.fields), len(old_note.fields))):
+                    if flds[n]["sticky"]:
+                        note.fields[n] = old_note.fields[n]
         self.setAndFocusNote(note)
 
-    def removeTempNote(self, note: Note) -> None:
-        print("removeTempNote() will go away")
+    def _new_note(self) -> Note:
+        return self.mw.col.new_note(
+            self.mw.col.models.get(self.notetype_chooser.selected_notetype_id)
+        )
 
     def addHistory(self, note: Note) -> None:
         self.history.insert(0, note.id)
@@ -145,7 +163,7 @@ class AddCards(QDialog):
         m = QMenu(self)
         for nid in self.history:
             if self.mw.col.findNotes(SearchNode(nid=nid)):
-                note = self.mw.col.getNote(nid)
+                note = self.mw.col.get_note(nid)
                 fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
@@ -163,43 +181,55 @@ class AddCards(QDialog):
     def editHistory(self, nid: int) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
-    def addNote(self, note: Note) -> Optional[Note]:
-        note.model()["did"] = self.deckChooser.selectedId()
-        ret = note.dupeOrEmpty()
-        problem = None
-        if ret == 1:
-            problem = tr(TR.ADDING_THE_FIRST_FIELD_IS_EMPTY)
-        problem = gui_hooks.add_cards_will_add_note(problem, note)
-        if problem is not None:
-            showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
-            return None
-        if note.model()["type"] == MODEL_CLOZE:
-            if not note.cloze_numbers_in_fields():
-                if not askUser(tr(TR.ADDING_YOU_HAVE_A_CLOZE_DELETION_NOTE)):
-                    return None
-        self.mw.col.add_note(note, self.deckChooser.selectedId())
-        self.mw.col.clearUndo()
-        self.addHistory(note)
-        self.previousNote = note
-        self.mw.requireReset(reason=ResetReason.AddCardsAddNote, context=self)
-        gui_hooks.add_cards_did_add_note(note)
-        return note
+    def add_current_note(self) -> None:
+        self.editor.saveNow(self._add_current_note)
 
-    def addCards(self) -> None:
-        self.editor.saveNow(self._addCards)
+    def _add_current_note(self) -> None:
+        note = self.editor.note
 
-    def _addCards(self) -> None:
-        self.editor.saveAddModeVars()
-        if not self.addNote(self.editor.note):
+        if not self._note_can_be_added(note):
             return
+
+        target_deck_id = self.deck_chooser.selected_deck_id
+        self.mw.col.add_note(note, target_deck_id)
+
+        # only used for detecting changed sticky fields on close
+        self._last_added_note = note
+
+        self.addHistory(note)
+        self.mw.requireReset(reason=ResetReason.AddCardsAddNote, context=self)
 
         # workaround for PyQt focus bug
         self.editor.hideCompleters()
 
         tooltip(tr(TR.ADDING_ADDED), period=500)
         av_player.stop_and_clear_queue()
-        self.onReset(keep=True)
-        self.mw.col.autosave()
+        self._load_new_note(sticky_fields_from=note)
+        self.mw.col.autosave()  # fixme:
+
+        gui_hooks.add_cards_did_add_note(note)
+
+    def _note_can_be_added(self, note: Note) -> bool:
+        result = note.duplicate_or_empty()
+        if result == DuplicateOrEmptyResult.EMPTY:
+            problem = tr(TR.ADDING_THE_FIRST_FIELD_IS_EMPTY)
+        else:
+            # duplicate entries are allowed these days
+            problem = None
+
+        # filter problem through add-ons
+        problem = gui_hooks.add_cards_will_add_note(problem, note)
+        if problem is not None:
+            showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
+            return False
+
+        # missing cloze deletion?
+        if note.model()["type"] == MODEL_CLOZE:
+            if not note.cloze_numbers_in_fields():
+                if not askUser(tr(TR.ADDING_YOU_HAVE_A_CLOZE_DELETION_NOTE)):
+                    return False
+
+        return True
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         "Show answer on RET or register answer."
@@ -212,12 +242,9 @@ class AddCards(QDialog):
         self.ifCanClose(self._reject)
 
     def _reject(self) -> None:
-        gui_hooks.state_did_reset.remove(self.onReset)
-        gui_hooks.current_note_type_did_change.remove(self.onModelChange)
         av_player.stop_and_clear_queue()
         self.editor.cleanup()
-        self.modelChooser.cleanup()
-        self.deckChooser.cleanup()
+        self.notetype_chooser.cleanup()
         self.mw.maybeReset()
         saveGeom(self, "add")
         aqt.dialogs.markClosed("AddCards")
@@ -225,7 +252,7 @@ class AddCards(QDialog):
 
     def ifCanClose(self, onOk: Callable) -> None:
         def afterSave() -> None:
-            ok = self.editor.fieldsAreBlank(self.previousNote) or askUser(
+            ok = self.editor.fieldsAreBlank(self._last_added_note) or askUser(
                 tr(TR.ADDING_CLOSE_AND_LOSE_CURRENT_INPUT), defaultno=True
             )
             if ok:
@@ -239,3 +266,15 @@ class AddCards(QDialog):
             cb()
 
         self.ifCanClose(doClose)
+
+    # legacy aliases
+
+    addCards = add_current_note
+    _addCards = _add_current_note
+    onModelChange = on_notetype_change
+
+    def addNote(self, note: Note) -> None:
+        print("addNote() is obsolete")
+
+    def removeTempNote(self, note: Note) -> None:
+        print("removeTempNote() will go away")
