@@ -151,7 +151,7 @@ service BackendService {
   rpc GetDeckLegacy(DeckID) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
-  rpc RemoveDecks(DeckIDs) returns (Empty);
+  rpc RemoveDecks(DeckIDs) returns (UInt32);
   rpc DragDropDecks(DragDropDecksIn) returns (Empty);
 
   // deck config

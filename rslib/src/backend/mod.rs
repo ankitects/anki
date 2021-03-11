@@ -662,7 +662,7 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
-    fn remove_decks(&self, input: pb::DeckIDs) -> BackendResult<Empty> {
+    fn remove_decks(&self, input: pb::DeckIDs) -> BackendResult<pb::UInt32> {
         self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckID>>::into(input)))
             .map(Into::into)
     }
@@ -1218,9 +1218,7 @@ impl BackendService for Backend {
     }
 
     fn expunge_tags(&self, tags: pb::String) -> BackendResult<pb::UInt32> {
-        self.with_col(|col| {
-            col.expunge_tags(tags.val.as_str()).map(Into::into)
-        })
+        self.with_col(|col| col.expunge_tags(tags.val.as_str()).map(Into::into))
     }
 
     fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> BackendResult<pb::Empty> {

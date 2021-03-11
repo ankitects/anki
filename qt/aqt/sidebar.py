@@ -1199,22 +1199,20 @@ class SidebarTreeView(QTreeView):
         self.browser.editor.saveNow(self._delete_decks)
 
     def _delete_decks(self) -> None:
+        def do_delete() -> None:
+            return self.mw.col.decks.remove(dids)
+
+        def on_done(fut: Future) -> None:
+            self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
+            self.browser.search()
+            self.browser.model.endReset()
+            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()), parent=self)
+            self.refresh()
+
         dids = self._selected_decks()
-        if self.mw.deckBrowser.ask_delete_decks(dids):
-
-            def do_delete() -> None:
-                return self.mw.col.decks.remove(dids)
-
-            def on_done(fut: Future) -> None:
-                self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
-                self.browser.search()
-                self.browser.model.endReset()
-                self.refresh()
-                res = fut.result()  # Required to check for errors
-
-            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
-            self.browser.model.beginReset()
-            self.mw.taskman.run_in_background(do_delete, on_done)
+        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+        self.browser.model.beginReset()
+        self.mw.taskman.run_in_background(do_delete, on_done)
 
     def rename_node(self, item: SidebarItem, text: str) -> bool:
         new_name = text.replace('"', "")

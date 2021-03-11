@@ -137,8 +137,8 @@ class DeckManager:
         assert cardsToo and childrenToo
         self.remove([did])
 
-    def remove(self, dids: List[int]) -> None:
-        self.col._backend.remove_decks(dids)
+    def remove(self, dids: List[int]) -> int:
+        return self.col._backend.remove_decks(dids)
 
     def all_names_and_ids(
         self, skip_empty_default: bool = False, include_filtered: bool = True

@@ -440,9 +440,10 @@ impl Collection {
         self.storage.get_deck_id(&machine_name)
     }
 
-    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<()> {
+    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<usize> {
         // fixme: vet cache clearing
         self.state.deck_cache.clear();
+        let mut card_count = 0;
 
         self.transact(None, |col| {
             let usn = col.usn()?;
@@ -451,24 +452,28 @@ impl Collection {
                     let child_decks = col.storage.child_decks(&deck)?;
 
                     // top level
-                    col.remove_single_deck(&deck, usn)?;
+                    card_count += col.remove_single_deck(&deck, usn)?;
 
                     // remove children
                     for deck in child_decks {
-                        col.remove_single_deck(&deck, usn)?;
+                        card_count += col.remove_single_deck(&deck, usn)?;
                     }
                 }
             }
             Ok(())
-        })
+        })?;
+        Ok(card_count)
     }
 
-    pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<()> {
+    pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
         // fixme: undo
-        match deck.kind {
+        let card_count = match deck.kind {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
-            DeckKind::Filtered(_) => self.return_all_cards_in_filtered_deck(deck.id)?,
-        }
+            DeckKind::Filtered(_) => {
+                self.return_all_cards_in_filtered_deck(deck.id)?;
+                0
+            }
+        };
         self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
             let mut deck = deck.to_owned();
@@ -480,12 +485,13 @@ impl Collection {
             self.storage.remove_deck(deck.id)?;
             self.storage.add_deck_grave(deck.id, usn)?;
         }
-        Ok(())
+        Ok(card_count)
     }
 
-    fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
+    fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<usize> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
-        self.remove_cards_and_orphaned_notes(&cids)
+        self.remove_cards_and_orphaned_notes(&cids)?;
+        Ok(cids.len())
     }
 
     pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckID, String)>> {
