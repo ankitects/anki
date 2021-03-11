@@ -23,6 +23,10 @@ impl TagsService for Backend {
         })
     }
 
+    fn expunge_tags(&self, tags: pb::String) -> Result<pb::UInt32> {
+        self.with_col(|col| col.expunge_tags(tags.val.as_str()).map(Into::into))
+    }
+
     fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {

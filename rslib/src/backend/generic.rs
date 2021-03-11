@@ -33,6 +33,12 @@ impl From<u32> for pb::UInt32 {
     }
 }
 
+impl From<usize> for pb::UInt32 {
+    fn from(val: usize) -> Self {
+        pb::UInt32 { val: val as u32 }
+    }
+}
+
 impl From<()> for pb::Empty {
     fn from(_val: ()) -> Self {
         pb::Empty {}

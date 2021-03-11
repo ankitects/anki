@@ -18,7 +18,7 @@ import traceback
 from contextlib import contextmanager
 from hashlib import sha1
 from html.entities import name2codepoint
-from typing import Any, Iterable, Iterator, List, Match, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, List, Match, Optional, Union
 
 from anki.dbproxy import DBProxy
 
@@ -372,3 +372,26 @@ def pointVersion() -> int:
     from anki.buildinfo import version
 
     return int(version.split(".")[-1])
+
+
+# Legacy support
+##############################################################################
+
+
+def legacy_func(sub: Optional[str] = None) -> Callable:
+    """Print a deprecation warning for the decorated callable recommending the use of
+    'sub' instead, if provided.
+    """
+    if sub:
+        hint = f", use '{sub}' instead"
+    else:
+        hint = ""
+
+    def decorater(func: Callable) -> Callable:
+        def decorated_func(*args: Any, **kwargs: Any) -> Any:
+            print(f"'{func.__name__}' is deprecated{hint}.")
+            return func(*args, **kwargs)
+
+        return decorated_func
+
+    return decorater

@@ -1,4 +1,6 @@
 actions-add = Add
+actions-all-selected = All selected
+actions-any-selected = Any selected
 actions-blue-flag = Blue Flag
 actions-cancel = Cancel
 actions-choose = Choose
@@ -30,6 +32,7 @@ actions-replay-audio = Replay Audio
 actions-reposition = Reposition
 actions-save = Save
 actions-search = Search
+actions-select = Select
 actions-shortcut-key = Shortcut key: { $val }
 actions-suspend-card = Suspend Card
 actions-set-due-date = Set Due Date

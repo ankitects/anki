@@ -488,3 +488,11 @@ impl From<ParseIntError> for AnkiError {
         AnkiError::ParseNumError
     }
 }
+
+impl From<regex::Error> for AnkiError {
+    fn from(_err: regex::Error) -> Self {
+        AnkiError::InvalidInput {
+            info: "invalid regex".into(),
+        }
+    }
+}

@@ -14,6 +14,11 @@ browsing-card = Card
 browsing-card-list = Card List
 browsing-card-state = Card State
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
+browsing-cards-deleted =
+    { $count ->
+        [one] { $count } card deleted.
+       *[other] { $count } cards deleted.
+    }
 browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
@@ -21,6 +26,7 @@ browsing-change-note-type2 = Change Note Type...
 browsing-change-to = Change { $val } to:
 browsing-clear-unused = Clear Unused
 browsing-clear-unused-tags = Clear Unused Tags
+browsing-confirm-saved-search-overwrite = A saved search with the name { $name } already exists. Do you want to overwrite it?
 browsing-created = Created
 browsing-ctrlandshiftande = Ctrl+Shift+E
 browsing-current-deck = Current Deck
@@ -70,14 +76,11 @@ browsing-question = Question
 browsing-queue-bottom = Queue bottom: { $val }
 browsing-queue-top = Queue top: { $val }
 browsing-randomize-order = Randomize order
-browsing-remove-current-filter = Remove Current Filter...
-browsing-remove-from-your-saved-searches = Remove { $val } from your saved searches?
 browsing-remove-tags = Remove Tags...
 browsing-replace-with = <b>Replace With</b>:
 browsing-reposition = Reposition...
 browsing-reposition-new-cards = Reposition New Cards
 browsing-reschedule = Reschedule
-browsing-save-current-filter = Save Current Filter...
 browsing-search-bar-hint = Search cards/notes (type text, then press Enter)
 browsing-search-in = Search in:
 browsing-search-within-formatting-slow = Search within formatting (slow)
@@ -112,7 +115,14 @@ browsing-note-deleted =
         [one] { $count } note deleted.
        *[other] { $count } notes deleted.
     }
+browsing-notes-updated =
+    { $count ->
+        [one] { $count } note updated.
+       *[other] { $count } notes updated.
+    }
 browsing-window-title = Browse ({ $selected } of { $total } cards selected)
+browsing-sidebar-expand = Expand
+browsing-sidebar-collapse = Collapse
 browsing-sidebar-expand-children = Expand Children
 browsing-sidebar-collapse-children = Collapse Children
 browsing-sidebar-decks = Decks
