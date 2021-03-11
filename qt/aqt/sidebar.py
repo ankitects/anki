@@ -593,9 +593,9 @@ class SidebarTreeView(QTreeView):
                 return
             self.refresh()
             self.mw.deckBrowser.refresh()
+            self.mw.update_undo_actions()
 
         def on_save() -> None:
-            self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
             self.browser.model.beginReset()
             self.mw.taskman.with_progress(
                 lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
@@ -1130,7 +1130,6 @@ class SidebarTreeView(QTreeView):
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         deck = self.mw.col.decks.get(item.id)
         new_name = item.name_prefix + new_name
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         try:
             self.mw.col.decks.rename(deck, new_name)
         except DeckIsFilteredError as err:
@@ -1141,6 +1140,7 @@ class SidebarTreeView(QTreeView):
             and other.id == item.id
         )
         self.mw.deckBrowser.refresh()
+        self.mw.update_undo_actions()
 
     def remove_tags(self, item: SidebarItem) -> None:
         self.browser.editor.saveNow(lambda: self._remove_tags(item))
@@ -1210,7 +1210,6 @@ class SidebarTreeView(QTreeView):
             self.refresh()
 
         dids = self._selected_decks()
-        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
         self.browser.model.beginReset()
         self.mw.taskman.with_progress(do_delete, on_done)
 

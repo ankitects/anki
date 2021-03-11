@@ -6,32 +6,14 @@ use std::{env, fmt::Write};
 
 struct CustomGenerator {}
 
-fn write_method_enum(buf: &mut String, service: &prost_build::Service) {
-    buf.push_str(
-        r#"
-use num_enum::TryFromPrimitive;
-#[derive(PartialEq,TryFromPrimitive)]
-#[repr(u32)]
-pub enum BackendMethod {
-"#,
-    );
-    for (idx, method) in service.methods.iter().enumerate() {
-        writeln!(buf, "    {} = {},", method.proto_name, idx + 1).unwrap();
-    }
-    buf.push_str("}\n\n");
-}
-
 fn write_method_trait(buf: &mut String, service: &prost_build::Service) {
     buf.push_str(
         r#"
-use prost::Message;
-pub type BackendResult<T> = std::result::Result<T, crate::err::AnkiError>;
-pub trait BackendService {
-    fn run_command_bytes2_inner(&self, method: u32, input: &[u8]) -> std::result::Result<Vec<u8>, crate::err::AnkiError> {
+pub trait Service {
+    fn run_method(&self, method: u32, input: &[u8]) -> Result<Vec<u8>> {
         match method {
 "#,
     );
-
     for (idx, method) in service.methods.iter().enumerate() {
         write!(
             buf,
@@ -39,7 +21,7 @@ pub trait BackendService {
             "{idx} => {{ let input = {input_type}::decode(input)?;\n",
             "let output = self.{rust_method}(input)?;\n",
             "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes)?; Ok(out_bytes) }}, "),
-            idx = idx + 1,
+            idx = idx,
             input_type = method.input_type,
             rust_method = method.name
         )
@@ -58,7 +40,7 @@ pub trait BackendService {
             buf,
             concat!(
                 "    fn {method_name}(&self, input: {input_type}) -> ",
-                "BackendResult<{output_type}>;\n"
+                "Result<{output_type}>;\n"
             ),
             method_name = method.name,
             input_type = method.input_type,
@@ -71,8 +53,18 @@ pub trait BackendService {
 
 impl prost_build::ServiceGenerator for CustomGenerator {
     fn generate(&mut self, service: prost_build::Service, buf: &mut String) {
-        write_method_enum(buf, &service);
+        write!(
+            buf,
+            "pub mod {name}_service {{
+                use super::*;
+                use prost::Message;
+                use crate::err::Result;
+                ",
+            name = service.name.replace("Service", "").to_ascii_lowercase()
+        )
+        .unwrap();
         write_method_trait(buf, &service);
+        buf.push('}');
     }
 }
 

@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod server;
+
 use std::sync::Arc;
 
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
@@ -12,12 +14,20 @@ use crate::{
     media::MediaManager,
     prelude::*,
     sync::{
-        get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
-        SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
+        get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,
+        LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
     },
 };
 
 use super::{progress::AbortHandleSlot, Backend};
+pub(super) use pb::sync_service::Service as SyncService;
+
+#[derive(Default)]
+pub(super) struct SyncState {
+    remote_sync_status: RemoteSyncStatus,
+    media_sync_abort: Option<AbortHandle>,
+    http_sync_server: Option<LocalServer>,
+}
 
 #[derive(Default, Debug)]
 pub(super) struct RemoteSyncStatus {
@@ -70,6 +80,59 @@ impl From<pb::SyncAuth> for SyncAuth {
     }
 }
 
+impl SyncService for Backend {
+    fn sync_media(&self, input: pb::SyncAuth) -> Result<pb::Empty> {
+        self.sync_media_inner(input).map(Into::into)
+    }
+
+    fn abort_sync(&self, _input: pb::Empty) -> Result<pb::Empty> {
+        if let Some(handle) = self.sync_abort.lock().unwrap().take() {
+            handle.abort();
+        }
+        Ok(().into())
+    }
+
+    /// Abort the media sync. Does not wait for completion.
+    fn abort_media_sync(&self, _input: pb::Empty) -> Result<pb::Empty> {
+        let guard = self.state.lock().unwrap();
+        if let Some(handle) = &guard.sync.media_sync_abort {
+            handle.abort();
+        }
+        Ok(().into())
+    }
+
+    fn before_upload(&self, _input: pb::Empty) -> Result<pb::Empty> {
+        self.with_col(|col| col.before_upload().map(Into::into))
+    }
+
+    fn sync_login(&self, input: pb::SyncLoginIn) -> Result<pb::SyncAuth> {
+        self.sync_login_inner(input)
+    }
+
+    fn sync_status(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusOut> {
+        self.sync_status_inner(input)
+    }
+
+    fn sync_collection(&self, input: pb::SyncAuth) -> Result<pb::SyncCollectionOut> {
+        self.sync_collection_inner(input)
+    }
+
+    fn full_upload(&self, input: pb::SyncAuth) -> Result<pb::Empty> {
+        self.full_sync_inner(input, true)?;
+        Ok(().into())
+    }
+
+    fn full_download(&self, input: pb::SyncAuth) -> Result<pb::Empty> {
+        self.full_sync_inner(input, false)?;
+        Ok(().into())
+    }
+
+    fn sync_server_method(&self, input: pb::SyncServerMethodIn) -> Result<pb::Json> {
+        let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
+        self.sync_server_method_inner(req).map(Into::into)
+    }
+}
+
 impl Backend {
     fn sync_abort_handle(
         &self,
@@ -104,11 +167,11 @@ impl Backend {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         {
             let mut guard = self.state.lock().unwrap();
-            if guard.media_sync_abort.is_some() {
+            if guard.sync.media_sync_abort.is_some() {
                 // media sync is already active
                 return Ok(());
             } else {
-                guard.media_sync_abort = Some(abort_handle);
+                guard.sync.media_sync_abort = Some(abort_handle);
             }
         }
 
@@ -131,7 +194,7 @@ impl Backend {
         let result = rt.block_on(abortable_sync);
 
         // mark inactive
-        self.state.lock().unwrap().media_sync_abort.take();
+        self.state.lock().unwrap().sync.media_sync_abort.take();
 
         // return result
         match result {
@@ -146,14 +209,14 @@ impl Backend {
     /// Abort the media sync. Won't return until aborted.
     pub(super) fn abort_media_sync_and_wait(&self) {
         let guard = self.state.lock().unwrap();
-        if let Some(handle) = &guard.media_sync_abort {
+        if let Some(handle) = &guard.sync.media_sync_abort {
             handle.abort();
             self.progress_state.lock().unwrap().want_abort = true;
         }
         drop(guard);
 
         // block until it aborts
-        while self.state.lock().unwrap().media_sync_abort.is_some() {
+        while self.state.lock().unwrap().sync.media_sync_abort.is_some() {
             std::thread::sleep(std::time::Duration::from_millis(100));
             self.progress_state.lock().unwrap().want_abort = true;
         }
@@ -185,8 +248,8 @@ impl Backend {
         // return cached server response if only a short time has elapsed
         {
             let guard = self.state.lock().unwrap();
-            if guard.remote_sync_status.last_check.elapsed_secs() < 300 {
-                return Ok(guard.remote_sync_status.last_response.into());
+            if guard.sync.remote_sync_status.last_check.elapsed_secs() < 300 {
+                return Ok(guard.sync.remote_sync_status.last_response.into());
             }
         }
 
@@ -201,9 +264,9 @@ impl Backend {
             // On startup, the sync status check will block on network access, and then automatic syncing begins,
             // taking hold of the mutex. By the time we reach here, our network status may be out of date,
             // so we discard it if stale.
-            if guard.remote_sync_status.last_check < time_at_check_begin {
-                guard.remote_sync_status.last_check = time_at_check_begin;
-                guard.remote_sync_status.last_response = response;
+            if guard.sync.remote_sync_status.last_check < time_at_check_begin {
+                guard.sync.remote_sync_status.last_check = time_at_check_begin;
+                guard.sync.remote_sync_status.last_response = response;
             }
         }
 
@@ -247,6 +310,7 @@ impl Backend {
         self.state
             .lock()
             .unwrap()
+            .sync
             .remote_sync_status
             .update(output.required.into());
         Ok(output.into())
@@ -302,6 +366,7 @@ impl Backend {
                     self.state
                         .lock()
                         .unwrap()
+                        .sync
                         .remote_sync_status
                         .update(pb::sync_status_out::Required::NoChanges);
                 }

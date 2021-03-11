@@ -11,7 +11,9 @@ undo-action-redone = { $action } redone
 
 undo-answer-card = Answer Card
 undo-unbury-unsuspend = Unbury/Unsuspend
+undo-add-deck = Add Deck
 undo-add-note = Add Note
 undo-update-tag = Update Tag
 undo-update-note = Update Note
 undo-update-card = Update Card
+undo-update-deck = Update Deck

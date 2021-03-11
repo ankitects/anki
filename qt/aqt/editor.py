@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 import aqt
 import aqt.sound
 from anki.cards import Card
-from anki.collection import SearchNode
+from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
@@ -781,7 +781,7 @@ class Editor:
         filter = f"{tr(TR.EDITING_MEDIA)} ({extension_filter})"
 
         def accept(file: str) -> None:
-            self.addMedia(file, canDelete=True)
+            self.addMedia(file)
 
         file = getFile(
             parent=self.widget,
@@ -793,24 +793,18 @@ class Editor:
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
+        """canDelete is a legacy arg and is ignored."""
         try:
-            html = self._addMedia(path, canDelete)
+            html = self._addMedia(path)
         except Exception as e:
             showWarning(str(e))
             return
         self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
-        "Add to media folder and return local img or sound tag."
+        """Add to media folder and return local img or sound tag."""
         # copy to media folder
         fname = self.mw.col.media.addFile(path)
-        # remove original?
-        if canDelete and self.mw.pm.profile["deleteMedia"]:
-            if os.path.abspath(fname) != os.path.abspath(path):
-                try:
-                    os.unlink(path)
-                except:
-                    pass
         # return a local html link
         return self.fnameToLink(fname)
 
@@ -1091,7 +1085,6 @@ class EditorWebView(AnkiWebView):
     def __init__(self, parent: QWidget, editor: Editor) -> None:
         AnkiWebView.__init__(self, title="editor")
         self.editor = editor
-        self.strip = self.editor.mw.pm.profile["stripHTML"]
         self.setAcceptDrops(True)
         self._markInternal = False
         clip = self.editor.mw.app.clipboard()
@@ -1110,10 +1103,12 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.Copy)
 
     def _wantsExtendedPaste(self) -> bool:
-        extended = not (self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier)
-        if self.editor.mw.pm.profile.get("pasteInvert", False):
-            extended = not extended
-        return extended
+        strip_html = self.editor.mw.col.get_config_bool(
+            Config.Bool.PASTE_STRIPS_FORMATTING
+        )
+        if self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier:
+            strip_html = not strip_html
+        return strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
         extended = self._wantsExtendedPaste()
@@ -1240,7 +1235,7 @@ class EditorWebView(AnkiWebView):
             return None
         im = QImage(mime.imageData())
         uname = namedtmp("paste")
-        if self.editor.mw.pm.profile.get("pastePNG", False):
+        if self.editor.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
             ext = ".png"
             im.save(uname + ext, None, 50)
         else:

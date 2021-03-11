@@ -48,6 +48,10 @@ impl SqliteStorage {
         self.remove_grave(nid.0, GraveKind::Note)
     }
 
+    pub(crate) fn remove_deck_grave(&self, did: DeckID) -> Result<()> {
+        self.remove_grave(did.0, GraveKind::Deck)
+    }
+
     pub(crate) fn pending_graves(&self, pending_usn: Usn) -> Result<Graves> {
         let mut stmt = self.db.prepare(&format!(
             "select oid, type from graves where {}",

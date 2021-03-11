@@ -259,7 +259,6 @@ class DeckBrowser:
         self.mw.onExport(did=did)
 
     def _rename(self, did: int) -> None:
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         deck = self.mw.col.decks.get(did)
         oldName = deck["name"]
         newName = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=oldName)
@@ -272,6 +271,7 @@ class DeckBrowser:
         except DeckIsFilteredError as err:
             showWarning(str(err))
             return
+        self.mw.update_undo_actions()
         self.show()
 
     def _options(self, did: str) -> None:
@@ -288,23 +288,31 @@ class DeckBrowser:
         self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: int, target: int) -> None:
-        try:
+        def process() -> None:
             self.mw.col.decks.drag_drop_decks([source], target)
-        except Exception as e:
-            showWarning(str(e))
-            return
-        gui_hooks.sidebar_should_refresh_decks()
-        self.show()
+
+        def on_done(fut: Future) -> None:
+            try:
+                fut.result()
+            except Exception as e:
+                showWarning(str(e))
+                return
+
+            self.mw.update_undo_actions()
+            gui_hooks.sidebar_should_refresh_decks()
+            self.show()
+
+        self.mw.taskman.with_progress(process, on_done)
 
     def _delete(self, did: int) -> None:
         def do_delete() -> int:
             return self.mw.col.decks.remove([did])
 
         def on_done(fut: Future) -> None:
+            self.mw.update_undo_actions()
             self.show()
             tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()))
 
-        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
         self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons
@@ -385,7 +393,7 @@ class DeckBrowser:
             defaultno=True,
         ):
             prefs = self.mw.col.get_preferences()
-            prefs.sched.new_timezone = False
+            prefs.scheduling.new_timezone = False
             self.mw.col.set_preferences(prefs)
 
         showInfo(tr(TR.SCHEDULING_UPDATE_DONE))
