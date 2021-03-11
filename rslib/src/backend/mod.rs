@@ -3,8 +3,10 @@
 
 mod adding;
 mod card;
+mod cardrendering;
 mod config;
 mod dbproxy;
+mod deckconfig;
 mod decks;
 mod err;
 mod generic;
@@ -14,38 +16,40 @@ mod progress;
 mod scheduler;
 mod search;
 mod sync;
+mod tags;
 
 use self::{
+    cardrendering::CardRenderingService,
     config::ConfigService,
+    deckconfig::DeckConfigService,
     decks::DecksService,
     notes::NotesService,
     notetypes::NoteTypesService,
     scheduler::SchedulingService,
     sync::{SyncService, SyncState},
+    tags::TagsService,
 };
 use crate::backend_proto::backend_service::Service as BackendService;
 
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
-    backend_proto::{AddOrUpdateDeckConfigLegacyIn, RenderedTemplateReplacement},
+    backend_proto::RenderedTemplateReplacement,
     card::{Card, CardID},
     collection::{open_collection, Collection},
-    deckconf::{DeckConf, DeckConfSchema11},
     err::{AnkiError, Result},
     i18n::I18n,
-    latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
     log::default_logger,
     markdown::render_markdown,
     media::check::MediaChecker,
     media::MediaManager,
     notes::NoteID,
-    notetype::{CardTemplateSchema11, RenderCardOutput},
+    notetype::RenderCardOutput,
     scheduler::timespan::{answer_button_time, time_span},
     search::{concatenate_searches, replace_search_node, write_nodes, Node},
     template::RenderedNode,
-    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
+    text::sanitize_html_no_images,
     undo::UndoableOpKind,
 };
 use fluent::FluentValue;
@@ -106,113 +110,6 @@ impl BackendService for Backend {
     fn set_wants_abort(&self, _input: pb::Empty) -> Result<pb::Empty> {
         self.progress_state.lock().unwrap().want_abort = true;
         Ok(().into())
-    }
-
-    // card rendering
-
-    fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> Result<pb::ExtractAvTagsOut> {
-        let (text, tags) = extract_av_tags(&input.text, input.question_side);
-        let pt_tags = tags
-            .into_iter()
-            .map(|avtag| match avtag {
-                AVTag::SoundOrVideo(file) => pb::AvTag {
-                    value: Some(pb::av_tag::Value::SoundOrVideo(file)),
-                },
-                AVTag::TextToSpeech {
-                    field_text,
-                    lang,
-                    voices,
-                    other_args,
-                    speed,
-                } => pb::AvTag {
-                    value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                        field_text,
-                        lang,
-                        voices,
-                        other_args,
-                        speed,
-                    })),
-                },
-            })
-            .collect();
-
-        Ok(pb::ExtractAvTagsOut {
-            text: text.into(),
-            av_tags: pt_tags,
-        })
-    }
-
-    fn extract_latex(&self, input: pb::ExtractLatexIn) -> Result<pb::ExtractLatexOut> {
-        let func = if input.expand_clozes {
-            extract_latex_expanding_clozes
-        } else {
-            extract_latex
-        };
-        let (text, extracted) = func(&input.text, input.svg);
-
-        Ok(pb::ExtractLatexOut {
-            text,
-            latex: extracted
-                .into_iter()
-                .map(|e: ExtractedLatex| pb::ExtractedLatex {
-                    filename: e.fname,
-                    latex_body: e.latex,
-                })
-                .collect(),
-        })
-    }
-
-    fn get_empty_cards(&self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
-        self.with_col(|col| {
-            let mut empty = col.empty_cards()?;
-            let report = col.empty_cards_report(&mut empty)?;
-
-            let mut outnotes = vec![];
-            for (_ntid, notes) in empty {
-                outnotes.extend(notes.into_iter().map(|e| {
-                    pb::empty_cards_report::NoteWithEmptyCards {
-                        note_id: e.nid.0,
-                        will_delete_note: e.empty.len() == e.current_count,
-                        card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
-                    }
-                }))
-            }
-            Ok(pb::EmptyCardsReport {
-                report,
-                notes: outnotes,
-            })
-        })
-    }
-
-    fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
-        self.with_col(|col| {
-            col.render_existing_card(CardID(input.card_id), input.browser)
-                .map(Into::into)
-        })
-    }
-
-    fn render_uncommitted_card(
-        &self,
-        input: pb::RenderUncommittedCardIn,
-    ) -> Result<pb::RenderCardOut> {
-        let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
-        let template = schema11.into();
-        let mut note = input
-            .note
-            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
-            .into();
-        let ord = input.card_ord as u16;
-        let fill_empty = input.fill_empty;
-        self.with_col(|col| {
-            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
-                .map(Into::into)
-        })
-    }
-
-    fn strip_av_tags(&self, input: pb::String) -> Result<pb::String> {
-        Ok(pb::String {
-            val: strip_av_tags(&input.val).into(),
-        })
     }
 
     // searching
@@ -382,57 +279,6 @@ impl BackendService for Backend {
             })
         })
         .map(Into::into)
-    }
-
-    // deck config
-    //----------------------------------------------------
-
-    fn add_or_update_deck_config_legacy(
-        &self,
-        input: AddOrUpdateDeckConfigLegacyIn,
-    ) -> Result<pb::DeckConfigId> {
-        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
-        let mut conf: DeckConf = conf.into();
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
-                Ok(pb::DeckConfigId { dcid: conf.id.0 })
-            })
-        })
-        .map(Into::into)
-    }
-
-    fn all_deck_config_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let conf: Vec<DeckConfSchema11> = col
-                .storage
-                .all_deck_config()?
-                .into_iter()
-                .map(Into::into)
-                .collect();
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-        .map(Into::into)
-    }
-
-    fn get_deck_config_legacy(&self, input: pb::DeckConfigId) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let conf = col.get_deck_config(input.into(), true)?.unwrap();
-            let conf: DeckConfSchema11 = conf.into();
-            Ok(serde_json::to_vec(&conf)?)
-        })
-        .map(Into::into)
-    }
-
-    fn new_deck_config_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
-        serde_json::to_vec(&DeckConfSchema11::default())
-            .map_err(Into::into)
-            .map(Into::into)
-    }
-
-    fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(input.into())))
-            .map(Into::into)
     }
 
     // cards
@@ -605,59 +451,6 @@ impl BackendService for Backend {
         }
         Ok(text.into())
     }
-
-    // tags
-    //-------------------------------------------------------------------
-
-    fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.clear_unused_tags().map(Into::into)))
-    }
-
-    fn all_tags(&self, _input: pb::Empty) -> Result<pb::StringList> {
-        Ok(pb::StringList {
-            vals: self.with_col(|col| {
-                Ok(col
-                    .storage
-                    .all_tags()?
-                    .into_iter()
-                    .map(|t| t.name)
-                    .collect())
-            })?,
-        })
-    }
-
-    fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.set_tag_expanded(&input.name, input.expanded)?;
-                Ok(().into())
-            })
-        })
-    }
-
-    fn clear_tag(&self, tag: pb::String) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage.clear_tag_and_children(tag.val.as_str())?;
-                Ok(().into())
-            })
-        })
-    }
-
-    fn tag_tree(&self, _input: pb::Empty) -> Result<pb::TagTreeNode> {
-        self.with_col(|col| col.tag_tree())
-    }
-
-    fn drag_drop_tags(&self, input: pb::DragDropTagsIn) -> Result<pb::Empty> {
-        let source_tags = input.source_tags;
-        let target_tag = if input.target_tag.is_empty() {
-            None
-        } else {
-            Some(input.target_tag)
-        };
-        self.with_col(|col| col.drag_drop_tags(&source_tags, target_tag))
-            .map(Into::into)
-    }
 }
 
 impl Backend {
@@ -693,9 +486,14 @@ impl Backend {
                 pb::ServiceIndex::Backend => BackendService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
                 pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
-                pb::ServiceIndex::Notetypes => NoteTypesService::run_method(self, method, input),
+                pb::ServiceIndex::NoteTypes => NoteTypesService::run_method(self, method, input),
                 pb::ServiceIndex::Config => ConfigService::run_method(self, method, input),
                 pb::ServiceIndex::Sync => SyncService::run_method(self, method, input),
+                pb::ServiceIndex::Tags => TagsService::run_method(self, method, input),
+                pb::ServiceIndex::DeckConfig => DeckConfigService::run_method(self, method, input),
+                pb::ServiceIndex::CardRendering => {
+                    CardRenderingService::run_method(self, method, input)
+                }
             })
             .map_err(|err| {
                 let backend_err = anki_error_to_proto_error(err, &self.i18n);

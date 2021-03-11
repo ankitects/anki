@@ -160,7 +160,9 @@ def render_service(
 
 for service in pb.ServiceIndex.DESCRIPTOR.values:
     # SERVICE_INDEX_TEST -> _TESTSERVICE
-    service_var = service.name.replace("SERVICE_INDEX", "") + "SERVICE"
+    service_var = (
+        "_" + service.name.replace("SERVICE_INDEX", "").replace("_", "") + "SERVICE"
+    )
     service_obj = getattr(pb, service_var)
     service_index = service.number
     render_service(service_obj, service_index)
