@@ -1217,10 +1217,9 @@ impl BackendService for Backend {
         })
     }
 
-    fn expunge_tags(&self, tags: pb::String) -> BackendResult<pb::Empty> {
+    fn expunge_tags(&self, tags: pb::String) -> BackendResult<pb::UInt32> {
         self.with_col(|col| {
-            col.expunge_tags(tags.val.as_str())?;
-            Ok(().into())
+            col.expunge_tags(tags.val.as_str()).map(Into::into)
         })
     }
 

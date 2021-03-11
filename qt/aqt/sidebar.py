@@ -27,6 +27,7 @@ from aqt.utils import (
     show_invalid_search_error,
     showInfo,
     showWarning,
+    tooltip,
     tr,
 )
 
@@ -1146,16 +1147,14 @@ class SidebarTreeView(QTreeView):
 
     def _remove_tags(self, _item: SidebarItem) -> None:
         tags = self._selected_tags()
-        if not self.ask_remove_tags(tags):
-            return
 
         def do_remove() -> None:
-            self.col._backend.expunge_tags(" ".join(tags))
+            return self.col._backend.expunge_tags(" ".join(tags))
 
         def on_done(fut: Future) -> None:
             self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
             self.browser.model.endReset()
-            fut.result()
+            tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=fut.result()), parent=self)
             self.refresh()
 
         self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
@@ -1331,19 +1330,3 @@ class SidebarTreeView(QTreeView):
             for item in self._selected_items()
             if item.item_type == SidebarItemType.TAG
         ]
-
-    def ask_remove_tags(self, tags: List[str]) -> bool:
-        count = len(
-            self.col.find_notes(
-                self.col.build_search_string(
-                    *(SearchNode(tag=tag) for tag in tags), joiner="OR"
-                )
-            )
-        )
-        if not count:
-            return True
-        if len(tags) == 1:
-            return askUser(
-                tr(TR.BROWSING_SIDEBAR_REMOVE_TAG, name=tags[0], count=count)
-            )
-        return askUser(tr(TR.BROWSING_SIDEBAR_REMOVE_TAGS, count=count))
