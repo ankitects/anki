@@ -76,33 +76,31 @@ message DeckConfigID {
   int64 dcid = 1;
 }
 
-// New style RPC definitions
+// Backend methods
 ///////////////////////////////////////////////////////////
 
-service BackendService {
-  rpc LatestProgress(Empty) returns (Progress);
-  rpc SetWantsAbort(Empty) returns (Empty);
+/// while the protobuf descriptors expose the order services are defined in,
+/// that information is not available in prost, so we define an enum to make
+/// sure all clients agree on the service index
+enum ServiceIndex {
+  SERVICE_INDEX_SCHEDULING = 0;
+  SERVICE_INDEX_DECKS = 1;
+  SERVICE_INDEX_NOTES = 2;
+  SERVICE_INDEX_SYNC = 3;
+  SERVICE_INDEX_NOTE_TYPES = 4;
+  SERVICE_INDEX_CONFIG = 5;
+  SERVICE_INDEX_CARD_RENDERING = 6;
+  SERVICE_INDEX_DECK_CONFIG = 7;
+  SERVICE_INDEX_TAGS = 8;
+  SERVICE_INDEX_SEARCH = 9;
+  SERVICE_INDEX_STATS = 10;
+  SERVICE_INDEX_MEDIA = 11;
+  SERVICE_INDEX_I18N = 12;
+  SERVICE_INDEX_COLLECTION = 13;
+  SERVICE_INDEX_CARDS = 14;
+}
 
-  // card rendering
-
-  rpc ExtractAVTags(ExtractAVTagsIn) returns (ExtractAVTagsOut);
-  rpc ExtractLatex(ExtractLatexIn) returns (ExtractLatexOut);
-  rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
-  rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
-  rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
-  rpc StripAVTags(String) returns (String);
-
-  // searching
-
-  rpc BuildSearchString(SearchNode) returns (String);
-  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
-  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
-  rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
-  rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
-  rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
-
-  // scheduling
-
+service SchedulingService {
   rpc SchedTimingToday(Empty) returns (SchedTimingTodayOut);
   rpc StudiedToday(Empty) returns (String);
   rpc StudiedTodayMessage(StudiedTodayMessageIn) returns (String);
@@ -125,24 +123,9 @@ service BackendService {
   rpc AnswerCard(AnswerCardIn) returns (Empty);
   rpc UpgradeScheduler(Empty) returns (Empty);
   rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
+}
 
-  // stats
-
-  rpc CardStats(CardID) returns (String);
-  rpc Graphs(GraphsIn) returns (GraphsOut);
-  rpc GetGraphPreferences(Empty) returns (GraphPreferences);
-  rpc SetGraphPreferences(GraphPreferences) returns (Empty);
-
-  // media
-
-  rpc CheckMedia(Empty) returns (CheckMediaOut);
-  rpc TrashMediaFiles(TrashMediaFilesIn) returns (Empty);
-  rpc AddMediaFile(AddMediaFileIn) returns (String);
-  rpc EmptyTrash(Empty) returns (Empty);
-  rpc RestoreTrash(Empty) returns (Empty);
-
-  // decks
-
+service DecksService {
   rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckID);
   rpc DeckTree(DeckTreeIn) returns (DeckTreeNode);
   rpc DeckTreeLegacy(Empty) returns (Json);
@@ -153,25 +136,10 @@ service BackendService {
   rpc NewDeckLegacy(Bool) returns (Json);
   rpc RemoveDecks(DeckIDs) returns (UInt32);
   rpc DragDropDecks(DragDropDecksIn) returns (Empty);
+  rpc RenameDeck(RenameDeckIn) returns (Empty);
+}
 
-  // deck config
-
-  rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
-      returns (DeckConfigID);
-  rpc AllDeckConfigLegacy(Empty) returns (Json);
-  rpc GetDeckConfigLegacy(DeckConfigID) returns (Json);
-  rpc NewDeckConfigLegacy(Empty) returns (Json);
-  rpc RemoveDeckConfig(DeckConfigID) returns (Empty);
-
-  // cards
-
-  rpc GetCard(CardID) returns (Card);
-  rpc UpdateCard(UpdateCardIn) returns (Empty);
-  rpc RemoveCards(RemoveCardsIn) returns (Empty);
-  rpc SetDeck(SetDeckIn) returns (Empty);
-
-  // notes
-
+service NotesService {
   rpc NewNote(NoteTypeID) returns (Note);
   rpc AddNote(AddNoteIn) returns (NoteID);
   rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
@@ -186,28 +154,9 @@ service BackendService {
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
   rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
   rpc CardsOfNote(NoteID) returns (CardIDs);
+}
 
-  // note types
-
-  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
-  rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
-  rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
-  rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
-  rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
-  rpc GetNotetypeIDByName(String) returns (NoteTypeID);
-  rpc RemoveNotetype(NoteTypeID) returns (Empty);
-
-  // collection
-
-  rpc OpenCollection(OpenCollectionIn) returns (Empty);
-  rpc CloseCollection(CloseCollectionIn) returns (Empty);
-  rpc CheckDatabase(Empty) returns (CheckDatabaseOut);
-  rpc GetUndoStatus(Empty) returns (UndoStatus);
-  rpc Undo(Empty) returns (UndoStatus);
-  rpc Redo(Empty) returns (UndoStatus);
-
-  // sync
-
+service SyncService {
   rpc SyncMedia(SyncAuth) returns (Empty);
   rpc AbortSync(Empty) returns (Empty);
   rpc AbortMediaSync(Empty) returns (Empty);
@@ -218,26 +167,9 @@ service BackendService {
   rpc FullUpload(SyncAuth) returns (Empty);
   rpc FullDownload(SyncAuth) returns (Empty);
   rpc SyncServerMethod(SyncServerMethodIn) returns (Json);
+}
 
-  // translation/messages/text manipulation
-
-  rpc TranslateString(TranslateStringIn) returns (String);
-  rpc FormatTimespan(FormatTimespanIn) returns (String);
-  rpc I18nResources(Empty) returns (Json);
-  rpc RenderMarkdown(RenderMarkdownIn) returns (String);
-
-  // tags
-
-  rpc ClearUnusedTags(Empty) returns (Empty);
-  rpc AllTags(Empty) returns (StringList);
-  rpc ExpungeTags(String) returns (UInt32);
-  rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
-  rpc ClearTag(String) returns (Empty);
-  rpc TagTree(Empty) returns (TagTreeNode);
-  rpc DragDropTags(DragDropTagsIn) returns (Empty);
-
-  // config
-
+service ConfigService {
   rpc GetConfigJson(String) returns (Json);
   rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
   rpc RemoveConfig(String) returns (Empty);
@@ -246,11 +178,95 @@ service BackendService {
   rpc SetConfigBool(SetConfigBoolIn) returns (Empty);
   rpc GetConfigString(Config.String) returns (String);
   rpc SetConfigString(SetConfigStringIn) returns (Empty);
-
-  // preferences
-
   rpc GetPreferences(Empty) returns (Preferences);
   rpc SetPreferences(Preferences) returns (Empty);
+}
+
+service NoteTypesService {
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
+  rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
+  rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
+  rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
+  rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
+  rpc GetNotetypeIDByName(String) returns (NoteTypeID);
+  rpc RemoveNotetype(NoteTypeID) returns (Empty);
+}
+
+service CardRenderingService {
+  rpc ExtractAVTags(ExtractAVTagsIn) returns (ExtractAVTagsOut);
+  rpc ExtractLatex(ExtractLatexIn) returns (ExtractLatexOut);
+  rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
+  rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
+  rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
+  rpc StripAVTags(String) returns (String);
+  rpc RenderMarkdown(RenderMarkdownIn) returns (String);
+}
+
+service DeckConfigService {
+  rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
+      returns (DeckConfigID);
+  rpc AllDeckConfigLegacy(Empty) returns (Json);
+  rpc GetDeckConfigLegacy(DeckConfigID) returns (Json);
+  rpc NewDeckConfigLegacy(Empty) returns (Json);
+  rpc RemoveDeckConfig(DeckConfigID) returns (Empty);
+}
+
+service TagsService {
+  rpc ClearUnusedTags(Empty) returns (Empty);
+  rpc AllTags(Empty) returns (StringList);
+  rpc ExpungeTags(String) returns (UInt32);
+  rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
+  rpc ClearTag(String) returns (Empty);
+  rpc TagTree(Empty) returns (TagTreeNode);
+  rpc DragDropTags(DragDropTagsIn) returns (Empty);
+}
+
+service SearchService {
+  rpc BuildSearchString(SearchNode) returns (String);
+  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
+  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
+  rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
+  rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
+  rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
+}
+
+service StatsService {
+  rpc CardStats(CardID) returns (String);
+  rpc Graphs(GraphsIn) returns (GraphsOut);
+  rpc GetGraphPreferences(Empty) returns (GraphPreferences);
+  rpc SetGraphPreferences(GraphPreferences) returns (Empty);
+}
+
+service MediaService {
+  rpc CheckMedia(Empty) returns (CheckMediaOut);
+  rpc TrashMediaFiles(TrashMediaFilesIn) returns (Empty);
+  rpc AddMediaFile(AddMediaFileIn) returns (String);
+  rpc EmptyTrash(Empty) returns (Empty);
+  rpc RestoreTrash(Empty) returns (Empty);
+}
+
+service I18nService {
+  rpc TranslateString(TranslateStringIn) returns (String);
+  rpc FormatTimespan(FormatTimespanIn) returns (String);
+  rpc I18nResources(Empty) returns (Json);
+}
+
+service CollectionService {
+  rpc OpenCollection(OpenCollectionIn) returns (Empty);
+  rpc CloseCollection(CloseCollectionIn) returns (Empty);
+  rpc CheckDatabase(Empty) returns (CheckDatabaseOut);
+  rpc GetUndoStatus(Empty) returns (UndoStatus);
+  rpc Undo(Empty) returns (UndoStatus);
+  rpc Redo(Empty) returns (UndoStatus);
+  rpc LatestProgress(Empty) returns (Progress);
+  rpc SetWantsAbort(Empty) returns (Empty);
+}
+
+service CardsService {
+  rpc GetCard(CardID) returns (Card);
+  rpc UpdateCard(UpdateCardIn) returns (Empty);
+  rpc RemoveCards(RemoveCardsIn) returns (Empty);
+  rpc SetDeck(SetDeckIn) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
@@ -1027,30 +1043,41 @@ message CheckDatabaseOut {
   repeated string problems = 1;
 }
 
-message CollectionSchedulingSettings {
-  enum NewReviewMix {
-    DISTRIBUTE = 0;
-    REVIEWS_FIRST = 1;
-    NEW_FIRST = 2;
+message Preferences {
+  message Scheduling {
+    enum NewReviewMix {
+      DISTRIBUTE = 0;
+      REVIEWS_FIRST = 1;
+      NEW_FIRST = 2;
+    }
+
+    // read only
+    uint32 scheduler_version = 1;
+
+    uint32 rollover = 2;
+    uint32 learn_ahead_secs = 3;
+    NewReviewMix new_review_mix = 4;
+
+    // v2 only
+    bool new_timezone = 5;
+    bool day_learn_first = 6;
+  }
+  message Reviewing {
+    bool hide_audio_play_buttons = 1;
+    bool interrupt_audio_when_answering = 2;
+    bool show_remaining_due_counts = 3;
+    bool show_intervals_on_buttons = 4;
+    uint32 time_limit_secs = 5;
+  }
+  message Editing {
+    bool adding_defaults_to_current_deck = 1;
+    bool paste_images_as_png = 2;
+    bool paste_strips_formatting = 3;
   }
 
-  // read only
-  uint32 scheduler_version = 1;
-
-  uint32 rollover = 2;
-  uint32 learn_ahead_secs = 3;
-  NewReviewMix new_review_mix = 4;
-  bool show_remaining_due_counts = 5;
-  bool show_intervals_on_buttons = 6;
-  uint32 time_limit_secs = 7;
-
-  // v2 only
-  bool new_timezone = 8;
-  bool day_learn_first = 9;
-}
-
-message Preferences {
-  CollectionSchedulingSettings sched = 1;
+  Scheduling scheduling = 1;
+  Reviewing reviewing = 2;
+  Editing editing = 3;
 }
 
 message ClozeNumbersInNoteOut {
@@ -1280,6 +1307,10 @@ message Config {
       COLLAPSE_FLAGS = 8;
       SCHED_2021 = 9;
       ADDING_DEFAULTS_TO_CURRENT_DECK = 10;
+      HIDE_AUDIO_PLAY_BUTTONS = 11;
+      INTERRUPT_AUDIO_WHEN_ANSWERING = 12;
+      PASTE_IMAGES_AS_PNG = 13;
+      PASTE_STRIPS_FORMATTING = 14;
     }
     Key key = 1;
   }
@@ -1422,4 +1453,9 @@ message DefaultsForAddingIn {
 message DeckAndNotetype {
   int64 deck_id = 1;
   int64 notetype_id = 2;
+}
+
+message RenameDeckIn {
+  int64 deck_id = 1;
+  string new_name = 2;
 }

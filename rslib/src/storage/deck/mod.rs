@@ -138,8 +138,8 @@ impl SqliteStorage {
         }
     }
 
-    /// Used for syncing; will keep existing ID. Shouldn't be used to add new decks locally,
-    /// since it does not allocate an id.
+    /// Used for syncing&undo; will keep existing ID. Shouldn't be used to add
+    /// new decks locally, since it does not allocate an id.
     pub(crate) fn add_or_update_deck_with_existing_id(&self, deck: &Deck) -> Result<()> {
         if deck.id.0 == 0 {
             return Err(AnkiError::invalid_input("deck with id 0"));

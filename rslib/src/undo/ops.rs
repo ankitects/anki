@@ -5,15 +5,20 @@ use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum UndoableOpKind {
-    UpdateCard,
+    AddDeck,
+    AddNote,
     AnswerCard,
     Bury,
+    RemoveDeck,
+    RemoveNote,
+    RenameDeck,
     Suspend,
     UnburyUnsuspend,
-    AddNote,
-    RemoveNote,
-    UpdateTag,
+    UpdateCard,
+    UpdateDeck,
     UpdateNote,
+    UpdatePreferences,
+    UpdateTag,
 }
 
 impl UndoableOpKind {
@@ -25,15 +30,20 @@ impl UndoableOpKind {
 impl Collection {
     pub fn describe_op_kind(&self, op: UndoableOpKind) -> String {
         let key = match op {
-            UndoableOpKind::UpdateCard => TR::UndoUpdateCard,
+            UndoableOpKind::AddDeck => TR::UndoAddDeck,
+            UndoableOpKind::AddNote => TR::UndoAddNote,
             UndoableOpKind::AnswerCard => TR::UndoAnswerCard,
             UndoableOpKind::Bury => TR::StudyingBury,
+            UndoableOpKind::RemoveDeck => TR::DecksDeleteDeck,
+            UndoableOpKind::RemoveNote => TR::StudyingDeleteNote,
+            UndoableOpKind::RenameDeck => TR::ActionsRenameDeck,
             UndoableOpKind::Suspend => TR::StudyingSuspend,
             UndoableOpKind::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
-            UndoableOpKind::AddNote => TR::UndoAddNote,
-            UndoableOpKind::RemoveNote => TR::StudyingDeleteNote,
-            UndoableOpKind::UpdateTag => TR::UndoUpdateTag,
+            UndoableOpKind::UpdateCard => TR::UndoUpdateCard,
+            UndoableOpKind::UpdateDeck => TR::UndoUpdateDeck,
             UndoableOpKind::UpdateNote => TR::UndoUpdateNote,
+            UndoableOpKind::UpdatePreferences => TR::PreferencesPreferences,
+            UndoableOpKind::UpdateTag => TR::UndoUpdateTag,
         };
 
         self.i18n.tr(key).to_string()
