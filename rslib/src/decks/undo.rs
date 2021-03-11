@@ -22,7 +22,7 @@ impl Collection {
                     .storage
                     .get_deck(deck.id)?
                     .ok_or_else(|| AnkiError::invalid_input("deck disappeared"))?;
-                self.update_single_deck_undoable(&mut *deck, &current)
+                self.update_single_deck_undoable(&mut *deck, current)
             }
             UndoableDeckChange::Removed(deck) => self.restore_deleted_deck(*deck),
             UndoableDeckChange::GraveAdded(e) => self.remove_deck_grave(e.0, e.1),
@@ -52,10 +52,10 @@ impl Collection {
     pub(super) fn update_single_deck_undoable(
         &mut self,
         deck: &mut Deck,
-        original: &Deck,
+        original: Deck,
     ) -> Result<()> {
         self.state.deck_cache.clear();
-        self.save_undo(UndoableDeckChange::Updated(Box::new(original.clone())));
+        self.save_undo(UndoableDeckChange::Updated(Box::new(original)));
         self.storage.update_deck(deck)
     }
 

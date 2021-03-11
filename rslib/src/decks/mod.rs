@@ -292,30 +292,39 @@ impl Collection {
         })
     }
 
-    pub(crate) fn update_deck(&mut self, deck: &mut Deck) -> Result<()> {
+    pub fn update_deck(&mut self, deck: &mut Deck) -> Result<()> {
         self.transact(Some(UndoableOpKind::UpdateDeck), |col| {
-            let usn = col.usn()?;
-            col.prepare_deck_for_update(deck, usn)?;
-            deck.set_modified(usn);
-            if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
-                let name_changed = existing_deck.name != deck.name;
-                if name_changed {
-                    // match closest parent name
-                    col.match_or_create_parents(deck, usn)?;
-                    // rename children
-                    col.rename_child_decks(&existing_deck, &deck.name, usn)?;
-                }
-                col.update_single_deck_undoable(deck, &existing_deck)?;
-                if name_changed {
-                    // after updating, we need to ensure all grandparents exist, which may not be the case
-                    // in the parent->child case
-                    col.create_missing_parents(&deck.name, usn)?;
-                }
-                Ok(())
-            } else {
-                Err(AnkiError::invalid_input("updating non-existent deck"))
-            }
+            let existing_deck = col.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
+            col.update_deck_inner(deck, existing_deck, col.usn()?)
         })
+    }
+
+    pub fn rename_deck(&mut self, did: DeckID, new_human_name: &str) -> Result<()> {
+        self.transact(Some(UndoableOpKind::RenameDeck), |col| {
+            let existing_deck = col.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+            let mut deck = existing_deck.clone();
+            deck.name = human_deck_name_to_native(new_human_name);
+            col.update_deck_inner(&mut deck, existing_deck, col.usn()?)
+        })
+    }
+
+    fn update_deck_inner(&mut self, deck: &mut Deck, original: Deck, usn: Usn) -> Result<()> {
+        self.prepare_deck_for_update(deck, usn)?;
+        deck.set_modified(usn);
+        let name_changed = original.name != deck.name;
+        if name_changed {
+            // match closest parent name
+            self.match_or_create_parents(deck, usn)?;
+            // rename children
+            self.rename_child_decks(&original, &deck.name, usn)?;
+        }
+        self.update_single_deck_undoable(deck, original)?;
+        if name_changed {
+            // after updating, we need to ensure all grandparents exist, which may not be the case
+            // in the parent->child case
+            self.create_missing_parents(&deck.name, usn)?;
+        }
+        Ok(())
     }
 
     /// Add/update a single deck when syncing/importing. Ensures name is unique
@@ -377,7 +386,7 @@ impl Collection {
             let new_name = format!("{}\x1f{}", new_name, child_only.join("\x1f"));
             child.name = new_name;
             child.set_modified(usn);
-            self.update_single_deck_undoable(&mut child, &original)?;
+            self.update_single_deck_undoable(&mut child, original)?;
         }
 
         Ok(())
@@ -600,7 +609,7 @@ impl Collection {
         deck.reset_stats_if_day_changed(today);
         mutator(&mut deck.common);
         deck.set_modified(usn);
-        self.update_single_deck_undoable(deck, &original)
+        self.update_single_deck_undoable(deck, original)
     }
 
     pub fn drag_drop_decks(
@@ -760,6 +769,23 @@ mod test {
         middle.name = "other".into();
         col.add_or_update_deck(&mut middle)?;
         assert_eq!(middle.name, "other+");
+
+        // public function takes human name
+        col.rename_deck(middle.id, "one::two")?;
+        assert_eq!(
+            sorted_names(&col),
+            vec![
+                "Default",
+                "one",
+                "one::two",
+                "one::two::baz",
+                "one::two::baz2",
+                "other",
+                "quux",
+                "quux::foo",
+                "quux::foo::baz",
+            ]
+        );
 
         Ok(())
     }

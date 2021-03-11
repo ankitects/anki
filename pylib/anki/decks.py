@@ -250,11 +250,13 @@ class DeckManager:
             deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
         )
 
-    def rename(self, g: Deck, newName: str) -> None:
+    def rename(self, deck: Union[Deck, int], new_name: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
-        g["name"] = newName
-        self.update(g, preserve_usn=False)
-        return
+        if isinstance(deck, int):
+            deck_id = deck
+        else:
+            deck_id = deck["id"]
+        self.col._backend.rename_deck(deck_id=deck_id, new_name=new_name)
 
     # Drag/drop
     #############################################################
