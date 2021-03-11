@@ -5,7 +5,7 @@ import { nodeIsInline, caretToEnd } from "./helpers";
 import { bridgeCommand } from "./lib";
 import { saveField } from "./changeTimer";
 import { filterHTML } from "./htmlFilter";
-import { updateButtonState } from "./toolbar";
+import { updateButtonState, disableButtons } from "./toolbar";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
 
@@ -302,6 +302,11 @@ export function setFields(fields: [string, string][]): void {
     forEditorField(fields, (field, [name, fieldContent]) =>
         field.initialize(name, color, fieldContent)
     );
+
+    if (!getCurrentField()) {
+        // when initial focus of the window is not on editor (e.g. browser)
+        disableButtons();
+    }
 }
 
 export function setBackgrounds(cols: ("dupe" | "")[]) {
