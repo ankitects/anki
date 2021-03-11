@@ -617,9 +617,8 @@ impl Collection {
         source_decks: &[DeckID],
         target: Option<DeckID>,
     ) -> Result<()> {
-        self.state.deck_cache.clear();
         let usn = self.usn()?;
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOpKind::RenameDeck), |col| {
             let target_deck;
             let mut target_name = None;
             if let Some(target) = target {
@@ -634,18 +633,25 @@ impl Collection {
 
             for source in source_decks {
                 if let Some(mut source) = col.storage.get_deck(*source)? {
-                    let orig = source.clone();
                     let new_name = drag_drop_deck_name(&source.name, target_name);
                     if new_name == source.name {
                         continue;
                     }
+                    let orig = source.clone();
+
+                    // this is basically update_deck_inner(), except:
+                    // - we skip the normalization in prepare_for_update()
+                    // - we skip the match_or_create_parents() step
+
+                    source.set_modified(usn);
                     source.name = new_name;
                     col.ensure_deck_name_unique(&mut source, usn)?;
                     col.rename_child_decks(&orig, &source.name, usn)?;
-                    source.set_modified(usn);
-                    col.storage.update_deck(&source)?;
+                    col.update_single_deck_undoable(&mut source, orig)?;
+
                     // after updating, we need to ensure all grandparents exist, which may not be the case
                     // in the parent->child case
+                    // FIXME: maybe we only need to do this once at the end of the loop?
                     col.create_missing_parents(&source.name, usn)?;
                 }
             }

@@ -287,13 +287,21 @@ class DeckBrowser:
         self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: int, target: int) -> None:
-        try:
+        def process() -> None:
             self.mw.col.decks.drag_drop_decks([source], target)
-        except Exception as e:
-            showWarning(str(e))
-            return
-        gui_hooks.sidebar_should_refresh_decks()
-        self.show()
+
+        def on_done(fut: Future) -> None:
+            try:
+                fut.result()
+            except Exception as e:
+                showWarning(str(e))
+                return
+
+            self.mw.update_undo_actions()
+            gui_hooks.sidebar_should_refresh_decks()
+            self.show()
+
+        self.mw.taskman.with_progress(process, on_done)
 
     def ask_delete_deck(self, did: int) -> bool:
         deck = self.mw.col.decks.get(did)
