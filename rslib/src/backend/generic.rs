@@ -63,18 +63,6 @@ impl From<pb::NoteTypeId> for NoteTypeID {
     }
 }
 
-impl From<pb::DeckId> for DeckID {
-    fn from(did: pb::DeckId) -> Self {
-        DeckID(did.did)
-    }
-}
-
-impl From<DeckID> for pb::DeckId {
-    fn from(did: DeckID) -> Self {
-        pb::DeckId { did: did.0 }
-    }
-}
-
 impl From<pb::DeckConfigId> for DeckConfID {
     fn from(dcid: pb::DeckConfigId) -> Self {
         DeckConfID(dcid.dcid)

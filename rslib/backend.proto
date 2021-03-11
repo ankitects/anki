@@ -132,6 +132,7 @@ service DecksService {
   rpc NewDeckLegacy(Bool) returns (Json);
   rpc RemoveDeck(DeckID) returns (Empty);
   rpc DragDropDecks(DragDropDecksIn) returns (Empty);
+  rpc RenameDeck(RenameDeckIn) returns (Empty);
 }
 
 service NotesService {
@@ -1447,4 +1448,9 @@ message DefaultsForAddingIn {
 message DeckAndNotetype {
   int64 deck_id = 1;
   int64 notetype_id = 2;
+}
+
+message RenameDeckIn {
+  int64 deck_id = 1;
+  string new_name = 2;
 }

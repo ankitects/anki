@@ -124,4 +124,21 @@ impl DecksService for Backend {
         self.with_col(|col| col.drag_drop_decks(&source_dids, target_did))
             .map(Into::into)
     }
+
+    fn rename_deck(&self, input: pb::RenameDeckIn) -> Result<pb::Empty> {
+        self.with_col(|col| col.rename_deck(input.deck_id.into(), &input.new_name))
+            .map(Into::into)
+    }
+}
+
+impl From<pb::DeckId> for DeckID {
+    fn from(did: pb::DeckId) -> Self {
+        DeckID(did.did)
+    }
+}
+
+impl From<DeckID> for pb::DeckId {
+    fn from(did: DeckID) -> Self {
+        pb::DeckId { did: did.0 }
+    }
 }
