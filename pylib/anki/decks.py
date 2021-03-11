@@ -13,7 +13,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
+from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_bytes
 
 # public exports
 DeckTreeNode = _pb.DeckTreeNode
@@ -130,6 +130,7 @@ class DeckManager:
 
         return deck["id"]
 
+    @legacy_func(sub="remove")
     def rem(self, did: int, cardsToo: bool = True, childrenToo: bool = True) -> None:
         "Remove the deck. If cardsToo, delete any cards inside."
         if isinstance(did, str):
