@@ -1159,7 +1159,7 @@ class SidebarTreeView(QTreeView):
 
         self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
         self.browser.model.beginReset()
-        self.mw.taskman.run_in_background(do_remove, on_done)
+        self.mw.taskman.with_progress(do_remove, on_done)
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
         new_name = new_name.replace(" ", "")
@@ -1193,7 +1193,7 @@ class SidebarTreeView(QTreeView):
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
-        self.mw.taskman.run_in_background(do_rename, on_done)
+        self.mw.taskman.with_progress(do_rename, on_done)
 
     def delete_decks(self, _item: SidebarItem) -> None:
         self.browser.editor.saveNow(self._delete_decks)
@@ -1212,7 +1212,7 @@ class SidebarTreeView(QTreeView):
         dids = self._selected_decks()
         self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
         self.browser.model.beginReset()
-        self.mw.taskman.run_in_background(do_delete, on_done)
+        self.mw.taskman.with_progress(do_delete, on_done)
 
     def rename_node(self, item: SidebarItem, text: str) -> bool:
         new_name = text.replace('"', "")
