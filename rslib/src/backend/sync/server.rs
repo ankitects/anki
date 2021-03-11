@@ -4,7 +4,7 @@
 use std::{path::PathBuf, sync::MutexGuard};
 use tokio::runtime::Runtime;
 
-use super::{Backend, BackendState};
+use crate::backend::{Backend, BackendState};
 use crate::{
     err::SyncErrorKind,
     prelude::*,
@@ -24,16 +24,12 @@ impl Backend {
         F: FnOnce(&mut LocalServer) -> Result<T>,
     {
         let mut state_guard = self.state.lock().unwrap();
-        let out =
-            func(
-                state_guard
-                    .http_sync_server
-                    .as_mut()
-                    .ok_or_else(|| AnkiError::SyncError {
-                        kind: SyncErrorKind::SyncNotStarted,
-                        info: Default::default(),
-                    })?,
-            );
+        let out = func(state_guard.sync.http_sync_server.as_mut().ok_or_else(|| {
+            AnkiError::SyncError {
+                kind: SyncErrorKind::SyncNotStarted,
+                info: Default::default(),
+            }
+        })?);
         if out.is_err() {
             self.abort_and_restore_collection(Some(state_guard))
         }
@@ -82,6 +78,7 @@ impl Backend {
     fn take_server(&self, state_guard: Option<MutexGuard<BackendState>>) -> Result<LocalServer> {
         let mut state_guard = state_guard.unwrap_or_else(|| self.state.lock().unwrap());
         state_guard
+            .sync
             .http_sync_server
             .take()
             .ok_or_else(|| AnkiError::SyncError {
@@ -94,7 +91,7 @@ impl Backend {
         // place col into new server
         let server = self.col_into_server()?;
         let mut state_guard = self.state.lock().unwrap();
-        assert!(state_guard.http_sync_server.replace(server).is_none());
+        assert!(state_guard.sync.http_sync_server.replace(server).is_none());
         drop(state_guard);
 
         self.with_sync_server(|server| {
