@@ -443,7 +443,8 @@ class SidebarTreeView(QTreeView):
         super().mouseReleaseEvent(event)
         if event.button() == Qt.LeftButton:
             idx = self.indexAt(event.pos())
-            self._on_click_index(idx)
+            if idx == self.currentIndex():
+                self._on_click_index(idx)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
