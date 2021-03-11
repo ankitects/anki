@@ -88,6 +88,9 @@ enum ServiceIndex {
   SERVICE_INDEX_CARD_RENDERING = 6;
   SERVICE_INDEX_DECK_CONFIG = 7;
   SERVICE_INDEX_TAGS = 8;
+  SERVICE_INDEX_SEARCH = 9;
+  SERVICE_INDEX_STATS = 10;
+  SERVICE_INDEX_MEDIA = 11;
   SERVICE_INDEX_BACKEND = 99;
 }
 
@@ -209,33 +212,33 @@ service TagsService {
   rpc DragDropTags(DragDropTagsIn) returns (Empty);
 }
 
-service BackendService {
-  rpc LatestProgress(Empty) returns (Progress);
-  rpc SetWantsAbort(Empty) returns (Empty);
-
-  // searching
-
+service SearchService {
   rpc BuildSearchString(SearchNode) returns (String);
   rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
+}
 
-  // stats
-
+service StatsService {
   rpc CardStats(CardID) returns (String);
   rpc Graphs(GraphsIn) returns (GraphsOut);
   rpc GetGraphPreferences(Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (Empty);
+}
 
-  // media
-
+service MediaService {
   rpc CheckMedia(Empty) returns (CheckMediaOut);
   rpc TrashMediaFiles(TrashMediaFilesIn) returns (Empty);
   rpc AddMediaFile(AddMediaFileIn) returns (String);
   rpc EmptyTrash(Empty) returns (Empty);
   rpc RestoreTrash(Empty) returns (Empty);
+}
+
+service BackendService {
+  rpc LatestProgress(Empty) returns (Progress);
+  rpc SetWantsAbort(Empty) returns (Empty);
 
   // cards
 
