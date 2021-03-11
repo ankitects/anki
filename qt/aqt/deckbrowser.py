@@ -23,6 +23,7 @@ from aqt.utils import (
     shortcut,
     showInfo,
     showWarning,
+    tooltip,
     tr,
 )
 
@@ -303,34 +304,16 @@ class DeckBrowser:
 
         self.mw.taskman.with_progress(process, on_done)
 
-    def ask_delete_deck(self, did: int) -> bool:
-        deck = self.mw.col.decks.get(did)
-        if deck["dyn"]:
-            return True
-
-        count = self.mw.col.decks.card_count(did, include_subdecks=True)
-        if not count:
-            return True
-
-        extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
-        if askUser(
-            f"{tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck['name'])} {extra}"
-        ):
-            return True
-        return False
-
     def _delete(self, did: int) -> None:
-        if self.ask_delete_deck(did):
+        def do_delete() -> int:
+            return self.mw.col.decks.remove([did])
 
-            def do_delete() -> None:
-                return self.mw.col.decks.rem(did, True)
+        def on_done(fut: Future) -> None:
+            self.mw.update_undo_actions()
+            self.show()
+            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()))
 
-            def on_done(fut: Future) -> None:
-                self.mw.update_undo_actions()
-                self.show()
-                res = fut.result()  # Required to check for errors
-
-            self.mw.taskman.with_progress(do_delete, on_done)
+        self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons
     ######################################################################

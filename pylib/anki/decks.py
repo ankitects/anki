@@ -13,7 +13,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
+from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_bytes
 
 # public exports
 DeckTreeNode = _pb.DeckTreeNode
@@ -130,12 +130,16 @@ class DeckManager:
 
         return deck["id"]
 
+    @legacy_func(sub="remove")
     def rem(self, did: int, cardsToo: bool = True, childrenToo: bool = True) -> None:
         "Remove the deck. If cardsToo, delete any cards inside."
         if isinstance(did, str):
             did = int(did)
         assert cardsToo and childrenToo
-        self.col._backend.remove_deck(did)
+        self.remove([did])
+
+    def remove(self, dids: List[int]) -> int:
+        return self.col._backend.remove_decks(dids)
 
     def all_names_and_ids(
         self, skip_empty_default: bool = False, include_filtered: bool = True
@@ -212,10 +216,15 @@ class DeckManager:
     def count(self) -> int:
         return len(self.all_names_and_ids())
 
-    def card_count(self, did: int, include_subdecks: bool) -> Any:
-        dids: List[int] = [did]
+    def card_count(
+        self, dids: Union[int, Iterable[int]], include_subdecks: bool
+    ) -> Any:
+        if isinstance(dids, int):
+            dids = {dids}
+        else:
+            dids = set(dids)
         if include_subdecks:
-            dids += [r[1] for r in self.children(did)]
+            dids.update([child[1] for did in dids for child in self.children(did)])
         count = self.col.db.scalar(
             "select count() from cards where did in {0} or "
             "odid in {0}".format(ids2str(dids))

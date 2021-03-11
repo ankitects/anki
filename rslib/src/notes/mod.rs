@@ -191,6 +191,12 @@ impl Note {
             .collect()
     }
 
+    pub(crate) fn remove_tags(&mut self, re: &Regex) -> bool {
+        let old_len = self.tags.len();
+        self.tags.retain(|tag| !re.is_match(tag));
+        old_len > self.tags.len()
+    }
+
     pub(crate) fn replace_tags<T: Replacer>(&mut self, re: &Regex, mut repl: T) -> bool {
         let mut changed = false;
         for tag in &mut self.tags {

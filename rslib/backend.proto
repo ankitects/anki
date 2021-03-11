@@ -68,6 +68,10 @@ message DeckID {
   int64 did = 1;
 }
 
+message DeckIDs {
+  repeated int64 dids = 1;
+}
+
 message DeckConfigID {
   int64 dcid = 1;
 }
@@ -130,7 +134,7 @@ service DecksService {
   rpc GetDeckLegacy(DeckID) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
-  rpc RemoveDeck(DeckID) returns (Empty);
+  rpc RemoveDecks(DeckIDs) returns (UInt32);
   rpc DragDropDecks(DragDropDecksIn) returns (Empty);
   rpc RenameDeck(RenameDeckIn) returns (Empty);
 }
@@ -210,6 +214,7 @@ service DeckConfigService {
 service TagsService {
   rpc ClearUnusedTags(Empty) returns (Empty);
   rpc AllTags(Empty) returns (StringList);
+  rpc ExpungeTags(String) returns (UInt32);
   rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);

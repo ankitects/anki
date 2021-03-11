@@ -1,5 +1,4 @@
 decks-add-new-deck-ctrlandn = Add New Deck (Ctrl+N)
-decks-are-you-sure-you-wish-to = Are you sure you wish to delete { $val }?
 decks-build = Build
 decks-cards-selected-by = cards selected by
 decks-create-deck = Create Deck
@@ -32,8 +31,3 @@ decks-study = Study
 decks-study-deck = Study Deck
 decks-the-provided-search-did-not-match = The provided search did not match any cards. Would you like to revise it?
 decks-unmovable-cards = Show any excluded cards
-decks-it-has-card =
-    { $count ->
-        [one] It has { $count } card.
-       *[other] It has { $count } cards.
-    }

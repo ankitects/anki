@@ -205,6 +205,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Gustavo Costa",
             "余时行",
             "叶峻峣",
+            "RumovZ",
         )
     )
 

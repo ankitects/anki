@@ -466,44 +466,53 @@ impl Collection {
         self.storage.get_deck_id(&machine_name)
     }
 
-    pub fn remove_deck_and_child_decks(&mut self, did: DeckID) -> Result<()> {
-        self.transact(Some(UndoableOpKind::RemoveDeck), |col| {
+    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<usize> {
+        let mut card_count = 0;
+        self.transact(None, |col| {
             let usn = col.usn()?;
-            if let Some(deck) = col.storage.get_deck(did)? {
-                let child_decks = col.storage.child_decks(&deck)?;
+            for did in dids {
+                if let Some(deck) = col.storage.get_deck(*did)? {
+                    let child_decks = col.storage.child_decks(&deck)?;
 
-                // top level
-                col.remove_single_deck(&deck, usn)?;
+                    // top level
+                    card_count += col.remove_single_deck(&deck, usn)?;
 
-                // remove children
-                for deck in child_decks {
-                    col.remove_single_deck(&deck, usn)?;
+                    // remove children
+                    for deck in child_decks {
+                        card_count += col.remove_single_deck(&deck, usn)?;
+                    }
                 }
             }
             Ok(())
-        })
+        })?;
+        Ok(card_count)
     }
 
-    pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<()> {
-        match deck.kind {
+    pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
+        let card_count = match deck.kind {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
-            DeckKind::Filtered(_) => self.return_all_cards_in_filtered_deck(deck.id)?,
-        }
+            DeckKind::Filtered(_) => {
+                self.return_all_cards_in_filtered_deck(deck.id)?;
+                0
+            }
+        };
         self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
             // if deleting the default deck, ensure there's a new one, and avoid the grave
             let mut deck = deck.to_owned();
             deck.name = self.i18n.tr(TR::DeckConfigDefaultName).into();
             deck.set_modified(usn);
-            self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
+            self.add_or_update_single_deck_with_existing_id(&mut deck, usn)?;
         } else {
-            self.remove_deck_and_add_grave_undoable(deck.clone(), usn)
+            self.remove_deck_and_add_grave_undoable(deck.clone(), usn)?;
         }
+        Ok(card_count)
     }
 
-    fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
+    fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<usize> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
-        self.remove_cards_and_orphaned_notes(&cids)
+        self.remove_cards_and_orphaned_notes(&cids)?;
+        Ok(cids.len())
     }
 
     pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckID, String)>> {
@@ -820,7 +829,7 @@ mod test {
 
         // delete top level
         let top = col.get_or_create_normal_deck("one")?;
-        col.remove_deck_and_child_decks(top.id)?;
+        col.remove_decks_and_child_decks(&[top.id])?;
 
         // should have come back as "Default+" due to conflict
         assert_eq!(sorted_names(&col), vec!["default", "Default+"]);

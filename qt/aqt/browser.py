@@ -28,7 +28,7 @@ from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
 from aqt.scheduling import forget_cards, set_due_date_dialog
-from aqt.sidebar import SidebarSearchBar, SidebarTreeView
+from aqt.sidebar import SidebarSearchBar, SidebarToolbar, SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
@@ -941,18 +941,20 @@ QTableView {{ gridline-color: {grid} }}
         self.sidebar = SidebarTreeView(self)
         self.sidebarTree = self.sidebar  # legacy alias
         dw.setWidget(self.sidebar)
+        self.sidebar.toolbar = toolbar = SidebarToolbar(self.sidebar)
         self.sidebar.searchBar = searchBar = SidebarSearchBar(self.sidebar)
         qconnect(
             self.form.actionSidebarFilter.triggered,
             self.focusSidebarSearchBar,
         )
-        l = QVBoxLayout()
-        l.addWidget(searchBar)
-        l.addWidget(self.sidebar)
-        l.setContentsMargins(0, 0, 0, 0)
-        l.setSpacing(0)
+        grid = QGridLayout()
+        grid.addWidget(searchBar, 0, 0)
+        grid.addWidget(toolbar, 0, 1)
+        grid.addWidget(self.sidebar, 1, 0, 1, 2)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setSpacing(0)
         w = QWidget()
-        w.setLayout(l)
+        w.setLayout(grid)
         dw.setWidget(w)
         self.sidebarDockWidget.setFloating(False)
 
