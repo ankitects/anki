@@ -1241,12 +1241,6 @@ class SidebarTreeView(QTreeView):
 
     def remove_saved_searches(self, _item: SidebarItem) -> None:
         selected = self._selected_saved_searches()
-        if len(selected) == 1:
-            query = tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=selected[0])
-        else:
-            query = tr(TR.BROWSING_CONFIRM_SAVED_SEARCHES_DELETION)
-        if not askUser(query):
-            return
         conf = self._get_saved_searches()
         for name in selected:
             del conf[name]
