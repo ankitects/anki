@@ -1184,12 +1184,12 @@ class SidebarTreeView(QTreeView):
             count = fut.result()
             if not count:
                 showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
-                return
-
-            self.refresh(
-                lambda item: item.item_type == SidebarItemType.TAG
-                and item.full_name == new_name
-            )
+            else:
+                tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=count), parent=self)
+                self.refresh(
+                    lambda item: item.item_type == SidebarItemType.TAG
+                    and item.full_name == new_name
+                )
 
         self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
         self.browser.model.beginReset()
