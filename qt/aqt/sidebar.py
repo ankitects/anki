@@ -1148,7 +1148,7 @@ class SidebarTreeView(QTreeView):
     def _remove_tags(self, _item: SidebarItem) -> None:
         tags = self._selected_tags()
 
-        def do_remove() -> None:
+        def do_remove() -> int:
             return self.col._backend.expunge_tags(" ".join(tags))
 
         def on_done(fut: Future) -> None:
@@ -1199,7 +1199,7 @@ class SidebarTreeView(QTreeView):
         self.browser.editor.saveNow(self._delete_decks)
 
     def _delete_decks(self) -> None:
-        def do_delete() -> None:
+        def do_delete() -> int:
             return self.mw.col.decks.remove(dids)
 
         def on_done(fut: Future) -> None:
