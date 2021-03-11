@@ -83,8 +83,11 @@ enum ServiceIndex {
   SERVICE_INDEX_DECKS = 1;
   SERVICE_INDEX_NOTES = 2;
   SERVICE_INDEX_SYNC = 3;
-  SERVICE_INDEX_NOTETYPES = 4;
+  SERVICE_INDEX_NOTE_TYPES = 4;
   SERVICE_INDEX_CONFIG = 5;
+  SERVICE_INDEX_CARD_RENDERING = 6;
+  SERVICE_INDEX_DECK_CONFIG = 7;
+  SERVICE_INDEX_TAGS = 8;
   SERVICE_INDEX_BACKEND = 99;
 }
 
@@ -179,18 +182,36 @@ service NoteTypesService {
   rpc RemoveNotetype(NoteTypeID) returns (Empty);
 }
 
-service BackendService {
-  rpc LatestProgress(Empty) returns (Progress);
-  rpc SetWantsAbort(Empty) returns (Empty);
-
-  // card rendering
-
+service CardRenderingService {
   rpc ExtractAVTags(ExtractAVTagsIn) returns (ExtractAVTagsOut);
   rpc ExtractLatex(ExtractLatexIn) returns (ExtractLatexOut);
   rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
   rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
   rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
   rpc StripAVTags(String) returns (String);
+}
+
+service DeckConfigService {
+  rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
+      returns (DeckConfigID);
+  rpc AllDeckConfigLegacy(Empty) returns (Json);
+  rpc GetDeckConfigLegacy(DeckConfigID) returns (Json);
+  rpc NewDeckConfigLegacy(Empty) returns (Json);
+  rpc RemoveDeckConfig(DeckConfigID) returns (Empty);
+}
+
+service TagsService {
+  rpc ClearUnusedTags(Empty) returns (Empty);
+  rpc AllTags(Empty) returns (StringList);
+  rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
+  rpc ClearTag(String) returns (Empty);
+  rpc TagTree(Empty) returns (TagTreeNode);
+  rpc DragDropTags(DragDropTagsIn) returns (Empty);
+}
+
+service BackendService {
+  rpc LatestProgress(Empty) returns (Progress);
+  rpc SetWantsAbort(Empty) returns (Empty);
 
   // searching
 
@@ -216,15 +237,6 @@ service BackendService {
   rpc EmptyTrash(Empty) returns (Empty);
   rpc RestoreTrash(Empty) returns (Empty);
 
-  // deck config
-
-  rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
-      returns (DeckConfigID);
-  rpc AllDeckConfigLegacy(Empty) returns (Json);
-  rpc GetDeckConfigLegacy(DeckConfigID) returns (Json);
-  rpc NewDeckConfigLegacy(Empty) returns (Json);
-  rpc RemoveDeckConfig(DeckConfigID) returns (Empty);
-
   // cards
 
   rpc GetCard(CardID) returns (Card);
@@ -247,15 +259,6 @@ service BackendService {
   rpc FormatTimespan(FormatTimespanIn) returns (String);
   rpc I18nResources(Empty) returns (Json);
   rpc RenderMarkdown(RenderMarkdownIn) returns (String);
-
-  // tags
-
-  rpc ClearUnusedTags(Empty) returns (Empty);
-  rpc AllTags(Empty) returns (StringList);
-  rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
-  rpc ClearTag(String) returns (Empty);
-  rpc TagTree(Empty) returns (TagTreeNode);
-  rpc DragDropTags(DragDropTagsIn) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
