@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import os
 import re
 import sys
+
+import google.protobuf.descriptor
 
 import pylib.anki._backend.backend_pb2 as pb
 
@@ -97,7 +100,7 @@ def get_input_assign(msg):
     return ", ".join(f"{f.name}={f.name}" for f in fields)
 
 
-def render_method(method, idx):
+def render_method(service_idx, method_idx, method):
     input_name = method.input_type.name
     if (
         (input_name.endswith("In") or len(method.input_type.fields) < 2)
@@ -134,11 +137,11 @@ def render_method(method, idx):
         {input_assign_outer}"""
 
     if method.name in SKIP_DECODE:
-        buf += f"""return self._run_command({idx+1}, input)
+        buf += f"""return self._run_command({service_idx}, {method_idx+1}, input)
 """
     else:
         buf += f"""output = pb.{method.output_type.name}()
-        output.ParseFromString(self._run_command({idx+1}, input))
+        output.ParseFromString(self._run_command({service_idx}, {method_idx+1}, input))
         return output{single_field}
 """
 
@@ -146,13 +149,27 @@ def render_method(method, idx):
 
 
 out = []
-for idx, method in enumerate(pb._BACKENDSERVICE.methods):
-    out.append(render_method(method, idx))
+
+
+def render_service(
+    service: google.protobuf.descriptor.ServiceDescriptor, service_index: int
+) -> None:
+    for method_index, method in enumerate(service.methods):
+        out.append(render_method(service_index, method_index, method))
+
+
+for service in pb.ServiceIndex.DESCRIPTOR.values:
+    # SERVICE_INDEX_TEST -> _TESTSERVICE
+    service_var = service.name.replace("SERVICE_INDEX", "") + "SERVICE"
+    service_obj = getattr(pb, service_var)
+    service_index = service.number
+    render_service(service_obj, service_index)
+
 
 out = "\n".join(out)
 
 
-sys.stdout.buffer.write(
+open(sys.argv[1], "wb").write(
     (
         '''# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
@@ -174,7 +191,7 @@ from typing import *
 import anki._backend.backend_pb2 as pb
 
 class RustBackendGenerated:
-    def _run_command(self, method: int, input: Any) -> bytes:
+    def _run_command(self, service: int, method: int, input: Any) -> bytes:
         raise Exception("not implemented")
     
 '''

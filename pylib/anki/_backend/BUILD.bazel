@@ -36,7 +36,7 @@ py_binary(
 genrule(
     name = "rsbackend_gen",
     outs = ["generated.py"],
-    cmd = "$(location genbackend) > $@",
+    cmd = "$(location genbackend) $@",
     tools = ["genbackend"],
 )
 
