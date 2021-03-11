@@ -77,7 +77,7 @@ message DeckConfigID {
 
 /// while the protobuf descriptors expose the order services are defined in,
 /// that information is not available in prost, so we define an enum to make
-/// sure all clients agree on the same service indices
+/// sure all clients agree on the service index
 enum ServiceIndex {
   SERVICE_INDEX_SCHEDULING = 0;
   SERVICE_INDEX_DECKS = 1;
@@ -91,7 +91,9 @@ enum ServiceIndex {
   SERVICE_INDEX_SEARCH = 9;
   SERVICE_INDEX_STATS = 10;
   SERVICE_INDEX_MEDIA = 11;
-  SERVICE_INDEX_BACKEND = 99;
+  SERVICE_INDEX_I18N = 12;
+  SERVICE_INDEX_COLLECTION = 13;
+  SERVICE_INDEX_CARDS = 14;
 }
 
 service SchedulingService {
@@ -192,6 +194,7 @@ service CardRenderingService {
   rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
   rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
   rpc StripAVTags(String) returns (String);
+  rpc RenderMarkdown(RenderMarkdownIn) returns (String);
 }
 
 service DeckConfigService {
@@ -236,32 +239,28 @@ service MediaService {
   rpc RestoreTrash(Empty) returns (Empty);
 }
 
-service BackendService {
-  rpc LatestProgress(Empty) returns (Progress);
-  rpc SetWantsAbort(Empty) returns (Empty);
+service I18nService {
+  rpc TranslateString(TranslateStringIn) returns (String);
+  rpc FormatTimespan(FormatTimespanIn) returns (String);
+  rpc I18nResources(Empty) returns (Json);
+}
 
-  // cards
-
-  rpc GetCard(CardID) returns (Card);
-  rpc UpdateCard(UpdateCardIn) returns (Empty);
-  rpc RemoveCards(RemoveCardsIn) returns (Empty);
-  rpc SetDeck(SetDeckIn) returns (Empty);
-
-  // collection
-
+service CollectionService {
   rpc OpenCollection(OpenCollectionIn) returns (Empty);
   rpc CloseCollection(CloseCollectionIn) returns (Empty);
   rpc CheckDatabase(Empty) returns (CheckDatabaseOut);
   rpc GetUndoStatus(Empty) returns (UndoStatus);
   rpc Undo(Empty) returns (UndoStatus);
   rpc Redo(Empty) returns (UndoStatus);
+  rpc LatestProgress(Empty) returns (Progress);
+  rpc SetWantsAbort(Empty) returns (Empty);
+}
 
-  // translation/messages/text manipulation
-
-  rpc TranslateString(TranslateStringIn) returns (String);
-  rpc FormatTimespan(FormatTimespanIn) returns (String);
-  rpc I18nResources(Empty) returns (Json);
-  rpc RenderMarkdown(RenderMarkdownIn) returns (String);
+service CardsService {
+  rpc GetCard(CardID) returns (Card);
+  rpc UpdateCard(UpdateCardIn) returns (Empty);
+  rpc RemoveCards(RemoveCardsIn) returns (Empty);
+  rpc SetDeck(SetDeckIn) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
