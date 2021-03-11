@@ -55,7 +55,7 @@ impl prost_build::ServiceGenerator for CustomGenerator {
     fn generate(&mut self, service: prost_build::Service, buf: &mut String) {
         write!(
             buf,
-            "pub mod {name} {{
+            "pub mod {name}_service {{
                 use super::*;
                 use prost::Message;
                 use crate::err::Result;

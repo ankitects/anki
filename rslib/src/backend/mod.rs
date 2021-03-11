@@ -5,26 +5,33 @@ mod adding;
 mod card;
 mod config;
 mod dbproxy;
+mod decks;
 mod err;
 mod generic;
-mod http_sync_server;
+mod notes;
+mod notetypes;
 mod progress;
 mod scheduler;
 mod search;
 mod sync;
 
-use self::scheduler::SchedulingService;
-use crate::backend_proto::backend::Service as BackendService;
+use self::{
+    config::ConfigService,
+    decks::DecksService,
+    notes::NotesService,
+    notetypes::NoteTypesService,
+    scheduler::SchedulingService,
+    sync::{SyncService, SyncState},
+};
+use crate::backend_proto::backend_service::Service as BackendService;
 
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
-    backend_proto::{AddOrUpdateDeckConfigLegacyIn, Empty, RenderedTemplateReplacement},
+    backend_proto::{AddOrUpdateDeckConfigLegacyIn, RenderedTemplateReplacement},
     card::{Card, CardID},
-    cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
     deckconf::{DeckConf, DeckConfSchema11},
-    decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, Result},
     i18n::I18n,
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
@@ -33,26 +40,20 @@ use crate::{
     markdown::render_markdown,
     media::check::MediaChecker,
     media::MediaManager,
-    notes::{Note, NoteID},
-    notetype::{
-        all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeSchema11, RenderCardOutput,
-    },
+    notes::NoteID,
+    notetype::{CardTemplateSchema11, RenderCardOutput},
     scheduler::timespan::{answer_button_time, time_span},
     search::{concatenate_searches, replace_search_node, write_nodes, Node},
-    sync::{http::SyncRequest, LocalServer},
     template::RenderedNode,
     text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
-    timestamp::TimestampSecs,
     undo::UndoableOpKind,
 };
 use fluent::FluentValue;
-use futures::future::AbortHandle;
 use log::error;
 use once_cell::sync::OnceCell;
 use progress::{AbortHandleSlot, Progress};
 use prost::Message;
-use serde_json::Value as JsonValue;
-use std::{collections::HashSet, convert::TryInto};
+use std::convert::TryInto;
 use std::{
     result,
     sync::{Arc, Mutex},
@@ -62,7 +63,6 @@ use tokio::runtime::{self, Runtime};
 use self::{
     err::anki_error_to_proto_error,
     progress::{progress_to_proto, ProgressState},
-    sync::RemoteSyncStatus,
 };
 
 pub struct Backend {
@@ -79,9 +79,7 @@ pub struct Backend {
 
 #[derive(Default)]
 struct BackendState {
-    remote_sync_status: RemoteSyncStatus,
-    media_sync_abort: Option<AbortHandle>,
-    http_sync_server: Option<LocalServer>,
+    sync: SyncState,
 }
 
 pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
@@ -100,12 +98,12 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 }
 
 impl BackendService for Backend {
-    fn latest_progress(&self, _input: Empty) -> Result<pb::Progress> {
+    fn latest_progress(&self, _input: pb::Empty) -> Result<pb::Progress> {
         let progress = self.progress_state.lock().unwrap().last_progress;
         Ok(progress_to_proto(progress, &self.i18n))
     }
 
-    fn set_wants_abort(&self, _input: Empty) -> Result<Empty> {
+    fn set_wants_abort(&self, _input: pb::Empty) -> Result<pb::Empty> {
         self.progress_state.lock().unwrap().want_abort = true;
         Ok(().into())
     }
@@ -304,7 +302,7 @@ impl BackendService for Backend {
         self.with_col(|col| col.get_graph_preferences())
     }
 
-    fn set_graph_preferences(&self, input: pb::GraphPreferences) -> Result<Empty> {
+    fn set_graph_preferences(&self, input: pb::GraphPreferences) -> Result<pb::Empty> {
         self.with_col(|col| col.set_graph_preferences(input))
             .map(Into::into)
     }
@@ -334,7 +332,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn trash_media_files(&self, input: pb::TrashMediaFilesIn) -> Result<Empty> {
+    fn trash_media_files(&self, input: pb::TrashMediaFilesIn) -> Result<pb::Empty> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
@@ -354,7 +352,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn empty_trash(&self, _input: Empty) -> Result<Empty> {
+    fn empty_trash(&self, _input: pb::Empty) -> Result<pb::Empty> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -370,7 +368,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn restore_trash(&self, _input: Empty) -> Result<Empty> {
+    fn restore_trash(&self, _input: pb::Empty) -> Result<pb::Empty> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -384,124 +382,6 @@ impl BackendService for Backend {
             })
         })
         .map(Into::into)
-    }
-
-    // decks
-    //----------------------------------------------------
-
-    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<pb::DeckId> {
-        self.with_col(|col| {
-            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
-            let mut deck: Deck = schema11.into();
-            if input.preserve_usn_and_mtime {
-                col.transact(None, |col| {
-                    let usn = col.usn()?;
-                    col.add_or_update_single_deck_with_existing_id(&mut deck, usn)
-                })?;
-            } else {
-                col.add_or_update_deck(&mut deck)?;
-            }
-            Ok(pb::DeckId { did: deck.id.0 })
-        })
-    }
-
-    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
-        let lim = if input.top_deck_id > 0 {
-            Some(DeckID(input.top_deck_id))
-        } else {
-            None
-        };
-        self.with_col(|col| {
-            let now = if input.now == 0 {
-                None
-            } else {
-                Some(TimestampSecs(input.now))
-            };
-            col.deck_tree(now, lim)
-        })
-    }
-
-    fn deck_tree_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let tree = col.legacy_deck_tree()?;
-            serde_json::to_vec(&tree)
-                .map_err(Into::into)
-                .map(Into::into)
-        })
-    }
-
-    fn get_all_decks_legacy(&self, _input: Empty) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let decks = col.storage.get_all_decks_as_schema11()?;
-            serde_json::to_vec(&decks).map_err(Into::into)
-        })
-        .map(Into::into)
-    }
-
-    fn get_deck_id_by_name(&self, input: pb::String) -> Result<pb::DeckId> {
-        self.with_col(|col| {
-            col.get_deck_id(&input.val).and_then(|d| {
-                d.ok_or(AnkiError::NotFound)
-                    .map(|d| pb::DeckId { did: d.0 })
-            })
-        })
-    }
-
-    fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let deck: DeckSchema11 = col
-                .storage
-                .get_deck(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into();
-            serde_json::to_vec(&deck)
-                .map_err(Into::into)
-                .map(Into::into)
-        })
-    }
-
-    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
-        self.with_col(|col| {
-            let names = if input.include_filtered {
-                col.get_all_deck_names(input.skip_empty_default)?
-            } else {
-                col.get_all_normal_deck_names()?
-            };
-            Ok(pb::DeckNames {
-                entries: names
-                    .into_iter()
-                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
-                    .collect(),
-            })
-        })
-    }
-
-    fn new_deck_legacy(&self, input: pb::Bool) -> Result<pb::Json> {
-        let deck = if input.val {
-            Deck::new_filtered()
-        } else {
-            Deck::new_normal()
-        };
-        let schema11: DeckSchema11 = deck.into();
-        serde_json::to_vec(&schema11)
-            .map_err(Into::into)
-            .map(Into::into)
-    }
-
-    fn remove_deck(&self, input: pb::DeckId) -> Result<Empty> {
-        self.with_col(|col| col.remove_deck_and_child_decks(input.into()))
-            .map(Into::into)
-    }
-
-    fn drag_drop_decks(&self, input: pb::DragDropDecksIn) -> Result<Empty> {
-        let source_dids: Vec<_> = input.source_deck_ids.into_iter().map(Into::into).collect();
-        let target_did = if input.target_deck_id == 0 {
-            None
-        } else {
-            Some(input.target_deck_id.into())
-        };
-        self.with_col(|col| col.drag_drop_decks(&source_dids, target_did))
-            .map(Into::into)
     }
 
     // deck config
@@ -522,7 +402,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&self, _input: Empty) -> Result<pb::Json> {
+    fn all_deck_config_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
         self.with_col(|col| {
             let conf: Vec<DeckConfSchema11> = col
                 .storage
@@ -544,13 +424,13 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn new_deck_config_legacy(&self, _input: Empty) -> Result<pb::Json> {
+    fn new_deck_config_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<Empty> {
+    fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::Empty> {
         self.with_col(|col| col.transact(None, |col| col.remove_deck_config(input.into())))
             .map(Into::into)
     }
@@ -567,7 +447,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn update_card(&self, input: pb::UpdateCardIn) -> Result<Empty> {
+    fn update_card(&self, input: pb::UpdateCardIn) -> Result<pb::Empty> {
         self.with_col(|col| {
             let op = if input.skip_undo_entry {
                 None
@@ -580,7 +460,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn remove_cards(&self, input: pb::RemoveCardsIn) -> Result<Empty> {
+    fn remove_cards(&self, input: pb::RemoveCardsIn) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.remove_cards_and_orphaned_notes(
@@ -595,250 +475,16 @@ impl BackendService for Backend {
         })
     }
 
-    fn set_deck(&self, input: pb::SetDeckIn) -> Result<Empty> {
+    fn set_deck(&self, input: pb::SetDeckIn) -> Result<pb::Empty> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
         let deck_id = input.deck_id.into();
         self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
     }
 
-    // notes
-    //-------------------------------------------------------------------
-
-    fn new_note(&self, input: pb::NoteTypeId) -> Result<pb::Note> {
-        self.with_col(|col| {
-            let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
-            Ok(nt.new_note().into())
-        })
-    }
-
-    fn add_note(&self, input: pb::AddNoteIn) -> Result<pb::NoteId> {
-        self.with_col(|col| {
-            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.add_note(&mut note, DeckID(input.deck_id))
-                .map(|_| pb::NoteId { nid: note.id.0 })
-        })
-    }
-
-    fn defaults_for_adding(&self, input: pb::DefaultsForAddingIn) -> Result<pb::DeckAndNotetype> {
-        self.with_col(|col| {
-            let home_deck: DeckID = input.home_deck_of_current_review_card.into();
-            col.defaults_for_adding(home_deck).map(Into::into)
-        })
-    }
-
-    fn default_deck_for_notetype(&self, input: pb::NoteTypeId) -> Result<pb::DeckId> {
-        self.with_col(|col| {
-            Ok(col
-                .default_deck_for_notetype(input.into())?
-                .unwrap_or(DeckID(0))
-                .into())
-        })
-    }
-
-    fn update_note(&self, input: pb::UpdateNoteIn) -> Result<Empty> {
-        self.with_col(|col| {
-            let op = if input.skip_undo_entry {
-                None
-            } else {
-                Some(UndoableOpKind::UpdateNote)
-            };
-            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.update_note_with_op(&mut note, op)
-        })
-        .map(Into::into)
-    }
-
-    fn get_note(&self, input: pb::NoteId) -> Result<pb::Note> {
-        self.with_col(|col| {
-            col.storage
-                .get_note(input.into())?
-                .ok_or(AnkiError::NotFound)
-                .map(Into::into)
-        })
-    }
-
-    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<Empty> {
-        self.with_col(|col| {
-            if !input.note_ids.is_empty() {
-                col.remove_notes(
-                    &input
-                        .note_ids
-                        .into_iter()
-                        .map(Into::into)
-                        .collect::<Vec<_>>(),
-                )?;
-            }
-            if !input.card_ids.is_empty() {
-                let nids = col.storage.note_ids_of_cards(
-                    &input
-                        .card_ids
-                        .into_iter()
-                        .map(Into::into)
-                        .collect::<Vec<_>>(),
-                )?;
-                col.remove_notes(&nids.into_iter().collect::<Vec<_>>())?
-            }
-            Ok(().into())
-        })
-    }
-
-    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<pb::UInt32> {
-        self.with_col(|col| {
-            col.add_tags_to_notes(&to_nids(input.nids), &input.tags)
-                .map(|n| n as u32)
-        })
-        .map(Into::into)
-    }
-
-    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<pb::UInt32> {
-        self.with_col(|col| {
-            col.replace_tags_for_notes(
-                &to_nids(input.nids),
-                &input.tags,
-                &input.replacement,
-                input.regex,
-            )
-            .map(|n| (n as u32).into())
-        })
-    }
-
-    fn cloze_numbers_in_note(&self, note: pb::Note) -> Result<pb::ClozeNumbersInNoteOut> {
-        let mut set = HashSet::with_capacity(4);
-        for field in &note.fields {
-            add_cloze_numbers_in_string(field, &mut set);
-        }
-        Ok(pb::ClozeNumbersInNoteOut {
-            numbers: set.into_iter().map(|n| n as u32).collect(),
-        })
-    }
-
-    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.after_note_updates(
-                    &to_nids(input.nids),
-                    input.generate_cards,
-                    input.mark_notes_modified,
-                )?;
-                Ok(pb::Empty {})
-            })
-        })
-    }
-
-    fn field_names_for_notes(
-        &self,
-        input: pb::FieldNamesForNotesIn,
-    ) -> Result<pb::FieldNamesForNotesOut> {
-        self.with_col(|col| {
-            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
-            col.storage
-                .field_names_for_notes(&nids)
-                .map(|fields| pb::FieldNamesForNotesOut { fields })
-        })
-    }
-
-    fn note_is_duplicate_or_empty(&self, input: pb::Note) -> Result<pb::NoteIsDuplicateOrEmptyOut> {
-        let note: Note = input.into();
-        self.with_col(|col| {
-            col.note_is_duplicate_or_empty(&note)
-                .map(|r| pb::NoteIsDuplicateOrEmptyOut { state: r as i32 })
-        })
-    }
-
-    fn cards_of_note(&self, input: pb::NoteId) -> Result<pb::CardIDs> {
-        self.with_col(|col| {
-            col.storage
-                .all_card_ids_of_note(NoteID(input.nid))
-                .map(|v| pb::CardIDs {
-                    cids: v.into_iter().map(Into::into).collect(),
-                })
-        })
-    }
-
-    // notetypes
-    //-------------------------------------------------------------------
-
-    fn add_or_update_notetype(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<pb::NoteTypeId> {
-        self.with_col(|col| {
-            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
-            let mut nt: NoteType = legacy.into();
-            if nt.id.0 == 0 {
-                col.add_notetype(&mut nt)?;
-            } else {
-                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
-            }
-            Ok(pb::NoteTypeId { ntid: nt.id.0 })
-        })
-    }
-
-    fn get_stock_notetype_legacy(&self, input: pb::StockNoteType) -> Result<pb::Json> {
-        // fixme: use individual functions instead of full vec
-        let mut all = all_stock_notetypes(&self.i18n);
-        let idx = (input.kind as usize).min(all.len() - 1);
-        let nt = all.swap_remove(idx);
-        let schema11: NoteTypeSchema11 = nt.into();
-        serde_json::to_vec(&schema11)
-            .map_err(Into::into)
-            .map(Into::into)
-    }
-
-    fn get_notetype_legacy(&self, input: pb::NoteTypeId) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let schema11: NoteTypeSchema11 = col
-                .storage
-                .get_notetype(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into();
-            Ok(serde_json::to_vec(&schema11)?).map(Into::into)
-        })
-    }
-
-    fn get_notetype_names(&self, _input: Empty) -> Result<pb::NoteTypeNames> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_all_notetype_names()?
-                .into_iter()
-                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
-                .collect();
-            Ok(pb::NoteTypeNames { entries })
-        })
-    }
-
-    fn get_notetype_names_and_counts(&self, _input: Empty) -> Result<pb::NoteTypeUseCounts> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_notetype_use_counts()?
-                .into_iter()
-                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
-                    id: id.0,
-                    name,
-                    use_count,
-                })
-                .collect();
-            Ok(pb::NoteTypeUseCounts { entries })
-        })
-    }
-
-    fn get_notetype_id_by_name(&self, input: pb::String) -> Result<pb::NoteTypeId> {
-        self.with_col(|col| {
-            col.storage
-                .get_notetype_id(&input.val)
-                .and_then(|nt| nt.ok_or(AnkiError::NotFound))
-                .map(|ntid| pb::NoteTypeId { ntid: ntid.0 })
-        })
-    }
-
-    fn remove_notetype(&self, input: pb::NoteTypeId) -> Result<Empty> {
-        self.with_col(|col| col.remove_notetype(input.into()))
-            .map(Into::into)
-    }
-
     // collection
     //-------------------------------------------------------------------
 
-    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<Empty> {
+    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<pb::Empty> {
         let mut col = self.col.lock().unwrap();
         if col.is_some() {
             return Err(AnkiError::CollectionAlreadyOpen);
@@ -867,7 +513,7 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
-    fn close_collection(&self, input: pb::CloseCollectionIn) -> Result<Empty> {
+    fn close_collection(&self, input: pb::CloseCollectionIn) -> Result<pb::Empty> {
         self.abort_media_sync_and_wait();
 
         let mut col = self.col.lock().unwrap();
@@ -917,60 +563,6 @@ impl BackendService for Backend {
         })
     }
 
-    // sync
-    //-------------------------------------------------------------------
-
-    fn sync_media(&self, input: pb::SyncAuth) -> Result<Empty> {
-        self.sync_media_inner(input).map(Into::into)
-    }
-
-    fn abort_sync(&self, _input: Empty) -> Result<Empty> {
-        if let Some(handle) = self.sync_abort.lock().unwrap().take() {
-            handle.abort();
-        }
-        Ok(().into())
-    }
-
-    /// Abort the media sync. Does not wait for completion.
-    fn abort_media_sync(&self, _input: Empty) -> Result<Empty> {
-        let guard = self.state.lock().unwrap();
-        if let Some(handle) = &guard.media_sync_abort {
-            handle.abort();
-        }
-        Ok(().into())
-    }
-
-    fn before_upload(&self, _input: Empty) -> Result<Empty> {
-        self.with_col(|col| col.before_upload().map(Into::into))
-    }
-
-    fn sync_login(&self, input: pb::SyncLoginIn) -> Result<pb::SyncAuth> {
-        self.sync_login_inner(input)
-    }
-
-    fn sync_status(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusOut> {
-        self.sync_status_inner(input)
-    }
-
-    fn sync_collection(&self, input: pb::SyncAuth) -> Result<pb::SyncCollectionOut> {
-        self.sync_collection_inner(input)
-    }
-
-    fn full_upload(&self, input: pb::SyncAuth) -> Result<Empty> {
-        self.full_sync_inner(input, true)?;
-        Ok(().into())
-    }
-
-    fn full_download(&self, input: pb::SyncAuth) -> Result<Empty> {
-        self.full_sync_inner(input, false)?;
-        Ok(().into())
-    }
-
-    fn sync_server_method(&self, input: pb::SyncServerMethodIn) -> Result<pb::Json> {
-        let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
-        self.sync_server_method_inner(req).map(Into::into)
-    }
-
     // i18n/messages
     //-------------------------------------------------------------------
 
@@ -999,7 +591,7 @@ impl BackendService for Backend {
         .into())
     }
 
-    fn i18n_resources(&self, _input: Empty) -> Result<pb::Json> {
+    fn i18n_resources(&self, _input: pb::Empty) -> Result<pb::Json> {
         serde_json::to_vec(&self.i18n.resources_for_js())
             .map(Into::into)
             .map_err(Into::into)
@@ -1021,7 +613,7 @@ impl BackendService for Backend {
         self.with_col(|col| col.transact(None, |col| col.clear_unused_tags().map(Into::into)))
     }
 
-    fn all_tags(&self, _input: Empty) -> Result<pb::StringList> {
+    fn all_tags(&self, _input: pb::Empty) -> Result<pb::StringList> {
         Ok(pb::StringList {
             vals: self.with_col(|col| {
                 Ok(col
@@ -1052,11 +644,11 @@ impl BackendService for Backend {
         })
     }
 
-    fn tag_tree(&self, _input: Empty) -> Result<pb::TagTreeNode> {
+    fn tag_tree(&self, _input: pb::Empty) -> Result<pb::TagTreeNode> {
         self.with_col(|col| col.tag_tree())
     }
 
-    fn drag_drop_tags(&self, input: pb::DragDropTagsIn) -> Result<Empty> {
+    fn drag_drop_tags(&self, input: pb::DragDropTagsIn) -> Result<pb::Empty> {
         let source_tags = input.source_tags;
         let target_tag = if input.target_tag.is_empty() {
             None
@@ -1064,79 +656,6 @@ impl BackendService for Backend {
             Some(input.target_tag)
         };
         self.with_col(|col| col.drag_drop_tags(&source_tags, target_tag))
-            .map(Into::into)
-    }
-
-    // config/preferences
-    //-------------------------------------------------------------------
-
-    fn get_config_json(&self, input: pb::String) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let val: Option<JsonValue> = col.get_config_optional(input.val.as_str());
-            val.ok_or(AnkiError::NotFound)
-                .and_then(|v| serde_json::to_vec(&v).map_err(Into::into))
-                .map(Into::into)
-        })
-    }
-
-    fn set_config_json(&self, input: pb::SetConfigJsonIn) -> Result<Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                // ensure it's a well-formed object
-                let val: JsonValue = serde_json::from_slice(&input.value_json)?;
-                col.set_config(input.key.as_str(), &val)
-            })
-        })
-        .map(Into::into)
-    }
-
-    fn remove_config(&self, input: pb::String) -> Result<Empty> {
-        self.with_col(|col| col.transact(None, |col| col.remove_config(input.val.as_str())))
-            .map(Into::into)
-    }
-
-    fn get_all_config(&self, _input: Empty) -> Result<pb::Json> {
-        self.with_col(|col| {
-            let conf = col.storage.get_all_config()?;
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-        .map(Into::into)
-    }
-
-    fn get_config_bool(&self, input: pb::config::Bool) -> Result<pb::Bool> {
-        self.with_col(|col| {
-            Ok(pb::Bool {
-                val: col.get_bool(input.key().into()),
-            })
-        })
-    }
-
-    fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_bool(input.key().into(), input.value)))
-            .map(Into::into)
-    }
-
-    fn get_config_string(&self, input: pb::config::String) -> Result<pb::String> {
-        self.with_col(|col| {
-            Ok(pb::String {
-                val: col.get_string(input.key().into()),
-            })
-        })
-    }
-
-    fn set_config_string(&self, input: pb::SetConfigStringIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| col.set_string(input.key().into(), &input.value))
-        })
-        .map(Into::into)
-    }
-
-    fn get_preferences(&self, _input: Empty) -> Result<pb::Preferences> {
-        self.with_col(|col| col.get_preferences())
-    }
-
-    fn set_preferences(&self, input: pb::Preferences) -> Result<Empty> {
-        self.with_col(|col| col.set_preferences(input))
             .map(Into::into)
     }
 }
@@ -1172,6 +691,11 @@ impl Backend {
             .and_then(|service| match service {
                 pb::ServiceIndex::Scheduling => SchedulingService::run_method(self, method, input),
                 pb::ServiceIndex::Backend => BackendService::run_method(self, method, input),
+                pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
+                pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
+                pb::ServiceIndex::Notetypes => NoteTypesService::run_method(self, method, input),
+                pb::ServiceIndex::Config => ConfigService::run_method(self, method, input),
+                pb::ServiceIndex::Sync => SyncService::run_method(self, method, input),
             })
             .map_err(|err| {
                 let backend_err = anki_error_to_proto_error(err, &self.i18n);
@@ -1223,10 +747,6 @@ impl Backend {
             bytes
         })
     }
-}
-
-fn to_nids(ids: Vec<i64>) -> Vec<NoteID> {
-    ids.into_iter().map(NoteID).collect()
 }
 
 fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {

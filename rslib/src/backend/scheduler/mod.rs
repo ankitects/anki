@@ -15,7 +15,7 @@ use crate::{
     },
     stats::studied_today,
 };
-pub(super) use pb::scheduling::Service as SchedulingService;
+pub(super) use pb::scheduling_service::Service as SchedulingService;
 
 impl SchedulingService for Backend {
     /// This behaves like _updateCutoff() in older code - it also unburies at the start of

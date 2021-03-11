@@ -80,7 +80,12 @@ message DeckConfigID {
 /// sure all clients agree on the same service indices
 enum ServiceIndex {
   SERVICE_INDEX_SCHEDULING = 0;
-  SERVICE_INDEX_BACKEND = 1;
+  SERVICE_INDEX_DECKS = 1;
+  SERVICE_INDEX_NOTES = 2;
+  SERVICE_INDEX_SYNC = 3;
+  SERVICE_INDEX_NOTETYPES = 4;
+  SERVICE_INDEX_CONFIG = 5;
+  SERVICE_INDEX_BACKEND = 99;
 }
 
 service SchedulingService {
@@ -106,6 +111,72 @@ service SchedulingService {
   rpc AnswerCard(AnswerCardIn) returns (Empty);
   rpc UpgradeScheduler(Empty) returns (Empty);
   rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
+}
+
+service DecksService {
+  rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckID);
+  rpc DeckTree(DeckTreeIn) returns (DeckTreeNode);
+  rpc DeckTreeLegacy(Empty) returns (Json);
+  rpc GetAllDecksLegacy(Empty) returns (Json);
+  rpc GetDeckIDByName(String) returns (DeckID);
+  rpc GetDeckLegacy(DeckID) returns (Json);
+  rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
+  rpc NewDeckLegacy(Bool) returns (Json);
+  rpc RemoveDeck(DeckID) returns (Empty);
+  rpc DragDropDecks(DragDropDecksIn) returns (Empty);
+}
+
+service NotesService {
+  rpc NewNote(NoteTypeID) returns (Note);
+  rpc AddNote(AddNoteIn) returns (NoteID);
+  rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
+  rpc DefaultDeckForNotetype(NoteTypeID) returns (DeckID);
+  rpc UpdateNote(UpdateNoteIn) returns (Empty);
+  rpc GetNote(NoteID) returns (Note);
+  rpc RemoveNotes(RemoveNotesIn) returns (Empty);
+  rpc AddNoteTags(AddNoteTagsIn) returns (UInt32);
+  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (UInt32);
+  rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
+  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (Empty);
+  rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
+  rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
+  rpc CardsOfNote(NoteID) returns (CardIDs);
+}
+
+service SyncService {
+  rpc SyncMedia(SyncAuth) returns (Empty);
+  rpc AbortSync(Empty) returns (Empty);
+  rpc AbortMediaSync(Empty) returns (Empty);
+  rpc BeforeUpload(Empty) returns (Empty);
+  rpc SyncLogin(SyncLoginIn) returns (SyncAuth);
+  rpc SyncStatus(SyncAuth) returns (SyncStatusOut);
+  rpc SyncCollection(SyncAuth) returns (SyncCollectionOut);
+  rpc FullUpload(SyncAuth) returns (Empty);
+  rpc FullDownload(SyncAuth) returns (Empty);
+  rpc SyncServerMethod(SyncServerMethodIn) returns (Json);
+}
+
+service ConfigService {
+  rpc GetConfigJson(String) returns (Json);
+  rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
+  rpc RemoveConfig(String) returns (Empty);
+  rpc GetAllConfig(Empty) returns (Json);
+  rpc GetConfigBool(Config.Bool) returns (Bool);
+  rpc SetConfigBool(SetConfigBoolIn) returns (Empty);
+  rpc GetConfigString(Config.String) returns (String);
+  rpc SetConfigString(SetConfigStringIn) returns (Empty);
+  rpc GetPreferences(Empty) returns (Preferences);
+  rpc SetPreferences(Preferences) returns (Empty);
+}
+
+service NoteTypesService {
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
+  rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
+  rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
+  rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
+  rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
+  rpc GetNotetypeIDByName(String) returns (NoteTypeID);
+  rpc RemoveNotetype(NoteTypeID) returns (Empty);
 }
 
 service BackendService {
@@ -145,19 +216,6 @@ service BackendService {
   rpc EmptyTrash(Empty) returns (Empty);
   rpc RestoreTrash(Empty) returns (Empty);
 
-  // decks
-
-  rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckID);
-  rpc DeckTree(DeckTreeIn) returns (DeckTreeNode);
-  rpc DeckTreeLegacy(Empty) returns (Json);
-  rpc GetAllDecksLegacy(Empty) returns (Json);
-  rpc GetDeckIDByName(String) returns (DeckID);
-  rpc GetDeckLegacy(DeckID) returns (Json);
-  rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
-  rpc NewDeckLegacy(Bool) returns (Json);
-  rpc RemoveDeck(DeckID) returns (Empty);
-  rpc DragDropDecks(DragDropDecksIn) returns (Empty);
-
   // deck config
 
   rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
@@ -174,33 +232,6 @@ service BackendService {
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
   rpc SetDeck(SetDeckIn) returns (Empty);
 
-  // notes
-
-  rpc NewNote(NoteTypeID) returns (Note);
-  rpc AddNote(AddNoteIn) returns (NoteID);
-  rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
-  rpc DefaultDeckForNotetype(NoteTypeID) returns (DeckID);
-  rpc UpdateNote(UpdateNoteIn) returns (Empty);
-  rpc GetNote(NoteID) returns (Note);
-  rpc RemoveNotes(RemoveNotesIn) returns (Empty);
-  rpc AddNoteTags(AddNoteTagsIn) returns (UInt32);
-  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (UInt32);
-  rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
-  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (Empty);
-  rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
-  rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
-  rpc CardsOfNote(NoteID) returns (CardIDs);
-
-  // note types
-
-  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
-  rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
-  rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
-  rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
-  rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
-  rpc GetNotetypeIDByName(String) returns (NoteTypeID);
-  rpc RemoveNotetype(NoteTypeID) returns (Empty);
-
   // collection
 
   rpc OpenCollection(OpenCollectionIn) returns (Empty);
@@ -209,19 +240,6 @@ service BackendService {
   rpc GetUndoStatus(Empty) returns (UndoStatus);
   rpc Undo(Empty) returns (UndoStatus);
   rpc Redo(Empty) returns (UndoStatus);
-
-  // sync
-
-  rpc SyncMedia(SyncAuth) returns (Empty);
-  rpc AbortSync(Empty) returns (Empty);
-  rpc AbortMediaSync(Empty) returns (Empty);
-  rpc BeforeUpload(Empty) returns (Empty);
-  rpc SyncLogin(SyncLoginIn) returns (SyncAuth);
-  rpc SyncStatus(SyncAuth) returns (SyncStatusOut);
-  rpc SyncCollection(SyncAuth) returns (SyncCollectionOut);
-  rpc FullUpload(SyncAuth) returns (Empty);
-  rpc FullDownload(SyncAuth) returns (Empty);
-  rpc SyncServerMethod(SyncServerMethodIn) returns (Json);
 
   // translation/messages/text manipulation
 
@@ -238,22 +256,6 @@ service BackendService {
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
   rpc DragDropTags(DragDropTagsIn) returns (Empty);
-
-  // config
-
-  rpc GetConfigJson(String) returns (Json);
-  rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
-  rpc RemoveConfig(String) returns (Empty);
-  rpc GetAllConfig(Empty) returns (Json);
-  rpc GetConfigBool(Config.Bool) returns (Bool);
-  rpc SetConfigBool(SetConfigBoolIn) returns (Empty);
-  rpc GetConfigString(Config.String) returns (String);
-  rpc SetConfigString(SetConfigStringIn) returns (Empty);
-
-  // preferences
-
-  rpc GetPreferences(Empty) returns (Preferences);
-  rpc SetPreferences(Preferences) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
