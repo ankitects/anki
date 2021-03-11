@@ -468,7 +468,7 @@ impl Collection {
 
     pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<usize> {
         let mut card_count = 0;
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOpKind::RemoveDeck), |col| {
             let usn = col.usn()?;
             for did in dids {
                 if let Some(deck) = col.storage.get_deck(*did)? {
