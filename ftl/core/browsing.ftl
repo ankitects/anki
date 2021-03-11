@@ -114,6 +114,11 @@ browsing-note-deleted =
         [one] { $count } note deleted.
        *[other] { $count } notes deleted.
     }
+browsing-notes-updated = 
+    { $count ->
+        [one] { $count } note updated.
+       *[other] { $count } notes updated.
+    }
 browsing-window-title = Browse ({ $selected } of { $total } cards selected)
 browsing-sidebar-expand = Expand
 browsing-sidebar-collapse = Collapse
@@ -134,5 +139,3 @@ browsing-edited-today = Edited
 browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
 browsing-sidebar-overdue = Overdue
-browsing-sidebar-remove-tag = Are you sure you want to delete the tag “{ $name }” from { $count } notes?
-browsing-sidebar-remove-tags = Are you sure you want to delete all selected tags from { $count } notes?
