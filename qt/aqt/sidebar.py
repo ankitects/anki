@@ -480,9 +480,9 @@ class SidebarTreeView(QTreeView):
                 return
             self.refresh()
             self.mw.deckBrowser.refresh()
+            self.mw.update_undo_actions()
 
         def on_save() -> None:
-            self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
             self.browser.model.beginReset()
             self.mw.taskman.with_progress(
                 lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
