@@ -986,3 +986,13 @@ def save_editor(func: Callable) -> Callable:
 
     return decorated
 
+
+def save_browser_editor(func: Callable) -> Callable:
+    """Call editor.saveNow with the decorated method as callback. The method's owner
+    must hold a reference to the Editor's Browser.
+    """
+
+    def decorated(self: Any, *args: Any, **kwargs: Any) -> None:
+        self.browser.editor.saveNow(lambda: func(self, *args, **kwargs))
+
+    return decorated
