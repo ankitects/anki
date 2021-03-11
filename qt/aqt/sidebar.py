@@ -24,6 +24,7 @@ from aqt.utils import (
     TR,
     askUser,
     getOnlyText,
+    save_browser_editor,
     show_invalid_search_error,
     showInfo,
     showWarning,
@@ -1142,10 +1143,8 @@ class SidebarTreeView(QTreeView):
         self.mw.deckBrowser.refresh()
         self.mw.update_undo_actions()
 
-    def remove_tags(self, item: SidebarItem) -> None:
-        self.browser.editor.saveNow(lambda: self._remove_tags(item))
-
-    def _remove_tags(self, _item: SidebarItem) -> None:
+    @save_browser_editor
+    def remove_tags(self, _item: SidebarItem) -> None:
         tags = self._selected_tags()
 
         def do_remove() -> int:
@@ -1195,10 +1194,8 @@ class SidebarTreeView(QTreeView):
         self.browser.model.beginReset()
         self.mw.taskman.with_progress(do_rename, on_done)
 
+    @save_browser_editor
     def delete_decks(self, _item: SidebarItem) -> None:
-        self.browser.editor.saveNow(self._delete_decks)
-
-    def _delete_decks(self) -> None:
         def do_delete() -> int:
             return self.mw.col.decks.remove(dids)
 
