@@ -21,7 +21,7 @@ pub trait Service {
             "{idx} => {{ let input = {input_type}::decode(input)?;\n",
             "let output = self.{rust_method}(input)?;\n",
             "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes)?; Ok(out_bytes) }}, "),
-            idx = idx + 1,
+            idx = idx,
             input_type = method.input_type,
             rust_method = method.name
         )

@@ -5,9 +5,11 @@ use super::Backend;
 use crate::{
     backend_proto as pb,
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
-    notetype::CardTemplateSchema11,
+    markdown::render_markdown,
+    notetype::{CardTemplateSchema11, RenderCardOutput},
     prelude::*,
-    text::{extract_av_tags, strip_av_tags, AVTag},
+    template::RenderedNode,
+    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
 };
 pub(super) use pb::cardrendering_service::Service as CardRenderingService;
 
@@ -115,5 +117,47 @@ impl CardRenderingService for Backend {
         Ok(pb::String {
             val: strip_av_tags(&input.val).into(),
         })
+    }
+
+    fn render_markdown(&self, input: pb::RenderMarkdownIn) -> Result<pb::String> {
+        let mut text = render_markdown(&input.markdown);
+        if input.sanitize {
+            // currently no images
+            text = sanitize_html_no_images(&text);
+        }
+        Ok(text.into())
+    }
+}
+
+fn rendered_nodes_to_proto(nodes: Vec<RenderedNode>) -> Vec<pb::RenderedTemplateNode> {
+    nodes
+        .into_iter()
+        .map(|n| pb::RenderedTemplateNode {
+            value: Some(rendered_node_to_proto(n)),
+        })
+        .collect()
+}
+
+fn rendered_node_to_proto(node: RenderedNode) -> pb::rendered_template_node::Value {
+    match node {
+        RenderedNode::Text { text } => pb::rendered_template_node::Value::Text(text),
+        RenderedNode::Replacement {
+            field_name,
+            current_text,
+            filters,
+        } => pb::rendered_template_node::Value::Replacement(pb::RenderedTemplateReplacement {
+            field_name,
+            current_text,
+            filters,
+        }),
+    }
+}
+
+impl From<RenderCardOutput> for pb::RenderCardOut {
+    fn from(o: RenderCardOutput) -> Self {
+        pb::RenderCardOut {
+            question_nodes: rendered_nodes_to_proto(o.qnodes),
+            answer_nodes: rendered_nodes_to_proto(o.anodes),
+        }
     }
 }

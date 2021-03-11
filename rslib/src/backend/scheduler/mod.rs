@@ -175,3 +175,12 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.get_queued_cards(input.fetch_limit, input.intraday_learning_only))
     }
 }
+
+impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayOut {
+    fn from(t: crate::scheduler::timing::SchedTimingToday) -> pb::SchedTimingTodayOut {
+        pb::SchedTimingTodayOut {
+            days_elapsed: t.days_elapsed,
+            next_day_at: t.next_day_at,
+        }
+    }
+}

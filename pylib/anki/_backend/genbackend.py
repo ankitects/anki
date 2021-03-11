@@ -137,11 +137,11 @@ def render_method(service_idx, method_idx, method):
         {input_assign_outer}"""
 
     if method.name in SKIP_DECODE:
-        buf += f"""return self._run_command({service_idx}, {method_idx+1}, input)
+        buf += f"""return self._run_command({service_idx}, {method_idx}, input)
 """
     else:
         buf += f"""output = pb.{method.output_type.name}()
-        output.ParseFromString(self._run_command({service_idx}, {method_idx+1}, input))
+        output.ParseFromString(self._run_command({service_idx}, {method_idx}, input))
         return output{single_field}
 """
 
