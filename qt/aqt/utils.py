@@ -974,3 +974,15 @@ def startup_info() -> Any:
     si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
     return si
+
+
+def save_editor(func: Callable) -> Callable:
+    """Call editor.saveNow with the decorated method as callback. The method's owner
+    must hold a reference to the Editor.
+    """
+
+    def decorated(self: Any, *args: Any, **kwargs: Any) -> None:
+        self.editor.saveNow(lambda: func(self, *args, **kwargs))
+
+    return decorated
+
