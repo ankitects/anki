@@ -5,7 +5,7 @@ from __future__ import annotations
 from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any
 
 import aqt
 from anki.decks import DeckTreeNode
@@ -23,6 +23,7 @@ from aqt.utils import (
     shortcut,
     showInfo,
     showWarning,
+    tooltip,
     tr,
 )
 
@@ -295,38 +296,16 @@ class DeckBrowser:
         gui_hooks.sidebar_should_refresh_decks()
         self.show()
 
-    def ask_delete_deck(self, did: int) -> bool:
-        return self.ask_delete_decks([did])
-
-    def ask_delete_decks(self, dids: List[int]) -> bool:
-        decks = [self.mw.col.decks.get(did) for did in dids]
-        if all([deck["dyn"] for deck in decks]):
-            return True
-
-        count = self.mw.col.decks.card_count(dids, include_subdecks=True)
-        if not count:
-            return True
-
-        if len(dids) == 1:
-            extra = tr(TR.DECKS_IT_HAS_CARD, count=count)
-            return askUser(
-                f"{tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=decks[0]['name'])} {extra}"
-            )
-
-        return askUser(tr(TR.DECKS_CONFIRM_DELETION, count=count))
-
     def _delete(self, did: int) -> None:
-        if self.ask_delete_deck(did):
+        def do_delete() -> int:
+            return self.mw.col.decks.remove([did])
 
-            def do_delete() -> None:
-                return self.mw.col.decks.rem(did, True)
+        def on_done(fut: Future) -> None:
+            self.show()
+            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()))
 
-            def on_done(fut: Future) -> None:
-                self.show()
-                res = fut.result()  # Required to check for errors
-
-            self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
-            self.mw.taskman.with_progress(do_delete, on_done)
+        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
+        self.mw.taskman.with_progress(do_delete, on_done)
 
     # Top buttons
     ######################################################################

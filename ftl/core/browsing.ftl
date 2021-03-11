@@ -115,7 +115,7 @@ browsing-note-deleted =
         [one] { $count } note deleted.
        *[other] { $count } notes deleted.
     }
-browsing-notes-updated = 
+browsing-notes-updated =
     { $count ->
         [one] { $count } note updated.
        *[other] { $count } notes updated.
