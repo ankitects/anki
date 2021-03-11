@@ -14,6 +14,11 @@ browsing-card = Card
 browsing-card-list = Card List
 browsing-card-state = Card State
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
+browsing-cards-deleted =
+    { $count ->
+        [one] { $count } card deleted.
+       *[other] { $count } cards deleted.
+    }
 browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
