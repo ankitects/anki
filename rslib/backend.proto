@@ -72,33 +72,18 @@ message DeckConfigID {
   int64 dcid = 1;
 }
 
-// New style RPC definitions
+// Backend methods
 ///////////////////////////////////////////////////////////
 
-service BackendService {
-  rpc LatestProgress(Empty) returns (Progress);
-  rpc SetWantsAbort(Empty) returns (Empty);
+/// while the protobuf descriptors expose the order services are defined in,
+/// that information is not available in prost, so we define an enum to make
+/// sure all clients agree on the same service indices
+enum ServiceIndex {
+  SERVICE_INDEX_SCHEDULING = 0;
+  SERVICE_INDEX_BACKEND = 1;
+}
 
-  // card rendering
-
-  rpc ExtractAVTags(ExtractAVTagsIn) returns (ExtractAVTagsOut);
-  rpc ExtractLatex(ExtractLatexIn) returns (ExtractLatexOut);
-  rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
-  rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
-  rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
-  rpc StripAVTags(String) returns (String);
-
-  // searching
-
-  rpc BuildSearchString(SearchNode) returns (String);
-  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
-  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
-  rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
-  rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
-  rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
-
-  // scheduling
-
+service SchedulingService {
   rpc SchedTimingToday(Empty) returns (SchedTimingTodayOut);
   rpc StudiedToday(Empty) returns (String);
   rpc StudiedTodayMessage(StudiedTodayMessageIn) returns (String);
@@ -121,6 +106,29 @@ service BackendService {
   rpc AnswerCard(AnswerCardIn) returns (Empty);
   rpc UpgradeScheduler(Empty) returns (Empty);
   rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
+}
+
+service BackendService {
+  rpc LatestProgress(Empty) returns (Progress);
+  rpc SetWantsAbort(Empty) returns (Empty);
+
+  // card rendering
+
+  rpc ExtractAVTags(ExtractAVTagsIn) returns (ExtractAVTagsOut);
+  rpc ExtractLatex(ExtractLatexIn) returns (ExtractLatexOut);
+  rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
+  rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
+  rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
+  rpc StripAVTags(String) returns (String);
+
+  // searching
+
+  rpc BuildSearchString(SearchNode) returns (String);
+  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
+  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
+  rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
+  rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
+  rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
 
   // stats
 
