@@ -10,11 +10,13 @@ mod deckconfig;
 mod decks;
 mod err;
 mod generic;
+mod media;
 mod notes;
 mod notetypes;
 mod progress;
 mod scheduler;
 mod search;
+mod stats;
 mod sync;
 mod tags;
 
@@ -23,9 +25,12 @@ use self::{
     config::ConfigService,
     deckconfig::DeckConfigService,
     decks::DecksService,
+    media::MediaService,
     notes::NotesService,
     notetypes::NoteTypesService,
     scheduler::SchedulingService,
+    search::SearchService,
+    stats::StatsService,
     sync::{SyncService, SyncState},
     tags::TagsService,
 };
@@ -42,12 +47,8 @@ use crate::{
     log,
     log::default_logger,
     markdown::render_markdown,
-    media::check::MediaChecker,
-    media::MediaManager,
-    notes::NoteID,
     notetype::RenderCardOutput,
     scheduler::timespan::{answer_button_time, time_span},
-    search::{concatenate_searches, replace_search_node, write_nodes, Node},
     template::RenderedNode,
     text::sanitize_html_no_images,
     undo::UndoableOpKind,
@@ -110,175 +111,6 @@ impl BackendService for Backend {
     fn set_wants_abort(&self, _input: pb::Empty) -> Result<pb::Empty> {
         self.progress_state.lock().unwrap().want_abort = true;
         Ok(().into())
-    }
-
-    // searching
-    //-----------------------------------------------
-
-    fn build_search_string(&self, input: pb::SearchNode) -> Result<pb::String> {
-        let node: Node = input.try_into()?;
-        Ok(write_nodes(&node.into_node_list()).into())
-    }
-
-    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
-        self.with_col(|col| {
-            let order = input.order.unwrap_or_default().value.into();
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchCardsOut {
-                card_ids: cids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
-        self.with_col(|col| {
-            let nids = col.search_notes(&input.search)?;
-            Ok(pb::SearchNotesOut {
-                note_ids: nids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn join_search_nodes(&self, input: pb::JoinSearchNodesIn) -> Result<pb::String> {
-        let sep = input.joiner().into();
-        let existing_nodes = {
-            let node: Node = input.existing_node.unwrap_or_default().try_into()?;
-            node.into_node_list()
-        };
-        let additional_node = input.additional_node.unwrap_or_default().try_into()?;
-        Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
-    }
-
-    fn replace_search_node(&self, input: pb::ReplaceSearchNodeIn) -> Result<pb::String> {
-        let existing = {
-            let node = input.existing_node.unwrap_or_default().try_into()?;
-            if let Node::Group(nodes) = node {
-                nodes
-            } else {
-                vec![node]
-            }
-        };
-        let replacement = input.replacement_node.unwrap_or_default().try_into()?;
-        Ok(replace_search_node(existing, replacement).into())
-    }
-
-    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<pb::UInt32> {
-        let mut search = if input.regex {
-            input.search
-        } else {
-            regex::escape(&input.search)
-        };
-        if !input.match_case {
-            search = format!("(?i){}", search);
-        }
-        let nids = input.nids.into_iter().map(NoteID).collect();
-        let field_name = if input.field_name.is_empty() {
-            None
-        } else {
-            Some(input.field_name)
-        };
-        let repl = input.replacement;
-        self.with_col(|col| {
-            col.find_and_replace(nids, &search, &repl, field_name)
-                .map(|cnt| pb::UInt32 { val: cnt as u32 })
-        })
-    }
-    // statistics
-    //-----------------------------------------------
-
-    fn card_stats(&self, input: pb::CardId) -> Result<pb::String> {
-        self.with_col(|col| col.card_stats(input.into()))
-            .map(Into::into)
-    }
-
-    fn graphs(&self, input: pb::GraphsIn) -> Result<pb::GraphsOut> {
-        self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
-    }
-
-    fn get_graph_preferences(&self, _input: pb::Empty) -> Result<pb::GraphPreferences> {
-        self.with_col(|col| col.get_graph_preferences())
-    }
-
-    fn set_graph_preferences(&self, input: pb::GraphPreferences) -> Result<pb::Empty> {
-        self.with_col(|col| col.set_graph_preferences(input))
-            .map(Into::into)
-    }
-
-    // media
-    //-----------------------------------------------
-
-    fn check_media(&self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
-        let mut handler = self.new_progress_handler();
-        let progress_fn =
-            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
-                let mut output = checker.check()?;
-
-                let report = checker.summarize_output(&mut output);
-
-                Ok(pb::CheckMediaOut {
-                    unused: output.unused,
-                    missing: output.missing,
-                    report,
-                    have_trash: output.trash_count > 0,
-                })
-            })
-        })
-    }
-
-    fn trash_media_files(&self, input: pb::TrashMediaFilesIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
-            mgr.remove_files(&mut ctx, &input.fnames)
-        })
-        .map(Into::into)
-    }
-
-    fn add_media_file(&self, input: pb::AddMediaFileIn) -> Result<pb::String> {
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
-            Ok(mgr
-                .add_file(&mut ctx, &input.desired_name, &input.data)?
-                .to_string()
-                .into())
-        })
-    }
-
-    fn empty_trash(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        let mut handler = self.new_progress_handler();
-        let progress_fn =
-            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
-
-                checker.empty_trash()
-            })
-        })
-        .map(Into::into)
-    }
-
-    fn restore_trash(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        let mut handler = self.new_progress_handler();
-        let progress_fn =
-            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
-
-                checker.restore_trash()
-            })
-        })
-        .map(Into::into)
     }
 
     // cards
@@ -494,6 +326,9 @@ impl Backend {
                 pb::ServiceIndex::CardRendering => {
                     CardRenderingService::run_method(self, method, input)
                 }
+                pb::ServiceIndex::Media => MediaService::run_method(self, method, input),
+                pb::ServiceIndex::Stats => StatsService::run_method(self, method, input),
+                pb::ServiceIndex::Search => SearchService::run_method(self, method, input),
             })
             .map_err(|err| {
                 let backend_err = anki_error_to_proto_error(err, &self.i18n);

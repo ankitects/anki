@@ -4,6 +4,7 @@
 use itertools::Itertools;
 use std::convert::{TryFrom, TryInto};
 
+use super::Backend;
 use crate::{
     backend_proto as pb,
     backend_proto::{
@@ -12,11 +13,83 @@ use crate::{
     config::SortKind,
     prelude::*,
     search::{
-        parse_search, BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode,
-        StateKind, TemplateKind,
+        concatenate_searches, parse_search, replace_search_node, write_nodes, BoolSeparator, Node,
+        PropertyKind, RatingKind, SearchNode, SortMode, StateKind, TemplateKind,
     },
     text::escape_anki_wildcards,
 };
+pub(super) use pb::search_service::Service as SearchService;
+
+impl SearchService for Backend {
+    fn build_search_string(&self, input: pb::SearchNode) -> Result<pb::String> {
+        let node: Node = input.try_into()?;
+        Ok(write_nodes(&node.into_node_list()).into())
+    }
+
+    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+        self.with_col(|col| {
+            let order = input.order.unwrap_or_default().value.into();
+            let cids = col.search_cards(&input.search, order)?;
+            Ok(pb::SearchCardsOut {
+                card_ids: cids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+        self.with_col(|col| {
+            let nids = col.search_notes(&input.search)?;
+            Ok(pb::SearchNotesOut {
+                note_ids: nids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    fn join_search_nodes(&self, input: pb::JoinSearchNodesIn) -> Result<pb::String> {
+        let sep = input.joiner().into();
+        let existing_nodes = {
+            let node: Node = input.existing_node.unwrap_or_default().try_into()?;
+            node.into_node_list()
+        };
+        let additional_node = input.additional_node.unwrap_or_default().try_into()?;
+        Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
+    }
+
+    fn replace_search_node(&self, input: pb::ReplaceSearchNodeIn) -> Result<pb::String> {
+        let existing = {
+            let node = input.existing_node.unwrap_or_default().try_into()?;
+            if let Node::Group(nodes) = node {
+                nodes
+            } else {
+                vec![node]
+            }
+        };
+        let replacement = input.replacement_node.unwrap_or_default().try_into()?;
+        Ok(replace_search_node(existing, replacement).into())
+    }
+
+    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<pb::UInt32> {
+        let mut search = if input.regex {
+            input.search
+        } else {
+            regex::escape(&input.search)
+        };
+        if !input.match_case {
+            search = format!("(?i){}", search);
+        }
+        let nids = input.nids.into_iter().map(NoteID).collect();
+        let field_name = if input.field_name.is_empty() {
+            None
+        } else {
+            Some(input.field_name)
+        };
+        let repl = input.replacement;
+        self.with_col(|col| {
+            col.find_and_replace(nids, &search, &repl, field_name)
+                .map(|cnt| pb::UInt32 { val: cnt as u32 })
+        })
+    }
+}
 
 impl TryFrom<pb::SearchNode> for Node {
     type Error = AnkiError;
