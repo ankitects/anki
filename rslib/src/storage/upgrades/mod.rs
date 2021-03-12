@@ -6,7 +6,7 @@ pub(super) const SCHEMA_MIN_VERSION: u8 = 11;
 /// The version new files are initially created with.
 pub(super) const SCHEMA_STARTING_VERSION: u8 = 11;
 /// The maximum schema version we can open.
-pub(super) const SCHEMA_MAX_VERSION: u8 = 17;
+pub(super) const SCHEMA_MAX_VERSION: u8 = 18;
 
 use super::SqliteStorage;
 use crate::err::Result;
@@ -35,9 +35,14 @@ impl SqliteStorage {
             self.upgrade_tags_to_schema17()?;
             self.db.execute_batch("update col set ver = 17")?;
         }
-        // fixme: on the next schema upgrade, change _collapsed to _expanded
-        // in DeckCommon and invert existing values, so that we can avoid
-        // serializing the values in the default case, and use
+        if ver < 18 {
+            self.db
+                .execute_batch(include_str!("schema18_upgrade.sql"))?;
+        }
+
+        // in some future schema upgrade, we may want to change
+        // _collapsed to _expanded in DeckCommon and invert existing values, so
+        // that we can avoid serializing the values in the default case, and use
         // DeckCommon::default() in new_normal() and new_filtered()
 
         Ok(())
@@ -46,6 +51,8 @@ impl SqliteStorage {
     pub(super) fn downgrade_to_schema_11(&self) -> Result<()> {
         self.begin_trx()?;
 
+        self.db
+            .execute_batch(include_str!("schema18_downgrade.sql"))?;
         self.downgrade_deck_conf_from_schema16()?;
         self.downgrade_decks_from_schema15()?;
         self.downgrade_notetypes_from_schema15()?;
