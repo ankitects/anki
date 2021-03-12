@@ -58,7 +58,6 @@ def set_due_date_dialog(
 
         on_done()
 
-    mw.checkpoint(tr(TR.ACTIONS_SET_DUE_DATE))
     mw.taskman.with_progress(set_due, after_set)
 
 
@@ -78,7 +77,6 @@ def forget_cards(
 
         on_done()
 
-    mw.checkpoint(tr(TR.ACTIONS_FORGET))
     mw.taskman.with_progress(
         lambda: mw.col.sched.schedule_cards_as_new(card_ids), on_done_wrapper
     )
