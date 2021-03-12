@@ -72,7 +72,6 @@ impl SqliteStorage {
         Ok(graves)
     }
 
-    // fixme: graves is missing an index
     pub(crate) fn update_pending_grave_usns(&self, new_usn: Usn) -> Result<()> {
         self.db
             .prepare("update graves set usn=? where usn=-1")?
