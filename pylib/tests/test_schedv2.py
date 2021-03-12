@@ -10,7 +10,7 @@ import pytest
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
-from anki.schedv2 import UnburyCurrentDeck
+from anki.scheduler import UnburyCurrentDeck
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 

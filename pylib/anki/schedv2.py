@@ -3,27 +3,23 @@
 
 from __future__ import annotations
 
-import pprint
 import random
 import time
 from heapq import *
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, DeckTreeNode, QueueConfig
+from anki.decks import Deck, DeckConfig, QueueConfig
 from anki.lang import FormatTimeSpan
-from anki.notes import Note
-from anki.utils import from_json_bytes, ids2str, intTime
+from anki.scheduler.legacy import SchedulerBaseWithLegacy
+from anki.utils import ids2str, intTime
 
-CongratsInfo = _pb.CongratsInfoOut
 CountsForDeckToday = _pb.CountsForDeckTodayOut
 SchedTimingToday = _pb.SchedTimingTodayOut
-UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
-BuryOrSuspend = _pb.BuryOrSuspendCardsIn
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -34,20 +30,19 @@ BuryOrSuspend = _pb.BuryOrSuspendCardsIn
 # odue/odid store original due/did when cards moved to filtered deck
 
 
-class Scheduler:
+class Scheduler(SchedulerBaseWithLegacy):
+    version = 2
     name = "std2"
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
     revCount: int
-    is_2021 = False
 
     def __init__(self, col: anki.collection.Collection) -> None:
-        self.col = col.weakref()
+        super().__init__(col)
         self.queueLimit = 50
         self.reportLimit = 1000
         self.dynReportLimit = 99999
         self.reps = 0
-        self.today: Optional[int] = None
         self._haveQueues = False
         self._lrnCutoff = 0
         self._updateCutoff()
@@ -56,17 +51,12 @@ class Scheduler:
     ##########################################################################
 
     def _updateCutoff(self) -> None:
-        timing = self._timing_today()
-        self.today = timing.days_elapsed
-        self.dayCutoff = timing.next_day_at
+        pass
 
     def _checkDay(self) -> None:
         # check if the day has rolled over
         if time.time() > self.dayCutoff:
             self.reset()
-
-    def _timing_today(self) -> SchedTimingToday:
-        return self.col._backend.sched_timing_today()
 
     # Fetching the next card
     ##########################################################################
@@ -926,11 +916,11 @@ limit ?"""
         min, max = self._fuzzIvlRange(ivl)
         return random.randint(min, max)
 
-    def _fuzzIvlRange(self, ivl: int) -> List[int]:
+    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
         if ivl < 2:
-            return [1, 1]
+            return (1, 1)
         elif ivl == 2:
-            return [2, 3]
+            return (2, 3)
         elif ivl < 7:
             fuzz = int(ivl * 0.25)
         elif ivl < 30:
@@ -939,7 +929,7 @@ limit ?"""
             fuzz = max(4, int(ivl * 0.05))
         # fuzz at least a day
         fuzz = max(fuzz, 1)
-        return [ivl - fuzz, ivl + fuzz]
+        return (ivl - fuzz, ivl + fuzz)
 
     def _constrainedIvl(
         self, ivl: float, conf: QueueConfig, prev: int, fuzz: bool
@@ -1000,20 +990,6 @@ limit ?"""
 
     # Daily limits
     ##########################################################################
-
-    def update_stats(
-        self,
-        deck_id: int,
-        new_delta: int = 0,
-        review_delta: int = 0,
-        milliseconds_delta: int = 0,
-    ) -> None:
-        self.col._backend.update_stats(
-            deck_id=deck_id,
-            new_delta=new_delta,
-            review_delta=review_delta,
-            millisecond_delta=milliseconds_delta,
-        )
 
     def counts_for_deck_today(self, deck_id: int) -> CountsForDeckToday:
         return self.col._backend.counts_for_deck_today(deck_id)
@@ -1157,252 +1133,6 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             s = "<" + s
         return s
 
-    # Deck list
-    ##########################################################################
-
-    def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
-        """Returns a tree of decks with counts.
-        If top_deck_id provided, counts are limited to that node."""
-        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=intTime())
-
-    # Deck finished state & custom study
-    ##########################################################################
-
-    def congratulations_info(self) -> CongratsInfo:
-        return self.col._backend.congrats_info()
-
-    def haveBuriedSiblings(self) -> bool:
-        return self.congratulations_info().have_sched_buried
-
-    def haveManuallyBuried(self) -> bool:
-        return self.congratulations_info().have_user_buried
-
-    def haveBuried(self) -> bool:
-        info = self.congratulations_info()
-        return info.have_sched_buried or info.have_user_buried
-
-    def extendLimits(self, new: int, rev: int) -> None:
-        did = self.col.decks.current()["id"]
-        self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
-
     def _is_finished(self) -> bool:
         "Don't use this, it is a stop-gap until this code is refactored."
         return not any((self.newCount, self.revCount, self._immediate_learn_count))
-
-    def totalRevForCurrentDeck(self) -> int:
-        return self.col.db.scalar(
-            f"""
-select count() from cards where id in (
-select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit ?)"""
-            % self._deckLimit(),
-            self.today,
-            self.reportLimit,
-        )
-
-    # Filtered deck handling
-    ##########################################################################
-
-    def rebuild_filtered_deck(self, deck_id: int) -> int:
-        return self.col._backend.rebuild_filtered_deck(deck_id)
-
-    def empty_filtered_deck(self, deck_id: int) -> None:
-        self.col._backend.empty_filtered_deck(deck_id)
-
-    # Suspending & burying
-    ##########################################################################
-
-    def unsuspend_cards(self, ids: List[int]) -> None:
-        self.col._backend.restore_buried_and_suspended_cards(ids)
-
-    def unbury_cards(self, ids: List[int]) -> None:
-        self.col._backend.restore_buried_and_suspended_cards(ids)
-
-    def unbury_cards_in_current_deck(
-        self,
-        mode: UnburyCurrentDeck.Mode.V = UnburyCurrentDeck.ALL,
-    ) -> None:
-        self.col._backend.unbury_cards_in_current_deck(mode)
-
-    def suspend_cards(self, ids: Sequence[int]) -> None:
-        self.col._backend.bury_or_suspend_cards(
-            card_ids=ids, mode=BuryOrSuspend.SUSPEND
-        )
-
-    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> None:
-        if manual:
-            mode = BuryOrSuspend.BURY_USER
-        else:
-            mode = BuryOrSuspend.BURY_SCHED
-        self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
-
-    def bury_note(self, note: Note) -> None:
-        self.bury_cards(note.card_ids())
-
-    # Resetting/rescheduling
-    ##########################################################################
-
-    def schedule_cards_as_new(self, card_ids: List[int]) -> None:
-        "Put cards at the end of the new queue."
-        self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
-
-    def set_due_date(self, card_ids: List[int], days: str) -> None:
-        """Set cards to be due in `days`, turning them into review cards if necessary.
-        `days` can be of the form '5' or '5..7'"""
-        self.col._backend.set_due_date(card_ids=card_ids, days=days)
-
-    def resetCards(self, ids: List[int]) -> None:
-        "Completely reset cards for export."
-        sids = ids2str(ids)
-        # we want to avoid resetting due number of existing new cards on export
-        nonNew = self.col.db.list(
-            f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})"
-            % sids
-        )
-        # reset all cards
-        self.col.db.execute(
-            f"update cards set reps=0,lapses=0,odid=0,odue=0,queue={QUEUE_TYPE_NEW}"
-            " where id in %s" % sids
-        )
-        # and forget any non-new cards, changing their due numbers
-        self.col._backend.schedule_cards_as_new(card_ids=nonNew, log=False)
-
-    # Repositioning new cards
-    ##########################################################################
-
-    def sortCards(
-        self,
-        cids: List[int],
-        start: int = 1,
-        step: int = 1,
-        shuffle: bool = False,
-        shift: bool = False,
-    ) -> None:
-        self.col._backend.sort_cards(
-            card_ids=cids,
-            starting_from=start,
-            step_size=step,
-            randomize=shuffle,
-            shift_existing=shift,
-        )
-
-    def randomizeCards(self, did: int) -> None:
-        self.col._backend.sort_deck(deck_id=did, randomize=True)
-
-    def orderCards(self, did: int) -> None:
-        self.col._backend.sort_deck(deck_id=did, randomize=False)
-
-    def resortConf(self, conf: DeckConfig) -> None:
-        for did in self.col.decks.didsForConf(conf):
-            if conf["new"]["order"] == 0:
-                self.randomizeCards(did)
-            else:
-                self.orderCards(did)
-
-    # for post-import
-    def maybeRandomizeDeck(self, did: Optional[int] = None) -> None:
-        if not did:
-            did = self.col.decks.selected()
-        conf = self.col.decks.confForDid(did)
-        # in order due?
-        if conf["new"]["order"] == NEW_CARDS_RANDOM:
-            self.randomizeCards(did)
-
-    ##########################################################################
-
-    def __repr__(self) -> str:
-        d = dict(self.__dict__)
-        del d["col"]
-        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
-
-    # Legacy aliases and helpers
-    ##########################################################################
-
-    def reschedCards(
-        self, card_ids: List[int], min_interval: int, max_interval: int
-    ) -> None:
-        self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
-
-    def buryNote(self, nid: int) -> None:
-        note = self.col.get_note(nid)
-        self.bury_cards(note.card_ids())
-
-    def unburyCards(self) -> None:
-        print(
-            "please use unbury_cards() or unbury_cards_in_current_deck instead of unburyCards()"
-        )
-        self.unbury_cards_in_current_deck()
-
-    def unburyCardsForDeck(self, type: str = "all") -> None:
-        print(
-            "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
-        )
-        if type == "all":
-            mode = UnburyCurrentDeck.ALL
-        elif type == "manual":
-            mode = UnburyCurrentDeck.USER_ONLY
-        else:  # elif type == "siblings":
-            mode = UnburyCurrentDeck.SCHED_ONLY
-        self.unbury_cards_in_current_deck(mode)
-
-    def finishedMsg(self) -> str:
-        print("finishedMsg() is obsolete")
-        return ""
-
-    def _nextDueMsg(self) -> str:
-        print("_nextDueMsg() is obsolete")
-        return ""
-
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
-        did = did or self.col.decks.selected()
-        count = self.rebuild_filtered_deck(did) or None
-        if not count:
-            return None
-        # and change to our new deck
-        self.col.decks.select(did)
-        return count
-
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
-        if lim is None:
-            self.empty_filtered_deck(did)
-            return
-
-        queue = f"""
-queue = (case when queue < 0 then queue
-              when type in (1,{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 1 else
-  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
-else
-  type
-end)
-"""
-        self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (queue, lim),
-            self.col.usn(),
-        )
-
-    def remFromDyn(self, cids: List[int]) -> None:
-        self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
-
-    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
-        did = card.did
-        if type == "new":
-            self.update_stats(did, new_delta=cnt)
-        elif type == "rev":
-            self.update_stats(did, review_delta=cnt)
-        elif type == "time":
-            self.update_stats(did, milliseconds_delta=cnt)
-
-    def deckDueTree(self) -> List:
-        "List of (base name, did, rev, lrn, new, children)"
-        print(
-            "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
-        )
-        return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
-
-    unsuspendCards = unsuspend_cards
-    buryCards = bury_cards
-    suspendCards = suspend_cards
-    forgetCards = schedule_cards_as_new

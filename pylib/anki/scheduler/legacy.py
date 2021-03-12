@@ -1,0 +1,148 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from typing import List, Optional, Tuple
+
+from anki.cards import Card
+from anki.consts import (
+    CARD_TYPE_RELEARNING,
+    CARD_TYPE_REV,
+    QUEUE_TYPE_DAY_LEARN_RELEARN,
+)
+from anki.decks import DeckConfig, QueueConfig
+from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
+from anki.utils import from_json_bytes, ids2str
+
+
+class SchedulerBaseWithLegacy(SchedulerBase):
+    "Legacy aliases and helpers. These will go away in the future."
+
+    def reschedCards(
+        self, card_ids: List[int], min_interval: int, max_interval: int
+    ) -> None:
+        self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
+
+    def buryNote(self, nid: int) -> None:
+        note = self.col.get_note(nid)
+        self.bury_cards(note.card_ids())
+
+    def unburyCards(self) -> None:
+        print(
+            "please use unbury_cards() or unbury_cards_in_current_deck instead of unburyCards()"
+        )
+        self.unbury_cards_in_current_deck()
+
+    def unburyCardsForDeck(self, type: str = "all") -> None:
+        print(
+            "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
+        )
+        if type == "all":
+            mode = UnburyCurrentDeck.ALL
+        elif type == "manual":
+            mode = UnburyCurrentDeck.USER_ONLY
+        else:  # elif type == "siblings":
+            mode = UnburyCurrentDeck.SCHED_ONLY
+        self.unbury_cards_in_current_deck(mode)
+
+    def finishedMsg(self) -> str:
+        print("finishedMsg() is obsolete")
+        return ""
+
+    def _nextDueMsg(self) -> str:
+        print("_nextDueMsg() is obsolete")
+        return ""
+
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+        did = did or self.col.decks.selected()
+        count = self.rebuild_filtered_deck(did) or None
+        if not count:
+            return None
+        # and change to our new deck
+        self.col.decks.select(did)
+        return count
+
+    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+        if lim is None:
+            self.empty_filtered_deck(did)
+            return
+
+        queue = f"""
+queue = (case when queue < 0 then queue
+              when type in (1,{CARD_TYPE_RELEARNING}) then
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else
+  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
+else
+  type
+end)
+"""
+        self.col.db.execute(
+            """
+update cards set did = odid, %s,
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
+            % (queue, lim),
+            self.col.usn(),
+        )
+
+    def remFromDyn(self, cids: List[int]) -> None:
+        self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
+
+    # used by v2 scheduler and some add-ons
+    def update_stats(
+        self,
+        deck_id: int,
+        new_delta: int = 0,
+        review_delta: int = 0,
+        milliseconds_delta: int = 0,
+    ) -> None:
+        self.col._backend.update_stats(
+            deck_id=deck_id,
+            new_delta=new_delta,
+            review_delta=review_delta,
+            millisecond_delta=milliseconds_delta,
+        )
+
+    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
+        did = card.did
+        if type == "new":
+            self.update_stats(did, new_delta=cnt)
+        elif type == "rev":
+            self.update_stats(did, review_delta=cnt)
+        elif type == "time":
+            self.update_stats(did, milliseconds_delta=cnt)
+
+    def deckDueTree(self) -> List:
+        "List of (base name, did, rev, lrn, new, children)"
+        print(
+            "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
+        )
+        return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
+
+    # unit tests
+    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
+        return (ivl, ivl)
+
+    def _cardConf(self, card: Card) -> DeckConfig:
+        return self.col.decks.confForDid(card.did)
+
+    def _home_config(self, card: Card) -> DeckConfig:
+        return self.col.decks.confForDid(card.odid or card.did)
+
+    def _newConf(self, card: Card) -> QueueConfig:
+        return self._home_config(card)["new"]
+
+    def _lapseConf(self, card: Card) -> QueueConfig:
+        return self._home_config(card)["lapse"]
+
+    def _revConf(self, card: Card) -> QueueConfig:
+        return self._home_config(card)["rev"]
+
+    def _lrnConf(self, card: Card) -> QueueConfig:
+        if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):
+            return self._lapseConf(card)
+        else:
+            return self._newConf(card)
+
+    unsuspendCards = SchedulerBase.unsuspend_cards
+    buryCards = SchedulerBase.bury_cards
+    suspendCards = SchedulerBase.suspend_cards
+    forgetCards = SchedulerBase.schedule_cards_as_new

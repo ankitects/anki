@@ -1056,7 +1056,7 @@ title="%s" %s>%s</button>""" % (
         elif isinstance(result, BackendUndo):
             name = result.name
 
-            if reviewing and self.col.sched.is_2021:
+            if reviewing and self.col.sched.version == 3:
                 # new scheduler will have taken care of updating queue
                 just_refresh_reviewer = True
 
