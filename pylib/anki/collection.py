@@ -30,9 +30,9 @@ from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, NoteType
 from anki.notes import Note
-from anki.sched import Scheduler as V1Scheduler
+from anki.scheduler.v1 import Scheduler as V1Scheduler
+from anki.scheduler.v2 import Scheduler as V2Scheduler
 from anki.scheduler.v3 import Scheduler as V3TestScheduler
-from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
 from anki.types import assert_exhaustive

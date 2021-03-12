@@ -4,12 +4,8 @@
 from typing import List, Optional, Tuple
 
 from anki.cards import Card
-from anki.consts import (
-    CARD_TYPE_RELEARNING,
-    CARD_TYPE_REV,
-    QUEUE_TYPE_DAY_LEARN_RELEARN,
-)
-from anki.decks import DeckConfig, QueueConfig
+from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
+from anki.decks import DeckConfig
 from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
 from anki.utils import from_json_bytes, ids2str
 
@@ -117,31 +113,15 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         )
         return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
 
-    # unit tests
-    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
-        return (ivl, ivl)
+    # legacy in v3 but used by unit tests; redefined in v2/v1
 
     def _cardConf(self, card: Card) -> DeckConfig:
         return self.col.decks.confForDid(card.did)
 
-    def _home_config(self, card: Card) -> DeckConfig:
-        return self.col.decks.confForDid(card.odid or card.did)
+    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
+        return (ivl, ivl)
 
-    def _newConf(self, card: Card) -> QueueConfig:
-        return self._home_config(card)["new"]
-
-    def _lapseConf(self, card: Card) -> QueueConfig:
-        return self._home_config(card)["lapse"]
-
-    def _revConf(self, card: Card) -> QueueConfig:
-        return self._home_config(card)["rev"]
-
-    def _lrnConf(self, card: Card) -> QueueConfig:
-        if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):
-            return self._lapseConf(card)
-        else:
-            return self._newConf(card)
-
+    # simple aliases
     unsuspendCards = SchedulerBase.unsuspend_cards
     buryCards = SchedulerBase.bury_cards
     suspendCards = SchedulerBase.suspend_cards
