@@ -115,7 +115,7 @@ impl Collection {
                 if log {
                     col.log_manually_scheduled_review(&card, &original, usn)?;
                 }
-                col.update_card_inner(&mut card, &original, usn)?;
+                col.update_card_inner(&mut card, original, usn)?;
                 position += 1;
             }
             col.set_next_card_position(position)?;
@@ -156,7 +156,7 @@ impl Collection {
         for mut card in cards {
             let original = card.clone();
             card.set_new_position(sorter.position(&card));
-            self.update_card_inner(&mut card, &original, usn)?;
+            self.update_card_inner(&mut card, original, usn)?;
         }
         self.storage.clear_searched_cards_table()
     }
@@ -178,7 +178,7 @@ impl Collection {
         for mut card in self.storage.all_searched_cards()? {
             let original = card.clone();
             card.set_new_position(card.due as u32 + by);
-            self.update_card_inner(&mut card, &original, usn)?;
+            self.update_card_inner(&mut card, original, usn)?;
         }
         self.storage.clear_searched_cards_table()?;
         Ok(())
