@@ -27,7 +27,8 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import BackendUndo, Checkpoint, Collection, Config, ReviewUndo
+from anki.collection import BackendUndo, Checkpoint, Collection, Config, \
+    ReviewUndo, UndoResult
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag
@@ -1029,53 +1030,58 @@ title="%s" %s>%s</button>""" % (
     # Undo & autosave
     ##########################################################################
 
-    def onUndo(self) -> None:
-        reviewing = self.state == "review"
-        result = self.col.undo()
-        just_refresh_reviewer = False
+    def undo(self, on_done: Optional[Callable[[UndoResult], None]]) -> None:
+        def on_done_outer(fut: Future) -> None:
+            result = fut.result()
+            reviewing = self.state == "review"
+            just_refresh_reviewer = False
 
-        if result is None:
-            # should not happen
-            showInfo("nothing to undo")
+            if result is None:
+                # should not happen
+                showInfo("nothing to undo")
+                self.update_undo_actions()
+                return
+
+            elif isinstance(result, ReviewUndo):
+                name = tr(TR.SCHEDULING_REVIEW)
+
+                if reviewing:
+                    # push the undone card to the top of the queue
+                    cid = result.card.id
+                    card = self.col.getCard(cid)
+                    self.reviewer.cardQueue.append(card)
+
+                    gui_hooks.review_did_undo(cid)
+
+                    just_refresh_reviewer = True
+
+            elif isinstance(result, BackendUndo):
+                name = result.name
+
+                if reviewing and self.col.sched.version == 3:
+                    # new scheduler will have taken care of updating queue
+                    just_refresh_reviewer = True
+
+            elif isinstance(result, Checkpoint):
+                name = result.name
+
+            else:
+                assert_exhaustive(result)
+                assert False
+
+            if just_refresh_reviewer:
+                self.reviewer.nextCard()
+            else:
+                # full queue+gui reset required
+                self.reset()
+
+            tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
+            gui_hooks.state_did_revert(name)
             self.update_undo_actions()
-            return
+            if on_done:
+                on_done(result)
 
-        elif isinstance(result, ReviewUndo):
-            name = tr(TR.SCHEDULING_REVIEW)
-
-            if reviewing:
-                # push the undone card to the top of the queue
-                cid = result.card.id
-                card = self.col.getCard(cid)
-                self.reviewer.cardQueue.append(card)
-
-                gui_hooks.review_did_undo(cid)
-
-                just_refresh_reviewer = True
-
-        elif isinstance(result, BackendUndo):
-            name = result.name
-
-            if reviewing and self.col.sched.version == 3:
-                # new scheduler will have taken care of updating queue
-                just_refresh_reviewer = True
-
-        elif isinstance(result, Checkpoint):
-            name = result.name
-
-        else:
-            assert_exhaustive(result)
-            assert False
-
-        if just_refresh_reviewer:
-            self.reviewer.nextCard()
-        else:
-            # full queue+gui reset required
-            self.reset()
-
-        tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
-        gui_hooks.state_did_revert(name)
-        self.update_undo_actions()
+        self.taskman.with_progress(self.col.undo, on_done_outer)
 
     def update_undo_actions(self) -> None:
         """Update menu text and enable/disable menu item as appropriate.
@@ -1105,6 +1111,7 @@ title="%s" %s>%s</button>""" % (
         self.update_undo_actions()
 
     maybeEnableUndo = update_undo_actions
+    onUndo = undo
 
     # Other menu operations
     ##########################################################################
