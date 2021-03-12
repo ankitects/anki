@@ -24,7 +24,7 @@ def set_due_date_dialog(
     if not card_ids:
         return
 
-    default = mw.col.get_config_string(config_key) if config_key else ""
+    default = mw.col.get_config_string(config_key) if config_key is not None else ""
     prompt = "\n".join(
         [
             tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
