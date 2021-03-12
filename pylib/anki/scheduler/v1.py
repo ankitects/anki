@@ -13,8 +13,9 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import QueueConfig
-from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
+
+from .v2 import Scheduler as V2
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
