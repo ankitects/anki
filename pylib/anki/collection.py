@@ -72,6 +72,7 @@ class Checkpoint:
 class BackendUndo:
     name: str
 
+UndoResult = Union[None, BackendUndo, Checkpoint, ReviewUndo]
 
 class Collection:
     sched: Union[V1Scheduler, V2Scheduler]
@@ -794,7 +795,7 @@ table.review-log {{ {revlog_style} }}
         is run."""
         self._undo = None
 
-    def undo(self) -> Union[None, BackendUndo, Checkpoint, ReviewUndo]:
+    def undo(self) -> UndoResult:
         """Returns ReviewUndo if undoing a v1/v2 scheduler review.
         Returns None if the undo queue was empty."""
         # backend?
