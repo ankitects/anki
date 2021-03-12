@@ -158,7 +158,7 @@ impl AnkiError {
                     SearchErrorKind::InvalidPropOperator(ctx) => i18n
                         .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
                         .into(),
-                    SearchErrorKind::Regex(text) => text.into(),
+                    SearchErrorKind::Regex(text) => format!("<pre>`{}`</pre>", text.replace('`', "'")).into(),
                     SearchErrorKind::Other(Some(info)) => info.into(),
                     SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalidOther),
                     SearchErrorKind::InvalidNumber { provided, context } => i18n
