@@ -27,8 +27,14 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import BackendUndo, Checkpoint, Collection, Config, \
-    ReviewUndo, UndoResult
+from anki.collection import (
+    BackendUndo,
+    Checkpoint,
+    Collection,
+    Config,
+    ReviewUndo,
+    UndoResult,
+)
 from anki.decks import Deck
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag

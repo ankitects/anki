@@ -72,7 +72,9 @@ class Checkpoint:
 class BackendUndo:
     name: str
 
+
 UndoResult = Union[None, BackendUndo, Checkpoint, ReviewUndo]
+
 
 class Collection:
     sched: Union[V1Scheduler, V2Scheduler]
