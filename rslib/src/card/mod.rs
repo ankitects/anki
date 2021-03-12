@@ -211,7 +211,7 @@ impl Collection {
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.scheduler_version();
         let usn = self.usn()?;
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOpKind::SetDeck), |col| {
             for mut card in col.storage.all_searched_cards()? {
                 if card.deck_id == deck_id {
                     continue;

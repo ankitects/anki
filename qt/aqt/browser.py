@@ -55,7 +55,6 @@ from aqt.utils import (
     shortcut,
     show_invalid_search_error,
     showInfo,
-    showWarning,
     tooltip,
     tr,
 )
@@ -1185,15 +1184,17 @@ where id in %s"""
         if not ret.name:
             return
         did = self.col.decks.id(ret.name)
-        deck = self.col.decks.get(did)
-        if deck["dyn"]:
-            showWarning(tr(TR.BROWSING_CARDS_CANT_BE_MANUALLY_MOVED_INTO))
-            return
         self.model.beginReset()
-        self.mw.checkpoint(tr(TR.BROWSING_CHANGE_DECK))
-        self.col.set_deck(cids, did)
-        self.model.endReset()
-        self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
+
+        def do_move() -> None:
+            self.col.set_deck(cids, did)
+
+        def on_done(fut: Future) -> None:
+            self.model.endReset()
+            fut.result()
+            self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
+
+        self.mw.taskman.with_progress(do_move, on_done)
 
     # Tags
     ######################################################################

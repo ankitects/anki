@@ -21,6 +21,7 @@ pub enum UndoableOpKind {
     UpdateNote,
     UpdatePreferences,
     UpdateTag,
+    SetDeck,
 }
 
 impl UndoableOpKind {
@@ -48,6 +49,7 @@ impl Collection {
             UndoableOpKind::UpdateNote => TR::UndoUpdateNote,
             UndoableOpKind::UpdatePreferences => TR::PreferencesPreferences,
             UndoableOpKind::UpdateTag => TR::UndoUpdateTag,
+            UndoableOpKind::SetDeck => TR::BrowsingChangeDeck,
         };
 
         self.i18n.tr(key).to_string()
