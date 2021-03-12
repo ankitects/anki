@@ -4,9 +4,11 @@
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
+    config::StringKey,
     deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
     err::Result,
     prelude::AnkiError,
+    undo::UndoableOpKind,
 };
 use lazy_static::lazy_static;
 use rand::distributions::{Distribution, Uniform};
@@ -84,12 +86,21 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
 }
 
 impl Collection {
-    pub fn set_due_date(&mut self, cids: &[CardID], spec: DueDateSpecifier) -> Result<()> {
+    /// `days` should be in a format parseable by `parse_due_date_str`.
+    /// If `context` is provided, provided key will be updated with the new
+    /// value of `days`.
+    pub fn set_due_date(
+        &mut self,
+        cids: &[CardID],
+        days: &str,
+        context: Option<StringKey>,
+    ) -> Result<()> {
+        let spec = parse_due_date_str(days)?;
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
         let mut rng = rand::thread_rng();
         let distribution = Uniform::from(spec.min..=spec.max);
-        self.transact(None, |col| {
+        self.transact(Some(UndoableOpKind::SetDueDate), |col| {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
@@ -99,6 +110,9 @@ impl Collection {
                 col.update_card_inner(&mut card, &original, usn)?;
             }
             col.storage.clear_searched_cards_table()?;
+            if let Some(key) = context {
+                col.set_string(key, days)?;
+            }
             Ok(())
         })
     }

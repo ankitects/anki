@@ -10,7 +10,6 @@ use crate::{
     prelude::*,
     scheduler::{
         new::NewCardSortOrder,
-        parse_due_date_str,
         states::{CardState, NextCardStates},
     },
     stats::studied_today,
@@ -113,9 +112,10 @@ impl SchedulingService for Backend {
     }
 
     fn set_due_date(&self, input: pb::SetDueDateIn) -> Result<pb::Empty> {
+        let config = input.config_key.map(Into::into);
+        let days = input.days;
         let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
-        let spec = parse_due_date_str(&input.days)?;
-        self.with_col(|col| col.set_due_date(&cids, spec).map(Into::into))
+        self.with_col(|col| col.set_due_date(&cids, &days, config).map(Into::into))
     }
 
     fn sort_cards(&self, input: pb::SortCardsIn) -> Result<pb::Empty> {

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from concurrent.futures import Future
-from typing import List
+from typing import List, Optional
 
 import aqt
 from anki.collection import Config
@@ -18,20 +18,19 @@ def set_due_date_dialog(
     mw: aqt.AnkiQt,
     parent: QDialog,
     card_ids: List[int],
-    default_key: Config.String.Key.V,
+    config_key: Optional[Config.String.Key.V],
     on_done: Callable[[], None],
 ) -> None:
     if not card_ids:
         return
 
-    default = mw.col.get_config_string(default_key)
+    default = mw.col.get_config_string(config_key) if config_key else ""
     prompt = "\n".join(
         [
             tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
             tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT_HINT),
         ]
     )
-
     (days, success) = getText(
         prompt=prompt,
         parent=parent,
@@ -42,9 +41,7 @@ def set_due_date_dialog(
         return
 
     def set_due() -> None:
-        mw.col.sched.set_due_date(card_ids, days)
-        if days != default:
-            mw.col.set_config_string(default_key, days)
+        mw.col.sched.set_due_date(card_ids, days, config_key)
 
     def after_set(fut: Future) -> None:
         try:
