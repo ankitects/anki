@@ -518,7 +518,7 @@ class Browser(QMainWindow):
         # actions
         f = self.form
         # edit
-        qconnect(f.actionUndo.triggered, self.mw.onUndo)
+        qconnect(f.actionUndo.triggered, self.undo)
         qconnect(f.actionInvertSelection.triggered, self.invertSelection)
         qconnect(f.actionSelectNotes.triggered, self.selectNotes)
         if not isMac:
@@ -1497,6 +1497,16 @@ where id in %s"""
 
     def on_tag_list_update(self) -> None:
         self.sidebar.refresh()
+
+    # Undo
+    ######################################################################
+
+    def undo(self) -> None:
+        # need to make sure we don't hang the UI by redrawing the card list
+        # during the long-running op. mw.undo will take care of the progress
+        # dialog
+        self.setUpdatesEnabled(False)
+        self.mw.undo(lambda _: self.setUpdatesEnabled(True))
 
     def onUndoState(self, on: bool) -> None:
         self.form.actionUndo.setEnabled(on)
