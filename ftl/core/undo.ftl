@@ -17,3 +17,4 @@ undo-update-tag = Update Tag
 undo-update-note = Update Note
 undo-update-card = Update Card
 undo-update-deck = Update Deck
+undo-forget-card = Forget Card
