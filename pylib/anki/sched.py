@@ -22,6 +22,7 @@ from anki.utils import ids2str, intTime
 
 
 class Scheduler(V2):
+    version = 1
     name = "std"
     haveCustomStudy = True
     _spreadRev = True
@@ -38,7 +39,6 @@ class Scheduler(V2):
         self.lrnCount = 0
         self.revCount = 0
         self.newCount = 0
-        self.today: Optional[int] = None
         self._haveQueues = False
         self._updateCutoff()
 
