@@ -809,7 +809,7 @@ time = %(time)d;
             mw=self.mw,
             parent=self.mw,
             card_ids=[self.card.id],
-            default_key=Config.String.SET_DUE_REVIEWER,
+            config_key=Config.String.SET_DUE_REVIEWER,
             on_done=self.mw.reset,
         )
 

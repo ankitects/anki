@@ -1349,6 +1349,7 @@ where id in %s"""
 
     def _after_schedule(self) -> None:
         self.model.reset()
+        # updates undo status
         self.mw.requireReset(reason=ResetReason.BrowserReschedule, context=self)
 
     @save_editor
@@ -1357,7 +1358,7 @@ where id in %s"""
             mw=self.mw,
             parent=self,
             card_ids=self.selectedCards(),
-            default_key=Config.String.SET_DUE_BROWSER,
+            config_key=Config.String.SET_DUE_BROWSER,
             on_done=self._after_schedule,
         )
 

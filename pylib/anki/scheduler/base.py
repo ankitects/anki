@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import anki
 import anki._backend.backend_pb2 as _pb
+from anki.config import Config
 
 SchedTimingToday = _pb.SchedTimingTodayOut
 
@@ -129,10 +130,20 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         "Put cards at the end of the new queue."
         self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
-    def set_due_date(self, card_ids: List[int], days: str) -> None:
+    def set_due_date(
+        self,
+        card_ids: List[int],
+        days: str,
+        config_key: Optional[Config.String.Key.V] = None,
+    ) -> None:
         """Set cards to be due in `days`, turning them into review cards if necessary.
-        `days` can be of the form '5' or '5..7'"""
-        self.col._backend.set_due_date(card_ids=card_ids, days=days)
+        `days` can be of the form '5' or '5..7'
+        If `config_key` is provided, provided days will be remembered in config."""
+        if config_key:
+            key = Config.String(key=config_key)
+        else:
+            key = None
+        self.col._backend.set_due_date(card_ids=card_ids, days=days, config_key=key)
 
     def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."

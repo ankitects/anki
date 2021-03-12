@@ -43,6 +43,12 @@ impl From<StringKeyProto> for StringKey {
     }
 }
 
+impl From<pb::config::String> for StringKey {
+    fn from(key: pb::config::String) -> Self {
+        key.key().into()
+    }
+}
+
 impl ConfigService for Backend {
     fn get_config_json(&self, input: pb::String) -> Result<pb::Json> {
         self.with_col(|col| {

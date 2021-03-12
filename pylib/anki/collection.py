@@ -21,7 +21,7 @@ import anki.template
 from anki import hooks
 from anki._backend import RustBackend
 from anki.cards import Card
-from anki.config import ConfigManager
+from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
@@ -49,7 +49,6 @@ from anki.utils import (
 SearchNode = _pb.SearchNode
 SearchJoiner = Literal["AND", "OR"]
 Progress = _pb.Progress
-Config = _pb.Config
 EmptyCardsReport = _pb.EmptyCardsReport
 GraphPreferences = _pb.GraphPreferences
 BuiltinSort = _pb.SortOrder.Builtin
