@@ -475,6 +475,44 @@ class Browser(QMainWindow):
         gui_hooks.browser_will_show(self)
         self.show()
 
+    def perform_op(
+        self,
+        op: Callable,
+        on_done: Callable[[Future], None],
+        *,
+        reset_model: bool = True,
+    ) -> None:
+        """Run the provided operation on a background thread.
+        - Ensures any changes in the editor have been saved.
+        - Shows progress popup for the duration of the op.
+        - Ensures the browser doesn't try to redraw during the operation, which can lead
+        to a frozen UI
+        - Updates undo state at the end of the operation
+        - If `reset_model` is true, calls beginReset()/endReset(), which will
+        refresh the displayed data, and update the editor's note. If the current search
+        has changed results, you will need to call .search() yourself in `on_done`.
+
+        Caller must run fut.result() in the on_done() callback to check for errors;
+        if the operation returned a value, it will be returned by .result()
+        """
+
+        def wrapped_op() -> None:
+            if reset_model:
+                self.model.beginReset()
+            self.setUpdatesEnabled(False)
+            op()
+
+        def wrapped_done(fut: Future) -> None:
+            self.setUpdatesEnabled(True)
+            on_done(fut)
+            if reset_model:
+                self.model.endReset()
+            self.mw.update_undo_actions()
+
+        self.editor.saveNow(
+            lambda: self.mw.taskman.with_progress(wrapped_op, wrapped_done)
+        )
+
     def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
         # actions
@@ -500,9 +538,9 @@ class Browser(QMainWindow):
         qconnect(f.actionFindDuplicates.triggered, self.onFindDupes)
         qconnect(f.actionFindReplace.triggered, self.onFindReplace)
         qconnect(f.actionManage_Note_Types.triggered, self.mw.onNoteTypes)
-        qconnect(f.actionDelete.triggered, self.deleteNotes)
+        qconnect(f.actionDelete.triggered, self.delete_selected_notes)
         # cards
-        qconnect(f.actionChange_Deck.triggered, self.setDeck)
+        qconnect(f.actionChange_Deck.triggered, self.set_deck_of_selected_cards)
         qconnect(f.action_Info.triggered, self.showCardInfo)
         qconnect(f.actionReposition.triggered, self.reposition)
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
@@ -1122,55 +1160,62 @@ where id in %s"""
     # Card deletion
     ######################################################################
 
-    def deleteNotes(self) -> None:
+    def delete_selected_notes(self) -> None:
+        # ensure deletion is not accidentally triggered when the user is focused
+        # in the editing screen or search bar
         focus = self.focusWidget()
         if focus != self.form.tableView:
             return
-        self._deleteNotes()
 
-    def _deleteNotes(self) -> None:
+        # nothing selected?
         nids = self.selectedNotes()
         if not nids:
             return
-        self.mw.checkpoint(tr(TR.BROWSING_DELETE_NOTES))
-        self.model.beginReset()
+
         # figure out where to place the cursor after the deletion
-        curRow = self.form.tableView.selectionModel().currentIndex().row()
-        selectedRows = [
+        current_row = self.form.tableView.selectionModel().currentIndex().row()
+        selected_rows = [
             i.row() for i in self.form.tableView.selectionModel().selectedRows()
         ]
-        if min(selectedRows) < curRow < max(selectedRows):
+        if min(selected_rows) < current_row < max(selected_rows):
             # last selection in middle; place one below last selected item
-            move = sum(1 for i in selectedRows if i > curRow)
-            newRow = curRow - move
-        elif max(selectedRows) <= curRow:
+            move = sum(1 for i in selected_rows if i > current_row)
+            new_row = current_row - move
+        elif max(selected_rows) <= current_row:
             # last selection at bottom; place one below bottommost selection
-            newRow = max(selectedRows) - len(nids) + 1
+            new_row = max(selected_rows) - len(nids) + 1
         else:
             # last selection at top; place one above topmost selection
-            newRow = min(selectedRows) - 1
-        self.col.remove_notes(nids)
-        self.search()
-        if len(self.model.cards):
-            newRow = min(newRow, len(self.model.cards) - 1)
-            newRow = max(newRow, 0)
-            self.model.focusedCard = self.model.cards[newRow]
-        self.model.endReset()
-        self.mw.reset()
-        tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
+            new_row = min(selected_rows) - 1
+
+        def do_remove() -> None:
+            self.col.remove_notes(nids)
+
+        def on_done(fut: Future) -> None:
+            fut.result()
+            self.search()
+            if len(self.model.cards):
+                row = min(new_row, len(self.model.cards) - 1)
+                row = max(row, 0)
+                self.model.focusedCard = self.model.cards[row]
+            tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
+
+        self.perform_op(do_remove, on_done, reset_model=True)
+
+    # legacy
+
+    deleteNotes = delete_selected_notes
 
     # Deck change
     ######################################################################
 
-    def setDeck(self) -> None:
-        self.editor.saveNow(self._setDeck)
-
-    def _setDeck(self) -> None:
+    def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
 
         cids = self.selectedCards()
         if not cids:
             return
+
         did = self.mw.col.db.scalar("select did from cards where id = ?", cids[0])
         current = self.mw.col.decks.get(did)["name"]
         ret = StudyDeck(
@@ -1184,17 +1229,19 @@ where id in %s"""
         if not ret.name:
             return
         did = self.col.decks.id(ret.name)
-        self.model.beginReset()
 
         def do_move() -> None:
             self.col.set_deck(cids, did)
 
         def on_done(fut: Future) -> None:
-            self.model.endReset()
             fut.result()
             self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
 
-        self.mw.taskman.with_progress(do_move, on_done)
+        self.perform_op(do_move, on_done)
+
+    # legacy
+
+    setDeck = set_deck_of_selected_cards
 
     # Tags
     ######################################################################
