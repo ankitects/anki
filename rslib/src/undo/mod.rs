@@ -174,6 +174,11 @@ impl Collection {
         self.clear_study_queues();
     }
 
+    pub(crate) fn update_state_after_dbproxy_modification(&mut self) {
+        self.discard_undo_and_study_queues();
+        self.state.modified_by_dbproxy = true;
+    }
+
     #[inline]
     pub(crate) fn save_undo(&mut self, item: impl Into<UndoableChange>) {
         self.state.undo.save(item.into());

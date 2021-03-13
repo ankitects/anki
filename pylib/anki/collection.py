@@ -195,23 +195,17 @@ class Collection:
 
     flush = setMod
 
-    def modified_after_begin(self) -> bool:
+    def modified_by_backend(self) -> bool:
         # Until we can move away from long-running transactions, the Python
-        # code needs to know if transaction should be committed, so we need
+        # code needs to know if the transaction should be committed, so we need
         # to check if the backend updated the modification time.
         return self.db.last_begin_at != self.mod
 
     def save(self, name: Optional[str] = None, trx: bool = True) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
         # commit needed?
-        if self.db.modified_in_python or self.modified_after_begin():
-            if self.db.modified_in_python:
-                self.db.execute("update col set mod = ?", intTime(1000))
-                self.db.modified_in_python = False
-            else:
-                # modifications made by the backend will have already bumped
-                # mtime
-                pass
+        if self.db.modified_in_python or self.modified_by_backend():
+            self.db.modified_in_python = False
             self.db.commit()
             if trx:
                 self.db.begin()
