@@ -2,10 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod changes;
-mod ops;
 
+pub use crate::ops::Op;
 pub(crate) use changes::UndoableChange;
-pub use ops::UndoableOpKind;
 
 use crate::backend_proto as pb;
 use crate::prelude::*;
@@ -15,7 +14,7 @@ const UNDO_LIMIT: usize = 30;
 
 #[derive(Debug)]
 pub(crate) struct UndoableOp {
-    pub kind: UndoableOpKind,
+    pub kind: Op,
     pub timestamp: TimestampSecs,
     pub changes: Vec<UndoableChange>,
 }
@@ -51,7 +50,7 @@ impl UndoManager {
         }
     }
 
-    fn begin_step(&mut self, op: Option<UndoableOpKind>) {
+    fn begin_step(&mut self, op: Option<Op>) {
         println!("begin: {:?}", op);
         if op.is_none() {
             self.undo_steps.clear();
@@ -88,11 +87,11 @@ impl UndoManager {
             .unwrap_or(true)
     }
 
-    fn can_undo(&self) -> Option<UndoableOpKind> {
+    fn can_undo(&self) -> Option<Op> {
         self.undo_steps.front().map(|s| s.kind)
     }
 
-    fn can_redo(&self) -> Option<UndoableOpKind> {
+    fn can_redo(&self) -> Option<Op> {
         self.redo_steps.last().map(|s| s.kind)
     }
 
@@ -102,11 +101,11 @@ impl UndoManager {
 }
 
 impl Collection {
-    pub fn can_undo(&self) -> Option<UndoableOpKind> {
+    pub fn can_undo(&self) -> Option<Op> {
         self.state.undo.can_undo()
     }
 
-    pub fn can_redo(&self) -> Option<UndoableOpKind> {
+    pub fn can_redo(&self) -> Option<Op> {
         self.state.undo.can_redo()
     }
 
@@ -156,7 +155,7 @@ impl Collection {
     }
 
     /// If op is None, clears the undo/redo queues.
-    pub(crate) fn begin_undoable_operation(&mut self, op: Option<UndoableOpKind>) {
+    pub(crate) fn begin_undoable_operation(&mut self, op: Option<Op>) {
         self.state.undo.begin_step(op);
     }
 
@@ -219,7 +218,7 @@ mod test {
 
         // record a few undo steps
         for i in 3..=4 {
-            col.transact(Some(UndoableOpKind::UpdateCard), |col| {
+            col.transact(Some(Op::UpdateCard), |col| {
                 col.get_and_update_card(cid, |card| {
                     card.interval = i;
                     Ok(())
@@ -231,41 +230,41 @@ mod test {
         }
 
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
-        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // undo a step
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
-        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
 
         // and again
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 2);
         assert_eq!(col.can_undo(), None);
-        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
 
         // redo a step
         col.redo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
-        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
 
         // and another
         col.redo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
-        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and undo the redo
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
-        assert_eq!(col.can_redo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
 
         // if any action is performed, it should clear the redo queue
-        col.transact(Some(UndoableOpKind::UpdateCard), |col| {
+        col.transact(Some(Op::UpdateCard), |col| {
             col.get_and_update_card(cid, |card| {
                 card.interval = 5;
                 Ok(())
@@ -275,7 +274,7 @@ mod test {
         })
         .unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
-        assert_eq!(col.can_undo(), Some(UndoableOpKind::UpdateCard));
+        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and any action that doesn't support undoing will clear both queues

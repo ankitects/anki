@@ -26,7 +26,7 @@ impl CardsService for Backend {
             let op = if input.skip_undo_entry {
                 None
             } else {
-                Some(UndoableOpKind::UpdateCard)
+                Some(Op::UpdateCard)
             };
             let mut card: Card = input.card.ok_or(AnkiError::NotFound)?.try_into()?;
             col.update_card_with_op(&mut card, op)

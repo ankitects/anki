@@ -306,7 +306,7 @@ impl Collection {
     }
 
     pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
-        self.transact(Some(UndoableOpKind::AddNote), |col| {
+        self.transact(Some(Op::AddNote), |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
@@ -335,14 +335,10 @@ impl Collection {
 
     #[cfg(test)]
     pub(crate) fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        self.update_note_with_op(note, Some(UndoableOpKind::UpdateNote))
+        self.update_note_with_op(note, Some(Op::UpdateNote))
     }
 
-    pub(crate) fn update_note_with_op(
-        &mut self,
-        note: &mut Note,
-        op: Option<UndoableOpKind>,
-    ) -> Result<()> {
+    pub(crate) fn update_note_with_op(&mut self, note: &mut Note, op: Option<Op>) -> Result<()> {
         let mut existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
         if !note_differs_from_db(&mut existing_note, note) {
             // nothing to do
@@ -398,7 +394,7 @@ impl Collection {
     /// Remove provided notes, and any cards that use them.
     pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<()> {
         let usn = self.usn()?;
-        self.transact(Some(UndoableOpKind::RemoveNote), |col| {
+        self.transact(Some(Op::RemoveNote), |col| {
             for nid in nids {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {

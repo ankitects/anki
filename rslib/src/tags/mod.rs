@@ -341,7 +341,7 @@ impl Collection {
         tags: &[Regex],
         mut repl: R,
     ) -> Result<usize> {
-        self.transact(Some(UndoableOpKind::UpdateTag), |col| {
+        self.transact(Some(Op::UpdateTag), |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut changed = false;
                 for re in tags {
@@ -392,7 +392,7 @@ impl Collection {
         )
         .map_err(|_| AnkiError::invalid_input("invalid regex"))?;
 
-        self.transact(Some(UndoableOpKind::UpdateTag), |col| {
+        self.transact(Some(Op::UpdateTag), |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut need_to_add = true;
                 let mut match_count = 0;
