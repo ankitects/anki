@@ -14,7 +14,18 @@ import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
 from threading import Thread
-from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    TextIO,
+    Tuple,
+    TypeVar,
+    cast,
+)
 
 import anki
 import aqt
@@ -34,6 +45,7 @@ from anki.collection import (
     Config,
     ReviewUndo,
     UndoResult,
+    UndoStatus,
 )
 from anki.decks import Deck
 from anki.hooks import runHook
@@ -73,6 +85,8 @@ from aqt.utils import (
     tooltip,
     tr,
 )
+
+T = TypeVar("T")
 
 install_pylib_legacy()
 
@@ -694,6 +708,44 @@ class AnkiQt(QMainWindow):
     # Resetting state
     ##########################################################################
 
+    def perform_op(
+        self,
+        op: Callable[[], T],
+        on_success: Optional[Callable[[T], None]] = None,
+        on_exception: Optional[Callable[[BaseException], None]] = None,
+    ) -> None:
+        """Run the provided operation on a background thread.
+        - Ensures any changes in the editor have been saved.
+        - Shows progress popup for the duration of the op.
+        - Ensures the browser doesn't try to redraw during the operation, which can lead
+        to a frozen UI
+        - Updates undo state at the end of the operation
+
+        on_success() will be called with the return value of op()
+        if op() threw an exception, on_exception() will be called with it,
+        if it was provided
+
+        """
+
+        gui_hooks.operation_will_execute()
+
+        def wrapped_done(future: Future) -> None:
+            try:
+                if exception := future.exception():
+                    if on_exception:
+                        on_exception(exception)
+                    else:
+                        showWarning(str(exception))
+                else:
+                    if on_success:
+                        on_success(future.result())
+            finally:
+                status = self.col.undo_status()
+                self._update_undo_actions_for_status(status)
+                gui_hooks.operation_did_execute(status.changes)
+
+        self.taskman.with_progress(op, wrapped_done)
+
     def reset(self, guiOnly: bool = False) -> None:
         "Called for non-trivial edits. Rebuilds queue and updates UI."
         if self.col:
@@ -1097,6 +1149,21 @@ title="%s" %s>%s</button>""" % (
             undo_action = status.undo or None
         else:
             undo_action = None
+
+        if undo_action:
+            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            self.form.actionUndo.setText(undo_action)
+            self.form.actionUndo.setEnabled(True)
+            gui_hooks.undo_state_did_change(True)
+        else:
+            self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
+            self.form.actionUndo.setEnabled(False)
+            gui_hooks.undo_state_did_change(False)
+
+    def _update_undo_actions_for_status(self, status: UndoStatus) -> None:
+        """Update menu text and enable/disable menu item as appropriate.
+        Plural as this may handle redo in the future too."""
+        undo_action = status.undo
 
         if undo_action:
             undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)

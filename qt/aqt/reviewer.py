@@ -13,7 +13,7 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
-from anki.collection import Config
+from anki.collection import Config, StateChanges
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.profiles import VideoDriver
@@ -63,6 +63,7 @@ class Reviewer:
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
     def show(self) -> None:
         self.mw.col.reset()
@@ -85,6 +86,18 @@ class Reviewer:
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
         self.card = None
+
+    def on_operation_did_execute(self, changes: StateChanges) -> None:
+        need_queue_rebuild = (
+            changes.card_added
+            or changes.card_modified
+            or changes.deck_modified
+            or changes.preference_modified
+        )
+
+        if need_queue_rebuild:
+            self.mw.col.reset()
+            self.nextCard()
 
     # Fetching a card
     ##########################################################################
@@ -839,9 +852,11 @@ time = %(time)d;
         if self.mw.state != "review" or not self.card:
             return
         cnt = len(self.card.note().cards())
-        self.mw.col.remove_notes([self.card.note().id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
+
+        self.mw.perform_op(
+            lambda: self.mw.col.remove_notes([self.card.note().id]),
+            lambda _: tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt)),
+        )
 
     def onRecordVoice(self) -> None:
         def after_record(path: str) -> None:

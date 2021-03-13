@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, Config, SearchNode
+from anki.collection import Collection, Config, SearchNode, StateChanges
 from anki.consts import *
 from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
@@ -281,6 +281,15 @@ class DataModel(QAbstractTableModel):
         else:
             tv.selectRow(0)
 
+    def maybe_redraw_after_operation(self, changes: StateChanges) -> None:
+        if (
+            changes.card_modified
+            or changes.note_modified
+            or changes.deck_modified
+            or changes.notetype_modified
+        ):
+            self.reset()
+
     # Column data
     ######################################################################
 
@@ -434,8 +443,6 @@ class StatusDelegate(QItemDelegate):
 # Browser window
 ######################################################################
 
-# fixme: respond to reset+edit hooks
-
 
 class Browser(QMainWindow):
     model: DataModel
@@ -481,43 +488,14 @@ class Browser(QMainWindow):
         gui_hooks.browser_will_show(self)
         self.show()
 
-    def perform_op(
-        self,
-        op: Callable,
-        on_done: Callable[[Future], None],
-        *,
-        reset_model: bool = True,
-    ) -> None:
-        """Run the provided operation on a background thread.
-        - Ensures any changes in the editor have been saved.
-        - Shows progress popup for the duration of the op.
-        - Ensures the browser doesn't try to redraw during the operation, which can lead
-        to a frozen UI
-        - Updates undo state at the end of the operation
-        - If `reset_model` is true, calls beginReset()/endReset(), which will
-        refresh the displayed data, and update the editor's note. If the current search
-        has changed results, you will need to call .search() yourself in `on_done`.
+    def on_operation_will_execute(self) -> None:
+        # make sure the card list doesn't try to refresh itself during the operation,
+        # as that will block the UI
+        self.setUpdatesEnabled(False)
 
-        Caller must run fut.result() in the on_done() callback to check for errors;
-        if the operation returned a value, it will be returned by .result()
-        """
-
-        def wrapped_op() -> None:
-            if reset_model:
-                self.model.beginReset()
-            self.setUpdatesEnabled(False)
-            op()
-
-        def wrapped_done(fut: Future) -> None:
-            self.setUpdatesEnabled(True)
-            on_done(fut)
-            if reset_model:
-                self.model.endReset()
-            self.mw.update_undo_actions()
-
-        self.editor.saveNow(
-            lambda: self.mw.taskman.with_progress(wrapped_op, wrapped_done)
-        )
+    def on_operation_did_execute(self, changes: StateChanges) -> None:
+        self.setUpdatesEnabled(True)
+        self.model.maybe_redraw_after_operation(changes)
 
     def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
@@ -1466,6 +1444,8 @@ where id in %s"""
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
         gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
+        gui_hooks.operation_will_execute.append(self.on_operation_will_execute)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
@@ -1475,6 +1455,8 @@ where id in %s"""
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
         gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
+        gui_hooks.operation_will_execute.remove(self.on_operation_will_execute)
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
 
     def on_unfocus_field(self, changed: bool, note: Note, field_idx: int) -> None:
         self.refreshCurrentCard(note)

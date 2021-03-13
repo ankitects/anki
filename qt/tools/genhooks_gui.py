@@ -365,8 +365,9 @@ hooks = [
         args=["context: aqt.browser.SearchContext"],
         doc="""Allows you to modify the list of returned card ids from a search.""",
     ),
-    # States
+    # Main window states
     ###################
+    # these refer to things like deckbrowser, overview and reviewer state,
     Hook(
         name="state_will_change",
         args=["new_state: str", "old_state: str"],
@@ -382,6 +383,8 @@ hooks = [
         name="state_shortcuts_will_change",
         args=["state: str", "shortcuts: List[Tuple[str, Callable]]"],
     ),
+    # UI state/refreshing
+    ###################
     Hook(
         name="state_did_revert",
         args=["action: str"],
@@ -392,6 +395,20 @@ hooks = [
         name="state_did_reset",
         legacy_hook="reset",
         doc="Called when the interface needs to be redisplayed after non-trivial changes have been made.",
+    ),
+    Hook(
+        name="operation_will_execute",
+        doc="""Called before an operation is executed with mw.perform_op().
+        Subscribers can use this to ensure they don't try to access the collection until the operation completes,
+        as doing so on the main thread will temporarily freeze the UI.""",
+    ),
+    Hook(
+        name="operation_did_execute",
+        args=[
+            "changes: anki.collection.StateChanges",
+        ],
+        doc="""Called after an operation completes.
+        Changes can be inspected to determine whether the UI needs updating.""",
     ),
     # Webview
     ###################
