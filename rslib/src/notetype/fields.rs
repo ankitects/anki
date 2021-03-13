@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend_proto::{NoteField as NoteFieldProto, NoteFieldConfig, OptionalUInt32};
+use crate::{
+    backend_proto::{NoteField as NoteFieldProto, NoteFieldConfig, OptionalUInt32},
+    err::{AnkiError, Result},
+};
 
 #[derive(Debug, PartialEq)]
 pub struct NoteField {
@@ -35,8 +38,11 @@ impl NoteField {
         }
     }
 
-    pub(crate) fn fix_name(&mut self) {
-        // remove special characters
+    /// Fix the name of the field if it's valid. Otherwise explain why it's not.
+    pub(crate) fn fix_name(&mut self) -> Result<()> {
+        if self.name.is_empty() {
+            return Err(AnkiError::invalid_input("Empty field name"));
+        }
         let bad_chars = |c| c == ':' || c == '{' || c == '}' || c == '"';
         if self.name.contains(bad_chars) {
             self.name = self.name.replace(bad_chars, "");
@@ -44,9 +50,15 @@ impl NoteField {
         // and leading/trailing whitespace and special chars
         let bad_start_chars = |c: char| c == '#' || c == '/' || c == '^' || c.is_whitespace();
         let trimmed = self.name.trim().trim_start_matches(bad_start_chars);
+        if trimmed.is_empty() {
+            return Err(AnkiError::invalid_input(
+                "Field name: ".to_owned() + &self.name,
+            ));
+        }
         if trimmed.len() != self.name.len() {
             self.name = trimmed.into();
         }
+        Ok(())
     }
 }
 
@@ -57,7 +69,7 @@ mod test {
     #[test]
     fn name() {
         let mut field = NoteField::new("  # /^ t:e{s\"t} field name #/^  ");
-        field.fix_name();
+        assert_eq!(field.fix_name(), Ok(()));
         assert_eq!(&field.name, "test field name #/^");
     }
 }
