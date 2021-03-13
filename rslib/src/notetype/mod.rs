@@ -329,14 +329,7 @@ impl NoteType {
     }
 
     fn fix_field_names(&mut self) -> Result<()> {
-        for mut f in &mut self.fields {
-            NoteField::fix_name(&mut f);
-            if f.name.is_empty() {
-                return Err(AnkiError::invalid_input("Empty field name"));
-            }
-        }
-
-        Ok(())
+        self.fields.iter_mut().try_for_each(NoteField::fix_name)
     }
 
     fn fix_template_names(&mut self) -> Result<()> {
