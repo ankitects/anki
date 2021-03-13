@@ -4,6 +4,7 @@
 use crate::{
     backend_proto::{CardTemplate as CardTemplateProto, CardTemplateConfig, OptionalUInt32},
     decks::DeckID,
+    err::{AnkiError, Result},
     template::ParsedTemplate,
     timestamp::TimestampSecs,
     types::Usn,
@@ -89,10 +90,21 @@ impl CardTemplate {
         }
     }
 
-    pub(crate) fn fix_name(&mut self) {
+    /// Return whether the name is valid. Remove quote characters if it leads to a valid name.
+    pub(crate) fn fix_name(&mut self) -> Result<()> {
         let bad_chars = |c| c == '"';
-        if self.name.contains(bad_chars) {
-            self.name = self.name.replace(bad_chars, "");
+        if self.name.is_empty() {
+            return Err(AnkiError::invalid_input("Empty template name"));
         }
+        let trimmed = self.name.replace(bad_chars, "");
+        if trimmed.is_empty() {
+            return Err(AnkiError::invalid_input(
+                "Template name contain only quotes",
+            ));
+        }
+        if self.name.len() != trimmed.len() {
+            self.name = trimmed;
+        }
+        Ok(())
     }
 }

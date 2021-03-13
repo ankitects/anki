@@ -333,14 +333,9 @@ impl NoteType {
     }
 
     fn fix_template_names(&mut self) -> Result<()> {
-        for mut t in &mut self.templates {
-            CardTemplate::fix_name(&mut t);
-            if t.name.is_empty() {
-                return Err(AnkiError::invalid_input("Empty template name"));
-            }
-        }
-
-        Ok(())
+        self.templates
+            .iter_mut()
+            .try_for_each(CardTemplate::fix_name)
     }
 
     /// Find the field index of the provided field name.
