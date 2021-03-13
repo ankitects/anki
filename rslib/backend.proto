@@ -1442,9 +1442,22 @@ message GetQueuedCardsOut {
   }
 }
 
+message StateChanges {
+  bool card_added = 1;
+  bool card_modified = 2;
+  bool note_added = 3;
+  bool note_modified = 4;
+  bool deck_added = 5;
+  bool deck_modified = 6;
+  bool tag_modified = 7;
+  bool notetype_modified = 8;
+  bool preference_modified = 9;
+}
+
 message UndoStatus {
   string undo = 1;
   string redo = 2;
+  StateChanges changes = 3;
 }
 
 message DefaultsForAddingIn {
