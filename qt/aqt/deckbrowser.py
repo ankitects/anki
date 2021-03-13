@@ -309,6 +309,7 @@ class DeckBrowser:
             return self.mw.col.decks.remove([did])
 
         def on_done(fut: Future) -> None:
+            self.mw.reset()
             self.mw.update_undo_actions()
             self.show()
             tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()))
