@@ -14,7 +14,7 @@ import aqt.forms
 from anki.cards import Card
 from anki.collection import Collection, Config, SearchNode
 from anki.consts import *
-from anki.errors import InvalidInput
+from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
@@ -92,10 +92,15 @@ class DataModel(QAbstractTableModel):
         self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
 
-    def getCard(self, index: QModelIndex) -> Card:
+    def getCard(self, index: QModelIndex) -> Optional[Card]:
         id = self.cards[index.row()]
         if not id in self.cardObjs:
-            self.cardObjs[id] = self.col.getCard(id)
+            try:
+                card = self.col.getCard(id)
+            except NotFoundError:
+                # deleted
+                card = None
+            self.cardObjs[id] = card
         return self.cardObjs[id]
 
     def refreshNote(self, note: Note) -> None:
@@ -127,6 +132,8 @@ class DataModel(QAbstractTableModel):
             if self.activeCols[index.column()] not in ("question", "answer", "noteFld"):
                 return
             c = self.getCard(index)
+            if not c:
+                return
             t = c.template()
             if not t.get("bfont"):
                 return
@@ -287,6 +294,8 @@ class DataModel(QAbstractTableModel):
         col = index.column()
         type = self.columnType(col)
         c = self.getCard(index)
+        if not c:
+            return tr(TR.BROWSING_ROW_DELETED)
         if type == "question":
             return self.question(c)
         elif type == "answer":
@@ -399,12 +408,9 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
-        try:
-            c = self.model.getCard(index)
-        except:
-            # in the the middle of a reset; return nothing so this row is not
-            # rendered until we have a chance to reset the model
-            return
+        c = self.model.getCard(index)
+        if not c:
+            return QItemDelegate.paint(self, painter, option, index)
 
         if self.model.isRTL(index):
             option.direction = Qt.RightToLeft
@@ -766,8 +772,7 @@ class Browser(QMainWindow):
 
     def onReset(self) -> None:
         self.sidebar.refresh()
-        self.editor.setNote(None)
-        self.search()
+        self.model.reset()
 
     # Table view & editor
     ######################################################################
@@ -831,10 +836,11 @@ QTableView {{ gridline-color: {grid} }}
             return
         update = self.updateTitle()
         show = self.model.cards and update == 1
-        self.form.splitter.widget(1).setVisible(bool(show))
         idx = self.form.tableView.selectionModel().currentIndex()
         if idx.isValid():
             self.card = self.model.getCard(idx)
+            show = show and self.card is not None
+        self.form.splitter.widget(1).setVisible(bool(show))
 
         if not show:
             self.editor.setNote(None)
@@ -1172,32 +1178,14 @@ where id in %s"""
         if not nids:
             return
 
-        # figure out where to place the cursor after the deletion
-        current_row = self.form.tableView.selectionModel().currentIndex().row()
-        selected_rows = [
-            i.row() for i in self.form.tableView.selectionModel().selectedRows()
-        ]
-        if min(selected_rows) < current_row < max(selected_rows):
-            # last selection in middle; place one below last selected item
-            move = sum(1 for i in selected_rows if i > current_row)
-            new_row = current_row - move
-        elif max(selected_rows) <= current_row:
-            # last selection at bottom; place one below bottommost selection
-            new_row = max(selected_rows) - len(nids) + 1
-        else:
-            # last selection at top; place one above topmost selection
-            new_row = min(selected_rows) - 1
+        # select the next card if there is one
+        self._onNextCard()
 
         def do_remove() -> None:
             self.col.remove_notes(nids)
 
         def on_done(fut: Future) -> None:
             fut.result()
-            self.search()
-            if len(self.model.cards):
-                row = min(new_row, len(self.model.cards) - 1)
-                row = max(row, 0)
-                self.model.focusedCard = self.model.cards[row]
             tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
 
         self.perform_op(do_remove, on_done, reset_model=True)
