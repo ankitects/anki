@@ -139,56 +139,56 @@ impl AnkiError {
                     SearchErrorKind::UnknownEscape(ctx) => i18n
                         .trn(
                             TR::SearchUnknownEscape,
-                            tr_strs!["val"=>(htmlescape::encode_minimal(ctx))],
+                            tr_strs!["val"=>(ctx.replace('`', "'"))],
                         )
                         .into(),
                     SearchErrorKind::InvalidState(state) => i18n
                         .trn(
                             TR::SearchInvalidArgument,
-                            tr_strs!("term" => "is:", "argument" => state),
+                            tr_strs!("term" => "is:", "argument" => state.replace('`', "'")),
                         )
                         .into(),
                     SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
                     SearchErrorKind::InvalidPropProperty(prop) => i18n
                         .trn(
                             TR::SearchInvalidArgument,
-                            tr_strs!("term" => "prop:", "argument" => prop),
+                            tr_strs!("term" => "prop:", "argument" => prop.replace('`', "'")),
                         )
                         .into(),
                     SearchErrorKind::InvalidPropOperator(ctx) => i18n
                         .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
                         .into(),
-                    SearchErrorKind::Regex(text) => text.into(),
+                    SearchErrorKind::Regex(text) => format!("<pre>`{}`</pre>", text.replace('`', "'")).into(),
                     SearchErrorKind::Other(Some(info)) => info.into(),
                     SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalidOther),
                     SearchErrorKind::InvalidNumber { provided, context } => i18n
                         .trn(
                             TR::SearchInvalidNumber,
-                            tr_strs!["provided"=>provided, "context"=>context],
+                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
                         )
                         .into(),
                     SearchErrorKind::InvalidWholeNumber { provided, context } => i18n
                         .trn(
                             TR::SearchInvalidWholeNumber,
-                            tr_strs!["provided"=>provided, "context"=>context],
+                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
                         )
                         .into(),
                     SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => i18n
                         .trn(
                             TR::SearchInvalidPositiveWholeNumber,
-                            tr_strs!["provided"=>provided, "context"=>context],
+                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
                         )
                         .into(),
                     SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => i18n
                         .trn(
                             TR::SearchInvalidNegativeWholeNumber,
-                            tr_strs!["provided"=>provided, "context"=>context],
+                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
                         )
                         .into(),
                     SearchErrorKind::InvalidAnswerButton { provided, context } => i18n
                         .trn(
                             TR::SearchInvalidAnswerButton,
-                            tr_strs!["provided"=>provided, "context"=>context],
+                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
                         )
                         .into(),
                 };
