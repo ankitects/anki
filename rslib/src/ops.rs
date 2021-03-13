@@ -61,6 +61,7 @@ impl Op {
             Op::AddNote => StateChanges {
                 card_added: true,
                 note_added: true,
+                tag_modified: true,
                 ..default()
             },
             Op::RemoveDeck => StateChanges {
@@ -86,6 +87,8 @@ impl Op {
                 note_modified: true,
                 // edits may result in new cards being generated
                 card_added: true,
+                // and may result in new tags being added
+                tag_modified: true,
                 ..default()
             },
             Op::UpdatePreferences => StateChanges {

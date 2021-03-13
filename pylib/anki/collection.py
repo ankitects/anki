@@ -54,6 +54,7 @@ GraphPreferences = _pb.GraphPreferences
 BuiltinSort = _pb.SortOrder.Builtin
 Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
+StateChanges = _pb.StateChanges
 DefaultsForAdding = _pb.DeckAndNotetype
 
 
