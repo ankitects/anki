@@ -140,3 +140,4 @@ browsing-edited-today = Edited
 browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
 browsing-sidebar-overdue = Overdue
+browsing-row-deleted = (deleted)
