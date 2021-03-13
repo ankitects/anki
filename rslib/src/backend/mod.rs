@@ -15,6 +15,7 @@ mod i18n;
 mod media;
 mod notes;
 mod notetypes;
+mod ops;
 mod progress;
 mod scheduler;
 mod search;

@@ -151,6 +151,12 @@ impl Collection {
                 .can_redo()
                 .map(|op| self.describe_op_kind(op))
                 .unwrap_or_default(),
+            changes: Some(
+                self.can_undo()
+                    .map(|op| op.state_changes())
+                    .unwrap_or_default()
+                    .into(),
+            ),
         }
     }
 
