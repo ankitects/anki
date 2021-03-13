@@ -85,7 +85,7 @@ pub struct Collection {
 impl Collection {
     /// Execute the provided closure in a transaction, rolling back if
     /// an error is returned.
-    pub(crate) fn transact<F, R>(&mut self, op: Option<UndoableOpKind>, func: F) -> Result<R>
+    pub(crate) fn transact<F, R>(&mut self, op: Option<Op>, func: F) -> Result<R>
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {

@@ -3,12 +3,13 @@
 
 pub(crate) mod undo;
 
+use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{
-    collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
+    collection::Collection, config::SchedulerVersion, prelude::*, timestamp::TimestampSecs,
+    types::Usn,
 };
-use crate::{define_newtype, undo::UndoableOpKind};
 
 use crate::{deckconf::DeckConf, decks::DeckID};
 use num_enum::TryFromPrimitive;
@@ -139,11 +140,7 @@ impl Card {
 }
 
 impl Collection {
-    pub(crate) fn update_card_with_op(
-        &mut self,
-        card: &mut Card,
-        op: Option<UndoableOpKind>,
-    ) -> Result<()> {
+    pub(crate) fn update_card_with_op(&mut self, card: &mut Card, op: Option<Op>) -> Result<()> {
         let existing = self.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
         self.transact(op, |col| col.update_card_inner(card, existing, col.usn()?))
     }
@@ -211,7 +208,7 @@ impl Collection {
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.scheduler_version();
         let usn = self.usn()?;
-        self.transact(Some(UndoableOpKind::SetDeck), |col| {
+        self.transact(Some(Op::SetDeck), |col| {
             for mut card in col.storage.all_searched_cards()? {
                 if card.deck_id == deck_id {
                     continue;

@@ -7,9 +7,9 @@ use crate::{
     decks::DeckID,
     err::Result,
     notes::NoteID,
+    prelude::*,
     search::SortMode,
     types::Usn,
-    undo::UndoableOpKind,
 };
 use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
@@ -106,7 +106,7 @@ impl Collection {
     pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<()> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
-        self.transact(Some(UndoableOpKind::ScheduleAsNew), |col| {
+        self.transact(Some(Op::ScheduleAsNew), |col| {
             col.storage.set_search_table_to_card_ids(cids, true)?;
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {

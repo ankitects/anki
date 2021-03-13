@@ -10,6 +10,7 @@ use crate::{
     collection::Collection,
     config::BoolKey,
     err::Result,
+    prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
 };
 
@@ -23,10 +24,9 @@ impl Collection {
     }
 
     pub fn set_preferences(&mut self, prefs: Preferences) -> Result<()> {
-        self.transact(
-            Some(crate::undo::UndoableOpKind::UpdatePreferences),
-            |col| col.set_preferences_inner(prefs),
-        )
+        self.transact(Some(Op::UpdatePreferences), |col| {
+            col.set_preferences_inner(prefs)
+        })
     }
 
     fn set_preferences_inner(

@@ -241,9 +241,7 @@ impl Collection {
 
     /// Answer card, writing its new state to the database.
     pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<()> {
-        self.transact(Some(UndoableOpKind::AnswerCard), |col| {
-            col.answer_card_inner(answer)
-        })
+        self.transact(Some(Op::AnswerCard), |col| col.answer_card_inner(answer))
     }
 
     fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {

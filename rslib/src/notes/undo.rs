@@ -96,7 +96,7 @@ impl Collection {
                     op.changes.last()
                 {
                     note.id == before_change.id
-                        && op.kind == UndoableOpKind::UpdateNote
+                        && op.kind == Op::UpdateNote
                         && op.timestamp.elapsed_secs() < 60
                 } else {
                     false

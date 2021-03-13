@@ -71,7 +71,7 @@ mod test {
     fn undo() -> Result<()> {
         let mut col = open_test_collection();
         // the op kind doesn't matter, we just need undo enabled
-        let op = Some(UndoableOpKind::Bury);
+        let op = Some(Op::Bury);
         // test key
         let key = BoolKey::NormalizeNoteText;
 
