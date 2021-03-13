@@ -553,7 +553,7 @@ class SidebarTreeView(QTreeView):
             if not self.isPersistentEditorOpen(index):
                 self._on_search(index)
         elif event.key() == Qt.Key_Delete:
-            self._on_delete(index)
+            self._on_delete_key(index)
         else:
             super().keyPressEvent(event)
 
@@ -641,14 +641,23 @@ class SidebarTreeView(QTreeView):
             if search_node := item.search_node:
                 self.update_search(search_node)
 
-    def _on_delete(self, index: QModelIndex) -> None:
+    def _on_delete_key(self, index: QModelIndex) -> None:
         if item := self.model().item_for_index(index):
-            if item.item_type == SidebarItemType.SAVED_SEARCH:
-                self.remove_saved_searches(item)
-            elif item.item_type == SidebarItemType.DECK:
-                self.delete_decks(item)
-            elif item.item_type == SidebarItemType.TAG:
-                self.remove_tags(item)
+            if self._enable_delete(item):
+                self._on_delete(item)
+
+    def _enable_delete(self, item: SidebarItem) -> bool:
+        return item.item_type.is_deletable() and all(
+            s.item_type == item.item_type for s in self._selected_items()
+        )
+
+    def _on_delete(self, item: SidebarItem) -> None:
+        if item.item_type == SidebarItemType.SAVED_SEARCH:
+            self.remove_saved_searches(item)
+        elif item.item_type == SidebarItemType.DECK:
+            self.delete_decks(item)
+        elif item.item_type == SidebarItemType.TAG:
+            self.remove_tags(item)
 
     def _on_expansion(self, idx: QModelIndex) -> None:
         if self.current_search:
@@ -1059,10 +1068,8 @@ class SidebarTreeView(QTreeView):
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
     ) -> None:
-        if item.item_type.is_deletable() and all(
-            s.item_type == item.item_type for s in self._selected_items()
-        ):
-            menu.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(index))
+        if self._enable_delete(item):
+            menu.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(item))
 
     def _maybe_add_rename_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
