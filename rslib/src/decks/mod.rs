@@ -10,16 +10,14 @@ pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
     DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
 };
-use crate::{
-    backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images,
-    undo::UndoableOpKind,
-};
+use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
     collection::Collection,
     deckconf::DeckConfID,
     define_newtype,
     err::{AnkiError, Result},
     i18n::TR,
+    prelude::*,
     text::normalize_to_nfc,
     timestamp::TimestampSecs,
     types::Usn,
@@ -283,7 +281,7 @@ impl Collection {
             return Err(AnkiError::invalid_input("deck to add must have id 0"));
         }
 
-        self.transact(Some(UndoableOpKind::AddDeck), |col| {
+        self.transact(Some(Op::AddDeck), |col| {
             let usn = col.usn()?;
             col.prepare_deck_for_update(deck, usn)?;
             deck.set_modified(usn);
@@ -293,14 +291,14 @@ impl Collection {
     }
 
     pub fn update_deck(&mut self, deck: &mut Deck) -> Result<()> {
-        self.transact(Some(UndoableOpKind::UpdateDeck), |col| {
+        self.transact(Some(Op::UpdateDeck), |col| {
             let existing_deck = col.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
             col.update_deck_inner(deck, existing_deck, col.usn()?)
         })
     }
 
     pub fn rename_deck(&mut self, did: DeckID, new_human_name: &str) -> Result<()> {
-        self.transact(Some(UndoableOpKind::RenameDeck), |col| {
+        self.transact(Some(Op::RenameDeck), |col| {
             let existing_deck = col.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
             let mut deck = existing_deck.clone();
             deck.name = human_deck_name_to_native(new_human_name);
@@ -468,7 +466,7 @@ impl Collection {
 
     pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<usize> {
         let mut card_count = 0;
-        self.transact(Some(UndoableOpKind::RemoveDeck), |col| {
+        self.transact(Some(Op::RemoveDeck), |col| {
             let usn = col.usn()?;
             for did in dids {
                 if let Some(deck) = col.storage.get_deck(*did)? {
@@ -627,7 +625,7 @@ impl Collection {
         target: Option<DeckID>,
     ) -> Result<()> {
         let usn = self.usn()?;
-        self.transact(Some(UndoableOpKind::RenameDeck), |col| {
+        self.transact(Some(Op::RenameDeck), |col| {
             let target_deck;
             let mut target_name = None;
             if let Some(target) = target {

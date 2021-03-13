@@ -51,7 +51,7 @@ impl NotesService for Backend {
             let op = if input.skip_undo_entry {
                 None
             } else {
-                Some(UndoableOpKind::UpdateNote)
+                Some(Op::UpdateNote)
             };
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
             col.update_note_with_op(&mut note, op)

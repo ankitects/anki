@@ -11,9 +11,9 @@ pub use crate::{
     i18n::{tr_args, tr_strs, I18n, TR},
     notes::{Note, NoteID},
     notetype::{NoteType, NoteTypeID},
+    ops::Op,
     revlog::RevlogID,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
-    undo::UndoableOpKind,
 };
 pub use slog::{debug, Logger};
