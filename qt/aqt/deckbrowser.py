@@ -320,6 +320,7 @@ class DeckBrowser:
             def on_done(fut: Future) -> None:
                 self.show()
                 res = fut.result()  # Required to check for errors
+                self.mw.reset()
 
             self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
             self.mw.taskman.with_progress(do_delete, on_done)
