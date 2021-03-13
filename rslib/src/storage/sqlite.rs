@@ -257,7 +257,7 @@ impl SqliteStorage {
 
     //////////////////////////////////////////
 
-    pub(crate) fn mark_modified(&self) -> Result<()> {
+    pub(crate) fn set_modified(&self) -> Result<()> {
         self.set_modified_time(TimestampMillis::now())
     }
 

@@ -65,6 +65,9 @@ pub struct CollectionState {
     pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
     pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
     pub(crate) card_queues: Option<CardQueues>,
+    /// True if legacy Python code has executed SQL that has modified the
+    /// database, requiring modification time to be bumped.
+    pub(crate) modified_by_dbproxy: bool,
 }
 
 pub struct Collection {
@@ -92,7 +95,7 @@ impl Collection {
         let mut res = func(self);
 
         if res.is_ok() {
-            if let Err(e) = self.storage.mark_modified() {
+            if let Err(e) = self.storage.set_modified() {
                 res = Err(e);
             } else if let Err(e) = self.storage.commit_rust_trx() {
                 res = Err(e);
