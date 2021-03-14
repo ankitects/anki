@@ -13,7 +13,9 @@ pub enum Op {
     RemoveNote,
     RenameDeck,
     ScheduleAsNew,
+    SetDeck,
     SetDueDate,
+    SetFlag,
     Suspend,
     UnburyUnsuspend,
     UpdateCard,
@@ -21,91 +23,11 @@ pub enum Op {
     UpdateNote,
     UpdatePreferences,
     UpdateTag,
-    SetDeck,
 }
 
 impl Op {
-    /// Used internally to decide whether the study queues need to be invalidated.
-    pub(crate) fn needs_study_queue_reset(self) -> bool {
-        let changes = self.state_changes();
-        self != Op::AnswerCard
-            && (changes.card_added
-                || changes.card_modified
-                || changes.deck_modified
-                || changes.preference_modified)
-    }
-
-    pub fn state_changes(self) -> StateChanges {
-        let default = Default::default;
-        match self {
-            Op::ScheduleAsNew
-            | Op::SetDueDate
-            | Op::Suspend
-            | Op::UnburyUnsuspend
-            | Op::UpdateCard
-            | Op::SetDeck
-            | Op::Bury => StateChanges {
-                card_modified: true,
-                ..default()
-            },
-            Op::AnswerCard => StateChanges {
-                card_modified: true,
-                // this also modifies the daily counts stored in the
-                // deck, but the UI does not care about that
-                ..default()
-            },
-            Op::AddDeck => StateChanges {
-                deck_added: true,
-                ..default()
-            },
-            Op::AddNote => StateChanges {
-                card_added: true,
-                note_added: true,
-                tag_modified: true,
-                ..default()
-            },
-            Op::RemoveDeck => StateChanges {
-                card_modified: true,
-                note_modified: true,
-                deck_modified: true,
-                ..default()
-            },
-            Op::RemoveNote => StateChanges {
-                card_modified: true,
-                note_modified: true,
-                ..default()
-            },
-            Op::RenameDeck => StateChanges {
-                deck_modified: true,
-                ..default()
-            },
-            Op::UpdateDeck => StateChanges {
-                deck_modified: true,
-                ..default()
-            },
-            Op::UpdateNote => StateChanges {
-                note_modified: true,
-                // edits may result in new cards being generated
-                card_added: true,
-                // and may result in new tags being added
-                tag_modified: true,
-                ..default()
-            },
-            Op::UpdatePreferences => StateChanges {
-                preference_modified: true,
-                ..default()
-            },
-            Op::UpdateTag => StateChanges {
-                tag_modified: true,
-                ..default()
-            },
-        }
-    }
-}
-
-impl Collection {
-    pub fn describe_op_kind(&self, op: Op) -> String {
-        let key = match op {
+    pub fn describe(self, i18n: &I18n) -> String {
+        let key = match self {
             Op::AddDeck => TR::UndoAddDeck,
             Op::AddNote => TR::UndoAddNote,
             Op::AnswerCard => TR::UndoAnswerCard,
@@ -123,21 +45,94 @@ impl Collection {
             Op::UpdatePreferences => TR::PreferencesPreferences,
             Op::UpdateTag => TR::UndoUpdateTag,
             Op::SetDeck => TR::BrowsingChangeDeck,
+            Op::SetFlag => TR::UndoSetFlag,
         };
 
-        self.i18n.tr(key).to_string()
+        i18n.tr(key).to_string()
+    }
+
+    /// Used internally to decide whether the study queues need to be invalidated.
+    pub(crate) fn needs_study_queue_reset(self) -> bool {
+        let changes = self.state_changes();
+        self != Op::AnswerCard && (changes.card || changes.deck || changes.preference)
+    }
+
+    pub fn state_changes(self) -> StateChanges {
+        let default = Default::default;
+        match self {
+            Op::ScheduleAsNew
+            | Op::SetDueDate
+            | Op::Suspend
+            | Op::UnburyUnsuspend
+            | Op::UpdateCard
+            | Op::SetDeck
+            | Op::Bury
+            | Op::SetFlag => StateChanges {
+                card: true,
+                ..default()
+            },
+            Op::AnswerCard => StateChanges {
+                card: true,
+                // this also modifies the daily counts stored in the
+                // deck, but the UI does not care about that
+                ..default()
+            },
+            Op::AddDeck => StateChanges {
+                deck: true,
+                ..default()
+            },
+            Op::AddNote => StateChanges {
+                card: true,
+                note: true,
+                tag: true,
+                ..default()
+            },
+            Op::RemoveDeck => StateChanges {
+                card: true,
+                note: true,
+                deck: true,
+                ..default()
+            },
+            Op::RemoveNote => StateChanges {
+                card: true,
+                note: true,
+                ..default()
+            },
+            Op::RenameDeck => StateChanges {
+                deck: true,
+                ..default()
+            },
+            Op::UpdateDeck => StateChanges {
+                deck: true,
+                ..default()
+            },
+            Op::UpdateNote => StateChanges {
+                note: true,
+                // edits may result in new cards being generated
+                card: true,
+                // and may result in new tags being added
+                tag: true,
+                ..default()
+            },
+            Op::UpdatePreferences => StateChanges {
+                preference: true,
+                ..default()
+            },
+            Op::UpdateTag => StateChanges {
+                note: true,
+                tag: true,
+                ..default()
+            },
+        }
     }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct StateChanges {
-    pub card_added: bool,
-    pub card_modified: bool,
-    pub note_added: bool,
-    pub note_modified: bool,
-    pub deck_added: bool,
-    pub deck_modified: bool,
-    pub tag_modified: bool,
-    pub notetype_modified: bool,
-    pub preference_modified: bool,
+    pub card: bool,
+    pub note: bool,
+    pub deck: bool,
+    pub tag: bool,
+    pub notetype: bool,
+    pub preference: bool,
 }

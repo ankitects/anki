@@ -95,7 +95,7 @@ impl NotesService for Backend {
 
     fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<pb::UInt32> {
         self.with_col(|col| {
-            col.add_tags_to_notes(&to_nids(input.nids), &input.tags)
+            col.add_tags_to_notes(&to_note_ids(input.nids), &input.tags)
                 .map(|n| n as u32)
         })
         .map(Into::into)
@@ -104,7 +104,7 @@ impl NotesService for Backend {
     fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<pb::UInt32> {
         self.with_col(|col| {
             col.replace_tags_for_notes(
-                &to_nids(input.nids),
+                &to_note_ids(input.nids),
                 &input.tags,
                 &input.replacement,
                 input.regex,
@@ -127,7 +127,7 @@ impl NotesService for Backend {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.after_note_updates(
-                    &to_nids(input.nids),
+                    &to_note_ids(input.nids),
                     input.generate_cards,
                     input.mark_notes_modified,
                 )?;
@@ -167,6 +167,6 @@ impl NotesService for Backend {
     }
 }
 
-fn to_nids(ids: Vec<i64>) -> Vec<NoteID> {
+fn to_note_ids(ids: Vec<i64>) -> Vec<NoteID> {
     ids.into_iter().map(NoteID).collect()
 }

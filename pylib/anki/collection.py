@@ -54,7 +54,7 @@ GraphPreferences = _pb.GraphPreferences
 BuiltinSort = _pb.SortOrder.Builtin
 Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
-StateChanges = _pb.StateChanges
+OperationInfo = _pb.OperationInfo
 DefaultsForAdding = _pb.DeckAndNotetype
 
 
@@ -783,8 +783,6 @@ table.review-log {{ {revlog_style} }}
             assert_exhaustive(self._undo)
             assert False
 
-        return status
-
     def clear_python_undo(self) -> None:
         """Clear the Python undo state.
         The backend will automatically clear backend undo state when
@@ -811,6 +809,11 @@ table.review-log {{ {revlog_style} }}
         else:
             assert_exhaustive(self._undo)
             assert False
+
+    def op_affects_study_queue(self, op: OperationInfo) -> bool:
+        if op.kind == op.SET_CARD_FLAG:
+            return False
+        return op.changes.card or op.changes.deck or op.changes.preference
 
     def _check_backend_undo_status(self) -> Optional[UndoStatus]:
         """Return undo status if undo available on backend.
@@ -981,21 +984,10 @@ table.review-log {{ {revlog_style} }}
         self._logHnd.close()
         self._logHnd = None
 
-    # Card Flags
     ##########################################################################
 
     def set_user_flag_for_cards(self, flag: int, cids: List[int]) -> None:
-        assert 0 <= flag <= 7
-        self.db.execute(
-            "update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s"
-            % ids2str(cids),
-            0b111,
-            flag,
-            self.usn(),
-            intTime(),
-        )
-
-    ##########################################################################
+        self._backend.set_flag(card_ids=cids, flag=flag)
 
     def set_wants_abort(self) -> None:
         self._backend.set_wants_abort()
