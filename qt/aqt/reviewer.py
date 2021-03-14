@@ -7,6 +7,7 @@ import html
 import json
 import re
 import unicodedata as ucd
+from enum import Enum, auto
 from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union
 
 from PyQt5.QtCore import Qt
@@ -14,6 +15,7 @@ from PyQt5.QtCore import Qt
 from anki import hooks
 from anki.cards import Card
 from anki.collection import Config, OperationInfo
+from anki.types import assert_exhaustive
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.profiles import VideoDriver
@@ -36,6 +38,14 @@ from aqt.webview import AnkiWebView
 class ReviewerBottomBar:
     def __init__(self, reviewer: Reviewer) -> None:
         self.reviewer = reviewer
+
+
+class RefreshNeeded(Enum):
+    NO = auto()
+    NOTE_MARK = auto()
+    CARD_FLAG = auto()
+    QUEUE = auto()
+    CARD = auto()
 
 
 def replay_audio(card: Card, question_side: bool) -> None:
@@ -61,17 +71,17 @@ class Reviewer:
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
+        self.refresh_needed = RefreshNeeded.NO
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
     def show(self) -> None:
-        self.mw.col.reset()
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._reps: int = None
-        self.nextCard()
+        self.refresh_needed = RefreshNeeded.QUEUE
+        self.refresh_if_needed()
 
     def lastCard(self) -> Optional[Card]:
         if self._answeredIds:
@@ -87,26 +97,41 @@ class Reviewer:
         gui_hooks.reviewer_will_end()
         self.card = None
 
-    def on_operation_did_execute(self, op: OperationInfo) -> None:
-        if self.mw.state != "review":
+    def refresh_if_needed(self) -> None:
+        if self.refresh_needed is RefreshNeeded.NO:
             return
-
-        if op.kind == OperationInfo.UPDATE_NOTE_TAGS:
+        elif self.refresh_needed is RefreshNeeded.NOTE_MARK:
             self.card.load()
             self._update_mark_icon()
-        elif op.kind == OperationInfo.SET_CARD_FLAG:
+        elif self.refresh_needed is RefreshNeeded.CARD_FLAG:
             # fixme: v3 mtime check
             self.card.load()
             self._update_flag_icon()
-        elif self.mw.col.op_affects_study_queue(op):
-            # need queue rebuild
+        elif self.refresh_needed is RefreshNeeded.QUEUE:
             self.mw.col.reset()
             self.nextCard()
-            return
-        elif op.changes.note or op.changes.notetype or op.changes.tag:
-            # need redraw of current card
+        elif self.refresh_needed is RefreshNeeded.CARD:
             self.card.load()
             self._showQuestion()
+        else:
+            assert_exhaustive(self.refresh_needed)
+
+        self.refresh_needed = RefreshNeeded.NO
+
+    def op_executed(self, op: OperationInfo, focused: bool) -> None:
+        if op.kind == OperationInfo.UPDATE_NOTE_TAGS:
+            self.refresh_needed = RefreshNeeded.NOTE_MARK
+        elif op.kind == OperationInfo.SET_CARD_FLAG:
+            self.refresh_needed = RefreshNeeded.CARD_FLAG
+        elif self.mw.col.op_affects_study_queue(op):
+            self.refresh_needed = RefreshNeeded.QUEUE
+        elif op.changes.note or op.changes.notetype or op.changes.tag:
+            self.refresh_needed = RefreshNeeded.CARD
+        else:
+            self.refresh_needed = RefreshNeeded.NO
+
+        if focused:
+            self.refresh_if_needed()
 
     # Fetching a card
     ##########################################################################

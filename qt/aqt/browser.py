@@ -34,6 +34,7 @@ from aqt.utils import (
     TR,
     HelpPage,
     askUser,
+    current_top_level_widget,
     disable_help_button,
     getTag,
     openHelp,
@@ -91,6 +92,7 @@ class DataModel(QAbstractTableModel):
         )
         self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
+        self.refresh_needed = False
 
     def getCard(self, index: QModelIndex) -> Optional[Card]:
         id = self.cards[index.row()]
@@ -203,6 +205,7 @@ class DataModel(QAbstractTableModel):
     def reset(self) -> None:
         self.beginReset()
         self.endReset()
+        self.refresh_needed = False
 
     # caller must have called editor.saveNow() before calling this or .reset()
     def beginReset(self) -> None:
@@ -281,8 +284,14 @@ class DataModel(QAbstractTableModel):
         else:
             tv.selectRow(0)
 
-    def maybe_redraw_after_operation(self, op: OperationInfo) -> None:
+    def op_executed(self, op: OperationInfo, focused: bool) -> None:
         if op.changes.card or op.changes.note or op.changes.deck or op.changes.notetype:
+            self.refresh_needed = True
+        if focused:
+            self.refresh_if_needed()
+
+    def refresh_if_needed(self) -> None:
+        if self.refresh_needed:
             self.reset()
 
     # Column data
@@ -490,7 +499,11 @@ class Browser(QMainWindow):
 
     def on_operation_did_execute(self, op: OperationInfo) -> None:
         self.setUpdatesEnabled(True)
-        self.model.maybe_redraw_after_operation(op)
+        self.model.op_executed(op, current_top_level_widget() == self)
+
+    def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
+        if current_top_level_widget() == self:
+            self.model.refresh_if_needed()
 
     def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
@@ -1415,7 +1428,6 @@ where id in %s"""
 
     def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
-        gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
@@ -1423,10 +1435,10 @@ where id in %s"""
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
         gui_hooks.operation_will_execute.append(self.on_operation_will_execute)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
+        gui_hooks.focus_did_change.append(self.on_focus_change)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
-        gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
@@ -1434,6 +1446,7 @@ where id in %s"""
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
         gui_hooks.operation_will_execute.remove(self.on_operation_will_execute)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+        gui_hooks.focus_did_change.remove(self.on_focus_change)
 
     def on_unfocus_field(self, changed: bool, note: Note, field_idx: int) -> None:
         self.refreshCurrentCard(note)

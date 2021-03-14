@@ -62,7 +62,7 @@ class DeckBrowser:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
         self._v1_message_dismissed_at = 0
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
+        self.refresh_needed = False
 
     def show(self) -> None:
         av_player.stop_and_clear_queue()
@@ -70,16 +70,22 @@ class DeckBrowser:
         self._renderPage()
         # redraw top bar for theme change
         self.mw.toolbar.redraw()
+        self.refresh()
 
     def refresh(self) -> None:
         self._renderPage()
+        self.refresh_needed = False
 
-    def on_operation_did_execute(self, op: OperationInfo) -> None:
-        if self.mw.state != "deckBrowser":
-            return
-
-        if self.mw.col.op_affects_study_queue(op):
+    def refresh_if_needed(self) -> None:
+        if self.refresh_needed:
             self.refresh()
+
+    def op_executed(self, op: OperationInfo, focused: bool) -> None:
+        if self.mw.col.op_affects_study_queue(op):
+            self.refresh_needed = True
+
+        if focused:
+            self.refresh_if_needed()
 
     # Event handlers
     ##########################################################################

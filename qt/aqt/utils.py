@@ -729,6 +729,20 @@ def downArrow() -> str:
     return "▾"
 
 
+def top_level_widget(widget: QWidget) -> QWidget:
+    window = None
+    while widget := widget.parent():
+        window = widget
+    return window
+
+
+def current_top_level_widget() -> Optional[QWidget]:
+    if widget := QApplication.focusWidget():
+        return top_level_widget(widget)
+    else:
+        return None
+
+
 # Tooltips
 ######################################################################
 
