@@ -62,7 +62,7 @@ class DeckBrowser:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
         self._v1_message_dismissed_at = 0
-        self.refresh_needed = False
+        self._refresh_needed = False
 
     def show(self) -> None:
         av_player.stop_and_clear_queue()
@@ -74,18 +74,20 @@ class DeckBrowser:
 
     def refresh(self) -> None:
         self._renderPage()
-        self.refresh_needed = False
+        self._refresh_needed = False
 
     def refresh_if_needed(self) -> None:
-        if self.refresh_needed:
+        if self._refresh_needed:
             self.refresh()
 
-    def op_executed(self, op: OperationInfo, focused: bool) -> None:
+    def op_executed(self, op: OperationInfo, focused: bool) -> bool:
         if self.mw.col.op_affects_study_queue(op):
-            self.refresh_needed = True
+            self._refresh_needed = True
 
         if focused:
             self.refresh_if_needed()
+
+        return self._refresh_needed
 
     # Event handlers
     ##########################################################################

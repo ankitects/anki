@@ -27,7 +27,6 @@ from anki.httpclient import HttpClient
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
-from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
@@ -450,7 +449,6 @@ class Editor:
 
             if not self.addMode:
                 self._save_current_note()
-                self.mw.requireReset(reason=ResetReason.EditorBridgeCmd, context=self)
             if type == "blur":
                 self.currentField = None
                 # run any filters
@@ -544,7 +542,8 @@ class Editor:
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
-        self.mw.col.update_note(self.note)
+        note = self.note
+        self.mw.perform_op(lambda: self.mw.col.update_note(note))
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [

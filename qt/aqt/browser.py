@@ -1246,7 +1246,6 @@ where id in %s"""
 
         nids = self.selectedNotes()
         self.mw.perform_op(lambda: func(nids, tags))
-        self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
 
     def clearUnusedTags(self) -> None:
         self.editor.saveNow(self._clearUnusedTags)
@@ -1272,13 +1271,15 @@ where id in %s"""
 
     def _suspend_selected_cards(self) -> None:
         want_suspend = not self.current_card_is_suspended()
-        c = self.selectedCards()
-        if want_suspend:
-            self.col.sched.suspend_cards(c)
-        else:
-            self.col.sched.unsuspend_cards(c)
-        self.model.reset()
-        self.mw.requireReset(reason=ResetReason.BrowserSuspend, context=self)
+
+        def op() -> None:
+            if want_suspend:
+                self.col.sched.suspend_cards(cids)
+            else:
+                self.col.sched.unsuspend_cards(cids)
+
+        cids = self.selectedCards()
+        self.mw.perform_op(op)
 
     # Exporting
     ######################################################################
