@@ -3,14 +3,13 @@
 
 from __future__ import annotations
 
-from concurrent.futures import Future
 from typing import List, Optional
 
 import aqt
 from anki.collection import Config
 from anki.lang import TR
 from aqt.qt import *
-from aqt.utils import getText, showWarning, tooltip, tr
+from aqt.utils import getText, tooltip, tr
 
 
 def set_due_date_dialog(
@@ -19,12 +18,13 @@ def set_due_date_dialog(
     parent: QDialog,
     card_ids: List[int],
     config_key: Optional[Config.String.Key.V],
-    on_done: Callable[[], None],
 ) -> None:
     if not card_ids:
         return
 
-    default = mw.col.get_config_string(config_key) if config_key is not None else ""
+    default_text = (
+        mw.col.get_config_string(config_key) if config_key is not None else ""
+    )
     prompt = "\n".join(
         [
             tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
@@ -34,49 +34,28 @@ def set_due_date_dialog(
     (days, success) = getText(
         prompt=prompt,
         parent=parent,
-        default=default,
+        default=default_text,
         title=tr(TR.ACTIONS_SET_DUE_DATE),
     )
     if not success or not days.strip():
         return
 
-    def set_due() -> None:
-        mw.col.sched.set_due_date(card_ids, days, config_key)
-
-    def after_set(fut: Future) -> None:
-        try:
-            fut.result()
-        except Exception as e:
-            showWarning(str(e))
-            on_done()
-            return
-
-        tooltip(
+    mw.perform_op(
+        lambda: mw.col.sched.set_due_date(card_ids, days, config_key),
+        success=lambda _: tooltip(
             tr(TR.SCHEDULING_SET_DUE_DATE_DONE, cards=len(card_ids)),
             parent=parent,
-        )
-
-        on_done()
-
-    mw.taskman.with_progress(set_due, after_set)
+        ),
+    )
 
 
-def forget_cards(
-    *, mw: aqt.AnkiQt, parent: QDialog, card_ids: List[int], on_done: Callable[[], None]
-) -> None:
+def forget_cards(*, mw: aqt.AnkiQt, parent: QDialog, card_ids: List[int]) -> None:
     if not card_ids:
         return
 
-    def on_done_wrapper(fut: Future) -> None:
-        try:
-            fut.result()
-        except Exception as e:
-            showWarning(str(e))
-        else:
-            tooltip(tr(TR.SCHEDULING_FORGOT_CARDS, cards=len(card_ids)), parent=parent)
-
-        on_done()
-
-    mw.taskman.with_progress(
-        lambda: mw.col.sched.schedule_cards_as_new(card_ids), on_done_wrapper
+    mw.perform_op(
+        lambda: mw.col.sched.schedule_cards_as_new(card_ids),
+        success=lambda _: tooltip(
+            tr(TR.SCHEDULING_FORGOT_CARDS, cards=len(card_ids)), parent=parent
+        ),
     )

@@ -394,7 +394,10 @@ hooks = [
     Hook(
         name="state_did_reset",
         legacy_hook="reset",
-        doc="Called when the interface needs to be redisplayed after non-trivial changes have been made.",
+        doc="""Legacy 'reset' hook. Called by mw.reset() and mw.perform_op() to redraw the UI.
+        
+        New code should use `operation_did_execute` instead.
+        """,
     ),
     Hook(
         name="operation_will_execute",
@@ -405,10 +408,14 @@ hooks = [
     Hook(
         name="operation_did_execute",
         args=[
-            "changes: anki.collection.StateChanges",
+            "op: anki.collection.OperationInfo",
         ],
         doc="""Called after an operation completes.
-        Changes can be inspected to determine whether the UI needs updating.""",
+        Changes can be inspected to determine whether the UI needs updating.
+        
+        This will also be called when the legacy mw.reset() is used. When called via
+        mw.reset(), `operation_will_execute` will not be called.
+        """,
     ),
     # Webview
     ###################

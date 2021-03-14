@@ -267,6 +267,7 @@ service CardsService {
   rpc UpdateCard(UpdateCardIn) returns (Empty);
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
   rpc SetDeck(SetDeckIn) returns (Empty);
+  rpc SetFlag(SetFlagIn) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
@@ -1442,22 +1443,30 @@ message GetQueuedCardsOut {
   }
 }
 
-message StateChanges {
-  bool card_added = 1;
-  bool card_modified = 2;
-  bool note_added = 3;
-  bool note_modified = 4;
-  bool deck_added = 5;
-  bool deck_modified = 6;
-  bool tag_modified = 7;
-  bool notetype_modified = 8;
-  bool preference_modified = 9;
+message OperationInfo {
+  message Changes {
+    bool card = 1;
+    bool note = 2;
+    bool deck = 3;
+    bool tag = 4;
+    bool notetype = 5;
+    bool preference = 6;
+  }
+  // this is not an exhaustive list; we can add more cases as we need them
+  enum Kind {
+    OTHER = 0;
+    UPDATE_NOTE_TAGS = 1;
+    SET_CARD_FLAG = 2;
+  }
+
+  Kind kind = 1;
+  Changes changes = 2;
 }
 
 message UndoStatus {
   string undo = 1;
   string redo = 2;
-  StateChanges changes = 3;
+  OperationInfo last_op = 3;
 }
 
 message DefaultsForAddingIn {
@@ -1472,4 +1481,9 @@ message DeckAndNotetype {
 message RenameDeckIn {
   int64 deck_id = 1;
   string new_name = 2;
+}
+
+message SetFlagIn {
+  repeated int64 card_ids = 1;
+  uint32 flag = 2;
 }
