@@ -72,6 +72,7 @@ from aqt.utils import (
     HelpPage,
     askUser,
     checkInvalidFilename,
+    current_top_level_widget,
     disable_help_button,
     getFile,
     getOnlyText,
@@ -85,34 +86,13 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    top_level_widget,
     tr,
 )
 
 T = TypeVar("T")
 
 install_pylib_legacy()
-
-
-class ResetReason(enum.Enum):
-    Unknown = "unknown"
-    AddCardsAddNote = "addCardsAddNote"
-    EditCurrentInit = "editCurrentInit"
-    EditorBridgeCmd = "editorBridgeCmd"
-    BrowserSetDeck = "browserSetDeck"
-    BrowserAddTags = "browserAddTags"
-    BrowserRemoveTags = "browserRemoveTags"
-    BrowserSuspend = "browserSuspend"
-    BrowserReposition = "browserReposition"
-    BrowserReschedule = "browserReschedule"
-    BrowserFindReplace = "browserFindReplace"
-    BrowserTagDupes = "browserTagDupes"
-    BrowserDeleteDeck = "browserDeleteDeck"
-
-
-class ResetRequired:
-    def __init__(self, mw: AnkiQt) -> None:
-        self.mw = mw
-
 
 MainWindowState = Literal[
     "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
@@ -194,6 +174,7 @@ class AnkiQt(QMainWindow):
         self.setupHooks()
         self.setup_timers()
         self.updateTitleBar()
+        self.setup_focus()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -221,6 +202,12 @@ class AnkiQt(QMainWindow):
     def weakref(self) -> AnkiQt:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)  # type: ignore
+
+    def setup_focus(self) -> None:
+        qconnect(self.app.focusChanged, self.on_focus_changed)
+
+    def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
+        gui_hooks.focus_did_change(new, old)
 
     # Profiles
     ##########################################################################
@@ -771,11 +758,32 @@ class AnkiQt(QMainWindow):
             setattr(op.changes, field.name, True)
         gui_hooks.operation_did_execute(op)
 
+    def on_operation_did_execute(self, op: OperationInfo) -> None:
+        "Notify current screen of changes."
+        focused = current_top_level_widget() == self
+        if self.state == "review":
+            self.reviewer.op_executed(op, focused)
+        elif self.state == "overview":
+            self.overview.op_executed(op, focused)
+        elif self.state == "deckBrowser":
+            self.deckBrowser.op_executed(op, focused)
+
+    def on_focus_did_change(
+        self, new_focus: Optional[QWidget], _old: Optional[QWidget]
+    ) -> None:
+        "If main window has received focus, ensure current UI state is updated."
+        if new_focus and top_level_widget(new_focus) == self:
+            if self.state == "review":
+                self.reviewer.refresh_if_needed()
+            elif self.state == "overview":
+                self.overview.refresh_if_needed()
+            elif self.state == "deckBrowser":
+                self.deckBrowser.refresh_if_needed()
+
     def reset(self, unused_arg: bool = False) -> None:
         """Legacy method of telling UI to refresh after changes made to DB.
 
         New code should use mw.perform_op() instead."""
-
         if self.col:
             # fire new `operation_did_execute` hook first. If the overview
             # or review screen are currently open, they will rebuild the study
@@ -783,63 +791,26 @@ class AnkiQt(QMainWindow):
             self._synthesize_op_did_execute_from_reset()
             # fire the old reset hook
             gui_hooks.state_did_reset()
-
             self.update_undo_actions()
 
-            # fixme: double-check
-            # self.moveToState(self.state)
+    # legacy
 
     def requireReset(
         self,
         modal: bool = False,
-        reason: ResetReason = ResetReason.Unknown,
+        reason: Any = None,
         context: Any = None,
     ) -> None:
-        "Signal queue needs to be rebuilt when edits are finished or by user."
-        self.autosave()
-        self.resetModal = modal
-        if gui_hooks.main_window_should_require_reset(
-            self.interactiveState(), reason, context
-        ):
-            self.moveToState("resetRequired")
-
-    def interactiveState(self) -> bool:
-        "True if not in profile manager, syncing, etc."
-        return self.state in ("overview", "review", "deckBrowser")
+        self.reset()
 
     def maybeReset(self) -> None:
-        self.autosave()
-        if self.state == "resetRequired":
-            self.state = self.returnState
-            self.reset()
+        pass
 
     def delayedMaybeReset(self) -> None:
-        # if we redraw the page in a button click event it will often crash on
-        # windows
-        self.progress.timer(100, self.maybeReset, False)
+        pass
 
     def _resetRequiredState(self, oldState: MainWindowState) -> None:
-        if oldState != "resetRequired":
-            self.returnState = oldState
-        if self.resetModal:
-            # we don't have to change the webview, as we have a covering window
-            return
-        web_context = ResetRequired(self)
-        self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
-        i = tr(TR.QT_MISC_WAITING_FOR_EDITING_TO_FINISH)
-        b = self.button("refresh", tr(TR.QT_MISC_RESUME_NOW), id="resume")
-        self.web.stdHtml(
-            f"""
-<center><div style="height: 100%">
-<div style="position:relative; vertical-align: middle;">
-{i}<br><br>
-{b}</div></div></center>
-<script>$('#resume').focus()</script>
-""",
-            context=web_context,
-        )
-        self.bottomWeb.hide()
-        self.web.setFocus()
+        pass
 
     # HTML helpers
     ##########################################################################
@@ -1403,7 +1374,7 @@ title="%s" %s>%s</button>""" % (
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
 
-    # Permanent libanki hooks
+    # Permanent hooks
     ##########################################################################
 
     def setupHooks(self) -> None:
@@ -1413,6 +1384,8 @@ title="%s" %s>%s</button>""" % (
 
         gui_hooks.av_player_will_play.append(self.on_av_player_will_play)
         gui_hooks.av_player_did_end_playing.append(self.on_av_player_did_end_playing)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
+        gui_hooks.focus_did_change.append(self.on_focus_did_change)
 
         self._activeWindowOnPlay: Optional[QWidget] = None
 
@@ -1748,6 +1721,10 @@ title="%s" %s>%s</button>""" % (
     def _isAddon(self, buf: str) -> bool:
         return buf.endswith(self.addonManager.ext)
 
+    def interactiveState(self) -> bool:
+        "True if not in profile manager, syncing, etc."
+        return self.state in ("overview", "review", "deckBrowser")
+
     # GC
     ##########################################################################
     # The default Python garbage collection can trigger on any thread. This can
@@ -1803,3 +1780,20 @@ title="%s" %s>%s</button>""" % (
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
+
+
+# legacy
+class ResetReason(enum.Enum):
+    Unknown = "unknown"
+    AddCardsAddNote = "addCardsAddNote"
+    EditCurrentInit = "editCurrentInit"
+    EditorBridgeCmd = "editorBridgeCmd"
+    BrowserSetDeck = "browserSetDeck"
+    BrowserAddTags = "browserAddTags"
+    BrowserRemoveTags = "browserRemoveTags"
+    BrowserSuspend = "browserSuspend"
+    BrowserReposition = "browserReposition"
+    BrowserReschedule = "browserReschedule"
+    BrowserFindReplace = "browserFindReplace"
+    BrowserTagDupes = "browserTagDupes"
+    BrowserDeleteDeck = "browserDeleteDeck"
