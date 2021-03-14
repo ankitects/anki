@@ -23,6 +23,7 @@ impl From<Op> for Kind {
         match o {
             Op::SetFlag => Kind::SetCardFlag,
             Op::UpdateTag => Kind::UpdateNoteTags,
+            Op::UpdateNote => Kind::UpdateNote,
             _ => Kind::Other,
         }
     }

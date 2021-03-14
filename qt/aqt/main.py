@@ -762,11 +762,16 @@ class AnkiQt(QMainWindow):
         "Notify current screen of changes."
         focused = current_top_level_widget() == self
         if self.state == "review":
-            self.reviewer.op_executed(op, focused)
+            dirty = self.reviewer.op_executed(op, focused)
         elif self.state == "overview":
-            self.overview.op_executed(op, focused)
+            dirty = self.overview.op_executed(op, focused)
         elif self.state == "deckBrowser":
-            self.deckBrowser.op_executed(op, focused)
+            dirty = self.deckBrowser.op_executed(op, focused)
+        else:
+            dirty = False
+
+        if not focused and dirty:
+            self.fade_out_webview()
 
     def on_focus_did_change(
         self, new_focus: Optional[QWidget], _old: Optional[QWidget]
@@ -779,6 +784,12 @@ class AnkiQt(QMainWindow):
                 self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
                 self.deckBrowser.refresh_if_needed()
+
+    def fade_out_webview(self) -> None:
+        self.web.eval("document.body.style.opacity = 0.3")
+
+    def fade_in_webview(self) -> None:
+        self.web.eval("document.body.style.opacity = 1")
 
     def reset(self, unused_arg: bool = False) -> None:
         """Legacy method of telling UI to refresh after changes made to DB.
