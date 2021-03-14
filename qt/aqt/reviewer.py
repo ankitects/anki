@@ -13,7 +13,7 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
-from anki.collection import Config, StateChanges
+from anki.collection import Config, OperationInfo
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.profiles import VideoDriver
@@ -87,17 +87,26 @@ class Reviewer:
         gui_hooks.reviewer_will_end()
         self.card = None
 
-    def on_operation_did_execute(self, changes: StateChanges) -> None:
-        need_queue_rebuild = (
-            changes.card_added
-            or changes.card_modified
-            or changes.deck_modified
-            or changes.preference_modified
-        )
+    def on_operation_did_execute(self, op: OperationInfo) -> None:
+        if self.mw.state != "review":
+            return
 
-        if need_queue_rebuild:
+        if op.kind == OperationInfo.UPDATE_NOTE_TAGS:
+            self.card.load()
+            self._update_mark_icon()
+        elif op.kind == OperationInfo.SET_CARD_FLAG:
+            # fixme: v3 mtime check
+            self.card.load()
+            self._update_flag_icon()
+        elif self.mw.col.op_affects_study_queue(op):
+            # need queue rebuild
             self.mw.col.reset()
             self.nextCard()
+            return
+        elif op.changes.note or op.changes.notetype or op.changes.tag:
+            # need redraw of current card
+            self.card.load()
+            self._showQuestion()
 
     # Fetching a card
     ##########################################################################
@@ -795,24 +804,27 @@ time = %(time)d;
     def onOptions(self) -> None:
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
 
-    def set_flag_on_current_card(self, flag: int) -> None:
-        # need to toggle off?
-        if self.card.user_flag() == flag:
-            flag = 0
-        self.card.set_user_flag(flag)
-        self.mw.col.update_card(self.card)
-        self.mw.update_undo_actions()
-        self._update_flag_icon()
+    def set_flag_on_current_card(self, desired_flag: int) -> None:
+        def op() -> None:
+            # need to toggle off?
+            if self.card.user_flag() == desired_flag:
+                flag = 0
+            else:
+                flag = desired_flag
+            self.mw.col.set_user_flag_for_cards(flag, [self.card.id])
+
+        self.mw.perform_op(op)
 
     def toggle_mark_on_current_note(self) -> None:
-        note = self.card.note()
-        if note.has_tag("marked"):
-            note.remove_tag("marked")
-        else:
-            note.add_tag("marked")
-        self.mw.col.update_note(note)
-        self.mw.update_undo_actions()
-        self._update_mark_icon()
+        def op() -> None:
+            tag = "marked"
+            note = self.card.note()
+            if note.has_tag(tag):
+                self.mw.col.tags.bulk_remove([note.id], tag)
+            else:
+                self.mw.col.tags.bulk_add([note.id], tag)
+
+        self.mw.perform_op(op)
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:
@@ -823,28 +835,33 @@ time = %(time)d;
             parent=self.mw,
             card_ids=[self.card.id],
             config_key=Config.String.SET_DUE_REVIEWER,
-            on_done=self.mw.reset,
         )
 
     def suspend_current_note(self) -> None:
-        self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_SUSPENDED))
+        self.mw.perform_op(
+            lambda: self.mw.col.sched.suspend_cards(
+                [c.id for c in self.card.note().cards()]
+            ),
+            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_SUSPENDED)),
+        )
 
     def suspend_current_card(self) -> None:
-        self.mw.col.sched.suspend_cards([self.card.id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_CARD_SUSPENDED))
+        self.mw.perform_op(
+            lambda: self.mw.col.sched.suspend_cards([self.card.id]),
+            success=lambda _: tooltip(tr(TR.STUDYING_CARD_SUSPENDED)),
+        )
 
     def bury_current_card(self) -> None:
-        self.mw.col.sched.bury_cards([self.card.id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_CARD_BURIED))
+        self.mw.perform_op(
+            lambda: self.mw.col.sched.bury_cards([self.card.id]),
+            success=lambda _: tooltip(tr(TR.STUDYING_CARD_BURIED)),
+        )
 
     def bury_current_note(self) -> None:
-        self.mw.col.sched.bury_note(self.card.note())
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_BURIED))
+        self.mw.perform_op(
+            lambda: self.mw.col.sched.bury_note(self.card.note()),
+            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_BURIED)),
+        )
 
     def delete_current_note(self) -> None:
         # need to check state because the shortcut is global to the main
@@ -855,7 +872,9 @@ time = %(time)d;
 
         self.mw.perform_op(
             lambda: self.mw.col.remove_notes([self.card.note().id]),
-            lambda _: tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt)),
+            success=lambda _: tooltip(
+                tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt)
+            ),
         )
 
     def onRecordVoice(self) -> None:

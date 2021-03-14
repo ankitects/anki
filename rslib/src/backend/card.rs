@@ -54,6 +54,13 @@ impl CardsService for Backend {
         let deck_id = input.deck_id.into();
         self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
     }
+
+    fn set_flag(&self, input: pb::SetFlagIn) -> Result<pb::Empty> {
+        self.with_col(|col| {
+            col.set_card_flag(&to_card_ids(input.card_ids), input.flag)
+                .map(Into::into)
+        })
+    }
 }
 
 impl TryFrom<pb::Card> for Card {
@@ -110,4 +117,8 @@ impl From<Card> for pb::Card {
             data: c.data,
         }
     }
+}
+
+fn to_card_ids(v: Vec<i64>) -> Vec<CardID> {
+    v.into_iter().map(CardID).collect()
 }

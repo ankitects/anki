@@ -19,6 +19,7 @@ from typing import (
     Callable,
     Dict,
     List,
+    Literal,
     Optional,
     Sequence,
     TextIO,
@@ -43,6 +44,7 @@ from anki.collection import (
     Checkpoint,
     Collection,
     Config,
+    OperationInfo,
     ReviewUndo,
     UndoResult,
     UndoStatus,
@@ -112,6 +114,11 @@ class ResetRequired:
         self.mw = mw
 
 
+MainWindowState = Literal[
+    "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
+]
+
+
 class AnkiQt(QMainWindow):
     col: Collection
     pm: ProfileManagerType
@@ -128,7 +135,7 @@ class AnkiQt(QMainWindow):
     ) -> None:
         QMainWindow.__init__(self)
         self.backend = backend
-        self.state = "startup"
+        self.state: MainWindowState = "startup"
         self.opts = opts
         self.col: Optional[Collection] = None
         self.taskman = TaskManager(self)
@@ -664,12 +671,12 @@ class AnkiQt(QMainWindow):
         self.pm.save()
         self.progress.finish()
 
-    # State machine
+    # Tracking main window state (deck browser, reviewer, etc)
     ##########################################################################
 
-    def moveToState(self, state: str, *args: Any) -> None:
+    def moveToState(self, state: MainWindowState, *args: Any) -> None:
         # print("-> move from", self.state, "to", state)
-        oldState = self.state or "dummy"
+        oldState = self.state
         cleanup = getattr(self, f"_{oldState}Cleanup", None)
         if cleanup:
             # pylint: disable=not-callable
@@ -711,20 +718,27 @@ class AnkiQt(QMainWindow):
     def perform_op(
         self,
         op: Callable[[], T],
-        on_success: Optional[Callable[[T], None]] = None,
-        on_exception: Optional[Callable[[BaseException], None]] = None,
+        *,
+        success: Optional[Callable[[T], None]] = None,
+        failure: Optional[Callable[[BaseException], None]] = None,
     ) -> None:
         """Run the provided operation on a background thread.
-        - Ensures any changes in the editor have been saved.
+
         - Shows progress popup for the duration of the op.
         - Ensures the browser doesn't try to redraw during the operation, which can lead
         to a frozen UI
         - Updates undo state at the end of the operation
+        - Commits changes
+        - Fires the `operation_(will|did)_reset` hooks
+        - Fires the legacy `state_did_reset` hook
 
-        on_success() will be called with the return value of op()
-        if op() threw an exception, on_exception() will be called with it,
-        if it was provided
+        Be careful not to call any UI routines in `op`, as that may crash Qt.
+        This includes things select .selectedCards() in the browse screen.
 
+        on_success() will be called with the return value of op().
+
+        If op() throws an exception, it will be shown in a popup, or
+        passed to on_exception() if it is provided.
         """
 
         gui_hooks.operation_will_execute()
@@ -732,28 +746,48 @@ class AnkiQt(QMainWindow):
         def wrapped_done(future: Future) -> None:
             try:
                 if exception := future.exception():
-                    if on_exception:
-                        on_exception(exception)
+                    if failure:
+                        failure(exception)
                     else:
                         showWarning(str(exception))
                 else:
-                    if on_success:
-                        on_success(future.result())
+                    if success:
+                        success(future.result())
             finally:
                 status = self.col.undo_status()
-                self._update_undo_actions_for_status(status)
-                gui_hooks.operation_did_execute(status.changes)
+                self._update_undo_actions_for_status_and_save(status)
+                print("last op", status.last_op)
+                gui_hooks.operation_did_execute(status.last_op)
+                # fire legacy hook so old code notices changes
+                gui_hooks.state_did_reset()
 
         self.taskman.with_progress(op, wrapped_done)
 
-    def reset(self, guiOnly: bool = False) -> None:
-        "Called for non-trivial edits. Rebuilds queue and updates UI."
+    def _synthesize_op_did_execute_from_reset(self) -> None:
+        """Fire the `operation_did_execute` hook with everything marked as changed,
+        after legacy code has called .reset()"""
+        op = OperationInfo()
+        for field in op.changes.DESCRIPTOR.fields:
+            setattr(op.changes, field.name, True)
+        gui_hooks.operation_did_execute(op)
+
+    def reset(self, unused_arg: bool = False) -> None:
+        """Legacy method of telling UI to refresh after changes made to DB.
+
+        New code should use mw.perform_op() instead."""
+
         if self.col:
-            if not guiOnly:
-                self.col.reset()
+            # fire new `operation_did_execute` hook first. If the overview
+            # or review screen are currently open, they will rebuild the study
+            # queues (via mw.col.reset())
+            self._synthesize_op_did_execute_from_reset()
+            # fire the old reset hook
             gui_hooks.state_did_reset()
+
             self.update_undo_actions()
-            self.moveToState(self.state)
+
+            # fixme: double-check
+            # self.moveToState(self.state)
 
     def requireReset(
         self,
@@ -784,7 +818,7 @@ class AnkiQt(QMainWindow):
         # windows
         self.progress.timer(100, self.maybeReset, False)
 
-    def _resetRequiredState(self, oldState: str) -> None:
+    def _resetRequiredState(self, oldState: MainWindowState) -> None:
         if oldState != "resetRequired":
             self.returnState = oldState
         if self.resetModal:
@@ -1160,7 +1194,7 @@ title="%s" %s>%s</button>""" % (
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
-    def _update_undo_actions_for_status(self, status: UndoStatus) -> None:
+    def _update_undo_actions_for_status_and_save(self, status: UndoStatus) -> None:
         """Update menu text and enable/disable menu item as appropriate.
         Plural as this may handle redo in the future too."""
         undo_action = status.undo
@@ -1174,6 +1208,8 @@ title="%s" %s>%s</button>""" % (
             self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
+
+        self.col.autosave()
 
     def checkpoint(self, name: str) -> None:
         self.col.save(name)

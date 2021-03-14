@@ -111,6 +111,15 @@ impl Card {
         self.deck_id = deck;
     }
 
+    fn set_flag(&mut self, flag: u8) {
+        // we currently only allow 4 flags
+        assert!(flag < 5);
+
+        // but reserve space for 7, preserving the rest of
+        // the flags (up to a byte)
+        self.flags = (self.flags & !0b111) | flag
+    }
+
     /// Return the total number of steps left to do, ignoring the
     /// "steps today" number packed into the DB representation.
     pub fn remaining_steps(&self) -> u32 {
@@ -215,6 +224,24 @@ impl Collection {
                 }
                 let original = card.clone();
                 card.set_deck(deck_id, sched);
+                col.update_card_inner(&mut card, original, usn)?;
+            }
+            Ok(())
+        })
+    }
+
+    pub fn set_card_flag(&mut self, cards: &[CardID], flag: u32) -> Result<()> {
+        if flag > 4 {
+            return Err(AnkiError::invalid_input("invalid flag"));
+        }
+        let flag = flag as u8;
+
+        self.storage.set_search_table_to_card_ids(cards, false)?;
+        let usn = self.usn()?;
+        self.transact(Some(Op::SetFlag), |col| {
+            for mut card in col.storage.all_searched_cards()? {
+                let original = card.clone();
+                card.set_flag(flag);
                 col.update_card_inner(&mut card, original, usn)?;
             }
             Ok(())

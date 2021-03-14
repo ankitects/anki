@@ -6,7 +6,6 @@ mod changes;
 pub use crate::ops::Op;
 pub(crate) use changes::UndoableChange;
 
-use crate::backend_proto as pb;
 use crate::prelude::*;
 use std::collections::VecDeque;
 
@@ -30,6 +29,11 @@ impl Default for UndoMode {
     fn default() -> Self {
         Self::NormalOp
     }
+}
+
+pub struct UndoStatus {
+    pub undo: Option<Op>,
+    pub redo: Option<Op>,
 }
 
 #[derive(Debug, Default)]
@@ -75,6 +79,8 @@ impl UndoManager {
                     self.undo_steps.truncate(UNDO_LIMIT - 1);
                     self.undo_steps.push_front(step);
                 }
+            } else {
+                println!("no undo changes, discarding step");
             }
         }
         println!("ended, undo steps count now {}", self.undo_steps.len());
@@ -141,22 +147,10 @@ impl Collection {
         Ok(())
     }
 
-    pub fn undo_status(&self) -> pb::UndoStatus {
-        pb::UndoStatus {
-            undo: self
-                .can_undo()
-                .map(|op| self.describe_op_kind(op))
-                .unwrap_or_default(),
-            redo: self
-                .can_redo()
-                .map(|op| self.describe_op_kind(op))
-                .unwrap_or_default(),
-            changes: Some(
-                self.can_undo()
-                    .map(|op| op.state_changes())
-                    .unwrap_or_default()
-                    .into(),
-            ),
+    pub fn undo_status(&self) -> UndoStatus {
+        UndoStatus {
+            undo: self.can_undo(),
+            redo: self.can_redo(),
         }
     }
 

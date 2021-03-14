@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, Config, SearchNode, StateChanges
+from anki.collection import Collection, Config, OperationInfo, SearchNode
 from anki.consts import *
 from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
@@ -281,13 +281,8 @@ class DataModel(QAbstractTableModel):
         else:
             tv.selectRow(0)
 
-    def maybe_redraw_after_operation(self, changes: StateChanges) -> None:
-        if (
-            changes.card_modified
-            or changes.note_modified
-            or changes.deck_modified
-            or changes.notetype_modified
-        ):
+    def maybe_redraw_after_operation(self, op: OperationInfo) -> None:
+        if op.changes.card or op.changes.note or op.changes.deck or op.changes.notetype:
             self.reset()
 
     # Column data
@@ -493,9 +488,9 @@ class Browser(QMainWindow):
         # as that will block the UI
         self.setUpdatesEnabled(False)
 
-    def on_operation_did_execute(self, changes: StateChanges) -> None:
+    def on_operation_did_execute(self, op: OperationInfo) -> None:
         self.setUpdatesEnabled(True)
-        self.model.maybe_redraw_after_operation(changes)
+        self.model.maybe_redraw_after_operation(op)
 
     def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
@@ -1159,14 +1154,10 @@ where id in %s"""
         # select the next card if there is one
         self._onNextCard()
 
-        def do_remove() -> None:
-            self.col.remove_notes(nids)
-
-        def on_done(fut: Future) -> None:
-            fut.result()
-            tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
-
-        self.perform_op(do_remove, on_done, reset_model=True)
+        self.mw.perform_op(
+            lambda: self.col.remove_notes(nids),
+            success=lambda _: tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids))),
+        )
 
     # legacy
 
@@ -1196,14 +1187,7 @@ where id in %s"""
             return
         did = self.col.decks.id(ret.name)
 
-        def do_move() -> None:
-            self.col.set_deck(cids, did)
-
-        def on_done(fut: Future) -> None:
-            fut.result()
-            self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
-
-        self.perform_op(do_move, on_done)
+        self.mw.perform_op(lambda: self.col.set_deck(cids, did))
 
     # legacy
 
@@ -1247,9 +1231,8 @@ where id in %s"""
             if not ok:
                 return
 
-        self.model.beginReset()
-        func(self.selectedNotes(), tags)
-        self.model.endReset()
+        nids = self.selectedNotes()
+        self.mw.perform_op(lambda: func(nids, tags))
         self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
 
     def clearUnusedTags(self) -> None:
@@ -1304,8 +1287,9 @@ where id in %s"""
         # flag needs toggling off?
         if n == self.card.user_flag():
             n = 0
-        self.col.set_user_flag_for_cards(n, self.selectedCards())
-        self.model.reset()
+
+        cids = self.selectedCards()
+        self.mw.perform_op(lambda: self.col.set_user_flag_for_cards(n, cids))
 
     def _updateFlagsMenu(self) -> None:
         flag = self.card and self.card.user_flag()
@@ -1382,11 +1366,6 @@ where id in %s"""
     # Scheduling
     ######################################################################
 
-    def _after_schedule(self) -> None:
-        self.model.reset()
-        # updates undo status
-        self.mw.requireReset(reason=ResetReason.BrowserReschedule, context=self)
-
     def set_due_date(self) -> None:
         self.editor.saveNow(
             lambda: set_due_date_dialog(
@@ -1394,7 +1373,6 @@ where id in %s"""
                 parent=self,
                 card_ids=self.selectedCards(),
                 config_key=Config.String.SET_DUE_BROWSER,
-                on_done=self._after_schedule,
             )
         )
 
@@ -1404,7 +1382,6 @@ where id in %s"""
                 mw=self.mw,
                 parent=self,
                 card_ids=self.selectedCards(),
-                on_done=self._after_schedule,
             )
         )
 
