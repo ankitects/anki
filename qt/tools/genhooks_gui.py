@@ -24,7 +24,7 @@ from anki.cards import Card
 from anki.decks import Deck, DeckConfig
 from anki.hooks import runFilter, runHook
 from anki.models import NoteType
-from aqt.qt import QDialog, QEvent, QMenu
+from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
 """
 
@@ -416,6 +416,15 @@ hooks = [
         This will also be called when the legacy mw.reset() is used. When called via
         mw.reset(), `operation_will_execute` will not be called.
         """,
+    ),
+    Hook(
+        name="focus_did_change",
+        args=[
+            "new: Optional[QWidget]",
+            "old: Optional[QWidget]",
+        ],
+        doc="""Called each time the focus changes. Can be used to defer updates from
+        `operation_did_execute` until a window is brought to the front.""",
     ),
     # Webview
     ###################
