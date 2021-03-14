@@ -1457,6 +1457,7 @@ message OperationInfo {
     OTHER = 0;
     UPDATE_NOTE_TAGS = 1;
     SET_CARD_FLAG = 2;
+    UPDATE_NOTE = 3;
   }
 
   Kind kind = 1;
