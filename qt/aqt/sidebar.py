@@ -256,7 +256,7 @@ class SidebarModel(QAbstractItemModel):
     def setData(
         self, index: QModelIndex, text: QVariant, _role: int = Qt.EditRole
     ) -> bool:
-        return self.sidebar.rename_node(index.internalPointer(), text)
+        return self.sidebar._on_rename(index.internalPointer(), text)
 
     def supportedDropActions(self) -> Qt.DropActions:
         return cast(Qt.DropActions, Qt.MoveAction)
@@ -553,10 +553,11 @@ class SidebarTreeView(QTreeView):
             if not self.isPersistentEditorOpen(index):
                 self._on_search(index)
         elif event.key() == Qt.Key_Delete:
-            self._on_delete(index)
+            self._on_delete_key(index)
         else:
             super().keyPressEvent(event)
 
+    # Slots
     ###########
 
     def _on_selection_changed(self, _new: QItemSelection, _old: QItemSelection) -> None:
@@ -641,14 +642,35 @@ class SidebarTreeView(QTreeView):
             if search_node := item.search_node:
                 self.update_search(search_node)
 
-    def _on_delete(self, index: QModelIndex) -> None:
-        if item := self.model().item_for_index(index):
-            if item.item_type == SidebarItemType.SAVED_SEARCH:
-                self.remove_saved_searches(item)
-            elif item.item_type == SidebarItemType.DECK:
-                self.delete_decks(item)
+    def _on_rename(self, item: SidebarItem, text: str) -> bool:
+        new_name = text.replace('"', "")
+        if new_name and new_name != item.name:
+            if item.item_type == SidebarItemType.DECK:
+                self.rename_deck(item, new_name)
+            elif item.item_type == SidebarItemType.SAVED_SEARCH:
+                self.rename_saved_search(item, new_name)
             elif item.item_type == SidebarItemType.TAG:
-                self.remove_tags(item)
+                self.rename_tag(item, new_name)
+        # renaming may be asynchronous so always return False
+        return False
+
+    def _on_delete_key(self, index: QModelIndex) -> None:
+        if item := self.model().item_for_index(index):
+            if self._enable_delete(item):
+                self._on_delete(item)
+
+    def _enable_delete(self, item: SidebarItem) -> bool:
+        return item.item_type.is_deletable() and all(
+            s.item_type == item.item_type for s in self._selected_items()
+        )
+
+    def _on_delete(self, item: SidebarItem) -> None:
+        if item.item_type == SidebarItemType.SAVED_SEARCH:
+            self.remove_saved_searches(item)
+        elif item.item_type == SidebarItemType.DECK:
+            self.delete_decks(item)
+        elif item.item_type == SidebarItemType.TAG:
+            self.remove_tags(item)
 
     def _on_expansion(self, idx: QModelIndex) -> None:
         if self.current_search:
@@ -1025,7 +1047,7 @@ class SidebarTreeView(QTreeView):
 
             root.add_child(item)
 
-    # Context menu actions
+    # Context menu
     ###########################
 
     def onContextMenu(self, point: QPoint) -> None:
@@ -1059,10 +1081,8 @@ class SidebarTreeView(QTreeView):
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
     ) -> None:
-        if item.item_type.is_deletable() and all(
-            s.item_type == item.item_type for s in self._selected_items()
-        ):
-            menu.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(index))
+        if self._enable_delete(item):
+            menu.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(item))
 
     def _maybe_add_rename_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
@@ -1127,6 +1147,9 @@ class SidebarTreeView(QTreeView):
                 lambda: set_children_expanded(False),
             )
 
+    # Decks
+    ###########################
+
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         deck = self.mw.col.decks.get(item.id)
         new_name = item.name_prefix + new_name
@@ -1141,6 +1164,27 @@ class SidebarTreeView(QTreeView):
         )
         self.mw.deckBrowser.refresh()
         self.mw.update_undo_actions()
+
+    def delete_decks(self, _item: SidebarItem) -> None:
+        self.browser.editor.saveNow(self._delete_decks)
+
+    def _delete_decks(self) -> None:
+        def do_delete() -> int:
+            return self.mw.col.decks.remove(dids)
+
+        def on_done(fut: Future) -> None:
+            self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
+            self.browser.search()
+            self.browser.model.endReset()
+            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()), parent=self)
+            self.refresh()
+
+        dids = self._selected_decks()
+        self.browser.model.beginReset()
+        self.mw.taskman.with_progress(do_delete, on_done)
+
+    # Tags
+    ###########################
 
     def remove_tags(self, item: SidebarItem) -> None:
         self.browser.editor.saveNow(lambda: self._remove_tags(item))
@@ -1195,38 +1239,8 @@ class SidebarTreeView(QTreeView):
         self.browser.model.beginReset()
         self.mw.taskman.with_progress(do_rename, on_done)
 
-    def delete_decks(self, _item: SidebarItem) -> None:
-        self.browser.editor.saveNow(self._delete_decks)
-
-    def _delete_decks(self) -> None:
-        def do_delete() -> int:
-            return self.mw.col.decks.remove(dids)
-
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
-            self.browser.search()
-            self.browser.model.endReset()
-            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()), parent=self)
-            self.refresh()
-
-        dids = self._selected_decks()
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_delete, on_done)
-
-    def rename_node(self, item: SidebarItem, text: str) -> bool:
-        new_name = text.replace('"', "")
-        if new_name and new_name != item.name:
-            if item.item_type == SidebarItemType.DECK:
-                self.rename_deck(item, new_name)
-            elif item.item_type == SidebarItemType.SAVED_SEARCH:
-                self.rename_saved_search(item, new_name)
-            elif item.item_type == SidebarItemType.TAG:
-                self.rename_tag(item, new_name)
-        # renaming may be asynchronous so always return False
-        return False
-
     # Saved searches
-    ##################
+    ####################################
 
     _saved_searches_key = "savedFilters"
 
@@ -1286,6 +1300,9 @@ class SidebarTreeView(QTreeView):
             and item.name == name
         )
 
+    # Notetypes and templates
+    ####################################
+
     def manage_notetype(self, item: SidebarItem) -> None:
         Models(
             self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
@@ -1296,7 +1313,7 @@ class SidebarTreeView(QTreeView):
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
 
     # Helpers
-    ##################
+    ####################################
 
     def _selected_items(self) -> List[SidebarItem]:
         return [self.model().item_for_index(idx) for idx in self.selectedIndexes()]
