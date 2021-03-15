@@ -21,3 +21,9 @@ compile_data_attr = "glob([\"**\"])"
 
 With minor version updates, you should not normally need to modify
 the entries in that file.
+
+Because update.py modifies a lot of files in remote/, it makes it difficult to
+review in a PR, and the changes can sometimes break platforms like Windows. For
+this reason, please don't submit PRs that do minor version bumps - those will
+typically be done after stable releases. If you need a new crate for a feature
+you're working on, please raise it in an issue first.
