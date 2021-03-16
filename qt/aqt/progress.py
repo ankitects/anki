@@ -20,6 +20,7 @@ class ProgressManager:
         self.inDB = False
         self.blockUpdates = False
         self._show_timer: Optional[QTimer] = None
+        self._busy_cursor_timer: Optional[QTimer] = None
         self._win: Optional[ProgressDialog] = None
         self._levels = 0
 
@@ -94,7 +95,10 @@ class ProgressManager:
         self._win.setWindowTitle("Anki")
         self._win.setWindowModality(Qt.ApplicationModal)
         self._win.setMinimumWidth(300)
-        self._setBusy()
+        self._busy_cursor_timer = QTimer(self.mw)
+        self._busy_cursor_timer.setSingleShot(True)
+        self._busy_cursor_timer.start(300)
+        qconnect(self._busy_cursor_timer.timeout, self._set_busy_cursor)
         self._shown: float = 0
         self._counter = min
         self._min = min
@@ -148,7 +152,10 @@ class ProgressManager:
         if self._levels == 0:
             if self._win:
                 self._closeWin()
-            self._unsetBusy()
+            if self._busy_cursor_timer:
+                self._busy_cursor_timer.stop()
+                self._busy_cursor_timer = None
+            self._restore_cursor()
             if self._show_timer:
                 self._show_timer.stop()
                 self._show_timer = None
@@ -187,10 +194,10 @@ class ProgressManager:
         self._win = None
         self._shown = 0
 
-    def _setBusy(self) -> None:
+    def _set_busy_cursor(self) -> None:
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
 
-    def _unsetBusy(self) -> None:
+    def _restore_cursor(self) -> None:
         self.app.restoreOverrideCursor()
 
     def busy(self) -> int:
