@@ -62,7 +62,7 @@ class EditCurrent(QDialog):
         self.saveAndClose()
 
     def saveAndClose(self) -> None:
-        self.editor.saveNow(self._saveAndClose)
+        self.editor.call_after_note_saved(self._saveAndClose)
 
     def _saveAndClose(self) -> None:
         self.cleanup_and_close()
@@ -72,6 +72,6 @@ class EditCurrent(QDialog):
             self._saveAndClose()
             onsuccess()
 
-        self.editor.saveNow(callback)
+        self.editor.call_after_note_saved(callback)
 
     onReset = on_operation_did_execute

@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from __future__ import annotations
 
 import html
@@ -42,6 +43,8 @@ from aqt.utils import (
     askUser,
     current_top_level_widget,
     disable_help_button,
+    ensure_editor_saved,
+    ensure_editor_saved_on_trigger,
     getTag,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -226,7 +229,7 @@ class DataModel(QAbstractTableModel):
         self.browser.mw.progress.finish()
 
     def reverse(self) -> None:
-        self.browser.editor.saveNow(self._reverse)
+        self.browser.editor.call_after_note_saved(self._reverse)
 
     def _reverse(self) -> None:
         self.beginReset()
@@ -612,7 +615,7 @@ class Browser(QMainWindow):
         if self._closeEventHasCleanedUp:
             evt.accept()
             return
-        self.editor.saveNow(self._closeWindow)
+        self.editor.call_after_note_saved(self._closeWindow)
         evt.ignore()
 
     def _closeWindow(self) -> None:
@@ -629,12 +632,10 @@ class Browser(QMainWindow):
         self.mw.deferred_delete_and_garbage_collect(self)
         self.close()
 
+    @ensure_editor_saved
     def closeWithCallback(self, onsuccess: Callable) -> None:
-        def callback() -> None:
-            self._closeWindow()
-            onsuccess()
-
-        self.editor.saveNow(callback)
+        self._closeWindow()
+        onsuccess()
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key_Escape:
@@ -700,10 +701,8 @@ class Browser(QMainWindow):
         self.form.searchEdit.setFocus()
 
     # search triggered by user
+    @ensure_editor_saved
     def onSearchActivated(self) -> None:
-        self.editor.saveNow(self._onSearchActivated)
-
-    def _onSearchActivated(self) -> None:
         text = self.form.searchEdit.lineEdit().text()
         try:
             normed = self.col.build_search_string(text)
@@ -773,7 +772,7 @@ class Browser(QMainWindow):
                 self.search_for(search, "")
                 self.focusCid(card.id)
 
-            self.editor.saveNow(on_show_single_card)
+            self.editor.call_after_note_saved(on_show_single_card)
 
     def onReset(self) -> None:
         self.sidebar.refresh()
@@ -832,11 +831,9 @@ QTableView {{ gridline-color: {grid} }}
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
+    @ensure_editor_saved
     def onRowChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
-        "Update current note and hide/show editor."
-        self.editor.saveNow(lambda: self._onRowChanged(current, previous))
-
-    def _onRowChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
+        """Update current note and hide/show editor."""
         if self._closeEventHasCleanedUp:
             return
         update = self.updateTitle()
@@ -883,11 +880,9 @@ QTableView {{ gridline-color: {grid} }}
         qconnect(hh.sortIndicatorChanged, self.onSortChanged)
         qconnect(hh.sectionMoved, self.onColumnMoved)
 
+    @ensure_editor_saved
     def onSortChanged(self, idx: int, ord: int) -> None:
-        ord_bool = bool(ord)
-        self.editor.saveNow(lambda: self._onSortChanged(idx, ord_bool))
-
-    def _onSortChanged(self, idx: int, ord: bool) -> None:
+        ord = bool(ord)
         type = self.model.activeCols[idx]
         noSort = ("question", "answer")
         if type in noSort:
@@ -935,10 +930,8 @@ QTableView {{ gridline-color: {grid} }}
         gui_hooks.browser_header_will_show_context_menu(self, m)
         m.exec_(gpos)
 
+    @ensure_editor_saved_on_trigger
     def toggleField(self, type: str) -> None:
-        self.editor.saveNow(lambda: self._toggleField(type))
-
-    def _toggleField(self, type: str) -> None:
         self.model.beginReset()
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
@@ -1115,10 +1108,8 @@ where id in %s"""
     # Misc menu options
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def onChangeModel(self) -> None:
-        self.editor.saveNow(self._onChangeModel)
-
-    def _onChangeModel(self) -> None:
         nids = self.oneModelNotes()
         if nids:
             ChangeModel(self, nids)
@@ -1192,6 +1183,7 @@ where id in %s"""
     # Deck change
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
 
@@ -1222,38 +1214,30 @@ where id in %s"""
     # Tags
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def add_tags_to_selected_notes(
         self,
         tags: Optional[str] = None,
     ) -> None:
         "Shows prompt if tags not provided."
+        if not (
+            tags := self.maybe_prompt_for_tags(tags, tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
+        ):
+            return
+        add_tags(mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags)
 
-        def op() -> None:
-            if not (
-                tags2 := self.maybe_prompt_for_tags(
-                    tags, tr(TR.BROWSING_ENTER_TAGS_TO_ADD)
-                )
-            ):
-                return
-            nids = self.selectedNotes()
-            add_tags(mw=self.mw, note_ids=nids, space_separated_tags=tags2)
-
-        self.editor.saveNow(op)
-
+    @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
-
-        def op() -> None:
-            if not (
-                tags2 := self.maybe_prompt_for_tags(
-                    tags, tr(TR.BROWSING_ENTER_TAGS_TO_DELETE)
-                )
-            ):
-                return
-            nids = self.selectedNotes()
-            remove_tags(mw=self.mw, note_ids=nids, space_separated_tags=tags2)
-
-        self.editor.saveNow(op)
+        if not (
+            tags := self.maybe_prompt_for_tags(
+                tags, tr(TR.BROWSING_ENTER_TAGS_TO_DELETE)
+            )
+        ):
+            return
+        remove_tags(
+            mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags
+        )
 
     def _maybe_prompt_for_tags(self, tags: Optional[str], prompt: str) -> Optional[str]:
         if tags is not None:
@@ -1265,10 +1249,8 @@ where id in %s"""
         else:
             return tags
 
+    @ensure_editor_saved_on_trigger
     def clearUnusedTags(self) -> None:
-        self.editor.saveNow(self._clearUnusedTags)
-
-    def _clearUnusedTags(self) -> None:
         def on_done(fut: Future) -> None:
             fut.result()
             self.on_tag_list_update()
@@ -1284,10 +1266,8 @@ where id in %s"""
     def current_card_is_suspended(self) -> bool:
         return bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
 
+    @ensure_editor_saved_on_trigger
     def suspend_selected_cards(self) -> None:
-        self.editor.saveNow(self._suspend_selected_cards)
-
-    def _suspend_selected_cards(self) -> None:
         want_suspend = not self.current_card_is_suspended()
         cids = self.selectedCards()
 
@@ -1310,7 +1290,7 @@ where id in %s"""
     def onSetFlag(self, n: int) -> None:
         if not self.card:
             return
-        self.editor.saveNow(lambda: self._on_set_flag(n))
+        self.editor.call_after_note_saved(lambda: self._on_set_flag(n))
 
     def _on_set_flag(self, flag: int) -> None:
         # flag needs toggling off?
@@ -1351,10 +1331,8 @@ where id in %s"""
     # Repositioning
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def reposition(self) -> None:
-        self.editor.saveNow(self._reposition)
-
-    def _reposition(self) -> None:
         cids = self.selectedCards()
         cids2 = self.col.db.list(
             f"select id from cards where type = {CARD_TYPE_NEW} and id in "
@@ -1395,32 +1373,28 @@ where id in %s"""
     # Scheduling
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
-        self.editor.saveNow(
-            lambda: set_due_date_dialog(
-                mw=self.mw,
-                parent=self,
-                card_ids=self.selectedCards(),
-                config_key=Config.String.SET_DUE_BROWSER,
-            )
+        set_due_date_dialog(
+            mw=self.mw,
+            parent=self,
+            card_ids=self.selectedCards(),
+            config_key=Config.String.SET_DUE_BROWSER,
         )
 
+    @ensure_editor_saved_on_trigger
     def forget_cards(self) -> None:
-        self.editor.saveNow(
-            lambda: forget_cards(
-                mw=self.mw,
-                parent=self,
-                card_ids=self.selectedCards(),
-            )
+        forget_cards(
+            mw=self.mw,
+            parent=self,
+            card_ids=self.selectedCards(),
         )
 
     # Edit: selection
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def selectNotes(self) -> None:
-        self.editor.saveNow(self._selectNotes)
-
-    def _selectNotes(self) -> None:
         nids = self.selectedNotes()
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
@@ -1484,10 +1458,8 @@ where id in %s"""
     # Edit: replacing
     ######################################################################
 
+    @ensure_editor_saved_on_trigger
     def onFindReplace(self) -> None:
-        self.editor.saveNow(self._onFindReplace)
-
-    def _onFindReplace(self) -> None:
         nids = self.selectedNotes()
         if not nids:
             return
@@ -1560,10 +1532,8 @@ where id in %s"""
     # Edit: finding dupes
     ######################################################################
 
+    @ensure_editor_saved
     def onFindDupes(self) -> None:
-        self.editor.saveNow(self._onFindDupes)
-
-    def _onFindDupes(self) -> None:
         d = QDialog(self)
         self.mw.garbage_collect_on_dialog_finish(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
@@ -1682,14 +1652,14 @@ where id in %s"""
 
     def onPreviousCard(self) -> None:
         self.focusTo = self.editor.currentField
-        self.editor.saveNow(self._onPreviousCard)
+        self.editor.call_after_note_saved(self._onPreviousCard)
 
     def _onPreviousCard(self) -> None:
         self._moveCur(QAbstractItemView.MoveUp)
 
     def onNextCard(self) -> None:
         self.focusTo = self.editor.currentField
-        self.editor.saveNow(self._onNextCard)
+        self.editor.call_after_note_saved(self._onNextCard)
 
     def _onNextCard(self) -> None:
         self._moveCur(QAbstractItemView.MoveDown)
