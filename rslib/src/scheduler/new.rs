@@ -103,10 +103,10 @@ fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteID> {
 }
 
 impl Collection {
-    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<()> {
+    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
-        self.transact(Some(Op::ScheduleAsNew), |col| {
+        self.transact(Op::ScheduleAsNew, |col| {
             col.storage.set_search_table_to_card_ids(cids, true)?;
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
@@ -119,8 +119,7 @@ impl Collection {
                 position += 1;
             }
             col.set_next_card_position(position)?;
-            col.storage.clear_searched_cards_table()?;
-            Ok(())
+            col.storage.clear_searched_cards_table()
         })
     }
 
@@ -133,7 +132,7 @@ impl Collection {
         shift: bool,
     ) -> Result<()> {
         let usn = self.usn()?;
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             col.sort_cards_inner(cids, starting_from, step, order, shift, usn)
         })
     }

@@ -16,6 +16,7 @@ from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
+from aqt.deck_ops import remove_decks
 from aqt.main import ResetReason
 from aqt.models import Models
 from aqt.qt import *
@@ -1166,22 +1167,7 @@ class SidebarTreeView(QTreeView):
         self.mw.update_undo_actions()
 
     def delete_decks(self, _item: SidebarItem) -> None:
-        self.browser.editor.saveNow(self._delete_decks)
-
-    def _delete_decks(self) -> None:
-        def do_delete() -> int:
-            return self.mw.col.decks.remove(dids)
-
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
-            self.browser.search()
-            self.browser.model.endReset()
-            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()), parent=self)
-            self.refresh()
-
-        dids = self._selected_decks()
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_delete, on_done)
+        remove_decks(mw=self.mw, parent=self.browser, deck_ids=self._selected_decks())
 
     # Tags
     ###########################
@@ -1218,7 +1204,7 @@ class SidebarTreeView(QTreeView):
 
         def do_rename() -> int:
             self.mw.col.tags.remove(old_name)
-            return self.col.tags.rename(old_name, new_name)
+            return self.col.tags.rename(old_name, new_name).count
 
         def on_done(fut: Future) -> None:
             self.setUpdatesEnabled(True)

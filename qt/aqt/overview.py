@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aqt
-from anki.collection import OperationInfo
+from anki.collection import OpChanges
 from aqt import gui_hooks
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
@@ -63,8 +63,8 @@ class Overview:
         if self._refresh_needed:
             self.refresh()
 
-    def op_executed(self, op: OperationInfo, focused: bool) -> bool:
-        if self.mw.col.op_affects_study_queue(op):
+    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
+        if self.mw.col.op_affects_study_queue(changes):
             self._refresh_needed = True
 
         if focused:

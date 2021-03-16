@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
+from anki.collection import OpChangesWithCount
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_bytes
@@ -138,7 +139,7 @@ class DeckManager:
         assert cardsToo and childrenToo
         self.remove([did])
 
-    def remove(self, dids: List[int]) -> int:
+    def remove(self, dids: Sequence[int]) -> OpChangesWithCount:
         return self.col._backend.remove_decks(dids)
 
     def all_names_and_ids(

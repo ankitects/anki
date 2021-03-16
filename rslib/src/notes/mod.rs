@@ -3,7 +3,6 @@
 
 pub(crate) mod undo;
 
-use crate::backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState;
 use crate::{
     backend_proto as pb,
     decks::DeckID,
@@ -15,6 +14,9 @@ use crate::{
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
     timestamp::TimestampSecs,
     types::Usn,
+};
+use crate::{
+    backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState, ops::StateChanges,
 };
 use itertools::Itertools;
 use num_integer::Integer;
@@ -305,8 +307,8 @@ impl Collection {
         Ok(())
     }
 
-    pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
-        self.transact(Some(Op::AddNote), |col| {
+    pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<OpOutput<()>> {
+        self.transact(Op::AddNote, |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
@@ -334,25 +336,49 @@ impl Collection {
     }
 
     #[cfg(test)]
-    pub(crate) fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        self.update_note_with_op(note, Some(Op::UpdateNote))
+    pub(crate) fn update_note(&mut self, note: &mut Note) -> Result<OpOutput<()>> {
+        self.update_note_maybe_undoable(note, true)
     }
 
-    pub(crate) fn update_note_with_op(&mut self, note: &mut Note, op: Option<Op>) -> Result<()> {
+    pub(crate) fn update_note_maybe_undoable(
+        &mut self,
+        note: &mut Note,
+        undoable: bool,
+    ) -> Result<OpOutput<()>> {
+        if undoable {
+            self.transact(Op::UpdateNote, |col| col.update_note_inner(note))
+        } else {
+            self.transact_no_undo(|col| {
+                col.update_note_inner(note)?;
+                Ok(OpOutput {
+                    output: (),
+                    changes: OpChanges {
+                        op: Op::UpdateNote,
+                        changes: StateChanges {
+                            note: true,
+                            tag: true,
+                            card: true,
+                            ..Default::default()
+                        },
+                    },
+                })
+            })
+        }
+    }
+
+    pub(crate) fn update_note_inner(&mut self, note: &mut Note) -> Result<()> {
         let mut existing_note = self.storage.get_note(note.id)?.ok_or(AnkiError::NotFound)?;
         if !note_differs_from_db(&mut existing_note, note) {
             // nothing to do
             return Ok(());
         }
-
-        self.transact(op, |col| {
-            let nt = col
-                .get_notetype(note.notetype_id)?
-                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
-            let ctx = CardGenContext::new(&nt, col.usn()?);
-            let norm = col.get_bool(BoolKey::NormalizeNoteText);
-            col.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm)
-        })
+        let nt = self
+            .get_notetype(note.notetype_id)?
+            .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+        let ctx = CardGenContext::new(&nt, self.usn()?);
+        let norm = self.get_bool(BoolKey::NormalizeNoteText);
+        self.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm)?;
+        Ok(())
     }
 
     pub(crate) fn update_note_inner_generating_cards(
@@ -388,13 +414,13 @@ impl Collection {
         if mark_note_modified {
             note.set_modified(usn);
         }
-        self.update_note_undoable(note, original, true)
+        self.update_note_undoable(note, original)
     }
 
     /// Remove provided notes, and any cards that use them.
-    pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<()> {
+    pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
-        self.transact(Some(Op::RemoveNote), |col| {
+        self.transact(Op::RemoveNote, |col| {
             for nid in nids {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {
@@ -404,27 +430,28 @@ impl Collection {
                     col.remove_note_only_undoable(nid, usn)?;
                 }
             }
-
             Ok(())
         })
     }
 
     /// Update cards and field cache after notes modified externally.
     /// If gencards is false, skip card generation.
-    pub(crate) fn after_note_updates(
+    pub fn after_note_updates(
         &mut self,
         nids: &[NoteID],
         generate_cards: bool,
         mark_notes_modified: bool,
-    ) -> Result<()> {
-        self.transform_notes(nids, |_note, _nt| {
-            Ok(TransformNoteOutput {
-                changed: true,
-                generate_cards,
-                mark_modified: mark_notes_modified,
+    ) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateNote, |col| {
+            col.transform_notes(nids, |_note, _nt| {
+                Ok(TransformNoteOutput {
+                    changed: true,
+                    generate_cards,
+                    mark_modified: mark_notes_modified,
+                })
             })
+            .map(|_| ())
         })
-        .map(|_| ())
     }
 
     pub(crate) fn transform_notes<F>(

@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 import aqt
 from anki.collection import Config
 from anki.lang import TR
+from aqt import AnkiQt
+from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.qt import *
 from aqt.utils import getText, tooltip, tr
 
@@ -58,4 +60,50 @@ def forget_cards(*, mw: aqt.AnkiQt, parent: QDialog, card_ids: List[int]) -> Non
         success=lambda _: tooltip(
             tr(TR.SCHEDULING_FORGOT_CARDS, cards=len(card_ids)), parent=parent
         ),
+    )
+
+
+def suspend_cards(
+    *,
+    mw: AnkiQt,
+    card_ids: Sequence[int],
+    success: PerformOpOptionalSuccessCallback = None,
+) -> None:
+    mw.perform_op(lambda: mw.col.sched.suspend_cards(card_ids), success=success)
+
+
+def suspend_note(
+    *,
+    mw: AnkiQt,
+    note_id: int,
+    success: PerformOpOptionalSuccessCallback = None,
+) -> None:
+    mw.taskman.run_in_background(
+        lambda: mw.col.card_ids_of_note(note_id),
+        lambda future: suspend_cards(mw=mw, card_ids=future.result(), success=success),
+    )
+
+
+def unsuspend_cards(*, mw: AnkiQt, card_ids: Sequence[int]) -> None:
+    mw.perform_op(lambda: mw.col.sched.unsuspend_cards(card_ids))
+
+
+def bury_cards(
+    *,
+    mw: AnkiQt,
+    card_ids: Sequence[int],
+    success: PerformOpOptionalSuccessCallback = None,
+) -> None:
+    mw.perform_op(lambda: mw.col.sched.bury_cards(card_ids), success=success)
+
+
+def bury_note(
+    *,
+    mw: AnkiQt,
+    note_id: int,
+    success: PerformOpOptionalSuccessCallback = None,
+) -> None:
+    mw.taskman.run_in_background(
+        lambda: mw.col.card_ids_of_note(note_id),
+        lambda future: bury_cards(mw=mw, card_ids=future.result(), success=success),
     )

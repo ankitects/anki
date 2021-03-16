@@ -45,8 +45,8 @@ impl Collection {
         search_re: &str,
         repl: &str,
         field_name: Option<String>,
-    ) -> Result<usize> {
-        self.transact(None, |col| {
+    ) -> Result<OpOutput<usize>> {
+        self.transact(Op::FindAndReplace, |col| {
             let norm = col.get_bool(BoolKey::NormalizeNoteText);
             let search = if norm {
                 normalize_to_nfc(search_re)
@@ -119,8 +119,8 @@ mod test {
         col.add_note(&mut note2, DeckID(1))?;
 
         let nids = col.search_notes("")?;
-        let cnt = col.find_and_replace(nids.clone(), "(?i)AAA", "BBB", None)?;
-        assert_eq!(cnt, 2);
+        let out = col.find_and_replace(nids.clone(), "(?i)AAA", "BBB", None)?;
+        assert_eq!(out.output, 2);
 
         let note = col.storage.get_note(note.id)?.unwrap();
         // but the update should be limited to the specified field when it was available
@@ -138,10 +138,10 @@ mod test {
                 "Text".into()
             ]
         );
-        let cnt = col.find_and_replace(nids, "BBB", "ccc", Some("Front".into()))?;
+        let out = col.find_and_replace(nids, "BBB", "ccc", Some("Front".into()))?;
         // still 2, as the caller is expected to provide only note ids that have
         // that field, and if we can't find the field we fall back on all fields
-        assert_eq!(cnt, 2);
+        assert_eq!(out.output, 2);
 
         let note = col.storage.get_note(note.id)?.unwrap();
         // but the update should be limited to the specified field when it was available

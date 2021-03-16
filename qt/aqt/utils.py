@@ -138,12 +138,12 @@ def showCritical(
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
 
 
-def show_invalid_search_error(err: Exception) -> None:
+def show_invalid_search_error(err: Exception, parent: Optional[QDialog] = None) -> None:
     "Render search errors in markdown, then display a warning."
     text = str(err)
     if isinstance(err, InvalidInput):
         text = markdown(text)
-    showWarning(text)
+    showWarning(text, parent=parent)
 
 
 def showInfo(
