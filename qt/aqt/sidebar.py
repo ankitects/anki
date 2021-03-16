@@ -618,7 +618,7 @@ class SidebarTreeView(QTreeView):
                 lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
             )
 
-        self.browser.editor.saveNow(on_save)
+        self.browser.editor.call_after_note_saved(on_save)
         return True
 
     def _handle_drag_drop_tags(
@@ -650,7 +650,7 @@ class SidebarTreeView(QTreeView):
                 lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
             )
 
-        self.browser.editor.saveNow(on_save)
+        self.browser.editor.call_after_note_saved(on_save)
         return True
 
     def _on_search(self, index: QModelIndex) -> None:
@@ -1187,10 +1187,7 @@ class SidebarTreeView(QTreeView):
     # Tags
     ###########################
 
-    def remove_tags(self, item: SidebarItem) -> None:
-        self.browser.editor.saveNow(lambda: self._remove_tags(item))
-
-    def _remove_tags(self, _item: SidebarItem) -> None:
+    def remove_tags(self, _item: SidebarItem) -> None:
         tags = self._selected_tags()
 
         def do_remove() -> int:
@@ -1211,7 +1208,9 @@ class SidebarTreeView(QTreeView):
         if new_name and new_name != item.name:
             # block repainting until collection is updated
             self.setUpdatesEnabled(False)
-            self.browser.editor.saveNow(lambda: self._rename_tag(item, new_name))
+            self.browser.editor.call_after_note_saved(
+                lambda: self._rename_tag(item, new_name)
+            )
 
     def _rename_tag(self, item: SidebarItem, new_name: str) -> None:
         old_name = item.full_name

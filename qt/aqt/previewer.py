@@ -317,12 +317,12 @@ class BrowserPreviewer(MultiCardPreviewer):
             return changed
 
     def _on_prev_card(self) -> None:
-        self._parent.editor.saveNow(
+        self._parent.editor.call_after_note_saved(
             lambda: self._parent._moveCur(QAbstractItemView.MoveUp)
         )
 
     def _on_next_card(self) -> None:
-        self._parent.editor.saveNow(
+        self._parent.editor.call_after_note_saved(
             lambda: self._parent._moveCur(QAbstractItemView.MoveDown)
         )
 
