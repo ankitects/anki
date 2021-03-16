@@ -110,24 +110,15 @@ class Reviewer:
             # fixme: v3 mtime check
             self.card.load()
             self._update_flag_icon()
-        elif changes.note and changes.kind == OpChanges.UPDATE_NOTE:
-            self._redraw_current_card()
         elif self.mw.col.op_affects_study_queue(changes):
             self._refresh_needed = True
         elif changes.note or changes.notetype or changes.tag:
-            self._redraw_current_card()
+            self._refresh_needed = True
 
         if focused and self._refresh_needed:
             self.refresh_if_needed()
 
         return self._refresh_needed
-
-    def _redraw_current_card(self) -> None:
-        self.card.load()
-        if self.state == "answer":
-            self._showAnswer()
-        else:
-            self._showQuestion()
 
     # Fetching a card
     ##########################################################################
