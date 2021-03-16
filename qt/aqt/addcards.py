@@ -107,7 +107,7 @@ class AddCards(QDialog):
         self.editor.set_note(note, focusTo=0)
 
     def show_notetype_selector(self) -> None:
-        self.editor.saveNow(self.notetype_chooser.choose_notetype)
+        self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
 
     def on_notetype_change(self, notetype_id: int) -> None:
         # need to adjust current deck?
@@ -182,7 +182,7 @@ class AddCards(QDialog):
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
     def add_current_note(self) -> None:
-        self.editor.saveNow(self._add_current_note)
+        self.editor.call_after_note_saved(self._add_current_note)
 
     def _add_current_note(self) -> None:
         note = self.editor.note
@@ -259,7 +259,7 @@ class AddCards(QDialog):
             if ok:
                 onOk()
 
-        self.editor.saveNow(afterSave)
+        self.editor.call_after_note_saved(afterSave)
 
     def closeWithCallback(self, cb: Callable[[], None]) -> None:
         def doClose() -> None:

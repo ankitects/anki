@@ -409,7 +409,7 @@ class Editor:
         return checkFocus
 
     def onFields(self) -> None:
-        self.saveNow(self._onFields)
+        self.call_after_note_saved(self._onFields)
 
     def _onFields(self) -> None:
         from aqt.fields import FieldDialog
@@ -417,7 +417,7 @@ class Editor:
         FieldDialog(self.mw, self.note.model(), parent=self.parentWindow)
 
     def onCardLayout(self) -> None:
-        self.saveNow(self._onCardLayout)
+        self.call_after_note_saved(self._onCardLayout)
 
     def _onCardLayout(self) -> None:
         from aqt.clayout import CardLayout
@@ -568,7 +568,9 @@ class Editor:
             for f in self.note.model()["flds"]
         ]
 
-    def saveNow(self, callback: Callable, keepFocus: bool = False) -> None:
+    def call_after_note_saved(
+        self, callback: Callable, keepFocus: bool = False
+    ) -> None:
         "Save unsaved edits then call callback()."
         if not self.note:
             # calling code may not expect the callback to fire immediately
@@ -576,6 +578,8 @@ class Editor:
             return
         self.saveTags()
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
+
+    saveNow = call_after_note_saved
 
     def checkValid(self) -> None:
         cols = [""] * len(self.note.fields)
@@ -626,7 +630,7 @@ class Editor:
 
     def onHtmlEdit(self) -> None:
         field = self.currentField
-        self.saveNow(lambda: self._onHtmlEdit(field))
+        self.call_after_note_saved(lambda: self._onHtmlEdit(field))
 
     def _onHtmlEdit(self, field: int) -> None:
         d = QDialog(self.widget, Qt.Window)
@@ -732,7 +736,7 @@ class Editor:
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self) -> None:
-        self.saveNow(self._onCloze, keepFocus=True)
+        self.call_after_note_saved(self._onCloze, keepFocus=True)
 
     def _onCloze(self) -> None:
         # check that the model is set up for cloze deletion

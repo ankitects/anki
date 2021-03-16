@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 from enum import Enum
+from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -988,3 +989,29 @@ def startup_info() -> Any:
     si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
     return si
+
+
+def ensure_editor_saved(func: Callable) -> Callable:
+    """Ensure the current editor's note is saved before running the wrapped function.
+
+    Must be used on functions that may be invoked from a shortcut key while the
+    editor has focus. For functions that can't be activated while the editor has
+    focus, you don't need this.
+
+    Will look for the editor as self.editor.
+    """
+
+    @wraps(func)
+    def decorated(self: Any, *args: Any, **kwargs: Any) -> None:
+        self.editor.call_after_note_saved(lambda: func(self, *args, **kwargs))
+
+    return decorated
+
+
+def ensure_editor_saved_on_trigger(func: Callable) -> Callable:
+    """Like ensure_editor_saved(), but tells Qt this function takes no args.
+
+    This ensures PyQt doesn't attempt to pass a `toggled` arg
+    into functions connected to a `triggered` signal.
+    """
+    return pyqtSlot()(ensure_editor_saved(func))  # type: ignore
