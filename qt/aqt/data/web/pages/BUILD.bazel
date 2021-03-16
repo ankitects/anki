@@ -4,7 +4,6 @@ copy_files_into_group(
     name = "graphs_page",
     srcs = [
         "graphs.css",
-        "graphs.html",
         "graphs.js",
     ],
     package = "//ts/graphs",
@@ -13,17 +12,23 @@ copy_files_into_group(
 copy_files_into_group(
     name = "congrats_page",
     srcs = [
-        "congrats.html",
         "congrats.js",
     ],
     package = "//ts/congrats",
 )
 
+exports_files([
+    "congrats.html",
+    "graphs.html",
+])
+
 filegroup(
     name = "pages",
     srcs = [
         "congrats_page",
+        "congrats.html",
         "graphs_page",
+        "graphs.html",
     ],
     visibility = ["//qt:__subpackages__"],
 )

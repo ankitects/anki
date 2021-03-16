@@ -24,8 +24,8 @@ compile_svelte(
 )
 
 ts_library(
-    name = "bootstrap",
-    srcs = ["bootstrap.ts"],
+    name = "index",
+    srcs = ["index.ts"],
     deps = [
         "GraphsPage",
         "lib",
@@ -39,7 +39,7 @@ ts_library(
     name = "lib",
     srcs = glob(
         ["*.ts"],
-        exclude = ["bootstrap.ts"],
+        exclude = ["index.ts"],
     ),
     deps = [
         "//ts/lib",
@@ -56,7 +56,7 @@ ts_library(
 rollup_bundle(
     name = "graphs",
     config_file = "//ts:rollup.config.js",
-    entry_point = "bootstrap.ts",
+    entry_point = "index.ts",
     format = "iife",
     link_workspace_root = True,
     silent = True,
@@ -64,14 +64,12 @@ rollup_bundle(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
-        "bootstrap",
+        "index",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-terser",
     ] + svelte_names,
 )
-
-exports_files(["graphs.html"])
 
 # Tests
 ################
