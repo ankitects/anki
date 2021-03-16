@@ -1,10 +1,12 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import aqt.editor
+from anki.collection import OpChanges
+from anki.errors import NotFoundError
 from aqt import gui_hooks
-from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, tr
+from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tr
 
 
 class EditCurrent(QDialog):
@@ -23,33 +25,38 @@ class EditCurrent(QDialog):
         )
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         self.editor.card = self.mw.reviewer.card
-        self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
+        self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
-        gui_hooks.state_did_reset.append(self.onReset)
-        self.mw.requireReset(reason=ResetReason.EditCurrentInit, context=self)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
-        # reset focus after open, taking care not to retain webview
-        # pylint: disable=unnecessary-lambda
-        self.mw.progress.timer(100, lambda: self.editor.web.setFocus(), False)
 
-    def onReset(self) -> None:
-        # lazy approach for now: throw away edits
-        try:
-            n = self.editor.note
-            n.load()  # reload in case the model changed
-        except:
-            # card's been deleted
-            gui_hooks.state_did_reset.remove(self.onReset)
-            self.editor.setNote(None)
-            self.mw.reset()
-            aqt.dialogs.markClosed("EditCurrent")
-            self.close()
+    def on_operation_did_execute(self, changes: OpChanges) -> None:
+        if not (changes.note or changes.notetype):
             return
-        self.editor.setNote(n)
+        if self.editor.is_updating_note():
+            return
+
+        # reload note
+        note = self.editor.note
+        try:
+            note.load()
+        except NotFoundError:
+            # note's been deleted
+            self.cleanup_and_close()
+            return
+
+        self.editor.set_note(note)
+
+    def cleanup_and_close(self) -> None:
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+        self.editor.cleanup()
+        saveGeom(self, "editcurrent")
+        aqt.dialogs.markClosed("EditCurrent")
+        QDialog.reject(self)
 
     def reopen(self, mw: aqt.AnkiQt) -> None:
-        tooltip("Please finish editing the existing card first.")
-        self.onReset()
+        if card := self.mw.reviewer.card:
+            self.editor.set_note(card.note())
 
     def reject(self) -> None:
         self.saveAndClose()
@@ -58,20 +65,7 @@ class EditCurrent(QDialog):
         self.editor.saveNow(self._saveAndClose)
 
     def _saveAndClose(self) -> None:
-        gui_hooks.state_did_reset.remove(self.onReset)
-        r = self.mw.reviewer
-        try:
-            r.card.load()
-        except:
-            # card was removed by clayout
-            pass
-        else:
-            self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
-        self.editor.cleanup()
-        self.mw.moveToState("review")
-        saveGeom(self, "editcurrent")
-        aqt.dialogs.markClosed("EditCurrent")
-        QDialog.reject(self)
+        self.cleanup_and_close()
 
     def closeWithCallback(self, onsuccess: Callable[[], None]) -> None:
         def callback() -> None:
@@ -79,3 +73,5 @@ class EditCurrent(QDialog):
             onsuccess()
 
         self.editor.saveNow(callback)
+
+    onReset = on_operation_did_execute

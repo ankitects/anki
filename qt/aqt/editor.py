@@ -90,8 +90,16 @@ _html = """
 </div>
 """
 
-# caller is responsible for resetting note on reset
 class Editor:
+    """The screen that embeds an editing widget should listen for changes via
+    the `operation_did_execute` hook, and call set_note() when the editor needs
+    redrawing.
+
+    The editor will cause that hook to be fired when it saves changes. To avoid
+    an unwanted refresh, the parent widget should call editor.is_updating_note(),
+    and avoid re-setting the note if it returns true.
+    """
+
     def __init__(
         self, mw: AnkiQt, widget: QWidget, parentWindow: QWidget, addMode: bool = False
     ) -> None:
@@ -101,6 +109,7 @@ class Editor:
         self.note: Optional[Note] = None
         self.addMode = addMode
         self.currentField: Optional[int] = None
+        self._is_updating_note = False
         # current card, for card layout
         self.card: Optional[Card] = None
         self.setupOuter()
@@ -491,7 +500,7 @@ class Editor:
     # Setting/unsetting the current note
     ######################################################################
 
-    def setNote(
+    def set_note(
         self, note: Optional[Note], hide: bool = True, focusTo: Optional[int] = None
     ) -> None:
         "Make NOTE the current note."
@@ -543,7 +552,14 @@ class Editor:
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
-        update_note(mw=self.mw, note=self.note)
+        self._is_updating_note = True
+        update_note(mw=self.mw, note=self.note, after_hooks=self._after_updating_note)
+
+    def _after_updating_note(self) -> None:
+        self._is_updating_note = False
+
+    def is_updating_note(self) -> bool:
+        return self._is_updating_note
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [
@@ -596,9 +612,13 @@ class Editor:
         return True
 
     def cleanup(self) -> None:
-        self.setNote(None)
+        self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
         self.web = None
+
+    # legacy
+
+    setNote = set_note
 
     # HTML editing
     ######################################################################

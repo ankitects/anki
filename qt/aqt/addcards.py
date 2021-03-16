@@ -104,7 +104,7 @@ class AddCards(QDialog):
         self.historyButton = b
 
     def setAndFocusNote(self, note: Note) -> None:
-        self.editor.setNote(note, focusTo=0)
+        self.editor.set_note(note, focusTo=0)
 
     def show_notetype_selector(self) -> None:
         self.editor.saveNow(self.notetype_chooser.choose_notetype)
