@@ -2,20 +2,35 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import throttle from "lodash.throttle";
+import { css } from "@emotion/css";
+
+let tooltip: HTMLDivElement | null = null;
 
 function getOrCreateTooltipDiv(): HTMLDivElement {
-    const existingTooltip = document.getElementById("graphTooltip") as HTMLDivElement;
-
-    if (existingTooltip) {
-        return existingTooltip;
+    if (tooltip) {
+        return tooltip;
     }
 
-    const tooltipDiv: HTMLDivElement = document.createElement("div");
-    tooltipDiv.id = "graphTooltip";
-    tooltipDiv.className = "graph-tooltip";
-    document.body.appendChild(tooltipDiv);
+    tooltip = document.createElement("div");
+    tooltip.className = css`
+        position: absolute;
+        padding: 15px;
+        border-radius: 5px;
+        font-size: 15px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        color: var(--text-fg);
+        background: var(--tooltip-bg);
 
-    return tooltipDiv;
+        table {
+            border-spacing: 1em 0;
+        }
+    `;
+
+    document.body.appendChild(tooltip);
+
+    return tooltip;
 }
 
 function showTooltipInner(msg: string, x: number, y: number): void {

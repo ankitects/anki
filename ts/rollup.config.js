@@ -21,8 +21,8 @@ export default {
         }),
         commonjs(),
         babel({
-          babelHelpers: "bundled",
-          plugins: ["babel-plugin-transform-inline-environment-variables"],
+            babelHelpers: "bundled",
+            plugins: ["babel-plugin-transform-inline-environment-variables"],
         }),
         production && terser(),
     ],
