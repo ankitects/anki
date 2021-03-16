@@ -50,6 +50,7 @@ ts_library(
         "@npm//lodash.debounce",
         "@npm//lodash.throttle",
         "@npm//svelte",
+        "@npm//@emotion/css",
     ],
 )
 
@@ -65,9 +66,11 @@ rollup_bundle(
     deps = [
         "//ts/lib",
         "index",
+        "@npm//@rollup/plugin-babel",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-terser",
+        "@npm//babel-plugin-transform-inline-environment-variables",
     ] + svelte_names,
 )
 

@@ -1,4 +1,5 @@
 import resolve from "@rollup/plugin-node-resolve";
+import { babel } from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import { terser } from "rollup-plugin-terser";
 
@@ -16,9 +17,13 @@ export default {
     plugins: [
         resolve({
             browser: true,
-            dedupe: ["svelte", "protobufjs"],
+            dedupe: ["svelte", "protobufjs", "@emotion/css"],
         }),
         commonjs(),
+        babel({
+          babelHelpers: "bundled",
+          plugins: ["babel-plugin-transform-inline-environment-variables"],
+        }),
         production && terser(),
     ],
     onwarn: function (warning, warn) {
