@@ -90,6 +90,7 @@ _html = """
 </div>
 """
 
+
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
     the `operation_did_execute` hook, and call set_note() when the editor needs

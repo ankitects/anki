@@ -7,6 +7,7 @@ import html
 import json
 import re
 import unicodedata as ucd
+from enum import Enum, auto
 from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union
 
 from PyQt5.QtCore import Qt
@@ -41,6 +42,12 @@ from aqt.utils import (
 from aqt.webview import AnkiWebView
 
 
+class RefreshNeeded(Enum):
+    NO = auto()
+    NOTE_TEXT = auto()
+    QUEUES = auto()
+
+
 class ReviewerBottomBar:
     def __init__(self, reviewer: Reviewer) -> None:
         self.reviewer = reviewer
@@ -69,7 +76,7 @@ class Reviewer:
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
-        self._refresh_needed = False
+        self._refresh_needed = RefreshNeeded.NO
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
@@ -78,7 +85,7 @@ class Reviewer:
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._reps: int = None
-        self._refresh_needed = True
+        self._refresh_needed = RefreshNeeded.QUEUES
         self.refresh_if_needed()
 
     def lastCard(self) -> Optional[Card]:
@@ -96,11 +103,15 @@ class Reviewer:
         self.card = None
 
     def refresh_if_needed(self) -> None:
-        if self._refresh_needed:
+        if self._refresh_needed is RefreshNeeded.QUEUES:
             self.mw.col.reset()
             self.nextCard()
-            self._refresh_needed = False
             self.mw.fade_in_webview()
+            self._refresh_needed = RefreshNeeded.NO
+        elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
+            self._redraw_current_card()
+            self.mw.fade_in_webview()
+            self._refresh_needed = RefreshNeeded.NO
 
     def op_executed(self, changes: OpChanges, focused: bool) -> bool:
         if changes.note and changes.kind == OpChanges.UPDATE_NOTE_TAGS:
@@ -111,14 +122,21 @@ class Reviewer:
             self.card.load()
             self._update_flag_icon()
         elif self.mw.col.op_affects_study_queue(changes):
-            self._refresh_needed = True
+            self._refresh_needed = RefreshNeeded.QUEUES
         elif changes.note or changes.notetype or changes.tag:
-            self._refresh_needed = True
+            self._refresh_needed = RefreshNeeded.NOTE_TEXT
 
-        if focused and self._refresh_needed:
+        if focused and self._refresh_needed is not RefreshNeeded.NO:
             self.refresh_if_needed()
 
-        return self._refresh_needed
+        return self._refresh_needed is not RefreshNeeded.NO
+
+    def _redraw_current_card(self) -> None:
+        self.card.load()
+        if self.state == "answer":
+            self._showAnswer()
+        else:
+            self._showQuestion()
 
     # Fetching a card
     ##########################################################################

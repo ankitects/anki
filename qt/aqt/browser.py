@@ -17,7 +17,6 @@ from anki.consts import *
 from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
-from anki.notes import Note
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, colors, gui_hooks
@@ -112,15 +111,6 @@ class DataModel(QAbstractTableModel):
             self.cardObjs[id] = card
         return self.cardObjs[id]
 
-    def refreshNote(self, note: Note) -> None:
-        refresh = False
-        for c in note.cards():
-            if c.id in self.cardObjs:
-                del self.cardObjs[c.id]
-                refresh = True
-        if refresh:
-            self.layoutChanged.emit()  # type: ignore
-
     # Model interface
     ######################################################################
 
@@ -214,8 +204,9 @@ class DataModel(QAbstractTableModel):
         if not self.cards:
             return
         top_left = self.index(0, 0)
-        bottom_right = self.index(len(self.cards)-1, len(self.activeCols)-1)
-        self.dataChanged.emit(top_left, bottom_right)
+        bottom_right = self.index(len(self.cards) - 1, len(self.activeCols) - 1)
+        self.cardObjs = {}
+        self.dataChanged.emit(top_left, bottom_right)  # type: ignore
 
     def reset(self) -> None:
         self.beginReset()
@@ -513,16 +504,22 @@ class Browser(QMainWindow):
         self.setUpdatesEnabled(False)
 
     def on_operation_did_execute(self, changes: OpChanges) -> None:
-        self.setUpdatesEnabled(True)
-        self.model.op_executed(changes, current_top_level_widget() == self)
-        if (changes.note or changes.notetype) and not self.editor.is_updating_note():
-            note = self.editor.note
-            if note:
-                note.load()
-                self.editor.set_note(note)
+        focused = current_top_level_widget() == self
+        if focused:
+            self.setUpdatesEnabled(True)
+        self.model.op_executed(changes, focused)
+        if changes.note or changes.notetype:
+            if not self.editor.is_updating_note():
+                note = self.editor.note
+                if note:
+                    note.load()
+                    self.editor.set_note(note)
+
+            self._renderPreview()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_top_level_widget() == self:
+            self.setUpdatesEnabled(True)
             self.model.refresh_if_needed()
 
     def setupMenus(self) -> None:
@@ -859,13 +856,6 @@ QTableView {{ gridline-color: {grid} }}
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
-
-    def refreshCurrentCard(self, note: Note) -> None:
-        self.model.refreshNote(note)
-        self._renderPreview()
-
-    def onLoadNote(self, editor: Editor) -> None:
-        self.refreshCurrentCard(editor.note)
 
     def currentRow(self) -> int:
         idx = self.form.tableView.selectionModel().currentIndex()
@@ -1452,9 +1442,6 @@ where id in %s"""
 
     def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
-        gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
-        gui_hooks.editor_did_load_note.append(self.onLoadNote)
-        gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
         gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
         gui_hooks.operation_will_execute.append(self.on_operation_will_execute)
@@ -1463,17 +1450,11 @@ where id in %s"""
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
-        gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
-        gui_hooks.editor_did_load_note.remove(self.onLoadNote)
-        gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
         gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
         gui_hooks.operation_will_execute.remove(self.on_operation_will_execute)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
-
-    def on_unfocus_field(self, changed: bool, note: Note, field_idx: int) -> None:
-        self.refreshCurrentCard(note)
 
     # covers the tag, note and deck case
     def on_item_added(self, item: Any = None) -> None:
