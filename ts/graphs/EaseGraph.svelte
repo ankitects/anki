@@ -1,12 +1,15 @@
 <script lang="typescript">
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
+    import { createEventDispatcher } from "svelte";
+
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import Graph from "./Graph.svelte";
+    import TableData from "./TableData.svelte";
+
     import type { HistogramData } from "./histogram-graph";
     import { gatherData, prepareData } from "./ease";
-    import type pb from "anki/backend_proto";
-    import HistogramGraph from "./HistogramGraph.svelte";
-    import type { I18n } from "anki/i18n";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
-    import TableData from "./TableData.svelte";
-    import { createEventDispatcher } from "svelte";
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
@@ -32,12 +35,8 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_SUBTITLE);
 </script>
 
-<div class="graph" id="graph-ease">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
+<Graph {title} {subtitle}>
     <HistogramGraph data={histogramData} {i18n} />
 
     <TableData {i18n} {tableData} />
-</div>
+</Graph>

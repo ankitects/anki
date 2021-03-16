@@ -1,10 +1,14 @@
 <script lang="typescript">
+    import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+    import AxisTicks from "./AxisTicks.svelte";
+    import NoDataOverlay from "./NoDataOverlay.svelte";
+
     import type { HistogramData } from "./histogram-graph";
     import { histogramGraph } from "./histogram-graph";
-    import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds } from "./graph-helpers";
-    import NoDataOverlay from "./NoDataOverlay.svelte";
-    import type { I18n } from "anki/i18n";
+    import { graphArea } from "./graph-styles";
 
     export let data: HistogramData | null = null;
     export let i18n: I18n;
@@ -18,7 +22,7 @@
 <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
     <g class="bars" />
     <g class="hoverzone" />
-    <path class="area" />
+    <path class={graphArea} />
     <AxisTicks {bounds} />
     <NoDataOverlay {bounds} {i18n} />
 </svg>

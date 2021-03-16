@@ -1,8 +1,12 @@
 <script lang="typescript">
-    import { gatherData } from "./today";
-    import type { TodayData } from "./today";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+
+    import type { TodayData } from "./today";
+    import { gatherData } from "./today";
+    import { graph } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -13,14 +17,18 @@
     }
 </script>
 
-{#if todayData}
-    <div class="graph" id="graph-today-stats">
-        <h1>{todayData.title}</h1>
+<style lang="scss">
+    .legend {
+        text-align: center;
+    }
+</style>
 
-        <div class="legend-outer">
+{#if todayData}
+    <Graph title={todayData.title}>
+        <div class="legend">
             {#each todayData.lines as line}
                 <div>{line}</div>
             {/each}
         </div>
-    </div>
+    </Graph>
 {/if}

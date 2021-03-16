@@ -1,14 +1,18 @@
 <script lang="typescript">
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+    import NoDataOverlay from "./NoDataOverlay.svelte";
+    import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import TableData from "./TableData.svelte";
     import AxisTicks from "./AxisTicks.svelte";
+
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
     import type { TableDatum } from "./graph-helpers";
     import { gatherData, renderReviews } from "./reviews";
     import type { GraphData } from "./reviews";
-    import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
-    import NoDataOverlay from "./NoDataOverlay.svelte";
-    import GraphRangeRadios from "./GraphRangeRadios.svelte";
-    import TableData from "./TableData.svelte";
+    import { graph, graphArea } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
@@ -48,11 +52,7 @@
     }
 </script>
 
-<div class="graph" id="graph-reviews">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
+<Graph {title} {subtitle}>
     <div class="range-box-inner">
         <label> <input type="checkbox" bind:checked={showTime} /> {time} </label>
 
@@ -63,11 +63,11 @@
         {#each [4, 3, 2, 1, 0] as i}
             <g class="bars{i}" />
         {/each}
-        <path class="area" />
+        <path class={graphArea} />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>
 
     <TableData {i18n} {tableData} />
-</div>
+</Graph>

@@ -1,11 +1,15 @@
 <script lang="typescript">
-    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
-    import AxisTicks from "./AxisTicks.svelte";
-    import { renderHours } from "./hours";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+    import AxisTicks from "./AxisTicks.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
+
+    import { graph, graphArea } from "./graph-styles";
+    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
+    import { renderHours } from "./hours";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -24,20 +28,16 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_HOURS_SUBTITLE);
 </script>
 
-<div class="graph" id="graph-hour">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
+<Graph {title} {subtitle}>
     <div class="range-box-inner">
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
-        <path class="area" />
+        <path class={graphArea} />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>
-</div>
+</Graph>

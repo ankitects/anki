@@ -81,6 +81,28 @@
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
 </script>
 
+<style lang="scss">
+    .range-box {
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        width: 100%;
+        color: var(--text-fg);
+        background: var(--window-bg);
+        padding: 0.5em;
+    }
+
+    @media print {
+        .range-box {
+            position: absolute;
+        }
+    }
+
+    .range-box-pad {
+        height: 2em;
+    }
+</style>
+
 <div class="range-box">
     <div class="spin" class:active>◐</div>
 

@@ -1,11 +1,14 @@
 <script lang="typescript">
-    import { defaultGraphBounds, GraphRange, RevlogRange } from "./graph-helpers";
-    import AxisTicks from "./AxisTicks.svelte";
-    import { renderButtons } from "./buttons";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+    import AxisTicks from "./AxisTicks.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
+
+    import { renderButtons } from "./buttons";
+    import { defaultGraphBounds, GraphRange, RevlogRange } from "./graph-helpers";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -25,11 +28,7 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_SUBTITLE);
 </script>
 
-<div class="graph" id="graph-buttons">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
+<Graph {title} {subtitle}>
     <div class="range-box-inner">
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
@@ -40,4 +39,4 @@
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>
-</div>
+</Graph>

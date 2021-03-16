@@ -1,6 +1,13 @@
 <script lang="typescript">
     import { timeSpan, MONTH } from "anki/time";
     import type { I18n } from "anki/i18n";
+    import type pb from "anki/backend_proto";
+    import { createEventDispatcher } from "svelte";
+
+    import Graph from "./Graph.svelte";
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import TableData from "./TableData.svelte";
+
     import type { HistogramData } from "./histogram-graph";
     import {
         gatherIntervalData,
@@ -8,11 +15,7 @@
         prepareIntervalData,
     } from "./intervals";
     import type { IntervalGraphData } from "./intervals";
-    import type pb from "anki/backend_proto";
-    import HistogramGraph from "./HistogramGraph.svelte";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
-    import TableData from "./TableData.svelte";
-    import { createEventDispatcher } from "svelte";
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
@@ -47,11 +50,7 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
 </script>
 
-<div class="graph intervals" id="graph-intervals">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
+<Graph {title} {subtitle}>
     <div class="range-box-inner">
         <label>
             <input type="radio" bind:group={range} value={IntervalRange.Month} />
@@ -74,4 +73,4 @@
     <HistogramGraph data={histogramData} {i18n} />
 
     <TableData {i18n} {tableData} />
-</div>
+</Graph>

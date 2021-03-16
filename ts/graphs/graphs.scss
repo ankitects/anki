@@ -21,19 +21,6 @@
     overscroll-behavior: none;
 }
 
-.graph {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 60em;
-    page-break-inside: avoid;
-}
-
-.graph h1 {
-    text-align: center;
-    margin-bottom: 0.25em;
-    margin-top: 1.5em;
-}
-
 .no-domain-line .domain {
     opacity: 0.05;
 }
@@ -68,26 +55,6 @@
     }
 }
 
-.range-box {
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    width: 100%;
-    color: var(--text-fg);
-    background: var(--window-bg);
-    padding: 0.5em;
-}
-
-@media print {
-    .range-box {
-        position: absolute;
-    }
-}
-
-.range-box-pad {
-    height: 2em;
-}
-
 .range-box-inner {
     display: flex;
     justify-content: center;
@@ -102,14 +69,6 @@
 .range-box-inner > * {
     padding-left: 0.5em;
     padding-right: 0.5em;
-}
-
-.graph .area {
-    pointer-events: none;
-    fill: var(--area-fill);
-    fill-opacity: var(--area-fill-opacity);
-    stroke: var(--area-stroke);
-    stroke-opacity: var(--area-stroke-opacity);
 }
 
 .hoverzone rect {
@@ -144,15 +103,6 @@
 .spin.active {
     opacity: 0.5;
     transition: opacity 1s;
-}
-
-.legend-outer {
-    text-align: center;
-}
-
-.subtitle {
-    text-align: center;
-    margin-bottom: 1em;
 }
 
 .no-data {
