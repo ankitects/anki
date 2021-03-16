@@ -7,7 +7,7 @@ pub(super) use pb::tags_service::Service as TagsService;
 
 impl TagsService for Backend {
     fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.clear_unused_tags().map(Into::into)))
+        self.with_col(|col| col.transact_no_undo(|col| col.clear_unused_tags().map(Into::into)))
     }
 
     fn all_tags(&self, _input: pb::Empty) -> Result<pb::StringList> {
@@ -29,7 +29,7 @@ impl TagsService for Backend {
 
     fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 col.set_tag_expanded(&input.name, input.expanded)?;
                 Ok(().into())
             })
@@ -38,7 +38,7 @@ impl TagsService for Backend {
 
     fn clear_tag(&self, tag: pb::String) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 col.storage.clear_tag_and_children(tag.val.as_str())?;
                 Ok(().into())
             })

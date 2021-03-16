@@ -21,6 +21,7 @@ from typing import (
     List,
     Literal,
     Optional,
+    Protocol,
     Sequence,
     TextIO,
     Tuple,
@@ -44,7 +45,8 @@ from anki.collection import (
     Checkpoint,
     Collection,
     Config,
-    OperationInfo,
+    OpChanges,
+    OpChangesWithCount,
     ReviewUndo,
     UndoResult,
     UndoStatus,
@@ -90,7 +92,19 @@ from aqt.utils import (
     tr,
 )
 
-T = TypeVar("T")
+
+class HasChangesProperty(Protocol):
+    changes: OpChanges
+
+
+# either an OpChanges object, or an object with .changes on it. This bound
+# doesn't actually work for protobuf objects, so new protobuf objects will
+# either need to be added here, or cast at call time
+ResultWithChanges = TypeVar(
+    "ResultWithChanges", bound=Union[OpChanges, OpChangesWithCount, HasChangesProperty]
+)
+
+PerformOpOptionalSuccessCallback = Optional[Callable[[ResultWithChanges], Any]]
 
 install_pylib_legacy()
 
@@ -704,12 +718,16 @@ class AnkiQt(QMainWindow):
 
     def perform_op(
         self,
-        op: Callable[[], T],
+        op: Callable[[], ResultWithChanges],
         *,
-        success: Optional[Callable[[T], None]] = None,
-        failure: Optional[Callable[[BaseException], None]] = None,
+        success: PerformOpOptionalSuccessCallback = None,
+        failure: Optional[Callable[[Exception], Any]] = None,
     ) -> None:
         """Run the provided operation on a background thread.
+
+        op() should either return OpChanges, or an object with a 'changes'
+        property. The changes will be passed to `operation_did_execute` so that
+        the UI can decide whether it needs to update itself.
 
         - Shows progress popup for the duration of the op.
         - Ensures the browser doesn't try to redraw during the operation, which can lead
@@ -731,42 +749,62 @@ class AnkiQt(QMainWindow):
         gui_hooks.operation_will_execute()
 
         def wrapped_done(future: Future) -> None:
-            try:
-                if exception := future.exception():
+            # did something go wrong?
+            if exception := future.exception():
+                if isinstance(exception, Exception):
                     if failure:
                         failure(exception)
                     else:
                         showWarning(str(exception))
+                    return
                 else:
-                    if success:
-                        success(future.result())
+                    # BaseException like SystemExit; rethrow it
+                    future.result()
+            try:
+                result = future.result()
+                if success:
+                    success(result)
             finally:
+                # update undo status
                 status = self.col.undo_status()
                 self._update_undo_actions_for_status_and_save(status)
-                print("last op", status.last_op)
-                gui_hooks.operation_did_execute(status.last_op)
-                # fire legacy hook so old code notices changes
-                gui_hooks.state_did_reset()
+                # fire change hooks
+                self._fire_change_hooks_after_op_performed(result)
 
         self.taskman.with_progress(op, wrapped_done)
+
+    def _fire_change_hooks_after_op_performed(self, result: ResultWithChanges) -> None:
+        if isinstance(result, OpChanges):
+            changes = result
+        else:
+            changes = result.changes
+
+        # fire new hook
+        print("op changes:")
+        print(changes)
+        gui_hooks.operation_did_execute(changes)
+        # fire legacy hook so old code notices changes
+        if self.col.op_made_changes(changes):
+            gui_hooks.state_did_reset()
 
     def _synthesize_op_did_execute_from_reset(self) -> None:
         """Fire the `operation_did_execute` hook with everything marked as changed,
         after legacy code has called .reset()"""
-        op = OperationInfo()
-        for field in op.changes.DESCRIPTOR.fields:
-            setattr(op.changes, field.name, True)
+        op = OpChanges()
+        for field in op.DESCRIPTOR.fields:
+            if field.name != "kind":
+                setattr(op, field.name, True)
         gui_hooks.operation_did_execute(op)
 
-    def on_operation_did_execute(self, op: OperationInfo) -> None:
+    def on_operation_did_execute(self, changes: OpChanges) -> None:
         "Notify current screen of changes."
         focused = current_top_level_widget() == self
         if self.state == "review":
-            dirty = self.reviewer.op_executed(op, focused)
+            dirty = self.reviewer.op_executed(changes, focused)
         elif self.state == "overview":
-            dirty = self.overview.op_executed(op, focused)
+            dirty = self.overview.op_executed(changes, focused)
         elif self.state == "deckBrowser":
-            dirty = self.deckBrowser.op_executed(op, focused)
+            dirty = self.deckBrowser.op_executed(changes, focused)
         else:
             dirty = False
 

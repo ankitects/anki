@@ -139,6 +139,13 @@ impl Collection {
         self.state.card_queues = None;
     }
 
+    pub(crate) fn maybe_clear_study_queues_after_op(&mut self, op: OpChanges) {
+        if op.op != Op::AnswerCard && (op.changes.card || op.changes.deck || op.changes.preference)
+        {
+            self.state.card_queues = None;
+        }
+    }
+
     pub(crate) fn update_queues_after_answering_card(
         &mut self,
         card: &Card,

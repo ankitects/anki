@@ -6,7 +6,10 @@ mod changes;
 pub use crate::ops::Op;
 pub(crate) use changes::UndoableChange;
 
-use crate::prelude::*;
+use crate::{
+    ops::{OpChanges, StateChanges},
+    prelude::*,
+};
 use std::collections::VecDeque;
 
 const UNDO_LIMIT: usize = 30;
@@ -86,13 +89,6 @@ impl UndoManager {
         println!("ended, undo steps count now {}", self.undo_steps.len());
     }
 
-    fn current_step_requires_study_queue_reset(&self) -> bool {
-        self.current_step
-            .as_ref()
-            .map(|s| s.kind.needs_study_queue_reset())
-            .unwrap_or(true)
-    }
-
     fn can_undo(&self) -> Option<Op> {
         self.undo_steps.front().map(|s| s.kind)
     }
@@ -101,8 +97,37 @@ impl UndoManager {
         self.redo_steps.last().map(|s| s.kind)
     }
 
-    pub(crate) fn previous_op(&self) -> Option<&UndoableOp> {
+    fn previous_op(&self) -> Option<&UndoableOp> {
         self.undo_steps.front()
+    }
+
+    fn current_op(&self) -> Option<&UndoableOp> {
+        self.current_step.as_ref()
+    }
+
+    fn op_changes(&self) -> OpChanges {
+        let current_op = self
+            .current_step
+            .as_ref()
+            .expect("current_changes() called when no op set");
+
+        let mut changes = StateChanges::default();
+        for change in &current_op.changes {
+            match change {
+                UndoableChange::Card(_) => changes.card = true,
+                UndoableChange::Note(_) => changes.note = true,
+                UndoableChange::Deck(_) => changes.deck = true,
+                UndoableChange::Tag(_) => changes.tag = true,
+                UndoableChange::Revlog(_) => {}
+                UndoableChange::Queue(_) => {}
+                UndoableChange::Config(_) => {} // fixme: preferences?
+            }
+        }
+
+        OpChanges {
+            op: current_op.kind,
+            changes,
+        }
     }
 }
 
@@ -115,36 +140,38 @@ impl Collection {
         self.state.undo.can_redo()
     }
 
-    pub fn undo(&mut self) -> Result<()> {
+    pub fn undo(&mut self) -> Result<OpOutput<()>> {
         if let Some(step) = self.state.undo.undo_steps.pop_front() {
             let changes = step.changes;
             self.state.undo.mode = UndoMode::Undoing;
-            let res = self.transact(Some(step.kind), |col| {
+            let res = self.transact(step.kind, |col| {
                 for change in changes.into_iter().rev() {
                     change.undo(col)?;
                 }
                 Ok(())
             });
             self.state.undo.mode = UndoMode::NormalOp;
-            res?;
+            res
+        } else {
+            Err(AnkiError::invalid_input("no undo available"))
         }
-        Ok(())
     }
 
-    pub fn redo(&mut self) -> Result<()> {
+    pub fn redo(&mut self) -> Result<OpOutput<()>> {
         if let Some(step) = self.state.undo.redo_steps.pop() {
             let changes = step.changes;
             self.state.undo.mode = UndoMode::Redoing;
-            let res = self.transact(Some(step.kind), |col| {
+            let res = self.transact(step.kind, |col| {
                 for change in changes.into_iter().rev() {
                     change.undo(col)?;
                 }
                 Ok(())
             });
             self.state.undo.mode = UndoMode::NormalOp;
-            res?;
+            res
+        } else {
+            Err(AnkiError::invalid_input("no redo available"))
         }
-        Ok(())
     }
 
     pub fn undo_status(&self) -> UndoStatus {
@@ -162,9 +189,6 @@ impl Collection {
     /// Called at the end of a successful transaction.
     /// In most instances, this will also clear the study queues.
     pub(crate) fn end_undoable_operation(&mut self) {
-        if self.state.undo.current_step_requires_study_queue_reset() {
-            self.clear_study_queues();
-        }
         self.state.undo.end_step();
     }
 
@@ -183,8 +207,29 @@ impl Collection {
         self.state.undo.save(item.into());
     }
 
+    pub(crate) fn current_undo_op(&self) -> Option<&UndoableOp> {
+        self.state.undo.current_op()
+    }
+
     pub(crate) fn previous_undo_op(&self) -> Option<&UndoableOp> {
         self.state.undo.previous_op()
+    }
+
+    /// Used for coalescing successive note updates.
+    pub(crate) fn pop_last_change(&mut self) -> Option<UndoableChange> {
+        self.state
+            .undo
+            .current_step
+            .as_mut()
+            .expect("no operation active")
+            .changes
+            .pop()
+    }
+
+    /// Return changes made by the current op. Must only be called in a transaction,
+    /// when an operation was passed to transact().
+    pub(crate) fn op_changes(&self) -> Result<OpChanges> {
+        Ok(self.state.undo.op_changes())
     }
 }
 
@@ -218,7 +263,7 @@ mod test {
 
         // record a few undo steps
         for i in 3..=4 {
-            col.transact(Some(Op::UpdateCard), |col| {
+            col.transact(Op::UpdateCard, |col| {
                 col.get_and_update_card(cid, |card| {
                     card.interval = i;
                     Ok(())
@@ -264,7 +309,7 @@ mod test {
         assert_eq!(col.can_redo(), Some(Op::UpdateCard));
 
         // if any action is performed, it should clear the redo queue
-        col.transact(Some(Op::UpdateCard), |col| {
+        col.transact(Op::UpdateCard, |col| {
             col.get_and_update_card(cid, |card| {
                 card.interval = 5;
                 Ok(())
@@ -278,7 +323,7 @@ mod test {
         assert_eq!(col.can_redo(), None);
 
         // and any action that doesn't support undoing will clear both queues
-        col.transact(None, |_col| Ok(())).unwrap();
+        col.transact_no_undo(|_col| Ok(())).unwrap();
         assert_eq!(col.can_undo(), None);
         assert_eq!(col.can_redo(), None);
     }

@@ -408,7 +408,7 @@ hooks = [
     Hook(
         name="operation_did_execute",
         args=[
-            "op: anki.collection.OperationInfo",
+            "changes: anki.collection.OpChanges",
         ],
         doc="""Called after an operation completes.
         Changes can be inspected to determine whether the UI needs updating.

@@ -297,7 +297,7 @@ impl Collection {
         let tag_group = format!("({})", regex::escape(tags.trim()).replace(' ', "|"));
         let nids = self.nids_for_tags(&tag_group)?;
         let re = Regex::new(&format!("(?i)^{}(::.*)?$", tag_group))?;
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             col.storage.clear_tag_group(&tag_group)?;
             col.transform_notes(&nids, |note, _nt| {
                 Ok(TransformNoteOutput {
@@ -340,8 +340,8 @@ impl Collection {
         nids: &[NoteID],
         tags: &[Regex],
         mut repl: R,
-    ) -> Result<usize> {
-        self.transact(Some(Op::UpdateTag), |col| {
+    ) -> Result<OpOutput<usize>> {
+        self.transact(Op::UpdateTag, |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut changed = false;
                 for re in tags {
@@ -367,7 +367,7 @@ impl Collection {
         tags: &str,
         repl: &str,
         regex: bool,
-    ) -> Result<usize> {
+    ) -> Result<OpOutput<usize>> {
         // generate regexps
         let tags = split_tags(tags)
             .map(|tag| {
@@ -383,7 +383,7 @@ impl Collection {
         }
     }
 
-    pub fn add_tags_to_notes(&mut self, nids: &[NoteID], tags: &str) -> Result<usize> {
+    pub fn add_tags_to_notes(&mut self, nids: &[NoteID], tags: &str) -> Result<OpOutput<usize>> {
         let tags: Vec<_> = split_tags(tags).collect();
         let matcher = regex::RegexSet::new(
             tags.iter()
@@ -392,7 +392,7 @@ impl Collection {
         )
         .map_err(|_| AnkiError::invalid_input("invalid regex"))?;
 
-        self.transact(Some(Op::UpdateTag), |col| {
+        self.transact(Op::UpdateTag, |col| {
             col.transform_notes(nids, |note, _nt| {
                 let mut need_to_add = true;
                 let mut match_count = 0;
@@ -476,7 +476,7 @@ impl Collection {
         }
 
         // update notes
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             // clear the existing original tags
             for (source_tag, _) in &source_tags_and_outputs {
                 col.storage.clear_tag_and_children(source_tag)?;
@@ -578,14 +578,14 @@ mod test {
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.tags[0], "baz");
 
-        let cnt = col.add_tags_to_notes(&[note.id], "cee aye")?;
-        assert_eq!(cnt, 1);
+        let out = col.add_tags_to_notes(&[note.id], "cee aye")?;
+        assert_eq!(out.output, 1);
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(&note.tags, &["aye", "baz", "cee"]);
 
         // if all tags already on note, it doesn't get updated
-        let cnt = col.add_tags_to_notes(&[note.id], "cee aye")?;
-        assert_eq!(cnt, 0);
+        let out = col.add_tags_to_notes(&[note.id], "cee aye")?;
+        assert_eq!(out.output, 0);
 
         // empty replacement deletes tag
         col.replace_tags_for_notes(&[note.id], "b.* .*ye", "", true)?;

@@ -13,12 +13,20 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
-from anki.collection import Config, OperationInfo
+from anki.collection import Config, OpChanges
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.card_ops import set_card_flag
+from aqt.note_ops import add_tags, remove_notes, remove_tags
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.scheduling import set_due_date_dialog
+from aqt.scheduling_ops import (
+    bury_cards,
+    bury_note,
+    set_due_date_dialog,
+    suspend_cards,
+    suspend_note,
+)
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
@@ -94,20 +102,19 @@ class Reviewer:
             self._refresh_needed = False
             self.mw.fade_in_webview()
 
-    def op_executed(self, op: OperationInfo, focused: bool) -> bool:
-
-        if op.kind == OperationInfo.UPDATE_NOTE_TAGS:
+    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
+        if changes.note and changes.kind == OpChanges.UPDATE_NOTE_TAGS:
             self.card.load()
             self._update_mark_icon()
-        elif op.kind == OperationInfo.SET_CARD_FLAG:
+        elif changes.card and changes.kind == OpChanges.SET_CARD_FLAG:
             # fixme: v3 mtime check
             self.card.load()
             self._update_flag_icon()
-        elif op.kind == OperationInfo.UPDATE_NOTE:
+        elif changes.note and changes.kind == OpChanges.UPDATE_NOTE:
             self._redraw_current_card()
-        elif self.mw.col.op_affects_study_queue(op):
+        elif self.mw.col.op_affects_study_queue(changes):
             self._refresh_needed = True
-        elif op.changes.note or op.changes.notetype or op.changes.tag:
+        elif changes.note or changes.notetype or changes.tag:
             self._redraw_current_card()
 
         if focused and self._refresh_needed:
@@ -819,26 +826,21 @@ time = %(time)d;
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
-        def op() -> None:
-            # need to toggle off?
-            if self.card.user_flag() == desired_flag:
-                flag = 0
-            else:
-                flag = desired_flag
-            self.mw.col.set_user_flag_for_cards(flag, [self.card.id])
+        # need to toggle off?
+        if self.card.user_flag() == desired_flag:
+            flag = 0
+        else:
+            flag = desired_flag
 
-        self.mw.perform_op(op)
+        set_card_flag(mw=self.mw, card_ids=[self.card.id], flag=flag)
 
     def toggle_mark_on_current_note(self) -> None:
-        def op() -> None:
-            tag = "marked"
-            note = self.card.note()
-            if note.has_tag(tag):
-                self.mw.col.tags.bulk_remove([note.id], tag)
-            else:
-                self.mw.col.tags.bulk_add([note.id], tag)
-
-        self.mw.perform_op(op)
+        tag = "marked"
+        note = self.card.note()
+        if note.has_tag(tag):
+            remove_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=tag)
+        else:
+            add_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=tag)
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:
@@ -852,29 +854,31 @@ time = %(time)d;
         )
 
     def suspend_current_note(self) -> None:
-        self.mw.perform_op(
-            lambda: self.mw.col.sched.suspend_cards(
-                [c.id for c in self.card.note().cards()]
-            ),
+        suspend_note(
+            mw=self.mw,
+            note_id=self.card.nid,
             success=lambda _: tooltip(tr(TR.STUDYING_NOTE_SUSPENDED)),
         )
 
     def suspend_current_card(self) -> None:
-        self.mw.perform_op(
-            lambda: self.mw.col.sched.suspend_cards([self.card.id]),
+        suspend_cards(
+            mw=self.mw,
+            card_ids=[self.card.id],
             success=lambda _: tooltip(tr(TR.STUDYING_CARD_SUSPENDED)),
         )
 
-    def bury_current_card(self) -> None:
-        self.mw.perform_op(
-            lambda: self.mw.col.sched.bury_cards([self.card.id]),
-            success=lambda _: tooltip(tr(TR.STUDYING_CARD_BURIED)),
+    def bury_current_note(self) -> None:
+        bury_note(
+            mw=self.mw,
+            note_id=self.card.nid,
+            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_BURIED)),
         )
 
-    def bury_current_note(self) -> None:
-        self.mw.perform_op(
-            lambda: self.mw.col.sched.bury_note(self.card.note()),
-            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_BURIED)),
+    def bury_current_card(self) -> None:
+        bury_cards(
+            mw=self.mw,
+            card_ids=[self.card.id],
+            success=lambda _: tooltip(tr(TR.STUDYING_CARD_BURIED)),
         )
 
     def delete_current_note(self) -> None:
@@ -882,10 +886,13 @@ time = %(time)d;
         # window
         if self.mw.state != "review" or not self.card:
             return
+
+        # fixme: pass this back from the backend method instead
         cnt = len(self.card.note().cards())
 
-        self.mw.perform_op(
-            lambda: self.mw.col.remove_notes([self.card.note().id]),
+        remove_notes(
+            mw=self.mw,
+            note_ids=[self.card.nid],
             success=lambda _: tooltip(
                 tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt)
             ),

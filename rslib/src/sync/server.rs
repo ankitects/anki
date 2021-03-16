@@ -210,7 +210,8 @@ impl SyncServer for LocalServer {
         _col_folder: Option<&Path>,
     ) -> Result<NamedTempFile> {
         // bump usn/mod & close
-        self.col.transact(None, |col| col.storage.increment_usn())?;
+        self.col
+            .transact_no_undo(|col| col.storage.increment_usn())?;
         let col_path = self.col.col_path.clone();
         self.col.close(true)?;
 

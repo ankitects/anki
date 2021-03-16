@@ -1,22 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use pb::operation_info::{Changes, Kind};
+use pb::op_changes::Kind;
 
-use crate::{backend_proto as pb, ops::StateChanges, prelude::*, undo::UndoStatus};
-
-impl From<StateChanges> for Changes {
-    fn from(c: StateChanges) -> Self {
-        Changes {
-            card: c.card,
-            note: c.note,
-            deck: c.deck,
-            tag: c.tag,
-            notetype: c.notetype,
-            preference: c.preference,
-        }
-    }
-}
+use crate::{backend_proto as pb, ops::OpChanges, prelude::*, undo::UndoStatus};
 
 impl From<Op> for Kind {
     fn from(o: Op) -> Self {
@@ -29,11 +16,16 @@ impl From<Op> for Kind {
     }
 }
 
-impl From<Op> for pb::OperationInfo {
-    fn from(op: Op) -> Self {
-        pb::OperationInfo {
-            changes: Some(op.state_changes().into()),
-            kind: Kind::from(op) as i32,
+impl From<OpChanges> for pb::OpChanges {
+    fn from(c: OpChanges) -> Self {
+        pb::OpChanges {
+            kind: Kind::from(c.op) as i32,
+            card: c.changes.card,
+            note: c.changes.note,
+            deck: c.changes.deck,
+            tag: c.changes.tag,
+            notetype: c.changes.notetype,
+            preference: c.changes.preference,
         }
     }
 }
@@ -43,7 +35,12 @@ impl UndoStatus {
         pb::UndoStatus {
             undo: self.undo.map(|op| op.describe(i18n)).unwrap_or_default(),
             redo: self.redo.map(|op| op.describe(i18n)).unwrap_or_default(),
-            last_op: self.undo.map(Into::into),
         }
+    }
+}
+
+impl From<OpOutput<()>> for pb::OpChanges {
+    fn from(o: OpOutput<()>) -> Self {
+        o.changes.into()
     }
 }

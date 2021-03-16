@@ -9,6 +9,7 @@ pub enum Op {
     AddNote,
     AnswerCard,
     Bury,
+    FindAndReplace,
     RemoveDeck,
     RemoveNote,
     RenameDeck,
@@ -46,84 +47,10 @@ impl Op {
             Op::UpdateTag => TR::UndoUpdateTag,
             Op::SetDeck => TR::BrowsingChangeDeck,
             Op::SetFlag => TR::UndoSetFlag,
+            Op::FindAndReplace => TR::BrowsingFindAndReplace,
         };
 
         i18n.tr(key).to_string()
-    }
-
-    /// Used internally to decide whether the study queues need to be invalidated.
-    pub(crate) fn needs_study_queue_reset(self) -> bool {
-        let changes = self.state_changes();
-        self != Op::AnswerCard && (changes.card || changes.deck || changes.preference)
-    }
-
-    pub fn state_changes(self) -> StateChanges {
-        let default = Default::default;
-        match self {
-            Op::ScheduleAsNew
-            | Op::SetDueDate
-            | Op::Suspend
-            | Op::UnburyUnsuspend
-            | Op::UpdateCard
-            | Op::SetDeck
-            | Op::Bury
-            | Op::SetFlag => StateChanges {
-                card: true,
-                ..default()
-            },
-            Op::AnswerCard => StateChanges {
-                card: true,
-                // this also modifies the daily counts stored in the
-                // deck, but the UI does not care about that
-                ..default()
-            },
-            Op::AddDeck => StateChanges {
-                deck: true,
-                ..default()
-            },
-            Op::AddNote => StateChanges {
-                card: true,
-                note: true,
-                tag: true,
-                ..default()
-            },
-            Op::RemoveDeck => StateChanges {
-                card: true,
-                note: true,
-                deck: true,
-                ..default()
-            },
-            Op::RemoveNote => StateChanges {
-                card: true,
-                note: true,
-                ..default()
-            },
-            Op::RenameDeck => StateChanges {
-                deck: true,
-                ..default()
-            },
-            Op::UpdateDeck => StateChanges {
-                deck: true,
-                ..default()
-            },
-            Op::UpdateNote => StateChanges {
-                note: true,
-                // edits may result in new cards being generated
-                card: true,
-                // and may result in new tags being added
-                tag: true,
-                ..default()
-            },
-            Op::UpdatePreferences => StateChanges {
-                preference: true,
-                ..default()
-            },
-            Op::UpdateTag => StateChanges {
-                note: true,
-                tag: true,
-                ..default()
-            },
-        }
     }
 }
 
@@ -135,4 +62,15 @@ pub struct StateChanges {
     pub tag: bool,
     pub notetype: bool,
     pub preference: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct OpChanges {
+    pub op: Op,
+    pub changes: StateChanges,
+}
+
+pub struct OpOutput<T> {
+    pub output: T,
+    pub changes: OpChanges,
 }
