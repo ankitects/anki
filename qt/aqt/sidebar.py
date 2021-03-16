@@ -8,7 +8,7 @@ from enum import Enum, auto
 from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
-from anki.collection import Config, SearchJoiner, SearchNode
+from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
 from anki.decks import DeckTreeNode
 from anki.errors import DeckIsFilteredError, InvalidInput
 from anki.notes import Note
@@ -362,6 +362,7 @@ class SidebarTreeView(QTreeView):
         self.col = self.mw.col
         self.current_search: Optional[str] = None
         self.valid_drop_types: Tuple[SidebarItemType, ...] = ()
+        self._refresh_needed = False
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -410,6 +411,20 @@ class SidebarTreeView(QTreeView):
 
     def model(self) -> SidebarModel:
         return super().model()
+
+    # Refreshing
+    ###########################
+
+    def op_executed(self, op: OpChanges, focused: bool) -> None:
+        if op.tag or op.notetype or op.deck:
+            self._refresh_needed = True
+        if focused:
+            self.refresh_if_needed()
+
+    def refresh_if_needed(self) -> None:
+        if self._refresh_needed:
+            self.refresh()
+            self._refresh_needed = False
 
     def refresh(
         self, is_current: Optional[Callable[[SidebarItem], bool]] = None

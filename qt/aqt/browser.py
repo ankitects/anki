@@ -98,7 +98,7 @@ class DataModel(QAbstractTableModel):
         )
         self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
-        self.refresh_needed = False
+        self._refresh_needed = False
 
     def getCard(self, index: QModelIndex) -> Optional[Card]:
         id = self.cards[index.row()]
@@ -291,14 +291,14 @@ class DataModel(QAbstractTableModel):
 
     def op_executed(self, op: OpChanges, focused: bool) -> None:
         if op.card or op.note or op.deck or op.notetype:
-            self.refresh_needed = True
+            self._refresh_needed = True
         if focused:
             self.refresh_if_needed()
 
     def refresh_if_needed(self) -> None:
-        if self.refresh_needed:
+        if self._refresh_needed:
             self.redraw_cells()
-            self.refresh_needed = False
+            self._refresh_needed = False
 
     # Column data
     ######################################################################
@@ -508,6 +508,7 @@ class Browser(QMainWindow):
         if focused:
             self.setUpdatesEnabled(True)
         self.model.op_executed(changes, focused)
+        self.sidebar.op_executed(changes, focused)
         if changes.note or changes.notetype:
             if not self.editor.is_updating_note():
                 note = self.editor.note
@@ -521,6 +522,7 @@ class Browser(QMainWindow):
         if current_top_level_widget() == self:
             self.setUpdatesEnabled(True)
             self.model.refresh_if_needed()
+            self.sidebar.refresh_if_needed()
 
     def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
@@ -1442,6 +1444,7 @@ where id in %s"""
 
     def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
+        # fixme: remove these once all items are using `operation_did_execute`
         gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
         gui_hooks.operation_will_execute.append(self.on_operation_will_execute)
