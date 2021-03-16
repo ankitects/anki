@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 from anki.lang import TR
 from anki.notes import Note
@@ -23,8 +23,11 @@ def add_note(
     mw.perform_op(lambda: mw.col.add_note(note, target_deck_id), success=success)
 
 
-def update_note(*, mw: AnkiQt, note: Note) -> None:
-    mw.perform_op(lambda: mw.col.update_note(note))
+def update_note(*, mw: AnkiQt, note: Note, after_hooks: Callable[[], None]) -> None:
+    mw.perform_op(
+        lambda: mw.col.update_note(note),
+        after_hooks=after_hooks,
+    )
 
 
 def remove_notes(
