@@ -3,6 +3,7 @@
     import type { I18n } from "anki/i18n";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
@@ -53,11 +54,11 @@
 </script>
 
 <Graph {title} {subtitle}>
-    <div class="range-box-inner">
+    <InputBox>
         <label> <input type="checkbox" bind:checked={showTime} /> {time} </label>
 
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
-    </div>
+    </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         {#each [4, 3, 2, 1, 0] as i}

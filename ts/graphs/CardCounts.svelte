@@ -4,6 +4,7 @@
     import type { I18n } from "anki/i18n";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
 
     import { defaultGraphBounds } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
@@ -72,12 +73,12 @@
 </style>
 
 <Graph title={graphData.title}>
-    <div class="range-box-inner">
+    <InputBox>
         <label>
             <input type="checkbox" bind:checked={$cardCountsSeparateInactive} />
             {label}
         </label>
-    </div>
+    </InputBox>
 
     <div class="counts-outer">
         <svg

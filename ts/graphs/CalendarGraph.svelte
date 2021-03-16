@@ -4,6 +4,7 @@
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import AxisTicks from "./AxisTicks.svelte";
 
@@ -70,7 +71,7 @@
 </script>
 
 <Graph {title}>
-    <div class="range-box-inner">
+    <InputBox>
         <span>
             <button on:click={() => targetYear--} disabled={minYear >= targetYear}>
                 ◄
@@ -82,7 +83,7 @@
                 ►
             </button>
         </span>
-    </div>
+    </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="weekdays" />

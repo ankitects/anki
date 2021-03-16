@@ -4,6 +4,7 @@
     import type pb from "anki/backend_proto";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import HistogramGraph from "./HistogramGraph.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
@@ -48,7 +49,7 @@
 </script>
 
 <Graph {title} {subtitle}>
-    <div class="range-box-inner">
+    <InputBox>
         {#if graphData && graphData.haveBacklog}
             <label>
                 <input type="checkbox" bind:checked={$futureDueShowBacklog} />
@@ -57,7 +58,7 @@
         {/if}
 
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
-    </div>
+    </InputBox>
 
     <HistogramGraph data={histogramData} {i18n} />
 

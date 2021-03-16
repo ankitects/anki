@@ -1,6 +1,6 @@
 <script lang="typescript">
     export let title: string;
-    export let subtitle: string | null = null
+    export let subtitle: string | null = null;
 </script>
 
 <style lang="scss">
@@ -11,7 +11,7 @@
         page-break-inside: avoid;
     }
 
-    .title {
+    h1 {
         text-align: center;
         margin-bottom: 0.25em;
         margin-top: 1.5em;
@@ -23,12 +23,12 @@
     }
 </style>
 
-<div class="graph" id="graph-buttons">
-    <h1 class="title">{title}</h1>
+<div class="graph">
+    <h1>{title}</h1>
 
     {#if subtitle}
         <div class="subtitle">{subtitle}</div>
     {/if}
 
-    <slot></slot>
+    <slot />
 </div>

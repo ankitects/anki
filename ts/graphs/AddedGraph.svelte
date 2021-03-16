@@ -4,6 +4,7 @@
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import HistogramGraph from "./HistogramGraph.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
@@ -47,9 +48,9 @@
 </script>
 
 <Graph {title} {subtitle}>
-    <div class="range-box-inner">
+    <InputBox>
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
-    </div>
+    </InputBox>
 
     <HistogramGraph data={histogramData} {i18n} />
 

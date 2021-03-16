@@ -3,6 +3,7 @@
     import type { I18n } from "anki/i18n";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
@@ -29,9 +30,9 @@
 </script>
 
 <Graph {title} {subtitle}>
-    <div class="range-box-inner">
+    <InputBox>
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
-    </div>
+    </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />

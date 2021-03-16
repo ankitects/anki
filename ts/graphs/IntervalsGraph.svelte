@@ -5,6 +5,7 @@
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import HistogramGraph from "./HistogramGraph.svelte";
     import TableData from "./TableData.svelte";
 
@@ -45,13 +46,13 @@
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
+    const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
 </script>
 
 <Graph {title} {subtitle}>
-    <div class="range-box-inner">
+    <InputBox>
         <label>
             <input type="radio" bind:group={range} value={IntervalRange.Month} />
             {month}
@@ -68,7 +69,7 @@
             <input type="radio" bind:group={range} value={IntervalRange.All} />
             {all}
         </label>
-    </div>
+    </InputBox>
 
     <HistogramGraph data={histogramData} {i18n} />
 
