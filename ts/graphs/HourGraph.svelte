@@ -8,7 +8,7 @@
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
 
-    import { graph, graphArea } from "./graph-styles";
+    import { graphArea, graphHoverzone } from "./graph-styles";
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
     import { renderHours } from "./hours";
 
@@ -37,7 +37,7 @@
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
         <path class={graphArea} />
-        <g class="hoverzone" />
+        <g class={graphHoverzone} />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>

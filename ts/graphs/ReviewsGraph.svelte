@@ -13,7 +13,7 @@
     import type { TableDatum } from "./graph-helpers";
     import { gatherData, renderReviews } from "./reviews";
     import type { GraphData } from "./reviews";
-    import { graph, graphArea } from "./graph-styles";
+    import { graphArea, graphHoverzone } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
@@ -65,7 +65,7 @@
             <g class="bars{i}" />
         {/each}
         <path class={graphArea} />
-        <g class="hoverzone" />
+        <g class={graphHoverzone} />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>

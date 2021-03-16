@@ -13,7 +13,6 @@
     import { gatherData, renderCalendar } from "./calendar";
     import type { PreferenceStore } from "./preferences";
     import type { GraphData } from "./calendar";
-    import { graph } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let preferences: PreferenceStore | null = null;

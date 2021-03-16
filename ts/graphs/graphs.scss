@@ -21,7 +21,6 @@
     overscroll-behavior: none;
 }
 
-
 .tick {
     line {
         opacity: 0.1;
@@ -50,16 +49,6 @@
     .tick-odd {
         display: none;
     }
-}
-
-.hoverzone rect {
-    fill: none;
-    pointer-events: all;
-}
-
-.hoverzone rect:hover {
-    fill: grey;
-    opacity: 0.05;
 }
 
 .no-data {

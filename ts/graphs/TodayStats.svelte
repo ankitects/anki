@@ -6,7 +6,6 @@
 
     import type { TodayData } from "./today";
     import { gatherData } from "./today";
-    import { graph } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;

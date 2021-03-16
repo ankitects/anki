@@ -10,6 +10,7 @@
 
     import { renderButtons } from "./buttons";
     import { defaultGraphBounds, GraphRange, RevlogRange } from "./graph-helpers";
+    import { graphHoverzone } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -36,7 +37,7 @@
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
-        <g class="hoverzone" />
+        <g class={graphHoverzone} />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>

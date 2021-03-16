@@ -15,7 +15,6 @@
     import { gatherData, buildHistogram } from "./added";
     import type { GraphData } from "./added";
     import type { PreferenceStore } from "./preferences";
-    import { graph } from "./graph-styles";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;

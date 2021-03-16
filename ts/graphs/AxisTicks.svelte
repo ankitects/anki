@@ -10,10 +10,6 @@
     }
 </style>
 
-<g
-    class="x-ticks"
-    transform={`translate(0,${bounds.height - bounds.marginBottom})`} />
+<g class="x-ticks" transform={`translate(0, ${bounds.height - bounds.marginBottom})`} />
 <g class="y-ticks" transform={`translate(${bounds.marginLeft}, 0)`} />
-<g
-    class="y2-ticks"
-    transform={`translate(${bounds.width - bounds.marginRight}, 0)`} />
+<g class="y2-ticks" transform={`translate(${bounds.width - bounds.marginRight}, 0)`} />
