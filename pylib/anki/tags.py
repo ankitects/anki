@@ -18,6 +18,7 @@ from typing import Collection, List, Match, Optional, Sequence
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 import anki.collection
+from anki.collection import OpChangesWithCount
 from anki.utils import ids2str
 
 # public exports
@@ -75,27 +76,27 @@ class TagManager:
     # Bulk addition/removal from notes
     #############################################################
 
-    def bulk_add(self, nids: List[int], tags: str) -> int:
+    def bulk_add(self, nids: Sequence[int], tags: str) -> OpChangesWithCount:
         """Add space-separate tags to provided notes, returning changed count."""
         return self.col._backend.add_note_tags(nids=nids, tags=tags)
 
     def bulk_update(
         self, nids: Sequence[int], tags: str, replacement: str, regex: bool
-    ) -> int:
+    ) -> OpChangesWithCount:
         """Replace space-separated tags, returning changed count.
         Tags replaced with an empty string will be removed."""
         return self.col._backend.update_note_tags(
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
 
-    def bulk_remove(self, nids: Sequence[int], tags: str) -> int:
+    def bulk_remove(self, nids: Sequence[int], tags: str) -> OpChangesWithCount:
         return self.bulk_update(nids, tags, "", False)
 
-    def rename(self, old: str, new: str) -> int:
+    def rename(self, old: str, new: str) -> OpChangesWithCount:
         "Rename provided tag, returning number of changed notes."
         nids = self.col.find_notes(anki.collection.SearchNode(tag=old))
         if not nids:
-            return 0
+            return OpChangesWithCount()
         escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
         return self.bulk_update(nids, escaped_name, new, False)
 

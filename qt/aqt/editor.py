@@ -27,6 +27,7 @@ from anki.httpclient import HttpClient
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
+from aqt.note_ops import update_note
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
@@ -542,8 +543,7 @@ class Editor:
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
-        note = self.note
-        self.mw.perform_op(lambda: self.mw.col.update_note(note))
+        update_note(mw=self.mw, note=self.note)
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [

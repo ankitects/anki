@@ -19,7 +19,7 @@ impl MediaService for Backend {
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
+            col.transact_no_undo(|ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
                 let mut output = checker.check()?;
 
@@ -62,7 +62,7 @@ impl MediaService for Backend {
 
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
+            col.transact_no_undo(|ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
 
                 checker.empty_trash()
@@ -78,7 +78,7 @@ impl MediaService for Backend {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
 
-            col.transact(None, |ctx| {
+            col.transact_no_undo(|ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
 
                 checker.restore_trash()

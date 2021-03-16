@@ -61,7 +61,7 @@ impl ConfigService for Backend {
 
     fn set_config_json(&self, input: pb::SetConfigJsonIn) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 // ensure it's a well-formed object
                 let val: Value = serde_json::from_slice(&input.value_json)?;
                 col.set_config(input.key.as_str(), &val)
@@ -71,7 +71,7 @@ impl ConfigService for Backend {
     }
 
     fn remove_config(&self, input: pb::String) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.remove_config(input.val.as_str())))
+        self.with_col(|col| col.transact_no_undo(|col| col.remove_config(input.val.as_str())))
             .map(Into::into)
     }
 
@@ -92,8 +92,10 @@ impl ConfigService for Backend {
     }
 
     fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.set_bool(input.key().into(), input.value)))
-            .map(Into::into)
+        self.with_col(|col| {
+            col.transact_no_undo(|col| col.set_bool(input.key().into(), input.value))
+        })
+        .map(Into::into)
     }
 
     fn get_config_string(&self, input: pb::config::String) -> Result<pb::String> {
@@ -106,7 +108,7 @@ impl ConfigService for Backend {
 
     fn set_config_string(&self, input: pb::SetConfigStringIn) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| col.set_string(input.key().into(), &input.value))
+            col.transact_no_undo(|col| col.set_string(input.key().into(), &input.value))
         })
         .map(Into::into)
     }
@@ -115,7 +117,7 @@ impl ConfigService for Backend {
         self.with_col(|col| col.get_preferences())
     }
 
-    fn set_preferences(&self, input: pb::Preferences) -> Result<pb::Empty> {
+    fn set_preferences(&self, input: pb::Preferences) -> Result<pb::OpChanges> {
         self.with_col(|col| col.set_preferences(input))
             .map(Into::into)
     }

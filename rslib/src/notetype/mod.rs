@@ -376,7 +376,7 @@ impl From<NoteType> for NoteTypeProto {
 impl Collection {
     /// Add a new notetype, and allocate it an ID.
     pub fn add_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             let usn = col.usn()?;
             nt.set_modified(usn);
             col.add_notetype_inner(nt, usn)
@@ -415,7 +415,7 @@ impl Collection {
         let existing = self.get_notetype(nt.id)?;
         let norm = self.get_bool(BoolKey::NormalizeNoteText);
         nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             if let Some(existing_notetype) = existing {
                 if existing_notetype.mtime_secs > nt.mtime_secs {
                     return Err(AnkiError::invalid_input("attempt to save stale notetype"));
@@ -484,7 +484,7 @@ impl Collection {
     pub fn remove_notetype(&mut self, ntid: NoteTypeID) -> Result<()> {
         // fixme: currently the storage layer is taking care of removing the notes and cards,
         // but we need to do it in this layer in the future for undo handling
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             col.storage.set_schema_modified()?;
             col.state.notetype_cache.remove(&ntid);
             col.clear_aux_config_for_notetype(ntid)?;

@@ -8,7 +8,7 @@ ignored-modules=win32file,pywintypes,socket,win32pipe,winrt,pyaudio
 ignored-classes=
   SearchNode,
   Config,
-  OperationInfo
+  OpChanges
 
 [REPORTS]
 output-format=colorized

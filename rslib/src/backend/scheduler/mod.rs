@@ -39,7 +39,7 @@ impl SchedulingService for Backend {
 
     fn update_stats(&self, input: pb::UpdateStatsIn) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 let today = col.current_due_day(0)?;
                 let usn = col.usn()?;
                 col.update_deck_stats(today, usn, input).map(Into::into)
@@ -49,7 +49,7 @@ impl SchedulingService for Backend {
 
     fn extend_limits(&self, input: pb::ExtendLimitsIn) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 let today = col.current_due_day(0)?;
                 let usn = col.usn()?;
                 col.extend_limits(
@@ -72,7 +72,7 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.congrats_info())
     }
 
-    fn restore_buried_and_suspended_cards(&self, input: pb::CardIDs) -> Result<pb::Empty> {
+    fn restore_buried_and_suspended_cards(&self, input: pb::CardIDs) -> Result<pb::OpChanges> {
         let cids: Vec<_> = input.into();
         self.with_col(|col| col.unbury_or_unsuspend_cards(&cids).map(Into::into))
     }
@@ -87,7 +87,7 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn bury_or_suspend_cards(&self, input: pb::BuryOrSuspendCardsIn) -> Result<pb::Empty> {
+    fn bury_or_suspend_cards(&self, input: pb::BuryOrSuspendCardsIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let mode = input.mode();
             let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
@@ -103,7 +103,7 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
     }
 
-    fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> Result<pb::Empty> {
+    fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
             let log = input.log;
@@ -111,7 +111,7 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn set_due_date(&self, input: pb::SetDueDateIn) -> Result<pb::Empty> {
+    fn set_due_date(&self, input: pb::SetDueDateIn) -> Result<pb::OpChanges> {
         let config = input.config_key.map(Into::into);
         let days = input.days;
         let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
@@ -161,13 +161,13 @@ impl SchedulingService for Backend {
         Ok(state.leeched().into())
     }
 
-    fn answer_card(&self, input: pb::AnswerCardIn) -> Result<pb::Empty> {
+    fn answer_card(&self, input: pb::AnswerCardIn) -> Result<pb::OpChanges> {
         self.with_col(|col| col.answer_card(&input.into()))
             .map(Into::into)
     }
 
     fn upgrade_scheduler(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.upgrade_to_v2_scheduler()))
+        self.with_col(|col| col.transact_no_undo(|col| col.upgrade_to_v2_scheduler()))
             .map(Into::into)
     }
 

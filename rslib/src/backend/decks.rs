@@ -15,7 +15,7 @@ impl DecksService for Backend {
             let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
             let mut deck: Deck = schema11.into();
             if input.preserve_usn_and_mtime {
-                col.transact(None, |col| {
+                col.transact_no_undo(|col| {
                     let usn = col.usn()?;
                     col.add_or_update_single_deck_with_existing_id(&mut deck, usn)
                 })?;
@@ -109,12 +109,12 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn remove_decks(&self, input: pb::DeckIDs) -> Result<pb::UInt32> {
+    fn remove_decks(&self, input: pb::DeckIDs) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckID>>::into(input)))
             .map(Into::into)
     }
 
-    fn drag_drop_decks(&self, input: pb::DragDropDecksIn) -> Result<pb::Empty> {
+    fn drag_drop_decks(&self, input: pb::DragDropDecksIn) -> Result<pb::OpChanges> {
         let source_dids: Vec<_> = input.source_deck_ids.into_iter().map(Into::into).collect();
         let target_did = if input.target_deck_id == 0 {
             None
@@ -125,7 +125,7 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn rename_deck(&self, input: pb::RenameDeckIn) -> Result<pb::Empty> {
+    fn rename_deck(&self, input: pb::RenameDeckIn) -> Result<pb::OpChanges> {
         self.with_col(|col| col.rename_deck(input.deck_id.into(), &input.new_name))
             .map(Into::into)
     }

@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, Config, OperationInfo, SearchNode
+from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
@@ -21,13 +21,20 @@ from anki.notes import Note
 from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, colors, gui_hooks
+from aqt.card_ops import set_card_deck, set_card_flag
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.main import ResetReason
+from aqt.note_ops import add_tags, find_and_replace, remove_notes, remove_tags
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
-from aqt.scheduling import forget_cards, set_due_date_dialog
+from aqt.scheduling_ops import (
+    forget_cards,
+    set_due_date_dialog,
+    suspend_cards,
+    unsuspend_cards,
+)
 from aqt.sidebar import SidebarSearchBar, SidebarToolbar, SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -284,8 +291,8 @@ class DataModel(QAbstractTableModel):
         else:
             tv.selectRow(0)
 
-    def op_executed(self, op: OperationInfo, focused: bool) -> None:
-        if op.changes.card or op.changes.note or op.changes.deck or op.changes.notetype:
+    def op_executed(self, op: OpChanges, focused: bool) -> None:
+        if op.card or op.note or op.deck or op.notetype:
             self.refresh_needed = True
         if focused:
             self.refresh_if_needed()
@@ -497,9 +504,9 @@ class Browser(QMainWindow):
         # as that will block the UI
         self.setUpdatesEnabled(False)
 
-    def on_operation_did_execute(self, op: OperationInfo) -> None:
+    def on_operation_did_execute(self, changes: OpChanges) -> None:
         self.setUpdatesEnabled(True)
-        self.model.op_executed(op, current_top_level_widget() == self)
+        self.model.op_executed(changes, current_top_level_widget() == self)
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_top_level_widget() == self:
@@ -1167,8 +1174,9 @@ where id in %s"""
         # select the next card if there is one
         self._onNextCard()
 
-        self.mw.perform_op(
-            lambda: self.col.remove_notes(nids),
+        remove_notes(
+            mw=self.mw,
+            note_ids=nids,
             success=lambda _: tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids))),
         )
 
@@ -1200,7 +1208,7 @@ where id in %s"""
             return
         did = self.col.decks.id(ret.name)
 
-        self.mw.perform_op(lambda: self.col.set_deck(cids, did))
+        set_card_deck(mw=self.mw, card_ids=cids, deck_id=did)
 
     # legacy
 
@@ -1214,38 +1222,43 @@ where id in %s"""
         tags: Optional[str] = None,
     ) -> None:
         "Shows prompt if tags not provided."
-        self.editor.saveNow(
-            lambda: self._update_tags_of_selected_notes(
-                func=self.col.tags.bulk_add,
-                tags=tags,
-                prompt=tr(TR.BROWSING_ENTER_TAGS_TO_ADD),
-            )
-        )
+
+        def op() -> None:
+            if not (
+                tags2 := self.maybe_prompt_for_tags(
+                    tags, tr(TR.BROWSING_ENTER_TAGS_TO_ADD)
+                )
+            ):
+                return
+            nids = self.selectedNotes()
+            add_tags(mw=self.mw, note_ids=nids, space_separated_tags=tags2)
+
+        self.editor.saveNow(op)
 
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
-        self.editor.saveNow(
-            lambda: self._update_tags_of_selected_notes(
-                func=self.col.tags.bulk_remove,
-                tags=tags,
-                prompt=tr(TR.BROWSING_ENTER_TAGS_TO_DELETE),
-            )
-        )
 
-    def _update_tags_of_selected_notes(
-        self,
-        func: Callable[[List[int], str], int],
-        tags: Optional[str],
-        prompt: Optional[str],
-    ) -> None:
-        "If tags provided, prompt skipped. If tags not provided, prompt must be."
-        if tags is None:
-            (tags, ok) = getTag(self, self.col, prompt)
-            if not ok:
+        def op() -> None:
+            if not (
+                tags2 := self.maybe_prompt_for_tags(
+                    tags, tr(TR.BROWSING_ENTER_TAGS_TO_DELETE)
+                )
+            ):
                 return
+            nids = self.selectedNotes()
+            remove_tags(mw=self.mw, note_ids=nids, space_separated_tags=tags2)
 
-        nids = self.selectedNotes()
-        self.mw.perform_op(lambda: func(nids, tags))
+        self.editor.saveNow(op)
+
+    def _maybe_prompt_for_tags(self, tags: Optional[str], prompt: str) -> Optional[str]:
+        if tags is not None:
+            return tags
+
+        (tags, ok) = getTag(self, self.col, prompt)
+        if not ok:
+            return None
+        else:
+            return tags
 
     def clearUnusedTags(self) -> None:
         self.editor.saveNow(self._clearUnusedTags)
@@ -1271,15 +1284,12 @@ where id in %s"""
 
     def _suspend_selected_cards(self) -> None:
         want_suspend = not self.current_card_is_suspended()
-
-        def op() -> None:
-            if want_suspend:
-                self.col.sched.suspend_cards(cids)
-            else:
-                self.col.sched.unsuspend_cards(cids)
-
         cids = self.selectedCards()
-        self.mw.perform_op(op)
+
+        if want_suspend:
+            suspend_cards(mw=self.mw, card_ids=cids)
+        else:
+            unsuspend_cards(mw=self.mw, card_ids=cids)
 
     # Exporting
     ######################################################################
@@ -1297,13 +1307,13 @@ where id in %s"""
             return
         self.editor.saveNow(lambda: self._on_set_flag(n))
 
-    def _on_set_flag(self, n: int) -> None:
+    def _on_set_flag(self, flag: int) -> None:
         # flag needs toggling off?
-        if n == self.card.user_flag():
-            n = 0
+        if flag == self.card.user_flag():
+            flag = 0
 
         cids = self.selectedCards()
-        self.mw.perform_op(lambda: self.col.set_user_flag_for_cards(n, cids))
+        set_card_flag(mw=self.mw, card_ids=cids, flag=flag)
 
     def _updateFlagsMenu(self) -> None:
         flag = self.card and self.card.user_flag()
@@ -1531,38 +1541,21 @@ where id in %s"""
         replace = save_combo_history(frm.replace, replacehistory, combo + "Replace")
 
         regex = frm.re.isChecked()
-        nocase = frm.ignoreCase.isChecked()
+        match_case = not frm.ignoreCase.isChecked()
 
         save_is_checked(frm.re, combo + "Regex")
         save_is_checked(frm.ignoreCase, combo + "ignoreCase")
 
-        self.mw.checkpoint(tr(TR.BROWSING_FIND_AND_REPLACE))
-        # starts progress dialog as well
-        self.model.beginReset()
-
-        def do_search() -> int:
-            return self.col.find_and_replace(
-                nids, search, replace, regex, field, nocase
-            )
-
-        def on_done(fut: Future) -> None:
-            self.search()
-            self.mw.requireReset(reason=ResetReason.BrowserFindReplace, context=self)
-            self.model.endReset()
-
-            total = len(nids)
-            try:
-                changed = fut.result()
-            except InvalidInput as e:
-                show_invalid_search_error(e)
-                return
-
-            showInfo(
-                tr(TR.FINDREPLACE_NOTES_UPDATED, changed=changed, total=total),
-                parent=self,
-            )
-
-        self.mw.taskman.run_in_background(do_search, on_done)
+        find_and_replace(
+            mw=self.mw,
+            parent=self,
+            note_ids=nids,
+            search=search,
+            replacement=replace,
+            regex=regex,
+            field_name=field,
+            match_case=match_case,
+        )
 
     def onFindReplaceHelp(self) -> None:
         openHelp(HelpPage.BROWSING_FIND_AND_REPLACE)

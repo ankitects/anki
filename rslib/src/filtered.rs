@@ -169,7 +169,7 @@ pub(crate) struct DeckFilterContext<'a> {
 
 impl Collection {
     pub fn empty_filtered_deck(&mut self, did: DeckID) -> Result<()> {
-        self.transact(None, |col| col.return_all_cards_in_filtered_deck(did))
+        self.transact_no_undo(|col| col.return_all_cards_in_filtered_deck(did))
     }
     pub(super) fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
@@ -206,7 +206,7 @@ impl Collection {
             today: self.timing_today()?.days_elapsed,
         };
 
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             col.return_all_cards_in_filtered_deck(did)?;
             col.build_filtered_deck(ctx)
         })

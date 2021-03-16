@@ -6,12 +6,12 @@ from typing import Callable, List, Optional
 import aqt.deckchooser
 import aqt.editor
 import aqt.forms
-from anki.collection import SearchNode
+from anki.collection import OpChanges, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.notes import DuplicateOrEmptyResult, Note
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
-from aqt.main import ResetReason
+from aqt.note_ops import add_note
 from aqt.notetypechooser import NoteTypeChooser
 from aqt.qt import *
 from aqt.sound import av_player
@@ -191,23 +191,24 @@ class AddCards(QDialog):
             return
 
         target_deck_id = self.deck_chooser.selected_deck_id
-        self.mw.col.add_note(note, target_deck_id)
 
-        # only used for detecting changed sticky fields on close
-        self._last_added_note = note
+        def on_success(changes: OpChanges) -> None:
+            # only used for detecting changed sticky fields on close
+            self._last_added_note = note
 
-        self.addHistory(note)
-        self.mw.requireReset(reason=ResetReason.AddCardsAddNote, context=self)
+            self.addHistory(note)
 
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
+            # workaround for PyQt focus bug
+            self.editor.hideCompleters()
 
-        tooltip(tr(TR.ADDING_ADDED), period=500)
-        av_player.stop_and_clear_queue()
-        self._load_new_note(sticky_fields_from=note)
-        self.mw.col.autosave()  # fixme:
+            tooltip(tr(TR.ADDING_ADDED), period=500)
+            av_player.stop_and_clear_queue()
+            self._load_new_note(sticky_fields_from=note)
+            gui_hooks.add_cards_did_add_note(note)
 
-        gui_hooks.add_cards_did_add_note(note)
+        add_note(
+            mw=self.mw, note=note, target_deck_id=target_deck_id, success=on_success
+        )
 
     def _note_can_be_added(self, note: Note) -> bool:
         result = note.duplicate_or_empty()

@@ -21,7 +21,7 @@ impl Collection {
                     .storage
                     .get_note(note.id)?
                     .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
-                self.update_note_undoable(&note, &current, false)
+                self.update_note_undoable(&note, &current)
             }
             UndoableNoteChange::Removed(note) => self.restore_deleted_note(*note),
             UndoableNoteChange::GraveAdded(e) => self.remove_note_grave(e.0, e.1),
@@ -31,17 +31,8 @@ impl Collection {
 
     /// Saves in the undo queue, and commits to DB.
     /// No validation, card generation or normalization is done.
-    /// If `coalesce_updates` is true, successive updates within a 1 minute
-    /// period will not result in further undo entries.
-    pub(super) fn update_note_undoable(
-        &mut self,
-        note: &Note,
-        original: &Note,
-        coalesce_updates: bool,
-    ) -> Result<()> {
-        if !coalesce_updates || !self.note_was_just_updated(note) {
-            self.save_undo(UndoableNoteChange::Updated(Box::new(original.clone())));
-        }
+    pub(super) fn update_note_undoable(&mut self, note: &Note, original: &Note) -> Result<()> {
+        self.save_undo(UndoableNoteChange::Updated(Box::new(original.clone())));
         self.storage.update_note(note)?;
 
         Ok(())
@@ -55,6 +46,31 @@ impl Collection {
             self.add_note_grave(nid, usn)?;
         }
         Ok(())
+    }
+
+    /// If note is edited multiple times in quick succession, avoid creating extra undo entries.
+    pub(crate) fn maybe_coalesce_note_undo_entry(&mut self, changes: OpChanges) {
+        if changes.op != Op::UpdateNote {
+            return;
+        }
+
+        if let Some(previous_op) = self.previous_undo_op() {
+            if previous_op.kind != Op::UpdateNote {
+                return;
+            }
+
+            if let (
+                Some(UndoableChange::Note(UndoableNoteChange::Updated(previous))),
+                Some(UndoableChange::Note(UndoableNoteChange::Updated(current))),
+            ) = (
+                previous_op.changes.last(),
+                self.current_undo_op().and_then(|op| op.changes.last()),
+            ) {
+                if previous.id == current.id && previous_op.timestamp.elapsed_secs() < 60 {
+                    self.pop_last_change();
+                }
+            }
+        }
     }
 
     /// Add a note, not adding any cards.
@@ -85,23 +101,5 @@ impl Collection {
     fn remove_note_grave(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
         self.save_undo(UndoableNoteChange::GraveRemoved(Box::new((nid, usn))));
         self.storage.remove_note_grave(nid)
-    }
-
-    /// True only if the last operation was UpdateNote, and the same note was just updated less than
-    /// a minute ago.
-    fn note_was_just_updated(&self, before_change: &Note) -> bool {
-        self.previous_undo_op()
-            .map(|op| {
-                if let Some(UndoableChange::Note(UndoableNoteChange::Updated(note))) =
-                    op.changes.last()
-                {
-                    note.id == before_change.id
-                        && op.kind == Op::UpdateNote
-                        && op.timestamp.elapsed_secs() < 60
-                } else {
-                    false
-                }
-            })
-            .unwrap_or(false)
     }
 }

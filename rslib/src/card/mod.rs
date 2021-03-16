@@ -3,13 +3,13 @@
 
 pub(crate) mod undo;
 
-use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{
     collection::Collection, config::SchedulerVersion, prelude::*, timestamp::TimestampSecs,
     types::Usn,
 };
+use crate::{define_newtype, ops::StateChanges};
 
 use crate::{deckconf::DeckConf, decks::DeckID};
 use num_enum::TryFromPrimitive;
@@ -149,9 +149,31 @@ impl Card {
 }
 
 impl Collection {
-    pub(crate) fn update_card_with_op(&mut self, card: &mut Card, op: Option<Op>) -> Result<()> {
+    pub(crate) fn update_card_maybe_undoable(
+        &mut self,
+        card: &mut Card,
+        undoable: bool,
+    ) -> Result<OpOutput<()>> {
         let existing = self.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
-        self.transact(op, |col| col.update_card_inner(card, existing, col.usn()?))
+        if undoable {
+            self.transact(Op::UpdateCard, |col| {
+                col.update_card_inner(card, existing, col.usn()?)
+            })
+        } else {
+            self.transact_no_undo(|col| {
+                col.update_card_inner(card, existing, col.usn()?)?;
+                Ok(OpOutput {
+                    output: (),
+                    changes: OpChanges {
+                        op: Op::UpdateCard,
+                        changes: StateChanges {
+                            card: true,
+                            ..Default::default()
+                        },
+                    },
+                })
+            })
+        }
     }
 
     #[cfg(test)]
@@ -209,7 +231,7 @@ impl Collection {
         Ok(())
     }
 
-    pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<()> {
+    pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<OpOutput<()>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         if deck.is_filtered() {
             return Err(AnkiError::DeckIsFiltered);
@@ -217,7 +239,7 @@ impl Collection {
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.scheduler_version();
         let usn = self.usn()?;
-        self.transact(Some(Op::SetDeck), |col| {
+        self.transact(Op::SetDeck, |col| {
             for mut card in col.storage.all_searched_cards()? {
                 if card.deck_id == deck_id {
                     continue;
@@ -230,7 +252,7 @@ impl Collection {
         })
     }
 
-    pub fn set_card_flag(&mut self, cards: &[CardID], flag: u32) -> Result<()> {
+    pub fn set_card_flag(&mut self, cards: &[CardID], flag: u32) -> Result<OpOutput<()>> {
         if flag > 4 {
             return Err(AnkiError::invalid_input("invalid flag"));
         }
@@ -238,7 +260,7 @@ impl Collection {
 
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let usn = self.usn()?;
-        self.transact(Some(Op::SetFlag), |col| {
+        self.transact(Op::SetFlag, |col| {
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
                 card.set_flag(flag);

@@ -68,8 +68,8 @@ impl Collection {
         self.storage.clear_searched_cards_table()
     }
 
-    pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<()> {
-        self.transact(Some(Op::UnburyUnsuspend), |col| {
+    pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<OpOutput<()>> {
+        self.transact(Op::UnburyUnsuspend, |col| {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.unsuspend_or_unbury_searched_cards()
         })
@@ -81,7 +81,7 @@ impl Collection {
             UnburyDeckMode::UserOnly => "is:buried-manually",
             UnburyDeckMode::SchedOnly => "is:buried-sibling",
         };
-        self.transact(None, |col| {
+        self.transact_no_undo(|col| {
             col.search_cards_into_table(&format!("deck:current {}", search), SortMode::NoOrder)?;
             col.unsuspend_or_unbury_searched_cards()
         })
@@ -124,12 +124,12 @@ impl Collection {
         &mut self,
         cids: &[CardID],
         mode: BuryOrSuspendMode,
-    ) -> Result<()> {
+    ) -> Result<OpOutput<()>> {
         let op = match mode {
             BuryOrSuspendMode::Suspend => Op::Suspend,
             BuryOrSuspendMode::BurySched | BuryOrSuspendMode::BuryUser => Op::Bury,
         };
-        self.transact(Some(op), |col| {
+        self.transact(op, |col| {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.bury_or_suspend_searched_cards(mode)
         })
