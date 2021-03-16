@@ -104,8 +104,6 @@ class ProgressManager:
         self._min = min
         self._max = max
         self._firstTime = time.time()
-        self._lastUpdate = time.time()
-        self._updating = False
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
         self._show_timer.start(immediate and 100 or 600)
@@ -124,13 +122,10 @@ class ProgressManager:
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
             return
-        if self._updating:
-            return
         if maybeShow:
             self._maybeShow()
         if not self._shown:
             return
-        elapsed = time.time() - self._lastUpdate
         if label:
             self._win.form.label.setText(label)
 
@@ -139,12 +134,6 @@ class ProgressManager:
         if self._max:
             self._counter = value or (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
-
-        if process and elapsed >= 0.2:
-            self._updating = True
-            self.app.processEvents()  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
-            self._updating = False
-            self._lastUpdate = time.time()
 
     def finish(self) -> None:
         self._levels -= 1
