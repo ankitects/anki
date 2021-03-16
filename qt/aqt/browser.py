@@ -209,14 +209,21 @@ class DataModel(QAbstractTableModel):
         finally:
             self.endReset()
 
+    def redraw_cells(self) -> None:
+        "Update cell contents, without changing search count/columns/sorting."
+        if not self.cards:
+            return
+        top_left = self.index(0, 0)
+        bottom_right = self.index(len(self.cards)-1, len(self.activeCols)-1)
+        self.dataChanged.emit(top_left, bottom_right)
+
     def reset(self) -> None:
         self.beginReset()
         self.endReset()
-        self.refresh_needed = False
 
     # caller must have called editor.saveNow() before calling this or .reset()
     def beginReset(self) -> None:
-        self.browser.editor.setNote(None, hide=False)
+        self.browser.editor.set_note(None, hide=False)
         self.browser.mw.progress.start()
         self.saveSelection()
         self.beginResetModel()
@@ -299,7 +306,8 @@ class DataModel(QAbstractTableModel):
 
     def refresh_if_needed(self) -> None:
         if self.refresh_needed:
-            self.reset()
+            self.redraw_cells()
+            self.refresh_needed = False
 
     # Column data
     ######################################################################
@@ -507,6 +515,11 @@ class Browser(QMainWindow):
     def on_operation_did_execute(self, changes: OpChanges) -> None:
         self.setUpdatesEnabled(True)
         self.model.op_executed(changes, current_top_level_widget() == self)
+        if (changes.note or changes.notetype) and not self.editor.is_updating_note():
+            note = self.editor.note
+            if note:
+                note.load()
+                self.editor.set_note(note)
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_top_level_widget() == self:
@@ -836,11 +849,11 @@ QTableView {{ gridline-color: {grid} }}
         self.form.splitter.widget(1).setVisible(bool(show))
 
         if not show:
-            self.editor.setNote(None)
+            self.editor.set_note(None)
             self.singleCard = False
             self._renderPreview()
         else:
-            self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
+            self.editor.set_note(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
