@@ -716,7 +716,9 @@ class SidebarTreeView(QTreeView):
         for stage in SidebarStage:
             if stage == SidebarStage.ROOT:
                 root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
-            handled = gui_hooks.browser_will_build_tree(False, root, stage, self)
+            handled = gui_hooks.browser_will_build_tree(
+                False, root, stage, self.browser
+            )
             if not handled:
                 self._build_stage(root, stage)
 

@@ -1219,7 +1219,7 @@ where id in %s"""
     ) -> None:
         "Shows prompt if tags not provided."
         if not (
-            tags := self.maybe_prompt_for_tags(tags, tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
+            tags := self._maybe_prompt_for_tags(tags, tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
         ):
             return
         add_tags(mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags)
@@ -1228,7 +1228,7 @@ where id in %s"""
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
         if not (
-            tags := self.maybe_prompt_for_tags(
+            tags := self._maybe_prompt_for_tags(
                 tags, tr(TR.BROWSING_ENTER_TAGS_TO_DELETE)
             )
         ):
