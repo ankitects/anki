@@ -735,7 +735,7 @@ class Browser(QMainWindow):
             show_invalid_search_error(err)
         if not self.model.cards:
             # no row change will fire
-            self._onRowChanged(None, None)
+            self.onRowChanged(None, None)
 
     def update_history(self) -> None:
         sh = self.mw.pm.profile["searchHistory"]
