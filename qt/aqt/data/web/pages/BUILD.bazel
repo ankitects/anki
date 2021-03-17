@@ -1,21 +1,3 @@
-load("//ts:copy.bzl", "copy_files_into_group")
-
-copy_files_into_group(
-    name = "graphs_page",
-    srcs = [
-        "graphs.js",
-    ],
-    package = "//ts/graphs",
-)
-
-copy_files_into_group(
-    name = "congrats_page",
-    srcs = [
-        "congrats.js",
-    ],
-    package = "//ts/congrats",
-)
-
 exports_files([
     "congrats.html",
     "graphs.html",
@@ -24,9 +6,7 @@ exports_files([
 filegroup(
     name = "pages",
     srcs = [
-        "congrats_page",
         "congrats.html",
-        "graphs_page",
         "graphs.html",
     ],
     visibility = ["//qt:__subpackages__"],

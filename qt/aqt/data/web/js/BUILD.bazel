@@ -31,6 +31,14 @@ filegroup(
 )
 
 copy_files_into_group(
+    name = "congrats",
+    srcs = [
+        "congrats.js",
+    ],
+    package = "//ts/congrats",
+)
+
+copy_files_into_group(
     name = "editor",
     srcs = [
         "editor.js",
@@ -38,11 +46,21 @@ copy_files_into_group(
     package = "//ts/editor",
 )
 
+copy_files_into_group(
+    name = "graphs",
+    srcs = [
+        "graphs.js",
+    ],
+    package = "//ts/graphs",
+)
+
 filegroup(
     name = "js",
     srcs = [
         "aqt_es5",
+        "congrats",
         "editor",
+        "graphs",
         "mathjax.js",
         "//qt/aqt/data/web/js/vendor",
     ],
