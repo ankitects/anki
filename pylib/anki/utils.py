@@ -15,7 +15,6 @@ import sys
 import tempfile
 import time
 import traceback
-import unicodedata
 from contextlib import contextmanager
 from hashlib import sha1
 from html.entities import name2codepoint
@@ -202,11 +201,8 @@ def checksum(data: Union[bytes, str]) -> str:
 
 
 def fieldChecksum(data: str) -> int:
-    without_html = stripHTMLMedia(data)
-    normalized = unicodedata.normalize("NFC", without_html)
-    utf8_text = normalized.encode("utf-8")
     # 32 bit unsigned number from first 8 digits of sha1 hash
-    return int(checksum(utf8_text)[:8], 16)
+    return int(checksum(stripHTMLMedia(data).encode("utf-8"))[:8], 16)
 
 
 # Temp files
