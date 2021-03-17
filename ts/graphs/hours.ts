@@ -30,6 +30,7 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
+import { tickCustom } from "./graph-styles";
 
 interface Hour {
     hour: number;
@@ -103,10 +104,13 @@ export function renderHours(
         .range([bounds.marginLeft, bounds.width - bounds.marginRight])
         .paddingInner(0.1);
     svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
-        .call(axisBottom(x).tickSizeOuter(0))
+        .call((selection) =>
+            selection.transition(trans).call(axisBottom(x).tickSizeOuter(0))
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true)
         .selectAll("text")
-        .attr("class", (n: any) => (n % 2 != 0 ? tickOdd : ""));
+        .classed(tickOdd, (d: any): boolean => d % 2 != 0);
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
     const colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
@@ -121,12 +125,15 @@ export function renderHours(
         .domain([0, yMax])
         .nice();
     svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
-        .call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     const yArea = y.copy().domain([0, 1]);
 
@@ -163,13 +170,16 @@ export function renderHours(
         );
 
     svg.select<SVGGElement>(".y2-ticks")
-        .transition(trans)
-        .call(
-            axisRight(yArea)
-                .ticks(bounds.height / 50)
-                .tickFormat((n: any) => `${Math.round(n * 100)}%`)
-                .tickSizeOuter(0)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisRight(yArea)
+                    .ticks(bounds.height / 50)
+                    .tickFormat((n: any) => `${Math.round(n * 100)}%`)
+                    .tickSizeOuter(0)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     svg.select("path.area")
         .datum(data)

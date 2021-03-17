@@ -7,6 +7,7 @@
  */
 
 import pb from "anki/backend_proto";
+import type { I18n } from "anki/i18n";
 import {
     interpolateRdYlGn,
     select,
@@ -25,7 +26,7 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
-import type { I18n } from "anki/i18n";
+import { tickCustom } from "./graph-styles";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -154,27 +155,32 @@ export function renderButtons(
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
-        .call(
-            axisBottom(xGroup)
-                .tickFormat(((d: GroupKind) => {
-                    let kind: string;
-                    switch (d) {
-                        case "learning":
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS);
-                            break;
-                        case "young":
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
-                            break;
-                        case "mature":
-                        default:
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
-                            break;
-                    }
-                    return `${kind} \u200e(${totalCorrect(d).percent}%)`;
-                }) as any)
-                .tickSizeOuter(0)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisBottom(xGroup)
+                    .tickFormat(((d: GroupKind) => {
+                        let kind: string;
+                        switch (d) {
+                            case "learning":
+                                kind = i18n.tr(
+                                    i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS
+                                );
+                                break;
+                            case "young":
+                                kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
+                                break;
+                            case "mature":
+                            default:
+                                kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
+                                break;
+                        }
+                        return `${kind} \u200e(${totalCorrect(d).percent}%)`;
+                    }) as any)
+                    .tickSizeOuter(0)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
@@ -190,12 +196,15 @@ export function renderButtons(
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax]);
     svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
-        .call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     // x bars
 

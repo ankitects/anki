@@ -22,7 +22,7 @@ import {
 import type { ScaleLinear, ScaleSequential, Bin } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graph-helpers";
-import { clickable } from "./graph-styles";
+import { clickable, tickCustom } from "./graph-styles";
 
 export interface HistogramData {
     scale: ScaleLinear<number, number>;
@@ -59,13 +59,16 @@ export function histogramGraph(
 
     const x = data.scale.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
-        .call(
-            axisBottom(x)
-                .ticks(7)
-                .tickSizeOuter(0)
-                .tickFormat((data.xTickFormat ?? null) as any)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisBottom(x)
+                    .ticks(7)
+                    .tickSizeOuter(0)
+                    .tickFormat((data.xTickFormat ?? null) as any)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     // y scale
 
@@ -75,12 +78,15 @@ export function histogramGraph(
         .domain([0, yMax])
         .nice();
     svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
-        .call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     // x bars
 
@@ -127,12 +133,15 @@ export function histogramGraph(
 
     if (data.showArea && data.bins.length && areaData.slice(-1)[0]) {
         svg.select<SVGGElement>(".y2-ticks")
-            .transition(trans)
-            .call(
-                axisRight(yAreaScale)
-                    .ticks(bounds.height / 50)
-                    .tickSizeOuter(0)
-            );
+            .call((selection) =>
+                selection.transition(trans).call(
+                    axisRight(yAreaScale)
+                        .ticks(bounds.height / 50)
+                        .tickSizeOuter(0)
+                )
+            )
+            .selectAll(".tick")
+            .classed(tickCustom, true);
 
         svg.select("path.area")
             .datum(areaData as any)

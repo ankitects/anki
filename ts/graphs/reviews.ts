@@ -7,6 +7,8 @@
  */
 
 import pb from "anki/backend_proto";
+import type { I18n } from "anki/i18n";
+import { timeSpan, dayLabel } from "anki/time";
 import {
     interpolateGreens,
     interpolateReds,
@@ -29,11 +31,10 @@ import {
 } from "d3";
 import type { Bin } from "d3";
 
-import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import type { TableDatum } from "./graph-helpers";
-import { timeSpan, dayLabel } from "anki/time";
-import type { I18n } from "anki/i18n";
+import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
+import { tickCustom } from "./graph-styles";
+import { showTooltip, hideTooltip } from "./tooltip";
 
 interface Reviews {
     learn: number;
@@ -168,8 +169,11 @@ export function renderReviews(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
-        .call(axisBottom(x).ticks(7).tickSizeOuter(0));
+        .call((selection) =>
+            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0))
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     // y scale
 
@@ -191,13 +195,16 @@ export function renderReviews(
         .domain([0, yMax])
         .nice();
     svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
-        .call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
-                .tickFormat(yTickFormat as any)
-        );
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+                    .tickFormat(yTickFormat as any)
+            )
+        )
+        .selectAll(".tick")
+        .classed(tickCustom, true);
 
     // x bars
 
@@ -332,13 +339,16 @@ export function renderReviews(
 
     if (yCumMax) {
         svg.select<SVGGElement>(".y2-ticks")
-            .transition(trans)
-            .call(
-                axisRight(yAreaScale)
-                    .ticks(bounds.height / 50)
-                    .tickFormat(yTickFormat as any)
-                    .tickSizeOuter(0)
-            );
+            .call((selection) =>
+                selection.transition(trans).call(
+                    axisRight(yAreaScale)
+                        .ticks(bounds.height / 50)
+                        .tickFormat(yTickFormat as any)
+                        .tickSizeOuter(0)
+                )
+            )
+            .selectAll(".tick")
+            .classed(tickCustom, true);
 
         svg.select("path.area")
             .datum(areaData as any)
