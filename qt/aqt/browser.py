@@ -735,7 +735,7 @@ class Browser(QMainWindow):
             show_invalid_search_error(err)
         if not self.model.cards:
             # no row change will fire
-            self._onRowChanged(None, None)
+            self.onRowChanged(None, None)
 
     def update_history(self) -> None:
         sh = self.mw.pm.profile["searchHistory"]
@@ -832,7 +832,7 @@ QTableView {{ gridline-color: {grid} }}
         gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
     @ensure_editor_saved
-    def onRowChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
+    def onRowChanged(self, current: Optional[QItemSelection], previous: Optional[QItemSelection]) -> None:
         """Update current note and hide/show editor."""
         if self._closeEventHasCleanedUp:
             return
