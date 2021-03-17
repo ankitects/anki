@@ -162,7 +162,6 @@ class DeckBrowser:
             ],
             context=self,
         )
-        self.web.key = "deckBrowser"
         self._drawButtons()
         if offset is not None:
             self._scrollToOffset(offset)

@@ -15,7 +15,7 @@ import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, cast
 
 import aqt
 from anki import hooks
@@ -568,7 +568,7 @@ class QtAudioInputRecorder(Recorder):
         super().start(on_done)
 
     def _on_read_ready(self) -> None:
-        self._buffer += self._iodevice.readAll()
+        self._buffer += cast(bytes, self._iodevice.readAll())
 
     def stop(self, on_done: Callable[[str], None]) -> None:
         def on_stop_timer() -> None:

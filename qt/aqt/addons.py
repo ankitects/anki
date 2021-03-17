@@ -715,7 +715,7 @@ class AddonsDialog(QDialog):
         gui_hooks.addons_dialog_will_show(self)
         self.show()
 
-    def dragEnterEvent(self, event: QEvent) -> None:
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
@@ -724,7 +724,7 @@ class AddonsDialog(QDialog):
         if all(url.toLocalFile().endswith(ext) for url in urls):
             event.acceptProposedAction()
 
-    def dropEvent(self, event: QEvent) -> None:
+    def dropEvent(self, event: QDropEvent) -> None:
         mime = event.mimeData()
         paths = []
         for url in mime.urls():
@@ -908,7 +908,7 @@ class AddonsDialog(QDialog):
 
 
 class GetAddons(QDialog):
-    def __init__(self, dlg: QDialog) -> None:
+    def __init__(self, dlg: AddonsDialog) -> None:
         QDialog.__init__(self, dlg)
         self.addonsDlg = dlg
         self.mgr = dlg.mgr
@@ -1079,7 +1079,9 @@ class DownloaderInstaller(QObject):
 
         self.on_done = on_done
 
-        self.mgr.mw.progress.start(immediate=True, parent=self.parent())
+        parent = self.parent()
+        assert isinstance(parent, QWidget)
+        self.mgr.mw.progress.start(immediate=True, parent=parent)
         self.mgr.mw.taskman.run_in_background(self._download_all, self._download_done)
 
     def _progress_callback(self, up: int, down: int) -> None:
@@ -1438,7 +1440,7 @@ def prompt_to_update(
 
 
 class ConfigEditor(QDialog):
-    def __init__(self, dlg: QDialog, addon: str, conf: Dict) -> None:
+    def __init__(self, dlg: AddonsDialog, addon: str, conf: Dict) -> None:
         super().__init__(dlg)
         self.addon = addon
         self.conf = conf
@@ -1506,7 +1508,7 @@ class ConfigEditor(QDialog):
         txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
             new_conf = json.loads(txt)
-            jsonschema.validate(new_conf, self.parent().mgr._addon_schema(self.addon))
+            jsonschema.validate(new_conf, self.mgr._addon_schema(self.addon))
         except ValidationError as e:
             # The user did edit the configuration and entered a value
             # which can not be interpreted.

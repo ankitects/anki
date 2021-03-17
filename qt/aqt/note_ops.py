@@ -7,9 +7,8 @@ from typing import Callable, Optional, Sequence
 
 from anki.lang import TR
 from anki.notes import Note
-from aqt import AnkiQt
+from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
-from aqt.qt import QDialog
 from aqt.utils import show_invalid_search_error, showInfo, tr
 
 
@@ -52,7 +51,7 @@ def remove_tags(
 def find_and_replace(
     *,
     mw: AnkiQt,
-    parent: QDialog,
+    parent: QWidget,
     note_ids: Sequence[int],
     search: str,
     replacement: str,

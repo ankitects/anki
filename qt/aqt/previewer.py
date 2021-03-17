@@ -1,11 +1,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-# mypy: check-untyped-defs
+
+from __future__ import annotations
+
 import json
 import re
 import time
 from typing import Any, Callable, Optional, Tuple, Union
 
+import aqt.browser
 from anki.cards import Card
 from anki.collection import Config
 from aqt import AnkiQt, gui_hooks
@@ -300,6 +303,12 @@ class MultiCardPreviewer(Previewer):
 
 class BrowserPreviewer(MultiCardPreviewer):
     _last_card_id = 0
+    _parent: Optional[aqt.browser.Browser]
+
+    def __init__(
+        self, parent: aqt.browser.Browser, mw: AnkiQt, on_close: Callable[[], None]
+    ) -> None:
+        super().__init__(parent=parent, mw=mw, on_close=on_close)
 
     def card(self) -> Optional[Card]:
         if self._parent.singleCard:

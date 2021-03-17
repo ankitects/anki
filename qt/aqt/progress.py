@@ -16,7 +16,7 @@ from aqt.utils import TR, disable_help_button, tr
 class ProgressManager:
     def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
-        self.app = QApplication.instance()
+        self.app = mw.app
         self.inDB = False
         self.blockUpdates = False
         self._show_timer: Optional[QTimer] = None
@@ -75,7 +75,7 @@ class ProgressManager:
         max: int = 0,
         min: int = 0,
         label: Optional[str] = None,
-        parent: Optional[QDialog] = None,
+        parent: Optional[QWidget] = None,
         immediate: bool = False,
     ) -> Optional[ProgressDialog]:
         self._levels += 1

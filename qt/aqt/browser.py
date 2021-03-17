@@ -35,11 +35,12 @@ from aqt.scheduling_ops import (
     suspend_cards,
     unsuspend_cards,
 )
-from aqt.sidebar import SidebarSearchBar, SidebarToolbar, SidebarTreeView
+from aqt.sidebar import SidebarTreeView
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
+    KeyboardModifiersPressed,
     askUser,
     current_top_level_widget,
     disable_help_button,
@@ -832,7 +833,9 @@ QTableView {{ gridline-color: {grid} }}
         gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
 
     @ensure_editor_saved
-    def onRowChanged(self, current: Optional[QItemSelection], previous: Optional[QItemSelection]) -> None:
+    def onRowChanged(
+        self, current: Optional[QItemSelection], previous: Optional[QItemSelection]
+    ) -> None:
         """Update current note and hide/show editor."""
         if self._closeEventHasCleanedUp:
             return
@@ -975,15 +978,13 @@ QTableView {{ gridline-color: {grid} }}
         self.sidebar = SidebarTreeView(self)
         self.sidebarTree = self.sidebar  # legacy alias
         dw.setWidget(self.sidebar)
-        self.sidebar.toolbar = toolbar = SidebarToolbar(self.sidebar)
-        self.sidebar.searchBar = searchBar = SidebarSearchBar(self.sidebar)
         qconnect(
             self.form.actionSidebarFilter.triggered,
             self.focusSidebarSearchBar,
         )
         grid = QGridLayout()
-        grid.addWidget(searchBar, 0, 0)
-        grid.addWidget(toolbar, 0, 1)
+        grid.addWidget(self.sidebar.searchBar, 0, 0)
+        grid.addWidget(self.sidebar.toolbar, 0, 1)
         grid.addWidget(self.sidebar, 1, 0, 1, 2)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(0)
@@ -1116,10 +1117,7 @@ where id in %s"""
 
     def createFilteredDeck(self) -> None:
         search = self.form.searchEdit.lineEdit().text()
-        if (
-            self.mw.col.schedVer() != 1
-            and self.mw.app.keyboardModifiers() & Qt.AltModifier
-        ):
+        if self.mw.col.schedVer() != 1 and KeyboardModifiersPressed().alt:
             aqt.dialogs.open("DynDeckConfDialog", self.mw, search_2=search)
         else:
             aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
@@ -1482,9 +1480,9 @@ where id in %s"""
 
         combo = "BrowserFindAndReplace"
         findhistory = restore_combo_history(frm.find, combo + "Find")
-        frm.find.completer().setCaseSensitivity(True)
+        frm.find._completer().setCaseSensitivity(True)
         replacehistory = restore_combo_history(frm.replace, combo + "Replace")
-        frm.replace.completer().setCaseSensitivity(True)
+        frm.replace._completer().setCaseSensitivity(True)
 
         restore_is_checked(frm.re, combo + "Regex")
         restore_is_checked(frm.ignoreCase, combo + "ignoreCase")
@@ -1668,7 +1666,7 @@ where id in %s"""
         sm = self.form.tableView.selectionModel()
         idx = sm.currentIndex()
         self._moveCur(None, self.model.index(0, 0))
-        if not self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
+        if not KeyboardModifiersPressed().shift:
             return
         idx2 = sm.currentIndex()
         item = QItemSelection(idx2, idx)
@@ -1678,7 +1676,7 @@ where id in %s"""
         sm = self.form.tableView.selectionModel()
         idx = sm.currentIndex()
         self._moveCur(None, self.model.index(len(self.model.cards) - 1, 0))
-        if not self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
+        if not KeyboardModifiersPressed().shift:
             return
         idx2 = sm.currentIndex()
         item = QItemSelection(idx, idx2)
@@ -1728,6 +1726,9 @@ class ChangeModel(QDialog):
         restoreGeom(self, "changeModel")
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.current_note_type_did_change.append(self.on_note_type_change)
+        # ugh - these are set dynamically by rebuildTemplateMap()
+        self.tcombos: List[QComboBox] = []
+        self.fcombos: List[QComboBox] = []
         self.exec_()
 
     def on_note_type_change(self, notetype: NoteType) -> None:

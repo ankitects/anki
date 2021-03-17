@@ -23,6 +23,7 @@ from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
     TR,
+    KeyboardModifiersPressed,
     askUser,
     getOnlyText,
     show_invalid_search_error,
@@ -254,9 +255,7 @@ class SidebarModel(QAbstractItemModel):
             return QVariant(item.tooltip)
         return QVariant(theme_manager.icon_from_resources(item.icon))
 
-    def setData(
-        self, index: QModelIndex, text: QVariant, _role: int = Qt.EditRole
-    ) -> bool:
+    def setData(self, index: QModelIndex, text: str, _role: int = Qt.EditRole) -> bool:
         return self.sidebar._on_rename(index.internalPointer(), text)
 
     def supportedDropActions(self) -> Qt.DropActions:
@@ -354,6 +353,10 @@ def _want_right_border() -> bool:
     return not isMac or theme_manager.night_mode
 
 
+# fixme: we should have a top-level Sidebar class inheriting from QWidget that
+# handles the treeview, search bar and so on. Currently the treeview embeds the
+# search bar which is wrong, and the layout code is handled in browser.py instead
+# of here
 class SidebarTreeView(QTreeView):
     def __init__(self, browser: aqt.browser.Browser) -> None:
         super().__init__()
@@ -390,6 +393,10 @@ class SidebarTreeView(QTreeView):
 
         self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
 
+        # these do not really belong here, they should be in a higher-level class
+        self.toolbar = SidebarToolbar(self)
+        self.searchBar = SidebarSearchBar(self)
+
     @property
     def tool(self) -> SidebarTool:
         return self._tool
@@ -410,7 +417,7 @@ class SidebarTreeView(QTreeView):
         self.setExpandsOnDoubleClick(double_click_expands)
 
     def model(self) -> SidebarModel:
-        return super().model()
+        return cast(SidebarModel, super().model())
 
     # Refreshing
     ###########################
@@ -512,22 +519,22 @@ class SidebarTreeView(QTreeView):
         joiner: SearchJoiner = "AND",
     ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
-        mods = self.mw.app.keyboardModifiers()
+        mods = KeyboardModifiersPressed()
         previous = SearchNode(parsable_text=self.browser.current_search())
         current = self.mw.col.group_searches(*terms, joiner=joiner)
 
         # if Alt pressed, invert
-        if mods & Qt.AltModifier:
+        if mods.alt:
             current = SearchNode(negated=current)
 
         try:
-            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+            if mods.control and mods.shift:
                 # If Ctrl+Shift, replace searches nodes of the same type.
                 search = self.col.replace_in_search_node(previous, current)
-            elif mods & Qt.ControlModifier:
+            elif mods.control:
                 # If Ctrl, AND with previous
                 search = self.col.join_searches(previous, current, "AND")
-            elif mods & Qt.ShiftModifier:
+            elif mods.shift:
                 # If Shift, OR with previous
                 search = self.col.join_searches(previous, current, "OR")
             else:

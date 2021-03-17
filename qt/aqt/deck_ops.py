@@ -6,14 +6,14 @@ from __future__ import annotations
 from typing import Sequence
 
 from anki.lang import TR
-from aqt import AnkiQt, QDialog
+from aqt import AnkiQt, QWidget
 from aqt.utils import tooltip, tr
 
 
 def remove_decks(
     *,
     mw: AnkiQt,
-    parent: QDialog,
+    parent: QWidget,
     deck_ids: Sequence[int],
 ) -> None:
     mw.perform_op(
