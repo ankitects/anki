@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import html
+import unicodedata
 from typing import Dict, List, Optional, Tuple, Union
 
 from anki.collection import Collection
@@ -147,14 +148,14 @@ class NoteImporter(Importer):
                 n.fields[c] = n.fields[c].strip()
                 if not self.allowHTML:
                     n.fields[c] = n.fields[c].replace("\n", "<br>")
-            fld0 = n.fields[fld0idx]
-            csum = fieldChecksum(fld0)
+            fld0 = unicodedata.normalize("NFC", n.fields[fld0idx])
             # first field must exist
             if not fld0:
                 self.log.append(
                     self.col.tr(TR.IMPORTING_EMPTY_FIRST_FIELD, val=" ".join(n.fields))
                 )
                 continue
+            csum = fieldChecksum(fld0)
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
