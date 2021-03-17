@@ -25,7 +25,7 @@ export { RevlogRange } from "./graph-helpers";
 export function graphs(
     target: HTMLDivElement,
     graphs: SvelteComponent[],
-    { search = "deck:current", days = 365, controller = null as any } = {}
+    { search = "deck:current", days = 365, controller = null as SvelteComponent | null } = {}
 ): void {
     const nightMode = checkNightMode();
 
