@@ -3,7 +3,6 @@ load("//ts:copy.bzl", "copy_files_into_group")
 copy_files_into_group(
     name = "graphs_page",
     srcs = [
-        "graphs.css",
         "graphs.js",
     ],
     package = "//ts/graphs",

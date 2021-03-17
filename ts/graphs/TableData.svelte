@@ -6,7 +6,22 @@
     export let tableData: TableDatum[];
 </script>
 
-<div class="centered">
+<style lang="scss">
+    div {
+        display: flex;
+        justify-content: center;
+    }
+
+    .align-end {
+        text-align: end;
+    }
+
+    .align-start {
+        text-align: start;
+    }
+</style>
+
+<div>
     <table dir={i18n.direction()}>
         {#each tableData as { label, value }}
             <tr>

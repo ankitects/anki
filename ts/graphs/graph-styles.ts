@@ -1,4 +1,20 @@
-import { css, cx } from "@emotion/css";
+import { css, cx, injectGlobal } from "@emotion/css";
+
+injectGlobal`
+    :root {
+        --area-fill: #000000;
+        --area-fill-opacity: 0.03;
+        --area-stroke: #000000;
+        --area-stroke-opacity: 0.08;
+    }
+
+    :root[class*="night-mode"] {
+        --area-fill: #ffffff;
+        --area-fill-opacity: 0.08;
+        --area-stroke: #000000;
+        --area-stroke-opacity: 0.18;
+    }
+`;
 
 export const graphArea = cx(
     "area",
@@ -25,3 +41,27 @@ export const graphHoverzone = cx(
         }
     `
 );
+
+export const tickCustom = css`
+    line {
+        opacity: 0.1;
+    }
+
+    text {
+        opacity: 0.5;
+        font-size: 10px;
+
+        @media only screen and (max-width: 800px) {
+            font-size: 13px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            font-size: 16px;
+        }
+    }
+    }
+`;
+
+export const clickable = css`
+    cursor: pointer;
+`;

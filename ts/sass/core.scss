@@ -12,6 +12,7 @@ body {
     color: var(--text-fg);
     background: var(--window-bg);
     margin: 1em;
+    overscroll-behavior: none;
 }
 
 a {

@@ -3,9 +3,9 @@
 
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
-@typescript-eslint/no-explicit-any: "off",
  */
 
+import type { I18n } from "anki/i18n";
 import pb from "anki/backend_proto";
 import {
     interpolateBlues,
@@ -21,6 +21,7 @@ import {
     timeSaturday,
 } from "d3";
 import type { CountableTimeInterval } from "d3";
+
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -28,7 +29,7 @@ import {
     RevlogRange,
     SearchDispatch,
 } from "./graph-helpers";
-import type { I18n } from "anki/i18n";
+import { clickable } from "./graph-styles";
 
 export interface GraphData {
     // indexed by day, where day is relative to today
@@ -203,24 +204,22 @@ export function renderCalendar(
         .data(data)
         .join("rect")
         .attr("fill", emptyColour)
-        .attr("width", (d) => x(d.weekNumber + 1)! - x(d.weekNumber)! - 2)
+        .attr("width", (d: DayDatum) => x(d.weekNumber + 1)! - x(d.weekNumber)! - 2)
         .attr("height", height - 2)
-        .attr("x", (d) => x(d.weekNumber + 1)!)
-        .attr("y", (d) => bounds.marginTop + d.weekDay * height)
+        .attr("x", (d: DayDatum) => x(d.weekNumber + 1)!)
+        .attr("y", (d: DayDatum) => bounds.marginTop + d.weekDay * height)
         .on("mousemove", (event: MouseEvent, d: DayDatum) => {
             const [x, y] = pointer(event, document.body);
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)
-        .attr("class", (d: any): string => {
-            return d.count > 0 ? "clickable" : "";
-        })
-        .on("click", function (_event: MouseEvent, d: any) {
+        .attr("class", (d: DayDatum): string => (d.count > 0 ? clickable : ""))
+        .on("click", function (_event: MouseEvent, d: DayDatum) {
             if (d.count > 0) {
                 dispatch("search", { query: `"prop:rated=${d.day}"` });
             }
         })
         .transition()
         .duration(800)
-        .attr("fill", (d) => (d.count === 0 ? emptyColour : blues(d.count)!));
+        .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : blues(d.count)!));
 }

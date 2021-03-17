@@ -22,6 +22,7 @@ import {
 import type { ScaleLinear, ScaleSequential, Bin } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graph-helpers";
+import { clickable } from "./graph-styles";
 
 export interface HistogramData {
     scale: ScaleLinear<number, number>;
@@ -179,7 +180,7 @@ export function histogramGraph(
     if (data.onClick) {
         hoverzone
             .filter(([bin]) => bin.length > 0)
-            .attr("class", "clickable")
+            .attr("class", clickable)
             .on("click", (_event, [bin]) => data.onClick!(bin));
     }
 }

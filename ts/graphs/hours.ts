@@ -6,7 +6,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { I18n } from "anki/i18n";
 import pb from "anki/backend_proto";
+import { css } from "@emotion/css";
 import {
     interpolateBlues,
     select,
@@ -20,6 +22,7 @@ import {
     area,
     curveBasis,
 } from "d3";
+
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -27,9 +30,6 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
-import type { I18n } from "anki/i18n";
-
-type ButtonCounts = [number, number, number, number];
 
 interface Hour {
     hour: number;
@@ -71,6 +71,12 @@ function gatherData(data: pb.BackendProto.GraphsOut, range: GraphRange): Hour[] 
     return hours;
 }
 
+const tickOdd = css`
+    @media only screen and (max-width: 600px) {
+        display: none;
+    }
+`;
+
 export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
@@ -100,13 +106,7 @@ export function renderHours(
         .transition(trans)
         .call(axisBottom(x).tickSizeOuter(0))
         .selectAll("text")
-        .attr("class", (n: any) => {
-            if (n % 2 != 0) {
-                return "tick-odd";
-            } else {
-                return "";
-            }
-        });
+        .attr("class", (n: any) => (n % 2 != 0 ? tickOdd : ""));
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
     const colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
