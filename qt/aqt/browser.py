@@ -25,7 +25,13 @@ from aqt.card_ops import set_card_deck, set_card_flag
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.main import ResetReason
-from aqt.note_ops import add_tags, find_and_replace, remove_notes, remove_tags
+from aqt.note_ops import (
+    add_tags,
+    clear_unused_tags,
+    find_and_replace,
+    remove_notes,
+    remove_tags,
+)
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
@@ -103,6 +109,7 @@ class DataModel(QAbstractTableModel):
         self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
         self._refresh_needed = False
+        self.block_updates = False
 
     def getCard(self, index: QModelIndex) -> Optional[Card]:
         id = self.cards[index.row()]
@@ -129,6 +136,8 @@ class DataModel(QAbstractTableModel):
         return len(self.activeCols)
 
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
+        if self.block_updates:
+            return
         if not index.isValid():
             return
         if role == Qt.FontRole:
@@ -431,6 +440,9 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
+        if self.model.block_updates:
+            return QItemDelegate.paint(self, painter, option, index)
+
         c = self.model.getCard(index)
         if not c:
             return QItemDelegate.paint(self, painter, option, index)
@@ -502,15 +514,16 @@ class Browser(QMainWindow):
         gui_hooks.browser_will_show(self)
         self.show()
 
-    def on_operation_will_execute(self) -> None:
+    def on_operations_will_execute(self) -> None:
         # make sure the card list doesn't try to refresh itself during the operation,
         # as that will block the UI
-        self.setUpdatesEnabled(False)
+        self.model.block_updates = True
+
+    def on_operations_did_execute(self) -> None:
+        self.model.block_updates = False
 
     def on_operation_did_execute(self, changes: OpChanges) -> None:
         focused = current_top_level_widget() == self
-        if focused:
-            self.setUpdatesEnabled(True)
         self.model.op_executed(changes, focused)
         self.sidebar.op_executed(changes, focused)
         if changes.note or changes.notetype:
@@ -547,7 +560,7 @@ class Browser(QMainWindow):
             f.actionRemove_Tags.triggered,
             lambda: self.remove_tags_from_selected_notes(),
         )
-        qconnect(f.actionClear_Unused_Tags.triggered, self.clearUnusedTags)
+        qconnect(f.actionClear_Unused_Tags.triggered, self.clear_unused_tags)
         qconnect(f.actionToggle_Mark.triggered, lambda: self.onMark())
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
         qconnect(f.actionFindDuplicates.triggered, self.onFindDupes)
@@ -1219,7 +1232,7 @@ where id in %s"""
     ) -> None:
         "Shows prompt if tags not provided."
         if not (
-            tags := self._maybe_prompt_for_tags(tags, tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
+            tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
         ):
             return
         add_tags(mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags)
@@ -1228,19 +1241,14 @@ where id in %s"""
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
         if not (
-            tags := self._maybe_prompt_for_tags(
-                tags, tr(TR.BROWSING_ENTER_TAGS_TO_DELETE)
-            )
+            tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_DELETE))
         ):
             return
         remove_tags(
             mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags
         )
 
-    def _maybe_prompt_for_tags(self, tags: Optional[str], prompt: str) -> Optional[str]:
-        if tags is not None:
-            return tags
-
+    def _prompt_for_tags(self, prompt: str) -> Optional[str]:
         (tags, ok) = getTag(self, self.col, prompt)
         if not ok:
             return None
@@ -1248,15 +1256,12 @@ where id in %s"""
             return tags
 
     @ensure_editor_saved_on_trigger
-    def clearUnusedTags(self) -> None:
-        def on_done(fut: Future) -> None:
-            fut.result()
-            self.on_tag_list_update()
-
-        self.mw.taskman.run_in_background(self.col.tags.registerNotes, on_done)
+    def clear_unused_tags(self) -> None:
+        clear_unused_tags(mw=self.mw, parent=self)
 
     addTags = add_tags_to_selected_notes
     deleteTags = remove_tags_from_selected_notes
+    clearUnusedTags = clear_unused_tags
 
     # Suspending
     ######################################################################
@@ -1419,7 +1424,8 @@ where id in %s"""
         # fixme: remove these once all items are using `operation_did_execute`
         gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
-        gui_hooks.operation_will_execute.append(self.on_operation_will_execute)
+        gui_hooks.operations_will_execute.append(self.on_operations_will_execute)
+        gui_hooks.operations_did_execute.append(self.on_operations_did_execute)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_change)
 
@@ -1427,7 +1433,8 @@ where id in %s"""
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
         gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
-        gui_hooks.operation_will_execute.remove(self.on_operation_will_execute)
+        gui_hooks.operations_will_execute.remove(self.on_operations_will_execute)
+        gui_hooks.operations_did_execute.remove(self.on_operations_will_execute)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
 

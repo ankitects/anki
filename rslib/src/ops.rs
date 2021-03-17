@@ -9,6 +9,7 @@ pub enum Op {
     AddNote,
     AnswerCard,
     Bury,
+    ClearUnusedTags,
     FindAndReplace,
     RemoveDeck,
     RemoveNote,
@@ -48,6 +49,7 @@ impl Op {
             Op::SetDeck => TR::BrowsingChangeDeck,
             Op::SetFlag => TR::UndoSetFlag,
             Op::FindAndReplace => TR::BrowsingFindAndReplace,
+            Op::ClearUnusedTags => TR::BrowsingClearUnusedTags,
         };
 
         i18n.tr(key).to_string()

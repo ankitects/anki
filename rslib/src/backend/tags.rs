@@ -6,7 +6,7 @@ use crate::{backend_proto as pb, prelude::*};
 pub(super) use pb::tags_service::Service as TagsService;
 
 impl TagsService for Backend {
-    fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| col.transact_no_undo(|col| col.clear_unused_tags().map(Into::into)))
     }
 

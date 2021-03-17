@@ -13,7 +13,7 @@ pub(crate) enum UndoableTagChange {
 impl Collection {
     pub(crate) fn undo_tag_change(&mut self, change: UndoableTagChange) -> Result<()> {
         match change {
-            UndoableTagChange::Added(tag) => self.remove_single_tag_undoable(&tag),
+            UndoableTagChange::Added(tag) => self.remove_single_tag_undoable(*tag),
             UndoableTagChange::Removed(tag) => self.register_tag_undoable(&tag),
         }
     }
@@ -24,8 +24,9 @@ impl Collection {
         self.storage.register_tag(&tag)
     }
 
-    fn remove_single_tag_undoable(&mut self, tag: &Tag) -> Result<()> {
-        self.save_undo(UndoableTagChange::Removed(Box::new(tag.clone())));
-        self.storage.remove_single_tag(&tag.name)
+    pub(super) fn remove_single_tag_undoable(&mut self, tag: Tag) -> Result<()> {
+        self.storage.remove_single_tag(&tag.name)?;
+        self.save_undo(UndoableTagChange::Removed(Box::new(tag)));
+        Ok(())
     }
 }
