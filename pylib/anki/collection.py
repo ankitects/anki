@@ -295,7 +295,7 @@ class Collection:
         if not self.schemaChanged():
             if check and not hooks.schema_will_change(proceed=True):
                 raise AnkiError("abortSchemaMod")
-        self.scm = intTime(1000)
+        self.db.execute("update col set scm=?", intTime(1000))
         self.save()
 
     def schemaChanged(self) -> bool:
