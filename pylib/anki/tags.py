@@ -44,17 +44,8 @@ class TagManager:
     # Registering and fetching tags
     #############################################################
 
-    def register(
-        self, tags: Collection[str], usn: Optional[int] = None, clear: bool = False
-    ) -> None:
-        print("tags.register() is deprecated and no longer works")
-
-    def registerNotes(self, nids: Optional[List[int]] = None) -> None:
-        "Clear unused tags and add any missing tags from notes to the tag list."
-        self.clear_unused_tags()
-
-    def clear_unused_tags(self) -> None:
-        self.col._backend.clear_unused_tags()
+    def clear_unused_tags(self) -> OpChangesWithCount:
+        return self.col._backend.clear_unused_tags()
 
     def byDeck(self, did: int, children: bool = False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
@@ -170,3 +161,14 @@ class TagManager:
     def inList(self, tag: str, tags: List[str]) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
+
+    # legacy
+    ##########################################################################
+
+    def registerNotes(self, nids: Optional[List[int]] = None) -> None:
+        self.clear_unused_tags()
+
+    def register(
+        self, tags: Collection[str], usn: Optional[int] = None, clear: bool = False
+    ) -> None:
+        print("tags.register() is deprecated and no longer works")

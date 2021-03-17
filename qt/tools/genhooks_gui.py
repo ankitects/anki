@@ -400,10 +400,19 @@ hooks = [
         """,
     ),
     Hook(
-        name="operation_will_execute",
-        doc="""Called before an operation is executed with mw.perform_op().
-        Subscribers can use this to ensure they don't try to access the collection until the operation completes,
-        as doing so on the main thread will temporarily freeze the UI.""",
+        name="operations_will_execute",
+        doc="""Called before one or more operations are executed with mw.perform_op().
+        
+        Subscribers can use this to set a flag to avoid DB updates until the operation
+        completes, as doing so will freeze the UI.
+        """,
+    ),
+    Hook(
+        name="operations_did_execute",
+        doc="""Called after one or more operations are executed with mw.perform_op().
+        Called regardless of the success of individual operations, and only called when
+        there are no outstanding ops.
+        """,
     ),
     Hook(
         name="operation_did_execute",

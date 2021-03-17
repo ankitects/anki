@@ -9,7 +9,7 @@ from anki.lang import TR
 from anki.notes import Note
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
-from aqt.utils import show_invalid_search_error, showInfo, tr
+from aqt.utils import show_invalid_search_error, showInfo, tooltip, tr
 
 
 def add_note(
@@ -46,6 +46,15 @@ def remove_tags(
     *, mw: AnkiQt, note_ids: Sequence[int], space_separated_tags: str
 ) -> None:
     mw.perform_op(lambda: mw.col.tags.bulk_remove(note_ids, space_separated_tags))
+
+
+def clear_unused_tags(*, mw: AnkiQt, parent: QWidget) -> None:
+    mw.perform_op(
+        mw.col.tags.clear_unused_tags,
+        success=lambda out: tooltip(
+            tr(TR.BROWSING_REMOVED_UNUSED_TAGS_COUNT, count=out.count), parent=parent
+        ),
+    )
 
 
 def find_and_replace(

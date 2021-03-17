@@ -217,7 +217,7 @@ service DeckConfigService {
 }
 
 service TagsService {
-  rpc ClearUnusedTags(Empty) returns (Empty);
+  rpc ClearUnusedTags(Empty) returns (OpChangesWithCount);
   rpc AllTags(Empty) returns (StringList);
   rpc ExpungeTags(String) returns (UInt32);
   rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);

@@ -276,20 +276,25 @@ impl Collection {
         Ok(None)
     }
 
-    pub fn clear_unused_tags(&self) -> Result<()> {
-        let expanded: HashSet<_> = self.storage.expanded_tags()?.into_iter().collect();
-        self.storage.clear_all_tags()?;
-        let usn = self.usn()?;
-        for name in self.storage.all_tags_in_notes()? {
-            let name = normalize_tag_name(&name).into();
-            self.storage.register_tag(&Tag {
-                expanded: expanded.contains(&name),
-                name,
-                usn,
-            })?;
+    /// Remove tags not referenced by notes, returning removed count.
+    pub fn clear_unused_tags(&mut self) -> Result<OpOutput<usize>> {
+        self.transact(Op::ClearUnusedTags, |col| col.clear_unused_tags_inner())
+    }
+
+    fn clear_unused_tags_inner(&mut self) -> Result<usize> {
+        let mut count = 0;
+        let in_notes = self.storage.all_tags_in_notes()?;
+        let need_remove = self
+            .storage
+            .all_tags()?
+            .into_iter()
+            .filter(|tag| !in_notes.contains(&tag.name));
+        for tag in need_remove {
+            self.remove_single_tag_undoable(tag)?;
+            count += 1;
         }
 
-        Ok(())
+        Ok(count)
     }
 
     /// Take tags as a whitespace-separated string and remove them from all notes and the storage.

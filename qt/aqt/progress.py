@@ -179,7 +179,10 @@ class ProgressManager:
                 if elap >= 0.5:
                     break
                 self.app.processEvents(QEventLoop.ExcludeUserInputEvents)  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
-        self._win.cancel()
+        # if the parent window has been deleted, the progress dialog may have
+        # already been dropped; delete it if it hasn't been
+        if not sip.isdeleted(self._win):
+            self._win.cancel()
         self._win = None
         self._shown = 0
 

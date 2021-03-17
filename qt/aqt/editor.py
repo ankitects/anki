@@ -1,5 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import base64
 import html
 import itertools
@@ -24,7 +27,7 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.notes import Note
+from anki.notes import DuplicateOrEmptyResult, Note
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.note_ops import update_note
@@ -469,10 +472,10 @@ class Editor:
                     # event has had time to fire
                     self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
                 else:
-                    self.checkValid()
+                    self._check_and_update_duplicate_display_async()
             else:
                 gui_hooks.editor_did_fire_typing_timer(self.note)
-                self.checkValid()
+                self._check_and_update_duplicate_display_async()
 
         # focused into field?
         elif cmd.startswith("focus"):
@@ -529,11 +532,15 @@ class Editor:
         self.widget.show()
         self.updateTags()
 
+        dupe_status = self.note.duplicate_or_empty()
+
         def oncallback(arg: Any) -> None:
             if not self.note:
                 return
             self.setupForegroundButton()
-            self.checkValid()
+            # we currently do this synchronously to ensure we load before the
+            # sidebar on browser startup
+            self._update_duplicate_display(dupe_status)
             if focusTo is not None:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
@@ -577,15 +584,26 @@ class Editor:
             # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
-        self.saveTags()
+        self.blur_tags_if_focused()
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     saveNow = call_after_note_saved
 
-    def checkValid(self) -> None:
+    def _check_and_update_duplicate_display_async(self) -> None:
+        note = self.note
+
+        def on_done(result: DuplicateOrEmptyResult.V) -> None:
+            if self.note != note:
+                return
+            self._update_duplicate_display(result)
+
+        self.mw.query_op(self.note.duplicate_or_empty, success=on_done)
+
+    checkValid = _check_and_update_duplicate_display_async
+
+    def _update_duplicate_display(self, result: DuplicateOrEmptyResult.V) -> None:
         cols = [""] * len(self.note.fields)
-        err = self.note.duplicate_or_empty()
-        if err == 2:
+        if result == DuplicateOrEmptyResult.DUPLICATE:
             cols[0] = "dupe"
 
         self.web.eval(f"setBackgrounds({json.dumps(cols)});")
@@ -681,7 +699,7 @@ class Editor:
         l = QLabel(tr(TR.EDITING_TAGS))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
-        qconnect(self.tags.lostFocus, self.saveTags)
+        qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
         self.tags.setToolTip(
             shortcut(tr(TR.EDITING_JUMP_TO_TAGS_WITH_CTRLANDSHIFTANDT))
         )
@@ -697,13 +715,17 @@ class Editor:
         if not self.tags.text() or not self.addMode:
             self.tags.setText(self.note.stringTags().strip())
 
-    def saveTags(self) -> None:
-        if not self.note:
-            return
+    def on_tag_focus_lost(self) -> None:
         self.note.tags = self.mw.col.tags.split(self.tags.text())
+        gui_hooks.editor_did_update_tags(self.note)
         if not self.addMode:
             self._save_current_note()
-        gui_hooks.editor_did_update_tags(self.note)
+
+    def blur_tags_if_focused(self) -> None:
+        if not self.note:
+            return
+        if self.tags.hasFocus():
+            self.widget.setFocus()
 
     def hideCompleters(self) -> None:
         self.tags.hideCompleter()
@@ -712,8 +734,11 @@ class Editor:
         self.tags.setFocus()
 
     # legacy
+
     def saveAddModeVars(self) -> None:
         pass
+
+    saveTags = blur_tags_if_focused
 
     # Format buttons
     ######################################################################

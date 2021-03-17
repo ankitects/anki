@@ -440,16 +440,17 @@ class SidebarTreeView(QTreeView):
         if not self.isVisible():
             return
 
-        def on_done(fut: Future) -> None:
-            self.setUpdatesEnabled(True)
-            root = fut.result()
+        def on_done(root: SidebarItem) -> None:
+            # user may have closed browser
+            if sip.isdeleted(self):
+                return
+
+            # block repainting during refreshing to avoid flickering
+            self.setUpdatesEnabled(False)
+
             model = SidebarModel(self, root)
-
-            # from PyQt5.QtTest import QAbstractItemModelTester
-            # tester = QAbstractItemModelTester(model)
-
             self.setModel(model)
-            qconnect(self.selectionModel().selectionChanged, self._on_selection_changed)
+
             if self.current_search:
                 self.search_for(self.current_search)
             else:
@@ -457,9 +458,12 @@ class SidebarTreeView(QTreeView):
             if is_current:
                 self.restore_current(is_current)
 
-        # block repainting during refreshing to avoid flickering
-        self.setUpdatesEnabled(False)
-        self.mw.taskman.run_in_background(self._root_tree, on_done)
+            self.setUpdatesEnabled(True)
+
+            # needs to be set after changing model
+            qconnect(self.selectionModel().selectionChanged, self._on_selection_changed)
+
+        self.mw.query_op(self._root_tree, success=on_done)
 
     def restore_current(self, is_current: Callable[[SidebarItem], bool]) -> None:
         if current := self.find_item(is_current):

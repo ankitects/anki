@@ -141,3 +141,8 @@ browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
 browsing-sidebar-overdue = Overdue
 browsing-row-deleted = (deleted)
+browsing-removed-unused-tags-count =
+    { $count ->
+        [one] Removed { $count } unused tag.
+       *[other] Removed { $count } unused tags.
+    }

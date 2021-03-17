@@ -715,6 +715,48 @@ class AnkiQt(QMainWindow):
     # Resetting state
     ##########################################################################
 
+    def query_op(
+        self,
+        op: Callable[[], Any],
+        *,
+        success: Callable[[Any], Any] = None,
+        failure: Optional[Callable[[Exception], Any]] = None,
+    ) -> None:
+        """Run an operation that queries the DB on a background thread.
+
+        Similar interface to perform_op(), but intended to be used for operations
+        that do not change collection state. Undo status will not be changed,
+        and `operation_did_execute` will not fire. No progress window will
+        be shown either.
+
+        `operations_will|did_execute` will still fire, so the UI can defer
+        updates during a background task.
+        """
+
+        def wrapped_done(future: Future) -> None:
+            self._decrease_background_ops()
+            # did something go wrong?
+            if exception := future.exception():
+                if isinstance(exception, Exception):
+                    if failure:
+                        failure(exception)
+                    else:
+                        showWarning(str(exception))
+                    return
+                else:
+                    # BaseException like SystemExit; rethrow it
+                    future.result()
+
+            result = future.result()
+            if success:
+                success(result)
+
+        self._increase_background_ops()
+        self.taskman.run_in_background(op, wrapped_done)
+
+    # Resetting state
+    ##########################################################################
+
     def perform_op(
         self,
         op: Callable[[], ResultWithChanges],
@@ -750,9 +792,10 @@ class AnkiQt(QMainWindow):
         they invoke themselves.
         """
 
-        gui_hooks.operation_will_execute()
+        self._increase_background_ops()
 
         def wrapped_done(future: Future) -> None:
+            self._decrease_background_ops()
             # did something go wrong?
             if exception := future.exception():
                 if isinstance(exception, Exception):
@@ -764,8 +807,9 @@ class AnkiQt(QMainWindow):
                 else:
                     # BaseException like SystemExit; rethrow it
                     future.result()
+
+            result = future.result()
             try:
-                result = future.result()
                 if success:
                     success(result)
             finally:
@@ -776,6 +820,17 @@ class AnkiQt(QMainWindow):
                 self._fire_change_hooks_after_op_performed(result, after_hooks)
 
         self.taskman.with_progress(op, wrapped_done)
+
+    def _increase_background_ops(self) -> None:
+        if not self._background_op_count:
+            gui_hooks.operations_will_execute()
+        self._background_op_count += 1
+
+    def _decrease_background_ops(self) -> None:
+        self._background_op_count -= 1
+        if not self._background_op_count:
+            gui_hooks.operations_did_execute()
+        assert self._background_op_count >= 0
 
     def _fire_change_hooks_after_op_performed(
         self, result: ResultWithChanges, after_hooks: Optional[Callable[[], None]]
@@ -991,6 +1046,7 @@ title="%s" %s>%s</button>""" % (
 
     def setupThreads(self) -> None:
         self._mainThread = QThread.currentThread()
+        self._background_op_count = 0
 
     def inMainThread(self) -> bool:
         return self._mainThread == QThread.currentThread()
