@@ -72,6 +72,7 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
+    KeyboardModifiersPressed,
     askUser,
     checkInvalidFilename,
     current_top_level_widget,
@@ -121,7 +122,7 @@ class AnkiQt(QMainWindow):
 
     def __init__(
         self,
-        app: QApplication,
+        app: aqt.AnkiApp,
         profileManager: ProfileManagerType,
         backend: _RustBackend,
         opts: Namespace,
@@ -138,9 +139,7 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         # init rest of app
-        self.safeMode = (
-            self.app.queryKeyboardModifiers() & Qt.ShiftModifier
-        ) or self.opts.safemode
+        self.safeMode = (KeyboardModifiersPressed().shift) or self.opts.safemode
         try:
             self.setupUI()
             self.setupAddons(args)
@@ -927,10 +926,8 @@ title="%s" %s>%s</button>""" % (
 
         # force webengine processes to load before cwd is changed
         if isWin:
-            for o in self.web, self.bottomWeb:
-                o.requiresCol = False
-                o._domReady = False
-                o._page.setContent(bytes("", "ascii"))
+            for webview in self.web, self.bottomWeb:
+                webview.force_load_hack()
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
@@ -1103,8 +1100,7 @@ title="%s" %s>%s</button>""" % (
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
-
-        self.stateShortcuts: Sequence[Tuple[str, Callable]] = []
+        self.stateShortcuts: List[QShortcut] = []
 
     def applyShortcuts(
         self, shortcuts: Sequence[Tuple[str, Callable]]
@@ -1281,7 +1277,7 @@ title="%s" %s>%s</button>""" % (
         deck = self._selectedDeck()
         if not deck:
             return
-        want_old = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        want_old = KeyboardModifiersPressed().shift
         if want_old:
             aqt.dialogs.open("DeckStats", self)
         else:
@@ -1538,13 +1534,14 @@ title="%s" %s>%s</button>""" % (
         frm = self.debug_diag_form = aqt.forms.debug.Ui_Dialog()
 
         class DebugDialog(QDialog):
+            silentlyClose = True
+
             def reject(self) -> None:
                 super().reject()
                 saveSplitter(frm.splitter, "DebugConsoleWindow")
                 saveGeom(self, "DebugConsoleWindow")
 
         d = self.debugDiag = DebugDialog()
-        d.silentlyClose = True
         disable_help_button(d)
         frm.setupUi(d)
         restoreGeom(d, "DebugConsoleWindow")
@@ -1708,7 +1705,8 @@ title="%s" %s>%s</button>""" % (
         if not self.hideMenuAccels:
             return
         tgt = tgt or self
-        for action in tgt.findChildren(QAction):
+        for action_ in tgt.findChildren(QAction):
+            action = cast(QAction, action_)
             txt = str(action.text())
             m = re.match(r"^(.+)\(&.+\)(.+)?", txt)
             if m:
@@ -1716,7 +1714,7 @@ title="%s" %s>%s</button>""" % (
 
     def hideStatusTips(self) -> None:
         for action in self.findChildren(QAction):
-            action.setStatusTip("")
+            cast(QAction, action).setStatusTip("")
 
     def onMacMinimize(self) -> None:
         self.setWindowState(self.windowState() | Qt.WindowMinimized)  # type: ignore

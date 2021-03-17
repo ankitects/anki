@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import dataclasses
 import json
 import re
@@ -31,12 +32,15 @@ class AnkiWebPage(QWebEnginePage):
 
     def _setupBridge(self) -> None:
         class Bridge(QObject):
+            def __init__(self, bridge_handler: Callable[[str], Any]) -> None:
+                super().__init__()
+                self.onCmd = bridge_handler
+
             @pyqtSlot(str, result=str)  # type: ignore
             def cmd(self, str: str) -> Any:
                 return json.dumps(self.onCmd(str))
 
-        self._bridge = Bridge()
-        self._bridge.onCmd = self._onCmd
+        self._bridge = Bridge(self._onCmd)
 
         self._channel = QWebChannel(self)
         self._channel.registerObject("py", self._bridge)
@@ -46,7 +50,7 @@ class AnkiWebPage(QWebEnginePage):
         jsfile = QFile(qwebchannel)
         if not jsfile.open(QIODevice.ReadOnly):
             print(f"Error opening '{qwebchannel}': {jsfile.error()}", file=sys.stderr)
-        jstext = bytes(jsfile.readAll()).decode("utf-8")
+        jstext = bytes(cast(bytes, jsfile.readAll())).decode("utf-8")
         jsfile.close()
 
         script = QWebEngineScript()
@@ -131,7 +135,7 @@ class AnkiWebPage(QWebEnginePage):
         openLink(url)
         return False
 
-    def _onCmd(self, str: str) -> None:
+    def _onCmd(self, str: str) -> Any:
         return self._onBridgeCmd(str)
 
     def javaScriptAlert(self, url: QUrl, text: str) -> None:
@@ -252,7 +256,7 @@ class AnkiWebView(QWebEngineView):
         # disable pinch to zoom gesture
         if isinstance(evt, QNativeGestureEvent):
             return True
-        elif evt.type() == QEvent.MouseButtonRelease:
+        elif isinstance(evt, QMouseEvent) and evt.type() == QEvent.MouseButtonRelease:
             if evt.button() == Qt.MidButton and isLin:
                 self.onMiddleClickPaste()
                 return True
@@ -273,7 +277,9 @@ class AnkiWebView(QWebEngineView):
                     w.close()
                 else:
                     # in the main window, removes focus from type in area
-                    self.parent().setFocus()
+                    parent = self.parent()
+                    assert isinstance(parent, QWidget)
+                    parent.setFocus()
                 break
             w = w.parent()
 
@@ -315,15 +321,16 @@ class AnkiWebView(QWebEngineView):
         self.set_open_links_externally(True)
 
     def _setHtml(self, html: str) -> None:
-        app = QApplication.instance()
-        oldFocus = app.focusWidget()
+        from aqt import mw
+
+        oldFocus = mw.app.focusWidget()
         self._domDone = False
         self._page.setHtml(html)
         # work around webengine stealing focus on setHtml()
         if oldFocus:
             oldFocus.setFocus()
 
-    def load(self, url: QUrl) -> None:
+    def load_url(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
         super().load(url)
@@ -641,5 +648,12 @@ document.head.appendChild(style);
         else:
             extra = ""
         self.hide_while_preserving_layout()
-        self.load(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
+        self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.inject_dynamic_style_and_show()
+
+    def force_load_hack(self) -> None:
+        """Force process to initialize.
+        Must be done on Windows prior to changing current working directory."""
+        self.requiresCol = False
+        self._domReady = False
+        self._page.setContent(bytes("", "ascii"))

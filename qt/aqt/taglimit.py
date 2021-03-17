@@ -15,8 +15,8 @@ class TagLimit(QDialog):
         self.tags: str = ""
         self.tags_list: List[str] = []
         self.mw = mw
-        self.parent: Optional[QWidget] = parent
-        self.deck = self.parent.deck
+        self.parent_: Optional[CustomStudy] = parent
+        self.deck = self.parent_.deck
         self.dialog = aqt.forms.taglimit.Ui_Dialog()
         self.dialog.setupUi(self)
         disable_help_button(self)

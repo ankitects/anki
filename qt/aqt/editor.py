@@ -34,6 +34,7 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
+    KeyboardModifiersPressed,
     disable_help_button,
     getFile,
     openHelp,
@@ -753,7 +754,7 @@ class Editor:
             if m:
                 highest = max(highest, sorted([int(x) for x in m])[-1])
         # reuse last?
-        if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
+        if not KeyboardModifiersPressed().alt:
             highest += 1
         # must start at 1
         highest = max(1, highest)
@@ -1130,7 +1131,7 @@ class EditorWebView(AnkiWebView):
         strip_html = self.editor.mw.col.get_config_bool(
             Config.Bool.PASTE_STRIPS_FORMATTING
         )
-        if self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier:
+        if KeyboardModifiersPressed().shift:
             strip_html = not strip_html
         return strip_html
 

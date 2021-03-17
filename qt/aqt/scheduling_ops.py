@@ -17,7 +17,7 @@ from aqt.utils import getText, tooltip, tr
 def set_due_date_dialog(
     *,
     mw: aqt.AnkiQt,
-    parent: QDialog,
+    parent: QWidget,
     card_ids: List[int],
     config_key: Optional[Config.String.Key.V],
 ) -> None:
@@ -51,7 +51,7 @@ def set_due_date_dialog(
     )
 
 
-def forget_cards(*, mw: aqt.AnkiQt, parent: QDialog, card_ids: List[int]) -> None:
+def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: List[int]) -> None:
     if not card_ids:
         return
 
