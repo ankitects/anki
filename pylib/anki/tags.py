@@ -89,8 +89,7 @@ class TagManager:
 
     def rename(self, old: str, new: str) -> OpChangesWithCount:
         "Rename provided tag and its children, returning number of changed notes."
-        x = self.col._backend.rename_tags(current_prefix=old, new_prefix=new)
-        return x
+        return self.col._backend.rename_tags(current_prefix=old, new_prefix=new)
 
     def remove(self, space_separated_tags: str) -> OpChangesWithCount:
         "Remove the provided tag(s) and their children from notes and the tag list."
