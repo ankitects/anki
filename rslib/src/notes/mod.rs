@@ -49,6 +49,23 @@ pub struct Note {
     pub(crate) checksum: Option<u32>,
 }
 
+/// Information required for updating tags while leaving note content alone.
+/// Tags are stored in their DB form, separated by spaces.
+#[derive(Debug, PartialEq, Clone)]
+pub(crate) struct NoteTags {
+    pub id: NoteID,
+    pub mtime: TimestampSecs,
+    pub usn: Usn,
+    pub tags: String,
+}
+
+impl NoteTags {
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.mtime = TimestampSecs::now();
+        self.usn = usn;
+    }
+}
+
 impl Note {
     pub(crate) fn new(notetype: &NoteType) -> Self {
         Note {

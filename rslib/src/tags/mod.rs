@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod prefix_replacer;
 pub(crate) mod undo;
 
 use crate::{
@@ -13,6 +14,7 @@ use crate::{
     types::Usn,
 };
 
+use prefix_replacer::PrefixReplacer;
 use regex::{NoExpand, Regex, Replacer};
 use std::{borrow::Cow, collections::HashSet, iter::Peekable};
 use unicase::UniCase;
@@ -231,6 +233,21 @@ impl Collection {
     /// In the case the tag is already registered, tag will be mutated to match the existing
     /// name.
     pub(crate) fn register_tag(&mut self, tag: &mut Tag) -> Result<bool> {
+        let is_new = self.prepare_tag_for_registering(tag)?;
+        if is_new {
+            self.register_tag_undoable(&tag)?;
+        }
+        Ok(is_new)
+    }
+
+    fn register_tag_string(&mut self, tag: String, usn: Usn) -> Result<bool> {
+        let mut tag = Tag::new(tag, usn);
+        self.register_tag(&mut tag)
+    }
+
+    /// Create a tag object, normalize text, and match parents/existing case if available.
+    /// True if tag is new.
+    fn prepare_tag_for_registering(&self, tag: &mut Tag) -> Result<bool> {
         let normalized_name = normalize_tag_name(&tag.name);
         if normalized_name.is_empty() {
             // this should not be possible
@@ -245,7 +262,6 @@ impl Collection {
             } else if let Cow::Owned(new_name) = normalized_name {
                 tag.name = new_name;
             }
-            self.register_tag_undoable(&tag)?;
             Ok(true)
         }
     }
@@ -446,18 +462,7 @@ impl Collection {
             .iter()
             // convert the names into regexps/replacements
             .map(|(tag, output)| {
-                Regex::new(&format!(
-                    r#"(?ix)
-                    ^
-                    {}
-                    # optional children
-                    (::.+)?
-                    $
-                    "#,
-                    regex::escape(tag)
-                ))
-                .map_err(|_| AnkiError::invalid_input("invalid regex"))
-                .map(|regex| (regex, output))
+                regex_matching_tag_and_children_in_single_tag(tag).map(|regex| (regex, output))
             })
             .collect::<Result<Vec<_>>>()?;
 
@@ -505,6 +510,82 @@ impl Collection {
 
         Ok(())
     }
+
+    /// Rename a given tag and its children on all notes that reference it, returning changed
+    /// note count.
+    pub fn rename_tag(&mut self, old_prefix: &str, new_prefix: &str) -> Result<OpOutput<usize>> {
+        self.transact(Op::RenameTag, |col| {
+            col.rename_tag_inner(old_prefix, new_prefix)
+        })
+    }
+
+    fn rename_tag_inner(&mut self, old_prefix: &str, new_prefix: &str) -> Result<usize> {
+        if new_prefix.contains(' ') {
+            return Err(AnkiError::invalid_input(
+                "replacement name can not contain a space",
+            ));
+        }
+        if new_prefix.trim().is_empty() {
+            return Err(AnkiError::invalid_input(
+                "replacement name must not be empty",
+            ));
+        }
+
+        let usn = self.usn()?;
+
+        // match existing case if available, and ensure normalized.
+        let mut tag = Tag::new(new_prefix.to_string(), usn);
+        self.prepare_tag_for_registering(&mut tag)?;
+        let new_prefix = &tag.name;
+
+        // gather tags that need replacing
+        let mut re = PrefixReplacer::new(old_prefix)?;
+        let matched_notes = self
+            .storage
+            .get_note_tags_by_predicate(|tags| re.is_match(tags))?;
+        let match_count = matched_notes.len();
+        if match_count == 0 {
+            // no matches; exit early so we don't clobber the empty tag entries
+            return Ok(0);
+        }
+
+        // remove old prefix from the tag list
+        for tag in self.storage.get_tag_and_children(old_prefix)? {
+            self.remove_single_tag_undoable(tag)?;
+        }
+
+        // replace tags
+        for mut note in matched_notes {
+            let original = note.clone();
+            note.tags = re.replace(&note.tags, new_prefix);
+            note.set_modified(usn);
+            self.update_note_tags_undoable(&note, original)?;
+        }
+
+        // update tag list
+        for tag in re.into_seen_tags() {
+            self.register_tag_string(tag, usn)?;
+        }
+
+        Ok(match_count)
+    }
+}
+
+// fixme: merge with prefixmatcher
+
+/// A regex that will match a string tag that has been split from a list.
+fn regex_matching_tag_and_children_in_single_tag(tag: &str) -> Result<Regex> {
+    Regex::new(&format!(
+        r#"(?ix)
+        ^
+        {}
+        # optional children
+        (::.+)?
+        $
+        "#,
+        regex::escape(tag)
+    ))
+    .map_err(Into::into)
 }
 
 #[cfg(test)]

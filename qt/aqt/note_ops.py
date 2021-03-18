@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Sequence
 
+from anki.collection import OpChangesWithCount
 from anki.lang import TR
 from anki.notes import Note
 from aqt import AnkiQt, QWidget
@@ -54,6 +55,27 @@ def clear_unused_tags(*, mw: AnkiQt, parent: QWidget) -> None:
         success=lambda out: tooltip(
             tr(TR.BROWSING_REMOVED_UNUSED_TAGS_COUNT, count=out.count), parent=parent
         ),
+    )
+
+
+def rename_tag(
+    *,
+    mw: AnkiQt,
+    parent: QWidget,
+    current_name: str,
+    new_name: str,
+    after_rename: Callable[[], None],
+) -> None:
+    def success(out: OpChangesWithCount) -> None:
+        if out.count:
+            tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent)
+        else:
+            showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY), parent=parent)
+
+    mw.perform_op(
+        lambda: mw.col.tags.rename(old=current_name, new=new_name),
+        success=success,
+        after_hooks=after_rename,
     )
 
 

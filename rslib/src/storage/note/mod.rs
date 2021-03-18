@@ -5,7 +5,7 @@ use std::collections::HashSet;
 
 use crate::{
     err::Result,
-    notes::{Note, NoteID},
+    notes::{Note, NoteID, NoteTags},
     notetype::NoteTypeID,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
@@ -187,6 +187,51 @@ impl super::SqliteStorage {
             func(id, tags)?
         }
 
+        Ok(())
+    }
+
+    pub(crate) fn get_note_tags_by_id(&mut self, note_id: NoteID) -> Result<Option<NoteTags>> {
+        self.db
+            .prepare_cached(&format!("{} where id = ?", include_str!("get_tags.sql")))?
+            .query_and_then(&[note_id], |row| -> Result<_> {
+                {
+                    Ok(NoteTags {
+                        id: row.get(0)?,
+                        mtime: row.get(1)?,
+                        usn: row.get(2)?,
+                        tags: row.get(3)?,
+                    })
+                }
+            })?
+            .next()
+            .transpose()
+    }
+
+    pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
+    where
+        F: Fn(&str) -> bool,
+    {
+        let mut query_stmt = self.db.prepare_cached(include_str!("get_tags.sql"))?;
+        let mut rows = query_stmt.query(NO_PARAMS)?;
+        let mut output = vec![];
+        while let Some(row) = rows.next()? {
+            let tags = row.get_raw(3).as_str()?;
+            if want(tags) {
+                output.push(NoteTags {
+                    id: row.get(0)?,
+                    mtime: row.get(1)?,
+                    usn: row.get(2)?,
+                    tags: tags.to_owned(),
+                })
+            }
+        }
+        Ok(output)
+    }
+
+    pub(crate) fn update_note_tags(&mut self, note: &NoteTags) -> Result<()> {
+        self.db
+            .prepare_cached(include_str!("update_tags.sql"))?
+            .execute(params![note.mtime, note.usn, note.tags, note.id])?;
         Ok(())
     }
 }

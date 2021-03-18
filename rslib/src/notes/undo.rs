@@ -3,6 +3,8 @@
 
 use crate::{prelude::*, undo::UndoableChange};
 
+use super::NoteTags;
+
 #[derive(Debug)]
 pub(crate) enum UndoableNoteChange {
     Added(Box<Note>),
@@ -10,6 +12,7 @@ pub(crate) enum UndoableNoteChange {
     Removed(Box<Note>),
     GraveAdded(Box<(NoteID, Usn)>),
     GraveRemoved(Box<(NoteID, Usn)>),
+    TagsUpdated(Box<NoteTags>),
 }
 
 impl Collection {
@@ -26,6 +29,13 @@ impl Collection {
             UndoableNoteChange::Removed(note) => self.restore_deleted_note(*note),
             UndoableNoteChange::GraveAdded(e) => self.remove_note_grave(e.0, e.1),
             UndoableNoteChange::GraveRemoved(e) => self.add_note_grave(e.0, e.1),
+            UndoableNoteChange::TagsUpdated(note_tags) => {
+                let current = self
+                    .storage
+                    .get_note_tags_by_id(note_tags.id)?
+                    .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
+                self.update_note_tags_undoable(&note_tags, current)
+            }
         }
     }
 
@@ -79,6 +89,15 @@ impl Collection {
         self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
 
         Ok(())
+    }
+
+    pub(crate) fn update_note_tags_undoable(
+        &mut self,
+        tags: &NoteTags,
+        original: NoteTags,
+    ) -> Result<()> {
+        self.save_undo(UndoableNoteChange::TagsUpdated(Box::new(original)));
+        self.storage.update_note_tags(tags)
     }
 
     fn remove_note_without_grave(&mut self, note: Note) -> Result<()> {

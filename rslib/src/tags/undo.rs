@@ -17,13 +17,15 @@ impl Collection {
             UndoableTagChange::Removed(tag) => self.register_tag_undoable(&tag),
         }
     }
-    /// Adds an already-validated tag to the DB and undo list.
+    /// Adds an already-validated tag to the tag list, saving an undo entry.
     /// Caller is responsible for setting usn.
     pub(super) fn register_tag_undoable(&mut self, tag: &Tag) -> Result<()> {
         self.save_undo(UndoableTagChange::Added(Box::new(tag.clone())));
         self.storage.register_tag(&tag)
     }
 
+    /// Remove a single tag from the tag list, saving an undo entry. Does not alter notes.
+    /// FIXME: caller will need to update usn when we make tags incrementally syncable.
     pub(super) fn remove_single_tag_undoable(&mut self, tag: Tag) -> Result<()> {
         self.storage.remove_single_tag(&tag.name)?;
         self.save_undo(UndoableTagChange::Removed(Box::new(tag)));

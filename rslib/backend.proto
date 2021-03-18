@@ -224,6 +224,7 @@ service TagsService {
   rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
   rpc DragDropTags(DragDropTagsIn) returns (Empty);
+  rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
 }
 
 service SearchService {
@@ -928,6 +929,11 @@ message TagTreeNode {
 message DragDropTagsIn {
   repeated string source_tags = 1;
   string target_tag = 2;
+}
+
+message RenameTagsIn {
+  string current_prefix = 1;
+  string new_prefix = 2;
 }
 
 message SetConfigJsonIn {
