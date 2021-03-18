@@ -23,6 +23,7 @@ from anki.utils import ids2str
 
 # public exports
 TagTreeNode = _pb.TagTreeNode
+MARKED_TAG = "marked"
 
 
 class TagManager:
