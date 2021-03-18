@@ -15,6 +15,7 @@ from PyQt5.QtCore import Qt
 from anki import hooks
 from anki.cards import Card
 from anki.collection import Config, OpChanges
+from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.card_ops import set_card_flag
@@ -271,7 +272,7 @@ class Reviewer:
         self.web.eval(f"_drawFlag({self.card.user_flag()});")
 
     def _update_mark_icon(self) -> None:
-        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag('marked'))});")
+        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag(MARKED_TAG))});")
 
     _drawMark = _update_mark_icon
     _drawFlag = _update_flag_icon
@@ -844,12 +845,11 @@ time = %(time)d;
         set_card_flag(mw=self.mw, card_ids=[self.card.id], flag=flag)
 
     def toggle_mark_on_current_note(self) -> None:
-        tag = "marked"
         note = self.card.note()
-        if note.has_tag(tag):
-            remove_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=tag)
+        if note.has_tag(MARKED_TAG):
+            remove_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG)
         else:
-            add_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=tag)
+            add_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG)
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:

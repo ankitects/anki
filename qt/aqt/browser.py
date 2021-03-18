@@ -19,6 +19,7 @@ from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.stats import CardStats
+from anki.tags import MARKED_TAG
 from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.card_ops import set_card_deck, set_card_flag
@@ -454,7 +455,7 @@ class StatusDelegate(QItemDelegate):
         col = None
         if c.user_flag() > 0:
             col = getattr(colors, f"FLAG{c.user_flag()}_BG")
-        elif c.note().has_tag("Marked"):
+        elif c.note().has_tag(MARKED_TAG):
             col = colors.MARKED_BG
         elif c.queue == QUEUE_TYPE_SUSPENDED:
             col = colors.SUSPENDED_BG
@@ -562,7 +563,9 @@ class Browser(QMainWindow):
             lambda: self.remove_tags_from_selected_notes(),
         )
         qconnect(f.actionClear_Unused_Tags.triggered, self.clear_unused_tags)
-        qconnect(f.actionToggle_Mark.triggered, lambda: self.onMark())
+        qconnect(
+            f.actionToggle_Mark.triggered, lambda: self.toggle_mark_of_selected_notes()
+        )
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
         qconnect(f.actionFindDuplicates.triggered, self.onFindDupes)
         qconnect(f.actionFindReplace.triggered, self.onFindReplace)
@@ -575,10 +578,16 @@ class Browser(QMainWindow):
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
         qconnect(f.action_forget.triggered, self.forget_cards)
         qconnect(f.actionToggle_Suspend.triggered, self.suspend_selected_cards)
-        qconnect(f.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
-        qconnect(f.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
-        qconnect(f.actionGreen_Flag.triggered, lambda: self.onSetFlag(3))
-        qconnect(f.actionBlue_Flag.triggered, lambda: self.onSetFlag(4))
+        qconnect(f.actionRed_Flag.triggered, lambda: self.set_flag_of_selected_cards(1))
+        qconnect(
+            f.actionOrange_Flag.triggered, lambda: self.set_flag_of_selected_cards(2)
+        )
+        qconnect(
+            f.actionGreen_Flag.triggered, lambda: self.set_flag_of_selected_cards(3)
+        )
+        qconnect(
+            f.actionBlue_Flag.triggered, lambda: self.set_flag_of_selected_cards(4)
+        )
         qconnect(f.actionExport.triggered, lambda: self._on_export_notes())
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
@@ -870,7 +879,7 @@ QTableView {{ gridline-color: {grid} }}
             self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
-        self._updateFlagsMenu()
+        self._update_flags_menu()
         gui_hooks.browser_did_change_row(self)
 
     def currentRow(self) -> int:
@@ -1296,29 +1305,26 @@ where id in %s"""
     # Flags & Marking
     ######################################################################
 
-    def onSetFlag(self, n: int) -> None:
+    @ensure_editor_saved
+    def set_flag_of_selected_cards(self, flag: int) -> None:
         if not self.card:
             return
-        self.editor.call_after_note_saved(lambda: self._on_set_flag(n))
 
-    def _on_set_flag(self, flag: int) -> None:
         # flag needs toggling off?
         if flag == self.card.user_flag():
             flag = 0
 
-        cids = self.selected_cards()
-        set_card_flag(mw=self.mw, card_ids=cids, flag=flag)
+        set_card_flag(mw=self.mw, card_ids=self.selected_cards(), flag=flag)
 
-    def _updateFlagsMenu(self) -> None:
+    def _update_flags_menu(self) -> None:
         flag = self.card and self.card.user_flag()
         flag = flag or 0
 
-        f = self.form
         flagActions = [
-            f.actionRed_Flag,
-            f.actionOrange_Flag,
-            f.actionGreen_Flag,
-            f.actionBlue_Flag,
+            self.form.actionRed_Flag,
+            self.form.actionOrange_Flag,
+            self.form.actionGreen_Flag,
+            self.form.actionBlue_Flag,
         ]
 
         for c, act in enumerate(flagActions):
@@ -1326,16 +1332,12 @@ where id in %s"""
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
 
-    def onMark(self, mark: bool = None) -> None:
-        if mark is None:
-            mark = not self.isMarked()
-        if mark:
-            self.add_tags_to_selected_notes(tags="marked")
+    def toggle_mark_of_selected_notes(self) -> None:
+        have_mark = bool(self.card and self.card.note().has_tag(MARKED_TAG))
+        if have_mark:
+            self.remove_tags_from_selected_notes(tags=MARKED_TAG)
         else:
-            self.remove_tags_from_selected_notes(tags="marked")
-
-    def isMarked(self) -> bool:
-        return bool(self.card and self.card.note().has_tag("Marked"))
+            self.add_tags_to_selected_notes(tags=MARKED_TAG)
 
     # Scheduling
     ######################################################################
