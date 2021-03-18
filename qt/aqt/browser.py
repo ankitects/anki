@@ -514,12 +514,12 @@ class Browser(QMainWindow):
         gui_hooks.browser_will_show(self)
         self.show()
 
-    def on_operations_will_execute(self) -> None:
+    def on_backend_will_block(self) -> None:
         # make sure the card list doesn't try to refresh itself during the operation,
         # as that will block the UI
         self.model.block_updates = True
 
-    def on_operations_did_execute(self) -> None:
+    def on_backend_did_block(self) -> None:
         self.model.block_updates = False
 
     def on_operation_did_execute(self, changes: OpChanges) -> None:
@@ -1424,8 +1424,8 @@ where id in %s"""
         # fixme: remove these once all items are using `operation_did_execute`
         gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
-        gui_hooks.operations_will_execute.append(self.on_operations_will_execute)
-        gui_hooks.operations_did_execute.append(self.on_operations_did_execute)
+        gui_hooks.backend_will_block.append(self.on_backend_will_block)
+        gui_hooks.backend_did_block.append(self.on_backend_did_block)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_change)
 
@@ -1433,8 +1433,8 @@ where id in %s"""
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
         gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
-        gui_hooks.operations_will_execute.remove(self.on_operations_will_execute)
-        gui_hooks.operations_did_execute.remove(self.on_operations_will_execute)
+        gui_hooks.backend_will_block.remove(self.on_backend_will_block)
+        gui_hooks.backend_did_block.remove(self.on_backend_will_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
 

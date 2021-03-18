@@ -823,13 +823,13 @@ class AnkiQt(QMainWindow):
 
     def _increase_background_ops(self) -> None:
         if not self._background_op_count:
-            gui_hooks.operations_will_execute()
+            gui_hooks.backend_will_block()
         self._background_op_count += 1
 
     def _decrease_background_ops(self) -> None:
         self._background_op_count -= 1
         if not self._background_op_count:
-            gui_hooks.operations_did_execute()
+            gui_hooks.backend_did_block()
         assert self._background_op_count >= 0
 
     def _fire_change_hooks_after_op_performed(
