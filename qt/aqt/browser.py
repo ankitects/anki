@@ -31,7 +31,7 @@ from aqt.note_ops import (
     clear_unused_tags,
     find_and_replace,
     remove_notes,
-    remove_tags,
+    remove_tags_for_notes,
 )
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
@@ -1259,7 +1259,7 @@ where id in %s"""
             tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_DELETE))
         ):
             return
-        remove_tags(
+        remove_tags_for_notes(
             mw=self.mw, note_ids=self.selected_notes(), space_separated_tags=tags
         )
 

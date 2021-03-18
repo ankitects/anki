@@ -65,7 +65,7 @@ class TagManager:
         "Set browser expansion state for tag, registering the tag if missing."
         self.col._backend.set_tag_expanded(name=tag, expanded=expanded)
 
-    # Bulk addition/removal from notes
+    # Bulk addition/removal from specific notes
     #############################################################
 
     def bulk_add(self, nids: Sequence[int], tags: str) -> OpChangesWithCount:
@@ -84,30 +84,22 @@ class TagManager:
     def bulk_remove(self, nids: Sequence[int], tags: str) -> OpChangesWithCount:
         return self.bulk_update(nids, tags, "", False)
 
+    # Bulk addition/removal based on tag
+    #############################################################
+
     def rename(self, old: str, new: str) -> OpChangesWithCount:
         "Rename provided tag and its children, returning number of changed notes."
         x = self.col._backend.rename_tags(current_prefix=old, new_prefix=new)
         return x
 
-    def remove(self, tag: str) -> None:
-        self.col._backend.clear_tag(tag)
+    def remove(self, space_separated_tags: str) -> OpChangesWithCount:
+        "Remove the provided tag(s) and their children from notes and the tag list."
+        return self.col._backend.remove_tags(val=space_separated_tags)
 
     def drag_drop(self, source_tags: List[str], target_tag: str) -> None:
         """Rename one or more source tags that were dropped on `target_tag`.
         If target_tag is "", tags will be placed at the top level."""
         self.col._backend.drag_drop_tags(source_tags=source_tags, target_tag=target_tag)
-
-    # legacy routines
-
-    def bulkAdd(self, ids: List[int], tags: str, add: bool = True) -> None:
-        "Add tags in bulk. TAGS is space-separated."
-        if add:
-            self.bulk_add(ids, tags)
-        else:
-            self.bulk_update(ids, tags, "", False)
-
-    def bulkRem(self, ids: List[int], tags: str) -> None:
-        self.bulkAdd(ids, tags, False)
 
     # String-based utilities
     ##########################################################################
@@ -170,3 +162,13 @@ class TagManager:
         self, tags: Collection[str], usn: Optional[int] = None, clear: bool = False
     ) -> None:
         print("tags.register() is deprecated and no longer works")
+
+    def bulkAdd(self, ids: List[int], tags: str, add: bool = True) -> None:
+        "Add tags in bulk. TAGS is space-separated."
+        if add:
+            self.bulk_add(ids, tags)
+        else:
+            self.bulk_update(ids, tags, "", False)
+
+    def bulkRem(self, ids: List[int], tags: str) -> None:
+        self.bulkAdd(ids, tags, False)

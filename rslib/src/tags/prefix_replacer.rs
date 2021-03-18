@@ -77,6 +77,16 @@ impl PrefixReplacer {
         join_tags(tags.as_slice())
     }
 
+    /// Remove any matching tags. Does not update seen_tags.
+    pub fn remove(&mut self, space_separated_tags: &str) -> String {
+        let tags: Vec<_> = split_tags(space_separated_tags)
+            .filter(|&tag| !self.is_match(tag))
+            .map(ToString::to_string)
+            .collect();
+
+        join_tags(tags.as_slice())
+    }
+
     pub fn into_seen_tags(self) -> HashSet<String> {
         self.seen_tags
     }

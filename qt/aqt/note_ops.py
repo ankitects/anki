@@ -43,7 +43,7 @@ def add_tags(*, mw: AnkiQt, note_ids: Sequence[int], space_separated_tags: str) 
     mw.perform_op(lambda: mw.col.tags.bulk_add(note_ids, space_separated_tags))
 
 
-def remove_tags(
+def remove_tags_for_notes(
     *, mw: AnkiQt, note_ids: Sequence[int], space_separated_tags: str
 ) -> None:
     mw.perform_op(lambda: mw.col.tags.bulk_remove(note_ids, space_separated_tags))
@@ -76,6 +76,17 @@ def rename_tag(
         lambda: mw.col.tags.rename(old=current_name, new=new_name),
         success=success,
         after_hooks=after_rename,
+    )
+
+
+def remove_tags_for_all_notes(
+    *, mw: AnkiQt, parent: QWidget, space_separated_tags: str
+) -> None:
+    mw.perform_op(
+        lambda: mw.col.tags.remove(space_separated_tags=space_separated_tags),
+        success=lambda out: tooltip(
+            tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent
+        ),
     )
 
 

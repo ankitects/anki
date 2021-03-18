@@ -15,6 +15,7 @@ pub enum Op {
     RemoveNote,
     RenameDeck,
     RenameTag,
+    RemoveTag,
     ScheduleAsNew,
     SetDeck,
     SetDueDate,
@@ -54,6 +55,7 @@ impl Op {
             Op::ClearUnusedTags => TR::BrowsingClearUnusedTags,
             Op::SortCards => TR::BrowsingReschedule,
             Op::RenameTag => TR::ActionsRenameTag,
+            Op::RemoveTag => TR::ActionsRemoveTag,
         };
 
         i18n.tr(key).to_string()
