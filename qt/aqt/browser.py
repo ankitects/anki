@@ -6,7 +6,7 @@ from __future__ import annotations
 import html
 import time
 from concurrent.futures import Future
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
 
@@ -98,6 +98,25 @@ class SearchContext:
 # Data model
 ##########################################################################
 
+# temporary cache to avoid hitting the database on redraw
+@dataclass
+class Cell:
+    text: str = ""
+    font: Optional[Tuple[str, int]] = None
+    is_rtl: bool = False
+
+
+@dataclass
+class CellRow:
+    columns: List[Cell]
+    refreshed_at: float = field(default_factory=time.time)
+    card_flag: int = 0
+    marked: bool = False
+    suspended: bool = False
+
+    def is_stale(self, threshold: float) -> bool:
+        return self.refreshed_at < threshold
+
 
 class DataModel(QAbstractTableModel):
     def __init__(self, browser: Browser) -> None:
@@ -110,11 +129,17 @@ class DataModel(QAbstractTableModel):
         )
         self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
-        self._refresh_needed = False
+        self._row_cache: Dict[int, CellRow] = {}
+        self._last_refresh = 0.0
+        # serve stale content to avoid hitting the DB?
         self.block_updates = False
 
     def getCard(self, index: QModelIndex) -> Optional[Card]:
-        id = self.cards[index.row()]
+        return self._get_card_by_row(index.row())
+
+    def _get_card_by_row(self, row: int) -> Optional[Card]:
+        "None if card is not in DB."
+        id = self.cards[row]
         if not id in self.cardObjs:
             try:
                 card = self.col.getCard(id)
@@ -123,6 +148,53 @@ class DataModel(QAbstractTableModel):
                 card = None
             self.cardObjs[id] = card
         return self.cardObjs[id]
+
+    # Card and cell data cache
+    ######################################################################
+    # Stopgap until we can fetch this data a row at a time from Rust.
+
+    def get_cell(self, index: QModelIndex) -> Cell:
+        row = self.get_row(index.row())
+        return row.columns[index.column()]
+
+    def get_row(self, row: int) -> CellRow:
+        if entry := self._row_cache.get(row):
+            if not self.block_updates and entry.is_stale(self._last_refresh):
+                # need to refresh
+                entry = self._build_cell_row(row)
+                self._row_cache[row] = entry
+                return entry
+            else:
+                # return entry, even if it's stale
+                return entry
+        elif self.block_updates:
+            # blank entry until we unblock
+            return CellRow(columns=[Cell(text="blocked")] * len(self.activeCols))
+        else:
+            # missing entry, need to build
+            entry = self._build_cell_row(row)
+            self._row_cache[row] = entry
+            return entry
+
+    def _build_cell_row(self, row: int) -> CellRow:
+        if not (card := self._get_card_by_row(row)):
+            cell = Cell(text=tr(TR.BROWSING_ROW_DELETED))
+            return CellRow(columns=[cell] * len(self.activeCols))
+
+        return CellRow(
+            columns=[
+                Cell(
+                    text=self._column_data(card, column_type),
+                    font=self._font(card, column_type),
+                    is_rtl=self._is_rtl(card, column_type),
+                )
+                for column_type in self.activeCols
+            ],
+            # should probably make these an enum instead?
+            card_flag=card.user_flag(),
+            marked=card.note().has_tag(MARKED_TAG),
+            suspended=card.queue == QUEUE_TYPE_SUSPENDED,
+        )
 
     # Model interface
     ######################################################################
@@ -138,23 +210,16 @@ class DataModel(QAbstractTableModel):
         return len(self.activeCols)
 
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
-        if self.block_updates:
-            return
         if not index.isValid():
             return
         if role == Qt.FontRole:
-            if self.activeCols[index.column()] not in ("question", "answer", "noteFld"):
-                return
-            c = self.getCard(index)
-            if not c:
-                return
-            t = c.template()
-            if not t.get("bfont"):
-                return
-            f = QFont()
-            f.setFamily(cast(str, t.get("bfont", "arial")))
-            f.setPixelSize(cast(int, t.get("bsize", 12)))
-            return f
+            if font := self.get_cell(index).font:
+                qfont = QFont()
+                qfont.setFamily(font[0])
+                qfont.setPixelSize(font[1])
+                return qfont
+            else:
+                return None
 
         elif role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
@@ -170,7 +235,7 @@ class DataModel(QAbstractTableModel):
                 align |= Qt.AlignHCenter
             return align
         elif role == Qt.DisplayRole or role == Qt.EditRole:
-            return self.columnData(index)
+            return self.get_cell(index).text
         else:
             return
 
@@ -220,7 +285,7 @@ class DataModel(QAbstractTableModel):
             return
         top_left = self.index(0, 0)
         bottom_right = self.index(len(self.cards) - 1, len(self.activeCols) - 1)
-        self.cardObjs = {}
+        self._last_refresh = time.time()
         self.dataChanged.emit(top_left, bottom_right)  # type: ignore
 
     def reset(self) -> None:
@@ -234,6 +299,7 @@ class DataModel(QAbstractTableModel):
         self.saveSelection()
         self.beginResetModel()
         self.cardObjs = {}
+        self._row_cache = {}
 
     def endReset(self) -> None:
         self.endResetModel()
@@ -305,15 +371,19 @@ class DataModel(QAbstractTableModel):
             tv.selectRow(0)
 
     def op_executed(self, op: OpChanges, focused: bool) -> None:
+        print("op executed")
         if op.card or op.note or op.deck or op.notetype:
-            self._refresh_needed = True
+            # clear card cache
+            self.cardObjs = {}
         if focused:
-            self.refresh_if_needed()
-
-    def refresh_if_needed(self) -> None:
-        if self._refresh_needed:
             self.redraw_cells()
-            self._refresh_needed = False
+
+    def begin_blocking(self) -> None:
+        self.block_updates = True
+
+    def end_blocking(self) -> None:
+        self.block_updates = False
+        self.redraw_cells()
 
     # Column data
     ######################################################################
@@ -324,66 +394,87 @@ class DataModel(QAbstractTableModel):
     def time_format(self) -> str:
         return "%Y-%m-%d"
 
+    def _font(self, card: Card, column_type: str) -> Optional[Tuple[str, int]]:
+        if column_type not in ("question", "answer", "noteFld"):
+            return None
+
+        template = card.template()
+        if not template.get("bfont"):
+            return None
+
+        return (
+            cast(str, template.get("bfont", "arial")),
+            cast(int, template.get("bsize", 12)),
+        )
+
+    # legacy
     def columnData(self, index: QModelIndex) -> str:
         col = index.column()
         type = self.columnType(col)
         c = self.getCard(index)
         if not c:
             return tr(TR.BROWSING_ROW_DELETED)
+        else:
+            return self._column_data(c, type)
+
+    def _column_data(self, card: Card, column_type: str) -> str:
+        type = column_type
         if type == "question":
-            return self.question(c)
+            return self.question(card)
         elif type == "answer":
-            return self.answer(c)
+            return self.answer(card)
         elif type == "noteFld":
-            f = c.note()
+            f = card.note()
             return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
         elif type == "template":
-            t = c.template()["name"]
-            if c.model()["type"] == MODEL_CLOZE:
-                t = f"{t} {c.ord + 1}"
+            t = card.template()["name"]
+            if card.model()["type"] == MODEL_CLOZE:
+                t = f"{t} {card.ord + 1}"
             return cast(str, t)
         elif type == "cardDue":
             # catch invalid dates
             try:
-                t = self.nextDue(c, index)
+                t = self._next_due(card)
             except:
                 t = ""
-            if c.queue < 0:
+            if card.queue < 0:
                 t = f"({t})"
             return t
         elif type == "noteCrt":
-            return time.strftime(self.time_format(), time.localtime(c.note().id / 1000))
+            return time.strftime(
+                self.time_format(), time.localtime(card.note().id / 1000)
+            )
         elif type == "noteMod":
-            return time.strftime(self.time_format(), time.localtime(c.note().mod))
+            return time.strftime(self.time_format(), time.localtime(card.note().mod))
         elif type == "cardMod":
-            return time.strftime(self.time_format(), time.localtime(c.mod))
+            return time.strftime(self.time_format(), time.localtime(card.mod))
         elif type == "cardReps":
-            return str(c.reps)
+            return str(card.reps)
         elif type == "cardLapses":
-            return str(c.lapses)
+            return str(card.lapses)
         elif type == "noteTags":
-            return " ".join(c.note().tags)
+            return " ".join(card.note().tags)
         elif type == "note":
-            return c.model()["name"]
+            return card.model()["name"]
         elif type == "cardIvl":
-            if c.type == CARD_TYPE_NEW:
+            if card.type == CARD_TYPE_NEW:
                 return tr(TR.BROWSING_NEW)
-            elif c.type == CARD_TYPE_LRN:
+            elif card.type == CARD_TYPE_LRN:
                 return tr(TR.BROWSING_LEARNING)
-            return self.col.format_timespan(c.ivl * 86400)
+            return self.col.format_timespan(card.ivl * 86400)
         elif type == "cardEase":
-            if c.type == CARD_TYPE_NEW:
+            if card.type == CARD_TYPE_NEW:
                 return tr(TR.BROWSING_NEW)
-            return "%d%%" % (c.factor / 10)
+            return "%d%%" % (card.factor / 10)
         elif type == "deck":
-            if c.odid:
+            if card.odid:
                 # in a cram deck
                 return "%s (%s)" % (
-                    self.browser.mw.col.decks.name(c.did),
-                    self.browser.mw.col.decks.name(c.odid),
+                    self.browser.mw.col.decks.name(card.did),
+                    self.browser.mw.col.decks.name(card.odid),
                 )
             # normal deck
-            return self.browser.mw.col.decks.name(c.did)
+            return self.browser.mw.col.decks.name(card.did)
         else:
             return ""
 
@@ -402,30 +493,38 @@ class DataModel(QAbstractTableModel):
             return a[len(q) :].strip()
         return a
 
+    # legacy
     def nextDue(self, c: Card, index: QModelIndex) -> str:
+        return self._next_due(c)
+
+    def _next_due(self, card: Card) -> str:
         date: float
-        if c.odid:
+        if card.odid:
             return tr(TR.BROWSING_FILTERED)
-        elif c.queue == QUEUE_TYPE_LRN:
-            date = c.due
-        elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
-            return tr(TR.STATISTICS_DUE_FOR_NEW_CARD, number=c.due)
-        elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
-            c.type == CARD_TYPE_REV and c.queue < 0
+        elif card.queue == QUEUE_TYPE_LRN:
+            date = card.due
+        elif card.queue == QUEUE_TYPE_NEW or card.type == CARD_TYPE_NEW:
+            return tr(TR.STATISTICS_DUE_FOR_NEW_CARD, number=card.due)
+        elif card.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
+            card.type == CARD_TYPE_REV and card.queue < 0
         ):
-            date = time.time() + ((c.due - self.col.sched.today) * 86400)
+            date = time.time() + ((card.due - self.col.sched.today) * 86400)
         else:
             return ""
         return time.strftime(self.time_format(), time.localtime(date))
 
+    # legacy
     def isRTL(self, index: QModelIndex) -> bool:
         col = index.column()
         type = self.columnType(col)
-        if type != "noteFld":
+        c = self.getCard(index)
+        return self._is_rtl(c, type)
+
+    def _is_rtl(self, card: Card, column_type: str) -> bool:
+        if column_type != "noteFld":
             return False
 
-        c = self.getCard(index)
-        nt = c.note().model()
+        nt = card.note().model()
         return nt["flds"][self.col.models.sortIdx(nt)]["rtl"]
 
 
@@ -442,25 +541,23 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
-        if self.model.block_updates:
-            return QItemDelegate.paint(self, painter, option, index)
+        row = self.model.get_row(index.row())
+        cell = row.columns[index.column()]
 
-        c = self.model.getCard(index)
-        if not c:
-            return QItemDelegate.paint(self, painter, option, index)
-
-        if self.model.isRTL(index):
+        if cell.is_rtl:
             option.direction = Qt.RightToLeft
 
-        col = None
-        if c.user_flag() > 0:
-            col = getattr(colors, f"FLAG{c.user_flag()}_BG")
-        elif c.note().has_tag(MARKED_TAG):
-            col = colors.MARKED_BG
-        elif c.queue == QUEUE_TYPE_SUSPENDED:
-            col = colors.SUSPENDED_BG
-        if col:
-            brush = QBrush(theme_manager.qcolor(col))
+        if row.card_flag:
+            color = getattr(colors, f"FLAG{row.card_flag}_BG")
+        elif row.marked:
+            color = colors.MARKED_BG
+        elif row.suspended:
+            color = colors.SUSPENDED_BG
+        else:
+            color = None
+
+        if color:
+            brush = QBrush(theme_manager.qcolor(color))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
@@ -519,10 +616,10 @@ class Browser(QMainWindow):
     def on_backend_will_block(self) -> None:
         # make sure the card list doesn't try to refresh itself during the operation,
         # as that will block the UI
-        self.model.block_updates = True
+        self.model.begin_blocking()
 
     def on_backend_did_block(self) -> None:
-        self.model.block_updates = False
+        self.model.end_blocking()
 
     def on_operation_did_execute(self, changes: OpChanges) -> None:
         focused = current_top_level_widget() == self
@@ -530,9 +627,15 @@ class Browser(QMainWindow):
         self.sidebar.op_executed(changes, focused)
         if changes.note or changes.notetype:
             if not self.editor.is_updating_note():
+                # fixme: this will leave the splitter shown, but with no current
+                # note being edited
                 note = self.editor.note
                 if note:
-                    note.load()
+                    try:
+                        note.load()
+                    except NotFoundError:
+                        self.editor.set_note(None)
+                        return
                     self.editor.set_note(note)
 
             self._renderPreview()
@@ -540,7 +643,7 @@ class Browser(QMainWindow):
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_top_level_widget() == self:
             self.setUpdatesEnabled(True)
-            self.model.refresh_if_needed()
+            self.model.redraw_cells()
             self.sidebar.refresh_if_needed()
 
     def setupMenus(self) -> None:

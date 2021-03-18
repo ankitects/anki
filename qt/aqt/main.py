@@ -1254,6 +1254,8 @@ title="%s" %s>%s</button>""" % (
             if on_done:
                 on_done(result)
 
+        # fixme: perform_op? -> needs to save
+        # fixme: parent
         self.taskman.with_progress(self.col.undo, on_done_outer)
 
     def update_undo_actions(self) -> None:
