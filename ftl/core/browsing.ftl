@@ -146,3 +146,8 @@ browsing-removed-unused-tags-count =
         [one] Removed { $count } unused tag.
        *[other] Removed { $count } unused tags.
     }
+browsing-changed-new-position =
+    { $count ->
+        [one] Changed position of { $count } new card.
+       *[other] Changed position of { $count } new cards.
+    }

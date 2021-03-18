@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import anki
 import anki._backend.backend_pb2 as _pb
-from anki.collection import OpChanges
+from anki.collection import OpChanges, OpChangesWithCount
 from anki.config import Config
 
 SchedTimingToday = _pb.SchedTimingTodayOut
@@ -167,20 +167,20 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Repositioning new cards
     ##########################################################################
 
-    def sortCards(
+    def reposition_new_cards(
         self,
-        cids: List[int],
-        start: int = 1,
-        step: int = 1,
-        shuffle: bool = False,
-        shift: bool = False,
-    ) -> None:
-        self.col._backend.sort_cards(
-            card_ids=cids,
-            starting_from=start,
-            step_size=step,
-            randomize=shuffle,
-            shift_existing=shift,
+        card_ids: Sequence[int],
+        starting_from: int,
+        step_size: int,
+        randomize: bool,
+        shift_existing: bool,
+    ) -> OpChangesWithCount:
+        return self.col._backend.sort_cards(
+            card_ids=card_ids,
+            starting_from=starting_from,
+            step_size=step_size,
+            randomize=randomize,
+            shift_existing=shift_existing,
         )
 
     def randomizeCards(self, did: int) -> None:
@@ -204,3 +204,14 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.randomizeCards(did)
+
+    # legacy
+    def sortCards(
+        self,
+        cids: List[int],
+        start: int = 1,
+        step: int = 1,
+        shuffle: bool = False,
+        shift: bool = False,
+    ) -> None:
+        self.reposition_new_cards(cids, start, step, shuffle, shift)

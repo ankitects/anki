@@ -1211,7 +1211,13 @@ def test_reorder():
     assert note2.cards()[0].due == 2
     assert note3.cards()[0].due == 3
     assert note4.cards()[0].due == 4
-    col.sched.sortCards([note3.cards()[0].id, note4.cards()[0].id], start=1, shift=True)
+    col.sched.reposition_new_cards(
+        [note3.cards()[0].id, note4.cards()[0].id],
+        starting_from=1,
+        shift_existing=True,
+        step_size=1,
+        randomize=False,
+    )
     assert note.cards()[0].due == 3
     assert note2.cards()[0].due == 4
     assert note3.cards()[0].due == 1

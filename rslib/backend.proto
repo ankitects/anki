@@ -120,8 +120,8 @@ service SchedulingService {
   rpc RebuildFilteredDeck(DeckID) returns (UInt32);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (OpChanges);
   rpc SetDueDate(SetDueDateIn) returns (OpChanges);
-  rpc SortCards(SortCardsIn) returns (Empty);
-  rpc SortDeck(SortDeckIn) returns (Empty);
+  rpc SortCards(SortCardsIn) returns (OpChangesWithCount);
+  rpc SortDeck(SortDeckIn) returns (OpChangesWithCount);
   rpc GetNextCardStates(CardID) returns (NextCardStates);
   rpc DescribeNextStates(NextCardStates) returns (StringList);
   rpc StateIsLeech(SchedulingState) returns (Bool);

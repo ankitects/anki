@@ -118,7 +118,7 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.set_due_date(&cids, &days, config).map(Into::into))
     }
 
-    fn sort_cards(&self, input: pb::SortCardsIn) -> Result<pb::Empty> {
+    fn sort_cards(&self, input: pb::SortCardsIn) -> Result<pb::OpChangesWithCount> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
         let (start, step, random, shift) = (
             input.starting_from,
@@ -137,7 +137,7 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn sort_deck(&self, input: pb::SortDeckIn) -> Result<pb::Empty> {
+    fn sort_deck(&self, input: pb::SortDeckIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.sort_deck(input.deck_id.into(), input.randomize)
                 .map(Into::into)
