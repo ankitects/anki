@@ -1,41 +1,21 @@
 <script lang="typescript">
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
-    export let name = "";
-    export let autofocus = false;
+    export let name: string;
 
-    let input: HTMLInputElement;
+    const dispatch = createEventDispatcher();
+    let input: HTMLInputElement?;
 
     function onKeydown(event: KeyboardEvent): void {
         if (event.code === "Space") {
             name += "::";
             event.preventDefault();
         }
-        else if (event.code === "Enter") {
-            input.blur();
-            event.preventDefault();
-        }
-    }
-
-    function moveCursorToEnd(element: Element): void {
-        element.selectionStart = element.selectionEnd = element.value.length;
-    }
-
-    function caretToEnd(element: Element): void {
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        range.collapse(false);
-        const selection = currentField.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
     }
 
     onMount(() => {
-        if (autofocus) {
-            input.focus();
-            moveCursorToEnd(input);
-        }
-    })
+        /* dispatch("mount", { input }); */
+    });
 </script>
 
 <style lang="scss">
@@ -51,4 +31,4 @@
     }
 </style>
 
-<input type="text" bind:this={input} bind:value={name} on:keydown={onKeydown} on:blur />
+<input type="text" bind:value={name} bind:this={input} on:keydown={onKeydown} on:blur />

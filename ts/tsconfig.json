@@ -3,7 +3,7 @@
     "compilerOptions": {
         "target": "es6",
         "module": "es6",
-        "lib": ["es2017", "es2019.array", "es2018.promise", "dom", "dom.iterable"],
+        "lib": ["es2017", "es2018.promise", "es2019.array", "es2019.string", "dom", "dom.iterable"],
         "baseUrl": ".",
         "paths": {
             "lib/*": ["../bazel-bin/ts/lib/*"],
