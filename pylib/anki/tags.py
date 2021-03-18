@@ -85,12 +85,9 @@ class TagManager:
         return self.bulk_update(nids, tags, "", False)
 
     def rename(self, old: str, new: str) -> OpChangesWithCount:
-        "Rename provided tag, returning number of changed notes."
-        nids = self.col.find_notes(anki.collection.SearchNode(tag=old))
-        if not nids:
-            return OpChangesWithCount()
-        escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
-        return self.bulk_update(nids, escaped_name, new, False)
+        "Rename provided tag and its children, returning number of changed notes."
+        x = self.col._backend.rename_tags(current_prefix=old, new_prefix=new)
+        return x
 
     def remove(self, tag: str) -> None:
         self.col._backend.clear_tag(tag)

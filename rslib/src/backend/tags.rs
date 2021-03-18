@@ -59,4 +59,9 @@ impl TagsService for Backend {
         self.with_col(|col| col.drag_drop_tags(&source_tags, target_tag))
             .map(Into::into)
     }
+
+    fn rename_tags(&self, input: pb::RenameTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| col.rename_tag(&input.current_prefix, &input.new_prefix))
+            .map(Into::into)
+    }
 }

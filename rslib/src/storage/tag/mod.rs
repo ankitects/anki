@@ -65,8 +65,6 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    // for undo in the future
-    #[allow(dead_code)]
     pub(crate) fn get_tag_and_children(&self, name: &str) -> Result<Vec<Tag>> {
         self.db
             .prepare_cached("select tag, usn, collapsed from tags where tag regexp ?")?

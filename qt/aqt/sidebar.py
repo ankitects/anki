@@ -19,6 +19,7 @@ from aqt.clayout import CardLayout
 from aqt.deck_ops import remove_decks
 from aqt.main import ResetReason
 from aqt.models import Models
+from aqt.note_ops import rename_tag
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
@@ -27,7 +28,6 @@ from aqt.utils import (
     askUser,
     getOnlyText,
     show_invalid_search_error,
-    showInfo,
     showWarning,
     tooltip,
     tr,
@@ -1217,40 +1217,26 @@ class SidebarTreeView(QTreeView):
         self.mw.taskman.with_progress(do_remove, on_done)
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
-        new_name = new_name.replace(" ", "")
-        if new_name and new_name != item.name:
-            # block repainting until collection is updated
-            self.setUpdatesEnabled(False)
-            self.browser.editor.call_after_note_saved(
-                lambda: self._rename_tag(item, new_name)
-            )
+        if not new_name or new_name == item.name:
+            return
 
-    def _rename_tag(self, item: SidebarItem, new_name: str) -> None:
+        new_name_base = new_name
+
         old_name = item.full_name
         new_name = item.name_prefix + new_name
 
-        def do_rename() -> int:
-            self.mw.col.tags.remove(old_name)
-            return self.col.tags.rename(old_name, new_name).count
+        item.name = new_name_base
 
-        def on_done(fut: Future) -> None:
-            self.setUpdatesEnabled(True)
-            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-            self.browser.model.endReset()
-
-            count = fut.result()
-            if not count:
-                showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
-            else:
-                tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=count), parent=self)
-                self.refresh(
-                    lambda item: item.item_type == SidebarItemType.TAG
-                    and item.full_name == new_name
-                )
-
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_rename, on_done)
+        rename_tag(
+            mw=self.mw,
+            parent=self.browser,
+            current_name=old_name,
+            new_name=new_name,
+            after_rename=lambda: self.refresh(
+                lambda item: item.item_type == SidebarItemType.TAG
+                and item.full_name == new_name
+            ),
+        )
 
     # Saved searches
     ####################################
