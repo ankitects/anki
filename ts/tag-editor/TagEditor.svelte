@@ -1,4 +1,4 @@
 <script>
 </script>
 
-<div>Tag Editor</div>
+<div>Tags</div>

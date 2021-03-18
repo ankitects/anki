@@ -88,6 +88,7 @@ _html = """
     <div id="dupes" class="is-inactive">
         <a href="#" onclick="pycmd('dupes');return false;">%s</a>
     </div>
+    <div id="tagEditor"></div>
 </div>
 """
 
@@ -145,6 +146,7 @@ class Editor:
             js=[
                 "js/vendor/jquery.min.js",
                 "js/vendor/protobuf.min.js",
+                "js/tag-editor.js",
                 "js/editor.js",
             ],
             context=self,
@@ -463,7 +465,7 @@ $editorToolbar.addButtonGroup({{
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s);" % (
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setTagEditor(); " % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),

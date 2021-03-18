@@ -29,6 +29,12 @@ declare global {
         removeAllRanges(): void;
         getRangeAt(n: number): Range;
     }
+
+    interface Global {
+        anki: {
+            tagEditor(target: HTMLDivElement): void;
+        }
+    }
 }
 
 import "editor-toolbar";
@@ -116,7 +122,7 @@ export function forEditorField<T>(
 export function setFields(fields: [string, string][]): void {
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
-    const color = window
+    const color = globalThis
         .getComputedStyle(document.documentElement)
         .getPropertyValue("--text-fg");
 
@@ -152,6 +158,17 @@ export function setFonts(fonts: [string, number, boolean][]): void {
             field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
         }
     );
+}
+
+export function setTagEditor(): void {
+    const target = document.getElementById("tagEditor") as HTMLDivElement;
+
+    if (target.hasAttribute("is-init")) {
+    }
+    else {
+        globalThis.anki.tagEditor(target);
+        target.setAttribute("is-init", "");
+    }
 }
 
 export function setSticky(stickies: boolean[]): void {

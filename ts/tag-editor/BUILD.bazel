@@ -3,16 +3,6 @@ load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("//ts:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
-
-sass_binary(
-    name = "tag-editor_css",
-    src = "tag-editor.scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/sass:core_lib",
-    ],
-)
 
 svelte_files = glob(["*.svelte"])
 
@@ -24,8 +14,8 @@ compile_svelte(
 )
 
 ts_library(
-    name = "bootstrap",
-    srcs = ["bootstrap.ts"],
+    name = "index",
+    srcs = ["index.ts"],
     deps = [
         "TagEditor",
         "lib",
@@ -39,16 +29,13 @@ ts_library(
     name = "lib",
     srcs = glob(
         ["*.ts"],
-        exclude = ["bootstrap.ts"],
+        exclude = ["index.ts"],
     ),
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
         "@npm//@types/d3",
         "@npm//@types/lodash",
-        "@npm//d3",
-        "@npm//lodash.debounce",
-        "@npm//lodash.throttle",
         "@npm//svelte",
     ],
 )
@@ -56,7 +43,7 @@ ts_library(
 rollup_bundle(
     name = "tag-editor",
     config_file = "//ts:rollup.config.js",
-    entry_point = "bootstrap.ts",
+    entry_point = "index.ts",
     format = "iife",
     link_workspace_root = True,
     silent = True,
@@ -64,7 +51,7 @@ rollup_bundle(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
-        "bootstrap",
+        "index",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-terser",

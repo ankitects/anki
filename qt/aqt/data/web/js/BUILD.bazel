@@ -37,11 +37,20 @@ copy_files_into_group(
     package = "//ts/editor",
 )
 
+copy_files_into_group(
+    name = "tag-editor",
+    srcs = [
+        "tag-editor.js",
+    ],
+    package = "//ts/tag-editor",
+)
+
 filegroup(
     name = "js",
     srcs = [
         "aqt_es5",
         "editor",
+        "tag-editor",
         "mathjax.js",
         "//qt/aqt/data/web/js/vendor",
     ],
