@@ -8,14 +8,9 @@
         line-height: 2ch;
     }
 
-    $white-translucent: rgba(255, 255, 255, 0.5);
-
-    .delete-icon:hover {
-        background-color: $white-translucent;
-    }
 </style>
 
-<span class="tag bg-secondary rounded p-1 me-2">
+<span class="tag bg-secondary rounded p-1 me-2" on:click>
     <span>{name}</span>
-    <span class="delete-icon bi bi-x rounded"></span>
+    <slot name="after"></slot>
 </span>

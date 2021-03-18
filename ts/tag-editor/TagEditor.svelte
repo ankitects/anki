@@ -2,6 +2,7 @@
     import type { I18n } from "anki/i18n";
 
     import Tag from "./Tag.svelte";
+    import DeleteIcon from "./DeleteIcon.svelte";
 
     export let i18n: I18n;
     export let nightMode: boolean;
@@ -16,6 +17,9 @@
 </script>
 
 <span>Tags</span>
+
 {#each tags as tagname}
-    <Tag name={tagname} />
+    <Tag name={tagname}>
+        <DeleteIcon slot="after"></DeleteIcon>
+    </Tag>
 {/each}
