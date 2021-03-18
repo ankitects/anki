@@ -19,7 +19,7 @@ from aqt.clayout import CardLayout
 from aqt.deck_ops import remove_decks
 from aqt.main import ResetReason
 from aqt.models import Models
-from aqt.note_ops import rename_tag
+from aqt.note_ops import remove_tags_for_all_notes, rename_tag
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
@@ -29,7 +29,6 @@ from aqt.utils import (
     getOnlyText,
     show_invalid_search_error,
     showWarning,
-    tooltip,
     tr,
 )
 
@@ -1200,21 +1199,13 @@ class SidebarTreeView(QTreeView):
     # Tags
     ###########################
 
-    def remove_tags(self, _item: SidebarItem) -> None:
-        tags = self._selected_tags()
+    def remove_tags(self, item: SidebarItem) -> None:
+        tags = self.mw.col.tags.join(self._selected_tags())
+        item.name = "..."
 
-        def do_remove() -> int:
-            return self.col._backend.expunge_tags(" ".join(tags))
-
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
-            self.browser.model.endReset()
-            tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=fut.result()), parent=self)
-            self.refresh()
-
-        self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_remove, on_done)
+        remove_tags_for_all_notes(
+            mw=self.mw, parent=self.browser, space_separated_tags=tags
+        )
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
         if not new_name or new_name == item.name:

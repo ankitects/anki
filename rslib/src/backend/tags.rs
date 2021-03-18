@@ -23,23 +23,14 @@ impl TagsService for Backend {
         })
     }
 
-    fn expunge_tags(&self, tags: pb::String) -> Result<pb::UInt32> {
-        self.with_col(|col| col.expunge_tags(tags.val.as_str()).map(Into::into))
+    fn remove_tags(&self, tags: pb::String) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| col.remove_tags(tags.val.as_str()).map(Into::into))
     }
 
     fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 col.set_tag_expanded(&input.name, input.expanded)?;
-                Ok(().into())
-            })
-        })
-    }
-
-    fn clear_tag(&self, tag: pb::String) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact_no_undo(|col| {
-                col.storage.clear_tag_and_children(tag.val.as_str())?;
                 Ok(().into())
             })
         })

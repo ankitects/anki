@@ -313,37 +313,6 @@ impl Collection {
         Ok(count)
     }
 
-    /// Take tags as a whitespace-separated string and remove them from all notes and the storage.
-    pub fn expunge_tags(&mut self, tags: &str) -> Result<usize> {
-        let tag_group = format!("({})", regex::escape(tags.trim()).replace(' ', "|"));
-        let nids = self.nids_for_tags(&tag_group)?;
-        let re = Regex::new(&format!("(?i)^{}(::.*)?$", tag_group))?;
-        self.transact_no_undo(|col| {
-            col.storage.clear_tag_group(&tag_group)?;
-            col.transform_notes(&nids, |note, _nt| {
-                Ok(TransformNoteOutput {
-                    changed: note.remove_tags(&re),
-                    generate_cards: false,
-                    mark_modified: true,
-                })
-            })
-        })
-    }
-
-    /// Take tags as a regexp group, i.e. separated with pipes and wrapped in brackets, and return
-    /// the ids of all notes with one of them.
-    fn nids_for_tags(&mut self, tag_group: &str) -> Result<Vec<NoteID>> {
-        let mut stmt = self
-            .storage
-            .db
-            .prepare("select id from notes where tags regexp ?")?;
-        let args = format!("(?i).* {}(::| ).*", tag_group);
-        let nids = stmt
-            .query_map(&[args], |row| row.get(0))?
-            .collect::<std::result::Result<_, _>>()?;
-        Ok(nids)
-    }
-
     pub(crate) fn set_tag_expanded(&self, name: &str, expanded: bool) -> Result<()> {
         let mut name = name;
         let tag;
@@ -550,7 +519,7 @@ impl Collection {
         }
 
         // remove old prefix from the tag list
-        for tag in self.storage.get_tag_and_children(old_prefix)? {
+        for tag in self.storage.get_tags_by_predicate(|tag| re.is_match(tag))? {
             self.remove_single_tag_undoable(tag)?;
         }
 
@@ -565,6 +534,37 @@ impl Collection {
         // update tag list
         for tag in re.into_seen_tags() {
             self.register_tag_string(tag, usn)?;
+        }
+
+        Ok(match_count)
+    }
+
+    /// Take tags as a whitespace-separated string and remove them from all notes and the tag list.
+    pub fn remove_tags(&mut self, tags: &str) -> Result<OpOutput<usize>> {
+        self.transact(Op::RemoveTag, |col| col.remove_tags_inner(tags))
+    }
+
+    fn remove_tags_inner(&mut self, tags: &str) -> Result<usize> {
+        let usn = self.usn()?;
+
+        // gather tags that need removing
+        let mut re = PrefixReplacer::new(tags)?;
+        let matched_notes = self
+            .storage
+            .get_note_tags_by_predicate(|tags| re.is_match(tags))?;
+        let match_count = matched_notes.len();
+
+        // remove from the tag list
+        for tag in self.storage.get_tags_by_predicate(|tag| re.is_match(tag))? {
+            self.remove_single_tag_undoable(tag)?;
+        }
+
+        // replace tags
+        for mut note in matched_notes {
+            let original = note.clone();
+            note.tags = re.remove(&note.tags);
+            note.set_modified(usn);
+            self.update_note_tags_undoable(&note, original)?;
         }
 
         Ok(match_count)

@@ -19,7 +19,7 @@ from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.card_ops import set_card_flag
-from aqt.note_ops import add_tags, remove_notes, remove_tags
+from aqt.note_ops import add_tags, remove_notes, remove_tags_for_notes
 from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.scheduling_ops import (
@@ -847,7 +847,9 @@ time = %(time)d;
     def toggle_mark_on_current_note(self) -> None:
         note = self.card.note()
         if note.has_tag(MARKED_TAG):
-            remove_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG)
+            remove_tags_for_notes(
+                mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
+            )
         else:
             add_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG)
 
