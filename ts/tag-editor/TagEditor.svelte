@@ -2,6 +2,7 @@
     import type { I18n } from "anki/i18n";
 
     import Tag from "./Tag.svelte";
+    import TagInput from "./TagInput.svelte";
     import DeleteIcon from "./DeleteIcon.svelte";
 
     export let i18n: I18n;
@@ -37,3 +38,5 @@
         </Tag>
     {/each}
 </span>
+
+<TagInput />
