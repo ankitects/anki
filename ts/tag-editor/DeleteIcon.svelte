@@ -1,4 +1,4 @@
-<style lang="sass">
+<style lang="scss">
     $white-translucent: rgba(255, 255, 255, 0.5);
 
     span:hover {
