@@ -10,22 +10,23 @@
 
     export let tags: string[];
 
-    let tagElements: Element[] = [];
-    let tagDeletes: Element[] = [];
+    let activeTag: number?;
 
-    function tagActivated(event: MouseEvent): void {
-        console.log('activated', event)
+    function tagActivated(index: number): void {
+        activeTag = index;
     }
 
-    function tagDeleted(event: MouseEvent): void {
-        console.log('deleted', event)
+    function tagDeactivated(): void {
+        activeTag = null;
+    }
+
+    function tagDeleted(index: number): void {
+        tags = [...tags.slice(0, index), ...tags.slice(index + 1)];
     }
 
     $: {
-        tagElements;
         i18n;
         nightMode;
-        console.log(tagElements, tags);
     }
 </script>
 
@@ -33,9 +34,13 @@
 
 <span>
     {#each tags as tagname, index}
-        <Tag name={tagname} bind:this={tagElements[index]} on:click={tagActivated}>
-            <DeleteIcon slot="after" bind:this={tagDeletes[index]} on:click={tagDeleted}></DeleteIcon>
-        </Tag>
+        {#if index === activeTag}
+            <TagInput bind:name={tagname} on:blur={tagDeactivated} autofocus={true} />
+        {:else}
+            <Tag name={tagname}  on:click={() => tagActivated(index)}>
+                <DeleteIcon slot="after"  on:click={() => tagDeleted(index)}></DeleteIcon>
+            </Tag>
+        {/if}
     {/each}
 </span>
 
