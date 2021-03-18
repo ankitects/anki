@@ -37,6 +37,7 @@ from aqt.previewer import Previewer
 from aqt.qt import *
 from aqt.scheduling_ops import (
     forget_cards,
+    reposition_new_cards_dialog,
     set_due_date_dialog,
     suspend_cards,
     unsuspend_cards,
@@ -247,7 +248,7 @@ class DataModel(QAbstractTableModel):
         self.endReset()
 
     def saveSelection(self) -> None:
-        cards = self.browser.selectedCards()
+        cards = self.browser.selected_cards()
         self.selectedCards = {id: True for id in cards}
         if getattr(self.browser, "card", None):
             self.focusedCard = self.browser.card.id
@@ -1076,13 +1077,13 @@ QTableView {{ gridline-color: {grid} }}
     # Menu helpers
     ######################################################################
 
-    def selectedCards(self) -> List[int]:
+    def selected_cards(self) -> List[int]:
         return [
             self.model.cards[idx.row()]
             for idx in self.form.tableView.selectionModel().selectedRows()
         ]
 
-    def selectedNotes(self) -> List[int]:
+    def selected_notes(self) -> List[int]:
         return self.col.db.list(
             """
 select distinct nid from cards
@@ -1098,11 +1099,11 @@ where id in %s"""
     def selectedNotesAsCards(self) -> List[int]:
         return self.col.db.list(
             "select id from cards where nid in (%s)"
-            % ",".join([str(s) for s in self.selectedNotes()])
+            % ",".join([str(s) for s in self.selected_notes()])
         )
 
     def oneModelNotes(self) -> List[int]:
-        sf = self.selectedNotes()
+        sf = self.selected_notes()
         if not sf:
             return []
         mods = self.col.db.scalar(
@@ -1118,6 +1119,11 @@ where id in %s"""
 
     def onHelp(self) -> None:
         openHelp(HelpPage.BROWSING)
+
+    # legacy
+
+    selectedCards = selected_cards
+    selectedNotes = selected_notes
 
     # Misc menu options
     ######################################################################
@@ -1174,7 +1180,7 @@ where id in %s"""
             return
 
         # nothing selected?
-        nids = self.selectedNotes()
+        nids = self.selected_notes()
         if not nids:
             return
 
@@ -1198,7 +1204,7 @@ where id in %s"""
     def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
 
-        cids = self.selectedCards()
+        cids = self.selected_cards()
         if not cids:
             return
 
@@ -1235,7 +1241,7 @@ where id in %s"""
             tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
         ):
             return
-        add_tags(mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags)
+        add_tags(mw=self.mw, note_ids=self.selected_notes(), space_separated_tags=tags)
 
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
@@ -1245,7 +1251,7 @@ where id in %s"""
         ):
             return
         remove_tags(
-            mw=self.mw, note_ids=self.selectedNotes(), space_separated_tags=tags
+            mw=self.mw, note_ids=self.selected_notes(), space_separated_tags=tags
         )
 
     def _prompt_for_tags(self, prompt: str) -> Optional[str]:
@@ -1272,7 +1278,7 @@ where id in %s"""
     @ensure_editor_saved_on_trigger
     def suspend_selected_cards(self) -> None:
         want_suspend = not self.current_card_is_suspended()
-        cids = self.selectedCards()
+        cids = self.selected_cards()
 
         if want_suspend:
             suspend_cards(mw=self.mw, card_ids=cids)
@@ -1300,7 +1306,7 @@ where id in %s"""
         if flag == self.card.user_flag():
             flag = 0
 
-        cids = self.selectedCards()
+        cids = self.selected_cards()
         set_card_flag(mw=self.mw, card_ids=cids, flag=flag)
 
     def _updateFlagsMenu(self) -> None:
@@ -1331,57 +1337,25 @@ where id in %s"""
     def isMarked(self) -> bool:
         return bool(self.card and self.card.note().has_tag("Marked"))
 
-    # Repositioning
+    # Scheduling
     ######################################################################
 
     @ensure_editor_saved_on_trigger
     def reposition(self) -> None:
-        cids = self.selectedCards()
-        cids2 = self.col.db.list(
-            f"select id from cards where type = {CARD_TYPE_NEW} and id in "
-            + ids2str(cids)
-        )
-        if not cids2:
-            showInfo(tr(TR.BROWSING_ONLY_NEW_CARDS_CAN_BE_REPOSITIONED))
+        if self.card and self.card.queue != QUEUE_TYPE_NEW:
+            showInfo(tr(TR.BROWSING_ONLY_NEW_CARDS_CAN_BE_REPOSITIONED), parent=self)
             return
-        d = QDialog(self)
-        disable_help_button(d)
-        d.setWindowModality(Qt.WindowModal)
-        frm = aqt.forms.reposition.Ui_Dialog()
-        frm.setupUi(d)
-        (pmin, pmax) = self.col.db.first(
-            f"select min(due), max(due) from cards where type={CARD_TYPE_NEW} and odid=0"
-        )
-        pmin = pmin or 0
-        pmax = pmax or 0
-        txt = tr(TR.BROWSING_QUEUE_TOP, val=pmin)
-        txt += "\n" + tr(TR.BROWSING_QUEUE_BOTTOM, val=pmax)
-        frm.label.setText(txt)
-        frm.start.selectAll()
-        if not d.exec_():
-            return
-        self.model.beginReset()
-        self.mw.checkpoint(tr(TR.ACTIONS_REPOSITION))
-        self.col.sched.sortCards(
-            cids,
-            start=frm.start.value(),
-            step=frm.step.value(),
-            shuffle=frm.randomize.isChecked(),
-            shift=frm.shift.isChecked(),
-        )
-        self.search()
-        self.mw.requireReset(reason=ResetReason.BrowserReposition, context=self)
-        self.model.endReset()
 
-    # Scheduling
-    ######################################################################
+        reposition_new_cards_dialog(
+            mw=self.mw, parent=self, card_ids=self.selected_cards()
+        )
 
     @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
         set_due_date_dialog(
             mw=self.mw,
             parent=self,
-            card_ids=self.selectedCards(),
+            card_ids=self.selected_cards(),
             config_key=Config.String.SET_DUE_BROWSER,
         )
 
@@ -1390,7 +1364,7 @@ where id in %s"""
         forget_cards(
             mw=self.mw,
             parent=self,
-            card_ids=self.selectedCards(),
+            card_ids=self.selected_cards(),
         )
 
     # Edit: selection
@@ -1398,7 +1372,7 @@ where id in %s"""
 
     @ensure_editor_saved_on_trigger
     def selectNotes(self) -> None:
-        nids = self.selectedNotes()
+        nids = self.selected_notes()
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
@@ -1465,7 +1439,7 @@ where id in %s"""
 
     @ensure_editor_saved_on_trigger
     def onFindReplace(self) -> None:
-        nids = self.selectedNotes()
+        nids = self.selected_notes()
         if not nids:
             return
         import anki.find

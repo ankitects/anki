@@ -18,6 +18,7 @@ pub enum Op {
     SetDeck,
     SetDueDate,
     SetFlag,
+    SortCards,
     Suspend,
     UnburyUnsuspend,
     UpdateCard,
@@ -50,6 +51,7 @@ impl Op {
             Op::SetFlag => TR::UndoSetFlag,
             Op::FindAndReplace => TR::BrowsingFindAndReplace,
             Op::ClearUnusedTags => TR::BrowsingClearUnusedTags,
+            Op::SortCards => TR::BrowsingReschedule,
         };
 
         i18n.tr(key).to_string()

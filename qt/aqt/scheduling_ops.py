@@ -6,12 +6,12 @@ from __future__ import annotations
 from typing import List, Optional, Sequence
 
 import aqt
-from anki.collection import Config
+from anki.collection import CARD_TYPE_NEW, Config
 from anki.lang import TR
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.qt import *
-from aqt.utils import getText, tooltip, tr
+from aqt.utils import disable_help_button, getText, tooltip, tr
 
 
 def set_due_date_dialog(
@@ -59,6 +59,72 @@ def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: List[int]) -> Non
         lambda: mw.col.sched.schedule_cards_as_new(card_ids),
         success=lambda _: tooltip(
             tr(TR.SCHEDULING_FORGOT_CARDS, cards=len(card_ids)), parent=parent
+        ),
+    )
+
+
+def reposition_new_cards_dialog(
+    *, mw: AnkiQt, parent: QWidget, card_ids: Sequence[int]
+) -> None:
+    assert mw.col.db
+    row = mw.col.db.first(
+        f"select min(due), max(due) from cards where type={CARD_TYPE_NEW} and odid=0"
+    )
+    assert row
+    (min_position, max_position) = row
+    min_position = max(min_position or 0, 0)
+    max_position = max_position or 0
+
+    d = QDialog(parent)
+    disable_help_button(d)
+    d.setWindowModality(Qt.WindowModal)
+    frm = aqt.forms.reposition.Ui_Dialog()
+    frm.setupUi(d)
+
+    txt = tr(TR.BROWSING_QUEUE_TOP, val=min_position)
+    txt += "\n" + tr(TR.BROWSING_QUEUE_BOTTOM, val=max_position)
+    frm.label.setText(txt)
+
+    frm.start.selectAll()
+    if not d.exec_():
+        return
+
+    start = frm.start.value()
+    step = frm.step.value()
+    randomize = frm.randomize.isChecked()
+    shift = frm.shift.isChecked()
+
+    reposition_new_cards(
+        mw=mw,
+        parent=parent,
+        card_ids=card_ids,
+        starting_from=start,
+        step_size=step,
+        randomize=randomize,
+        shift_existing=shift,
+    )
+
+
+def reposition_new_cards(
+    *,
+    mw: AnkiQt,
+    parent: QWidget,
+    card_ids: Sequence[int],
+    starting_from: int,
+    step_size: int,
+    randomize: bool,
+    shift_existing: bool,
+) -> None:
+    mw.perform_op(
+        lambda: mw.col.sched.reposition_new_cards(
+            card_ids=card_ids,
+            starting_from=starting_from,
+            step_size=step_size,
+            randomize=randomize,
+            shift_existing=shift_existing,
+        ),
+        success=lambda out: tooltip(
+            tr(TR.BROWSING_CHANGED_NEW_POSITION, count=out.count), parent=parent
         ),
     )
 
