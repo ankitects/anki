@@ -88,7 +88,7 @@ _html = """
     <div id="dupes" class="is-inactive">
         <a href="#" onclick="pycmd('dupes');return false;">%s</a>
     </div>
-    <div id="tagEditor"></div>
+    <anki-tageditor></anki-tageditor>
 </div>
 """
 
@@ -465,11 +465,12 @@ $editorToolbar.addButtonGroup({{
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setTagEditor(); " % (
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setTags(%s); " % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),
+            json.dumps(self.note.tags),
         )
 
         if self.addMode:

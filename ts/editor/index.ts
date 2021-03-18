@@ -160,15 +160,9 @@ export function setFonts(fonts: [string, number, boolean][]): void {
     );
 }
 
-export function setTagEditor(): void {
-    const target = document.getElementById("tagEditor") as HTMLDivElement;
-
-    if (target.hasAttribute("is-init")) {
-    }
-    else {
-        globalThis.anki.tagEditor(target);
-        target.setAttribute("is-init", "");
-    }
+export function setTags(tags: string[]): void {
+    const tagEditor = document.querySelector("anki-tageditor") as any;
+    tagEditor.tags = tags;
 }
 
 export function setSticky(stickies: boolean[]): void {

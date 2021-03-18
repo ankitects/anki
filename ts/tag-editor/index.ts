@@ -4,17 +4,35 @@
 import type { SvelteComponent } from "svelte";
 import { setupI18n } from "anki/i18n";
 import { checkNightMode } from "anki/nightmode";
-import TagEditor from "./TagEditor.svelte";
+import TagEditorSvelte from "./TagEditor.svelte";
 
-export async function tagEditor(target: HTMLDivElement): Promise<SvelteComponent> {
-    const nightMode = checkNightMode();
-    const i18n = await setupI18n()
 
-    return new TagEditor({
-        target,
-        props: {
-            i18n,
-            nightMode,
-        },
-    });
+class TagEditor extends HTMLElement {
+    component?: SvelteComponent;
+    initialTags: string[] = []
+
+    async connectedCallback(): Promise<void> {
+        const nightMode = checkNightMode();
+        const i18n = await setupI18n()
+
+        this.component = new TagEditorSvelte({
+            target: this,
+            props: {
+                i18n,
+                nightMode,
+                tags: this.initialTags,
+            },
+        });
+    }
+
+    set tags(newTags: string[]) {
+        if (this.component) {
+            this.component.$set({ tags: newTags });
+        }
+        else {
+            this.initialTags = newTags;
+        }
+    }
 }
+
+customElements.define("anki-tageditor", TagEditor)
