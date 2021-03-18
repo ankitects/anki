@@ -9,17 +9,31 @@
 
     export let tags: string[];
 
+    let tagElements: Element[] = [];
+    let tagDeletes: Element[] = [];
+
+    function tagActivated(event: MouseEvent): void {
+        console.log('activated', event)
+    }
+
+    function tagDeleted(event: MouseEvent): void {
+        console.log('deleted', event)
+    }
+
     $: {
+        tagElements;
         i18n;
         nightMode;
-        console.log(tags);
+        console.log(tagElements, tags);
     }
 </script>
 
 <span>Tags</span>
 
-{#each tags as tagname}
-    <Tag name={tagname}>
-        <DeleteIcon slot="after"></DeleteIcon>
-    </Tag>
-{/each}
+<span>
+    {#each tags as tagname, index}
+        <Tag name={tagname} bind:this={tagElements[index]} on:click={tagActivated}>
+            <DeleteIcon slot="after" bind:this={tagDeletes[index]} on:click={tagDeleted}></DeleteIcon>
+        </Tag>
+    {/each}
+</span>

@@ -7,7 +7,6 @@
         /* important for tags with non-latin characters */
         line-height: 2ch;
     }
-
 </style>
 
 <span class="tag bg-secondary rounded p-1 me-2" on:click>

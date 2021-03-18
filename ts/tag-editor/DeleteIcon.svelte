@@ -6,4 +6,4 @@
     }
 </style>
 
-<span class="delete-icon bi bi-x rounded" on:click></span>
+<span class="delete-icon bi bi-x rounded" on:click|stopPropagation></span>
