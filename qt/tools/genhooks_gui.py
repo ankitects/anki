@@ -400,21 +400,6 @@ hooks = [
         """,
     ),
     Hook(
-        name="operations_will_execute",
-        doc="""Called before one or more operations are executed with mw.perform_op().
-        
-        Subscribers can use this to set a flag to avoid DB updates until the operation
-        completes, as doing so will freeze the UI.
-        """,
-    ),
-    Hook(
-        name="operations_did_execute",
-        doc="""Called after one or more operations are executed with mw.perform_op().
-        Called regardless of the success of individual operations, and only called when
-        there are no outstanding ops.
-        """,
-    ),
-    Hook(
         name="operation_did_execute",
         args=[
             "changes: anki.collection.OpChanges",
@@ -422,8 +407,7 @@ hooks = [
         doc="""Called after an operation completes.
         Changes can be inspected to determine whether the UI needs updating.
         
-        This will also be called when the legacy mw.reset() is used. When called via
-        mw.reset(), `operation_will_execute` will not be called.
+        This will also be called when the legacy mw.reset() is used.
         """,
     ),
     Hook(
@@ -434,6 +418,22 @@ hooks = [
         ],
         doc="""Called each time the focus changes. Can be used to defer updates from
         `operation_did_execute` until a window is brought to the front.""",
+    ),
+    Hook(
+        name="backend_will_block",
+        doc="""Called before one or more operations are executed with mw.perform_op().
+        
+        Subscribers can use this to set a flag to avoid DB queries until the operation
+        completes, as doing so will freeze the UI until the long-running operation
+        completes.
+        """,
+    ),
+    Hook(
+        name="backend_did_block",
+        doc="""Called after one or more operations are executed with mw.perform_op().
+        Called regardless of the success of individual operations, and only called when
+        there are no outstanding ops.
+        """,
     ),
     # Webview
     ###################
