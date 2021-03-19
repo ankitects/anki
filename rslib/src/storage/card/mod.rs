@@ -230,6 +230,7 @@ impl super::SqliteStorage {
         today: u32,
         mtime: TimestampSecs,
         usn: Usn,
+        v1_sched: bool,
     ) -> Result<(usize, usize)> {
         let new_cnt = self
             .db
@@ -242,7 +243,7 @@ impl super::SqliteStorage {
         other_cnt += self
             .db
             .prepare(include_str!("fix_odue.sql"))?
-            .execute(params![mtime, usn])?;
+            .execute(params![mtime, usn, v1_sched])?;
         other_cnt += self
             .db
             .prepare(include_str!("fix_ivl.sql"))?
