@@ -12,8 +12,9 @@
 
     export let tags: string[];
 
-    let activeTag: ?number;
-    let newTagname = "";
+    let activeTag: number;
+    let tagnameNew: string = "";
+    let tagInputNew: HTMLInputElement;
 
     function tagsUpdated(): void {
         activeTag = null;
@@ -29,13 +30,13 @@
     }
 
     function tagAdded(event: FocusEvent): void {
-        const normalized = normalizeTagname(newTagname);
+        const normalized = normalizeTagname(tagnameNew);
 
         if (normalized) {
             tags = [normalized, ...tags].sort();
         }
 
-        newTagname = "";
+        tagnameNew = "";
     }
 
     tags.sort();
@@ -48,7 +49,7 @@
 
 <span>Tags</span>
 
-<span class="tags d-inline-flex flex-wrap justify-content-between">
+<span class="tags d-inline-flex flex-wrap justify-content-between" on:click={() => tagInputNew.focus()}>
     {#each tags as tagname, index}
         {#if index === activeTag}
             <TagInputEdit bind:name={tagname} on:blur={tagsUpdated} />
@@ -59,5 +60,5 @@
         {/if}
     {/each}
 
-    <TagInputNew bind:name={newTagname} on:blur={tagAdded} />
+    <TagInputNew bind:name={tagnameNew} bind:input={tagInputNew} on:blur={tagAdded} />
 </span>

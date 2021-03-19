@@ -15,11 +15,9 @@
 </script>
 
 <style lang="scss">
-    input {
+    span {
         color: var(--text-fg);
-        background-color: transparent;
-
-        border: none;
+        background: none;
 
         &:focus {
             outline: none;
@@ -27,4 +25,10 @@
     }
 </style>
 
-<input type="text" bind:value={name} bind:this={input} on:keydown={onKeydown} on:blur />
+<span
+     contenteditable
+     bind:textContent={name}
+     bind:this={input}
+     on:keydown={onKeydown}
+     on:blur
+ />

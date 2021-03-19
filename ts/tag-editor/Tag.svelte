@@ -9,7 +9,7 @@
     }
 </style>
 
-<span class="tag text-nowrap bg-secondary rounded p-1 me-2" on:click>
+<span class="tag text-nowrap bg-secondary rounded p-1 me-2" on:click|stopPropagation>
     <span>{name}</span>
     <slot name="after" />
 </span>
