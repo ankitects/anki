@@ -1,0 +1,84 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use super::prefix_replacer::PrefixReplacer;
+use crate::prelude::*;
+
+impl Collection {
+    /// Take tags as a whitespace-separated string and remove them from all notes and the tag list.
+    pub fn remove_tags(&mut self, tags: &str) -> Result<OpOutput<usize>> {
+        self.transact(Op::RemoveTag, |col| col.remove_tags_inner(tags))
+    }
+
+    /// Remove tags not referenced by notes, returning removed count.
+    pub fn clear_unused_tags(&mut self) -> Result<OpOutput<usize>> {
+        self.transact(Op::ClearUnusedTags, |col| col.clear_unused_tags_inner())
+    }
+}
+
+impl Collection {
+    fn remove_tags_inner(&mut self, tags: &str) -> Result<usize> {
+        let usn = self.usn()?;
+
+        // gather tags that need removing
+        let mut re = PrefixReplacer::new(tags)?;
+        let matched_notes = self
+            .storage
+            .get_note_tags_by_predicate(|tags| re.is_match(tags))?;
+        let match_count = matched_notes.len();
+
+        // remove from the tag list
+        for tag in self.storage.get_tags_by_predicate(|tag| re.is_match(tag))? {
+            self.remove_single_tag_undoable(tag)?;
+        }
+
+        // replace tags
+        for mut note in matched_notes {
+            let original = note.clone();
+            note.tags = re.remove(&note.tags);
+            note.set_modified(usn);
+            self.update_note_tags_undoable(&note, original)?;
+        }
+
+        Ok(match_count)
+    }
+
+    fn clear_unused_tags_inner(&mut self) -> Result<usize> {
+        let mut count = 0;
+        let in_notes = self.storage.all_tags_in_notes()?;
+        let need_remove = self
+            .storage
+            .all_tags()?
+            .into_iter()
+            .filter(|tag| !in_notes.contains(&tag.name));
+        for tag in need_remove {
+            self.remove_single_tag_undoable(tag)?;
+            count += 1;
+        }
+
+        Ok(count)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::collection::open_test_collection;
+
+    #[test]
+    fn clearing() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags.push("one".into());
+        note.tags.push("two".into());
+        col.add_note(&mut note, DeckID(1))?;
+
+        col.set_tag_expanded("one", true)?;
+        col.clear_unused_tags()?;
+        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
+        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
+
+        Ok(())
+    }
+}
