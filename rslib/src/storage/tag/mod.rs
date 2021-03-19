@@ -93,14 +93,6 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn clear_tag_and_children(&self, tag: &str) -> Result<()> {
-        self.db
-            .prepare_cached("delete from tags where tag regexp ?")?
-            .execute(&[format!("(?i)^{}($|::)", regex::escape(tag))])?;
-
-        Ok(())
-    }
-
     pub(crate) fn set_tag_collapsed(&self, tag: &str, collapsed: bool) -> Result<()> {
         self.db
             .prepare_cached("update tags set collapsed = ? where tag = ?")?

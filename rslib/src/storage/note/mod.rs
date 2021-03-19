@@ -159,21 +159,6 @@ impl super::SqliteStorage {
         Ok(seen)
     }
 
-    pub(crate) fn for_each_note_tags<F>(&self, mut func: F) -> Result<()>
-    where
-        F: FnMut(NoteID, String) -> Result<()>,
-    {
-        let mut stmt = self.db.prepare_cached("select id, tags from notes")?;
-        let mut rows = stmt.query(NO_PARAMS)?;
-        while let Some(row) = rows.next()? {
-            let id: NoteID = row.get(0)?;
-            let tags: String = row.get(1)?;
-            func(id, tags)?
-        }
-
-        Ok(())
-    }
-
     pub(crate) fn get_note_tags_by_id(&mut self, note_id: NoteID) -> Result<Option<NoteTags>> {
         self.db
             .prepare_cached(&format!("{} where id = ?", include_str!("get_tags.sql")))?

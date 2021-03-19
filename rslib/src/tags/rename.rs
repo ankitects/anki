@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{is_tag_separator, prefix_replacer::PrefixReplacer, Tag};
+use super::{is_tag_separator, matcher::TagMatcher, Tag};
 use crate::prelude::*;
 
 impl Collection {
@@ -35,7 +35,7 @@ impl Collection {
         let new_prefix = &tag.name;
 
         // gather tags that need replacing
-        let mut re = PrefixReplacer::new(old_prefix)?;
+        let mut re = TagMatcher::new(old_prefix)?;
         let matched_notes = self
             .storage
             .get_note_tags_by_predicate(|tags| re.is_match(tags))?;
@@ -59,7 +59,7 @@ impl Collection {
         }
 
         // update tag list
-        for tag in re.into_seen_tags() {
+        for tag in re.into_new_tags() {
             self.register_tag_string(tag, usn)?;
         }
 

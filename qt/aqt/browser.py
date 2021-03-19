@@ -26,12 +26,7 @@ from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.find_and_replace import FindAndReplaceDialog
 from aqt.main import ResetReason
-from aqt.note_ops import (
-    add_tags,
-    clear_unused_tags,
-    remove_notes,
-    remove_tags_for_notes,
-)
+from aqt.note_ops import remove_notes
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
@@ -43,6 +38,7 @@ from aqt.scheduling_ops import (
     unsuspend_cards,
 )
 from aqt.sidebar import SidebarTreeView
+from aqt.tag_ops import add_tags, clear_unused_tags, remove_tags_for_notes
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,

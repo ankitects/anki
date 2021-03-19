@@ -6,16 +6,16 @@ use std::{borrow::Cow, collections::HashSet};
 
 use super::{join_tags, split_tags};
 use crate::prelude::*;
-pub(crate) struct PrefixReplacer {
+pub(crate) struct TagMatcher {
     regex: Regex,
-    seen_tags: HashSet<String>,
+    new_tags: HashSet<String>,
 }
 
 /// Helper to match any of the provided space-separated tags in a space-
 /// separated list of tags, and replace the prefix.
 ///
 /// Tracks seen tags during replacement, so the tag list can be updated as well.
-impl PrefixReplacer {
+impl TagMatcher {
     pub fn new(space_separated_tags: &str) -> Result<Self> {
         // convert "fo*o bar" into "fo\*o|bar"
         let tags: Vec<_> = split_tags(space_separated_tags)
@@ -43,7 +43,7 @@ impl PrefixReplacer {
 
         Ok(Self {
             regex,
-            seen_tags: HashSet::new(),
+            new_tags: HashSet::new(),
         })
     }
 
@@ -54,25 +54,54 @@ impl PrefixReplacer {
     pub fn replace(&mut self, space_separated_tags: &str, replacement: &str) -> String {
         let tags: Vec<_> = split_tags(space_separated_tags)
             .map(|tag| {
-                self.regex
-                    .replace(tag, |caps: &Captures| {
-                        // if we captured the child separator, add it to the replacement
-                        if caps.get(2).is_some() {
-                            Cow::Owned(format!("{}::", replacement))
-                        } else {
-                            Cow::Borrowed(replacement)
-                        }
-                    })
-                    .to_string()
+                let out = self.regex.replace(tag, |caps: &Captures| {
+                    // if we captured the child separator, add it to the replacement
+                    if caps.get(2).is_some() {
+                        Cow::Owned(format!("{}::", replacement))
+                    } else {
+                        Cow::Borrowed(replacement)
+                    }
+                });
+                if let Cow::Owned(out) = out {
+                    if !self.new_tags.contains(&out) {
+                        self.new_tags.insert(out.clone());
+                    }
+                    out
+                } else {
+                    out.to_string()
+                }
             })
             .collect();
 
-        for tag in &tags {
-            // sadly HashSet doesn't have an entry API at the moment
-            if !self.seen_tags.contains(tag) {
-                self.seen_tags.insert(tag.clone());
-            }
-        }
+        join_tags(tags.as_slice())
+    }
+
+    /// The `replacement` function should return the text to use as a replacement.
+    pub fn replace_with_fn<F>(&mut self, space_separated_tags: &str, replacer: F) -> String
+    where
+        F: Fn(&str) -> String,
+    {
+        let tags: Vec<_> = split_tags(space_separated_tags)
+            .map(|tag| {
+                let out = self.regex.replace(tag, |caps: &Captures| {
+                    let replacement = replacer(caps.get(1).unwrap().as_str());
+                    // if we captured the child separator, add it to the replacement
+                    if caps.get(2).is_some() {
+                        format!("{}::", replacement)
+                    } else {
+                        replacement
+                    }
+                });
+                if let Cow::Owned(out) = out {
+                    if !self.new_tags.contains(&out) {
+                        self.new_tags.insert(out.clone());
+                    }
+                    out
+                } else {
+                    out.to_string()
+                }
+            })
+            .collect();
 
         join_tags(tags.as_slice())
     }
@@ -87,8 +116,10 @@ impl PrefixReplacer {
         join_tags(tags.as_slice())
     }
 
-    pub fn into_seen_tags(self) -> HashSet<String> {
-        self.seen_tags
+    /// Returns all replaced values that were used, so they can be registered
+    /// into the tag list.
+    pub fn into_new_tags(self) -> HashSet<String> {
+        self.new_tags
     }
 }
 
@@ -98,12 +129,12 @@ mod test {
 
     #[test]
     fn regex() -> Result<()> {
-        let re = PrefixReplacer::new("one two")?;
+        let re = TagMatcher::new("one two")?;
         assert_eq!(re.is_match(" foo "), false);
         assert_eq!(re.is_match(" foo one "), true);
         assert_eq!(re.is_match(" two foo "), true);
 
-        let mut re = PrefixReplacer::new("foo")?;
+        let mut re = TagMatcher::new("foo")?;
         assert_eq!(re.is_match("foo"), true);
         assert_eq!(re.is_match(" foo "), true);
         assert_eq!(re.is_match(" bar foo baz "), true);

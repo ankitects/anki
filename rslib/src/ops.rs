@@ -13,9 +13,10 @@ pub enum Op {
     FindAndReplace,
     RemoveDeck,
     RemoveNote,
+    RemoveTag,
     RenameDeck,
     RenameTag,
-    RemoveTag,
+    ReparentTag,
     ScheduleAsNew,
     SetDeck,
     SetDueDate,
@@ -56,6 +57,7 @@ impl Op {
             Op::SortCards => TR::BrowsingReschedule,
             Op::RenameTag => TR::ActionsRenameTag,
             Op::RemoveTag => TR::ActionsRemoveTag,
+            Op::ReparentTag => TR::UndoReparent,
         };
 
         i18n.tr(key).to_string()

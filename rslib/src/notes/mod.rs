@@ -20,7 +20,6 @@ use crate::{
 };
 use itertools::Itertools;
 use num_integer::Integer;
-use regex::{Regex, Replacer};
 use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
@@ -208,32 +207,6 @@ impl Note {
                 )
             })
             .collect()
-    }
-
-    pub(crate) fn replace_tags<T: Replacer>(&mut self, re: &Regex, mut repl: T) -> bool {
-        let mut changed = false;
-        for tag in &mut self.tags {
-            if let Cow::Owned(rep) = re.replace_all(tag, |caps: &regex::Captures| {
-                if let Some(expanded) = repl.by_ref().no_expansion() {
-                    if expanded.trim().is_empty() {
-                        "".to_string()
-                    } else {
-                        // include "::" if it was matched
-                        format!(
-                            "{}{}",
-                            expanded,
-                            caps.get(caps.len() - 1).map_or("", |m| m.as_str())
-                        )
-                    }
-                } else {
-                    tag.to_string()
-                }
-            }) {
-                *tag = rep;
-                changed = true;
-            }
-        }
-        changed
     }
 
     /// Pad or merge fields to match note type.

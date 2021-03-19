@@ -40,14 +40,14 @@ impl TagsService for Backend {
         self.with_col(|col| col.tag_tree())
     }
 
-    fn drag_drop_tags(&self, input: pb::DragDropTagsIn) -> Result<pb::Empty> {
-        let source_tags = input.source_tags;
-        let target_tag = if input.target_tag.is_empty() {
+    fn reparent_tags(&self, input: pb::ReparentTagsIn) -> Result<pb::OpChangesWithCount> {
+        let source_tags = input.tags;
+        let target_tag = if input.new_parent.is_empty() {
             None
         } else {
-            Some(input.target_tag)
+            Some(input.new_parent)
         };
-        self.with_col(|col| col.drag_drop_tags(&source_tags, target_tag))
+        self.with_col(|col| col.reparent_tags(&source_tags, target_tag))
             .map(Into::into)
     }
 

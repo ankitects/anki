@@ -19,7 +19,7 @@ from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.card_ops import set_card_flag
-from aqt.note_ops import add_tags, remove_notes, remove_tags_for_notes
+from aqt.note_ops import remove_notes
 from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.scheduling_ops import (
@@ -30,6 +30,7 @@ from aqt.scheduling_ops import (
     suspend_note,
 )
 from aqt.sound import av_player, play_clicked_audio, record_audio
+from aqt.tag_ops import add_tags, remove_tags_for_notes
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import (

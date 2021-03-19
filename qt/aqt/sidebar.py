@@ -17,10 +17,9 @@ from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
 from aqt.deck_ops import remove_decks
-from aqt.main import ResetReason
 from aqt.models import Models
-from aqt.note_ops import remove_tags_for_all_notes, rename_tag
 from aqt.qt import *
+from aqt.tag_ops import remove_tags_for_all_notes, rename_tag, reparent_tags
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
     TR,
@@ -634,33 +633,21 @@ class SidebarTreeView(QTreeView):
     def _handle_drag_drop_tags(
         self, sources: List[SidebarItem], target: SidebarItem
     ) -> bool:
-        source_ids = [
+        tags = [
             source.full_name
             for source in sources
             if source.item_type == SidebarItemType.TAG
         ]
-        if not source_ids:
+        if not tags:
             return False
 
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-            self.browser.model.endReset()
-            fut.result()
-            self.refresh()
-
         if target.item_type == SidebarItemType.TAG_ROOT:
-            target_name = ""
+            new_parent = ""
         else:
-            target_name = target.full_name
+            new_parent = target.full_name
 
-        def on_save() -> None:
-            self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
-            self.browser.model.beginReset()
-            self.mw.taskman.with_progress(
-                lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
-            )
+        reparent_tags(mw=self.mw, parent=self.browser, tags=tags, new_parent=new_parent)
 
-        self.browser.editor.call_after_note_saved(on_save)
         return True
 
     def _on_search(self, index: QModelIndex) -> None:
