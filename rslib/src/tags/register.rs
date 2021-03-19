@@ -10,6 +10,8 @@ use unicase::UniCase;
 impl Collection {
     /// Given a list of tags, fix case, ordering and duplicates.
     /// Returns true if any new tags were added.
+    /// Each tag is split on spaces, so if you have a &str, you
+    /// can pass that in as a one-element vec.
     pub(crate) fn canonify_tags(
         &mut self,
         tags: Vec<String>,

@@ -224,7 +224,7 @@ service TagsService {
   rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
   rpc AddNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
   rpc RemoveNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
-  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (OpChangesWithCount);
+  rpc FindAndReplaceTag(FindAndReplaceTagIn) returns (OpChangesWithCount);
 }
 
 service SearchService {
@@ -1049,11 +1049,12 @@ message NoteIDsAndTagsIn {
   string tags = 2;
 }
 
-message UpdateNoteTagsIn {
-  repeated int64 nids = 1;
-  string tags = 2;
+message FindAndReplaceTagIn {
+  repeated int64 note_ids = 1;
+  string search = 2;
   string replacement = 3;
   bool regex = 4;
+  bool match_case = 5;
 }
 
 message CheckDatabaseOut {

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import html
 import time
-from concurrent.futures import Future
 from dataclasses import dataclass, field
 from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
@@ -25,11 +24,11 @@ from aqt import AnkiQt, colors, gui_hooks
 from aqt.card_ops import set_card_deck, set_card_flag
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
+from aqt.find_and_replace import FindAndReplaceDialog
 from aqt.main import ResetReason
 from aqt.note_ops import (
     add_tags,
     clear_unused_tags,
-    find_and_replace,
     remove_notes,
     remove_tags_for_notes,
 )
@@ -59,14 +58,12 @@ from aqt.utils import (
     qtMenuShortcutWorkaround,
     restore_combo_history,
     restore_combo_index_for_session,
-    restore_is_checked,
     restoreGeom,
     restoreHeader,
     restoreSplitter,
     restoreState,
     save_combo_history,
     save_combo_index_for_session,
-    save_is_checked,
     saveGeom,
     saveHeader,
     saveSplitter,
@@ -169,7 +166,7 @@ class DataModel(QAbstractTableModel):
                 return entry
         elif self.block_updates:
             # blank entry until we unblock
-            return CellRow(columns=[Cell(text="blocked")] * len(self.activeCols))
+            return CellRow(columns=[Cell(text="...")] * len(self.activeCols))
         else:
             # missing entry, need to build
             entry = self._build_cell_row(row)
@@ -1559,77 +1556,16 @@ where id in %s"""
         nids = self.selected_notes()
         if not nids:
             return
-        import anki.find
 
-        def find() -> List[str]:
-            return anki.find.fieldNamesForNotes(self.mw.col, nids)
-
-        def on_done(fut: Future) -> None:
-            self._on_find_replace_diag(fut.result(), nids)
-
-        self.mw.taskman.with_progress(find, on_done, self)
-
-    def _on_find_replace_diag(self, fields: List[str], nids: List[int]) -> None:
-        d = QDialog(self)
-        disable_help_button(d)
-        frm = aqt.forms.findreplace.Ui_Dialog()
-        frm.setupUi(d)
-        d.setWindowModality(Qt.WindowModal)
-
-        combo = "BrowserFindAndReplace"
-        findhistory = restore_combo_history(frm.find, combo + "Find")
-        frm.find._completer().setCaseSensitivity(True)
-        replacehistory = restore_combo_history(frm.replace, combo + "Replace")
-        frm.replace._completer().setCaseSensitivity(True)
-
-        restore_is_checked(frm.re, combo + "Regex")
-        restore_is_checked(frm.ignoreCase, combo + "ignoreCase")
-
-        frm.find.setFocus()
-        allfields = [tr(TR.BROWSING_ALL_FIELDS)] + fields
-        frm.field.addItems(allfields)
-        restore_combo_index_for_session(frm.field, allfields, combo + "Field")
-        qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
-        restoreGeom(d, "findreplace")
-        r = d.exec_()
-        saveGeom(d, "findreplace")
-        if not r:
-            return
-
-        save_combo_index_for_session(frm.field, combo + "Field")
-        if frm.field.currentIndex() == 0:
-            field = None
-        else:
-            field = fields[frm.field.currentIndex() - 1]
-
-        search = save_combo_history(frm.find, findhistory, combo + "Find")
-        replace = save_combo_history(frm.replace, replacehistory, combo + "Replace")
-
-        regex = frm.re.isChecked()
-        match_case = not frm.ignoreCase.isChecked()
-
-        save_is_checked(frm.re, combo + "Regex")
-        save_is_checked(frm.ignoreCase, combo + "ignoreCase")
-
-        find_and_replace(
-            mw=self.mw,
-            parent=self,
-            note_ids=nids,
-            search=search,
-            replacement=replace,
-            regex=regex,
-            field_name=field,
-            match_case=match_case,
-        )
-
-    def onFindReplaceHelp(self) -> None:
-        openHelp(HelpPage.BROWSING_FIND_AND_REPLACE)
+        FindAndReplaceDialog(self, mw=self.mw, note_ids=nids)
 
     # Edit: finding dupes
     ######################################################################
 
     @ensure_editor_saved
     def onFindDupes(self) -> None:
+        import anki.find
+
         d = QDialog(self)
         self.mw.garbage_collect_on_dialog_finish(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
