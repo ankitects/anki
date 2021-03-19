@@ -47,18 +47,36 @@
     }
 </script>
 
+<style lang="scss">
+    ol {
+        padding-left: 0.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    li {
+        position: relative;
+        display: inline;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
 <span>Tags</span>
 
-<span class="tags d-inline-flex flex-wrap justify-content-between" on:click={() => tagInputNew.focus()}>
+<ol class="d-flex flex-wrap" on:click={() => tagInputNew.focus()}>
     {#each tags as tagname, index}
-        {#if index === activeTag}
-            <TagInputEdit bind:name={tagname} on:blur={tagsUpdated} />
-        {:else}
-            <Tag name={tagname} on:click={() => tagActivated(index)}>
-                <DeleteIcon slot="after" on:click={() => tagDeleted(index)} />
-            </Tag>
-        {/if}
+        <li>
+            {#if index === activeTag}
+                <TagInputEdit bind:name={tagname} on:blur={tagsUpdated} />
+            {:else}
+                <Tag name={tagname} on:click={() => tagActivated(index)}>
+                    <DeleteIcon slot="after" on:click={() => tagDeleted(index)} />
+                </Tag>
+            {/if}
+        </li>
     {/each}
 
-    <TagInputNew bind:name={tagnameNew} bind:input={tagInputNew} on:blur={tagAdded} />
-</span>
+    <li>
+        <TagInputNew bind:name={tagnameNew} bind:input={tagInputNew} on:blur={tagAdded} />
+    </li>
+</ol>
