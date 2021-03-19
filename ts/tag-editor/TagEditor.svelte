@@ -12,7 +12,7 @@
 
     export let tags: string[];
 
-    let activeTag: number?;
+    let activeTag: ?number;
     let newTagname = "";
 
     function tagsUpdated(): void {
@@ -29,10 +29,10 @@
     }
 
     function tagAdded(event: FocusEvent): void {
-        const normalized = normalizeTagname(newTagname)
+        const normalized = normalizeTagname(newTagname);
 
         if (normalized) {
-            tags = [normalized, ...tags].sort()
+            tags = [normalized, ...tags].sort();
         }
 
         newTagname = "";
@@ -46,9 +46,6 @@
     }
 </script>
 
-<style lang="scss">
-</style>
-
 <span>Tags</span>
 
 <span class="tags d-inline-flex flex-wrap justify-content-between">
@@ -56,8 +53,8 @@
         {#if index === activeTag}
             <TagInputEdit bind:name={tagname} on:blur={tagsUpdated} />
         {:else}
-            <Tag name={tagname}  on:click={() => tagActivated(index)}>
-                <DeleteIcon slot="after"  on:click={() => tagDeleted(index)}></DeleteIcon>
+            <Tag name={tagname} on:click={() => tagActivated(index)}>
+                <DeleteIcon slot="after" on:click={() => tagDeleted(index)} />
             </Tag>
         {/if}
     {/each}

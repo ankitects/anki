@@ -11,5 +11,5 @@
 
 <span class="tag text-nowrap bg-secondary rounded p-1 me-2" on:click>
     <span>{name}</span>
-    <slot name="after"></slot>
+    <slot name="after" />
 </span>

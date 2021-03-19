@@ -1,10 +1,10 @@
 <script lang="typescript">
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher } from "svelte";
 
     export let name: string;
+    export let input: HTMLInputElement;
 
     const dispatch = createEventDispatcher();
-    let input: HTMLInputElement?;
 
     function onKeydown(event: KeyboardEvent): void {
         if (event.code === "Space") {
@@ -12,10 +12,6 @@
             event.preventDefault();
         }
     }
-
-    onMount(() => {
-        /* dispatch("mount", { input }); */
-    });
 </script>
 
 <style lang="scss">

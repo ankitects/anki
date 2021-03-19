@@ -1,7 +1,11 @@
 <script lang="typescript">
+    import { onMount } from "svelte";
+
     import TagInput from "./TagInput.svelte";
 
     export let name;
+
+    let input: HTMLInputElement;
 
     function moveCursorToEnd(element: Element): void {
         element.selectionStart = element.selectionEnd = element.value.length;
@@ -16,14 +20,14 @@
         selection.addRange(range);
     }
 
-    function focus(event: FocusEvent): void {
-        event.details.input.focus();
-        moveCursorToEnd(event.details.input);
-    }
+    onMount(() => {
+        input.focus();
+        moveCursorToEnd(input);
+    });
 
     function onKeydown(event: KeyboardEvent): void {
         console.log("onkeydown");
     }
 </script>
 
-<TagInput bind:name on:mount={focus} on:keydown={onKeydown} on:blur />
+<TagInput bind:name bind:input on:keydown={onKeydown} on:blur />

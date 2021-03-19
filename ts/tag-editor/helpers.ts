@@ -4,11 +4,9 @@ export function normalizeTagname(tagname: string): string {
     while (true) {
         if (trimmed.startsWith("::")) {
             trimmed = trimmed.slice(2).trimStart();
-        }
-        else if (trimmed.endsWith("::")) {
+        } else if (trimmed.endsWith("::")) {
             trimmed = trimmed.slice(0, -2).trimEnd();
-        }
-        else {
+        } else {
             return trimmed;
         }
     }

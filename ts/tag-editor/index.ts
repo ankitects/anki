@@ -6,14 +6,13 @@ import { setupI18n } from "anki/i18n";
 import { checkNightMode } from "anki/nightmode";
 import TagEditorSvelte from "./TagEditor.svelte";
 
-
 class TagEditor extends HTMLElement {
     component?: SvelteComponent;
-    initialTags: string[] = []
+    initialTags: string[] = [];
 
     async connectedCallback(): Promise<void> {
         const nightMode = checkNightMode();
-        const i18n = await setupI18n()
+        const i18n = await setupI18n();
 
         this.component = new TagEditorSvelte({
             target: this,
@@ -28,11 +27,10 @@ class TagEditor extends HTMLElement {
     set tags(newTags: string[]) {
         if (this.component) {
             this.component.$set({ tags: newTags });
-        }
-        else {
+        } else {
             this.initialTags = newTags;
         }
     }
 }
 
-customElements.define("anki-tageditor", TagEditor)
+customElements.define("anki-tageditor", TagEditor);

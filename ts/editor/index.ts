@@ -33,7 +33,7 @@ declare global {
     interface Global {
         anki: {
             tagEditor(target: HTMLDivElement): void;
-        }
+        };
     }
 }
 

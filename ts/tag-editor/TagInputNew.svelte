@@ -4,7 +4,7 @@
     export let name;
 
     function onKeydown(event: KeyboardEvent): void {
-        console.log('onkeydown')
+        console.log("onkeydown");
     }
 </script>
 
