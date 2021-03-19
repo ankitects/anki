@@ -39,14 +39,28 @@ def remove_notes(
     mw.perform_op(lambda: mw.col.remove_notes(note_ids), success=success)
 
 
-def add_tags(*, mw: AnkiQt, note_ids: Sequence[int], space_separated_tags: str) -> None:
-    mw.perform_op(lambda: mw.col.tags.bulk_add(note_ids, space_separated_tags))
+def add_tags(
+    *,
+    mw: AnkiQt,
+    note_ids: Sequence[int],
+    space_separated_tags: str,
+    success: PerformOpOptionalSuccessCallback = None,
+) -> None:
+    mw.perform_op(
+        lambda: mw.col.tags.bulk_add(note_ids, space_separated_tags), success=success
+    )
 
 
 def remove_tags_for_notes(
-    *, mw: AnkiQt, note_ids: Sequence[int], space_separated_tags: str
+    *,
+    mw: AnkiQt,
+    note_ids: Sequence[int],
+    space_separated_tags: str,
+    success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
-    mw.perform_op(lambda: mw.col.tags.bulk_remove(note_ids, space_separated_tags))
+    mw.perform_op(
+        lambda: mw.col.tags.bulk_remove(note_ids, space_separated_tags), success=success
+    )
 
 
 def clear_unused_tags(*, mw: AnkiQt, parent: QWidget) -> None:

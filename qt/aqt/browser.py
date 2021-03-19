@@ -1353,7 +1353,14 @@ where id in %s"""
             tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
         ):
             return
-        add_tags(mw=self.mw, note_ids=self.selected_notes(), space_separated_tags=tags)
+        add_tags(
+            mw=self.mw,
+            note_ids=self.selected_notes(),
+            space_separated_tags=tags,
+            success=lambda out: tooltip(
+                tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=self
+            ),
+        )
 
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
@@ -1363,7 +1370,12 @@ where id in %s"""
         ):
             return
         remove_tags_for_notes(
-            mw=self.mw, note_ids=self.selected_notes(), space_separated_tags=tags
+            mw=self.mw,
+            note_ids=self.selected_notes(),
+            space_separated_tags=tags,
+            success=lambda out: tooltip(
+                tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=self
+            ),
         )
 
     def _prompt_for_tags(self, prompt: str) -> Optional[str]:

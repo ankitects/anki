@@ -445,7 +445,7 @@ impl super::SqliteStorage {
 
     /// Injects the provided card IDs into the search_cids table, for
     /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_cards().
+    /// Clear with clear_searched_cards_table().
     pub(crate) fn set_search_table_to_card_ids(
         &mut self,
         cards: &[CardID],
