@@ -49,7 +49,7 @@ def findReplace(
 
 
 def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
-    return list(col._backend.field_names_for_notes(nids))
+    return list(col.field_names_for_note_ids(nids))
 
 
 # Find duplicates

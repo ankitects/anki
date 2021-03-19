@@ -3,11 +3,11 @@
 
 mod bulkadd;
 mod dragdrop;
+mod findreplace;
 mod prefix_replacer;
 mod register;
 mod remove;
 mod rename;
-mod selectednotes;
 mod tree;
 pub(crate) mod undo;
 

@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence
+from typing import Callable, Sequence
 
 from anki.collection import OpChangesWithCount
 from anki.lang import TR
 from anki.notes import Note
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
-from aqt.utils import show_invalid_search_error, showInfo, tooltip, tr
+from aqt.utils import showInfo, tooltip, tr
 
 
 def add_note(
@@ -101,32 +101,4 @@ def remove_tags_for_all_notes(
         success=lambda out: tooltip(
             tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent
         ),
-    )
-
-
-def find_and_replace(
-    *,
-    mw: AnkiQt,
-    parent: QWidget,
-    note_ids: Sequence[int],
-    search: str,
-    replacement: str,
-    regex: bool,
-    field_name: Optional[str],
-    match_case: bool,
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.find_and_replace(
-            note_ids=note_ids,
-            search=search,
-            replacement=replacement,
-            regex=regex,
-            field_name=field_name,
-            match_case=match_case,
-        ),
-        success=lambda out: showInfo(
-            tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
-            parent=parent,
-        ),
-        failure=lambda exc: show_invalid_search_error(exc, parent=parent),
     )

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{prefix_replacer::PrefixReplacer, Tag};
+use super::{is_tag_separator, prefix_replacer::PrefixReplacer, Tag};
 use crate::prelude::*;
 
 impl Collection {
@@ -16,7 +16,7 @@ impl Collection {
 
 impl Collection {
     fn rename_tag_inner(&mut self, old_prefix: &str, new_prefix: &str) -> Result<usize> {
-        if new_prefix.contains(' ') {
+        if new_prefix.contains(is_tag_separator) {
             return Err(AnkiError::invalid_input(
                 "replacement name can not contain a space",
             ));

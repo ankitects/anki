@@ -70,13 +70,17 @@ impl TagsService for Backend {
         })
     }
 
-    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn find_and_replace_tag(
+        &self,
+        input: pb::FindAndReplaceTagIn,
+    ) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
-            col.replace_tags_for_notes(
-                &to_note_ids(input.nids),
-                &input.tags,
+            col.find_and_replace_tag(
+                &to_note_ids(input.note_ids),
+                &input.search,
                 &input.replacement,
                 input.regex,
+                input.match_case,
             )
             .map(Into::into)
         })

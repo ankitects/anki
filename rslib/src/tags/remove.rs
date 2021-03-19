@@ -97,6 +97,7 @@ impl Collection {
 mod test {
     use super::*;
     use crate::collection::open_test_collection;
+    use crate::tags::Tag;
 
     #[test]
     fn clearing() -> Result<()> {
@@ -111,6 +112,14 @@ mod test {
         col.clear_unused_tags()?;
         assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
         assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
+
+        // tag children are also cleared when clearing their parent
+        col.storage.clear_all_tags()?;
+        for name in vec!["a", "a::b", "A::b::c"] {
+            col.register_tag(&mut Tag::new(name.to_string(), Usn(0)))?;
+        }
+        col.remove_tags("a")?;
+        assert_eq!(col.storage.all_tags()?, vec![]);
 
         Ok(())
     }

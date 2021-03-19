@@ -78,13 +78,23 @@ class TagManager:
     # Find&replace
     #############################################################
 
-    def bulk_update(
-        self, nids: Sequence[int], tags: str, replacement: str, regex: bool
+    def find_and_replace(
+        self,
+        note_ids: Sequence[int],
+        search: str,
+        replacement: str,
+        regex: bool,
+        match_case: bool,
     ) -> OpChangesWithCount:
-        """Replace space-separated tags, returning changed count.
-        Tags replaced with an empty string will be removed."""
-        return self.col._backend.update_note_tags(
-            nids=nids, tags=tags, replacement=replacement, regex=regex
+        """Replace instances of 'search' with 'replacement' in tags.
+        Each tag is matched separately. If the replacement results in an empty string,
+        the tag will be removed."""
+        return self.col._backend.find_and_replace_tag(
+            note_ids=note_ids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            match_case=match_case,
         )
 
     # Bulk addition/removal based on tag
