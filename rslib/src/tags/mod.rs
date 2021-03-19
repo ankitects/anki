@@ -2,12 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod bulkadd;
-mod dragdrop;
 mod findreplace;
-mod prefix_replacer;
+mod matcher;
 mod register;
 mod remove;
 mod rename;
+mod reparent;
 mod tree;
 pub(crate) mod undo;
 

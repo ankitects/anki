@@ -108,10 +108,10 @@ class TagManager:
         "Remove the provided tag(s) and their children from notes and the tag list."
         return self.col._backend.remove_tags(val=space_separated_tags)
 
-    def drag_drop(self, source_tags: List[str], target_tag: str) -> None:
-        """Rename one or more source tags that were dropped on `target_tag`.
-        If target_tag is "", tags will be placed at the top level."""
-        self.col._backend.drag_drop_tags(source_tags=source_tags, target_tag=target_tag)
+    def reparent(self, tags: Sequence[str], new_parent: str) -> OpChangesWithCount:
+        """Change the parent of the provided tags.
+        If new_parent is empty, tags will be reparented to the top-level."""
+        return self.col._backend.reparent_tags(tags=tags, new_parent=new_parent)
 
     # String-based utilities
     ##########################################################################

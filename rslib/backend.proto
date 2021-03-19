@@ -220,7 +220,7 @@ service TagsService {
   rpc RemoveTags(String) returns (OpChangesWithCount);
   rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
-  rpc DragDropTags(DragDropTagsIn) returns (Empty);
+  rpc ReparentTags(ReparentTagsIn) returns (OpChangesWithCount);
   rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
   rpc AddNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
   rpc RemoveNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
@@ -926,9 +926,9 @@ message TagTreeNode {
   bool expanded = 4;
 }
 
-message DragDropTagsIn {
-  repeated string source_tags = 1;
-  string target_tag = 2;
+message ReparentTagsIn {
+  repeated string tags = 1;
+  string new_parent = 2;
 }
 
 message RenameTagsIn {

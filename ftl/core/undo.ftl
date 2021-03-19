@@ -19,3 +19,5 @@ undo-update-card = Update Card
 undo-update-deck = Update Deck
 undo-forget-card = Forget Card
 undo-set-flag = Set Flag
+# when dragging/dropping tags and decks in the sidebar
+undo-reparent = Change Parent
