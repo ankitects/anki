@@ -3,6 +3,7 @@
 
 use crate::{
     collection::Collection,
+    config::SchedulerVersion,
     err::{AnkiError, DBErrorKind, Result},
     i18n::{tr_args, I18n, TR},
     notetype::{
@@ -172,6 +173,7 @@ impl Collection {
             timing.days_elapsed,
             TimestampSecs::now(),
             self.usn()?,
+            self.scheduler_version() == SchedulerVersion::V1,
         )?;
         out.card_position_too_high = new_cnt;
         out.card_properties_invalid += other_cnt;
