@@ -1,17 +1,45 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
+    import { normalizeTagname } from "./helpers";
 
     export let name: string;
     export let input: HTMLInputElement;
-    let inputSizer: HTMLLabelElement;
 
     const dispatch = createEventDispatcher();
+
+    function onBlur(): void {
+        dispatch("update", { tagname: normalizeTagname(name) })
+    }
 
     function onKeydown(event: KeyboardEvent): void {
         if (event.code === "Space") {
             name += "::";
             event.preventDefault();
         }
+        else if (event.code === "Backspace" && name.endsWith("::")) {
+            name = name.slice(0, -2);
+            event.preventDefault();
+        }
+        else if (event.code === "Enter") {
+            onBlur();
+            event.preventDefault();
+        }
+    }
+
+    function onPaste({ clipboardData }: ClipboardEvent): void {
+        const pasted = name + clipboardData.getData("text/plain");
+        const splitted = pasted.split(" ");
+        const last = splitted.pop();
+
+        for (const token of splitted) {
+            const normalized = normalizeTagname(token);
+
+            if (normalized) {
+                dispatch("add", { tagname: normalizeTagname(name) })
+            }
+        }
+
+        name = last;
     }
 </script>
 
@@ -53,7 +81,9 @@
         size="1"
         bind:value={name}
         bind:this={input}
+        on:click|stopPropagation
+        on:blur={onBlur}
         on:keydown={onKeydown}
-        on:blur
+        on:paste={onPaste}
         />
 </label>

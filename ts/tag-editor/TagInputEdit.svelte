@@ -30,4 +30,4 @@
     }
 </script>
 
-<TagInput bind:name bind:input on:keydown={onKeydown} on:blur />
+<TagInput bind:name bind:input on:keydown={onKeydown} on:update on:add />

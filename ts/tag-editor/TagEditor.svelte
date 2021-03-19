@@ -13,33 +13,24 @@
     export let tags: string[];
 
     let activeTag: number;
-    let tagnameNew: string = "";
     let tagInputNew: HTMLInputElement;
-
-    function tagsUpdated(): void {
-        activeTag = null;
-        tags = tags.sort();
-    }
 
     function tagActivated(index: number): void {
         activeTag = index;
     }
 
+    function tagAdded({ detail }: Event): void {
+        tags = [detail.tagname, ...tags].sort();
+    }
+
+    function tagUpdated(): void {
+        activeTag = null;
+        tags = tags.sort();
+    }
+
     function tagDeleted(index: number): void {
         tags = [...tags.slice(0, index), ...tags.slice(index + 1)];
     }
-
-    function tagAdded(event: FocusEvent): void {
-        const normalized = normalizeTagname(tagnameNew);
-
-        if (normalized) {
-            tags = [normalized, ...tags].sort();
-        }
-
-        tagnameNew = "";
-    }
-
-    tags.sort();
 
     $: {
         i18n;
@@ -67,7 +58,7 @@
     {#each tags as tagname, index}
         <li>
             {#if index === activeTag}
-                <TagInputEdit bind:name={tagname} on:blur={tagsUpdated} />
+                <TagInputEdit bind:name={tagname} on:add={tagAdded} on:update={tagUpdated} />
             {:else}
                 <Tag name={tagname} on:click={() => tagActivated(index)}>
                     <DeleteIcon slot="after" on:click={() => tagDeleted(index)} />
@@ -77,6 +68,6 @@
     {/each}
 
     <li>
-        <TagInputNew bind:name={tagnameNew} bind:input={tagInputNew} on:blur={tagAdded} />
+        <TagInputNew bind:input={tagInputNew} on:add={tagAdded} />
     </li>
 </ol>
