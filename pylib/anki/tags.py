@@ -68,9 +68,15 @@ class TagManager:
     # Bulk addition/removal from specific notes
     #############################################################
 
-    def bulk_add(self, nids: Sequence[int], tags: str) -> OpChangesWithCount:
+    def bulk_add(self, note_ids: Sequence[int], tags: str) -> OpChangesWithCount:
         """Add space-separate tags to provided notes, returning changed count."""
-        return self.col._backend.add_note_tags(nids=nids, tags=tags)
+        return self.col._backend.add_note_tags(note_ids=note_ids, tags=tags)
+
+    def bulk_remove(self, note_ids: Sequence[int], tags: str) -> OpChangesWithCount:
+        return self.col._backend.remove_note_tags(note_ids=note_ids, tags=tags)
+
+    # Find&replace
+    #############################################################
 
     def bulk_update(
         self, nids: Sequence[int], tags: str, replacement: str, regex: bool
@@ -80,9 +86,6 @@ class TagManager:
         return self.col._backend.update_note_tags(
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
-
-    def bulk_remove(self, nids: Sequence[int], tags: str) -> OpChangesWithCount:
-        return self.bulk_update(nids, tags, "", False)
 
     # Bulk addition/removal based on tag
     #############################################################
@@ -167,7 +170,7 @@ class TagManager:
         if add:
             self.bulk_add(ids, tags)
         else:
-            self.bulk_update(ids, tags, "", False)
+            self.bulk_remove(ids, tags)
 
     def bulkRem(self, ids: List[int], tags: str) -> None:
         self.bulkAdd(ids, tags, False)

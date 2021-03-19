@@ -10,6 +10,17 @@ impl Collection {
         self.transact(Op::RemoveTag, |col| col.remove_tags_inner(tags))
     }
 
+    /// Remove whitespace-separated tags from provided notes.
+    pub fn remove_tags_from_notes(
+        &mut self,
+        nids: &[NoteID],
+        tags: &str,
+    ) -> Result<OpOutput<usize>> {
+        self.transact(Op::RemoveTag, |col| {
+            col.remove_tags_from_notes_inner(nids, tags)
+        })
+    }
+
     /// Remove tags not referenced by notes, returning removed count.
     pub fn clear_unused_tags(&mut self) -> Result<OpOutput<usize>> {
         self.transact(Op::ClearUnusedTags, |col| col.clear_unused_tags_inner())
@@ -34,6 +45,28 @@ impl Collection {
 
         // replace tags
         for mut note in matched_notes {
+            let original = note.clone();
+            note.tags = re.remove(&note.tags);
+            note.set_modified(usn);
+            self.update_note_tags_undoable(&note, original)?;
+        }
+
+        Ok(match_count)
+    }
+
+    fn remove_tags_from_notes_inner(&mut self, nids: &[NoteID], tags: &str) -> Result<usize> {
+        let usn = self.usn()?;
+
+        let mut re = PrefixReplacer::new(tags)?;
+        let mut match_count = 0;
+        let notes = self.storage.get_note_tags_by_id_list(nids)?;
+
+        for mut note in notes {
+            if !re.is_match(&note.tags) {
+                continue;
+            }
+
+            match_count += 1;
             let original = note.clone();
             note.tags = re.remove(&note.tags);
             note.set_modified(usn);

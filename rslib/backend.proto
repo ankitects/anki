@@ -152,8 +152,6 @@ service NotesService {
   rpc UpdateNote(UpdateNoteIn) returns (OpChanges);
   rpc GetNote(NoteID) returns (Note);
   rpc RemoveNotes(RemoveNotesIn) returns (OpChanges);
-  rpc AddNoteTags(AddNoteTagsIn) returns (OpChangesWithCount);
-  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (OpChangesWithCount);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
   rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChanges);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
@@ -224,6 +222,9 @@ service TagsService {
   rpc TagTree(Empty) returns (TagTreeNode);
   rpc DragDropTags(DragDropTagsIn) returns (Empty);
   rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
+  rpc AddNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
+  rpc RemoveNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
+  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (OpChangesWithCount);
 }
 
 service SearchService {
@@ -1043,8 +1044,8 @@ message AfterNoteUpdatesIn {
   bool generate_cards = 3;
 }
 
-message AddNoteTagsIn {
-  repeated int64 nids = 1;
+message NoteIDsAndTagsIn {
+  repeated int64 note_ids = 1;
   string tags = 2;
 }
 

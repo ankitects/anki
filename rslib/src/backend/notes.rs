@@ -87,25 +87,6 @@ impl NotesService for Backend {
         })
     }
 
-    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<pb::OpChangesWithCount> {
-        self.with_col(|col| {
-            col.add_tags_to_notes(&to_note_ids(input.nids), &input.tags)
-                .map(Into::into)
-        })
-    }
-
-    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<pb::OpChangesWithCount> {
-        self.with_col(|col| {
-            col.replace_tags_for_notes(
-                &to_note_ids(input.nids),
-                &input.tags,
-                &input.replacement,
-                input.regex,
-            )
-            .map(Into::into)
-        })
-    }
-
     fn cloze_numbers_in_note(&self, note: pb::Note) -> Result<pb::ClozeNumbersInNoteOut> {
         let mut set = HashSet::with_capacity(4);
         for field in &note.fields {
@@ -158,6 +139,6 @@ impl NotesService for Backend {
     }
 }
 
-fn to_note_ids(ids: Vec<i64>) -> Vec<NoteID> {
+pub(super) fn to_note_ids(ids: Vec<i64>) -> Vec<NoteID> {
     ids.into_iter().map(NoteID).collect()
 }

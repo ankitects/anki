@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::Backend;
+use super::{notes::to_note_ids, Backend};
 use crate::{backend_proto as pb, prelude::*};
 pub(super) use pb::tags_service::Service as TagsService;
 
@@ -54,5 +54,31 @@ impl TagsService for Backend {
     fn rename_tags(&self, input: pb::RenameTagsIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| col.rename_tag(&input.current_prefix, &input.new_prefix))
             .map(Into::into)
+    }
+
+    fn add_note_tags(&self, input: pb::NoteIDsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| {
+            col.add_tags_to_notes(&to_note_ids(input.note_ids), &input.tags)
+                .map(Into::into)
+        })
+    }
+
+    fn remove_note_tags(&self, input: pb::NoteIDsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| {
+            col.remove_tags_from_notes(&to_note_ids(input.note_ids), &input.tags)
+                .map(Into::into)
+        })
+    }
+
+    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| {
+            col.replace_tags_for_notes(
+                &to_note_ids(input.nids),
+                &input.tags,
+                &input.replacement,
+                input.regex,
+            )
+            .map(Into::into)
+        })
     }
 }
