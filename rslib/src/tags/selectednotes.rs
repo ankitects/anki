@@ -57,42 +57,6 @@ impl Collection {
             self.replace_tags_for_notes_inner(nids, &tags, repl)
         }
     }
-
-    pub fn add_tags_to_notes(&mut self, nids: &[NoteID], tags: &str) -> Result<OpOutput<usize>> {
-        let tags: Vec<_> = split_tags(tags).collect();
-        let matcher = regex::RegexSet::new(
-            tags.iter()
-                .map(|s| regex::escape(s))
-                .map(|s| format!("(?i)^{}$", s)),
-        )
-        .map_err(|_| AnkiError::invalid_input("invalid regex"))?;
-
-        self.transact(Op::UpdateTag, |col| {
-            col.transform_notes(nids, |note, _nt| {
-                let mut need_to_add = true;
-                let mut match_count = 0;
-                for tag in &note.tags {
-                    if matcher.is_match(tag) {
-                        match_count += 1;
-                    }
-                    if match_count == tags.len() {
-                        need_to_add = false;
-                        break;
-                    }
-                }
-
-                if need_to_add {
-                    note.tags.extend(tags.iter().map(|&s| s.to_string()))
-                }
-
-                Ok(TransformNoteOutput {
-                    changed: need_to_add,
-                    generate_cards: false,
-                    mark_modified: true,
-                })
-            })
-        })
-    }
 }
 
 #[cfg(test)]
