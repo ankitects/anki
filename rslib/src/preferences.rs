@@ -10,6 +10,7 @@ use crate::{
     collection::Collection,
     config::BoolKey,
     err::Result,
+    prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
 };
 
@@ -22,17 +23,13 @@ impl Collection {
         })
     }
 
-    pub fn set_preferences(&mut self, prefs: Preferences) -> Result<()> {
-        self.transact(
-            Some(crate::undo::UndoableOpKind::UpdatePreferences),
-            |col| col.set_preferences_inner(prefs),
-        )
+    pub fn set_preferences(&mut self, prefs: Preferences) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdatePreferences, |col| {
+            col.set_preferences_inner(prefs)
+        })
     }
 
-    fn set_preferences_inner(
-        &mut self,
-        prefs: Preferences,
-    ) -> Result<(), crate::prelude::AnkiError> {
+    fn set_preferences_inner(&mut self, prefs: Preferences) -> Result<()> {
         if let Some(sched) = prefs.scheduling {
             self.set_scheduling_preferences(sched)?;
         }

@@ -3,6 +3,8 @@
 
 """
 Helper for running tasks on background threads.
+
+See mw.query_op() and mw.perform_op() for slightly higher-level routines.
 """
 
 from __future__ import annotations
@@ -49,6 +51,14 @@ class TaskManager(QObject):
         the completed future.
 
         Args if provided will be passed on as keyword arguments to the task callable."""
+        # Before we launch a background task, ensure any pending on_done closure are run on
+        # main. Qt's signal/slot system will have posted a notification, but it may
+        # not have been processed yet. The on_done() closures may make small queries
+        # to the database that we want to run first - if we delay them until after the
+        # background task starts, and it takes out a long-running lock on the database,
+        # the UI thread will hang until the end of the op.
+        self._on_closures_pending()
+
         if args is None:
             args = {}
 

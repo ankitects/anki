@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import anki
 import anki._backend.backend_pb2 as _pb
+from anki.collection import OpChanges, OpChangesWithCount
 from anki.config import Config
 
 SchedTimingToday = _pb.SchedTimingTodayOut
@@ -96,11 +97,11 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Suspending & burying
     ##########################################################################
 
-    def unsuspend_cards(self, ids: List[int]) -> None:
-        self.col._backend.restore_buried_and_suspended_cards(ids)
+    def unsuspend_cards(self, ids: Sequence[int]) -> OpChanges:
+        return self.col._backend.restore_buried_and_suspended_cards(ids)
 
-    def unbury_cards(self, ids: List[int]) -> None:
-        self.col._backend.restore_buried_and_suspended_cards(ids)
+    def unbury_cards(self, ids: List[int]) -> OpChanges:
+        return self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_cards_in_current_deck(
         self,
@@ -108,17 +109,17 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     ) -> None:
         self.col._backend.unbury_cards_in_current_deck(mode)
 
-    def suspend_cards(self, ids: Sequence[int]) -> None:
-        self.col._backend.bury_or_suspend_cards(
+    def suspend_cards(self, ids: Sequence[int]) -> OpChanges:
+        return self.col._backend.bury_or_suspend_cards(
             card_ids=ids, mode=BuryOrSuspend.SUSPEND
         )
 
-    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> None:
+    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> OpChanges:
         if manual:
             mode = BuryOrSuspend.BURY_USER
         else:
             mode = BuryOrSuspend.BURY_SCHED
-        self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
+        return self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
 
     def bury_note(self, note: Note) -> None:
         self.bury_cards(note.card_ids())
@@ -126,16 +127,16 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Resetting/rescheduling
     ##########################################################################
 
-    def schedule_cards_as_new(self, card_ids: List[int]) -> None:
+    def schedule_cards_as_new(self, card_ids: List[int]) -> OpChanges:
         "Put cards at the end of the new queue."
-        self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
+        return self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
     def set_due_date(
         self,
         card_ids: List[int],
         days: str,
         config_key: Optional[Config.String.Key.V] = None,
-    ) -> None:
+    ) -> OpChanges:
         """Set cards to be due in `days`, turning them into review cards if necessary.
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
@@ -143,7 +144,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             key = Config.String(key=config_key)
         else:
             key = None
-        self.col._backend.set_due_date(card_ids=card_ids, days=days, config_key=key)
+        return self.col._backend.set_due_date(
+            card_ids=card_ids, days=days, config_key=key
+        )
 
     def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."
@@ -164,20 +167,20 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Repositioning new cards
     ##########################################################################
 
-    def sortCards(
+    def reposition_new_cards(
         self,
-        cids: List[int],
-        start: int = 1,
-        step: int = 1,
-        shuffle: bool = False,
-        shift: bool = False,
-    ) -> None:
-        self.col._backend.sort_cards(
-            card_ids=cids,
-            starting_from=start,
-            step_size=step,
-            randomize=shuffle,
-            shift_existing=shift,
+        card_ids: Sequence[int],
+        starting_from: int,
+        step_size: int,
+        randomize: bool,
+        shift_existing: bool,
+    ) -> OpChangesWithCount:
+        return self.col._backend.sort_cards(
+            card_ids=card_ids,
+            starting_from=starting_from,
+            step_size=step_size,
+            randomize=randomize,
+            shift_existing=shift_existing,
         )
 
     def randomizeCards(self, did: int) -> None:
@@ -201,3 +204,14 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.randomizeCards(did)
+
+    # legacy
+    def sortCards(
+        self,
+        cids: List[int],
+        start: int = 1,
+        step: int = 1,
+        shuffle: bool = False,
+        shift: bool = False,
+    ) -> None:
+        self.reposition_new_cards(cids, start, step, shuffle, shift)

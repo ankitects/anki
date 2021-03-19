@@ -75,7 +75,7 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
             args,
             first_row_only,
         } => {
-            maybe_clear_undo(col, &sql);
+            update_state_after_modification(col, &sql);
             if first_row_only {
                 db_query_row(&col.storage, &sql, &args)?
             } else {
@@ -87,6 +87,10 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
             DBResult::None
         }
         DBRequest::Commit => {
+            if col.state.modified_by_dbproxy {
+                col.storage.set_modified()?;
+                col.state.modified_by_dbproxy = false;
+            }
             col.storage.commit_trx()?;
             DBResult::None
         }
@@ -96,17 +100,17 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
             DBResult::None
         }
         DBRequest::ExecuteMany { sql, args } => {
-            maybe_clear_undo(col, &sql);
+            update_state_after_modification(col, &sql);
             db_execute_many(&col.storage, &sql, &args)?
         }
     };
     Ok(serde_json::to_vec(&resp)?)
 }
 
-fn maybe_clear_undo(col: &mut Collection, sql: &str) {
+fn update_state_after_modification(col: &mut Collection, sql: &str) {
     if !is_dql(sql) {
         println!("clearing undo+study due to {}", sql);
-        col.discard_undo_and_study_queues();
+        col.update_state_after_dbproxy_modification();
     }
 }
 

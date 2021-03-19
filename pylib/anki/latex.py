@@ -178,4 +178,5 @@ def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
     return msg
 
 
-hooks.card_did_render.append(on_card_did_render)
+def setup_hook() -> None:
+    hooks.card_did_render.append(on_card_did_render)

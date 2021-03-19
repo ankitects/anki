@@ -10,7 +10,7 @@ import os
 import sys
 import tempfile
 import traceback
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import anki.lang
 from anki import version as _version
@@ -299,7 +299,7 @@ class AnkiApp(QApplication):
         if not sock.waitForReadyRead(self.TMOUT):
             sys.stderr.write(sock.errorString())
             return
-        path = bytes(sock.readAll()).decode("utf8")
+        path = bytes(cast(bytes, sock.readAll())).decode("utf8")
         self.appMsg.emit(path)  # type: ignore
         sock.disconnectFromServer()
 

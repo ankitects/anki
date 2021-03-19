@@ -37,18 +37,19 @@ def findReplace(
     fold: bool = True,
 ) -> int:
     "Find and replace fields in a note. Returns changed note count."
-    return col._backend.find_and_replace(
-        nids=nids,
+    print("use col.find_and_replace() instead of findReplace()")
+    return col.find_and_replace(
+        note_ids=nids,
         search=src,
         replacement=dst,
         regex=regex,
         match_case=not fold,
         field_name=field,
-    )
+    ).count
 
 
 def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
-    return list(col._backend.field_names_for_notes(nids))
+    return list(col.field_names_for_note_ids(nids))
 
 
 # Find duplicates

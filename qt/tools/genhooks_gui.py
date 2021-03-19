@@ -24,7 +24,7 @@ from anki.cards import Card
 from anki.decks import Deck, DeckConfig
 from anki.hooks import runFilter, runHook
 from anki.models import NoteType
-from aqt.qt import QDialog, QEvent, QMenu
+from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
 """
 
@@ -365,8 +365,9 @@ hooks = [
         args=["context: aqt.browser.SearchContext"],
         doc="""Allows you to modify the list of returned card ids from a search.""",
     ),
-    # States
+    # Main window states
     ###################
+    # these refer to things like deckbrowser, overview and reviewer state,
     Hook(
         name="state_will_change",
         args=["new_state: str", "old_state: str"],
@@ -382,6 +383,8 @@ hooks = [
         name="state_shortcuts_will_change",
         args=["state: str", "shortcuts: List[Tuple[str, Callable]]"],
     ),
+    # UI state/refreshing
+    ###################
     Hook(
         name="state_did_revert",
         args=["action: str"],
@@ -391,7 +394,46 @@ hooks = [
     Hook(
         name="state_did_reset",
         legacy_hook="reset",
-        doc="Called when the interface needs to be redisplayed after non-trivial changes have been made.",
+        doc="""Legacy 'reset' hook. Called by mw.reset() and mw.perform_op() to redraw the UI.
+        
+        New code should use `operation_did_execute` instead.
+        """,
+    ),
+    Hook(
+        name="operation_did_execute",
+        args=[
+            "changes: anki.collection.OpChanges",
+        ],
+        doc="""Called after an operation completes.
+        Changes can be inspected to determine whether the UI needs updating.
+        
+        This will also be called when the legacy mw.reset() is used.
+        """,
+    ),
+    Hook(
+        name="focus_did_change",
+        args=[
+            "new: Optional[QWidget]",
+            "old: Optional[QWidget]",
+        ],
+        doc="""Called each time the focus changes. Can be used to defer updates from
+        `operation_did_execute` until a window is brought to the front.""",
+    ),
+    Hook(
+        name="backend_will_block",
+        doc="""Called before one or more operations are executed with mw.perform_op().
+        
+        Subscribers can use this to set a flag to avoid DB queries until the operation
+        completes, as doing so will freeze the UI until the long-running operation
+        completes.
+        """,
+    ),
+    Hook(
+        name="backend_did_block",
+        doc="""Called after one or more operations are executed with mw.perform_op().
+        Called regardless of the success of individual operations, and only called when
+        there are no outstanding ops.
+        """,
     ),
     # Webview
     ###################

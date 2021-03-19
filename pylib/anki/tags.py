@@ -18,10 +18,12 @@ from typing import Collection, List, Match, Optional, Sequence
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 import anki.collection
+from anki.collection import OpChangesWithCount
 from anki.utils import ids2str
 
 # public exports
 TagTreeNode = _pb.TagTreeNode
+MARKED_TAG = "marked"
 
 
 class TagManager:
@@ -43,17 +45,8 @@ class TagManager:
     # Registering and fetching tags
     #############################################################
 
-    def register(
-        self, tags: Collection[str], usn: Optional[int] = None, clear: bool = False
-    ) -> None:
-        print("tags.register() is deprecated and no longer works")
-
-    def registerNotes(self, nids: Optional[List[int]] = None) -> None:
-        "Clear unused tags and add any missing tags from notes to the tag list."
-        self.clear_unused_tags()
-
-    def clear_unused_tags(self) -> None:
-        self.col._backend.clear_unused_tags()
+    def clear_unused_tags(self) -> OpChangesWithCount:
+        return self.col._backend.clear_unused_tags()
 
     def byDeck(self, did: int, children: bool = False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
@@ -72,52 +65,53 @@ class TagManager:
         "Set browser expansion state for tag, registering the tag if missing."
         self.col._backend.set_tag_expanded(name=tag, expanded=expanded)
 
-    # Bulk addition/removal from notes
+    # Bulk addition/removal from specific notes
     #############################################################
 
-    def bulk_add(self, nids: List[int], tags: str) -> int:
+    def bulk_add(self, note_ids: Sequence[int], tags: str) -> OpChangesWithCount:
         """Add space-separate tags to provided notes, returning changed count."""
-        return self.col._backend.add_note_tags(nids=nids, tags=tags)
+        return self.col._backend.add_note_tags(note_ids=note_ids, tags=tags)
 
-    def bulk_update(
-        self, nids: Sequence[int], tags: str, replacement: str, regex: bool
-    ) -> int:
-        """Replace space-separated tags, returning changed count.
-        Tags replaced with an empty string will be removed."""
-        return self.col._backend.update_note_tags(
-            nids=nids, tags=tags, replacement=replacement, regex=regex
+    def bulk_remove(self, note_ids: Sequence[int], tags: str) -> OpChangesWithCount:
+        return self.col._backend.remove_note_tags(note_ids=note_ids, tags=tags)
+
+    # Find&replace
+    #############################################################
+
+    def find_and_replace(
+        self,
+        note_ids: Sequence[int],
+        search: str,
+        replacement: str,
+        regex: bool,
+        match_case: bool,
+    ) -> OpChangesWithCount:
+        """Replace instances of 'search' with 'replacement' in tags.
+        Each tag is matched separately. If the replacement results in an empty string,
+        the tag will be removed."""
+        return self.col._backend.find_and_replace_tag(
+            note_ids=note_ids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            match_case=match_case,
         )
 
-    def bulk_remove(self, nids: Sequence[int], tags: str) -> int:
-        return self.bulk_update(nids, tags, "", False)
+    # Bulk addition/removal based on tag
+    #############################################################
 
-    def rename(self, old: str, new: str) -> int:
-        "Rename provided tag, returning number of changed notes."
-        nids = self.col.find_notes(anki.collection.SearchNode(tag=old))
-        if not nids:
-            return 0
-        escaped_name = re.sub(r"[*_\\]", r"\\\g<0>", old)
-        return self.bulk_update(nids, escaped_name, new, False)
+    def rename(self, old: str, new: str) -> OpChangesWithCount:
+        "Rename provided tag and its children, returning number of changed notes."
+        return self.col._backend.rename_tags(current_prefix=old, new_prefix=new)
 
-    def remove(self, tag: str) -> None:
-        self.col._backend.clear_tag(tag)
+    def remove(self, space_separated_tags: str) -> OpChangesWithCount:
+        "Remove the provided tag(s) and their children from notes and the tag list."
+        return self.col._backend.remove_tags(val=space_separated_tags)
 
-    def drag_drop(self, source_tags: List[str], target_tag: str) -> None:
-        """Rename one or more source tags that were dropped on `target_tag`.
-        If target_tag is "", tags will be placed at the top level."""
-        self.col._backend.drag_drop_tags(source_tags=source_tags, target_tag=target_tag)
-
-    # legacy routines
-
-    def bulkAdd(self, ids: List[int], tags: str, add: bool = True) -> None:
-        "Add tags in bulk. TAGS is space-separated."
-        if add:
-            self.bulk_add(ids, tags)
-        else:
-            self.bulk_update(ids, tags, "", False)
-
-    def bulkRem(self, ids: List[int], tags: str) -> None:
-        self.bulkAdd(ids, tags, False)
+    def reparent(self, tags: Sequence[str], new_parent: str) -> OpChangesWithCount:
+        """Change the parent of the provided tags.
+        If new_parent is empty, tags will be reparented to the top-level."""
+        return self.col._backend.reparent_tags(tags=tags, new_parent=new_parent)
 
     # String-based utilities
     ##########################################################################
@@ -169,3 +163,24 @@ class TagManager:
     def inList(self, tag: str, tags: List[str]) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
+
+    # legacy
+    ##########################################################################
+
+    def registerNotes(self, nids: Optional[List[int]] = None) -> None:
+        self.clear_unused_tags()
+
+    def register(
+        self, tags: Collection[str], usn: Optional[int] = None, clear: bool = False
+    ) -> None:
+        print("tags.register() is deprecated and no longer works")
+
+    def bulkAdd(self, ids: List[int], tags: str, add: bool = True) -> None:
+        "Add tags in bulk. TAGS is space-separated."
+        if add:
+            self.bulk_add(ids, tags)
+        else:
+            self.bulk_remove(ids, tags)
+
+    def bulkRem(self, ids: List[int], tags: str) -> None:
+        self.bulkAdd(ids, tags, False)

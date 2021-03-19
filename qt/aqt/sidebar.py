@@ -8,7 +8,7 @@ from enum import Enum, auto
 from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
-from anki.collection import Config, SearchJoiner, SearchNode
+from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
 from anki.decks import DeckTreeNode
 from anki.errors import DeckIsFilteredError, InvalidInput
 from anki.notes import Note
@@ -16,18 +16,18 @@ from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
-from aqt.main import ResetReason
+from aqt.deck_ops import remove_decks
 from aqt.models import Models
 from aqt.qt import *
+from aqt.tag_ops import remove_tags_for_all_notes, rename_tag, reparent_tags
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
     TR,
+    KeyboardModifiersPressed,
     askUser,
     getOnlyText,
     show_invalid_search_error,
-    showInfo,
     showWarning,
-    tooltip,
     tr,
 )
 
@@ -253,9 +253,7 @@ class SidebarModel(QAbstractItemModel):
             return QVariant(item.tooltip)
         return QVariant(theme_manager.icon_from_resources(item.icon))
 
-    def setData(
-        self, index: QModelIndex, text: QVariant, _role: int = Qt.EditRole
-    ) -> bool:
+    def setData(self, index: QModelIndex, text: str, _role: int = Qt.EditRole) -> bool:
         return self.sidebar._on_rename(index.internalPointer(), text)
 
     def supportedDropActions(self) -> Qt.DropActions:
@@ -353,6 +351,10 @@ def _want_right_border() -> bool:
     return not isMac or theme_manager.night_mode
 
 
+# fixme: we should have a top-level Sidebar class inheriting from QWidget that
+# handles the treeview, search bar and so on. Currently the treeview embeds the
+# search bar which is wrong, and the layout code is handled in browser.py instead
+# of here
 class SidebarTreeView(QTreeView):
     def __init__(self, browser: aqt.browser.Browser) -> None:
         super().__init__()
@@ -361,6 +363,7 @@ class SidebarTreeView(QTreeView):
         self.col = self.mw.col
         self.current_search: Optional[str] = None
         self.valid_drop_types: Tuple[SidebarItemType, ...] = ()
+        self._refresh_needed = False
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
@@ -388,6 +391,10 @@ class SidebarTreeView(QTreeView):
 
         self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
 
+        # these do not really belong here, they should be in a higher-level class
+        self.toolbar = SidebarToolbar(self)
+        self.searchBar = SidebarSearchBar(self)
+
     @property
     def tool(self) -> SidebarTool:
         return self._tool
@@ -408,7 +415,21 @@ class SidebarTreeView(QTreeView):
         self.setExpandsOnDoubleClick(double_click_expands)
 
     def model(self) -> SidebarModel:
-        return super().model()
+        return cast(SidebarModel, super().model())
+
+    # Refreshing
+    ###########################
+
+    def op_executed(self, op: OpChanges, focused: bool) -> None:
+        if op.tag or op.notetype or op.deck:
+            self._refresh_needed = True
+        if focused:
+            self.refresh_if_needed()
+
+    def refresh_if_needed(self) -> None:
+        if self._refresh_needed:
+            self.refresh()
+            self._refresh_needed = False
 
     def refresh(
         self, is_current: Optional[Callable[[SidebarItem], bool]] = None
@@ -417,16 +438,17 @@ class SidebarTreeView(QTreeView):
         if not self.isVisible():
             return
 
-        def on_done(fut: Future) -> None:
-            self.setUpdatesEnabled(True)
-            root = fut.result()
+        def on_done(root: SidebarItem) -> None:
+            # user may have closed browser
+            if sip.isdeleted(self):
+                return
+
+            # block repainting during refreshing to avoid flickering
+            self.setUpdatesEnabled(False)
+
             model = SidebarModel(self, root)
-
-            # from PyQt5.QtTest import QAbstractItemModelTester
-            # tester = QAbstractItemModelTester(model)
-
             self.setModel(model)
-            qconnect(self.selectionModel().selectionChanged, self._on_selection_changed)
+
             if self.current_search:
                 self.search_for(self.current_search)
             else:
@@ -434,9 +456,12 @@ class SidebarTreeView(QTreeView):
             if is_current:
                 self.restore_current(is_current)
 
-        # block repainting during refreshing to avoid flickering
-        self.setUpdatesEnabled(False)
-        self.mw.taskman.run_in_background(self._root_tree, on_done)
+            self.setUpdatesEnabled(True)
+
+            # needs to be set after changing model
+            qconnect(self.selectionModel().selectionChanged, self._on_selection_changed)
+
+        self.mw.query_op(self._root_tree, success=on_done)
 
     def restore_current(self, is_current: Callable[[SidebarItem], bool]) -> None:
         if current := self.find_item(is_current):
@@ -496,22 +521,22 @@ class SidebarTreeView(QTreeView):
         joiner: SearchJoiner = "AND",
     ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
-        mods = self.mw.app.keyboardModifiers()
+        mods = KeyboardModifiersPressed()
         previous = SearchNode(parsable_text=self.browser.current_search())
         current = self.mw.col.group_searches(*terms, joiner=joiner)
 
         # if Alt pressed, invert
-        if mods & Qt.AltModifier:
+        if mods.alt:
             current = SearchNode(negated=current)
 
         try:
-            if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+            if mods.control and mods.shift:
                 # If Ctrl+Shift, replace searches nodes of the same type.
                 search = self.col.replace_in_search_node(previous, current)
-            elif mods & Qt.ControlModifier:
+            elif mods.control:
                 # If Ctrl, AND with previous
                 search = self.col.join_searches(previous, current, "AND")
-            elif mods & Qt.ShiftModifier:
+            elif mods.shift:
                 # If Shift, OR with previous
                 search = self.col.join_searches(previous, current, "OR")
             else:
@@ -602,39 +627,27 @@ class SidebarTreeView(QTreeView):
                 lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
             )
 
-        self.browser.editor.saveNow(on_save)
+        self.browser.editor.call_after_note_saved(on_save)
         return True
 
     def _handle_drag_drop_tags(
         self, sources: List[SidebarItem], target: SidebarItem
     ) -> bool:
-        source_ids = [
+        tags = [
             source.full_name
             for source in sources
             if source.item_type == SidebarItemType.TAG
         ]
-        if not source_ids:
+        if not tags:
             return False
 
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-            self.browser.model.endReset()
-            fut.result()
-            self.refresh()
-
         if target.item_type == SidebarItemType.TAG_ROOT:
-            target_name = ""
+            new_parent = ""
         else:
-            target_name = target.full_name
+            new_parent = target.full_name
 
-        def on_save() -> None:
-            self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
-            self.browser.model.beginReset()
-            self.mw.taskman.with_progress(
-                lambda: self.col.tags.drag_drop(source_ids, target_name), on_done
-            )
+        reparent_tags(mw=self.mw, parent=self.browser, tags=tags, new_parent=new_parent)
 
-        self.browser.editor.saveNow(on_save)
         return True
 
     def _on_search(self, index: QModelIndex) -> None:
@@ -693,7 +706,9 @@ class SidebarTreeView(QTreeView):
         for stage in SidebarStage:
             if stage == SidebarStage.ROOT:
                 root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
-            handled = gui_hooks.browser_will_build_tree(False, root, stage, self)
+            handled = gui_hooks.browser_will_build_tree(
+                False, root, stage, self.browser
+            )
             if not handled:
                 self._build_stage(root, stage)
 
@@ -1166,78 +1181,40 @@ class SidebarTreeView(QTreeView):
         self.mw.update_undo_actions()
 
     def delete_decks(self, _item: SidebarItem) -> None:
-        self.browser.editor.saveNow(self._delete_decks)
-
-    def _delete_decks(self) -> None:
-        def do_delete() -> int:
-            return self.mw.col.decks.remove(dids)
-
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserDeleteDeck, context=self)
-            self.browser.search()
-            self.browser.model.endReset()
-            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()), parent=self)
-            self.refresh()
-
-        dids = self._selected_decks()
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_delete, on_done)
+        remove_decks(mw=self.mw, parent=self.browser, deck_ids=self._selected_decks())
 
     # Tags
     ###########################
 
     def remove_tags(self, item: SidebarItem) -> None:
-        self.browser.editor.saveNow(lambda: self._remove_tags(item))
+        tags = self.mw.col.tags.join(self._selected_tags())
+        item.name = "..."
 
-    def _remove_tags(self, _item: SidebarItem) -> None:
-        tags = self._selected_tags()
-
-        def do_remove() -> int:
-            return self.col._backend.expunge_tags(" ".join(tags))
-
-        def on_done(fut: Future) -> None:
-            self.mw.requireReset(reason=ResetReason.BrowserRemoveTags, context=self)
-            self.browser.model.endReset()
-            tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=fut.result()), parent=self)
-            self.refresh()
-
-        self.mw.checkpoint(tr(TR.ACTIONS_REMOVE_TAG))
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_remove, on_done)
+        remove_tags_for_all_notes(
+            mw=self.mw, parent=self.browser, space_separated_tags=tags
+        )
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
-        new_name = new_name.replace(" ", "")
-        if new_name and new_name != item.name:
-            # block repainting until collection is updated
-            self.setUpdatesEnabled(False)
-            self.browser.editor.saveNow(lambda: self._rename_tag(item, new_name))
+        if not new_name or new_name == item.name:
+            return
 
-    def _rename_tag(self, item: SidebarItem, new_name: str) -> None:
+        new_name_base = new_name
+
         old_name = item.full_name
         new_name = item.name_prefix + new_name
 
-        def do_rename() -> int:
-            self.mw.col.tags.remove(old_name)
-            return self.col.tags.rename(old_name, new_name)
+        item.name = new_name_base
 
-        def on_done(fut: Future) -> None:
-            self.setUpdatesEnabled(True)
-            self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
-            self.browser.model.endReset()
-
-            count = fut.result()
-            if not count:
-                showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY))
-            else:
-                tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=count), parent=self)
-                self.refresh(
-                    lambda item: item.item_type == SidebarItemType.TAG
-                    and item.full_name == new_name
-                )
-
-        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_TAG))
-        self.browser.model.beginReset()
-        self.mw.taskman.with_progress(do_rename, on_done)
+        rename_tag(
+            mw=self.mw,
+            parent=self.browser,
+            current_name=old_name,
+            new_name=new_name,
+            after_rename=lambda: self.refresh(
+                lambda item: item.item_type == SidebarItemType.TAG
+                and item.full_name == new_name
+            ),
+        )
 
     # Saved searches
     ####################################

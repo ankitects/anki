@@ -12,9 +12,6 @@ use crate::{
 pub(super) use pb::notes_service::Service as NotesService;
 
 impl NotesService for Backend {
-    // notes
-    //-------------------------------------------------------------------
-
     fn new_note(&self, input: pb::NoteTypeId) -> Result<pb::Note> {
         self.with_col(|col| {
             let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
@@ -22,11 +19,14 @@ impl NotesService for Backend {
         })
     }
 
-    fn add_note(&self, input: pb::AddNoteIn) -> Result<pb::NoteId> {
+    fn add_note(&self, input: pb::AddNoteIn) -> Result<pb::AddNoteOut> {
         self.with_col(|col| {
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.add_note(&mut note, DeckID(input.deck_id))
-                .map(|_| pb::NoteId { nid: note.id.0 })
+            let changes = col.add_note(&mut note, DeckID(input.deck_id))?;
+            Ok(pb::AddNoteOut {
+                note_id: note.id.0,
+                changes: Some(changes.into()),
+            })
         })
     }
 
@@ -46,15 +46,10 @@ impl NotesService for Backend {
         })
     }
 
-    fn update_note(&self, input: pb::UpdateNoteIn) -> Result<pb::Empty> {
+    fn update_note(&self, input: pb::UpdateNoteIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            let op = if input.skip_undo_entry {
-                None
-            } else {
-                Some(UndoableOpKind::UpdateNote)
-            };
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.update_note_with_op(&mut note, op)
+            col.update_note_maybe_undoable(&mut note, !input.skip_undo_entry)
         })
         .map(Into::into)
     }
@@ -68,7 +63,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::Empty> {
+    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             if !input.note_ids.is_empty() {
                 col.remove_notes(
@@ -77,9 +72,8 @@ impl NotesService for Backend {
                         .into_iter()
                         .map(Into::into)
                         .collect::<Vec<_>>(),
-                )?;
-            }
-            if !input.card_ids.is_empty() {
+                )
+            } else {
                 let nids = col.storage.note_ids_of_cards(
                     &input
                         .card_ids
@@ -87,29 +81,9 @@ impl NotesService for Backend {
                         .map(Into::into)
                         .collect::<Vec<_>>(),
                 )?;
-                col.remove_notes(&nids.into_iter().collect::<Vec<_>>())?
+                col.remove_notes(&nids.into_iter().collect::<Vec<_>>())
             }
-            Ok(().into())
-        })
-    }
-
-    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<pb::UInt32> {
-        self.with_col(|col| {
-            col.add_tags_to_notes(&to_nids(input.nids), &input.tags)
-                .map(|n| n as u32)
-        })
-        .map(Into::into)
-    }
-
-    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<pb::UInt32> {
-        self.with_col(|col| {
-            col.replace_tags_for_notes(
-                &to_nids(input.nids),
-                &input.tags,
-                &input.replacement,
-                input.regex,
-            )
-            .map(|n| (n as u32).into())
+            .map(Into::into)
         })
     }
 
@@ -123,16 +97,14 @@ impl NotesService for Backend {
         })
     }
 
-    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
+    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            col.transact(None, |col| {
-                col.after_note_updates(
-                    &to_nids(input.nids),
-                    input.generate_cards,
-                    input.mark_notes_modified,
-                )?;
-                Ok(pb::Empty {})
-            })
+            col.after_note_updates(
+                &to_note_ids(input.nids),
+                input.generate_cards,
+                input.mark_notes_modified,
+            )
+            .map(Into::into)
         })
     }
 
@@ -167,6 +139,6 @@ impl NotesService for Backend {
     }
 }
 
-fn to_nids(ids: Vec<i64>) -> Vec<NoteID> {
+pub(super) fn to_note_ids(ids: Vec<i64>) -> Vec<NoteID> {
     ids.into_iter().map(NoteID).collect()
 }

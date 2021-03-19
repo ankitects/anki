@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::Backend;
+use super::{notes::to_note_ids, Backend};
 use crate::{backend_proto as pb, prelude::*};
 pub(super) use pb::tags_service::Service as TagsService;
 
 impl TagsService for Backend {
-    fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.clear_unused_tags().map(Into::into)))
+    fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| col.transact_no_undo(|col| col.clear_unused_tags().map(Into::into)))
     }
 
     fn all_tags(&self, _input: pb::Empty) -> Result<pb::StringList> {
@@ -23,23 +23,14 @@ impl TagsService for Backend {
         })
     }
 
-    fn expunge_tags(&self, tags: pb::String) -> Result<pb::UInt32> {
-        self.with_col(|col| col.expunge_tags(tags.val.as_str()).map(Into::into))
+    fn remove_tags(&self, tags: pb::String) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| col.remove_tags(tags.val.as_str()).map(Into::into))
     }
 
     fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> Result<pb::Empty> {
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 col.set_tag_expanded(&input.name, input.expanded)?;
-                Ok(().into())
-            })
-        })
-    }
-
-    fn clear_tag(&self, tag: pb::String) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage.clear_tag_and_children(tag.val.as_str())?;
                 Ok(().into())
             })
         })
@@ -49,14 +40,49 @@ impl TagsService for Backend {
         self.with_col(|col| col.tag_tree())
     }
 
-    fn drag_drop_tags(&self, input: pb::DragDropTagsIn) -> Result<pb::Empty> {
-        let source_tags = input.source_tags;
-        let target_tag = if input.target_tag.is_empty() {
+    fn reparent_tags(&self, input: pb::ReparentTagsIn) -> Result<pb::OpChangesWithCount> {
+        let source_tags = input.tags;
+        let target_tag = if input.new_parent.is_empty() {
             None
         } else {
-            Some(input.target_tag)
+            Some(input.new_parent)
         };
-        self.with_col(|col| col.drag_drop_tags(&source_tags, target_tag))
+        self.with_col(|col| col.reparent_tags(&source_tags, target_tag))
             .map(Into::into)
+    }
+
+    fn rename_tags(&self, input: pb::RenameTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| col.rename_tag(&input.current_prefix, &input.new_prefix))
+            .map(Into::into)
+    }
+
+    fn add_note_tags(&self, input: pb::NoteIDsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| {
+            col.add_tags_to_notes(&to_note_ids(input.note_ids), &input.tags)
+                .map(Into::into)
+        })
+    }
+
+    fn remove_note_tags(&self, input: pb::NoteIDsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| {
+            col.remove_tags_from_notes(&to_note_ids(input.note_ids), &input.tags)
+                .map(Into::into)
+        })
+    }
+
+    fn find_and_replace_tag(
+        &self,
+        input: pb::FindAndReplaceTagIn,
+    ) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| {
+            col.find_and_replace_tag(
+                &to_note_ids(input.note_ids),
+                &input.search,
+                &input.replacement,
+                input.regex,
+                input.match_case,
+            )
+            .map(Into::into)
+        })
     }
 }

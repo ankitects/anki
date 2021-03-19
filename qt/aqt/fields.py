@@ -26,7 +26,7 @@ from aqt.utils import (
 
 class FieldDialog(QDialog):
     def __init__(
-        self, mw: AnkiQt, nt: NoteType, parent: Optional[QDialog] = None
+        self, mw: AnkiQt, nt: NoteType, parent: Optional[QWidget] = None
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw

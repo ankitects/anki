@@ -17,7 +17,7 @@ impl DeckConfigService for Backend {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
         let mut conf: DeckConf = conf.into();
         self.with_col(|col| {
-            col.transact(None, |col| {
+            col.transact_no_undo(|col| {
                 col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
                 Ok(pb::DeckConfigId { dcid: conf.id.0 })
             })
@@ -54,7 +54,7 @@ impl DeckConfigService for Backend {
     }
 
     fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(input.into())))
+        self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config(input.into())))
             .map(Into::into)
     }
 }

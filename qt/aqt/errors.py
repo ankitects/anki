@@ -4,7 +4,7 @@ import html
 import re
 import sys
 import traceback
-from typing import Optional
+from typing import Optional, TextIO, cast
 
 from markdown import markdown
 
@@ -37,7 +37,7 @@ class ErrorHandler(QObject):
         qconnect(self.errorTimer, self._setTimer)
         self.pool = ""
         self._oldstderr = sys.stderr
-        sys.stderr = self
+        sys.stderr = cast(TextIO, self)
 
     def unload(self) -> None:
         sys.stderr = self._oldstderr

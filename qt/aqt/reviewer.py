@@ -7,19 +7,30 @@ import html
 import json
 import re
 import unicodedata as ucd
+from enum import Enum, auto
 from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
-from anki.collection import Config
+from anki.collection import Config, OpChanges
+from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.card_ops import set_card_flag
+from aqt.note_ops import remove_notes
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.scheduling import set_due_date_dialog
+from aqt.scheduling_ops import (
+    bury_cards,
+    bury_note,
+    set_due_date_dialog,
+    suspend_cards,
+    suspend_note,
+)
 from aqt.sound import av_player, play_clicked_audio, record_audio
+from aqt.tag_ops import add_tags, remove_tags_for_notes
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import (
@@ -31,6 +42,12 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView
+
+
+class RefreshNeeded(Enum):
+    NO = auto()
+    NOTE_TEXT = auto()
+    QUEUES = auto()
 
 
 class ReviewerBottomBar:
@@ -61,16 +78,17 @@ class Reviewer:
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
+        self._refresh_needed = RefreshNeeded.NO
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
-        self.mw.col.reset()
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._reps: int = None
-        self.nextCard()
+        self._refresh_needed = RefreshNeeded.QUEUES
+        self.refresh_if_needed()
 
     def lastCard(self) -> Optional[Card]:
         if self._answeredIds:
@@ -85,6 +103,42 @@ class Reviewer:
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
         self.card = None
+
+    def refresh_if_needed(self) -> None:
+        if self._refresh_needed is RefreshNeeded.QUEUES:
+            self.mw.col.reset()
+            self.nextCard()
+            self.mw.fade_in_webview()
+            self._refresh_needed = RefreshNeeded.NO
+        elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
+            self._redraw_current_card()
+            self.mw.fade_in_webview()
+            self._refresh_needed = RefreshNeeded.NO
+
+    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
+        if changes.note and changes.kind == OpChanges.UPDATE_NOTE_TAGS:
+            self.card.load()
+            self._update_mark_icon()
+        elif changes.card and changes.kind == OpChanges.SET_CARD_FLAG:
+            # fixme: v3 mtime check
+            self.card.load()
+            self._update_flag_icon()
+        elif self.mw.col.op_affects_study_queue(changes):
+            self._refresh_needed = RefreshNeeded.QUEUES
+        elif changes.note or changes.notetype or changes.tag:
+            self._refresh_needed = RefreshNeeded.NOTE_TEXT
+
+        if focused and self._refresh_needed is not RefreshNeeded.NO:
+            self.refresh_if_needed()
+
+        return self._refresh_needed is not RefreshNeeded.NO
+
+    def _redraw_current_card(self) -> None:
+        self.card.load()
+        if self.state == "answer":
+            self._showAnswer()
+        else:
+            self._showQuestion()
 
     # Fetching a card
     ##########################################################################
@@ -219,7 +273,7 @@ class Reviewer:
         self.web.eval(f"_drawFlag({self.card.user_flag()});")
 
     def _update_mark_icon(self) -> None:
-        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag('marked'))});")
+        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag(MARKED_TAG))});")
 
     _drawMark = _update_mark_icon
     _drawFlag = _update_flag_icon
@@ -782,24 +836,23 @@ time = %(time)d;
     def onOptions(self) -> None:
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
 
-    def set_flag_on_current_card(self, flag: int) -> None:
+    def set_flag_on_current_card(self, desired_flag: int) -> None:
         # need to toggle off?
-        if self.card.user_flag() == flag:
+        if self.card.user_flag() == desired_flag:
             flag = 0
-        self.card.set_user_flag(flag)
-        self.mw.col.update_card(self.card)
-        self.mw.update_undo_actions()
-        self._update_flag_icon()
+        else:
+            flag = desired_flag
+
+        set_card_flag(mw=self.mw, card_ids=[self.card.id], flag=flag)
 
     def toggle_mark_on_current_note(self) -> None:
         note = self.card.note()
-        if note.has_tag("marked"):
-            note.remove_tag("marked")
+        if note.has_tag(MARKED_TAG):
+            remove_tags_for_notes(
+                mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
+            )
         else:
-            note.add_tag("marked")
-        self.mw.col.update_note(note)
-        self.mw.update_undo_actions()
-        self._update_mark_icon()
+            add_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG)
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:
@@ -810,38 +863,52 @@ time = %(time)d;
             parent=self.mw,
             card_ids=[self.card.id],
             config_key=Config.String.SET_DUE_REVIEWER,
-            on_done=self.mw.reset,
         )
 
     def suspend_current_note(self) -> None:
-        self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_SUSPENDED))
+        suspend_note(
+            mw=self.mw,
+            note_id=self.card.nid,
+            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_SUSPENDED)),
+        )
 
     def suspend_current_card(self) -> None:
-        self.mw.col.sched.suspend_cards([self.card.id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_CARD_SUSPENDED))
-
-    def bury_current_card(self) -> None:
-        self.mw.col.sched.bury_cards([self.card.id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_CARD_BURIED))
+        suspend_cards(
+            mw=self.mw,
+            card_ids=[self.card.id],
+            success=lambda _: tooltip(tr(TR.STUDYING_CARD_SUSPENDED)),
+        )
 
     def bury_current_note(self) -> None:
-        self.mw.col.sched.bury_note(self.card.note())
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_BURIED))
+        bury_note(
+            mw=self.mw,
+            note_id=self.card.nid,
+            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_BURIED)),
+        )
+
+    def bury_current_card(self) -> None:
+        bury_cards(
+            mw=self.mw,
+            card_ids=[self.card.id],
+            success=lambda _: tooltip(tr(TR.STUDYING_CARD_BURIED)),
+        )
 
     def delete_current_note(self) -> None:
         # need to check state because the shortcut is global to the main
         # window
         if self.mw.state != "review" or not self.card:
             return
+
+        # fixme: pass this back from the backend method instead
         cnt = len(self.card.note().cards())
-        self.mw.col.remove_notes([self.card.note().id])
-        self.mw.reset()
-        tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
+
+        remove_notes(
+            mw=self.mw,
+            note_ids=[self.card.nid],
+            success=lambda _: tooltip(
+                tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt)
+            ),
+        )
 
     def onRecordVoice(self) -> None:
         def after_record(path: str) -> None:

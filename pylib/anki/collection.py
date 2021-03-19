@@ -3,6 +3,22 @@
 
 from __future__ import annotations
 
+from typing import Any, List, Literal, Optional, Sequence, Tuple, Union
+
+import anki._backend.backend_pb2 as _pb
+
+# protobuf we publicly export - listed first to avoid circular imports
+SearchNode = _pb.SearchNode
+Progress = _pb.Progress
+EmptyCardsReport = _pb.EmptyCardsReport
+GraphPreferences = _pb.GraphPreferences
+BuiltinSort = _pb.SortOrder.Builtin
+Preferences = _pb.Preferences
+UndoStatus = _pb.UndoStatus
+OpChanges = _pb.OpChanges
+OpChangesWithCount = _pb.OpChangesWithCount
+DefaultsForAdding = _pb.DeckAndNotetype
+
 import copy
 import os
 import pprint
@@ -12,12 +28,8 @@ import time
 import traceback
 import weakref
 from dataclasses import dataclass, field
-from typing import Any, List, Literal, Optional, Sequence, Tuple, Union
 
-import anki._backend.backend_pb2 as _pb
-import anki.find
-import anki.latex  # sets up hook
-import anki.template
+import anki.latex
 from anki import hooks
 from anki._backend import RustBackend
 from anki.cards import Card
@@ -45,16 +57,10 @@ from anki.utils import (
     stripHTMLMedia,
 )
 
-# public exports
-SearchNode = _pb.SearchNode
+anki.latex.setup_hook()
+
+
 SearchJoiner = Literal["AND", "OR"]
-Progress = _pb.Progress
-EmptyCardsReport = _pb.EmptyCardsReport
-GraphPreferences = _pb.GraphPreferences
-BuiltinSort = _pb.SortOrder.Builtin
-Preferences = _pb.Preferences
-UndoStatus = _pb.UndoStatus
-DefaultsForAdding = _pb.DeckAndNotetype
 
 
 @dataclass
@@ -195,23 +201,17 @@ class Collection:
 
     flush = setMod
 
-    def modified_after_begin(self) -> bool:
+    def modified_by_backend(self) -> bool:
         # Until we can move away from long-running transactions, the Python
-        # code needs to know if transaction should be committed, so we need
+        # code needs to know if the transaction should be committed, so we need
         # to check if the backend updated the modification time.
         return self.db.last_begin_at != self.mod
 
     def save(self, name: Optional[str] = None, trx: bool = True) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
         # commit needed?
-        if self.db.modified_in_python or self.modified_after_begin():
-            if self.db.modified_in_python:
-                self.db.execute("update col set mod = ?", intTime(1000))
-                self.db.modified_in_python = False
-            else:
-                # modifications made by the backend will have already bumped
-                # mtime
-                pass
+        if self.db.modified_in_python or self.modified_by_backend():
+            self.db.modified_in_python = False
             self.db.commit()
             if trx:
                 self.db.begin()
@@ -328,10 +328,12 @@ class Collection:
     def get_note(self, id: int) -> Note:
         return Note(self, id=id)
 
-    def update_note(self, note: Note) -> None:
+    def update_note(self, note: Note) -> OpChanges:
         """Save note changes to database, and add an undo entry.
         Unlike note.flush(), this will invalidate any current checkpoint."""
-        self._backend.update_note(note=note._to_backend_note(), skip_undo_entry=False)
+        return self._backend.update_note(
+            note=note._to_backend_note(), skip_undo_entry=False
+        )
 
     getCard = get_card
     getNote = get_note
@@ -366,12 +368,14 @@ class Collection:
     def new_note(self, notetype: NoteType) -> Note:
         return Note(self, notetype)
 
-    def add_note(self, note: Note, deck_id: int) -> None:
-        note.id = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
+    def add_note(self, note: Note, deck_id: int) -> OpChanges:
+        out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
+        note.id = out.note_id
+        return out.changes
 
-    def remove_notes(self, note_ids: Sequence[int]) -> None:
+    def remove_notes(self, note_ids: Sequence[int]) -> OpChanges:
         hooks.notes_will_be_deleted(self, note_ids)
-        self._backend.remove_notes(note_ids=note_ids, card_ids=[])
+        return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
     def remove_notes_by_card(self, card_ids: List[int]) -> None:
         if hooks.notes_will_be_deleted.count():
@@ -445,8 +449,8 @@ class Collection:
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
-    def set_deck(self, card_ids: List[int], deck_id: int) -> None:
-        self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
+    def set_deck(self, card_ids: Sequence[int], deck_id: int) -> OpChanges:
+        return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
         return self._backend.get_empty_cards()
@@ -536,14 +540,26 @@ class Collection:
 
     def find_and_replace(
         self,
-        nids: List[int],
-        src: str,
-        dst: str,
-        regex: Optional[bool] = None,
-        field: Optional[str] = None,
-        fold: bool = True,
-    ) -> int:
-        return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
+        *,
+        note_ids: Sequence[int],
+        search: str,
+        replacement: str,
+        regex: bool = False,
+        field_name: Optional[str] = None,
+        match_case: bool = False,
+    ) -> OpChangesWithCount:
+        "Find and replace fields in a note. Returns changed note count."
+        return self._backend.find_and_replace(
+            nids=note_ids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            match_case=match_case,
+            field_name=field_name or "",
+        )
+
+    def field_names_for_note_ids(self, nids: Sequence[int]) -> Sequence[str]:
+        return self._backend.field_names_for_notes(nids)
 
     # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
@@ -788,8 +804,6 @@ table.review-log {{ {revlog_style} }}
             assert_exhaustive(self._undo)
             assert False
 
-        return status
-
     def clear_python_undo(self) -> None:
         """Clear the Python undo state.
         The backend will automatically clear backend undo state when
@@ -816,6 +830,18 @@ table.review-log {{ {revlog_style} }}
         else:
             assert_exhaustive(self._undo)
             assert False
+
+    def op_affects_study_queue(self, changes: OpChanges) -> bool:
+        if changes.kind == changes.SET_CARD_FLAG:
+            return False
+        return changes.card or changes.deck or changes.preference
+
+    def op_made_changes(self, changes: OpChanges) -> bool:
+        for field in changes.DESCRIPTOR.fields:
+            if field.name != "kind":
+                if getattr(changes, field.name, False):
+                    return True
+        return False
 
     def _check_backend_undo_status(self) -> Optional[UndoStatus]:
         """Return undo status if undo available on backend.
@@ -986,21 +1012,10 @@ table.review-log {{ {revlog_style} }}
         self._logHnd.close()
         self._logHnd = None
 
-    # Card Flags
     ##########################################################################
 
-    def set_user_flag_for_cards(self, flag: int, cids: List[int]) -> None:
-        assert 0 <= flag <= 7
-        self.db.execute(
-            "update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s"
-            % ids2str(cids),
-            0b111,
-            flag,
-            self.usn(),
-            intTime(),
-        )
-
-    ##########################################################################
+    def set_user_flag_for_cards(self, flag: int, cids: Sequence[int]) -> OpChanges:
+        return self._backend.set_flag(card_ids=cids, flag=flag)
 
     def set_wants_abort(self) -> None:
         self._backend.set_wants_abort()

@@ -14,7 +14,20 @@ import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
 from threading import Thread
-from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Protocol,
+    Sequence,
+    TextIO,
+    Tuple,
+    TypeVar,
+    cast,
+)
 
 import anki
 import aqt
@@ -32,8 +45,11 @@ from anki.collection import (
     Checkpoint,
     Collection,
     Config,
+    OpChanges,
+    OpChangesWithCount,
     ReviewUndo,
     UndoResult,
+    UndoStatus,
 )
 from anki.decks import Deck
 from anki.hooks import runHook
@@ -56,8 +72,10 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
+    KeyboardModifiersPressed,
     askUser,
     checkInvalidFilename,
+    current_top_level_widget,
     disable_help_button,
     getFile,
     getOnlyText,
@@ -71,31 +89,29 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    top_level_widget,
     tr,
 )
 
+
+class HasChangesProperty(Protocol):
+    changes: OpChanges
+
+
+# either an OpChanges object, or an object with .changes on it. This bound
+# doesn't actually work for protobuf objects, so new protobuf objects will
+# either need to be added here, or cast at call time
+ResultWithChanges = TypeVar(
+    "ResultWithChanges", bound=Union[OpChanges, OpChangesWithCount, HasChangesProperty]
+)
+
+PerformOpOptionalSuccessCallback = Optional[Callable[[ResultWithChanges], Any]]
+
 install_pylib_legacy()
 
-
-class ResetReason(enum.Enum):
-    Unknown = "unknown"
-    AddCardsAddNote = "addCardsAddNote"
-    EditCurrentInit = "editCurrentInit"
-    EditorBridgeCmd = "editorBridgeCmd"
-    BrowserSetDeck = "browserSetDeck"
-    BrowserAddTags = "browserAddTags"
-    BrowserRemoveTags = "browserRemoveTags"
-    BrowserSuspend = "browserSuspend"
-    BrowserReposition = "browserReposition"
-    BrowserReschedule = "browserReschedule"
-    BrowserFindReplace = "browserFindReplace"
-    BrowserTagDupes = "browserTagDupes"
-    BrowserDeleteDeck = "browserDeleteDeck"
-
-
-class ResetRequired:
-    def __init__(self, mw: AnkiQt) -> None:
-        self.mw = mw
+MainWindowState = Literal[
+    "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
+]
 
 
 class AnkiQt(QMainWindow):
@@ -106,7 +122,7 @@ class AnkiQt(QMainWindow):
 
     def __init__(
         self,
-        app: QApplication,
+        app: aqt.AnkiApp,
         profileManager: ProfileManagerType,
         backend: _RustBackend,
         opts: Namespace,
@@ -114,7 +130,7 @@ class AnkiQt(QMainWindow):
     ) -> None:
         QMainWindow.__init__(self)
         self.backend = backend
-        self.state = "startup"
+        self.state: MainWindowState = "startup"
         self.opts = opts
         self.col: Optional[Collection] = None
         self.taskman = TaskManager(self)
@@ -123,9 +139,7 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         # init rest of app
-        self.safeMode = (
-            self.app.queryKeyboardModifiers() & Qt.ShiftModifier
-        ) or self.opts.safemode
+        self.safeMode = (KeyboardModifiersPressed().shift) or self.opts.safemode
         try:
             self.setupUI()
             self.setupAddons(args)
@@ -173,6 +187,7 @@ class AnkiQt(QMainWindow):
         self.setupHooks()
         self.setup_timers()
         self.updateTitleBar()
+        self.setup_focus()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -200,6 +215,12 @@ class AnkiQt(QMainWindow):
     def weakref(self) -> AnkiQt:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)  # type: ignore
+
+    def setup_focus(self) -> None:
+        qconnect(self.app.focusChanged, self.on_focus_changed)
+
+    def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
+        gui_hooks.focus_did_change(new, old)
 
     # Profiles
     ##########################################################################
@@ -650,12 +671,12 @@ class AnkiQt(QMainWindow):
         self.pm.save()
         self.progress.finish()
 
-    # State machine
+    # Tracking main window state (deck browser, reviewer, etc)
     ##########################################################################
 
-    def moveToState(self, state: str, *args: Any) -> None:
+    def moveToState(self, state: MainWindowState, *args: Any) -> None:
         # print("-> move from", self.state, "to", state)
-        oldState = self.state or "dummy"
+        oldState = self.state
         cleanup = getattr(self, f"_{oldState}Cleanup", None)
         if cleanup:
             # pylint: disable=not-callable
@@ -694,66 +715,214 @@ class AnkiQt(QMainWindow):
     # Resetting state
     ##########################################################################
 
-    def reset(self, guiOnly: bool = False) -> None:
-        "Called for non-trivial edits. Rebuilds queue and updates UI."
+    def query_op(
+        self,
+        op: Callable[[], Any],
+        *,
+        success: Callable[[Any], Any] = None,
+        failure: Optional[Callable[[Exception], Any]] = None,
+    ) -> None:
+        """Run an operation that queries the DB on a background thread.
+
+        Similar interface to perform_op(), but intended to be used for operations
+        that do not change collection state. Undo status will not be changed,
+        and `operation_did_execute` will not fire. No progress window will
+        be shown either.
+
+        `operations_will|did_execute` will still fire, so the UI can defer
+        updates during a background task.
+        """
+
+        def wrapped_done(future: Future) -> None:
+            self._decrease_background_ops()
+            # did something go wrong?
+            if exception := future.exception():
+                if isinstance(exception, Exception):
+                    if failure:
+                        failure(exception)
+                    else:
+                        showWarning(str(exception))
+                    return
+                else:
+                    # BaseException like SystemExit; rethrow it
+                    future.result()
+
+            result = future.result()
+            if success:
+                success(result)
+
+        self._increase_background_ops()
+        self.taskman.run_in_background(op, wrapped_done)
+
+    # Resetting state
+    ##########################################################################
+
+    def perform_op(
+        self,
+        op: Callable[[], ResultWithChanges],
+        *,
+        success: PerformOpOptionalSuccessCallback = None,
+        failure: Optional[Callable[[Exception], Any]] = None,
+        after_hooks: Optional[Callable[[], None]] = None,
+    ) -> None:
+        """Run the provided operation on a background thread.
+
+        op() should either return OpChanges, or an object with a 'changes'
+        property. The changes will be passed to `operation_did_execute` so that
+        the UI can decide whether it needs to update itself.
+
+        - Shows progress popup for the duration of the op.
+        - Ensures the browser doesn't try to redraw during the operation, which can lead
+        to a frozen UI
+        - Updates undo state at the end of the operation
+        - Commits changes
+        - Fires the `operation_(will|did)_reset` hooks
+        - Fires the legacy `state_did_reset` hook
+
+        Be careful not to call any UI routines in `op`, as that may crash Qt.
+        This includes things select .selectedCards() in the browse screen.
+
+        success() will be called with the return value of op().
+
+        If op() throws an exception, it will be shown in a popup, or
+        passed to failure() if it is provided.
+
+        after_hooks() will be called after hooks are fired, if it is provided.
+        Components can use this to ignore change notices generated by operations
+        they invoke themselves, or perform some subsequent action.
+        """
+
+        self._increase_background_ops()
+
+        def wrapped_done(future: Future) -> None:
+            self._decrease_background_ops()
+            # did something go wrong?
+            if exception := future.exception():
+                if isinstance(exception, Exception):
+                    if failure:
+                        failure(exception)
+                    else:
+                        showWarning(str(exception))
+                    return
+                else:
+                    # BaseException like SystemExit; rethrow it
+                    future.result()
+
+            result = future.result()
+            try:
+                if success:
+                    success(result)
+            finally:
+                # update undo status
+                status = self.col.undo_status()
+                self._update_undo_actions_for_status_and_save(status)
+                # fire change hooks
+                self._fire_change_hooks_after_op_performed(result, after_hooks)
+
+        self.taskman.with_progress(op, wrapped_done)
+
+    def _increase_background_ops(self) -> None:
+        if not self._background_op_count:
+            gui_hooks.backend_will_block()
+        self._background_op_count += 1
+
+    def _decrease_background_ops(self) -> None:
+        self._background_op_count -= 1
+        if not self._background_op_count:
+            gui_hooks.backend_did_block()
+        assert self._background_op_count >= 0
+
+    def _fire_change_hooks_after_op_performed(
+        self, result: ResultWithChanges, after_hooks: Optional[Callable[[], None]]
+    ) -> None:
+        if isinstance(result, OpChanges):
+            changes = result
+        else:
+            changes = result.changes
+
+        # fire new hook
+        print("op changes:")
+        print(changes)
+        gui_hooks.operation_did_execute(changes)
+        # fire legacy hook so old code notices changes
+        if self.col.op_made_changes(changes):
+            gui_hooks.state_did_reset()
+        if after_hooks:
+            after_hooks()
+
+    def _synthesize_op_did_execute_from_reset(self) -> None:
+        """Fire the `operation_did_execute` hook with everything marked as changed,
+        after legacy code has called .reset()"""
+        op = OpChanges()
+        for field in op.DESCRIPTOR.fields:
+            if field.name != "kind":
+                setattr(op, field.name, True)
+        gui_hooks.operation_did_execute(op)
+
+    def on_operation_did_execute(self, changes: OpChanges) -> None:
+        "Notify current screen of changes."
+        focused = current_top_level_widget() == self
+        if self.state == "review":
+            dirty = self.reviewer.op_executed(changes, focused)
+        elif self.state == "overview":
+            dirty = self.overview.op_executed(changes, focused)
+        elif self.state == "deckBrowser":
+            dirty = self.deckBrowser.op_executed(changes, focused)
+        else:
+            dirty = False
+
+        if not focused and dirty:
+            self.fade_out_webview()
+
+    def on_focus_did_change(
+        self, new_focus: Optional[QWidget], _old: Optional[QWidget]
+    ) -> None:
+        "If main window has received focus, ensure current UI state is updated."
+        if new_focus and top_level_widget(new_focus) == self:
+            if self.state == "review":
+                self.reviewer.refresh_if_needed()
+            elif self.state == "overview":
+                self.overview.refresh_if_needed()
+            elif self.state == "deckBrowser":
+                self.deckBrowser.refresh_if_needed()
+
+    def fade_out_webview(self) -> None:
+        self.web.eval("document.body.style.opacity = 0.3")
+
+    def fade_in_webview(self) -> None:
+        self.web.eval("document.body.style.opacity = 1")
+
+    def reset(self, unused_arg: bool = False) -> None:
+        """Legacy method of telling UI to refresh after changes made to DB.
+
+        New code should use mw.perform_op() instead."""
         if self.col:
-            if not guiOnly:
-                self.col.reset()
+            # fire new `operation_did_execute` hook first. If the overview
+            # or review screen are currently open, they will rebuild the study
+            # queues (via mw.col.reset())
+            self._synthesize_op_did_execute_from_reset()
+            # fire the old reset hook
             gui_hooks.state_did_reset()
             self.update_undo_actions()
-            self.moveToState(self.state)
+
+    # legacy
 
     def requireReset(
         self,
         modal: bool = False,
-        reason: ResetReason = ResetReason.Unknown,
+        reason: Any = None,
         context: Any = None,
     ) -> None:
-        "Signal queue needs to be rebuilt when edits are finished or by user."
-        self.autosave()
-        self.resetModal = modal
-        if gui_hooks.main_window_should_require_reset(
-            self.interactiveState(), reason, context
-        ):
-            self.moveToState("resetRequired")
-
-    def interactiveState(self) -> bool:
-        "True if not in profile manager, syncing, etc."
-        return self.state in ("overview", "review", "deckBrowser")
+        self.reset()
 
     def maybeReset(self) -> None:
-        self.autosave()
-        if self.state == "resetRequired":
-            self.state = self.returnState
-            self.reset()
+        pass
 
     def delayedMaybeReset(self) -> None:
-        # if we redraw the page in a button click event it will often crash on
-        # windows
-        self.progress.timer(100, self.maybeReset, False)
+        pass
 
-    def _resetRequiredState(self, oldState: str) -> None:
-        if oldState != "resetRequired":
-            self.returnState = oldState
-        if self.resetModal:
-            # we don't have to change the webview, as we have a covering window
-            return
-        web_context = ResetRequired(self)
-        self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
-        i = tr(TR.QT_MISC_WAITING_FOR_EDITING_TO_FINISH)
-        b = self.button("refresh", tr(TR.QT_MISC_RESUME_NOW), id="resume")
-        self.web.stdHtml(
-            f"""
-<center><div style="height: 100%">
-<div style="position:relative; vertical-align: middle;">
-{i}<br><br>
-{b}</div></div></center>
-<script>$('#resume').focus()</script>
-""",
-            context=web_context,
-        )
-        self.bottomWeb.hide()
-        self.web.setFocus()
+    def _resetRequiredState(self, oldState: MainWindowState) -> None:
+        pass
 
     # HTML helpers
     ##########################################################################
@@ -812,10 +981,8 @@ title="%s" %s>%s</button>""" % (
 
         # force webengine processes to load before cwd is changed
         if isWin:
-            for o in self.web, self.bottomWeb:
-                o.requiresCol = False
-                o._domReady = False
-                o._page.setContent(bytes("", "ascii"))
+            for webview in self.web, self.bottomWeb:
+                webview.force_load_hack()
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
@@ -879,6 +1046,7 @@ title="%s" %s>%s</button>""" % (
 
     def setupThreads(self) -> None:
         self._mainThread = QThread.currentThread()
+        self._background_op_count = 0
 
     def inMainThread(self) -> bool:
         return self._mainThread == QThread.currentThread()
@@ -988,8 +1156,7 @@ title="%s" %s>%s</button>""" % (
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
-
-        self.stateShortcuts: Sequence[Tuple[str, Callable]] = []
+        self.stateShortcuts: List[QShortcut] = []
 
     def applyShortcuts(
         self, shortcuts: Sequence[Tuple[str, Callable]]
@@ -1087,6 +1254,8 @@ title="%s" %s>%s</button>""" % (
             if on_done:
                 on_done(result)
 
+        # fixme: perform_op? -> needs to save
+        # fixme: parent
         self.taskman.with_progress(self.col.undo, on_done_outer)
 
     def update_undo_actions(self) -> None:
@@ -1107,6 +1276,23 @@ title="%s" %s>%s</button>""" % (
             self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
+
+    def _update_undo_actions_for_status_and_save(self, status: UndoStatus) -> None:
+        """Update menu text and enable/disable menu item as appropriate.
+        Plural as this may handle redo in the future too."""
+        undo_action = status.undo
+
+        if undo_action:
+            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            self.form.actionUndo.setText(undo_action)
+            self.form.actionUndo.setEnabled(True)
+            gui_hooks.undo_state_did_change(True)
+        else:
+            self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
+            self.form.actionUndo.setEnabled(False)
+            gui_hooks.undo_state_did_change(False)
+
+        self.col.autosave()
 
     def checkpoint(self, name: str) -> None:
         self.col.save(name)
@@ -1149,7 +1335,7 @@ title="%s" %s>%s</button>""" % (
         deck = self._selectedDeck()
         if not deck:
             return
-        want_old = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        want_old = KeyboardModifiersPressed().shift
         if want_old:
             aqt.dialogs.open("DeckStats", self)
         else:
@@ -1300,7 +1486,7 @@ title="%s" %s>%s</button>""" % (
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
 
-    # Permanent libanki hooks
+    # Permanent hooks
     ##########################################################################
 
     def setupHooks(self) -> None:
@@ -1310,6 +1496,8 @@ title="%s" %s>%s</button>""" % (
 
         gui_hooks.av_player_will_play.append(self.on_av_player_will_play)
         gui_hooks.av_player_did_end_playing.append(self.on_av_player_did_end_playing)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
+        gui_hooks.focus_did_change.append(self.on_focus_did_change)
 
         self._activeWindowOnPlay: Optional[QWidget] = None
 
@@ -1404,13 +1592,14 @@ title="%s" %s>%s</button>""" % (
         frm = self.debug_diag_form = aqt.forms.debug.Ui_Dialog()
 
         class DebugDialog(QDialog):
+            silentlyClose = True
+
             def reject(self) -> None:
                 super().reject()
                 saveSplitter(frm.splitter, "DebugConsoleWindow")
                 saveGeom(self, "DebugConsoleWindow")
 
         d = self.debugDiag = DebugDialog()
-        d.silentlyClose = True
         disable_help_button(d)
         frm.setupUi(d)
         restoreGeom(d, "DebugConsoleWindow")
@@ -1574,7 +1763,8 @@ title="%s" %s>%s</button>""" % (
         if not self.hideMenuAccels:
             return
         tgt = tgt or self
-        for action in tgt.findChildren(QAction):
+        for action_ in tgt.findChildren(QAction):
+            action = cast(QAction, action_)
             txt = str(action.text())
             m = re.match(r"^(.+)\(&.+\)(.+)?", txt)
             if m:
@@ -1582,7 +1772,7 @@ title="%s" %s>%s</button>""" % (
 
     def hideStatusTips(self) -> None:
         for action in self.findChildren(QAction):
-            action.setStatusTip("")
+            cast(QAction, action).setStatusTip("")
 
     def onMacMinimize(self) -> None:
         self.setWindowState(self.windowState() | Qt.WindowMinimized)  # type: ignore
@@ -1645,6 +1835,10 @@ title="%s" %s>%s</button>""" % (
     def _isAddon(self, buf: str) -> bool:
         return buf.endswith(self.addonManager.ext)
 
+    def interactiveState(self) -> bool:
+        "True if not in profile manager, syncing, etc."
+        return self.state in ("overview", "review", "deckBrowser")
+
     # GC
     ##########################################################################
     # The default Python garbage collection can trigger on any thread. This can
@@ -1700,3 +1894,20 @@ title="%s" %s>%s</button>""" % (
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
+
+
+# legacy
+class ResetReason(enum.Enum):
+    Unknown = "unknown"
+    AddCardsAddNote = "addCardsAddNote"
+    EditCurrentInit = "editCurrentInit"
+    EditorBridgeCmd = "editorBridgeCmd"
+    BrowserSetDeck = "browserSetDeck"
+    BrowserAddTags = "browserAddTags"
+    BrowserRemoveTags = "browserRemoveTags"
+    BrowserSuspend = "browserSuspend"
+    BrowserReposition = "browserReposition"
+    BrowserReschedule = "browserReschedule"
+    BrowserFindReplace = "browserFindReplace"
+    BrowserTagDupes = "browserTagDupes"
+    BrowserDeleteDeck = "browserDeleteDeck"

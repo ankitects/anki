@@ -240,10 +240,8 @@ impl Collection {
     }
 
     /// Answer card, writing its new state to the database.
-    pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<()> {
-        self.transact(Some(UndoableOpKind::AnswerCard), |col| {
-            col.answer_card_inner(answer)
-        })
+    pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<OpOutput<()>> {
+        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
     }
 
     fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {
@@ -274,9 +272,7 @@ impl Collection {
             self.add_leech_tag(card.note_id)?;
         }
 
-        self.update_queues_after_answering_card(&card, timing)?;
-
-        Ok(())
+        self.update_queues_after_answering_card(&card, timing)
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConf) -> Result<()> {

@@ -572,7 +572,7 @@ pub(crate) mod test {
 
         let progress = |_n| true;
 
-        let (output, report) = col.transact(None, |ctx| {
+        let (output, report) = col.transact_no_undo(|ctx| {
             let mut checker = MediaChecker::new(ctx, &mgr, progress);
             let output = checker.check()?;
             let summary = checker.summarize_output(&mut output.clone());
@@ -642,7 +642,7 @@ Unused: unused.jpg
 
         let progress = |_n| true;
 
-        col.transact(None, |ctx| {
+        col.transact_no_undo(|ctx| {
             let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.restore_trash()
         })?;
@@ -656,7 +656,7 @@ Unused: unused.jpg
 
         // if we repeat the process, restoring should do the same thing if the contents are equal
         fs::write(trash_folder.join("test.jpg"), "test")?;
-        col.transact(None, |ctx| {
+        col.transact_no_undo(|ctx| {
             let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.restore_trash()
         })?;
@@ -668,7 +668,7 @@ Unused: unused.jpg
 
         // but rename if required
         fs::write(trash_folder.join("test.jpg"), "test2")?;
-        col.transact(None, |ctx| {
+        col.transact_no_undo(|ctx| {
             let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.restore_trash()
         })?;
@@ -692,7 +692,7 @@ Unused: unused.jpg
 
         let progress = |_n| true;
 
-        let mut output = col.transact(None, |ctx| {
+        let mut output = col.transact_no_undo(|ctx| {
             let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.check()
         })?;

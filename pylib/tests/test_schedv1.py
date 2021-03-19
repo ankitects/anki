@@ -1023,62 +1023,6 @@ def test_deckFlow():
         col.sched.answerCard(c, 2)
 
 
-def test_reorder():
-    col = getEmptyCol()
-    # add a note with default deck
-    note = col.newNote()
-    note["Front"] = "one"
-    col.addNote(note)
-    note2 = col.newNote()
-    note2["Front"] = "two"
-    col.addNote(note2)
-    assert note2.cards()[0].due == 2
-    found = False
-    # 50/50 chance of being reordered
-    for i in range(20):
-        col.sched.randomizeCards(1)
-        if note.cards()[0].due != note.id:
-            found = True
-            break
-    assert found
-    col.sched.orderCards(1)
-    assert note.cards()[0].due == 1
-    # shifting
-    note3 = col.newNote()
-    note3["Front"] = "three"
-    col.addNote(note3)
-    note4 = col.newNote()
-    note4["Front"] = "four"
-    col.addNote(note4)
-    assert note.cards()[0].due == 1
-    assert note2.cards()[0].due == 2
-    assert note3.cards()[0].due == 3
-    assert note4.cards()[0].due == 4
-    col.sched.sortCards([note3.cards()[0].id, note4.cards()[0].id], start=1, shift=True)
-    assert note.cards()[0].due == 3
-    assert note2.cards()[0].due == 4
-    assert note3.cards()[0].due == 1
-    assert note4.cards()[0].due == 2
-
-
-def test_forget():
-    col = getEmptyCol()
-    note = col.newNote()
-    note["Front"] = "one"
-    col.addNote(note)
-    c = note.cards()[0]
-    c.queue = QUEUE_TYPE_REV
-    c.type = CARD_TYPE_REV
-    c.ivl = 100
-    c.due = 0
-    c.flush()
-    col.reset()
-    assert col.sched.counts() == (0, 0, 1)
-    col.sched.forgetCards([c.id])
-    col.reset()
-    assert col.sched.counts() == (1, 0, 0)
-
-
 def test_norelearn():
     col = getEmptyCol()
     # add a note

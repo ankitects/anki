@@ -1,5 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import base64
 import html
 import itertools
@@ -24,16 +27,17 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.notes import Note
+from anki.notes import DuplicateOrEmptyResult, Note
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
-from aqt.main import ResetReason
+from aqt.note_ops import update_note
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
+    KeyboardModifiersPressed,
     disable_help_button,
     getFile,
     openHelp,
@@ -90,8 +94,17 @@ _html = """
 </div>
 """
 
-# caller is responsible for resetting note on reset
+
 class Editor:
+    """The screen that embeds an editing widget should listen for changes via
+    the `operation_did_execute` hook, and call set_note() when the editor needs
+    redrawing.
+
+    The editor will cause that hook to be fired when it saves changes. To avoid
+    an unwanted refresh, the parent widget should call editor.is_updating_note(),
+    and avoid re-setting the note if it returns true.
+    """
+
     def __init__(
         self, mw: AnkiQt, widget: QWidget, parentWindow: QWidget, addMode: bool = False
     ) -> None:
@@ -101,6 +114,7 @@ class Editor:
         self.note: Optional[Note] = None
         self.addMode = addMode
         self.currentField: Optional[int] = None
+        self._is_updating_note = False
         # current card, for card layout
         self.card: Optional[Card] = None
         self.setupOuter()
@@ -399,7 +413,7 @@ class Editor:
         return checkFocus
 
     def onFields(self) -> None:
-        self.saveNow(self._onFields)
+        self.call_after_note_saved(self._onFields)
 
     def _onFields(self) -> None:
         from aqt.fields import FieldDialog
@@ -407,7 +421,7 @@ class Editor:
         FieldDialog(self.mw, self.note.model(), parent=self.parentWindow)
 
     def onCardLayout(self) -> None:
-        self.saveNow(self._onCardLayout)
+        self.call_after_note_saved(self._onCardLayout)
 
     def _onCardLayout(self) -> None:
         from aqt.clayout import CardLayout
@@ -450,7 +464,6 @@ class Editor:
 
             if not self.addMode:
                 self._save_current_note()
-                self.mw.requireReset(reason=ResetReason.EditorBridgeCmd, context=self)
             if type == "blur":
                 self.currentField = None
                 # run any filters
@@ -459,10 +472,10 @@ class Editor:
                     # event has had time to fire
                     self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
                 else:
-                    self.checkValid()
+                    self._check_and_update_duplicate_display_async()
             else:
                 gui_hooks.editor_did_fire_typing_timer(self.note)
-                self.checkValid()
+                self._check_and_update_duplicate_display_async()
 
         # focused into field?
         elif cmd.startswith("focus"):
@@ -492,7 +505,7 @@ class Editor:
     # Setting/unsetting the current note
     ######################################################################
 
-    def setNote(
+    def set_note(
         self, note: Optional[Note], hide: bool = True, focusTo: Optional[int] = None
     ) -> None:
         "Make NOTE the current note."
@@ -519,11 +532,15 @@ class Editor:
         self.widget.show()
         self.updateTags()
 
+        dupe_status = self.note.duplicate_or_empty()
+
         def oncallback(arg: Any) -> None:
             if not self.note:
                 return
             self.setupForegroundButton()
-            self.checkValid()
+            # we currently do this synchronously to ensure we load before the
+            # sidebar on browser startup
+            self._update_duplicate_display(dupe_status)
             if focusTo is not None:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
@@ -544,7 +561,14 @@ class Editor:
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
-        self.mw.col.update_note(self.note)
+        self._is_updating_note = True
+        update_note(mw=self.mw, note=self.note, after_hooks=self._after_updating_note)
+
+    def _after_updating_note(self) -> None:
+        self._is_updating_note = False
+
+    def is_updating_note(self) -> bool:
+        return self._is_updating_note
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [
@@ -552,19 +576,34 @@ class Editor:
             for f in self.note.model()["flds"]
         ]
 
-    def saveNow(self, callback: Callable, keepFocus: bool = False) -> None:
+    def call_after_note_saved(
+        self, callback: Callable, keepFocus: bool = False
+    ) -> None:
         "Save unsaved edits then call callback()."
         if not self.note:
             # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
-        self.saveTags()
+        self.blur_tags_if_focused()
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
-    def checkValid(self) -> None:
+    saveNow = call_after_note_saved
+
+    def _check_and_update_duplicate_display_async(self) -> None:
+        note = self.note
+
+        def on_done(result: DuplicateOrEmptyResult.V) -> None:
+            if self.note != note:
+                return
+            self._update_duplicate_display(result)
+
+        self.mw.query_op(self.note.duplicate_or_empty, success=on_done)
+
+    checkValid = _check_and_update_duplicate_display_async
+
+    def _update_duplicate_display(self, result: DuplicateOrEmptyResult.V) -> None:
         cols = [""] * len(self.note.fields)
-        err = self.note.duplicate_or_empty()
-        if err == 2:
+        if result == DuplicateOrEmptyResult.DUPLICATE:
             cols[0] = "dupe"
 
         self.web.eval(f"setBackgrounds({json.dumps(cols)});")
@@ -597,16 +636,20 @@ class Editor:
         return True
 
     def cleanup(self) -> None:
-        self.setNote(None)
+        self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
         self.web = None
+
+    # legacy
+
+    setNote = set_note
 
     # HTML editing
     ######################################################################
 
     def onHtmlEdit(self) -> None:
         field = self.currentField
-        self.saveNow(lambda: self._onHtmlEdit(field))
+        self.call_after_note_saved(lambda: self._onHtmlEdit(field))
 
     def _onHtmlEdit(self, field: int) -> None:
         d = QDialog(self.widget, Qt.Window)
@@ -656,7 +699,7 @@ class Editor:
         l = QLabel(tr(TR.EDITING_TAGS))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
-        qconnect(self.tags.lostFocus, self.saveTags)
+        qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
         self.tags.setToolTip(
             shortcut(tr(TR.EDITING_JUMP_TO_TAGS_WITH_CTRLANDSHIFTANDT))
         )
@@ -672,13 +715,17 @@ class Editor:
         if not self.tags.text() or not self.addMode:
             self.tags.setText(self.note.stringTags().strip())
 
-    def saveTags(self) -> None:
-        if not self.note:
-            return
+    def on_tag_focus_lost(self) -> None:
         self.note.tags = self.mw.col.tags.split(self.tags.text())
+        gui_hooks.editor_did_update_tags(self.note)
         if not self.addMode:
             self._save_current_note()
-        gui_hooks.editor_did_update_tags(self.note)
+
+    def blur_tags_if_focused(self) -> None:
+        if not self.note:
+            return
+        if self.tags.hasFocus():
+            self.widget.setFocus()
 
     def hideCompleters(self) -> None:
         self.tags.hideCompleter()
@@ -687,8 +734,11 @@ class Editor:
         self.tags.setFocus()
 
     # legacy
+
     def saveAddModeVars(self) -> None:
         pass
+
+    saveTags = blur_tags_if_focused
 
     # Format buttons
     ######################################################################
@@ -712,7 +762,7 @@ class Editor:
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self) -> None:
-        self.saveNow(self._onCloze, keepFocus=True)
+        self.call_after_note_saved(self._onCloze, keepFocus=True)
 
     def _onCloze(self) -> None:
         # check that the model is set up for cloze deletion
@@ -729,7 +779,7 @@ class Editor:
             if m:
                 highest = max(highest, sorted([int(x) for x in m])[-1])
         # reuse last?
-        if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
+        if not KeyboardModifiersPressed().alt:
             highest += 1
         # must start at 1
         highest = max(1, highest)
@@ -1106,7 +1156,7 @@ class EditorWebView(AnkiWebView):
         strip_html = self.editor.mw.col.get_config_bool(
             Config.Bool.PASTE_STRIPS_FORMATTING
         )
-        if self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier:
+        if KeyboardModifiersPressed().shift:
             strip_html = not strip_html
         return strip_html
 
