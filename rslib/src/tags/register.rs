@@ -38,6 +38,23 @@ impl Collection {
         Ok((tags, added))
     }
 
+    /// Returns true if any cards were added to the tag list.
+    pub(crate) fn canonified_tags_as_vec(
+        &mut self,
+        tags: &str,
+        usn: Usn,
+    ) -> Result<Vec<UniCase<String>>> {
+        let mut out_tags = vec![];
+
+        for tag in split_tags(tags) {
+            let mut tag = Tag::new(tag.to_string(), usn);
+            self.register_tag(&mut tag)?;
+            out_tags.push(UniCase::new(tag.name));
+        }
+
+        Ok(out_tags)
+    }
+
     /// Adjust tag casing to match any existing parents, and register it if it's not already
     /// in the tags list. True if the tag was added and not already in tag list.
     /// In the case the tag is already registered, tag will be mutated to match the existing
