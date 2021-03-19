@@ -14,10 +14,15 @@
 
     function translateToAdd({ detail }: Event): void {
         if (name) {
-            dispatch("add", detail)
+            dispatch("add", detail);
             name = "";
         }
     }
 </script>
 
-<TagInput bind:name bind:input on:keydown={onKeydown} on:add on:update={translateToAdd} />
+<TagInput
+    bind:name
+    bind:input
+    on:keydown={onKeydown}
+    on:add
+    on:update={translateToAdd} />

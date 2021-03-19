@@ -58,7 +58,10 @@
     {#each tags as tagname, index}
         <li>
             {#if index === activeTag}
-                <TagInputEdit bind:name={tagname} on:add={tagAdded} on:update={tagUpdated} />
+                <TagInputEdit
+                    bind:name={tagname}
+                    on:add={tagAdded}
+                    on:update={tagUpdated} />
             {:else}
                 <Tag name={tagname} on:click={() => tagActivated(index)}>
                     <DeleteIcon slot="after" on:click={() => tagDeleted(index)} />

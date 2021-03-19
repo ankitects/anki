@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import TagAutocomplete from "./TagAutocomplete.svelte";
     import { createEventDispatcher } from "svelte";
     import { normalizeTagname } from "./helpers";
 
@@ -8,19 +9,17 @@
     const dispatch = createEventDispatcher();
 
     function onBlur(): void {
-        dispatch("update", { tagname: normalizeTagname(name) })
+        dispatch("update", { tagname: normalizeTagname(name) });
     }
 
     function onKeydown(event: KeyboardEvent): void {
         if (event.code === "Space") {
             name += "::";
             event.preventDefault();
-        }
-        else if (event.code === "Backspace" && name.endsWith("::")) {
+        } else if (event.code === "Backspace" && name.endsWith("::")) {
             name = name.slice(0, -2);
             event.preventDefault();
-        }
-        else if (event.code === "Enter") {
+        } else if (event.code === "Enter") {
             onBlur();
             event.preventDefault();
         }
@@ -32,10 +31,10 @@
         const last = splitted.pop();
 
         for (const token of splitted) {
-            const normalized = normalizeTagname(token);
+            const tagname = normalizeTagname(token);
 
-            if (normalized) {
-                dispatch("add", { tagname: normalizeTagname(name) })
+            if (tagname) {
+                dispatch("add", { tagname });
             }
         }
 
@@ -47,7 +46,8 @@
     label {
         display: inline-grid;
 
-        &::after, input {
+        &::after,
+        input {
             color: var(--text-fg);
             background: none;
             resize: none;
@@ -84,6 +84,7 @@
         on:click|stopPropagation
         on:blur={onBlur}
         on:keydown={onKeydown}
-        on:paste={onPaste}
-        />
+        on:paste={onPaste} />
 </label>
+
+<TagAutocomplete {name} />
