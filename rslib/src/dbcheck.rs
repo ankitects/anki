@@ -129,7 +129,7 @@ impl Collection {
         debug!(self.log, "optimize");
         self.storage.optimize()?;
 
-        self.transact(None, |col| col.check_database_inner(progress_fn))
+        self.transact_no_undo(|col| col.check_database_inner(progress_fn))
     }
 
     fn check_database_inner<F>(&mut self, mut progress_fn: F) -> Result<CheckDatabaseOutput>

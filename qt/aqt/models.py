@@ -31,7 +31,7 @@ class Models(QDialog):
     def __init__(
         self,
         mw: AnkiQt,
-        parent: Optional[QDialog] = None,
+        parent: Optional[QWidget] = None,
         fromMain: bool = False,
         selected_notetype_id: Optional[int] = None,
     ):

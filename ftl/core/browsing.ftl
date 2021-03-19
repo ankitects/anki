@@ -140,3 +140,14 @@ browsing-edited-today = Edited
 browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
 browsing-sidebar-overdue = Overdue
+browsing-row-deleted = (deleted)
+browsing-removed-unused-tags-count =
+    { $count ->
+        [one] Removed { $count } unused tag.
+       *[other] Removed { $count } unused tags.
+    }
+browsing-changed-new-position =
+    { $count ->
+        [one] Changed position of { $count } new card.
+       *[other] Changed position of { $count } new cards.
+    }

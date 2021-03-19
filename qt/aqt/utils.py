@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 from enum import Enum
+from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -110,7 +111,7 @@ def openHelp(section: HelpPageArgument) -> None:
     openLink(link)
 
 
-def openLink(link: str) -> None:
+def openLink(link: Union[str, QUrl]) -> None:
     tooltip(tr(TR.QT_MISC_LOADING), period=1000)
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
@@ -118,7 +119,7 @@ def openLink(link: str) -> None:
 
 def showWarning(
     text: str,
-    parent: Optional[QDialog] = None,
+    parent: Optional[QWidget] = None,
     help: HelpPageArgument = "",
     title: str = "Anki",
     textFormat: Optional[TextFormat] = None,
@@ -138,17 +139,17 @@ def showCritical(
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
 
 
-def show_invalid_search_error(err: Exception) -> None:
+def show_invalid_search_error(err: Exception, parent: Optional[QWidget] = None) -> None:
     "Render search errors in markdown, then display a warning."
     text = str(err)
     if isinstance(err, InvalidInput):
         text = markdown(text)
-    showWarning(text)
+    showWarning(text, parent=parent)
 
 
 def showInfo(
     text: str,
-    parent: Union[Literal[False], QDialog] = False,
+    parent: Optional[QWidget] = None,
     help: HelpPageArgument = "",
     type: str = "info",
     title: str = "Anki",
@@ -157,7 +158,7 @@ def showInfo(
 ) -> int:
     "Show a small info window with an OK button."
     parent_widget: QWidget
-    if parent is False:
+    if parent is None:
         parent_widget = aqt.mw.app.activeWindow() or aqt.mw
     else:
         parent_widget = parent
@@ -213,6 +214,7 @@ def showText(
     disable_help_button(diag)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
+    text: Union[QPlainTextEdit, QTextBrowser]
     if plain_text_edit:
         # used by the importer
         text = QPlainTextEdit()
@@ -221,10 +223,10 @@ def showText(
     else:
         text = QTextBrowser()
         text.setOpenExternalLinks(True)
-    if type == "text":
-        text.setPlainText(txt)
-    else:
-        text.setHtml(txt)
+        if type == "text":
+            text.setPlainText(txt)
+        else:
+            text.setHtml(txt)
     layout.addWidget(text)
     box = QDialogButtonBox(QDialogButtonBox.Close)
     layout.addWidget(box)
@@ -262,7 +264,7 @@ def showText(
 
 def askUser(
     text: str,
-    parent: QDialog = None,
+    parent: QWidget = None,
     help: HelpPageArgument = None,
     defaultno: bool = False,
     msgfunc: Optional[Callable] = None,
@@ -295,7 +297,7 @@ class ButtonedDialog(QMessageBox):
         self,
         text: str,
         buttons: List[str],
-        parent: Optional[QDialog] = None,
+        parent: Optional[QWidget] = None,
         help: HelpPageArgument = None,
         title: str = "Anki",
     ):
@@ -328,7 +330,7 @@ class ButtonedDialog(QMessageBox):
 def askUserDialog(
     text: str,
     buttons: List[str],
-    parent: Optional[QDialog] = None,
+    parent: Optional[QWidget] = None,
     help: HelpPageArgument = None,
     title: str = "Anki",
 ) -> ButtonedDialog:
@@ -341,7 +343,7 @@ def askUserDialog(
 class GetTextDialog(QDialog):
     def __init__(
         self,
-        parent: Optional[QDialog],
+        parent: Optional[QWidget],
         question: str,
         help: HelpPageArgument = None,
         edit: Optional[QLineEdit] = None,
@@ -388,7 +390,7 @@ class GetTextDialog(QDialog):
 
 def getText(
     prompt: str,
-    parent: Optional[QDialog] = None,
+    parent: Optional[QWidget] = None,
     help: HelpPageArgument = None,
     edit: Optional[QLineEdit] = None,
     default: str = "",
@@ -445,7 +447,7 @@ def chooseList(
 
 
 def getTag(
-    parent: QDialog, deck: Collection, question: str, **kwargs: Any
+    parent: QWidget, deck: Collection, question: str, **kwargs: Any
 ) -> Tuple[str, int]:
     from aqt.tagedit import TagEdit
 
@@ -458,7 +460,8 @@ def getTag(
 
 def disable_help_button(widget: QWidget) -> None:
     "Disable the help button in the window titlebar."
-    flags = cast(Qt.WindowType, widget.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+    flags_int = int(widget.windowFlags()) & ~Qt.WindowContextHelpButtonHint
+    flags = Qt.WindowFlags(flags_int)  # type: ignore
     widget.setWindowFlags(flags)
 
 
@@ -467,7 +470,7 @@ def disable_help_button(widget: QWidget) -> None:
 
 
 def getFile(
-    parent: QDialog,
+    parent: QWidget,
     title: str,
     # single file returned unless multi=True
     cb: Optional[Callable[[Union[str, Sequence[str]]], None]],
@@ -547,9 +550,9 @@ def getSaveFile(
     return file
 
 
-def saveGeom(widget: QDialog, key: str) -> None:
+def saveGeom(widget: QWidget, key: str) -> None:
     key += "Geom"
-    if isMac and widget.windowState() & Qt.WindowFullScreen:
+    if isMac and int(widget.windowState()) & Qt.WindowFullScreen:
         geom = None
     else:
         geom = widget.saveGeometry()
@@ -599,12 +602,12 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
         widget.move(x, y)
 
 
-def saveState(widget: QFileDialog, key: str) -> None:
+def saveState(widget: Union[QFileDialog, QMainWindow], key: str) -> None:
     key += "State"
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
-def restoreState(widget: Union[aqt.AnkiQt, QFileDialog], key: str) -> None:
+def restoreState(widget: Union[QFileDialog, QMainWindow], key: str) -> None:
     key += "State"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
@@ -632,12 +635,12 @@ def restoreHeader(widget: QHeaderView, key: str) -> None:
         widget.restoreState(aqt.mw.pm.profile[key])
 
 
-def save_is_checked(widget: QWidget, key: str) -> None:
+def save_is_checked(widget: QCheckBox, key: str) -> None:
     key += "IsChecked"
     aqt.mw.pm.profile[key] = widget.isChecked()
 
 
-def restore_is_checked(widget: QWidget, key: str) -> None:
+def restore_is_checked(widget: QCheckBox, key: str) -> None:
     key += "IsChecked"
     if aqt.mw.pm.profile.get(key) is not None:
         widget.setChecked(aqt.mw.pm.profile[key])
@@ -718,8 +721,9 @@ def maybeHideClose(bbox: QDialogButtonBox) -> None:
 def addCloseShortcut(widg: QDialog) -> None:
     if not isMac:
         return
-    widg._closeShortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
-    qconnect(widg._closeShortcut.activated, widg.reject)
+    shortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
+    qconnect(shortcut.activated, widg.reject)
+    setattr(widg, "_closeShortcut", shortcut)
 
 
 def downArrow() -> str:
@@ -727,6 +731,20 @@ def downArrow() -> str:
         return "▼"
     # windows 10 is lacking the smaller arrow on English installs
     return "▾"
+
+
+def top_level_widget(widget: QWidget) -> QWidget:
+    window = None
+    while widget := widget.parentWidget():
+        window = widget
+    return window
+
+
+def current_top_level_widget() -> Optional[QWidget]:
+    if widget := QApplication.focusWidget():
+        return top_level_widget(widget)
+    else:
+        return None
 
 
 # Tooltips
@@ -739,7 +757,7 @@ _tooltipLabel: Optional[QLabel] = None
 def tooltip(
     msg: str,
     period: int = 3000,
-    parent: Optional[aqt.AnkiQt] = None,
+    parent: Optional[QWidget] = None,
     x_offset: int = 0,
     y_offset: int = 100,
 ) -> None:
@@ -974,3 +992,50 @@ def startup_info() -> Any:
     si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
     return si
+
+
+def ensure_editor_saved(func: Callable) -> Callable:
+    """Ensure the current editor's note is saved before running the wrapped function.
+
+    Must be used on functions that may be invoked from a shortcut key while the
+    editor has focus. For functions that can't be activated while the editor has
+    focus, you don't need this.
+
+    Will look for the editor as self.editor.
+    """
+
+    @wraps(func)
+    def decorated(self: Any, *args: Any, **kwargs: Any) -> None:
+        self.editor.call_after_note_saved(lambda: func(self, *args, **kwargs))
+
+    return decorated
+
+
+def ensure_editor_saved_on_trigger(func: Callable) -> Callable:
+    """Like ensure_editor_saved(), but tells Qt this function takes no args.
+
+    This ensures PyQt doesn't attempt to pass a `toggled` arg
+    into functions connected to a `triggered` signal.
+    """
+    return pyqtSlot()(ensure_editor_saved(func))  # type: ignore
+
+
+class KeyboardModifiersPressed:
+    "Util for type-safe checks of currently-pressed modifier keys."
+
+    def __init__(self) -> None:
+        from aqt import mw
+
+        self._modifiers = int(mw.app.keyboardModifiers())
+
+    @property
+    def shift(self) -> bool:
+        return bool(self._modifiers & Qt.ShiftModifier)
+
+    @property
+    def control(self) -> bool:
+        return bool(self._modifiers & Qt.ControlModifier)
+
+    @property
+    def alt(self) -> bool:
+        return bool(self._modifiers & Qt.AltModifier)

@@ -33,9 +33,9 @@ class StudyDeck(QDialog):
         help: HelpPageArgument = HelpPage.KEYBOARD_SHORTCUTS,
         current: Optional[str] = None,
         cancel: bool = True,
-        parent: Optional[QDialog] = None,
+        parent: Optional[QWidget] = None,
         dyn: bool = False,
-        buttons: Optional[List[str]] = None,
+        buttons: Optional[List[Union[str, QPushButton]]] = None,
         geomKey: str = "default",
     ) -> None:
         QDialog.__init__(self, parent or mw)
@@ -53,8 +53,10 @@ class StudyDeck(QDialog):
                 self.form.buttonBox.button(QDialogButtonBox.Cancel)
             )
         if buttons is not None:
-            for b in buttons:
-                self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
+            for button_or_label in buttons:
+                self.form.buttonBox.addButton(
+                    button_or_label, QDialogButtonBox.ActionRole
+                )
         else:
             b = QPushButton(tr(TR.ACTIONS_ADD))
             b.setShortcut(QKeySequence("Ctrl+N"))
@@ -89,7 +91,7 @@ class StudyDeck(QDialog):
         self.exec_()
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
-        if evt.type() == QEvent.KeyPress:
+        if isinstance(evt, QKeyEvent) and evt.type() == QEvent.KeyPress:
             new_row = current_row = self.form.list.currentRow()
             rows_count = self.form.list.count()
             key = evt.key()
@@ -98,7 +100,10 @@ class StudyDeck(QDialog):
                 new_row = current_row - 1
             elif key == Qt.Key_Down:
                 new_row = current_row + 1
-            elif evt.modifiers() & Qt.ControlModifier and Qt.Key_1 <= key <= Qt.Key_9:
+            elif (
+                int(evt.modifiers()) & Qt.ControlModifier
+                and Qt.Key_1 <= key <= Qt.Key_9
+            ):
                 row_index = key - Qt.Key_1
                 if row_index < rows_count:
                     new_row = row_index

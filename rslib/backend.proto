@@ -45,6 +45,11 @@ message StringList {
   repeated string vals = 1;
 }
 
+message OpChangesWithCount {
+  uint32 count = 1;
+  OpChanges changes = 2;
+}
+
 // IDs used in RPC calls
 ///////////////////////////////////////////////////////////
 
@@ -108,19 +113,19 @@ service SchedulingService {
   rpc ExtendLimits(ExtendLimitsIn) returns (Empty);
   rpc CountsForDeckToday(DeckID) returns (CountsForDeckTodayOut);
   rpc CongratsInfo(Empty) returns (CongratsInfoOut);
-  rpc RestoreBuriedAndSuspendedCards(CardIDs) returns (Empty);
+  rpc RestoreBuriedAndSuspendedCards(CardIDs) returns (OpChanges);
   rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
-  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (Empty);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChanges);
   rpc EmptyFilteredDeck(DeckID) returns (Empty);
   rpc RebuildFilteredDeck(DeckID) returns (UInt32);
-  rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (Empty);
-  rpc SetDueDate(SetDueDateIn) returns (Empty);
-  rpc SortCards(SortCardsIn) returns (Empty);
-  rpc SortDeck(SortDeckIn) returns (Empty);
+  rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (OpChanges);
+  rpc SetDueDate(SetDueDateIn) returns (OpChanges);
+  rpc SortCards(SortCardsIn) returns (OpChangesWithCount);
+  rpc SortDeck(SortDeckIn) returns (OpChangesWithCount);
   rpc GetNextCardStates(CardID) returns (NextCardStates);
   rpc DescribeNextStates(NextCardStates) returns (StringList);
   rpc StateIsLeech(SchedulingState) returns (Bool);
-  rpc AnswerCard(AnswerCardIn) returns (Empty);
+  rpc AnswerCard(AnswerCardIn) returns (OpChanges);
   rpc UpgradeScheduler(Empty) returns (Empty);
   rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
 }
@@ -134,23 +139,21 @@ service DecksService {
   rpc GetDeckLegacy(DeckID) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
-  rpc RemoveDecks(DeckIDs) returns (UInt32);
-  rpc DragDropDecks(DragDropDecksIn) returns (Empty);
-  rpc RenameDeck(RenameDeckIn) returns (Empty);
+  rpc RemoveDecks(DeckIDs) returns (OpChangesWithCount);
+  rpc DragDropDecks(DragDropDecksIn) returns (OpChanges);
+  rpc RenameDeck(RenameDeckIn) returns (OpChanges);
 }
 
 service NotesService {
   rpc NewNote(NoteTypeID) returns (Note);
-  rpc AddNote(AddNoteIn) returns (NoteID);
+  rpc AddNote(AddNoteIn) returns (AddNoteOut);
   rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
   rpc DefaultDeckForNotetype(NoteTypeID) returns (DeckID);
-  rpc UpdateNote(UpdateNoteIn) returns (Empty);
+  rpc UpdateNote(UpdateNoteIn) returns (OpChanges);
   rpc GetNote(NoteID) returns (Note);
-  rpc RemoveNotes(RemoveNotesIn) returns (Empty);
-  rpc AddNoteTags(AddNoteTagsIn) returns (UInt32);
-  rpc UpdateNoteTags(UpdateNoteTagsIn) returns (UInt32);
+  rpc RemoveNotes(RemoveNotesIn) returns (OpChanges);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
-  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (Empty);
+  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChanges);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
   rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
   rpc CardsOfNote(NoteID) returns (CardIDs);
@@ -179,7 +182,7 @@ service ConfigService {
   rpc GetConfigString(Config.String) returns (String);
   rpc SetConfigString(SetConfigStringIn) returns (Empty);
   rpc GetPreferences(Empty) returns (Preferences);
-  rpc SetPreferences(Preferences) returns (Empty);
+  rpc SetPreferences(Preferences) returns (OpChanges);
 }
 
 service NoteTypesService {
@@ -212,13 +215,16 @@ service DeckConfigService {
 }
 
 service TagsService {
-  rpc ClearUnusedTags(Empty) returns (Empty);
+  rpc ClearUnusedTags(Empty) returns (OpChangesWithCount);
   rpc AllTags(Empty) returns (StringList);
-  rpc ExpungeTags(String) returns (UInt32);
+  rpc RemoveTags(String) returns (OpChangesWithCount);
   rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
-  rpc ClearTag(String) returns (Empty);
   rpc TagTree(Empty) returns (TagTreeNode);
-  rpc DragDropTags(DragDropTagsIn) returns (Empty);
+  rpc ReparentTags(ReparentTagsIn) returns (OpChangesWithCount);
+  rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
+  rpc AddNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
+  rpc RemoveNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
+  rpc FindAndReplaceTag(FindAndReplaceTagIn) returns (OpChangesWithCount);
 }
 
 service SearchService {
@@ -227,7 +233,7 @@ service SearchService {
   rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
-  rpc FindAndReplace(FindAndReplaceIn) returns (UInt32);
+  rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
 }
 
 service StatsService {
@@ -264,9 +270,10 @@ service CollectionService {
 
 service CardsService {
   rpc GetCard(CardID) returns (Card);
-  rpc UpdateCard(UpdateCardIn) returns (Empty);
+  rpc UpdateCard(UpdateCardIn) returns (OpChanges);
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
-  rpc SetDeck(SetDeckIn) returns (Empty);
+  rpc SetDeck(SetDeckIn) returns (OpChanges);
+  rpc SetFlag(SetFlagIn) returns (OpChanges);
 }
 
 // Protobuf stored in .anki2 files
@@ -919,9 +926,14 @@ message TagTreeNode {
   bool expanded = 4;
 }
 
-message DragDropTagsIn {
-  repeated string source_tags = 1;
-  string target_tag = 2;
+message ReparentTagsIn {
+  repeated string tags = 1;
+  string new_parent = 2;
+}
+
+message RenameTagsIn {
+  string current_prefix = 1;
+  string new_prefix = 2;
 }
 
 message SetConfigJsonIn {
@@ -968,6 +980,11 @@ message AddOrUpdateNotetypeIn {
 message AddNoteIn {
   Note note = 1;
   int64 deck_id = 2;
+}
+
+message AddNoteOut {
+  int64 note_id = 1;
+  OpChanges changes = 2;
 }
 
 message UpdateNoteIn {
@@ -1027,16 +1044,17 @@ message AfterNoteUpdatesIn {
   bool generate_cards = 3;
 }
 
-message AddNoteTagsIn {
-  repeated int64 nids = 1;
+message NoteIDsAndTagsIn {
+  repeated int64 note_ids = 1;
   string tags = 2;
 }
 
-message UpdateNoteTagsIn {
-  repeated int64 nids = 1;
-  string tags = 2;
+message FindAndReplaceTagIn {
+  repeated int64 note_ids = 1;
+  string search = 2;
   string replacement = 3;
   bool regex = 4;
+  bool match_case = 5;
 }
 
 message CheckDatabaseOut {
@@ -1442,6 +1460,24 @@ message GetQueuedCardsOut {
   }
 }
 
+message OpChanges {
+  // this is not an exhaustive list; we can add more cases as we need them
+  enum Kind {
+    OTHER = 0;
+    UPDATE_NOTE_TAGS = 1;
+    SET_CARD_FLAG = 2;
+    UPDATE_NOTE = 3;
+  }
+
+  Kind kind = 1;
+  bool card = 2;
+  bool note = 3;
+  bool deck = 4;
+  bool tag = 5;
+  bool notetype = 6;
+  bool preference = 7;
+}
+
 message UndoStatus {
   string undo = 1;
   string redo = 2;
@@ -1459,4 +1495,9 @@ message DeckAndNotetype {
 message RenameDeckIn {
   int64 deck_id = 1;
   string new_name = 2;
+}
+
+message SetFlagIn {
+  repeated int64 card_ids = 1;
+  uint32 flag = 2;
 }

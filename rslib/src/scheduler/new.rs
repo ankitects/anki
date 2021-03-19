@@ -7,9 +7,9 @@ use crate::{
     decks::DeckID,
     err::Result,
     notes::NoteID,
+    prelude::*,
     search::SortMode,
     types::Usn,
-    undo::UndoableOpKind,
 };
 use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
@@ -24,12 +24,14 @@ impl Card {
         self.ease_factor = 0;
     }
 
-    /// If the card is new, change its position.
-    fn set_new_position(&mut self, position: u32) {
+    /// If the card is new, change its position, and return true.
+    fn set_new_position(&mut self, position: u32) -> bool {
         if self.queue != CardQueue::New || self.ctype != CardType::New {
-            return;
+            false
+        } else {
+            self.due = position as i32;
+            true
         }
-        self.due = position as i32;
     }
 }
 pub(crate) struct NewCardSorter {
@@ -103,10 +105,10 @@ fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteID> {
 }
 
 impl Collection {
-    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<()> {
+    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
-        self.transact(Some(UndoableOpKind::ScheduleAsNew), |col| {
+        self.transact(Op::ScheduleAsNew, |col| {
             col.storage.set_search_table_to_card_ids(cids, true)?;
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
@@ -119,8 +121,7 @@ impl Collection {
                 position += 1;
             }
             col.set_next_card_position(position)?;
-            col.storage.clear_searched_cards_table()?;
-            Ok(())
+            col.storage.clear_searched_cards_table()
         })
     }
 
@@ -131,9 +132,9 @@ impl Collection {
         step: u32,
         order: NewCardSortOrder,
         shift: bool,
-    ) -> Result<()> {
+    ) -> Result<OpOutput<usize>> {
         let usn = self.usn()?;
-        self.transact(None, |col| {
+        self.transact(Op::SortCards, |col| {
             col.sort_cards_inner(cids, starting_from, step, order, shift, usn)
         })
     }
@@ -146,24 +147,28 @@ impl Collection {
         order: NewCardSortOrder,
         shift: bool,
         usn: Usn,
-    ) -> Result<()> {
+    ) -> Result<usize> {
         if shift {
             self.shift_existing_cards(starting_from, step * cids.len() as u32, usn)?;
         }
         self.storage.set_search_table_to_card_ids(cids, true)?;
         let cards = self.storage.all_searched_cards_in_search_order()?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, order);
+        let mut count = 0;
         for mut card in cards {
             let original = card.clone();
-            card.set_new_position(sorter.position(&card));
-            self.update_card_inner(&mut card, original, usn)?;
+            if card.set_new_position(sorter.position(&card)) {
+                count += 1;
+                self.update_card_inner(&mut card, original, usn)?;
+            }
         }
-        self.storage.clear_searched_cards_table()
+        self.storage.clear_searched_cards_table()?;
+        Ok(count)
     }
 
     /// This creates a transaction - we probably want to split it out
     /// in the future if calling it as part of a deck options update.
-    pub fn sort_deck(&mut self, deck: DeckID, random: bool) -> Result<()> {
+    pub fn sort_deck(&mut self, deck: DeckID, random: bool) -> Result<OpOutput<usize>> {
         let cids = self.search_cards(&format!("did:{} is:new", deck), SortMode::NoOrder)?;
         let order = if random {
             NewCardSortOrder::Random

@@ -795,7 +795,7 @@ class CardLayout(QDialog):
                 showWarning(str(e))
                 return
             self.mw.reset()
-            tooltip(tr(TR.CARD_TEMPLATES_CHANGES_SAVED), parent=self.parent())
+            tooltip(tr(TR.CARD_TEMPLATES_CHANGES_SAVED), parent=self.parentWidget())
             self.cleanup()
             gui_hooks.sidebar_should_refresh_notetypes()
             return QDialog.accept(self)

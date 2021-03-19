@@ -5,7 +5,7 @@ use std::collections::HashSet;
 
 use crate::{
     err::Result,
-    notes::{Note, NoteID},
+    notes::{Note, NoteID, NoteTags},
     notetype::NoteTypeID,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
@@ -18,22 +18,6 @@ pub(crate) fn split_fields(fields: &str) -> Vec<String> {
 
 pub(crate) fn join_fields(fields: &[String]) -> String {
     fields.join("\x1f")
-}
-
-fn row_to_note(row: &Row) -> Result<Note> {
-    Ok(Note::new_from_storage(
-        row.get(0)?,
-        row.get(1)?,
-        row.get(2)?,
-        row.get(3)?,
-        row.get(4)?,
-        split_tags(row.get_raw(5).as_str()?)
-            .map(Into::into)
-            .collect(),
-        split_fields(row.get_raw(6).as_str()?),
-        Some(row.get(7)?),
-        Some(row.get(8).unwrap_or_default()),
-    ))
 }
 
 impl super::SqliteStorage {
@@ -175,18 +159,103 @@ impl super::SqliteStorage {
         Ok(seen)
     }
 
-    pub(crate) fn for_each_note_tags<F>(&self, mut func: F) -> Result<()>
+    pub(crate) fn get_note_tags_by_id(&mut self, note_id: NoteID) -> Result<Option<NoteTags>> {
+        self.db
+            .prepare_cached(&format!("{} where id = ?", include_str!("get_tags.sql")))?
+            .query_and_then(&[note_id], row_to_note_tags)?
+            .next()
+            .transpose()
+    }
+
+    pub(crate) fn get_note_tags_by_id_list(
+        &mut self,
+        note_ids: &[NoteID],
+    ) -> Result<Vec<NoteTags>> {
+        self.set_search_table_to_note_ids(note_ids)?;
+        let out = self
+            .db
+            .prepare_cached(&format!(
+                "{} where id in (select nid from search_nids)",
+                include_str!("get_tags.sql")
+            ))?
+            .query_and_then(NO_PARAMS, row_to_note_tags)?
+            .collect::<Result<Vec<_>>>()?;
+        self.clear_searched_notes_table()?;
+        Ok(out)
+    }
+
+    pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
     where
-        F: FnMut(NoteID, String) -> Result<()>,
+        F: Fn(&str) -> bool,
     {
-        let mut stmt = self.db.prepare_cached("select id, tags from notes")?;
-        let mut rows = stmt.query(NO_PARAMS)?;
+        let mut query_stmt = self.db.prepare_cached(include_str!("get_tags.sql"))?;
+        let mut rows = query_stmt.query(NO_PARAMS)?;
+        let mut output = vec![];
         while let Some(row) = rows.next()? {
-            let id: NoteID = row.get(0)?;
-            let tags: String = row.get(1)?;
-            func(id, tags)?
+            let tags = row.get_raw(3).as_str()?;
+            if want(tags) {
+                output.push(row_to_note_tags(row)?)
+            }
+        }
+        Ok(output)
+    }
+
+    pub(crate) fn update_note_tags(&mut self, note: &NoteTags) -> Result<()> {
+        self.db
+            .prepare_cached(include_str!("update_tags.sql"))?
+            .execute(params![note.mtime, note.usn, note.tags, note.id])?;
+        Ok(())
+    }
+
+    fn setup_searched_notes_table(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("search_nids_setup.sql"))?;
+        Ok(())
+    }
+
+    fn clear_searched_notes_table(&self) -> Result<()> {
+        self.db
+            .execute("drop table if exists search_nids", NO_PARAMS)?;
+        Ok(())
+    }
+
+    /// Injects the provided card IDs into the search_nids table, for
+    /// when ids have arrived outside of a search.
+    /// Clear with clear_searched_notes_table().
+    fn set_search_table_to_note_ids(&mut self, notes: &[NoteID]) -> Result<()> {
+        self.setup_searched_notes_table()?;
+        let mut stmt = self
+            .db
+            .prepare_cached("insert into search_nids values (?)")?;
+        for nid in notes {
+            stmt.execute(&[nid])?;
         }
 
         Ok(())
     }
+}
+
+fn row_to_note(row: &Row) -> Result<Note> {
+    Ok(Note::new_from_storage(
+        row.get(0)?,
+        row.get(1)?,
+        row.get(2)?,
+        row.get(3)?,
+        row.get(4)?,
+        split_tags(row.get_raw(5).as_str()?)
+            .map(Into::into)
+            .collect(),
+        split_fields(row.get_raw(6).as_str()?),
+        Some(row.get(7)?),
+        Some(row.get(8).unwrap_or_default()),
+    ))
+}
+
+fn row_to_note_tags(row: &Row) -> Result<NoteTags> {
+    Ok(NoteTags {
+        id: row.get(0)?,
+        mtime: row.get(1)?,
+        usn: row.get(2)?,
+        tags: row.get(3)?,
+    })
 }

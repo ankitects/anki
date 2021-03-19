@@ -85,20 +85,20 @@ impl CollectionService for Backend {
     }
 
     fn get_undo_status(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
-        self.with_col(|col| Ok(col.undo_status()))
+        self.with_col(|col| Ok(col.undo_status().into_protobuf(&col.i18n)))
     }
 
     fn undo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
         self.with_col(|col| {
             col.undo()?;
-            Ok(col.undo_status())
+            Ok(col.undo_status().into_protobuf(&col.i18n))
         })
     }
 
     fn redo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
         self.with_col(|col| {
             col.redo()?;
-            Ok(col.undo_status())
+            Ok(col.undo_status().into_protobuf(&col.i18n))
         })
     }
 }

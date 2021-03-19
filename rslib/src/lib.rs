@@ -24,6 +24,7 @@ mod markdown;
 pub mod media;
 pub mod notes;
 pub mod notetype;
+pub mod ops;
 mod preferences;
 pub mod prelude;
 pub mod revlog;

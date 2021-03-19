@@ -196,7 +196,8 @@ class Card:
         return self.flags & 0b111
 
     def set_user_flag(self, flag: int) -> None:
-        assert 0 <= flag <= 7
+        print("use col.set_user_flag_for_cards() instead")
+        assert 0 <= flag <= 4
         self.flags = (self.flags & ~0b111) | flag
 
     # legacy

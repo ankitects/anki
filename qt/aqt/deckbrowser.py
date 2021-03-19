@@ -8,10 +8,12 @@ from dataclasses import dataclass
 from typing import Any
 
 import aqt
+from anki.collection import OpChanges
 from anki.decks import DeckTreeNode
 from anki.errors import DeckIsFilteredError
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
+from aqt.deck_ops import remove_decks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
@@ -23,7 +25,6 @@ from aqt.utils import (
     shortcut,
     showInfo,
     showWarning,
-    tooltip,
     tr,
 )
 
@@ -61,6 +62,7 @@ class DeckBrowser:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
         self._v1_message_dismissed_at = 0
+        self._refresh_needed = False
 
     def show(self) -> None:
         av_player.stop_and_clear_queue()
@@ -68,9 +70,24 @@ class DeckBrowser:
         self._renderPage()
         # redraw top bar for theme change
         self.mw.toolbar.redraw()
+        self.refresh()
 
     def refresh(self) -> None:
         self._renderPage()
+        self._refresh_needed = False
+
+    def refresh_if_needed(self) -> None:
+        if self._refresh_needed:
+            self.refresh()
+
+    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
+        if self.mw.col.op_affects_study_queue(changes):
+            self._refresh_needed = True
+
+        if focused:
+            self.refresh_if_needed()
+
+        return self._refresh_needed
 
     # Event handlers
     ##########################################################################
@@ -145,7 +162,6 @@ class DeckBrowser:
             ],
             context=self,
         )
-        self.web.key = "deckBrowser"
         self._drawButtons()
         if offset is not None:
             self._scrollToOffset(offset)
@@ -305,15 +321,7 @@ class DeckBrowser:
         self.mw.taskman.with_progress(process, on_done)
 
     def _delete(self, did: int) -> None:
-        def do_delete() -> int:
-            return self.mw.col.decks.remove([did])
-
-        def on_done(fut: Future) -> None:
-            self.mw.update_undo_actions()
-            self.show()
-            tooltip(tr(TR.BROWSING_CARDS_DELETED, count=fut.result()))
-
-        self.mw.taskman.with_progress(do_delete, on_done)
+        remove_decks(mw=self.mw, parent=self.mw, deck_ids=[did])
 
     # Top buttons
     ######################################################################

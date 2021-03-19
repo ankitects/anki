@@ -86,12 +86,12 @@ class ThemeManager:
         else:
             # specified colours
             icon = QIcon(path.path)
-            img = icon.pixmap(16)
-            painter = QPainter(img)
+            pixmap = icon.pixmap(16)
+            painter = QPainter(pixmap)
             painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-            painter.fillRect(img.rect(), QColor(path.current_color(self.night_mode)))
+            painter.fillRect(pixmap.rect(), QColor(path.current_color(self.night_mode)))
             painter.end()
-            icon = QIcon(img)
+            icon = QIcon(pixmap)
             return icon
 
         return cache.setdefault(path, icon)

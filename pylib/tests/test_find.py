@@ -243,24 +243,40 @@ def test_findReplace():
     col.addNote(note2)
     nids = [note.id, note2.id]
     # should do nothing
-    assert col.findReplace(nids, "abc", "123") == 0
+    assert (
+        col.find_and_replace(note_ids=nids, search="abc", replacement="123").count == 0
+    )
     # global replace
-    assert col.findReplace(nids, "foo", "qux") == 2
+    assert (
+        col.find_and_replace(note_ids=nids, search="foo", replacement="qux").count == 2
+    )
     note.load()
     assert note["Front"] == "qux"
     note2.load()
     assert note2["Back"] == "qux"
     # single field replace
-    assert col.findReplace(nids, "qux", "foo", field="Front") == 1
+    assert (
+        col.find_and_replace(
+            note_ids=nids, search="qux", replacement="foo", field_name="Front"
+        ).count
+        == 1
+    )
     note.load()
     assert note["Front"] == "foo"
     note2.load()
     assert note2["Back"] == "qux"
     # regex replace
-    assert col.findReplace(nids, "B.r", "reg") == 0
+    assert (
+        col.find_and_replace(note_ids=nids, search="B.r", replacement="reg").count == 0
+    )
     note.load()
     assert note["Back"] != "reg"
-    assert col.findReplace(nids, "B.r", "reg", regex=True) == 1
+    assert (
+        col.find_and_replace(
+            note_ids=nids, search="B.r", replacement="reg", regex=True
+        ).count
+        == 1
+    )
     note.load()
     assert note["Back"] == "reg"
 

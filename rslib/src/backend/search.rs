@@ -68,7 +68,7 @@ impl SearchService for Backend {
         Ok(replace_search_node(existing, replacement).into())
     }
 
-    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<pb::UInt32> {
+    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<pb::OpChangesWithCount> {
         let mut search = if input.regex {
             input.search
         } else {
@@ -86,7 +86,7 @@ impl SearchService for Backend {
         let repl = input.replacement;
         self.with_col(|col| {
             col.find_and_replace(nids, &search, &repl, field_name)
-                .map(|cnt| pb::UInt32 { val: cnt as u32 })
+                .map(Into::into)
         })
     }
 }

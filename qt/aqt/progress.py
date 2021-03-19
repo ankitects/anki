@@ -16,10 +16,11 @@ from aqt.utils import TR, disable_help_button, tr
 class ProgressManager:
     def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
-        self.app = QApplication.instance()
+        self.app = mw.app
         self.inDB = False
         self.blockUpdates = False
         self._show_timer: Optional[QTimer] = None
+        self._busy_cursor_timer: Optional[QTimer] = None
         self._win: Optional[ProgressDialog] = None
         self._levels = 0
 
@@ -74,7 +75,7 @@ class ProgressManager:
         max: int = 0,
         min: int = 0,
         label: Optional[str] = None,
-        parent: Optional[QDialog] = None,
+        parent: Optional[QWidget] = None,
         immediate: bool = False,
     ) -> Optional[ProgressDialog]:
         self._levels += 1
@@ -94,14 +95,15 @@ class ProgressManager:
         self._win.setWindowTitle("Anki")
         self._win.setWindowModality(Qt.ApplicationModal)
         self._win.setMinimumWidth(300)
-        self._setBusy()
+        self._busy_cursor_timer = QTimer(self.mw)
+        self._busy_cursor_timer.setSingleShot(True)
+        self._busy_cursor_timer.start(300)
+        qconnect(self._busy_cursor_timer.timeout, self._set_busy_cursor)
         self._shown: float = 0
         self._counter = min
         self._min = min
         self._max = max
         self._firstTime = time.time()
-        self._lastUpdate = time.time()
-        self._updating = False
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
         self._show_timer.start(immediate and 100 or 600)
@@ -120,13 +122,10 @@ class ProgressManager:
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
             return
-        if self._updating:
-            return
         if maybeShow:
             self._maybeShow()
         if not self._shown:
             return
-        elapsed = time.time() - self._lastUpdate
         if label:
             self._win.form.label.setText(label)
 
@@ -136,19 +135,16 @@ class ProgressManager:
             self._counter = value or (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
 
-        if process and elapsed >= 0.2:
-            self._updating = True
-            self.app.processEvents()  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
-            self._updating = False
-            self._lastUpdate = time.time()
-
     def finish(self) -> None:
         self._levels -= 1
         self._levels = max(0, self._levels)
         if self._levels == 0:
             if self._win:
                 self._closeWin()
-            self._unsetBusy()
+            if self._busy_cursor_timer:
+                self._busy_cursor_timer.stop()
+                self._busy_cursor_timer = None
+            self._restore_cursor()
             if self._show_timer:
                 self._show_timer.stop()
                 self._show_timer = None
@@ -183,14 +179,17 @@ class ProgressManager:
                 if elap >= 0.5:
                     break
                 self.app.processEvents(QEventLoop.ExcludeUserInputEvents)  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
-        self._win.cancel()
+        # if the parent window has been deleted, the progress dialog may have
+        # already been dropped; delete it if it hasn't been
+        if not sip.isdeleted(self._win):
+            self._win.cancel()
         self._win = None
         self._shown = 0
 
-    def _setBusy(self) -> None:
+    def _set_busy_cursor(self) -> None:
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
 
-    def _unsetBusy(self) -> None:
+    def _restore_cursor(self) -> None:
         self.app.restoreOverrideCursor()
 
     def busy(self) -> int:

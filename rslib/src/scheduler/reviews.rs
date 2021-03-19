@@ -7,8 +7,7 @@ use crate::{
     config::StringKey,
     deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
     err::Result,
-    prelude::AnkiError,
-    undo::UndoableOpKind,
+    prelude::*,
 };
 use lazy_static::lazy_static;
 use rand::distributions::{Distribution, Uniform};
@@ -94,13 +93,13 @@ impl Collection {
         cids: &[CardID],
         days: &str,
         context: Option<StringKey>,
-    ) -> Result<()> {
+    ) -> Result<OpOutput<()>> {
         let spec = parse_due_date_str(days)?;
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
         let mut rng = rand::thread_rng();
         let distribution = Uniform::from(spec.min..=spec.max);
-        self.transact(Some(UndoableOpKind::SetDueDate), |col| {
+        self.transact(Op::SetDueDate, |col| {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
