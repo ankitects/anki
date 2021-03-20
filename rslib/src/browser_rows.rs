@@ -20,6 +20,8 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
+const CARD_RENDER_COLUMNS: [&str; 2] = ["question", "answer"];
+
 #[derive(Debug, PartialEq)]
 pub struct Row {
     pub cells: Vec<Cell>,
@@ -64,7 +66,77 @@ struct RowContext<'a> {
     answer_nodes: Option<Vec<RenderedNode>>,
 }
 
-impl RowContext<'_> {
+fn card_render_required(columns: &[String]) -> bool {
+    columns
+        .iter()
+        .any(|c| CARD_RENDER_COLUMNS.contains(&c.as_str()))
+}
+
+impl Collection {
+    pub fn browser_row_for_card(&mut self, id: CardID) -> Result<Row> {
+        let columns: Vec<String> = self.get_config_optional("activeCols").unwrap_or_else(|| {
+            vec![
+                "noteFld".to_string(),
+                "template".to_string(),
+                "cardDue".to_string(),
+                "deck".to_string(),
+            ]
+        });
+        let mut context = RowContext::new(self, id, card_render_required(&columns))?;
+
+        Ok(Row {
+            cells: columns
+                .iter()
+                .map(|column| context.get_cell(column))
+                .collect::<Result<_>>()?,
+            color: context.get_row_color(),
+            font: context.get_row_font()?,
+        })
+    }
+}
+
+impl<'a> RowContext<'a> {
+    fn new(col: &'a mut Collection, id: CardID, with_card_render: bool) -> Result<Self> {
+        let card = col.storage.get_card(id)?.ok_or(AnkiError::NotFound)?;
+        let note = if with_card_render {
+            col.storage.get_note(card.note_id)?
+        } else {
+            col.storage.get_note_without_fields(card.note_id)?
+        }
+        .ok_or(AnkiError::NotFound)?;
+        let notetype = col
+            .get_notetype(note.notetype_id)?
+            .ok_or(AnkiError::NotFound)?;
+        let offset = col.local_utc_offset_for_user()?;
+        let timing = col.timing_today()?;
+        let (question_nodes, answer_nodes) = if with_card_render {
+            let render = col.render_card(
+                &note,
+                &card,
+                &notetype,
+                notetype.get_template(card.template_idx)?,
+                true,
+            )?;
+            (Some(render.qnodes), Some(render.anodes))
+        } else {
+            (None, None)
+        };
+
+        Ok(RowContext {
+            col,
+            card,
+            note,
+            notetype,
+            deck: None,
+            original_deck: None,
+            i18n: &col.i18n,
+            offset,
+            timing,
+            question_nodes,
+            answer_nodes,
+        })
+    }
+
     fn template(&self) -> Result<&CardTemplate> {
         self.notetype.get_template(self.card.template_idx)
     }
@@ -87,249 +159,174 @@ impl RowContext<'_> {
         }
         Ok(self.original_deck.as_ref().unwrap())
     }
-}
 
-fn row_context_from_cid<'a>(
-    col: &'a mut Collection,
-    id: CardID,
-    with_card_render: bool,
-) -> Result<RowContext<'a>> {
-    let card = col.storage.get_card(id)?.ok_or(AnkiError::NotFound)?;
-    let note = if with_card_render {
-        col.storage.get_note(card.note_id)?
-    } else {
-        col.storage.get_note_without_fields(card.note_id)?
-    }
-    .ok_or(AnkiError::NotFound)?;
-    let notetype = col
-        .get_notetype(note.notetype_id)?
-        .ok_or(AnkiError::NotFound)?;
-    let offset = col.local_utc_offset_for_user()?;
-    let timing = col.timing_today()?;
-    let (question_nodes, answer_nodes) = if with_card_render {
-        let render = col.render_card(
-            &note,
-            &card,
-            &notetype,
-            notetype.get_template(card.template_idx)?,
-            true,
-        )?;
-        (Some(render.qnodes), Some(render.anodes))
-    } else {
-        (None, None)
-    };
-
-    Ok(RowContext {
-        col,
-        card,
-        note,
-        notetype,
-        deck: None,
-        original_deck: None,
-        i18n: &col.i18n,
-        offset,
-        timing,
-        question_nodes,
-        answer_nodes,
-    })
-}
-
-impl Collection {
-    pub fn browser_row_for_card(&mut self, id: CardID) -> Result<Row> {
-        let columns: Vec<String> = self.get_config_optional("activeCols").unwrap_or_else(|| {
-            vec![
-                "noteFld".to_string(),
-                "template".to_string(),
-                "cardDue".to_string(),
-                "deck".to_string(),
-            ]
-        });
-        let mut context = row_context_from_cid(self, id, note_fields_required(&columns))?;
-        Ok(Row {
-            cells: columns
-                .iter()
-                .map(|column| get_cell(column, &mut context))
-                .collect::<Result<_>>()?,
-            color: get_row_color(&context),
-            font: get_row_font(&context)?,
+    fn get_cell(&mut self, column: &str) -> Result<Cell> {
+        Ok(Cell {
+            text: self.get_cell_text(column)?,
+            is_rtl: self.get_is_rtl(column),
         })
     }
-}
 
-fn get_cell(column: &str, context: &mut RowContext) -> Result<Cell> {
-    Ok(Cell {
-        text: get_cell_text(column, context)?,
-        is_rtl: get_is_rtl(column, context),
-    })
-}
-
-fn get_cell_text(column: &str, context: &mut RowContext) -> Result<String> {
-    Ok(match column {
-        "answer" => answer_str(context)?,
-        "cardDue" => card_due_str(context)?,
-        "cardEase" => card_ease_str(context),
-        "cardIvl" => card_interval_str(context),
-        "cardLapses" => context.card.lapses.to_string(),
-        "cardMod" => context.card.mtime.date_string(context.offset),
-        "cardReps" => context.card.reps.to_string(),
-        "deck" => deck_str(context)?,
-        "note" => context.notetype.name.to_owned(),
-        "noteCrt" => note_creation_str(context),
-        "noteFld" => note_field_str(context),
-        "noteMod" => context.note.mtime.date_string(context.offset),
-        "noteTags" => context.note.tags.join(" "),
-        "question" => question_str(context)?,
-        "template" => template_str(context)?,
-        _ => "".to_string(),
-    })
-}
-
-fn answer_str(context: &RowContext) -> Result<String> {
-    let text = context
-        .answer_nodes
-        .as_ref()
-        .unwrap()
-        .iter()
-        .map(|node| match node {
-            RenderedNode::Text { text } => text,
-            RenderedNode::Replacement {
-                field_name: _,
-                current_text,
-                filters: _,
-            } => current_text,
+    fn get_cell_text(&mut self, column: &str) -> Result<String> {
+        Ok(match column {
+            "answer" => self.answer_str()?,
+            "cardDue" => self.card_due_str()?,
+            "cardEase" => self.card_ease_str(),
+            "cardIvl" => self.card_interval_str(),
+            "cardLapses" => self.card.lapses.to_string(),
+            "cardMod" => self.card.mtime.date_string(self.offset),
+            "cardReps" => self.card.reps.to_string(),
+            "deck" => self.deck_str()?,
+            "note" => self.notetype.name.to_owned(),
+            "noteCrt" => self.note_creation_str(),
+            "noteFld" => self.note_field_str(),
+            "noteMod" => self.note.mtime.date_string(self.offset),
+            "noteTags" => self.note.tags.join(" "),
+            "question" => self.question_str()?,
+            "template" => self.template_str()?,
+            _ => "".to_string(),
         })
-        .join("");
-    Ok(html_to_text_line(&extract_av_tags(&text, false).0).to_string())
-}
-
-fn card_due_str(context: &mut RowContext) -> Result<String> {
-    Ok(if context.original_deck()?.is_some() {
-        context.i18n.tr(TR::BrowsingFiltered).into()
-    } else if context.card.queue == CardQueue::New || context.card.ctype == CardType::New {
-        context.i18n.trn(
-            TR::StatisticsDueForNewCard,
-            tr_args!["number"=>context.card.due],
-        )
-    } else {
-        let date = match context.card.queue {
-            CardQueue::Learn => TimestampSecs(context.card.due as i64),
-            CardQueue::DayLearn | CardQueue::Review => TimestampSecs::now().adding_secs(
-                ((context.card.due - context.timing.days_elapsed as i32) * 86400) as i64,
-            ),
-            _ => return Ok("".into()),
-        };
-        date.date_string(context.offset)
-    })
-}
-
-fn card_ease_str(context: &RowContext) -> String {
-    match context.card.ctype {
-        CardType::New => context.i18n.tr(TR::BrowsingNew).into(),
-        _ => format!("{}%", context.card.ease_factor / 10),
     }
-}
 
-fn card_interval_str(context: &RowContext) -> String {
-    match context.card.ctype {
-        CardType::New => context.i18n.tr(TR::BrowsingNew).into(),
-        CardType::Learn => context.i18n.tr(TR::BrowsingLearning).into(),
-        _ => time_span((context.card.interval * 86400) as f32, context.i18n, false),
+    fn answer_str(&self) -> Result<String> {
+        let text = self
+            .answer_nodes
+            .as_ref()
+            .unwrap()
+            .iter()
+            .map(|node| match node {
+                RenderedNode::Text { text } => text,
+                RenderedNode::Replacement {
+                    field_name: _,
+                    current_text,
+                    filters: _,
+                } => current_text,
+            })
+            .join("");
+        Ok(html_to_text_line(&extract_av_tags(&text, false).0).to_string())
     }
-}
 
-fn deck_str(context: &mut RowContext) -> Result<String> {
-    let deck_name = context.deck()?.human_name();
-    Ok(if let Some(original_deck) = context.original_deck()? {
-        format!("{} ({})", &deck_name, &original_deck.human_name())
-    } else {
-        deck_name
-    })
-}
-
-fn note_creation_str(context: &RowContext) -> String {
-    TimestampMillis(context.note.id.into())
-        .as_secs()
-        .date_string(context.offset)
-}
-
-fn note_field_str(context: &RowContext) -> String {
-    if let Some(field) = &context.note.sort_field {
-        field.to_owned()
-    } else {
-        "".to_string()
-    }
-}
-
-fn template_str(context: &RowContext) -> Result<String> {
-    let name = &context.template()?.name;
-    Ok(match context.notetype.config.kind() {
-        NoteTypeKind::Normal => name.to_owned(),
-        NoteTypeKind::Cloze => format!("{} {}", name, context.card.template_idx + 1),
-    })
-}
-
-fn question_str(context: &RowContext) -> Result<String> {
-    let text = context
-        .question_nodes
-        .as_ref()
-        .unwrap()
-        .iter()
-        .map(|node| match node {
-            RenderedNode::Text { text } => text,
-            RenderedNode::Replacement {
-                field_name: _,
-                current_text,
-                filters: _,
-            } => current_text,
+    fn card_due_str(&mut self) -> Result<String> {
+        Ok(if self.original_deck()?.is_some() {
+            self.i18n.tr(TR::BrowsingFiltered).into()
+        } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
+            self.i18n.trn(
+                TR::StatisticsDueForNewCard,
+                tr_args!["number"=>self.card.due],
+            )
+        } else {
+            let date = match self.card.queue {
+                CardQueue::Learn => TimestampSecs(self.card.due as i64),
+                CardQueue::DayLearn | CardQueue::Review => TimestampSecs::now().adding_secs(
+                    ((self.card.due - self.timing.days_elapsed as i32) * 86400) as i64,
+                ),
+                _ => return Ok("".into()),
+            };
+            date.date_string(self.offset)
         })
-        .join("");
-    Ok(html_to_text_line(&extract_av_tags(&text, true).0).to_string())
-}
+    }
 
-fn get_is_rtl(column: &str, context: &RowContext) -> bool {
-    match column {
-        "noteFld" => {
-            let index = context.notetype.config.sort_field_idx as usize;
-            context.notetype.fields[index].config.rtl
+    fn card_ease_str(&self) -> String {
+        match self.card.ctype {
+            CardType::New => self.i18n.tr(TR::BrowsingNew).into(),
+            _ => format!("{}%", self.card.ease_factor / 10),
         }
-        _ => false,
     }
-}
 
-fn get_row_color(context: &RowContext) -> Color {
-    match context.card.flags {
-        1 => Color::FlagRed,
-        2 => Color::FlagOrange,
-        3 => Color::FlagGreen,
-        4 => Color::FlagBlue,
-        _ => {
-            if context
-                .note
-                .tags
-                .iter()
-                .any(|tag| tag.eq_ignore_ascii_case("marked"))
-            {
-                Color::Marked
-            } else if context.card.queue == CardQueue::Suspended {
-                Color::Suspended
-            } else {
-                Color::Default
+    fn card_interval_str(&self) -> String {
+        match self.card.ctype {
+            CardType::New => self.i18n.tr(TR::BrowsingNew).into(),
+            CardType::Learn => self.i18n.tr(TR::BrowsingLearning).into(),
+            _ => time_span((self.card.interval * 86400) as f32, self.i18n, false),
+        }
+    }
+
+    fn deck_str(&mut self) -> Result<String> {
+        let deck_name = self.deck()?.human_name();
+        Ok(if let Some(original_deck) = self.original_deck()? {
+            format!("{} ({})", &deck_name, &original_deck.human_name())
+        } else {
+            deck_name
+        })
+    }
+
+    fn note_creation_str(&self) -> String {
+        TimestampMillis(self.note.id.into())
+            .as_secs()
+            .date_string(self.offset)
+    }
+
+    fn note_field_str(&self) -> String {
+        if let Some(field) = &self.note.sort_field {
+            field.to_owned()
+        } else {
+            "".to_string()
+        }
+    }
+
+    fn template_str(&self) -> Result<String> {
+        let name = &self.template()?.name;
+        Ok(match self.notetype.config.kind() {
+            NoteTypeKind::Normal => name.to_owned(),
+            NoteTypeKind::Cloze => format!("{} {}", name, self.card.template_idx + 1),
+        })
+    }
+
+    fn question_str(&self) -> Result<String> {
+        let text = self
+            .question_nodes
+            .as_ref()
+            .unwrap()
+            .iter()
+            .map(|node| match node {
+                RenderedNode::Text { text } => text,
+                RenderedNode::Replacement {
+                    field_name: _,
+                    current_text,
+                    filters: _,
+                } => current_text,
+            })
+            .join("");
+        Ok(html_to_text_line(&extract_av_tags(&text, true).0).to_string())
+    }
+
+    fn get_is_rtl(&self, column: &str) -> bool {
+        match column {
+            "noteFld" => {
+                let index = self.notetype.config.sort_field_idx as usize;
+                self.notetype.fields[index].config.rtl
+            }
+            _ => false,
+        }
+    }
+
+    fn get_row_color(&self) -> Color {
+        match self.card.flags {
+            1 => Color::FlagRed,
+            2 => Color::FlagOrange,
+            3 => Color::FlagGreen,
+            4 => Color::FlagBlue,
+            _ => {
+                if self
+                    .note
+                    .tags
+                    .iter()
+                    .any(|tag| tag.eq_ignore_ascii_case("marked"))
+                {
+                    Color::Marked
+                } else if self.card.queue == CardQueue::Suspended {
+                    Color::Suspended
+                } else {
+                    Color::Default
+                }
             }
         }
     }
-}
 
-fn get_row_font(context: &RowContext) -> Result<Font> {
-    Ok(Font {
-        name: context.template()?.config.browser_font_name.to_owned(),
-        size: context.template()?.config.browser_font_size,
-    })
-}
-
-const FIELDS_REQUIRING_COLUMNS: [&str; 2] = ["question", "answer"];
-
-fn note_fields_required(columns: &[String]) -> bool {
-    columns
-        .iter()
-        .any(|c| FIELDS_REQUIRING_COLUMNS.contains(&c.as_str()))
+    fn get_row_font(&self) -> Result<Font> {
+        Ok(Font {
+            name: self.template()?.config.browser_font_name.to_owned(),
+            size: self.template()?.config.browser_font_size,
+        })
+    }
 }
