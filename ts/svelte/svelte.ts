@@ -5,13 +5,100 @@ const preprocess = require("svelte-preprocess");
 import * as ts from "typescript";
 import * as svelte from "svelte/compiler";
 
-const tsOptions = {
-    jsx: ts.JsxEmit.Preserve,
-    declaration: true,
-    emitDeclarationOnly: true,
-    skipLibCheck: true,
+let parsedCommandLine: ts.ParsedCommandLine = {
+    fileNames: [],
+    errors: [],
+    options: {
+        jsx: ts.JsxEmit.Preserve,
+        declaration: true,
+        emitDeclarationOnly: true,
+        skipLibCheck: true,
+    },
 };
-const tsHost = ts.createCompilerHost(tsOptions);
+
+// largely taken from https://github.com/Asana/bazeltsc/blob/7dfa0ba2bd5eb9ee556e146df35cf793fad2d2c3/src/bazeltsc.ts (MIT)
+const languageServiceHost: ts.LanguageServiceHost = {
+    getCompilationSettings: (): ts.CompilerOptions => parsedCommandLine.options,
+    getNewLine: () => ts.sys.newLine,
+    getScriptFileNames: (): string[] => parsedCommandLine.fileNames,
+    getScriptVersion: (fileName: string): string => {
+        // If the file's size or modified-timestamp changed, it's a different version.
+        return (
+            ts.sys.getFileSize!(fileName) +
+            ":" +
+            ts.sys.getModifiedTime!(fileName)!.getTime()
+        );
+    },
+    getScriptSnapshot: (fileName: string): ts.IScriptSnapshot | undefined => {
+        if (!ts.sys.fileExists(fileName)) {
+            return undefined;
+        }
+        let text = ts.sys.readFile(fileName)!;
+        return {
+            getText: (start: number, end: number) => {
+                if (start === 0 && end === text.length) {
+                    // optimization
+                    return text;
+                } else {
+                    return text.slice(start, end);
+                }
+            },
+            getLength: () => text.length,
+            getChangeRange: (
+                oldSnapshot: ts.IScriptSnapshot
+            ): ts.TextChangeRange | undefined => {
+                const oldText = oldSnapshot.getText(0, oldSnapshot.getLength());
+
+                // Find the offset of the first char that differs between oldText and text
+                let firstDiff = 0;
+                while (
+                    firstDiff < oldText.length &&
+                    firstDiff < text.length &&
+                    text[firstDiff] === oldText[firstDiff]
+                ) {
+                    firstDiff++;
+                }
+
+                // Find the offset of the last char that differs between oldText and text
+                let oldIndex = oldText.length;
+                let newIndex = text.length;
+                while (
+                    oldIndex > firstDiff &&
+                    newIndex > firstDiff &&
+                    oldText[oldIndex - 1] === text[newIndex - 1]
+                ) {
+                    oldIndex--;
+                    newIndex--;
+                }
+
+                return {
+                    span: {
+                        start: firstDiff,
+                        length: oldIndex - firstDiff,
+                    },
+                    newLength: newIndex - firstDiff,
+                };
+            },
+            dispose: (): void => {
+                text = "";
+            },
+        };
+    },
+    getCurrentDirectory: ts.sys.getCurrentDirectory,
+    getDefaultLibFileName: ts.getDefaultLibFilePath,
+};
+
+const languageService = ts.createLanguageService(languageServiceHost);
+
+function compile(tsPath, shims) {
+    parsedCommandLine.fileNames = [tsPath, ...shims];
+    const program = languageService.getProgram()!;
+    const tsHost = ts.createCompilerHost(parsedCommandLine.options);
+    const createdFiles = {};
+    tsHost.writeFile = (fileName, contents) => (createdFiles[fileName] = contents);
+    program.emit(undefined /* all files */, tsHost.writeFile);
+    return createdFiles[parsedCommandLine.fileNames[0].replace(".ts", ".d.ts")];
+}
 
 function writeFile(file, data) {
     return new Promise((resolve, reject) => {
@@ -37,17 +124,8 @@ function readFile(file) {
     });
 }
 
-function buildDeclarations(svelteTsFile, shims) {
-    const createdFiles = {}; //test2
-    tsHost.writeFile = (fileName, contents) => (createdFiles[fileName] = contents);
-    const program = ts.createProgram([svelteTsFile, ...shims], tsOptions, tsHost);
-    program.emit();
-    const dtsSource = createdFiles[svelteTsFile.replace(".ts", ".d.ts")];
-    return dtsSource;
-}
-
 async function writeDts(tsPath, dtsPath, shims) {
-    const dtsSource = buildDeclarations(tsPath, shims);
+    const dtsSource = compile(tsPath, shims);
     await writeFile(dtsPath, dtsSource);
 }
 
@@ -64,7 +142,6 @@ async function writeTs(svelteSource, sveltePath, tsPath) {
     await writeFile(tsPath, codeLines.join("\n"));
 }
 
-//test
 async function writeJs(source, inputFilename, outputPath) {
     const preprocessOptions = preprocess({});
     preprocessOptions.filename = inputFilename;
