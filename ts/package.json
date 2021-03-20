@@ -8,6 +8,7 @@
     "devDependencies": {
         "@bazel/rollup": "=3.2.2",
         "@bazel/typescript": "=3.2.2",
+        "@bazel/worker": "=3.2.2",
         "@pyoner/svelte-types": "^3.4.4-2",
         "@rollup/plugin-commonjs": "^15.1.0",
         "@rollup/plugin-node-resolve": "^9.0.0",
