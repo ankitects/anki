@@ -13,9 +13,8 @@ use crate::{
     config::SortKind,
     prelude::*,
     search::{
-        browser, concatenate_searches, parse_search, replace_search_node, write_nodes,
-        BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, SortMode, StateKind,
-        TemplateKind,
+        concatenate_searches, parse_search, replace_search_node, write_nodes, BoolSeparator, Node,
+        PropertyKind, RatingKind, SearchNode, SortMode, StateKind, TemplateKind,
     },
     text::escape_anki_wildcards,
 };
@@ -89,10 +88,6 @@ impl SearchService for Backend {
             col.find_and_replace(nids, &search, &repl, field_name)
                 .map(Into::into)
         })
-    }
-
-    fn browser_row_for_card(&self, input: pb::CardId) -> Result<pb::BrowserRow> {
-        self.with_col(|col| col.browser_row_for_card(input.cid.into()).map(Into::into))
     }
 }
 
@@ -266,40 +261,6 @@ impl From<Option<SortOrderProto>> for SortMode {
                 kind: b.kind().into(),
                 reverse: b.reverse,
             },
-        }
-    }
-}
-
-impl From<browser::Row> for pb::BrowserRow {
-    fn from(row: browser::Row) -> Self {
-        pb::BrowserRow {
-            cells: row.cells.into_iter().map(Into::into).collect(),
-            color: row.color.into(),
-            font_name: row.font.name,
-            font_size: row.font.size,
-        }
-    }
-}
-
-impl From<browser::Cell> for pb::browser_row::Cell {
-    fn from(cell: browser::Cell) -> Self {
-        pb::browser_row::Cell {
-            text: cell.text,
-            is_rtl: cell.is_rtl,
-        }
-    }
-}
-
-impl From<browser::RowColor> for i32 {
-    fn from(color: browser::RowColor) -> Self {
-        match color {
-            browser::RowColor::Default => pb::browser_row::Color::Default as i32,
-            browser::RowColor::Marked => pb::browser_row::Color::Marked as i32,
-            browser::RowColor::Suspended => pb::browser_row::Color::Suspended as i32,
-            browser::RowColor::FlagRed => pb::browser_row::Color::FlagRed as i32,
-            browser::RowColor::FlagOrange => pb::browser_row::Color::FlagOrange as i32,
-            browser::RowColor::FlagGreen => pb::browser_row::Color::FlagGreen as i32,
-            browser::RowColor::FlagBlue => pb::browser_row::Color::FlagBlue as i32,
         }
     }
 }

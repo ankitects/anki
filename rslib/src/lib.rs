@@ -6,6 +6,7 @@
 pub mod adding;
 pub mod backend;
 mod backend_proto;
+pub mod browser_rows;
 pub mod card;
 pub mod cloze;
 pub mod collection;
