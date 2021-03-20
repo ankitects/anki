@@ -6,18 +6,15 @@ def _svelte(ctx):
     args.use_param_file("@%s", use_always = True)
     args.set_param_file_format("multiline")
 
-    temp_ts_path = ctx.actions.declare_file(ctx.attr.name + ".svelte.ts")
-
     args.add(ctx.file.entry_point.path)
     args.add(ctx.outputs.mjs.path)
     args.add(ctx.outputs.dts.path)
-    args.add(temp_ts_path)
     args.add_all(ctx.files._shims)
 
     ctx.actions.run(
         execution_requirements = {"supports-workers": "1"},
         executable = ctx.executable._svelte_bin,
-        outputs = [ctx.outputs.mjs, ctx.outputs.dts, temp_ts_path],
+        outputs = [ctx.outputs.mjs, ctx.outputs.dts],
         inputs = [ctx.file.entry_point] + ctx.files._shims,
         mnemonic = "Svelte",
         arguments = [args],
