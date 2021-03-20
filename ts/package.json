@@ -42,7 +42,7 @@
         "rollup-plugin-terser": "^7.0.2",
         "sass": "^1.32.6",
         "semver": "^7.3.4",
-        "svelte": "=3.24.1",
+        "svelte": "^3.25.0",
         "svelte-check": "^1.0.61",
         "svelte-preprocess": "^4.6.9",
         "svelte2tsx": "^0.1.133",

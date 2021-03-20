@@ -6,8 +6,7 @@ const input = process.argv[2];
 const outputJs = process.argv[3];
 const temp = process.argv[4];
 
-
-const svelte = require("svelte/compiler");
+const svelte = require("svelte/compiler.js");
 
 const source = fs.readFileSync(input, "utf8");
 
