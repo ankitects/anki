@@ -19,11 +19,10 @@ sql_format_setup()
 exports_files([
     "tsconfig.json",
     ".prettierrc",
-    "rollup.config.js",
-    "rollup.aqt.config.js",
     ".eslintrc.js",
     "licenses.json",
     "sql_format.ts",
+    "protobuf-shim.js",
 ])
 
 alias(
