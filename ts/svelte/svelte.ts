@@ -1,14 +1,12 @@
 const fs = require("fs");
-const process = require("process");
-const path = require("path");
 const worker = require("@bazel/worker");
-const svelte = require("svelte/compiler.js");
 const svelte2tsx = require("svelte2tsx");
 const preprocess = require("svelte-preprocess");
-const ts = require("typescript");
+import * as ts from "typescript";
+import * as svelte from "svelte/compiler";
 
 const tsOptions = {
-    jsx: "preserve",
+    jsx: ts.JsxEmit.Preserve,
     declaration: true,
     emitDeclarationOnly: true,
     skipLibCheck: true,
@@ -73,7 +71,7 @@ async function writeJs(source, inputFilename, outputPath) {
 
     try {
         const processed = await svelte.preprocess(source, preprocessOptions);
-        const result = svelte.compile(processed.toString(), {
+        const result = svelte.compile(processed.toString!(), {
             format: "esm",
             generate: "dom",
             filename: outputPath,

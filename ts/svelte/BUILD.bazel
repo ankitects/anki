@@ -1,16 +1,24 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+
+_deps = [
+    "@npm//@bazel/worker",
+    "@npm//sass",
+    "@npm//svelte",
+    "@npm//svelte-preprocess",
+    "@npm//svelte2tsx",
+    "@npm//typescript",
+]
+
+ts_library(
+    name = "svelte_bin_ts",
+    srcs = ["svelte.ts"],
+    deps = _deps,
+)
 
 nodejs_binary(
     name = "svelte_bin",
-    data = [
-        ":svelte.js",
-        "@npm//@bazel/worker",
-        "@npm//sass",
-        "@npm//svelte",
-        "@npm//svelte-preprocess",
-        "@npm//svelte2tsx",
-        "@npm//typescript",
-    ],
-    entry_point = ":svelte.js",
+    data = ["svelte_bin_ts"] + _deps,
+    entry_point = ":svelte.ts",
     visibility = ["//visibility:public"],
 )
