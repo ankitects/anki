@@ -11,7 +11,7 @@ use crate::i18n::{tr_args, I18n, TR};
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
-    decks::Deck,
+    decks::{Deck, DeckID},
     notes::Note,
     notetype::{CardTemplate, NoteType, NoteTypeKind},
     scheduler::{timespan::time_span, timing::SchedTimingToday},
@@ -207,7 +207,7 @@ impl<'a> RowContext<'a> {
     }
 
     fn card_due_str(&mut self) -> Result<String> {
-        Ok(if self.original_deck()?.is_some() {
+        Ok(if self.card.original_deck_id != DeckID(0) {
             self.i18n.tr(TR::BrowsingFiltered).into()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
             self.i18n.trn(
