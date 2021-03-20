@@ -16,24 +16,38 @@ let parsedCommandLine: ts.ParsedCommandLine = {
     },
 };
 
+let tsText = "";
+
 // largely taken from https://github.com/Asana/bazeltsc/blob/7dfa0ba2bd5eb9ee556e146df35cf793fad2d2c3/src/bazeltsc.ts (MIT)
 const languageServiceHost: ts.LanguageServiceHost = {
     getCompilationSettings: (): ts.CompilerOptions => parsedCommandLine.options,
     getNewLine: () => ts.sys.newLine,
     getScriptFileNames: (): string[] => parsedCommandLine.fileNames,
     getScriptVersion: (fileName: string): string => {
-        // If the file's size or modified-timestamp changed, it's a different version.
-        return (
-            ts.sys.getFileSize!(fileName) +
-            ":" +
-            ts.sys.getModifiedTime!(fileName)!.getTime()
-        );
+        if (fileName == parsedCommandLine.fileNames[0]) {
+            return require("crypto").createHash("md5").update(tsText).digest("hex");
+        } else {
+            // If the file's size or modified-timestamp changed, it's a different version.
+            return (
+                ts.sys.getFileSize!(fileName) +
+                ":" +
+                ts.sys.getModifiedTime!(fileName)!.getTime()
+            );
+        }
     },
     getScriptSnapshot: (fileName: string): ts.IScriptSnapshot | undefined => {
-        if (!ts.sys.fileExists(fileName)) {
-            return undefined;
+        let text;
+        if (fileName == parsedCommandLine.fileNames[0]) {
+            // serve out generated ts file from memory, so we can avoid writing a temporary
+            // file that causes conflicts on Windows
+            text = tsText;
+        } else {
+            if (!ts.sys.fileExists(fileName)) {
+                return undefined;
+            } else {
+                text = ts.sys.readFile(fileName)!;
+            }
         }
-        let text = ts.sys.readFile(fileName)!;
         return {
             getText: (start: number, end: number) => {
                 if (start === 0 && end === text.length) {
@@ -129,7 +143,7 @@ async function writeDts(tsPath, dtsPath, shims) {
     await writeFile(dtsPath, dtsSource);
 }
 
-async function writeTs(svelteSource, sveltePath, tsPath) {
+function writeTs(svelteSource, sveltePath) {
     let tsSource = svelte2tsx(svelteSource, {
         filename: sveltePath,
         strictMode: true,
@@ -139,7 +153,8 @@ async function writeTs(svelteSource, sveltePath, tsPath) {
     // replace the "///<reference types="svelte" />" with a line
     // turning off checking, as we'll use svelte-check for that
     codeLines[0] = "// @ts-nocheck";
-    await writeFile(tsPath, codeLines.join("\n"));
+    // write to our global
+    tsText = codeLines.join("\n");
 }
 
 async function writeJs(source, inputFilename, outputPath) {
@@ -167,10 +182,13 @@ async function writeJs(source, inputFilename, outputPath) {
 }
 
 async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, tempTsPath, ...shims] = args;
+    const [sveltePath, mjsPath, dtsPath, ...shims] = args;
     const svelteSource = await readFile(sveltePath);
 
-    await writeTs(svelteSource, sveltePath, tempTsPath);
+    // mock filename
+    const tempTsPath = sveltePath + ".ts";
+
+    await writeTs(svelteSource, sveltePath);
     await writeDts(tempTsPath, dtsPath, shims);
     await writeJs(svelteSource, sveltePath, mjsPath);
 
