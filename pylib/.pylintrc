@@ -4,6 +4,7 @@ persistent = no
 
 [TYPECHECK]
 ignored-classes=
+  BrowserRow,
   FormatTimespanIn,
   AnswerCardIn,
   UnburyCardsInCurrentDeckIn,

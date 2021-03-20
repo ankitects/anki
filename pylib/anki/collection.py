@@ -688,7 +688,7 @@ class Collection:
 
     def browser_row_for_card(
         self, cid: int
-    ) -> Tuple[Generator[Tuple[str, bool], None, None], BrowserRow.Color, str, int]:
+    ) -> Tuple[Generator[Tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
         row = self._backend.browser_row_for_card(cid)
         return (
             ((cell.text, cell.is_rtl) for cell in row.cells),
