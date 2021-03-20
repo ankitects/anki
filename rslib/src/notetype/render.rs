@@ -82,7 +82,7 @@ impl Collection {
         })
     }
 
-    fn render_card_inner(
+    pub fn render_card_inner(
         &mut self,
         note: &Note,
         card: &Card,
