@@ -23,7 +23,7 @@ use crate::{
 #[derive(Debug, PartialEq)]
 pub struct Row {
     pub cells: Vec<Cell>,
-    pub color: RowColor,
+    pub color: Color,
     pub font: Font,
 }
 
@@ -34,7 +34,7 @@ pub struct Cell {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum RowColor {
+pub enum Color {
     Default,
     Marked,
     Suspended,
@@ -296,12 +296,12 @@ fn get_is_rtl(column: &str, context: &RowContext) -> bool {
     }
 }
 
-fn get_row_color(context: &RowContext) -> RowColor {
+fn get_row_color(context: &RowContext) -> Color {
     match context.card.flags {
-        1 => RowColor::FlagRed,
-        2 => RowColor::FlagOrange,
-        3 => RowColor::FlagGreen,
-        4 => RowColor::FlagBlue,
+        1 => Color::FlagRed,
+        2 => Color::FlagOrange,
+        3 => Color::FlagGreen,
+        4 => Color::FlagBlue,
         _ => {
             if context
                 .note
@@ -309,11 +309,11 @@ fn get_row_color(context: &RowContext) -> RowColor {
                 .iter()
                 .any(|tag| tag.eq_ignore_ascii_case("marked"))
             {
-                RowColor::Marked
+                Color::Marked
             } else if context.card.queue == CardQueue::Suspended {
-                RowColor::Suspended
+                Color::Suspended
             } else {
-                RowColor::Default
+                Color::Default
             }
         }
     }
