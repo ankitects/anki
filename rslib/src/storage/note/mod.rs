@@ -29,6 +29,17 @@ impl super::SqliteStorage {
             .transpose()
     }
 
+    pub fn get_note_without_fields(&self, nid: NoteID) -> Result<Option<Note>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_without_fields.sql"),
+                " where id = ?"
+            ))?
+            .query_and_then(params![nid], row_to_note)?
+            .next()
+            .transpose()
+    }
+
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
         assert!(note.id.0 != 0);
