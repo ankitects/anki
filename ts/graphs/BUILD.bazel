@@ -1,8 +1,8 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
-load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
+load("//ts:esbuild.bzl", "esbuild")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
 sass_binary(
@@ -53,23 +53,25 @@ ts_library(
     ],
 )
 
-rollup_bundle(
+esbuild(
     name = "graphs",
-    config_file = "//ts:rollup.config.js",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
+    args = [
+        "--global-name=anki",
+        "--inject:ts/protobuf-shim.js",
+    ],
     entry_point = "bootstrap.ts",
-    format = "iife",
-    link_workspace_root = True,
-    silent = True,
-    sourcemap = "false",
+    external = [
+        "protobufjs/light",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
         "bootstrap",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-        "@npm//rollup-plugin-terser",
     ] + svelte_names,
 )
 

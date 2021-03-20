@@ -1,8 +1,8 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
-load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
+load("//ts:esbuild.bzl", "esbuild")
 
 svelte(
     name = "CongratsPage",
@@ -29,14 +29,19 @@ ts_library(
     ],
 )
 
-rollup_bundle(
+esbuild(
     name = "congrats",
-    config_file = "//ts:rollup.config.js",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
+    args = [
+        "--global-name=anki",
+        "--inject:ts/protobuf-shim.js",
+    ],
     entry_point = "bootstrap.ts",
-    format = "iife",
-    link_workspace_root = True,
-    silent = True,
-    sourcemap = "false",
+    external = [
+        "protobufjs/light",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "CongratsPage",
@@ -44,9 +49,6 @@ rollup_bundle(
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-        "@npm//rollup-plugin-terser",
     ],
 )
 

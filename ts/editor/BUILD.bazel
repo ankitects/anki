@@ -1,7 +1,7 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
-load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
+load("//ts:esbuild.bzl", "esbuild")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
 sass_binary(
@@ -25,20 +25,12 @@ ts_library(
     ],
 )
 
-rollup_bundle(
+esbuild(
     name = "editor",
-    config_file = "//ts:rollup.aqt.config.js",
-    entry_point = "index.ts",
-    format = "iife",
-    link_workspace_root = True,
-    silent = True,
-    sourcemap = "false",
+    entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
         "editor_ts",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-        "@npm//rollup-plugin-terser",
     ],
 )
 
