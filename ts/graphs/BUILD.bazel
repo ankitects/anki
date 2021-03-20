@@ -64,6 +64,8 @@ rollup_bundle(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
+        "//ts/lib:backend_proto",
+        "//ts/lib:fluent_proto",
         "bootstrap",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",

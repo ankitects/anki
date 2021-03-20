@@ -43,6 +43,8 @@ rollup_bundle(
         "CongratsPage",
         "bootstrap",
         "//ts/lib",
+        "//ts/lib:backend_proto",
+        "//ts/lib:fluent_proto",
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-terser",

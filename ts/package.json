@@ -6,7 +6,6 @@
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
     "devDependencies": {
-        "@bazel/labs": "=3.0.0",
         "@bazel/rollup": "=3.0.0",
         "@bazel/typescript": "=3.0.0",
         "@pyoner/svelte-types": "^3.4.4-2",
@@ -26,27 +25,33 @@
         "@types/react-dom": "^16.9.8",
         "@typescript-eslint/eslint-plugin": "^2.11.0",
         "@typescript-eslint/parser": "^2.11.0",
+        "chalk": "^4.1.0",
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
+        "escodegen": "^2.0.0",
         "eslint": "^6.7.2",
+        "espree": "^7.3.1",
+        "estraverse": "^5.2.0",
+        "glob": "^7.1.6",
+        "jsdoc": "^3.6.6",
         "license-checker-rseidelsohn": "=1.1.2",
-        "patch-package": "^6.2.2",
+        "minimist": "^1.2.5",
         "prettier": "^2.1.2",
         "prettier-plugin-svelte": "^1.4.0",
-        "protobufjs-cli-taylorm": "^7.0.4",
-        "protobufjs-taylorm": "^7.0.4",
         "rollup": "^2.32.1",
         "rollup-plugin-terser": "^7.0.2",
         "sass": "^1.32.6",
+        "semver": "^7.3.4",
         "svelte": "^3.28.0",
         "svelte-check": "^1.0.61",
         "svelte2tsx": "^0.1.133",
+        "tmp": "^0.2.1",
         "tslib": "^2.0.3",
-        "typescript": "^3.9.7"
+        "typescript": "^3.9.7",
+        "uglify-js": "^3.13.1"
     },
     "scripts": {
-        "fix": "prettier --write */*.ts */*.svelte",
-        "postinstall": "patch-package"
+        "fix": "prettier --write */*.ts */*.svelte"
     },
     "dependencies": {
         "@fluent/bundle": "^0.15.1",
