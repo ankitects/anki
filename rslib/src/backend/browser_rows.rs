@@ -31,16 +31,16 @@ impl From<browser_rows::Cell> for pb::browser_row::Cell {
     }
 }
 
-impl From<browser_rows::RowColor> for i32 {
-    fn from(color: browser_rows::RowColor) -> Self {
+impl From<browser_rows::Color> for i32 {
+    fn from(color: browser_rows::Color) -> Self {
         match color {
-            browser_rows::RowColor::Default => pb::browser_row::Color::Default as i32,
-            browser_rows::RowColor::Marked => pb::browser_row::Color::Marked as i32,
-            browser_rows::RowColor::Suspended => pb::browser_row::Color::Suspended as i32,
-            browser_rows::RowColor::FlagRed => pb::browser_row::Color::FlagRed as i32,
-            browser_rows::RowColor::FlagOrange => pb::browser_row::Color::FlagOrange as i32,
-            browser_rows::RowColor::FlagGreen => pb::browser_row::Color::FlagGreen as i32,
-            browser_rows::RowColor::FlagBlue => pb::browser_row::Color::FlagBlue as i32,
+            browser_rows::Color::Default => pb::browser_row::Color::Default as i32,
+            browser_rows::Color::Marked => pb::browser_row::Color::Marked as i32,
+            browser_rows::Color::Suspended => pb::browser_row::Color::Suspended as i32,
+            browser_rows::Color::FlagRed => pb::browser_row::Color::FlagRed as i32,
+            browser_rows::Color::FlagOrange => pb::browser_row::Color::FlagOrange as i32,
+            browser_rows::Color::FlagGreen => pb::browser_row::Color::FlagGreen as i32,
+            browser_rows::Color::FlagBlue => pb::browser_row::Color::FlagBlue as i32,
         }
     }
 }
