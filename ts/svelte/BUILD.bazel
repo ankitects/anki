@@ -1,24 +1,16 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
-    name = "typescript",
-    data = [
-        "@npm//typescript",
-    ],
-    entry_point = "@npm//:node_modules/typescript/lib/tsc.js",
-    visibility = ["//visibility:public"],
-)
-
-nodejs_binary(
-    name = "svelte",
+    name = "svelte_bin",
     data = [
         ":svelte.js",
+        "@npm//@bazel/worker",
         "@npm//sass",
         "@npm//svelte",
         "@npm//svelte-preprocess",
         "@npm//svelte2tsx",
+        "@npm//typescript",
     ],
     entry_point = ":svelte.js",
-    templated_args = ["--bazel_patch_module_resolver"],
     visibility = ["//visibility:public"],
 )

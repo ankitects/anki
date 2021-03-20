@@ -1,65 +1,38 @@
 load("@npm//svelte-check:index.bzl", _svelte_check = "svelte_check_test")
-
-"Implementation of the svelte rule"
-
-load("@build_bazel_rules_nodejs//:providers.bzl", "declaration_info")
-
-SvelteFilesInfo = provider("transitive_sources")
-
-def get_transitive_srcs(srcs, deps):
-    return depset(
-        srcs,
-        transitive = [dep[SvelteFilesInfo].transitive_sources for dep in deps],
-    )
+load("@build_bazel_rules_nodejs//:providers.bzl", "declaration_info", "run_node")
 
 def _svelte(ctx):
-    base = ctx.attr.name + ".svelte"
-    temp = ctx.actions.declare_directory(base + ".temp")
-    temptsx = temp.path + "/" + base + ".tsx"
-    ctx.actions.run_shell(
-        mnemonic = "Svelte",
-        command = """\
-{svelte} {input} {output_js} {temp} && \
-{tsc} {tsc_args} {temptsx} {shims} && \
-mv {temp}/{base}.d.ts {output_def} && \
-rm {temptsx}""".format(
-            svelte = ctx.executable._svelte.path,
-            input = ctx.file.entry_point.path,
-            output_js = ctx.outputs.build.path,
-            tsc = ctx.executable._typescript.path,
-            output_def = ctx.outputs.buildDef.path,
-            temp = temp.path,
-            temptsx = temptsx,
-            base = base,
-            tsc_args = "--jsx preserve --emitDeclarationOnly --declaration --skipLibCheck",
-            shims = " ".join([f.path for f in ctx.files._shims]),
-        ),
-        outputs = [ctx.outputs.build, ctx.outputs.buildDef, temp],
+    args = ctx.actions.args()
+    args.use_param_file("@%s", use_always = True)
+    args.set_param_file_format("multiline")
+
+    temp_ts_path = ctx.actions.declare_file(ctx.attr.name + ".svelte.ts")
+
+    args.add(ctx.file.entry_point.path)
+    args.add(ctx.outputs.mjs.path)
+    args.add(ctx.outputs.dts.path)
+    args.add(temp_ts_path)
+    args.add_all(ctx.files._shims)
+
+    ctx.actions.run(
+        execution_requirements = {"supports-workers": "1"},
+        executable = ctx.executable._svelte_bin,
+        outputs = [ctx.outputs.mjs, ctx.outputs.dts, temp_ts_path],
         inputs = [ctx.file.entry_point] + ctx.files._shims,
-        tools = [ctx.executable._svelte, ctx.executable._typescript],
+        mnemonic = "Svelte",
+        arguments = [args],
     )
 
-    trans_srcs = get_transitive_srcs(ctx.files.srcs + [ctx.outputs.build, ctx.outputs.buildDef], ctx.attr.deps)
-
     return [
-        declaration_info(depset([ctx.outputs.buildDef]), deps = [ctx.attr._shims]),
-        SvelteFilesInfo(transitive_sources = trans_srcs),
-        DefaultInfo(files = trans_srcs),
+        declaration_info(depset([ctx.outputs.dts]), deps = [ctx.attr._shims]),
     ]
 
 svelte = rule(
     implementation = _svelte,
     attrs = {
         "entry_point": attr.label(allow_single_file = True),
-        "deps": attr.label_list(),
-        "srcs": attr.label_list(allow_files = True),
-        "_svelte": attr.label(
-            default = Label("//ts/svelte:svelte"),
-            executable = True,
-            cfg = "host",
-        ),
-        "_typescript": attr.label(
-            default = Label("//ts/svelte:typescript"),
+        "_svelte_bin": attr.label(
+            default = Label("//ts/svelte:svelte_bin"),
             executable = True,
             cfg = "host",
         ),
@@ -69,8 +42,8 @@ svelte = rule(
         ),
     },
     outputs = {
-        "build": "%{name}.svelte.mjs",
-        "buildDef": "%{name}.svelte.d.ts",
+        "mjs": "%{name}.svelte.mjs",
+        "dts": "%{name}.svelte.d.ts",
     },
 )
 

@@ -43,6 +43,13 @@
     source-map-support "0.5.9"
     tsutils "2.27.2"
 
+"@bazel/worker@=3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-3.2.2.tgz#16bb809aaa59bf077836da5860bfbc478c66b835"
+  integrity sha512-fFEdePL4r2LWOzaIVOHOP89HUHZ/cEVZCb1d7SW55uaNEIo0l9iNOx+5thpAn0Woga51LBsMADuYNPk/hmSeIg==
+  dependencies:
+    protobufjs "6.8.8"
+
 "@fluent/bundle@^0.15.1":
   version "0.15.1"
   resolved "https://registry.yarnpkg.com/@fluent/bundle/-/bundle-0.15.1.tgz#95d3b9f836ac138b6ee8480ef8d0547dd59195b1"
