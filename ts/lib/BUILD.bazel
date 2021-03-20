@@ -1,22 +1,21 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
+load("//ts:protobuf.bzl", "protobufjs_library")
 
 # Protobuf
 #############
 
-load("@npm//@bazel/labs:index.bzl", "protobufjs_ts_library")
-
-protobufjs_ts_library(
+protobufjs_library(
     name = "fluent_proto",
+    proto = "//rslib:fluent_proto_lib",
     visibility = ["//visibility:public"],
-    deps = ["//rslib:fluent_proto_lib"],
 )
 
-protobufjs_ts_library(
+protobufjs_library(
     name = "backend_proto",
+    proto = "//rslib:backend_proto_lib",
     visibility = ["//visibility:public"],
-    deps = ["//rslib:backend_proto_lib"],
 )
 
 # Anki Library
