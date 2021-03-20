@@ -109,24 +109,6 @@ def register_repos():
         sha256 = "224ae14b8d2166b3ab4c5fa9b2ae1828f30620ac628dc152e6c0859c7853bb97",
     )
 
-    # svelte
-    ##########
-
-    # native.local_repository(
-    #     name = "build_bazel_rules_svelte",
-    #     path = "../rules_svelte",
-    # )
-
-    maybe(
-        http_archive,
-        name = "build_bazel_rules_svelte",
-        strip_prefix = "rules_svelte-anki-2021-02-06",
-        urls = [
-            "https://github.com/ankitects/rules_svelte/archive/anki-2021-02-06.tar.gz",
-        ],
-        sha256 = "f77a96ae5a354f8c3c24045f3bee8521bfe56224292d4f71184a3382784640eb",
-    )
-
     # translations
     ################
 
