@@ -1,9 +1,8 @@
-load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
-load("//ts:svelte.bzl", "svelte_check")
+load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 
 svelte(
     name = "CongratsPage",

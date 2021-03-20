@@ -7,7 +7,6 @@ load(":protobuf.bzl", "setup_protobuf_binary")
 load("//rslib:clang_format.bzl", "setup_clang_format")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
-load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 
@@ -53,5 +52,3 @@ def setup_deps():
     )
 
     sass_repositories()
-
-    rules_svelte_dependencies()

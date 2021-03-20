@@ -1,6 +1,6 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-load("//ts:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
