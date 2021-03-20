@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Literal, Optional, Sequence, Tuple, Union
+from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
 
@@ -18,6 +18,7 @@ UndoStatus = _pb.UndoStatus
 OpChanges = _pb.OpChanges
 OpChangesWithCount = _pb.OpChangesWithCount
 DefaultsForAdding = _pb.DeckAndNotetype
+BrowserRow = _pb.BrowserRow
 
 import copy
 import os
@@ -681,6 +682,20 @@ class Collection:
             return SearchNode.Group.Joiner.AND
         else:
             return SearchNode.Group.Joiner.OR
+
+    # Browser rows
+    ##########################################################################
+
+    def browser_row_for_card(
+        self, cid: int
+    ) -> Tuple[Generator[Tuple[str, bool], None, None], BrowserRow.Color, str, int]:
+        row = self._backend.browser_row_for_card(cid)
+        return (
+            ((cell.text, cell.is_rtl) for cell in row.cells),
+            row.color,
+            row.font_name,
+            row.font_size,
+        )
 
     # Config
     ##########################################################################
