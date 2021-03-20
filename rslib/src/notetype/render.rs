@@ -37,7 +37,7 @@ impl Collection {
         }
         .ok_or_else(|| AnkiError::invalid_input("missing template"))?;
 
-        self.render_card_inner(&note, &card, &nt, template, browser)
+        self.render_card(&note, &card, &nt, template, browser)
     }
 
     /// Render a card that may not yet have been added.
@@ -59,7 +59,7 @@ impl Collection {
             fill_empty_fields(note, &template.config.q_format, &nt, &self.i18n);
         }
 
-        self.render_card_inner(note, &card, &nt, template, false)
+        self.render_card(note, &card, &nt, template, false)
     }
 
     fn existing_or_synthesized_card(
@@ -82,7 +82,7 @@ impl Collection {
         })
     }
 
-    pub fn render_card_inner(
+    pub fn render_card(
         &mut self,
         note: &Note,
         card: &Card,

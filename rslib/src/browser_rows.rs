@@ -107,7 +107,7 @@ fn row_context_from_cid<'a>(
     let offset = col.local_utc_offset_for_user()?;
     let timing = col.timing_today()?;
     let (question_nodes, answer_nodes) = if with_card_render {
-        let render = col.render_card_inner(
+        let render = col.render_card(
             &note,
             &card,
             &notetype,
