@@ -68,7 +68,7 @@ def protobufjs_library(name, proto, **kwargs):
         proto = proto,
     )
 
-    # Build static module, which we need for pbjs
+    # Build static module, which we need for pbts
     pbjs(
         name = js_static_target,
         data = [proto_target] + _PROTOBUFJS_CLI_DEPS,
