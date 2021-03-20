@@ -234,6 +234,7 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
+  rpc BrowserRowForCard(CardID) returns (BrowserRow);
 }
 
 service StatsService {
@@ -1036,6 +1037,26 @@ message FindAndReplaceIn {
   bool regex = 4;
   bool match_case = 5;
   string field_name = 6;
+}
+
+message BrowserRow {
+  message Cell {
+    string text = 1;
+    bool is_rtl = 2;
+  }
+  enum Color {
+    COLOR_DEFAULT = 0;
+    COLOR_MARKED = 1;
+    COLOR_SUSPENDED = 2;
+    COLOR_FLAG_RED = 3;
+    COLOR_FLAG_ORANGE = 4;
+    COLOR_FLAG_GREEN = 5;
+    COLOR_FLAG_BLUE = 6;
+  }
+  repeated Cell cells = 1;
+  Color color = 2;
+  string font_name = 3;
+  uint32 font_size = 4;
 }
 
 message AfterNoteUpdatesIn {
