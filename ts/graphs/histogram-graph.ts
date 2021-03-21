@@ -133,7 +133,7 @@ export function histogramGraph(
                     .tickSizeOuter(0)
             );
 
-        svg.select("path.area")
+        svg.select("path.cumulative-overlay")
             .datum(areaData as any)
             .attr(
                 "d",

@@ -104,14 +104,6 @@
     padding-right: 0.5em;
 }
 
-.graph .area {
-    pointer-events: none;
-    fill: var(--area-fill);
-    fill-opacity: var(--area-fill-opacity);
-    stroke: var(--area-stroke);
-    stroke-opacity: var(--area-stroke-opacity);
-}
-
 .hoverzone rect {
     fill: none;
     pointer-events: all;
