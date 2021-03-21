@@ -32,12 +32,10 @@
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
                 displayedSearch = "deck:current";
-                console.log('search', search)
                 search.set(displayedSearch);
                 break;
             case SearchRange.Collection:
                 displayedSearch = "";
-                console.log('search', search)
                 search.set(displayedSearch);
                 break;
         }

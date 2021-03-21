@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import { onMount } from "svelte";
     import { writable } from "svelte/store";
     import useAsync from "./async";
     import useAsyncReactive from "./asyncReactive";
