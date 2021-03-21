@@ -62,8 +62,14 @@ struct RowContext<'a> {
     i18n: &'a I18n,
     offset: FixedOffset,
     timing: SchedTimingToday,
-    question_nodes: Option<Vec<RenderedNode>>,
-    answer_nodes: Option<Vec<RenderedNode>>,
+    render_context: Option<RenderContext>,
+}
+
+/// The answer string needs the question string but not the other way around, so only build the
+/// answer string when needed.
+struct RenderContext {
+    question: String,
+    answer_nodes: Vec<RenderedNode>,
 }
 
 fn card_render_required(columns: &[String]) -> bool {
@@ -95,6 +101,36 @@ impl Collection {
     }
 }
 
+impl RenderContext {
+    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &NoteType) -> Result<Self> {
+        let render = col.render_card(
+            note,
+            card,
+            notetype,
+            notetype.get_template(card.template_idx)?,
+            true,
+        )?;
+        let qnodes_text = render
+            .qnodes
+            .iter()
+            .map(|node| match node {
+                RenderedNode::Text { text } => text,
+                RenderedNode::Replacement {
+                    field_name: _,
+                    current_text,
+                    filters: _,
+                } => current_text,
+            })
+            .join("");
+        let question = extract_av_tags(&qnodes_text, true).0.to_string();
+
+        Ok(RenderContext {
+            question,
+            answer_nodes: render.anodes,
+        })
+    }
+}
+
 impl<'a> RowContext<'a> {
     fn new(col: &'a mut Collection, id: CardID, with_card_render: bool) -> Result<Self> {
         let card = col.storage.get_card(id)?.ok_or(AnkiError::NotFound)?;
@@ -109,17 +145,10 @@ impl<'a> RowContext<'a> {
             .ok_or(AnkiError::NotFound)?;
         let offset = col.local_utc_offset_for_user()?;
         let timing = col.timing_today()?;
-        let (question_nodes, answer_nodes) = if with_card_render {
-            let render = col.render_card(
-                &note,
-                &card,
-                &notetype,
-                notetype.get_template(card.template_idx)?,
-                true,
-            )?;
-            (Some(render.qnodes), Some(render.anodes))
+        let render_context = if with_card_render {
+            Some(RenderContext::new(col, &card, &note, &notetype)?)
         } else {
-            (None, None)
+            None
         };
 
         Ok(RowContext {
@@ -132,8 +161,7 @@ impl<'a> RowContext<'a> {
             i18n: &col.i18n,
             offset,
             timing,
-            question_nodes,
-            answer_nodes,
+            render_context,
         })
     }
 
@@ -169,6 +197,7 @@ impl<'a> RowContext<'a> {
 
     fn get_cell_text(&mut self, column: &str) -> Result<String> {
         Ok(match column {
+            "answer" => self.answer_str(),
             "answer" => self.answer_str()?,
             "cardDue" => self.card_due_str()?,
             "cardEase" => self.card_ease_str(),
@@ -182,17 +211,16 @@ impl<'a> RowContext<'a> {
             "noteFld" => self.note_field_str(),
             "noteMod" => self.note.mtime.date_string(self.offset),
             "noteTags" => self.note.tags.join(" "),
-            "question" => self.question_str()?,
+            "question" => self.question_str(),
             "template" => self.template_str()?,
             _ => "".to_string(),
         })
     }
 
-    fn answer_str(&self) -> Result<String> {
-        let text = self
+    fn answer_str(&self) -> String {
+        let render_context = self.render_context.as_ref().unwrap();
+        let answer = render_context
             .answer_nodes
-            .as_ref()
-            .unwrap()
             .iter()
             .map(|node| match node {
                 RenderedNode::Text { text } => text,
@@ -203,7 +231,15 @@ impl<'a> RowContext<'a> {
                 } => current_text,
             })
             .join("");
-        Ok(html_to_text_line(&extract_av_tags(&text, false).0).to_string())
+        let answer = extract_av_tags(&answer, false).0;
+        html_to_text_line(
+            if let Some(stripped) = answer.strip_prefix(&render_context.question) {
+                stripped
+            } else {
+                &answer
+            },
+        )
+        .to_string()
     }
 
     fn card_due_str(&mut self) -> Result<String> {
@@ -272,22 +308,8 @@ impl<'a> RowContext<'a> {
         })
     }
 
-    fn question_str(&self) -> Result<String> {
-        let text = self
-            .question_nodes
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|node| match node {
-                RenderedNode::Text { text } => text,
-                RenderedNode::Replacement {
-                    field_name: _,
-                    current_text,
-                    filters: _,
-                } => current_text,
-            })
-            .join("");
-        Ok(html_to_text_line(&extract_av_tags(&text, true).0).to_string())
+    fn question_str(&self) -> String {
+        html_to_text_line(&self.render_context.as_ref().unwrap().question).to_string()
     }
 
     fn get_is_rtl(&self, column: &str) -> bool {
