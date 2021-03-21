@@ -3,12 +3,6 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
-
-sass_binary(
-    name = "ticks",
-    src = "ticks.scss",
-)
 
 svelte_files = glob(["*.svelte"])
 
@@ -69,7 +63,6 @@ esbuild(
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
         ":index",
-        ":ticks",
         "//ts/sass:core_css",
     ] + svelte_names,
 )
