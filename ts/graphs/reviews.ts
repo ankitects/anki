@@ -367,7 +367,7 @@ export function renderReviews(
     ]);
 
     // hover/tooltip
-    svg.select("g.hoverzone")
+    svg.select("g.hover-columns")
         .selectAll("rect")
         .data(hoverData)
         .join("rect")

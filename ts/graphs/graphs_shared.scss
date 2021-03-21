@@ -104,16 +104,6 @@
     padding-right: 0.5em;
 }
 
-.hoverzone rect {
-    fill: none;
-    pointer-events: all;
-}
-
-.hoverzone rect:hover {
-    fill: grey;
-    opacity: 0.05;
-}
-
 @keyframes spin {
     0% {
         -webkit-transform: rotate(0deg);

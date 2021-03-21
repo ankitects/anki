@@ -7,6 +7,7 @@
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
+    import HoverColumns from "./HoverColumns.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -37,7 +38,7 @@
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
         <CumulativeOverlay />
-        <g class="hoverzone" />
+        <HoverColumns />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>
