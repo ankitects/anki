@@ -16,38 +16,52 @@ let parsedCommandLine: ts.ParsedCommandLine = {
     },
 };
 
-let tsText = "";
+// We avoid hitting the filesystem for ts/d.ts files after initial startup - the
+// .ts file we generate can be injected directly into our cache, and Bazel
+// should restart us if the Svelte or TS typings change.
 
-// largely taken from https://github.com/Asana/bazeltsc/blob/7dfa0ba2bd5eb9ee556e146df35cf793fad2d2c3/src/bazeltsc.ts (MIT)
+interface FileContent {
+    text: string;
+    version: number;
+}
+const fileContent: Map<string, FileContent> = new Map();
+
+function getFileContent(path: string): FileContent {
+    let content = fileContent.get(path);
+    if (!content) {
+        content = {
+            text: ts.sys.readFile(path)!,
+            version: 0,
+        };
+        fileContent.set(path, content);
+    }
+    return content;
+}
+
+function updateFileContent(path: string, text: string): void {
+    let content = fileContent.get(path);
+    if (content) {
+        content.text = text;
+        content.version += 1;
+    } else {
+        content = {
+            text,
+            version: 0,
+        };
+        fileContent.set(path, content);
+    }
+}
+
+// based on https://github.com/Asana/bazeltsc/blob/7dfa0ba2bd5eb9ee556e146df35cf793fad2d2c3/src/bazeltsc.ts (MIT)
 const languageServiceHost: ts.LanguageServiceHost = {
     getCompilationSettings: (): ts.CompilerOptions => parsedCommandLine.options,
-    getNewLine: () => ts.sys.newLine,
     getScriptFileNames: (): string[] => parsedCommandLine.fileNames,
-    getScriptVersion: (fileName: string): string => {
-        if (fileName == parsedCommandLine.fileNames[0]) {
-            return require("crypto").createHash("md5").update(tsText).digest("hex");
-        } else {
-            // If the file's size or modified-timestamp changed, it's a different version.
-            return (
-                ts.sys.getFileSize!(fileName) +
-                ":" +
-                ts.sys.getModifiedTime!(fileName)!.getTime()
-            );
-        }
+    getScriptVersion: (path: string): string => {
+        return getFileContent(path).version.toString();
     },
-    getScriptSnapshot: (fileName: string): ts.IScriptSnapshot | undefined => {
-        let text;
-        if (fileName == parsedCommandLine.fileNames[0]) {
-            // serve out generated ts file from memory, so we can avoid writing a temporary
-            // file that causes conflicts on Windows
-            text = tsText;
-        } else {
-            if (!ts.sys.fileExists(fileName)) {
-                return undefined;
-            } else {
-                text = ts.sys.readFile(fileName)!;
-            }
-        }
+    getScriptSnapshot: (path: string): ts.IScriptSnapshot | undefined => {
+        // if (!ts.sys.fileExists(fileName)) {
+        const text = getFileContent(path).text;
         return {
             getText: (start: number, end: number) => {
                 if (start === 0 && end === text.length) {
@@ -61,40 +75,7 @@ const languageServiceHost: ts.LanguageServiceHost = {
             getChangeRange: (
                 oldSnapshot: ts.IScriptSnapshot
             ): ts.TextChangeRange | undefined => {
-                const oldText = oldSnapshot.getText(0, oldSnapshot.getLength());
-
-                // Find the offset of the first char that differs between oldText and text
-                let firstDiff = 0;
-                while (
-                    firstDiff < oldText.length &&
-                    firstDiff < text.length &&
-                    text[firstDiff] === oldText[firstDiff]
-                ) {
-                    firstDiff++;
-                }
-
-                // Find the offset of the last char that differs between oldText and text
-                let oldIndex = oldText.length;
-                let newIndex = text.length;
-                while (
-                    oldIndex > firstDiff &&
-                    newIndex > firstDiff &&
-                    oldText[oldIndex - 1] === text[newIndex - 1]
-                ) {
-                    oldIndex--;
-                    newIndex--;
-                }
-
-                return {
-                    span: {
-                        start: firstDiff,
-                        length: oldIndex - firstDiff,
-                    },
-                    newLength: newIndex - firstDiff,
-                };
-            },
-            dispose: (): void => {
-                text = "";
+                return undefined;
             },
         };
     },
@@ -104,8 +85,8 @@ const languageServiceHost: ts.LanguageServiceHost = {
 
 const languageService = ts.createLanguageService(languageServiceHost);
 
-function compile(tsPath, shims) {
-    parsedCommandLine.fileNames = [tsPath, ...shims];
+function compile(tsPath: string, tsLibs: string[]) {
+    parsedCommandLine.fileNames = [tsPath, ...tsLibs];
     const program = languageService.getProgram()!;
     const tsHost = ts.createCompilerHost(parsedCommandLine.options);
     const createdFiles = {};
@@ -138,12 +119,12 @@ function readFile(file) {
     });
 }
 
-async function writeDts(tsPath, dtsPath, shims) {
-    const dtsSource = compile(tsPath, shims);
+async function writeDts(tsPath, dtsPath, tsLibs) {
+    const dtsSource = compile(tsPath, tsLibs);
     await writeFile(dtsPath, dtsSource);
 }
 
-function writeTs(svelteSource, sveltePath) {
+function writeTs(svelteSource, sveltePath, tsPath) {
     let tsSource = svelte2tsx(svelteSource, {
         filename: sveltePath,
         strictMode: true,
@@ -153,11 +134,15 @@ function writeTs(svelteSource, sveltePath) {
     // replace the "///<reference types="svelte" />" with a line
     // turning off checking, as we'll use svelte-check for that
     codeLines[0] = "// @ts-nocheck";
-    // write to our global
-    tsText = codeLines.join("\n");
+    updateFileContent(tsPath, codeLines.join("\n"));
 }
 
-async function writeJs(source, inputFilename, outputPath) {
+async function writeJs(
+    source: string,
+    inputFilename: string,
+    outputJsPath: string,
+    outputCssPath: string
+): Promise<void> {
     const preprocessOptions = preprocess({});
     preprocessOptions.filename = inputFilename;
 
@@ -166,7 +151,7 @@ async function writeJs(source, inputFilename, outputPath) {
         const result = svelte.compile(processed.toString!(), {
             format: "esm",
             generate: "dom",
-            filename: outputPath,
+            filename: outputJsPath,
         });
         // warnings are an error
         if (result.warnings.length > 0) {
@@ -174,7 +159,7 @@ async function writeJs(source, inputFilename, outputPath) {
             return;
         }
         const outputSource = result.js.code;
-        await writeFile(outputPath, outputSource);
+        await writeFile(outputJsPath, outputSource);
     } catch (err) {
         console.log(`compile failed: ${err}`);
         return;
@@ -182,21 +167,21 @@ async function writeJs(source, inputFilename, outputPath) {
 }
 
 async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, ...shims] = args;
-    const svelteSource = await readFile(sveltePath);
+    const [sveltePath, mjsPath, dtsPath, ...tsLibs] = args;
+    const cssPath = sveltePath + ".css";
+    const svelteSource = (await readFile(sveltePath)) as string;
 
-    // mock filename
-    const tempTsPath = sveltePath + ".ts";
-
-    await writeTs(svelteSource, sveltePath);
-    await writeDts(tempTsPath, dtsPath, shims);
-    await writeJs(svelteSource, sveltePath, mjsPath);
+    const mockTsPath = sveltePath + ".ts";
+    await writeTs(svelteSource, sveltePath, mockTsPath);
+    await writeDts(mockTsPath, dtsPath, tsLibs);
+    await writeJs(svelteSource, sveltePath, mjsPath, cssPath);
 
     return true;
 }
 
-function main(args) {
+function main() {
     if (worker.runAsWorker(process.argv)) {
+        console.log = worker.log;
         worker.log("Svelte running as a Bazel worker");
         worker.runWorkerLoop(compileSvelte);
     } else {
@@ -208,6 +193,6 @@ function main(args) {
 }
 
 if (require.main === module) {
-    main(process.argv.slice(2));
+    main();
     process.exitCode = 0;
 }
