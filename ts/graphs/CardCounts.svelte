@@ -1,12 +1,16 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
+
     import { defaultGraphBounds } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
     import type { PreferenceStore } from "./preferences";
-    import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
@@ -68,15 +72,13 @@
     }
 </style>
 
-<div class="graph" id="graph-card-counts">
-    <h1>{graphData.title}</h1>
-
-    <div class="range-box-inner">
+<Graph title={graphData.title}>
+    <InputBox>
         <label>
             <input type="checkbox" bind:checked={$cardCountsSeparateInactive} />
             {label}
         </label>
-    </div>
+    </InputBox>
 
     <div class="counts-outer">
         <svg
@@ -113,4 +115,4 @@
             </table>
         </div>
     </div>
-</div>
+</Graph>

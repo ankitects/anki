@@ -1,6 +1,14 @@
 <script lang="typescript">
     import { timeSpan, MONTH } from "anki/time";
     import type { I18n } from "anki/i18n";
+    import type pb from "anki/backend_proto";
+    import { createEventDispatcher } from "svelte";
+
+    import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import TableData from "./TableData.svelte";
+
     import type { HistogramData } from "./histogram-graph";
     import {
         gatherIntervalData,
@@ -8,11 +16,7 @@
         prepareIntervalData,
     } from "./intervals";
     import type { IntervalGraphData } from "./intervals";
-    import type pb from "anki/backend_proto";
-    import HistogramGraph from "./HistogramGraph.svelte";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
-    import TableData from "./TableData.svelte";
-    import { createEventDispatcher } from "svelte";
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
@@ -42,17 +46,13 @@
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
+    const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
 </script>
 
-<div class="graph intervals" id="graph-intervals">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
-    <div class="range-box-inner">
+<Graph {title} {subtitle}>
+    <InputBox>
         <label>
             <input type="radio" bind:group={range} value={IntervalRange.Month} />
             {month}
@@ -69,9 +69,9 @@
             <input type="radio" bind:group={range} value={IntervalRange.All} />
             {all}
         </label>
-    </div>
+    </InputBox>
 
     <HistogramGraph data={histogramData} {i18n} />
 
     <TableData {i18n} {tableData} />
-</div>
+</Graph>

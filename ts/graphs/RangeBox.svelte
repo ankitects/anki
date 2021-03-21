@@ -1,6 +1,8 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
 
+    import InputBox from "./InputBox.svelte";
+
     import type { I18n } from "anki/i18n";
     import { RevlogRange, daysToRevlogRange } from "./graph-helpers";
 
@@ -81,10 +83,55 @@
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
 </script>
 
+<style lang="scss">
+    .range-box {
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        width: 100%;
+        color: var(--text-fg);
+        background: var(--window-bg);
+        padding: 0.5em;
+
+        @media print {
+            position: absolute;
+        }
+    }
+
+    @keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    .spin {
+        display: inline-block;
+        position: absolute;
+        font-size: 2em;
+        animation: spin;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+
+        opacity: 0;
+
+        &.active {
+            opacity: 0.5;
+            transition: opacity 1s;
+        }
+    }
+
+    .range-box-pad {
+        height: 2em;
+    }
+</style>
+
 <div class="range-box">
     <div class="spin" class:active>◐</div>
 
-    <div class="range-box-inner">
+    <InputBox>
         <label>
             <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
             {deck}
@@ -105,9 +152,9 @@
                 searchRange = SearchRange.Custom;
             }}
             placeholder={searchLabel} />
-    </div>
+    </InputBox>
 
-    <div class="range-box-inner">
+    <InputBox>
         <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
             {year}
@@ -116,7 +163,7 @@
             <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
             {all}
         </label>
-    </div>
+    </InputBox>
 </div>
 
 <div class="range-box-pad" />

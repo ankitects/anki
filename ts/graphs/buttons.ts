@@ -7,6 +7,7 @@
  */
 
 import pb from "anki/backend_proto";
+import type { I18n } from "anki/i18n";
 import {
     interpolateRdYlGn,
     select,
@@ -25,7 +26,6 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
-import type { I18n } from "anki/i18n";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -153,9 +153,8 @@ export function renderButtons(
     const xGroup = scaleBand()
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-    svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
-        .call(
+    svg.select<SVGGElement>(".x-ticks").call((selection) =>
+        selection.transition(trans).call(
             axisBottom(xGroup)
                 .tickFormat(((d: GroupKind) => {
                     let kind: string;
@@ -174,7 +173,8 @@ export function renderButtons(
                     return `${kind} \u200e(${totalCorrect(d).percent}%)`;
                 }) as any)
                 .tickSizeOuter(0)
-        );
+        )
+    );
 
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
@@ -189,13 +189,13 @@ export function renderButtons(
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax]);
-    svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
-        .call(
+    svg.select<SVGGElement>(".y-ticks").call((selection) =>
+        selection.transition(trans).call(
             axisLeft(y)
                 .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
-        );
+        )
+    );
 
     // x bars
 

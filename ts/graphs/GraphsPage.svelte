@@ -1,5 +1,6 @@
 <script lang="typescript">
-    import "./graphs_shared.css";
+    import "../sass/core.css";
+
     import type { SvelteComponent } from "svelte/internal";
     import type { I18n } from "anki/i18n";
     import type { PreferenceStore } from "./preferences";
@@ -52,27 +53,41 @@
     };
 </script>
 
-{#if controller}
-    <svelte:component
-        this={controller}
-        {i18n}
-        {search}
-        {days}
-        {active}
-        on:update={refresh} />
-{/if}
+<style lang="scss">
+    @media only screen and (max-width: 600px) {
+        .base {
+            font-size: 12px;
+        }
+    }
 
-{#if sourceData}
-    <div tabindex="-1" class="no-focus-outline">
-        {#each graphs as graph}
-            <svelte:component
-                this={graph}
-                {sourceData}
-                {preferences}
-                {revlogRange}
-                {i18n}
-                {nightMode}
-                on:search={browserSearch} />
-        {/each}
-    </div>
-{/if}
+    .no-focus-outline:focus {
+        outline: 0;
+    }
+</style>
+
+<div class="base">
+    {#if controller}
+        <svelte:component
+            this={controller}
+            {i18n}
+            {search}
+            {days}
+            {active}
+            on:update={refresh} />
+    {/if}
+
+    {#if sourceData}
+        <div tabindex="-1" class="no-focus-outline">
+            {#each graphs as graph}
+                <svelte:component
+                    this={graph}
+                    {sourceData}
+                    {preferences}
+                    {revlogRange}
+                    {i18n}
+                    {nightMode}
+                    on:search={browserSearch} />
+            {/each}
+        </div>
+    {/if}
+</div>

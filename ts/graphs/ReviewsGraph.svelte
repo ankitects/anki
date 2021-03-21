@@ -1,16 +1,20 @@
 <script lang="typescript">
-    import AxisTicks from "./AxisTicks.svelte";
-    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
-    import type { TableDatum } from "./graph-helpers";
-    import { gatherData, renderReviews } from "./reviews";
-    import type { GraphData } from "./reviews";
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
+
+    import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
+    import AxisTicks from "./AxisTicks.svelte";
     import HoverColumns from "./HoverColumns.svelte";
+
+    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
+    import type { TableDatum } from "./graph-helpers";
+    import { gatherData, renderReviews } from "./reviews";
+    import type { GraphData } from "./reviews";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
@@ -50,16 +54,12 @@
     }
 </script>
 
-<div class="graph" id="graph-reviews">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
-    <div class="range-box-inner">
+<Graph {title} {subtitle}>
+    <InputBox>
         <label> <input type="checkbox" bind:checked={showTime} /> {time} </label>
 
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
-    </div>
+    </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         {#each [4, 3, 2, 1, 0] as i}
@@ -72,4 +72,4 @@
     </svg>
 
     <TableData {i18n} {tableData} />
-</div>
+</Graph>

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import "../sass/core.css";
+
     import { I18n } from "anki/i18n";
     import pb from "anki/backend_proto";
     import { buildNextLearnMsg } from "./lib";

@@ -6,6 +6,19 @@
     const noData = i18n.tr(i18n.TR.STATISTICS_NO_DATA);
 </script>
 
+<style lang="scss">
+    .no-data {
+        rect {
+            fill: var(--window-bg);
+        }
+
+        text {
+            text-anchor: middle;
+            fill: grey;
+        }
+    }
+</style>
+
 <g class="no-data">
     <rect x="0" y="0" width={bounds.width} height={bounds.height} />
     <text x="{bounds.width / 2}," y={bounds.height / 2}>{noData}</text>
