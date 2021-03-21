@@ -1,9 +1,8 @@
-import { Readable, readable, derived } from "svelte/store";
+import { Readable, derived } from "svelte/store";
 
 interface AsyncReativeData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
-    pending: Readable<boolean>;
     loading: Readable<boolean>;
     success: Readable<boolean>;
 }
@@ -17,7 +16,7 @@ function useAsyncReactive<T, E>(
 
     const value = derived(
         promise,
-        ($promise, set: (value: T | null) => void) => {
+        ($promise, set: (value: T) => void) => {
             $promise.then((value: T) => set(value));
         },
         null
@@ -31,10 +30,6 @@ function useAsyncReactive<T, E>(
         },
         null
     );
-
-    const pending = readable(true, (set: (value: boolean) => void) => {
-        initial.finally(() => set(false));
-    });
 
     const loading = derived(
         [value, error],
@@ -54,7 +49,7 @@ function useAsyncReactive<T, E>(
         false
     );
 
-    return { value, error, pending, loading, success };
+    return { value, error, loading, success };
 }
 
 export default useAsyncReactive;

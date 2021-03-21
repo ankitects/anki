@@ -15,7 +15,7 @@
     export let initialDays: number;
     export let controller: SvelteComponent | null;
 
-    const browserSearch = (search: string, query: string) => {
+    const browserSearch = (search: string, query: string): void => {
         bridgeCommand(`browserSearch:${search} ${query}`);
     };
 </script>
@@ -34,7 +34,6 @@
         {initialDays}
         let:search
         let:days
-        let:pending
         let:loading
         let:sourceData
         let:preferences
@@ -43,7 +42,7 @@
             <svelte:component this={controller} {i18n} {search} {days} {loading} />
         {/if}
 
-        {#if !pending}
+        {#if sourceData && preferences && revlogRange}
             {#each graphs as graph}
                 <svelte:component
                     this={graph}

@@ -14,8 +14,8 @@
     const days = writable(initialDays);
 
     const {
-        pending: graphPending,
         loading: graphLoading,
+        error: graphError,
         value: graphValue,
     } = useAsyncReactive(() => getGraphData($search, $days), [
         search,
@@ -24,19 +24,30 @@
 
     const preferencesPromise = getPreferences();
     const {
-        pending: prefsPending,
         loading: prefsLoading,
+        error: prefsError,
         value: prefsValue,
     } = useAsync(() => preferencesPromise);
 
     $: revlogRange = daysToRevlogRange($days);
+
+    $: {
+        if ($graphError) {
+            alert($graphError)
+        }
+    }
+
+    $: {
+        if ($prefsError) {
+            alert($prefsError)
+        }
+    }
 </script>
 
 <slot
     {search}
     {days}
     {revlogRange}
-    pending={$graphPending || $prefsPending}
     loading={$graphLoading || $prefsLoading}
     sourceData={$graphValue}
     preferences={$prefsValue} />
