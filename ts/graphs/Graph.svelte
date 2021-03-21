@@ -10,6 +10,7 @@
         max-width: 60em;
         page-break-inside: avoid;
 
+        /* See graph-styles.ts for constants referencing global styles */
         :global(.graph-element-clickable) {
             cursor: pointer;
         }
