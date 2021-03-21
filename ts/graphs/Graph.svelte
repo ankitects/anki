@@ -1,10 +1,3 @@
-<script context="module">
-    // custom tick styling
-    import "./ticks.css";
-
-    // see graph-style.ts for constants referencing global styles
-</script>
-
 <script lang="typescript">
     export let title: string;
     export let subtitle: string | null = null;
@@ -16,6 +9,39 @@
         margin-right: auto;
         max-width: 60em;
         page-break-inside: avoid;
+
+        :global(.graph-element-clickable) {
+            cursor: pointer;
+        }
+
+        /* Customizing the standard x and y tick markers and text on the graphs.
+         * The `tick` class is automatically added by d3. */
+        :global(.tick) {
+            :global(line) {
+                opacity: 0.1;
+            }
+
+            :global(text) {
+                opacity: 0.5;
+                font-size: 10px;
+
+                @media only screen and (max-width: 800px) {
+                    font-size: 13px;
+                }
+
+                @media only screen and (max-width: 600px) {
+                    font-size: 16px;
+                }
+            }
+        }
+
+        :global(.tick-odd) {
+            @media only screen and (max-width: 600px) {
+                /* on small screens, hide every second row on graphs that have
+                 * marked the ticks as odd */
+                display: none;
+            }
+        }
     }
 
     h1 {
@@ -27,9 +53,6 @@
     .subtitle {
         text-align: center;
         margin-bottom: 1em;
-    }
-    .graph :global(.graph-element-clickable) {
-        cursor: pointer;
     }
 </style>
 
