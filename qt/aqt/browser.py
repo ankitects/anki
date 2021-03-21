@@ -203,6 +203,13 @@ class DataModel(QAbstractTableModel):
         except:
             return CellRow.deleted(len(self.activeCols))
 
+    def getCard(self, index: QModelIndex) -> Optional[Card]:
+        """Try to return the indicated, possibly deleted card."""
+        try:
+            return self.col.getCard(self.get_id(index))
+        except:
+            return None
+
     # Model interface
     ######################################################################
 
@@ -818,7 +825,7 @@ QTableView {{ gridline-color: {grid} }}
         show = self.model.cards and update == 1
         idx = self.form.tableView.selectionModel().currentIndex()
         if idx.isValid():
-            self.card = self.col.getCard(self.model.get_id(idx))
+            self.card = self.model.getCard(idx)
             show = show and self.card is not None
         self.form.splitter.widget(1).setVisible(bool(show))
 
