@@ -9,6 +9,8 @@
     import { getPreferences } from "./preferences";
     import { bridgeCommand } from "anki/bridgecommand";
 
+    import WithGraphData from "./WithGraphData.svelte";
+
     export let i18n: I18n;
     export let nightMode: boolean;
     export let graphs: SvelteComponent[];
@@ -17,39 +19,8 @@
     export let days: number;
     export let controller: SvelteComponent | null;
 
-    let active = false;
-    let sourceData: pb.BackendProto.GraphsOut | null = null;
-    let preferences: PreferenceStore | null = null;
-    let revlogRange: RevlogRange;
-
-    const preferencesPromise = getPreferences();
-
-    const refreshWith = async (searchNew: string, days: number) => {
-        search = searchNew;
-
-        active = true;
-        try {
-            [sourceData, preferences] = await Promise.all([
-                getGraphData(search, days),
-                preferencesPromise,
-            ]);
-            revlogRange = daysToRevlogRange(days);
-        } catch (e) {
-            sourceData = null;
-            alert(e);
-        }
-        active = false;
-    };
-
-    const refresh = (event: CustomEvent) => {
-        refreshWith(event.detail.search, event.detail.days);
-    };
-
-    refreshWith(search, days);
-
-    const browserSearch = (event: CustomEvent) => {
-        const query = `${search} ${event.detail.query}`;
-        bridgeCommand(`browserSearch:${query}`);
+    const browserSearch = (search: string, query: string) => {
+        bridgeCommand(`browserSearch:${search} ${query}`);
     };
 </script>
 
@@ -59,30 +30,32 @@
             font-size: 12px;
         }
     }
-
 </style>
 
 <div class="base">
-    {#if controller}
-        <svelte:component
-            this={controller}
-            {i18n}
-            {search}
-            {days}
-            {active}
-            on:update={refresh} />
-    {/if}
+    <WithGraphData
+        {search}
+        {days}
+        let:pending
+        let:loading
+        let:sourceData
+        let:preferences
+        let:revlogRange>
+        {#if controller}
+            <svelte:component this={controller} {i18n} {search} {days} {loading} />
+        {/if}
 
-    {#if sourceData}
-        {#each graphs as graph}
-            <svelte:component
-                this={graph}
-                {sourceData}
-                {preferences}
-                {revlogRange}
-                {i18n}
-                {nightMode}
-                on:search={browserSearch} />
-        {/each}
-    {/if}
+        {#if !pending}
+            {#each graphs as graph}
+                <svelte:component
+                    this={graph}
+                    {sourceData}
+                    {preferences}
+                    {revlogRange}
+                    {i18n}
+                    {nightMode}
+                    on:search={(event) => browserSearch(search, event.detail.query)} />
+            {/each}
+        {/if}
+    </WithGraphData>
 </div>

@@ -1,5 +1,6 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
+    import type { Writable } from "svelte/store";
 
     import InputBox from "./InputBox.svelte";
 
@@ -12,17 +13,11 @@
         Custom = 3,
     }
 
-    type UpdateEventMap = {
-        update: { days: number; search: string; searchRange: SearchRange };
-    };
-
     export let i18n: I18n;
-    export let active: boolean;
+    export let loading: boolean;
 
-    export let days: number;
-    export let search: string;
-
-    const dispatch = createEventDispatcher<UpdateEventMap>();
+    export let days: Writable<number>;
+    export let search: Writable<string>;
 
     let revlogRange = daysToRevlogRange(days);
     let searchRange: SearchRange =
@@ -34,23 +29,15 @@
 
     let displayedSearch = search;
 
-    const update = () => {
-        dispatch("update", {
-            days: days,
-            search: search,
-            searchRange: searchRange,
-        });
-    };
-
     $: {
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
-                search = displayedSearch = "deck:current";
-                update();
+                displayedSearch = "deck:current";
+                search.set(displayedSearch);
                 break;
             case SearchRange.Collection:
                 search = displayedSearch = "";
-                update();
+                search.set(displayedSearch);
                 break;
         }
     }
@@ -58,21 +45,18 @@
     $: {
         switch (revlogRange as RevlogRange) {
             case RevlogRange.Year:
-                days = 365;
-                update();
+                days.set(365);
                 break;
             case RevlogRange.All:
-                days = 0;
-                update();
+                days.set(0);
                 break;
         }
     }
 
-    const searchKeyUp = (e: KeyboardEvent) => {
+    const searchKeyUp = (event: KeyboardEvent) => {
         // fetch data on enter
-        if (e.key == "Enter") {
-            search = displayedSearch;
-            update();
+        if (event.key === "Enter") {
+            search.set(displayedSearch);
         }
     };
 
@@ -117,7 +101,7 @@
 
         opacity: 0;
 
-        &.active {
+        &.loading {
             opacity: 0.5;
             transition: opacity 1s;
         }
@@ -129,7 +113,7 @@
 </style>
 
 <div class="range-box">
-    <div class="spin" class:active>◐</div>
+    <div class="spin" class:loading>◐</div>
 
     <InputBox>
         <label>
