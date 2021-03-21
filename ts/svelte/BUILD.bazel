@@ -20,5 +20,7 @@ nodejs_binary(
     name = "svelte_bin",
     data = ["svelte_bin_ts"] + _deps,
     entry_point = ":svelte.ts",
+    # should fix .js files being not found on subsequent worker requests
+    templated_args = ["--bazel_patch_module_resolver"],
     visibility = ["//visibility:public"],
 )
