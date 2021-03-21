@@ -150,6 +150,9 @@ async function writeJs(
         const processed = await svelte.preprocess(source, preprocessOptions);
         const result = svelte.compile(processed.toString!(), {
             format: "esm",
+            // FIXME: once we're bundling .css separately, set this to false so we don't
+            // also include it in the resulting .js
+            css: true,
             generate: "dom",
             filename: outputJsPath,
         });
@@ -160,6 +163,8 @@ async function writeJs(
         }
         const outputSource = result.js.code;
         await writeFile(outputJsPath, outputSource);
+        const outputCss = result.css.code ?? "";
+        await writeFile(outputCssPath, outputCss);
     } catch (err) {
         console.log(`compile failed: ${err}`);
         return;
@@ -167,8 +172,7 @@ async function writeJs(
 }
 
 async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, ...tsLibs] = args;
-    const cssPath = sveltePath + ".css";
+    const [sveltePath, mjsPath, dtsPath, cssPath, ...tsLibs] = args;
     const svelteSource = (await readFile(sveltePath)) as string;
 
     const mockTsPath = sveltePath + ".ts";
