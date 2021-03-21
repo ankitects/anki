@@ -198,8 +198,7 @@ impl<'a> RowContext<'a> {
     fn get_cell_text(&mut self, column: &str) -> Result<String> {
         Ok(match column {
             "answer" => self.answer_str(),
-            "answer" => self.answer_str()?,
-            "cardDue" => self.card_due_str()?,
+            "cardDue" => self.card_due_str(),
             "cardEase" => self.card_ease_str(),
             "cardIvl" => self.card_interval_str(),
             "cardLapses" => self.card.lapses.to_string(),
@@ -242,8 +241,8 @@ impl<'a> RowContext<'a> {
         .to_string()
     }
 
-    fn card_due_str(&mut self) -> Result<String> {
-        Ok(if self.card.original_deck_id != DeckID(0) {
+    fn card_due_str(&mut self) -> String {
+        let due = if self.card.original_deck_id != DeckID(0) {
             self.i18n.tr(TR::BrowsingFiltered).into()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
             self.i18n.trn(
@@ -251,15 +250,24 @@ impl<'a> RowContext<'a> {
                 tr_args!["number"=>self.card.due],
             )
         } else {
-            let date = match self.card.queue {
-                CardQueue::Learn => TimestampSecs(self.card.due as i64),
-                CardQueue::DayLearn | CardQueue::Review => TimestampSecs::now().adding_secs(
-                    ((self.card.due - self.timing.days_elapsed as i32) * 86400) as i64,
-                ),
-                _ => return Ok("".into()),
+            let date = if self.card.queue == CardQueue::Learn {
+                TimestampSecs(self.card.due as i64)
+            } else if self.card.queue == CardQueue::DayLearn
+                || self.card.queue == CardQueue::Review
+                || (self.card.ctype == CardType::Review && (self.card.queue as i8) < 0)
+            {
+                TimestampSecs::now()
+                    .adding_secs(((self.card.due - self.timing.days_elapsed as i32) * 86400) as i64)
+            } else {
+                return "".into();
             };
             date.date_string(self.offset)
-        })
+        };
+        if (self.card.queue as i8) < 0 {
+            format!("({})", due)
+        } else {
+            due
+        }
     }
 
     fn card_ease_str(&self) -> String {
