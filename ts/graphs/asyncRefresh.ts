@@ -1,30 +1,61 @@
-import { Readable, derived, get } from "svelte/store";
-import useAsync, { AsyncData } from "./async";
+import { Readable, readable, derived } from "svelte/store";
 
 interface AsyncRefreshData<T, E> {
-    value: Readable<T | null>,
-    error: Readable<E | null>,
-    pending: Readable<boolean>,
-    success: Readable<boolean>,
-    loading: Readable<boolean>,
+    value: Readable<T | null>;
+    error: Readable<E | null>;
+    pending: Readable<boolean>;
+    success: Readable<boolean>;
+    loading: Readable<boolean>;
 }
 
+function useAsyncRefresh<T, E>(
+    asyncFunction: () => Promise<T>,
+    dependencies: [Readable<unknown>, ...Readable<unknown>[]]
+): AsyncRefreshData<T, E> {
+    const initial = asyncFunction();
+    const promise = derived(dependencies, (_, set) => set(asyncFunction()), initial);
 
-function useAsyncRefresh<T, E = unknown>(asyncFunction: () => Promise<T>, dependencies: [Readable<unknown>, ...Readable<unknown>[]]): AsyncRefreshData<T, E> {
-    const current = derived(
-        dependencies,
-        (_, set: (value: AsyncData<T, E>) => void) => set(useAsync<T, E>(asyncFunction)),
-        useAsync<T, E>(asyncFunction),
-    )
+    const value = derived(
+        promise,
+        ($promise, set: (value: T | null) => void) => {
+            $promise.then((value: T) => set(value));
+            return () => set(null);
+        },
+        null
+    );
 
-    const value = derived(current, ($current, set: (value: T | null) => void) => set(get($current.value)), null)
-    const error = derived(current, ($current, set: (error: E | null) => void) => set(get($current.error)), null)
+    const error = derived(
+        promise,
+        ($promise, set: (error: E | null) => void) => {
+            $promise.catch((error: E) => set(error));
+            return () => set(null);
+        },
+        null
+    );
 
-    const pending = derived(current, (_, set) => set(false), true)
-    const success = derived(current, ($current, set: (success: boolean) => void) => set(get($current.success)), false)
-    const loading = derived(current, ($current, set: (pending: boolean) => void) => set(get($current.pending)), true)
+    const pending = readable(true, (set: (value: boolean) => void) => {
+        initial.finally(() => set(false));
+    });
 
-    return { value, error, pending, success, loading }
+    const loading = derived(
+        [value, error],
+        (_, set) => {
+            set(false);
+            return () => set(true);
+        },
+        true
+    );
+
+    const success = derived(
+        [value],
+        (_, set) => {
+            set(true);
+            return () => set(false);
+        },
+        false
+    );
+
+    return { value, error, pending, loading, success };
 }
 
-export default useAsyncRefresh
+export default useAsyncRefresh;
