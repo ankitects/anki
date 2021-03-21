@@ -14,18 +14,20 @@
     const search = writable(initialSearch);
     const days = writable(initialDays);
 
-    const sourceData = useAsyncReactive(() => getGraphData($search, $days), [search, days])
-    const preferences = useAsync(() => getPreferences())
+    const sourceData = useAsyncReactive(() => getGraphData($search, $days), [
+        search,
+        days,
+    ]);
+    const preferences = useAsync(() => getPreferences());
 
     $: revlogRange = daysToRevlogRange($days);
 </script>
 
 <slot
-     {search}
-     {days}
-     {revlogRange}
-     pending={$sourceData.pending || $preferences.pending}
-     sourceData={$sourceData.value}
-     preferences={$preferences.value}
- >
- </slot>
+    {search}
+    {days}
+    {revlogRange}
+    pending={$sourceData.pending || $preferences.pending}
+    loading={$sourceData.loading || $preferences.loading}
+    sourceData={$sourceData.value}
+    preferences={$preferences.value} />
