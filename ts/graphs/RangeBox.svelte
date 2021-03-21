@@ -31,12 +31,10 @@
     $: {
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
-                displayedSearch = "deck:current";
-                search.set(displayedSearch);
+                $search = displayedSearch = "deck:current";
                 break;
             case SearchRange.Collection:
-                displayedSearch = "";
-                search.set(displayedSearch);
+                $search = displayedSearch = "";
                 break;
         }
     }
@@ -44,10 +42,10 @@
     $: {
         switch (revlogRange as RevlogRange) {
             case RevlogRange.Year:
-                days.set(365);
+                $days = 365;
                 break;
             case RevlogRange.All:
-                days.set(0);
+                $days = 0;
                 break;
         }
     }
@@ -55,7 +53,7 @@
     const searchKeyUp = (event: KeyboardEvent) => {
         // fetch data on enter
         if (event.key === "Enter") {
-            search.set(displayedSearch);
+            $search = displayedSearch;
         }
     };
 
