@@ -9,12 +9,13 @@ def _svelte(ctx):
     args.add(ctx.file.entry_point.path)
     args.add(ctx.outputs.mjs.path)
     args.add(ctx.outputs.dts.path)
+    args.add(ctx.outputs.css.path)
     args.add_all(ctx.files._shims)
 
     ctx.actions.run(
         execution_requirements = {"supports-workers": "1"},
         executable = ctx.executable._svelte_bin,
-        outputs = [ctx.outputs.mjs, ctx.outputs.dts],
+        outputs = [ctx.outputs.mjs, ctx.outputs.dts, ctx.outputs.css],
         inputs = [ctx.file.entry_point] + ctx.files._shims,
         mnemonic = "Svelte",
         arguments = [args],
@@ -41,6 +42,7 @@ svelte = rule(
     outputs = {
         "mjs": "%{name}.svelte.mjs",
         "dts": "%{name}.svelte.d.ts",
+        "css": "%{name}.svelte.css",
     },
 )
 
