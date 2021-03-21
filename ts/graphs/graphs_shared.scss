@@ -3,20 +3,6 @@
 
 @use '../sass/core';
 
-:root {
-    --area-fill: #000000;
-    --area-fill-opacity: 0.03;
-    --area-stroke: #000000;
-    --area-stroke-opacity: 0.08;
-}
-
-:root[class*="night-mode"] {
-    --area-fill: #ffffff;
-    --area-fill-opacity: 0.08;
-    --area-stroke: #000000;
-    --area-stroke-opacity: 0.18;
-}
-
 * {
     overscroll-behavior: none;
 }

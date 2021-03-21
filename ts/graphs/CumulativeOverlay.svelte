@@ -3,6 +3,20 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <style lang="scss">
+    :global(:root) {
+        --area-fill: #000000;
+        --area-fill-opacity: 0.03;
+        --area-stroke: #000000;
+        --area-stroke-opacity: 0.08;
+    }
+
+    :global(:root[class*="night-mode"]) {
+        --area-fill: #ffffff;
+        --area-fill-opacity: 0.08;
+        --area-stroke: #000000;
+        --area-stroke-opacity: 0.18;
+    }
+
     .cumulative-overlay {
         pointer-events: none;
         fill: var(--area-fill);
