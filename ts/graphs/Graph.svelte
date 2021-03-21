@@ -42,6 +42,9 @@
                  * marked the ticks as odd */
                 display: none;
             }
+
+        &:focus {
+            outline: 0;
         }
     }
 
@@ -57,7 +60,7 @@
     }
 </style>
 
-<div class="graph">
+<div class="graph" tabindex="-1">
     <h1>{title}</h1>
 
     {#if subtitle}
