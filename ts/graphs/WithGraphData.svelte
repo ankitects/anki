@@ -10,8 +10,6 @@
     export let initialSearch: string;
     export let initialDays: number;
 
-    const preferencesPromise = getPreferences();
-
     const search = writable(initialSearch);
     const days = writable(initialDays);
 
@@ -24,11 +22,12 @@
         days,
     ]);
 
+    const preferencesPromise = getPreferences();
     const {
         pending: prefsPending,
         loading: prefsLoading,
         value: prefsValue,
-    } = useAsync(() => getPreferences());
+    } = useAsync(() => preferencesPromise);
 
     $: revlogRange = daysToRevlogRange($days);
 </script>
