@@ -2,45 +2,32 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import throttle from "lodash.throttle";
+import Tooltip from "./Tooltip.svelte";
 
-function getOrCreateTooltipDiv(): HTMLDivElement {
-    const existingTooltip = document.getElementById("graphTooltip") as HTMLDivElement;
+let tooltip: Tooltip | null = null;
 
-    if (existingTooltip) {
-        return existingTooltip;
+function getOrCreateTooltip(): Tooltip {
+    if (tooltip) {
+        return tooltip;
     }
 
-    const tooltipDiv: HTMLDivElement = document.createElement("div");
-    tooltipDiv.id = "graphTooltip";
-    tooltipDiv.className = "graph-tooltip";
-    document.body.appendChild(tooltipDiv);
+    const target = document.createElement("div");
+    tooltip = new Tooltip({ target });
+    document.body.appendChild(target);
 
-    return tooltipDiv;
+    return tooltip;
 }
 
 function showTooltipInner(msg: string, x: number, y: number): void {
-    const tooltipDiv = getOrCreateTooltipDiv();
+    const tooltip = getOrCreateTooltip();
 
-    tooltipDiv.innerHTML = msg;
-
-    // move tooltip away from edge as user approaches right side
-    const shiftLeftAmount = Math.round(
-        tooltipDiv.clientWidth * 1.2 * (x / document.body.clientWidth)
-    );
-
-    const adjustedX = x + 40 - shiftLeftAmount;
-    const adjustedY = y + 40;
-
-    tooltipDiv.style.left = `${adjustedX}px`;
-    tooltipDiv.style.top = `${adjustedY}px`;
-    tooltipDiv.style.opacity = "1";
+    tooltip.$set({ html: msg, x, y, show: true });
 }
 
 export const showTooltip = throttle(showTooltipInner, 16);
 
 export function hideTooltip(): void {
-    const tooltipDiv = getOrCreateTooltipDiv();
-
+    const tooltip = getOrCreateTooltip();
     showTooltip.cancel();
-    tooltipDiv.style.opacity = "0";
+    tooltip.$set({ show: false });
 }

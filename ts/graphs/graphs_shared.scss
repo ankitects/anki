@@ -21,22 +21,6 @@
     overscroll-behavior: none;
 }
 
-.graph-tooltip {
-    position: absolute;
-    padding: 15px;
-    border-radius: 5px;
-    font-size: 15px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    color: var(--text-fg);
-    background: var(--tooltip-bg);
-}
-
-.graph-tooltip table {
-    border-spacing: 1em 0;
-}
-
 .graph {
     margin-left: auto;
     margin-right: auto;
