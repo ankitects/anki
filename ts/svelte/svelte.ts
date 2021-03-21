@@ -3,7 +3,7 @@ const worker = require("@bazel/worker");
 const svelte2tsx = require("svelte2tsx");
 const preprocess = require("svelte-preprocess");
 import * as ts from "typescript";
-import * as svelte from "svelte/compiler";
+import * as svelte from "svelte/compiler.js";
 
 let parsedCommandLine: ts.ParsedCommandLine = {
     fileNames: [],
