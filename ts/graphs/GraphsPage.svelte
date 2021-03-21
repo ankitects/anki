@@ -1,7 +1,5 @@
-<script context="module">
-</script>
-
 <script lang="typescript">
+    import "./graphs_shared.css";
     import type { SvelteComponent } from "svelte/internal";
     import type { I18n } from "anki/i18n";
     import type { PreferenceStore } from "./preferences";

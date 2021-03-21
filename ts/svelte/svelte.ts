@@ -2,6 +2,7 @@ const fs = require("fs");
 const worker = require("@bazel/worker");
 const svelte2tsx = require("svelte2tsx");
 const preprocess = require("svelte-preprocess");
+import { basename } from "path";
 import * as ts from "typescript";
 import * as svelte from "svelte/compiler.js";
 
@@ -150,9 +151,7 @@ async function writeJs(
         const processed = await svelte.preprocess(source, preprocessOptions);
         const result = svelte.compile(processed.toString!(), {
             format: "esm",
-            // FIXME: once we're bundling .css separately, set this to false so we don't
-            // also include it in the resulting .js
-            css: true,
+            css: false,
             generate: "dom",
             filename: outputJsPath,
         });
@@ -161,10 +160,15 @@ async function writeJs(
             console.log(`warnings during compile: ${result.warnings}`);
             return;
         }
-        const outputSource = result.js.code;
-        await writeFile(outputJsPath, outputSource);
+        // write out the css file
         const outputCss = result.css.code ?? "";
         await writeFile(outputCssPath, outputCss);
+        // if it was non-empty, prepend a reference to it in the js file, so that
+        // it's included in the bundled .css when bundling
+        const outputSource =
+            (outputCss ? `import "./${basename(outputCssPath)}";` : "") +
+            result.js.code;
+        await writeFile(outputJsPath, outputSource);
     } catch (err) {
         console.log(`compile failed: ${err}`);
         return;

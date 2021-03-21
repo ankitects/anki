@@ -1,4 +1,4 @@
-load("@npm//@bazel/esbuild:index.bzl", _esbuild = "esbuild")
+load("//ts/esbuild:upstream.bzl", _esbuild = "esbuild_macro")
 
 def esbuild(name, **kwargs):
     _esbuild(

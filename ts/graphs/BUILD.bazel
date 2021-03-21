@@ -6,8 +6,8 @@ load("//ts:esbuild.bzl", "esbuild")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
 sass_binary(
-    name = "graphs_css",
-    src = "graphs.scss",
+    name = "graphs_shared",
+    src = "graphs_shared.scss",
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:core_lib",
@@ -66,12 +66,14 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
+    output_css = True,
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
         "bootstrap",
+        "graphs_shared",
     ] + svelte_names,
 )
 
