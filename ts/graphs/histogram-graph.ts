@@ -161,7 +161,7 @@ export function histogramGraph(
 
     // hover/tooltip
     const hoverzone = svg
-        .select("g.hoverzone")
+        .select("g.hover-columns")
         .selectAll("rect")
         .data(hoverData)
         .join("rect")

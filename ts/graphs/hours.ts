@@ -202,7 +202,7 @@ export function renderHours(
     }
 
     // hover/tooltip
-    svg.select("g.hoverzone")
+    svg.select("g.hover-columns")
         .selectAll("rect")
         .data(data)
         .join("rect")

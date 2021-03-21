@@ -10,6 +10,7 @@
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
+    import HoverColumns from "./HoverColumns.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
@@ -65,7 +66,7 @@
             <g class="bars{i}" />
         {/each}
         <CumulativeOverlay />
-        <g class="hoverzone" />
+        <HoverColumns />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>

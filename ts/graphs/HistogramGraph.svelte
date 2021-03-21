@@ -5,6 +5,8 @@
     import { defaultGraphBounds } from "./graph-helpers";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
+    import HoverColumns from "./HoverColumns.svelte";
+
     import type { I18n } from "anki/i18n";
 
     export let data: HistogramData | null = null;
@@ -18,7 +20,7 @@
 
 <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
     <g class="bars" />
-    <g class="hoverzone" />
+    <HoverColumns />
     <CumulativeOverlay />
     <AxisTicks {bounds} />
     <NoDataOverlay {bounds} {i18n} />

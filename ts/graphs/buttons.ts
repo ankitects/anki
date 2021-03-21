@@ -248,7 +248,7 @@ export function renderButtons(
         return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}<br>${correctStr}`;
     }
 
-    svg.select("g.hoverzone")
+    svg.select("g.hover-columns")
         .selectAll("rect")
         .data(data)
         .join("rect")
