@@ -1,6 +1,6 @@
 import { Readable, readable, derived } from "svelte/store";
 
-interface AsyncRefreshData<T, E> {
+interface AsyncReativeData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
     pending: Readable<boolean>;
@@ -8,10 +8,10 @@ interface AsyncRefreshData<T, E> {
     loading: Readable<boolean>;
 }
 
-function useAsyncRefresh<T, E>(
+function useAsyncReactive<T, E>(
     asyncFunction: () => Promise<T>,
     dependencies: [Readable<unknown>, ...Readable<unknown>[]]
-): AsyncRefreshData<T, E> {
+): AsyncReativeData<T, E> {
     const initial = asyncFunction();
     const promise = derived(dependencies, (_, set) => set(asyncFunction()), initial);
 
@@ -19,7 +19,6 @@ function useAsyncRefresh<T, E>(
         promise,
         ($promise, set: (value: T | null) => void) => {
             $promise.then((value: T) => set(value));
-            return () => set(null);
         },
         null
     );
@@ -28,7 +27,6 @@ function useAsyncRefresh<T, E>(
         promise,
         ($promise, set: (error: E | null) => void) => {
             $promise.catch((error: E) => set(error));
-            return () => set(null);
         },
         null
     );
@@ -58,4 +56,4 @@ function useAsyncRefresh<T, E>(
     return { value, error, pending, loading, success };
 }
 
-export default useAsyncRefresh;
+export default useAsyncReactive;

@@ -1,6 +1,6 @@
 import { Readable, readable, derived } from "svelte/store";
 
-export interface AsyncData<T, E> {
+interface AsyncData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
     pending: Readable<boolean>;
