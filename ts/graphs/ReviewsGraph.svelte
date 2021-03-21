@@ -7,6 +7,7 @@
     import type pb from "anki/backend_proto";
     import type { I18n } from "anki/i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
+    import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
 
@@ -63,7 +64,7 @@
         {#each [4, 3, 2, 1, 0] as i}
             <g class="bars{i}" />
         {/each}
-        <path class="area" />
+        <CumulativeOverlay />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />

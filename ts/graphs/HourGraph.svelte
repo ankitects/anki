@@ -6,6 +6,7 @@
     import type { I18n } from "anki/i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import CumulativeOverlay from "./CumulativeOverlay.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -35,7 +36,7 @@
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
-        <path class="area" />
+        <CumulativeOverlay />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />

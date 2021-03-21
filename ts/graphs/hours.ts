@@ -171,7 +171,7 @@ export function renderHours(
                 .tickSizeOuter(0)
         );
 
-    svg.select("path.area")
+    svg.select("path.cumulative-overlay")
         .datum(data)
         .attr(
             "d",
