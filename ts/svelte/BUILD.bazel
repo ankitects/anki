@@ -8,6 +8,7 @@ _deps = [
     "@npm//svelte-preprocess",
     "@npm//svelte2tsx",
     "@npm//typescript",
+    "@npm//@types/node",
 ]
 
 ts_library(
