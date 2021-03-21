@@ -38,7 +38,7 @@ function useAsyncReactive<T, E>(
 
     const loading = derived(
         [value, error],
-        (_, set) => {
+        (_, set: (value: boolean) => void) => {
             set(false);
             return () => set(true);
         },
@@ -47,7 +47,7 @@ function useAsyncReactive<T, E>(
 
     const success = derived(
         [value],
-        (_, set) => {
+        (_, set: (value: boolean) => void) => {
             set(true);
             return () => set(false);
         },

@@ -3,10 +3,6 @@
 
     import type { SvelteComponent } from "svelte/internal";
     import type { I18n } from "anki/i18n";
-    import type { PreferenceStore } from "./preferences";
-    import type pb from "anki/backend_proto";
-    import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
-    import { getPreferences } from "./preferences";
     import { bridgeCommand } from "anki/bridgecommand";
 
     import WithGraphData from "./WithGraphData.svelte";
@@ -36,16 +32,18 @@
     <WithGraphData
         {search}
         {days}
+        let:search={searchStore}
+        let:days={daysStore}
         let:pending
         let:loading
         let:sourceData
         let:preferences
         let:revlogRange>
         {#if controller}
-            <svelte:component this={controller} {i18n} {search} {days} {loading} />
+            <svelte:component this={controller} {i18n} search={searchStore} days={daysStore} {loading} />
         {/if}
 
-        {#if !pending}
+        {#if !pending && sourceData && preferences}
             {#each graphs as graph}
                 <svelte:component
                     this={graph}
