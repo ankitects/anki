@@ -3,7 +3,7 @@ import { Readable, readable, derived } from "svelte/store";
 interface AsyncData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
-    pending: Readable<boolean>;
+    loading: Readable<boolean>;
     success: Readable<boolean>;
 }
 
@@ -18,13 +18,13 @@ function useAsync<T, E = unknown>(asyncFunction: () => Promise<T>): AsyncData<T,
         promise.catch((value: E) => set(value));
     });
 
-    const pending = readable(true, (set: (value: boolean) => void) => {
+    const loading = readable(true, (set: (value: boolean) => void) => {
         promise.finally(() => set(false));
     });
 
     const success = derived([value], (_, set) => set(true), false);
 
-    return { value, error, pending, success };
+    return { value, error, loading, success };
 }
 
 export default useAsync;
