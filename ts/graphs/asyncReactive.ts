@@ -27,6 +27,7 @@ function useAsyncReactive<T, E>(
         promise,
         ($promise, set: (error: E | null) => void) => {
             $promise.catch((error: E) => set(error));
+            return () => set(null);
         },
         null
     );
