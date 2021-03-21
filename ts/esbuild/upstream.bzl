@@ -89,6 +89,8 @@ def _esbuild_impl(ctx):
         js_out = ctx.outputs.output
         js_out_map = ctx.outputs.output_map
         outputs.extend([js_out, js_out_map])
+        if ctx.outputs.output_css:
+            outputs.append(ctx.outputs.output_css)
 
         if ctx.attr.format:
             args.add_joined(["--format", ctx.attr.format], join_with = "=")
@@ -187,6 +189,10 @@ See https://esbuild.github.io/api/#splitting for more details
             mandatory = False,
             doc = "Name of the output source map when bundling",
         ),
+        "output_css": attr.output(
+            mandatory = False,
+            doc = "Name of the output css file when bundling",
+        ),
         "platform": attr.string(
             default = "browser",
             values = ["node", "browser", "neutral", ""],
@@ -228,12 +234,14 @@ For further information about esbuild, see https://esbuild.github.io/
     """,
 )
 
-def esbuild_macro(name, output_dir = False, **kwargs):
+def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
     """esbuild helper macro around the `esbuild_bundle` rule
     For a full list of attributes, see the `esbuild_bundle` rule
     Args:
         name: The name used for this rule and output files
         output_dir: If `True`, produce a code split bundle in an output directory
+        output_css: If `True`, declare a .css file will be outputted, which is the
+                    case when your code imports a css file.
         **kwargs: All other args from `esbuild_bundle`
     """
 
@@ -248,5 +256,6 @@ def esbuild_macro(name, output_dir = False, **kwargs):
             name = name,
             output = "%s.js" % name,
             output_map = "%s.js.map" % name,
+            output_css = None if not output_css else "%s.css" % name,
             **kwargs
         )
