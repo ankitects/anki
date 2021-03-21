@@ -1,14 +1,18 @@
 <script lang="typescript">
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
     import { createEventDispatcher } from "svelte";
+
+    import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import AxisTicks from "./AxisTicks.svelte";
+
     import { defaultGraphBounds, RevlogRange } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCalendar } from "./calendar";
     import type { PreferenceStore } from "./preferences";
     import type { GraphData } from "./calendar";
-    import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let preferences: PreferenceStore | null = null;
@@ -65,10 +69,8 @@
     const title = i18n.tr(i18n.TR.STATISTICS_CALENDAR_TITLE);
 </script>
 
-<div class="graph" id="graph-calendar">
-    <h1>{title}</h1>
-
-    <div class="range-box-inner">
+<Graph {title}>
+    <InputBox>
         <span>
             <button on:click={() => targetYear--} disabled={minYear >= targetYear}>
                 ◄
@@ -80,7 +82,7 @@
                 ►
             </button>
         </span>
-    </div>
+    </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="weekdays" />
@@ -88,4 +90,4 @@
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} {i18n} />
     </svg>
-</div>
+</Graph>

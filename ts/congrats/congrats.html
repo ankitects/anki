@@ -3,14 +3,15 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" id="viewport" content="width=device-width" />
-        <link href="../css/core.css" rel="stylesheet" />
+        <link href="congrats.css" rel="stylesheet" />
+        <script src="../js/vendor/protobuf.min.js"></script>
+        <script src="congrats.js"></script>
     </head>
     <body>
         <div id="main"></div>
+
+        <script>
+            anki.congrats(document.getElementById("main"));
+        </script>
     </body>
-    <script src="../js/vendor/protobuf.min.js"></script>
-    <script src="congrats.js"></script>
-    <script>
-        anki.congrats(document.getElementById("main"));
-    </script>
 </html>

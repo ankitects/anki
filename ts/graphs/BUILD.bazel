@@ -6,12 +6,8 @@ load("//ts:esbuild.bzl", "esbuild")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
 sass_binary(
-    name = "graphs_shared",
-    src = "graphs_shared.scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/sass:core_lib",
-    ],
+    name = "ticks",
+    src = "ticks.scss",
 )
 
 svelte_files = glob(["*.svelte"])
@@ -24,8 +20,8 @@ compile_svelte(
 )
 
 ts_library(
-    name = "bootstrap",
-    srcs = ["bootstrap.ts"],
+    name = "index",
+    srcs = ["index.ts"],
     deps = [
         "GraphsPage",
         "lib",
@@ -39,7 +35,7 @@ ts_library(
     name = "lib",
     srcs = glob(
         ["*.ts"],
-        exclude = ["bootstrap.ts"],
+        exclude = ["index.ts"],
     ),
     deps = [
         "//ts/lib",
@@ -62,7 +58,7 @@ esbuild(
         "--global-name=anki",
         "--inject:ts/protobuf-shim.js",
     ],
-    entry_point = "bootstrap.ts",
+    entry_point = "index.ts",
     external = [
         "protobufjs/light",
     ],
@@ -72,8 +68,9 @@ esbuild(
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
-        "bootstrap",
-        "graphs_shared",
+        ":index",
+        ":ticks",
+        "//ts/sass:core_css",
     ] + svelte_names,
 )
 

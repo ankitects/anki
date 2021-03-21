@@ -1,0 +1,40 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+// Customizing the standard x and y tick markers and text on the graphs. The `tick`
+// class is automatically added by d3. We apply our custom ticks only to ticks
+// that are nested under a Graph component.
+
+.graph {
+    .tick {
+        line {
+            opacity: 0.1;
+        }
+
+        text {
+            opacity: 0.5;
+            font-size: 10px;
+        }
+    }
+
+    @media only screen and (max-width: 800px) {
+        .tick {
+            text {
+                font-size: 13px;
+            }
+        }
+    }
+
+    @media only screen and (max-width: 600px) {
+        .tick {
+            text {
+                font-size: 16px;
+                // on small screens, hide every second row on graphs that have
+                // marked the ticks as odd
+                &.tick-odd {
+                    display: none;
+                }
+            }
+        }
+    }
+}

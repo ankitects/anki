@@ -1,15 +1,19 @@
 <script lang="typescript">
+    import { createEventDispatcher } from "svelte";
     import type { I18n } from "anki/i18n";
+    import type pb from "anki/backend_proto";
+
+    import Graph from "./Graph.svelte";
+    import InputBox from "./InputBox.svelte";
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import TableData from "./TableData.svelte";
+
     import type { HistogramData } from "./histogram-graph";
     import { GraphRange, RevlogRange } from "./graph-helpers";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
     import { gatherData, buildHistogram } from "./future-due";
     import type { GraphData } from "./future-due";
-    import type pb from "anki/backend_proto";
-    import HistogramGraph from "./HistogramGraph.svelte";
-    import GraphRangeRadios from "./GraphRangeRadios.svelte";
-    import TableData from "./TableData.svelte";
-    import { createEventDispatcher } from "svelte";
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
@@ -44,12 +48,8 @@
     const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
 </script>
 
-<div class="graph" id="graph-future-due">
-    <h1>{title}</h1>
-
-    <div class="subtitle">{subtitle}</div>
-
-    <div class="range-box-inner">
+<Graph {title} {subtitle}>
+    <InputBox>
         {#if graphData && graphData.haveBacklog}
             <label>
                 <input type="checkbox" bind:checked={$futureDueShowBacklog} />
@@ -58,9 +58,9 @@
         {/if}
 
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
-    </div>
+    </InputBox>
 
     <HistogramGraph data={histogramData} {i18n} />
 
     <TableData {i18n} {tableData} />
-</div>
+</Graph>

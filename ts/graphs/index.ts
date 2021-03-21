@@ -1,15 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-explicit-any: "off",
-*/
-
 import type { SvelteComponent } from "svelte/internal";
 
 import { setupI18n } from "anki/i18n";
-import GraphsPage from "./GraphsPage.svelte";
 import { checkNightMode } from "anki/nightmode";
+
+import GraphsPage from "./GraphsPage.svelte";
 
 export { default as RangeBox } from "./RangeBox.svelte";
 
@@ -28,7 +25,11 @@ export { RevlogRange } from "./graph-helpers";
 export function graphs(
     target: HTMLDivElement,
     graphs: SvelteComponent[],
-    { search = "deck:current", days = 365, controller = null as any } = {}
+    {
+        search = "deck:current",
+        days = 365,
+        controller = null as SvelteComponent | null,
+    } = {}
 ): void {
     const nightMode = checkNightMode();
 

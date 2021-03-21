@@ -10,8 +10,8 @@ svelte(
 )
 
 ts_library(
-    name = "bootstrap",
-    srcs = ["bootstrap.ts"],
+    name = "index",
+    srcs = ["index.ts"],
     deps = [
         "CongratsPage",
         "lib",
@@ -38,17 +38,19 @@ esbuild(
         "--global-name=anki",
         "--inject:ts/protobuf-shim.js",
     ],
-    entry_point = "bootstrap.ts",
+    entry_point = "index.ts",
     external = [
         "protobufjs/light",
     ],
+    output_css = True,
     visibility = ["//visibility:public"],
     deps = [
         "CongratsPage",
-        "bootstrap",
+        "index",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
+        "//ts/sass:core_css",
     ],
 )
 

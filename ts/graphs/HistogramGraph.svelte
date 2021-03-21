@@ -1,13 +1,14 @@
 <script lang="typescript">
-    import type { HistogramData } from "./histogram-graph";
-    import { histogramGraph } from "./histogram-graph";
+    import type { I18n } from "anki/i18n";
+
     import AxisTicks from "./AxisTicks.svelte";
-    import { defaultGraphBounds } from "./graph-helpers";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import HoverColumns from "./HoverColumns.svelte";
 
-    import type { I18n } from "anki/i18n";
+    import type { HistogramData } from "./histogram-graph";
+    import { histogramGraph } from "./histogram-graph";
+    import { defaultGraphBounds } from "./graph-helpers";
 
     export let data: HistogramData | null = null;
     export let i18n: I18n;

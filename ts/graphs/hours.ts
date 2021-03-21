@@ -6,6 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { I18n } from "anki/i18n";
 import pb from "anki/backend_proto";
 import {
     interpolateBlues,
@@ -20,6 +21,7 @@ import {
     area,
     curveBasis,
 } from "d3";
+
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -27,9 +29,7 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
-import type { I18n } from "anki/i18n";
-
-type ButtonCounts = [number, number, number, number];
+import { oddTickClass } from "./graph-styles";
 
 interface Hour {
     hour: number;
@@ -97,16 +97,12 @@ export function renderHours(
         .range([bounds.marginLeft, bounds.width - bounds.marginRight])
         .paddingInner(0.1);
     svg.select<SVGGElement>(".x-ticks")
-        .transition(trans)
-        .call(axisBottom(x).tickSizeOuter(0))
+        .call((selection) =>
+            selection.transition(trans).call(axisBottom(x).tickSizeOuter(0))
+        )
+        .selectAll(".tick")
         .selectAll("text")
-        .attr("class", (n: any) => {
-            if (n % 2 != 0) {
-                return "tick-odd";
-            } else {
-                return "";
-            }
-        });
+        .classed(oddTickClass, (d: any): boolean => d % 2 != 0);
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
     const colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
@@ -120,13 +116,13 @@ export function renderHours(
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
         .nice();
-    svg.select<SVGGElement>(".y-ticks")
-        .transition(trans)
-        .call(
+    svg.select<SVGGElement>(".y-ticks").call((selection) =>
+        selection.transition(trans).call(
             axisLeft(y)
                 .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
-        );
+        )
+    );
 
     const yArea = y.copy().domain([0, 1]);
 
@@ -162,14 +158,14 @@ export function renderHours(
                 )
         );
 
-    svg.select<SVGGElement>(".y2-ticks")
-        .transition(trans)
-        .call(
+    svg.select<SVGGElement>(".y2-ticks").call((selection) =>
+        selection.transition(trans).call(
             axisRight(yArea)
                 .ticks(bounds.height / 50)
                 .tickFormat((n: any) => `${Math.round(n * 100)}%`)
                 .tickSizeOuter(0)
-        );
+        )
+    );
 
     svg.select("path.cumulative-overlay")
         .datum(data)

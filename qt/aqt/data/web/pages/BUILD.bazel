@@ -13,6 +13,7 @@ copy_files_into_group(
 copy_files_into_group(
     name = "congrats_page",
     srcs = [
+        "congrats.css",
         "congrats.html",
         "congrats.js",
     ],
