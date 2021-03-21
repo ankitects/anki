@@ -19,24 +19,25 @@
     export let days: Writable<number>;
     export let search: Writable<string>;
 
-    let revlogRange = daysToRevlogRange(days);
-    let searchRange: SearchRange =
-        search === "deck:current"
+    let revlogRange = daysToRevlogRange($days);
+    let searchRange = $search === "deck:current"
             ? SearchRange.Deck
-            : search === ""
+            : $search === ""
             ? SearchRange.Collection
             : SearchRange.Custom;
 
-    let displayedSearch = search;
+    let displayedSearch = $search;
 
     $: {
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
                 displayedSearch = "deck:current";
+                console.log('search', search)
                 search.set(displayedSearch);
                 break;
             case SearchRange.Collection:
-                search = displayedSearch = "";
+                displayedSearch = "";
+                console.log('search', search)
                 search.set(displayedSearch);
                 break;
         }
