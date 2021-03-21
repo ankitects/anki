@@ -11,8 +11,8 @@
     export let nightMode: boolean;
     export let graphs: SvelteComponent[];
 
-    export let search: string;
-    export let days: number;
+    export let initialSearch: string;
+    export let initialDays: number;
     export let controller: SvelteComponent | null;
 
     const browserSearch = (search: string, query: string) => {
@@ -30,20 +30,20 @@
 
 <div class="base">
     <WithGraphData
-        {search}
-        {days}
-        let:search={searchStore}
-        let:days={daysStore}
+        {initialSearch}
+        {initialDays}
+        let:search
+        let:days
         let:pending
         let:loading
         let:sourceData
         let:preferences
         let:revlogRange>
         {#if controller}
-            <svelte:component this={controller} {i18n} search={searchStore} days={daysStore} {loading} />
+            <svelte:component this={controller} {i18n} {search} {days} {loading} />
         {/if}
 
-        {#if !pending && sourceData && preferences}
+        {#if !pending}
             {#each graphs as graph}
                 <svelte:component
                     this={graph}

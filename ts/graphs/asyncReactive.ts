@@ -4,8 +4,8 @@ interface AsyncReativeData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
     pending: Readable<boolean>;
-    success: Readable<boolean>;
     loading: Readable<boolean>;
+    success: Readable<boolean>;
 }
 
 function useAsyncReactive<T, E>(
