@@ -10,23 +10,13 @@ from typing import Any
 import aqt
 from anki.collection import OpChanges
 from anki.decks import DeckTreeNode
-from anki.errors import DeckIsFilteredError
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
-from aqt.deck_ops import remove_decks, rename_deck, reparent_decks
+from aqt.deck_ops import add_deck_dialog, remove_decks, rename_deck, reparent_decks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import (
-    TR,
-    askUser,
-    getOnlyText,
-    openLink,
-    shortcut,
-    showInfo,
-    showWarning,
-    tr,
-)
+from aqt.utils import TR, askUser, getOnlyText, openLink, shortcut, showInfo, tr
 
 
 class DeckBrowserBottomBar:
@@ -331,15 +321,7 @@ class DeckBrowser:
         openLink(f"{aqt.appShared}decks/")
 
     def _on_create(self) -> None:
-        deck = getOnlyText(tr(TR.DECKS_NAME_FOR_DECK))
-        if deck:
-            try:
-                self.mw.col.decks.id(deck)
-            except DeckIsFilteredError as err:
-                showWarning(str(err))
-                return
-            gui_hooks.sidebar_should_refresh_decks()
-            self.refresh()
+        add_deck_dialog(mw=self.mw, parent=self.mw)
 
     ######################################################################
 

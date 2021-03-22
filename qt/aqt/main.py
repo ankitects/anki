@@ -47,6 +47,7 @@ from anki.collection import (
     Config,
     OpChanges,
     OpChangesWithCount,
+    OpChangesWithID,
     ReviewUndo,
     UndoResult,
     UndoStatus,
@@ -102,7 +103,8 @@ class HasChangesProperty(Protocol):
 # doesn't actually work for protobuf objects, so new protobuf objects will
 # either need to be added here, or cast at call time
 ResultWithChanges = TypeVar(
-    "ResultWithChanges", bound=Union[OpChanges, OpChangesWithCount, HasChangesProperty]
+    "ResultWithChanges",
+    bound=Union[OpChanges, OpChangesWithCount, OpChangesWithID, HasChangesProperty],
 )
 
 PerformOpOptionalSuccessCallback = Optional[Callable[[ResultWithChanges], Any]]

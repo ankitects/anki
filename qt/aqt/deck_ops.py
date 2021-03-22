@@ -8,7 +8,8 @@ from typing import Callable, Sequence
 from anki.decks import DeckID
 from anki.lang import TR
 from aqt import AnkiQt, QWidget
-from aqt.utils import tooltip, tr
+from aqt.main import PerformOpOptionalSuccessCallback
+from aqt.utils import getOnlyText, tooltip, tr
 
 
 def remove_decks(
@@ -45,4 +46,26 @@ def rename_deck(
 ) -> None:
     mw.perform_op(
         lambda: mw.col.decks.rename(deck_id, new_name), after_hooks=after_rename
+    )
+
+
+def add_deck_dialog(
+    *,
+    mw: AnkiQt,
+    parent: QWidget,
+    default_text: str = "",
+    success: PerformOpOptionalSuccessCallback = None,
+) -> None:
+    if name := getOnlyText(
+        tr(TR.DECKS_NEW_DECK_NAME), default=default_text, parent=parent
+    ).strip():
+        add_deck(mw=mw, name=name, success=success)
+
+
+def add_deck(
+    *, mw: AnkiQt, name: str, success: PerformOpOptionalSuccessCallback = None
+) -> None:
+    mw.perform_op(
+        lambda: mw.col.decks.add_normal_deck_with_name(name),
+        success=success,
     )

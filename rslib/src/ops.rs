@@ -86,3 +86,15 @@ pub struct OpOutput<T> {
     pub output: T,
     pub changes: OpChanges,
 }
+
+impl<T> OpOutput<T> {
+    pub(crate) fn map<F, N>(self, func: F) -> OpOutput<N>
+    where
+        F: FnOnce(T) -> N,
+    {
+        OpOutput {
+            output: func(self.output),
+            changes: self.changes,
+        }
+    }
+}

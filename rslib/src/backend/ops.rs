@@ -44,3 +44,21 @@ impl From<OpOutput<()>> for pb::OpChanges {
         o.changes.into()
     }
 }
+
+impl From<OpOutput<usize>> for pb::OpChangesWithCount {
+    fn from(out: OpOutput<usize>) -> Self {
+        pb::OpChangesWithCount {
+            count: out.output as u32,
+            changes: Some(out.changes.into()),
+        }
+    }
+}
+
+impl From<OpOutput<i64>> for pb::OpChangesWithId {
+    fn from(out: OpOutput<i64>) -> Self {
+        pb::OpChangesWithId {
+            id: out.output,
+            changes: Some(out.changes.into()),
+        }
+    }
+}

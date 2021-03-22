@@ -17,6 +17,7 @@ Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
 OpChanges = _pb.OpChanges
 OpChangesWithCount = _pb.OpChangesWithCount
+OpChangesWithID = _pb.OpChangesWithID
 DefaultsForAdding = _pb.DeckAndNotetype
 
 import copy
