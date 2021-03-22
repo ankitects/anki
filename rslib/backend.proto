@@ -140,7 +140,7 @@ service DecksService {
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
   rpc RemoveDecks(DeckIDs) returns (OpChangesWithCount);
-  rpc DragDropDecks(DragDropDecksIn) returns (OpChanges);
+  rpc ReparentDecks(ReparentDecksIn) returns (OpChangesWithCount);
   rpc RenameDeck(RenameDeckIn) returns (OpChanges);
 }
 
@@ -1108,9 +1108,9 @@ message GetDeckNamesIn {
   bool include_filtered = 2;
 }
 
-message DragDropDecksIn {
-  repeated int64 source_deck_ids = 1;
-  int64 target_deck_id = 2;
+message ReparentDecksIn {
+  repeated int64 deck_ids = 1;
+  int64 new_parent = 2;
 }
 
 message NoteIsDuplicateOrEmptyOut {

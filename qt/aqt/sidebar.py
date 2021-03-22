@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from concurrent.futures import Future
 from enum import Enum, auto
 from typing import Dict, Iterable, List, Optional, Tuple, cast
 
@@ -16,7 +15,7 @@ from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
-from aqt.deck_ops import remove_decks
+from aqt.deck_ops import remove_decks, reparent_decks
 from aqt.models import Models
 from aqt.qt import *
 from aqt.tag_ops import remove_tags_for_all_notes, rename_tag, reparent_tags
@@ -604,30 +603,18 @@ class SidebarTreeView(QTreeView):
     def _handle_drag_drop_decks(
         self, sources: List[SidebarItem], target: SidebarItem
     ) -> bool:
-        source_ids = [
+        deck_ids = [
             source.id for source in sources if source.item_type == SidebarItemType.DECK
         ]
-        if not source_ids:
+        if not deck_ids:
             return False
 
-        def on_done(fut: Future) -> None:
-            self.browser.model.endReset()
-            try:
-                fut.result()
-            except Exception as e:
-                showWarning(str(e))
-                return
-            self.refresh()
-            self.mw.deckBrowser.refresh()
-            self.mw.update_undo_actions()
+        new_parent = target.id
 
-        def on_save() -> None:
-            self.browser.model.beginReset()
-            self.mw.taskman.with_progress(
-                lambda: self.col.decks.drag_drop_decks(source_ids, target.id), on_done
-            )
+        reparent_decks(
+            mw=self.mw, parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
+        )
 
-        self.browser.editor.call_after_note_saved(on_save)
         return True
 
     def _handle_drag_drop_tags(
