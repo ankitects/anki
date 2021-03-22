@@ -6,6 +6,7 @@ import unicodedata
 from typing import Dict, List, Optional, Tuple, Union
 
 from anki.collection import Collection
+from anki.config import Config
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
 from anki.lang import TR
@@ -315,6 +316,10 @@ where id = ? and flds != ?""",
                 sidx = self._fmap[f][0]
                 fields[sidx] = note.fields[c]
         note.fieldsStr = joinFields(fields)
+        # temporary fix for the following issue until we can update the code:
+        # https://forums.ankiweb.net/t/python-checksum-rust-checksum/8195/16
+        if self.col.get_config_bool(Config.Bool.NORMALIZE_NOTE_TEXT):
+            note.fieldsStr = unicodedata.normalize("NFC", note.fieldsStr)
 
     def updateCards(self) -> None:
         data = []
