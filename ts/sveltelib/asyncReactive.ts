@@ -12,14 +12,14 @@ function useAsyncReactive<T, E>(
 ): AsyncReativeData<T, E> {
     const promise = derived(
         dependencies,
-        (_, set: (value: Promise<T> | null) => void) => set(asyncFunction()),
+        (_, set: (value: Promise<T> | null) => void): void => set(asyncFunction()),
         // initialize with null to avoid duplicate fetch on init
         null
     );
 
     const value = derived(
         promise,
-        ($promise, set: (value: T) => void) => {
+        ($promise, set: (value: T) => void): void => {
             $promise?.then((value: T) => set(value));
         },
         null
@@ -27,18 +27,18 @@ function useAsyncReactive<T, E>(
 
     const error = derived(
         promise,
-        ($promise, set: (error: E | null) => void) => {
+        ($promise, set: (error: E | null) => void): (() => void) => {
             $promise?.catch((error: E) => set(error));
-            return () => set(null);
+            return (): void => set(null);
         },
         null
     );
 
     const loading = derived(
         promise,
-        ($promise, set: (value: boolean) => void) => {
+        ($promise, set: (value: boolean) => void): (() => void) => {
             $promise?.finally(() => set(false));
-            return () => set(true);
+            return (): void => set(true);
         },
         true
     );
