@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
-from anki.collection import OpChangesWithCount
+from anki.collection import OpChanges, OpChangesWithCount
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_bytes
@@ -260,13 +260,13 @@ class DeckManager:
             deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
         )
 
-    def rename(self, deck: Union[Deck, int], new_name: str) -> None:
+    def rename(self, deck: Union[Deck, DeckID], new_name: str) -> OpChanges:
         "Rename deck prefix to NAME if not exists. Updates children."
         if isinstance(deck, int):
             deck_id = deck
         else:
             deck_id = deck["id"]
-        self.col._backend.rename_deck(deck_id=deck_id, new_name=new_name)
+        return self.col._backend.rename_deck(deck_id=deck_id, new_name=new_name)
 
     # Drag/drop
     #############################################################
