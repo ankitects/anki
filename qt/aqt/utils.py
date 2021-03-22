@@ -220,6 +220,7 @@ def showText(
         text = QPlainTextEdit()
         text.setReadOnly(True)
         text.setWordWrapMode(QTextOption.NoWrap)
+        text.setPlainText(txt)
     else:
         text = QTextBrowser()
         text.setOpenExternalLinks(True)
