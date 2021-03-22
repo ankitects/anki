@@ -4252,7 +4252,7 @@ svelte2tsx@^0.1.133:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@^3.28.0:
+svelte@^3.25.0:
   version "3.35.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.35.0.tgz#e0d0ba60c4852181c2b4fd851194be6fda493e65"
   integrity sha512-gknlZkR2sXheu/X+B7dDImwANVvK1R0QGQLd8CNIfxxGPeXBmePnxfzb6fWwTQRsYQG7lYkZXvpXJvxvpsoB7g==

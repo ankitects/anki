@@ -1,8 +1,8 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
-load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-load("//ts:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
+load("//ts:esbuild.bzl", "esbuild")
 
 svelte_files = glob(["*.svelte"])
 
@@ -34,27 +34,31 @@ ts_library(
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "@npm//@types/d3",
-        "@npm//@types/lodash",
         "@npm//svelte",
     ],
 )
 
-rollup_bundle(
+esbuild(
     name = "tag-editor",
-    config_file = "//ts:rollup.config.js",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
+    args = [
+        "--global-name=anki",
+        "--inject:ts/protobuf-shim.js",
+    ],
     entry_point = "index.ts",
-    format = "iife",
-    link_workspace_root = True,
-    silent = True,
-    sourcemap = "false",
+    external = [
+        "protobufjs/light",
+    ],
+    output_css = True,
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
-        "index",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-        "@npm//rollup-plugin-terser",
+        "//ts/lib:backend_proto",
+        "//ts/lib:fluent_proto",
+        ":index",
+        "//ts/sass:core_css",
     ] + svelte_names,
 )
 
