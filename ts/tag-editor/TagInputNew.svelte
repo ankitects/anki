@@ -5,6 +5,7 @@
 
     export let input: HTMLInputElement;
     let name = "";
+    let active = true;
 
     const dispatch = createEventDispatcher();
 

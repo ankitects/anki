@@ -8,7 +8,16 @@
 
     const dispatch = createEventDispatcher();
 
+    let label: HTMLLabelElement;
+    let active = false;
+
+    function onFocus(): void {
+        active = true;
+    }
+
     function onBlur(): void {
+        console.log('foo')
+        active = false;
         dispatch("update", { tagname: normalizeTagname(name) });
     }
 
@@ -75,18 +84,19 @@
     }
 </style>
 
-<label data-value={name}>
+<label data-value={name} bind:this={label}>
     <input
         type="text"
         size="1"
-        bind:value={name}
         bind:this={input}
-        on:click|stopPropagation
+        bind:value={name}
+        on:focus={onFocus}
         on:blur={onBlur}
         on:keydown={onKeydown}
-        on:paste={onPaste} />
+        on:paste={onPaste}
+        on:click|stopPropagation />
 </label>
 
-{#if input}
-    <TagAutocomplete {name} {input} />
+{#if active}
+    <TagAutocomplete {name} target={input} container={label} />
 {/if}

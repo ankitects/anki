@@ -1,21 +1,28 @@
 <script lang="typescript">
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
 
+    export let container: HTMLElement;
+    export let target: HTMLElement;
     export let name: string;
-    export let input: HTMLInputElement;
 
     let menu: HTMLDivElement;
+    let popover;
 
     const tagSuggestions = ["en::idioms", "anki::functionality", "math"];
 
     onMount(() => {
-        const popover = new bootstrap.Popover(input, {
+        popover = new bootstrap.Popover(target, {
             trigger: "manual",
+            container,
             content: menu,
         });
 
         popover.show();
     });
+
+    onDestroy(() => {
+        popover.dispose();
+    })
 </script>
 
 <div bind:this={menu} class="dropdown-menu">
