@@ -114,14 +114,14 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn drag_drop_decks(&self, input: pb::DragDropDecksIn) -> Result<pb::OpChanges> {
-        let source_dids: Vec<_> = input.source_deck_ids.into_iter().map(Into::into).collect();
-        let target_did = if input.target_deck_id == 0 {
+    fn reparent_decks(&self, input: pb::ReparentDecksIn) -> Result<pb::OpChangesWithCount> {
+        let deck_ids: Vec<_> = input.deck_ids.into_iter().map(Into::into).collect();
+        let new_parent = if input.new_parent == 0 {
             None
         } else {
-            Some(input.target_deck_id.into())
+            Some(input.new_parent.into())
         };
-        self.with_col(|col| col.drag_drop_decks(&source_dids, target_did))
+        self.with_col(|col| col.reparent_decks(&deck_ids, new_parent))
             .map(Into::into)
     }
 

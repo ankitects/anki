@@ -151,3 +151,8 @@ browsing-changed-new-position =
         [one] Changed position of { $count } new card.
        *[other] Changed position of { $count } new cards.
     }
+browsing-reparented-decks =
+    { $count ->
+        [one] Renamed { $count } deck.
+       *[other] Renamed { $count } decks.
+    }

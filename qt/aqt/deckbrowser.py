@@ -1,8 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from __future__ import annotations
 
-from concurrent.futures import Future
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
@@ -13,7 +13,7 @@ from anki.decks import DeckTreeNode
 from anki.errors import DeckIsFilteredError
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
-from aqt.deck_ops import remove_decks
+from aqt.deck_ops import remove_decks, reparent_decks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
@@ -304,21 +304,7 @@ class DeckBrowser:
         self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: int, target: int) -> None:
-        def process() -> None:
-            self.mw.col.decks.drag_drop_decks([source], target)
-
-        def on_done(fut: Future) -> None:
-            try:
-                fut.result()
-            except Exception as e:
-                showWarning(str(e))
-                return
-
-            self.mw.update_undo_actions()
-            gui_hooks.sidebar_should_refresh_decks()
-            self.show()
-
-        self.mw.taskman.with_progress(process, on_done)
+        reparent_decks(mw=self.mw, parent=self.mw, deck_ids=[source], new_parent=target)
 
     def _delete(self, did: int) -> None:
         remove_decks(mw=self.mw, parent=self.mw, deck_ids=[did])

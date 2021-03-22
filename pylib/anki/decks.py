@@ -271,11 +271,13 @@ class DeckManager:
     # Drag/drop
     #############################################################
 
-    def drag_drop_decks(self, source_decks: List[DeckID], target_deck: DeckID) -> None:
-        """Rename one or more source decks that were dropped on `target_deck`.
-        If target_deck is 0, decks will be placed at the top level."""
-        self.col._backend.drag_drop_decks(
-            source_deck_ids=source_decks, target_deck_id=target_deck
+    def reparent(
+        self, deck_ids: Sequence[DeckID], new_parent: DeckID
+    ) -> OpChangesWithCount:
+        """Rename one or more source decks that were dropped on `new_parent`.
+        If new_parent is 0, decks will be placed at the top level."""
+        return self.col._backend.reparent_decks(
+            deck_ids=deck_ids, new_parent=new_parent
         )
 
     # legacy
@@ -286,7 +288,7 @@ class DeckManager:
             onto = 0
         else:
             onto = int(ontoDeckDid)
-        self.drag_drop_decks([int(draggedDeckDid)], onto)
+        self.reparent([int(draggedDeckDid)], onto)
 
     # Deck configurations
     #############################################################
