@@ -13,9 +13,13 @@
         dropdown.show();
     }
 
-    function onBlur(event: Event, dropdown: bootstrap.Dropdown): void {
-        dropdown.hide();
+    function onAccept(event: Event): void {
         dispatch("update", { tagname: normalizeTagname(name) });
+    }
+
+    function dropdownBlur(event: Event, dropdown: bootstrap.Dropdown): void {
+        onAccept(event);
+        dropdown.hide();
     }
 
     function onKeydown(event: KeyboardEvent, dropdown: bootstrap.Dropdown): void {
@@ -25,10 +29,6 @@
         }
         else if (event.code === "Backspace" && name.endsWith("::")) {
             name = name.slice(0, -2);
-            event.preventDefault();
-        }
-        else if (event.code === "Enter") {
-            onBlur(event, dropdown);
             event.preventDefault();
         }
     }
@@ -47,6 +47,10 @@
         }
 
         name = last;
+    }
+
+    function setTagname({ detail }: CustomEvent): void {
+        name = detail.name;
     }
 </script>
 
@@ -83,7 +87,7 @@
     }
 </style>
 
-<TagAutocomplete {name} let:triggerId let:triggerClass let:dropdown>
+<TagAutocomplete {name} let:triggerId let:triggerClass let:dropdown on:nameChosen={setTagname} on:accept={onAccept}>
     <label data-value={name} id={triggerId} class={triggerClass}>
         <input
             type="text"
@@ -91,9 +95,9 @@
             bind:this={input}
             bind:value={name}
             on:focus={(event) => onFocus(event, dropdown)}
-            on:blur={(event) => onBlur(event, dropdown)}
+            on:blur={(event) => dropdownBlur(event, dropdown)}
             on:keydown={(event) => onKeydown(event, dropdown)}
             on:paste={onPaste}
-            on:click|stopPropagation />
+            on:click />
     </label>
 </TagAutocomplete>
