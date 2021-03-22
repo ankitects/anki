@@ -9,7 +9,7 @@ var ankiPlatform = "desktop";
 var typeans;
 var _updatingQueue: Promise<void> = Promise.resolve();
 
-var qFade = 50;
+var qFade = 0;
 var aFade = 0;
 
 var onUpdateHook: Array<Callback>;
