@@ -26,11 +26,20 @@ copy_files_into_group(
     package = "//ts/editor",
 )
 
+copy_files_into_group(
+    name = "tag-editor",
+    srcs = [
+        "tag-editor.css",
+    ],
+    package = "//ts/tag-editor",
+)
+
 filegroup(
     name = "css",
     srcs = [
         "css_local",
         "editor",
+        "tag-editor",
     ],
     visibility = ["//qt:__subpackages__"],
 )

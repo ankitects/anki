@@ -1,3 +1,7 @@
+<svelte:head>
+    <link rel="stylesheet" type="text/css" href="_anki/css/tag-editor.css" />
+</svelte:head>
+
 <script lang="typescript">
     import type { I18n } from "anki/i18n";
 
