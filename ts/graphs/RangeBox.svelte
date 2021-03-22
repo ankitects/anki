@@ -56,7 +56,7 @@
         if (event.code === "Enter") {
             $search = displayedSearch;
         }
-    };
+    }
 
     const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
     const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
