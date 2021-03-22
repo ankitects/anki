@@ -73,6 +73,9 @@ async function _updateQA(
         })
         .catch(renderError("MathJax"));
 
+    // defer display for up to 100ms to allow images to load
+    await Promise.race([allImagesLoaded(), new Promise((r) => setTimeout(r, 100))]);
+
     // and reveal when processing is done
     await qa.fadeTo(fadeTime, 1).promise();
     await _runHook(onShownHook);
@@ -111,11 +114,9 @@ function _showAnswer(a: string, bodyclass: string): void {
                     document.body.className = bodyclass;
                 }
 
-                // scroll to answer?
-                var e = $("#answer");
-                if (e[0]) {
-                    e[0].scrollIntoView();
-                }
+                // avoid scrolling to the answer until images load, even if it
+                // takes more than 100ms
+                allImagesLoaded().then(scrollToAnswer);
             },
             function () {}
         )
@@ -161,4 +162,24 @@ function _emulateMobile(enabled: boolean): void {
     } else {
         list.remove("mobile");
     }
+}
+
+function allImagesLoaded(): Promise<void[]> {
+    return Promise.all(
+        Array.from(document.getElementsByTagName("img")).map(imageLoaded)
+    );
+}
+
+function imageLoaded(img: HTMLImageElement): Promise<void> {
+    if (img.complete) {
+        return;
+    }
+    return new Promise((resolve) => {
+        img.addEventListener("load", () => resolve());
+        img.addEventListener("error", () => resolve());
+    });
+}
+
+function scrollToAnswer(): void {
+    document.getElementById("answer")?.scrollIntoView();
 }
