@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use chrono::prelude::*;
 use itertools::Itertools;
 
 use crate::err::{AnkiError, Result};
@@ -60,7 +59,6 @@ struct RowContext<'a> {
     deck: Option<Deck>,
     original_deck: Option<Option<Deck>>,
     i18n: &'a I18n,
-    offset: FixedOffset,
     timing: SchedTimingToday,
     render_context: Option<RenderContext>,
 }
@@ -143,7 +141,6 @@ impl<'a> RowContext<'a> {
         let notetype = col
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
-        let offset = col.local_utc_offset_for_user()?;
         let timing = col.timing_today()?;
         let render_context = if with_card_render {
             Some(RenderContext::new(col, &card, &note, &notetype)?)
@@ -159,7 +156,6 @@ impl<'a> RowContext<'a> {
             deck: None,
             original_deck: None,
             i18n: &col.i18n,
-            offset,
             timing,
             render_context,
         })
@@ -202,13 +198,13 @@ impl<'a> RowContext<'a> {
             "cardEase" => self.card_ease_str(),
             "cardIvl" => self.card_interval_str(),
             "cardLapses" => self.card.lapses.to_string(),
-            "cardMod" => self.card.mtime.date_string(self.offset),
+            "cardMod" => self.card.mtime.date_string(),
             "cardReps" => self.card.reps.to_string(),
             "deck" => self.deck_str()?,
             "note" => self.notetype.name.to_owned(),
             "noteCrt" => self.note_creation_str(),
             "noteFld" => self.note_field_str(),
-            "noteMod" => self.note.mtime.date_string(self.offset),
+            "noteMod" => self.note.mtime.date_string(),
             "noteTags" => self.note.tags.join(" "),
             "question" => self.question_str(),
             "template" => self.template_str()?,
@@ -261,7 +257,7 @@ impl<'a> RowContext<'a> {
             } else {
                 return "".into();
             };
-            date.date_string(self.offset)
+            date.date_string()
         };
         if (self.card.queue as i8) < 0 {
             format!("({})", due)
@@ -295,9 +291,7 @@ impl<'a> RowContext<'a> {
     }
 
     fn note_creation_str(&self) -> String {
-        TimestampMillis(self.note.id.into())
-            .as_secs()
-            .date_string(self.offset)
+        TimestampMillis(self.note.id.into()).as_secs().date_string()
     }
 
     fn note_field_str(&self) -> String {
