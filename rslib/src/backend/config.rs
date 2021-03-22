@@ -30,6 +30,7 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::InterruptAudioWhenAnswering => BoolKey::InterruptAudioWhenAnswering,
             BoolKeyProto::PasteImagesAsPng => BoolKey::PasteImagesAsPng,
             BoolKeyProto::PasteStripsFormatting => BoolKey::PasteStripsFormatting,
+            BoolKeyProto::NormalizeNoteText => BoolKey::NormalizeNoteText,
         }
     }
 }

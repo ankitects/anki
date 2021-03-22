@@ -1330,6 +1330,7 @@ message Config {
       INTERRUPT_AUDIO_WHEN_ANSWERING = 12;
       PASTE_IMAGES_AS_PNG = 13;
       PASTE_STRIPS_FORMATTING = 14;
+      NORMALIZE_NOTE_TEXT = 15;
     }
     Key key = 1;
   }
