@@ -1,35 +1,34 @@
 <script lang="typescript">
-    import TagAutocomplete from "./TagAutocomplete.svelte";
     import { createEventDispatcher } from "svelte";
+
+    import TagAutocomplete from "./TagAutocomplete.svelte";
     import { normalizeTagname } from "./helpers";
 
     export let name: string;
     export let input: HTMLInputElement;
 
     const dispatch = createEventDispatcher();
-    // TODO - need to ensure uniqueness (?)
-    const triggerId = "tagLabel";
 
-    let active = false;
-
-    function onFocus(): void {
-        active = true;
+    function onFocus(event: FocusEvent, dropdown: bootstrap.Dropdown): void {
+        dropdown.show();
     }
 
-    function onBlur(): void {
-        active = false;
+    function onBlur(event: Event, dropdown: bootstrap.Dropdown): void {
+        dropdown.hide();
         dispatch("update", { tagname: normalizeTagname(name) });
     }
 
-    function onKeydown(event: KeyboardEvent): void {
+    function onKeydown(event: KeyboardEvent, dropdown: bootstrap.Dropdown): void {
         if (event.code === "Space") {
             name += "::";
             event.preventDefault();
-        } else if (event.code === "Backspace" && name.endsWith("::")) {
+        }
+        else if (event.code === "Backspace" && name.endsWith("::")) {
             name = name.slice(0, -2);
             event.preventDefault();
-        } else if (event.code === "Enter") {
-            onBlur();
+        }
+        else if (event.code === "Enter") {
+            onBlur(event, dropdown);
             event.preventDefault();
         }
     }
@@ -84,16 +83,16 @@
     }
 </style>
 
-<TagAutocomplete {triggerId} {name}>
-    <label data-value={name} class="dropdown-toggle" data-bs-toggle="dropdown" id={triggerId}>
+<TagAutocomplete {name} let:triggerId let:triggerClass let:dropdown>
+    <label data-value={name} id={triggerId} class={triggerClass}>
         <input
             type="text"
             size="1"
             bind:this={input}
             bind:value={name}
-            on:focus={onFocus}
-            on:blur={onBlur}
-            on:keydown={onKeydown}
+            on:focus={(event) => onFocus(event, dropdown)}
+            on:blur={(event) => onBlur(event, dropdown)}
+            on:keydown={(event) => onKeydown(event, dropdown)}
             on:paste={onPaste}
             on:click|stopPropagation />
     </label>

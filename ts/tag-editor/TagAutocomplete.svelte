@@ -1,22 +1,28 @@
 <script lang="typescript">
     import { onMount, onDestroy } from "svelte";
 
-    export let triggerId: string;
     export let name: string;
 
     let menu: HTMLDivElement;
     let dropdown;
 
-    console.log(name)
-    const tagSuggestions = ["en::idioms", "anki::functionality", "math"];
+    let triggerId = "tagLabel" + String(Math.random()).slice(2);
+    let triggerClass = "dropdown-toggle";
+
+    const tagSuggestions = ["en::idioms", "anki::functionality", "math", name];
 
     onMount(() => {
-        dropdown = new bootstrap.Dropdown(menu.querySelector('.dropdown-toggle'))
-        console.log('dropdown', dropdown)
+        const toggle = menu.querySelector(`#${triggerId}`)
+        dropdown = new bootstrap.Dropdown(toggle)
     })
 </script>
 
 <style lang="scss">
+    :global(.show).dropdown-menu {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
     .dropdown-item {
         padding: 0rem .3rem;
         font-size: smaller;
@@ -28,7 +34,7 @@
 </style>
 
 <div class="dropdown" bind:this={menu}>
-    <slot {dropdown}></slot>
+    <slot {triggerId} {triggerClass} {dropdown}></slot>
 
     <ul class="dropdown-menu" aria-labelledby={triggerId}>
         {#each tagSuggestions as tag}

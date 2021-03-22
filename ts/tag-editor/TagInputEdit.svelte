@@ -11,18 +11,12 @@
         element.selectionStart = element.selectionEnd = element.value.length;
     }
 
-    function caretToEnd(element: Element): void {
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        range.collapse(false);
-        const selection = currentField.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
-
     onMount(() => {
-        input.focus();
-        moveCursorToEnd(input);
+        // Make sure Autocomplete was fully mounted
+        setTimeout(() => {
+            moveCursorToEnd(input);
+            input.focus();
+        }, 0)
     });
 
     function onKeydown(event: KeyboardEvent): void {
