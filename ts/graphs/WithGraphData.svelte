@@ -14,9 +14,11 @@
         value: graphValue,
     } = useAsyncReactive(() => getGraphData($search, $days), [search, days]);
 
-    const { loading: prefsLoading, error: prefsError, value: prefsValue } = useAsync(
-        () => getPreferences()
-    );
+    const {
+        loading: prefsLoading,
+        error: prefsError,
+        value: prefsValue,
+    } = useAsync(() => getPreferences());
 
     $: revlogRange = daysToRevlogRange($days);
 
