@@ -20,7 +20,8 @@
     export let search: Writable<string>;
 
     let revlogRange = daysToRevlogRange($days);
-    let searchRange = $search === "deck:current"
+    let searchRange =
+        $search === "deck:current"
             ? SearchRange.Deck
             : $search === ""
             ? SearchRange.Collection

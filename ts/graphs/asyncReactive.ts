@@ -11,7 +11,11 @@ function useAsyncReactive<T, E>(
     asyncFunction: () => Promise<T>,
     dependencies: [Readable<unknown>, ...Readable<unknown>[]]
 ): AsyncReativeData<T, E> {
-    const promise = derived(dependencies, (_, set) => set(asyncFunction()), asyncFunction());
+    const promise = derived(
+        dependencies,
+        (_, set) => set(asyncFunction()),
+        asyncFunction()
+    );
 
     const value = derived(
         promise,

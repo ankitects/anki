@@ -2,10 +2,11 @@
     import "../sass/core.css";
 
     import type { SvelteComponent } from "svelte/internal";
+    import { writable } from "svelte/store";
     import type { I18n } from "anki/i18n";
+    import { bridgeCommand } from "anki/bridgecommand";
 
     import WithGraphData from "./WithGraphData.svelte";
-    import BrowserSearch from "./BrowserSearch.svelte";
 
     export let i18n: I18n;
     export let nightMode: boolean;
@@ -15,11 +16,12 @@
     export let initialDays: number;
     export let controller: SvelteComponent | null;
 
-    let query: string;
+    const search = writable(initialSearch);
+    const days = writable(initialDays);
 
-    const activateBrowserSearch = (event: CustomEvent): void => {
-        query = event.detail.query;
-    };
+    function browserSearch(event: CustomEvent) {
+        bridgeCommand(`browserSearch: ${$search} ${event.detail.query}`);
+    }
 </script>
 
 <style lang="scss">
@@ -32,10 +34,8 @@
 
 <div>
     <WithGraphData
-        {initialSearch}
-        {initialDays}
-        let:search
-        let:days
+        {search}
+        {days}
         let:loading
         let:sourceData
         let:preferences
@@ -53,10 +53,8 @@
                     {revlogRange}
                     {i18n}
                     {nightMode}
-                    on:search={activateBrowserSearch} />
+                    on:search={browserSearch} />
             {/each}
         {/if}
-
-        <BrowserSearch {search} {query} />
     </WithGraphData>
 </div>
