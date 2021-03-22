@@ -32,7 +32,7 @@
 
     <ul class="dropdown-menu" aria-labelledby={triggerId}>
         {#each tagSuggestions as tag}
-            <li tabindex="0"><span class="dropdown-item">{tag}</span></li>
+            <li><span class="dropdown-item" tabindex="-1">{tag}</span></li>
         {/each}
     </ul>
 </div>
