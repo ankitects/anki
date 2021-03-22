@@ -7,8 +7,9 @@
     export let input: HTMLInputElement;
 
     const dispatch = createEventDispatcher();
+    // TODO - need to ensure uniqueness (?)
+    const triggerId = "tagLabel";
 
-    let label: HTMLLabelElement;
     let active = false;
 
     function onFocus(): void {
@@ -16,7 +17,6 @@
     }
 
     function onBlur(): void {
-        console.log('foo')
         active = false;
         dispatch("update", { tagname: normalizeTagname(name) });
     }
@@ -84,19 +84,17 @@
     }
 </style>
 
-<label data-value={name} bind:this={label}>
-    <input
-        type="text"
-        size="1"
-        bind:this={input}
-        bind:value={name}
-        on:focus={onFocus}
-        on:blur={onBlur}
-        on:keydown={onKeydown}
-        on:paste={onPaste}
-        on:click|stopPropagation />
-</label>
-
-{#if active}
-    <TagAutocomplete {name} target={input} container={label} />
-{/if}
+<TagAutocomplete {triggerId} {name}>
+    <label data-value={name} class="dropdown-toggle" data-bs-toggle="dropdown" id={triggerId}>
+        <input
+            type="text"
+            size="1"
+            bind:this={input}
+            bind:value={name}
+            on:focus={onFocus}
+            on:blur={onBlur}
+            on:keydown={onKeydown}
+            on:paste={onPaste}
+            on:click|stopPropagation />
+    </label>
+</TagAutocomplete>

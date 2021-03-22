@@ -1,31 +1,38 @@
 <script lang="typescript">
     import { onMount, onDestroy } from "svelte";
 
-    export let container: HTMLElement;
-    export let target: HTMLElement;
+    export let triggerId: string;
     export let name: string;
 
     let menu: HTMLDivElement;
-    let popover;
+    let dropdown;
 
+    console.log(name)
     const tagSuggestions = ["en::idioms", "anki::functionality", "math"];
 
     onMount(() => {
-        popover = new bootstrap.Popover(target, {
-            trigger: "manual",
-            container,
-            content: menu,
-        });
-
-        popover.show();
-    });
-
-    onDestroy(() => {
-        popover.dispose();
+        dropdown = new bootstrap.Dropdown(menu.querySelector('.dropdown-toggle'))
+        console.log('dropdown', dropdown)
     })
 </script>
 
-<div bind:this={menu} class="dropdown-menu">
-    <span>{name}</span>:
-    {#each tagSuggestions as tag}<span class="dropdown-item">{tag}</span>{/each}
+<style lang="scss">
+    .dropdown-item {
+        padding: 0rem .3rem;
+        font-size: smaller;
+
+        &:focus {
+            outline: none;
+        }
+    }
+</style>
+
+<div class="dropdown" bind:this={menu}>
+    <slot {dropdown}></slot>
+
+    <ul class="dropdown-menu" aria-labelledby={triggerId}>
+        {#each tagSuggestions as tag}
+            <li tabindex="0"><span class="dropdown-item">{tag}</span></li>
+        {/each}
+    </ul>
 </div>
