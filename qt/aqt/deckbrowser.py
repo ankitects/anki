@@ -9,7 +9,7 @@ from typing import Any
 
 import aqt
 from anki.collection import OpChanges
-from anki.decks import DeckTreeNode
+from anki.decks import DeckID, DeckTreeNode
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.deck_ops import add_deck_dialog, remove_decks, rename_deck, reparent_decks
@@ -99,7 +99,7 @@ class DeckBrowser:
             self._on_create()
         elif cmd == "drag":
             source, target = arg.split(",")
-            self._handle_drag_and_drop(int(source), int(target or 0))
+            self._handle_drag_and_drop(DeckID(int(source)), DeckID(int(target or 0)))
         elif cmd == "collapse":
             self._collapse(int(arg))
         elif cmd == "v2upgrade":
@@ -251,20 +251,20 @@ class DeckBrowser:
     def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
         a = m.addAction(tr(TR.ACTIONS_RENAME))
-        qconnect(a.triggered, lambda b, did=did: self._rename(int(did)))
+        qconnect(a.triggered, lambda b, did=did: self._rename(DeckID(int(did))))
         a = m.addAction(tr(TR.ACTIONS_OPTIONS))
-        qconnect(a.triggered, lambda b, did=did: self._options(did))
+        qconnect(a.triggered, lambda b, did=did: self._options(DeckID(int(did))))
         a = m.addAction(tr(TR.ACTIONS_EXPORT))
         qconnect(a.triggered, lambda b, did=did: self._export(int(did)))
         a = m.addAction(tr(TR.ACTIONS_DELETE))
-        qconnect(a.triggered, lambda b, did=did: self._delete(int(did)))
+        qconnect(a.triggered, lambda b, did=did: self._delete(DeckID(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.exec_(QCursor.pos())
 
     def _export(self, did: int) -> None:
         self.mw.onExport(did=did)
 
-    def _rename(self, did: int) -> None:
+    def _rename(self, did: DeckID) -> None:
         deck = self.mw.col.decks.get(did)
         current_name = deck["name"]
         new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=current_name)
@@ -273,10 +273,10 @@ class DeckBrowser:
 
         rename_deck(mw=self.mw, deck_id=did, new_name=new_name)
 
-    def _options(self, did: str) -> None:
+    def _options(self, did: DeckID) -> None:
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
-        self.mw.col.decks.select(int(did))
+        self.mw.col.decks.select(did)
         self.mw.onDeckConf()
 
     def _collapse(self, did: int) -> None:
@@ -286,10 +286,10 @@ class DeckBrowser:
             node.collapsed = not node.collapsed
         self._renderPage(reuse=True)
 
-    def _handle_drag_and_drop(self, source: int, target: int) -> None:
+    def _handle_drag_and_drop(self, source: DeckID, target: DeckID) -> None:
         reparent_decks(mw=self.mw, parent=self.mw, deck_ids=[source], new_parent=target)
 
-    def _delete(self, did: int) -> None:
+    def _delete(self, did: DeckID) -> None:
         remove_decks(mw=self.mw, parent=self.mw, deck_ids=[did])
 
     # Top buttons

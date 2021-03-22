@@ -7,7 +7,7 @@ import copy
 import pprint
 import sys
 import traceback
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -39,7 +39,7 @@ DeckConfig = Union[FilteredDeck, Config]
 """ New/lrn/rev conf, from deck config"""
 QueueConfig = Dict[str, Any]
 
-DeckID = int
+DeckID = NewType("DeckID", int)
 
 
 class DecksDictProxy:
@@ -301,7 +301,7 @@ class DeckManager:
             onto = 0
         else:
             onto = int(ontoDeckDid)
-        self.reparent([int(draggedDeckDid)], onto)
+        self.reparent([DeckID(int(draggedDeckDid))], DeckID(onto))
 
     # Deck configurations
     #############################################################
