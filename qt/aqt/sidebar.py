@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
-from anki.decks import DeckTreeNode
+from anki.decks import DeckID, DeckTreeNode
 from anki.errors import InvalidInput
 from anki.notes import Note
 from anki.tags import TagTreeNode
@@ -603,12 +603,14 @@ class SidebarTreeView(QTreeView):
         self, sources: List[SidebarItem], target: SidebarItem
     ) -> bool:
         deck_ids = [
-            source.id for source in sources if source.item_type == SidebarItemType.DECK
+            DeckID(source.id)
+            for source in sources
+            if source.item_type == SidebarItemType.DECK
         ]
         if not deck_ids:
             return False
 
-        new_parent = target.id
+        new_parent = DeckID(target.id)
 
         reparent_decks(
             mw=self.mw, parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
@@ -1161,7 +1163,7 @@ class SidebarTreeView(QTreeView):
 
         rename_deck(
             mw=self.mw,
-            deck_id=item.id,
+            deck_id=DeckID(item.id),
             new_name=new_name,
             after_rename=lambda: self.refresh(
                 lambda other: other.item_type == SidebarItemType.DECK
@@ -1284,9 +1286,9 @@ class SidebarTreeView(QTreeView):
     def _selected_items(self) -> List[SidebarItem]:
         return [self.model().item_for_index(idx) for idx in self.selectedIndexes()]
 
-    def _selected_decks(self) -> List[int]:
+    def _selected_decks(self) -> List[DeckID]:
         return [
-            item.id
+            DeckID(item.id)
             for item in self._selected_items()
             if item.item_type == SidebarItemType.DECK
         ]
