@@ -132,7 +132,10 @@ impl RenderContext {
 impl<'a> RowContext<'a> {
     fn new(col: &'a mut Collection, id: CardID, with_card_render: bool) -> Result<Self> {
         let card = col.storage.get_card(id)?.ok_or(AnkiError::NotFound)?;
-        let note = if with_card_render {
+        // todo: After note.sort_field has been modified so it can be displayed in the browser,
+        // we can update note_field_str() and only load the note with fields if a card render is
+        // necessary (see #1082).
+        let note = if true {
             col.storage.get_note(card.note_id)?
         } else {
             col.storage.get_note_without_fields(card.note_id)?
@@ -295,11 +298,8 @@ impl<'a> RowContext<'a> {
     }
 
     fn note_field_str(&self) -> String {
-        if let Some(field) = &self.note.sort_field {
-            field.to_owned()
-        } else {
-            "".to_string()
-        }
+        let index = self.notetype.config.sort_field_idx as usize;
+        html_to_text_line(&self.note.fields()[index]).into()
     }
 
     fn template_str(&self) -> Result<String> {
