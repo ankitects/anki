@@ -29,7 +29,7 @@
 
     let displayedSearch = $search;
 
-    function updateSearch(): void {
+    $: {
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
                 $search = displayedSearch = "deck:current";
@@ -40,7 +40,7 @@
         }
     }
 
-    function updateRevlog(): void {
+    $: {
         switch (revlogRange as RevlogRange) {
             case RevlogRange.Year:
                 $days = 365;
@@ -53,10 +53,10 @@
 
     function searchKeyUp(event: KeyboardEvent): void {
         // fetch data on enter
-        if (event.key === "Enter") {
+        if (event.code === "Enter") {
             $search = displayedSearch;
         }
-    }
+    };
 
     const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
     const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
@@ -115,18 +115,13 @@
 
     <InputBox>
         <label>
-            <input
-                type="radio"
-                bind:group={searchRange}
-                on:input={updateSearch}
-                value={SearchRange.Deck} />
+            <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
             {deck}
         </label>
         <label>
             <input
                 type="radio"
                 bind:group={searchRange}
-                on:input={updateSearch}
                 value={SearchRange.Collection} />
             {collection}
         </label>
@@ -143,19 +138,11 @@
 
     <InputBox>
         <label>
-            <input
-                type="radio"
-                bind:group={revlogRange}
-                on:input={updateRevlog}
-                value={RevlogRange.Year} />
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
             {year}
         </label>
         <label>
-            <input
-                type="radio"
-                bind:group={revlogRange}
-                on:input={updateRevlog}
-                value={RevlogRange.All} />
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
             {all}
         </label>
     </InputBox>
