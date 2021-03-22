@@ -225,17 +225,16 @@ class DataModel(QAbstractTableModel):
 
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
-            return
+            return QVariant()
         if role == Qt.FontRole:
             if self.activeCols[index.column()] not in ("question", "answer", "noteFld"):
-                return
+                return QVariant()
             qfont = QFont()
             row = self.get_row(index)
             qfont.setFamily(row.font_name)
             qfont.setPixelSize(row.font_size)
             return qfont
-
-        elif role == Qt.TextAlignmentRole:
+        if role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
             if self.activeCols[index.column()] not in (
                 "question",
@@ -248,10 +247,9 @@ class DataModel(QAbstractTableModel):
             ):
                 align |= Qt.AlignHCenter
             return align
-        elif role == Qt.DisplayRole or role == Qt.EditRole:
+        if role in (Qt.DisplayRole, Qt.ToolTipRole):
             return self.get_cell(index).text
-        else:
-            return
+        return QVariant()
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = 0
