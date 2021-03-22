@@ -222,7 +222,7 @@ class ImportDialog(QDialog):
                 if self.importer.log:
                     txt += "\n".join(self.importer.log)
                 self.close()
-                showText(txt)
+                showText(txt, plain_text_edit=True)
                 self.mw.reset()
 
         self.mw.taskman.run_in_background(self.importer.run, on_done)
