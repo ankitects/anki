@@ -13,7 +13,7 @@ from anki.decks import DeckTreeNode
 from anki.errors import DeckIsFilteredError
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
-from aqt.deck_ops import remove_decks, reparent_decks
+from aqt.deck_ops import remove_decks, rename_deck, reparent_decks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
@@ -276,19 +276,12 @@ class DeckBrowser:
 
     def _rename(self, did: int) -> None:
         deck = self.mw.col.decks.get(did)
-        oldName = deck["name"]
-        newName = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=oldName)
-        newName = newName.replace('"', "")
-        if not newName or newName == oldName:
+        current_name = deck["name"]
+        new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=current_name)
+        if not new_name or new_name == current_name:
             return
-        try:
-            self.mw.col.decks.rename(deck, newName)
-            gui_hooks.sidebar_should_refresh_decks()
-        except DeckIsFilteredError as err:
-            showWarning(str(err))
-            return
-        self.mw.update_undo_actions()
-        self.show()
+
+        rename_deck(mw=self.mw, deck_id=did, new_name=new_name)
 
     def _options(self, did: str) -> None:
         # select the deck first, because the dyn deck conf assumes the deck

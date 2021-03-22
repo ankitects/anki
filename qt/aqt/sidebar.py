@@ -9,13 +9,13 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
 from anki.decks import DeckTreeNode
-from anki.errors import DeckIsFilteredError, InvalidInput
+from anki.errors import InvalidInput
 from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
-from aqt.deck_ops import remove_decks, reparent_decks
+from aqt.deck_ops import remove_decks, rename_deck, reparent_decks
 from aqt.models import Models
 from aqt.qt import *
 from aqt.tag_ops import remove_tags_for_all_notes, rename_tag, reparent_tags
@@ -26,7 +26,6 @@ from aqt.utils import (
     askUser,
     getOnlyText,
     show_invalid_search_error,
-    showWarning,
     tr,
 )
 
@@ -1154,18 +1153,21 @@ class SidebarTreeView(QTreeView):
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         deck = self.mw.col.decks.get(item.id)
-        new_name = item.name_prefix + new_name
-        try:
-            self.mw.col.decks.rename(deck, new_name)
-        except DeckIsFilteredError as err:
-            showWarning(str(err))
+        if not new_name:
             return
-        self.refresh(
-            lambda other: other.item_type == SidebarItemType.DECK
-            and other.id == item.id
+        new_name = item.name_prefix + new_name
+        if new_name == deck["name"]:
+            return
+
+        rename_deck(
+            mw=self.mw,
+            deck_id=item.id,
+            new_name=new_name,
+            after_rename=lambda: self.refresh(
+                lambda other: other.item_type == SidebarItemType.DECK
+                and other.id == item.id
+            ),
         )
-        self.mw.deckBrowser.refresh()
-        self.mw.update_undo_actions()
 
     def delete_decks(self, _item: SidebarItem) -> None:
         remove_decks(mw=self.mw, parent=self.browser, deck_ids=self._selected_decks())
