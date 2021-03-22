@@ -4,7 +4,6 @@ interface AsyncReativeData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
     loading: Readable<boolean>;
-    success: Readable<boolean>;
 }
 
 function useAsyncReactive<T, E>(
@@ -36,24 +35,15 @@ function useAsyncReactive<T, E>(
     );
 
     const loading = derived(
-        [value, error],
-        (_, set: (value: boolean) => void) => {
-            set(false);
+        promise,
+        ($promise, set: (value: boolean) => void) => {
+            $promise?.finally(() => set(false));
             return () => set(true);
         },
         true
     );
 
-    const success = derived(
-        [value],
-        (_, set: (value: boolean) => void) => {
-            set(true);
-            return () => set(false);
-        },
-        false
-    );
-
-    return { value, error, loading, success };
+    return { value, error, loading };
 }
 
 export default useAsyncReactive;
