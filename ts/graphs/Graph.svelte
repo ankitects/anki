@@ -42,6 +42,7 @@
                  * marked the ticks as odd */
                 display: none;
             }
+        }
 
         &:focus {
             outline: 0;
