@@ -1,5 +1,4 @@
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
     import type { Writable } from "svelte/store";
 
     import InputBox from "./InputBox.svelte";

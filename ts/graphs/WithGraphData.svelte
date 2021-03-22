@@ -1,8 +1,10 @@
 <script lang="typescript">
+    import type { Writable } from "svelte/store";
+
     import useAsync from "sveltelib/async";
     import useAsyncReactive from "sveltelib/asyncReactive";
 
-    import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
+    import { getGraphData, daysToRevlogRange } from "./graph-helpers";
     import { getPreferences } from "./preferences";
 
     export let search: Writable<string>;

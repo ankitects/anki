@@ -10,7 +10,7 @@
 
     let container = (null as unknown) as HTMLDivElement;
 
-    let adjustedX, adjustedY: number;
+    let adjustedX: number, adjustedY: number;
 
     let shiftLeftAmount = 0;
     $: shiftLeftAmount = container
