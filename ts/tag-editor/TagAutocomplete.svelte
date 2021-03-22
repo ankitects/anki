@@ -8,12 +8,14 @@
     const triggerId = "tagLabel" + String(Math.random()).slice(2);
     const triggerClass = "dropdown-toggle";
 
+    let originalName = name;
     let menu: HTMLDivElement;
     let dropdown;
 
-    let activeItem = null;
+    let activeItem = -1;
 
-    const tagSuggestions = ["en::idioms", "anki::functionality", "math", name];
+    const tagSuggestions = ["en::idioms", "anki::functionality", "math"];
+    $: tagValues = [...tagSuggestions, originalName];
 
     onMount(() => {
         const toggle = menu.querySelector(`#${triggerId}`)
@@ -30,26 +32,27 @@
 
     function onKeydown(event: KeyboardEvent) {
         if (event.code === "ArrowUp") {
-            activeItem = activeItem === null || activeItem === tagSuggestions.length - 1
+            activeItem = activeItem === tagValues.length - 1
                 ? 0
                 : ++activeItem;
+            name = tagValues[activeItem];
             event.preventDefault();
         }
 
         else if (event.code === "ArrowDown") {
-            activeItem = activeItem === null || activeItem === 0
-                ? tagSuggestions.length - 1
+            activeItem = activeItem === 0
+                ? tagValues.length - 1
                 : --activeItem;
+            name = tagValues[activeItem];
             event.preventDefault();
         }
 
         else if (event.code === "Enter") {
             const dropdownActive = dropdown._element.classList.contains("show")
-            console.log('dropdownactive', dropdownActive)
 
             if (dropdownActive) {
                 if (typeof activeItem === "number") {
-                    name = tagSuggestions[activeItem];
+                    name = tagValues[activeItem];
                     activeItem = null;
                 }
 

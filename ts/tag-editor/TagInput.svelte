@@ -87,7 +87,7 @@
     }
 </style>
 
-<TagAutocomplete {name} let:triggerId let:triggerClass let:dropdown on:nameChosen={setTagname} on:accept={onAccept}>
+<TagAutocomplete bind:name let:triggerId let:triggerClass let:dropdown on:nameChosen={setTagname} on:accept={onAccept}>
     <label data-value={name} id={triggerId} class={triggerClass}>
         <input
             type="text"
