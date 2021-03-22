@@ -6,7 +6,8 @@
         "lib": ["es2017", "es2019.array", "es2018.promise", "dom", "dom.iterable"],
         "baseUrl": ".",
         "paths": {
-            "anki/*": ["../bazel-bin/ts/lib/*"]
+            "anki/*": ["../bazel-bin/ts/lib/*"],
+            "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"]
         },
         "importsNotUsedAsValues": "error",
         "outDir": "dist",

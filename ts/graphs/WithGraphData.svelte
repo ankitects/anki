@@ -1,6 +1,6 @@
 <script lang="typescript">
-    import useAsync from "./async";
-    import useAsyncReactive from "./asyncReactive";
+    import useAsync from "sveltelib/async";
+    import useAsyncReactive from "sveltelib/asyncReactive";
 
     import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
     import { getPreferences } from "./preferences";
