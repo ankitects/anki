@@ -207,7 +207,7 @@ impl From<Deck> for DeckProto {
         DeckProto {
             id: d.id.0,
             name: d.name,
-            mtime_secs: d.mtime_secs.0 as u32,
+            mtime_secs: d.mtime_secs.0,
             usn: d.usn.0,
             common: Some(d.common),
             kind: Some(d.kind.into()),

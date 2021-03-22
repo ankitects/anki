@@ -80,12 +80,3 @@ impl From<Vec<String>> for pb::StringList {
         pb::StringList { vals }
     }
 }
-
-impl From<OpOutput<usize>> for pb::OpChangesWithCount {
-    fn from(out: OpOutput<usize>) -> Self {
-        pb::OpChangesWithCount {
-            count: out.output as u32,
-            changes: Some(out.changes.into()),
-        }
-    }
-}

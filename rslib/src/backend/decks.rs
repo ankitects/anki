@@ -10,6 +10,15 @@ use crate::{
 pub(super) use pb::decks_service::Service as DecksService;
 
 impl DecksService for Backend {
+    fn add_deck_legacy(&self, input: pb::Json) -> Result<pb::OpChangesWithId> {
+        let schema11: DeckSchema11 = serde_json::from_slice(&input.json)?;
+        let mut deck: Deck = schema11.into();
+        self.with_col(|col| {
+            let output = col.add_deck(&mut deck)?;
+            Ok(output.map(|_| deck.id.0).into())
+        })
+    }
+
     fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<pb::DeckId> {
         self.with_col(|col| {
             let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
@@ -148,3 +157,40 @@ impl From<DeckID> for pb::DeckId {
         pb::DeckId { did: did.0 }
     }
 }
+
+// before we can switch to returning protobuf, we need to make sure we're converting the
+// deck separators
+
+// fn new_deck(&self, input: pb::Bool) -> Result<pb::Deck> {
+//     let deck = if input.val {
+//         Deck::new_filtered()
+//     } else {
+//         Deck::new_normal()
+//     };
+//     Ok(deck.into())
+// }
+
+// impl From<pb::Deck> for Deck {
+//     fn from(deck: pb::Deck) -> Self {
+//         Self {
+//             id: deck.id.into(),
+//             name: deck.name,
+//             mtime_secs: deck.mtime_secs.into(),
+//             usn: deck.usn.into(),
+//             common: deck.common.unwrap_or_default(),
+//             kind: deck
+//                 .kind
+//                 .map(Into::into)
+//                 .unwrap_or_else(|| DeckKind::Normal(NormalDeck::default())),
+//         }
+//     }
+// }
+
+// impl From<pb::deck::Kind> for DeckKind {
+//     fn from(kind: pb::deck::Kind) -> Self {
+//         match kind {
+//             pb::deck::Kind::Normal(normal) => DeckKind::Normal(normal),
+//             pb::deck::Kind::Filtered(filtered) => DeckKind::Filtered(filtered),
+//         }
+//     }
+// }

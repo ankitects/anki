@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
-from anki.collection import OpChanges, OpChangesWithCount
+from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithID
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_bytes
@@ -112,6 +112,20 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
+    def add_normal_deck_with_name(self, name: str) -> OpChangesWithID:
+        "If deck exists, return existing id."
+        if id := self.col.decks.id_for_name(name):
+            return OpChangesWithID(id=id)
+        else:
+            deck = self.col.decks.new_deck_legacy(filtered=False)
+            deck["name"] = name
+            return self.add_deck_legacy(deck)
+
+    def add_deck_legacy(self, deck: Deck) -> OpChangesWithID:
+        "Add a deck created with new_deck_legacy(). Must have id of 0."
+        assert deck["id"] == 0
+        return self.col._backend.add_deck_legacy(to_json_bytes(deck))
+
     def id(
         self,
         name: str,
@@ -127,9 +141,8 @@ class DeckManager:
 
         deck = self.new_deck_legacy(bool(type))
         deck["name"] = name
-        self.update(deck, preserve_usn=False)
-
-        return deck["id"]
+        out = self.add_deck_legacy(deck)
+        return out.id
 
     @legacy_func(sub="remove")
     def rem(self, did: int, cardsToo: bool = True, childrenToo: bool = True) -> None:

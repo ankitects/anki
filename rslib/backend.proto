@@ -50,6 +50,11 @@ message OpChangesWithCount {
   OpChanges changes = 2;
 }
 
+message OpChangesWithID {
+  int64 id = 1;
+  OpChanges changes = 2;
+}
+
 // IDs used in RPC calls
 ///////////////////////////////////////////////////////////
 
@@ -131,6 +136,7 @@ service SchedulingService {
 }
 
 service DecksService {
+  rpc AddDeckLegacy(Json) returns (OpChangesWithID);
   rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckID);
   rpc DeckTree(DeckTreeIn) returns (DeckTreeNode);
   rpc DeckTreeLegacy(Empty) returns (Json);
@@ -459,7 +465,7 @@ message CardRequirement {
 message Deck {
   int64 id = 1;
   string name = 2;
-  uint32 mtime_secs = 3;
+  int64 mtime_secs = 3;
   int32 usn = 4;
   DeckCommon common = 5;
   oneof kind {

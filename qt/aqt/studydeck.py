@@ -4,21 +4,20 @@
 from typing import List, Optional
 
 import aqt
-from anki.errors import DeckIsFilteredError
+from anki.collection import OpChangesWithID
 from aqt import gui_hooks
+from aqt.deck_ops import add_deck_dialog
 from aqt.qt import *
 from aqt.utils import (
     TR,
     HelpPage,
     HelpPageArgument,
     disable_help_button,
-    getOnlyText,
     openHelp,
     restoreGeom,
     saveGeom,
     shortcut,
     showInfo,
-    showWarning,
     tr,
 )
 
@@ -166,19 +165,14 @@ class StudyDeck(QDialog):
             default = self.form.filter.text()
         else:
             default = self.names[self.form.list.currentRow()]
-        n = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=default)
-        n = n.strip()
-        if n:
-            try:
-                did = self.mw.col.decks.id(n)
-            except DeckIsFilteredError as err:
-                showWarning(str(err))
-                return
-            # deck name may not be the same as user input. ex: ", ::
-            self.name = self.mw.col.decks.name(did)
+
+        def success(out: OpChangesWithID) -> None:
+            deck = self.mw.col.decks.get(out.id)
+            self.name = deck["name"]
+
             # make sure we clean up reset hook when manually exiting
             gui_hooks.state_did_reset.remove(self.onReset)
-            if self.mw.state == "deckBrowser":
-                self.mw.deckBrowser.refresh()
-            gui_hooks.sidebar_should_refresh_decks()
+
             QDialog.accept(self)
+
+        add_deck_dialog(mw=self.mw, parent=self, default_text=default, success=success)
