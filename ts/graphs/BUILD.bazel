@@ -20,6 +20,7 @@ ts_library(
         "GraphsPage",
         "lib",
         "//ts/lib",
+        "//ts/sveltelib",
         "@npm//svelte",
         "@npm//svelte2tsx",
     ],
@@ -32,6 +33,7 @@ ts_library(
         exclude = ["index.ts"],
     ),
     deps = [
+        "//ts/sveltelib",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "@npm//@types/d3",
@@ -59,6 +61,7 @@ esbuild(
     output_css = True,
     visibility = ["//visibility:public"],
     deps = [
+        "//ts/sveltelib",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/lib:fluent_proto",
