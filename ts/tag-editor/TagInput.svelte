@@ -87,4 +87,6 @@
         on:paste={onPaste} />
 </label>
 
-<TagAutocomplete {name} />
+{#if input}
+    <TagAutocomplete {name} {input} />
+{/if}

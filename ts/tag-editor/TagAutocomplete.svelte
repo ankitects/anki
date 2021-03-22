@@ -2,23 +2,23 @@
     import { onMount } from "svelte";
 
     export let name: string;
+    export let input: HTMLInputElement;
 
     let menu: HTMLDivElement;
 
     const tagSuggestions = ["en::idioms", "anki::functionality", "math"];
 
     onMount(() => {
-        const popover = new bootstrap.Popover(menu, {
+        const popover = new bootstrap.Popover(input, {
             trigger: "manual",
-            title: "foo",
-            content: "test",
+            content: menu,
         });
 
-        console.log(name);
         popover.show();
     });
 </script>
 
 <div bind:this={menu} class="dropdown-menu">
+    <span>{name}</span>:
     {#each tagSuggestions as tag}<span class="dropdown-item">{tag}</span>{/each}
 </div>
