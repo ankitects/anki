@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
+    import type { Writable } from "svelte/store";
 
     import InputBox from "./InputBox.svelte";
 
@@ -12,45 +12,29 @@
         Custom = 3,
     }
 
-    type UpdateEventMap = {
-        update: { days: number; search: string; searchRange: SearchRange };
-    };
-
     export let i18n: I18n;
-    export let active: boolean;
+    export let loading: boolean;
 
-    export let days: number;
-    export let search: string;
+    export let days: Writable<number>;
+    export let search: Writable<string>;
 
-    const dispatch = createEventDispatcher<UpdateEventMap>();
-
-    let revlogRange = daysToRevlogRange(days);
-    let searchRange: SearchRange =
-        search === "deck:current"
+    let revlogRange = daysToRevlogRange($days);
+    let searchRange =
+        $search === "deck:current"
             ? SearchRange.Deck
-            : search === ""
+            : $search === ""
             ? SearchRange.Collection
             : SearchRange.Custom;
 
-    let displayedSearch = search;
-
-    const update = () => {
-        dispatch("update", {
-            days: days,
-            search: search,
-            searchRange: searchRange,
-        });
-    };
+    let displayedSearch = $search;
 
     $: {
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
-                search = displayedSearch = "deck:current";
-                update();
+                $search = displayedSearch = "deck:current";
                 break;
             case SearchRange.Collection:
-                search = displayedSearch = "";
-                update();
+                $search = displayedSearch = "";
                 break;
         }
     }
@@ -58,23 +42,20 @@
     $: {
         switch (revlogRange as RevlogRange) {
             case RevlogRange.Year:
-                days = 365;
-                update();
+                $days = 365;
                 break;
             case RevlogRange.All:
-                days = 0;
-                update();
+                $days = 0;
                 break;
         }
     }
 
-    const searchKeyUp = (e: KeyboardEvent) => {
+    function searchKeyUp(event: KeyboardEvent): void {
         // fetch data on enter
-        if (e.key == "Enter") {
-            search = displayedSearch;
-            update();
+        if (event.code === "Enter") {
+            $search = displayedSearch;
         }
-    };
+    }
 
     const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
     const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
@@ -117,7 +98,7 @@
 
         opacity: 0;
 
-        &.active {
+        &.loading {
             opacity: 0.5;
             transition: opacity 1s;
         }
@@ -129,7 +110,7 @@
 </style>
 
 <div class="range-box">
-    <div class="spin" class:active>◐</div>
+    <div class="spin" class:loading>◐</div>
 
     <InputBox>
         <label>

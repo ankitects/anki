@@ -43,6 +43,10 @@
                 display: none;
             }
         }
+
+        &:focus {
+            outline: 0;
+        }
     }
 
     h1 {
@@ -57,7 +61,7 @@
     }
 </style>
 
-<div class="graph">
+<div class="graph" tabindex="-1">
     <h1>{title}</h1>
 
     {#if subtitle}

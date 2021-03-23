@@ -67,6 +67,7 @@ def svelte_check(name = "svelte_check", srcs = []):
         ],
         data = [
             "//ts:tsconfig.json",
+            "//ts/sveltelib",
             "//ts/lib",
             "//ts/lib:backend_proto",
             "@npm//sass",

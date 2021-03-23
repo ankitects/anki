@@ -2,82 +2,49 @@
     import "../sass/core.css";
 
     import type { SvelteComponent } from "svelte/internal";
+    import { writable } from "svelte/store";
     import type { I18n } from "anki/i18n";
-    import type { PreferenceStore } from "./preferences";
-    import type pb from "anki/backend_proto";
-    import { getGraphData, RevlogRange, daysToRevlogRange } from "./graph-helpers";
-    import { getPreferences } from "./preferences";
     import { bridgeCommand } from "anki/bridgecommand";
+
+    import WithGraphData from "./WithGraphData.svelte";
 
     export let i18n: I18n;
     export let nightMode: boolean;
     export let graphs: SvelteComponent[];
 
-    export let search: string;
-    export let days: number;
+    export let initialSearch: string;
+    export let initialDays: number;
     export let controller: SvelteComponent | null;
 
-    let active = false;
-    let sourceData: pb.BackendProto.GraphsOut | null = null;
-    let preferences: PreferenceStore | null = null;
-    let revlogRange: RevlogRange;
+    const search = writable(initialSearch);
+    const days = writable(initialDays);
 
-    const preferencesPromise = getPreferences();
-
-    const refreshWith = async (searchNew: string, days: number) => {
-        search = searchNew;
-
-        active = true;
-        try {
-            [sourceData, preferences] = await Promise.all([
-                getGraphData(search, days),
-                preferencesPromise,
-            ]);
-            revlogRange = daysToRevlogRange(days);
-        } catch (e) {
-            sourceData = null;
-            alert(e);
-        }
-        active = false;
-    };
-
-    const refresh = (event: CustomEvent) => {
-        refreshWith(event.detail.search, event.detail.days);
-    };
-
-    refreshWith(search, days);
-
-    const browserSearch = (event: CustomEvent) => {
-        const query = `${search} ${event.detail.query}`;
-        bridgeCommand(`browserSearch:${query}`);
-    };
+    function browserSearch(event: CustomEvent) {
+        bridgeCommand(`browserSearch: ${$search} ${event.detail.query}`);
+    }
 </script>
 
 <style lang="scss">
-    @media only screen and (max-width: 600px) {
-        .base {
+    div {
+        @media only screen and (max-width: 600px) {
             font-size: 12px;
         }
     }
-
-    .no-focus-outline:focus {
-        outline: 0;
-    }
 </style>
 
-<div class="base">
-    {#if controller}
-        <svelte:component
-            this={controller}
-            {i18n}
-            {search}
-            {days}
-            {active}
-            on:update={refresh} />
-    {/if}
+<div>
+    <WithGraphData
+        {search}
+        {days}
+        let:loading
+        let:sourceData
+        let:preferences
+        let:revlogRange>
+        {#if controller}
+            <svelte:component this={controller} {i18n} {search} {days} {loading} />
+        {/if}
 
-    {#if sourceData}
-        <div tabindex="-1" class="no-focus-outline">
+        {#if sourceData && preferences && revlogRange}
             {#each graphs as graph}
                 <svelte:component
                     this={graph}
@@ -88,6 +55,6 @@
                     {nightMode}
                     on:search={browserSearch} />
             {/each}
-        </div>
-    {/if}
+        {/if}
+    </WithGraphData>
 </div>

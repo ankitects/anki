@@ -40,8 +40,8 @@ export function graphs(
                 i18n,
                 graphs,
                 nightMode,
-                search,
-                days,
+                initialSearch: search,
+                initialDays: days,
                 controller,
             },
         });
