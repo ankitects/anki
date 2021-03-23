@@ -31,8 +31,11 @@ DeckDict = Dict[str, Any]
 DeckConfigDict = Dict[str, Any]
 
 DeckID = NewType("DeckID", int)
+DeckConfID = NewType("DeckConfID", int)
+
 default_deck_id = DeckID(1)
-default_deck_conf_id = 1
+default_deck_conf_id = DeckConfID(1)
+
 
 
 class DecksDictProxy:
@@ -123,7 +126,7 @@ class DeckManager:
         self,
         name: str,
         create: bool = True,
-        type: int = 0,
+        type: DeckConfID = DeckConfID(0),
     ) -> Optional[DeckID]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
@@ -318,7 +321,7 @@ class DeckManager:
         deck = self.get(did, default=False)
         assert deck
         if "conf" in deck:
-            dcid = int(deck["conf"])  # may be a string
+            dcid = DeckConfID(int(deck["conf"]))  # may be a string
             conf = self.get_config(dcid)
             if not conf:
                 # fall back on default
@@ -328,7 +331,7 @@ class DeckManager:
         # dynamic decks have embedded conf
         return deck
 
-    def get_config(self, conf_id: int) -> Optional[DeckConfigDict]:
+    def get_config(self, conf_id: DeckConfID) -> Optional[DeckConfigDict]:
         try:
             return from_json_bytes(self.col._backend.get_deck_config_legacy(conf_id))
         except NotFoundError:
@@ -353,10 +356,10 @@ class DeckManager:
 
     def add_config_returning_id(
         self, name: str, clone_from: Optional[DeckConfigDict] = None
-    ) -> int:
+    ) -> DeckConfID:
         return self.add_config(name, clone_from)["id"]
 
-    def remove_config(self, id: int) -> None:
+    def remove_config(self, id: DeckConfID) -> None:
         "Remove a configuration and update all decks using it."
         self.col.modSchema(check=True)
         for g in self.all():
@@ -368,7 +371,7 @@ class DeckManager:
                 self.save(g)
         self.col._backend.remove_deck_config(id)
 
-    def setConf(self, grp: DeckConfigDict, id: int) -> None:
+    def setConf(self, grp: DeckConfigDict, id: DeckConfID) -> None:
         grp["conf"] = id
         self.save(grp)
 
