@@ -19,6 +19,11 @@ from anki.utils import (
     timestampID,
 )
 
+type_tagsMapped = Tuple[int, int, str, str, int, str, str]
+type_tagsModified = Tuple[int, int, str, str, int, str]
+type_tagsElse = Tuple[int, int, str, int, str]
+type_udpates = Union[type_tagsMapped, type_tagsModified, type_tagsElse]
+
 # Stores a list of fields, tags and deck
 ######################################################################
 
@@ -135,7 +140,7 @@ class NoteImporter(Importer):
         self._fmap = self.col.models.fieldMap(self.model)
         self._nextID = timestampID(self.col.db, "notes")
         # loop through the notes
-        updates = []
+        updates: List[type_udpates] = []
         updateLog = []
         new = []
         self._ids: List[int] = []
@@ -203,9 +208,9 @@ class NoteImporter(Importer):
                             found = False
             # newly add
             if not found:
-                data = self.newData(n)
-                if data:
-                    new.append(data)
+                new_data = self.newData(n)
+                if new_data:
+                    new.append(new_data)
                     # note that we've seen this note once already
                     firsts[fld0] = True
         self.addNew(new)
@@ -235,7 +240,9 @@ class NoteImporter(Importer):
         self.log.extend(updateLog)
         self.total = len(self._ids)
 
-    def newData(self, n: ForeignNote) -> Optional[list]:
+    def newData(
+        self, n: ForeignNote
+    ) -> Tuple[int, str, int, int, int, str, str, str, int, int, str]:
         id = self._nextID
         self._nextID += 1
         self._ids.append(id)
@@ -243,7 +250,7 @@ class NoteImporter(Importer):
         # note id for card updates later
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
-        return [
+        return (
             id,
             guid64(),
             self.model["id"],
@@ -255,28 +262,33 @@ class NoteImporter(Importer):
             0,
             0,
             "",
-        ]
+        )
 
-    def addNew(self, rows: List[List[Union[int, str]]]) -> None:
+    def addNew(
+        self,
+        rows: List[Tuple[int, str, int, int, int, str, str, str, int, int, str]],
+    ) -> None:
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", rows
         )
 
-    def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
+    def updateData(
+        self, n: ForeignNote, id: int, sflds: List[str]
+    ) -> Optional[type_udpates]:
         self._ids.append(id)
         self.processFields(n, sflds)
         if self._tagsMapped:
             tags = self.col.tags.join(n.tags)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
+            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags)
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
             tagList = self.col.tags.split(tags) + self.tagModified.split()
             tags = self.col.tags.join(tagList)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr]
+            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr)
         else:
-            return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
+            return (intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
 
-    def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
+    def addUpdates(self, rows: List[type_udpates]) -> None:
         changes = self.col.db.scalar("select total_changes()")
         if self._tagsMapped:
             self.col.db.executemany(
