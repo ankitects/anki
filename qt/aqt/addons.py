@@ -46,6 +46,10 @@ from aqt.utils import (
 )
 
 
+class AbortAddonImport(Exception):
+    """Add-ons may raise this exception to abort their import"""
+
+
 @dataclass
 class InstallOk:
     name: str
@@ -211,6 +215,8 @@ class AddonManager:
             self.dirty = True
             try:
                 __import__(addon.dir_name)
+            except AbortAddonImport:
+                pass
             except:
                 showWarning(
                     tr(
