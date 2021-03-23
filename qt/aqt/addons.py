@@ -47,7 +47,8 @@ from aqt.utils import (
 
 
 class AbortAddonImport(Exception):
-    """Add-ons may raise this exception to abort their import"""
+    """If raised during add-on import, Anki will silently ignore this exception.
+    This allows you to terminate loading without an error being shown."""
 
 
 @dataclass
