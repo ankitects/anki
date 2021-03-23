@@ -29,10 +29,11 @@ QUEUE_TYPE_DAY_LEARN_RELEARN = CardQueue(3)
 QUEUE_TYPE_PREVIEW = CardQueue(4)
 
 # Card types
-CARD_TYPE_NEW = 0
-CARD_TYPE_LRN = 1
-CARD_TYPE_REV = 2
-CARD_TYPE_RELEARNING = 3
+CardType = NewType("CardType", int)
+CARD_TYPE_NEW = CardType(0)
+CARD_TYPE_LRN = CardType(1)
+CARD_TYPE_REV = CardType(2)
+CARD_TYPE_RELEARNING = CardType(3)
 
 # removal types
 REM_CARD = 0
