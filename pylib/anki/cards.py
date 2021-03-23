@@ -40,6 +40,7 @@ class Card:
     did: anki.decks.DeckID
     odid: anki.decks.DeckID
     queue: CardQueue
+    type: CardType
 
     def __init__(
         self, col: anki.collection.Collection, id: Optional[CardID] = None
@@ -69,7 +70,7 @@ class Card:
         self.ord = c.template_idx
         self.mod = c.mtime_secs
         self.usn = c.usn
-        self.type = c.ctype
+        self.type = CardType(c.ctype)
         self.queue = CardQueue(c.queue)
         self.due = c.due
         self.ivl = c.interval

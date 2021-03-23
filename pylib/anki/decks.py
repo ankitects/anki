@@ -37,7 +37,6 @@ default_deck_id = DeckID(1)
 default_deck_conf_id = DeckConfID(1)
 
 
-
 class DecksDictProxy:
     def __init__(self, col: anki.collection.Collection):
         self._col = col.weakref()

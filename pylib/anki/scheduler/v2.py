@@ -722,7 +722,8 @@ limit ?"""
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today + card.ivl
         card.factor = conf["initialFactor"]
-        card.type = card.queue = QUEUE_TYPE_REV
+        card.type = CARD_TYPE_REV
+        card.queue = QUEUE_TYPE_REV
 
     def _logLrn(
         self,
