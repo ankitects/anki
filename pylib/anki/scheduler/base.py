@@ -91,10 +91,10 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Filtered deck handling
     ##########################################################################
 
-    def rebuild_filtered_deck(self, deck_id: int) -> OpChangesWithCount:
+    def rebuild_filtered_deck(self, deck_id: DeckID) -> OpChangesWithCount:
         return self.col._backend.rebuild_filtered_deck(deck_id)
 
-    def empty_filtered_deck(self, deck_id: int) -> OpChanges:
+    def empty_filtered_deck(self, deck_id: DeckID) -> OpChanges:
         return self.col._backend.empty_filtered_deck(deck_id)
 
     def get_or_create_filtered_deck(self, deck_id: DeckID) -> FilteredDeckForUpdate:
@@ -199,10 +199,10 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             shift_existing=shift_existing,
         )
 
-    def randomizeCards(self, did: int) -> None:
+    def randomizeCards(self, did: DeckID) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=True)
 
-    def orderCards(self, did: int) -> None:
+    def orderCards(self, did: DeckID) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=False)
 
     def resortConf(self, conf: DeckConfigDict) -> None:
@@ -213,7 +213,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did: Optional[int] = None) -> None:
+    def maybeRandomizeDeck(self, did: Optional[DeckID] = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)

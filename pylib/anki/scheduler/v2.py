@@ -13,7 +13,7 @@ import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card, CardID
 from anki.consts import *
-from anki.decks import DeckConfigDict, DeckDict
+from anki.decks import DeckConfigDict, DeckDict, DeckID
 from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.utils import ids2str, intTime
@@ -75,7 +75,9 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _reset_counts(self) -> None:
         tree = self.deck_due_tree(self.col.decks.selected())
-        node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
+        node = self.col.decks.find_deck_in_tree(
+            tree, DeckID(int(self.col.conf["curDeck"]))
+        )
         if not node:
             # current deck points to a missing deck
             self.newCount = 0
@@ -210,7 +212,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Optional[Callable[[DeckDict], int]] = None
+        self, did: DeckID, fn: Optional[Callable[[DeckDict], int]] = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -225,7 +227,7 @@ class Scheduler(SchedulerBaseWithLegacy):
                 lim = min(rem, lim)
         return lim
 
-    def _newForDeck(self, did: int, lim: int) -> int:
+    def _newForDeck(self, did: DeckID, lim: int) -> int:
         "New count for a single deck."
         if not lim:
             return 0
@@ -788,7 +790,7 @@ limit ?"""
         if card.odid:
             card.did = card.odid
             card.odue = 0
-            card.odid = 0
+            card.odid = DeckID(0)
 
     def _restorePreviewCard(self, card: Card) -> None:
         assert card.odid

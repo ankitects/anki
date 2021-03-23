@@ -52,7 +52,7 @@ from anki.collection import (
     UndoResult,
     UndoStatus,
 )
-from anki.decks import DeckDict
+from anki.decks import DeckDict, DeckID
 from anki.hooks import runHook
 from anki.notes import NoteID
 from anki.sound import AVTag, SoundOrVideoTag
@@ -518,7 +518,7 @@ class AnkiQt(QMainWindow):
         except Exception as e:
             if "FileTooNew" in str(e):
                 showWarning(
-                    "This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
+                    "This profile requires a newer version of Anki to open. DeckID you forget to use the Downgrade button prior to switching Anki versions?"
                 )
             else:
                 showWarning(
@@ -1382,7 +1382,7 @@ title="%s" %s>%s</button>""" % (
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did: Optional[int] = None) -> None:
+    def onExport(self, did: Optional[DeckID] = None) -> None:
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)

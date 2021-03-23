@@ -19,6 +19,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 import anki.collection
 from anki.collection import OpChangesWithCount
+from anki.decks import DeckID
 from anki.notes import NoteID
 from anki.utils import ids2str
 
@@ -49,7 +50,7 @@ class TagManager:
     def clear_unused_tags(self) -> OpChangesWithCount:
         return self.col._backend.clear_unused_tags()
 
-    def byDeck(self, did: int, children: bool = False) -> List[str]:
+    def byDeck(self, did: DeckID, children: bool = False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = f"{basequery} AND c.did=?"
