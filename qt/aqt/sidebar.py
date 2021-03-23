@@ -1080,6 +1080,11 @@ class SidebarTreeView(QTreeView):
             menu.addAction(
                 tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search
             )
+        elif item.item_type == SidebarItemType.SAVED_SEARCH:
+            menu.addAction(
+                tr(TR.BROWSING_UPDATE_SAVED_SEARCH),
+                lambda: self.update_saved_search(item),
+            )
 
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
@@ -1218,6 +1223,30 @@ class SidebarTreeView(QTreeView):
     def _set_saved_searches(self, searches: Dict[str, str]) -> None:
         self.col.set_config(self._saved_searches_key, searches)
 
+    def _get_current_search(self) -> Optional[str]:
+        try:
+            return self.col.build_search_string(
+                self.browser.form.searchEdit.lineEdit().text()
+            )
+        except InvalidInput as e:
+            show_invalid_search_error(e)
+            return None
+
+    def _save_search(self, name: str, search: str, update: bool = False) -> None:
+        conf = self._get_saved_searches()
+        if (
+            not update
+            and name in conf
+            and not askUser(tr(TR.BROWSING_CONFIRM_SAVED_SEARCH_OVERWRITE, name=name))
+        ):
+            return
+        conf[name] = search
+        self._set_saved_searches(conf)
+        self.refresh(
+            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
+            and item.name == name
+        )
+
     def remove_saved_searches(self, _item: SidebarItem) -> None:
         selected = self._selected_saved_searches()
         conf = self._get_saved_searches()
@@ -1246,27 +1275,17 @@ class SidebarTreeView(QTreeView):
         )
 
     def save_current_search(self) -> None:
-        try:
-            filt = self.col.build_search_string(
-                self.browser.form.searchEdit.lineEdit().text()
-            )
-        except InvalidInput as e:
-            show_invalid_search_error(e)
+        if (search := self._get_current_search()) is None:
             return
         name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
         if not name:
             return
-        conf = self._get_saved_searches()
-        if name in conf and not askUser(
-            tr(TR.BROWSING_CONFIRM_SAVED_SEARCH_OVERWRITE, name=name)
-        ):
+        self._save_search(name, search)
+
+    def update_saved_search(self, item: SidebarItem) -> None:
+        if (search := self._get_current_search()) is None:
             return
-        conf[name] = filt
-        self._set_saved_searches(conf)
-        self.refresh(
-            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
-            and item.name == name
-        )
+        self._save_search(item.name, search, update=True)
 
     # Notetypes and templates
     ####################################
