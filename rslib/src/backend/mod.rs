@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod adding;
-mod browser_rows;
 mod card;
 mod cardrendering;
 mod collection;
@@ -25,7 +24,6 @@ mod sync;
 mod tags;
 
 use self::{
-    browser_rows::BrowserRowsService,
     card::CardsService,
     cardrendering::CardRenderingService,
     collection::CollectionService,
@@ -139,9 +137,6 @@ impl Backend {
                 pb::ServiceIndex::I18n => I18nService::run_method(self, method, input),
                 pb::ServiceIndex::Collection => CollectionService::run_method(self, method, input),
                 pb::ServiceIndex::Cards => CardsService::run_method(self, method, input),
-                pb::ServiceIndex::BrowserRows => {
-                    BrowserRowsService::run_method(self, method, input)
-                }
             })
             .map_err(|err| {
                 let backend_err = anki_error_to_proto_error(err, &self.i18n);

@@ -1,15 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::Backend;
-use crate::{backend_proto as pb, browser_rows, prelude::*};
-pub(super) use pb::browserrows_service::Service as BrowserRowsService;
-
-impl BrowserRowsService for Backend {
-    fn browser_row_for_card(&self, input: pb::CardId) -> Result<pb::BrowserRow> {
-        self.with_col(|col| col.browser_row_for_card(input.cid.into()).map(Into::into))
-    }
-}
+use crate::{backend_proto as pb, browser_rows};
 
 impl From<browser_rows::Row> for pb::BrowserRow {
     fn from(row: browser_rows::Row) -> Self {
