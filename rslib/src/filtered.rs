@@ -2,10 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 pub use crate::backend_proto::{
-    deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
-    DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
+    deck_kind::Kind as DeckKind, Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto,
+    FilteredDeck, NormalDeck,
 };
 use crate::decks::{Deck, DeckID};
+use crate::decks::{FilteredSearchOrder, FilteredSearchTerm};
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,

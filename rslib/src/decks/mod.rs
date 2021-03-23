@@ -7,8 +7,9 @@ mod tree;
 pub(crate) mod undo;
 
 pub use crate::backend_proto::{
-    deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
-    DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
+    deck_kind::Kind as DeckKind,
+    filtered_deck::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
+    Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto, FilteredDeck, NormalDeck,
 };
 use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
