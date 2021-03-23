@@ -9,6 +9,7 @@ import aqt.forms
 from anki.collection import OpChanges, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.decks import DeckID
+from anki.models import NoteTypeID
 from anki.notes import DuplicateOrEmptyResult, Note, NoteID
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
@@ -65,7 +66,7 @@ class AddCards(QDialog):
         self.notetype_chooser = NoteTypeChooser(
             mw=self.mw,
             widget=self.form.modelArea,
-            starting_notetype_id=defaults.notetype_id,
+            starting_notetype_id=NoteTypeID(defaults.notetype_id),
             on_button_activated=self.show_notetype_selector,
             on_notetype_changed=self.on_notetype_change,
         )
@@ -110,7 +111,7 @@ class AddCards(QDialog):
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
 
-    def on_notetype_change(self, notetype_id: NoteID) -> None:
+    def on_notetype_change(self, notetype_id: NoteTypeID) -> None:
         # need to adjust current deck?
         if deck_id := self.mw.col.default_deck_for_notetype(notetype_id):
             self.deck_chooser.selected_deck_id = deck_id

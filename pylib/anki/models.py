@@ -8,7 +8,7 @@ import pprint
 import sys
 import time
 import traceback
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -35,6 +35,7 @@ NoteTypeNameIDUseCount = _pb.NoteTypeNameIDUseCount
 NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 Template = Dict[str, Union[str, int, None]]
+NoteTypeID = NewType("NoteTypeID", int)
 
 
 class ModelsDictProxy:
@@ -47,7 +48,7 @@ class ModelsDictProxy:
 
     def __getitem__(self, item: Any) -> Any:
         self._warn()
-        return self._col.models.get(int(item))
+        return self._col.models.get(NoteTypeID(int(item)))
 
     def __setitem__(self, key: str, val: Any) -> None:
         self._warn()
@@ -114,16 +115,16 @@ class ModelManager:
     # need to cache responses from the backend. Please do not
     # access the cache directly!
 
-    _cache: Dict[int, NoteType] = {}
+    _cache: Dict[NoteTypeID, NoteType] = {}
 
     def _update_cache(self, nt: NoteType) -> None:
         self._cache[nt["id"]] = nt
 
-    def _remove_from_cache(self, ntid: int) -> None:
+    def _remove_from_cache(self, ntid: NoteTypeID) -> None:
         if ntid in self._cache:
             del self._cache[ntid]
 
-    def _get_cached(self, ntid: int) -> Optional[NoteType]:
+    def _get_cached(self, ntid: NoteTypeID) -> Optional[NoteType]:
         return self._cache.get(ntid)
 
     def _clear_cache(self) -> None:
@@ -143,11 +144,11 @@ class ModelManager:
     def allNames(self) -> List[str]:
         return [n.name for n in self.all_names_and_ids()]
 
-    def ids(self) -> List[int]:
-        return [n.id for n in self.all_names_and_ids()]
+    def ids(self) -> List[NoteTypeID]:
+        return [NoteTypeID(n.id) for n in self.all_names_and_ids()]
 
     # only used by importing code
-    def have(self, id: int) -> bool:
+    def have(self, id: NoteTypeID) -> bool:
         if isinstance(id, str):
             id = int(id)
         return any(True for e in self.all_names_and_ids() if e.id == id)
@@ -162,7 +163,7 @@ class ModelManager:
             m = self.get(self.col.conf["curModel"])
         if m:
             return m
-        return self.get(self.all_names_and_ids()[0].id)
+        return self.get(NoteTypeID(self.all_names_and_ids()[0].id))
 
     def setCurrent(self, m: NoteType) -> None:
         self.col.conf["curModel"] = m["id"]
@@ -170,13 +171,13 @@ class ModelManager:
     # Retrieving and creating models
     #############################################################
 
-    def id_for_name(self, name: str) -> Optional[int]:
+    def id_for_name(self, name: str) -> Optional[NoteTypeID]:
         try:
-            return self.col._backend.get_notetype_id_by_name(name)
+            return NoteTypeID(self.col._backend.get_notetype_id_by_name(name))
         except NotFoundError:
             return None
 
-    def get(self, id: int) -> Optional[NoteType]:
+    def get(self, id: NoteTypeID) -> Optional[NoteType]:
         "Get model with ID, or None."
         # deal with various legacy input types
         if id is None:
@@ -195,7 +196,7 @@ class ModelManager:
 
     def all(self) -> List[NoteType]:
         "Get all models."
-        return [self.get(nt.id) for nt in self.all_names_and_ids()]
+        return [self.get(NoteTypeID(nt.id)) for nt in self.all_names_and_ids()]
 
     def byName(self, name: str) -> Optional[NoteType]:
         "Get model with NAME."
@@ -222,10 +223,10 @@ class ModelManager:
 
     def remove_all_notetypes(self) -> None:
         for nt in self.all_names_and_ids():
-            self._remove_from_cache(nt.id)
+            self._remove_from_cache(NoteTypeID(nt.id))
             self.col._backend.remove_notetype(nt.id)
 
-    def remove(self, id: int) -> None:
+    def remove(self, id: NoteTypeID) -> None:
         "Modifies schema."
         self._remove_from_cache(id)
         self.col._backend.remove_notetype(id)
@@ -257,7 +258,7 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def nids(self, ntid: int) -> List[anki.notes.NoteID]:
+    def nids(self, ntid: NoteTypeID) -> List[anki.notes.NoteID]:
         "Note ids for M."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
@@ -403,7 +404,7 @@ class ModelManager:
         self.reposition_template(m, template, idx)
         self.save(m)
 
-    def template_use_count(self, ntid: int, ord: int) -> int:
+    def template_use_count(self, ntid: NoteTypeID, ord: int) -> int:
         return self.col.db.scalar(
             """
 select count() from cards, notes where cards.nid = notes.id
