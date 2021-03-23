@@ -98,7 +98,7 @@ class Scheduler(V2):
         if card:
             idx = self.countIdx(card)
             if idx == QUEUE_TYPE_LRN:
-                counts[QUEUE_TYPE_LRN] += card.left // 1000
+                counts[int(QUEUE_TYPE_LRN)] += card.left // 1000
             else:
                 counts[idx] += 1
 
@@ -303,7 +303,8 @@ limit %d"""
             card.odid = DeckID(0)
             # if rescheduling is off, it needs to be set back to a new card
             if not resched and not lapse:
-                card.queue = card.type = CARD_TYPE_NEW
+                card.queue = QUEUE_TYPE_NEW
+                card.type = CARD_TYPE_NEW
                 card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card: Card) -> int:

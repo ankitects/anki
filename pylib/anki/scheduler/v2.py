@@ -805,7 +805,7 @@ limit ?"""
             else:
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
-            card.queue = card.type
+            card.queue = CardQueue(card.type)
 
     # Answering a review card
     ##########################################################################
