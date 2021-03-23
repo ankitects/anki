@@ -108,7 +108,6 @@ enum ServiceIndex {
   SERVICE_INDEX_I18N = 12;
   SERVICE_INDEX_COLLECTION = 13;
   SERVICE_INDEX_CARDS = 14;
-  SERVICE_INDEX_BROWSER_ROWS = 15;
 }
 
 service SchedulingService {
@@ -241,6 +240,7 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
+  rpc BrowserRowForCard(CardID) returns (BrowserRow);
 }
 
 service StatsService {
@@ -281,10 +281,6 @@ service CardsService {
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
   rpc SetDeck(SetDeckIn) returns (OpChanges);
   rpc SetFlag(SetFlagIn) returns (OpChanges);
-}
-
-service BrowserRowsService {
-  rpc BrowserRowForCard(CardID) returns (BrowserRow);
 }
 
 // Protobuf stored in .anki2 files
