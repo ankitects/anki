@@ -5,6 +5,7 @@ import os
 import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
+from anki.cards import CardID
 from anki.collection import Collection
 from anki.consts import *
 from anki.decks import DeckManager
@@ -306,7 +307,7 @@ class Anki2Importer(Importer):
         if self.source_needs_upgrade:
             self.src.upgrade_to_v2_scheduler()
         # build map of (guid, ord) -> cid and used id cache
-        self._cards: Dict[Tuple[str, int], int] = {}
+        self._cards: Dict[Tuple[str, int], CardID] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
             "select f.guid, c.ord, c.id from cards c, notes f " "where c.nid = f.id"

@@ -24,6 +24,7 @@ class Note:
     # not currently exposed
     flags = 0
     data = ""
+    id: NoteID
 
     def __init__(
         self,
@@ -122,7 +123,7 @@ class Note:
     def cards(self) -> List[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
 
-    def card_ids(self) -> Sequence[int]:
+    def card_ids(self) -> Sequence[anki.cards.CardID]:
         return self.col.card_ids_of_note(self.id)
 
     def model(self) -> Optional[NoteType]:

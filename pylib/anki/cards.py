@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import List, Optional
+from typing import List, NewType, Optional
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -26,6 +26,9 @@ from anki.sound import AVTag
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
+# types
+CardID = NewType("CardID", int)
+
 
 class Card:
     _note: Optional[Note]
@@ -33,9 +36,10 @@ class Card:
     lastIvl: int
     ord: int
     nid: anki.notes.NoteID
+    id: CardID
 
     def __init__(
-        self, col: anki.collection.Collection, id: Optional[int] = None
+        self, col: anki.collection.Collection, id: Optional[CardID] = None
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None
@@ -56,7 +60,7 @@ class Card:
     def _load_from_backend_card(self, c: _pb.Card) -> None:
         self._render_output = None
         self._note = None
-        self.id = c.id
+        self.id = CardID(c.id)
         self.nid = anki.notes.NoteID(c.note_id)
         self.did = c.deck_id
         self.ord = c.template_idx

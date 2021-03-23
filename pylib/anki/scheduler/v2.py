@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.consts import *
 from anki.decks import DeckConfigDict, DeckDict
 from anki.lang import FormatTimeSpan
@@ -144,7 +144,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _resetNew(self) -> None:
         self._newDids = self.col.decks.active()[:]
-        self._newQueue: List[int] = []
+        self._newQueue: List[CardID] = []
         self._updateNewCardRatio()
 
     def _fillNew(self, recursing: bool = False) -> bool:
@@ -301,8 +301,8 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
     def _resetLrn(self) -> None:
         self._updateLrnCutoff(force=True)
         self._resetLrnCount()
-        self._lrnQueue: List[Tuple[int, int]] = []
-        self._lrnDayQueue: List[int] = []
+        self._lrnQueue: List[Tuple[int, CardID]] = []
+        self._lrnDayQueue: List[CardID] = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
@@ -397,7 +397,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
     def _resetRev(self) -> None:
-        self._revQueue: List[int] = []
+        self._revQueue: List[CardID] = []
 
     def _fillRev(self, recursing: bool = False) -> bool:
         "True if a review card can be fetched."
@@ -1072,7 +1072,7 @@ limit ?"""
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury: List[int] = []
+        toBury: List[CardID] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)

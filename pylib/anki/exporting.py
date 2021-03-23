@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
+from anki.cards import CardID
 from anki.collection import Collection
 from anki.lang import TR
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
@@ -28,7 +29,7 @@ class Exporter:
         self,
         col: Collection,
         did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        cids: Optional[List[CardID]] = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did
