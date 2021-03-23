@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from anki.cards import CardID
 from anki.collection import Collection
 from anki.consts import *
-from anki.decks import DeckManager
+from anki.decks import DeckID, DeckManager
 from anki.importing.base import Importer
 from anki.lang import TR
 from anki.notes import NoteID
@@ -31,7 +31,7 @@ class Anki2Importer(Importer):
         super().__init__(col, file)
 
         # set later, defined here for typechecking
-        self._decks: Dict[int, int] = {}
+        self._decks: Dict[DeckID, DeckID] = {}
         self.source_needs_upgrade = False
 
     def run(self, media: None = None) -> None:
@@ -256,7 +256,7 @@ class Anki2Importer(Importer):
     # Decks
     ######################################################################
 
-    def _did(self, did: int) -> Any:
+    def _did(self, did: DeckID) -> Any:
         "Given did in src col, return local id."
         # already converted?
         if did in self._decks:

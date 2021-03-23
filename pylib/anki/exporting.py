@@ -14,6 +14,7 @@ from zipfile import ZipFile
 from anki import hooks
 from anki.cards import CardID
 from anki.collection import Collection
+from anki.decks import DeckID
 from anki.lang import TR
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
@@ -28,7 +29,7 @@ class Exporter:
     def __init__(
         self,
         col: Collection,
-        did: Optional[int] = None,
+        did: Optional[DeckID] = None,
         cids: Optional[List[CardID]] = None,
     ) -> None:
         self.col = col.weakref()
@@ -185,7 +186,7 @@ class AnkiExporter(Exporter):
     def key(col: Collection) -> str:
         return col.tr(TR.EXPORTING_ANKI_20_DECK)
 
-    def deckIds(self) -> List[int]:
+    def deckIds(self) -> List[DeckID]:
         if self.cids:
             return self.col.decks.for_card_ids(self.cids)
         elif self.did:

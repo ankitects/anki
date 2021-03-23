@@ -40,7 +40,7 @@ class DeckBrowserContent:
 
 @dataclass
 class RenderDeckNodeContext:
-    current_deck_id: int
+    current_deck_id: DeckID
 
 
 class DeckBrowser:
@@ -101,7 +101,7 @@ class DeckBrowser:
             source, target = arg.split(",")
             self._handle_drag_and_drop(DeckID(int(source)), DeckID(int(target or 0)))
         elif cmd == "collapse":
-            self._collapse(int(arg))
+            self._collapse(DeckID(int(arg)))
         elif cmd == "v2upgrade":
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
@@ -112,7 +112,7 @@ class DeckBrowser:
         return False
 
     def _selDeck(self, did: str) -> None:
-        self.mw.col.decks.select(int(did))
+        self.mw.col.decks.select(DeckID(int(did)))
         self.mw.onOverview()
 
     # HTML generation
@@ -255,13 +255,13 @@ class DeckBrowser:
         a = m.addAction(tr(TR.ACTIONS_OPTIONS))
         qconnect(a.triggered, lambda b, did=did: self._options(DeckID(int(did))))
         a = m.addAction(tr(TR.ACTIONS_EXPORT))
-        qconnect(a.triggered, lambda b, did=did: self._export(int(did)))
+        qconnect(a.triggered, lambda b, did=did: self._export(DeckID(int(did))))
         a = m.addAction(tr(TR.ACTIONS_DELETE))
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckID(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.exec_(QCursor.pos())
 
-    def _export(self, did: int) -> None:
+    def _export(self, did: DeckID) -> None:
         self.mw.onExport(did=did)
 
     def _rename(self, did: DeckID) -> None:
@@ -279,7 +279,7 @@ class DeckBrowser:
         self.mw.col.decks.select(did)
         self.mw.onDeckConf()
 
-    def _collapse(self, did: int) -> None:
+    def _collapse(self, did: DeckID) -> None:
         self.mw.col.decks.collapse(did)
         node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
         if node:
