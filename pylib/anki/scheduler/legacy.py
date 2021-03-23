@@ -3,7 +3,7 @@
 
 from typing import List, Optional, Tuple
 
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
 from anki.decks import DeckConfigDict
 from anki.notes import NoteID
@@ -15,7 +15,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
     "Legacy aliases and helpers. These will go away in the future."
 
     def reschedCards(
-        self, card_ids: List[int], min_interval: int, max_interval: int
+        self, card_ids: List[CardID], min_interval: int, max_interval: int
     ) -> None:
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
@@ -80,7 +80,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids: List[int]) -> None:
+    def remFromDyn(self, cids: List[CardID]) -> None:
         self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
 
     # used by v2 scheduler and some add-ons

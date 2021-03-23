@@ -34,7 +34,7 @@ from dataclasses import dataclass, field
 import anki.latex
 from anki import hooks
 from anki._backend import RustBackend
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
@@ -319,7 +319,7 @@ class Collection:
     # Object creation helpers
     ##########################################################################
 
-    def get_card(self, id: int) -> Card:
+    def get_card(self, id: CardID) -> Card:
         return Card(self, id)
 
     def update_card(self, card: Card) -> None:
@@ -379,7 +379,7 @@ class Collection:
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
-    def remove_notes_by_card(self, card_ids: List[int]) -> None:
+    def remove_notes_by_card(self, card_ids: List[CardID]) -> None:
         if hooks.notes_will_be_deleted.count():
             nids = self.db.list(
                 f"select nid from cards where id in {ids2str(card_ids)}"
@@ -387,8 +387,8 @@ class Collection:
             hooks.notes_will_be_deleted(self, nids)
         self._backend.remove_notes(note_ids=[], card_ids=card_ids)
 
-    def card_ids_of_note(self, note_id: NoteID) -> Sequence[int]:
-        return self._backend.cards_of_note(note_id)
+    def card_ids_of_note(self, note_id: NoteID) -> Sequence[CardID]:
+        return [CardID(id) for id in self._backend.cards_of_note(note_id)]
 
     def defaults_for_adding(
         self, *, current_review_card: Optional[Card]
@@ -447,11 +447,11 @@ class Collection:
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]) -> None:
+    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[CardID]) -> None:
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
-    def set_deck(self, card_ids: Sequence[int], deck_id: int) -> OpChanges:
+    def set_deck(self, card_ids: Sequence[CardID], deck_id: int) -> OpChanges:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
@@ -459,10 +459,10 @@ class Collection:
 
     # legacy
 
-    def remCards(self, ids: List[int], notes: bool = True) -> None:
+    def remCards(self, ids: List[CardID], notes: bool = True) -> None:
         self.remove_cards_and_orphaned_notes(ids)
 
-    def emptyCids(self) -> List[int]:
+    def emptyCids(self) -> List[CardID]:
         print("emptyCids() will go away")
         return []
 
@@ -495,7 +495,7 @@ class Collection:
         query: str,
         order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
-    ) -> Sequence[int]:
+    ) -> Sequence[CardID]:
         """Return card ids matching the provided search.
 
         To programmatically construct a search string, see .build_search_string().
@@ -525,7 +525,9 @@ class Collection:
             mode = _pb.SortOrder(
                 builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
             )
-        return self._backend.search_cards(search=query, order=mode)
+        return [
+            CardID(id) for id in self._backend.search_cards(search=query, order=mode)
+        ]
 
     def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[NoteID]:
         """Return note ids matching the provided search or searches.
@@ -740,7 +742,7 @@ class Collection:
 
         return CollectionStats(self)
 
-    def card_stats(self, card_id: int, include_revlog: bool) -> str:
+    def card_stats(self, card_id: CardID, include_revlog: bool) -> str:
         import anki.stats as st
 
         if include_revlog:
@@ -1033,7 +1035,7 @@ table.review-log {{ {revlog_style} }}
 
     ##########################################################################
 
-    def set_user_flag_for_cards(self, flag: int, cids: Sequence[int]) -> OpChanges:
+    def set_user_flag_for_cards(self, flag: int, cids: Sequence[CardID]) -> OpChanges:
         return self._backend.set_flag(card_ids=cids, flag=flag)
 
     def set_wants_abort(self) -> None:
