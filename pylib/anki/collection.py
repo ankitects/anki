@@ -42,7 +42,7 @@ from anki.decks import DeckID, DeckManager
 from anki.errors import AnkiError, DBError
 from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager, NoteType
+from anki.models import ModelManager, NoteType, NoteTypeID
 from anki.notes import Note, NoteID
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
@@ -406,7 +406,7 @@ class Collection:
             home_deck_of_current_review_card=home_deck,
         )
 
-    def default_deck_for_notetype(self, notetype_id: NoteID) -> Optional[DeckID]:
+    def default_deck_for_notetype(self, notetype_id: NoteTypeID) -> Optional[DeckID]:
         """If 'change deck depending on notetype' is enabled in the preferences,
         return the last deck used with the provided notetype, if any.."""
         if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
@@ -578,7 +578,7 @@ class Collection:
         dupes = []
         fields: Dict[int, int] = {}
 
-        def ordForMid(mid: int) -> int:
+        def ordForMid(mid: NoteTypeID) -> int:
             if mid not in fields:
                 model = self.models.get(mid)
                 for c, f in enumerate(model["flds"]):
