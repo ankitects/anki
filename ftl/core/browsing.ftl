@@ -98,6 +98,7 @@ browsing-target-field = Target field:
 browsing-toggle-mark = Toggle Mark
 browsing-toggle-suspend = Toggle Suspend
 browsing-treat-input-as-regular-expression = Treat input as regular expression
+browsing-update-saved-search = Update with Current Search
 browsing-whole-collection = Whole Collection
 browsing-you-must-have-at-least-one = You must have at least one column.
 browsing-group =
