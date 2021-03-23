@@ -6,6 +6,7 @@ use crate::{collection::Collection, config::SchedulerVersion, err::Result, prelu
 pub mod answering;
 pub mod bury_and_suspend;
 pub(crate) mod congrats;
+mod filtered;
 mod learning;
 pub mod new;
 pub(crate) mod queue;
