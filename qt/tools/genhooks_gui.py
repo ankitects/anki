@@ -365,6 +365,19 @@ hooks = [
         args=["context: aqt.browser.SearchContext"],
         doc="""Allows you to modify the list of returned card ids from a search.""",
     ),
+    Hook(
+        name="browser_did_fetch_row",
+        args=["card_id: int", "row: aqt.browser.CellRow", "columns: Sequence[str]"],
+        doc="""Allows you to add or modify content to a row in the browser.
+        
+        You can mutate the row object to change what is displayed. Any columns the
+        backend did not recognize will be returned as an empty string, and can be
+        replaced with custom content.
+        
+        Columns is a list of string values identifying what each column in the row
+        represents.
+        """,
+    ),
     # Main window states
     ###################
     # these refer to things like deckbrowser, overview and reviewer state,
