@@ -13,7 +13,7 @@ from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union
 from PyQt5.QtCore import Qt
 
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.collection import Config, OpChanges
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
@@ -74,7 +74,7 @@ class Reviewer:
         self.card: Optional[Card] = None
         self.cardQueue: List[Card] = []
         self.hadCardQueue = False
-        self._answeredIds: List[int] = []
+        self._answeredIds: List[CardID] = []
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None

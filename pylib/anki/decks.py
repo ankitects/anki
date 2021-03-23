@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterable, List, NewType, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
+from anki.cards import CardID
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithID
 from anki.consts import *
 from anki.errors import NotFoundError
@@ -406,7 +407,7 @@ class DeckManager:
             return deck["name"]
         return None
 
-    def setDeck(self, cids: List[int], did: int) -> None:
+    def setDeck(self, cids: List[CardID], did: int) -> None:
         self.col.db.execute(
             f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",
             did,
@@ -414,7 +415,7 @@ class DeckManager:
             intTime(),
         )
 
-    def cids(self, did: int, children: bool = False) -> List[int]:
+    def cids(self, did: int, children: bool = False) -> List[CardID]:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]
@@ -422,7 +423,7 @@ class DeckManager:
             dids.append(id)
         return self.col.db.list(f"select id from cards where did in {ids2str(dids)}")
 
-    def for_card_ids(self, cids: List[int]) -> List[int]:
+    def for_card_ids(self, cids: List[CardID]) -> List[int]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
     # Deck selection
