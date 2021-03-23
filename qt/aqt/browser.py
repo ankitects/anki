@@ -200,8 +200,10 @@ class DataModel(QAbstractTableModel):
     def _fetch_row_from_backend(self, cid: int) -> CellRow:
         try:
             return CellRow(*self.col.browser_row_for_card(cid))
-        except:
+        except NotFoundError:
             return CellRow.deleted(len(self.activeCols))
+        except Exception as e:
+            return CellRow.generic(len(self.activeCols), str(e))
 
     def getCard(self, index: QModelIndex) -> Optional[Card]:
         """Try to return the indicated, possibly deleted card."""
