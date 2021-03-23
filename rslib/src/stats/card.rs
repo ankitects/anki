@@ -127,32 +127,28 @@ impl Collection {
     }
 
     fn card_stats_to_string(&mut self, cs: CardStats) -> Result<String> {
-        let offset = self.local_utc_offset_for_user()?;
         let i18n = &self.i18n;
 
         let mut stats = vec![(
             i18n.tr(TR::CardStatsAdded).to_string(),
-            cs.added.date_string(offset),
+            cs.added.date_string(),
         )];
         if let Some(first) = cs.first_review {
             stats.push((
                 i18n.tr(TR::CardStatsFirstReview).into(),
-                first.date_string(offset),
+                first.date_string(),
             ))
         }
         if let Some(last) = cs.latest_review {
             stats.push((
                 i18n.tr(TR::CardStatsLatestReview).into(),
-                last.date_string(offset),
+                last.date_string(),
             ))
         }
 
         match cs.due {
             Due::Time(secs) => {
-                stats.push((
-                    i18n.tr(TR::StatisticsDueDate).into(),
-                    secs.date_string(offset),
-                ));
+                stats.push((i18n.tr(TR::StatisticsDueDate).into(), secs.date_string()));
             }
             Due::Position(pos) => {
                 stats.push((
@@ -203,7 +199,7 @@ impl Collection {
             .revlog
             .into_iter()
             .rev()
-            .map(|e| revlog_to_text(e, i18n, offset))
+            .map(|e| revlog_to_text(e, i18n))
             .collect();
         let revlog_titles = RevlogText {
             time: i18n.tr(TR::CardStatsReviewLogDate).into(),
@@ -226,8 +222,8 @@ impl Collection {
     }
 }
 
-fn revlog_to_text(e: RevlogEntry, i18n: &I18n, offset: FixedOffset) -> RevlogText {
-    let dt = offset.timestamp(e.id.as_secs().0, 0);
+fn revlog_to_text(e: RevlogEntry, i18n: &I18n) -> RevlogText {
+    let dt = Local.timestamp(e.id.as_secs().0, 0);
     let time = dt.format("<b>%Y-%m-%d</b> @ %H:%M").to_string();
     let kind = match e.review_kind {
         RevlogReviewKind::Learning => i18n.tr(TR::CardStatsReviewLogTypeLearn).into(),

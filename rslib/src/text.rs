@@ -10,6 +10,26 @@ use unicode_normalization::{
     char::is_combining_mark, is_nfc, is_nfkd_quick, IsNormalized, UnicodeNormalization,
 };
 
+pub trait Trimming {
+    fn trim(self) -> Self;
+}
+
+impl Trimming for Cow<'_, str> {
+    fn trim(self) -> Self {
+        match self {
+            Cow::Borrowed(text) => text.trim().into(),
+            Cow::Owned(text) => {
+                let trimmed = text.as_str().trim();
+                if trimmed.len() == text.len() {
+                    text.into()
+                } else {
+                    trimmed.to_string().into()
+                }
+            }
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum AVTag {
     SoundOrVideo(String),
@@ -72,6 +92,29 @@ lazy_static! {
                 (.*?)           # 3 - field text
             \[/anki:tts\]
             "#).unwrap();
+
+    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new("<br>|<br />|<div>|\n").unwrap();
+
+    static ref UNPRINTABLE_TAGS: Regex = Regex::new(
+        r"(?xs)
+        \[sound:[^]]+\]
+        |
+        \[\[type:[^]]+\]\]
+    ").unwrap();
+}
+
+pub fn html_to_text_line(html: &str) -> Cow<str> {
+    let mut out: Cow<str> = html.into();
+    if let Cow::Owned(o) = PERSISTENT_HTML_SPACERS.replace_all(&out, " ") {
+        out = o.into();
+    }
+    if let Cow::Owned(o) = UNPRINTABLE_TAGS.replace_all(&out, "") {
+        out = o.into();
+    }
+    if let Cow::Owned(o) = strip_html_preserving_media_filenames(&out) {
+        out = o.into();
+    }
+    out.trim()
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
@@ -95,10 +138,9 @@ pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
 pub fn decode_entities(html: &str) -> Cow<str> {
     if html.contains('&') {
         match htmlescape::decode_html(html) {
-            Ok(text) => text.replace('\u{a0}', " "),
-            Err(e) => format!("{:?}", e),
+            Ok(text) => text.replace('\u{a0}', " ").into(),
+            Err(_) => html.into(),
         }
-        .into()
     } else {
         // nothing to do
         html.into()

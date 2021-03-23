@@ -5,21 +5,32 @@ from __future__ import annotations
 
 import html
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from operator import itemgetter
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
 import aqt
 import aqt.forms
 from anki.cards import Card
-from anki.collection import Collection, Config, OpChanges, SearchNode
+from anki.collection import BrowserRow, Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.stats import CardStats
 from anki.tags import MARKED_TAG
-from anki.utils import htmlToTextLine, ids2str, isMac, isWin
+from anki.utils import ids2str, isMac, isWin
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.card_ops import set_card_deck, set_card_flag
 from aqt.editor import Editor
@@ -91,24 +102,62 @@ class SearchContext:
 # Data model
 ##########################################################################
 
-# temporary cache to avoid hitting the database on redraw
+
 @dataclass
 class Cell:
-    text: str = ""
-    font: Optional[Tuple[str, int]] = None
-    is_rtl: bool = False
+    text: str
+    is_rtl: bool
 
 
-@dataclass
 class CellRow:
-    columns: List[Cell]
-    refreshed_at: float = field(default_factory=time.time)
-    card_flag: int = 0
-    marked: bool = False
-    suspended: bool = False
+    def __init__(
+        self,
+        cells: Generator[Tuple[str, bool], None, None],
+        color: BrowserRow.Color.V,
+        font_name: str,
+        font_size: int,
+    ) -> None:
+        self.refreshed_at: float = time.time()
+        self.cells: Tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
+        self.color: Optional[Tuple[str, str]] = backend_color_to_aqt_color(color)
+        self.font_name: str = font_name or "arial"
+        self.font_size: int = font_size if font_size > 0 else 12
 
     def is_stale(self, threshold: float) -> bool:
         return self.refreshed_at < threshold
+
+    @staticmethod
+    def generic(length: int, cell_text: str) -> CellRow:
+        return CellRow(
+            ((cell_text, False) for cell in range(length)),
+            BrowserRow.COLOR_DEFAULT,
+            "arial",
+            12,
+        )
+
+    @staticmethod
+    def placeholder(length: int) -> CellRow:
+        return CellRow.generic(length, "...")
+
+    @staticmethod
+    def deleted(length: int) -> CellRow:
+        return CellRow.generic(length, tr(TR.BROWSING_ROW_DELETED))
+
+
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str, str]]:
+    if color == BrowserRow.COLOR_MARKED:
+        return colors.MARKED_BG
+    if color == BrowserRow.COLOR_SUSPENDED:
+        return colors.SUSPENDED_BG
+    if color == BrowserRow.COLOR_FLAG_RED:
+        return colors.FLAG1_BG
+    if color == BrowserRow.COLOR_FLAG_ORANGE:
+        return colors.FLAG2_BG
+    if color == BrowserRow.COLOR_FLAG_GREEN:
+        return colors.FLAG3_BG
+    if color == BrowserRow.COLOR_FLAG_BLUE:
+        return colors.FLAG4_BG
+    return None
 
 
 class DataModel(QAbstractTableModel):
@@ -121,73 +170,45 @@ class DataModel(QAbstractTableModel):
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
         self.cards: Sequence[int] = []
-        self.cardObjs: Dict[int, Card] = {}
-        self._row_cache: Dict[int, CellRow] = {}
+        self._rows: Dict[int, CellRow] = {}
         self._last_refresh = 0.0
         # serve stale content to avoid hitting the DB?
         self.block_updates = False
 
-    def getCard(self, index: QModelIndex) -> Optional[Card]:
-        return self._get_card_by_row(index.row())
-
-    def _get_card_by_row(self, row: int) -> Optional[Card]:
-        "None if card is not in DB."
-        id = self.cards[row]
-        if not id in self.cardObjs:
-            try:
-                card = self.col.getCard(id)
-            except NotFoundError:
-                # deleted
-                card = None
-            self.cardObjs[id] = card
-        return self.cardObjs[id]
-
-    # Card and cell data cache
-    ######################################################################
-    # Stopgap until we can fetch this data a row at a time from Rust.
+    def get_id(self, index: QModelIndex) -> int:
+        return self.cards[index.row()]
 
     def get_cell(self, index: QModelIndex) -> Cell:
-        row = self.get_row(index.row())
-        return row.columns[index.column()]
+        return self.get_row(index).cells[index.column()]
 
-    def get_row(self, row: int) -> CellRow:
-        if entry := self._row_cache.get(row):
-            if not self.block_updates and entry.is_stale(self._last_refresh):
+    def get_row(self, index: QModelIndex) -> CellRow:
+        cid = self.get_id(index)
+        if row := self._rows.get(cid):
+            if not self.block_updates and row.is_stale(self._last_refresh):
                 # need to refresh
-                entry = self._build_cell_row(row)
-                self._row_cache[row] = entry
-                return entry
-            else:
-                # return entry, even if it's stale
-                return entry
-        elif self.block_updates:
-            # blank entry until we unblock
-            return CellRow(columns=[Cell(text="...")] * len(self.activeCols))
-        else:
-            # missing entry, need to build
-            entry = self._build_cell_row(row)
-            self._row_cache[row] = entry
-            return entry
+                self._rows[cid] = self._fetch_row_from_backend(cid)
+                return self._rows[cid]
+            # return row, even if it's stale
+            return row
+        if self.block_updates:
+            # blank row until we unblock
+            return CellRow.placeholder(len(self.activeCols))
+        # missing row, need to build
+        self._rows[cid] = self._fetch_row_from_backend(cid)
+        return self._rows[cid]
 
-    def _build_cell_row(self, row: int) -> CellRow:
-        if not (card := self._get_card_by_row(row)):
-            cell = Cell(text=tr(TR.BROWSING_ROW_DELETED))
-            return CellRow(columns=[cell] * len(self.activeCols))
+    def _fetch_row_from_backend(self, cid: int) -> CellRow:
+        try:
+            return CellRow(*self.col.browser_row_for_card(cid))
+        except:
+            return CellRow.deleted(len(self.activeCols))
 
-        return CellRow(
-            columns=[
-                Cell(
-                    text=self._column_data(card, column_type),
-                    font=self._font(card, column_type),
-                    is_rtl=self._is_rtl(card, column_type),
-                )
-                for column_type in self.activeCols
-            ],
-            # should probably make these an enum instead?
-            card_flag=card.user_flag(),
-            marked=card.note().has_tag(MARKED_TAG),
-            suspended=card.queue == QUEUE_TYPE_SUSPENDED,
-        )
+    def getCard(self, index: QModelIndex) -> Optional[Card]:
+        """Try to return the indicated, possibly deleted card."""
+        try:
+            return self.col.getCard(self.get_id(index))
+        except:
+            return None
 
     # Model interface
     ######################################################################
@@ -204,17 +225,16 @@ class DataModel(QAbstractTableModel):
 
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
-            return
+            return QVariant()
         if role == Qt.FontRole:
-            if font := self.get_cell(index).font:
-                qfont = QFont()
-                qfont.setFamily(font[0])
-                qfont.setPixelSize(font[1])
-                return qfont
-            else:
-                return None
-
-        elif role == Qt.TextAlignmentRole:
+            if self.activeCols[index.column()] not in ("question", "answer", "noteFld"):
+                return QVariant()
+            qfont = QFont()
+            row = self.get_row(index)
+            qfont.setFamily(row.font_name)
+            qfont.setPixelSize(row.font_size)
+            return qfont
+        if role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
             if self.activeCols[index.column()] not in (
                 "question",
@@ -227,10 +247,9 @@ class DataModel(QAbstractTableModel):
             ):
                 align |= Qt.AlignHCenter
             return align
-        elif role == Qt.DisplayRole or role == Qt.EditRole:
+        if role in (Qt.DisplayRole, Qt.ToolTipRole):
             return self.get_cell(index).text
-        else:
-            return
+        return QVariant()
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = 0
@@ -238,7 +257,7 @@ class DataModel(QAbstractTableModel):
         if orientation == Qt.Vertical:
             return None
         elif role == Qt.DisplayRole and section < len(self.activeCols):
-            type = self.columnType(section)
+            type = self.activeCols[section]
             txt = None
             for stype, name in self.browser.columns:
                 if type == stype:
@@ -291,8 +310,7 @@ class DataModel(QAbstractTableModel):
         self.browser.mw.progress.start()
         self.saveSelection()
         self.beginResetModel()
-        self.cardObjs = {}
-        self._row_cache = {}
+        self._rows = {}
 
     def endReset(self) -> None:
         self.endResetModel()
@@ -366,8 +384,7 @@ class DataModel(QAbstractTableModel):
     def op_executed(self, op: OpChanges, focused: bool) -> None:
         print("op executed")
         if op.card or op.note or op.deck or op.notetype:
-            # clear card cache
-            self.cardObjs = {}
+            self._rows = {}
         if focused:
             self.redraw_cells()
 
@@ -377,148 +394,6 @@ class DataModel(QAbstractTableModel):
     def end_blocking(self) -> None:
         self.block_updates = False
         self.redraw_cells()
-
-    # Column data
-    ######################################################################
-
-    def columnType(self, column: int) -> str:
-        return self.activeCols[column]
-
-    def time_format(self) -> str:
-        return "%Y-%m-%d"
-
-    def _font(self, card: Card, column_type: str) -> Optional[Tuple[str, int]]:
-        if column_type not in ("question", "answer", "noteFld"):
-            return None
-
-        template = card.template()
-        if not template.get("bfont"):
-            return None
-
-        return (
-            cast(str, template.get("bfont", "arial")),
-            cast(int, template.get("bsize", 12)),
-        )
-
-    # legacy
-    def columnData(self, index: QModelIndex) -> str:
-        col = index.column()
-        type = self.columnType(col)
-        c = self.getCard(index)
-        if not c:
-            return tr(TR.BROWSING_ROW_DELETED)
-        else:
-            return self._column_data(c, type)
-
-    def _column_data(self, card: Card, column_type: str) -> str:
-        type = column_type
-        if type == "question":
-            return self.question(card)
-        elif type == "answer":
-            return self.answer(card)
-        elif type == "noteFld":
-            f = card.note()
-            return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
-        elif type == "template":
-            t = card.template()["name"]
-            if card.model()["type"] == MODEL_CLOZE:
-                t = f"{t} {card.ord + 1}"
-            return cast(str, t)
-        elif type == "cardDue":
-            # catch invalid dates
-            try:
-                t = self._next_due(card)
-            except:
-                t = ""
-            if card.queue < 0:
-                t = f"({t})"
-            return t
-        elif type == "noteCrt":
-            return time.strftime(
-                self.time_format(), time.localtime(card.note().id / 1000)
-            )
-        elif type == "noteMod":
-            return time.strftime(self.time_format(), time.localtime(card.note().mod))
-        elif type == "cardMod":
-            return time.strftime(self.time_format(), time.localtime(card.mod))
-        elif type == "cardReps":
-            return str(card.reps)
-        elif type == "cardLapses":
-            return str(card.lapses)
-        elif type == "noteTags":
-            return " ".join(card.note().tags)
-        elif type == "note":
-            return card.model()["name"]
-        elif type == "cardIvl":
-            if card.type == CARD_TYPE_NEW:
-                return tr(TR.BROWSING_NEW)
-            elif card.type == CARD_TYPE_LRN:
-                return tr(TR.BROWSING_LEARNING)
-            return self.col.format_timespan(card.ivl * 86400)
-        elif type == "cardEase":
-            if card.type == CARD_TYPE_NEW:
-                return tr(TR.BROWSING_NEW)
-            return "%d%%" % (card.factor / 10)
-        elif type == "deck":
-            if card.odid:
-                # in a cram deck
-                return "%s (%s)" % (
-                    self.browser.mw.col.decks.name(card.did),
-                    self.browser.mw.col.decks.name(card.odid),
-                )
-            # normal deck
-            return self.browser.mw.col.decks.name(card.did)
-        else:
-            return ""
-
-    def question(self, c: Card) -> str:
-        return htmlToTextLine(c.q(browser=True))
-
-    def answer(self, c: Card) -> str:
-        if c.template().get("bafmt"):
-            # they have provided a template, use it verbatim
-            c.q(browser=True)
-            return htmlToTextLine(c.a())
-        # need to strip question from answer
-        q = self.question(c)
-        a = htmlToTextLine(c.a())
-        if a.startswith(q):
-            return a[len(q) :].strip()
-        return a
-
-    # legacy
-    def nextDue(self, c: Card, index: QModelIndex) -> str:
-        return self._next_due(c)
-
-    def _next_due(self, card: Card) -> str:
-        date: float
-        if card.odid:
-            return tr(TR.BROWSING_FILTERED)
-        elif card.queue == QUEUE_TYPE_LRN:
-            date = card.due
-        elif card.queue == QUEUE_TYPE_NEW or card.type == CARD_TYPE_NEW:
-            return tr(TR.STATISTICS_DUE_FOR_NEW_CARD, number=card.due)
-        elif card.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
-            card.type == CARD_TYPE_REV and card.queue < 0
-        ):
-            date = time.time() + ((card.due - self.col.sched.today) * 86400)
-        else:
-            return ""
-        return time.strftime(self.time_format(), time.localtime(date))
-
-    # legacy
-    def isRTL(self, index: QModelIndex) -> bool:
-        col = index.column()
-        type = self.columnType(col)
-        c = self.getCard(index)
-        return self._is_rtl(c, type)
-
-    def _is_rtl(self, card: Card, column_type: str) -> bool:
-        if column_type != "noteFld":
-            return False
-
-        nt = card.note().model()
-        return nt["flds"][self.col.models.sortIdx(nt)]["rtl"]
 
 
 # Line painter
@@ -534,27 +409,13 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
-        row = self.model.get_row(index.row())
-        cell = row.columns[index.column()]
-
-        if cell.is_rtl:
+        if self.model.get_cell(index).is_rtl:
             option.direction = Qt.RightToLeft
-
-        if row.card_flag:
-            color = getattr(colors, f"FLAG{row.card_flag}_BG")
-        elif row.marked:
-            color = colors.MARKED_BG
-        elif row.suspended:
-            color = colors.SUSPENDED_BG
-        else:
-            color = None
-
-        if color:
-            brush = QBrush(theme_manager.qcolor(color))
+        if row_color := self.model.get_row(index).color:
+            brush = QBrush(theme_manager.qcolor(row_color))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
-
         return QItemDelegate.paint(self, painter, option, index)
 
 

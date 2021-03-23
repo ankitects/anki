@@ -24,8 +24,8 @@ impl TimestampSecs {
     }
 
     /// YYYY-mm-dd
-    pub(crate) fn date_string(self, offset: FixedOffset) -> String {
-        offset.timestamp(self.0, 0).format("%Y-%m-%d").to_string()
+    pub(crate) fn date_string(self) -> String {
+        Local.timestamp(self.0, 0).format("%Y-%m-%d").to_string()
     }
 
     pub fn local_utc_offset(self) -> FixedOffset {
