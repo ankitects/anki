@@ -62,6 +62,9 @@ pub(crate) enum ConfigKey {
     NextNewCardPosition,
     #[strum(to_string = "schedVer")]
     SchedulerVersion,
+
+    #[strum(to_string = "activeCols")]
+    DesktopBrowserCardColumns,
 }
 
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
@@ -127,6 +130,18 @@ impl Collection {
 
     pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
         self.get_config_default(ConfigKey::BrowserSortKind)
+    }
+
+    pub(crate) fn get_desktop_browser_card_columns(&self) -> Vec<String> {
+        self.get_config_optional(ConfigKey::DesktopBrowserCardColumns)
+            .unwrap_or_else(|| {
+                vec![
+                    "noteFld".to_string(),
+                    "template".to_string(),
+                    "cardDue".to_string(),
+                    "deck".to_string(),
+                ]
+            })
     }
 
     pub(crate) fn get_creation_utc_offset(&self) -> Option<i32> {

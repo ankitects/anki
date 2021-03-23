@@ -78,14 +78,8 @@ fn card_render_required(columns: &[String]) -> bool {
 
 impl Collection {
     pub fn browser_row_for_card(&mut self, id: CardID) -> Result<Row> {
-        let columns: Vec<String> = self.get_config_optional("activeCols").unwrap_or_else(|| {
-            vec![
-                "noteFld".to_string(),
-                "template".to_string(),
-                "cardDue".to_string(),
-                "deck".to_string(),
-            ]
-        });
+        // this is inefficient; we may want to use an enum in the future
+        let columns = self.get_desktop_browser_card_columns();
         let mut context = RowContext::new(self, id, card_render_required(&columns))?;
 
         Ok(Row {
