@@ -38,7 +38,7 @@ from anki.cards import Card, CardID
 from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
-from anki.decks import DeckManager
+from anki.decks import DeckID, DeckManager
 from anki.errors import AnkiError, DBError
 from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
@@ -370,7 +370,7 @@ class Collection:
     def new_note(self, notetype: NoteType) -> Note:
         return Note(self, notetype)
 
-    def add_note(self, note: Note, deck_id: int) -> OpChanges:
+    def add_note(self, note: Note, deck_id: DeckID) -> OpChanges:
         out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
         note.id = NoteID(out.note_id)
         return out.changes
@@ -400,21 +400,23 @@ class Collection:
         if card := current_review_card:
             home_deck = card.currentDeckID()
         else:
-            home_deck = 0
+            home_deck = DeckID(0)
 
         return self._backend.defaults_for_adding(
             home_deck_of_current_review_card=home_deck,
         )
 
-    def default_deck_for_notetype(self, notetype_id: NoteID) -> Optional[int]:
+    def default_deck_for_notetype(self, notetype_id: NoteID) -> Optional[DeckID]:
         """If 'change deck depending on notetype' is enabled in the preferences,
         return the last deck used with the provided notetype, if any.."""
         if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
             return None
 
         return (
-            self._backend.default_deck_for_notetype(
-                ntid=notetype_id,
+            DeckID(
+                self._backend.default_deck_for_notetype(
+                    ntid=notetype_id,
+                )
             )
             or None
         )

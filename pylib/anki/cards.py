@@ -37,6 +37,8 @@ class Card:
     ord: int
     nid: anki.notes.NoteID
     id: CardID
+    did: anki.decks.DeckID
+    odid: anki.decks.DeckID
 
     def __init__(
         self, col: anki.collection.Collection, id: Optional[CardID] = None
@@ -62,7 +64,7 @@ class Card:
         self._note = None
         self.id = CardID(c.id)
         self.nid = anki.notes.NoteID(c.note_id)
-        self.did = c.deck_id
+        self.did = anki.decks.DeckID(c.deck_id)
         self.ord = c.template_idx
         self.mod = c.mtime_secs
         self.usn = c.usn
@@ -75,7 +77,7 @@ class Card:
         self.lapses = c.lapses
         self.left = c.remaining_steps
         self.odue = c.original_due
-        self.odid = c.original_deck_id
+        self.odid = anki.decks.DeckID(c.original_deck_id)
         self.flags = c.flags
         self.data = c.data
 
@@ -163,7 +165,7 @@ class Card:
     def startTimer(self) -> None:
         self.timerStarted = time.time()
 
-    def currentDeckID(self) -> int:
+    def currentDeckID(self) -> anki.decks.DeckID:
         return anki.decks.DeckID(self.odid or self.did)
 
     def timeLimit(self) -> int:

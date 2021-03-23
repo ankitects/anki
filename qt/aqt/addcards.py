@@ -8,6 +8,7 @@ import aqt.editor
 import aqt.forms
 from anki.collection import OpChanges, SearchNode
 from anki.consts import MODEL_CLOZE
+from anki.decks import DeckID
 from anki.notes import DuplicateOrEmptyResult, Note, NoteID
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
@@ -69,7 +70,7 @@ class AddCards(QDialog):
             on_notetype_changed=self.on_notetype_change,
         )
         self.deck_chooser = aqt.deckchooser.DeckChooser(
-            self.mw, self.form.deckArea, starting_deck_id=defaults.deck_id
+            self.mw, self.form.deckArea, starting_deck_id=DeckID(defaults.deck_id)
         )
 
     def helpRequested(self) -> None:

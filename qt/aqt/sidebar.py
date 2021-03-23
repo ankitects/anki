@@ -976,7 +976,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
 
                 def toggle_expand() -> Callable[[bool], None]:
-                    did = node.deck_id  # pylint: disable=cell-var-from-loop
+                    did = DeckID(node.deck_id)  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
 
                 item = SidebarItem(
@@ -1158,7 +1158,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
-        deck = self.mw.col.decks.get(item.id)
+        deck = self.mw.col.decks.get(DeckID(item.id))
         if not new_name:
             return
         new_name = item.name_prefix + new_name
