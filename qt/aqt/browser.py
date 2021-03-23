@@ -166,7 +166,7 @@ class DataModel(QAbstractTableModel):
         self.browser = browser
         self.col = browser.col
         self.sortKey = None
-        self.activeCols = self.col.get_config(
+        self.activeCols: List[str] = self.col.get_config(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
         self.cards: Sequence[int] = []
@@ -199,11 +199,14 @@ class DataModel(QAbstractTableModel):
 
     def _fetch_row_from_backend(self, cid: int) -> CellRow:
         try:
-            return CellRow(*self.col.browser_row_for_card(cid))
+            row = CellRow(*self.col.browser_row_for_card(cid))
         except NotFoundError:
             return CellRow.deleted(len(self.activeCols))
         except Exception as e:
             return CellRow.generic(len(self.activeCols), str(e))
+
+        gui_hooks.browser_did_fetch_row(cid, row, self.activeCols)
+        return row
 
     def getCard(self, index: QModelIndex) -> Optional[Card]:
         """Try to return the indicated, possibly deleted card."""
