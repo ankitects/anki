@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod counts;
+mod filtered;
 mod schema11;
 mod tree;
 pub(crate) mod undo;

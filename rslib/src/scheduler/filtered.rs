@@ -1,21 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub use crate::backend_proto::{
-    deck_kind::Kind as DeckKind, Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto,
-    FilteredDeck, NormalDeck,
-};
-use crate::decks::{Deck, DeckID};
-use crate::decks::{FilteredSearchOrder, FilteredSearchTerm};
+use crate::decks::{FilteredDeck, FilteredSearchOrder, FilteredSearchTerm};
 use crate::{
-    card::{Card, CardID, CardQueue, CardType},
-    collection::Collection,
+    card::{CardQueue, CardType},
     config::SchedulerVersion,
-    err::Result,
-    prelude::AnkiError,
+    prelude::*,
     search::SortMode,
-    timestamp::TimestampSecs,
-    types::Usn,
 };
 
 impl Card {
@@ -131,35 +122,6 @@ impl Card {
     }
 }
 
-impl Deck {
-    pub fn new_filtered() -> Deck {
-        let mut filt = FilteredDeck::default();
-        filt.search_terms.push(FilteredSearchTerm {
-            search: "".into(),
-            limit: 100,
-            order: 0,
-        });
-        filt.preview_delay = 10;
-        filt.reschedule = true;
-        Deck {
-            id: DeckID(0),
-            name: "".into(),
-            mtime_secs: TimestampSecs(0),
-            usn: Usn(0),
-            common: DeckCommon {
-                study_collapsed: true,
-                browser_collapsed: true,
-                ..Default::default()
-            },
-            kind: DeckKind::Filtered(filt),
-        }
-    }
-
-    pub(crate) fn is_filtered(&self) -> bool {
-        matches!(self.kind, DeckKind::Filtered(_))
-    }
-}
-
 pub(crate) struct DeckFilterContext<'a> {
     pub target_deck: DeckID,
     pub config: &'a FilteredDeck,
@@ -172,7 +134,8 @@ impl Collection {
     pub fn empty_filtered_deck(&mut self, did: DeckID) -> Result<()> {
         self.transact_no_undo(|col| col.return_all_cards_in_filtered_deck(did))
     }
-    pub(super) fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {
+
+    pub(crate) fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.return_cards_to_home_deck(&cids)
     }
