@@ -50,7 +50,6 @@ aqt_deps = [
     requirement("flask-cors"),
     requirement("waitress"),
     requirement("send2trash"),
-    requirement("markdown"),
     requirement("jsonschema"),
     "@pyqt5//:pkg",
 ] + select({
@@ -104,7 +103,6 @@ py_wheel(
         "beautifulsoup4",
         "requests",
         "send2trash",
-        "markdown",
         "jsonschema",
         "flask",
         "flask_cors",
