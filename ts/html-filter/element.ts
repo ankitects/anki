@@ -1,10 +1,10 @@
-import { isNightMode, isHTMLElement } from "./helpers";
-import { removeNode as removeElement } from "./htmlFilterNode";
+import { isHTMLElement, isNightMode } from "./helpers";
+import { removeNode as removeElement } from "./node";
 import {
     filterStylingNightMode,
     filterStylingLightMode,
     filterStylingInternal,
-} from "./htmlFilterStyling";
+} from "./styling";
 
 interface TagsAllowed {
     [tagName: string]: FilterMethod;
@@ -29,13 +29,11 @@ function blockAll(element: Element): void {
     filterOutAttributes(() => true, element);
 }
 
-function blockExcept(attrs: string[]): FilterMethod {
-    return (element: Element) =>
-        filterOutAttributes(
-            (attributeName: string) => !attrs.includes(attributeName),
-            element
-        );
-}
+const blockExcept = (attrs: string[]): FilterMethod => (element: Element): void =>
+    filterOutAttributes(
+        (attributeName: string) => !attrs.includes(attributeName),
+        element
+    );
 
 function unwrapElement(element: Element): void {
     element.outerHTML = element.innerHTML;
@@ -95,7 +93,7 @@ const filterElementTagsAllowed = (tagsAllowed: TagsAllowed) => (
 ): void => {
     const tagName = element.tagName;
 
-    if (tagsAllowed.hasOwnProperty(tagName)) {
+    if (Object.prototype.hasOwnProperty.call(tagsAllowed, tagName)) {
         tagsAllowed[tagName](element);
     } else if (element.innerHTML) {
         removeElement(element);

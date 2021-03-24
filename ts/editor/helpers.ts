@@ -7,10 +7,6 @@ export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
-export function isHTMLElement(elem: Element): elem is HTMLElement {
-    return elem instanceof HTMLElement;
-}
-
 const INLINE_TAGS = [
     "A",
     "ABBR",
@@ -80,8 +76,4 @@ export function caretToEnd(currentField: EditingArea): void {
     const selection = currentField.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-}
-
-export function isNightMode(): boolean {
-    return document.body.classList.contains("nightMode");
 }
