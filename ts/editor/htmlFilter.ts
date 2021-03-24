@@ -2,7 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 import { nodeIsElement } from "./helpers";
-import { tagsAllowedBasic, tagsAllowedExtended } from "./htmlFilterTagsAllowed";
+import { filterElement } from "./htmlFilterElement";
 
 ////////////////////// //////////////////// ////////////////////
 
@@ -40,22 +40,9 @@ function filterNode(node: Node, extendedMode: boolean): void {
         filterNode(child, extendedMode);
     }
 
-    if (node.tagName === "ANKITOP") {
-        return;
-    }
-
-    const tagsAllowed = extendedMode ? tagsAllowedExtended : tagsAllowedBasic;
-
-    if (tagsAllowed.hasOwnProperty(node.tagName)) {
-        tagsAllowed[node.tagName](node);
-    } else {
-        if (!node.innerHTML || node.tagName === "TITLE") {
-            node.parentNode.removeChild(node);
-        } else {
-            node.outerHTML = node.innerHTML;
-        }
-    }
+    filterElement(node, extendedMode);
 }
+
 
 export function filterHTML(
     html: string,
