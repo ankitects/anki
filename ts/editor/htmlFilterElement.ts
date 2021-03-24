@@ -1,10 +1,12 @@
 import { filterSpan } from "./htmlFilterSpan";
 
+interface TagsAllowed {
+    [tagName: string]: FilterMethod;
+}
+
 type FilterMethod = (element: Element) => void;
 
-interface TagsAllowed {
-    [key: string]: FilterMethod;
-}
+function doNothing() {}
 
 function filterOutAttributes(
     attributePredicate: (attributeName: string) => boolean,
@@ -19,6 +21,10 @@ function filterOutAttributes(
     }
 }
 
+function blockAll(element: Element): void {
+    filterOutAttributes(() => true, element);
+}
+
 function blockExcept(attrs: string[]): FilterMethod {
     return (element: Element) =>
         filterOutAttributes(
@@ -27,20 +33,27 @@ function blockExcept(attrs: string[]): FilterMethod {
         );
 }
 
-function blockAll(element: Element): void {
-    filterOutAttributes(() => true, element);
+
+function removeElement(element: Element): void {
+    element.parentNode?.removeChild(element);
 }
 
-export const tagsAllowedBasic: TagsAllowed = {
+function unwrapElement(element: Element): void {
+    element.outerHTML = element.innerHTML;
+}
+
+const tagsAllowedBasic: TagsAllowed = {
+    ANKITOP: doNothing,
     BR: blockAll,
     IMG: blockExcept(["SRC"]),
     DIV: blockAll,
     P: blockAll,
     SUB: blockAll,
     SUP: blockAll,
+    TITLE: removeElement,
 };
 
-export const tagsAllowedExtended: TagsAllowed = {
+const tagsAllowedExtended: TagsAllowed = {
     ...tagsAllowedBasic,
     A: blockExcept(["HREF"]),
     B: blockAll,
@@ -70,3 +83,18 @@ export const tagsAllowedExtended: TagsAllowed = {
     U: blockAll,
     UL: blockAll,
 };
+
+export function filterElement(element: Element, extendedMode: boolean): void {
+    const tagName = element.tagName;
+    const tagsAllowed = extendedMode ? tagsAllowedExtended : tagsAllowedBasic;
+
+    if (tagsAllowed.hasOwnProperty(tagName)) {
+        tagsAllowed[tagName](element);
+    }
+    else if (element.innerHTML) {
+        removeElement(element);
+    }
+    else {
+        unwrapElement(element);
+    }
+}
