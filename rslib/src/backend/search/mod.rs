@@ -88,8 +88,8 @@ impl SearchService for Backend {
         })
     }
 
-    fn browser_row_for_card(&self, input: pb::CardId) -> Result<pb::BrowserRow> {
-        self.with_col(|col| col.browser_row_for_card(input.cid.into()).map(Into::into))
+    fn browser_row_for_id(&self, input: pb::Int64) -> Result<pb::BrowserRow> {
+        self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
     }
 }
 

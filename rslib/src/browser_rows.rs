@@ -10,8 +10,9 @@ use crate::i18n::{tr_args, I18n, TR};
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
+    config::BoolKey,
     decks::{Deck, DeckID},
-    notes::Note,
+    notes::{Note, NoteID},
     notetype::{CardTemplate, NoteType, NoteTypeKind},
     scheduler::{timespan::time_span, timing::SchedTimingToday},
     template::RenderedNode,
@@ -51,7 +52,54 @@ pub struct Font {
     pub size: u32,
 }
 
-struct RowContext<'a> {
+trait RowContext {
+    fn get_cell_text(&mut self, column: &str) -> Result<String>;
+    fn get_row_color(&self) -> Color;
+    fn get_row_font(&self) -> Result<Font>;
+    fn note(&self) -> &Note;
+    fn notetype(&self) -> &NoteType;
+
+    fn get_cell(&mut self, column: &str) -> Result<Cell> {
+        Ok(Cell {
+            text: self.get_cell_text(column)?,
+            is_rtl: self.get_is_rtl(column),
+        })
+    }
+
+    fn note_creation_str(&self) -> String {
+        TimestampMillis(self.note().id.into())
+            .as_secs()
+            .date_string()
+    }
+
+    fn note_field_str(&self) -> String {
+        let index = self.notetype().config.sort_field_idx as usize;
+        html_to_text_line(&self.note().fields()[index]).into()
+    }
+
+    fn get_is_rtl(&self, column: &str) -> bool {
+        match column {
+            "noteFld" => {
+                let index = self.notetype().config.sort_field_idx as usize;
+                self.notetype().fields[index].config.rtl
+            }
+            _ => false,
+        }
+    }
+
+    fn browser_row_for_id(&mut self, columns: &[String]) -> Result<Row> {
+        Ok(Row {
+            cells: columns
+                .iter()
+                .map(|column| self.get_cell(column))
+                .collect::<Result<_>>()?,
+            color: self.get_row_color(),
+            font: self.get_row_font()?,
+        })
+    }
+}
+
+struct CardRowContext<'a> {
     col: &'a Collection,
     card: Card,
     note: Note,
@@ -70,6 +118,11 @@ struct RenderContext {
     answer_nodes: Vec<RenderedNode>,
 }
 
+struct NoteRowContext {
+    note: Note,
+    notetype: Arc<NoteType>,
+}
+
 fn card_render_required(columns: &[String]) -> bool {
     columns
         .iter()
@@ -77,19 +130,27 @@ fn card_render_required(columns: &[String]) -> bool {
 }
 
 impl Collection {
-    pub fn browser_row_for_card(&mut self, id: CardID) -> Result<Row> {
+    pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
         // this is inefficient; we may want to use an enum in the future
         let columns = self.get_desktop_browser_card_columns();
-        let mut context = RowContext::new(self, id, card_render_required(&columns))?;
 
-        Ok(Row {
-            cells: columns
-                .iter()
-                .map(|column| context.get_cell(column))
-                .collect::<Result<_>>()?,
-            color: context.get_row_color(),
-            font: context.get_row_font()?,
-        })
+        match self.get_bool(BoolKey::BrowserCardState) {
+            true => CardRowContext::new(self, id, card_render_required(&columns))?
+                .browser_row_for_id(&columns),
+            false => NoteRowContext::new(self, id)?.browser_row_for_id(&columns),
+        }
+    }
+
+    fn get_note_maybe_with_fields(&self, id: NoteID, _with_fields: bool) -> Result<Note> {
+        // todo: After note.sort_field has been modified so it can be displayed in the browser,
+        // we can update note_field_str() and only load the note with fields if a card render is
+        // necessary (see #1082).
+        if true {
+            self.storage.get_note(id)?
+        } else {
+            self.storage.get_note_without_fields(id)?
+        }
+        .ok_or(AnkiError::NotFound)
     }
 }
 
@@ -123,18 +184,13 @@ impl RenderContext {
     }
 }
 
-impl<'a> RowContext<'a> {
-    fn new(col: &'a mut Collection, id: CardID, with_card_render: bool) -> Result<Self> {
-        let card = col.storage.get_card(id)?.ok_or(AnkiError::NotFound)?;
-        // todo: After note.sort_field has been modified so it can be displayed in the browser,
-        // we can update note_field_str() and only load the note with fields if a card render is
-        // necessary (see #1082).
-        let note = if true {
-            col.storage.get_note(card.note_id)?
-        } else {
-            col.storage.get_note_without_fields(card.note_id)?
-        }
-        .ok_or(AnkiError::NotFound)?;
+impl<'a> CardRowContext<'a> {
+    fn new(col: &'a mut Collection, id: i64, with_card_render: bool) -> Result<Self> {
+        let card = col
+            .storage
+            .get_card(CardID(id))?
+            .ok_or(AnkiError::NotFound)?;
+        let note = col.get_note_maybe_with_fields(card.note_id, with_card_render)?;
         let notetype = col
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
@@ -145,7 +201,7 @@ impl<'a> RowContext<'a> {
             None
         };
 
-        Ok(RowContext {
+        Ok(CardRowContext {
             col,
             card,
             note,
@@ -179,34 +235,6 @@ impl<'a> RowContext<'a> {
             self.original_deck = Some(self.col.storage.get_deck(self.card.original_deck_id)?);
         }
         Ok(self.original_deck.as_ref().unwrap())
-    }
-
-    fn get_cell(&mut self, column: &str) -> Result<Cell> {
-        Ok(Cell {
-            text: self.get_cell_text(column)?,
-            is_rtl: self.get_is_rtl(column),
-        })
-    }
-
-    fn get_cell_text(&mut self, column: &str) -> Result<String> {
-        Ok(match column {
-            "answer" => self.answer_str(),
-            "cardDue" => self.card_due_str(),
-            "cardEase" => self.card_ease_str(),
-            "cardIvl" => self.card_interval_str(),
-            "cardLapses" => self.card.lapses.to_string(),
-            "cardMod" => self.card.mtime.date_string(),
-            "cardReps" => self.card.reps.to_string(),
-            "deck" => self.deck_str()?,
-            "note" => self.notetype.name.to_owned(),
-            "noteCrt" => self.note_creation_str(),
-            "noteFld" => self.note_field_str(),
-            "noteMod" => self.note.mtime.date_string(),
-            "noteTags" => self.note.tags.join(" "),
-            "question" => self.question_str(),
-            "template" => self.template_str()?,
-            _ => "".to_string(),
-        })
     }
 
     fn answer_str(&self) -> String {
@@ -287,15 +315,6 @@ impl<'a> RowContext<'a> {
         })
     }
 
-    fn note_creation_str(&self) -> String {
-        TimestampMillis(self.note.id.into()).as_secs().date_string()
-    }
-
-    fn note_field_str(&self) -> String {
-        let index = self.notetype.config.sort_field_idx as usize;
-        html_to_text_line(&self.note.fields()[index]).into()
-    }
-
     fn template_str(&self) -> Result<String> {
         let name = &self.template()?.name;
         Ok(match self.notetype.config.kind() {
@@ -307,15 +326,28 @@ impl<'a> RowContext<'a> {
     fn question_str(&self) -> String {
         html_to_text_line(&self.render_context.as_ref().unwrap().question).to_string()
     }
+}
 
-    fn get_is_rtl(&self, column: &str) -> bool {
-        match column {
-            "noteFld" => {
-                let index = self.notetype.config.sort_field_idx as usize;
-                self.notetype.fields[index].config.rtl
-            }
-            _ => false,
-        }
+impl RowContext for CardRowContext<'_> {
+    fn get_cell_text(&mut self, column: &str) -> Result<String> {
+        Ok(match column {
+            "answer" => self.answer_str(),
+            "cardDue" => self.card_due_str(),
+            "cardEase" => self.card_ease_str(),
+            "cardIvl" => self.card_interval_str(),
+            "cardLapses" => self.card.lapses.to_string(),
+            "cardMod" => self.card.mtime.date_string(),
+            "cardReps" => self.card.reps.to_string(),
+            "deck" => self.deck_str()?,
+            "note" => self.notetype.name.to_owned(),
+            "noteCrt" => self.note_creation_str(),
+            "noteFld" => self.note_field_str(),
+            "noteMod" => self.note.mtime.date_string(),
+            "noteTags" => self.note.tags.join(" "),
+            "question" => self.question_str(),
+            "template" => self.template_str()?,
+            _ => "".to_string(),
+        })
     }
 
     fn get_row_color(&self) -> Color {
@@ -346,5 +378,65 @@ impl<'a> RowContext<'a> {
             name: self.template()?.config.browser_font_name.to_owned(),
             size: self.template()?.config.browser_font_size,
         })
+    }
+
+    fn note(&self) -> &Note {
+        &self.note
+    }
+
+    fn notetype(&self) -> &NoteType {
+        &self.notetype
+    }
+}
+
+impl<'a> NoteRowContext {
+    fn new(col: &'a mut Collection, id: i64) -> Result<Self> {
+        let note = col.get_note_maybe_with_fields(NoteID(id), false)?;
+        let notetype = col
+            .get_notetype(note.notetype_id)?
+            .ok_or(AnkiError::NotFound)?;
+
+        Ok(NoteRowContext { note, notetype })
+    }
+}
+
+impl RowContext for NoteRowContext {
+    fn get_cell_text(&mut self, column: &str) -> Result<String> {
+        Ok(match column {
+            "note" => self.notetype.name.to_owned(),
+            "noteCrt" => self.note_creation_str(),
+            "noteFld" => self.note_field_str(),
+            "noteMod" => self.note.mtime.date_string(),
+            "noteTags" => self.note.tags.join(" "),
+            _ => "".to_string(),
+        })
+    }
+
+    fn get_row_color(&self) -> Color {
+        if self
+            .note
+            .tags
+            .iter()
+            .any(|tag| tag.eq_ignore_ascii_case("marked"))
+        {
+            Color::Marked
+        } else {
+            Color::Default
+        }
+    }
+
+    fn get_row_font(&self) -> Result<Font> {
+        Ok(Font {
+            name: "".to_owned(),
+            size: 0,
+        })
+    }
+
+    fn note(&self) -> &Note {
+        &self.note
+    }
+
+    fn notetype(&self) -> &NoteType {
+        &self.notetype
     }
 }

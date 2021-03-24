@@ -240,7 +240,7 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
-  rpc BrowserRowForCard(CardID) returns (BrowserRow);
+  rpc BrowserRowForId(Int64) returns (BrowserRow);
 }
 
 service StatsService {

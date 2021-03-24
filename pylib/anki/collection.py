@@ -687,10 +687,10 @@ class Collection:
     # Browser rows
     ##########################################################################
 
-    def browser_row_for_card(
-        self, cid: int
+    def browser_row_for_id(
+        self, id_: int
     ) -> Tuple[Generator[Tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
-        row = self._backend.browser_row_for_card(cid)
+        row = self._backend.browser_row_for_id(id_)
         return (
             ((cell.text, cell.is_rtl) for cell in row.cells),
             row.color,
