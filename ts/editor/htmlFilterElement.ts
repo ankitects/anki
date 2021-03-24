@@ -1,12 +1,16 @@
-import { filterSpan } from "./htmlFilterSpan";
+import { isNightMode, isHTMLElement } from "./helpers";
+import { removeNode as removeElement } from "./htmlFilterNode";
+import {
+    filterStylingNightMode,
+    filterStylingLightMode,
+    filterStylingInternal,
+} from "./htmlFilterStyling";
 
 interface TagsAllowed {
     [tagName: string]: FilterMethod;
 }
 
 type FilterMethod = (element: Element) => void;
-
-function doNothing() {}
 
 function filterOutAttributes(
     attributePredicate: (attributeName: string) => boolean,
@@ -33,17 +37,19 @@ function blockExcept(attrs: string[]): FilterMethod {
         );
 }
 
-
-function removeElement(element: Element): void {
-    element.parentNode?.removeChild(element);
-}
-
 function unwrapElement(element: Element): void {
     element.outerHTML = element.innerHTML;
 }
 
+function filterSpan(element: Element): void {
+    const filterAttrs = blockExcept(["STYLE"]);
+    filterAttrs(element);
+
+    const filterStyle = isNightMode() ? filterStylingNightMode : filterStylingLightMode;
+    filterStyle(element as HTMLSpanElement);
+}
+
 const tagsAllowedBasic: TagsAllowed = {
-    ANKITOP: doNothing,
     BR: blockAll,
     IMG: blockExcept(["SRC"]),
     DIV: blockAll,
@@ -84,17 +90,25 @@ const tagsAllowedExtended: TagsAllowed = {
     UL: blockAll,
 };
 
-export function filterElement(element: Element, extendedMode: boolean): void {
+const filterElementTagsAllowed = (tagsAllowed: TagsAllowed) => (
+    element: Element
+): void => {
     const tagName = element.tagName;
-    const tagsAllowed = extendedMode ? tagsAllowedExtended : tagsAllowedBasic;
 
     if (tagsAllowed.hasOwnProperty(tagName)) {
         tagsAllowed[tagName](element);
-    }
-    else if (element.innerHTML) {
+    } else if (element.innerHTML) {
         removeElement(element);
-    }
-    else {
+    } else {
         unwrapElement(element);
+    }
+};
+
+export const filterElementBasic = filterElementTagsAllowed(tagsAllowedBasic);
+export const filterElementExtended = filterElementTagsAllowed(tagsAllowedExtended);
+
+export function filterElementInternal(element: Element): void {
+    if (isHTMLElement(element)) {
+        filterStylingInternal(element);
     }
 }
