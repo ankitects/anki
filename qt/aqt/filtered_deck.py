@@ -24,7 +24,7 @@ from aqt.utils import (
 )
 
 
-class DeckConf(QDialog):
+class FilteredDeckConfigDialog(QDialog):
     """Dialogue to modify and build a filtered deck."""
 
     def __init__(
@@ -42,7 +42,7 @@ class DeckConf(QDialog):
         self.mw = mw
         self.col = self.mw.col
         self.did: Optional[int] = None
-        self.form = aqt.forms.dyndconf.Ui_Dialog()
+        self.form = aqt.forms.filtered_deck.Ui_Dialog()
         self.form.setupUi(self)
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         self.initialSetup()
@@ -294,7 +294,7 @@ class DeckConf(QDialog):
             self.mw.reset()
         saveGeom(self, "dyndeckconf")
         QDialog.reject(self)
-        aqt.dialogs.markClosed("DynDeckConfDialog")
+        aqt.dialogs.markClosed("FilteredDeckConfigDialog")
 
     def accept(self) -> None:
         try:
@@ -310,7 +310,7 @@ class DeckConf(QDialog):
             saveGeom(self, "dyndeckconf")
             self.mw.reset()
             QDialog.accept(self)
-            aqt.dialogs.markClosed("DynDeckConfDialog")
+            aqt.dialogs.markClosed("FilteredDeckConfigDialog")
 
     def closeWithCallback(self, callback: Callable) -> None:
         self.reject()

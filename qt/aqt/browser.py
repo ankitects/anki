@@ -1108,9 +1108,9 @@ where id in %s"""
     def createFilteredDeck(self) -> None:
         search = self.form.searchEdit.lineEdit().text()
         if self.mw.col.schedVer() != 1 and KeyboardModifiersPressed().alt:
-            aqt.dialogs.open("DynDeckConfDialog", self.mw, search_2=search)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search_2=search)
         else:
-            aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search=search)
 
     # Preview
     ######################################################################
