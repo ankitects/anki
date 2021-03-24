@@ -9,7 +9,6 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
 from anki.decks import DeckID, DeckTreeNode
-from anki.errors import InvalidInput
 from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
@@ -25,7 +24,7 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     askUser,
     getOnlyText,
-    show_invalid_search_error,
+    showWarning,
     tr,
 )
 
@@ -539,8 +538,8 @@ class SidebarTreeView(QTreeView):
                 search = self.col.join_searches(previous, current, "OR")
             else:
                 search = self.col.build_search_string(current)
-        except InvalidInput as e:
-            show_invalid_search_error(e)
+        except Exception as e:
+            showWarning(str(e))
         else:
             self.browser.search_for(search)
 
@@ -1228,8 +1227,8 @@ class SidebarTreeView(QTreeView):
             return self.col.build_search_string(
                 self.browser.form.searchEdit.lineEdit().text()
             )
-        except InvalidInput as e:
-            show_invalid_search_error(e)
+        except Exception as e:
+            showWarning(str(e))
             return None
 
     def _save_search(self, name: str, search: str, update: bool = False) -> None:

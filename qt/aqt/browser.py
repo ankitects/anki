@@ -25,7 +25,7 @@ import aqt.forms
 from anki.cards import Card
 from anki.collection import BrowserRow, Collection, Config, OpChanges, SearchNode
 from anki.consts import *
-from anki.errors import InvalidInput, NotFoundError
+from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.stats import CardStats
@@ -76,8 +76,8 @@ from aqt.utils import (
     saveSplitter,
     saveState,
     shortcut,
-    show_invalid_search_error,
     showInfo,
+    showWarning,
     tooltip,
     tr,
 )
@@ -692,8 +692,8 @@ class Browser(QMainWindow):
         text = self.form.searchEdit.lineEdit().text()
         try:
             normed = self.col.build_search_string(text)
-        except InvalidInput as err:
-            show_invalid_search_error(err)
+        except Exception as err:
+            showWarning(str(err))
         else:
             self.search_for(normed)
             self.update_history()
@@ -718,7 +718,7 @@ class Browser(QMainWindow):
         try:
             self.model.search(self._lastSearchTxt)
         except Exception as err:
-            show_invalid_search_error(err)
+            showWarning(str(err))
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
@@ -1371,8 +1371,7 @@ where id in %s"""
 
     def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
-        # fixme: remove these once all items are using `operation_did_execute`
-        gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
+        # fixme: remove this once all items are using `operation_did_execute`
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
         gui_hooks.backend_will_block.append(self.on_backend_will_block)
         gui_hooks.backend_did_block.append(self.on_backend_did_block)
@@ -1381,18 +1380,13 @@ where id in %s"""
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
-        gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
         gui_hooks.backend_will_block.remove(self.on_backend_will_block)
         gui_hooks.backend_did_block.remove(self.on_backend_will_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
 
-    # covers the tag, note and deck case
     def on_item_added(self, item: Any = None) -> None:
-        self.sidebar.refresh()
-
-    def on_tag_list_update(self) -> None:
         self.sidebar.refresh()
 
     # Undo
@@ -1477,9 +1471,9 @@ where id in %s"""
         self.mw.progress.start()
         try:
             res = self.mw.col.findDupes(fname, search)
-        except InvalidInput as e:
+        except Exception as e:
             self.mw.progress.finish()
-            show_invalid_search_error(e)
+            showWarning(str(e))
             return
         if not self._dupesButton:
             self._dupesButton = b = frm.buttonBox.addButton(

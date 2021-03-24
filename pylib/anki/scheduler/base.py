@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import anki
 import anki._backend.backend_pb2 as _pb
-from anki.collection import OpChanges, OpChangesWithCount
+from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithID
 from anki.config import Config
 
 SchedTimingToday = _pb.SchedTimingTodayOut
@@ -14,13 +14,14 @@ SchedTimingToday = _pb.SchedTimingTodayOut
 from typing import List, Optional, Sequence
 
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
-from anki.decks import DeckConfigDict, DeckTreeNode
+from anki.decks import DeckConfigDict, DeckID, DeckTreeNode
 from anki.notes import Note
 from anki.utils import ids2str, intTime
 
 CongratsInfo = _pb.CongratsInfoOut
 UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
 BuryOrSuspend = _pb.BuryOrSuspendCardsIn
+FilteredDeckForUpdate = _pb.FilteredDeckForUpdate
 
 
 class SchedulerBase:
@@ -94,6 +95,14 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
 
     def empty_filtered_deck(self, deck_id: int) -> OpChanges:
         return self.col._backend.empty_filtered_deck(deck_id)
+
+    def get_or_create_filtered_deck(self, deck_id: DeckID) -> FilteredDeckForUpdate:
+        return self.col._backend.get_or_create_filtered_deck(deck_id)
+
+    def add_or_update_filtered_deck(
+        self, deck: FilteredDeckForUpdate
+    ) -> OpChangesWithID:
+        return self.col._backend.add_or_update_filtered_deck(deck)
 
     # Suspending & burying
     ##########################################################################

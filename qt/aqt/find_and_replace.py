@@ -22,7 +22,6 @@ from aqt.utils import (
     save_combo_index_for_session,
     save_is_checked,
     saveGeom,
-    show_invalid_search_error,
     tooltip,
     tr,
 )
@@ -52,7 +51,6 @@ def find_and_replace(
             tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
             parent=parent,
         ),
-        failure=lambda exc: show_invalid_search_error(exc, parent=parent),
     )
 
 
@@ -78,7 +76,6 @@ def find_and_replace_tag(
             tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
             parent=parent,
         ),
-        failure=lambda exc: show_invalid_search_error(exc, parent=parent),
     )
 
 

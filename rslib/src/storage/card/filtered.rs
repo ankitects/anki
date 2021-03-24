@@ -9,7 +9,7 @@ use crate::{
 pub(crate) fn order_and_limit_for_search(term: &FilteredSearchTerm, today: u32) -> String {
     let temp_string;
     let order = match term.order() {
-        FilteredSearchOrder::OldestFirst => "(select max(id) from revlog where cid=c.id)",
+        FilteredSearchOrder::OldestReviewedFirst => "(select max(id) from revlog where cid=c.id)",
         FilteredSearchOrder::Random => "random()",
         FilteredSearchOrder::IntervalsAscending => "ivl",
         FilteredSearchOrder::IntervalsDescending => "ivl desc",

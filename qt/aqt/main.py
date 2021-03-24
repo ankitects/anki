@@ -107,7 +107,10 @@ ResultWithChanges = TypeVar(
     bound=Union[OpChanges, OpChangesWithCount, OpChangesWithID, HasChangesProperty],
 )
 
+T = TypeVar("T")
+
 PerformOpOptionalSuccessCallback = Optional[Callable[[ResultWithChanges], Any]]
+PerformOpOptionalFailureCallback = Optional[Callable[[Exception], Any]]
 
 install_pylib_legacy()
 
@@ -719,9 +722,9 @@ class AnkiQt(QMainWindow):
 
     def query_op(
         self,
-        op: Callable[[], Any],
+        op: Callable[[], T],
         *,
-        success: Callable[[Any], Any] = None,
+        success: Callable[[T], Any] = None,
         failure: Optional[Callable[[Exception], Any]] = None,
     ) -> None:
         """Run an operation that queries the DB on a background thread.
@@ -764,7 +767,7 @@ class AnkiQt(QMainWindow):
         op: Callable[[], ResultWithChanges],
         *,
         success: PerformOpOptionalSuccessCallback = None,
-        failure: Optional[Callable[[Exception], Any]] = None,
+        failure: PerformOpOptionalFailureCallback = None,
         after_hooks: Optional[Callable[[], None]] = None,
     ) -> None:
         """Run the provided operation on a background thread.
@@ -1325,7 +1328,7 @@ title="%s" %s>%s</button>""" % (
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
-            aqt.dialogs.open("FilteredDeckConfigDialog", self, deck=deck)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self, deck_id=deck["id"])
         else:
             aqt.deckconf.DeckConf(self, deck)
 

@@ -21,7 +21,6 @@ from typing import (
     cast,
 )
 
-from markdown import markdown
 from PyQt5.QtWidgets import (
     QAction,
     QDialog,
@@ -37,7 +36,6 @@ from PyQt5.QtWidgets import (
 import anki
 import aqt
 from anki import Collection
-from anki.errors import InvalidInput
 from anki.lang import TR  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
@@ -137,14 +135,6 @@ def showCritical(
 ) -> int:
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
-
-
-def show_invalid_search_error(err: Exception, parent: Optional[QWidget] = None) -> None:
-    "Render search errors in markdown, then display a warning."
-    text = str(err)
-    if isinstance(err, InvalidInput):
-        text = markdown(text)
-    showWarning(text, parent=parent)
 
 
 def showInfo(

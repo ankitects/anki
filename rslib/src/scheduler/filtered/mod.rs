@@ -8,6 +8,7 @@ use std::convert::{TryFrom, TryInto};
 use crate::{
     config::ConfigKey,
     decks::{human_deck_name_to_native, FilteredDeck, FilteredSearchTerm},
+    search::writer::{deck_search, normalize_search},
 };
 use crate::{
     config::SchedulerVersion, prelude::*, search::SortMode,
@@ -19,7 +20,7 @@ use crate::{
 pub struct FilteredDeckForUpdate {
     pub id: DeckID,
     pub human_name: String,
-    pub settings: FilteredDeck,
+    pub config: FilteredDeck,
 }
 
 pub(crate) struct DeckFilterContext<'a> {
@@ -33,12 +34,12 @@ pub(crate) struct DeckFilterContext<'a> {
 impl Collection {
     /// Get an existing filtered deck, or create a new one if `deck_id` is 0. The new deck
     /// will not be added to the DB.
-    pub fn get_or_create_filtered_deck(&self, deck_id: DeckID) -> Result<FilteredDeckForUpdate> {
+    pub fn get_or_create_filtered_deck(
+        &mut self,
+        deck_id: DeckID,
+    ) -> Result<FilteredDeckForUpdate> {
         let deck = if deck_id.0 == 0 {
-            Deck {
-                name: self.get_next_filtered_deck_name()?,
-                ..Deck::new_filtered()
-            }
+            self.new_filtered_deck_for_adding()?
         } else {
             self.storage.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?
         };
@@ -140,15 +141,22 @@ impl Collection {
     }
 
     fn get_next_filtered_deck_name(&self) -> Result<String> {
-        // fixme:
-        Ok("Filtered Deck 1".to_string())
+        Ok(format!(
+            "Filtered Deck {}",
+            TimestampSecs::now().time_string()
+        ))
     }
 
     fn add_or_update_filtered_deck_inner(
         &mut self,
-        update: FilteredDeckForUpdate,
+        mut update: FilteredDeckForUpdate,
     ) -> Result<DeckID> {
         let usn = self.usn()?;
+
+        // check the searches are valid, and normalize them
+        for term in &mut update.config.search_terms {
+            term.search = normalize_search(&term.search)?
+        }
 
         // add or update the deck
         let mut deck: Deck;
@@ -179,7 +187,7 @@ impl Collection {
         }
     }
 
-    pub fn rebuild_filtered_deck_inner(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
+    fn rebuild_filtered_deck_inner(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
         let config = deck.filtered()?;
         let ctx = DeckFilterContext {
             target_deck: deck.id,
@@ -192,6 +200,35 @@ impl Collection {
         self.return_all_cards_in_filtered_deck(deck.id)?;
         self.build_filtered_deck(ctx)
     }
+
+    fn new_filtered_deck_for_adding(&mut self) -> Result<Deck> {
+        let mut deck = Deck {
+            name: self.get_next_filtered_deck_name()?,
+            ..Deck::new_filtered()
+        };
+        if let Some(current) = self.get_deck(self.get_current_deck_id())? {
+            if !current.is_filtered() && current.id.0 != 0 {
+                // start with a search based on the selected deck name
+                let search = deck_search(&current.human_name());
+                let term1 = deck
+                    .filtered_mut()
+                    .unwrap()
+                    .search_terms
+                    .get_mut(0)
+                    .unwrap();
+                term1.search = format!(r#"{} AND "is:due""#, search);
+                let term2 = deck
+                    .filtered_mut()
+                    .unwrap()
+                    .search_terms
+                    .get_mut(1)
+                    .unwrap();
+                term2.search = format!(r#"{} AND "is:new""#, search);
+            }
+        }
+
+        Ok(deck)
+    }
 }
 
 impl TryFrom<Deck> for FilteredDeckForUpdate {
@@ -203,7 +240,7 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
             Ok(FilteredDeckForUpdate {
                 id: value.id,
                 human_name,
-                settings: filtered,
+                config: filtered,
             })
         } else {
             Err(AnkiError::invalid_input("not filtered"))
@@ -214,5 +251,5 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
 fn apply_update_to_filtered_deck(deck: &mut Deck, update: FilteredDeckForUpdate) {
     deck.id = update.id;
     deck.name = human_deck_name_to_native(&update.human_name);
-    deck.kind = DeckKind::Filtered(update.settings);
+    deck.kind = DeckKind::Filtered(update.config);
 }

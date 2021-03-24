@@ -6,6 +6,7 @@ use crate::{
     backend_proto::{self as pb},
     decks::{Deck, DeckID, DeckSchema11},
     prelude::*,
+    scheduler::filtered::FilteredDeckForUpdate,
 };
 pub(super) use pb::decks_service::Service as DecksService;
 
@@ -139,15 +140,18 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn get_or_create_filtered_deck(&self, _input: pb::DeckId) -> Result<pb::FilteredDeckForUpdate> {
-        todo!()
+    fn get_or_create_filtered_deck(&self, input: pb::DeckId) -> Result<pb::FilteredDeckForUpdate> {
+        self.with_col(|col| col.get_or_create_filtered_deck(input.into()))
+            .map(Into::into)
     }
 
     fn add_or_update_filtered_deck(
         &self,
-        _input: pb::FilteredDeckForUpdate,
+        input: pb::FilteredDeckForUpdate,
     ) -> Result<pb::OpChangesWithId> {
-        todo!()
+        self.with_col(|col| col.add_or_update_filtered_deck(input.into()))
+            .map(|out| out.map(i64::from))
+            .map(Into::into)
     }
 }
 
@@ -166,6 +170,26 @@ impl From<pb::DeckIDs> for Vec<DeckID> {
 impl From<DeckID> for pb::DeckId {
     fn from(did: DeckID) -> Self {
         pb::DeckId { did: did.0 }
+    }
+}
+
+impl From<FilteredDeckForUpdate> for pb::FilteredDeckForUpdate {
+    fn from(deck: FilteredDeckForUpdate) -> Self {
+        pb::FilteredDeckForUpdate {
+            id: deck.id.into(),
+            name: deck.human_name,
+            config: Some(deck.config),
+        }
+    }
+}
+
+impl From<pb::FilteredDeckForUpdate> for FilteredDeckForUpdate {
+    fn from(deck: pb::FilteredDeckForUpdate) -> Self {
+        FilteredDeckForUpdate {
+            id: deck.id.into(),
+            human_name: deck.name,
+            config: deck.config.unwrap_or_default(),
+        }
     }
 }
 
