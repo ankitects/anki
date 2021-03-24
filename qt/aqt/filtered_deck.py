@@ -1,73 +1,83 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Callable, List, Optional, Tuple
+
+from typing import List, Optional, Tuple
 
 import aqt
-from anki.collection import SearchNode
-from anki.decks import DeckDict
-from anki.errors import DeckIsFilteredError, InvalidInput
+from anki.collection import OpChangesWithCount, SearchNode
+from anki.decks import DeckDict, DeckID, FilteredDeckConfig
+from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
-from aqt import AnkiQt, colors, gui_hooks
+from anki.scheduler import FilteredDeckForUpdate
+from aqt import AnkiQt, colors
 from aqt.qt import *
+from aqt.scheduling_ops import add_or_update_filtered_deck
 from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     HelpPage,
-    askUser,
     disable_help_button,
     openHelp,
     restoreGeom,
     saveGeom,
-    show_invalid_search_error,
     showWarning,
     tr,
 )
 
 
 class FilteredDeckConfigDialog(QDialog):
-    """Dialogue to modify and build a filtered deck."""
+    """Dialog to modify and (re)build a filtered deck."""
+
+    GEOMETRY_KEY = "dyndeckconf"
+    DIALOG_KEY = "FilteredDeckConfigDialog"
+    silentlyClose = True
 
     def __init__(
         self,
         mw: AnkiQt,
+        deck_id: DeckID = DeckID(0),
         search: Optional[str] = None,
         search_2: Optional[str] = None,
-        deck: Optional[DeckDict] = None,
     ) -> None:
-        """If 'deck' is an existing filtered deck, load and modify its settings.
-        Otherwise, build a new one and derive settings from the current deck.
+        """If 'deck_id' is non-zero, load and modify its settings.
+        Otherwise, build a new deck and derive settings from the current deck.
+
+        If search or search_2 are provided, they will be used as the default
+        search text.
         """
 
         QDialog.__init__(self, mw)
         self.mw = mw
         self.col = self.mw.col
-        self.did: Optional[int] = None
+        self._desired_search_1 = search
+        self._desired_search_2 = search_2
+
+        self._initial_dialog_setup()
+
+        # set on successful query
+        self.deck: FilteredDeckForUpdate
+
+        mw.query_op(
+            lambda: mw.col.sched.get_or_create_filtered_deck(deck_id=deck_id),
+            success=self.load_deck_and_show,
+            failure=self.on_fetch_error,
+        )
+
+    def on_fetch_error(self, exc: Exception) -> None:
+        showWarning(str(exc))
+        self.close()
+
+    def _initial_dialog_setup(self) -> None:
+        import anki.consts as cs
+
         self.form = aqt.forms.filtered_deck.Ui_Dialog()
         self.form.setupUi(self)
-        self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
-        self.initialSetup()
-        self.old_deck = self.col.decks.current()
 
-        if deck and deck["dyn"]:
-            # modify existing dyn deck
-            label = tr(TR.ACTIONS_REBUILD)
-            self.deck = deck
-            self.loadConf()
-        elif self.old_deck["dyn"]:
-            # create new dyn deck from other dyn deck
-            label = tr(TR.DECKS_BUILD)
-            self.loadConf(deck=self.old_deck)
-            self.new_dyn_deck()
-        else:
-            # create new dyn deck from regular deck
-            label = tr(TR.DECKS_BUILD)
-            self.new_dyn_deck()
-            self.loadConf()
-            self.set_default_searches(self.old_deck["name"])
+        self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
+        self.form.order_2.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
 
-        self.form.name.setText(self.deck["name"])
-        self.form.name.setPlaceholderText(self.deck["name"])
-        self.set_custom_searches(search, search_2)
+        qconnect(self.form.resched.stateChanged, self._onReschedToggled)
+
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
         qconnect(self.form.hint_button.clicked, self.on_hint_button)
@@ -84,15 +94,67 @@ class FilteredDeckConfigDialog(QDialog):
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.FILTERED_DECK)
         )
-        self.setWindowTitle(
-            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
-        )
-        self.form.buttonBox.button(QDialogButtonBox.Ok).setText(label)
+
         if self.col.schedVer() == 1:
             self.form.secondFilter.setVisible(False)
-        restoreGeom(self, "dyndeckconf")
+        restoreGeom(self, self.GEOMETRY_KEY)
 
+    def load_deck_and_show(self, deck: FilteredDeckForUpdate) -> None:
+        self.deck = deck
+        self._load_deck()
         self.show()
+
+    def _load_deck(self) -> None:
+        form = self.form
+        deck = self.deck
+        config = deck.config
+
+        self.form.name.setText(deck.name)
+        self.form.name.setPlaceholderText(deck.name)
+        self.set_custom_searches(self._desired_search_1, self._desired_search_2)
+
+        existing = deck.id != 0
+        if existing:
+            build_label = tr(TR.ACTIONS_REBUILD)
+        else:
+            build_label = tr(TR.DECKS_BUILD)
+        self.form.buttonBox.button(QDialogButtonBox.Ok).setText(build_label)
+
+        form.resched.setChecked(config.reschedule)
+        self._onReschedToggled(0)
+
+        term1: FilteredDeckConfig.SearchTerm = config.search_terms[0]
+        form.search.setText(term1.search)
+        form.order.setCurrentIndex(term1.order)
+        form.limit.setValue(term1.limit)
+
+        if self.col.schedVer() == 1:
+            if config.delays:
+                form.steps.setText(self.listToUser(list(config.delays)))
+                form.stepsOn.setChecked(True)
+        else:
+            form.steps.setVisible(False)
+            form.stepsOn.setVisible(False)
+
+        form.previewDelay.setValue(config.preview_delay)
+
+        if len(config.search_terms) > 1:
+            term2: FilteredDeckConfig.SearchTerm = config.search_terms[1]
+            form.search_2.setText(term2.search)
+            form.order_2.setCurrentIndex(term2.order)
+            form.limit_2.setValue(term2.limit)
+            show_second = existing
+        else:
+            show_second = False
+            form.order_2.setCurrentIndex(5)
+            form.limit_2.setValue(20)
+
+        form.secondFilter.setChecked(show_second)
+        form.filter2group.setVisible(show_second)
+
+        self.setWindowTitle(
+            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck.name))
+        )
 
     def reopen(
         self,
@@ -102,30 +164,6 @@ class FilteredDeckConfigDialog(QDialog):
         _deck: Optional[DeckDict] = None,
     ) -> None:
         self.set_custom_searches(search, search_2)
-
-    def new_dyn_deck(self) -> None:
-        suffix: int = 1
-        while self.col.decks.id_for_name(
-            without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
-        ):
-            suffix += 1
-        name: str = without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=suffix))
-        self.did = self.col.decks.new_filtered(name)
-        self.deck = self.col.decks.current()
-
-    def set_default_searches(self, deck_name: str) -> None:
-        self.form.search.setText(
-            self.col.build_search_string(
-                SearchNode(deck=deck_name),
-                SearchNode(card_state=SearchNode.CARD_STATE_DUE),
-            )
-        )
-        self.form.search_2.setText(
-            self.col.build_search_string(
-                SearchNode(deck=deck_name),
-                SearchNode(card_state=SearchNode.CARD_STATE_NEW),
-            )
-        )
 
     def set_custom_searches(
         self, search: Optional[str], search_2: Optional[str]
@@ -141,14 +179,6 @@ class FilteredDeckConfigDialog(QDialog):
             self.form.search_2.setFocus()
             self.form.search_2.selectAll()
 
-    def initialSetup(self) -> None:
-        import anki.consts as cs
-
-        self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
-        self.form.order_2.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
-
-        qconnect(self.form.resched.stateChanged, self._onReschedToggled)
-
     def on_search_button(self) -> None:
         self._on_search_button(self.form.search)
 
@@ -158,10 +188,10 @@ class FilteredDeckConfigDialog(QDialog):
     def _on_search_button(self, line: QLineEdit) -> None:
         try:
             search = self.col.build_search_string(line.text())
-        except InvalidInput as err:
+        except SearchError as err:
             line.setFocus()
             line.selectAll()
-            show_invalid_search_error(err)
+            showWarning(str(err))
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
 
@@ -180,8 +210,8 @@ class FilteredDeckConfigDialog(QDialog):
         implicit_filter = self.col.group_searches(*implicit_filters, joiner="OR")
         try:
             search = self.col.build_search_string(manual_filter, implicit_filter)
-        except InvalidInput as err:
-            show_invalid_search_error(err)
+        except Exception as err:
+            showWarning(str(err))
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
 
@@ -195,11 +225,11 @@ class FilteredDeckConfigDialog(QDialog):
         If it's a rebuild, exclude cards from this filtered deck as those will be reset.
         """
         if self.col.schedVer() == 1:
-            if self.did is None:
+            if self.deck.id:
                 return (
                     self.col.group_searches(
                         SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
-                        SearchNode(negated=SearchNode(deck=self.deck["name"])),
+                        SearchNode(negated=SearchNode(deck=self.deck.name)),
                     ),
                 )
             return (SearchNode(card_state=SearchNode.CARD_STATE_LEARN),)
@@ -208,11 +238,11 @@ class FilteredDeckConfigDialog(QDialog):
     def _filtered_search_node(self) -> Tuple[SearchNode]:
         """Return a search node that matches cards in filtered decks, if applicable excluding those
         in the deck being rebuild."""
-        if self.did is None:
+        if self.deck.id:
             return (
                 self.col.group_searches(
                     SearchNode(deck="filtered"),
-                    SearchNode(negated=SearchNode(deck=self.deck["name"])),
+                    SearchNode(negated=SearchNode(deck=self.deck.name)),
                 ),
             )
         return (SearchNode(deck="filtered"),)
@@ -222,111 +252,70 @@ class FilteredDeckConfigDialog(QDialog):
             not self.form.resched.isChecked() and self.col.schedVer() > 1
         )
 
-    def loadConf(self, deck: Optional[DeckDict] = None) -> None:
-        f = self.form
-        d = deck or self.deck
+    def _update_deck(self) -> bool:
+        """Update our stored deck with the details from the GUI.
+        If false, abort adding."""
+        form = self.form
+        deck = self.deck
+        config = deck.config
 
-        f.resched.setChecked(d["resched"])
-        self._onReschedToggled(0)
+        deck.name = form.name.text()
+        config.reschedule = form.resched.isChecked()
 
-        search, limit, order = d["terms"][0]
-        f.search.setText(search)
+        del config.delays[:]
+        if self.col.schedVer() == 1 and form.stepsOn.isChecked():
+            if (delays := self.userToList(form.steps)) is None:
+                return False
+            config.delays.extend(delays)
 
-        if self.col.schedVer() == 1:
-            if d["delays"]:
-                f.steps.setText(self.listToUser(d["delays"]))
-                f.stepsOn.setChecked(True)
-        else:
-            f.steps.setVisible(False)
-            f.stepsOn.setVisible(False)
+        terms = [
+            FilteredDeckConfig.SearchTerm(
+                search=form.search.text(),
+                limit=form.limit.value(),
+                order=form.order.currentIndex(),
+            )
+        ]
 
-        f.order.setCurrentIndex(order)
-        f.limit.setValue(limit)
-        f.previewDelay.setValue(d.get("previewDelay", 10))
+        if form.secondFilter.isChecked():
+            terms.append(
+                FilteredDeckConfig.SearchTerm(
+                    search=form.search_2.text(),
+                    limit=form.limit_2.value(),
+                    order=form.order_2.currentIndex(),
+                )
+            )
 
-        if len(d["terms"]) > 1:
-            search, limit, order = d["terms"][1]
-            f.search_2.setText(search)
-            f.order_2.setCurrentIndex(order)
-            f.limit_2.setValue(limit)
-            f.secondFilter.setChecked(True)
-            f.filter2group.setVisible(True)
-        else:
-            f.order_2.setCurrentIndex(5)
-            f.limit_2.setValue(20)
-            f.secondFilter.setChecked(False)
-            f.filter2group.setVisible(False)
+        del config.search_terms[:]
+        config.search_terms.extend(terms)
+        config.preview_delay = form.previewDelay.value()
 
-    def saveConf(self) -> None:
-        f = self.form
-        d = self.deck
-
-        if f.name.text() and d["name"] != f.name.text():
-            self.col.decks.rename(d, f.name.text())
-            gui_hooks.sidebar_should_refresh_decks()
-
-        d["resched"] = f.resched.isChecked()
-        d["delays"] = None
-
-        if self.col.schedVer() == 1 and f.stepsOn.isChecked():
-            steps = self.userToList(f.steps)
-            if steps:
-                d["delays"] = steps
-            else:
-                d["delays"] = None
-
-        search = self.col.build_search_string(f.search.text())
-        terms = [[search, f.limit.value(), f.order.currentIndex()]]
-
-        if f.secondFilter.isChecked():
-            search_2 = self.col.build_search_string(f.search_2.text())
-            terms.append([search_2, f.limit_2.value(), f.order_2.currentIndex()])
-
-        d["terms"] = terms
-        d["previewDelay"] = f.previewDelay.value()
-
-        self.col.decks.save(d)
+        return True
 
     def reject(self) -> None:
-        if self.did:
-            self.col.decks.rem(self.did)
-            self.col.decks.select(self.old_deck["id"])
-            self.mw.reset()
-        saveGeom(self, "dyndeckconf")
+        aqt.dialogs.markClosed(self.DIALOG_KEY)
         QDialog.reject(self)
-        aqt.dialogs.markClosed("FilteredDeckConfigDialog")
 
     def accept(self) -> None:
-        try:
-            self.saveConf()
-        except InvalidInput as err:
-            show_invalid_search_error(err)
-        except DeckIsFilteredError as err:
-            showWarning(str(err))
-        else:
-            if not self.col.sched.rebuild_filtered_deck(self.deck["id"]):
-                if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
-                    return
-            saveGeom(self, "dyndeckconf")
-            self.mw.reset()
+        if not self._update_deck():
+            return
+
+        def success(out: OpChangesWithCount) -> None:
+            saveGeom(self, self.GEOMETRY_KEY)
+            aqt.dialogs.markClosed(self.DIALOG_KEY)
             QDialog.accept(self)
-            aqt.dialogs.markClosed("FilteredDeckConfigDialog")
 
-    def closeWithCallback(self, callback: Callable) -> None:
-        self.reject()
-        callback()
+        add_or_update_filtered_deck(mw=self.mw, deck=self.deck, success=success)
 
-    # Step load/save - fixme: share with std options screen
+    # Step load/save
     ########################################################
+    # fixme: remove once we drop support for v1
 
     def listToUser(self, values: List[Union[float, int]]) -> str:
         return " ".join(
             [str(int(val)) if int(val) == val else str(val) for val in values]
         )
 
-    def userToList(
-        self, line: QLineEdit, minSize: int = 1
-    ) -> Optional[List[Union[float, int]]]:
+    def userToList(self, line: QLineEdit, minSize: int = 1) -> Optional[List[float]]:
         items = str(line.text()).split(" ")
         ret = []
         for item in items:
@@ -335,8 +324,6 @@ class FilteredDeckConfigDialog(QDialog):
             try:
                 i = float(item)
                 assert i > 0
-                if i == int(i):
-                    i = int(i)
                 ret.append(i)
             except:
                 # invalid, don't update

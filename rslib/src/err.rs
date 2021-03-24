@@ -212,6 +212,7 @@ impl AnkiError {
             }
             AnkiError::ParseNumError => i18n.tr(TR::ErrorsParseNumberFail).into(),
             AnkiError::DeckIsFiltered => i18n.tr(TR::ErrorsFilteredParentDeck).into(),
+            AnkiError::FilteredDeckEmpty => i18n.tr(TR::DecksFilteredDeckSearchEmpty).into(),
             _ => format!("{:?}", self),
         }
     }

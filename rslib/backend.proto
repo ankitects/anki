@@ -389,7 +389,7 @@ message NormalDeck {
 message FilteredDeck {
   message SearchTerm {
     enum Order {
-      OLDEST_FIRST = 0;
+      OLDEST_REVIEWED_FIRST = 0;
       RANDOM = 1;
       INTERVALS_ASCENDING = 2;
       INTERVALS_DESCENDING = 3;
@@ -568,6 +568,7 @@ message BackendError {
     Empty exists = 12;
     Empty deck_is_filtered = 13;
     Empty filtered_deck_empty = 14;
+    Empty search_error = 15;
   }
 }
 
@@ -1529,9 +1530,9 @@ message RenameDeckIn {
 }
 
 message FilteredDeckForUpdate {
-  int64 deck_id = 1;
+  int64 id = 1;
   string name = 2;
-  FilteredDeck settings = 3;
+  FilteredDeck config = 3;
 }
 
 message SetFlagIn {

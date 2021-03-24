@@ -5,7 +5,7 @@ pub use crate::backend_proto::{
     deck_kind::Kind as DeckKind, Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto,
     FilteredDeck, NormalDeck,
 };
-use crate::decks::FilteredSearchTerm;
+use crate::decks::{FilteredSearchOrder, FilteredSearchTerm};
 use crate::prelude::*;
 
 impl Deck {
@@ -14,7 +14,12 @@ impl Deck {
         filt.search_terms.push(FilteredSearchTerm {
             search: "".into(),
             limit: 100,
-            order: 0,
+            order: FilteredSearchOrder::Random as i32,
+        });
+        filt.search_terms.push(FilteredSearchTerm {
+            search: "".into(),
+            limit: 20,
+            order: FilteredSearchOrder::Due as i32,
         });
         filt.preview_delay = 10;
         filt.reschedule = true;

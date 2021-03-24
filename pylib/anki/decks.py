@@ -19,6 +19,7 @@ from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_b
 # public exports
 DeckTreeNode = _pb.DeckTreeNode
 DeckNameID = _pb.DeckNameID
+FilteredDeckConfig = _pb.FilteredDeck
 
 # legacy code may pass this in as the type argument to .id()
 defaultDeck = 0
@@ -171,7 +172,16 @@ class DeckManager:
         return list(from_json_bytes(self.col._backend.get_all_decks_legacy()).values())
 
     def new_deck_legacy(self, filtered: bool) -> DeckDict:
-        return from_json_bytes(self.col._backend.new_deck_legacy(filtered))
+        deck = from_json_bytes(self.col._backend.new_deck_legacy(filtered))
+        if deck["dyn"]:
+            # Filtered decks are now created via a scheduler method, but old unit
+            # tests still use this method. Set the default values to what the tests
+            # expect: one empty search term, and ordering by oldest first.
+            del deck["terms"][1]
+            deck["terms"][0][0] = ""
+            deck["terms"][0][2] = 0
+
+        return deck
 
     def deck_tree(self) -> DeckTreeNode:
         return self.col._backend.deck_tree(top_deck_id=0, now=0)

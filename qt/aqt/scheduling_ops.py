@@ -9,6 +9,7 @@ import aqt
 from anki.collection import CARD_TYPE_NEW, Config
 from anki.decks import DeckID
 from anki.lang import TR
+from anki.scheduler import FilteredDeckForUpdate
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.qt import *
@@ -182,3 +183,15 @@ def rebuild_filtered_deck(*, mw: AnkiQt, deck_id: DeckID) -> None:
 
 def empty_filtered_deck(*, mw: AnkiQt, deck_id: DeckID) -> None:
     mw.perform_op(lambda: mw.col.sched.empty_filtered_deck(deck_id))
+
+
+def add_or_update_filtered_deck(
+    *,
+    mw: AnkiQt,
+    deck: FilteredDeckForUpdate,
+    success: PerformOpOptionalSuccessCallback,
+) -> None:
+    mw.perform_op(
+        lambda: mw.col.sched.add_or_update_filtered_deck(deck),
+        success=success,
+    )

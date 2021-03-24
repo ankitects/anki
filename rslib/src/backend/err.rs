@@ -28,7 +28,7 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::Back
         AnkiError::NotFound => V::NotFoundError(pb::Empty {}),
         AnkiError::Existing => V::Exists(pb::Empty {}),
         AnkiError::DeckIsFiltered => V::DeckIsFiltered(pb::Empty {}),
-        AnkiError::SearchError(_) => V::InvalidInput(pb::Empty {}),
+        AnkiError::SearchError(_) => V::SearchError(pb::Empty {}),
         AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
         AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
         AnkiError::FilteredDeckEmpty => V::FilteredDeckEmpty(pb::Empty {}),

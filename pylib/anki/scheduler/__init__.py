@@ -10,6 +10,7 @@ import anki.scheduler.base as _base
 UnburyCurrentDeck = _base.UnburyCurrentDeck
 CongratsInfo = _base.CongratsInfo
 BuryOrSuspend = _base.BuryOrSuspend
+FilteredDeckForUpdate = _base.FilteredDeckForUpdate
 
 # add aliases to the legacy pathnames
 import anki.scheduler.v1

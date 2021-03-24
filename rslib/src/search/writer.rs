@@ -4,7 +4,9 @@
 use crate::{
     decks::DeckID as DeckIDType,
     notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
+    prelude::*,
+    search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
+    text::escape_anki_wildcards,
 };
 use std::mem;
 
@@ -172,17 +174,21 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
     }
 }
 
+pub(crate) fn deck_search(name: &str) -> String {
+    write_nodes(&[Node::Search(SearchNode::Deck(escape_anki_wildcards(name)))])
+}
+
+/// Take an Anki-style search string and convert it into an equivalent
+/// search string with normalized syntax.
+pub(crate) fn normalize_search(input: &str) -> Result<String> {
+    Ok(write_nodes(&parse(input)?))
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::err::Result;
     use crate::search::parse_search as parse;
-
-    /// Take an Anki-style search string and convert it into an equivalent
-    /// search string with normalized syntax.
-    fn normalize_search(input: &str) -> Result<String> {
-        Ok(write_nodes(&parse(input)?))
-    }
 
     #[test]
     fn normalizing() -> Result<()> {
