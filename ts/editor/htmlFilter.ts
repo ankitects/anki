@@ -2,92 +2,9 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 import { nodeIsElement } from "./helpers";
+import { tagsAllowedBasic, tagsAllowedExtended } from "./htmlFilterTagsAllowed";
 
-const allowedTagsBasic = {};
-const allowedTagsExtended = {};
-
-let TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP"];
-for (const tag of TAGS_WITHOUT_ATTRS) {
-    allowedTagsBasic[tag] = { attrs: [] };
-}
-
-TAGS_WITHOUT_ATTRS = [
-    "B",
-    "BLOCKQUOTE",
-    "CODE",
-    "DD",
-    "DL",
-    "DT",
-    "EM",
-    "H1",
-    "H2",
-    "H3",
-    "I",
-    "LI",
-    "OL",
-    "PRE",
-    "RP",
-    "RT",
-    "RUBY",
-    "STRONG",
-    "TABLE",
-    "U",
-    "UL",
-];
-for (const tag of TAGS_WITHOUT_ATTRS) {
-    allowedTagsExtended[tag] = { attrs: [] };
-}
-
-allowedTagsBasic["IMG"] = { attrs: ["SRC"] };
-
-allowedTagsExtended["A"] = { attrs: ["HREF"] };
-allowedTagsExtended["TR"] = { attrs: ["ROWSPAN"] };
-allowedTagsExtended["TD"] = { attrs: ["COLSPAN", "ROWSPAN"] };
-allowedTagsExtended["TH"] = { attrs: ["COLSPAN", "ROWSPAN"] };
-allowedTagsExtended["FONT"] = { attrs: ["COLOR"] };
-
-const allowedStyling = {
-    color: true,
-    "background-color": true,
-    "font-weight": true,
-    "font-style": true,
-    "text-decoration-line": true,
-};
-
-function isNightMode(): boolean {
-    return document.body.classList.contains("nightMode");
-}
-
-function filterExternalSpan(elem: HTMLElement): void {
-    // filter out attributes
-    for (const attr of [...elem.attributes]) {
-        const attrName = attr.name.toUpperCase();
-
-        if (attrName !== "STYLE") {
-            elem.removeAttributeNode(attr);
-        }
-    }
-
-    // filter styling
-    for (const name of [...elem.style]) {
-        const value = elem.style.getPropertyValue(name);
-
-        if (
-            !allowedStyling.hasOwnProperty(name) ||
-            // google docs adds this unnecessarily
-            (name === "background-color" && value === "transparent") ||
-            // ignore coloured text in night mode for now
-            (isNightMode() && (name === "background-color" || name === "color"))
-        ) {
-            elem.style.removeProperty(name);
-        }
-    }
-}
-
-allowedTagsExtended["SPAN"] = filterExternalSpan;
-
-// add basic tags to extended
-Object.assign(allowedTagsExtended, allowedTagsBasic);
+////////////////////// //////////////////// ////////////////////
 
 function isHTMLElement(elem: Element): elem is HTMLElement {
     return elem instanceof HTMLElement;
@@ -127,28 +44,15 @@ function filterNode(node: Node, extendedMode: boolean): void {
         return;
     }
 
-    const tag = extendedMode
-        ? allowedTagsExtended[node.tagName]
-        : allowedTagsBasic[node.tagName];
+    const tagsAllowed = extendedMode ? tagsAllowedExtended : tagsAllowedBasic;
 
-    if (!tag) {
+    if (tagsAllowed.hasOwnProperty(node.tagName)) {
+        tagsAllowed[node.tagName](node);
+    } else {
         if (!node.innerHTML || node.tagName === "TITLE") {
             node.parentNode.removeChild(node);
         } else {
             node.outerHTML = node.innerHTML;
-        }
-    } else {
-        if (typeof tag === "function") {
-            // filtering function provided
-            tag(node);
-        } else {
-            // allowed, filter out attributes
-            for (const attr of [...node.attributes]) {
-                const attrName = attr.name.toUpperCase();
-                if (tag.attrs.indexOf(attrName) === -1) {
-                    node.removeAttributeNode(attr);
-                }
-            }
         }
     }
 }
