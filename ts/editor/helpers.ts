@@ -77,3 +77,7 @@ export function caretToEnd(currentField: EditingArea): void {
     selection.removeAllRanges();
     selection.addRange(range);
 }
+
+export function isNightMode(): boolean {
+    return document.body.classList.contains("nightMode");
+}
