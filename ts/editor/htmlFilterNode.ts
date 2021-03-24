@@ -21,12 +21,14 @@ export const filterNode = (elementFilter: (element: Element) => void) => (
 
         case Node.DOCUMENT_FRAGMENT_NODE:
             iterateElement(filterNode(elementFilter), node as DocumentFragment);
+            break;
 
         case Node.ELEMENT_NODE:
             iterateElement(filterNode(elementFilter), node as Element);
             elementFilter(node as Element);
+            break;
 
         default:
-        // do nothing
+            // do nothing
     }
 };
