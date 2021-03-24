@@ -76,21 +76,23 @@ hooks = [
     ),
     Hook(
         name="scheduler_new_limit_for_single_deck",
-        args=["count: int", "deck: anki.decks.Deck"],
+        args=["count: int", "deck: anki.decks.DeckDict"],
         return_type="int",
         doc="""Allows changing the number of new card for this deck (without
         considering descendants).""",
     ),
     Hook(
         name="scheduler_review_limit_for_single_deck",
-        args=["count: int", "deck: anki.decks.Deck"],
+        args=["count: int", "deck: anki.decks.DeckDict"],
         return_type="int",
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
     # obsolete
     Hook(
-        name="deck_added", args=["deck: anki.decks.Deck"], doc="Obsolete, do not use."
+        name="deck_added",
+        args=["deck: anki.decks.DeckDict"],
+        doc="Obsolete, do not use.",
     ),
     Hook(
         name="note_type_added",

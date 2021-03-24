@@ -14,7 +14,7 @@ SchedTimingToday = _pb.SchedTimingTodayOut
 from typing import List, Optional, Sequence
 
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
-from anki.decks import DeckConfig, DeckTreeNode
+from anki.decks import DeckConfigDict, DeckTreeNode
 from anki.notes import Note
 from anki.utils import ids2str, intTime
 
@@ -195,7 +195,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def orderCards(self, did: int) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=False)
 
-    def resortConf(self, conf: DeckConfig) -> None:
+    def resortConf(self, conf: DeckConfigDict) -> None:
         for did in self.col.decks.didsForConf(conf):
             if conf["new"]["order"] == 0:
                 self.randomizeCards(did)
