@@ -21,7 +21,7 @@ from typing import Any, Callable, List, Sequence, Tuple, Optional, Union
 import anki
 import aqt
 from anki.cards import Card
-from anki.decks import Deck, DeckConfig
+from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
 from anki.models import NoteType
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
@@ -229,20 +229,28 @@ hooks = [
     ),
     Hook(
         name="deck_conf_did_load_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
+        ],
         doc="Called once widget state has been set from deck config",
     ),
     Hook(
         name="deck_conf_will_save_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
+        ],
         doc="Called before widget state is saved to config",
     ),
     Hook(
         name="deck_conf_did_add_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Deck",
-            "config: DeckConfig",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
             "new_name: str",
             "new_conf_id: int",
         ],
@@ -259,15 +267,19 @@ hooks = [
     ),
     Hook(
         name="deck_conf_will_remove_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
+        ],
         doc="Called before current config group is removed",
     ),
     Hook(
         name="deck_conf_will_rename_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Deck",
-            "config: DeckConfig",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
             "new_name: str",
         ],
         doc="Called before config group is renamed",

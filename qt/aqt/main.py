@@ -52,7 +52,7 @@ from anki.collection import (
     UndoResult,
     UndoStatus,
 )
-from anki.decks import Deck
+from anki.decks import DeckDict
 from anki.hooks import runHook
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.types import assert_exhaustive
@@ -695,7 +695,7 @@ class AnkiQt(QMainWindow):
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
-    def _selectedDeck(self) -> Optional[Deck]:
+    def _selectedDeck(self) -> Optional[DeckDict]:
         did = self.col.decks.selected()
         if not self.col.decks.name_if_exists(did):
             showInfo(tr(TR.QT_MISC_PLEASE_SELECT_A_DECK))
@@ -1319,7 +1319,7 @@ title="%s" %s>%s</button>""" % (
     def onEditCurrent(self) -> None:
         aqt.dialogs.open("EditCurrent", self)
 
-    def onDeckConf(self, deck: Optional[Deck] = None) -> None:
+    def onDeckConf(self, deck: Optional[DeckDict] = None) -> None:
         import aqt.deckconf
 
         if not deck:

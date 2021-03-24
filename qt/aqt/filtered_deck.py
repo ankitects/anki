@@ -4,7 +4,7 @@ from typing import Callable, List, Optional, Tuple
 
 import aqt
 from anki.collection import SearchNode
-from anki.decks import Deck
+from anki.decks import DeckDict
 from anki.errors import DeckIsFilteredError, InvalidInput
 from anki.lang import without_unicode_isolation
 from aqt import AnkiQt, colors, gui_hooks
@@ -32,7 +32,7 @@ class FilteredDeckConfigDialog(QDialog):
         mw: AnkiQt,
         search: Optional[str] = None,
         search_2: Optional[str] = None,
-        deck: Optional[Deck] = None,
+        deck: Optional[DeckDict] = None,
     ) -> None:
         """If 'deck' is an existing filtered deck, load and modify its settings.
         Otherwise, build a new one and derive settings from the current deck.
@@ -99,7 +99,7 @@ class FilteredDeckConfigDialog(QDialog):
         _mw: AnkiQt,
         search: Optional[str] = None,
         search_2: Optional[str] = None,
-        _deck: Optional[Deck] = None,
+        _deck: Optional[DeckDict] = None,
     ) -> None:
         self.set_custom_searches(search, search_2)
 
@@ -222,7 +222,7 @@ class FilteredDeckConfigDialog(QDialog):
             not self.form.resched.isChecked() and self.col.schedVer() > 1
         )
 
-    def loadConf(self, deck: Optional[Deck] = None) -> None:
+    def loadConf(self, deck: Optional[DeckDict] = None) -> None:
         f = self.form
         d = deck or self.deck
 

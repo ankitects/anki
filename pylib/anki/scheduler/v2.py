@@ -13,13 +13,16 @@ import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, QueueConfig
+from anki.decks import DeckConfigDict, DeckDict
 from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.utils import ids2str, intTime
 
 CountsForDeckToday = _pb.CountsForDeckTodayOut
 SchedTimingToday = _pb.SchedTimingTodayOut
+
+# legacy type alias
+QueueConfig = Dict[str, Any]
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -207,7 +210,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Optional[Callable[[Deck], int]] = None
+        self, did: int, fn: Optional[Callable[[DeckDict], int]] = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -235,7 +238,7 @@ select count() from
             lim,
         )
 
-    def _deckNewLimitSingle(self, g: DeckConfig) -> int:
+    def _deckNewLimitSingle(self, g: DeckConfigDict) -> int:
         "Limit for deck without parent limits."
         if g["dyn"]:
             return self.dynReportLimit
@@ -490,7 +493,7 @@ limit ?"""
         if card.odue:
             card.odue = 0
 
-    def _cardConf(self, card: Card) -> DeckConfig:
+    def _cardConf(self, card: Card) -> DeckConfigDict:
         return self.col.decks.confForDid(card.did)
 
     def _deckLimit(self) -> str:

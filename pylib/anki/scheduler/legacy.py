@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 
 from anki.cards import Card
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
-from anki.decks import DeckConfig
+from anki.decks import DeckConfigDict
 from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
 from anki.utils import from_json_bytes, ids2str
 
@@ -115,7 +115,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     # legacy in v3 but used by unit tests; redefined in v2/v1
 
-    def _cardConf(self, card: Card) -> DeckConfig:
+    def _cardConf(self, card: Card) -> DeckConfigDict:
         return self.col.decks.confForDid(card.did)
 
     def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:

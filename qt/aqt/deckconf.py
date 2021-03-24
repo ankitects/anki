@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QLineEdit
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
-from anki.decks import DeckConfig
+from anki.decks import DeckConfigDict
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
@@ -72,7 +72,7 @@ class DeckConf(QDialog):
 
     def setupConfs(self) -> None:
         qconnect(self.form.dconf.currentIndexChanged, self.onConfChange)
-        self.conf: Optional[DeckConfig] = None
+        self.conf: Optional[DeckConfigDict] = None
         self.loadConfs()
 
     def loadConfs(self) -> None:
