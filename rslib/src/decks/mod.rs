@@ -101,6 +101,14 @@ impl Deck {
         }
     }
 
+    pub(crate) fn filtered(&self) -> Result<&FilteredDeck> {
+        if let DeckKind::Filtered(filtered) = &self.kind {
+            Ok(filtered)
+        } else {
+            Err(AnkiError::invalid_input("deck not filtered"))
+        }
+    }
+
     #[allow(dead_code)]
     pub(crate) fn filtered_mut(&mut self) -> Result<&mut FilteredDeck> {
         if let DeckKind::Filtered(filtered) = &mut self.kind {
@@ -283,13 +291,14 @@ impl Collection {
             return Err(AnkiError::invalid_input("deck to add must have id 0"));
         }
 
-        self.transact(Op::AddDeck, |col| {
-            let usn = col.usn()?;
-            col.prepare_deck_for_update(deck, usn)?;
-            deck.set_modified(usn);
-            col.match_or_create_parents(deck, usn)?;
-            col.add_deck_undoable(deck)
-        })
+        self.transact(Op::AddDeck, |col| col.add_deck_inner(deck, col.usn()?))
+    }
+
+    pub(crate) fn add_deck_inner(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
+        self.prepare_deck_for_update(deck, usn)?;
+        deck.set_modified(usn);
+        self.match_or_create_parents(deck, usn)?;
+        self.add_deck_undoable(deck)
     }
 
     pub fn update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
@@ -308,7 +317,12 @@ impl Collection {
         })
     }
 
-    fn update_deck_inner(&mut self, deck: &mut Deck, original: Deck, usn: Usn) -> Result<()> {
+    pub(crate) fn update_deck_inner(
+        &mut self,
+        deck: &mut Deck,
+        original: Deck,
+        usn: Usn,
+    ) -> Result<()> {
         self.prepare_deck_for_update(deck, usn)?;
         deck.set_modified(usn);
         let name_changed = original.name != deck.name;

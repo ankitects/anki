@@ -138,6 +138,17 @@ impl DecksService for Backend {
         self.with_col(|col| col.rename_deck(input.deck_id.into(), &input.new_name))
             .map(Into::into)
     }
+
+    fn get_or_create_filtered_deck(&self, _input: pb::DeckId) -> Result<pb::FilteredDeckForUpdate> {
+        todo!()
+    }
+
+    fn add_or_update_filtered_deck(
+        &self,
+        _input: pb::FilteredDeckForUpdate,
+    ) -> Result<pb::OpChangesWithId> {
+        todo!()
+    }
 }
 
 impl From<pb::DeckId> for DeckID {

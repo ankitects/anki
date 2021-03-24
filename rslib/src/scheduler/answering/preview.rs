@@ -76,7 +76,7 @@ mod test {
         let mut filtered_deck = Deck::new_filtered();
         filtered_deck.filtered_mut()?.reschedule = false;
         col.add_or_update_deck(&mut filtered_deck)?;
-        assert_eq!(col.rebuild_filtered_deck(filtered_deck.id)?, 1);
+        assert_eq!(col.rebuild_filtered_deck(filtered_deck.id)?.output, 1);
 
         let next = col.get_next_card_states(c.id)?;
         assert!(matches!(

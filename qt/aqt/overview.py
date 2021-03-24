@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import aqt
 from anki.collection import OpChanges
 from aqt import gui_hooks
+from aqt.scheduling_ops import empty_filtered_deck, rebuild_filtered_deck
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import TR, askUserDialog, openLink, shortcut, tooltip, tr
@@ -52,12 +53,12 @@ class Overview:
         self.refresh()
 
     def refresh(self) -> None:
+        self._refresh_needed = False
         self.mw.col.reset()
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
         gui_hooks.overview_did_refresh(self)
-        self._refresh_needed = False
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed:
@@ -88,11 +89,9 @@ class Overview:
         elif url == "cram":
             aqt.dialogs.open("DynDeckConfDialog", self.mw)
         elif url == "refresh":
-            self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+            self.rebuild_current_filtered_deck()
         elif url == "empty":
-            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+            self.empty_current_filtered_deck()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
         elif url == "review":
@@ -108,27 +107,25 @@ class Overview:
     def _shortcutKeys(self) -> List[Tuple[str, Callable]]:
         return [
             ("o", self.mw.onDeckConf),
-            ("r", self.onRebuildKey),
-            ("e", self.onEmptyKey),
+            ("r", self.rebuild_current_filtered_deck),
+            ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),
             ("u", self.onUnbury),
         ]
 
-    def _filteredDeck(self) -> int:
+    def _current_deck_is_filtered(self) -> int:
         return self.mw.col.decks.current()["dyn"]
 
-    def onRebuildKey(self) -> None:
-        if self._filteredDeck():
-            self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+    def rebuild_current_filtered_deck(self) -> None:
+        if self._current_deck_is_filtered():
+            rebuild_filtered_deck(mw=self.mw, deck_id=self.mw.col.decks.selected())
 
-    def onEmptyKey(self) -> None:
-        if self._filteredDeck():
-            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+    def empty_current_filtered_deck(self) -> None:
+        if self._current_deck_is_filtered():
+            empty_filtered_deck(mw=self.mw, deck_id=self.mw.col.decks.selected())
 
     def onCustomStudyKey(self) -> None:
-        if not self._filteredDeck():
+        if not self._current_deck_is_filtered():
             self.onStudyMore()
 
     def onUnbury(self) -> None:

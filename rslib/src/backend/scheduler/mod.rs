@@ -95,11 +95,11 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn empty_filtered_deck(&self, input: pb::DeckId) -> Result<pb::Empty> {
+    fn empty_filtered_deck(&self, input: pb::DeckId) -> Result<pb::OpChanges> {
         self.with_col(|col| col.empty_filtered_deck(input.did.into()).map(Into::into))
     }
 
-    fn rebuild_filtered_deck(&self, input: pb::DeckId) -> Result<pb::UInt32> {
+    fn rebuild_filtered_deck(&self, input: pb::DeckId) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
     }
 

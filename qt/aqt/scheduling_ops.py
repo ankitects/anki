@@ -7,6 +7,7 @@ from typing import List, Optional, Sequence
 
 import aqt
 from anki.collection import CARD_TYPE_NEW, Config
+from anki.decks import DeckID
 from anki.lang import TR
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
@@ -173,3 +174,11 @@ def bury_note(
         lambda: mw.col.card_ids_of_note(note_id),
         lambda future: bury_cards(mw=mw, card_ids=future.result(), success=success),
     )
+
+
+def rebuild_filtered_deck(*, mw: AnkiQt, deck_id: DeckID) -> None:
+    mw.perform_op(lambda: mw.col.sched.rebuild_filtered_deck(deck_id))
+
+
+def empty_filtered_deck(*, mw: AnkiQt, deck_id: DeckID) -> None:
+    mw.perform_op(lambda: mw.col.sched.empty_filtered_deck(deck_id))

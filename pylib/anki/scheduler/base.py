@@ -71,6 +71,7 @@ class SchedulerBase:
 
     # fixme: used by custom study
     def totalRevForCurrentDeck(self) -> int:
+        assert self.col.db
         return self.col.db.scalar(
             f"""
 select count() from cards where id in (
@@ -88,11 +89,11 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Filtered deck handling
     ##########################################################################
 
-    def rebuild_filtered_deck(self, deck_id: int) -> int:
+    def rebuild_filtered_deck(self, deck_id: int) -> OpChangesWithCount:
         return self.col._backend.rebuild_filtered_deck(deck_id)
 
-    def empty_filtered_deck(self, deck_id: int) -> None:
-        self.col._backend.empty_filtered_deck(deck_id)
+    def empty_filtered_deck(self, deck_id: int) -> OpChanges:
+        return self.col._backend.empty_filtered_deck(deck_id)
 
     # Suspending & burying
     ##########################################################################
@@ -140,17 +141,22 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         """Set cards to be due in `days`, turning them into review cards if necessary.
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
+        key: Optional[Config.String]
         if config_key:
             key = Config.String(key=config_key)
         else:
             key = None
         return self.col._backend.set_due_date(
-            card_ids=card_ids, days=days, config_key=key
+            card_ids=card_ids,
+            days=days,
+            # this value is optional; the auto-generated typing is wrong
+            config_key=key,  # type: ignore
         )
 
     def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."
         sids = ids2str(ids)
+        assert self.col.db
         # we want to avoid resetting due number of existing new cards on export
         nonNew = self.col.db.list(
             f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})"

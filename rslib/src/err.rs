@@ -65,6 +65,9 @@ pub enum AnkiError {
 
     #[fail(display = "Invalid search.")]
     SearchError(SearchErrorKind),
+
+    #[fail(display = "Provided search(es) did not match any cards.")]
+    FilteredDeckEmpty,
 }
 
 // error helpers
