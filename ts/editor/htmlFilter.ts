@@ -3,31 +3,8 @@
 
 import { nodeIsElement } from "./helpers";
 
-export function filterHTML(
-    html: string,
-    internal: boolean,
-    extendedMode: boolean
-): string {
-    // wrap it in <top> as we aren't allowed to change top level elements
-    const top = document.createElement("ankitop");
-    top.innerHTML = html;
-
-    if (internal) {
-        filterInternalNode(top);
-    } else {
-        filterNode(top, extendedMode);
-    }
-    let outHtml = top.innerHTML;
-    if (!extendedMode && !internal) {
-        // collapse whitespace
-        outHtml = outHtml.replace(/[\n\t ]+/g, " ");
-    }
-    outHtml = outHtml.trim();
-    return outHtml;
-}
-
-let allowedTagsBasic = {};
-let allowedTagsExtended = {};
+const allowedTagsBasic = {};
+const allowedTagsExtended = {};
 
 let TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP"];
 for (const tag of TAGS_WITHOUT_ATTRS) {
@@ -77,11 +54,11 @@ const allowedStyling = {
     "text-decoration-line": true,
 };
 
-let isNightMode = function (): boolean {
+function isNightMode(): boolean {
     return document.body.classList.contains("nightMode");
-};
+}
 
-let filterExternalSpan = function (elem: HTMLElement) {
+function filterExternalSpan(elem: HTMLElement): void {
     // filter out attributes
     for (const attr of [...elem.attributes]) {
         const attrName = attr.name.toUpperCase();
@@ -105,7 +82,7 @@ let filterExternalSpan = function (elem: HTMLElement) {
             elem.style.removeProperty(name);
         }
     }
-};
+}
 
 allowedTagsExtended["SPAN"] = filterExternalSpan;
 
@@ -117,7 +94,7 @@ function isHTMLElement(elem: Element): elem is HTMLElement {
 }
 
 // filtering from another field
-let filterInternalNode = function (elem: Element) {
+function filterInternalNode(elem: Element): void {
     if (isHTMLElement(elem)) {
         elem.style.removeProperty("background-color");
         elem.style.removeProperty("font-size");
@@ -128,10 +105,10 @@ let filterInternalNode = function (elem: Element) {
         const child = elem.children[i];
         filterInternalNode(child);
     }
-};
+}
 
 // filtering from external sources
-let filterNode = function (node: Node, extendedMode: boolean): void {
+function filterNode(node: Node, extendedMode: boolean): void {
     if (node.nodeType === Node.COMMENT_NODE) {
         node.parentNode.removeChild(node);
         return;
@@ -174,4 +151,27 @@ let filterNode = function (node: Node, extendedMode: boolean): void {
             }
         }
     }
-};
+}
+
+export function filterHTML(
+    html: string,
+    internal: boolean,
+    extendedMode: boolean
+): string {
+    // wrap it in <top> as we aren't allowed to change top level elements
+    const top = document.createElement("ankitop");
+    top.innerHTML = html;
+
+    if (internal) {
+        filterInternalNode(top);
+    } else {
+        filterNode(top, extendedMode);
+    }
+    let outHtml = top.innerHTML;
+    if (!extendedMode && !internal) {
+        // collapse whitespace
+        outHtml = outHtml.replace(/[\n\t ]+/g, " ");
+    }
+    outHtml = outHtml.trim();
+    return outHtml;
+}
