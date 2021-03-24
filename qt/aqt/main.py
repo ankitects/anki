@@ -1325,7 +1325,7 @@ title="%s" %s>%s</button>""" % (
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
-            aqt.dialogs.open("DynDeckConfDialog", self, deck=deck)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self, deck=deck)
         else:
             aqt.deckconf.DeckConf(self, deck)
 
@@ -1402,7 +1402,7 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def onCram(self) -> None:
-        aqt.dialogs.open("DynDeckConfDialog", self)
+        aqt.dialogs.open("FilteredDeckConfigDialog", self)
 
     # Menu, title bar & status
     ##########################################################################
