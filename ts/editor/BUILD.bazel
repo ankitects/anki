@@ -21,7 +21,7 @@ ts_library(
     srcs = glob(["*.ts"]),
     tsconfig = "//qt/aqt/data/web/js:tsconfig.json",
     deps = [
-        "@npm//@types/jquery",
+        "//ts/html-filter",
     ],
 )
 

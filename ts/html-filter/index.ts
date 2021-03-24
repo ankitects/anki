@@ -5,8 +5,8 @@ import {
     filterElementBasic,
     filterElementExtended,
     filterElementInternal,
-} from "./htmlFilterElement";
-import { filterNode } from "./htmlFilterNode";
+} from "./element";
+import { filterNode } from "./node";
 
 enum FilterMode {
     Basic,

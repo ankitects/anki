@@ -29,6 +29,6 @@ export const filterNode = (elementFilter: (element: Element) => void) => (
             break;
 
         default:
-            // do nothing
+        // do nothing
     }
 };
