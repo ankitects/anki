@@ -27,7 +27,8 @@ const stylingInternal: BlockProperties = [
 const allowPropertiesBlockValues = (
     allowBlock: AllowPropertiesBlockValues
 ): StylingPredicate => (property: string, value: string): boolean =>
-    allowBlock.hasOwnProperty(property) && !allowBlock[property].includes(value);
+    Object.prototype.hasOwnProperty.call(allowBlock, property) &&
+    !allowBlock[property].includes(value);
 
 const blockProperties = (block: BlockProperties): StylingPredicate => (
     property: string
