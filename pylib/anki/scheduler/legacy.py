@@ -50,7 +50,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
 
     def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
         did = did or self.col.decks.selected()
-        count = self.rebuild_filtered_deck(did) or None
+        count = self.rebuild_filtered_deck(did).count or None
         if not count:
             return None
         # and change to our new deck

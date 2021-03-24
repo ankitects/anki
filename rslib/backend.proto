@@ -121,8 +121,8 @@ service SchedulingService {
   rpc RestoreBuriedAndSuspendedCards(CardIDs) returns (OpChanges);
   rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
   rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChanges);
-  rpc EmptyFilteredDeck(DeckID) returns (Empty);
-  rpc RebuildFilteredDeck(DeckID) returns (UInt32);
+  rpc EmptyFilteredDeck(DeckID) returns (OpChanges);
+  rpc RebuildFilteredDeck(DeckID) returns (OpChangesWithCount);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (OpChanges);
   rpc SetDueDate(SetDueDateIn) returns (OpChanges);
   rpc SortCards(SortCardsIn) returns (OpChangesWithCount);
@@ -148,6 +148,8 @@ service DecksService {
   rpc RemoveDecks(DeckIDs) returns (OpChangesWithCount);
   rpc ReparentDecks(ReparentDecksIn) returns (OpChangesWithCount);
   rpc RenameDeck(RenameDeckIn) returns (OpChanges);
+  rpc GetOrCreateFilteredDeck(DeckID) returns (FilteredDeckForUpdate);
+  rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithID);
 }
 
 service NotesService {
@@ -565,6 +567,7 @@ message BackendError {
     Empty not_found_error = 11;
     Empty exists = 12;
     Empty deck_is_filtered = 13;
+    Empty filtered_deck_empty = 14;
   }
 }
 
@@ -1523,6 +1526,12 @@ message DeckAndNotetype {
 message RenameDeckIn {
   int64 deck_id = 1;
   string new_name = 2;
+}
+
+message FilteredDeckForUpdate {
+  int64 deck_id = 1;
+  string name = 2;
+  FilteredDeck settings = 3;
 }
 
 message SetFlagIn {

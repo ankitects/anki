@@ -433,9 +433,9 @@ class DeckManager:
         "The currrently active dids."
         return self.col.get_config("activeDecks", [1])
 
-    def selected(self) -> int:
+    def selected(self) -> DeckID:
         "The currently selected did."
-        return int(self.col.conf["curDeck"])
+        return DeckID(int(self.col.conf["curDeck"]))
 
     def current(self) -> Deck:
         return self.get(self.selected())

@@ -19,3 +19,4 @@ undo-update-card = Update Card
 undo-update-deck = Update Deck
 undo-forget-card = Forget Card
 undo-set-flag = Set Flag
+undo-build-filtered-deck = Build Deck

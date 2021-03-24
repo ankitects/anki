@@ -8,9 +8,12 @@ pub enum Op {
     AddDeck,
     AddNote,
     AnswerCard,
+    BuildFilteredDeck,
     Bury,
     ClearUnusedTags,
+    EmptyFilteredDeck,
     FindAndReplace,
+    RebuildFilteredDeck,
     RemoveDeck,
     RemoveNote,
     RemoveTag,
@@ -60,6 +63,9 @@ impl Op {
             Op::RemoveTag => TR::ActionsRemoveTag,
             Op::ReparentTag => TR::ActionsRenameTag,
             Op::ReparentDeck => TR::ActionsRenameDeck,
+            Op::BuildFilteredDeck => TR::UndoBuildFilteredDeck,
+            Op::RebuildFilteredDeck => TR::UndoBuildFilteredDeck,
+            Op::EmptyFilteredDeck => TR::StudyingEmpty,
         };
 
         i18n.tr(key).to_string()
