@@ -9,8 +9,7 @@ from anki.decks import DeckDict, DeckID, FilteredDeckConfig
 from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
 from anki.scheduler import FilteredDeckForUpdate
-from aqt import AnkiQt, colors
-from aqt import gui_hooks
+from aqt import AnkiQt, colors, gui_hooks
 from aqt.qt import *
 from aqt.scheduling_ops import add_or_update_filtered_deck
 from aqt.theme import theme_manager
