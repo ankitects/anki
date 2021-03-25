@@ -10,6 +10,7 @@ from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
 from anki.scheduler import FilteredDeckForUpdate
 from aqt import AnkiQt, colors
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.scheduling_ops import add_or_update_filtered_deck
 from aqt.theme import theme_manager
@@ -156,6 +157,8 @@ class FilteredDeckConfigDialog(QDialog):
             without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck.name))
         )
 
+        gui_hooks.filtered_deck_dialog_did_load_deck(self, deck)
+
     def reopen(
         self,
         _mw: AnkiQt,
@@ -300,9 +303,12 @@ class FilteredDeckConfigDialog(QDialog):
             return
 
         def success(out: OpChangesWithCount) -> None:
+            gui_hooks.filtered_deck_dialog_did_add_or_update_deck(self, self.deck)
             saveGeom(self, self.GEOMETRY_KEY)
             aqt.dialogs.markClosed(self.DIALOG_KEY)
             QDialog.accept(self)
+
+        gui_hooks.filtered_deck_dialog_will_add_or_update_deck(self, self.deck)
 
         add_or_update_filtered_deck(mw=self.mw, deck=self.deck, success=success)
 
