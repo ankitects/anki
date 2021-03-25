@@ -303,7 +303,9 @@ class FilteredDeckConfigDialog(QDialog):
             return
 
         def success(out: OpChangesWithID) -> None:
-            gui_hooks.filtered_deck_dialog_did_add_or_update_deck(self, self.deck)
+            gui_hooks.filtered_deck_dialog_did_add_or_update_deck(
+                self, self.deck, out.id
+            )
             saveGeom(self, self.GEOMETRY_KEY)
             aqt.dialogs.markClosed(self.DIALOG_KEY)
             QDialog.accept(self)
