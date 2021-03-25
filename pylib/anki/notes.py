@@ -97,7 +97,7 @@ class Note:
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
-        card.did = 1
+        card.did = anki.decks.default_deck_id
 
         model = custom_note_type or self.model()
         template = copy.copy(
