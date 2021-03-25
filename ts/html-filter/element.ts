@@ -12,26 +12,26 @@ interface TagsAllowed {
 
 type FilterMethod = (element: Element) => void;
 
-function filterOutAttributes(
+function filterAttributes(
     attributePredicate: (attributeName: string) => boolean,
     element: Element
 ): void {
     for (const attr of [...element.attributes]) {
         const attrName = attr.name.toUpperCase();
 
-        if (attributePredicate(attrName)) {
+        if (!attributePredicate(attrName)) {
             element.removeAttributeNode(attr);
         }
     }
 }
 
-function blockAll(element: Element): void {
-    filterOutAttributes(() => true, element);
+function allowNone(element: Element): void {
+    filterAttributes(() => false, element);
 }
 
-const blockExcept = (attrs: string[]): FilterMethod => (element: Element): void =>
-    filterOutAttributes(
-        (attributeName: string) => !attrs.includes(attributeName),
+const allow = (attrs: string[]): FilterMethod => (element: Element): void =>
+    filterAttributes(
+        (attributeName: string) => attrs.includes(attributeName),
         element
     );
 
@@ -40,7 +40,7 @@ function unwrapElement(element: Element): void {
 }
 
 function filterSpan(element: Element): void {
-    const filterAttrs = blockExcept(["STYLE"]);
+    const filterAttrs = allow(["STYLE"]);
     filterAttrs(element);
 
     const filterStyle = isNightMode() ? filterStylingNightMode : filterStylingLightMode;
@@ -48,44 +48,44 @@ function filterSpan(element: Element): void {
 }
 
 const tagsAllowedBasic: TagsAllowed = {
-    BR: blockAll,
-    IMG: blockExcept(["SRC"]),
-    DIV: blockAll,
-    P: blockAll,
-    SUB: blockAll,
-    SUP: blockAll,
+    BR: allowNone,
+    IMG: allow(["SRC"]),
+    DIV: allowNone,
+    P: allowNone,
+    SUB: allowNone,
+    SUP: allowNone,
     TITLE: removeElement,
 };
 
 const tagsAllowedExtended: TagsAllowed = {
     ...tagsAllowedBasic,
-    A: blockExcept(["HREF"]),
-    B: blockAll,
-    BLOCKQUOTE: blockAll,
-    CODE: blockAll,
-    DD: blockAll,
-    DL: blockAll,
-    DT: blockAll,
-    EM: blockAll,
-    FONT: blockExcept(["COLOR"]),
-    H1: blockAll,
-    H2: blockAll,
-    H3: blockAll,
-    I: blockAll,
-    LI: blockAll,
-    OL: blockAll,
-    PRE: blockAll,
-    RP: blockAll,
-    RT: blockAll,
-    RUBY: blockAll,
+    A: allow(["HREF"]),
+    B: allowNone,
+    BLOCKQUOTE: allowNone,
+    CODE: allowNone,
+    DD: allowNone,
+    DL: allowNone,
+    DT: allowNone,
+    EM: allowNone,
+    FONT: allow(["COLOR"]),
+    H1: allowNone,
+    H2: allowNone,
+    H3: allowNone,
+    I: allowNone,
+    LI: allowNone,
+    OL: allowNone,
+    PRE: allowNone,
+    RP: allowNone,
+    RT: allowNone,
+    RUBY: allowNone,
     SPAN: filterSpan,
-    STRONG: blockAll,
-    TABLE: blockAll,
-    TD: blockExcept(["COLSPAN", "ROWSPAN"]),
-    TH: blockExcept(["COLSPAN", "ROWSPAN"]),
-    TR: blockExcept(["ROWSPAN"]),
-    U: blockAll,
-    UL: blockAll,
+    STRONG: allowNone,
+    TABLE: allowNone,
+    TD: allow(["COLSPAN", "ROWSPAN"]),
+    TH: allow(["COLSPAN", "ROWSPAN"]),
+    TR: allow(["ROWSPAN"]),
+    U: allowNone,
+    UL: allowNone,
 };
 
 const filterElementTagsAllowed = (tagsAllowed: TagsAllowed) => (
