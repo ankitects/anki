@@ -834,7 +834,7 @@ time = %(time)d;
             qconnect(a.triggered, func)
 
     def onOptions(self) -> None:
-        self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
+        self.mw.onDeckConf(self.mw.col.decks.get(self.card.currentDeckID()))
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
         # need to toggle off?
