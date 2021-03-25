@@ -30,10 +30,7 @@ function allowNone(element: Element): void {
 }
 
 const allow = (attrs: string[]): FilterMethod => (element: Element): void =>
-    filterAttributes(
-        (attributeName: string) => attrs.includes(attributeName),
-        element
-    );
+    filterAttributes((attributeName: string) => attrs.includes(attributeName), element);
 
 function unwrapElement(element: Element): void {
     element.replaceWith(...element.childNodes);
