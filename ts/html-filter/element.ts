@@ -36,7 +36,7 @@ const allow = (attrs: string[]): FilterMethod => (element: Element): void =>
     );
 
 function unwrapElement(element: Element): void {
-    element.outerHTML = element.innerHTML;
+    element.replaceWith(...element.childNodes);
 }
 
 function filterSpan(element: Element): void {
@@ -96,9 +96,9 @@ const filterElementTagsAllowed = (tagsAllowed: TagsAllowed) => (
     if (Object.prototype.hasOwnProperty.call(tagsAllowed, tagName)) {
         tagsAllowed[tagName](element);
     } else if (element.innerHTML) {
-        removeElement(element);
-    } else {
         unwrapElement(element);
+    } else {
+        removeElement(element);
     }
 };
 
