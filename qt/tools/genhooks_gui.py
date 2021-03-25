@@ -307,6 +307,7 @@ hooks = [
         args=[
             "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
             "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+            "deck_id: int",
         ],
         doc="Allows performing changes after a filtered deck has been added or updated",
     ),
