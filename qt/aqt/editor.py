@@ -82,9 +82,7 @@ _html = """
 }
 </style>
 <div>
-    <div id="topbutsOuter">
-        %s
-    </div>
+    <anki-editor-toolbar></anki-editor-toolbar>
     <div id="fields">
     </div>
     <div id="dupes" class="is-inactive">
@@ -233,10 +231,13 @@ class Editor:
             _html % (bgcol, topbuts, tr.editing_show_duplicates()),
             css=[
                 "css/editor.css",
+                "css/editor-toolbar.css",
             ],
             js=[
                 "js/vendor/jquery.min.js",
+                "js/vendor/protobuf.min.js",
                 "js/editor.js",
+                "js/editor-toolbar.js",
             ],
             context=self,
             default_css=False,
