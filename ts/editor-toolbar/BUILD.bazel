@@ -1,0 +1,92 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("//ts:esbuild.bzl", "esbuild")
+
+svelte_files = glob(["*.svelte"])
+
+svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+compile_svelte(
+    name = "svelte",
+    srcs = svelte_files,
+)
+
+ts_library(
+    name = "index",
+    srcs = ["index.ts"],
+    deps = [
+        "EditorToolbar",
+        "lib",
+        "//ts/lib",
+        "@npm//svelte",
+        "@npm//svelte2tsx",
+    ],
+)
+
+ts_library(
+    name = "lib",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["index.ts"],
+    ),
+    deps = [
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "@npm//svelte",
+    ],
+)
+
+esbuild(
+    name = "editor-toolbar",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
+    args = [
+        "--global-name=anki",
+        "--inject:ts/protobuf-shim.js",
+    ],
+    entry_point = "index.ts",
+    external = [
+        "protobufjs/light",
+    ],
+    output_css = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "//ts/lib:fluent_proto",
+        ":index",
+        "//ts/sass:core_css",
+    ] + svelte_names,
+)
+
+# Tests
+################
+
+prettier_test(
+    name = "format_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]),
+)
+
+eslint_test(
+    name = "eslint",
+    srcs = glob(
+        [
+            "*.ts",
+        ],
+    ),
+)
+
+svelte_check(
+    name = "svelte_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]),
+)
+
