@@ -398,7 +398,7 @@ class Collection:
         or current notetype.
         """
         if card := current_review_card:
-            home_deck = card.odid or card.did
+            home_deck = card.currentDeckID()
         else:
             home_deck = 0
 

@@ -163,21 +163,24 @@ class Card:
     def startTimer(self) -> None:
         self.timerStarted = time.time()
 
+    def currentDeckID(self) -> int:
+        return anki.decks.DeckID(self.odid or self.did)
+
     def timeLimit(self) -> int:
         "Time limit for answering in milliseconds."
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.currentDeckID())
         return conf["maxTaken"] * 1000
 
     def shouldShowTimer(self) -> bool:
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.currentDeckID())
         return conf["timer"]
 
     def replay_question_audio_on_answer_side(self) -> bool:
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.currentDeckID())
         return conf.get("replayq", True)
 
     def autoplay(self) -> bool:
-        return self.col.decks.confForDid(self.odid or self.did)["autoplay"]
+        return self.col.decks.confForDid(self.currentDeckID())["autoplay"]
 
     def timeTaken(self) -> int:
         "Time taken to answer card, in integer MS."

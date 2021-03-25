@@ -172,7 +172,7 @@ class TemplateRenderContext:
             # add (most) special fields
             fields["Tags"] = self._note.stringTags().strip()
             fields["Type"] = self._note_type["name"]
-            fields["Deck"] = self._col.decks.name(self._card.odid or self._card.did)
+            fields["Deck"] = self._col.decks.name(self._card.currentDeckID())
             fields["Subdeck"] = DeckManager.basename(fields["Deck"])
             if self._template:
                 fields["Card"] = self._template["name"]
