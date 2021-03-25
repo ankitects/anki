@@ -31,6 +31,7 @@ DeckDict = Dict[str, Any]
 DeckConfigDict = Dict[str, Any]
 
 DeckID = NewType("DeckID", int)
+default_deck_id = 1
 
 
 class DecksDictProxy:
@@ -248,7 +249,7 @@ class DeckManager:
     def get(self, did: Union[int, str], default: bool = True) -> Optional[DeckDict]:
         if not did:
             if default:
-                return self.get_legacy(1)
+                return self.get_legacy(default_deck_id)
             else:
                 return None
         id = int(did)
@@ -256,7 +257,7 @@ class DeckManager:
         if deck:
             return deck
         elif default:
-            return self.get_legacy(1)
+            return self.get_legacy(default_deck_id)
         else:
             return None
 
