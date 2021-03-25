@@ -10,6 +10,7 @@ from anki.consts import *
 from anki.decks import DeckManager
 from anki.importing.base import Importer
 from anki.lang import TR
+from anki.notes import NoteID
 from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
 
 GUID = 1
@@ -79,7 +80,7 @@ class Anki2Importer(Importer):
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
-        self._notes: Dict[str, Tuple[int, int, int]] = {}
+        self._notes: Dict[str, Tuple[NoteID, int, int]] = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"

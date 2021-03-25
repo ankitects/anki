@@ -257,7 +257,7 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def nids(self, ntid: int) -> List[int]:
+    def nids(self, ntid: int) -> List[anki.notes.NoteID]:
         "Note ids for M."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
@@ -420,7 +420,7 @@ and notes.mid = ? and cards.ord = ?""",
     def change(
         self,
         m: NoteType,
-        nids: List[int],
+        nids: List[anki.notes.NoteID],
         newModel: NoteType,
         fmap: Optional[Dict[int, Union[None, int]]],
         cmap: Optional[Dict[int, Union[None, int]]],
@@ -434,7 +434,10 @@ and notes.mid = ? and cards.ord = ?""",
         self.col.after_note_updates(nids, mark_modified=True)
 
     def _changeNotes(
-        self, nids: List[int], newModel: NoteType, map: Dict[int, Union[None, int]]
+        self,
+        nids: List[anki.notes.NoteID],
+        newModel: NoteType,
+        map: Dict[int, Union[None, int]],
     ) -> None:
         d = []
         nfields = len(newModel["flds"])
@@ -464,7 +467,7 @@ and notes.mid = ? and cards.ord = ?""",
 
     def _changeCards(
         self,
-        nids: List[int],
+        nids: List[anki.notes.NoteID],
         oldModel: NoteType,
         newModel: NoteType,
         map: Dict[int, Union[None, int]],

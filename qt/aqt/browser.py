@@ -28,6 +28,7 @@ from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
+from anki.notes import NoteID
 from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac, isWin
@@ -1054,7 +1055,7 @@ QTableView {{ gridline-color: {grid} }}
             for idx in self.form.tableView.selectionModel().selectedRows()
         ]
 
-    def selected_notes(self) -> List[int]:
+    def selected_notes(self) -> List[NoteID]:
         return self.col.db.list(
             """
 select distinct nid from cards
@@ -1073,7 +1074,7 @@ where id in %s"""
             % ",".join([str(s) for s in self.selected_notes()])
         )
 
-    def oneModelNotes(self) -> List[int]:
+    def oneModelNotes(self) -> List[NoteID]:
         sf = self.selected_notes()
         if not sf:
             return []
@@ -1603,7 +1604,7 @@ where id in %s"""
 
 
 class ChangeModel(QDialog):
-    def __init__(self, browser: Browser, nids: List[int]) -> None:
+    def __init__(self, browser: Browser, nids: List[NoteID]) -> None:
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids

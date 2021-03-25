@@ -32,6 +32,7 @@ class Card:
     timerStarted: Optional[float]
     lastIvl: int
     ord: int
+    nid: anki.notes.NoteID
 
     def __init__(
         self, col: anki.collection.Collection, id: Optional[int] = None
@@ -56,7 +57,7 @@ class Card:
         self._render_output = None
         self._note = None
         self.id = c.id
-        self.nid = c.note_id
+        self.nid = anki.notes.NoteID(c.note_id)
         self.did = c.deck_id
         self.ord = c.template_idx
         self.mod = c.mtime_secs

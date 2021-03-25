@@ -54,6 +54,7 @@ from anki.collection import (
 )
 from anki.decks import DeckDict
 from anki.hooks import runHook
+from anki.notes import NoteID
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -1534,7 +1535,7 @@ title="%s" %s>%s</button>""" % (
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
+    def onRemNotes(self, col: Collection, nids: Sequence[NoteID]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:
