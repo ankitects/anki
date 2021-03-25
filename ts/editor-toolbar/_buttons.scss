@@ -1,0 +1,51 @@
+.rainbow {
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, #f77),
+        color-stop(50%, #7f7),
+        color-stop(100%, #77f)
+    );
+}
+
+button.linkb {
+    -webkit-appearance: none;
+    margin-bottom: -3px;
+    border: 0;
+    box-shadow: none;
+    padding: 0px 2px;
+    background: transparent;
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .nightMode & > img {
+        filter: invert(180);
+    }
+}
+
+button:focus {
+    outline: none;
+}
+
+button.highlighted {
+    #topbutsleft & {
+        background-color: lightgrey;
+
+        .nightMode & {
+            background: linear-gradient(0deg, #333333 0%, #434343 100%);
+        }
+    }
+
+    #topbutsright & {
+        border-bottom: 3px solid black;
+        border-radius: 3px;
+
+        .nightMode & {
+            border-bottom-color: white;
+        }
+    }
+}
