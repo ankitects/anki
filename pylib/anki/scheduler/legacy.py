@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 from anki.cards import Card
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
 from anki.decks import DeckConfigDict
+from anki.notes import NoteID
 from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
 from anki.utils import from_json_bytes, ids2str
 
@@ -18,7 +19,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
     ) -> None:
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
-    def buryNote(self, nid: int) -> None:
+    def buryNote(self, nid: NoteID) -> None:
         note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 

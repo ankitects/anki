@@ -10,6 +10,7 @@ from anki.config import Config
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
 from anki.lang import TR
+from anki.notes import NoteID
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -19,9 +20,9 @@ from anki.utils import (
     timestampID,
 )
 
-type_tagsMapped = Tuple[int, int, str, str, int, str, str]
-type_tagsModified = Tuple[int, int, str, str, int, str]
-type_tagsElse = Tuple[int, int, str, int, str]
+type_tagsMapped = Tuple[int, int, str, str, NoteID, str, str]
+type_tagsModified = Tuple[int, int, str, str, NoteID, str]
+type_tagsElse = Tuple[int, int, str, NoteID, str]
 type_udpates = Union[type_tagsMapped, type_tagsModified, type_tagsElse]
 
 # Stores a list of fields, tags and deck
@@ -127,7 +128,7 @@ class NoteImporter(Importer):
             if f == "_tags":
                 self._tagsMapped = True
         # gather checks for duplicate comparison
-        csums: Dict[str, List[int]] = {}
+        csums: Dict[str, List[NoteID]] = {}
         for csum, id in self.col.db.execute(
             "select csum, id from notes where mid = ?", self.model["id"]
         ):
@@ -138,12 +139,12 @@ class NoteImporter(Importer):
         firsts: Dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model["flds"][0]["name"])
         self._fmap = self.col.models.fieldMap(self.model)
-        self._nextID = timestampID(self.col.db, "notes")
+        self._nextID = NoteID(timestampID(self.col.db, "notes"))
         # loop through the notes
         updates: List[type_udpates] = []
         updateLog = []
         new = []
-        self._ids: List[int] = []
+        self._ids: List[NoteID] = []
         self._cards: List[Tuple] = []
         dupeCount = 0
         dupes: List[str] = []
@@ -242,9 +243,9 @@ class NoteImporter(Importer):
 
     def newData(
         self, n: ForeignNote
-    ) -> Tuple[int, str, int, int, int, str, str, str, int, int, str]:
+    ) -> Tuple[NoteID, str, int, int, int, str, str, str, int, int, str]:
         id = self._nextID
-        self._nextID += 1
+        self._nextID = NoteID(self._nextID + 1)
         self._ids.append(id)
         self.processFields(n)
         # note id for card updates later
@@ -266,14 +267,14 @@ class NoteImporter(Importer):
 
     def addNew(
         self,
-        rows: List[Tuple[int, str, int, int, int, str, str, str, int, int, str]],
+        rows: List[Tuple[NoteID, str, int, int, int, str, str, str, int, int, str]],
     ) -> None:
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", rows
         )
 
     def updateData(
-        self, n: ForeignNote, id: int, sflds: List[str]
+        self, n: ForeignNote, id: NoteID, sflds: List[str]
     ) -> Optional[type_udpates]:
         self._ids.append(id)
         self.processFields(n, sflds)

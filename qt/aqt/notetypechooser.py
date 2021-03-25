@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import List, Optional
 
+from anki.notes import NoteID
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, HelpPage, shortcut, tr
@@ -29,7 +30,7 @@ class NoteTypeChooser(QHBoxLayout):
         widget: QWidget,
         starting_notetype_id: int,
         on_button_activated: Optional[Callable[[], None]] = None,
-        on_notetype_changed: Optional[Callable[[int], None]] = None,
+        on_notetype_changed: Optional[Callable[[NoteID], None]] = None,
         show_prefix_label: bool = True,
     ) -> None:
         QHBoxLayout.__init__(self)

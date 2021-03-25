@@ -9,6 +9,7 @@ import aqt
 from anki.collection import CARD_TYPE_NEW, Config
 from anki.decks import DeckID
 from anki.lang import TR
+from anki.notes import NoteID
 from anki.scheduler import FilteredDeckForUpdate
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
@@ -143,7 +144,7 @@ def suspend_cards(
 def suspend_note(
     *,
     mw: AnkiQt,
-    note_id: int,
+    note_id: NoteID,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.taskman.run_in_background(
@@ -168,7 +169,7 @@ def bury_cards(
 def bury_note(
     *,
     mw: AnkiQt,
-    note_id: int,
+    note_id: NoteID,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.taskman.run_in_background(

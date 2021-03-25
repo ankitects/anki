@@ -8,7 +8,7 @@ import aqt.editor
 import aqt.forms
 from anki.collection import OpChanges, SearchNode
 from anki.consts import MODEL_CLOZE
-from anki.notes import DuplicateOrEmptyResult, Note
+from anki.notes import DuplicateOrEmptyResult, Note, NoteID
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.note_ops import add_note
@@ -47,7 +47,7 @@ class AddCards(QDialog):
         self.setupEditor()
         self.setupButtons()
         self._load_new_note()
-        self.history: List[int] = []
+        self.history: List[NoteID] = []
         self._last_added_note: Optional[Note] = None
         restoreGeom(self, "add")
         addCloseShortcut(self)
@@ -109,7 +109,7 @@ class AddCards(QDialog):
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
 
-    def on_notetype_change(self, notetype_id: int) -> None:
+    def on_notetype_change(self, notetype_id: NoteID) -> None:
         # need to adjust current deck?
         if deck_id := self.mw.col.default_deck_for_notetype(notetype_id):
             self.deck_chooser.selected_deck_id = deck_id
@@ -178,7 +178,7 @@ class AddCards(QDialog):
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
-    def editHistory(self, nid: int) -> None:
+    def editHistory(self, nid: NoteID) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
     def add_current_note(self) -> None:
