@@ -49,7 +49,6 @@ esbuild(
         "index",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "//ts/lib:fluent_proto",
         "//ts/sass:core_css",
     ],
 )

@@ -1235,7 +1235,7 @@ mod test {
 
     fn open_col(dir: &Path, server: bool, fname: &str) -> Result<Collection> {
         let path = dir.join(fname);
-        let i18n = I18n::new(&[""], "", log::terminal());
+        let i18n = I18n::template_only();
         open_collection(path, "".into(), "".into(), server, i18n, log::terminal())
     }
 

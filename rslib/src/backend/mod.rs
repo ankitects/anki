@@ -48,7 +48,6 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     i18n::I18n,
-    log,
 };
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
@@ -82,11 +81,7 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
-    let i18n = I18n::new(
-        &input.preferred_langs,
-        input.locale_folder_path,
-        log::terminal(),
-    );
+    let i18n = I18n::new(&input.preferred_langs);
 
     Ok(Backend::new(i18n, input.server))
 }

@@ -12,18 +12,14 @@ pub(super) use pb::i18n_service::Service as I18nService;
 
 impl I18nService for Backend {
     fn translate_string(&self, input: pb::TranslateStringIn) -> Result<pb::String> {
-        let key = match crate::fluent_proto::FluentString::from_i32(input.key) {
-            Some(key) => key,
-            None => return Ok("invalid key".to_string().into()),
-        };
-
+        let key = input.key;
         let map = input
             .args
             .iter()
             .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
             .collect();
 
-        Ok(self.i18n.trn(key, map).into())
+        Ok(self.i18n.trn2(key as usize, map).into())
     }
 
     fn format_timespan(&self, input: pb::FormatTimespanIn) -> Result<pb::String> {

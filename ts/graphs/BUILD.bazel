@@ -33,9 +33,9 @@ ts_library(
         exclude = ["index.ts"],
     ),
     deps = [
-        "//ts/sveltelib",
         "//ts/lib",
         "//ts/lib:backend_proto",
+        "//ts/sveltelib",
         "@npm//@types/d3",
         "@npm//@types/lodash",
         "@npm//d3",
@@ -64,7 +64,6 @@ esbuild(
         "//ts/sveltelib",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "//ts/lib:fluent_proto",
         ":index",
         "//ts/sass:core_css",
     ] + svelte_names,

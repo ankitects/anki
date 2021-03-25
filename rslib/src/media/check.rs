@@ -551,7 +551,7 @@ pub(crate) mod test {
         let mgr = MediaManager::new(&media_dir, media_db.clone())?;
 
         let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "dummy", log.clone());
+        let i18n = I18n::template_only();
 
         let col = open_collection(col_path, media_dir, media_db, false, i18n, log)?;
 

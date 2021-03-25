@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 
 import anki.latex
 from anki import hooks
-from anki._backend import RustBackend
+from anki._backend import RustBackend, Translations
 from anki.cards import Card
 from anki.config import Config, ConfigManager
 from anki.consts import *
@@ -101,6 +101,7 @@ class Collection:
         self.path = os.path.abspath(path)
         self.reopen()
 
+        self.tr = Translations(weakref.ref(self._backend))
         self.media = MediaManager(self, server)
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
@@ -126,9 +127,6 @@ class Collection:
 
     # I18n/messages
     ##########################################################################
-
-    def tr(self, key: TR.V, **kwargs: Union[str, int, float]) -> str:
-        return self._backend.translate(key, **kwargs)
 
     def format_timespan(
         self,

@@ -54,6 +54,15 @@
     "description": "Anki's Rust library code"
   },
   {
+    "name": "anki_i18n",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": "Anki's Rust library i18n code"
+  },
+  {
     "name": "anki_workspace",
     "version": "0.0.0",
     "authors": "Ankitects Pty Ltd and contributors",
@@ -972,6 +981,15 @@
     "description": "Indented document literals"
   },
   {
+    "name": "inflections",
+    "version": "1.1.1",
+    "authors": "Caleb Meredith <calebmeredith8@gmail.com>",
+    "repository": "https://docs.rs/inflections",
+    "license": "MIT",
+    "license_file": null,
+    "description": "High performance inflection transformation library for changing properties of words like the case."
+  },
+  {
     "name": "instant",
     "version": "0.1.9",
     "authors": "sebcrozet <developer@crozet.re>",
@@ -1456,6 +1474,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "PHF generation logic"
+  },
+  {
+    "name": "phf_macros",
+    "version": "0.8.0",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-phf",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Macros to generate types in the phf crate"
   },
   {
     "name": "phf_shared",

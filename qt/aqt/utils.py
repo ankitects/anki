@@ -67,7 +67,7 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(key: TR.V, **kwargs: Union[str, int, float]) -> str:
+def tr(key: TR, **kwargs: Union[str, int, float]) -> str:
     "Shortcut to access Fluent translations."
     return anki.lang.current_i18n.translate(key, **kwargs)
 
