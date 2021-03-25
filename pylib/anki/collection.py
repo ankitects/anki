@@ -43,7 +43,7 @@ from anki.errors import AnkiError, DBError
 from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, NoteType
-from anki.notes import Note
+from anki.notes import Note, NoteID
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
 from anki.scheduler.v3 import Scheduler as V3TestScheduler
@@ -327,7 +327,7 @@ class Collection:
         Unlike card.flush(), this will invalidate any current checkpoint."""
         self._backend.update_card(card=card._to_backend_card(), skip_undo_entry=False)
 
-    def get_note(self, id: int) -> Note:
+    def get_note(self, id: NoteID) -> Note:
         return Note(self, id=id)
 
     def update_note(self, note: Note) -> OpChanges:
@@ -358,7 +358,7 @@ class Collection:
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids: List[int], type: int) -> None:
+    def _logRem(self, ids: List[Union[int, NoteID]], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
@@ -372,10 +372,10 @@ class Collection:
 
     def add_note(self, note: Note, deck_id: int) -> OpChanges:
         out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
-        note.id = out.note_id
+        note.id = NoteID(out.note_id)
         return out.changes
 
-    def remove_notes(self, note_ids: Sequence[int]) -> OpChanges:
+    def remove_notes(self, note_ids: Sequence[NoteID]) -> OpChanges:
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
@@ -387,7 +387,7 @@ class Collection:
             hooks.notes_will_be_deleted(self, nids)
         self._backend.remove_notes(note_ids=[], card_ids=card_ids)
 
-    def card_ids_of_note(self, note_id: int) -> Sequence[int]:
+    def card_ids_of_note(self, note_id: NoteID) -> Sequence[int]:
         return self._backend.cards_of_note(note_id)
 
     def defaults_for_adding(
@@ -406,7 +406,7 @@ class Collection:
             home_deck_of_current_review_card=home_deck,
         )
 
-    def default_deck_for_notetype(self, notetype_id: int) -> Optional[int]:
+    def default_deck_for_notetype(self, notetype_id: NoteID) -> Optional[int]:
         """If 'change deck depending on notetype' is enabled in the preferences,
         return the last deck used with the provided notetype, if any.."""
         if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
@@ -432,10 +432,10 @@ class Collection:
         self.add_note(note, note.model()["did"])
         return len(note.cards())
 
-    def remNotes(self, ids: Sequence[int]) -> None:
+    def remNotes(self, ids: Sequence[NoteID]) -> None:
         self.remove_notes(ids)
 
-    def _remNotes(self, ids: List[int]) -> None:
+    def _remNotes(self, ids: List[NoteID]) -> None:
         pass
 
     # Cards
@@ -470,7 +470,7 @@ class Collection:
     ##########################################################################
 
     def after_note_updates(
-        self, nids: List[int], mark_modified: bool, generate_cards: bool = True
+        self, nids: List[NoteID], mark_modified: bool, generate_cards: bool = True
     ) -> None:
         self._backend.after_note_updates(
             nids=nids, generate_cards=generate_cards, mark_notes_modified=mark_modified
@@ -478,11 +478,11 @@ class Collection:
 
     # legacy
 
-    def updateFieldCache(self, nids: List[int]) -> None:
+    def updateFieldCache(self, nids: List[NoteID]) -> None:
         self.after_note_updates(nids, mark_modified=False, generate_cards=False)
 
     # this also updates field cache
-    def genCards(self, nids: List[int]) -> List[int]:
+    def genCards(self, nids: List[NoteID]) -> List[int]:
         self.after_note_updates(nids, mark_modified=False, generate_cards=True)
         # previously returned empty cards, no longer does
         return []
@@ -527,7 +527,7 @@ class Collection:
             )
         return self._backend.search_cards(search=query, order=mode)
 
-    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[int]:
+    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[NoteID]:
         """Return note ids matching the provided search or searches.
 
         If more than one search is provided, they will be ANDed together.
@@ -538,12 +538,15 @@ class Collection:
         Eg: col.find_notes(SearchNode(deck="test"), "foo") will return notes
         that have a card in deck called "test", and have the text "foo".
         """
-        return self._backend.search_notes(self.build_search_string(*terms))
+        return [
+            NoteID(did)
+            for did in self._backend.search_notes(self.build_search_string(*terms))
+        ]
 
     def find_and_replace(
         self,
         *,
-        note_ids: Sequence[int],
+        note_ids: Sequence[NoteID],
         search: str,
         replacement: str,
         regex: bool = False,

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Callable, Sequence
 
-from anki.notes import Note
+from anki.notes import Note, NoteID
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
 
@@ -30,7 +30,7 @@ def update_note(*, mw: AnkiQt, note: Note, after_hooks: Callable[[], None]) -> N
 def remove_notes(
     *,
     mw: AnkiQt,
-    note_ids: Sequence[int],
+    note_ids: Sequence[NoteID],
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.perform_op(lambda: mw.col.remove_notes(note_ids), success=success)
