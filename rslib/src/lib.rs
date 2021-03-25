@@ -16,7 +16,6 @@ pub mod deckconf;
 pub mod decks;
 pub mod err;
 pub mod findreplace;
-mod fluent_proto;
 pub mod i18n;
 pub mod latex;
 pub mod log;

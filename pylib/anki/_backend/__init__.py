@@ -3,19 +3,19 @@
 
 from __future__ import annotations
 
-import os
 from typing import Any, Dict, List, Optional, Sequence, Union
+from weakref import ref
 
 import anki.buildinfo
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.errors import backend_exception_to_pylib
-from anki.lang import TR, FormatTimeSpan
 from anki.utils import from_json_bytes, to_json_bytes
 
 from . import backend_pb2 as pb
 from . import rsbridge
+from .fluent import GeneratedTranslations, LegacyTranslationEnum
 
 # pylint: disable=c-extension-no-member
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
@@ -37,18 +37,14 @@ class RustBackend(RustBackendGenerated):
 
     def __init__(
         self,
-        ftl_folder: Optional[str] = None,
         langs: Optional[List[str]] = None,
         server: bool = False,
     ) -> None:
         # pick up global defaults if not provided
-        if ftl_folder is None:
-            ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
         if langs is None:
             langs = [anki.lang.currentLang]
 
         init_msg = pb.BackendInit(
-            locale_folder_path=ftl_folder,
             preferred_langs=langs,
             server=server,
         )
@@ -82,13 +78,16 @@ class RustBackend(RustBackendGenerated):
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
 
-    def translate(self, key: TR.V, **kwargs: Union[str, int, float]) -> str:
-        return self.translate_string(translate_string_in(key, **kwargs))
+    def translate(
+        self, key: Union[LegacyTranslationEnum, int], **kwargs: Union[str, int, float]
+    ) -> str:
+        int_key = key if isinstance(key, int) else key.value
+        return self.translate_string(translate_string_in(key=int_key, **kwargs))
 
     def format_time_span(
         self,
-        seconds: float,
-        context: FormatTimeSpan.Context.V = FormatTimeSpan.INTERVALS,
+        seconds: Any,
+        context: Any = 2,
     ) -> str:
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"
@@ -107,7 +106,7 @@ class RustBackend(RustBackendGenerated):
 
 
 def translate_string_in(
-    key: TR.V, **kwargs: Union[str, int, float]
+    key: int, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:
     args = {}
     for (k, v) in kwargs.items():
@@ -116,3 +115,17 @@ def translate_string_in(
         else:
             args[k] = pb.TranslateArgValue(number=v)
     return pb.TranslateStringIn(key=key, args=args)
+
+
+class Translations(GeneratedTranslations):
+    def __init__(self, backend: ref["anki._backend.RustBackend"]):
+        self._backend = backend
+
+    def __call__(self, *args: Any, **kwargs: Any) -> str:
+        "Mimic the old col.tr(TR....) interface"
+        return self._backend().translate(*args, **kwargs)
+
+    def _translate(
+        self, module: int, translation: int, args: Dict[str, Union[str, int, float]]
+    ) -> str:
+        return self._backend().translate(module * 1000 + translation, **args)

@@ -7,15 +7,36 @@ load("//ts:protobuf.bzl", "protobufjs_library")
 #############
 
 protobufjs_library(
-    name = "fluent_proto",
-    proto = "//rslib:fluent_proto_lib",
-    visibility = ["//visibility:public"],
-)
-
-protobufjs_library(
     name = "backend_proto",
     proto = "//rslib:backend_proto_lib",
     visibility = ["//visibility:public"],
+)
+
+# Translations
+################
+
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@py_deps//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "genfluent",
+    srcs = [
+        "genfluent.py",
+    ],
+    deps = [
+        requirement("black"),
+        requirement("stringcase"),
+    ],
+)
+
+genrule(
+    name = "fluent_gen",
+    outs = ["i18n_generated.ts"],
+    cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $@",
+    tools = [
+        "genfluent",
+        "//rslib/i18n:strings.json",
+    ],
 )
 
 # Anki Library
@@ -23,7 +44,7 @@ protobufjs_library(
 
 ts_library(
     name = "lib",
-    srcs = glob(["**/*.ts"]),
+    srcs = glob(["**/*.ts"]) + [":i18n_generated.ts"],
     data = [
         "backend_proto",
     ],
@@ -32,7 +53,6 @@ ts_library(
     visibility = ["//visibility:public"],
     deps = [
         "backend_proto",
-        "fluent_proto",
         "@npm//@fluent/bundle",
         "@npm//@types/long",
         "@npm//intl-pluralrules",

@@ -29,13 +29,11 @@ impl Collection {
 mod test {
     use super::studied_today;
     use crate::i18n::I18n;
-    use crate::log;
 
     #[test]
     fn today() {
         // temporary test of fluent term handling
-        let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "", log);
+        let i18n = I18n::template_only();
         assert_eq!(
             &studied_today(3, 13.0, &i18n).replace("\n", " "),
             "Studied 3 cards in 13 seconds today (4.33s/card)"

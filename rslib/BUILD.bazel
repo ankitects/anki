@@ -93,7 +93,6 @@ rust_library(
         "//rslib/cargo:lazy_static",
         "//rslib/cargo:nom",
         "//rslib/cargo:num_enum",
-        "//rslib/cargo:num_format",
         "//rslib/cargo:num_integer",
         "//rslib/cargo:once_cell",
         "//rslib/cargo:pin_project",
@@ -121,6 +120,7 @@ rust_library(
         "//rslib/cargo:unicode_normalization",
         "//rslib/cargo:utime",
         "//rslib/cargo:zip",
+        "//rslib/i18n:anki_i18n",
     ],
 )
 
@@ -128,7 +128,7 @@ rust_library(
 #######################
 
 rust_test(
-    name = "unit_tests",
+    name = "anki_tests",
     compile_data = _anki_compile_data,
     crate = ":anki",
     crate_features = _anki_features,
@@ -136,7 +136,10 @@ rust_test(
         "tests/support/**",
     ]),
     rustc_env = _anki_rustc_env,
-    deps = ["//rslib/cargo:env_logger"],
+    deps = [
+        "//rslib/cargo:env_logger",
+        "//rslib/i18n:anki_i18n",
+    ],
 )
 
 rustfmt_test(
@@ -163,45 +166,8 @@ proto_format(
     srcs = ["backend.proto"],
 )
 
-# fluent.proto generation
-###########################
-# This separate step is required to make the file available to downstream consumers.
-
-rust_binary(
-    name = "write_fluent_proto",
-    srcs = [
-        "build/mergeftl.rs",
-        "build/write_fluent_proto.rs",
-    ],
-    deps = ["//rslib/cargo:fluent_syntax"],
-)
-
-genrule(
-    name = "fluent_proto",
-    srcs = [
-        "//ftl",
-        "//ftl:BUILD.bazel",
-        "//rslib/cargo:fluent_syntax",
-        "@rslib_ftl//:l10n.toml",
-        "@extra_ftl//:l10n.toml",
-    ],
-    outs = ["fluent.proto"],
-    cmd = """\
-RSLIB_FTL_ROOT="$(location @rslib_ftl//:l10n.toml)" \
-EXTRA_FTL_ROOT="$(location @extra_ftl//:l10n.toml)" \
-FTL_SRC="$(location //ftl:BUILD.bazel)" \
-$(location :write_fluent_proto) $(location fluent.proto)""",
-    tools = [
-        ":write_fluent_proto",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-proto_library(
-    name = "fluent_proto_lib",
-    srcs = ["fluent.proto"],
-    visibility = ["//visibility:public"],
-)
+# backend.proto
+#######################
 
 proto_library(
     name = "backend_proto_lib",

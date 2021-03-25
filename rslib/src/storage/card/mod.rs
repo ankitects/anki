@@ -502,12 +502,12 @@ impl super::SqliteStorage {
 
 #[cfg(test)]
 mod test {
-    use crate::{card::Card, i18n::I18n, log, storage::SqliteStorage};
+    use crate::{card::Card, i18n::I18n, storage::SqliteStorage};
     use std::path::Path;
 
     #[test]
     fn add_card() {
-        let i18n = I18n::new(&[""], "", log::terminal());
+        let i18n = I18n::template_only();
         let storage = SqliteStorage::open_or_create(Path::new(":memory:"), &i18n, false).unwrap();
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();

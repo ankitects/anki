@@ -1073,6 +1073,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__inflections__1_1_1",
+        url = "https://crates.io/api/v1/crates/inflections/1.1.1/download",
+        type = "tar.gz",
+        sha256 = "a257582fdcde896fd96463bf2d40eefea0580021c0712a0e2b028b60b47a837a",
+        strip_prefix = "inflections-1.1.1",
+        build_file = Label("//cargo/remote:BUILD.inflections-1.1.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__instant__0_1_9",
         url = "https://crates.io/api/v1/crates/instant/0.1.9/download",
         type = "tar.gz",
@@ -1609,6 +1619,16 @@ def raze_fetch_remote_crates():
         sha256 = "17367f0cc86f2d25802b2c26ee58a7b23faeccf78a396094c13dced0d0182526",
         strip_prefix = "phf_generator-0.8.0",
         build_file = Label("//cargo/remote:BUILD.phf_generator-0.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__phf_macros__0_8_0",
+        url = "https://crates.io/api/v1/crates/phf_macros/0.8.0/download",
+        type = "tar.gz",
+        sha256 = "7f6fde18ff429ffc8fe78e2bf7f8b7a5a5a6e2a8b58bc5a9ac69198bbda9189c",
+        strip_prefix = "phf_macros-0.8.0",
+        build_file = Label("//cargo/remote:BUILD.phf_macros-0.8.0.bazel"),
     )
 
     maybe(

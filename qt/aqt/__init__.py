@@ -209,10 +209,9 @@ def setupLangAndBackend(
         lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    ldir = locale_dir()
     if not firstTime:
         # set active language
-        anki.lang.set_lang(lang, ldir)
+        anki.lang.set_lang(lang)
 
     # switch direction for RTL languages
     if anki.lang.is_rtl(lang):
@@ -465,7 +464,7 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     # default to specified/system language before getting user's preference so that we can localize some more strings
     lang = anki.lang.get_def_lang(opts.lang)
-    anki.lang.set_lang(lang[1], locale_dir())
+    anki.lang.set_lang(lang[1])
 
     # profile manager
     pm = None
