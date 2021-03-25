@@ -284,6 +284,32 @@ hooks = [
         ],
         doc="Called before config group is renamed",
     ),
+    # Filtered deck options
+    ###################
+    Hook(
+        name="filtered_deck_dialog_did_load_deck",
+        args=[
+            "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
+            "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+        ],
+        doc="Allows updating widget state once the filtered deck config is loaded",
+    ),
+    Hook(
+        name="filtered_deck_dialog_will_add_or_update_deck",
+        args=[
+            "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
+            "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+        ],
+        doc="Allows modifying the filtered deck config object before it is written",
+    ),
+    Hook(
+        name="filtered_deck_dialog_did_add_or_update_deck",
+        args=[
+            "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
+            "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+        ],
+        doc="Allows performing changes after a filtered deck has been added or updated",
+    ),
     # Browser
     ###################
     Hook(
