@@ -4,7 +4,7 @@
 from typing import List, Optional, Tuple
 
 import aqt
-from anki.collection import OpChangesWithCount, SearchNode
+from anki.collection import OpChangesWithID, SearchNode
 from anki.decks import DeckDict, DeckID, FilteredDeckConfig
 from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
@@ -302,7 +302,7 @@ class FilteredDeckConfigDialog(QDialog):
         if not self._update_deck():
             return
 
-        def success(out: OpChangesWithCount) -> None:
+        def success(out: OpChangesWithID) -> None:
             gui_hooks.filtered_deck_dialog_did_add_or_update_deck(self, self.deck)
             saveGeom(self, self.GEOMETRY_KEY)
             aqt.dialogs.markClosed(self.DIALOG_KEY)
