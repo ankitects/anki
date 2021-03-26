@@ -112,7 +112,7 @@ export function prepareData(
     const xTickFormat = (num: number): string => `${num.toFixed(0)}%`;
     const tableData = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_EASE),
+            label: i18n.statisticsAverageEase(),
             value: xTickFormat(sum(allEases) / total),
         },
     ];

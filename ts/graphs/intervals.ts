@@ -148,7 +148,7 @@ export function prepareIntervalData(
     ): string {
         // const day = dayLabel(i18n, bin.x0!, bin.x1!);
         const interval = intervalLabel(i18n, bin.x0!, bin.x1!, bin.length);
-        const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
+        const total = i18n.statisticsRunningTotal();
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
@@ -163,7 +163,7 @@ export function prepareIntervalData(
     const meanIntervalString = timeSpan(i18n, meanInterval * 86400, false);
     const tableData = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_INTERVAL),
+            label: i18n.statisticsAverageInterval(),
             value: meanIntervalString,
         },
     ];

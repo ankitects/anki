@@ -99,11 +99,11 @@ export function buildHistogram(
     const cardsPerDay = Math.round(totalInPeriod / periodDays);
     const tableData = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_TOTAL),
+            label: i18n.statisticsTotal(),
             value: i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: totalInPeriod }),
         },
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE),
+            label: i18n.statisticsAverage(),
             value: i18n.tr(i18n.TR.STATISTICS_CARDS_PER_DAY, { count: cardsPerDay }),
         },
     ];
@@ -115,7 +115,7 @@ export function buildHistogram(
     ): string {
         const day = dayLabel(i18n, bin.x0!, bin.x1!);
         const cards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: bin.length });
-        const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
+        const total = i18n.statisticsRunningTotal();
         const totalCards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: cumulative });
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
     }

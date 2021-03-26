@@ -157,7 +157,7 @@ export function buildHistogram(
         const cards = i18n.tr(i18n.TR.STATISTICS_CARDS_DUE, {
             cards: binValue(bin as any),
         });
-        const totalLabel = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
+        const totalLabel = i18n.statisticsRunningTotal();
 
         return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
     }
@@ -172,17 +172,17 @@ export function buildHistogram(
     const periodDays = xMax! - xMin!;
     const tableData = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_TOTAL),
+            label: i18n.statisticsTotal(),
             value: i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total }),
         },
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE),
+            label: i18n.statisticsAverage(),
             value: i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
                 count: Math.round(total / periodDays),
             }),
         },
         {
-            label: i18n.tr(i18n.TR.STATISTICS_DUE_TOMORROW),
+            label: i18n.statisticsDueTomorrow(),
             value: i18n.tr(i18n.TR.STATISTICS_REVIEWS, {
                 reviews: sourceData.dueCounts.get(1) ?? 0,
             }),

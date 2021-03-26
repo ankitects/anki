@@ -238,36 +238,20 @@ export function renderReviews(
         const dayTotal = valueLabel(sum(totals));
         let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
         const lines = [
-            [
-                oranges(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
-                valueLabel(totals[0]),
-            ],
-            [
-                reds(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
-                valueLabel(totals[1]),
-            ],
+            [oranges(1), i18n.statisticsCountsLearningCards(), valueLabel(totals[0])],
+            [reds(1), i18n.statisticsCountsRelearningCards(), valueLabel(totals[1])],
             [
                 lighterGreens(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
+                i18n.statisticsCountsYoungCards(),
                 valueLabel(totals[2]),
             ],
             [
                 darkerGreens(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
+                i18n.statisticsCountsMatureCards(),
                 valueLabel(totals[3]),
             ],
-            [
-                purples(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS),
-                valueLabel(totals[4]),
-            ],
-            [
-                "transparent",
-                i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL),
-                valueLabel(cumulative),
-            ],
+            [purples(1), i18n.statisticsCountsEarlyCards(), valueLabel(totals[4])],
+            ["transparent", i18n.statisticsRunningTotal(), valueLabel(cumulative)],
         ];
         for (const [colour, label, detail] of lines) {
             buf += `<tr>
@@ -400,7 +384,7 @@ export function renderReviews(
         averageForPeriod = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
             count: Math.round(periodAvg / 1000 / 60),
         });
-        averageAnswerTimeLabel = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME_LABEL);
+        averageAnswerTimeLabel = i18n.statisticsAverageAnswerTimeLabel();
 
         // need to get total review count to calculate average time
         const countBins = histogram()
@@ -429,7 +413,7 @@ export function renderReviews(
 
     const tableData: TableDatum[] = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_DAYS_STUDIED),
+            label: i18n.statisticsDaysStudied(),
             value: i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
                 amount: studiedDays,
                 total: periodDays,
@@ -437,15 +421,15 @@ export function renderReviews(
             }),
         },
 
-        { label: i18n.tr(i18n.TR.STATISTICS_TOTAL), value: totalString },
+        { label: i18n.statisticsTotal(), value: totalString },
 
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_FOR_DAYS_STUDIED),
+            label: i18n.statisticsAverageForDaysStudied(),
             value: averageForDaysStudied,
         },
 
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_OVER_PERIOD),
+            label: i18n.statisticsAverageOverPeriod(),
             value: averageForPeriod,
         },
     ];
