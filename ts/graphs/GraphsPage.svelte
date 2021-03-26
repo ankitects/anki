@@ -3,12 +3,12 @@
 
     import type { SvelteComponent } from "svelte/internal";
     import { writable } from "svelte/store";
-    import type { I18n } from "anki/i18n";
+
     import { bridgeCommand } from "anki/bridgecommand";
 
     import WithGraphData from "./WithGraphData.svelte";
 
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
     export let nightMode: boolean;
     export let graphs: SvelteComponent[];
 
@@ -41,7 +41,7 @@
         let:preferences
         let:revlogRange>
         {#if controller}
-            <svelte:component this={controller} {i18n} {search} {days} {loading} />
+            <svelte:component this={controller} {search} {days} {loading} />
         {/if}
 
         {#if sourceData && preferences && revlogRange}
@@ -51,7 +51,6 @@
                     {sourceData}
                     {preferences}
                     {revlogRange}
-                    {i18n}
                     {nightMode}
                     on:search={browserSearch} />
             {/each}

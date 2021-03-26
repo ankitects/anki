@@ -33,11 +33,10 @@ export function graphs(
 ): void {
     const nightMode = checkNightMode();
 
-    setupI18n().then((i18n) => {
+    setupI18n().then(() => {
         new GraphsPage({
             target,
             props: {
-                i18n,
                 graphs,
                 nightMode,
                 initialSearch: search,

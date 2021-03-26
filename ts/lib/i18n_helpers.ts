@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+// An i18n singleton and setupI18n is re-exported via the generated i18n.ts file,
+// so you should not need to access this file directly.
+
 import "intl-pluralrules";
 import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle/compat";
-import { GeneratedTranslations } from "anki/i18n_generated";
 
 type RecordVal = number | string | FluentNumber;
 
@@ -20,11 +22,11 @@ function formatNumbers(args?: Record<string, RecordVal>): void {
     }
 }
 
-export class I18n extends GeneratedTranslations {
+export class I18n {
     bundles: FluentBundle[] = [];
     langs: string[] = [];
 
-    translate(key: string, args: Record<string, RecordVal>): string {
+    translate(key: string, args?: Record<string, RecordVal>): string {
         formatNumbers(args);
         for (const bundle of this.bundles) {
             const msg = bundle.getMessage(key);
@@ -65,15 +67,17 @@ export class I18n extends GeneratedTranslations {
     }
 }
 
-export async function setupI18n(): Promise<I18n> {
-    const i18n = new I18n();
+// global singleton
+export const i18n = new I18n();
 
+export async function setupI18n(): Promise<void> {
     const resp = await fetch("/_anki/i18nResources", { method: "POST" });
     if (!resp.ok) {
         throw Error(`unexpected reply: ${resp.statusText}`);
     }
     const json = await resp.json();
 
+    i18n.bundles = [];
     for (const i in json.resources) {
         const text = json.resources[i];
         const lang = json.langs[i];
@@ -83,6 +87,4 @@ export async function setupI18n(): Promise<I18n> {
         i18n.bundles.push(bundle);
     }
     i18n.langs = json.langs;
-
-    return i18n;
 }

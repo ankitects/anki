@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { timeSpan, MONTH } from "anki/time";
-    import type { I18n } from "anki/i18n";
+
     import type pb from "anki/backend_proto";
     import { createEventDispatcher } from "svelte";
 
@@ -20,7 +20,7 @@
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
     export let preferences: PreferenceStore;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
@@ -39,16 +39,15 @@
         [histogramData, tableData] = prepareIntervalData(
             intervalData,
             range,
-            i18n,
             dispatch,
             $browserLinksSupported
         );
     }
 
-    const title = i18n.statisticsIntervalsTitle();
-    const subtitle = i18n.statisticsIntervalsSubtitle();
-    const month = timeSpan(i18n, 1 * MONTH);
-    const all = i18n.statisticsRangeAllTime();
+    const title = tr.statisticsIntervalsTitle();
+    const subtitle = tr.statisticsIntervalsSubtitle();
+    const month = timeSpan(1 * MONTH);
+    const all = tr.statisticsRangeAllTime();
 </script>
 
 <Graph {title} {subtitle}>
@@ -71,7 +70,7 @@
         </label>
     </InputBox>
 
-    <HistogramGraph data={histogramData} {i18n} />
+    <HistogramGraph data={histogramData} />
 
-    <TableData {i18n} {tableData} />
+    <TableData {tableData} />
 </Graph>

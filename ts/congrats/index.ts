@@ -9,10 +9,10 @@ import CongratsPage from "./CongratsPage.svelte";
 
 export async function congrats(target: HTMLDivElement): Promise<void> {
     checkNightMode();
-    const i18n = await setupI18n();
+    await setupI18n();
     const info = await getCongratsInfo();
     new CongratsPage({
         target,
-        props: { info, i18n },
+        props: { info },
     });
 }

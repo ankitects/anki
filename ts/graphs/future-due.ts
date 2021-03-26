@@ -20,9 +20,10 @@ import type { Bin } from "d3";
 import { CardQueue } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import { dayLabel } from "anki/time";
-import type { I18n } from "anki/i18n";
+
 import { GraphRange } from "./graph-helpers";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
+import * as tr from "anki/i18n";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
@@ -93,7 +94,6 @@ export function buildHistogram(
     sourceData: GraphData,
     range: GraphRange,
     backlog: boolean,
-    i18n: I18n,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): FutureDueOut {
@@ -153,11 +153,11 @@ export function buildHistogram(
         cumulative: number,
         _percent: number
     ): string {
-        const days = dayLabel(i18n, bin.x0!, bin.x1!);
-        const cards = i18n.statisticsCardsDue({
+        const days = dayLabel(bin.x0!, bin.x1!);
+        const cards = tr.statisticsCardsDue({
             cards: binValue(bin as any),
         });
-        const totalLabel = i18n.statisticsRunningTotal();
+        const totalLabel = tr.statisticsRunningTotal();
 
         return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
     }
@@ -172,18 +172,18 @@ export function buildHistogram(
     const periodDays = xMax! - xMin!;
     const tableData = [
         {
-            label: i18n.statisticsTotal(),
-            value: i18n.statisticsReviews({ reviews: total }),
+            label: tr.statisticsTotal(),
+            value: tr.statisticsReviews({ reviews: total }),
         },
         {
-            label: i18n.statisticsAverage(),
-            value: i18n.statisticsReviewsPerDay({
+            label: tr.statisticsAverage(),
+            value: tr.statisticsReviewsPerDay({
                 count: Math.round(total / periodDays),
             }),
         },
         {
-            label: i18n.statisticsDueTomorrow(),
-            value: i18n.statisticsReviews({
+            label: tr.statisticsDueTomorrow(),
+            value: tr.statisticsReviews({
                 reviews: sourceData.dueCounts.get(1) ?? 0,
             }),
         },

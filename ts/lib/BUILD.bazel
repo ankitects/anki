@@ -31,7 +31,7 @@ py_binary(
 
 genrule(
     name = "fluent_gen",
-    outs = ["i18n_generated.ts"],
+    outs = ["i18n.ts"],
     cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $@",
     tools = [
         "genfluent",
@@ -44,7 +44,7 @@ genrule(
 
 ts_library(
     name = "lib",
-    srcs = glob(["**/*.ts"]) + [":i18n_generated.ts"],
+    srcs = glob(["**/*.ts"]) + [":i18n.ts"],
     data = [
         "backend_proto",
     ],

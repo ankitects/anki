@@ -1,6 +1,6 @@
 <script lang="typescript">
     import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
+
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
@@ -17,7 +17,7 @@
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let preferences: PreferenceStore | null = null;
     export let revlogRange: RevlogRange;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
     export let nightMode: boolean;
 
     let { calendarFirstDayOfWeek } = preferences;
@@ -59,14 +59,13 @@
             graphData,
             dispatch,
             targetYear,
-            i18n,
             nightMode,
             revlogRange,
             calendarFirstDayOfWeek.set
         );
     }
 
-    const title = i18n.statisticsCalendarTitle();
+    const title = tr.statisticsCalendarTitle();
 </script>
 
 <Graph {title}>
@@ -88,6 +87,6 @@
         <g class="weekdays" />
         <g class="days" />
         <AxisTicks {bounds} />
-        <NoDataOverlay {bounds} {i18n} />
+        <NoDataOverlay {bounds} />
     </svg>
 </Graph>
