@@ -20,14 +20,7 @@ from aqt.models import Models
 from aqt.qt import *
 from aqt.tag_ops import remove_tags_for_all_notes, rename_tag, reparent_tags
 from aqt.theme import ColoredIcon, theme_manager
-from aqt.utils import (
-    TR,
-    KeyboardModifiersPressed,
-    askUser,
-    getOnlyText,
-    showWarning,
-    tr,
-)
+from aqt.utils import KeyboardModifiersPressed, askUser, getOnlyText, showWarning, tr
 
 
 class SidebarTool(Enum):
@@ -124,14 +117,12 @@ class SidebarItem:
 
     def add_simple(
         self,
-        name: Union[str, TR],
+        name: str,
         icon: Union[str, ColoredIcon],
         type: SidebarItemType,
         search_node: Optional[SearchNode],
     ) -> SidebarItem:
         "Add child sidebar item, and return it."
-        if not isinstance(name, str):
-            name = tr(name)
         item = SidebarItem(
             name=name,
             icon=icon,
@@ -271,9 +262,9 @@ class SidebarModel(QAbstractItemModel):
 
 
 class SidebarToolbar(QToolBar):
-    _tools: Tuple[Tuple[SidebarTool, str, TR], ...] = (
-        (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", TR.ACTIONS_SEARCH),
-        (SidebarTool.SELECT, ":/icons/select.svg", TR.ACTIONS_SELECT),
+    _tools: Tuple[Tuple[SidebarTool, str, Callable[[], str]], ...] = (
+        (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", tr.actions_search),
+        (SidebarTool.SELECT, ":/icons/select.svg", tr.actions_select),
     )
 
     def __init__(self, sidebar: SidebarTreeView) -> None:
@@ -288,7 +279,7 @@ class SidebarToolbar(QToolBar):
     def _setup_tools(self) -> None:
         for row, tool in enumerate(self._tools):
             action = self.addAction(
-                theme_manager.icon_from_resources(tool[1]), tr(tool[2])
+                theme_manager.icon_from_resources(tool[1]), tool[2]()
             )
             action.setCheckable(True)
             action.setShortcut(f"Alt+{row + 1}")
@@ -726,7 +717,7 @@ class SidebarTreeView(QTreeView):
         self,
         *,
         root: SidebarItem,
-        name: TR,
+        name: str,
         icon: Union[str, ColoredIcon],
         collapse_key: Config.Bool.Key.V,
         type: Optional[SidebarItemType] = None,
@@ -735,7 +726,7 @@ class SidebarTreeView(QTreeView):
             self.col.set_config_bool(collapse_key, not expanded)
 
         top = SidebarItem(
-            tr(name),
+            name,
             icon,
             on_expanded=update,
             expanded=not self.col.get_config_bool(collapse_key),
@@ -754,7 +745,7 @@ class SidebarTreeView(QTreeView):
 
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_SAVED_SEARCHES,
+            name=tr.browsing_sidebar_saved_searches(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_SAVED_SEARCHES,
             type=SidebarItemType.SAVED_SEARCH_ROOT,
@@ -776,7 +767,7 @@ class SidebarTreeView(QTreeView):
         icon = ":/icons/clock.svg"
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_TODAY,
+            name=tr.browsing_today(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_TODAY,
             type=SidebarItemType.TODAY_ROOT,
@@ -784,31 +775,31 @@ class SidebarTreeView(QTreeView):
         type = SidebarItemType.TODAY
 
         root.add_simple(
-            name=TR.BROWSING_SIDEBAR_DUE_TODAY,
+            name=tr.browsing_sidebar_due_today(),
             icon=icon,
             type=type,
             search_node=SearchNode(due_on_day=0),
         )
         root.add_simple(
-            name=TR.BROWSING_ADDED_TODAY,
+            name=tr.browsing_added_today(),
             icon=icon,
             type=type,
             search_node=SearchNode(added_in_days=1),
         )
         root.add_simple(
-            name=TR.BROWSING_EDITED_TODAY,
+            name=tr.browsing_edited_today(),
             icon=icon,
             type=type,
             search_node=SearchNode(edited_in_days=1),
         )
         root.add_simple(
-            name=TR.BROWSING_STUDIED_TODAY,
+            name=tr.browsing_studied_today(),
             icon=icon,
             type=type,
             search_node=SearchNode(rated=SearchNode.Rated(days=1)),
         )
         root.add_simple(
-            name=TR.BROWSING_AGAIN_TODAY,
+            name=tr.browsing_again_today(),
             icon=icon,
             type=type,
             search_node=SearchNode(
@@ -816,7 +807,7 @@ class SidebarTreeView(QTreeView):
             ),
         )
         root.add_simple(
-            name=TR.BROWSING_SIDEBAR_OVERDUE,
+            name=tr.browsing_sidebar_overdue(),
             icon=icon,
             type=type,
             search_node=self.col.group_searches(
@@ -832,7 +823,7 @@ class SidebarTreeView(QTreeView):
         icon = ColoredIcon(path=":/icons/card-state.svg", color=colors.DISABLED)
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_CARD_STATE,
+            name=tr.browsing_sidebar_card_state(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_CARD_STATE,
             type=SidebarItemType.CARD_STATE_ROOT,
@@ -840,32 +831,32 @@ class SidebarTreeView(QTreeView):
         type = SidebarItemType.CARD_STATE
 
         root.add_simple(
-            TR.ACTIONS_NEW,
+            tr.actions_new(),
             icon=icon.with_color(colors.NEW_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_NEW),
         )
 
         root.add_simple(
-            name=TR.SCHEDULING_LEARNING,
+            name=tr.scheduling_learning(),
             icon=icon.with_color(colors.LEARN_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
-            name=TR.SCHEDULING_REVIEW,
+            name=tr.scheduling_review(),
             icon=icon.with_color(colors.REVIEW_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
         )
         root.add_simple(
-            name=TR.BROWSING_SUSPENDED,
+            name=tr.browsing_suspended(),
             icon=icon.with_color(colors.SUSPENDED_FG),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
         )
         root.add_simple(
-            name=TR.BROWSING_BURIED,
+            name=tr.browsing_buried(),
             icon=icon.with_color(colors.BURIED_FG),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
@@ -878,7 +869,7 @@ class SidebarTreeView(QTreeView):
         icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_FLAGS,
+            name=tr.browsing_sidebar_flags(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
@@ -887,31 +878,31 @@ class SidebarTreeView(QTreeView):
 
         type = SidebarItemType.FLAG
         root.add_simple(
-            TR.ACTIONS_RED_FLAG,
+            tr.actions_red_flag(),
             icon=icon.with_color(colors.FLAG1_FG),
             type=type,
             search_node=SearchNode(flag=SearchNode.FLAG_RED),
         )
         root.add_simple(
-            TR.ACTIONS_ORANGE_FLAG,
+            tr.actions_orange_flag(),
             icon=icon.with_color(colors.FLAG2_FG),
             type=type,
             search_node=SearchNode(flag=SearchNode.FLAG_ORANGE),
         )
         root.add_simple(
-            TR.ACTIONS_GREEN_FLAG,
+            tr.actions_green_flag(),
             icon=icon.with_color(colors.FLAG3_FG),
             type=type,
             search_node=SearchNode(flag=SearchNode.FLAG_GREEN),
         )
         root.add_simple(
-            TR.ACTIONS_BLUE_FLAG,
+            tr.actions_blue_flag(),
             icon=icon.with_color(colors.FLAG4_FG),
             type=type,
             search_node=SearchNode(flag=SearchNode.FLAG_BLUE),
         )
         root.add_simple(
-            TR.BROWSING_NO_FLAG,
+            tr.browsing_no_flag(),
             icon=icon.with_color(colors.DISABLED),
             type=type,
             search_node=SearchNode(flag=SearchNode.FLAG_NONE),
@@ -950,7 +941,7 @@ class SidebarTreeView(QTreeView):
         tree = self.col.tags.tree()
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_TAGS,
+            name=tr.browsing_sidebar_tags(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
@@ -997,7 +988,7 @@ class SidebarTreeView(QTreeView):
         tree = self.col.decks.deck_tree()
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_DECKS,
+            name=tr.browsing_sidebar_decks(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
@@ -1020,7 +1011,7 @@ class SidebarTreeView(QTreeView):
         icon = ":/icons/notetype.svg"
         root = self._section_root(
             root=root,
-            name=TR.BROWSING_SIDEBAR_NOTETYPES,
+            name=tr.browsing_sidebar_notetypes(),
             icon=icon,
             collapse_key=Config.Bool.COLLAPSE_NOTETYPES,
             type=SidebarItemType.NOTETYPE_ROOT,
