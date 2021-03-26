@@ -98,7 +98,7 @@ impl Visitor {
     fn visit_inline_expression(&mut self, expr: &InlineExpression<&str>) {
         match expr {
             InlineExpression::VariableReference { id } => {
-                write!(self.text, "${}", id.name).unwrap();
+                write!(self.text, "{{${}}}", id.name).unwrap();
                 self.variables.insert(id.name.to_string());
             }
             InlineExpression::Placeable { expression } => {
