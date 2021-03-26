@@ -95,21 +95,26 @@ impl Visitor {
         }
     }
 
+    fn visit_inline_expression(&mut self, expr: &InlineExpression<&str>) {
+        match expr {
+            InlineExpression::VariableReference { id } => {
+                write!(self.text, "${}", id.name).unwrap();
+                self.variables.insert(id.name.to_string());
+            }
+            InlineExpression::Placeable { expression } => {
+                self.visit_expression(expression);
+            }
+            _ => {}
+        }
+    }
+
     fn visit_expression(&mut self, expression: &Expression<&str>) {
         match expression {
-            Expression::SelectExpression { variants, .. } => {
+            Expression::SelectExpression { selector, variants } => {
+                self.visit_inline_expression(&selector);
                 self.visit_pattern(&variants.last().unwrap().value)
             }
-            Expression::InlineExpression(expr) => match expr {
-                InlineExpression::VariableReference { id } => {
-                    write!(self.text, "${}", id.name).unwrap();
-                    self.variables.insert(id.name.to_string());
-                }
-                InlineExpression::Placeable { expression } => {
-                    self.visit_expression(expression);
-                }
-                _ => {}
-            },
+            Expression::InlineExpression(expr) => self.visit_inline_expression(expr),
         }
     }
 }
