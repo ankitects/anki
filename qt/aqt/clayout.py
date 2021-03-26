@@ -560,7 +560,8 @@ class CardLayout(QDialog):
             cards = tr.card_templates_card_count(count=card_cnt)
             msg = tr.card_templates_delete_the_as_card_type_and(
                 template=template["name"],
-                cards=cards,
+                # unlike most cases, 'cards' is a string in this message
+                cards=cards,  # type: ignore[arg-type]
             )
             if not askUser(msg):
                 return

@@ -17,8 +17,23 @@ pub struct Module {
 pub struct Translation {
     pub key: String,
     pub text: String,
-    pub variables: Vec<String>,
+    pub variables: Vec<Variable>,
     pub index: usize,
+}
+
+#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
+pub struct Variable {
+    name: String,
+    kind: VariableKind,
+}
+
+#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
+enum VariableKind {
+    Int,
+    // Float,
+    // Number,
+    // String,
+    Any,
 }
 
 pub fn get_modules(data: &TranslationsByLang) -> Vec<Module> {
@@ -80,8 +95,8 @@ struct Visitor {
 }
 
 impl Visitor {
-    fn into_output(self) -> (String, Vec<String>) {
-        let mut vars: Vec<_> = self.variables.into_iter().collect();
+    fn into_output(self) -> (String, Vec<Variable>) {
+        let mut vars: Vec<_> = self.variables.into_iter().map(Into::into).collect();
         vars.sort_unstable();
         (self.text, vars)
     }
@@ -116,5 +131,15 @@ impl Visitor {
             }
             Expression::InlineExpression(expr) => self.visit_inline_expression(expr),
         }
+    }
+}
+
+impl From<String> for Variable {
+    fn from(name: String) -> Self {
+        let kind = match name.as_str() {
+            "cards" | "notes" | "count" | "amount" => VariableKind::Int,
+            _ => VariableKind::Any,
+        };
+        Variable { name, kind }
     }
 }
