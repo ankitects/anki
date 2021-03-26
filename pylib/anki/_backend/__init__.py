@@ -122,7 +122,7 @@ class Translations(GeneratedTranslations):
         self._backend = backend
 
     def __call__(self, *args: Any, **kwargs: Any) -> str:
-        "Mimic the old col.tr(TR....) interface"
+        "Mimic the old col.tr / TR interface"
         return self._backend().translate(*args, **kwargs)
 
     def _translate(

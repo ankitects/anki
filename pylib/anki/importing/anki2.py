@@ -168,16 +168,16 @@ class Anki2Importer(Importer):
 
         if dupesIgnored:
             for row in dupesIgnored:
-                self._logNoteRow(self.dst.tr(TR.IMPORTING_SKIPPED), row)
+                self._logNoteRow(self.dst.tr.importing_skipped(), row)
         if update:
             for row in update:
-                self._logNoteRow(self.dst.tr(TR.IMPORTING_UPDATED), row)
+                self._logNoteRow(self.dst.tr.importing_updated(), row)
         if add:
             for row in add:
-                self._logNoteRow(self.dst.tr(TR.ADDING_ADDED), row)
+                self._logNoteRow(self.dst.tr.adding_added(), row)
         if dupesIdentical:
             for row in dupesIdentical:
-                self._logNoteRow(self.dst.tr(TR.IMPORTING_IDENTICAL), row)
+                self._logNoteRow(self.dst.tr.importing_identical(), row)
 
         # export info for calling code
         self.dupes = len(dupesIdentical)

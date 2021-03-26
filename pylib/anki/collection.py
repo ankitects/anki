@@ -818,7 +818,7 @@ table.review-log {{ {revlog_style} }}
             return UndoStatus()
 
         if isinstance(self._undo, _ReviewsUndo):
-            return UndoStatus(undo=self.tr(TR.SCHEDULING_REVIEW))
+            return UndoStatus(undo=self.tr.scheduling_review())
         elif isinstance(self._undo, Checkpoint):
             return UndoStatus(undo=self._undo.name)
         else:
@@ -975,7 +975,7 @@ table.review-log {{ {revlog_style} }}
         try:
             problems = list(self._backend.check_database())
             ok = not problems
-            problems.append(self.tr(TR.DATABASE_CHECK_REBUILT))
+            problems.append(self.tr.database_check_rebuilt())
         except DBError as e:
             problems = [str(e.args[0])]
             ok = False

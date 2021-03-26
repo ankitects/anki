@@ -151,7 +151,7 @@ def test_translate():
     no_uni = without_unicode_isolation
 
     assert (
-        col.tr(TR.CARD_TEMPLATE_RENDERING_FRONT_SIDE_PROBLEM)
+        col.tr.card_template_rendering_front_side_problem()
         == "Front template has a problem:"
     )
     assert no_uni(col.tr(TR.STATISTICS_REVIEWS, reviews=1)) == "1 review"

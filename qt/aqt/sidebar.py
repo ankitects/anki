@@ -307,7 +307,7 @@ class SidebarToolbar(QToolBar):
 class SidebarSearchBar(QLineEdit):
     def __init__(self, sidebar: SidebarTreeView) -> None:
         QLineEdit.__init__(self, sidebar)
-        self.setPlaceholderText(sidebar.col.tr(TR.BROWSING_SIDEBAR_FILTER))
+        self.setPlaceholderText(sidebar.col.tr.browsing_sidebar_filter())
         self.sidebar = sidebar
         self.timer = QTimer(self)
         self.timer.setInterval(600)

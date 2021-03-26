@@ -22,7 +22,7 @@ class MnemosyneImporter(NoteImporter):
         ver = db.scalar("select value from global_variables where key='version'")
         if not ver.startswith("Mnemosyne SQL 1") and ver not in ("2", "3"):
             self.log.append(
-                self.col.tr(TR.IMPORTING_FILE_VERSION_UNKNOWN_TRYING_IMPORT_ANYWAY)
+                self.col.tr.importing_file_version_unknown_trying_import_anyway()
             )
         # gather facts into temp objects
         curid = None

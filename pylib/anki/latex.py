@@ -174,7 +174,7 @@ def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
             raise Exception()
         msg += f"<small><pre>{html.escape(log)}</pre></small>"
     except:
-        msg += col.tr(TR.MEDIA_HAVE_YOU_INSTALLED_LATEX_AND_DVIPNGDVISVGM)
+        msg += col.tr.media_have_you_installed_latex_and_dvipngdvisvgm()
     return msg
 
 
