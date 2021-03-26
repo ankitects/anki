@@ -82,9 +82,6 @@ export function studiedToday(cards: number, secs: number): string {
     return tr.statisticsStudiedToday({
         unit: name,
         secsPerCard: secsPer,
-        // these two are required, but don't appear in the generated code
-        // because they are included as part of a separate term - a byproduct
-        // of them having been ported from earlier Qt translations
         cards,
         amount,
     });
