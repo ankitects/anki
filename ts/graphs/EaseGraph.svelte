@@ -31,8 +31,8 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_SUBTITLE);
+    const title = i18n.statisticsCardEaseTitle();
+    const subtitle = i18n.statisticsCardEaseSubtitle();
 </script>
 
 <Graph {title} {subtitle}>

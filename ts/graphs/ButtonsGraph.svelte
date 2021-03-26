@@ -25,8 +25,8 @@
         renderButtons(svg as SVGElement, bounds, sourceData, i18n, graphRange);
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_SUBTITLE);
+    const title = i18n.statisticsAnswerButtonsTitle();
+    const subtitle = i18n.statisticsAnswerButtonsSubtitle();
 </script>
 
 <Graph {title} {subtitle}>

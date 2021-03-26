@@ -43,9 +43,9 @@
         ));
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_SUBTITLE);
-    const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
+    const title = i18n.statisticsFutureDueTitle();
+    const subtitle = i18n.statisticsFutureDueSubtitle();
+    const backlogLabel = i18n.statisticsBacklogCheckbox();
 </script>
 
 <Graph {title} {subtitle}>

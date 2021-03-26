@@ -43,14 +43,14 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
-    const time = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_CHECKBOX);
+    const title = i18n.statisticsReviewsTitle();
+    const time = i18n.statisticsReviewsTimeCheckbox();
 
     let subtitle = "";
     $: if (showTime) {
-        subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_SUBTITLE);
+        subtitle = i18n.statisticsReviewsTimeSubtitle();
     } else {
-        subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_COUNT_SUBTITLE);
+        subtitle = i18n.statisticsReviewsCountSubtitle();
     }
 </script>
 

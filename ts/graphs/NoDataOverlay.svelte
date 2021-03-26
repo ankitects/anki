@@ -3,7 +3,7 @@
     import type { GraphBounds } from "./graph-helpers";
     export let bounds: GraphBounds;
     export let i18n: I18n;
-    const noData = i18n.tr(i18n.TR.STATISTICS_NO_DATA);
+    const noData = i18n.statisticsNoData();
 </script>
 
 <style lang="scss">

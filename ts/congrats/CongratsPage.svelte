@@ -9,17 +9,14 @@
     export let info: pb.BackendProto.CongratsInfoOut;
     export let i18n: I18n;
 
-    const congrats = i18n.tr(i18n.TR.SCHEDULING_CONGRATULATIONS_FINISHED);
+    const congrats = i18n.schedulingCongratulationsFinished();
     const nextLearnMsg = buildNextLearnMsg(info, i18n);
-    const today_reviews = i18n.tr(i18n.TR.SCHEDULING_TODAY_REVIEW_LIMIT_REACHED);
-    const today_new = i18n.tr(i18n.TR.SCHEDULING_TODAY_NEW_LIMIT_REACHED);
+    const today_reviews = i18n.schedulingTodayReviewLimitReached();
+    const today_new = i18n.schedulingTodayNewLimitReached();
 
-    const unburyThem = bridgeLink("unbury", i18n.tr(i18n.TR.SCHEDULING_UNBURY_THEM));
+    const unburyThem = bridgeLink("unbury", i18n.schedulingUnburyThem());
     const buriedMsg = i18n.schedulingBuriedCardsFound({ unburyThem });
-    const customStudy = bridgeLink(
-        "customStudy",
-        i18n.tr(i18n.TR.SCHEDULING_CUSTOM_STUDY)
-    );
+    const customStudy = bridgeLink("customStudy", i18n.schedulingCustomStudy());
     const customStudyMsg = i18n.schedulingHowToCustomStudy({
         customStudy,
     });

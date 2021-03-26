@@ -25,7 +25,7 @@
     const month = timeSpan(i18n, 1 * MONTH);
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
-    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const all = i18n.statisticsRangeAllTime();
 </script>
 
 <label>

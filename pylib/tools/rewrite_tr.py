@@ -9,13 +9,13 @@ from re import Match
 
 import stringcase
 
-TR_REF = re.compile(r"i18n.tr\(\s*i18n.TR.([^,) ]+),\s*([^)]+)\)")
+TR_REF = re.compile(r"i18n\.tr\(i18n\.TR\.([^,) ]+)\)")
 
 
 def repl(m: Match) -> str:
     name = stringcase.camelcase(m.group(1).lower())
-    args = m.group(2)
-    return f"i18n.{name}({args})"
+    # args = m.group(2)
+    return f"i18n.{name}()"
 
 
 def update_py(path: str) -> None:

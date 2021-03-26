@@ -57,11 +57,11 @@
         }
     }
 
-    const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
-    const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
-    const collection = i18n.tr(i18n.TR.STATISTICS_RANGE_COLLECTION);
-    const searchLabel = i18n.tr(i18n.TR.STATISTICS_RANGE_SEARCH);
-    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
+    const year = i18n.statisticsRange_1YearHistory();
+    const deck = i18n.statisticsRangeDeck();
+    const collection = i18n.statisticsRangeCollection();
+    const searchLabel = i18n.statisticsRangeSearch();
+    const all = i18n.statisticsRangeAllHistory();
 </script>
 
 <style lang="scss">

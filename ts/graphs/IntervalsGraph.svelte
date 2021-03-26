@@ -45,10 +45,10 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
+    const title = i18n.statisticsIntervalsTitle();
+    const subtitle = i18n.statisticsIntervalsSubtitle();
     const month = timeSpan(i18n, 1 * MONTH);
-    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const all = i18n.statisticsRangeAllTime();
 </script>
 
 <Graph {title} {subtitle}>
