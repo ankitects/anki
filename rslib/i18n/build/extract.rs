@@ -30,9 +30,8 @@ pub struct Variable {
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
 enum VariableKind {
     Int,
-    // Float,
-    // Number,
-    // String,
+    Float,
+    String,
     Any,
 }
 
@@ -110,10 +109,12 @@ impl Visitor {
         }
     }
 
-    fn visit_inline_expression(&mut self, expr: &InlineExpression<&str>) {
+    fn visit_inline_expression(&mut self, expr: &InlineExpression<&str>, in_select: bool) {
         match expr {
             InlineExpression::VariableReference { id } => {
-                write!(self.text, "{{${}}}", id.name).unwrap();
+                if !in_select {
+                    write!(self.text, "{{${}}}", id.name).unwrap();
+                }
                 self.variables.insert(id.name.to_string());
             }
             InlineExpression::Placeable { expression } => {
@@ -126,19 +127,24 @@ impl Visitor {
     fn visit_expression(&mut self, expression: &Expression<&str>) {
         match expression {
             Expression::SelectExpression { selector, variants } => {
-                self.visit_inline_expression(&selector);
+                self.visit_inline_expression(&selector, true);
                 self.visit_pattern(&variants.last().unwrap().value)
             }
-            Expression::InlineExpression(expr) => self.visit_inline_expression(expr),
+            Expression::InlineExpression(expr) => self.visit_inline_expression(expr, false),
         }
     }
 }
 
 impl From<String> for Variable {
     fn from(name: String) -> Self {
+        // rather than adding more items here as we add new strings, we should probably
+        // try to either reuse existing ones, or consider some sort of Hungarian notation
         let kind = match name.as_str() {
-            "cards" | "notes" | "count" | "amount" => VariableKind::Int,
-            _ => VariableKind::Any,
+            "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
+            | "kilobytes" => VariableKind::Int,
+            "average-seconds" => VariableKind::Float,
+            "val" | "found" | "expected" | "part" => VariableKind::Any,
+            _ => VariableKind::String,
         };
         Variable { name, kind }
     }

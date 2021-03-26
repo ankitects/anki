@@ -1090,7 +1090,7 @@ class DownloaderInstaller(QObject):
             label=tr.addons_downloading_adbd_kb02fkb(
                 part=len(self.log) + 1,
                 total=len(self.ids),
-                kilobytes=self.dl_bytes / 1024,
+                kilobytes=self.dl_bytes // 1024,
             )
         )
 
