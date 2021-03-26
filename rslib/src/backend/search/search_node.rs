@@ -88,7 +88,8 @@ impl TryFrom<pb::SearchNode> for Node {
                                 .into_iter()
                                 .map(TryFrom::try_from)
                                 .collect::<Result<_>>()?;
-                            let joined = parsed.into_iter().intersperse(joiner).collect();
+                            let joined =
+                                Itertools::intersperse(parsed.into_iter(), joiner).collect();
                             Node::Group(joined)
                         }
                     }
