@@ -21,10 +21,10 @@ from anki.utils import (
     timestampID,
 )
 
-type_tagsMapped = Tuple[int, int, str, str, NoteID, str, str]
-type_tagsModified = Tuple[int, int, str, str, NoteID, str]
-type_tagsElse = Tuple[int, int, str, NoteID, str]
-type_udpates = Union[type_tagsMapped, type_tagsModified, type_tagsElse]
+TagMappedUpdate = Tuple[int, int, str, str, NoteID, str, str]
+TagModifiedUpdate = Tuple[int, int, str, str, NoteID, str]
+NoTagUpdate = Tuple[int, int, str, NoteID, str]
+Updates = Union[TagMappedUpdate, TagModifiedUpdate, NoTagUpdate]
 
 # Stores a list of fields, tags and deck
 ######################################################################
@@ -142,7 +142,7 @@ class NoteImporter(Importer):
         self._fmap = self.col.models.fieldMap(self.model)
         self._nextID = NoteID(timestampID(self.col.db, "notes"))
         # loop through the notes
-        updates: List[type_udpates] = []
+        updates: List[Updates] = []
         updateLog = []
         new = []
         self._ids: List[NoteID] = []
@@ -278,7 +278,7 @@ class NoteImporter(Importer):
 
     def updateData(
         self, n: ForeignNote, id: NoteID, sflds: List[str]
-    ) -> Optional[type_udpates]:
+    ) -> Optional[Updates]:
         self._ids.append(id)
         self.processFields(n, sflds)
         if self._tagsMapped:
@@ -292,7 +292,7 @@ class NoteImporter(Importer):
         else:
             return (intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
 
-    def addUpdates(self, rows: List[type_udpates]) -> None:
+    def addUpdates(self, rows: List[Updates]) -> None:
         changes = self.col.db.scalar("select total_changes()")
         if self._tagsMapped:
             self.col.db.executemany(
