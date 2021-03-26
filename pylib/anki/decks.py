@@ -448,7 +448,8 @@ class DeckManager:
 
     def select(self, did: DeckID) -> None:
         "Select a new branch."
-        # make sure arg is an int
+        # make sure arg is an int; legacy callers may be passing in a string
+        did = DeckID(did)
         current = self.selected()
         active = self.deck_and_child_ids(did)
         if current != did or active != self.active():
