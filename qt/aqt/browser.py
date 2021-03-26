@@ -53,7 +53,6 @@ from aqt.sidebar import SidebarTreeView
 from aqt.tag_ops import add_tags, clear_unused_tags, remove_tags_for_notes
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     KeyboardModifiersPressed,
     askUser,
@@ -801,8 +800,7 @@ QTableView {{ gridline-color: {grid} }}
                     None,
                     "preview",
                     lambda _editor: self.onTogglePreview(),
-                    tr(
-                        TR.BROWSING_PREVIEW_SELECTED_CARD,
+                    tr.browsing_preview_selected_card(
                         val=shortcut(preview_shortcut),
                     ),
                     tr.actions_preview(),

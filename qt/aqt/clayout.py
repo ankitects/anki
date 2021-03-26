@@ -17,7 +17,6 @@ from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -559,8 +558,7 @@ class CardLayout(QDialog):
 
             template = self.current_template()
             cards = tr.card_templates_card_count(count=card_cnt)
-            msg = tr(
-                TR.CARD_TEMPLATES_DELETE_THE_AS_CARD_TYPE_AND,
+            msg = tr.card_templates_delete_the_as_card_type_and(
                 template=template["name"],
                 cards=cards,
             )

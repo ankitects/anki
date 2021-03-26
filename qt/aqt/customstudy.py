@@ -5,7 +5,7 @@ import aqt
 from anki.collection import SearchNode
 from anki.consts import *
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, showInfo, showWarning, tr
+from aqt.utils import disable_help_button, showInfo, showWarning, tr
 
 RADIO_NEW = 1
 RADIO_REV = 2
@@ -68,9 +68,7 @@ class CustomStudy(QDialog):
                 new, self.conf["new"]["perDay"] - self.deck["newToday"][1]
             )
             newExceeding = min(new, new - newUnderLearning)
-            tit = tr(
-                TR.CUSTOM_STUDY_NEW_CARDS_IN_DECK_OVER_TODAY, val=plus(newExceeding)
-            )
+            tit = tr.custom_study_new_cards_in_deck_over_today(val=plus(newExceeding))
             pre = tr.custom_study_increase_todays_new_card_limit_by()
             sval = min(new, self.deck.get("extendNew", 10))
             smin = -DYN_MAX_SIZE
@@ -82,9 +80,7 @@ class CustomStudy(QDialog):
                 rev, self.conf["rev"]["perDay"] - self.deck["revToday"][1]
             )
             revExceeding = min(rev, rev - revUnderLearning)
-            tit = tr(
-                TR.CUSTOM_STUDY_REVIEWS_DUE_IN_DECK_OVER_TODAY, val=plus(revExceeding)
-            )
+            tit = tr.custom_study_reviews_due_in_deck_over_today(val=plus(revExceeding))
             pre = tr.custom_study_increase_todays_review_limit_by()
             sval = min(rev, self.deck.get("extendRev", 10))
             smin = -DYN_MAX_SIZE

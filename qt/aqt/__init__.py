@@ -380,8 +380,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             QMessageBox.critical(
                 None,
                 tr.qt_misc_error(),
-                tr(
-                    TR.QT_MISC_ERROR_LOADING_GRAPHICS_DRIVER,
+                tr.qt_misc_error_loading_graphics_driver(
                     mode=driver.value,
                     context=context,
                 ),

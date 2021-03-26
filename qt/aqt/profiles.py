@@ -24,7 +24,7 @@ from anki.sync import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, showWarning, tr
+from aqt.utils import disable_help_button, showWarning, tr
 
 # Profile handling
 ##########################################################################
@@ -516,8 +516,7 @@ create table if not exists profiles
         with open(p, "w", encoding="utf8") as file:
             file.write(
                 without_unicode_isolation(
-                    tr(
-                        TR.PROFILES_FOLDER_README,
+                    tr.profiles_folder_readme(
                         link=f"{appHelpSite}files?id=startup-options",
                     )
                 )

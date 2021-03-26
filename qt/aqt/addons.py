@@ -28,7 +28,6 @@ from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     askUser,
     disable_help_button,
     getFile,
@@ -220,8 +219,7 @@ class AddonManager:
                 pass
             except:
                 showWarning(
-                    tr(
-                        TR.ADDONS_FAILED_TO_LOAD,
+                    tr.addons_failed_to_load(
                         name=addon.human_name(),
                         traceback=traceback.format_exc(),
                     )
@@ -286,8 +284,7 @@ class AddonManager:
             if conflicting:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
                 showInfo(
-                    tr(
-                        TR.ADDONS_THE_FOLLOWING_ADDONS_ARE_INCOMPATIBLE_WITH,
+                    tr.addons_the_following_addons_are_incompatible_with(
                         name=addon.human_name(),
                         found=addons,
                     ),
@@ -1090,8 +1087,7 @@ class DownloaderInstaller(QObject):
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
         self.mgr.mw.progress.update(
-            label=tr(
-                TR.ADDONS_DOWNLOADING_ADBD_KB02FKB,
+            label=tr.addons_downloading_adbd_kb02fkb(
                 part=len(self.log) + 1,
                 total=len(self.ids),
                 kilobytes=self.dl_bytes / 1024,
@@ -1459,8 +1455,7 @@ class ConfigEditor(QDialog):
         restoreSplitter(self.form.splitter, "addonconf")
         self.setWindowTitle(
             without_unicode_isolation(
-                tr(
-                    TR.ADDONS_CONFIG_WINDOW_TITLE,
+                tr.addons_config_window_title(
                     name=self.mgr.addon_meta(addon).human_name(),
                 )
             )
@@ -1528,8 +1523,7 @@ class ConfigEditor(QDialog):
                     erroneous_conf=erroneous_conf,
                 )
             else:
-                msg = tr(
-                    TR.ADDONS_CONFIG_VALIDATION_ERROR,
+                msg = tr.addons_config_validation_error(
                     problem=e.message,
                     path=path,
                     schema=str(schema),

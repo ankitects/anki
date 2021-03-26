@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
-from anki.lang import TR, FormatTimeSpan
+from anki.lang import FormatTimeSpan
 from anki.utils import ids2str
 
 # Card stats
@@ -421,9 +421,8 @@ group by day order by day"""
             self._line(
                 i,
                 "Average answer time",
-                self.col.tr(
-                    TR.STATISTICS_AVERAGE_ANSWER_TIME,
-                    **{"cards-per-minute": perMin, "average-seconds": average_secs},
+                self.col.tr.statistics_average_answer_time(
+                    average_seconds=average_secs
                 ),
             )
         return self._lineTbl(i), int(tot)

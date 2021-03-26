@@ -10,7 +10,6 @@ from anki.collection import Collection
 from anki.consts import *
 from anki.decks import DeckID, DeckManager
 from anki.importing.base import Importer
-from anki.lang import TR
 from anki.models import NoteTypeID
 from anki.notes import NoteID
 from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
@@ -142,22 +141,19 @@ class Anki2Importer(Importer):
 
         if dupesIgnored:
             self.log.append(
-                self.dst.tr(
-                    TR.IMPORTING_NOTES_THAT_COULD_NOT_BE_IMPORTED, val=len(dupesIgnored)
+                self.dst.tr.importing_notes_that_could_not_be_imported(
+                    val=len(dupesIgnored)
                 )
             )
         if update:
             self.log.append(
-                self.dst.tr(
-                    TR.IMPORTING_NOTES_UPDATED_AS_FILE_HAD_NEWER, val=len(update)
-                )
+                self.dst.tr.importing_notes_updated_as_file_had_newer(val=len(update))
             )
         if add:
             self.log.append(self.dst.tr.importing_notes_added_from_file(val=len(add)))
         if dupesIdentical:
             self.log.append(
-                self.dst.tr(
-                    TR.IMPORTING_NOTES_SKIPPED_AS_THEYRE_ALREADY_IN,
+                self.dst.tr.importing_notes_skipped_as_theyre_already_in(
                     val=len(dupesIdentical),
                 )
             )

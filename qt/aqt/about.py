@@ -8,7 +8,7 @@ from anki.lang import without_unicode_isolation
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, supportText, tooltip, tr
+from aqt.utils import disable_help_button, supportText, tooltip, tr
 
 
 class ClosableQDialog(QDialog):
@@ -209,8 +209,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
         )
     )
 
-    abouttext += "<p>" + tr(
-        TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES, cont=", ".join(allusers)
+    abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
+        cont=", ".join(allusers)
     )
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
