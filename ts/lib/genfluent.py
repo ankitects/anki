@@ -17,18 +17,6 @@ class Variable(TypedDict):
     kind: Literal["Any", "Int", "String", "Float"]
 
 
-def legacy_enum() -> str:
-    out = ["export enum LegacyEnum {"]
-    for module in modules:
-        for translation in module["translations"]:
-            key = stringcase.constcase(translation["key"])
-            value = module["index"] * 1000 + translation["index"]
-            out.append(f"    {key} = {value},")
-
-    out.append("}")
-    return "\n".join(out) + "\n"
-
-
 def methods() -> str:
     out = [
         "export class GeneratedTranslations {",
@@ -93,7 +81,6 @@ def typescript_arg_name(arg: Variable) -> str:
 
 out = ""
 
-out += legacy_enum()
 out += methods()
 
 

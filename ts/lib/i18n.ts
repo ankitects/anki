@@ -3,7 +3,7 @@
 
 import "intl-pluralrules";
 import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle/compat";
-import { LegacyEnum, GeneratedTranslations } from "anki/i18n_generated";
+import { GeneratedTranslations } from "anki/i18n_generated";
 
 type RecordVal = number | string | FluentNumber;
 
@@ -23,7 +23,6 @@ function formatNumbers(args?: Record<string, RecordVal>): void {
 export class I18n extends GeneratedTranslations {
     bundles: FluentBundle[] = [];
     langs: string[] = [];
-    TR = LegacyEnum;
 
     translate(key: string, args: Record<string, RecordVal>): string {
         formatNumbers(args);
@@ -34,11 +33,6 @@ export class I18n extends GeneratedTranslations {
             }
         }
         return `missing key: ${key}`;
-    }
-
-    tr(id: LegacyEnum, args?: Record<string, RecordVal>): string {
-        const key = this.keyName(id);
-        return this.translate(key, args || {});
     }
 
     supportsVerticalText(): boolean {
@@ -68,10 +62,6 @@ export class I18n extends GeneratedTranslations {
         return new Date(86_400_000 * (3 + n)).toLocaleDateString(firstLang, {
             weekday: "narrow",
         });
-    }
-
-    private keyName(msg: LegacyEnum): string {
-        return this.TR[msg].toLowerCase().replace(/_/g, "-");
     }
 }
 
