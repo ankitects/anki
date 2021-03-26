@@ -72,7 +72,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayDa
     if (answerCount) {
         const studiedTodayText = studiedToday(i18n, answerCount, answerMillis / 1000);
         const againCount = answerCount - correctCount;
-        let againCountText = i18n.tr(i18n.TR.STATISTICS_TODAY_AGAIN_COUNT);
+        let againCountText = i18n.statisticsTodayAgainCount();
         againCountText += ` ${againCount} (${((againCount / answerCount) * 100).toFixed(
             2
         )}%)`;
@@ -90,16 +90,16 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayDa
                 percent: (matureCorrect / matureCount) * 100,
             });
         } else {
-            matureText = i18n.tr(i18n.TR.STATISTICS_TODAY_NO_MATURE_CARDS);
+            matureText = i18n.statisticsTodayNoMatureCards();
         }
 
         lines = [studiedTodayText, againCountText, typeCounts, matureText];
     } else {
-        lines = [i18n.tr(i18n.TR.STATISTICS_TODAY_NO_CARDS)];
+        lines = [i18n.statisticsTodayNoCards()];
     }
 
     return {
-        title: i18n.tr(i18n.TR.STATISTICS_TODAY_TITLE),
+        title: i18n.statisticsTodayTitle(),
         lines,
     };
 }

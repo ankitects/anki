@@ -89,48 +89,38 @@ function countCards(
     const extraQuery = separateInactive ? 'AND -("is:buried" OR "is:suspended")' : "";
 
     const counts: Count[] = [
+        [i18n.statisticsCountsNewCards(), newCards, true, `"is:new"${extraQuery}`],
         [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS),
-            newCards,
-            true,
-            `"is:new"${extraQuery}`,
-        ],
-        [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
+            i18n.statisticsCountsLearningCards(),
             learn,
             true,
             `(-"is:review" AND "is:learn")${extraQuery}`,
         ],
         [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
+            i18n.statisticsCountsRelearningCards(),
             relearn,
             true,
             `("is:review" AND "is:learn")${extraQuery}`,
         ],
         [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
+            i18n.statisticsCountsYoungCards(),
             young,
             true,
             `("is:review" AND -"is:learn") AND "prop:ivl<21"${extraQuery}`,
         ],
         [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
+            i18n.statisticsCountsMatureCards(),
             mature,
             true,
             `("is:review" -"is:learn") AND "prop:ivl>=21"${extraQuery}`,
         ],
         [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS),
+            i18n.statisticsCountsSuspendedCards(),
             suspended,
             separateInactive,
             '"is:suspended"',
         ],
-        [
-            i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS),
-            buried,
-            separateInactive,
-            '"is:buried"',
-        ],
+        [i18n.statisticsCountsBuriedCards(), buried, separateInactive, '"is:buried"'],
     ];
 
     return counts;
@@ -145,7 +135,7 @@ export function gatherData(
     const counts = countCards(data.cards, separateInactive, i18n);
 
     return {
-        title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),
+        title: i18n.statisticsCountsTitle(),
         counts,
         totalCards,
     };

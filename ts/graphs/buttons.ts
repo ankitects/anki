@@ -160,14 +160,14 @@ export function renderButtons(
                     let kind: string;
                     switch (d) {
                         case "learning":
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS);
+                            kind = i18n.statisticsCountsLearningCards();
                             break;
                         case "young":
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
+                            kind = i18n.statisticsCountsYoungCards();
                             break;
                         case "mature":
                         default:
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
+                            kind = i18n.statisticsCountsMatureCards();
                             break;
                     }
                     return `${kind} \u200e(${totalCorrect(d).percent}%)`;
@@ -239,8 +239,8 @@ export function renderButtons(
     // hover/tooltip
 
     function tooltipText(d: Datum): string {
-        const button = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_NUMBER);
-        const timesPressed = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_PRESSED);
+        const button = i18n.statisticsAnswerButtonsButtonNumber();
+        const timesPressed = i18n.statisticsAnswerButtonsButtonPressed();
         const correctStr = i18n.tr(
             i18n.TR.STATISTICS_HOURS_CORRECT,
             totalCorrect(d.group)
