@@ -35,7 +35,6 @@ from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     KeyboardModifiersPressed,
     disable_help_button,
@@ -957,8 +956,7 @@ class Editor:
                     client.timeout = 30
                     with client.get(url) as response:
                         if response.status_code != 200:
-                            error_msg = tr(
-                                TR.QT_MISC_UNEXPECTED_RESPONSE_CODE,
+                            error_msg = tr.qt_misc_unexpected_response_code(
                                 val=response.status_code,
                             )
                             return None

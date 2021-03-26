@@ -9,7 +9,6 @@ from anki.collection import Collection
 from anki.config import Config
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.lang import TR
 from anki.models import NoteTypeID
 from anki.notes import NoteID
 from anki.utils import (
@@ -177,9 +176,7 @@ class NoteImporter(Importer):
                             if data:
                                 updates.append(data)
                                 updateLog.append(
-                                    self.col.tr(
-                                        TR.IMPORTING_FIRST_FIELD_MATCHED, val=fld0
-                                    )
+                                    self.col.tr.importing_first_field_matched(val=fld0)
                                 )
                                 dupeCount += 1
                                 found = True
@@ -191,8 +188,7 @@ class NoteImporter(Importer):
                                 # only show message once, no matter how many
                                 # duplicates are in the collection already
                                 updateLog.append(
-                                    self.col.tr(
-                                        TR.IMPORTING_ADDED_DUPLICATE_WITH_FIRST_FIELD,
+                                    self.col.tr.importing_added_duplicate_with_first_field(
                                         val=fld0,
                                     )
                                 )

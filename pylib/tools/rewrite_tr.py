@@ -9,7 +9,7 @@ from re import Match
 
 import stringcase
 
-TR_REF = re.compile(r"tr\(TR.([^,) ]+),\s*([^)]+)\)")
+TR_REF = re.compile(r"tr\(\s*TR.([^,) ]+),\s*([^)]+)\)")
 
 
 def repl(m: Match) -> str:
@@ -19,19 +19,10 @@ def repl(m: Match) -> str:
 
 
 def update_py(path: str) -> None:
-    buf = []
-    changed = False
-    for line in open(path):
-        line2 = TR_REF.sub(repl, line)
-        if line != line2:
-            print(line2)
-            buf.append(line2)
-            changed = True
-        else:
-            buf.append(line)
-
-    if changed:
-        open(path, "w").writelines(buf)
+    buf = open(path).read()
+    buf2 = TR_REF.sub(repl, buf)
+    if buf != buf2:
+        open(path, "w").writelines(buf2)
         print("updated", path)
 
 
