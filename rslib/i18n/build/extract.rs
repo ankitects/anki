@@ -23,12 +23,12 @@ pub struct Translation {
 
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
 pub struct Variable {
-    name: String,
-    kind: VariableKind,
+    pub name: String,
+    pub kind: VariableKind,
 }
 
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
-enum VariableKind {
+pub enum VariableKind {
     Int,
     Float,
     String,

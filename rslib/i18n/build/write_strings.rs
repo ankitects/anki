@@ -7,7 +7,7 @@ use inflections::Inflect;
 use std::{fmt::Write, fs, path::PathBuf};
 
 use crate::{
-    extract::Module,
+    extract::{Module, Translation, VariableKind},
     gather::{TranslationsByFile, TranslationsByLang},
 };
 
@@ -21,10 +21,98 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
     // ordered list of translations by module
     write_translation_key_index(modules, &mut buf);
     write_legacy_tr_enum(modules, &mut buf);
+    // methods to generate messages
+    write_methods(modules, &mut buf);
 
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     let path = dir.join("strings.rs");
     fs::write(&path, buf).unwrap();
+}
+
+fn write_methods(modules: &[Module], buf: &mut String) {
+    buf.push_str(
+        r#"
+use crate::I18n;
+use crate::tr_args;
+use std::borrow::Cow;
+
+impl I18n {
+"#,
+    );
+    for module in modules {
+        for translation in &module.translations {
+            let func = translation.key.to_snake_case();
+            let key = &translation.key;
+            let doc = translation.text.replace("\n", " ");
+            let in_args;
+            let out_args;
+            let outtype;
+            let trailer;
+            if translation.variables.is_empty() {
+                in_args = "".to_string();
+                out_args = ", None".to_string();
+                outtype = "Cow<'a, str>";
+                trailer = "";
+            } else {
+                in_args = build_in_args(translation);
+                out_args = build_out_args(translation);
+                outtype = "String";
+                trailer = ".to_string()";
+            }
+
+            writeln!(
+                buf,
+                r#"
+    /// {doc}
+    #[inline]
+    pub fn {func}<'a>(&'a self{in_args}) -> {outtype} {{
+        self.tr_("{key}"{out_args}){trailer}
+    }}"#,
+                func = func,
+                key = key,
+                doc = doc,
+                outtype = outtype,
+                in_args = in_args,
+                out_args = out_args,
+                trailer = trailer,
+            )
+            .unwrap();
+        }
+    }
+
+    buf.push_str("}\n");
+}
+
+fn build_out_args(translation: &Translation) -> String {
+    let v: Vec<_> = translation
+        .variables
+        .iter()
+        .map(|var| {
+            format!(
+                r#""{fluent_name}"=>{rust_name}"#,
+                fluent_name = var.name,
+                rust_name = var.name.to_snake_case()
+            )
+        })
+        .collect();
+    format!(", Some(tr_args![{}])", v.join(", "))
+}
+
+fn build_in_args(translation: &Translation) -> String {
+    let v: Vec<_> = translation
+        .variables
+        .iter()
+        .map(|var| {
+            let kind = match var.kind {
+                VariableKind::Int => "i64",
+                VariableKind::Float => "f64",
+                VariableKind::String => "&str",
+                VariableKind::Any => "&str",
+            };
+            format!("{}: {}", var.name.to_snake_case(), kind)
+        })
+        .collect();
+    format!(", {}", v.join(", "))
 }
 
 fn write_legacy_tr_enum(modules: &[Module], buf: &mut String) {

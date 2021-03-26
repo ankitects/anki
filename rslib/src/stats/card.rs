@@ -129,10 +129,7 @@ impl Collection {
     fn card_stats_to_string(&mut self, cs: CardStats) -> Result<String> {
         let i18n = &self.i18n;
 
-        let mut stats = vec![(
-            i18n.tr(TR::CardStatsAdded).to_string(),
-            cs.added.date_string(),
-        )];
+        let mut stats = vec![(i18n.card_stats_added().into(), cs.added.date_string())];
         if let Some(first) = cs.first_review {
             stats.push((
                 i18n.tr(TR::CardStatsFirstReview).into(),
