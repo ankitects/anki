@@ -6,7 +6,7 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 
 
 class EditCurrent(QDialog):
@@ -16,7 +16,7 @@ class EditCurrent(QDialog):
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(tr(TR.EDITING_EDIT_CURRENT))
+        self.setWindowTitle(tr.editing_edit_current())
         disable_help_button(self)
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)

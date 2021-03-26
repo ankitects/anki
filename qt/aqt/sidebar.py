@@ -957,7 +957,7 @@ class SidebarTreeView(QTreeView):
         )
         root.search_node = SearchNode(negated=SearchNode(tag="none"))
         root.add_simple(
-            name=tr(TR.BROWSING_SIDEBAR_UNTAGGED),
+            name=tr.browsing_sidebar_untagged(),
             icon=icon,
             type=SidebarItemType.TAG_NONE,
             search_node=SearchNode(tag="none"),
@@ -1004,7 +1004,7 @@ class SidebarTreeView(QTreeView):
         )
         root.search_node = SearchNode(deck="*")
         current = root.add_simple(
-            name=tr(TR.BROWSING_CURRENT_DECK),
+            name=tr.browsing_current_deck(),
             icon=icon,
             type=SidebarItemType.DECK_CURRENT,
             search_node=SearchNode(deck="current"),
@@ -1072,17 +1072,17 @@ class SidebarTreeView(QTreeView):
     def _maybe_add_type_specific_actions(self, menu: QMenu, item: SidebarItem) -> None:
         if item.item_type in (SidebarItemType.NOTETYPE, SidebarItemType.NOTETYPE_ROOT):
             menu.addAction(
-                tr(TR.BROWSING_MANAGE_NOTE_TYPES), lambda: self.manage_notetype(item)
+                tr.browsing_manage_note_types(), lambda: self.manage_notetype(item)
             )
         elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
-            menu.addAction(tr(TR.NOTETYPES_CARDS), lambda: self.manage_template(item))
+            menu.addAction(tr.notetypes_cards(), lambda: self.manage_template(item))
         elif item.item_type == SidebarItemType.SAVED_SEARCH_ROOT:
             menu.addAction(
-                tr(TR.BROWSING_SIDEBAR_SAVE_CURRENT_SEARCH), self.save_current_search
+                tr.browsing_sidebar_save_current_search(), self.save_current_search
             )
         elif item.item_type == SidebarItemType.SAVED_SEARCH:
             menu.addAction(
-                tr(TR.BROWSING_UPDATE_SAVED_SEARCH),
+                tr.browsing_update_saved_search(),
                 lambda: self.update_saved_search(item),
             )
 
@@ -1090,13 +1090,13 @@ class SidebarTreeView(QTreeView):
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
     ) -> None:
         if self._enable_delete(item):
-            menu.addAction(tr(TR.ACTIONS_DELETE), lambda: self._on_delete(item))
+            menu.addAction(tr.actions_delete(), lambda: self._on_delete(item))
 
     def _maybe_add_rename_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
     ) -> None:
         if item.item_type.is_editable() and len(self._selected_items()) == 1:
-            menu.addAction(tr(TR.ACTIONS_RENAME), lambda: self.edit(index))
+            menu.addAction(tr.actions_rename(), lambda: self.edit(index))
 
     def _maybe_add_search_actions(self, menu: QMenu) -> None:
         nodes = [
@@ -1106,14 +1106,14 @@ class SidebarTreeView(QTreeView):
             return
         menu.addSeparator()
         if len(nodes) == 1:
-            menu.addAction(tr(TR.ACTIONS_SEARCH), lambda: self.update_search(*nodes))
+            menu.addAction(tr.actions_search(), lambda: self.update_search(*nodes))
             return
-        sub_menu = menu.addMenu(tr(TR.ACTIONS_SEARCH))
+        sub_menu = menu.addMenu(tr.actions_search())
         sub_menu.addAction(
-            tr(TR.ACTIONS_ALL_SELECTED), lambda: self.update_search(*nodes)
+            tr.actions_all_selected(), lambda: self.update_search(*nodes)
         )
         sub_menu.addAction(
-            tr(TR.ACTIONS_ANY_SELECTED),
+            tr.actions_any_selected(),
             lambda: self.update_search(*nodes, joiner="OR"),
         )
 
@@ -1137,21 +1137,19 @@ class SidebarTreeView(QTreeView):
 
         menu.addSeparator()
         if any(not item.expanded for item in selected_items if item.children):
-            menu.addAction(tr(TR.BROWSING_SIDEBAR_EXPAND), lambda: set_expanded(True))
+            menu.addAction(tr.browsing_sidebar_expand(), lambda: set_expanded(True))
         if any(item.expanded for item in selected_items if item.children):
-            menu.addAction(
-                tr(TR.BROWSING_SIDEBAR_COLLAPSE), lambda: set_expanded(False)
-            )
+            menu.addAction(tr.browsing_sidebar_collapse(), lambda: set_expanded(False))
         if any(
             not c.expanded for i in selected_items for c in i.children if c.children
         ):
             menu.addAction(
-                tr(TR.BROWSING_SIDEBAR_EXPAND_CHILDREN),
+                tr.browsing_sidebar_expand_children(),
                 lambda: set_children_expanded(True),
             )
         if any(c.expanded for i in selected_items for c in i.children if c.children):
             menu.addAction(
-                tr(TR.BROWSING_SIDEBAR_COLLAPSE_CHILDREN),
+                tr.browsing_sidebar_collapse_children(),
                 lambda: set_children_expanded(False),
             )
 
@@ -1277,7 +1275,7 @@ class SidebarTreeView(QTreeView):
     def save_current_search(self) -> None:
         if (search := self._get_current_search()) is None:
             return
-        name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
+        name = getOnlyText(tr.browsing_please_give_your_filter_a_name())
         if not name:
             return
         self._save_search(name, search)

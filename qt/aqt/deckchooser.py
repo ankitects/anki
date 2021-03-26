@@ -6,7 +6,7 @@ from typing import Optional
 from anki.decks import DEFAULT_DECK_ID, DeckID
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import TR, HelpPage, shortcut, tr
+from aqt.utils import HelpPage, shortcut, tr
 
 
 class DeckChooser(QHBoxLayout):
@@ -34,14 +34,14 @@ class DeckChooser(QHBoxLayout):
 
         # text label before button?
         if show_label:
-            self.deckLabel = QLabel(tr(TR.DECKS_DECK))
+            self.deckLabel = QLabel(tr.decks_deck())
             self.addWidget(self.deckLabel)
 
         # decks box
         self.deck = QPushButton()
         qconnect(self.deck.clicked, self.choose_deck)
         self.deck.setAutoDefault(False)
-        self.deck.setToolTip(shortcut(tr(TR.QT_MISC_TARGET_DECK_CTRLANDD)))
+        self.deck.setToolTip(shortcut(tr.qt_misc_target_deck_ctrlandd()))
         qconnect(
             QShortcut(QKeySequence("Ctrl+D"), self._widget).activated, self.choose_deck
         )
@@ -89,8 +89,8 @@ class DeckChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             current=current,
-            accept=tr(TR.ACTIONS_CHOOSE),
-            title=tr(TR.QT_MISC_CHOOSE_DECK),
+            accept=tr.actions_choose(),
+            title=tr.qt_misc_choose_deck(),
             help=HelpPage.EDITING,
             cancel=False,
             parent=self._widget,

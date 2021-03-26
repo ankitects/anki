@@ -162,7 +162,7 @@ for you than the default driver, please let us know on the Anki forums."""
     ######################################################################
 
     def setup_network(self) -> None:
-        self.form.media_log.setText(tr(TR.SYNC_MEDIA_LOG_BUTTON))
+        self.form.media_log.setText(tr.sync_media_log_button())
         qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
         self.form.syncMedia.setChecked(self.prof["syncMedia"])
@@ -172,7 +172,7 @@ for you than the default driver, please let us know on the Anki forums."""
         else:
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
             qconnect(self.form.syncDeauth.clicked, self.sync_logout)
-        self.form.syncDeauth.setText(tr(TR.SYNC_LOG_OUT_BUTTON))
+        self.form.syncDeauth.setText(tr.sync_log_out_button())
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
@@ -181,7 +181,7 @@ for you than the default driver, please let us know on the Anki forums."""
         self.form.syncDeauth.setVisible(False)
         self.form.syncUser.setText("")
         self.form.syncLabel.setText(
-            tr(TR.PREFERENCES_SYNCHRONIZATIONNOT_CURRENTLY_ENABLED_CLICK_THE_SYNC)
+            tr.preferences_synchronizationnot_currently_enabled_click_the_sync()
         )
 
     def sync_logout(self) -> None:
@@ -238,7 +238,7 @@ for you than the default driver, please let us know on the Anki forums."""
             restart_required = True
 
         if restart_required:
-            showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
+            showInfo(tr.preferences_changes_will_take_effect_when_you())
 
         self.updateOptions()
 
@@ -274,9 +274,7 @@ for you than the default driver, please let us know on the Anki forums."""
     def on_language_index_changed(self, idx: int) -> None:
         code = anki.lang.langs[idx][1]
         self.mw.pm.setLang(code)
-        showInfo(
-            tr(TR.PREFERENCES_PLEASE_RESTART_ANKI_TO_COMPLETE_LANGUAGE), parent=self
-        )
+        showInfo(tr.preferences_please_restart_anki_to_complete_language(), parent=self)
 
     # Global: video driver
     ######################################################################
@@ -296,19 +294,19 @@ for you than the default driver, please let us know on the Anki forums."""
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
         if new_driver != self.mw.pm.video_driver():
             self.mw.pm.set_video_driver(new_driver)
-            showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
+            showInfo(tr.preferences_changes_will_take_effect_when_you())
 
 
 def video_driver_name_for_platform(driver: VideoDriver) -> str:
     if driver == VideoDriver.ANGLE:
-        return tr(TR.PREFERENCES_VIDEO_DRIVER_ANGLE)
+        return tr.preferences_video_driver_angle()
     elif driver == VideoDriver.Software:
         if isMac:
-            return tr(TR.PREFERENCES_VIDEO_DRIVER_SOFTWARE_MAC)
+            return tr.preferences_video_driver_software_mac()
         else:
-            return tr(TR.PREFERENCES_VIDEO_DRIVER_SOFTWARE_OTHER)
+            return tr.preferences_video_driver_software_other()
     else:
         if isMac:
-            return tr(TR.PREFERENCES_VIDEO_DRIVER_OPENGL_MAC)
+            return tr.preferences_video_driver_opengl_mac()
         else:
-            return tr(TR.PREFERENCES_VIDEO_DRIVER_OPENGL_OTHER)
+            return tr.preferences_video_driver_opengl_other()

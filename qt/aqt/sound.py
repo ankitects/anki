@@ -329,7 +329,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         try:
             ret.result()
         except FileNotFoundError:
-            showWarning(tr(TR.MEDIA_SOUND_AND_VIDEO_ON_CARDS_WILL))
+            showWarning(tr.media_sound_and_video_on_cards_will())
             # must call cb() here, as we don't currently have another way
             # to flag to av_player that we've stopped
         cb()

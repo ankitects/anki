@@ -81,7 +81,7 @@ class Overview:
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
             if self.mw.state == "overview":
-                tooltip(tr(TR.STUDYING_NO_CARDS_ARE_DUE_YET))
+                tooltip(tr.studying_no_cards_are_due_yet())
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
@@ -137,13 +137,13 @@ class Overview:
         info = self.mw.col.sched.congratulations_info()
         if info.have_sched_buried and info.have_user_buried:
             opts = [
-                tr(TR.STUDYING_MANUALLY_BURIED_CARDS),
-                tr(TR.STUDYING_BURIED_SIBLINGS),
-                tr(TR.STUDYING_ALL_BURIED_CARDS),
-                tr(TR.ACTIONS_CANCEL),
+                tr.studying_manually_buried_cards(),
+                tr.studying_buried_siblings(),
+                tr.studying_all_buried_cards(),
+                tr.actions_cancel(),
             ]
 
-            diag = askUserDialog(tr(TR.STUDYING_WHAT_WOULD_YOU_LIKE_TO_UNBURY), opts)
+            diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
             diag.setDefault(0)
             ret = diag.run()
             if ret == opts[0]:
@@ -192,9 +192,9 @@ class Overview:
 
     def _desc(self, deck: Dict[str, Any]) -> str:
         if deck["dyn"]:
-            desc = tr(TR.STUDYING_THIS_IS_A_SPECIAL_DECK_FOR)
-            desc += f" {tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)}"
-            desc += f" {tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)}"
+            desc = tr.studying_this_is_a_special_deck_for()
+            desc += f" {tr.studying_cards_will_be_automatically_returned_to()}"
+            desc += f" {tr.studying_deleting_this_deck_from_the_deck()}"
         else:
             desc = deck.get("desc", "")
             if deck.get("md", False):
@@ -220,13 +220,13 @@ class Overview:
 </table>
 </td><td align=center>
 %s</td></tr></table>""" % (
-            tr(TR.ACTIONS_NEW),
+            tr.actions_new(),
             counts[0],
-            tr(TR.SCHEDULING_LEARNING),
+            tr.scheduling_learning(),
             counts[1],
-            tr(TR.STUDYING_TO_REVIEW),
+            tr.studying_to_review(),
             counts[2],
-            but("study", tr(TR.STUDYING_STUDY_NOW), id="study", extra=" autofocus"),
+            but("study", tr.studying_study_now(), id="study", extra=" autofocus"),
         )
 
     _body = """
@@ -243,16 +243,16 @@ class Overview:
 
     def _renderBottom(self) -> None:
         links = [
-            ["O", "opts", tr(TR.ACTIONS_OPTIONS)],
+            ["O", "opts", tr.actions_options()],
         ]
         if self.mw.col.decks.current()["dyn"]:
-            links.append(["R", "refresh", tr(TR.ACTIONS_REBUILD)])
-            links.append(["E", "empty", tr(TR.STUDYING_EMPTY)])
+            links.append(["R", "refresh", tr.actions_rebuild()])
+            links.append(["E", "empty", tr.studying_empty()])
         else:
-            links.append(["C", "studymore", tr(TR.ACTIONS_CUSTOM_STUDY)])
+            links.append(["C", "studymore", tr.actions_custom_study()])
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.haveBuried():
-            links.append(["U", "unbury", tr(TR.STUDYING_UNBURY)])
+            links.append(["U", "unbury", tr.studying_unbury()])
         buf = ""
         for b in links:
             if b[0]:

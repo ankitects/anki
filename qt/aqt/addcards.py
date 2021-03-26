@@ -41,7 +41,7 @@ class AddCards(QDialog):
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(tr(TR.ACTIONS_ADD))
+        self.setWindowTitle(tr.actions_add())
         disable_help_button(self)
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
@@ -81,20 +81,20 @@ class AddCards(QDialog):
         bb = self.form.buttonBox
         ar = QDialogButtonBox.ActionRole
         # add
-        self.addButton = bb.addButton(tr(TR.ACTIONS_ADD), ar)
+        self.addButton = bb.addButton(tr.actions_add(), ar)
         qconnect(self.addButton.clicked, self.add_current_note)
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
-        self.addButton.setToolTip(shortcut(tr(TR.ADDING_ADD_SHORTCUT_CTRLANDENTER)))
+        self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
         # close
-        self.closeButton = QPushButton(tr(TR.ACTIONS_CLOSE))
+        self.closeButton = QPushButton(tr.actions_close())
         self.closeButton.setAutoDefault(False)
         bb.addButton(self.closeButton, QDialogButtonBox.RejectRole)
         # help
-        self.helpButton = QPushButton(tr(TR.ACTIONS_HELP), clicked=self.helpRequested)  # type: ignore
+        self.helpButton = QPushButton(tr.actions_help(), clicked=self.helpRequested)  # type: ignore
         self.helpButton.setAutoDefault(False)
         bb.addButton(self.helpButton, QDialogButtonBox.HelpRole)
         # history
-        b = bb.addButton(f"{tr(TR.ADDING_HISTORY)} {downArrow()}", ar)
+        b = bb.addButton(f"{tr.adding_history()} {downArrow()}", ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:
@@ -175,7 +175,7 @@ class AddCards(QDialog):
                 a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
             else:
-                a = m.addAction(tr(TR.ADDING_NOTE_DELETED))
+                a = m.addAction(tr.adding_note_deleted())
                 a.setEnabled(False)
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
@@ -203,7 +203,7 @@ class AddCards(QDialog):
             # workaround for PyQt focus bug
             self.editor.hideCompleters()
 
-            tooltip(tr(TR.ADDING_ADDED), period=500)
+            tooltip(tr.adding_added(), period=500)
             av_player.stop_and_clear_queue()
             self._load_new_note(sticky_fields_from=note)
             gui_hooks.add_cards_did_add_note(note)
@@ -215,7 +215,7 @@ class AddCards(QDialog):
     def _note_can_be_added(self, note: Note) -> bool:
         result = note.duplicate_or_empty()
         if result == DuplicateOrEmptyResult.EMPTY:
-            problem = tr(TR.ADDING_THE_FIRST_FIELD_IS_EMPTY)
+            problem = tr.adding_the_first_field_is_empty()
         else:
             # duplicate entries are allowed these days
             problem = None
@@ -229,7 +229,7 @@ class AddCards(QDialog):
         # missing cloze deletion?
         if note.model()["type"] == MODEL_CLOZE:
             if not note.cloze_numbers_in_fields():
-                if not askUser(tr(TR.ADDING_YOU_HAVE_A_CLOZE_DELETION_NOTE)):
+                if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
                     return False
 
         return True
@@ -256,7 +256,7 @@ class AddCards(QDialog):
     def ifCanClose(self, onOk: Callable) -> None:
         def afterSave() -> None:
             ok = self.editor.fieldsAreBlank(self._last_added_note) or askUser(
-                tr(TR.ADDING_CLOSE_AND_LOSE_CURRENT_INPUT), defaultno=True
+                tr.adding_close_and_lose_current_input(), defaultno=True
             )
             if ok:
                 onOk()

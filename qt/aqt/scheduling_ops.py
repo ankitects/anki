@@ -34,14 +34,14 @@ def set_due_date_dialog(
     prompt = "\n".join(
         [
             tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
-            tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT_HINT),
+            tr.scheduling_set_due_date_prompt_hint(),
         ]
     )
     (days, success) = getText(
         prompt=prompt,
         parent=parent,
         default=default_text,
-        title=tr(TR.ACTIONS_SET_DUE_DATE),
+        title=tr.actions_set_due_date(),
     )
     if not success or not days.strip():
         return

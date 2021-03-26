@@ -138,7 +138,7 @@ class ProfileManager:
         if profile:
             if profile not in self.profiles():
                 QMessageBox.critical(
-                    None, tr(TR.QT_MISC_ERROR), tr(TR.PROFILES_PROFILE_DOES_NOT_EXIST)
+                    None, tr.qt_misc_error(), tr.profiles_profile_does_not_exist()
                 )
                 sys.exit(1)
             try:
@@ -299,8 +299,8 @@ class ProfileManager:
         except:
             QMessageBox.warning(
                 None,
-                tr(TR.PROFILES_PROFILE_CORRUPT),
-                tr(TR.PROFILES_ANKI_COULD_NOT_READ_YOUR_PROFILE),
+                tr.profiles_profile_corrupt(),
+                tr.profiles_anki_could_not_read_your_profile(),
             )
             traceback.print_stack()
             print("resetting corrupt profile")
@@ -353,7 +353,7 @@ class ProfileManager:
                     self.name = oldName
                     return
             else:
-                showWarning(tr(TR.PROFILES_FOLDER_ALREADY_EXISTS))
+                showWarning(tr.profiles_folder_already_exists())
                 self.name = oldName
                 return
 
@@ -365,7 +365,7 @@ class ProfileManager:
         except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
-                showWarning(tr(TR.PROFILES_ANKI_COULD_NOT_RENAME_YOUR_PROFILE))
+                showWarning(tr.profiles_anki_could_not_rename_your_profile())
             else:
                 raise
         except:
@@ -513,7 +513,7 @@ create table if not exists profiles
 
     def _ensureProfile(self) -> None:
         "Create a new profile if none exists."
-        self.create(tr(TR.PROFILES_USER_1))
+        self.create(tr.profiles_user_1())
         p = os.path.join(self.base, "README.txt")
         with open(p, "w", encoding="utf8") as file:
             file.write(

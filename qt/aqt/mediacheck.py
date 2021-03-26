@@ -99,7 +99,7 @@ class MediaChecker:
 
         # show report and offer to delete
         diag = QDialog(self.mw)
-        diag.setWindowTitle(tr(TR.MEDIA_CHECK_WINDOW_TITLE))
+        diag.setWindowTitle(tr.media_check_window_title())
         disable_help_button(diag)
         layout = QVBoxLayout(diag)
         diag.setLayout(layout)
@@ -112,25 +112,25 @@ class MediaChecker:
         layout.addWidget(box)
 
         if output.unused:
-            b = QPushButton(tr(TR.MEDIA_CHECK_DELETE_UNUSED))
+            b = QPushButton(tr.media_check_delete_unused())
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
             qconnect(b.clicked, lambda c: self._on_trash_files(output.unused))
 
         if output.missing:
             if any(map(lambda x: x.startswith("latex-"), output.missing)):
-                b = QPushButton(tr(TR.MEDIA_CHECK_RENDER_LATEX))
+                b = QPushButton(tr.media_check_render_latex())
                 b.setAutoDefault(False)
                 box.addButton(b, QDialogButtonBox.RejectRole)
                 qconnect(b.clicked, self._on_render_latex)
 
         if output.have_trash:
-            b = QPushButton(tr(TR.MEDIA_CHECK_EMPTY_TRASH))
+            b = QPushButton(tr.media_check_empty_trash())
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
             qconnect(b.clicked, lambda c: self._on_empty_trash())
 
-            b = QPushButton(tr(TR.MEDIA_CHECK_RESTORE_TRASH))
+            b = QPushButton(tr.media_check_restore_trash())
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
             qconnect(b.clicked, lambda c: self._on_restore_trash())
@@ -157,7 +157,7 @@ class MediaChecker:
             aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
             showText(err, type="html")
         else:
-            tooltip(tr(TR.MEDIA_CHECK_ALL_LATEX_RENDERED))
+            tooltip(tr.media_check_all_latex_rendered())
 
     def _on_render_latex_progress(self, count: int) -> bool:
         if self.progress_dialog.wantCancel:
@@ -167,7 +167,7 @@ class MediaChecker:
         return True
 
     def _on_trash_files(self, fnames: Sequence[str]) -> None:
-        if not askUser(tr(TR.MEDIA_CHECK_DELETE_UNUSED_CONFIRM)):
+        if not askUser(tr.media_check_delete_unused_confirm()):
             return
 
         self.progress_dialog = self.mw.progress.start()
@@ -202,7 +202,7 @@ class MediaChecker:
             # check for errors
             fut.result()
 
-            tooltip(tr(TR.MEDIA_CHECK_TRASH_EMPTIED))
+            tooltip(tr.media_check_trash_emptied())
 
         self.mw.taskman.run_in_background(empty_trash, on_done)
 
@@ -219,6 +219,6 @@ class MediaChecker:
             # check for errors
             fut.result()
 
-            tooltip(tr(TR.MEDIA_CHECK_TRASH_RESTORED))
+            tooltip(tr.media_check_trash_restored())
 
         self.mw.taskman.run_in_background(restore_trash, on_done)

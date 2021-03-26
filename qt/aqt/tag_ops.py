@@ -58,7 +58,7 @@ def rename_tag(
         if out.count:
             tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent)
         else:
-            showInfo(tr(TR.BROWSING_TAG_RENAME_WARNING_EMPTY), parent=parent)
+            showInfo(tr.browsing_tag_rename_warning_empty(), parent=parent)
 
     mw.perform_op(
         lambda: mw.col.tags.rename(old=current_name, new=new_name),

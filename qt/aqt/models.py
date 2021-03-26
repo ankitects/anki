@@ -43,7 +43,7 @@ class Models(QDialog):
         self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
-        self.mw.checkpoint(tr(TR.NOTETYPES_NOTE_TYPES))
+        self.mw.checkpoint(tr.notetypes_note_types())
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         qconnect(
@@ -73,20 +73,20 @@ class Models(QDialog):
         box = f.buttonBox
 
         default_buttons = [
-            (tr(TR.ACTIONS_ADD), self.onAdd),
-            (tr(TR.ACTIONS_RENAME), self.onRename),
-            (tr(TR.ACTIONS_DELETE), self.onDelete),
+            (tr.actions_add(), self.onAdd),
+            (tr.actions_rename(), self.onRename),
+            (tr.actions_delete(), self.onDelete),
         ]
 
         if self.fromMain:
             default_buttons.extend(
                 [
-                    (tr(TR.NOTETYPES_FIELDS), self.onFields),
-                    (tr(TR.NOTETYPES_CARDS), self.onCards),
+                    (tr.notetypes_fields(), self.onFields),
+                    (tr.notetypes_cards(), self.onCards),
                 ]
             )
 
-        default_buttons.append((tr(TR.NOTETYPES_OPTIONS), self.onAdvanced))
+        default_buttons.append((tr.notetypes_options(), self.onAdvanced))
 
         for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
             button = box.addButton(label, QDialogButtonBox.ActionRole)
@@ -103,7 +103,7 @@ class Models(QDialog):
 
     def onRename(self) -> None:
         nt = self.current_notetype()
-        txt = getText(tr(TR.ACTIONS_NEW_NAME), default=nt["name"])
+        txt = getText(tr.actions_new_name(), default=nt["name"])
         name = txt[0].replace('"', "")
         if txt[1] and name:
             nt["name"] = name
@@ -139,20 +139,20 @@ class Models(QDialog):
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(tr(TR.ACTIONS_NAME), default=m["name"])[0].replace('"', "")
+            txt = getText(tr.actions_name(), default=m["name"])[0].replace('"', "")
             if txt:
                 m["name"] = txt
             self.saveAndRefresh(m)
 
     def onDelete(self) -> None:
         if len(self.models) < 2:
-            showInfo(tr(TR.NOTETYPES_PLEASE_ADD_ANOTHER_NOTE_TYPE_FIRST), parent=self)
+            showInfo(tr.notetypes_please_add_another_note_type_first(), parent=self)
             return
         idx = self.form.modelsList.currentRow()
         if self.models[idx].use_count:
-            msg = tr(TR.NOTETYPES_DELETE_THIS_NOTE_TYPE_AND_ALL)
+            msg = tr.notetypes_delete_this_note_type_and_all()
         else:
-            msg = tr(TR.NOTETYPES_DELETE_THIS_UNUSED_NOTE_TYPE)
+            msg = tr.notetypes_delete_this_unused_note_type()
         if not askUser(msg, parent=self):
             return
 
