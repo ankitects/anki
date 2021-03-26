@@ -10,10 +10,10 @@ compileUi(open(ui_file), buf, from_imports=True)
 
 outdata = buf.getvalue()
 outdata = outdata.replace(
-    "# -*- coding: utf-8 -*-", "# -*- coding: utf-8 -*-\nfrom aqt.utils import tr, TR\n"
+    "# -*- coding: utf-8 -*-", "# -*- coding: utf-8 -*-\nfrom aqt.utils import tr\n"
 )
 outdata = re.sub(
-    r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr(TR.\\1", outdata
+    r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr.\\1(", outdata
 )
 
 with open(py_file, "w") as file:

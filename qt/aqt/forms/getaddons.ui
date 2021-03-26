@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ADDONS_INSTALL_ADDON</string>
+   <string>addons_install_addon</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>ADDONS_TO_BROWSE_ADDONS_PLEASE_CLICK_THE</string>
+      <string>addons_to_browse_addons_please_click_the</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -42,7 +42,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>ADDONS_CODE</string>
+        <string>addons_code</string>
        </property>
       </widget>
      </item>

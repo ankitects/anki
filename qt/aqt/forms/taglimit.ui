@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CUSTOM_STUDY_SELECTIVE_STUDY</string>
+   <string>custom_study_selective_study</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QCheckBox" name="activeCheck">
      <property name="text">
-      <string>CUSTOM_STUDY_REQUIRE_ONE_OR_MORE_OF_THESE</string>
+      <string>custom_study_require_one_or_more_of_these</string>
      </property>
     </widget>
    </item>
@@ -40,7 +40,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>CUSTOM_STUDY_SELECT_TAGS_TO_EXCLUDE</string>
+      <string>custom_study_select_tags_to_exclude</string>
      </property>
     </widget>
    </item>

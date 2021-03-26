@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>EDITING_HTML_EDITOR</string>
+   <string>editing_html_editor</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

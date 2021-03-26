@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ACTIONS_CUSTOM_STUDY</string>
+   <string>actions_custom_study</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,42 +19,42 @@
      <item row="3" column="0">
       <widget class="QRadioButton" name="radioAhead">
        <property name="text">
-        <string>CUSTOM_STUDY_REVIEW_AHEAD</string>
+        <string>custom_study_review_ahead</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
       <widget class="QRadioButton" name="radioForgot">
        <property name="text">
-        <string>CUSTOM_STUDY_REVIEW_FORGOTTEN_CARDS</string>
+        <string>custom_study_review_forgotten_cards</string>
        </property>
       </widget>
      </item>
      <item row="0" column="0">
       <widget class="QRadioButton" name="radioNew">
        <property name="text">
-        <string>CUSTOM_STUDY_INCREASE_TODAYS_NEW_CARD_LIMIT</string>
+        <string>custom_study_increase_todays_new_card_limit</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QRadioButton" name="radioRev">
        <property name="text">
-        <string>CUSTOM_STUDY_INCREASE_TODAYS_REVIEW_CARD_LIMIT</string>
+        <string>custom_study_increase_todays_review_card_limit</string>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
       <widget class="QRadioButton" name="radioCram">
        <property name="text">
-        <string>CUSTOM_STUDY_STUDY_BY_CARD_STATE_OR_TAG</string>
+        <string>custom_study_study_by_card_state_or_tag</string>
        </property>
       </widget>
      </item>
      <item row="4" column="0">
       <widget class="QRadioButton" name="radioPreview">
        <property name="text">
-        <string>CUSTOM_STUDY_PREVIEW_NEW_CARDS</string>
+        <string>custom_study_preview_new_cards</string>
        </property>
       </widget>
      </item>
@@ -114,22 +114,22 @@
         </property>
         <item>
          <property name="text">
-          <string>CUSTOM_STUDY_NEW_CARDS_ONLY</string>
+          <string>custom_study_new_cards_only</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>CUSTOM_STUDY_DUE_CARDS_ONLY</string>
+          <string>custom_study_due_cards_only</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>CUSTOM_STUDY_ALL_REVIEW_CARDS_IN_RANDOM_ORDER</string>
+          <string>custom_study_all_review_cards_in_random_order</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>CUSTOM_STUDY_ALL_CARDS_IN_RANDOM_ORDER_DONT</string>
+          <string>custom_study_all_cards_in_random_order_dont</string>
          </property>
         </item>
        </widget>

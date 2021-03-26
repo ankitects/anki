@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ACTIONS_EXPORT</string>
+   <string>actions_export</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
@@ -25,7 +25,7 @@
         </size>
        </property>
        <property name="text">
-        <string>EXPORTING_EXPORT_FORMAT</string>
+        <string>exporting_export_format</string>
        </property>
       </widget>
      </item>
@@ -35,7 +35,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>EXPORTING_INCLUDE</string>
+        <string>exporting_include</string>
        </property>
       </widget>
      </item>
@@ -49,7 +49,7 @@
      <item>
       <widget class="QCheckBox" name="includeSched">
        <property name="text">
-        <string>EXPORTING_INCLUDE_SCHEDULING_INFORMATION</string>
+        <string>exporting_include_scheduling_information</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -59,7 +59,7 @@
      <item>
       <widget class="QCheckBox" name="includeMedia">
        <property name="text">
-        <string>EXPORTING_INCLUDE_MEDIA</string>
+        <string>exporting_include_media</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -69,7 +69,7 @@
      <item>
       <widget class="QCheckBox" name="includeTags">
        <property name="text">
-        <string>EXPORTING_INCLUDE_TAGS</string>
+        <string>exporting_include_tags</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -79,7 +79,7 @@
      <item>
       <widget class="QCheckBox" name="includeHTML">
        <property name="text">
-        <string>EXPORTING_INCLUDE_HTML_AND_MEDIA_REFERENCES</string>
+        <string>exporting_include_html_and_media_references</string>
        </property>
       </widget>
      </item>

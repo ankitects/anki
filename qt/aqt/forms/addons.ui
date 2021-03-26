@@ -25,7 +25,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>ADDONS_CHANGES_WILL_TAKE_EFFECT_WHEN_ANKI</string>
+        <string>addons_changes_will_take_effect_when_anki</string>
        </property>
       </widget>
      </item>
@@ -43,21 +43,21 @@
      <item>
       <widget class="QPushButton" name="getAddons">
        <property name="text">
-        <string>ADDONS_GET_ADDONS</string>
+        <string>addons_get_addons</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="installFromFile">
        <property name="text">
-        <string>ADDONS_INSTALL_FROM_FILE</string>
+        <string>addons_install_from_file</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="checkForUpdates">
        <property name="text">
-        <string>ADDONS_CHECK_FOR_UPDATES</string>
+        <string>addons_check_for_updates</string>
        </property>
       </widget>
      </item>
@@ -77,35 +77,35 @@
      <item>
       <widget class="QPushButton" name="viewPage">
        <property name="text">
-        <string>ADDONS_VIEW_ADDON_PAGE</string>
+        <string>addons_view_addon_page</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="config">
        <property name="text">
-        <string>ADDONS_CONFIG</string>
+        <string>addons_config</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="viewFiles">
        <property name="text">
-        <string>ADDONS_VIEW_FILES</string>
+        <string>addons_view_files</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="toggleEnabled">
        <property name="text">
-        <string>ADDONS_TOGGLE_ENABLED</string>
+        <string>addons_toggle_enabled</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="delete_2">
        <property name="text">
-        <string>ACTIONS_DELETE</string>
+        <string>actions_delete</string>
        </property>
       </widget>
      </item>
