@@ -6,7 +6,7 @@ ts_library(
     name = "html-filter",
     srcs = glob(["*.ts"]),
     module_name = "html-filter",
-    tsconfig = "//qt/aqt/data/web/js:tsconfig.json",
+    tsconfig = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [],
 )
