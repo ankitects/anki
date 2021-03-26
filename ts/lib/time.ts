@@ -90,36 +90,40 @@ export function studiedToday(i18n: I18n, cards: number, secs: number): string {
     });
 }
 
-function i18nKeyForUnit(i18n: I18n, unit: TimespanUnit, short: boolean): number {
+function i18nFuncForUnit(
+    i18n: I18n,
+    unit: TimespanUnit,
+    short: boolean
+): ({ amount: number }) => string {
     if (short) {
         switch (unit) {
             case TimespanUnit.Seconds:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_SECONDS;
+                return i18n.statisticsElapsedTimeSeconds;
             case TimespanUnit.Minutes:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_MINUTES;
+                return i18n.statisticsElapsedTimeMinutes;
             case TimespanUnit.Hours:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_HOURS;
+                return i18n.statisticsElapsedTimeHours;
             case TimespanUnit.Days:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_DAYS;
+                return i18n.statisticsElapsedTimeDays;
             case TimespanUnit.Months:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_MONTHS;
+                return i18n.statisticsElapsedTimeMonths;
             case TimespanUnit.Years:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_YEARS;
+                return i18n.statisticsElapsedTimeYears;
         }
     } else {
         switch (unit) {
             case TimespanUnit.Seconds:
-                return i18n.TR.SCHEDULING_TIME_SPAN_SECONDS;
+                return i18n.schedulingTimeSpanSeconds;
             case TimespanUnit.Minutes:
-                return i18n.TR.SCHEDULING_TIME_SPAN_MINUTES;
+                return i18n.schedulingTimeSpanMinutes;
             case TimespanUnit.Hours:
-                return i18n.TR.SCHEDULING_TIME_SPAN_HOURS;
+                return i18n.schedulingTimeSpanHours;
             case TimespanUnit.Days:
-                return i18n.TR.SCHEDULING_TIME_SPAN_DAYS;
+                return i18n.schedulingTimeSpanDays;
             case TimespanUnit.Months:
-                return i18n.TR.SCHEDULING_TIME_SPAN_MONTHS;
+                return i18n.schedulingTimeSpanMonths;
             case TimespanUnit.Years:
-                return i18n.TR.SCHEDULING_TIME_SPAN_YEARS;
+                return i18n.schedulingTimeSpanYears;
         }
     }
 }
@@ -131,8 +135,7 @@ function i18nKeyForUnit(i18n: I18n, unit: TimespanUnit, short: boolean): number 
 export function timeSpan(i18n: I18n, seconds: number, short = false): string {
     const unit = naturalUnit(seconds);
     const amount = unitAmount(unit, seconds);
-    const key = i18nKeyForUnit(i18n, unit, short);
-    return i18n.tr(key, { amount });
+    return i18nFuncForUnit(i18n, unit, short).call(i18n, { amount });
 }
 
 export function dayLabel(i18n: I18n, daysStart: number, daysEnd: number): string {
