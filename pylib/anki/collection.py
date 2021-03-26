@@ -497,48 +497,24 @@ class Collection:
         reverse: bool = False,
     ) -> Sequence[int]:
         """Return card ids matching the provided search.
-
         To programmatically construct a search string, see .build_search_string().
-
-        If order=True, use the sort order stored in the collection config
-        If order=False, do no ordering
-
-        If order is a string, that text is added after 'order by' in the sql statement.
-        You must add ' asc' or ' desc' to the order, as Anki will replace asc with
-        desc and vice versa when reverse is set in the collection config, eg
-        order="c.ivl asc, c.due desc".
-
-        If order is a BuiltinSort.Kind value, sort using that builtin sort, eg
-        col.find_cards("", order=BuiltinSort.Kind.CARD_DUE)
-
-        The reverse argument only applies when a BuiltinSort.Kind is provided;
-        otherwise the collection config defines whether reverse is set or not.
+        To define a sort order, see _build_sort_mode().
         """
-        if isinstance(order, str):
-            mode = _pb.SortOrder(custom=order)
-        elif isinstance(order, bool):
-            if order is True:
-                mode = _pb.SortOrder(from_config=_pb.Empty())
-            else:
-                mode = _pb.SortOrder(none=_pb.Empty())
-        else:
-            mode = _pb.SortOrder(
-                builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
-            )
+        mode = _build_sort_mode(order, reverse)
         return self._backend.search_cards(search=query, order=mode)
 
-    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[int]:
-        """Return note ids matching the provided search or searches.
-
-        If more than one search is provided, they will be ANDed together.
-
-        Eg: col.find_notes("test", "another") will search for "test AND another"
-        and return matching note ids.
-
-        Eg: col.find_notes(SearchNode(deck="test"), "foo") will return notes
-        that have a card in deck called "test", and have the text "foo".
+    def find_notes(
+        self,
+        query: str,
+        order: Union[bool, str, BuiltinSort.Kind.V] = False,
+        reverse: bool = False,
+    ) -> Sequence[int]:
+        """Return note ids matching the provided search.
+        To programmatically construct a search string, see .build_search_string().
+        To define a sort order, see _build_sort_mode().
         """
-        return self._backend.search_notes(self.build_search_string(*terms))
+        mode = _build_sort_mode(order, reverse)
+        return self._backend.search_notes(search=query, order=mode)
 
     def find_and_replace(
         self,
@@ -565,7 +541,9 @@ class Collection:
 
     # returns array of ("dupestr", [nids])
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
-        nids = self.findNotes(search, SearchNode(field_name=fieldName))
+        nids = self.find_notes(
+            self.build_search_string(search, SearchNode(field_name=fieldName))
+        )
         # go through notes
         vals: Dict[str, List[int]] = {}
         dupes = []
@@ -1084,3 +1062,34 @@ class _ReviewsUndo:
 
 
 _UndoInfo = Union[_ReviewsUndo, Checkpoint, None]
+
+
+def _build_sort_mode(
+    order: Union[bool, str, BuiltinSort.Kind.V],
+    reverse: bool,
+) -> _pb.SortOrder:
+    """Return a SortOrder object for use in find_cards() or find_notes().
+
+    If order=True, use the sort order stored in the collection config
+    If order=False, do no ordering
+
+    If order is a string, that text is added after 'order by' in the sql statement.
+    You must add ' asc' or ' desc' to the order, as Anki will replace asc with
+    desc and vice versa when reverse is set in the collection config, eg
+    order="c.ivl asc, c.due desc".
+
+    If order is a BuiltinSort.Kind value, sort using that builtin sort, eg
+    col.find_cards("", order=BuiltinSort.Kind.CARD_DUE)
+
+    The reverse argument only applies when a BuiltinSort.Kind is provided;
+    otherwise the collection config defines whether reverse is set or not.
+    """
+    if isinstance(order, str):
+        return _pb.SortOrder(custom=order)
+    elif isinstance(order, bool):
+        if order is True:
+            return _pb.SortOrder(from_config=_pb.Empty())
+        else:
+            return _pb.SortOrder(none=_pb.Empty())
+    else:
+        return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse))
