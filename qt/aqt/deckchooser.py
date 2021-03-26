@@ -3,6 +3,7 @@
 
 from typing import Optional
 
+from anki.decks import DEFAULT_DECK_ID, DeckID
 from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import TR, HelpPage, shortcut, tr
@@ -14,17 +15,17 @@ class DeckChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         label: bool = True,
-        starting_deck_id: Optional[int] = None,
+        starting_deck_id: Optional[DeckID] = None,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore
         self.mw = mw
         self._setup_ui(show_label=label)
 
-        self._selected_deck_id = 0
+        self._selected_deck_id = DeckID(0)
         # default to current deck if starting id not provided
         if starting_deck_id is None:
-            starting_deck_id = self.mw.col.get_config("curDeck", default=1) or 1
+            starting_deck_id = DeckID(self.mw.col.get_config("curDeck", default=1) or 1)
         self.selected_deck_id = starting_deck_id
 
     def _setup_ui(self, show_label: bool) -> None:
@@ -56,13 +57,13 @@ class DeckChooser(QHBoxLayout):
         )
 
     @property
-    def selected_deck_id(self) -> int:
+    def selected_deck_id(self) -> DeckID:
         self._ensure_selected_deck_valid()
 
         return self._selected_deck_id
 
     @selected_deck_id.setter
-    def selected_deck_id(self, id: int) -> None:
+    def selected_deck_id(self, id: DeckID) -> None:
         if id != self._selected_deck_id:
             self._selected_deck_id = id
             self._ensure_selected_deck_valid()
@@ -70,7 +71,7 @@ class DeckChooser(QHBoxLayout):
 
     def _ensure_selected_deck_valid(self) -> None:
         if not self.mw.col.decks.get(self._selected_deck_id, default=False):
-            self.selected_deck_id = 1
+            self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
         self.deck.setText(self.selected_deck_name().replace("&", "&&"))
@@ -103,7 +104,7 @@ class DeckChooser(QHBoxLayout):
     onDeckChange = choose_deck
     deckName = selected_deck_name
 
-    def selectedId(self) -> int:
+    def selectedId(self) -> DeckID:
         return self.selected_deck_id
 
     def cleanup(self) -> None:

@@ -10,6 +10,8 @@ from anki.config import Config
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
 from anki.lang import TR
+from anki.models import NoteTypeID
+from anki.notes import NoteID
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -18,6 +20,11 @@ from anki.utils import (
     splitFields,
     timestampID,
 )
+
+TagMappedUpdate = Tuple[int, int, str, str, NoteID, str, str]
+TagModifiedUpdate = Tuple[int, int, str, str, NoteID, str]
+NoTagUpdate = Tuple[int, int, str, NoteID, str]
+Updates = Union[TagMappedUpdate, TagModifiedUpdate, NoTagUpdate]
 
 # Stores a list of fields, tags and deck
 ######################################################################
@@ -122,7 +129,7 @@ class NoteImporter(Importer):
             if f == "_tags":
                 self._tagsMapped = True
         # gather checks for duplicate comparison
-        csums: Dict[str, List[int]] = {}
+        csums: Dict[str, List[NoteID]] = {}
         for csum, id in self.col.db.execute(
             "select csum, id from notes where mid = ?", self.model["id"]
         ):
@@ -133,12 +140,12 @@ class NoteImporter(Importer):
         firsts: Dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model["flds"][0]["name"])
         self._fmap = self.col.models.fieldMap(self.model)
-        self._nextID = timestampID(self.col.db, "notes")
+        self._nextID = NoteID(timestampID(self.col.db, "notes"))
         # loop through the notes
-        updates = []
+        updates: List[Updates] = []
         updateLog = []
         new = []
-        self._ids: List[int] = []
+        self._ids: List[NoteID] = []
         self._cards: List[Tuple] = []
         dupeCount = 0
         dupes: List[str] = []
@@ -203,9 +210,9 @@ class NoteImporter(Importer):
                             found = False
             # newly add
             if not found:
-                data = self.newData(n)
-                if data:
-                    new.append(data)
+                new_data = self.newData(n)
+                if new_data:
+                    new.append(new_data)
                     # note that we've seen this note once already
                     firsts[fld0] = True
         self.addNew(new)
@@ -235,15 +242,17 @@ class NoteImporter(Importer):
         self.log.extend(updateLog)
         self.total = len(self._ids)
 
-    def newData(self, n: ForeignNote) -> Optional[list]:
+    def newData(
+        self, n: ForeignNote
+    ) -> Tuple[NoteID, str, NoteTypeID, int, int, str, str, str, int, int, str]:
         id = self._nextID
-        self._nextID += 1
+        self._nextID = NoteID(self._nextID + 1)
         self._ids.append(id)
         self.processFields(n)
         # note id for card updates later
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
-        return [
+        return (
             id,
             guid64(),
             self.model["id"],
@@ -255,28 +264,35 @@ class NoteImporter(Importer):
             0,
             0,
             "",
-        ]
+        )
 
-    def addNew(self, rows: List[List[Union[int, str]]]) -> None:
+    def addNew(
+        self,
+        rows: List[
+            Tuple[NoteID, str, NoteTypeID, int, int, str, str, str, int, int, str]
+        ],
+    ) -> None:
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", rows
         )
 
-    def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
+    def updateData(
+        self, n: ForeignNote, id: NoteID, sflds: List[str]
+    ) -> Optional[Updates]:
         self._ids.append(id)
         self.processFields(n, sflds)
         if self._tagsMapped:
             tags = self.col.tags.join(n.tags)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
+            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags)
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
             tagList = self.col.tags.split(tags) + self.tagModified.split()
             tags = self.col.tags.join(tagList)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr]
+            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr)
         else:
-            return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
+            return (intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
 
-    def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
+    def addUpdates(self, rows: List[Updates]) -> None:
         changes = self.col.db.scalar("select total_changes()")
         if self._tagsMapped:
             self.col.db.executemany(

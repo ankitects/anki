@@ -8,7 +8,7 @@ from typing import Any, List, Optional, Sequence
 import aqt.clayout
 from anki import stdmodels
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType, NoteTypeNameIDUseCount
+from anki.models import NoteType, NoteTypeID, NoteTypeNameIDUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -33,7 +33,7 @@ class Models(QDialog):
         mw: AnkiQt,
         parent: Optional[QWidget] = None,
         fromMain: bool = False,
-        selected_notetype_id: Optional[int] = None,
+        selected_notetype_id: Optional[NoteTypeID] = None,
     ):
         self.mw = mw
         parent = parent or mw

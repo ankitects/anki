@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, NewType, Optional
 
 import anki
 from anki.lang import TR
@@ -18,20 +18,22 @@ NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
 # Queue types
-QUEUE_TYPE_MANUALLY_BURIED = -3
-QUEUE_TYPE_SIBLING_BURIED = -2
-QUEUE_TYPE_SUSPENDED = -1
-QUEUE_TYPE_NEW = 0
-QUEUE_TYPE_LRN = 1
-QUEUE_TYPE_REV = 2
-QUEUE_TYPE_DAY_LEARN_RELEARN = 3
-QUEUE_TYPE_PREVIEW = 4
+CardQueue = NewType("CardQueue", int)
+QUEUE_TYPE_MANUALLY_BURIED = CardQueue(-3)
+QUEUE_TYPE_SIBLING_BURIED = CardQueue(-2)
+QUEUE_TYPE_SUSPENDED = CardQueue(-1)
+QUEUE_TYPE_NEW = CardQueue(0)
+QUEUE_TYPE_LRN = CardQueue(1)
+QUEUE_TYPE_REV = CardQueue(2)
+QUEUE_TYPE_DAY_LEARN_RELEARN = CardQueue(3)
+QUEUE_TYPE_PREVIEW = CardQueue(4)
 
 # Card types
-CARD_TYPE_NEW = 0
-CARD_TYPE_LRN = 1
-CARD_TYPE_REV = 2
-CARD_TYPE_RELEARNING = 3
+CardType = NewType("CardType", int)
+CARD_TYPE_NEW = CardType(0)
+CARD_TYPE_LRN = CardType(1)
+CARD_TYPE_REV = CardType(2)
+CARD_TYPE_RELEARNING = CardType(3)
 
 # removal types
 REM_CARD = 0

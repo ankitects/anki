@@ -5,11 +5,14 @@ import os
 import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
+from anki.cards import CardID
 from anki.collection import Collection
 from anki.consts import *
-from anki.decks import DeckManager
+from anki.decks import DeckID, DeckManager
 from anki.importing.base import Importer
 from anki.lang import TR
+from anki.models import NoteTypeID
+from anki.notes import NoteID
 from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
 
 GUID = 1
@@ -29,7 +32,7 @@ class Anki2Importer(Importer):
         super().__init__(col, file)
 
         # set later, defined here for typechecking
-        self._decks: Dict[int, int] = {}
+        self._decks: Dict[DeckID, DeckID] = {}
         self.source_needs_upgrade = False
 
     def run(self, media: None = None) -> None:
@@ -79,7 +82,7 @@ class Anki2Importer(Importer):
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
-        self._notes: Dict[str, Tuple[int, int, int]] = {}
+        self._notes: Dict[str, Tuple[NoteID, int, NoteTypeID]] = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"
@@ -215,9 +218,9 @@ class Anki2Importer(Importer):
 
     def _prepareModels(self) -> None:
         "Prepare index of schema hashes."
-        self._modelMap: Dict[int, int] = {}
+        self._modelMap: Dict[NoteTypeID, NoteTypeID] = {}
 
-    def _mid(self, srcMid: int) -> Any:
+    def _mid(self, srcMid: NoteTypeID) -> Any:
         "Return local id for remote MID."
         # already processed this mid?
         if srcMid in self._modelMap:
@@ -246,7 +249,7 @@ class Anki2Importer(Importer):
                     self.dst.models.update(model)
                 break
             # as they don't match, try next id
-            mid += 1
+            mid = NoteTypeID(mid + 1)
         # save map and return new mid
         self._modelMap[srcMid] = mid
         return mid
@@ -254,7 +257,7 @@ class Anki2Importer(Importer):
     # Decks
     ######################################################################
 
-    def _did(self, did: int) -> Any:
+    def _did(self, did: DeckID) -> Any:
         "Given did in src col, return local id."
         # already converted?
         if did in self._decks:
@@ -305,7 +308,7 @@ class Anki2Importer(Importer):
         if self.source_needs_upgrade:
             self.src.upgrade_to_v2_scheduler()
         # build map of (guid, ord) -> cid and used id cache
-        self._cards: Dict[Tuple[str, int], int] = {}
+        self._cards: Dict[Tuple[str, int], CardID] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
             "select f.guid, c.ord, c.id from cards c, notes f " "where c.nid = f.id"
@@ -430,7 +433,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             # the user likely used subdirectories
             pass
 
-    def _mungeMedia(self, mid: int, fieldsStr: str) -> str:
+    def _mungeMedia(self, mid: NoteTypeID, fieldsStr: str) -> str:
         fields = splitFields(fieldsStr)
 
         def repl(match):

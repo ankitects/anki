@@ -22,12 +22,13 @@ from typing import (
 
 import aqt
 import aqt.forms
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.collection import BrowserRow, Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType
+from anki.notes import NoteID
 from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac, isWin
@@ -96,7 +97,7 @@ class SearchContext:
     browser: Browser
     order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
-    card_ids: Optional[Sequence[int]] = None
+    card_ids: Optional[Sequence[CardID]] = None
 
 
 # Data model
@@ -169,13 +170,13 @@ class DataModel(QAbstractTableModel):
         self.activeCols: List[str] = self.col.get_config(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
-        self.cards: Sequence[int] = []
+        self.cards: Sequence[CardID] = []
         self._rows: Dict[int, CellRow] = {}
         self._last_refresh = 0.0
         # serve stale content to avoid hitting the DB?
         self.block_updates = False
 
-    def get_id(self, index: QModelIndex) -> int:
+    def get_id(self, index: QModelIndex) -> CardID:
         return self.cards[index.row()]
 
     def get_cell(self, index: QModelIndex) -> Cell:
@@ -197,7 +198,7 @@ class DataModel(QAbstractTableModel):
         self._rows[cid] = self._fetch_row_from_backend(cid)
         return self._rows[cid]
 
-    def _fetch_row_from_backend(self, cid: int) -> CellRow:
+    def _fetch_row_from_backend(self, cid: CardID) -> CellRow:
         try:
             row = CellRow(*self.col.browser_row_for_card(cid))
         except NotFoundError:
@@ -1048,13 +1049,13 @@ QTableView {{ gridline-color: {grid} }}
     # Menu helpers
     ######################################################################
 
-    def selected_cards(self) -> List[int]:
+    def selected_cards(self) -> List[CardID]:
         return [
             self.model.cards[idx.row()]
             for idx in self.form.tableView.selectionModel().selectedRows()
         ]
 
-    def selected_notes(self) -> List[int]:
+    def selected_notes(self) -> List[NoteID]:
         return self.col.db.list(
             """
 select distinct nid from cards
@@ -1067,13 +1068,13 @@ where id in %s"""
             )
         )
 
-    def selectedNotesAsCards(self) -> List[int]:
+    def selectedNotesAsCards(self) -> List[CardID]:
         return self.col.db.list(
             "select id from cards where nid in (%s)"
             % ",".join([str(s) for s in self.selected_notes()])
         )
 
-    def oneModelNotes(self) -> List[int]:
+    def oneModelNotes(self) -> List[NoteID]:
         sf = self.selected_notes()
         if not sf:
             return []
@@ -1589,7 +1590,7 @@ where id in %s"""
     def onCardList(self) -> None:
         self.form.tableView.setFocus()
 
-    def focusCid(self, cid: int) -> None:
+    def focusCid(self, cid: CardID) -> None:
         try:
             row = list(self.model.cards).index(cid)
         except ValueError:
@@ -1603,7 +1604,7 @@ where id in %s"""
 
 
 class ChangeModel(QDialog):
-    def __init__(self, browser: Browser, nids: List[int]) -> None:
+    def __init__(self, browser: Browser, nids: List[NoteID]) -> None:
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids

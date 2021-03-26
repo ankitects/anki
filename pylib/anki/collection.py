@@ -34,16 +34,16 @@ from dataclasses import dataclass, field
 import anki.latex
 from anki import hooks
 from anki._backend import RustBackend, Translations
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
-from anki.decks import DeckManager
+from anki.decks import DeckID, DeckManager
 from anki.errors import AnkiError, DBError
 from anki.lang import TR, FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager, NoteType
-from anki.notes import Note
+from anki.models import ModelManager, NoteType, NoteTypeID
+from anki.notes import Note, NoteID
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
 from anki.scheduler.v3 import Scheduler as V3TestScheduler
@@ -317,7 +317,7 @@ class Collection:
     # Object creation helpers
     ##########################################################################
 
-    def get_card(self, id: int) -> Card:
+    def get_card(self, id: CardID) -> Card:
         return Card(self, id)
 
     def update_card(self, card: Card) -> None:
@@ -325,7 +325,7 @@ class Collection:
         Unlike card.flush(), this will invalidate any current checkpoint."""
         self._backend.update_card(card=card._to_backend_card(), skip_undo_entry=False)
 
-    def get_note(self, id: int) -> Note:
+    def get_note(self, id: NoteID) -> Note:
         return Note(self, id=id)
 
     def update_note(self, note: Note) -> OpChanges:
@@ -356,7 +356,7 @@ class Collection:
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids: List[int], type: int) -> None:
+    def _logRem(self, ids: List[Union[int, NoteID]], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
@@ -368,16 +368,16 @@ class Collection:
     def new_note(self, notetype: NoteType) -> Note:
         return Note(self, notetype)
 
-    def add_note(self, note: Note, deck_id: int) -> OpChanges:
+    def add_note(self, note: Note, deck_id: DeckID) -> OpChanges:
         out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
-        note.id = out.note_id
+        note.id = NoteID(out.note_id)
         return out.changes
 
-    def remove_notes(self, note_ids: Sequence[int]) -> OpChanges:
+    def remove_notes(self, note_ids: Sequence[NoteID]) -> OpChanges:
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
-    def remove_notes_by_card(self, card_ids: List[int]) -> None:
+    def remove_notes_by_card(self, card_ids: List[CardID]) -> None:
         if hooks.notes_will_be_deleted.count():
             nids = self.db.list(
                 f"select nid from cards where id in {ids2str(card_ids)}"
@@ -385,8 +385,8 @@ class Collection:
             hooks.notes_will_be_deleted(self, nids)
         self._backend.remove_notes(note_ids=[], card_ids=card_ids)
 
-    def card_ids_of_note(self, note_id: int) -> Sequence[int]:
-        return self._backend.cards_of_note(note_id)
+    def card_ids_of_note(self, note_id: NoteID) -> Sequence[CardID]:
+        return [CardID(id) for id in self._backend.cards_of_note(note_id)]
 
     def defaults_for_adding(
         self, *, current_review_card: Optional[Card]
@@ -396,23 +396,25 @@ class Collection:
         or current notetype.
         """
         if card := current_review_card:
-            home_deck = card.odid or card.did
+            home_deck = card.current_deck_id()
         else:
-            home_deck = 0
+            home_deck = DeckID(0)
 
         return self._backend.defaults_for_adding(
             home_deck_of_current_review_card=home_deck,
         )
 
-    def default_deck_for_notetype(self, notetype_id: int) -> Optional[int]:
+    def default_deck_for_notetype(self, notetype_id: NoteTypeID) -> Optional[DeckID]:
         """If 'change deck depending on notetype' is enabled in the preferences,
         return the last deck used with the provided notetype, if any.."""
         if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
             return None
 
         return (
-            self._backend.default_deck_for_notetype(
-                ntid=notetype_id,
+            DeckID(
+                self._backend.default_deck_for_notetype(
+                    ntid=notetype_id,
+                )
             )
             or None
         )
@@ -430,10 +432,10 @@ class Collection:
         self.add_note(note, note.model()["did"])
         return len(note.cards())
 
-    def remNotes(self, ids: Sequence[int]) -> None:
+    def remNotes(self, ids: Sequence[NoteID]) -> None:
         self.remove_notes(ids)
 
-    def _remNotes(self, ids: List[int]) -> None:
+    def _remNotes(self, ids: List[NoteID]) -> None:
         pass
 
     # Cards
@@ -445,11 +447,11 @@ class Collection:
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]) -> None:
+    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[CardID]) -> None:
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
-    def set_deck(self, card_ids: Sequence[int], deck_id: int) -> OpChanges:
+    def set_deck(self, card_ids: Sequence[CardID], deck_id: int) -> OpChanges:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
@@ -457,10 +459,10 @@ class Collection:
 
     # legacy
 
-    def remCards(self, ids: List[int], notes: bool = True) -> None:
+    def remCards(self, ids: List[CardID], notes: bool = True) -> None:
         self.remove_cards_and_orphaned_notes(ids)
 
-    def emptyCids(self) -> List[int]:
+    def emptyCids(self) -> List[CardID]:
         print("emptyCids() will go away")
         return []
 
@@ -468,7 +470,7 @@ class Collection:
     ##########################################################################
 
     def after_note_updates(
-        self, nids: List[int], mark_modified: bool, generate_cards: bool = True
+        self, nids: List[NoteID], mark_modified: bool, generate_cards: bool = True
     ) -> None:
         self._backend.after_note_updates(
             nids=nids, generate_cards=generate_cards, mark_notes_modified=mark_modified
@@ -476,11 +478,11 @@ class Collection:
 
     # legacy
 
-    def updateFieldCache(self, nids: List[int]) -> None:
+    def updateFieldCache(self, nids: List[NoteID]) -> None:
         self.after_note_updates(nids, mark_modified=False, generate_cards=False)
 
     # this also updates field cache
-    def genCards(self, nids: List[int]) -> List[int]:
+    def genCards(self, nids: List[NoteID]) -> List[int]:
         self.after_note_updates(nids, mark_modified=False, generate_cards=True)
         # previously returned empty cards, no longer does
         return []
@@ -493,7 +495,7 @@ class Collection:
         query: str,
         order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
-    ) -> Sequence[int]:
+    ) -> Sequence[CardID]:
         """Return card ids matching the provided search.
 
         To programmatically construct a search string, see .build_search_string().
@@ -523,9 +525,11 @@ class Collection:
             mode = _pb.SortOrder(
                 builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
             )
-        return self._backend.search_cards(search=query, order=mode)
+        return [
+            CardID(id) for id in self._backend.search_cards(search=query, order=mode)
+        ]
 
-    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[int]:
+    def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[NoteID]:
         """Return note ids matching the provided search or searches.
 
         If more than one search is provided, they will be ANDed together.
@@ -536,12 +540,15 @@ class Collection:
         Eg: col.find_notes(SearchNode(deck="test"), "foo") will return notes
         that have a card in deck called "test", and have the text "foo".
         """
-        return self._backend.search_notes(self.build_search_string(*terms))
+        return [
+            NoteID(did)
+            for did in self._backend.search_notes(self.build_search_string(*terms))
+        ]
 
     def find_and_replace(
         self,
         *,
-        note_ids: Sequence[int],
+        note_ids: Sequence[NoteID],
         search: str,
         replacement: str,
         regex: bool = False,
@@ -569,7 +576,7 @@ class Collection:
         dupes = []
         fields: Dict[int, int] = {}
 
-        def ordForMid(mid: int) -> int:
+        def ordForMid(mid: NoteTypeID) -> int:
             if mid not in fields:
                 model = self.models.get(mid)
                 for c, f in enumerate(model["flds"]):
@@ -735,7 +742,7 @@ class Collection:
 
         return CollectionStats(self)
 
-    def card_stats(self, card_id: int, include_revlog: bool) -> str:
+    def card_stats(self, card_id: CardID, include_revlog: bool) -> str:
         import anki.stats as st
 
         if include_revlog:
@@ -1028,7 +1035,7 @@ table.review-log {{ {revlog_style} }}
 
     ##########################################################################
 
-    def set_user_flag_for_cards(self, flag: int, cids: Sequence[int]) -> OpChanges:
+    def set_user_flag_for_cards(self, flag: int, cids: Sequence[CardID]) -> OpChanges:
         return self._backend.set_flag(card_ids=cids, flag=flag)
 
     def set_wants_abort(self) -> None:

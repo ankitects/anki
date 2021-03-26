@@ -7,6 +7,7 @@ from typing import List, Optional, Sequence
 
 import aqt
 from anki.lang import TR
+from anki.notes import NoteID
 from aqt import AnkiQt, QWidget
 from aqt.qt import QDialog, Qt
 from aqt.utils import (
@@ -31,7 +32,7 @@ def find_and_replace(
     *,
     mw: AnkiQt,
     parent: QWidget,
-    note_ids: Sequence[int],
+    note_ids: Sequence[NoteID],
     search: str,
     replacement: str,
     regex: bool,
@@ -82,7 +83,9 @@ def find_and_replace_tag(
 class FindAndReplaceDialog(QDialog):
     COMBO_NAME = "BrowserFindAndReplace"
 
-    def __init__(self, parent: QWidget, *, mw: AnkiQt, note_ids: Sequence[int]) -> None:
+    def __init__(
+        self, parent: QWidget, *, mw: AnkiQt, note_ids: Sequence[NoteID]
+    ) -> None:
         super().__init__(parent)
         self.mw = mw
         self.note_ids = note_ids

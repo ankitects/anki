@@ -5,28 +5,33 @@ from __future__ import annotations
 
 import copy
 import pprint
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, List, NewType, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import MODEL_STD
-from anki.models import NoteType, Template
+from anki.models import NoteType, NoteTypeID, Template
 from anki.utils import joinFields
 
 DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
+
+# types
+NoteID = NewType("NoteID", int)
 
 
 class Note:
     # not currently exposed
     flags = 0
     data = ""
+    id: NoteID
+    mid: NoteTypeID
 
     def __init__(
         self,
         col: anki.collection.Collection,
         model: Optional[NoteType] = None,
-        id: Optional[int] = None,
+        id: Optional[NoteID] = None,
     ) -> None:
         assert not (model and id)
         self.col = col.weakref()
@@ -46,9 +51,9 @@ class Note:
         self._load_from_backend_note(n)
 
     def _load_from_backend_note(self, n: _pb.Note) -> None:
-        self.id = n.id
+        self.id = NoteID(n.id)
         self.guid = n.guid
-        self.mid = n.notetype_id
+        self.mid = NoteTypeID(n.notetype_id)
         self.mod = n.mtime_secs
         self.usn = n.usn
         self.tags = list(n.tags)
@@ -93,7 +98,7 @@ class Note:
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
-        card.did = 1
+        card.did = anki.decks.DEFAULT_DECK_ID
 
         model = custom_note_type or self.model()
         template = copy.copy(
@@ -119,7 +124,7 @@ class Note:
     def cards(self) -> List[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
 
-    def card_ids(self) -> Sequence[int]:
+    def card_ids(self) -> Sequence[anki.cards.CardID]:
         return self.col.card_ids_of_note(self.id)
 
     def model(self) -> Optional[NoteType]:

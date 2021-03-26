@@ -11,6 +11,8 @@ from typing import List, Optional
 
 import aqt
 from anki import hooks
+from anki.cards import CardID
+from anki.decks import DeckID
 from anki.exporting import Exporter, exporters
 from aqt.qt import *
 from aqt.utils import (
@@ -28,8 +30,8 @@ class ExportDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        did: Optional[DeckID] = None,
+        cids: Optional[List[CardID]] = None,
     ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
@@ -42,7 +44,7 @@ class ExportDialog(QDialog):
         self.setup(did)
         self.exec_()
 
-    def setup(self, did: Optional[int]) -> None:
+    def setup(self, did: Optional[DeckID]) -> None:
         self.exporters = exporters(self.col)
         # if a deck specified, start with .apkg type selected
         idx = 0
