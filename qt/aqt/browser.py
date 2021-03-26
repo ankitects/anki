@@ -381,7 +381,11 @@ class DataModel(QAbstractTableModel):
             if count < 500:
                 # discard large selections; they're too slow
                 sm.select(
-                    items, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows
+                    items,
+                    cast(
+                        QItemSelectionModel.SelectionFlags,
+                        QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows,
+                    ),
                 )
         else:
             tv.selectRow(0)
@@ -1361,7 +1365,13 @@ where id in %s"""
         sm = self.form.tableView.selectionModel()
         items = sm.selection()
         self.form.tableView.selectAll()
-        sm.select(items, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
+        sm.select(
+            items,
+            cast(
+                QItemSelectionModel.SelectionFlags,
+                QItemSelectionModel.Deselect | QItemSelectionModel.Rows,
+            ),
+        )
 
     # Hooks
     ######################################################################
@@ -1432,10 +1442,10 @@ where id in %s"""
         )
         frm.fields.addItems(fields)
         restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
-        self._dupesButton = None
+        self._dupesButton: Optional[QPushButton] = None
 
         # links
-        frm.webView.title = "find duplicates"
+        frm.webView.set_title("find duplicates")
         web_context = FindDupesDialog(dialog=d, browser=self)
         frm.webView.set_bridge_command(self.dupeLinkClicked, web_context)
         frm.webView.stdHtml("", context=web_context)
@@ -1522,17 +1532,22 @@ where id in %s"""
     # Jumping
     ######################################################################
 
-    def _moveCur(self, dir: int, idx: QModelIndex = None) -> None:
+    def _moveCur(
+        self, dir: Optional[QTableView.CursorAction], idx: QModelIndex = None
+    ) -> None:
         if not self.model.cards:
             return
         tv = self.form.tableView
-        if idx is None:
+        if dir is not None:
             idx = tv.moveCursor(dir, self.mw.app.keyboardModifiers())
         tv.selectionModel().setCurrentIndex(
             idx,
-            QItemSelectionModel.Clear
-            | QItemSelectionModel.Select
-            | QItemSelectionModel.Rows,
+            cast(
+                QItemSelectionModel.SelectionFlags,
+                QItemSelectionModel.Clear
+                | QItemSelectionModel.Select
+                | QItemSelectionModel.Rows,
+            ),
         )
 
     def onPreviousCard(self) -> None:
@@ -1557,7 +1572,13 @@ where id in %s"""
             return
         idx2 = sm.currentIndex()
         item = QItemSelection(idx2, idx)
-        sm.select(item, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
+        sm.select(
+            item,
+            cast(
+                QItemSelectionModel.SelectionFlags,
+                QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows,
+            ),
+        )
 
     def onLastCard(self) -> None:
         sm = self.form.tableView.selectionModel()
@@ -1567,7 +1588,13 @@ where id in %s"""
             return
         idx2 = sm.currentIndex()
         item = QItemSelection(idx, idx2)
-        sm.select(item, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
+        sm.select(
+            item,
+            cast(
+                QItemSelectionModel.SelectionFlags,
+                QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows,
+            ),
+        )
 
     def onFind(self) -> None:
         # workaround for PyQt focus bug

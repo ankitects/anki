@@ -1622,22 +1622,24 @@ title="%s" %s>%s</button>""" % (
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         qconnect(s.activated, frm.text.clear)
 
-        def addContextMenu(ev: QCloseEvent, name: str) -> None:
+        def addContextMenu(
+            ev: Union[QCloseEvent, QContextMenuEvent], name: str
+        ) -> None:
             ev.accept()
             menu = frm.log.createStandardContextMenu(QCursor.pos())
             menu.addSeparator()
             if name == "log":
                 a = menu.addAction("Clear Log")
-                a.setShortcuts(QKeySequence("ctrl+l"))
+                a.setShortcut(QKeySequence("ctrl+l"))
                 qconnect(a.triggered, frm.log.clear)
             elif name == "text":
                 a = menu.addAction("Clear Code")
-                a.setShortcuts(QKeySequence("ctrl+shift+l"))
+                a.setShortcut(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
             menu.exec_(QCursor.pos())
 
-        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")
-        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")
+        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")  # type: ignore[assignment]
+        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]
         gui_hooks.debug_console_will_show(d)
         d.show()
 

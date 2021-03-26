@@ -213,7 +213,7 @@ class AnkiWebView(QWebEngineView):
         self, parent: Optional[QWidget] = None, title: str = "default"
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.title = title  # type: ignore
+        self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 
@@ -251,6 +251,9 @@ class AnkiWebView(QWebEngineView):
                 context=Qt.WidgetWithChildrenShortcut,
                 activated=self.onPaste,
             )
+
+    def set_title(self, title: str) -> None:
+        self.title = title  # type: ignore[assignment]
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         # disable pinch to zoom gesture
