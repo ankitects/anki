@@ -1,4 +1,5 @@
 import { bridgeCommand } from "./lib";
+// import pinIcon from "./pin-angle.svg";
 
 function removeHoverIcon(evt: Event): void {
     const icon = evt.currentTarget as HTMLElement;

@@ -26,7 +26,7 @@ vendor_js_lib = rule(
     },
 )
 
-def _pkg_from_name(name):
+def pkg_from_name(name):
     return "@npm//{0}:{0}__files".format(name)
 
 #
@@ -37,7 +37,7 @@ def _pkg_from_name(name):
 def copy_jquery(name = "jquery", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name(name),
+        pkg = pkg_from_name(name),
         include = [
             "dist/jquery.min.js",
         ],
@@ -48,7 +48,7 @@ def copy_jquery(name = "jquery", visibility = ["//visibility:public"]):
 def copy_jquery_ui(name = "jquery-ui", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name("jquery-ui-dist"),
+        pkg = pkg_from_name("jquery-ui-dist"),
         base = "external/npm/node_modules/jquery-ui-dist/",
         include = [
             "jquery-ui.min.js",
@@ -59,7 +59,7 @@ def copy_jquery_ui(name = "jquery-ui", visibility = ["//visibility:public"]):
 def copy_protobufjs(name = "protobufjs", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name(name),
+        pkg = pkg_from_name(name),
         include = [
             "dist/protobuf.min.js",
         ],
@@ -70,7 +70,7 @@ def copy_protobufjs(name = "protobufjs", visibility = ["//visibility:public"]):
 def copy_mathjax(name = "mathjax", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name(name),
+        pkg = pkg_from_name(name),
         include = [
             "es5/tex-chtml.js",
             "es5/input/tex/extensions",
@@ -88,7 +88,7 @@ def copy_mathjax(name = "mathjax", visibility = ["//visibility:public"]):
 def copy_css_browser_selector(name = "css-browser-selector", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name(name),
+        pkg = pkg_from_name(name),
         include = [
             "css_browser_selector.min.js",
         ],
@@ -98,7 +98,7 @@ def copy_css_browser_selector(name = "css-browser-selector", visibility = ["//vi
 def copy_bootstrap_js(name = "bootstrap-js", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name(name),
+        pkg = pkg_from_name(name),
         include = [
             "dist/js/bootstrap.bundle.min.js",
         ],
@@ -109,7 +109,7 @@ def copy_bootstrap_js(name = "bootstrap-js", visibility = ["//visibility:public"
 def copy_bootstrap_css(name = "bootstrap-css", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name(name),
+        pkg = pkg_from_name(name),
         include = [
             "dist/css/bootstrap.min.css",
         ],
