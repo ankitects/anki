@@ -3,12 +3,17 @@
 
 import json
 import sys
-from typing import List
+from typing import List, Literal, TypedDict
 
 import stringcase
 
 strings_json, outfile = sys.argv[1:]
 modules = json.load(open(strings_json))
+
+
+class Variable(TypedDict):
+    name: str
+    kind: Literal["Any", "Int"]
 
 
 def legacy_enum() -> str:
@@ -45,12 +50,24 @@ def methods() -> str:
     return "\n".join(out) + "\n"
 
 
-def get_arg_types(args: List[str]) -> str:
-    return ", ".join([f"{stringcase.snakecase(arg)}: FluentVariable" for arg in args])
+def get_arg_types(args: List[Variable]) -> str:
+
+    return ", ".join(
+        [f"{stringcase.snakecase(arg['name'])}: {arg_kind(arg)}" for arg in args]
+    )
 
 
-def get_args(args: List[str]) -> str:
-    return ", ".join([f'"{arg}": {stringcase.snakecase(arg)}' for arg in args])
+def arg_kind(arg: Variable) -> str:
+    if arg["kind"] == "Int":
+        return "int"
+    else:
+        return "FluentVariable"
+
+
+def get_args(args: List[Variable]) -> str:
+    return ", ".join(
+        [f'"{arg["name"]}": {stringcase.snakecase(arg["name"])}' for arg in args]
+    )
 
 
 out = ""
