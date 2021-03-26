@@ -1133,7 +1133,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         "Return the next interval for CARD as a string."
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
-            return self.col.tr(TR.SCHEDULING_END)
+            return self.col.tr.scheduling_end()
         s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s

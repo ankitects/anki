@@ -405,7 +405,7 @@ class DeckManager:
         deck = self.get(did, default=default)
         if deck:
             return deck["name"]
-        return self.col.tr(TR.DECKS_NO_DECK)
+        return self.col.tr.decks_no_deck()
 
     def name_if_exists(self, did: DeckID) -> Optional[str]:
         deck = self.get(did, default=False)
