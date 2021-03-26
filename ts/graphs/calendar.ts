@@ -169,7 +169,7 @@ export function renderCalendar(
             month: "long",
             day: "numeric",
         });
-        const cards = i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: d.count });
+        const cards = i18n.statisticsReviews({ reviews: d.count });
         return `${date}<br>${cards}`;
     }
 

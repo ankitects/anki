@@ -25,11 +25,11 @@ export function buildNextLearnMsg(
     const unit = naturalUnit(secsUntil);
     const amount = Math.round(unitAmount(unit, secsUntil));
     const unitStr = unitName(unit);
-    const nextLearnDue = i18n.tr(i18n.TR.SCHEDULING_NEXT_LEARN_DUE, {
+    const nextLearnDue = i18n.schedulingNextLearnDue({
         amount,
         unit: unitStr,
     });
-    const remaining = i18n.tr(i18n.TR.SCHEDULING_LEARN_REMAINING, {
+    const remaining = i18n.schedulingLearnRemaining({
         remaining: info.learnRemaining,
     });
     return `${nextLearnDue} ${remaining}`;

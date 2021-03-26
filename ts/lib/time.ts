@@ -79,11 +79,14 @@ export function studiedToday(i18n: I18n, cards: number, secs: number): string {
     if (cards > 0) {
         secsPer = secs / cards;
     }
-    return i18n.tr(i18n.TR.STATISTICS_STUDIED_TODAY, {
+    return i18n.statisticsStudiedToday({
+        unit: name,
+        secsPerCard: secsPer,
+        // these two are required, but don't appear in the generated code
+        // because they are included as part of a separate term - a byproduct
+        // of them having been ported from earlier Qt translations
         cards,
         amount,
-        unit: name,
-        "secs-per-card": secsPer,
     });
 }
 
@@ -138,19 +141,19 @@ export function dayLabel(i18n: I18n, daysStart: number, daysEnd: number): string
     if (larger - smaller <= 1) {
         // singular
         if (daysStart >= 0) {
-            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_SINGLE, { days: daysStart });
+            return i18n.statisticsInDaysSingle({ days: daysStart });
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_SINGLE, { days: -daysStart });
+            return i18n.statisticsDaysAgoSingle({ days: -daysStart });
         }
     } else {
         // range
         if (daysStart >= 0) {
-            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_RANGE, {
+            return i18n.statisticsInDaysRange({
                 daysStart,
                 daysEnd: daysEnd - 1,
             });
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_RANGE, {
+            return i18n.statisticsDaysAgoRange({
                 daysStart: Math.abs(daysEnd - 1),
                 daysEnd: -daysStart,
             });

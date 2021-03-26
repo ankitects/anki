@@ -422,7 +422,7 @@ group by day order by day"""
                 i,
                 "Average answer time",
                 self.col.tr.statistics_average_answer_time(
-                    average_seconds=average_secs
+                    average_seconds=average_secs, cards_per_minute=perMin
                 ),
             )
         return self._lineTbl(i), int(tot)
