@@ -647,12 +647,17 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
         assert_eq!(note.fields[0], "\u{6f22}");
         // non-normalized searches should be converted
-        assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
         assert_eq!(
-            col.search_cards("front:\u{fa47}", SortMode::NoOrder)?.len(),
+            col.search_cards("\u{fa47}", SortMode::NoOrder, false)?
+                .len(),
             1
         );
-        let cids = col.search_cards("", SortMode::NoOrder)?;
+        assert_eq!(
+            col.search_cards("front:\u{fa47}", SortMode::NoOrder, false)?
+                .len(),
+            1
+        );
+        let cids = col.search_cards("", SortMode::NoOrder, false)?;
         col.remove_cards_and_orphaned_notes(&cids)?;
 
         // if normalization turned off, note text is entered as-is
@@ -662,9 +667,17 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
         assert_eq!(note.fields[0], "\u{fa47}");
         // normalized searches won't match
-        assert_eq!(col.search_cards("\u{6f22}", SortMode::NoOrder)?.len(), 0);
+        assert_eq!(
+            col.search_cards("\u{6f22}", SortMode::NoOrder, false)?
+                .len(),
+            0
+        );
         // but original characters will
-        assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
+        assert_eq!(
+            col.search_cards("\u{fa47}", SortMode::NoOrder, false)?
+                .len(),
+            1
+        );
 
         Ok(())
     }
@@ -678,7 +691,7 @@ mod test {
 
         let assert_initial = |col: &mut Collection| -> Result<()> {
             assert_eq!(col.search_notes("")?.len(), 0);
-            assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
+            assert_eq!(col.search_cards("", SortMode::NoOrder, false)?.len(), 0);
             assert_eq!(
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
@@ -689,7 +702,7 @@ mod test {
 
         let assert_after_add = |col: &mut Collection| -> Result<()> {
             assert_eq!(col.search_notes("")?.len(), 1);
-            assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 2);
+            assert_eq!(col.search_cards("", SortMode::NoOrder, false)?.len(), 2);
             assert_eq!(
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
@@ -716,7 +729,7 @@ mod test {
 
         let assert_after_remove = |col: &mut Collection| -> Result<()> {
             assert_eq!(col.search_notes("")?.len(), 0);
-            assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
+            assert_eq!(col.search_cards("", SortMode::NoOrder, false)?.len(), 0);
             // 1 note + 2 cards
             assert_eq!(
                 col.storage.db_scalar::<u32>("select count() from graves")?,

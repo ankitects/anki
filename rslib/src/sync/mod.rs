@@ -1435,7 +1435,7 @@ mod test {
         let deckid = deck.id;
         let dconfid = dconf.id;
         let noteid = note.id;
-        let cardid = col1.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)?[0];
+        let cardid = col1.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder, false)?[0];
         let revlogid = RevlogId(123);
 
         let compare_sides = |col1: &mut Collection, col2: &mut Collection| -> Result<()> {

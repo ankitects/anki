@@ -798,6 +798,7 @@ message OpenCollectionIn {
 message SearchCardsIn {
   string search = 1;
   SortOrder order = 2;
+  bool one_by_note = 3;
 }
 
 message SearchCardsOut {

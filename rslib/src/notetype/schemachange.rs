@@ -257,7 +257,7 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
 
         assert_eq!(
-            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)
+            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder, false)
                 .unwrap()
                 .len(),
             1
@@ -268,7 +268,7 @@ mod test {
         col.update_notetype(&mut nt, false)?;
 
         assert_eq!(
-            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)
+            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder, false)
                 .unwrap()
                 .len(),
             2

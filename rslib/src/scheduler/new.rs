@@ -169,7 +169,7 @@ impl Collection {
     /// This creates a transaction - we probably want to split it out
     /// in the future if calling it as part of a deck options update.
     pub fn sort_deck(&mut self, deck: DeckId, random: bool) -> Result<OpOutput<usize>> {
-        let cids = self.search_cards(&format!("did:{} is:new", deck), SortMode::NoOrder)?;
+        let cids = self.search_cards(&format!("did:{} is:new", deck), SortMode::NoOrder, false)?;
         let order = if random {
             NewCardSortOrder::Random
         } else {

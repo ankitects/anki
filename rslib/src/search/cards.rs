@@ -60,12 +60,18 @@ impl SortKind {
 }
 
 impl Collection {
-    pub fn search_cards(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<CardId>> {
+    pub fn search_cards(
+        &mut self,
+        search: &str,
+        mut mode: SortMode,
+        one_by_note: bool,
+    ) -> Result<Vec<CardId>> {
         let top_node = Node::Group(parse(search)?);
         self.resolve_config_sort(&mut mode);
         let writer = SqlWriter::new(self);
 
-        let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
+        let (mut sql, args) =
+            writer.build_cards_query(&top_node, mode.required_table(), one_by_note)?;
         self.add_order(&mut sql, mode)?;
 
         let mut stmt = self.storage.db.prepare(&sql)?;
@@ -105,7 +111,7 @@ impl Collection {
         let writer = SqlWriter::new(self);
         let want_order = mode != SortMode::NoOrder;
 
-        let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
+        let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table(), false)?;
         self.add_order(&mut sql, mode)?;
 
         if want_order {

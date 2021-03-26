@@ -27,7 +27,8 @@ impl SearchService for Backend {
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
-            let cids = col.search_cards(&input.search, order)?;
+            let one_by_note = input.one_by_note;
+            let cids = col.search_cards(&input.search, order, one_by_note)?;
             Ok(pb::SearchCardsOut {
                 card_ids: cids.into_iter().map(|v| v.0).collect(),
             })

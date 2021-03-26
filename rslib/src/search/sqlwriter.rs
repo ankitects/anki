@@ -45,10 +45,14 @@ impl SqlWriter<'_> {
         mut self,
         node: &Node,
         table: RequiredTable,
+        one_by_note: bool,
     ) -> Result<(String, Vec<String>)> {
         self.table = table.combine(node.required_table());
-        self.write_cards_table_sql();
+        self.write_cards_table_sql(one_by_note);
         self.write_node_to_sql(&node)?;
+        if one_by_note {
+            self.sql.push_str(" group by c.nid")
+        }
         Ok((self.sql, self.args))
     }
 
@@ -59,12 +63,15 @@ impl SqlWriter<'_> {
         Ok((self.sql, self.args))
     }
 
-    fn write_cards_table_sql(&mut self) {
-        let sql = match self.table {
-            RequiredTable::Cards => "select c.id from cards c where ",
-            _ => "select c.id from cards c, notes n where c.nid=n.id and ",
-        };
-        self.sql.push_str(sql);
+    fn write_cards_table_sql(&mut self, one_by_note: bool) {
+        self.sql.push_str("select ");
+        self.sql
+            .push_str(if one_by_note { "min(c.id)" } else { "c.id" });
+        self.sql.push_str(" from ");
+        self.sql.push_str(match self.table {
+            RequiredTable::Cards => "cards c where ",
+            _ => "cards c, notes n where c.nid=n.id and ",
+        });
     }
 
     fn write_notes_table_sql(&mut self) {

@@ -166,7 +166,7 @@ mod test {
         col.add_card(&mut card).unwrap();
         let assert_count = |col: &mut Collection, cnt| {
             assert_eq!(
-                col.search_cards("is:buried", SortMode::NoOrder)
+                col.search_cards("is:buried", SortMode::NoOrder, false)
                     .unwrap()
                     .len(),
                 cnt

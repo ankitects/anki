@@ -487,7 +487,7 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
 
         // duplicate ordinals
-        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        let cid = col.search_cards("", SortMode::NoOrder, false)?[0];
         let mut card = col.storage.get_card(cid)?.unwrap();
         card.id.0 += 1;
         col.storage.add_card(&mut card)?;
@@ -506,7 +506,7 @@ mod test {
         );
 
         // missing templates
-        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        let cid = col.search_cards("", SortMode::NoOrder, false)?[0];
         let mut card = col.storage.get_card(cid)?.unwrap();
         card.id.0 += 1;
         card.template_idx = 10;

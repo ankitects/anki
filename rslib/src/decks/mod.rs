@@ -839,7 +839,7 @@ mod test {
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, default.id)?;
-        assert_ne!(col.search_cards("", SortMode::NoOrder)?, vec![]);
+        assert_ne!(col.search_cards("", SortMode::NoOrder, false)?, vec![]);
 
         // add a subdeck
         let _ = col.get_or_create_normal_deck("one::two::three")?;
@@ -852,7 +852,7 @@ mod test {
         assert_eq!(sorted_names(&col), vec!["default", "Default+"]);
 
         // and the cards it contained should have been removed
-        assert_eq!(col.search_cards("", SortMode::NoOrder)?, vec![]);
+        assert_eq!(col.search_cards("", SortMode::NoOrder, false)?, vec![]);
 
         Ok(())
     }

@@ -267,7 +267,7 @@ mod test {
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
 
-        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        let cid = col.search_cards("", SortMode::NoOrder, false)?[0];
         let _report = col.card_stats(cid)?;
         //println!("report {}", report);
 

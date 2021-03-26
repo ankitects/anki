@@ -495,6 +495,7 @@ class Collection:
         query: str,
         order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
+        one_by_note: bool = False,
     ) -> Sequence[CardId]:
         """Return card ids matching the provided search.
 
@@ -526,7 +527,10 @@ class Collection:
                 builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse)
             )
         return [
-            CardId(id) for id in self._backend.search_cards(search=query, order=mode)
+            CardId(id)
+            for id in self._backend.search_cards(
+                search=query, order=mode, one_by_note=one_by_note
+            )
         ]
 
     def find_notes(self, *terms: Union[str, SearchNode]) -> Sequence[NoteId]:
