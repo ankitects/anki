@@ -13,7 +13,7 @@ modules = json.load(open(strings_json))
 
 class Variable(TypedDict):
     name: str
-    kind: Literal["Any", "Int"]
+    kind: Literal["Any", "Int", "String", "Float"]
 
 
 def legacy_enum() -> str:
@@ -60,8 +60,12 @@ def get_arg_types(args: List[Variable]) -> str:
 def arg_kind(arg: Variable) -> str:
     if arg["kind"] == "Int":
         return "int"
-    else:
+    elif arg["kind"] == "Any":
         return "FluentVariable"
+    elif arg["kind"] == "Float":
+        return "float"
+    else:
+        return "str"
 
 
 def get_args(args: List[Variable]) -> str:
