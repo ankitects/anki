@@ -52,6 +52,19 @@ lazy_static! {
     ))
     .unwrap();
 
+    static ref HTML_LINEBREAK_TAGS: Regex = Regex::new(
+        r#"(?xsi)
+            </?
+            (?:
+                br|address|article|aside|blockquote|canvas|dd|div
+                |dl|dt|fieldset|figcaption|figure|footer|form
+                |h[1-6]|header|hr|li|main|nav|noscript|ol
+                |output|p|pre|section|table|tfoot|ul|video
+            )
+            >
+        "#
+    ).unwrap();
+
     static ref HTML_MEDIA_TAGS: Regex = Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
@@ -148,10 +161,17 @@ pub fn decode_entities(html: &str) -> Cow<str> {
 }
 
 pub fn strip_html_for_tts(html: &str) -> Cow<str> {
-    match HTML.replace_all(html, " ") {
-        Cow::Borrowed(_) => decode_entities(html),
-        Cow::Owned(s) => decode_entities(&s).to_string().into(),
+    let mut out: Cow<str> = html.into();
+
+    if let Cow::Owned(o) = HTML_LINEBREAK_TAGS.replace_all(html, " ") {
+        out = o.into();
     }
+
+    if let Cow::Owned(o) = strip_html(out.as_ref()) {
+        out = o.into();
+    }
+
+    out
 }
 
 pub fn strip_av_tags(text: &str) -> Cow<str> {
@@ -419,8 +439,10 @@ mod test {
 
     #[test]
     fn audio() {
-        let s =
-            "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane speed=1.2]foo<br>1&gt;2[/anki:tts]gh";
+        let s = concat!(
+            "abc[sound:fo&amp;obar.mp3]def[anki:tts][en_US voices=Bob,Jane speed=1.2]",
+            "foo b<i><b>a</b>r</i><br>1&gt;2[/anki:tts]gh",
+        );
         assert_eq!(strip_av_tags(s), "abcdefgh");
 
         let (text, tags) = extract_av_tags(s, true);
@@ -429,9 +451,9 @@ mod test {
         assert_eq!(
             tags,
             vec![
-                AVTag::SoundOrVideo("fo&o.mp3".into()),
+                AVTag::SoundOrVideo("fo&obar.mp3".into()),
                 AVTag::TextToSpeech {
-                    field_text: "foo 1>2".into(),
+                    field_text: "foo bar 1>2".into(),
                     lang: "en_US".into(),
                     voices: vec!["Bob".into(), "Jane".into()],
                     other_args: vec![],
