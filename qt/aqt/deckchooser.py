@@ -3,7 +3,7 @@
 
 from typing import Optional
 
-from anki.decks import DeckID, default_deck_id
+from anki.decks import DEFAULT_DECK_ID, DeckID
 from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import TR, HelpPage, shortcut, tr
@@ -71,7 +71,7 @@ class DeckChooser(QHBoxLayout):
 
     def _ensure_selected_deck_valid(self) -> None:
         if not self.mw.col.decks.get(self._selected_deck_id, default=False):
-            self.selected_deck_id = default_deck_id
+            self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
         self.deck.setText(self.selected_deck_name().replace("&", "&&"))

@@ -33,8 +33,8 @@ DeckConfigDict = Dict[str, Any]
 DeckID = NewType("DeckID", int)
 DeckConfID = NewType("DeckConfID", int)
 
-default_deck_id = DeckID(1)
-default_deck_conf_id = DeckConfID(1)
+DEFAULT_DECK_ID = DeckID(1)
+DEFAULT_DECK_CONF_ID = DeckConfID(1)
 
 
 class DecksDictProxy:
@@ -252,7 +252,7 @@ class DeckManager:
     def get(self, did: Union[DeckID, str], default: bool = True) -> Optional[DeckDict]:
         if not did:
             if default:
-                return self.get_legacy(default_deck_id)
+                return self.get_legacy(DEFAULT_DECK_ID)
             else:
                 return None
         id = DeckID(int(did))
@@ -260,7 +260,7 @@ class DeckManager:
         if deck:
             return deck
         elif default:
-            return self.get_legacy(default_deck_id)
+            return self.get_legacy(DEFAULT_DECK_ID)
         else:
             return None
 
@@ -324,7 +324,7 @@ class DeckManager:
             conf = self.get_config(dcid)
             if not conf:
                 # fall back on default
-                conf = self.get_config(default_deck_conf_id)
+                conf = self.get_config(DEFAULT_DECK_CONF_ID)
             conf["dyn"] = False
             return conf
         # dynamic decks have embedded conf
@@ -586,7 +586,7 @@ class DeckManager:
 
     def new_filtered(self, name: str) -> DeckID:
         "Return a new dynamic deck and set it as the current deck."
-        did = self.id(name, type=default_deck_conf_id)
+        did = self.id(name, type=DEFAULT_DECK_CONF_ID)
         self.select(did)
         return did
 
