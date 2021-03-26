@@ -185,11 +185,11 @@ export function renderHours(
         );
 
     function tooltipText(d: Hour): string {
-        const hour = i18n.tr(i18n.TR.STATISTICS_HOURS_RANGE, {
+        const hour = i18n.statisticsHoursRange({
             hourStart: d.hour,
             hourEnd: d.hour + 1,
         });
-        const correct = i18n.tr(i18n.TR.STATISTICS_HOURS_CORRECT, {
+        const correct = i18n.statisticsHoursCorrect({
             correct: d.correctCount,
             total: d.totalCount,
             percent: d.totalCount ? (d.correctCount / d.totalCount) * 100 : 0,

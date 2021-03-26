@@ -69,6 +69,15 @@ fn extract_metadata(ftl_text: &str) -> Vec<Translation> {
                 visitor.visit_pattern(&pattern);
                 let key = m.id.name.to_string();
 
+                // special case translations that were ported from gettext, and use embedded
+                // terms that reference other variables that aren't visible to our visitor
+                if key == "statistics-studied-today" {
+                    visitor.variables.insert("amount".to_string());
+                    visitor.variables.insert("cards".to_string());
+                } else if key == "statistics-average-answer-time" {
+                    visitor.variables.insert("cards-per-minute".to_string());
+                }
+
                 let (text, variables) = visitor.into_output();
 
                 output.push(Translation {
@@ -141,10 +150,17 @@ impl From<String> for Variable {
         // try to either reuse existing ones, or consider some sort of Hungarian notation
         let kind = match name.as_str() {
             "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
-            | "kilobytes" => VariableKind::Int,
-            "average-seconds" => VariableKind::Float,
-            "val" | "found" | "expected" | "part" => VariableKind::Any,
-            _ => VariableKind::String,
+            | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"
+            | "hourStart" | "hourEnd" | "correct" => VariableKind::Int,
+            "average-seconds" | "cards-per-minute" => VariableKind::Float,
+            "val" | "found" | "expected" | "part" | "percent" | "day" => VariableKind::Any,
+            term => {
+                if term.ends_with("Count") || term.ends_with("Secs") {
+                    VariableKind::Int
+                } else {
+                    VariableKind::String
+                }
+            }
         };
         Variable { name, kind }
     }

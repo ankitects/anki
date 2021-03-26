@@ -84,7 +84,7 @@ def get_args(args: List[Variable]) -> str:
 
 
 def typescript_arg_name(arg: Variable) -> str:
-    name = stringcase.camelcase(arg["name"])
+    name = stringcase.camelcase(arg["name"].replace("-", "_"))
     if name == "new":
         return "new_"
     else:

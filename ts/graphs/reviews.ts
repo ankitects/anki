@@ -228,7 +228,7 @@ export function renderReviews(
         if (showTime) {
             return timeSpan(i18n, n / 1000);
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: n });
+            return i18n.statisticsReviews({ reviews: n });
         }
     }
 
@@ -378,10 +378,10 @@ export function renderReviews(
         averageAnswerTimeLabel: string;
     if (showTime) {
         totalString = timeSpan(i18n, total / 1000, false);
-        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+        averageForDaysStudied = i18n.statisticsMinutesPerDay({
             count: Math.round(studiedAvg / 1000 / 60),
         });
-        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+        averageForPeriod = i18n.statisticsMinutesPerDay({
             count: Math.round(periodAvg / 1000 / 60),
         });
         averageAnswerTimeLabel = i18n.statisticsAverageAnswerTimeLabel();
@@ -396,16 +396,16 @@ export function renderReviews(
         const totalSecs = total / 1000;
         const avgSecs = totalSecs / totalReviews;
         const cardsPerMin = (totalReviews * 60) / totalSecs;
-        averageAnswerTime = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME, {
-            "average-seconds": avgSecs,
-            "cards-per-minute": cardsPerMin,
+        averageAnswerTime = i18n.statisticsAverageAnswerTime({
+            averageSeconds: avgSecs,
+            cardsPerMinute: cardsPerMin,
         });
     } else {
-        totalString = i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total });
-        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+        totalString = i18n.statisticsReviews({ reviews: total });
+        averageForDaysStudied = i18n.statisticsReviewsPerDay({
             count: Math.round(studiedAvg),
         });
-        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+        averageForPeriod = i18n.statisticsReviewsPerDay({
             count: Math.round(periodAvg),
         });
         averageAnswerTime = averageAnswerTimeLabel = "";
@@ -414,7 +414,7 @@ export function renderReviews(
     const tableData: TableDatum[] = [
         {
             label: i18n.statisticsDaysStudied(),
-            value: i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
+            value: i18n.statisticsAmountOfTotalWithPercentage({
                 amount: studiedDays,
                 total: periodDays,
                 percent: Math.round((studiedDays / periodDays) * 100),

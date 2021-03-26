@@ -154,7 +154,7 @@ export function buildHistogram(
         _percent: number
     ): string {
         const days = dayLabel(i18n, bin.x0!, bin.x1!);
-        const cards = i18n.tr(i18n.TR.STATISTICS_CARDS_DUE, {
+        const cards = i18n.statisticsCardsDue({
             cards: binValue(bin as any),
         });
         const totalLabel = i18n.statisticsRunningTotal();
@@ -173,17 +173,17 @@ export function buildHistogram(
     const tableData = [
         {
             label: i18n.statisticsTotal(),
-            value: i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total }),
+            value: i18n.statisticsReviews({ reviews: total }),
         },
         {
             label: i18n.statisticsAverage(),
-            value: i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+            value: i18n.statisticsReviewsPerDay({
                 count: Math.round(total / periodDays),
             }),
         },
         {
             label: i18n.statisticsDueTomorrow(),
-            value: i18n.tr(i18n.TR.STATISTICS_REVIEWS, {
+            value: i18n.statisticsReviews({
                 reviews: sourceData.dueCounts.get(1) ?? 0,
             }),
         },

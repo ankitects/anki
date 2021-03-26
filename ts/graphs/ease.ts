@@ -96,7 +96,7 @@ export function prepareData(
         const minPct = Math.floor(bin.x0!);
         const maxPct = Math.floor(bin.x1!);
         const percent = maxPct - minPct <= 10 ? `${bin.x0}%` : `${bin.x0}%-${bin.x1}%`;
-        return i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TOOLTIP, {
+        return i18n.statisticsCardEaseTooltip({
             cards: bin.length,
             percent,
         });

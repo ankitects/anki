@@ -50,13 +50,13 @@ export function intervalLabel(
 ): string {
     if (daysEnd - daysStart <= 1) {
         // singular
-        return i18n.tr(i18n.TR.STATISTICS_INTERVALS_DAY_SINGLE, {
+        return i18n.statisticsIntervalsDaySingle({
             day: daysStart,
             cards,
         });
     } else {
         // range
-        return i18n.tr(i18n.TR.STATISTICS_INTERVALS_DAY_RANGE, {
+        return i18n.statisticsIntervalsDayRange({
             daysStart,
             daysEnd: daysEnd - 1,
             cards,

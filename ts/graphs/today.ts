@@ -76,7 +76,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayDa
         againCountText += ` ${againCount} (${((againCount / answerCount) * 100).toFixed(
             2
         )}%)`;
-        const typeCounts = i18n.tr(i18n.TR.STATISTICS_TODAY_TYPE_COUNTS, {
+        const typeCounts = i18n.statisticsTodayTypeCounts({
             learnCount,
             reviewCount,
             relearnCount,
@@ -84,7 +84,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayDa
         });
         let matureText: string;
         if (matureCount) {
-            matureText = i18n.tr(i18n.TR.STATISTICS_TODAY_CORRECT_MATURE, {
+            matureText = i18n.statisticsTodayCorrectMature({
                 correct: matureCorrect,
                 total: matureCount,
                 percent: (matureCorrect / matureCount) * 100,

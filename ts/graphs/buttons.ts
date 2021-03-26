@@ -241,10 +241,7 @@ export function renderButtons(
     function tooltipText(d: Datum): string {
         const button = i18n.statisticsAnswerButtonsButtonNumber();
         const timesPressed = i18n.statisticsAnswerButtonsButtonPressed();
-        const correctStr = i18n.tr(
-            i18n.TR.STATISTICS_HOURS_CORRECT,
-            totalCorrect(d.group)
-        );
+        const correctStr = i18n.statisticsHoursCorrect(totalCorrect(d.group));
         return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}<br>${correctStr}`;
     }
 
