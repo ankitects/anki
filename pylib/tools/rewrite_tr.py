@@ -9,12 +9,12 @@ from re import Match
 
 import stringcase
 
-TR_REF = re.compile(r"\.tr\(TR.([^,)]+)\)")
+TR_REF = re.compile(r"tr\(TR.([^,)]+)\)")
 
 
 def repl(m: Match) -> str:
     name = m.group(1).lower()
-    return f".tr.{name}()"
+    return f"tr.{name}()"
 
 
 def update_py(path: str) -> None:
@@ -23,6 +23,7 @@ def update_py(path: str) -> None:
     for line in open(path):
         line2 = TR_REF.sub(repl, line)
         if line != line2:
+            print(line2)
             buf.append(line2)
             changed = True
         else:

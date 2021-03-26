@@ -118,14 +118,14 @@ def translate_string_in(
 
 
 class Translations(GeneratedTranslations):
-    def __init__(self, backend: ref["anki._backend.RustBackend"]):
-        self._backend = backend
+    def __init__(self, backend: ref[RustBackend]):
+        self.backend = backend
 
     def __call__(self, *args: Any, **kwargs: Any) -> str:
         "Mimic the old col.tr / TR interface"
-        return self._backend().translate(*args, **kwargs)
+        return self.backend().translate(*args, **kwargs)
 
     def _translate(
         self, module: int, translation: int, args: Dict[str, Union[str, int, float]]
     ) -> str:
-        return self._backend().translate(module * 1000 + translation, **args)
+        return self.backend().translate(module * 1000 + translation, **args)

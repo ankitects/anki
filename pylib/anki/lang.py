@@ -5,7 +5,8 @@ from __future__ import annotations
 
 import locale
 import re
-from typing import Any, Optional, Tuple
+import weakref
+from typing import Optional, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
@@ -147,8 +148,12 @@ def lang_to_disk_lang(lang: str) -> str:
 # the currently set interface language
 currentLang = "en"
 
-# the current Fluent translation instance
+# the current Fluent translation instance. Code in pylib/ should
+# not reference this, and should use col.tr instead. The global
+# instance exists for legacy reasons, and as a convenience for the
+# Qt code.
 current_i18n: Optional[anki._backend.RustBackend] = None
+tr_legacyglobal: Optional[anki._backend.Translations] = None
 
 
 def _(str: str) -> str:
@@ -161,18 +166,11 @@ def ngettext(single: str, plural: str, n: int) -> str:
     return plural
 
 
-def tr_legacyglobal(*args: Any, **kwargs: Any) -> str:
-    "Should use col.tr() instead."
-    if current_i18n:
-        return current_i18n.translate(*args, **kwargs)
-    else:
-        return "tr_legacyglobal() called without active backend"
-
-
 def set_lang(lang: str) -> None:
-    global currentLang, current_i18n
+    global currentLang, current_i18n, tr_legacyglobal
     currentLang = lang
     current_i18n = anki._backend.RustBackend(langs=[lang])
+    tr_legacyglobal = anki._backend.Translations(weakref.ref(current_i18n))
 
 
 def get_def_lang(lang: Optional[str] = None) -> Tuple[int, str]:

@@ -16,12 +16,12 @@ from anki.lang import TR
 
 def importers(col: Collection) -> Sequence[Tuple[str, Type[Importer]]]:
     return (
-        (col.tr(TR.IMPORTING_TEXT_SEPARATED_BY_TABS_OR_SEMICOLONS), TextImporter),
+        (col.tr.importing_text_separated_by_tabs_or_semicolons(), TextImporter),
         (
-            col.tr(TR.IMPORTING_PACKAGED_ANKI_DECKCOLLECTION_APKG_COLPKG_ZIP),
+            col.tr.importing_packaged_anki_deckcollection_apkg_colpkg_zip(),
             AnkiPackageImporter,
         ),
-        (col.tr(TR.IMPORTING_MNEMOSYNE_20_DECK_DB), MnemosyneImporter),
-        (col.tr(TR.IMPORTING_SUPERMEMO_XML_EXPORT_XML), SupermemoXmlImporter),
-        (col.tr(TR.IMPORTING_PAUKER_18_LESSON_PAUGZ), PaukerImporter),
+        (col.tr.importing_mnemosyne_20_deck_db(), MnemosyneImporter),
+        (col.tr.importing_supermemo_xml_export_xml(), SupermemoXmlImporter),
+        (col.tr.importing_pauker_18_lesson_paugz(), PaukerImporter),
     )
