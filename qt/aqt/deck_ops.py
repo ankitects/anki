@@ -57,7 +57,7 @@ def add_deck_dialog(
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     if name := getOnlyText(
-        tr(TR.DECKS_NEW_DECK_NAME), default=default_text, parent=parent
+        tr.decks_new_deck_name(), default=default_text, parent=parent
     ).strip():
         add_deck(mw=mw, name=name, success=success)
 

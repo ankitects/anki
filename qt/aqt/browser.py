@@ -142,7 +142,7 @@ class CellRow:
 
     @staticmethod
     def deleted(length: int) -> CellRow:
-        return CellRow.generic(length, tr(TR.BROWSING_ROW_DELETED))
+        return CellRow.generic(length, tr.browsing_row_deleted())
 
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str, str]]:
@@ -271,7 +271,7 @@ class DataModel(QAbstractTableModel):
                     break
             # give the user a hint an invalid column was added by an add-on
             if not txt:
-                txt = tr(TR.BROWSING_ADDON)
+                txt = tr.browsing_addon()
             return txt
         else:
             return None
@@ -632,21 +632,21 @@ class Browser(QMainWindow):
 
     def setupColumns(self) -> None:
         self.columns = [
-            ("question", tr(TR.BROWSING_QUESTION)),
-            ("answer", tr(TR.BROWSING_ANSWER)),
-            ("template", tr(TR.BROWSING_CARD)),
-            ("deck", tr(TR.DECKS_DECK)),
-            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
-            ("noteCrt", tr(TR.BROWSING_CREATED)),
-            ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
-            ("cardMod", tr(TR.SEARCH_CARD_MODIFIED)),
-            ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
-            ("cardIvl", tr(TR.BROWSING_INTERVAL)),
-            ("cardEase", tr(TR.BROWSING_EASE)),
-            ("cardReps", tr(TR.SCHEDULING_REVIEWS)),
-            ("cardLapses", tr(TR.SCHEDULING_LAPSES)),
-            ("noteTags", tr(TR.EDITING_TAGS)),
-            ("note", tr(TR.BROWSING_NOTE)),
+            ("question", tr.browsing_question()),
+            ("answer", tr.browsing_answer()),
+            ("template", tr.browsing_card()),
+            ("deck", tr.decks_deck()),
+            ("noteFld", tr.browsing_sort_field()),
+            ("noteCrt", tr.browsing_created()),
+            ("noteMod", tr.search_note_modified()),
+            ("cardMod", tr.search_card_modified()),
+            ("cardDue", tr.statistics_due_date()),
+            ("cardIvl", tr.browsing_interval()),
+            ("cardEase", tr.browsing_ease()),
+            ("cardReps", tr.scheduling_reviews()),
+            ("cardLapses", tr.scheduling_lapses()),
+            ("noteTags", tr.editing_tags()),
+            ("note", tr.browsing_note()),
         ]
         self.columns.sort(key=itemgetter(1))
 
@@ -674,7 +674,7 @@ class Browser(QMainWindow):
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.lineEdit().setPlaceholderText(
-            tr(TR.BROWSING_SEARCH_BAR_HINT)
+            tr.browsing_search_bar_hint()
         )
         self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
         if search is not None:
@@ -805,7 +805,7 @@ QTableView {{ gridline-color: {grid} }}
                         TR.BROWSING_PREVIEW_SELECTED_CARD,
                         val=shortcut(preview_shortcut),
                     ),
-                    tr(TR.ACTIONS_PREVIEW),
+                    tr.actions_preview(),
                     id="previewButton",
                     keys=preview_shortcut,
                     disables=False,
@@ -875,7 +875,7 @@ QTableView {{ gridline-color: {grid} }}
         type = self.model.activeCols[idx]
         noSort = ("question", "answer")
         if type in noSort:
-            showInfo(tr(TR.BROWSING_SORTING_ON_THIS_COLUMN_IS_NOT))
+            showInfo(tr.browsing_sorting_on_this_column_is_not())
             type = self.col.conf["sortType"]
         if self.col.conf["sortType"] != type:
             self.col.conf["sortType"] = type
@@ -925,7 +925,7 @@ QTableView {{ gridline-color: {grid} }}
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
-                showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
+                showInfo(tr.browsing_you_must_have_at_least_one())
                 return
             self.model.activeCols.remove(type)
             adding = False
@@ -956,7 +956,7 @@ QTableView {{ gridline-color: {grid} }}
         self.setColumnSizes()
 
     def setupSidebar(self) -> None:
-        dw = self.sidebarDockWidget = QDockWidget(tr(TR.BROWSING_SIDEBAR), self)
+        dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
@@ -1085,7 +1085,7 @@ where id in %s"""
             % ids2str(sf)
         )
         if mods > 1:
-            showInfo(tr(TR.BROWSING_PLEASE_SELECT_CARDS_FROM_ONLY_ONE))
+            showInfo(tr.browsing_please_select_cards_from_only_one())
             return []
         return sf
 
@@ -1185,8 +1185,8 @@ where id in %s"""
         ret = StudyDeck(
             self.mw,
             current=current,
-            accept=tr(TR.BROWSING_MOVE_CARDS),
-            title=tr(TR.BROWSING_CHANGE_DECK),
+            accept=tr.browsing_move_cards(),
+            title=tr.browsing_change_deck(),
             help=HelpPage.BROWSING,
             parent=self,
         )
@@ -1209,9 +1209,7 @@ where id in %s"""
         tags: Optional[str] = None,
     ) -> None:
         "Shows prompt if tags not provided."
-        if not (
-            tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
-        ):
+        if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
         add_tags(
             mw=self.mw,
@@ -1226,7 +1224,7 @@ where id in %s"""
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
         if not (
-            tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_DELETE))
+            tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
         ):
             return
         remove_tags_for_notes(
@@ -1320,7 +1318,7 @@ where id in %s"""
     @ensure_editor_saved_on_trigger
     def reposition(self) -> None:
         if self.card and self.card.queue != QUEUE_TYPE_NEW:
-            showInfo(tr(TR.BROWSING_ONLY_NEW_CARDS_CAN_BE_REPOSITIONED), parent=self)
+            showInfo(tr.browsing_only_new_cards_can_be_repositioned(), parent=self)
             return
 
         reposition_new_cards_dialog(
@@ -1456,7 +1454,7 @@ where id in %s"""
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
         search = frm.buttonBox.addButton(
-            tr(TR.ACTIONS_SEARCH), QDialogButtonBox.ActionRole
+            tr.actions_search(), QDialogButtonBox.ActionRole
         )
         qconnect(search.clicked, onClick)
         d.show()
@@ -1478,7 +1476,7 @@ where id in %s"""
             return
         if not self._dupesButton:
             self._dupesButton = b = frm.buttonBox.addButton(
-                tr(TR.BROWSING_TAG_DUPLICATES), QDialogButtonBox.ActionRole
+                tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
             )
             qconnect(b.clicked, lambda: self._onTagDupes(res))
         t = ""
@@ -1509,15 +1507,15 @@ where id in %s"""
         if not res:
             return
         self.model.beginReset()
-        self.mw.checkpoint(tr(TR.BROWSING_TAG_DUPLICATES))
+        self.mw.checkpoint(tr.browsing_tag_duplicates())
         nids = set()
         for _, nidlist in res:
             nids.update(nidlist)
-        self.col.tags.bulk_add(list(nids), tr(TR.BROWSING_DUPLICATE))
+        self.col.tags.bulk_add(list(nids), tr.browsing_duplicate())
         self.mw.progress.finish()
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
-        tooltip(tr(TR.BROWSING_NOTES_TAGGED))
+        tooltip(tr.browsing_notes_tagged())
 
     def dupeLinkClicked(self, link: str) -> None:
         self.search_for(link)
@@ -1681,7 +1679,7 @@ class ChangeModel(QDialog):
         map = QWidget()
         l = QGridLayout()
         combos = []
-        targets = [x["name"] for x in dst] + [tr(TR.BROWSING_NOTHING)]
+        targets = [x["name"] for x in dst] + [tr.browsing_nothing()]
         indices = {}
         for i, x in enumerate(src):
             l.addWidget(QLabel(tr(TR.BROWSING_CHANGE_TO, val=x["name"])), i, 0)
@@ -1767,9 +1765,9 @@ class ChangeModel(QDialog):
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
         if any(True for c in list(cmap.values()) if c is None):
-            if not askUser(tr(TR.BROWSING_ANY_CARDS_MAPPED_TO_NOTHING_WILL)):
+            if not askUser(tr.browsing_any_cards_mapped_to_nothing_will()):
                 return
-        self.browser.mw.checkpoint(tr(TR.BROWSING_CHANGE_NOTE_TYPE))
+        self.browser.mw.checkpoint(tr.browsing_change_note_type())
         b = self.browser
         b.mw.col.modSchema(check=True)
         b.mw.progress.start()

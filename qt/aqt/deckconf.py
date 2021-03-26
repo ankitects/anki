@@ -37,7 +37,7 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         gui_hooks.deck_conf_did_setup_ui_form(self)
-        self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
+        self.mw.checkpoint(tr.actions_options())
         self.setupCombos()
         self.setupConfs()
         self.setWindowModality(Qt.WindowModal)
@@ -94,13 +94,13 @@ class DeckConf(QDialog):
 
     def confOpts(self) -> None:
         m = QMenu(self.mw)
-        a = m.addAction(tr(TR.ACTIONS_ADD))
+        a = m.addAction(tr.actions_add())
         qconnect(a.triggered, self.addGroup)
-        a = m.addAction(tr(TR.ACTIONS_DELETE))
+        a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, self.remGroup)
-        a = m.addAction(tr(TR.ACTIONS_RENAME))
+        a = m.addAction(tr.actions_rename())
         qconnect(a.triggered, self.renameGroup)
-        a = m.addAction(tr(TR.SCHEDULING_SET_FOR_ALL_SUBDECKS))
+        a = m.addAction(tr.scheduling_set_for_all_subdecks())
         qconnect(a.triggered, self.setChildren)
         if not self.childDids:
             a.setEnabled(False)
@@ -117,13 +117,13 @@ class DeckConf(QDialog):
         self.loadConf()
         cnt = len(self.mw.col.decks.didsForConf(conf))
         if cnt > 1:
-            txt = tr(TR.SCHEDULING_YOUR_CHANGES_WILL_AFFECT_MULTIPLE_DECKS)
+            txt = tr.scheduling_your_changes_will_affect_multiple_decks()
         else:
             txt = ""
         self.form.count.setText(txt)
 
     def addGroup(self) -> None:
-        name = getOnlyText(tr(TR.SCHEDULING_NEW_OPTIONS_GROUP_NAME))
+        name = getOnlyText(tr.scheduling_new_options_group_name())
         if not name:
             return
 
@@ -139,7 +139,7 @@ class DeckConf(QDialog):
 
     def remGroup(self) -> None:
         if int(self.conf["id"]) == 1:
-            showInfo(tr(TR.SCHEDULING_THE_DEFAULT_CONFIGURATION_CANT_BE_REMOVED), self)
+            showInfo(tr.scheduling_the_default_configuration_cant_be_removed(), self)
         else:
             gui_hooks.deck_conf_will_remove_config(self, self.deck, self.conf)
             self.mw.col.modSchema(check=True)
@@ -150,7 +150,7 @@ class DeckConf(QDialog):
 
     def renameGroup(self) -> None:
         old = self.conf["name"]
-        name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
+        name = getOnlyText(tr.actions_new_name(), default=old)
         if not name or name == old:
             return
 
@@ -274,10 +274,10 @@ class DeckConf(QDialog):
                 ret.append(i)
             except:
                 # invalid, don't update
-                showWarning(tr(TR.SCHEDULING_STEPS_MUST_BE_NUMBERS))
+                showWarning(tr.scheduling_steps_must_be_numbers())
                 return
         if len(ret) < minSize:
-            showWarning(tr(TR.SCHEDULING_AT_LEAST_ONE_STEP_IS_REQUIRED))
+            showWarning(tr.scheduling_at_least_one_step_is_required())
             return
         conf[key] = ret
 

@@ -153,7 +153,7 @@ currentLang = "en"
 # instance exists for legacy reasons, and as a convenience for the
 # Qt code.
 current_i18n: Optional[anki._backend.RustBackend] = None
-tr_legacyglobal: Optional[anki._backend.Translations] = None
+tr_legacyglobal = anki._backend.Translations(None)
 
 
 def _(str: str) -> str:
@@ -167,10 +167,10 @@ def ngettext(single: str, plural: str, n: int) -> str:
 
 
 def set_lang(lang: str) -> None:
-    global currentLang, current_i18n, tr_legacyglobal
+    global currentLang, current_i18n
     currentLang = lang
     current_i18n = anki._backend.RustBackend(langs=[lang])
-    tr_legacyglobal = anki._backend.Translations(weakref.ref(current_i18n))
+    tr_legacyglobal.backend = weakref.ref(current_i18n)
 
 
 def get_def_lang(lang: Optional[str] = None) -> Tuple[int, str]:

@@ -118,7 +118,7 @@ def translate_string_in(
 
 
 class Translations(GeneratedTranslations):
-    def __init__(self, backend: ref[RustBackend]):
+    def __init__(self, backend: Optional[ref[RustBackend]]):
         self.backend = backend
 
     def __call__(self, *args: Any, **kwargs: Any) -> str:

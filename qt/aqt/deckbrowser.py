@@ -169,9 +169,9 @@ class DeckBrowser:
         buf = """
 <tr><th colspan=5 align=start>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
-            tr(TR.DECKS_DECK),
-            tr(TR.STATISTICS_DUE_COUNT),
-            tr(TR.ACTIONS_NEW),
+            tr.decks_deck(),
+            tr.statistics_due_count(),
+            tr.actions_new(),
         )
         buf += self._topLevelDragRow()
 
@@ -250,13 +250,13 @@ class DeckBrowser:
 
     def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
-        a = m.addAction(tr(TR.ACTIONS_RENAME))
+        a = m.addAction(tr.actions_rename())
         qconnect(a.triggered, lambda b, did=did: self._rename(DeckID(int(did))))
-        a = m.addAction(tr(TR.ACTIONS_OPTIONS))
+        a = m.addAction(tr.actions_options())
         qconnect(a.triggered, lambda b, did=did: self._options(DeckID(int(did))))
-        a = m.addAction(tr(TR.ACTIONS_EXPORT))
+        a = m.addAction(tr.actions_export())
         qconnect(a.triggered, lambda b, did=did: self._export(DeckID(int(did))))
-        a = m.addAction(tr(TR.ACTIONS_DELETE))
+        a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckID(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.exec_(QCursor.pos())
@@ -267,7 +267,7 @@ class DeckBrowser:
     def _rename(self, did: DeckID) -> None:
         deck = self.mw.col.decks.get(did)
         current_name = deck["name"]
-        new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=current_name)
+        new_name = getOnlyText(tr.decks_new_deck_name(), default=current_name)
         if not new_name or new_name == current_name:
             return
 
@@ -296,9 +296,9 @@ class DeckBrowser:
     ######################################################################
 
     drawLinks = [
-        ["", "shared", tr(TR.DECKS_GET_SHARED)],
-        ["", "create", tr(TR.DECKS_CREATE_DECK)],
-        ["Ctrl+Shift+I", "import", tr(TR.DECKS_IMPORT_FILE)],
+        ["", "shared", tr.decks_get_shared()],
+        ["", "create", tr.decks_create_deck()],
+        ["Ctrl+Shift+I", "import", tr.decks_import_file()],
     ]
 
     def _drawButtons(self) -> None:
@@ -335,17 +335,17 @@ class DeckBrowser:
 <center>
 <div class=callout>
     <div>
-      {tr(TR.SCHEDULING_UPDATE_SOON)}
+      {tr.scheduling_update_soon()}
     </div>
     <div>
       <button onclick='pycmd("v2upgrade")'>
-        {tr(TR.SCHEDULING_UPDATE_BUTTON)}
+        {tr.scheduling_update_button()}
       </button>
       <button onclick='pycmd("v2upgradeinfo")'>
-        {tr(TR.SCHEDULING_UPDATE_MORE_INFO_BUTTON)}
+        {tr.scheduling_update_more_info_button()}
       </button>
       <button onclick='pycmd("v2upgradelater")'>
-        {tr(TR.SCHEDULING_UPDATE_LATER_BUTTON)}
+        {tr.scheduling_update_later_button()}
       </button>
     </div>
 </div>
@@ -365,5 +365,5 @@ class DeckBrowser:
             prefs.scheduling.new_timezone = False
             self.mw.col.set_preferences(prefs)
 
-        showInfo(tr(TR.SCHEDULING_UPDATE_DONE))
+        showInfo(tr.scheduling_update_done())
         self.refresh()

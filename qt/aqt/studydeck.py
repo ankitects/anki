@@ -10,7 +10,6 @@ from aqt import gui_hooks
 from aqt.deck_ops import add_deck_dialog
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     HelpPage,
     HelpPageArgument,
     disable_help_button,
@@ -58,9 +57,9 @@ class StudyDeck(QDialog):
                     button_or_label, QDialogButtonBox.ActionRole
                 )
         else:
-            b = QPushButton(tr(TR.ACTIONS_ADD))
+            b = QPushButton(tr.actions_add())
             b.setShortcut(QKeySequence("Ctrl+N"))
-            b.setToolTip(shortcut(tr(TR.DECKS_ADD_NEW_DECK_CTRLANDN)))
+            b.setToolTip(shortcut(tr.decks_add_new_deck_ctrlandn()))
             self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
             qconnect(b.clicked, self.onAddDeck)
         if title:
@@ -79,7 +78,7 @@ class StudyDeck(QDialog):
             self.origNames = names()
         self.name: Optional[str] = None
         self.ok = self.form.buttonBox.addButton(
-            accept or tr(TR.DECKS_STUDY), QDialogButtonBox.AcceptRole
+            accept or tr.decks_study(), QDialogButtonBox.AcceptRole
         )
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp(help))
@@ -150,7 +149,7 @@ class StudyDeck(QDialog):
         gui_hooks.state_did_reset.remove(self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
-            showInfo(tr(TR.DECKS_PLEASE_SELECT_SOMETHING))
+            showInfo(tr.decks_please_select_something())
             return
         self.name = self.names[self.form.list.currentRow()]
         QDialog.accept(self)

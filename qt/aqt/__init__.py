@@ -285,8 +285,8 @@ class AnkiApp(QApplication):
             # existing instance running but hung
             QMessageBox.warning(
                 None,
-                tr(TR.QT_MISC_ANKI_IS_RUNNING),
-                tr(TR.QT_MISC_IF_INSTANCE_IS_NOT_RESPONDING),
+                tr.qt_misc_anki_is_running(),
+                tr.qt_misc_if_instance_is_not_responding(),
             )
 
             sys.exit(1)
@@ -379,7 +379,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
         if "Failed to create OpenGL context" in msg:
             QMessageBox.critical(
                 None,
-                tr(TR.QT_MISC_ERROR),
+                tr.qt_misc_error(),
                 tr(
                     TR.QT_MISC_ERROR_LOADING_GRAPHICS_DRIVER,
                     mode=driver.value,
@@ -515,8 +515,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if not pm:
         QMessageBox.critical(
             None,
-            tr(TR.QT_MISC_ERROR),
-            tr(TR.PROFILES_COULD_NOT_CREATE_DATA_FOLDER),
+            tr.qt_misc_error(),
+            tr.profiles_could_not_create_data_folder(),
         )
         return None
 
@@ -555,8 +555,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     except:
         QMessageBox.critical(
             None,
-            tr(TR.QT_MISC_ERROR),
-            tr(TR.QT_MISC_NO_TEMP_FOLDER),
+            tr.qt_misc_error(),
+            tr.qt_misc_no_temp_folder(),
         )
         return None
 
@@ -566,8 +566,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if pmLoadResult.loadError:
         QMessageBox.warning(
             None,
-            tr(TR.PROFILES_PREFS_CORRUPT_TITLE),
-            tr(TR.PROFILES_PREFS_FILE_IS_CORRUPT),
+            tr.profiles_prefs_corrupt_title(),
+            tr.profiles_prefs_file_is_corrupt(),
         )
 
     if opts.profile:
@@ -584,8 +584,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
             pm.set_video_driver(driver.next())
             QMessageBox.critical(
                 None,
-                tr(TR.QT_MISC_ERROR),
-                tr(TR.QT_MISC_INCOMPATIBLE_VIDEO_DRIVER),
+                tr.qt_misc_error(),
+                tr.qt_misc_incompatible_video_driver(),
             )
             sys.exit(1)
 

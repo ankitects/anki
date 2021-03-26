@@ -115,9 +115,9 @@ class FilteredDeckConfigDialog(QDialog):
 
         existing = deck.id != 0
         if existing:
-            build_label = tr(TR.ACTIONS_REBUILD)
+            build_label = tr.actions_rebuild()
         else:
-            build_label = tr(TR.DECKS_BUILD)
+            build_label = tr.decks_build()
         self.form.buttonBox.button(QDialogButtonBox.Ok).setText(build_label)
 
         form.resched.setChecked(config.reschedule)
@@ -334,9 +334,9 @@ class FilteredDeckConfigDialog(QDialog):
                 ret.append(i)
             except:
                 # invalid, don't update
-                showWarning(tr(TR.SCHEDULING_STEPS_MUST_BE_NUMBERS))
+                showWarning(tr.scheduling_steps_must_be_numbers())
                 return None
         if len(ret) < minSize:
-            showWarning(tr(TR.SCHEDULING_AT_LEAST_ONE_STEP_IS_REQUIRED))
+            showWarning(tr.scheduling_at_least_one_step_is_required())
             return None
         return ret

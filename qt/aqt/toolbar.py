@@ -100,28 +100,28 @@ class Toolbar:
         links = [
             self.create_link(
                 "decks",
-                tr(TR.ACTIONS_DECKS),
+                tr.actions_decks(),
                 self._deckLinkHandler,
                 tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="D"),
                 id="decks",
             ),
             self.create_link(
                 "add",
-                tr(TR.ACTIONS_ADD),
+                tr.actions_add(),
                 self._addLinkHandler,
                 tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="A"),
                 id="add",
             ),
             self.create_link(
                 "browse",
-                tr(TR.QT_MISC_BROWSE),
+                tr.qt_misc_browse(),
                 self._browseLinkHandler,
                 tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="B"),
                 id="browse",
             ),
             self.create_link(
                 "stats",
-                tr(TR.QT_MISC_STATS),
+                tr.qt_misc_stats(),
                 self._statsLinkHandler,
                 tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="T"),
                 id="stats",
@@ -138,7 +138,7 @@ class Toolbar:
     ######################################################################
 
     def _create_sync_link(self) -> str:
-        name = tr(TR.QT_MISC_SYNC)
+        name = tr.qt_misc_sync()
         title = tr(TR.ACTIONS_SHORTCUT_KEY, val="Y")
         label = "sync"
         self.link_handlers[label] = self._syncLinkHandler

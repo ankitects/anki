@@ -34,7 +34,7 @@ class FieldDialog(QDialog):
         self.mm = self.mw.col.models
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
-        self.mw.checkpoint(tr(TR.EDITING_FIELDS))
+        self.mw.checkpoint(tr.editing_fields())
         self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
@@ -103,24 +103,24 @@ class FieldDialog(QDialog):
         if not txt:
             return None
         if txt[0] in "#^/":
-            showWarning(tr(TR.FIELDS_NAME_FIRST_LETTER_NOT_VALID))
+            showWarning(tr.fields_name_first_letter_not_valid())
             return None
         for letter in """:{"}""":
             if letter in txt:
-                showWarning(tr(TR.FIELDS_NAME_INVALID_LETTER))
+                showWarning(tr.fields_name_invalid_letter())
                 return None
         for f in self.model["flds"]:
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
             if f["name"] == txt:
-                showWarning(tr(TR.FIELDS_THAT_FIELD_NAME_IS_ALREADY_USED))
+                showWarning(tr.fields_that_field_name_is_already_used())
                 return None
         return txt
 
     def onRename(self) -> None:
         idx = self.currentIdx
         f = self.model["flds"][idx]
-        name = self._uniqueName(tr(TR.ACTIONS_NEW_NAME), self.currentIdx, f["name"])
+        name = self._uniqueName(tr.actions_new_name(), self.currentIdx, f["name"])
         if not name:
             return
 
@@ -134,7 +134,7 @@ class FieldDialog(QDialog):
         self.form.fieldList.setCurrentRow(idx)
 
     def onAdd(self) -> None:
-        name = self._uniqueName(tr(TR.FIELDS_FIELD_NAME))
+        name = self._uniqueName(tr.fields_field_name())
         if not name:
             return
         if not self.change_tracker.mark_schema():
@@ -147,7 +147,7 @@ class FieldDialog(QDialog):
 
     def onDelete(self) -> None:
         if len(self.model["flds"]) < 2:
-            showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
+            showWarning(tr.fields_notes_require_at_least_one_field())
             return
         count = self.mm.useCount(self.model)
         c = tr(TR.BROWSING_NOTE_COUNT, count=count)

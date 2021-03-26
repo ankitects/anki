@@ -59,13 +59,13 @@ class ExportDialog(QDialog):
         self.exporterChanged(idx)
         # deck list
         if self.cids is None:
-            self.decks = [tr(TR.EXPORTING_ALL_DECKS)]
+            self.decks = [tr.exporting_all_decks()]
             self.decks.extend(d.name for d in self.col.decks.all_names_and_ids())
         else:
-            self.decks = [tr(TR.EXPORTING_SELECTED_NOTES)]
+            self.decks = [tr.exporting_selected_notes()]
         self.frm.deck.addItems(self.decks)
         # save button
-        b = QPushButton(tr(TR.EXPORTING_EXPORT))
+        b = QPushButton(tr.exporting_export())
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         # set default option if accessed through deck button
         if did:
@@ -117,7 +117,7 @@ class ExportDialog(QDialog):
             self.exporter.did = self.col.decks.id(name)
         if self.isVerbatim:
             name = time.strftime("-%Y-%m-%d@%H-%M-%S", time.localtime(time.time()))
-            deck_name = tr(TR.EXPORTING_COLLECTION) + name
+            deck_name = tr.exporting_collection() + name
         else:
             # Get deck name and remove invalid filename characters
             deck_name = self.decks[self.frm.deck.currentIndex()]
@@ -131,7 +131,7 @@ class ExportDialog(QDialog):
         while 1:
             file = getSaveFile(
                 self,
-                tr(TR.ACTIONS_EXPORT),
+                tr.actions_export(),
                 "export",
                 key_str,
                 self.exporter.ext,
@@ -181,7 +181,7 @@ class ExportDialog(QDialog):
 
     def on_export_finished(self) -> None:
         if self.isVerbatim:
-            msg = tr(TR.EXPORTING_COLLECTION_EXPORTED)
+            msg = tr.exporting_collection_exported()
             self.mw.reopen()
         else:
             if self.isTextNote:

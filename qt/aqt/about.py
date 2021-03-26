@@ -83,9 +83,9 @@ def show(mw: aqt.AnkiQt) -> QDialog:
 """
         info = f"    {'    '.join(info.splitlines(True))}"
         QApplication.clipboard().setText(info)
-        tooltip(tr(TR.ABOUT_COPIED_TO_CLIPBOARD), parent=dialog)
+        tooltip(tr.about_copied_to_clipboard(), parent=dialog)
 
-    btn = QPushButton(tr(TR.ABOUT_COPY_DEBUG_INFO))
+    btn = QPushButton(tr.about_copy_debug_info())
     qconnect(btn.clicked, onCopy)
     abt.buttonBox.addButton(btn, QDialogButtonBox.ActionRole)
     abt.buttonBox.button(QDialogButtonBox.Ok).setFocus()
@@ -93,8 +93,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
-    abouttext += f"<p>{tr(TR.ABOUT_ANKI_IS_A_FRIENDLY_INTELLIGENT_SPACED)}"
-    abouttext += f"<p>{tr(TR.ABOUT_ANKI_IS_LICENSED_UNDER_THE_AGPL3)}"
+    abouttext += f"<p>{tr.about_anki_is_a_friendly_intelligent_spaced()}"
+    abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
     abouttext += f"<p>{tr(TR.ABOUT_VERSION, val=versionWithBuild())}<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
@@ -212,8 +212,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += "<p>" + tr(
         TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES, cont=", ".join(allusers)
     )
-    abouttext += f"<p>{tr(TR.ABOUT_IF_YOU_HAVE_CONTRIBUTED_AND_ARE)}"
-    abouttext += f"<p>{tr(TR.ABOUT_A_BIG_THANKS_TO_ALL_THE)}"
+    abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
+    abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()

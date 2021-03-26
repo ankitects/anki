@@ -150,8 +150,8 @@ class Reviewer:
             part1 = tr(TR.STUDYING_CARD_STUDIED_IN, count=elapsed[1])
             mins = int(round(elapsed[0] / 60))
             part2 = tr(TR.STUDYING_MINUTE, count=mins)
-            fin = tr(TR.STUDYING_FINISH)
-            diag = askUserDialog(f"{part1} {part2}", [tr(TR.STUDYING_CONTINUE), fin])
+            fin = tr.studying_finish()
+            diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
             diag.setIcon(QMessageBox.Information)
             if diag.run() == fin:
                 return self.mw.moveToState("deckBrowser")
@@ -443,7 +443,7 @@ class Reviewer:
         if not self.typeCorrect:
             if self.typeCorrect is None:
                 if clozeIdx:
-                    warn = tr(TR.STUDYING_PLEASE_RUN_TOOLSEMPTY_CARDS)
+                    warn = tr.studying_please_run_toolsempty_cards()
                 else:
                     warn = tr(TR.STUDYING_TYPE_ANSWER_UNKNOWN_FIELD, val=fld)
                 return re.sub(self.typeAnsPat, warn, buf)
@@ -625,9 +625,9 @@ time = %(time)d;
 </script>
 """ % dict(
             rem=self._remaining(),
-            edit=tr(TR.STUDYING_EDIT),
+            edit=tr.studying_edit(),
             editkey=tr(TR.ACTIONS_SHORTCUT_KEY, val="E"),
-            more=tr(TR.STUDYING_MORE),
+            more=tr.studying_more(),
             downArrow=downArrow(),
             time=self.card.timeTaken() // 1000,
         )
@@ -637,8 +637,8 @@ time = %(time)d;
 <span class=stattxt>%s</span><br>
 <button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
             self._remaining(),
-            tr(TR.ACTIONS_SHORTCUT_KEY, val=tr(TR.STUDYING_SPACE)),
-            tr(TR.STUDYING_SHOW_ANSWER),
+            tr(TR.ACTIONS_SHORTCUT_KEY, val=tr.studying_space()),
+            tr.studying_show_answer(),
         )
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = (
@@ -682,21 +682,21 @@ time = %(time)d;
         button_count = self.mw.col.sched.answerButtons(self.card)
         if button_count == 2:
             buttons_tuple: Tuple[Tuple[int, str], ...] = (
-                (1, tr(TR.STUDYING_AGAIN)),
-                (2, tr(TR.STUDYING_GOOD)),
+                (1, tr.studying_again()),
+                (2, tr.studying_good()),
             )
         elif button_count == 3:
             buttons_tuple = (
-                (1, tr(TR.STUDYING_AGAIN)),
-                (2, tr(TR.STUDYING_GOOD)),
-                (3, tr(TR.STUDYING_EASY)),
+                (1, tr.studying_again()),
+                (2, tr.studying_good()),
+                (3, tr.studying_easy()),
             )
         else:
             buttons_tuple = (
-                (1, tr(TR.STUDYING_AGAIN)),
-                (2, tr(TR.STUDYING_HARD)),
-                (3, tr(TR.STUDYING_GOOD)),
-                (4, tr(TR.STUDYING_EASY)),
+                (1, tr.studying_again()),
+                (2, tr.studying_hard()),
+                (3, tr.studying_good()),
+                (4, tr.studying_easy()),
             )
         buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(
             buttons_tuple, self, self.card
@@ -742,9 +742,9 @@ time = %(time)d;
 
     def onLeech(self, card: Card) -> None:
         # for now
-        s = tr(TR.STUDYING_CARD_WAS_A_LEECH)
+        s = tr.studying_card_was_a_leech()
         if card.queue < 0:
-            s += f" {tr(TR.STUDYING_IT_HAS_BEEN_SUSPENDED)}"
+            s += f" {tr.studying_it_has_been_suspended()}"
         tooltip(s)
 
     # Context menu
@@ -755,49 +755,49 @@ time = %(time)d;
         currentFlag = self.card and self.card.user_flag()
         opts = [
             [
-                tr(TR.STUDYING_FLAG_CARD),
+                tr.studying_flag_card(),
                 [
                     [
-                        tr(TR.ACTIONS_RED_FLAG),
+                        tr.actions_red_flag(),
                         "Ctrl+1",
                         lambda: self.set_flag_on_current_card(1),
                         dict(checked=currentFlag == 1),
                     ],
                     [
-                        tr(TR.ACTIONS_ORANGE_FLAG),
+                        tr.actions_orange_flag(),
                         "Ctrl+2",
                         lambda: self.set_flag_on_current_card(2),
                         dict(checked=currentFlag == 2),
                     ],
                     [
-                        tr(TR.ACTIONS_GREEN_FLAG),
+                        tr.actions_green_flag(),
                         "Ctrl+3",
                         lambda: self.set_flag_on_current_card(3),
                         dict(checked=currentFlag == 3),
                     ],
                     [
-                        tr(TR.ACTIONS_BLUE_FLAG),
+                        tr.actions_blue_flag(),
                         "Ctrl+4",
                         lambda: self.set_flag_on_current_card(4),
                         dict(checked=currentFlag == 4),
                     ],
                 ],
             ],
-            [tr(TR.STUDYING_MARK_NOTE), "*", self.toggle_mark_on_current_note],
-            [tr(TR.STUDYING_BURY_CARD), "-", self.bury_current_card],
-            [tr(TR.STUDYING_BURY_NOTE), "=", self.bury_current_note],
-            [tr(TR.ACTIONS_SET_DUE_DATE), "Ctrl+Shift+D", self.on_set_due],
-            [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.suspend_current_card],
-            [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.suspend_current_note],
-            [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.delete_current_note],
-            [tr(TR.ACTIONS_OPTIONS), "O", self.onOptions],
+            [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
+            [tr.studying_bury_card(), "-", self.bury_current_card],
+            [tr.studying_bury_note(), "=", self.bury_current_note],
+            [tr.actions_set_due_date(), "Ctrl+Shift+D", self.on_set_due],
+            [tr.actions_suspend_card(), "@", self.suspend_current_card],
+            [tr.studying_suspend_note(), "!", self.suspend_current_note],
+            [tr.studying_delete_note(), "Ctrl+Delete", self.delete_current_note],
+            [tr.actions_options(), "O", self.onOptions],
             None,
-            [tr(TR.ACTIONS_REPLAY_AUDIO), "R", self.replayAudio],
-            [tr(TR.STUDYING_PAUSE_AUDIO), "5", self.on_pause_audio],
-            [tr(TR.STUDYING_AUDIO_5S), "6", self.on_seek_backward],
-            [tr(TR.STUDYING_AUDIO_AND5S), "7", self.on_seek_forward],
-            [tr(TR.STUDYING_RECORD_OWN_VOICE), "Shift+V", self.onRecordVoice],
-            [tr(TR.STUDYING_REPLAY_OWN_VOICE), "V", self.onReplayRecorded],
+            [tr.actions_replay_audio(), "R", self.replayAudio],
+            [tr.studying_pause_audio(), "5", self.on_pause_audio],
+            [tr.studying_audio_5s(), "6", self.on_seek_backward],
+            [tr.studying_audio_and5s(), "7", self.on_seek_forward],
+            [tr.studying_record_own_voice(), "Shift+V", self.onRecordVoice],
+            [tr.studying_replay_own_voice(), "V", self.onReplayRecorded],
         ]
         return opts
 
@@ -869,28 +869,28 @@ time = %(time)d;
         suspend_note(
             mw=self.mw,
             note_id=self.card.nid,
-            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_SUSPENDED)),
+            success=lambda _: tooltip(tr.studying_note_suspended()),
         )
 
     def suspend_current_card(self) -> None:
         suspend_cards(
             mw=self.mw,
             card_ids=[self.card.id],
-            success=lambda _: tooltip(tr(TR.STUDYING_CARD_SUSPENDED)),
+            success=lambda _: tooltip(tr.studying_card_suspended()),
         )
 
     def bury_current_note(self) -> None:
         bury_note(
             mw=self.mw,
             note_id=self.card.nid,
-            success=lambda _: tooltip(tr(TR.STUDYING_NOTE_BURIED)),
+            success=lambda _: tooltip(tr.studying_note_buried()),
         )
 
     def bury_current_card(self) -> None:
         bury_cards(
             mw=self.mw,
             card_ids=[self.card.id],
-            success=lambda _: tooltip(tr(TR.STUDYING_CARD_BURIED)),
+            success=lambda _: tooltip(tr.studying_card_buried()),
         )
 
     def delete_current_note(self) -> None:
@@ -919,7 +919,7 @@ time = %(time)d;
 
     def onReplayRecorded(self) -> None:
         if not self._recordedAudio:
-            tooltip(tr(TR.STUDYING_YOU_HAVENT_RECORDED_YOUR_VOICE_YET))
+            tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
         av_player.play_file(self._recordedAudio)
 

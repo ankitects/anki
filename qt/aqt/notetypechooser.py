@@ -5,7 +5,7 @@ from typing import List, Optional
 from anki.models import NoteTypeID
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, HelpPage, shortcut, tr
+from aqt.utils import HelpPage, shortcut, tr
 
 
 class NoteTypeChooser(QHBoxLayout):
@@ -55,12 +55,12 @@ class NoteTypeChooser(QHBoxLayout):
         self.setSpacing(8)
 
         if show_label:
-            self.label = QLabel(tr(TR.NOTETYPES_TYPE))
+            self.label = QLabel(tr.notetypes_type())
             self.addWidget(self.label)
 
         # button
         self.button = QPushButton()
-        self.button.setToolTip(shortcut(tr(TR.QT_MISC_CHANGE_NOTE_TYPE_CTRLANDN)))
+        self.button.setToolTip(shortcut(tr.qt_misc_change_note_type_ctrlandn()))
         qconnect(
             QShortcut(QKeySequence("Ctrl+N"), self._widget).activated,
             self.on_button_activated,
@@ -95,7 +95,7 @@ class NoteTypeChooser(QHBoxLayout):
         current = self.selected_notetype_name()
 
         # edit button
-        edit = QPushButton(tr(TR.QT_MISC_MANAGE))
+        edit = QPushButton(tr.qt_misc_manage())
         qconnect(edit.clicked, self.onEdit)
 
         def nameFunc() -> List[str]:
@@ -104,8 +104,8 @@ class NoteTypeChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             names=nameFunc,
-            accept=tr(TR.ACTIONS_CHOOSE),
-            title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
+            accept=tr.actions_choose(),
+            title=tr.qt_misc_choose_note_type(),
             help=HelpPage.NOTE_TYPE,
             current=current,
             parent=self._widget,

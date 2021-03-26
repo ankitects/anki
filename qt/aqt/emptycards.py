@@ -22,7 +22,7 @@ def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
         mw.progress.finish()
         report: EmptyCardsReport = fut.result()
         if not report.notes:
-            tooltip(tr(TR.EMPTY_CARDS_NOT_FOUND))
+            tooltip(tr.empty_cards_not_found())
             return
         diag = EmptyCardsDialog(mw, report)
         diag.show()
@@ -40,9 +40,9 @@ class EmptyCardsDialog(QDialog):
         self.form = aqt.forms.emptycards.Ui_Dialog()
         self.form.setupUi(self)
         restoreGeom(self, "emptycards")
-        self.setWindowTitle(tr(TR.EMPTY_CARDS_WINDOW_TITLE))
+        self.setWindowTitle(tr.empty_cards_window_title())
         disable_help_button(self)
-        self.form.keep_notes.setText(tr(TR.EMPTY_CARDS_PRESERVE_NOTES_CHECKBOX))
+        self.form.keep_notes.setText(tr.empty_cards_preserve_notes_checkbox())
         self.form.webview.title = "empty cards"
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)
 
@@ -63,7 +63,7 @@ class EmptyCardsDialog(QDialog):
         qconnect(self.finished, on_finished)
 
         self._delete_button = self.form.buttonBox.addButton(
-            tr(TR.EMPTY_CARDS_DELETE_BUTTON), QDialogButtonBox.ActionRole
+            tr.empty_cards_delete_button(), QDialogButtonBox.ActionRole
         )
         self._delete_button.setAutoDefault(False)
         self._delete_button.clicked.connect(self._on_delete)
