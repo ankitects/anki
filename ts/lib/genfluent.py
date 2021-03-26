@@ -62,10 +62,25 @@ def arg_kind(arg: Variable) -> str:
         return "string"
 
 
+def map_args_to_real_names(args: List[Variable]) -> str:
+    return ("{" + ", ".join(
+        [f'"{arg["name"]}": args.{typescript_arg_name(arg)}' for arg in args]
+    )
+            + "}"
+            )
+
+
+
 def get_args(args: List[Variable]) -> str:
     if not args:
         return ""
     else:
+        for arg in args:
+            if typescript_arg_name(arg) != arg["name"]:
+                # we'll need to map variables to their fluent equiv
+                return ", " + map_args_to_real_names(args)
+
+        # variable names match, reference object instead
         return ", args"
 
 
