@@ -21,7 +21,8 @@ import {
     cumsum,
 } from "d3";
 import type { GraphBounds } from "./graph-helpers";
-import type { I18n } from "anki/i18n";
+
+import * as tr from "anki/i18n";
 
 type Count = [string, number, boolean, string];
 export interface GraphData {
@@ -42,8 +43,7 @@ const barColours = [
 
 function countCards(
     cards: pb.BackendProto.ICard[],
-    separateInactive: boolean,
-    i18n: I18n
+    separateInactive: boolean
 ): Count[] {
     let newCards = 0;
     let learn = 0;
@@ -89,38 +89,38 @@ function countCards(
     const extraQuery = separateInactive ? 'AND -("is:buried" OR "is:suspended")' : "";
 
     const counts: Count[] = [
-        [i18n.statisticsCountsNewCards(), newCards, true, `"is:new"${extraQuery}`],
+        [tr.statisticsCountsNewCards(), newCards, true, `"is:new"${extraQuery}`],
         [
-            i18n.statisticsCountsLearningCards(),
+            tr.statisticsCountsLearningCards(),
             learn,
             true,
             `(-"is:review" AND "is:learn")${extraQuery}`,
         ],
         [
-            i18n.statisticsCountsRelearningCards(),
+            tr.statisticsCountsRelearningCards(),
             relearn,
             true,
             `("is:review" AND "is:learn")${extraQuery}`,
         ],
         [
-            i18n.statisticsCountsYoungCards(),
+            tr.statisticsCountsYoungCards(),
             young,
             true,
             `("is:review" AND -"is:learn") AND "prop:ivl<21"${extraQuery}`,
         ],
         [
-            i18n.statisticsCountsMatureCards(),
+            tr.statisticsCountsMatureCards(),
             mature,
             true,
             `("is:review" -"is:learn") AND "prop:ivl>=21"${extraQuery}`,
         ],
         [
-            i18n.statisticsCountsSuspendedCards(),
+            tr.statisticsCountsSuspendedCards(),
             suspended,
             separateInactive,
             '"is:suspended"',
         ],
-        [i18n.statisticsCountsBuriedCards(), buried, separateInactive, '"is:buried"'],
+        [tr.statisticsCountsBuriedCards(), buried, separateInactive, '"is:buried"'],
     ];
 
     return counts;
@@ -128,14 +128,13 @@ function countCards(
 
 export function gatherData(
     data: pb.BackendProto.GraphsOut,
-    separateInactive: boolean,
-    i18n: I18n
+    separateInactive: boolean
 ): GraphData {
     const totalCards = data.cards.length;
-    const counts = countCards(data.cards, separateInactive, i18n);
+    const counts = countCards(data.cards, separateInactive);
 
     return {
-        title: i18n.statisticsCountsTitle(),
+        title: tr.statisticsCountsTitle(),
         counts,
         totalCards,
     };

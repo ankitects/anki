@@ -20,9 +20,10 @@ import {
 import type { Bin } from "d3";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import type { I18n } from "anki/i18n";
+
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
 import { timeSpan } from "anki/time";
+import * as tr from "anki/i18n";
 
 export interface IntervalGraphData {
     intervals: number[];
@@ -43,20 +44,19 @@ export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGra
 }
 
 export function intervalLabel(
-    i18n: I18n,
     daysStart: number,
     daysEnd: number,
     cards: number
 ): string {
     if (daysEnd - daysStart <= 1) {
         // singular
-        return i18n.statisticsIntervalsDaySingle({
+        return tr.statisticsIntervalsDaySingle({
             day: daysStart,
             cards,
         });
     } else {
         // range
-        return i18n.statisticsIntervalsDayRange({
+        return tr.statisticsIntervalsDayRange({
             daysStart,
             daysEnd: daysEnd - 1,
             cards,
@@ -78,7 +78,6 @@ function makeQuery(start: number, end: number): string {
 export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange,
-    i18n: I18n,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
@@ -146,9 +145,9 @@ export function prepareIntervalData(
         _cumulative: number,
         percent: number
     ): string {
-        // const day = dayLabel(i18n, bin.x0!, bin.x1!);
-        const interval = intervalLabel(i18n, bin.x0!, bin.x1!, bin.length);
-        const total = i18n.statisticsRunningTotal();
+        // const day = dayLabel(bin.x0!, bin.x1!);
+        const interval = intervalLabel(bin.x0!, bin.x1!, bin.length);
+        const total = tr.statisticsRunningTotal();
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
@@ -160,10 +159,10 @@ export function prepareIntervalData(
     }
 
     const meanInterval = Math.round(mean(allIntervals) ?? 0);
-    const meanIntervalString = timeSpan(i18n, meanInterval * 86400, false);
+    const meanIntervalString = timeSpan(meanInterval * 86400, false);
     const tableData = [
         {
-            label: i18n.statisticsAverageInterval(),
+            label: tr.statisticsAverageInterval(),
             value: meanIntervalString,
         },
     ];
