@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BROWSING_BROWSER_OPTIONS</string>
+   <string>browsing_browser_options</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>BROWSING_FONT</string>
+        <string>browsing_font</string>
        </property>
       </widget>
      </item>
@@ -33,7 +33,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>BROWSING_FONT_SIZE</string>
+        <string>browsing_font_size</string>
        </property>
       </widget>
      </item>
@@ -50,7 +50,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>BROWSING_LINE_SIZE</string>
+        <string>browsing_line_size</string>
        </property>
       </widget>
      </item>
@@ -75,7 +75,7 @@
    <item>
     <widget class="QCheckBox" name="fullSearch">
      <property name="text">
-      <string>BROWSING_SEARCH_WITHIN_FORMATTING_SLOW</string>
+      <string>browsing_search_within_formatting_slow</string>
      </property>
     </widget>
    </item>

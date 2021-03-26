@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>EDITING_FIELDS</string>
+   <string>editing_fields</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -40,28 +40,28 @@
        <item>
         <widget class="QPushButton" name="fieldAdd">
          <property name="text">
-          <string>ACTIONS_ADD</string>
+          <string>actions_add</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="fieldDelete">
          <property name="text">
-          <string>ACTIONS_DELETE</string>
+          <string>actions_delete</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="fieldRename">
          <property name="text">
-          <string>ACTIONS_RENAME</string>
+          <string>actions_rename</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="fieldPosition">
          <property name="text">
-          <string>ACTIONS_REPOSITION</string>
+          <string>actions_reposition</string>
          </property>
         </widget>
        </item>
@@ -87,7 +87,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>FIELDS_EDITING_FONT</string>
+        <string>fields_editing_font</string>
        </property>
       </widget>
      </item>
@@ -104,7 +104,7 @@
      <item row="3" column="1">
       <widget class="QCheckBox" name="rtl">
        <property name="text">
-        <string>FIELDS_REVERSE_TEXT_DIRECTION_RTL</string>
+        <string>fields_reverse_text_direction_rtl</string>
        </property>
       </widget>
      </item>
@@ -121,21 +121,21 @@
      <item row="2" column="1">
       <widget class="QCheckBox" name="sticky">
        <property name="text">
-        <string>FIELDS_REMEMBER_LAST_INPUT_WHEN_ADDING</string>
+        <string>fields_remember_last_input_when_adding</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_18">
        <property name="text">
-        <string>ACTIONS_OPTIONS</string>
+        <string>actions_options</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QRadioButton" name="sortField">
        <property name="text">
-        <string>FIELDS_SORT_BY_THIS_FIELD_IN_THE</string>
+        <string>fields_sort_by_this_field_in_the</string>
        </property>
       </widget>
      </item>

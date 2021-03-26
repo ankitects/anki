@@ -214,7 +214,7 @@
    </property>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>QT_ACCEL_EDIT</string>
+     <string>qt_accel_edit</string>
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
@@ -228,7 +228,7 @@
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
-     <string>QT_ACCEL_GO</string>
+     <string>qt_accel_go</string>
     </property>
     <addaction name="actionFind"/>
     <addaction name="actionSidebarFilter"/>
@@ -243,17 +243,17 @@
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
-     <string>QT_ACCEL_HELP</string>
+     <string>qt_accel_help</string>
     </property>
     <addaction name="actionGuide"/>
    </widget>
    <widget class="QMenu" name="menu_Cards">
     <property name="title">
-     <string>QT_ACCEL_CARDS</string>
+     <string>qt_accel_cards</string>
     </property>
     <widget class="QMenu" name="menuFlag">
      <property name="title">
-      <string>BROWSING_FLAG</string>
+      <string>browsing_flag</string>
      </property>
      <addaction name="actionRed_Flag"/>
      <addaction name="actionOrange_Flag"/>
@@ -274,7 +274,7 @@
    </widget>
    <widget class="QMenu" name="menu_Notes">
     <property name="title">
-     <string>QT_ACCEL_NOTES</string>
+     <string>qt_accel_notes</string>
     </property>
     <addaction name="actionAdd"/>
     <addaction name="actionExport"/>
@@ -306,7 +306,7 @@
   </action>
   <action name="actionSelectAll">
    <property name="text">
-    <string>QT_ACCEL_SELECT_ALL</string>
+    <string>qt_accel_select_all</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+A</string>
@@ -314,7 +314,7 @@
   </action>
   <action name="actionUndo">
    <property name="text">
-    <string>QT_ACCEL_UNDO</string>
+    <string>qt_accel_undo</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+Z</string>
@@ -322,7 +322,7 @@
   </action>
   <action name="actionInvertSelection">
    <property name="text">
-    <string>QT_ACCEL_INVERT_SELECTION</string>
+    <string>qt_accel_invert_selection</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+S</string>
@@ -330,7 +330,7 @@
   </action>
   <action name="actionFind">
    <property name="text">
-    <string>QT_ACCEL_FIND</string>
+    <string>qt_accel_find</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+F</string>
@@ -338,7 +338,7 @@
   </action>
   <action name="actionNote">
    <property name="text">
-    <string>QT_ACCEL_NOTE</string>
+    <string>qt_accel_note</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+N</string>
@@ -346,7 +346,7 @@
   </action>
   <action name="actionNextCard">
    <property name="text">
-    <string>QT_ACCEL_NEXT_CARD</string>
+    <string>qt_accel_next_card</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+N</string>
@@ -354,7 +354,7 @@
   </action>
   <action name="actionPreviousCard">
    <property name="text">
-    <string>QT_ACCEL_PREVIOUS_CARD</string>
+    <string>qt_accel_previous_card</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+P</string>
@@ -362,7 +362,7 @@
   </action>
   <action name="actionGuide">
    <property name="text">
-    <string>QT_ACCEL_GUIDE</string>
+    <string>qt_accel_guide</string>
    </property>
    <property name="shortcut">
     <string notr="true">F1</string>
@@ -370,7 +370,7 @@
   </action>
   <action name="actionChangeModel">
    <property name="text">
-    <string>BROWSING_CHANGE_NOTE_TYPE2</string>
+    <string>browsing_change_note_type2</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+M</string>
@@ -378,12 +378,12 @@
   </action>
   <action name="actionSelectNotes">
    <property name="text">
-    <string>QT_ACCEL_SELECT_NOTES</string>
+    <string>qt_accel_select_notes</string>
    </property>
   </action>
   <action name="actionFindReplace">
    <property name="text">
-    <string>QT_ACCEL_FIND_AND_REPLACE</string>
+    <string>qt_accel_find_and_replace</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+F</string>
@@ -391,7 +391,7 @@
   </action>
   <action name="actionSidebarFilter">
    <property name="text">
-    <string>QT_ACCEL_FILTER</string>
+    <string>qt_accel_filter</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+F</string>
@@ -399,7 +399,7 @@
   </action>
   <action name="actionCardList">
    <property name="text">
-    <string>BROWSING_CARD_LIST</string>
+    <string>browsing_card_list</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+L</string>
@@ -407,12 +407,12 @@
   </action>
   <action name="actionFindDuplicates">
    <property name="text">
-    <string>QT_ACCEL_FIND_DUPLICATES</string>
+    <string>qt_accel_find_duplicates</string>
    </property>
   </action>
   <action name="actionReposition">
    <property name="text">
-    <string>BROWSING_REPOSITION</string>
+    <string>browsing_reposition</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+S</string>
@@ -420,7 +420,7 @@
   </action>
   <action name="actionFirstCard">
    <property name="text">
-    <string>BROWSING_FIRST_CARD</string>
+    <string>browsing_first_card</string>
    </property>
    <property name="shortcut">
     <string notr="true">Home</string>
@@ -428,7 +428,7 @@
   </action>
   <action name="actionLastCard">
    <property name="text">
-    <string>BROWSING_LAST_CARD</string>
+    <string>browsing_last_card</string>
    </property>
    <property name="shortcut">
     <string notr="true">End</string>
@@ -436,7 +436,7 @@
   </action>
   <action name="actionClose">
    <property name="text">
-    <string>ACTIONS_CLOSE</string>
+    <string>actions_close</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+W</string>
@@ -444,7 +444,7 @@
   </action>
   <action name="action_Info">
    <property name="text">
-    <string>QT_ACCEL_INFO</string>
+    <string>qt_accel_info</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+I</string>
@@ -452,7 +452,7 @@
   </action>
   <action name="actionAdd_Tags">
    <property name="text">
-    <string>BROWSING_ADD_TAGS2</string>
+    <string>browsing_add_tags2</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+A</string>
@@ -460,7 +460,7 @@
   </action>
   <action name="actionRemove_Tags">
    <property name="text">
-    <string>BROWSING_REMOVE_TAGS</string>
+    <string>browsing_remove_tags</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+Shift+A</string>
@@ -468,7 +468,7 @@
   </action>
   <action name="actionToggle_Suspend">
    <property name="text">
-    <string>BROWSING_TOGGLE_SUSPEND</string>
+    <string>browsing_toggle_suspend</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+J</string>
@@ -476,7 +476,7 @@
   </action>
   <action name="actionDelete">
    <property name="text">
-    <string>ACTIONS_DELETE</string>
+    <string>actions_delete</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Del</string>
@@ -484,7 +484,7 @@
   </action>
   <action name="actionAdd">
    <property name="text">
-    <string>BROWSING_ADD_NOTES</string>
+    <string>browsing_add_notes</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+E</string>
@@ -492,7 +492,7 @@
   </action>
   <action name="actionChange_Deck">
    <property name="text">
-    <string>BROWSING_CHANGE_DECK2</string>
+    <string>browsing_change_deck2</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+D</string>
@@ -503,7 +503,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>ACTIONS_RED_FLAG</string>
+    <string>actions_red_flag</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+1</string>
@@ -514,7 +514,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>ACTIONS_ORANGE_FLAG</string>
+    <string>actions_orange_flag</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+2</string>
@@ -525,7 +525,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>ACTIONS_GREEN_FLAG</string>
+    <string>actions_green_flag</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+3</string>
@@ -536,7 +536,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>ACTIONS_BLUE_FLAG</string>
+    <string>actions_blue_flag</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+4</string>
@@ -544,7 +544,7 @@
   </action>
   <action name="actionSidebar">
    <property name="text">
-    <string>BROWSING_SIDEBAR</string>
+    <string>browsing_sidebar</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+R</string>
@@ -552,17 +552,17 @@
   </action>
   <action name="actionClear_Unused_Tags">
    <property name="text">
-    <string>BROWSING_CLEAR_UNUSED_TAGS</string>
+    <string>browsing_clear_unused_tags</string>
    </property>
   </action>
   <action name="actionManage_Note_Types">
    <property name="text">
-    <string>BROWSING_MANAGE_NOTE_TYPES</string>
+    <string>browsing_manage_note_types</string>
    </property>
   </action>
   <action name="actionToggle_Mark">
    <property name="text">
-    <string>BROWSING_TOGGLE_MARK</string>
+    <string>browsing_toggle_mark</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+K</string>
@@ -570,7 +570,7 @@
   </action>
   <action name="actionExport">
    <property name="text">
-    <string>QT_ACCEL_EXPORT_NOTES</string>
+    <string>qt_accel_export_notes</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+E</string>
@@ -578,7 +578,7 @@
   </action>
   <action name="actionCreateFilteredDeck">
    <property name="text">
-    <string>QT_MISC_CREATE_FILTERED_DECK</string>
+    <string>qt_misc_create_filtered_deck</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>
@@ -586,7 +586,7 @@
   </action>
   <action name="action_set_due_date">
    <property name="text">
-    <string>QT_ACCEL_SET_DUE_DATE</string>
+    <string>qt_accel_set_due_date</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+D</string>
@@ -594,7 +594,7 @@
   </action>
   <action name="action_forget">
    <property name="text">
-    <string>QT_ACCEL_FORGET</string>
+    <string>qt_accel_forget</string>
    </property>
   </action>
  </widget>

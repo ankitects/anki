@@ -24,20 +24,20 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>EDITING_LATEX</string>
+       <string>editing_latex</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QCheckBox" name="latexsvg">
          <property name="text">
-          <string>NOTETYPES_CREATE_SCALABLE_IMAGES_WITH_DVISVGM</string>
+          <string>notetypes_create_scalable_images_with_dvisvgm</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>NOTETYPES_HEADER</string>
+          <string>notetypes_header</string>
          </property>
         </widget>
        </item>
@@ -51,7 +51,7 @@
        <item>
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>NOTETYPES_FOOTER</string>
+          <string>notetypes_footer</string>
          </property>
         </widget>
        </item>

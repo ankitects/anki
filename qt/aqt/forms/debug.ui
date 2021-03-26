@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>QT_MISC_DEBUG_CONSOLE</string>
+   <string>qt_misc_debug_console</string>
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">

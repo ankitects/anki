@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BROWSING_BROWSER_APPEARANCE</string>
+   <string>browsing_browser_appearance</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>BROWSING_OVERRIDE_FRONT_TEMPLATE</string>
+      <string>browsing_override_front_template</string>
      </property>
     </widget>
    </item>
@@ -27,7 +27,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>BROWSING_OVERRIDE_BACK_TEMPLATE</string>
+      <string>browsing_override_back_template</string>
      </property>
     </widget>
    </item>
@@ -37,7 +37,7 @@
    <item>
     <widget class="QCheckBox" name="overrideFont">
      <property name="text">
-      <string>BROWSING_OVERRIDE_FONT</string>
+      <string>browsing_override_font</string>
      </property>
     </widget>
    </item>

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>DECKS_STUDY_DECK</string>
+   <string>decks_study_deck</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>DECKS_FILTER</string>
+        <string>decks_filter</string>
        </property>
       </widget>
      </item>

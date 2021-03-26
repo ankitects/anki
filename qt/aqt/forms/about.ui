@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>ABOUT_ABOUT_ANKI</string>
+   <string>about_about_anki</string>
   </property>
   <layout class="QVBoxLayout">
    <property name="leftMargin">

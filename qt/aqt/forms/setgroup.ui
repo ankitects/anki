@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>BROWSING_MOVE_CARDS_TO_DECK</string>
+      <string>browsing_move_cards_to_deck</string>
      </property>
     </widget>
    </item>

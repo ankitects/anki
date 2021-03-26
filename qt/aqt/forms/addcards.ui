@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ACTIONS_ADD</string>
+   <string>actions_add</string>
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">

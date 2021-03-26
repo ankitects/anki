@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BROWSING_CHANGE_NOTE_TYPE</string>
+   <string>browsing_change_note_type</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -25,7 +25,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>BROWSING_CURRENT_NOTE_TYPE</string>
+        <string>browsing_current_note_type</string>
        </property>
       </widget>
      </item>
@@ -48,7 +48,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>BROWSING_NEW_NOTE_TYPE</string>
+        <string>browsing_new_note_type</string>
        </property>
       </widget>
      </item>
@@ -73,7 +73,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>EDITING_CARDS</string>
+      <string>editing_cards</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="margin">
@@ -114,7 +114,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>EDITING_FIELDS</string>
+      <string>editing_fields</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="margin">

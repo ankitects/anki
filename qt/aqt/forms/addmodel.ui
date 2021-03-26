@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>NOTETYPES_ADD_NOTE_TYPE</string>
+   <string>notetypes_add_note_type</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
