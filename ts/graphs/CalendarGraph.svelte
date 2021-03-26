@@ -66,7 +66,7 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_CALENDAR_TITLE);
+    const title = i18n.statisticsCalendarTitle();
 </script>
 
 <Graph {title}>

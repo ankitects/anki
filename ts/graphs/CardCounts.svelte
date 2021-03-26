@@ -33,8 +33,8 @@
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
-    const label = i18n.tr(i18n.TR.STATISTICS_COUNTS_SEPARATE_SUSPENDED_BURIED_CARDS);
-    const total = i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS);
+    const label = i18n.statisticsCountsSeparateSuspendedBuriedCards();
+    const total = i18n.statisticsCountsTotalCards();
 </script>
 
 <style lang="scss">

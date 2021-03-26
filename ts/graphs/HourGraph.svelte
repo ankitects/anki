@@ -25,8 +25,8 @@
         renderHours(svg as SVGElement, bounds, sourceData, i18n, graphRange);
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_HOURS_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_HOURS_SUBTITLE);
+    const title = i18n.statisticsHoursTitle();
+    const subtitle = i18n.statisticsHoursSubtitle();
 </script>
 
 <Graph {title} {subtitle}>

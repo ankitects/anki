@@ -42,8 +42,8 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_ADDED_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_ADDED_SUBTITLE);
+    const title = i18n.statisticsAddedTitle();
+    const subtitle = i18n.statisticsAddedSubtitle();
 </script>
 
 <Graph {title} {subtitle}>
