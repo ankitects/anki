@@ -40,7 +40,7 @@ from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckID, DeckManager
 from anki.errors import AnkiError, DBError
-from anki.lang import TR, FormatTimeSpan
+from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, NoteType, NoteTypeID
 from anki.notes import Note, NoteID
