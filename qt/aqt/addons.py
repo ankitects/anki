@@ -433,7 +433,7 @@ class AddonManager:
             return True
         except OSError as e:
             showWarning(
-                tr(TR.ADDONS_UNABLE_TO_UPDATE_OR_DELETE_ADDON, val=str(e)),
+                tr.addons_unable_to_update_or_delete_addon(val=str(e)),
                 textFormat="plain",
             )
             return False
@@ -479,14 +479,12 @@ class AddonManager:
             "manifest": tr.addons_invalid_addon_manifest(),
         }
 
-        msg = messages.get(
-            result.errmsg, tr(TR.ADDONS_UNKNOWN_ERROR, val=result.errmsg)
-        )
+        msg = messages.get(result.errmsg, tr.addons_unknown_error(val=result.errmsg))
 
         if mode == "download":
-            template = tr(TR.ADDONS_ERROR_DOWNLOADING_IDS_ERRORS, id=base, error=msg)
+            template = tr.addons_error_downloading_ids_errors(id=base, error=msg)
         else:
-            template = tr(TR.ADDONS_ERROR_INSTALLING_BASES_ERRORS, base=base, error=msg)
+            template = tr.addons_error_installing_bases_errors(base=base, error=msg)
 
         return [template]
 
@@ -496,9 +494,9 @@ class AddonManager:
 
         name = result.name or base
         if mode == "download":
-            template = tr(TR.ADDONS_DOWNLOADED_FNAMES, fname=name)
+            template = tr.addons_downloaded_fnames(fname=name)
         else:
-            template = tr(TR.ADDONS_INSTALLED_NAMES, name=name)
+            template = tr.addons_installed_names(name=name)
 
         strings = [template]
 
@@ -754,7 +752,7 @@ class AddonsDialog(QDialog):
         if not addon.enabled:
             return f"{name} {tr.addons_disabled2()}"
         elif not addon.compatible():
-            return f"{name} {tr(TR.ADDONS_REQUIRES, val=self.compatible_string(addon))}"
+            return f"{name} {tr.addons_requires(val=self.compatible_string(addon))}"
 
         return name
 
@@ -849,9 +847,7 @@ class AddonsDialog(QDialog):
         selected = self.selectedAddons()
         if not selected:
             return
-        if not askUser(
-            tr(TR.ADDONS_DELETE_THE_NUMD_SELECTED_ADDON, count=len(selected))
-        ):
+        if not askUser(tr.addons_delete_the_numd_selected_addon(count=len(selected))):
             return
         for dir in selected:
             if not self.mgr.deleteAddon(dir):
@@ -1015,7 +1011,7 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
             if entry.status_code in (403, 404):
                 buf += tr.addons_invalid_code_or_addon_not_available()
             else:
-                buf += tr(TR.QT_MISC_UNEXPECTED_RESPONSE_CODE, val=entry.status_code)
+                buf += tr.qt_misc_unexpected_response_code(val=entry.status_code)
         else:
             buf += (
                 tr.addons_please_check_your_internet_connection()

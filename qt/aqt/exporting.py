@@ -16,7 +16,6 @@ from anki.decks import DeckID
 from anki.exporting import Exporter, exporters
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     checkInvalidFilename,
     disable_help_button,
     getSaveFile,
@@ -152,7 +151,7 @@ class ExportDialog(QDialog):
                 f = open(file, "wb")
                 f.close()
             except OSError as e:
-                showWarning(tr(TR.EXPORTING_COULDNT_SAVE_FILE, val=str(e)))
+                showWarning(tr.exporting_couldnt_save_file(val=str(e)))
             else:
                 os.unlink(file)
 
@@ -160,7 +159,7 @@ class ExportDialog(QDialog):
             def exported_media(cnt: int) -> None:
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
-                        label=tr(TR.EXPORTING_EXPORTED_MEDIA_FILE, count=cnt)
+                        label=tr.exporting_exported_media_file(count=cnt)
                     )
                 )
 
@@ -185,8 +184,8 @@ class ExportDialog(QDialog):
             self.mw.reopen()
         else:
             if self.isTextNote:
-                msg = tr(TR.EXPORTING_NOTE_EXPORTED, count=self.exporter.count)
+                msg = tr.exporting_note_exported(count=self.exporter.count)
             else:
-                msg = tr(TR.EXPORTING_CARD_EXPORTED, count=self.exporter.count)
+                msg = tr.exporting_card_exported(count=self.exporter.count)
         tooltip(msg, period=3000)
         QDialog.reject(self)

@@ -68,7 +68,7 @@ class CardLayout(QDialog):
         self.setupShortcuts()
         self.setWindowTitle(
             without_unicode_isolation(
-                tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val=self.model["name"])
+                tr.card_templates_card_types_for(val=self.model["name"])
             )
         )
         disable_help_button(self)
@@ -230,7 +230,7 @@ class CardLayout(QDialog):
 
         cnt = self.mw.col.models.useCount(self.model)
         self.tform.changes_affect_label.setText(
-            self.col.tr(TR.CARD_TEMPLATES_CHANGES_WILL_AFFECT_NOTES, count=cnt)
+            self.col.tr.card_templates_changes_will_affect_notes(count=cnt)
         )
 
         qconnect(tform.edit_area.textChanged, self.write_edits_to_template_and_redraw)
@@ -253,7 +253,7 @@ class CardLayout(QDialog):
         qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self) -> None:
-        names = (tr(TR.CARD_TEMPLATES_CLOZE, val=n) for n in self.cloze_numbers)
+        names = (tr.card_templates_cloze(val=n) for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
             idx = self.cloze_numbers.index(self.ord + 1)
@@ -558,7 +558,7 @@ class CardLayout(QDialog):
             card_cnt = fut.result()
 
             template = self.current_template()
-            cards = tr(TR.CARD_TEMPLATES_CARD_COUNT, count=card_cnt)
+            cards = tr.card_templates_card_count(count=card_cnt)
             msg = tr(
                 TR.CARD_TEMPLATES_DELETE_THE_AS_CARD_TYPE_AND,
                 template=template["name"],
@@ -600,7 +600,7 @@ class CardLayout(QDialog):
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
         pos_txt = getOnlyText(
-            tr(TR.CARD_TEMPLATES_ENTER_NEW_CARD_POSITION_1, val=n),
+            tr.card_templates_enter_new_card_position_1(val=n),
             default=str(current_pos),
         )
         if not pos_txt:
@@ -623,7 +623,7 @@ class CardLayout(QDialog):
     def _newCardName(self) -> str:
         n = len(self.templates) + 1
         while 1:
-            name = without_unicode_isolation(tr(TR.CARD_TEMPLATES_CARD, val=n))
+            name = without_unicode_isolation(tr.card_templates_card(val=n))
             if name not in [t["name"] for t in self.templates]:
                 break
             n += 1
@@ -631,7 +631,7 @@ class CardLayout(QDialog):
 
     def onAddCard(self) -> None:
         cnt = self.mw.col.models.useCount(self.model)
-        txt = tr(TR.CARD_TEMPLATES_THIS_WILL_CREATE_CARD_PROCEED, count=cnt)
+        txt = tr.card_templates_this_will_create_card_proceed(count=cnt)
         if not askUser(txt):
             return
         if not self.change_tracker.mark_schema():
@@ -728,7 +728,7 @@ class CardLayout(QDialog):
         d.setMinimumWidth(400)
         l = QVBoxLayout()
         lab = QLabel(
-            tr(TR.CARD_TEMPLATES_ENTER_DECK_TO_PLACE_NEW, val="%s")
+            tr.card_templates_enter_deck_to_place_new(val="%s")
             % self.current_template()["name"]
         )
         lab.setWordWrap(True)

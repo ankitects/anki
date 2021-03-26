@@ -739,7 +739,7 @@ class Browser(QMainWindow):
         cur = len(self.model.cards)
         self.setWindowTitle(
             without_unicode_isolation(
-                tr(TR.BROWSING_WINDOW_TITLE, total=cur, selected=selected)
+                tr.browsing_window_title(total=cur, selected=selected)
             )
         )
         return selected
@@ -1162,7 +1162,7 @@ where id in %s"""
         remove_notes(
             mw=self.mw,
             note_ids=nids,
-            success=lambda _: tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids))),
+            success=lambda _: tooltip(tr.browsing_note_deleted(count=len(nids))),
         )
 
     # legacy
@@ -1216,7 +1216,7 @@ where id in %s"""
             note_ids=self.selected_notes(),
             space_separated_tags=tags,
             success=lambda out: tooltip(
-                tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=self
+                tr.browsing_notes_updated(count=out.count), parent=self
             ),
         )
 
@@ -1232,7 +1232,7 @@ where id in %s"""
             note_ids=self.selected_notes(),
             space_separated_tags=tags,
             success=lambda out: tooltip(
-                tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=self
+                tr.browsing_notes_updated(count=out.count), parent=self
             ),
         )
 
@@ -1482,9 +1482,9 @@ where id in %s"""
         t = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
-        part1 = tr(TR.BROWSING_GROUP, count=groups)
-        part2 = tr(TR.BROWSING_NOTE_COUNT, count=notes)
-        t += tr(TR.BROWSING_FOUND_AS_ACROSS_BS, part=part1, whole=part2)
+        part1 = tr.browsing_group(count=groups)
+        part2 = tr.browsing_note_count(count=notes)
+        t += tr.browsing_found_as_across_bs(part=part1, whole=part2)
         t += "<p><ol>"
         for val, nids in res:
             t += (
@@ -1495,7 +1495,7 @@ where id in %s"""
                             SearchNode(nids=SearchNode.IdList(ids=nids))
                         )
                     ),
-                    tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
+                    tr.browsing_note_count(count=len(nids)),
                     html.escape(val),
                 )
             )
@@ -1682,7 +1682,7 @@ class ChangeModel(QDialog):
         targets = [x["name"] for x in dst] + [tr.browsing_nothing()]
         indices = {}
         for i, x in enumerate(src):
-            l.addWidget(QLabel(tr(TR.BROWSING_CHANGE_TO, val=x["name"])), i, 0)
+            l.addWidget(QLabel(tr.browsing_change_to(val=x["name"])), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets) - 1)

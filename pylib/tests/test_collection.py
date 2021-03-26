@@ -154,8 +154,8 @@ def test_translate():
         col.tr.card_template_rendering_front_side_problem()
         == "Front template has a problem:"
     )
-    assert no_uni(col.tr(TR.STATISTICS_REVIEWS, reviews=1)) == "1 review"
-    assert no_uni(col.tr(TR.STATISTICS_REVIEWS, reviews=2)) == "2 reviews"
+    assert no_uni(col.tr.statistics_reviews(reviews=1)) == "1 review"
+    assert no_uni(col.tr.statistics_reviews(reviews=2)) == "2 reviews"
 
 
 def test_db_named_args(capsys):

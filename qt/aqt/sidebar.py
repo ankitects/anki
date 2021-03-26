@@ -1235,7 +1235,7 @@ class SidebarTreeView(QTreeView):
         if (
             not update
             and name in conf
-            and not askUser(tr(TR.BROWSING_CONFIRM_SAVED_SEARCH_OVERWRITE, name=name))
+            and not askUser(tr.browsing_confirm_saved_search_overwrite(name=name))
         ):
             return
         conf[name] = search
@@ -1261,7 +1261,7 @@ class SidebarTreeView(QTreeView):
         except KeyError:
             return
         if new_name in conf and not askUser(
-            tr(TR.BROWSING_CONFIRM_SAVED_SEARCH_OVERWRITE, name=new_name)
+            tr.browsing_confirm_saved_search_overwrite(name=new_name)
         ):
             return
         conf[new_name] = filt

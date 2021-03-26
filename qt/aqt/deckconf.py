@@ -12,7 +12,6 @@ from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -50,7 +49,7 @@ class DeckConf(QDialog):
             self.onRestore,
         )
         self.setWindowTitle(
-            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
+            without_unicode_isolation(tr.actions_options_for(val=self.deck["name"]))
         )
         disable_help_button(self)
         # qt doesn't size properly with altered fonts otherwise
@@ -160,7 +159,7 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def setChildren(self) -> None:
-        if not askUser(tr(TR.SCHEDULING_SET_ALL_DECKS_BELOW_TO, val=self.deck["name"])):
+        if not askUser(tr.scheduling_set_all_decks_below_to(val=self.deck["name"])):
             return
         for did in self.childDids:
             deck = self.mw.col.decks.get(did)
@@ -168,7 +167,7 @@ class DeckConf(QDialog):
                 continue
             deck["conf"] = self.deck["conf"]
             self.mw.col.decks.save(deck)
-        tooltip(tr(TR.SCHEDULING_DECK_UPDATED, count=len(self.childDids)))
+        tooltip(tr.scheduling_deck_updated(count=len(self.childDids)))
 
     # Loading
     ##################################################
@@ -194,7 +193,7 @@ class DeckConf(QDialog):
                 lim = x
             else:
                 lim = min(x, lim)
-        return tr(TR.SCHEDULING_PARENT_LIMIT, val=lim)
+        return tr.scheduling_parent_limit(val=lim)
 
     def loadConf(self) -> None:
         self.conf = self.mw.col.decks.confForDid(self.deck["id"])

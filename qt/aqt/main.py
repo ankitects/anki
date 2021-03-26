@@ -72,7 +72,6 @@ from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     KeyboardModifiersPressed,
     askUser,
@@ -151,7 +150,7 @@ class AnkiQt(QMainWindow):
             self.setupAddons(args)
             self.finish_ui_setup()
         except:
-            showInfo(tr(TR.QT_MISC_ERROR_DURING_STARTUP, val=traceback.format_exc()))
+            showInfo(tr.qt_misc_error_during_startup(val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
@@ -944,7 +943,7 @@ class AnkiQt(QMainWindow):
     ) -> str:
         class_ = f"but {class_}"
         if key:
-            key = tr(TR.ACTIONS_SHORTCUT_KEY, val=key)
+            key = tr.actions_shortcut_key(val=key)
         else:
             key = ""
         return """
@@ -1254,7 +1253,7 @@ title="%s" %s>%s</button>""" % (
                 # full queue+gui reset required
                 self.reset()
 
-            tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
+            tooltip(tr.undo_action_undone(action=name))
             gui_hooks.state_did_revert(name)
             self.update_undo_actions()
             if on_done:
@@ -1274,7 +1273,7 @@ title="%s" %s>%s</button>""" % (
             undo_action = None
 
         if undo_action:
-            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            undo_action = tr.undo_undo_action(val=undo_action)
             self.form.actionUndo.setText(undo_action)
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
@@ -1289,7 +1288,7 @@ title="%s" %s>%s</button>""" % (
         undo_action = status.undo
 
         if undo_action:
-            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            undo_action = tr.undo_undo_action(val=undo_action)
             self.form.actionUndo.setText(undo_action)
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
@@ -1459,8 +1458,8 @@ title="%s" %s>%s</button>""" % (
         if devMode:
             print("clock is off; ignoring")
             return
-        diffText = tr(TR.QT_MISC_SECOND, count=diff)
-        warn = tr(TR.QT_MISC_IN_ORDER_TO_ENSURE_YOUR_COLLECTION, val="%s") % diffText
+        diffText = tr.qt_misc_second(count=diff)
+        warn = tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diffText
         showWarning(warn)
         self.app.closeAllWindows()
 

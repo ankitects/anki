@@ -6,7 +6,6 @@ from __future__ import annotations
 from typing import Callable, Sequence
 
 from anki.collection import OpChangesWithCount
-from anki.lang import TR
 from anki.notes import NoteID
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
@@ -41,7 +40,7 @@ def clear_unused_tags(*, mw: AnkiQt, parent: QWidget) -> None:
     mw.perform_op(
         mw.col.tags.clear_unused_tags,
         success=lambda out: tooltip(
-            tr(TR.BROWSING_REMOVED_UNUSED_TAGS_COUNT, count=out.count), parent=parent
+            tr.browsing_removed_unused_tags_count(count=out.count), parent=parent
         ),
     )
 
@@ -56,7 +55,7 @@ def rename_tag(
 ) -> None:
     def success(out: OpChangesWithCount) -> None:
         if out.count:
-            tooltip(tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent)
+            tooltip(tr.browsing_notes_updated(count=out.count), parent=parent)
         else:
             showInfo(tr.browsing_tag_rename_warning_empty(), parent=parent)
 
@@ -73,7 +72,7 @@ def remove_tags_for_all_notes(
     mw.perform_op(
         lambda: mw.col.tags.remove(space_separated_tags=space_separated_tags),
         success=lambda out: tooltip(
-            tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent
+            tr.browsing_notes_updated(count=out.count), parent=parent
         ),
     )
 
@@ -84,6 +83,6 @@ def reparent_tags(
     mw.perform_op(
         lambda: mw.col.tags.reparent(tags=tags, new_parent=new_parent),
         success=lambda out: tooltip(
-            tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=parent
+            tr.browsing_notes_updated(count=out.count), parent=parent
         ),
     )

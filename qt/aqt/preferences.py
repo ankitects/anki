@@ -7,15 +7,7 @@ from anki.consts import newCardSchedulingLabels
 from aqt import AnkiQt
 from aqt.profiles import RecordingDriver, VideoDriver
 from aqt.qt import *
-from aqt.utils import (
-    TR,
-    HelpPage,
-    disable_help_button,
-    openHelp,
-    showInfo,
-    showWarning,
-    tr,
-)
+from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
 
 
 class Preferences(QDialog):
@@ -282,7 +274,7 @@ for you than the default driver, please let us know on the Anki forums."""
     def setup_video_driver(self) -> None:
         self.video_drivers = VideoDriver.all_for_platform()
         names = [
-            tr(TR.PREFERENCES_VIDEO_DRIVER, driver=video_driver_name_for_platform(d))
+            tr.preferences_video_driver(driver=video_driver_name_for_platform(d))
             for d in self.video_drivers
         ]
         self.form.video_driver.addItems(names)

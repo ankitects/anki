@@ -13,7 +13,6 @@ from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -127,7 +126,7 @@ class Models(QDialog):
 
         self.models = notetypes
         for m in self.models:
-            mUse = tr(TR.BROWSING_NOTE_COUNT, count=m.use_count)
+            mUse = tr.browsing_note_count(count=m.use_count)
             item = QListWidgetItem(f"{m.name} [{mUse}]")
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
@@ -179,7 +178,7 @@ class Models(QDialog):
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
         d.setWindowTitle(
-            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
+            without_unicode_isolation(tr.actions_options_for(val=nt["name"]))
         )
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp(HelpPage.LATEX))
         restoreGeom(d, "modelopts")
@@ -232,12 +231,12 @@ class AddModel(QDialog):
         # standard models
         self.models = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):
-            item = QListWidgetItem(tr(TR.NOTETYPES_ADD, val=name))
+            item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)
             self.models.append((True, func))
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(tr(TR.NOTETYPES_CLONE, val=m["name"]))
+            item = QListWidgetItem(tr.notetypes_clone(val=m["name"]))
             self.dialog.models.addItem(item)
             self.models.append((False, m))  # type: ignore
         self.dialog.models.setCurrentRow(0)

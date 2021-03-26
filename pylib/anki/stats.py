@@ -246,7 +246,7 @@ from revlog where id > ? """
         self._line(
             i,
             "Total",
-            self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
+            self.col.tr.statistics_reviews(reviews=tot),
         )
         self._line(i, "Average", self._avgDay(tot, num, "reviews"))
         tomorrow = self.col.db.scalar(

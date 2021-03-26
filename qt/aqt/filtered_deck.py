@@ -14,7 +14,6 @@ from aqt.qt import *
 from aqt.scheduling_ops import add_or_update_filtered_deck
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     disable_help_button,
     openHelp,
@@ -153,7 +152,7 @@ class FilteredDeckConfigDialog(QDialog):
         form.filter2group.setVisible(show_second)
 
         self.setWindowTitle(
-            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck.name))
+            without_unicode_isolation(tr.actions_options_for(val=self.deck.name))
         )
 
         gui_hooks.filtered_deck_dialog_did_load_deck(self, deck)

@@ -11,7 +11,7 @@ from markdown import markdown
 from aqt import mw
 from aqt.main import AnkiQt
 from aqt.qt import *
-from aqt.utils import TR, showText, showWarning, supportText, tr
+from aqt.utils import showText, showWarning, supportText, tr
 
 if not os.environ.get("DEBUG"):
 
@@ -115,4 +115,4 @@ class ErrorHandler(QObject):
         # highlight importance of first add-on:
         addons[0] = f"<b>{addons[0]}</b>"
         addons_str = ", ".join(addons)
-        return f"{tr(TR.ADDONS_POSSIBLY_INVOLVED, addons=addons_str)}\n"
+        return f"{tr.addons_possibly_involved(addons=addons_str)}\n"

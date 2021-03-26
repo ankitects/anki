@@ -11,7 +11,6 @@ from typing import Iterable, List, Optional, Sequence, TypeVar
 import aqt
 from anki.collection import SearchNode
 from anki.errors import Interrupted
-from anki.lang import TR
 from anki.media import CheckMediaOut
 from aqt.qt import *
 from aqt.utils import (
@@ -163,7 +162,7 @@ class MediaChecker:
         if self.progress_dialog.wantCancel:
             return False
 
-        self.mw.progress.update(tr(TR.MEDIA_CHECK_CHECKED, count=count))
+        self.mw.progress.update(tr.media_check_checked(count=count))
         return True
 
     def _on_trash_files(self, fnames: Sequence[str]) -> None:
@@ -181,13 +180,13 @@ class MediaChecker:
                 remaining -= len(chunk)
                 if time.time() - last_progress >= 0.3:
                     self.mw.progress.update(
-                        tr(TR.MEDIA_CHECK_FILES_REMAINING, count=remaining)
+                        tr.media_check_files_remaining(count=remaining)
                     )
         finally:
             self.mw.progress.finish()
             self.progress_dialog = None
 
-        tooltip(tr(TR.MEDIA_CHECK_DELETE_UNUSED_COMPLETE, count=total))
+        tooltip(tr.media_check_delete_unused_complete(count=total))
 
     def _on_empty_trash(self) -> None:
         self.progress_dialog = self.mw.progress.start()

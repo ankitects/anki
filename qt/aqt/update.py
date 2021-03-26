@@ -10,7 +10,7 @@ import aqt
 from anki.utils import platDesc, versionWithBuild
 from aqt.main import AnkiQt
 from aqt.qt import *
-from aqt.utils import TR, openLink, showText, tr
+from aqt.utils import openLink, showText, tr
 
 
 class LatestVersionFinder(QThread):
@@ -57,7 +57,7 @@ class LatestVersionFinder(QThread):
 
 
 def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
-    baseStr = tr(TR.QT_MISC_ANKI_UPDATEDANKI_HAS_BEEN_RELEASED, val=ver)
+    baseStr = tr.qt_misc_anki_updatedanki_has_been_released(val=ver)
     msg = QMessageBox(mw)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)  # type: ignore
     msg.setIcon(QMessageBox.Information)

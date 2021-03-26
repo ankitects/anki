@@ -9,7 +9,6 @@ import aqt
 from anki.cards import CardID
 from anki.collection import CARD_TYPE_NEW, Config
 from anki.decks import DeckID
-from anki.lang import TR
 from anki.notes import NoteID
 from anki.scheduler import FilteredDeckForUpdate
 from aqt import AnkiQt
@@ -33,7 +32,7 @@ def set_due_date_dialog(
     )
     prompt = "\n".join(
         [
-            tr(TR.SCHEDULING_SET_DUE_DATE_PROMPT, cards=len(card_ids)),
+            tr.scheduling_set_due_date_prompt(cards=len(card_ids)),
             tr.scheduling_set_due_date_prompt_hint(),
         ]
     )
@@ -49,7 +48,7 @@ def set_due_date_dialog(
     mw.perform_op(
         lambda: mw.col.sched.set_due_date(card_ids, days, config_key),
         success=lambda _: tooltip(
-            tr(TR.SCHEDULING_SET_DUE_DATE_DONE, cards=len(card_ids)),
+            tr.scheduling_set_due_date_done(cards=len(card_ids)),
             parent=parent,
         ),
     )
@@ -62,7 +61,7 @@ def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: List[CardID]) -> 
     mw.perform_op(
         lambda: mw.col.sched.schedule_cards_as_new(card_ids),
         success=lambda _: tooltip(
-            tr(TR.SCHEDULING_FORGOT_CARDS, cards=len(card_ids)), parent=parent
+            tr.scheduling_forgot_cards(cards=len(card_ids)), parent=parent
         ),
     )
 
@@ -85,8 +84,8 @@ def reposition_new_cards_dialog(
     frm = aqt.forms.reposition.Ui_Dialog()
     frm.setupUi(d)
 
-    txt = tr(TR.BROWSING_QUEUE_TOP, val=min_position)
-    txt += "\n" + tr(TR.BROWSING_QUEUE_BOTTOM, val=max_position)
+    txt = tr.browsing_queue_top(val=min_position)
+    txt += "\n" + tr.browsing_queue_bottom(val=max_position)
     frm.label.setText(txt)
 
     frm.start.selectAll()
@@ -128,7 +127,7 @@ def reposition_new_cards(
             shift_existing=shift_existing,
         ),
         success=lambda out: tooltip(
-            tr(TR.BROWSING_CHANGED_NEW_POSITION, count=out.count), parent=parent
+            tr.browsing_changed_new_position(count=out.count), parent=parent
         ),
     )
 

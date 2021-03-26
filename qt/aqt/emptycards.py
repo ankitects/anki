@@ -12,7 +12,7 @@ from anki.cards import CardID
 from anki.collection import EmptyCardsReport
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
-from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tooltip, tr
 
 
 def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
@@ -83,7 +83,7 @@ class EmptyCardsDialog(QDialog):
                 count = fut.result()
             finally:
                 self.close()
-            tooltip(tr(TR.EMPTY_CARDS_DELETED_COUNT, cards=count))
+            tooltip(tr.empty_cards_deleted_count(cards=count))
             self.mw.reset()
 
         self.mw.taskman.run_in_background(delete, on_done)

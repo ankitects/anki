@@ -803,7 +803,7 @@ def closeTooltip() -> None:
 def checkInvalidFilename(str: str, dirsep: bool = True) -> bool:
     bad = invalidFilename(str, dirsep)
     if bad:
-        showWarning(tr(TR.QT_MISC_THE_FOLLOWING_CHARACTER_CAN_NOT_BE, val=bad))
+        showWarning(tr.qt_misc_the_following_character_can_not_be(val=bad))
         return True
     return False
 

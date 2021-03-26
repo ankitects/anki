@@ -33,14 +33,7 @@ from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.tag_ops import add_tags, remove_tags_for_notes
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import (
-    TR,
-    askUserDialog,
-    downArrow,
-    qtMenuShortcutWorkaround,
-    tooltip,
-    tr,
-)
+from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
 from aqt.webview import AnkiWebView
 
 
@@ -147,9 +140,9 @@ class Reviewer:
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             assert not isinstance(elapsed, bool)
-            part1 = tr(TR.STUDYING_CARD_STUDIED_IN, count=elapsed[1])
+            part1 = tr.studying_card_studied_in(count=elapsed[1])
             mins = int(round(elapsed[0] / 60))
-            part2 = tr(TR.STUDYING_MINUTE, count=mins)
+            part2 = tr.studying_minute(count=mins)
             fin = tr.studying_finish()
             diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
             diag.setIcon(QMessageBox.Information)
@@ -445,7 +438,7 @@ class Reviewer:
                 if clozeIdx:
                     warn = tr.studying_please_run_toolsempty_cards()
                 else:
-                    warn = tr(TR.STUDYING_TYPE_ANSWER_UNKNOWN_FIELD, val=fld)
+                    warn = tr.studying_type_answer_unknown_field(val=fld)
                 return re.sub(self.typeAnsPat, warn, buf)
             else:
                 # empty field, remove type answer pattern
@@ -626,7 +619,7 @@ time = %(time)d;
 """ % dict(
             rem=self._remaining(),
             edit=tr.studying_edit(),
-            editkey=tr(TR.ACTIONS_SHORTCUT_KEY, val="E"),
+            editkey=tr.actions_shortcut_key(val="E"),
             more=tr.studying_more(),
             downArrow=downArrow(),
             time=self.card.timeTaken() // 1000,
@@ -637,7 +630,7 @@ time = %(time)d;
 <span class=stattxt>%s</span><br>
 <button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
             self._remaining(),
-            tr(TR.ACTIONS_SHORTCUT_KEY, val=tr.studying_space()),
+            tr.actions_shortcut_key(val=tr.studying_space()),
             tr.studying_show_answer(),
         )
         # wrap it in a table so it has the same top margin as the ease buttons
@@ -717,7 +710,7 @@ time = %(time)d;
 %s</button></td>""" % (
                 due,
                 extra,
-                tr(TR.ACTIONS_SHORTCUT_KEY, val=i),
+                tr.actions_shortcut_key(val=i),
                 i,
                 i,
                 label,
@@ -905,9 +898,7 @@ time = %(time)d;
         remove_notes(
             mw=self.mw,
             note_ids=[self.card.nid],
-            success=lambda _: tooltip(
-                tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt)
-            ),
+            success=lambda _: tooltip(tr.studying_note_and_its_card_deleted(count=cnt)),
         )
 
     def onRecordVoice(self) -> None:

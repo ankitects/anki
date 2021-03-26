@@ -138,7 +138,7 @@ class Anki2Importer(Importer):
                     else:
                         dupesIdentical.append(note)
 
-        self.log.append(self.dst.tr(TR.IMPORTING_NOTES_FOUND_IN_FILE, val=total))
+        self.log.append(self.dst.tr.importing_notes_found_in_file(val=total))
 
         if dupesIgnored:
             self.log.append(
@@ -153,9 +153,7 @@ class Anki2Importer(Importer):
                 )
             )
         if add:
-            self.log.append(
-                self.dst.tr(TR.IMPORTING_NOTES_ADDED_FROM_FILE, val=len(add))
-            )
+            self.log.append(self.dst.tr.importing_notes_added_from_file(val=len(add)))
         if dupesIdentical:
             self.log.append(
                 self.dst.tr(
