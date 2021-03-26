@@ -70,8 +70,13 @@ export class I18n {
 // global singleton
 export const i18n = new I18n();
 
-export async function setupI18n(): Promise<void> {
-    const resp = await fetch("/_anki/i18nResources", { method: "POST" });
+import type { ModuleName } from "./i18n";
+
+export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
+    const resp = await fetch("/_anki/i18nResources", {
+        method: "POST",
+        body: JSON.stringify(args),
+    });
     if (!resp.ok) {
         throw Error(`unexpected reply: ${resp.statusText}`);
     }

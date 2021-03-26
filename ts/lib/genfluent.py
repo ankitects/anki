@@ -91,11 +91,20 @@ def typescript_arg_name(arg: Variable) -> str:
     else:
         return name
 
+def module_names() -> str:
+    buf = "export enum ModuleName {\n"
+    for module in modules:
+        name = module["name"]
+        upper = name.upper()
+        buf += f'    {upper} = "{name}",\n'
+    buf += "}\n"
+    return buf
+
 
 out = ""
 
 out += methods()
-
+out += module_names()
 
 open(outfile, "wb").write(
     (

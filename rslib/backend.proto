@@ -263,7 +263,7 @@ service MediaService {
 service I18nService {
   rpc TranslateString(TranslateStringIn) returns (String);
   rpc FormatTimespan(FormatTimespanIn) returns (String);
-  rpc I18nResources(Empty) returns (Json);
+  rpc I18nResources(I18nResourcesIn) returns (Json);
 }
 
 service CollectionService {
@@ -771,6 +771,10 @@ message FormatTimespanIn {
 
   float seconds = 1;
   Context context = 2;
+}
+
+message I18nResourcesIn {
+  repeated string modules = 1;
 }
 
 message StudiedTodayMessageIn {
