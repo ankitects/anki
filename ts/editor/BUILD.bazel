@@ -19,7 +19,7 @@ sass_binary(
 ts_library(
     name = "editor_ts",
     srcs = glob(["*.ts"]),
-    tsconfig = "//qt/aqt/data/web/js:tsconfig.json",
+    tsconfig = "//ts:tsconfig.json",
     deps = [
         "//ts/html-filter",
     ],
