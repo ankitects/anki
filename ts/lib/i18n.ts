@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pb from "./fluent_proto";
 import "intl-pluralrules";
 import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle/compat";
+import { LegacyEnum } from "./i18n_generated";
 
 type RecordVal = number | string | FluentNumber;
 
@@ -23,9 +23,9 @@ function formatNumbers(args?: Record<string, RecordVal>): void {
 export class I18n {
     bundles: FluentBundle[] = [];
     langs: string[] = [];
-    TR = pb.FluentProto.FluentString;
+    TR = LegacyEnum;
 
-    tr(id: pb.FluentProto.FluentString, args?: Record<string, RecordVal>): string {
+    tr(id: LegacyEnum, args?: Record<string, RecordVal>): string {
         formatNumbers(args);
         const key = this.keyName(id);
         for (const bundle of this.bundles) {
@@ -66,7 +66,7 @@ export class I18n {
         });
     }
 
-    private keyName(msg: pb.FluentProto.FluentString): string {
+    private keyName(msg: LegacyEnum): string {
         return this.TR[msg].toLowerCase().replace(/_/g, "-");
     }
 }

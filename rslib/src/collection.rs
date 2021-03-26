@@ -55,7 +55,7 @@ pub fn open_test_collection() -> Collection {
 #[cfg(test)]
 pub fn open_test_collection_with_server(server: bool) -> Collection {
     use crate::log;
-    let i18n = I18n::new(&[""], "", log::terminal());
+    let i18n = I18n::template_only();
     open_collection(":memory:", "", "", server, i18n, log::terminal()).unwrap()
 }
 

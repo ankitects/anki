@@ -168,13 +168,11 @@ impl Timespan {
 #[cfg(test)]
 mod test {
     use crate::i18n::I18n;
-    use crate::log;
     use crate::scheduler::timespan::{answer_button_time, time_span, MONTH};
 
     #[test]
     fn answer_buttons() {
-        let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "", log);
+        let i18n = I18n::template_only();
         assert_eq!(answer_button_time(30.0, &i18n), "30s");
         assert_eq!(answer_button_time(70.0, &i18n), "1m");
         assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.1mo");
@@ -182,8 +180,7 @@ mod test {
 
     #[test]
     fn time_spans() {
-        let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "", log);
+        let i18n = I18n::template_only();
         assert_eq!(time_span(1.0, &i18n, false), "1 second");
         assert_eq!(time_span(30.3, &i18n, false), "30 seconds");
         assert_eq!(time_span(30.3, &i18n, true), "30.3 seconds");

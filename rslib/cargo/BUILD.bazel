@@ -202,15 +202,6 @@ alias(
 )
 
 alias(
-    name = "num_format",
-    actual = "@raze__num_format__0_4_0//:num_format",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "num_integer",
     actual = "@raze__num_integer__0_1_44//:num_integer",
     tags = [

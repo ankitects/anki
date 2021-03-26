@@ -9,11 +9,11 @@ from typing import Any, Optional, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
-import anki._backend.fluent_pb2 as _fluent_pb
 
 # public exports
-TR = _fluent_pb.FluentString
+TR = anki._backend.LegacyTranslationEnum
 FormatTimeSpan = _pb.FormatTimespanIn
+
 
 langs = sorted(
     [
@@ -150,9 +150,6 @@ currentLang = "en"
 # the current Fluent translation instance
 current_i18n: Optional[anki._backend.RustBackend] = None
 
-# path to locale folder
-locale_folder = ""
-
 
 def _(str: str) -> str:
     print(f"gettext _() is deprecated: {str}")
@@ -172,11 +169,10 @@ def tr_legacyglobal(*args: Any, **kwargs: Any) -> str:
         return "tr_legacyglobal() called without active backend"
 
 
-def set_lang(lang: str, locale_dir: str) -> None:
-    global currentLang, current_i18n, locale_folder
+def set_lang(lang: str) -> None:
+    global currentLang, current_i18n
     currentLang = lang
-    current_i18n = anki._backend.RustBackend(ftl_folder=locale_folder, langs=[lang])
-    locale_folder = locale_dir
+    current_i18n = anki._backend.RustBackend(langs=[lang])
 
 
 def get_def_lang(lang: Optional[str] = None) -> Tuple[int, str]:

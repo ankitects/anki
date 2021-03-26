@@ -124,7 +124,7 @@ class SidebarItem:
 
     def add_simple(
         self,
-        name: Union[str, TR.V],
+        name: Union[str, TR],
         icon: Union[str, ColoredIcon],
         type: SidebarItemType,
         search_node: Optional[SearchNode],
@@ -271,7 +271,7 @@ class SidebarModel(QAbstractItemModel):
 
 
 class SidebarToolbar(QToolBar):
-    _tools: Tuple[Tuple[SidebarTool, str, TR.V], ...] = (
+    _tools: Tuple[Tuple[SidebarTool, str, TR], ...] = (
         (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", TR.ACTIONS_SEARCH),
         (SidebarTool.SELECT, ":/icons/select.svg", TR.ACTIONS_SELECT),
     )
@@ -726,7 +726,7 @@ class SidebarTreeView(QTreeView):
         self,
         *,
         root: SidebarItem,
-        name: TR.V,
+        name: TR,
         icon: Union[str, ColoredIcon],
         collapse_key: Config.Bool.Key.V,
         type: Optional[SidebarItemType] = None,

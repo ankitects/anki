@@ -83,12 +83,11 @@ pub fn write_backend_proto_rs() {
         backend_proto = PathBuf::from("backend.proto");
         proto_dir = PathBuf::from(".");
     }
-    let fluent_proto = out_dir.join("fluent.proto");
 
     let mut config = prost_build::Config::new();
     config
         .out_dir(&out_dir)
         .service_generator(service_generator())
-        .compile_protos(&[&backend_proto, &fluent_proto], &[&proto_dir, &out_dir])
+        .compile_protos(&[&backend_proto], &[&proto_dir, &out_dir])
         .unwrap();
 }

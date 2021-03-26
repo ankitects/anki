@@ -24,7 +24,7 @@ from anki.sync import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, locale_dir, showWarning, tr
+from aqt.utils import TR, disable_help_button, showWarning, tr
 
 # Profile handling
 ##########################################################################
@@ -563,7 +563,7 @@ create table if not exists profiles
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
-        anki.lang.set_lang(code, locale_dir())
+        anki.lang.set_lang(code)
 
     # OpenGL
     ######################################################################

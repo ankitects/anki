@@ -810,7 +810,6 @@ mod test {
     use crate::err::TemplateError;
     use crate::{
         i18n::I18n,
-        log,
         template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
     };
     use std::collections::{HashMap, HashSet};
@@ -1128,7 +1127,7 @@ mod test {
             .map(|r| (r.0, r.1.into()))
             .collect();
 
-        let i18n = I18n::new(&[""], "", log::terminal());
+        let i18n = I18n::template_only();
         use crate::template::RenderedNode as FN;
 
         let qnodes = super::render_card("test{{E}}", "", &map, 1, false, &i18n)
