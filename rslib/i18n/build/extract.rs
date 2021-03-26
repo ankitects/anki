@@ -72,10 +72,10 @@ fn extract_metadata(ftl_text: &str) -> Vec<Translation> {
                 // special case translations that were ported from gettext, and use embedded
                 // terms that reference other variables that aren't visible to our visitor
                 if key == "statistics-studied-today" {
-                    visitor.variables.insert("amount".to_string());
-                    visitor.variables.insert("cards".to_string());
+                    visitor.variables.push("amount".to_string());
+                    visitor.variables.push("cards".to_string());
                 } else if key == "statistics-average-answer-time" {
-                    visitor.variables.insert("cards-per-minute".to_string());
+                    visitor.variables.push("cards-per-minute".to_string());
                 }
 
                 let (text, variables) = visitor.into_output();
@@ -99,13 +99,25 @@ fn extract_metadata(ftl_text: &str) -> Vec<Translation> {
 #[derive(Default)]
 struct Visitor {
     text: String,
-    variables: HashSet<String>,
+    variables: Vec<String>,
 }
 
 impl Visitor {
     fn into_output(self) -> (String, Vec<Variable>) {
-        let mut vars: Vec<_> = self.variables.into_iter().map(Into::into).collect();
-        vars.sort_unstable();
+        // make unique, preserving order
+        let mut seen = HashSet::new();
+        let vars: Vec<_> = self
+            .variables
+            .into_iter()
+            .filter(|v| {
+                if seen.contains(v) {
+                    false
+                } else {
+                    seen.insert(v.clone())
+                }
+            })
+            .map(Into::into)
+            .collect();
         (self.text, vars)
     }
 
@@ -124,7 +136,7 @@ impl Visitor {
                 if !in_select {
                     write!(self.text, "{{${}}}", id.name).unwrap();
                 }
-                self.variables.insert(id.name.to_string());
+                self.variables.push(id.name.to_string());
             }
             InlineExpression::Placeable { expression } => {
                 self.visit_expression(expression);
