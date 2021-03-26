@@ -29,7 +29,6 @@ from aqt.profiles import RecordingDriver
 from aqt.qt import *
 from aqt.taskman import TaskManager
 from aqt.utils import (
-    TR,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -483,9 +482,9 @@ def _encode_mp3(src_wav: str, dst_mp3: str) -> None:
     try:
         retcode = retryWait(subprocess.Popen(cmd, startupinfo=startup_info(), env=env))
     except Exception as e:
-        raise Exception(tr(TR.MEDIA_ERROR_RUNNING, val=" ").join(cmd)) from e
+        raise Exception(tr.media_error_running(val=" ").join(cmd)) from e
     if retcode != 0:
-        raise Exception(tr(TR.MEDIA_ERROR_RUNNING, val=" ").join(cmd))
+        raise Exception(tr.media_error_running(val=" ").join(cmd))
 
     os.unlink(src_wav)
 
@@ -764,7 +763,7 @@ class RecordDialog(QDialog):
     def _on_timer(self) -> None:
         self._recorder.on_timer()
         duration = self._recorder.duration()
-        self.label.setText(tr(TR.MEDIA_RECORDINGTIME, secs=f"{duration:0.1f}"))
+        self.label.setText(tr.media_recordingtime(secs=f"{duration:0.1f}"))
 
     def accept(self) -> None:
         self._timer.stop()

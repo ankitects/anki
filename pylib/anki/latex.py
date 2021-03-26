@@ -12,7 +12,6 @@ from typing import Any, List, Optional, Tuple
 import anki
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki.lang import TR
 from anki.models import NoteType
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, isMac, namedtmp, tmpdir
@@ -129,7 +128,7 @@ def _save_latex_image(
         # don't mind if the sequence is only part of a command
         bad_re = f"\\{bad}[^a-zA-Z]"
         if re.search(bad_re, tmplatex):
-            return col.tr(TR.MEDIA_FOR_SECURITY_REASONS_IS_NOT, val=bad)
+            return col.tr.media_for_security_reasons_is_not(val=bad)
 
     # commands to use
     if svg:
@@ -165,8 +164,8 @@ def _save_latex_image(
 
 
 def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
-    msg = f"{col.tr(TR.MEDIA_ERROR_EXECUTING, val=type)}<br>"
-    msg += f"{col.tr(TR.MEDIA_GENERATED_FILE, val=texpath)}<br>"
+    msg = f"{col.tr.media_error_executing(val=type)}<br>"
+    msg += f"{col.tr.media_generated_file(val=texpath)}<br>"
     try:
         with open(namedtmp("latex_log.txt", rm=False)) as f:
             log = f.read()

@@ -12,7 +12,6 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -39,7 +38,7 @@ class FieldDialog(QDialog):
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(
-            without_unicode_isolation(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
+            without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
         disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
@@ -150,8 +149,8 @@ class FieldDialog(QDialog):
             showWarning(tr.fields_notes_require_at_least_one_field())
             return
         count = self.mm.useCount(self.model)
-        c = tr(TR.BROWSING_NOTE_COUNT, count=count)
-        if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val=c)):
+        c = tr.browsing_note_count(count=count)
+        if not askUser(tr.fields_delete_field_from(val=c)):
             return
         if not self.change_tracker.mark_schema():
             return
@@ -165,7 +164,7 @@ class FieldDialog(QDialog):
     def onPosition(self, delta: int = -1) -> None:
         idx = self.currentIdx
         l = len(self.model["flds"])
-        txt = getOnlyText(tr(TR.FIELDS_NEW_POSITION_1, val=l), default=str(idx + 1))
+        txt = getOnlyText(tr.fields_new_position_1(val=l), default=str(idx + 1))
         if not txt:
             return
         try:

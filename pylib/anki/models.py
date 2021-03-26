@@ -14,7 +14,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.lang import TR, without_unicode_isolation
+from anki.lang import without_unicode_isolation
 from anki.stdmodels import StockNotetypeKind
 from anki.utils import (
     checksum,
@@ -276,7 +276,7 @@ class ModelManager:
         "Copy, save and return."
         m2 = copy.deepcopy(m)
         m2["name"] = without_unicode_isolation(
-            self.col.tr(TR.NOTETYPES_COPY, val=m2["name"])
+            self.col.tr.notetypes_copy(val=m2["name"])
         )
         m2["id"] = 0
         self.add(m2)

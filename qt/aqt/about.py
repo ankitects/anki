@@ -95,14 +95,14 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
     abouttext += f"<p>{tr.about_anki_is_a_friendly_intelligent_spaced()}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
-    abouttext += f"<p>{tr(TR.ABOUT_VERSION, val=versionWithBuild())}<br>"
+    abouttext += f"<p>{tr.about_version(val=versionWithBuild())}<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
         QT_VERSION_STR,
         PYQT_VERSION_STR,
     )
     abouttext += (
-        without_unicode_isolation(tr(TR.ABOUT_VISIT_WEBSITE, val=aqt.appWebsite))
+        without_unicode_isolation(tr.about_visit_website(val=aqt.appWebsite))
         + "</span>"
     )
 

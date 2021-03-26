@@ -16,7 +16,7 @@ from aqt.deck_ops import add_deck_dialog, remove_decks, rename_deck, reparent_de
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import TR, askUser, getOnlyText, openLink, shortcut, showInfo, tr
+from aqt.utils import askUser, getOnlyText, openLink, shortcut, showInfo, tr
 
 
 class DeckBrowserBottomBar:
@@ -306,7 +306,7 @@ class DeckBrowser:
         drawLinks = deepcopy(self.drawLinks)
         for b in drawLinks:
             if b[0]:
-                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val=shortcut(b[0]))
+                b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
 <button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(
                 b

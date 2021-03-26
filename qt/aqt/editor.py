@@ -965,7 +965,7 @@ class Editor:
                         filecontents = response.content
                         content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
-            error_msg = tr(TR.EDITING_AN_ERROR_OCCURRED_WHILE_OPENING, val=str(e))
+            error_msg = tr.editing_an_error_occurred_while_opening(val=str(e))
             return None
         finally:
             self.mw.progress.finish()

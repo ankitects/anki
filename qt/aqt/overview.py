@@ -11,7 +11,7 @@ from aqt import gui_hooks
 from aqt.scheduling_ops import empty_filtered_deck, rebuild_filtered_deck
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import TR, askUserDialog, openLink, shortcut, tooltip, tr
+from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
 
 
 class OverviewBottomBar:
@@ -256,7 +256,7 @@ class Overview:
         buf = ""
         for b in links:
             if b[0]:
-                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val=shortcut(b[0]))
+                b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
 <button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
                 b

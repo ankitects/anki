@@ -18,7 +18,6 @@ from aqt.notetypechooser import NoteTypeChooser
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
-    TR,
     HelpPage,
     addCloseShortcut,
     askUser,
@@ -100,7 +99,7 @@ class AddCards(QDialog):
         else:
             sc = "Ctrl+H"
         b.setShortcut(QKeySequence(sc))
-        b.setToolTip(tr(TR.ADDING_SHORTCUT, val=shortcut(sc)))
+        b.setToolTip(tr.adding_shortcut(val=shortcut(sc)))
         qconnect(b.clicked, self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
@@ -170,7 +169,7 @@ class AddCards(QDialog):
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
                     txt = f"{txt[:30]}..."
-                line = tr(TR.ADDING_EDIT, val=txt)
+                line = tr.adding_edit(val=txt)
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
                 a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))

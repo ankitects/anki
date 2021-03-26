@@ -6,7 +6,6 @@ from __future__ import annotations
 from typing import List, Optional, Sequence
 
 import aqt
-from anki.lang import TR
 from anki.notes import NoteID
 from aqt import AnkiQt, QWidget
 from aqt.qt import QDialog, Qt
@@ -49,7 +48,7 @@ def find_and_replace(
             match_case=match_case,
         ),
         success=lambda out: tooltip(
-            tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
             parent=parent,
         ),
     )
@@ -74,7 +73,7 @@ def find_and_replace_tag(
             match_case=match_case,
         ),
         success=lambda out: tooltip(
-            tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
             parent=parent,
         ),
     )

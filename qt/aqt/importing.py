@@ -18,7 +18,6 @@ from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -44,7 +43,7 @@ class ChangeMap(QDialog):
         n = 0
         setCurrent = False
         for field in self.model["flds"]:
-            item = QListWidgetItem(tr(TR.IMPORTING_MAP_TO, val=field["name"]))
+            item = QListWidgetItem(tr.importing_map_to(val=field["name"]))
             self.frm.fields.addItem(item)
             if current == field["name"]:
                 setCurrent = True
@@ -177,7 +176,7 @@ class ImportDialog(QDialog):
             d = tr.importing_colon()
         else:
             d = repr(d)
-        txt = tr(TR.IMPORTING_FIELDS_SEPARATED_BY, val=d)
+        txt = tr.importing_fields_separated_by(val=d)
         self.frm.autoDetect.setText(txt)
 
     def accept(self) -> None:
@@ -260,12 +259,12 @@ class ImportDialog(QDialog):
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
-            text = tr(TR.IMPORTING_FIELD_OF_FILE_IS, val=num + 1)
+            text = tr.importing_field_of_file_is(val=num + 1)
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":
                 text = tr.importing_mapped_to_tags()
             elif self.mapping[num]:
-                text = tr(TR.IMPORTING_MAPPED_TO, val=self.mapping[num])
+                text = tr.importing_mapped_to(val=self.mapping[num])
             else:
                 text = tr.importing_ignored()
             self.grid.addWidget(QLabel(text), num, 1)
@@ -473,7 +472,7 @@ def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
         ):
             mw.taskman.run_on_main(
                 lambda n=n: mw.progress.update(  # type: ignore
-                    tr(TR.IMPORTING_PROCESSED_MEDIA_FILE, count=n)
+                    tr.importing_processed_media_file(count=n)
                 )
             )
             size = z.getinfo(cStr).file_size

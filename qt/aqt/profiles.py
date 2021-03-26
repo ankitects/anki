@@ -347,9 +347,7 @@ class ProfileManager:
                     os.rename(oldFolder, midFolder)
                     oldFolder = midFolder
                 else:
-                    showWarning(
-                        tr(TR.PROFILES_PLEASE_REMOVE_THE_FOLDER_AND, val=midFolder)
-                    )
+                    showWarning(tr.profiles_please_remove_the_folder_and(val=midFolder))
                     self.name = oldName
                     return
             else:
@@ -552,7 +550,7 @@ create table if not exists profiles
         code = obj[1]
         name = obj[0]
         r = QMessageBox.question(
-            None, "Anki", tr(TR.PROFILES_CONFIRM_LANG_CHOICE, lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
+            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
         )
         if r != QMessageBox.Yes:
             return self.setDefaultLang(f.lang.currentRow())

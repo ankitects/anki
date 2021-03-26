@@ -30,7 +30,7 @@ from aqt.qt import (
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
 LastStateAndMod = Tuple[str, int, int]
@@ -89,12 +89,12 @@ class Previewer(QDialog):
         )
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
-        self._replay.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="R"))
+        self._replay.setToolTip(tr.actions_shortcut_key(val="R"))
         qconnect(self._replay.clicked, self._on_replay_audio)
 
         both_sides_button = QCheckBox(tr.qt_misc_back_side_only())
         both_sides_button.setShortcut(QKeySequence("B"))
-        both_sides_button.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="B"))
+        both_sides_button.setToolTip(tr.actions_shortcut_key(val="B"))
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
         self._show_both_sides = self.mw.col.get_config_bool(
             Config.Bool.PREVIEW_BOTH_SIDES

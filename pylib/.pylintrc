@@ -11,6 +11,9 @@ ignored-classes=
   BuryOrSuspendCardsIn,
   NoteIsDuplicateOrEmptyOut
 
+[REPORTS]
+output-format=colorized
+
 [MESSAGES CONTROL]
 disable=C,R,
   fixme,

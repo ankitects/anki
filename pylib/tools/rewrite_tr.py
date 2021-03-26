@@ -9,12 +9,13 @@ from re import Match
 
 import stringcase
 
-TR_REF = re.compile(r"tr\(TR.([^,)]+)\)")
+TR_REF = re.compile(r"tr\(TR.([^,) ]+),\s*([^)]+)\)")
 
 
 def repl(m: Match) -> str:
     name = m.group(1).lower()
-    return f"tr.{name}()"
+    args = m.group(2)
+    return f"tr.{name}({args})"
 
 
 def update_py(path: str) -> None:

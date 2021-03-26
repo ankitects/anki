@@ -6,7 +6,6 @@ from __future__ import annotations
 from typing import Callable, Sequence
 
 from anki.decks import DeckID
-from anki.lang import TR
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.utils import getOnlyText, tooltip, tr
@@ -21,7 +20,7 @@ def remove_decks(
     mw.perform_op(
         lambda: mw.col.decks.remove(deck_ids),
         success=lambda out: tooltip(
-            tr(TR.BROWSING_CARDS_DELETED, count=out.count), parent=parent
+            tr.browsing_cards_deleted(count=out.count), parent=parent
         ),
     )
 
@@ -32,7 +31,7 @@ def reparent_decks(
     mw.perform_op(
         lambda: mw.col.decks.reparent(deck_ids=deck_ids, new_parent=new_parent),
         success=lambda out: tooltip(
-            tr(TR.BROWSING_REPARENTED_DECKS, count=out.count), parent=parent
+            tr.browsing_reparented_decks(count=out.count), parent=parent
         ),
     )
 
