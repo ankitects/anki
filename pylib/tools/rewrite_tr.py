@@ -9,13 +9,13 @@ from re import Match
 
 import stringcase
 
-TR_REF = re.compile(r"i18n\.tr\(i18n\.TR\.([^,) ]+)\)")
+TR_REF = re.compile(r"\.tr\(\s*TR::([^,) ]+)\)")
 
 
 def repl(m: Match) -> str:
-    name = stringcase.camelcase(m.group(1).lower())
+    name = stringcase.snakecase(m.group(1))
     # args = m.group(2)
-    return f"i18n.{name}()"
+    return f".{name}()"
 
 
 def update_py(path: str) -> None:
@@ -31,5 +31,5 @@ for dirpath, dirnames, fnames in os.walk(os.environ["BUILD_WORKSPACE_DIRECTORY"]
     if "bazel-" in dirpath:
         continue
     for fname in fnames:
-        if fname.endswith(".svelte"):
+        if fname.endswith(".rs"):
             update_py(os.path.join(dirpath, fname))

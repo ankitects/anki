@@ -121,7 +121,7 @@ impl Collection {
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
             return Err(AnkiError::DBError {
-                info: self.i18n.tr(TR::DatabaseCheckCorrupt).into(),
+                info: self.i18n.database_check_corrupt().into(),
                 kind: DBErrorKind::Corrupt,
             });
         }

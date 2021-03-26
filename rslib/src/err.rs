@@ -95,23 +95,23 @@ impl AnkiError {
             AnkiError::SyncError { info, kind } => match kind {
                 SyncErrorKind::ServerMessage => info.into(),
                 SyncErrorKind::Other => info.into(),
-                SyncErrorKind::Conflict => i18n.tr(TR::SyncConflict),
-                SyncErrorKind::ServerError => i18n.tr(TR::SyncServerError),
-                SyncErrorKind::ClientTooOld => i18n.tr(TR::SyncClientTooOld),
-                SyncErrorKind::AuthFailed => i18n.tr(TR::SyncWrongPass),
-                SyncErrorKind::ResyncRequired => i18n.tr(TR::SyncResyncRequired),
-                SyncErrorKind::ClockIncorrect => i18n.tr(TR::SyncClockOff),
-                SyncErrorKind::DatabaseCheckRequired => i18n.tr(TR::SyncSanityCheckFailed),
+                SyncErrorKind::Conflict => i18n.sync_conflict(),
+                SyncErrorKind::ServerError => i18n.sync_server_error(),
+                SyncErrorKind::ClientTooOld => i18n.sync_client_too_old(),
+                SyncErrorKind::AuthFailed => i18n.sync_wrong_pass(),
+                SyncErrorKind::ResyncRequired => i18n.sync_resync_required(),
+                SyncErrorKind::ClockIncorrect => i18n.sync_clock_off(),
+                SyncErrorKind::DatabaseCheckRequired => i18n.sync_sanity_check_failed(),
                 // server message
                 SyncErrorKind::SyncNotStarted => "sync not started".into(),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
                 let summary = match kind {
-                    NetworkErrorKind::Offline => i18n.tr(TR::NetworkOffline),
-                    NetworkErrorKind::Timeout => i18n.tr(TR::NetworkTimeout),
-                    NetworkErrorKind::ProxyAuth => i18n.tr(TR::NetworkProxyAuth),
-                    NetworkErrorKind::Other => i18n.tr(TR::NetworkOther),
+                    NetworkErrorKind::Offline => i18n.network_offline(),
+                    NetworkErrorKind::Timeout => i18n.network_timeout(),
+                    NetworkErrorKind::ProxyAuth => i18n.network_proxy_auth(),
+                    NetworkErrorKind::Other => i18n.network_other(),
                 };
                 let details = i18n.trn(TR::NetworkDetails, tr_strs!["details"=>info]);
                 format!("{}\n\n{}", summary, details)
@@ -131,14 +131,14 @@ impl AnkiError {
             },
             AnkiError::SearchError(kind) => {
                 let reason = match kind {
-                    SearchErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
-                    SearchErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
-                    SearchErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
-                    SearchErrorKind::UnopenedGroup => i18n.tr(TR::SearchUnopenedGroup),
-                    SearchErrorKind::UnclosedGroup => i18n.tr(TR::SearchUnclosedGroup),
-                    SearchErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
-                    SearchErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
-                    SearchErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
+                    SearchErrorKind::MisplacedAnd => i18n.search_misplaced_and(),
+                    SearchErrorKind::MisplacedOr => i18n.search_misplaced_or(),
+                    SearchErrorKind::EmptyGroup => i18n.search_empty_group(),
+                    SearchErrorKind::UnopenedGroup => i18n.search_unopened_group(),
+                    SearchErrorKind::UnclosedGroup => i18n.search_unclosed_group(),
+                    SearchErrorKind::EmptyQuote => i18n.search_empty_quote(),
+                    SearchErrorKind::UnclosedQuote => i18n.search_unclosed_quote(),
+                    SearchErrorKind::MissingKey => i18n.search_missing_key(),
                     SearchErrorKind::UnknownEscape(ctx) => i18n
                         .trn(
                             TR::SearchUnknownEscape,
@@ -151,7 +151,7 @@ impl AnkiError {
                             tr_strs!("term" => "is:", "argument" => state.replace('`', "'")),
                         )
                         .into(),
-                    SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
+                    SearchErrorKind::InvalidFlag => i18n.search_invalid_flag(),
                     SearchErrorKind::InvalidPropProperty(prop) => i18n
                         .trn(
                             TR::SearchInvalidArgument,
@@ -163,7 +163,7 @@ impl AnkiError {
                         .into(),
                     SearchErrorKind::Regex(text) => format!("<pre>`{}`</pre>", text.replace('`', "'")).into(),
                     SearchErrorKind::Other(Some(info)) => info.into(),
-                    SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalidOther),
+                    SearchErrorKind::Other(None) => i18n.search_invalid_other(),
                     SearchErrorKind::InvalidNumber { provided, context } => i18n
                         .trn(
                             TR::SearchInvalidNumber,
@@ -202,7 +202,7 @@ impl AnkiError {
             }
             AnkiError::InvalidInput { info } => {
                 if info.is_empty() {
-                    i18n.tr(TR::ErrorsInvalidInputEmpty).into()
+                    i18n.errors_invalid_input_empty().into()
                 } else {
                     i18n.trn(
                         TR::ErrorsInvalidInputDetails,
@@ -210,9 +210,9 @@ impl AnkiError {
                     )
                 }
             }
-            AnkiError::ParseNumError => i18n.tr(TR::ErrorsParseNumberFail).into(),
-            AnkiError::DeckIsFiltered => i18n.tr(TR::ErrorsFilteredParentDeck).into(),
-            AnkiError::FilteredDeckEmpty => i18n.tr(TR::DecksFilteredDeckSearchEmpty).into(),
+            AnkiError::ParseNumError => i18n.errors_parse_number_fail().into(),
+            AnkiError::DeckIsFiltered => i18n.errors_filtered_parent_deck().into(),
+            AnkiError::FilteredDeckEmpty => i18n.decks_filtered_deck_search_empty().into(),
             _ => format!("{:?}", self),
         }
     }

@@ -5,7 +5,7 @@ use super::SqliteStorage;
 use crate::{
     deckconf::{DeckConf, DeckConfID, DeckConfSchema11, DeckConfigInner},
     err::Result,
-    i18n::{I18n, TR},
+    i18n::I18n,
 };
 use prost::Message;
 use rusqlite::{params, Row, NO_PARAMS};
@@ -116,7 +116,7 @@ impl SqliteStorage {
     pub(super) fn add_default_deck_config(&self, i18n: &I18n) -> Result<()> {
         let mut conf = DeckConf::default();
         conf.id.0 = 1;
-        conf.name = i18n.tr(TR::DeckConfigDefaultName).into();
+        conf.name = i18n.deck_config_default_name().into();
         self.add_deck_conf(&mut conf)
     }
 

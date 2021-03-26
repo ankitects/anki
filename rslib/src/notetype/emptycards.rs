@@ -104,7 +104,7 @@ impl Collection {
                         // "Cloze 1, 3"
                         NoteTypeKind::Cloze => format!(
                             "{} {}",
-                            self.i18n.tr(TR::NotetypesClozeName),
+                            self.i18n.notetypes_cloze_name(),
                             note.empty
                                 .iter()
                                 .map(|(ord, _)| (ord + 1).to_string())

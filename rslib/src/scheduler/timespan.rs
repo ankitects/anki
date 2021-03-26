@@ -23,7 +23,7 @@ pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
 pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, i18n: &I18n) -> String {
     let string = answer_button_time(seconds as f32, i18n);
     if seconds == 0 {
-        i18n.tr(TR::SchedulingEnd).into()
+        i18n.scheduling_end().into()
     } else if seconds < collapse_secs {
         format!("<{}", string)
     } else {

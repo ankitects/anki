@@ -6,7 +6,6 @@ use crate::{
     config::{ConfigEntry, ConfigKey},
     err::Result,
     i18n::I18n,
-    i18n::TR,
     notetype::NoteType,
     storage::SqliteStorage,
     timestamp::TimestampSecs,
@@ -49,15 +48,15 @@ fn fieldref<S: AsRef<str>>(name: S) -> String {
 
 pub(crate) fn basic(i18n: &I18n) -> NoteType {
     let mut nt = NoteType {
-        name: i18n.tr(TR::NotetypesBasicName).into(),
+        name: i18n.notetypes_basic_name().into(),
         ..Default::default()
     };
-    let front = i18n.tr(TR::NotetypesFrontField);
-    let back = i18n.tr(TR::NotetypesBackField);
+    let front = i18n.notetypes_front_field();
+    let back = i18n.notetypes_back_field();
     nt.add_field(front.as_ref());
     nt.add_field(back.as_ref());
     nt.add_template(
-        i18n.tr(TR::NotetypesCard1Name),
+        i18n.notetypes_card_1_name(),
         fieldref(front),
         format!(
             "{}\n\n<hr id=answer>\n\n{}",
@@ -71,9 +70,9 @@ pub(crate) fn basic(i18n: &I18n) -> NoteType {
 
 pub(crate) fn basic_typing(i18n: &I18n) -> NoteType {
     let mut nt = basic(i18n);
-    nt.name = i18n.tr(TR::NotetypesBasicTypeAnswerName).into();
-    let front = i18n.tr(TR::NotetypesFrontField);
-    let back = i18n.tr(TR::NotetypesBackField);
+    nt.name = i18n.notetypes_basic_type_answer_name().into();
+    let front = i18n.notetypes_front_field();
+    let back = i18n.notetypes_back_field();
     let tmpl = &mut nt.templates[0].config;
     tmpl.q_format = format!("{}\n\n{{{{type:{}}}}}", fieldref(front.as_ref()), back);
     tmpl.a_format = format!(
@@ -87,11 +86,11 @@ pub(crate) fn basic_typing(i18n: &I18n) -> NoteType {
 
 pub(crate) fn basic_forward_reverse(i18n: &I18n) -> NoteType {
     let mut nt = basic(i18n);
-    nt.name = i18n.tr(TR::NotetypesBasicReversedName).into();
-    let front = i18n.tr(TR::NotetypesFrontField);
-    let back = i18n.tr(TR::NotetypesBackField);
+    nt.name = i18n.notetypes_basic_reversed_name().into();
+    let front = i18n.notetypes_front_field();
+    let back = i18n.notetypes_back_field();
     nt.add_template(
-        i18n.tr(TR::NotetypesCard2Name),
+        i18n.notetypes_card_2_name(),
         fieldref(back),
         format!(
             "{}\n\n<hr id=answer>\n\n{}",
@@ -105,8 +104,8 @@ pub(crate) fn basic_forward_reverse(i18n: &I18n) -> NoteType {
 
 pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
     let mut nt = basic_forward_reverse(i18n);
-    nt.name = i18n.tr(TR::NotetypesBasicOptionalReversedName).into();
-    let addrev = i18n.tr(TR::NotetypesAddReverseField);
+    nt.name = i18n.notetypes_basic_optional_reversed_name().into();
+    let addrev = i18n.notetypes_add_reverse_field();
     nt.add_field(addrev.as_ref());
     let tmpl = &mut nt.templates[1].config;
     tmpl.q_format = format!("{{{{#{}}}}}{}{{{{/{}}}}}", addrev, tmpl.q_format, addrev);
@@ -116,12 +115,12 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
 
 pub(crate) fn cloze(i18n: &I18n) -> NoteType {
     let mut nt = NoteType {
-        name: i18n.tr(TR::NotetypesClozeName).into(),
+        name: i18n.notetypes_cloze_name().into(),
         ..Default::default()
     };
-    let text = i18n.tr(TR::NotetypesTextField);
+    let text = i18n.notetypes_text_field();
     nt.add_field(text.as_ref());
-    let back_extra = i18n.tr(TR::NotetypesBackExtraField);
+    let back_extra = i18n.notetypes_back_extra_field();
     nt.add_field(back_extra.as_ref());
     let qfmt = format!("{{{{cloze:{}}}}}", text);
     let afmt = format!("{}<br>\n{{{{{}}}}}", qfmt, back_extra);

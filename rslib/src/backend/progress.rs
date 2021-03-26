@@ -66,9 +66,9 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
             }),
             Progress::NormalSync(p) => {
                 let stage = match p.stage {
-                    SyncStage::Connecting => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Syncing => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Finalizing => i18n.tr(TR::SyncChecking),
+                    SyncStage::Connecting => i18n.sync_syncing(),
+                    SyncStage::Syncing => i18n.sync_syncing(),
+                    SyncStage::Finalizing => i18n.sync_checking(),
                 }
                 .to_string();
                 let added = i18n.trn(
@@ -91,15 +91,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
                 let mut stage_total = 0;
                 let mut stage_current = 0;
                 let stage = match p {
-                    DatabaseCheckProgress::Integrity => i18n.tr(TR::DatabaseCheckCheckingIntegrity),
-                    DatabaseCheckProgress::Optimize => i18n.tr(TR::DatabaseCheckRebuilding),
-                    DatabaseCheckProgress::Cards => i18n.tr(TR::DatabaseCheckCheckingCards),
+                    DatabaseCheckProgress::Integrity => i18n.database_check_checking_integrity(),
+                    DatabaseCheckProgress::Optimize => i18n.database_check_rebuilding(),
+                    DatabaseCheckProgress::Cards => i18n.database_check_checking_cards(),
                     DatabaseCheckProgress::Notes { current, total } => {
                         stage_total = total;
                         stage_current = current;
-                        i18n.tr(TR::DatabaseCheckCheckingNotes)
+                        i18n.database_check_checking_notes()
                     }
-                    DatabaseCheckProgress::History => i18n.tr(TR::DatabaseCheckCheckingHistory),
+                    DatabaseCheckProgress::History => i18n.database_check_checking_history(),
                 }
                 .to_string();
                 pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
