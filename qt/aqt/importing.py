@@ -314,7 +314,7 @@ def showUnicodeWarning() -> None:
 
 
 def onImport(mw: AnkiQt) -> None:
-    filt = ";;".join([x[0] for x in importing.Importers])
+    filt = ";;".join([x[0] for x in importing.importers(mw.col)])
     file = getFile(mw, tr(TR.ACTIONS_IMPORT), None, key="import", filter=filt)
     if not file:
         return
@@ -335,7 +335,7 @@ def onImport(mw: AnkiQt) -> None:
 def importFile(mw: AnkiQt, file: str) -> None:
     importerClass = None
     done = False
-    for i in importing.Importers:
+    for i in importing.importers(mw.col):
         if done:
             break
         for mext in re.findall(r"[( ]?\*\.(.+?)[) ]", i[0]):
@@ -345,7 +345,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 break
     if not importerClass:
         # if no matches, assume TSV
-        importerClass = importing.Importers[0][1]
+        importerClass = importing.importers(mw.col)[0][1]
     importer = importerClass(mw.col, file)
     # need to show import dialog?
     if importer.needMapper:
@@ -373,7 +373,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
             importer.close()
     else:
         # if it's an apkg/zip, first test it's a valid file
-        if importer.__class__.__name__ == "AnkiPackageImporter":
+        if isinstance(importer, AnkiPackageImporter):
             try:
                 z = zipfile.ZipFile(importer.file)
                 z.getinfo("collection.anki2")
