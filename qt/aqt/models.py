@@ -3,10 +3,10 @@
 
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
 import aqt.clayout
-from anki import stdmodels
+from anki import Collection, stdmodels
 from anki.lang import without_unicode_isolation
 from anki.models import NoteType, NoteTypeID, NoteTypeNameIDUseCount
 from anki.notes import Note
@@ -133,7 +133,7 @@ class Models(QDialog):
 
     def current_notetype(self) -> NoteType:
         row = self.form.modelsList.currentRow()
-        return self.mm.get(self.models[row].id)
+        return self.mm.get(NoteTypeID(self.models[row].id))
 
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
@@ -229,16 +229,16 @@ class AddModel(QDialog):
         self.dialog.setupUi(self)
         disable_help_button(self)
         # standard models
-        self.models = []
+        self.notetypes: List[Union[NoteType, Callable[[Collection], NoteType]]] = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)
-            self.models.append((True, func))
+            self.notetypes.append(func)
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
             item = QListWidgetItem(tr.notetypes_clone(val=m["name"]))
             self.dialog.models.addItem(item)
-            self.models.append((False, m))  # type: ignore
+            self.notetypes.append(m)
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
@@ -246,7 +246,7 @@ class AddModel(QDialog):
         # help
         qconnect(self.dialog.buttonBox.helpRequested, self.onHelp)
 
-    def get(self) -> Any:
+    def get(self) -> Optional[NoteType]:
         self.exec_()
         return self.model
 
@@ -254,14 +254,14 @@ class AddModel(QDialog):
         QDialog.reject(self)
 
     def accept(self) -> None:
-        (isStd, model) = self.models[self.dialog.models.currentRow()]
-        if isStd:
-            # create
-            self.model = model(self.col)
-        else:
+        model = self.notetypes[self.dialog.models.currentRow()]
+        if isinstance(model, dict):
             # add copy to deck
             self.model = self.mw.col.models.copy(model)
             self.mw.col.models.setCurrent(self.model)
+        else:
+            # create
+            self.model = model(self.col)
         QDialog.accept(self)
 
     def onHelp(self) -> None:

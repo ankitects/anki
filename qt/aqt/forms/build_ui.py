@@ -16,5 +16,15 @@ outdata = re.sub(
     r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr.\\1(", outdata
 )
 
+
+outlines = []
+qt_bad_types = [".connect(", "setStandardButtons", "setTextInteractionFlags", "setAlignment"]
+for line in outdata.splitlines():
+    for substr in qt_bad_types:
+        if substr in line:
+            line = line + "  # type: ignore"
+            break
+    outlines.append(line)
+
 with open(py_file, "w") as file:
-    file.write(outdata)
+    file.write("\n".join(outlines))

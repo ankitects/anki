@@ -111,11 +111,11 @@ class FindAndReplaceDialog(QDialog):
         self._find_history = restore_combo_history(
             self.form.find, self.COMBO_NAME + "Find"
         )
-        self.form.find.completer().setCaseSensitivity(True)
+        self.form.find.completer().setCaseSensitivity(Qt.CaseSensitive)
         self._replace_history = restore_combo_history(
             self.form.replace, self.COMBO_NAME + "Replace"
         )
-        self.form.replace.completer().setCaseSensitivity(True)
+        self.form.replace.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         restore_is_checked(self.form.re, self.COMBO_NAME + "Regex")
         restore_is_checked(self.form.ignoreCase, self.COMBO_NAME + "ignoreCase")

@@ -49,7 +49,7 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.setupSignals()
         self.form.fieldList.setDragDropMode(QAbstractItemView.InternalMove)
-        self.form.fieldList.dropEvent = self.onDrop
+        self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
         self.form.fieldList.setCurrentRow(0)
         self.exec_()
 

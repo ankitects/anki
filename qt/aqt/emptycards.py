@@ -43,7 +43,7 @@ class EmptyCardsDialog(QDialog):
         self.setWindowTitle(tr.empty_cards_window_title())
         disable_help_button(self)
         self.form.keep_notes.setText(tr.empty_cards_preserve_notes_checkbox())
-        self.form.webview.title = "empty cards"
+        self.form.webview.set_title("empty cards")
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)
 
         gui_hooks.empty_cards_will_show(self)
@@ -66,7 +66,7 @@ class EmptyCardsDialog(QDialog):
             tr.empty_cards_delete_button(), QDialogButtonBox.ActionRole
         )
         self._delete_button.setAutoDefault(False)
-        self._delete_button.clicked.connect(self._on_delete)
+        qconnect(self._delete_button.clicked, self._on_delete)
 
     def _on_note_link_clicked(self, link: str) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(link,))

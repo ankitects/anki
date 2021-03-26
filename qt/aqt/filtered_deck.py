@@ -273,7 +273,7 @@ class FilteredDeckConfigDialog(QDialog):
             FilteredDeckConfig.SearchTerm(
                 search=form.search.text(),
                 limit=form.limit.value(),
-                order=form.order.currentIndex(),
+                order=form.order.currentIndex(),  # type: ignore[arg-type]
             )
         ]
 
@@ -282,7 +282,7 @@ class FilteredDeckConfigDialog(QDialog):
                 FilteredDeckConfig.SearchTerm(
                     search=form.search_2.text(),
                     limit=form.limit_2.value(),
-                    order=form.order_2.currentIndex(),
+                    order=form.order_2.currentIndex(),  # type: ignore[arg-type]
                 )
             )
 
