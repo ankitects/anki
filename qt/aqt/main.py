@@ -52,8 +52,9 @@ from anki.collection import (
     UndoResult,
     UndoStatus,
 )
-from anki.decks import DeckDict
+from anki.decks import DeckDict, DeckID
 from anki.hooks import runHook
+from anki.notes import NoteID
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -1381,7 +1382,7 @@ title="%s" %s>%s</button>""" % (
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did: Optional[int] = None) -> None:
+    def onExport(self, did: Optional[DeckID] = None) -> None:
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)
@@ -1534,7 +1535,7 @@ title="%s" %s>%s</button>""" % (
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
+    def onRemNotes(self, col: Collection, nids: Sequence[NoteID]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:

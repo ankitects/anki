@@ -6,9 +6,11 @@ from __future__ import annotations
 from typing import List, Optional, Sequence
 
 import aqt
+from anki.cards import CardID
 from anki.collection import CARD_TYPE_NEW, Config
 from anki.decks import DeckID
 from anki.lang import TR
+from anki.notes import NoteID
 from anki.scheduler import FilteredDeckForUpdate
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
@@ -20,7 +22,7 @@ def set_due_date_dialog(
     *,
     mw: aqt.AnkiQt,
     parent: QWidget,
-    card_ids: List[int],
+    card_ids: List[CardID],
     config_key: Optional[Config.String.Key.V],
 ) -> None:
     if not card_ids:
@@ -53,7 +55,7 @@ def set_due_date_dialog(
     )
 
 
-def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: List[int]) -> None:
+def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: List[CardID]) -> None:
     if not card_ids:
         return
 
@@ -66,7 +68,7 @@ def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: List[int]) -> Non
 
 
 def reposition_new_cards_dialog(
-    *, mw: AnkiQt, parent: QWidget, card_ids: Sequence[int]
+    *, mw: AnkiQt, parent: QWidget, card_ids: Sequence[CardID]
 ) -> None:
     assert mw.col.db
     row = mw.col.db.first(
@@ -111,7 +113,7 @@ def reposition_new_cards(
     *,
     mw: AnkiQt,
     parent: QWidget,
-    card_ids: Sequence[int],
+    card_ids: Sequence[CardID],
     starting_from: int,
     step_size: int,
     randomize: bool,
@@ -134,7 +136,7 @@ def reposition_new_cards(
 def suspend_cards(
     *,
     mw: AnkiQt,
-    card_ids: Sequence[int],
+    card_ids: Sequence[CardID],
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.perform_op(lambda: mw.col.sched.suspend_cards(card_ids), success=success)
@@ -143,7 +145,7 @@ def suspend_cards(
 def suspend_note(
     *,
     mw: AnkiQt,
-    note_id: int,
+    note_id: NoteID,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.taskman.run_in_background(
@@ -152,14 +154,14 @@ def suspend_note(
     )
 
 
-def unsuspend_cards(*, mw: AnkiQt, card_ids: Sequence[int]) -> None:
+def unsuspend_cards(*, mw: AnkiQt, card_ids: Sequence[CardID]) -> None:
     mw.perform_op(lambda: mw.col.sched.unsuspend_cards(card_ids))
 
 
 def bury_cards(
     *,
     mw: AnkiQt,
-    card_ids: Sequence[int],
+    card_ids: Sequence[CardID],
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.perform_op(lambda: mw.col.sched.bury_cards(card_ids), success=success)
@@ -168,7 +170,7 @@ def bury_cards(
 def bury_note(
     *,
     mw: AnkiQt,
-    note_id: int,
+    note_id: NoteID,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.taskman.run_in_background(

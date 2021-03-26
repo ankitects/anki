@@ -11,9 +11,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.consts import *
-from anki.decks import DeckConfigDict, DeckDict
+from anki.decks import DeckConfigDict, DeckDict, DeckID
 from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.utils import ids2str, intTime
@@ -75,7 +75,9 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _reset_counts(self) -> None:
         tree = self.deck_due_tree(self.col.decks.selected())
-        node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
+        node = self.col.decks.find_deck_in_tree(
+            tree, DeckID(int(self.col.conf["curDeck"]))
+        )
         if not node:
             # current deck points to a missing deck
             self.newCount = 0
@@ -144,7 +146,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _resetNew(self) -> None:
         self._newDids = self.col.decks.active()[:]
-        self._newQueue: List[int] = []
+        self._newQueue: List[CardID] = []
         self._updateNewCardRatio()
 
     def _fillNew(self, recursing: bool = False) -> bool:
@@ -210,7 +212,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Optional[Callable[[DeckDict], int]] = None
+        self, did: DeckID, fn: Optional[Callable[[DeckDict], int]] = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -225,7 +227,7 @@ class Scheduler(SchedulerBaseWithLegacy):
                 lim = min(rem, lim)
         return lim
 
-    def _newForDeck(self, did: int, lim: int) -> int:
+    def _newForDeck(self, did: DeckID, lim: int) -> int:
         "New count for a single deck."
         if not lim:
             return 0
@@ -301,8 +303,8 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
     def _resetLrn(self) -> None:
         self._updateLrnCutoff(force=True)
         self._resetLrnCount()
-        self._lrnQueue: List[Tuple[int, int]] = []
-        self._lrnDayQueue: List[int] = []
+        self._lrnQueue: List[Tuple[int, CardID]] = []
+        self._lrnDayQueue: List[CardID] = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
@@ -397,7 +399,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
     def _resetRev(self) -> None:
-        self._revQueue: List[int] = []
+        self._revQueue: List[CardID] = []
 
     def _fillRev(self, recursing: bool = False) -> bool:
         "True if a review card can be fetched."
@@ -720,7 +722,8 @@ limit ?"""
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today + card.ivl
         card.factor = conf["initialFactor"]
-        card.type = card.queue = QUEUE_TYPE_REV
+        card.type = CARD_TYPE_REV
+        card.queue = QUEUE_TYPE_REV
 
     def _logLrn(
         self,
@@ -788,7 +791,7 @@ limit ?"""
         if card.odid:
             card.did = card.odid
             card.odue = 0
-            card.odid = 0
+            card.odid = DeckID(0)
 
     def _restorePreviewCard(self, card: Card) -> None:
         assert card.odid
@@ -803,7 +806,7 @@ limit ?"""
             else:
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
-            card.queue = card.type
+            card.queue = CardQueue(card.type)
 
     # Answering a review card
     ##########################################################################
@@ -1072,7 +1075,7 @@ limit ?"""
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury: List[int] = []
+        toBury: List[CardID] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)

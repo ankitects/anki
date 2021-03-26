@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import List, Optional
+from typing import List, NewType, Optional
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -26,15 +26,24 @@ from anki.sound import AVTag
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
+# types
+CardID = NewType("CardID", int)
+
 
 class Card:
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: int
     ord: int
+    nid: anki.notes.NoteID
+    id: CardID
+    did: anki.decks.DeckID
+    odid: anki.decks.DeckID
+    queue: CardQueue
+    type: CardType
 
     def __init__(
-        self, col: anki.collection.Collection, id: Optional[int] = None
+        self, col: anki.collection.Collection, id: Optional[CardID] = None
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None
@@ -55,14 +64,14 @@ class Card:
     def _load_from_backend_card(self, c: _pb.Card) -> None:
         self._render_output = None
         self._note = None
-        self.id = c.id
-        self.nid = c.note_id
-        self.did = c.deck_id
+        self.id = CardID(c.id)
+        self.nid = anki.notes.NoteID(c.note_id)
+        self.did = anki.decks.DeckID(c.deck_id)
         self.ord = c.template_idx
         self.mod = c.mtime_secs
         self.usn = c.usn
-        self.type = c.ctype
-        self.queue = c.queue
+        self.type = CardType(c.ctype)
+        self.queue = CardQueue(c.queue)
         self.due = c.due
         self.ivl = c.interval
         self.factor = c.ease_factor
@@ -70,7 +79,7 @@ class Card:
         self.lapses = c.lapses
         self.left = c.remaining_steps
         self.odue = c.original_due
-        self.odid = c.original_deck_id
+        self.odid = anki.decks.DeckID(c.original_deck_id)
         self.flags = c.flags
         self.data = c.data
 
@@ -158,21 +167,24 @@ class Card:
     def startTimer(self) -> None:
         self.timerStarted = time.time()
 
+    def current_deck_id(self) -> anki.decks.DeckID:
+        return anki.decks.DeckID(self.odid or self.did)
+
     def timeLimit(self) -> int:
         "Time limit for answering in milliseconds."
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.current_deck_id())
         return conf["maxTaken"] * 1000
 
     def shouldShowTimer(self) -> bool:
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.current_deck_id())
         return conf["timer"]
 
     def replay_question_audio_on_answer_side(self) -> bool:
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.current_deck_id())
         return conf.get("replayq", True)
 
     def autoplay(self) -> bool:
-        return self.col.decks.confForDid(self.odid or self.did)["autoplay"]
+        return self.col.decks.confForDid(self.current_deck_id())["autoplay"]
 
     def timeTaken(self) -> int:
         "Time taken to answer card, in integer MS."

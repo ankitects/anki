@@ -3,9 +3,10 @@
 
 from typing import List, Optional, Tuple
 
-from anki.cards import Card
+from anki.cards import Card, CardID
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
-from anki.decks import DeckConfigDict
+from anki.decks import DeckConfigDict, DeckID
+from anki.notes import NoteID
 from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
 from anki.utils import from_json_bytes, ids2str
 
@@ -14,11 +15,11 @@ class SchedulerBaseWithLegacy(SchedulerBase):
     "Legacy aliases and helpers. These will go away in the future."
 
     def reschedCards(
-        self, card_ids: List[int], min_interval: int, max_interval: int
+        self, card_ids: List[CardID], min_interval: int, max_interval: int
     ) -> None:
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
-    def buryNote(self, nid: int) -> None:
+    def buryNote(self, nid: NoteID) -> None:
         note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 
@@ -48,7 +49,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         print("_nextDueMsg() is obsolete")
         return ""
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+    def rebuildDyn(self, did: Optional[DeckID] = None) -> Optional[int]:
         did = did or self.col.decks.selected()
         count = self.rebuild_filtered_deck(did).count or None
         if not count:
@@ -57,7 +58,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         self.col.decks.select(did)
         return count
 
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: Optional[DeckID], lim: Optional[str] = None) -> None:
         if lim is None:
             self.empty_filtered_deck(did)
             return
@@ -79,13 +80,13 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids: List[int]) -> None:
+    def remFromDyn(self, cids: List[CardID]) -> None:
         self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
 
     # used by v2 scheduler and some add-ons
     def update_stats(
         self,
-        deck_id: int,
+        deck_id: DeckID,
         new_delta: int = 0,
         review_delta: int = 0,
         milliseconds_delta: int = 0,

@@ -9,6 +9,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
 from anki.decks import DeckID, DeckTreeNode
+from anki.models import NoteTypeID
 from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
@@ -976,7 +977,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
 
                 def toggle_expand() -> Callable[[bool], None]:
-                    did = node.deck_id  # pylint: disable=cell-var-from-loop
+                    did = DeckID(node.deck_id)  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
 
                 item = SidebarItem(
@@ -1158,7 +1159,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
-        deck = self.mw.col.decks.get(item.id)
+        deck = self.mw.col.decks.get(DeckID(item.id))
         if not new_name:
             return
         new_name = item.name_prefix + new_name
@@ -1291,11 +1292,14 @@ class SidebarTreeView(QTreeView):
 
     def manage_notetype(self, item: SidebarItem) -> None:
         Models(
-            self.mw, parent=self.browser, fromMain=True, selected_notetype_id=item.id
+            self.mw,
+            parent=self.browser,
+            fromMain=True,
+            selected_notetype_id=NoteTypeID(item.id),
         )
 
     def manage_template(self, item: SidebarItem) -> None:
-        note = Note(self.col, self.col.models.get(item._parent_item.id))
+        note = Note(self.col, self.col.models.get(NoteTypeID(item._parent_item.id)))
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
 
     # Helpers

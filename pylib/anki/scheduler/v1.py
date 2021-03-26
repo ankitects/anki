@@ -12,6 +12,7 @@ import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
+from anki.decks import DeckID
 from anki.utils import ids2str, intTime
 
 from .v2 import QueueConfig
@@ -97,7 +98,7 @@ class Scheduler(V2):
         if card:
             idx = self.countIdx(card)
             if idx == QUEUE_TYPE_LRN:
-                counts[QUEUE_TYPE_LRN] += card.left // 1000
+                counts[int(QUEUE_TYPE_LRN)] += card.left // 1000
             else:
                 counts[idx] += 1
 
@@ -299,10 +300,11 @@ limit %d"""
         if card.odid:
             card.did = card.odid
             card.odue = 0
-            card.odid = 0
+            card.odid = DeckID(0)
             # if rescheduling is off, it needs to be set back to a new card
             if not resched and not lapse:
-                card.queue = card.type = CARD_TYPE_NEW
+                card.queue = QUEUE_TYPE_NEW
+                card.type = CARD_TYPE_NEW
                 card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card: Card) -> int:
@@ -401,7 +403,7 @@ where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CAR
             )
         )
 
-    def _lrnForDeck(self, did: int) -> int:
+    def _lrnForDeck(self, did: DeckID) -> int:
         cnt = (
             self.col.db.scalar(
                 f"""
@@ -426,7 +428,7 @@ and due <= ? limit ?)""",
     # Reviews
     ##########################################################################
 
-    def _deckRevLimit(self, did: int) -> int:
+    def _deckRevLimit(self, did: DeckID) -> int:
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
     def _resetRev(self) -> None:
@@ -541,7 +543,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             card.due = card.odue
         if card.odid:
             card.did = card.odid
-            card.odid = 0
+            card.odid = DeckID(0)
             card.odue = 0
 
     # Interval management
@@ -617,7 +619,8 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
                     card.due = card.odue
                 if card.odid:
                     card.did = card.odid
-                card.odue = card.odid = 0
+                card.odue = 0
+                card.odid = DeckID(0)
                 card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)
