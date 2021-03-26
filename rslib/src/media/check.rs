@@ -139,7 +139,7 @@ where
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &i.tr(TR::MediaCheckRenamedHeader);
+            buf += &i.media_check_renamed_header();
             buf.push('\n');
             for (old, new) in &output.renamed {
                 buf += &i.trn(TR::MediaCheckRenamedFile, tr_strs!["old"=>old,"new"=>new]);
@@ -150,7 +150,7 @@ where
 
         if !output.oversize.is_empty() {
             output.oversize.sort();
-            buf += &i.tr(TR::MediaCheckOversizeHeader);
+            buf += &i.media_check_oversize_header();
             buf.push('\n');
             for fname in &output.oversize {
                 buf += &i.trn(TR::MediaCheckOversizeFile, tr_strs!["filename"=>fname]);
@@ -161,7 +161,7 @@ where
 
         if !output.dirs.is_empty() {
             output.dirs.sort();
-            buf += &i.tr(TR::MediaCheckSubfolderHeader);
+            buf += &i.media_check_subfolder_header();
             buf.push('\n');
             for fname in &output.dirs {
                 buf += &i.trn(TR::MediaCheckSubfolderFile, tr_strs!["filename"=>fname]);
@@ -172,7 +172,7 @@ where
 
         if !output.missing.is_empty() {
             output.missing.sort();
-            buf += &i.tr(TR::MediaCheckMissingHeader);
+            buf += &i.media_check_missing_header();
             buf.push('\n');
             for fname in &output.missing {
                 buf += &i.trn(TR::MediaCheckMissingFile, tr_strs!["filename"=>fname]);
@@ -183,7 +183,7 @@ where
 
         if !output.unused.is_empty() {
             output.unused.sort();
-            buf += &i.tr(TR::MediaCheckUnusedHeader);
+            buf += &i.media_check_unused_header();
             buf.push('\n');
             for fname in &output.unused {
                 buf += &i.trn(TR::MediaCheckUnusedFile, tr_strs!["filename"=>fname]);

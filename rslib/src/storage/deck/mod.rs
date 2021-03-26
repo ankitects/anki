@@ -9,7 +9,7 @@ use crate::{
     decks::immediate_parent_name,
     decks::{Deck, DeckCommon, DeckID, DeckKindProto, DeckSchema11, DueCounts},
     err::{AnkiError, DBErrorKind, Result},
-    i18n::{I18n, TR},
+    i18n::I18n,
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -339,7 +339,7 @@ impl SqliteStorage {
         let mut deck = Deck::new_normal();
         deck.id.0 = 1;
         // fixme: separate key
-        deck.name = i18n.tr(TR::DeckConfigDefaultName).into();
+        deck.name = i18n.deck_config_default_name().into();
         self.add_or_update_deck_with_existing_id(&deck)
     }
 

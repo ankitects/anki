@@ -253,7 +253,7 @@ fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -
         TR::CardTemplateRenderingBackSideProblem
     });
     let details = localized_template_error(i18n, err);
-    let more_info = i18n.tr(TR::CardTemplateRenderingMoreInfo);
+    let more_info = i18n.card_template_rendering_more_info();
     let info = format!(
         "{}<br>{}<br><a href='{}'>{}</a>",
         header, details, TEMPLATE_ERROR_LINK, more_info
@@ -566,14 +566,14 @@ pub fn render_card(
                 tr_args!["number"=>card_ord+1]
             ),
             TEMPLATE_BLANK_CLOZE_LINK,
-            i18n.tr(TR::CardTemplateRenderingMoreInfo)
+            i18n.card_template_rendering_more_info()
         ))
     } else if !is_cloze && !qtmpl.renders_with_fields(context.nonempty_fields) {
         Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
-            i18n.tr(TR::CardTemplateRenderingEmptyFront),
+            i18n.card_template_rendering_empty_front(),
             TEMPLATE_BLANK_LINK,
-            i18n.tr(TR::CardTemplateRenderingMoreInfo)
+            i18n.card_template_rendering_more_info()
         ))
     } else {
         None

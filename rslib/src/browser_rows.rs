@@ -236,7 +236,7 @@ impl<'a> RowContext<'a> {
 
     fn card_due_str(&mut self) -> String {
         let due = if self.card.original_deck_id != DeckID(0) {
-            self.i18n.tr(TR::BrowsingFiltered).into()
+            self.i18n.browsing_filtered().into()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
             self.i18n.trn(
                 TR::StatisticsDueForNewCard,
@@ -265,15 +265,15 @@ impl<'a> RowContext<'a> {
 
     fn card_ease_str(&self) -> String {
         match self.card.ctype {
-            CardType::New => self.i18n.tr(TR::BrowsingNew).into(),
+            CardType::New => self.i18n.browsing_new().into(),
             _ => format!("{}%", self.card.ease_factor / 10),
         }
     }
 
     fn card_interval_str(&self) -> String {
         match self.card.ctype {
-            CardType::New => self.i18n.tr(TR::BrowsingNew).into(),
-            CardType::Learn => self.i18n.tr(TR::BrowsingLearning).into(),
+            CardType::New => self.i18n.browsing_new().into(),
+            CardType::Learn => self.i18n.browsing_learning().into(),
             _ => time_span((self.card.interval * 86400) as f32, self.i18n, false),
         }
     }

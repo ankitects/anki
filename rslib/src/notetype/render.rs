@@ -6,7 +6,7 @@ use crate::{
     card::{Card, CardID},
     collection::Collection,
     err::{AnkiError, Result},
-    i18n::{I18n, TR},
+    i18n::I18n,
     notes::{Note, NoteID},
     template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
 };
@@ -172,7 +172,7 @@ fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &NoteType, i18n: &I18n) {
         for (val, field) in note.fields_mut().iter_mut().zip(nt.fields.iter()) {
             if field_is_empty(val) {
                 if cloze_fields.contains(&field.name.as_str()) {
-                    *val = i18n.tr(TR::CardTemplatesSampleCloze).into();
+                    *val = i18n.card_templates_sample_cloze().into();
                 } else {
                     *val = format!("({})", field.name);
                 }
