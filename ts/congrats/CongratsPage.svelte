@@ -15,12 +15,12 @@
     const today_new = i18n.tr(i18n.TR.SCHEDULING_TODAY_NEW_LIMIT_REACHED);
 
     const unburyThem = bridgeLink("unbury", i18n.tr(i18n.TR.SCHEDULING_UNBURY_THEM));
-    const buriedMsg = i18n.tr(i18n.TR.SCHEDULING_BURIED_CARDS_FOUND, { unburyThem });
+    const buriedMsg = i18n.schedulingBuriedCardsFound({ unburyThem });
     const customStudy = bridgeLink(
         "customStudy",
         i18n.tr(i18n.TR.SCHEDULING_CUSTOM_STUDY)
     );
-    const customStudyMsg = i18n.tr(i18n.TR.SCHEDULING_HOW_TO_CUSTOM_STUDY, {
+    const customStudyMsg = i18n.schedulingHowToCustomStudy({
         customStudy,
     });
 </script>

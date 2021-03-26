@@ -31,5 +31,5 @@ for dirpath, dirnames, fnames in os.walk(os.environ["BUILD_WORKSPACE_DIRECTORY"]
     if "bazel-" in dirpath:
         continue
     for fname in fnames:
-        if fname.endswith(".ts"):
+        if fname.endswith(".svelte"):
             update_py(os.path.join(dirpath, fname))
