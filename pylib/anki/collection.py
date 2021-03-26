@@ -1041,8 +1041,8 @@ table.review-log {{ {revlog_style} }}
     def set_wants_abort(self) -> None:
         self._backend.set_wants_abort()
 
-    def i18n_resources(self) -> bytes:
-        return self._backend.i18n_resources()
+    def i18n_resources(self, modules: Sequence[str]) -> bytes:
+        return self._backend.i18n_resources(modules=modules)
 
     def abort_media_sync(self) -> None:
         self._backend.abort_media_sync()

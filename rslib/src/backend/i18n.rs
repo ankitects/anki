@@ -32,8 +32,8 @@ impl I18nService for Backend {
         .into())
     }
 
-    fn i18n_resources(&self, _input: pb::Empty) -> Result<pb::Json> {
-        serde_json::to_vec(&self.i18n.resources_for_js())
+    fn i18n_resources(&self, input: pb::I18nResourcesIn) -> Result<pb::Json> {
+        serde_json::to_vec(&self.i18n.resources_for_js(&input.modules))
             .map(Into::into)
             .map_err(Into::into)
     }

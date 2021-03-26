@@ -269,12 +269,17 @@ def congrats_info() -> bytes:
     return aqt.mw.col.congrats_info()
 
 
+def i18n_resources() -> bytes:
+    args = from_json_bytes(request.data)
+    return aqt.mw.col.i18n_resources(modules=args["modules"])
+
+
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
     "setGraphPreferences": set_graph_preferences,
     # pylint: disable=unnecessary-lambda
-    "i18nResources": lambda: aqt.mw.col.i18n_resources(),
+    "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,
 }
 

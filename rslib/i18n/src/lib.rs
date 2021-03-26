@@ -183,7 +183,6 @@ impl I18n {
     pub fn new<S: AsRef<str>>(locale_codes: &[S]) -> Self {
         let mut input_langs = vec![];
         let mut bundles = Vec::with_capacity(locale_codes.len() + 1);
-        let mut resource_text = vec![];
 
         for code in locale_codes {
             let code = code.as_ref();
@@ -210,7 +209,6 @@ impl I18n {
                 }
             }) {
                 if let Some(bundle) = get_bundle_with_extra(&text, Some(lang.clone())) {
-                    resource_text.push(text);
                     bundles.push(bundle);
                     output_langs.push(lang);
                 } else {
@@ -223,7 +221,6 @@ impl I18n {
         let template_lang = "en-US".parse().unwrap();
         let template_text = ftl_localized_text(&template_lang).unwrap();
         let template_bundle = get_bundle_with_extra(&template_text, None).unwrap();
-        resource_text.push(template_text);
         bundles.push(template_bundle);
         output_langs.push(template_lang);
 
@@ -238,7 +235,6 @@ impl I18n {
             inner: Arc::new(Mutex::new(I18nInner {
                 bundles,
                 langs: output_langs,
-                resource_text,
             })),
         }
     }
@@ -288,13 +284,33 @@ impl I18n {
     }
 
     /// Return text from configured locales for use with the JS Fluent implementation.
-    pub fn resources_for_js(&self) -> ResourcesForJavascript {
+    pub fn resources_for_js(&self, desired_modules: &[String]) -> ResourcesForJavascript {
         let inner = self.inner.lock().unwrap();
+        let resources = get_modules(&inner.langs, desired_modules);
         ResourcesForJavascript {
             langs: inner.langs.iter().map(ToString::to_string).collect(),
-            resources: inner.resource_text.clone(),
+            resources,
         }
     }
+}
+
+fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<String> {
+    langs
+        .iter()
+        .cloned()
+        .map(|lang| {
+            let mut buf = String::new();
+            let lang_name = remapped_lang_name(&lang);
+            if let Some(strings) = STRINGS.get(lang_name) {
+                for module_name in desired_modules {
+                    if let Some(text) = strings.get(module_name.as_str()) {
+                        buf.push_str(text);
+                    }
+                }
+            }
+            buf
+        })
+        .collect()
 }
 
 /// This temporarily behaves like the older code; in the future we could either
@@ -317,9 +333,6 @@ struct I18nInner {
     // last element
     bundles: Vec<FluentBundle<FluentResource>>,
     langs: Vec<LanguageIdentifier>,
-    // fixme: this is a relic from the old implementation, and we could gather
-    // it only when needed in the future
-    resource_text: Vec<String>,
 }
 
 // Simple number formatting implementation

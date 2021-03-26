@@ -3,7 +3,7 @@
 
 import type { SvelteComponent } from "svelte/internal";
 
-import { setupI18n } from "anki/i18n";
+import { setupI18n, ModuleName } from "anki/i18n";
 import { checkNightMode } from "anki/nightmode";
 
 import GraphsPage from "./GraphsPage.svelte";
@@ -33,7 +33,7 @@ export function graphs(
 ): void {
     const nightMode = checkNightMode();
 
-    setupI18n().then(() => {
+    setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(() => {
         new GraphsPage({
             target,
             props: {
