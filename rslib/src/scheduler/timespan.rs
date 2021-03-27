@@ -1,21 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_args, I18n, TR};
+use crate::i18n::I18n;
 
 /// Short string like '4d' to place above answer buttons.
 pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
-    let args = tr_args!["amount" => span.as_rounded_unit_for_answer_buttons()];
-    let key = match span.unit() {
-        TimespanUnit::Seconds => TR::SchedulingAnswerButtonTimeSeconds,
-        TimespanUnit::Minutes => TR::SchedulingAnswerButtonTimeMinutes,
-        TimespanUnit::Hours => TR::SchedulingAnswerButtonTimeHours,
-        TimespanUnit::Days => TR::SchedulingAnswerButtonTimeDays,
-        TimespanUnit::Months => TR::SchedulingAnswerButtonTimeMonths,
-        TimespanUnit::Years => TR::SchedulingAnswerButtonTimeYears,
-    };
-    i18n.trn(key, args)
+    let amount = span.as_rounded_unit_for_answer_buttons();
+    match span.unit() {
+        TimespanUnit::Seconds => i18n.scheduling_answer_button_time_seconds(amount),
+        TimespanUnit::Minutes => i18n.scheduling_answer_button_time_minutes(amount),
+        TimespanUnit::Hours => i18n.scheduling_answer_button_time_hours(amount),
+        TimespanUnit::Days => i18n.scheduling_answer_button_time_days(amount),
+        TimespanUnit::Months => i18n.scheduling_answer_button_time_months(amount),
+        TimespanUnit::Years => i18n.scheduling_answer_button_time_years(amount),
+    }
+    .into()
 }
 
 /// Short string like '4d' to place above answer buttons.
@@ -42,16 +42,15 @@ pub fn time_span(seconds: f32, i18n: &I18n, precise: bool) -> String {
     } else {
         span.as_rounded_unit()
     };
-    let args = tr_args!["amount" => amount];
-    let key = match span.unit() {
-        TimespanUnit::Seconds => TR::SchedulingTimeSpanSeconds,
-        TimespanUnit::Minutes => TR::SchedulingTimeSpanMinutes,
-        TimespanUnit::Hours => TR::SchedulingTimeSpanHours,
-        TimespanUnit::Days => TR::SchedulingTimeSpanDays,
-        TimespanUnit::Months => TR::SchedulingTimeSpanMonths,
-        TimespanUnit::Years => TR::SchedulingTimeSpanYears,
-    };
-    i18n.trn(key, args)
+    match span.unit() {
+        TimespanUnit::Seconds => i18n.scheduling_time_span_seconds(amount),
+        TimespanUnit::Minutes => i18n.scheduling_time_span_minutes(amount),
+        TimespanUnit::Hours => i18n.scheduling_time_span_hours(amount),
+        TimespanUnit::Days => i18n.scheduling_time_span_days(amount),
+        TimespanUnit::Months => i18n.scheduling_time_span_months(amount),
+        TimespanUnit::Years => i18n.scheduling_time_span_years(amount),
+    }
+    .into()
 }
 
 const SECOND: f32 = 1.0;

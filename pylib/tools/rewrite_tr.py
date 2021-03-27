@@ -9,19 +9,22 @@ from re import Match
 
 import stringcase
 
-TR_REF = re.compile(r'\.trn\(\s*TR::([^,) ]+),\s+tr_(?:strs|args)!\[((?:"[A-z0-9_]+"\s*=>[^=]+?)+)]\s*,?\s*\)')
+TR_REF = re.compile(
+    r'\.trn\(\s*TR::([^,) ]+),\s+tr_(?:strs|args)!\[((?:"[A-z0-9_]+"\s*=>[^=]+?)+)]\s*,?\s*\)'
+)
 TR_ARG_INNER = re.compile(r'"([A-z0-9_]+)"\s*=>(?!=>)+,?\s*')
 
 # eg "count"=>output.trash_count, "megs"=>megs
 def rewrite_tr_args(args: str) -> str:
     return TR_ARG_INNER.sub("", args)
 
+
 def repl(m: Match) -> str:
     name = stringcase.snakecase(m.group(1))
     args = rewrite_tr_args(m.group(2))
-    #print(m.group(0))
-    #print(f".{name}({args})")
-    #print(args)
+    # print(m.group(0))
+    # print(f".{name}({args})")
+    # print(args)
     return f".{name}({args})"
 
 

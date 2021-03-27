@@ -37,38 +37,37 @@ pub enum Op {
 
 impl Op {
     pub fn describe(self, i18n: &I18n) -> String {
-        let key = match self {
-            Op::AddDeck => TR::UndoAddDeck,
-            Op::AddNote => TR::UndoAddNote,
-            Op::AnswerCard => TR::UndoAnswerCard,
-            Op::Bury => TR::StudyingBury,
-            Op::RemoveDeck => TR::DecksDeleteDeck,
-            Op::RemoveNote => TR::StudyingDeleteNote,
-            Op::RenameDeck => TR::ActionsRenameDeck,
-            Op::ScheduleAsNew => TR::UndoForgetCard,
-            Op::SetDueDate => TR::ActionsSetDueDate,
-            Op::Suspend => TR::StudyingSuspend,
-            Op::UnburyUnsuspend => TR::UndoUnburyUnsuspend,
-            Op::UpdateCard => TR::UndoUpdateCard,
-            Op::UpdateDeck => TR::UndoUpdateDeck,
-            Op::UpdateNote => TR::UndoUpdateNote,
-            Op::UpdatePreferences => TR::PreferencesPreferences,
-            Op::UpdateTag => TR::UndoUpdateTag,
-            Op::SetDeck => TR::BrowsingChangeDeck,
-            Op::SetFlag => TR::UndoSetFlag,
-            Op::FindAndReplace => TR::BrowsingFindAndReplace,
-            Op::ClearUnusedTags => TR::BrowsingClearUnusedTags,
-            Op::SortCards => TR::BrowsingReschedule,
-            Op::RenameTag => TR::ActionsRenameTag,
-            Op::RemoveTag => TR::ActionsRemoveTag,
-            Op::ReparentTag => TR::ActionsRenameTag,
-            Op::ReparentDeck => TR::ActionsRenameDeck,
-            Op::BuildFilteredDeck => TR::UndoBuildFilteredDeck,
-            Op::RebuildFilteredDeck => TR::UndoBuildFilteredDeck,
-            Op::EmptyFilteredDeck => TR::StudyingEmpty,
-        };
-
-        i18n.tr(key).to_string()
+        match self {
+            Op::AddDeck => i18n.undo_add_deck(),
+            Op::AddNote => i18n.undo_add_note(),
+            Op::AnswerCard => i18n.undo_answer_card(),
+            Op::Bury => i18n.studying_bury(),
+            Op::RemoveDeck => i18n.decks_delete_deck(),
+            Op::RemoveNote => i18n.studying_delete_note(),
+            Op::RenameDeck => i18n.actions_rename_deck(),
+            Op::ScheduleAsNew => i18n.undo_forget_card(),
+            Op::SetDueDate => i18n.actions_set_due_date(),
+            Op::Suspend => i18n.studying_suspend(),
+            Op::UnburyUnsuspend => i18n.undo_unbury_unsuspend(),
+            Op::UpdateCard => i18n.undo_update_card(),
+            Op::UpdateDeck => i18n.undo_update_deck(),
+            Op::UpdateNote => i18n.undo_update_note(),
+            Op::UpdatePreferences => i18n.preferences_preferences(),
+            Op::UpdateTag => i18n.undo_update_tag(),
+            Op::SetDeck => i18n.browsing_change_deck(),
+            Op::SetFlag => i18n.undo_set_flag(),
+            Op::FindAndReplace => i18n.browsing_find_and_replace(),
+            Op::ClearUnusedTags => i18n.browsing_clear_unused_tags(),
+            Op::SortCards => i18n.browsing_reschedule(),
+            Op::RenameTag => i18n.actions_rename_tag(),
+            Op::RemoveTag => i18n.actions_remove_tag(),
+            Op::ReparentTag => i18n.actions_rename_tag(),
+            Op::ReparentDeck => i18n.actions_rename_deck(),
+            Op::BuildFilteredDeck => i18n.undo_build_filtered_deck(),
+            Op::RebuildFilteredDeck => i18n.undo_build_filtered_deck(),
+            Op::EmptyFilteredDeck => i18n.studying_empty(),
+        }
+        .into()
     }
 }
 
