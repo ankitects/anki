@@ -264,9 +264,9 @@ fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -
 
 fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
     match err {
-        TemplateError::NoClosingBrackets(tag) => i18n.trn(
-            TR::CardTemplateRenderingNoClosingBrackets,
-            tr_strs!("tag"=>tag, "missing"=>"}}"),
+        TemplateError::NoClosingBrackets(tag) => i18n
+            .card_template_rendering_no_closing_brackets("}}", tag)
+            .into(),
         TemplateError::ConditionalNotClosed(tag) => i18n
             .card_template_rendering_conditional_not_closed(format!("{{{{/{}}}}}", tag))
             .into(),
