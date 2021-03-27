@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -29,9 +29,10 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
 # buildifier: disable=load-on-top
 load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "@rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
 )
 
@@ -49,6 +50,7 @@ cargo_build_script(
     crate_root = "build.rs",
     data = glob(["**"]),
     edition = "2018",
+    links = "ring-asm",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -63,38 +65,38 @@ cargo_build_script(
     ] + selects.with_or({
         # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux"))))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
     }) + selects.with_or({
         # cfg(any(target_os = "android", target_os = "linux"))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
     }) + selects.with_or({
         # cfg(any(unix, windows))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
     }) + selects.with_or({
         # cfg(target_os = "windows")
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
         ],
         "//conditions:default": [],
@@ -132,11 +134,11 @@ rust_library(
     ] + selects.with_or({
         # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux"))))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__spin__0_5_2//:spin",
         ],
@@ -144,8 +146,8 @@ rust_library(
     }) + selects.with_or({
         # cfg(any(target_os = "android", target_os = "linux"))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__libc__0_2_91//:libc",
             "@raze__once_cell__1_7_2//:once_cell",
@@ -154,19 +156,19 @@ rust_library(
     }) + selects.with_or({
         # cfg(any(unix, windows))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
     }) + selects.with_or({
         # cfg(target_os = "windows")
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__winapi__0_3_9//:winapi",
         ],

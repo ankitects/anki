@@ -2,8 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@io_bazel_rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust_test")
-load("@io_bazel_rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
+load("@rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust_test")
+load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load(":rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 load(":clang_format.bzl", "proto_format")
 load("//ts:sql_format.bzl", "sql_format")

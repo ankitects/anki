@@ -1,5 +1,5 @@
-load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library", "rust_test")
-load("@io_bazel_rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
+load("@rules_rust//rust:rust.bzl", "rust_library", "rust_test")
+load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 
@@ -14,7 +14,7 @@ rust_library(
     crate_type = "cdylib",
     rustc_flags = selects.with_or({
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
         ): [
             "-Clink-arg=-undefined",
             "-Clink-arg=dynamic_lookup",

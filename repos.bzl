@@ -26,18 +26,18 @@ def register_repos():
     ########
 
     # native.local_repository(
-    #     name = "io_bazel_rules_rust",
+    #     name = "rules_rust",
     #     path = "../rules_rust",
     # )
 
     maybe(
         http_archive,
-        name = "io_bazel_rules_rust",
-        strip_prefix = "rules_rust-anki-2020-12-10",
+        name = "rules_rust",
+        strip_prefix = "rules_rust-anki-2021-03-27",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/anki-2020-12-10.tar.gz",
+            "https://github.com/ankitects/rules_rust/archive/anki-2021-03-27.tar.gz",
         ],
-        sha256 = "80a7647c3c1992c434a462bf424b9138c3c9af6c794ac112f636ca7c8c53180e",
+        sha256 = "23457e001aa3611c492263ee7ea392dd95327801fddf5bf0914f7a7c68b2875a",
     )
 
     # python

@@ -1990,7 +1990,7 @@
   },
   {
     "name": "security-framework",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "authors": "Steven Fackler <sfackler@gmail.com>|Kornel <kornel@geekhood.net>",
     "repository": "https://github.com/kornelski/rust-security-framework",
     "license": "Apache-2.0 OR MIT",
@@ -1999,7 +1999,7 @@
   },
   {
     "name": "security-framework-sys",
-    "version": "2.1.1",
+    "version": "2.2.0",
     "authors": "Steven Fackler <sfackler@gmail.com>|Kornel <kornel@geekhood.net>",
     "repository": "https://github.com/kornelski/rust-security-framework",
     "license": "Apache-2.0 OR MIT",

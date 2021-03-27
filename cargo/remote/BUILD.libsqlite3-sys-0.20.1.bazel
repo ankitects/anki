@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -29,9 +29,10 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
 # buildifier: disable=load-on-top
 load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "@rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
 )
 
@@ -54,6 +55,7 @@ cargo_build_script(
     crate_root = "build.rs",
     data = glob(["**"]),
     edition = "2018",
+    links = "sqlite3",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -69,7 +71,7 @@ cargo_build_script(
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__vcpkg__0_2_11//:vcpkg",
         ],
@@ -111,7 +113,7 @@ rust_library(
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
         ],
         "//conditions:default": [],
