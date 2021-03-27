@@ -235,8 +235,8 @@ service TagsService {
 
 service SearchService {
   rpc BuildSearchString(SearchNode) returns (String);
-  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
-  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
+  rpc SearchCards(SearchIn) returns (SearchOut);
+  rpc SearchNotes(SearchIn) returns (SearchOut);
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
@@ -786,13 +786,13 @@ message OpenCollectionIn {
   string log_path = 4;
 }
 
-message SearchCardsIn {
+message SearchIn {
   string search = 1;
   SortOrder order = 2;
 }
 
-message SearchCardsOut {
-  repeated int64 card_ids = 1;
+message SearchOut {
+  repeated int64 ids = 1;
 }
 
 message SortOrder {
@@ -821,14 +821,6 @@ message SortOrder {
     string custom = 3;
     Builtin builtin = 4;
   }
-}
-
-message SearchNotesIn {
-  string search = 1;
-}
-
-message SearchNotesOut {
-  repeated int64 note_ids = 2;
 }
 
 message SearchNode {
