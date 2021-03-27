@@ -25,7 +25,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
@@ -36,7 +36,7 @@ load(
 )
 
 cargo_build_script(
-    name = "wasm_bindgen_shared_build_script",
+    name = "openssl_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
@@ -52,15 +52,21 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.71",
+    version = "0.10.33",
     visibility = ["//visibility:private"],
     deps = [
+        "@raze__openssl_sys__0_9_61//:openssl_sys",
     ],
 )
 
+# Unsupported target "mk_certs" with type "example" omitted
+
 rust_library(
-    name = "wasm_bindgen_shared",
+    name = "openssl",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+        "@raze__openssl_sys__0_9_61//:openssl_sys": "ffi",
+    },
     crate_features = [
     ],
     crate_root = "src/lib.rs",
@@ -74,9 +80,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.71",
+    version = "0.10.33",
     # buildifier: leave-alone
     deps = [
-        ":wasm_bindgen_shared_build_script",
+        ":openssl_build_script",
+        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__cfg_if__1_0_0//:cfg_if",
+        "@raze__foreign_types__0_3_2//:foreign_types",
+        "@raze__libc__0_2_91//:libc",
+        "@raze__once_cell__1_7_2//:once_cell",
+        "@raze__openssl_sys__0_9_61//:openssl_sys",
     ],
 )

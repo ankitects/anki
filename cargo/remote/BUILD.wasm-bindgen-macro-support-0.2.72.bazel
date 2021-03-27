@@ -25,18 +25,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "pin_project_internal",
+    name = "wasm_bindgen_macro_support",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "spans",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -46,11 +47,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.5",
+    version = "0.2.72",
     # buildifier: leave-alone
     deps = [
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_63//:syn",
+        "@raze__syn__1_0_65//:syn",
+        "@raze__wasm_bindgen_backend__0_2_72//:wasm_bindgen_backend",
+        "@raze__wasm_bindgen_shared__0_2_72//:wasm_bindgen_shared",
     ],
 )

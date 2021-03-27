@@ -112,7 +112,7 @@ rust_library(
         "@raze__http__0_2_3//:http",
         "@raze__hyper_timeout__0_3_1//:hyper_timeout",
         "@raze__mime_guess__2_0_3//:mime_guess",
-        "@raze__serde__1_0_124//:serde",
+        "@raze__serde__1_0_125//:serde",
         "@raze__serde_json__1_0_64//:serde_json",
         "@raze__serde_urlencoded__0_6_1//:serde_urlencoded",
         "@raze__url__2_2_1//:url",

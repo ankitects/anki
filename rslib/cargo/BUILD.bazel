@@ -230,7 +230,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_5//:pin_project",
+    actual = "@raze__pin_project__1_0_6//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -284,7 +284,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_4_3//:regex",
+    actual = "@raze__regex__1_4_5//:regex",
     tags = [
         "cargo-raze",
         "manual",
@@ -320,7 +320,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_124//:serde",
+    actual = "@raze__serde__1_0_125//:serde",
     tags = [
         "cargo-raze",
         "manual",
@@ -338,7 +338,7 @@ alias(
 
 alias(
     name = "serde_derive",
-    actual = "@raze__serde_derive__1_0_124//:serde_derive",
+    actual = "@raze__serde_derive__1_0_125//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",

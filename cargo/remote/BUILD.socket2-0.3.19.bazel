@@ -61,7 +61,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__cfg_if__1_0_0//:cfg_if",
-            "@raze__libc__0_2_88//:libc",
+            "@raze__libc__0_2_91//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

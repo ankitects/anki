@@ -25,19 +25,29 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "byteorder",
+    name = "web_sys",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
+        "Blob",
+        "BlobPropertyBag",
+        "Crypto",
+        "Event",
+        "EventTarget",
+        "FormData",
+        "Headers",
+        "MessageEvent",
+        "Request",
+        "RequestInit",
+        "RequestMode",
+        "Response",
+        "Window",
+        "Worker",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -50,8 +60,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.2",
+    version = "0.3.49",
     # buildifier: leave-alone
     deps = [
+        "@raze__js_sys__0_3_49//:js_sys",
+        "@raze__wasm_bindgen__0_2_72//:wasm_bindgen",
     ],
 )
+
+# Unsupported target "wasm" with type "test" omitted
