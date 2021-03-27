@@ -751,7 +751,8 @@ message TrashMediaFilesIn {
 }
 
 message TranslateStringIn {
-  int32 key = 2;
+  uint32 module_index = 1;
+  uint32 message_index = 2;
   map<string, TranslateArgValue> args = 3;
 }
 

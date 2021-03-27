@@ -12,14 +12,20 @@ pub(super) use pb::i18n_service::Service as I18nService;
 
 impl I18nService for Backend {
     fn translate_string(&self, input: pb::TranslateStringIn) -> Result<pb::String> {
-        let key = input.key;
-        let map = input
+        let args = input
             .args
             .iter()
             .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
             .collect();
 
-        Ok(self.i18n.trn2(key as usize, map).into())
+        Ok(self
+            .i18n
+            .translate_via_index(
+                input.module_index as usize,
+                input.message_index as usize,
+                args,
+            )
+            .into())
     }
 
     fn format_timespan(&self, input: pb::FormatTimespanIn) -> Result<pb::String> {

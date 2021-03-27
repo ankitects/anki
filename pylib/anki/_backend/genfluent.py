@@ -17,11 +17,11 @@ class Variable(TypedDict):
 
 
 def legacy_enum() -> str:
-    out = ["class LegacyTranslationEnum(enum.Enum):"]
+    out = ["class LegacyTranslationEnum:"]
     for module in modules:
         for translation in module["translations"]:
             key = stringcase.constcase(translation["key"])
-            value = module["index"] * 1000 + translation["index"]
+            value = f'({module["index"]}, {translation["index"]})'
             out.append(f"    {key} = {value}")
 
     return "\n".join(out) + "\n"
