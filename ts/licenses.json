@@ -93,7 +93,7 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/node@13.13.40": {
+    "@types/node@13.13.48": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -106,7 +106,7 @@
         "path": "node_modules/bootstrap-icons",
         "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
     },
-    "bootstrap@5.0.0-beta2": {
+    "bootstrap@5.0.0-beta3": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
@@ -129,7 +129,7 @@
         "path": "node_modules/css-browser-selector",
         "licenseFile": "node_modules/css-browser-selector/README.mkdn"
     },
-    "d3-array@2.11.0": {
+    "d3-array@2.12.1": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-array",
         "publisher": "Mike Bostock",
@@ -137,7 +137,7 @@
         "path": "node_modules/d3-array",
         "licenseFile": "node_modules/d3-array/LICENSE"
     },
-    "d3-axis@2.0.0": {
+    "d3-axis@2.1.0": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-axis",
         "publisher": "Mike Bostock",
@@ -321,7 +321,7 @@
         "path": "node_modules/d3-selection",
         "licenseFile": "node_modules/d3-selection/LICENSE"
     },
-    "d3-shape@2.0.0": {
+    "d3-shape@2.1.0": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-shape",
         "publisher": "Mike Bostock",
@@ -369,7 +369,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@6.5.0": {
+    "d3@6.6.1": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
@@ -392,7 +392,7 @@
         "path": "node_modules/iconv-lite",
         "licenseFile": "node_modules/iconv-lite/LICENSE"
     },
-    "internmap@1.0.0": {
+    "internmap@1.0.1": {
         "licenses": "ISC",
         "repository": "https://github.com/mbostock/internmap",
         "publisher": "Mike Bostock",
@@ -416,11 +416,11 @@
         "path": "node_modules/jquery-ui-dist",
         "licenseFile": "node_modules/jquery-ui-dist/LICENSE.txt"
     },
-    "jquery@3.5.1": {
+    "jquery@3.6.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery",
-        "publisher": "JS Foundation and other contributors",
-        "url": "https://github.com/jquery/jquery/blob/3.5.1/AUTHORS.txt",
+        "publisher": "OpenJS Foundation and other contributors",
+        "url": "https://github.com/jquery/jquery/blob/3.6.0/AUTHORS.txt",
         "path": "node_modules/jquery",
         "licenseFile": "node_modules/jquery/LICENSE.txt"
     },
