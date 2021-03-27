@@ -2183,22 +2183,22 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__security_framework__2_1_2",
-        url = "https://crates.io/api/v1/crates/security-framework/2.1.2/download",
+        name = "raze__security_framework__2_2_0",
+        url = "https://crates.io/api/v1/crates/security-framework/2.2.0/download",
         type = "tar.gz",
-        sha256 = "d493c5f39e02dfb062cd8f33301f90f9b13b650e8c1b1d0fd75c19dd64bff69d",
-        strip_prefix = "security-framework-2.1.2",
-        build_file = Label("//cargo/remote:BUILD.security-framework-2.1.2.bazel"),
+        sha256 = "3670b1d2fdf6084d192bc71ead7aabe6c06aa2ea3fbd9cc3ac111fa5c2b1bd84",
+        strip_prefix = "security-framework-2.2.0",
+        build_file = Label("//cargo/remote:BUILD.security-framework-2.2.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__security_framework_sys__2_1_1",
-        url = "https://crates.io/api/v1/crates/security-framework-sys/2.1.1/download",
+        name = "raze__security_framework_sys__2_2_0",
+        url = "https://crates.io/api/v1/crates/security-framework-sys/2.2.0/download",
         type = "tar.gz",
-        sha256 = "dee48cdde5ed250b0d3252818f646e174ab414036edb884dde62d80a3ac6082d",
-        strip_prefix = "security-framework-sys-2.1.1",
-        build_file = Label("//cargo/remote:BUILD.security-framework-sys-2.1.1.bazel"),
+        sha256 = "3676258fd3cfe2c9a0ec99ce3038798d847ce3e4bb17746373eb9f0f1ac16339",
+        strip_prefix = "security-framework-sys-2.2.0",
+        build_file = Label("//cargo/remote:BUILD.security-framework-sys-2.2.0.bazel"),
     )
 
     maybe(

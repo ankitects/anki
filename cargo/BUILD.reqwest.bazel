@@ -16,7 +16,7 @@ up to date for us.
 
 # buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
@@ -57,8 +57,8 @@ rust_library(
     aliases = selects.with_or({
         # ring on Linux
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): {},
         "//conditions:default": {
             # native-tls
@@ -75,8 +75,8 @@ rust_library(
     ] + selects.with_or({
         # ring on Linux
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "__rustls",
             "hyper-rustls",
@@ -119,12 +119,12 @@ rust_library(
     ] + selects.with_or({
         # cfg(not(target_arch = "wasm32"))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__base64__0_13_0//:base64",
             "@raze__encoding_rs__0_8_28//:encoding_rs",
@@ -145,7 +145,7 @@ rust_library(
     }) + selects.with_or({
         # cfg(windows)
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__winreg__0_7_0//:winreg",
         ],
@@ -153,8 +153,8 @@ rust_library(
     }) + selects.with_or({
         # ring on Linux
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
         ): [
             "@raze__hyper_rustls__0_21_0//:hyper_rustls",
             "@raze__rustls__0_18_1//:rustls",

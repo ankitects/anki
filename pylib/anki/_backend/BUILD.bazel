@@ -69,7 +69,7 @@ alias(
     name = "rsbridge",
     actual = selects.with_or({
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): ":rsbridge_win",
         "//conditions:default": ":rsbridge_unix",
     }),

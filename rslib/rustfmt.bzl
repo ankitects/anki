@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 def _rustfmt_impl(ctx):
-    toolchain = ctx.toolchains["@io_bazel_rules_rust//rust:toolchain"]
+    toolchain = ctx.toolchains["@rules_rust//rust:toolchain"]
     script_name = ctx.label.name + "_script"
     rustfmt = toolchain.rustfmt.path
     if ctx.attr.is_windows:
@@ -40,7 +40,7 @@ _rustfmt_test = rule(
     implementation = _rustfmt_impl,
     test = True,
     toolchains = [
-        "@io_bazel_rules_rust//rust:toolchain",
+        "@rules_rust//rust:toolchain",
     ],
     attrs = _ATTRS,
 )
@@ -49,7 +49,7 @@ _rustfmt_fix = rule(
     implementation = _rustfmt_impl,
     executable = True,
     toolchains = [
-        "@io_bazel_rules_rust//rust:toolchain",
+        "@rules_rust//rust:toolchain",
     ],
     attrs = _ATTRS,
 )
