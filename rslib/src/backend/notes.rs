@@ -12,7 +12,7 @@ use crate::{
 pub(super) use pb::notes_service::Service as NotesService;
 
 impl NotesService for Backend {
-    fn new_note(&self, input: pb::NoteTypeId) -> Result<pb::Note> {
+    fn new_note(&self, input: pb::NotetypeId) -> Result<pb::Note> {
         self.with_col(|col| {
             let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
             Ok(nt.new_note().into())
@@ -37,7 +37,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn default_deck_for_notetype(&self, input: pb::NoteTypeId) -> Result<pb::DeckId> {
+    fn default_deck_for_notetype(&self, input: pb::NotetypeId) -> Result<pb::DeckId> {
         self.with_col(|col| {
             Ok(col
                 .default_deck_for_notetype(input.into())?

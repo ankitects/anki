@@ -10,7 +10,7 @@ pub use crate::{
     err::{AnkiError, Result},
     i18n::I18n,
     notes::{Note, NoteId},
-    notetype::{NoteType, NoteTypeId},
+    notetype::{Notetype, NotetypeId},
     ops::{Op, OpChanges, OpOutput},
     revlog::RevlogId,
     timestamp::{TimestampMillis, TimestampSecs},

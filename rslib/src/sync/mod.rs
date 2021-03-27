@@ -12,7 +12,7 @@ use crate::{
     decks::DeckSchema11,
     err::SyncErrorKind,
     notes::Note,
-    notetype::{NoteType, NoteTypeSchema11},
+    notetype::{Notetype, NotetypeSchema11},
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
@@ -89,7 +89,7 @@ pub struct DecksAndConfig {
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct UnchunkedChanges {
     #[serde(rename = "models")]
-    notetypes: Vec<NoteTypeSchema11>,
+    notetypes: Vec<NotetypeSchema11>,
     #[serde(rename = "decks")]
     decks_and_config: DecksAndConfig,
     tags: Vec<String>,
@@ -124,7 +124,7 @@ pub struct NoteEntry {
     pub id: NoteId,
     pub guid: String,
     #[serde(rename = "mid")]
-    pub ntid: NoteTypeId,
+    pub ntid: NotetypeId,
     #[serde(rename = "mod")]
     pub mtime: TimestampSecs,
     pub usn: Usn,
@@ -750,7 +750,7 @@ impl Collection {
         &mut self,
         pending_usn: Usn,
         new_usn: Option<Usn>,
-    ) -> Result<Vec<NoteTypeSchema11>> {
+    ) -> Result<Vec<NotetypeSchema11>> {
         let ids = self
             .storage
             .objects_pending_sync("notetypes", pending_usn)?;
@@ -760,7 +760,7 @@ impl Collection {
         ids.into_iter()
             .map(|id| {
                 self.storage.get_notetype(id).map(|opt| {
-                    let mut nt: NoteTypeSchema11 = opt.unwrap().into();
+                    let mut nt: NotetypeSchema11 = opt.unwrap().into();
                     nt.usn = new_usn.unwrap_or(nt.usn);
                     nt
                 })
@@ -844,9 +844,9 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_notetypes(&mut self, notetypes: Vec<NoteTypeSchema11>, latest_usn: Usn) -> Result<()> {
+    fn merge_notetypes(&mut self, notetypes: Vec<NotetypeSchema11>, latest_usn: Usn) -> Result<()> {
         for nt in notetypes {
-            let mut nt: NoteType = nt.into();
+            let mut nt: Notetype = nt.into();
             let proceed = if let Some(existing_nt) = self.storage.get_notetype(nt.id)? {
                 if existing_nt.mtime_secs <= nt.mtime_secs {
                     if (existing_nt.fields.len() != nt.fields.len())

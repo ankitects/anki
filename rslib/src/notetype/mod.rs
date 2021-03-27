@@ -11,14 +11,14 @@ mod stock;
 mod templates;
 
 pub use crate::backend_proto::{
-    card_requirement::Kind as CardRequirementKind, note_type_config::Kind as NoteTypeKind,
-    CardRequirement, CardTemplateConfig, NoteFieldConfig, NoteType as NoteTypeProto,
-    NoteTypeConfig,
+    card_requirement::Kind as CardRequirementKind, notetype_config::Kind as NotetypeKind,
+    CardRequirement, CardTemplateConfig, NoteFieldConfig, Notetype as NotetypeProto,
+    NotetypeConfig,
 };
 pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;
 pub(crate) use render::RenderCardOutput;
-pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
+pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NotetypeSchema11};
 pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
 
@@ -40,33 +40,33 @@ use std::{
 };
 use unicase::UniCase;
 
-define_newtype!(NoteTypeId, i64);
+define_newtype!(NotetypeId, i64);
 
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 
 #[derive(Debug, PartialEq)]
-pub struct NoteType {
-    pub id: NoteTypeId,
+pub struct Notetype {
+    pub id: NotetypeId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
     pub fields: Vec<NoteField>,
     pub templates: Vec<CardTemplate>,
-    pub config: NoteTypeConfig,
+    pub config: NotetypeConfig,
 }
 
-impl Default for NoteType {
+impl Default for Notetype {
     fn default() -> Self {
-        NoteType {
-            id: NoteTypeId(0),
+        Notetype {
+            id: NotetypeId(0),
             name: "".into(),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
             fields: vec![],
             templates: vec![],
-            config: NoteTypeConfig {
+            config: NotetypeConfig {
                 css: DEFAULT_CSS.into(),
                 latex_pre: DEFAULT_LATEX_HEADER.into(),
                 latex_post: DEFAULT_LATEX_FOOTER.into(),
@@ -76,7 +76,7 @@ impl Default for NoteType {
     }
 }
 
-impl NoteType {
+impl Notetype {
     pub(crate) fn ensure_names_unique(&mut self) {
         let mut names = HashSet::new();
         for t in &mut self.templates {
@@ -105,7 +105,7 @@ impl NoteType {
     /// Return the template for the given card ordinal. Cloze notetypes
     /// always return the first and only template.
     pub fn get_template(&self, card_ord: u16) -> Result<&CardTemplate> {
-        let template = if self.config.kind() == NoteTypeKind::Cloze {
+        let template = if self.config.kind() == NotetypeKind::Cloze {
             self.templates.get(0)
         } else {
             self.templates.get(card_ord as usize)
@@ -218,7 +218,7 @@ impl NoteType {
         self.prepare_for_update(None)
     }
 
-    pub(crate) fn prepare_for_update(&mut self, existing: Option<&NoteType>) -> Result<()> {
+    pub(crate) fn prepare_for_update(&mut self, existing: Option<&Notetype>) -> Result<()> {
         if self.fields.is_empty() {
             return Err(AnkiError::invalid_input("1 field required"));
         }
@@ -266,7 +266,7 @@ impl NoteType {
         Ok(())
     }
 
-    fn renamed_and_removed_fields(&self, current: &NoteType) -> HashMap<String, Option<String>> {
+    fn renamed_and_removed_fields(&self, current: &Notetype) -> HashMap<String, Option<String>> {
         let mut remaining_ords = HashSet::new();
         // gather renames
         let mut map: HashMap<String, Option<String>> = self
@@ -355,13 +355,13 @@ impl NoteType {
     }
 
     pub(crate) fn is_cloze(&self) -> bool {
-        matches!(self.config.kind(), NoteTypeKind::Cloze)
+        matches!(self.config.kind(), NotetypeKind::Cloze)
     }
 }
 
-impl From<NoteType> for NoteTypeProto {
-    fn from(nt: NoteType) -> Self {
-        NoteTypeProto {
+impl From<Notetype> for NotetypeProto {
+    fn from(nt: Notetype) -> Self {
+        NotetypeProto {
             id: nt.id.0,
             name: nt.name,
             mtime_secs: nt.mtime_secs.0 as u32,
@@ -375,7 +375,7 @@ impl From<NoteType> for NoteTypeProto {
 
 impl Collection {
     /// Add a new notetype, and allocate it an ID.
-    pub fn add_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
+    pub fn add_notetype(&mut self, nt: &mut Notetype) -> Result<()> {
         self.transact_no_undo(|col| {
             let usn = col.usn()?;
             nt.set_modified(usn);
@@ -383,7 +383,7 @@ impl Collection {
         })
     }
 
-    pub(crate) fn add_notetype_inner(&mut self, nt: &mut NoteType, usn: Usn) -> Result<()> {
+    pub(crate) fn add_notetype_inner(&mut self, nt: &mut Notetype, usn: Usn) -> Result<()> {
         nt.prepare_for_adding()?;
         self.ensure_notetype_name_unique(nt, usn)?;
         self.storage.add_new_notetype(nt)
@@ -391,7 +391,7 @@ impl Collection {
 
     pub(crate) fn ensure_notetype_name_unique(
         &self,
-        notetype: &mut NoteType,
+        notetype: &mut Notetype,
         usn: Usn,
     ) -> Result<()> {
         loop {
@@ -411,7 +411,7 @@ impl Collection {
 
     /// Saves changes to a note type. This will force a full sync if templates
     /// or fields have been added/removed/reordered.
-    pub fn update_notetype(&mut self, nt: &mut NoteType, preserve_usn: bool) -> Result<()> {
+    pub fn update_notetype(&mut self, nt: &mut Notetype, preserve_usn: bool) -> Result<()> {
         let existing = self.get_notetype(nt.id)?;
         let norm = self.get_bool(BoolKey::NormalizeNoteText);
         nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
@@ -447,7 +447,7 @@ impl Collection {
         })
     }
 
-    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<Arc<NoteType>>> {
+    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<Arc<Notetype>>> {
         if let Some(ntid) = self.storage.get_notetype_id(name)? {
             self.get_notetype(ntid)
         } else {
@@ -455,7 +455,7 @@ impl Collection {
         }
     }
 
-    pub fn get_notetype(&mut self, ntid: NoteTypeId) -> Result<Option<Arc<NoteType>>> {
+    pub fn get_notetype(&mut self, ntid: NotetypeId) -> Result<Option<Arc<Notetype>>> {
         if let Some(nt) = self.state.notetype_cache.get(&ntid) {
             return Ok(Some(nt.clone()));
         }
@@ -468,7 +468,7 @@ impl Collection {
         }
     }
 
-    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NoteTypeId, Arc<NoteType>>> {
+    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
         self.storage
             .get_all_notetype_names()?
             .into_iter()
@@ -481,7 +481,7 @@ impl Collection {
             .collect()
     }
 
-    pub fn remove_notetype(&mut self, ntid: NoteTypeId) -> Result<()> {
+    pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<()> {
         // fixme: currently the storage layer is taking care of removing the notes and cards,
         // but we need to do it in this layer in the future for undo handling
         self.transact_no_undo(|col| {

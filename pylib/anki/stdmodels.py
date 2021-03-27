@@ -10,7 +10,7 @@ import anki._backend.backend_pb2 as _pb
 from anki.utils import from_json_bytes
 
 # pylint: disable=no-member
-StockNotetypeKind = _pb.StockNoteType.Kind
+StockNotetypeKind = _pb.StockNotetype.Kind
 
 # add-on authors can add ("note type name", function_like_addBasicModel)
 # to this list to have it shown in the add/clone note type screen

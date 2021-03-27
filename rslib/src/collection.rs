@@ -5,7 +5,7 @@ use crate::log::Logger;
 use crate::types::Usn;
 use crate::{
     decks::{Deck, DeckId},
-    notetype::{NoteType, NoteTypeId},
+    notetype::{Notetype, NotetypeId},
     prelude::*,
     storage::SqliteStorage,
     undo::UndoManager,
@@ -62,7 +62,7 @@ pub fn open_test_collection_with_server(server: bool) -> Collection {
 #[derive(Debug, Default)]
 pub struct CollectionState {
     pub(crate) undo: UndoManager,
-    pub(crate) notetype_cache: HashMap<NoteTypeId, Arc<NoteType>>,
+    pub(crate) notetype_cache: HashMap<NotetypeId, Arc<Notetype>>,
     pub(crate) deck_cache: HashMap<DeckId, Arc<Deck>>,
     pub(crate) card_queues: Option<CardQueues>,
     /// True if legacy Python code has executed SQL that has modified the

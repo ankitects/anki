@@ -3,7 +3,7 @@
 
 use crate::{
     decks::DeckId as DeckIdType,
-    notetype::NoteTypeId as NoteTypeIdType,
+    notetype::NotetypeId as NotetypeIdType,
     prelude::*,
     search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
     text::escape_anki_wildcards,
@@ -86,11 +86,11 @@ fn write_search_node(node: &SearchNode) -> String {
         CardTemplate(t) => write_template(t),
         Deck(s) => quote(&format!("deck:{}", s)),
         DeckId(DeckIdType(i)) => format!("\"did:{}\"", i),
-        NoteTypeId(NoteTypeIdType(i)) => format!("\"mid:{}\"", i),
-        NoteType(s) => quote(&format!("note:{}", s)),
+        NotetypeId(NotetypeIdType(i)) => format!("\"mid:{}\"", i),
+        Notetype(s) => quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),
         Tag(s) => quote(&format!("tag:{}", s)),
-        Duplicates { note_type_id, text } => write_dupe(note_type_id, text),
+        Duplicates { notetype_id, text } => write_dupe(notetype_id, text),
         State(k) => write_state(k),
         Flag(u) => format!("\"flag:{}\"", u),
         NoteIds(s) => format!("\"nid:{}\"", s),
@@ -135,9 +135,9 @@ fn write_rated(days: &u32, ease: &RatingKind) -> String {
 }
 
 /// Escape double quotes and backslashes: \"
-fn write_dupe(note_type_id: &NoteTypeId, text: &str) -> String {
+fn write_dupe(notetype_id: &NotetypeId, text: &str) -> String {
     let esc = text.replace(r"\", r"\\").replace('"', r#"\""#);
-    format!("\"dupe:{},{}\"", note_type_id, esc)
+    format!("\"dupe:{},{}\"", notetype_id, esc)
 }
 
 fn write_state(kind: &StateKind) -> String {

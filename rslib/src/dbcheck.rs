@@ -7,8 +7,8 @@ use crate::{
     err::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
     notetype::{
-        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeId,
-        NoteTypeKind,
+        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, Notetype, NotetypeId,
+        NotetypeKind,
     },
     prelude::*,
     timestamp::{TimestampMillis, TimestampSecs},
@@ -322,10 +322,10 @@ impl Collection {
 
     fn remove_cards_without_template(
         &mut self,
-        nt: &NoteType,
+        nt: &Notetype,
         cards: &[AlreadyGeneratedCardInfo],
     ) -> Result<usize> {
-        if nt.config.kind() == NoteTypeKind::Cloze {
+        if nt.config.kind() == NotetypeKind::Cloze {
             return Ok(0);
         }
         let mut removed = 0;
@@ -343,8 +343,8 @@ impl Collection {
         &mut self,
         stamp: TimestampMillis,
         field_count: usize,
-        previous_id: NoteTypeId,
-    ) -> Result<Arc<NoteType>> {
+        previous_id: NotetypeId,
+    ) -> Result<Arc<Notetype>> {
         debug!(self.log, "create recovery notetype");
         let extra_cards_required = self
             .storage

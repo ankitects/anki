@@ -8,7 +8,7 @@ from aqt.utils import HelpPage, shortcut, tr
 
 
 class ModelChooser(QHBoxLayout):
-    "New code should prefer NoteTypeChooser."
+    "New code should prefer NotetypeChooser."
 
     def __init__(
         self,

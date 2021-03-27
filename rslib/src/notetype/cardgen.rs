@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::NoteType;
+use super::Notetype;
 use crate::{
     card::{Card, CardId},
     cloze::add_cloze_numbers_in_string,
@@ -10,7 +10,7 @@ use crate::{
     decks::DeckId,
     err::{AnkiError, Result},
     notes::{Note, NoteId},
-    notetype::NoteTypeKind,
+    notetype::NotetypeKind,
     template::ParsedTemplate,
     types::Usn,
 };
@@ -46,7 +46,7 @@ pub(crate) struct SingleCardGenContext {
 /// and where they should be placed.
 pub(crate) struct CardGenContext<'a> {
     pub usn: Usn,
-    pub notetype: &'a NoteType,
+    pub notetype: &'a Notetype,
     cards: Vec<SingleCardGenContext>,
 }
 
@@ -58,7 +58,7 @@ pub(crate) struct CardGenCache {
 }
 
 impl CardGenContext<'_> {
-    pub(crate) fn new(nt: &NoteType, usn: Usn) -> CardGenContext<'_> {
+    pub(crate) fn new(nt: &Notetype, usn: Usn) -> CardGenContext<'_> {
         CardGenContext {
             usn,
             notetype: &nt,
@@ -97,8 +97,8 @@ impl CardGenContext<'_> {
     ) -> Vec<CardToGenerate> {
         let extracted = extract_data_from_existing_cards(existing);
         let cards = match self.notetype.config.kind() {
-            NoteTypeKind::Normal => self.new_cards_required_normal(note, &extracted),
-            NoteTypeKind::Cloze => self.new_cards_required_cloze(note, &extracted),
+            NotetypeKind::Normal => self.new_cards_required_normal(note, &extracted),
+            NotetypeKind::Cloze => self.new_cards_required_cloze(note, &extracted),
         };
         if extracted.existing_ords.is_empty() && cards.is_empty() && ensure_not_empty {
             // if there are no existing cards and no cards will be generated,
@@ -260,7 +260,7 @@ impl Collection {
         let by_note = group_generated_cards_by_note(existing_cards);
         let mut cache = CardGenCache::default();
         for (nid, existing_cards) in by_note {
-            if ctx.notetype.config.kind() == NoteTypeKind::Normal
+            if ctx.notetype.config.kind() == NotetypeKind::Normal
                 && existing_cards.len() == ctx.notetype.templates.len()
             {
                 // in a normal note type, if card count matches template count, we don't need

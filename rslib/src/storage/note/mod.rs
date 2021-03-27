@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use crate::{
     err::Result,
     notes::{Note, NoteId, NoteTags},
-    notetype::NoteTypeId,
+    notetype::NotetypeId,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
@@ -137,7 +137,7 @@ impl super::SqliteStorage {
     /// match.
     pub(crate) fn note_fields_by_checksum(
         &self,
-        ntid: NoteTypeId,
+        ntid: NotetypeId,
         csum: u32,
     ) -> Result<Vec<(NoteId, String)>> {
         self.db

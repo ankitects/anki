@@ -23,7 +23,7 @@ struct CardStats {
     average_secs: f32,
     total_secs: f32,
     card_type: String,
-    note_type: String,
+    notetype: String,
     deck: String,
     nid: NoteId,
     cid: CardId,
@@ -118,7 +118,7 @@ impl Collection {
             average_secs,
             total_secs,
             card_type: nt.get_template(card.template_idx)?.name.clone(),
-            note_type: nt.name.clone(),
+            notetype: nt.name.clone(),
             deck: deck.human_name(),
             nid: card.note_id,
             cid: card.id,
@@ -172,7 +172,7 @@ impl Collection {
         }
 
         stats.push((tr.card_stats_card_template().into(), cs.card_type));
-        stats.push((tr.card_stats_note_type().into(), cs.note_type));
+        stats.push((tr.card_stats_note_type().into(), cs.notetype));
         stats.push((tr.card_stats_deck_name().into(), cs.deck));
         stats.push((tr.card_stats_card_id().into(), cs.cid.0.to_string()));
         stats.push((tr.card_stats_note_id().into(), cs.nid.0.to_string()));

@@ -4,8 +4,8 @@
 use crate::{
     decks::DeckId,
     notetype::{
-        CardRequirement, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteType,
-        NoteTypeConfig,
+        CardRequirement, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, Notetype,
+        NotetypeConfig,
     },
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
     timestamp::TimestampSecs,
@@ -17,23 +17,23 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
 use std::collections::HashMap;
 
-use super::{CardRequirementKind, NoteTypeId};
+use super::{CardRequirementKind, NotetypeId};
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
 #[repr(u8)]
-pub enum NoteTypeKind {
+pub enum NotetypeKind {
     Standard = 0,
     Cloze = 1,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct NoteTypeSchema11 {
+pub struct NotetypeSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub(crate) id: NoteTypeId,
+    pub(crate) id: NotetypeId,
     pub(crate) name: String,
     #[serde(rename = "type")]
-    pub(crate) kind: NoteTypeKind,
+    pub(crate) kind: NotetypeKind,
     #[serde(rename = "mod")]
     pub(crate) mtime: TimestampSecs,
     pub(crate) usn: Usn,
@@ -80,20 +80,20 @@ pub enum FieldRequirementKindSchema11 {
     None,
 }
 
-impl NoteTypeSchema11 {
+impl NotetypeSchema11 {
     pub fn latex_uses_svg(&self) -> bool {
         self.latexsvg
     }
 }
 
-impl From<NoteTypeSchema11> for NoteType {
-    fn from(nt: NoteTypeSchema11) -> Self {
-        NoteType {
+impl From<NotetypeSchema11> for Notetype {
+    fn from(nt: NotetypeSchema11) -> Self {
+        Notetype {
             id: nt.id,
             name: nt.name,
             mtime_secs: nt.mtime,
             usn: nt.usn,
-            config: NoteTypeConfig {
+            config: NotetypeConfig {
                 kind: nt.kind as i32,
                 sort_field_idx: nt.sortf as u32,
                 css: nt.css,
@@ -133,16 +133,16 @@ fn bytes_to_other(bytes: &[u8]) -> HashMap<String, Value> {
     }
 }
 
-impl From<NoteType> for NoteTypeSchema11 {
-    fn from(p: NoteType) -> Self {
+impl From<Notetype> for NotetypeSchema11 {
+    fn from(p: Notetype) -> Self {
         let c = p.config;
-        NoteTypeSchema11 {
+        NotetypeSchema11 {
             id: p.id,
             name: p.name,
             kind: if c.kind == 1 {
-                NoteTypeKind::Cloze
+                NotetypeKind::Cloze
             } else {
-                NoteTypeKind::Standard
+                NotetypeKind::Standard
             },
             mtime: p.mtime_secs,
             usn: p.usn,

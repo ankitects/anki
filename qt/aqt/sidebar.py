@@ -9,7 +9,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
 from anki.decks import DeckId, DeckTreeNode
-from anki.models import NoteTypeId
+from anki.models import NotetypeId
 from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
@@ -1284,11 +1284,11 @@ class SidebarTreeView(QTreeView):
             self.mw,
             parent=self.browser,
             fromMain=True,
-            selected_notetype_id=NoteTypeId(item.id),
+            selected_notetype_id=NotetypeId(item.id),
         )
 
     def manage_template(self, item: SidebarItem) -> None:
-        note = Note(self.col, self.col.models.get(NoteTypeId(item._parent_item.id)))
+        note = Note(self.col, self.col.models.get(NotetypeId(item._parent_item.id)))
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
 
     # Helpers
