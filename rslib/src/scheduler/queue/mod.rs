@@ -38,7 +38,7 @@ pub(crate) struct CardQueues {
 
     later_learning: BinaryHeap<Reverse<LearningQueueEntry>>,
 
-    selected_deck: DeckID,
+    selected_deck: DeckId,
     current_day: u32,
     learn_ahead_secs: i64,
 }
@@ -76,7 +76,7 @@ impl CardQueues {
 
     /// Remove the provided card from the top of the queues.
     /// If it was not at the top, return an error.
-    fn pop_answered(&mut self, id: CardID) -> Result<QueueEntry> {
+    fn pop_answered(&mut self, id: CardId) -> Result<QueueEntry> {
         if let Some(entry) = self.pop_undo_entry(id) {
             Ok(entry)
         } else if let Some(entry) = self.pop_main_entry(id) {
@@ -92,7 +92,7 @@ impl CardQueues {
         self.counts
     }
 
-    fn is_stale(&self, deck: DeckID, current_day: u32) -> bool {
+    fn is_stale(&self, deck: DeckId, current_day: u32) -> bool {
         self.selected_deck != deck || self.current_day != current_day
     }
 

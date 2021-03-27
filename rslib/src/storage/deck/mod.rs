@@ -3,12 +3,12 @@
 
 use super::SqliteStorage;
 use crate::{
-    card::CardID,
+    card::CardId,
     card::CardQueue,
     config::SchedulerVersion,
     decks::immediate_parent_name,
-    decks::{Deck, DeckCommon, DeckID, DeckKindProto, DeckSchema11, DueCounts},
-    err::{AnkiError, DBErrorKind, Result},
+    decks::{Deck, DeckCommon, DeckId, DeckKindProto, DeckSchema11, DueCounts},
+    err::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
     timestamp::TimestampMillis,
 };
@@ -27,14 +27,14 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         common,
-        kind: kind.kind.ok_or_else(|| AnkiError::DBError {
-            kind: DBErrorKind::MissingEntity,
+        kind: kind.kind.ok_or_else(|| AnkiError::DbError {
+            kind: DbErrorKind::MissingEntity,
             info: format!("invalid deck kind: {}", id),
         })?,
     })
 }
 
-fn row_to_due_counts(row: &Row) -> Result<(DeckID, DueCounts)> {
+fn row_to_due_counts(row: &Row) -> Result<(DeckId, DueCounts)> {
     Ok((
         row.get(0)?,
         DueCounts {
@@ -46,12 +46,12 @@ fn row_to_due_counts(row: &Row) -> Result<(DeckID, DueCounts)> {
 }
 
 impl SqliteStorage {
-    pub(crate) fn get_all_decks_as_schema11(&self) -> Result<HashMap<DeckID, DeckSchema11>> {
+    pub(crate) fn get_all_decks_as_schema11(&self) -> Result<HashMap<DeckId, DeckSchema11>> {
         self.get_all_decks()
             .map(|r| r.into_iter().map(|d| (d.id, d.into())).collect())
     }
 
-    pub(crate) fn get_deck(&self, did: DeckID) -> Result<Option<Deck>> {
+    pub(crate) fn get_deck(&self, did: DeckId) -> Result<Option<Deck>> {
         self.db
             .prepare_cached(concat!(include_str!("get_deck.sql"), " where id = ?"))?
             .query_and_then(&[did], row_to_deck)?
@@ -66,7 +66,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_decks_map(&self) -> Result<HashMap<DeckID, Deck>> {
+    pub(crate) fn get_decks_map(&self) -> Result<HashMap<DeckId, Deck>> {
         self.db
             .prepare(include_str!("get_deck.sql"))?
             .query_and_then(NO_PARAMS, row_to_deck)?
@@ -75,7 +75,7 @@ impl SqliteStorage {
     }
 
     /// Get all deck names in sorted, human-readable form (::)
-    pub(crate) fn get_all_deck_names(&self) -> Result<Vec<(DeckID, String)>> {
+    pub(crate) fn get_all_deck_names(&self) -> Result<Vec<(DeckId, String)>> {
         self.db
             .prepare("select id, name from decks order by name")?
             .query_and_then(NO_PARAMS, |row| {
@@ -84,7 +84,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_deck_id(&self, machine_name: &str) -> Result<Option<DeckID>> {
+    pub(crate) fn get_deck_id(&self, machine_name: &str) -> Result<Option<DeckId>> {
         self.db
             .prepare("select id from decks where name = ?")?
             .query_and_then(&[machine_name], |row| row.get(0))?
@@ -166,14 +166,14 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn remove_deck(&self, did: DeckID) -> Result<()> {
+    pub(crate) fn remove_deck(&self, did: DeckId) -> Result<()> {
         self.db
             .prepare_cached("delete from decks where id = ?")?
             .execute(&[did])?;
         Ok(())
     }
 
-    pub(crate) fn all_cards_in_single_deck(&self, did: DeckID) -> Result<Vec<CardID>> {
+    pub(crate) fn all_cards_in_single_deck(&self, did: DeckId) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached(include_str!("cards_for_deck.sql"))?
             .query_and_then(&[did], |r| r.get(0).map_err(Into::into))?
@@ -196,7 +196,7 @@ impl SqliteStorage {
     /// the number of parent decks that need to be skipped to get to the chosen deck.
     pub(crate) fn deck_with_parents_and_children(
         &self,
-        deck_id: DeckID,
+        deck_id: DeckId,
     ) -> Result<(Vec<Deck>, usize)> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         let mut parents = self.parent_decks(&deck)?;
@@ -247,7 +247,7 @@ impl SqliteStorage {
         day_cutoff: u32,
         learn_cutoff: u32,
         top_deck: Option<&str>,
-    ) -> Result<HashMap<DeckID, DueCounts>> {
+    ) -> Result<HashMap<DeckId, DueCounts>> {
         let sched_ver = sched as u8;
         let mut params = named_params! {
             ":new_queue": CardQueue::New as u8,
@@ -292,14 +292,14 @@ impl SqliteStorage {
     }
 
     /// Decks referenced by cards but missing.
-    pub(crate) fn missing_decks(&self) -> Result<Vec<DeckID>> {
+    pub(crate) fn missing_decks(&self) -> Result<Vec<DeckId>> {
         self.db
             .prepare(include_str!("missing-decks.sql"))?
             .query_and_then(NO_PARAMS, |r| r.get(0).map_err(Into::into))?
             .collect()
     }
 
-    pub(crate) fn deck_is_empty(&self, did: DeckID) -> Result<bool> {
+    pub(crate) fn deck_is_empty(&self, did: DeckId) -> Result<bool> {
         self.db
             .prepare_cached("select null from cards where did=?")?
             .query(&[did])?
@@ -373,23 +373,23 @@ impl SqliteStorage {
         self.set_schema11_decks(decks)
     }
 
-    fn get_schema11_decks(&self) -> Result<HashMap<DeckID, DeckSchema11>> {
+    fn get_schema11_decks(&self) -> Result<HashMap<DeckId, DeckSchema11>> {
         let mut stmt = self.db.prepare("select decks from col")?;
         let decks = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<DeckID, DeckSchema11>> {
-                let v: HashMap<DeckID, DeckSchema11> =
+            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<DeckId, DeckSchema11>> {
+                let v: HashMap<DeckId, DeckSchema11> =
                     serde_json::from_str(row.get_raw(0).as_str()?)?;
                 Ok(v)
             })?
             .next()
-            .ok_or_else(|| AnkiError::DBError {
+            .ok_or_else(|| AnkiError::DbError {
                 info: "col table empty".to_string(),
-                kind: DBErrorKind::MissingEntity,
+                kind: DbErrorKind::MissingEntity,
             })??;
         Ok(decks)
     }
 
-    pub(crate) fn set_schema11_decks(&self, decks: HashMap<DeckID, DeckSchema11>) -> Result<()> {
+    pub(crate) fn set_schema11_decks(&self, decks: HashMap<DeckId, DeckSchema11>) -> Result<()> {
         let json = serde_json::to_string(&decks)?;
         self.db.execute("update col set decks = ?", &[json])?;
         Ok(())

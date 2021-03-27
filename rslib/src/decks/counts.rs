@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{collection::Collection, decks::DeckID, err::Result};
+use crate::{collection::Collection, decks::DeckId, err::Result};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -18,7 +18,7 @@ impl Collection {
         days_elapsed: u32,
         learn_cutoff: u32,
         limit_to: Option<&str>,
-    ) -> Result<HashMap<DeckID, DueCounts>> {
+    ) -> Result<HashMap<DeckId, DueCounts>> {
         self.storage.due_counts(
             self.scheduler_version(),
             days_elapsed,

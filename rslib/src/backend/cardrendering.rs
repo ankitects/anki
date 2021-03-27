@@ -9,7 +9,7 @@ use crate::{
     notetype::{CardTemplateSchema11, RenderCardOutput},
     prelude::*,
     template::RenderedNode,
-    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AVTag},
+    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AvTag},
 };
 pub(super) use pb::cardrendering_service::Service as CardRenderingService;
 
@@ -19,10 +19,10 @@ impl CardRenderingService for Backend {
         let pt_tags = tags
             .into_iter()
             .map(|avtag| match avtag {
-                AVTag::SoundOrVideo(file) => pb::AvTag {
+                AvTag::SoundOrVideo(file) => pb::AvTag {
                     value: Some(pb::av_tag::Value::SoundOrVideo(file)),
                 },
-                AVTag::TextToSpeech {
+                AvTag::TextToSpeech {
                     field_text,
                     lang,
                     voices,
@@ -90,7 +90,7 @@ impl CardRenderingService for Backend {
 
     fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
         self.with_col(|col| {
-            col.render_existing_card(CardID(input.card_id), input.browser)
+            col.render_existing_card(CardId(input.card_id), input.browser)
                 .map(Into::into)
         })
     }

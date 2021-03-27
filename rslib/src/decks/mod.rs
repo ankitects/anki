@@ -15,7 +15,7 @@ pub use crate::backend_proto::{
 use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
     collection::Collection,
-    deckconf::DeckConfID,
+    deckconf::DeckConfId,
     define_newtype,
     err::{AnkiError, Result},
     prelude::*,
@@ -27,11 +27,11 @@ pub(crate) use counts::DueCounts;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
 
-define_newtype!(DeckID, i64);
+define_newtype!(DeckId, i64);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Deck {
-    pub id: DeckID,
+    pub id: DeckId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
@@ -42,7 +42,7 @@ pub struct Deck {
 impl Deck {
     pub fn new_normal() -> Deck {
         Deck {
-            id: DeckID(0),
+            id: DeckId(0),
             name: "".into(),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
@@ -72,9 +72,9 @@ impl Deck {
     }
 
     /// Returns deck config ID if deck is a normal deck.
-    pub(crate) fn config_id(&self) -> Option<DeckConfID> {
+    pub(crate) fn config_id(&self) -> Option<DeckConfId> {
         if let DeckKind::Normal(ref norm) = self.kind {
-            Some(DeckConfID(norm.config_id))
+            Some(DeckConfId(norm.config_id))
         } else {
             None
         }
@@ -197,7 +197,7 @@ pub(crate) fn human_deck_name_to_native(name: &str) -> String {
 }
 
 impl Collection {
-    pub(crate) fn get_deck(&mut self, did: DeckID) -> Result<Option<Arc<Deck>>> {
+    pub(crate) fn get_deck(&mut self, did: DeckId) -> Result<Option<Arc<Deck>>> {
         if let Some(deck) = self.state.deck_cache.get(&did) {
             return Ok(Some(deck.clone()));
         }
@@ -259,7 +259,7 @@ pub(crate) fn reparented_name(dragged: &str, dropped: Option<&str>) -> Option<St
 
 impl Collection {
     pub(crate) fn default_deck_is_empty(&self) -> Result<bool> {
-        self.storage.deck_is_empty(DeckID(1))
+        self.storage.deck_is_empty(DeckId(1))
     }
 
     /// Normalize deck name and rename if not unique. Bumps mtime and usn if
@@ -307,7 +307,7 @@ impl Collection {
         })
     }
 
-    pub fn rename_deck(&mut self, did: DeckID, new_human_name: &str) -> Result<OpOutput<()>> {
+    pub fn rename_deck(&mut self, did: DeckId, new_human_name: &str) -> Result<OpOutput<()>> {
         self.transact(Op::RenameDeck, |col| {
             let existing_deck = col.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
             let mut deck = existing_deck.clone();
@@ -368,7 +368,7 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn recover_missing_deck(&mut self, did: DeckID, usn: Usn) -> Result<()> {
+    pub(crate) fn recover_missing_deck(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id = did;
         deck.name = format!("recovered{}", did);
@@ -474,12 +474,12 @@ impl Collection {
 
     /// Get a deck based on its human name. If you have a machine name,
     /// use the method in storage instead.
-    pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckID>> {
+    pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
         let machine_name = human_deck_name_to_native(&human_name);
         self.storage.get_deck_id(&machine_name)
     }
 
-    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<OpOutput<usize>> {
+    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckId]) -> Result<OpOutput<usize>> {
         self.transact(Op::RemoveDeck, |col| {
             let mut card_count = 0;
             let usn = col.usn()?;
@@ -521,13 +521,13 @@ impl Collection {
         Ok(card_count)
     }
 
-    fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<usize> {
+    fn delete_all_cards_in_normal_deck(&mut self, did: DeckId) -> Result<usize> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.remove_cards_and_orphaned_notes(&cids)?;
         Ok(cids.len())
     }
 
-    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckID, String)>> {
+    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckId, String)>> {
         if skip_empty_default && self.default_deck_is_empty()? {
             Ok(self
                 .storage
@@ -540,7 +540,7 @@ impl Collection {
         }
     }
 
-    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckID, String)>> {
+    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckId, String)>> {
         Ok(self
             .storage
             .get_all_deck_names()?
@@ -582,7 +582,7 @@ impl Collection {
         &mut self,
         today: u32,
         usn: Usn,
-        did: DeckID,
+        did: DeckId,
         new_delta: i32,
         review_delta: i32,
     ) -> Result<()> {
@@ -605,7 +605,7 @@ impl Collection {
 
     pub(crate) fn counts_for_deck_today(
         &mut self,
-        did: DeckID,
+        did: DeckId,
     ) -> Result<pb::CountsForDeckTodayOut> {
         let today = self.current_due_day(0)?;
         let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
@@ -635,8 +635,8 @@ impl Collection {
 
     pub fn reparent_decks(
         &mut self,
-        deck_ids: &[DeckID],
-        new_parent: Option<DeckID>,
+        deck_ids: &[DeckId],
+        new_parent: Option<DeckId>,
     ) -> Result<OpOutput<usize>> {
         self.transact(Op::ReparentDeck, |col| {
             col.reparent_decks_inner(deck_ids, new_parent)
@@ -645,8 +645,8 @@ impl Collection {
 
     pub fn reparent_decks_inner(
         &mut self,
-        deck_ids: &[DeckID],
-        new_parent: Option<DeckID>,
+        deck_ids: &[DeckId],
+        new_parent: Option<DeckId>,
     ) -> Result<usize> {
         let usn = self.usn()?;
         let target_deck;

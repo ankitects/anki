@@ -22,8 +22,8 @@ use {intersperser::Intersperser, sized_chain::SizedChain};
 /// Temporary holder for review cards that will be built into a queue.
 #[derive(Debug, Default, Clone)]
 pub(crate) struct DueCard {
-    pub id: CardID,
-    pub note_id: NoteID,
+    pub id: CardId,
+    pub note_id: NoteId,
     pub mtime: TimestampSecs,
     pub due: i32,
     pub interval: u32,
@@ -33,8 +33,8 @@ pub(crate) struct DueCard {
 /// Temporary holder for new cards that will be built into a queue.
 #[derive(Debug, Default, Clone)]
 pub(crate) struct NewCard {
-    pub id: CardID,
-    pub note_id: NoteID,
+    pub id: CardId,
+    pub note_id: NoteId,
     pub mtime: TimestampSecs,
     pub due: i32,
     /// Used to store template_idx, and for shuffling
@@ -77,7 +77,7 @@ pub(super) struct QueueBuilder {
     pub(super) review: Vec<DueCard>,
     pub(super) learning: Vec<DueCard>,
     pub(super) day_learning: Vec<DueCard>,
-    pub(super) seen_note_ids: HashSet<NoteID>,
+    pub(super) seen_note_ids: HashSet<NoteId>,
     pub(super) new_order: NewCardOrder,
     pub(super) review_order: ReviewCardOrder,
     pub(super) day_learn_mix: ReviewMix,
@@ -91,7 +91,7 @@ impl QueueBuilder {
         mut self,
         top_deck_limits: RemainingLimits,
         learn_ahead_secs: u32,
-        selected_deck: DeckID,
+        selected_deck: DeckId,
         current_day: u32,
     ) -> CardQueues {
         self.sort_new();
@@ -189,7 +189,7 @@ fn split_learning(
 }
 
 impl Collection {
-    pub(crate) fn build_queues(&mut self, deck_id: DeckID) -> Result<CardQueues> {
+    pub(crate) fn build_queues(&mut self, deck_id: DeckId) -> Result<CardQueues> {
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
         let (decks, parent_count) = self.storage.deck_with_parents_and_children(deck_id)?;

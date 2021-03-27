@@ -14,7 +14,7 @@ use crate::{
 use async_trait::async_trait;
 use tempfile::NamedTempFile;
 
-use super::ChunkableIDs;
+use super::ChunkableIds;
 #[async_trait(?Send)]
 pub trait SyncServer {
     async fn meta(&self) -> Result<SyncMeta>;
@@ -54,7 +54,7 @@ pub struct LocalServer {
     /// config to client.
     client_is_newer: bool,
     /// Set on the first call to chunk()
-    server_chunk_ids: Option<ChunkableIDs>,
+    server_chunk_ids: Option<ChunkableIds>,
 }
 
 impl LocalServer {

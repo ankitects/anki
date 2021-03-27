@@ -20,7 +20,7 @@ use crate::{
     tags::{join_tags, split_tags, Tag},
 };
 pub use http_client::FullSyncProgressFn;
-use http_client::HTTPSyncClient;
+use http_client::HttpSyncClient;
 pub use http_client::Timeouts;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -75,9 +75,9 @@ pub struct SyncMeta {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Graves {
-    pub(crate) cards: Vec<CardID>,
-    pub(crate) decks: Vec<DeckID>,
-    pub(crate) notes: Vec<NoteID>,
+    pub(crate) cards: Vec<CardId>,
+    pub(crate) decks: Vec<DeckId>,
+    pub(crate) notes: Vec<NoteId>,
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug, Default)]
@@ -113,18 +113,18 @@ pub struct Chunk {
     notes: Vec<NoteEntry>,
 }
 
-struct ChunkableIDs {
-    revlog: Vec<RevlogID>,
-    cards: Vec<CardID>,
-    notes: Vec<NoteID>,
+struct ChunkableIds {
+    revlog: Vec<RevlogId>,
+    cards: Vec<CardId>,
+    notes: Vec<NoteId>,
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
 pub struct NoteEntry {
-    pub id: NoteID,
+    pub id: NoteId,
     pub guid: String,
     #[serde(rename = "mid")]
-    pub ntid: NoteTypeID,
+    pub ntid: NoteTypeId,
     #[serde(rename = "mod")]
     pub mtime: TimestampSecs,
     pub usn: Usn,
@@ -138,9 +138,9 @@ pub struct NoteEntry {
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
 pub struct CardEntry {
-    pub id: CardID,
-    pub nid: NoteID,
-    pub did: DeckID,
+    pub id: CardId,
+    pub nid: NoteId,
+    pub did: DeckId,
     pub ord: u16,
     #[serde(deserialize_with = "deserialize_int_from_number")]
     pub mtime: TimestampSecs,
@@ -157,7 +157,7 @@ pub struct CardEntry {
     pub left: u32,
     #[serde(deserialize_with = "deserialize_int_from_number")]
     pub odue: i32,
-    pub odid: DeckID,
+    pub odid: DeckId,
     pub flags: u8,
     pub data: String,
 }
@@ -593,7 +593,7 @@ impl Graves {
 }
 
 pub async fn sync_login(username: &str, password: &str) -> Result<SyncAuth> {
-    let mut remote = HTTPSyncClient::new(None, 0);
+    let mut remote = HttpSyncClient::new(None, 0);
     remote.login(username, password).await?;
     Ok(SyncAuth {
         hkey: remote.hkey().to_string(),
@@ -602,12 +602,12 @@ pub async fn sync_login(username: &str, password: &str) -> Result<SyncAuth> {
 }
 
 pub async fn sync_abort(hkey: String, host_number: u32) -> Result<()> {
-    let mut remote = HTTPSyncClient::new(Some(hkey), host_number);
+    let mut remote = HttpSyncClient::new(Some(hkey), host_number);
     remote.abort().await
 }
 
 pub(crate) async fn get_remote_sync_meta(auth: SyncAuth) -> Result<SyncMeta> {
-    let remote = HTTPSyncClient::new(Some(auth.hkey), auth.host_number);
+    let remote = HttpSyncClient::new(Some(auth.hkey), auth.host_number);
     remote.meta().await
 }
 
@@ -638,7 +638,7 @@ impl Collection {
     {
         NormalSyncer::new(
             self,
-            Box::new(HTTPSyncClient::new(Some(auth.hkey), auth.host_number)),
+            Box::new(HttpSyncClient::new(Some(auth.hkey), auth.host_number)),
             progress_fn,
         )
         .sync()
@@ -647,7 +647,7 @@ impl Collection {
 
     /// Upload collection to AnkiWeb. Caller must re-open afterwards.
     pub async fn full_upload(self, auth: SyncAuth, progress_fn: FullSyncProgressFn) -> Result<()> {
-        let mut server = HTTPSyncClient::new(Some(auth.hkey), auth.host_number);
+        let mut server = HttpSyncClient::new(Some(auth.hkey), auth.host_number);
         server.set_full_sync_progress_fn(Some(progress_fn));
         self.full_upload_inner(Box::new(server)).await
         // remote.upload(&col_path, progress_fn).await?;
@@ -666,7 +666,7 @@ impl Collection {
         auth: SyncAuth,
         progress_fn: FullSyncProgressFn,
     ) -> Result<()> {
-        let mut server = HTTPSyncClient::new(Some(auth.hkey), auth.host_number);
+        let mut server = HttpSyncClient::new(Some(auth.hkey), auth.host_number);
         server.set_full_sync_progress_fn(Some(progress_fn));
         self.full_download_inner(Box::new(server)).await
     }
@@ -685,7 +685,7 @@ impl Collection {
         // overwrite existing collection atomically
         out_file
             .persist(&col_path)
-            .map_err(|e| AnkiError::IOError {
+            .map_err(|e| AnkiError::IoError {
                 info: format!("download save failed: {}", e),
             })?;
         Ok(())
@@ -978,8 +978,8 @@ impl Collection {
     // Local->remote chunks
     //----------------------------------------------------------------
 
-    fn get_chunkable_ids(&self, pending_usn: Usn) -> Result<ChunkableIDs> {
-        Ok(ChunkableIDs {
+    fn get_chunkable_ids(&self, pending_usn: Usn) -> Result<ChunkableIds> {
+        Ok(ChunkableIds {
             revlog: self.storage.objects_pending_sync("revlog", pending_usn)?,
             cards: self.storage.objects_pending_sync("cards", pending_usn)?,
             notes: self.storage.objects_pending_sync("notes", pending_usn)?,
@@ -987,7 +987,7 @@ impl Collection {
     }
 
     /// Fetch a chunk of ids from `ids`, returning the referenced objects.
-    fn get_chunk(&self, ids: &mut ChunkableIDs, new_usn: Option<Usn>) -> Result<Chunk> {
+    fn get_chunk(&self, ids: &mut ChunkableIds, new_usn: Option<Usn>) -> Result<Chunk> {
         // get a bunch of IDs
         let mut limit = CHUNK_SIZE as i32;
         let mut revlog_ids = vec![];
@@ -1295,9 +1295,9 @@ mod test {
     }
 
     impl RemoteTestContext {
-        fn server_inner(&self) -> HTTPSyncClient {
+        fn server_inner(&self) -> HttpSyncClient {
             let auth = self.auth.clone();
-            HTTPSyncClient::new(Some(auth.hkey), auth.host_number)
+            HttpSyncClient::new(Some(auth.hkey), auth.host_number)
         }
     }
 
@@ -1327,7 +1327,7 @@ mod test {
         let nt = col.get_notetype_by_name("Basic").unwrap().unwrap();
         let mut note = nt.new_note();
         note.set_field(0, "1").unwrap();
-        col.add_note(&mut note, DeckID(1)).unwrap();
+        col.add_note(&mut note, DeckId(1)).unwrap();
 
         // // set our schema time back, so when initial server
         // // col is created, it's not identical
@@ -1405,8 +1405,8 @@ mod test {
         // mock revlog entry
         col1.storage.add_revlog_entry(
             &RevlogEntry {
-                id: RevlogID(123),
-                cid: CardID(456),
+                id: RevlogId(123),
+                cid: CardId(456),
                 usn: Usn(-1),
                 interval: 10,
                 ..Default::default()
@@ -1436,7 +1436,7 @@ mod test {
         let dconfid = dconf.id;
         let noteid = note.id;
         let cardid = col1.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)?[0];
-        let revlogid = RevlogID(123);
+        let revlogid = RevlogId(123);
 
         let compare_sides = |col1: &mut Collection, col2: &mut Collection| -> Result<()> {
             assert_eq!(

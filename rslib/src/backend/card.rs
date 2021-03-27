@@ -45,7 +45,7 @@ impl CardsService for Backend {
     }
 
     fn set_deck(&self, input: pb::SetDeckIn) -> Result<pb::OpChanges> {
-        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
         let deck_id = input.deck_id.into();
         self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
     }
@@ -67,9 +67,9 @@ impl TryFrom<pb::Card> for Card {
         let queue = CardQueue::try_from(c.queue as i8)
             .map_err(|_| AnkiError::invalid_input("invalid card queue"))?;
         Ok(Card {
-            id: CardID(c.id),
-            note_id: NoteID(c.note_id),
-            deck_id: DeckID(c.deck_id),
+            id: CardId(c.id),
+            note_id: NoteId(c.note_id),
+            deck_id: DeckId(c.deck_id),
             template_idx: c.template_idx as u16,
             mtime: TimestampSecs(c.mtime_secs),
             usn: Usn(c.usn),
@@ -82,7 +82,7 @@ impl TryFrom<pb::Card> for Card {
             lapses: c.lapses,
             remaining_steps: c.remaining_steps,
             original_due: c.original_due,
-            original_deck_id: DeckID(c.original_deck_id),
+            original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
             data: c.data,
         })
@@ -114,6 +114,6 @@ impl From<Card> for pb::Card {
     }
 }
 
-fn to_card_ids(v: Vec<i64>) -> Vec<CardID> {
-    v.into_iter().map(CardID).collect()
+fn to_card_ids(v: Vec<i64>) -> Vec<CardId> {
+    v.into_iter().map(CardId).collect()
 }

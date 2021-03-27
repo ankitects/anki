@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    decks::DeckID as DeckIDType,
-    notetype::NoteTypeID as NoteTypeIDType,
+    decks::DeckId as DeckIdType,
+    notetype::NoteTypeId as NoteTypeIdType,
     prelude::*,
     search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
     text::escape_anki_wildcards,
@@ -85,16 +85,16 @@ fn write_search_node(node: &SearchNode) -> String {
         EditedInDays(u) => format!("\"edited:{}\"", u),
         CardTemplate(t) => write_template(t),
         Deck(s) => quote(&format!("deck:{}", s)),
-        DeckID(DeckIDType(i)) => format!("\"did:{}\"", i),
-        NoteTypeID(NoteTypeIDType(i)) => format!("\"mid:{}\"", i),
+        DeckId(DeckIdType(i)) => format!("\"did:{}\"", i),
+        NoteTypeId(NoteTypeIdType(i)) => format!("\"mid:{}\"", i),
         NoteType(s) => quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),
         Tag(s) => quote(&format!("tag:{}", s)),
         Duplicates { note_type_id, text } => write_dupe(note_type_id, text),
         State(k) => write_state(k),
         Flag(u) => format!("\"flag:{}\"", u),
-        NoteIDs(s) => format!("\"nid:{}\"", s),
-        CardIDs(s) => format!("\"cid:{}\"", s),
+        NoteIds(s) => format!("\"nid:{}\"", s),
+        CardIds(s) => format!("\"cid:{}\"", s),
         Property { operator, kind } => write_property(operator, kind),
         WholeCollection => "\"deck:*\"".to_string(),
         Regex(s) => quote(&format!("re:{}", s)),
@@ -135,7 +135,7 @@ fn write_rated(days: &u32, ease: &RatingKind) -> String {
 }
 
 /// Escape double quotes and backslashes: \"
-fn write_dupe(note_type_id: &NoteTypeIDType, text: &str) -> String {
+fn write_dupe(note_type_id: &NoteTypeId, text: &str) -> String {
     let esc = text.replace(r"\", r"\\").replace('"', r#"\""#);
     format!("\"dupe:{},{}\"", note_type_id, esc)
 }

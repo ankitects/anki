@@ -63,8 +63,8 @@ impl Card {
 
 fn get_filter_info_for_card(
     card: &Card,
-    decks: &HashMap<DeckID, Deck>,
-    configs: &HashMap<DeckConfID, DeckConf>,
+    decks: &HashMap<DeckId, Deck>,
+    configs: &HashMap<DeckConfId, DeckConf>,
 ) -> Option<V1FilteredDeckInfo> {
     if card.original_deck_id.0 == 0 {
         None
@@ -85,7 +85,7 @@ fn get_filter_info_for_card(
             let home_conf_id = decks
                 .get(&card.original_deck_id)
                 .and_then(|deck| deck.config_id())
-                .unwrap_or(DeckConfID(1));
+                .unwrap_or(DeckConfId(1));
             Some(
                 configs
                     .get(&home_conf_id)

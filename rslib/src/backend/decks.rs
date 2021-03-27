@@ -4,7 +4,7 @@
 use super::Backend;
 use crate::{
     backend_proto::{self as pb},
-    decks::{Deck, DeckID, DeckSchema11},
+    decks::{Deck, DeckId, DeckSchema11},
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };
@@ -38,7 +38,7 @@ impl DecksService for Backend {
 
     fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
         let lim = if input.top_deck_id > 0 {
-            Some(DeckID(input.top_deck_id))
+            Some(DeckId(input.top_deck_id))
         } else {
             None
         };
@@ -120,7 +120,7 @@ impl DecksService for Backend {
     }
 
     fn remove_decks(&self, input: pb::DeckIDs) -> Result<pb::OpChangesWithCount> {
-        self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckID>>::into(input)))
+        self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckId>>::into(input)))
             .map(Into::into)
     }
 
@@ -155,20 +155,20 @@ impl DecksService for Backend {
     }
 }
 
-impl From<pb::DeckId> for DeckID {
+impl From<pb::DeckId> for DeckId {
     fn from(did: pb::DeckId) -> Self {
-        DeckID(did.did)
+        DeckId(did.did)
     }
 }
 
-impl From<pb::DeckIDs> for Vec<DeckID> {
+impl From<pb::DeckIDs> for Vec<DeckId> {
     fn from(dids: pb::DeckIDs) -> Self {
-        dids.dids.into_iter().map(DeckID).collect()
+        dids.dids.into_iter().map(DeckId).collect()
     }
 }
 
-impl From<DeckID> for pb::DeckId {
-    fn from(did: DeckID) -> Self {
+impl From<DeckId> for pb::DeckId {
+    fn from(did: DeckId) -> Self {
         pb::DeckId { did: did.0 }
     }
 }

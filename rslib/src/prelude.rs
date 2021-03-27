@@ -2,17 +2,17 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 pub use crate::{
-    card::{Card, CardID},
+    card::{Card, CardId},
     collection::Collection,
     config::BoolKey,
-    deckconf::{DeckConf, DeckConfID},
-    decks::{Deck, DeckID, DeckKind},
+    deckconf::{DeckConf, DeckConfId},
+    decks::{Deck, DeckId, DeckKind},
     err::{AnkiError, Result},
     i18n::I18n,
-    notes::{Note, NoteID},
-    notetype::{NoteType, NoteTypeID},
+    notes::{Note, NoteId},
+    notetype::{NoteType, NoteTypeId},
     ops::{Op, OpChanges, OpOutput},
-    revlog::RevlogID,
+    revlog::RevlogId,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };

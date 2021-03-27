@@ -18,13 +18,13 @@ use crate::{
 /// Contains the parts of a filtered deck required for modifying its settings in
 /// the UI.
 pub struct FilteredDeckForUpdate {
-    pub id: DeckID,
+    pub id: DeckId,
     pub human_name: String,
     pub config: FilteredDeck,
 }
 
 pub(crate) struct DeckFilterContext<'a> {
-    pub target_deck: DeckID,
+    pub target_deck: DeckId,
     pub config: &'a FilteredDeck,
     pub scheduler: SchedulerVersion,
     pub usn: Usn,
@@ -36,7 +36,7 @@ impl Collection {
     /// will not be added to the DB.
     pub fn get_or_create_filtered_deck(
         &mut self,
-        deck_id: DeckID,
+        deck_id: DeckId,
     ) -> Result<FilteredDeckForUpdate> {
         let deck = if deck_id.0 == 0 {
             self.new_filtered_deck_for_adding()?
@@ -55,20 +55,20 @@ impl Collection {
     pub fn add_or_update_filtered_deck(
         &mut self,
         deck: FilteredDeckForUpdate,
-    ) -> Result<OpOutput<DeckID>> {
+    ) -> Result<OpOutput<DeckId>> {
         self.transact(Op::BuildFilteredDeck, |col| {
             col.add_or_update_filtered_deck_inner(deck)
         })
     }
 
-    pub fn empty_filtered_deck(&mut self, did: DeckID) -> Result<OpOutput<()>> {
+    pub fn empty_filtered_deck(&mut self, did: DeckId) -> Result<OpOutput<()>> {
         self.transact(Op::EmptyFilteredDeck, |col| {
             col.return_all_cards_in_filtered_deck(did)
         })
     }
 
     // Unlike the old Python code, this also marks the cards as modified.
-    pub fn rebuild_filtered_deck(&mut self, did: DeckID) -> Result<OpOutput<usize>> {
+    pub fn rebuild_filtered_deck(&mut self, did: DeckId) -> Result<OpOutput<usize>> {
         self.transact(Op::RebuildFilteredDeck, |col| {
             let deck = col.get_deck(did)?.ok_or(AnkiError::NotFound)?;
             col.rebuild_filtered_deck_inner(&deck, col.usn()?)
@@ -77,13 +77,13 @@ impl Collection {
 }
 
 impl Collection {
-    pub(crate) fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {
+    pub(crate) fn return_all_cards_in_filtered_deck(&mut self, did: DeckId) -> Result<()> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.return_cards_to_home_deck(&cids)
     }
 
     // Unlike the old Python code, this also marks the cards as modified.
-    fn return_cards_to_home_deck(&mut self, cids: &[CardID]) -> Result<()> {
+    fn return_cards_to_home_deck(&mut self, cids: &[CardId]) -> Result<()> {
         let sched = self.scheduler_version();
         let usn = self.usn()?;
         for cid in cids {
@@ -150,7 +150,7 @@ impl Collection {
     fn add_or_update_filtered_deck_inner(
         &mut self,
         mut update: FilteredDeckForUpdate,
-    ) -> Result<DeckID> {
+    ) -> Result<DeckId> {
         let usn = self.usn()?;
 
         // check the searches are valid, and normalize them
@@ -182,7 +182,7 @@ impl Collection {
             Err(AnkiError::FilteredDeckEmpty)
         } else {
             // update current deck and return id
-            self.set_config(ConfigKey::CurrentDeckID, &deck.id)?;
+            self.set_config(ConfigKey::CurrentDeckId, &deck.id)?;
             Ok(deck.id)
         }
     }

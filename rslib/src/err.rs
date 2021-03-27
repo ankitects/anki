@@ -22,10 +22,10 @@ pub enum AnkiError {
     TemplateSaveError { ordinal: usize },
 
     #[fail(display = "I/O error: {}", info)]
-    IOError { info: String },
+    IoError { info: String },
 
     #[fail(display = "DB error: {}", info)]
-    DBError { info: String, kind: DBErrorKind },
+    DbError { info: String, kind: DbErrorKind },
 
     #[fail(display = "Network error: {:?} {}", kind, info)]
     NetworkError {
@@ -37,7 +37,7 @@ pub enum AnkiError {
     SyncError { info: String, kind: SyncErrorKind },
 
     #[fail(display = "JSON encode/decode error: {}", info)]
-    JSONError { info: String },
+    JsonError { info: String },
 
     #[fail(display = "Protobuf encode/decode error: {}", info)]
     ProtoError { info: String },
@@ -123,9 +123,9 @@ impl AnkiError {
             AnkiError::TemplateSaveError { ordinal } => tr
                 .card_templates_invalid_template_number(ordinal + 1)
                 .into(),
-            AnkiError::DBError { info, kind } => match kind {
-                DBErrorKind::Corrupt => info.clone(),
-                DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
+            AnkiError::DbError { info, kind } => match kind {
+                DbErrorKind::Corrupt => info.clone(),
+                DbErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
                 _ => format!("{:?}", self),
             },
             AnkiError::SearchError(kind) => {
@@ -220,7 +220,7 @@ pub enum TemplateError {
 
 impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
-        AnkiError::IOError {
+        AnkiError::IoError {
             info: format!("{:?}", err),
         }
     }
@@ -230,18 +230,18 @@ impl From<rusqlite::Error> for AnkiError {
     fn from(err: rusqlite::Error) -> Self {
         if let rusqlite::Error::SqliteFailure(error, Some(reason)) = &err {
             if error.code == rusqlite::ErrorCode::DatabaseBusy {
-                return AnkiError::DBError {
+                return AnkiError::DbError {
                     info: "".to_string(),
-                    kind: DBErrorKind::Locked,
+                    kind: DbErrorKind::Locked,
                 };
             }
             if reason.contains("regex parse error") {
                 return AnkiError::SearchError(SearchErrorKind::Regex(reason.to_owned()));
             }
         }
-        AnkiError::DBError {
+        AnkiError::DbError {
             info: format!("{:?}", err),
-            kind: DBErrorKind::Other,
+            kind: DbErrorKind::Other,
         }
     }
 }
@@ -250,15 +250,15 @@ impl From<rusqlite::types::FromSqlError> for AnkiError {
     fn from(err: rusqlite::types::FromSqlError) -> Self {
         if let rusqlite::types::FromSqlError::Other(ref err) = err {
             if let Some(_err) = err.downcast_ref::<Utf8Error>() {
-                return AnkiError::DBError {
+                return AnkiError::DbError {
                     info: "".to_string(),
-                    kind: DBErrorKind::Utf8,
+                    kind: DbErrorKind::Utf8,
                 };
             }
         }
-        AnkiError::DBError {
+        AnkiError::DbError {
             info: format!("{:?}", err),
-            kind: DBErrorKind::Other,
+            kind: DbErrorKind::Other,
         }
     }
 }
@@ -373,7 +373,7 @@ impl From<zip::result::ZipError> for AnkiError {
 
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
-        AnkiError::JSONError {
+        AnkiError::JsonError {
             info: err.to_string(),
         }
     }
@@ -396,7 +396,7 @@ impl From<prost::DecodeError> for AnkiError {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum DBErrorKind {
+pub enum DbErrorKind {
     FileTooNew,
     FileTooOld,
     MissingEntity,
@@ -408,7 +408,7 @@ pub enum DBErrorKind {
 
 impl From<PathPersistError> for AnkiError {
     fn from(e: PathPersistError) -> Self {
-        AnkiError::IOError {
+        AnkiError::IoError {
             info: e.to_string(),
         }
     }

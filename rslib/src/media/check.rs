@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::collection::Collection;
-use crate::err::{AnkiError, DBErrorKind, Result};
+use crate::err::{AnkiError, DbErrorKind, Result};
 use crate::latex::extract_latex_expanding_clozes;
 use crate::log::debug;
 use crate::media::database::MediaDatabaseContext;
@@ -362,9 +362,9 @@ where
             let mut note = self.ctx.storage.get_note(nid)?.unwrap();
             let nt = note_types
                 .get(&note.notetype_id)
-                .ok_or_else(|| AnkiError::DBError {
+                .ok_or_else(|| AnkiError::DbError {
                     info: "missing note type".to_string(),
-                    kind: DBErrorKind::MissingEntity,
+                    kind: DbErrorKind::MissingEntity,
                 })?;
             if fix_and_extract_media_refs(
                 &mut note,

@@ -20,11 +20,11 @@ pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 100
 
 mod schema11;
 
-define_newtype!(DeckConfID, i64);
+define_newtype!(DeckConfId, i64);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeckConf {
-    pub id: DeckConfID,
+    pub id: DeckConfId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
@@ -34,7 +34,7 @@ pub struct DeckConf {
 impl Default for DeckConf {
     fn default() -> Self {
         DeckConf {
-            id: DeckConfID(0),
+            id: DeckConfId(0),
             name: "".to_string(),
             mtime_secs: Default::default(),
             usn: Default::default(),
@@ -73,12 +73,12 @@ impl Default for DeckConf {
 
 impl Collection {
     /// If fallback is true, guaranteed to return a deck config.
-    pub fn get_deck_config(&self, dcid: DeckConfID, fallback: bool) -> Result<Option<DeckConf>> {
+    pub fn get_deck_config(&self, dcid: DeckConfId, fallback: bool) -> Result<Option<DeckConf>> {
         if let Some(conf) = self.storage.get_deck_config(dcid)? {
             return Ok(Some(conf));
         }
         if fallback {
-            if let Some(conf) = self.storage.get_deck_config(DeckConfID(1))? {
+            if let Some(conf) = self.storage.get_deck_config(DeckConfId(1))? {
                 return Ok(Some(conf));
             }
             // if even the default deck config is missing, just return the defaults
@@ -109,7 +109,7 @@ impl Collection {
     }
 
     /// Remove a deck configuration. This will force a full sync.
-    pub(crate) fn remove_deck_config(&self, dcid: DeckConfID) -> Result<()> {
+    pub(crate) fn remove_deck_config(&self, dcid: DeckConfId) -> Result<()> {
         if dcid.0 == 1 {
             return Err(AnkiError::invalid_input("can't delete default conf"));
         }

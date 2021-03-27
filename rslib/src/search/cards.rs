@@ -6,7 +6,7 @@ use super::{
     sqlwriter::{RequiredTable, SqlWriter},
 };
 use crate::{
-    card::CardID,
+    card::CardId,
     card::CardType,
     collection::Collection,
     config::{BoolKey, SortKind},
@@ -60,7 +60,7 @@ impl SortKind {
 }
 
 impl Collection {
-    pub fn search_cards(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<CardID>> {
+    pub fn search_cards(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<CardId>> {
         let top_node = Node::Group(parse(search)?);
         self.resolve_config_sort(&mut mode);
         let writer = SqlWriter::new(self);

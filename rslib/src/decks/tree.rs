@@ -6,8 +6,8 @@ use crate::{
     backend_proto::DeckTreeNode,
     collection::Collection,
     config::{BoolKey, SchedulerVersion},
-    deckconf::{DeckConf, DeckConfID},
-    decks::DeckID,
+    deckconf::{DeckConf, DeckConfId},
+    decks::DeckId,
     err::Result,
     timestamp::TimestampSecs,
 };
@@ -18,7 +18,7 @@ use std::{
 };
 use unicase::UniCase;
 
-fn deck_names_to_tree(names: Vec<(DeckID, String)>) -> DeckTreeNode {
+fn deck_names_to_tree(names: Vec<(DeckId, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();
     let mut it = names.into_iter().peekable();
 
@@ -28,7 +28,7 @@ fn deck_names_to_tree(names: Vec<(DeckID, String)>) -> DeckTreeNode {
 }
 
 fn add_child_nodes(
-    names: &mut Peekable<impl Iterator<Item = (DeckID, String)>>,
+    names: &mut Peekable<impl Iterator<Item = (DeckId, String)>>,
     parent: &mut DeckTreeNode,
 ) {
     while let Some((id, name)) = names.peek() {
@@ -64,10 +64,10 @@ fn add_child_nodes(
 
 fn add_collapsed_and_filtered(
     node: &mut DeckTreeNode,
-    decks: &HashMap<DeckID, Deck>,
+    decks: &HashMap<DeckId, Deck>,
     browser: bool,
 ) {
-    if let Some(deck) = decks.get(&DeckID(node.deck_id)) {
+    if let Some(deck) = decks.get(&DeckId(node.deck_id)) {
         node.collapsed = if browser {
             deck.common.browser_collapsed
         } else {
@@ -80,8 +80,8 @@ fn add_collapsed_and_filtered(
     }
 }
 
-fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckID, DueCounts>) {
-    if let Some(counts) = counts.get(&DeckID(node.deck_id)) {
+fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckId, DueCounts>) {
+    if let Some(counts) = counts.get(&DeckId(node.deck_id)) {
         node.new_count = counts.new;
         node.review_count = counts.review;
         node.learn_count = counts.learning;
@@ -96,12 +96,12 @@ fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckID, DueCounts>) {
 fn apply_limits(
     node: &mut DeckTreeNode,
     today: u32,
-    decks: &HashMap<DeckID, Deck>,
-    dconf: &HashMap<DeckConfID, DeckConf>,
+    decks: &HashMap<DeckId, Deck>,
+    dconf: &HashMap<DeckConfId, DeckConf>,
     parent_limits: (u32, u32),
 ) {
     let (mut remaining_new, mut remaining_rev) =
-        remaining_counts_for_deck(DeckID(node.deck_id), today, decks, dconf);
+        remaining_counts_for_deck(DeckId(node.deck_id), today, decks, dconf);
 
     // cap remaining to parent limits
     remaining_new = remaining_new.min(parent_limits.0);
@@ -130,14 +130,14 @@ fn apply_limits(
 fn apply_limits_v2_old(
     node: &mut DeckTreeNode,
     today: u32,
-    decks: &HashMap<DeckID, Deck>,
-    dconf: &HashMap<DeckConfID, DeckConf>,
+    decks: &HashMap<DeckId, Deck>,
+    dconf: &HashMap<DeckConfId, DeckConf>,
     parent_limits: (u32, u32),
 ) -> u32 {
     let original_rev_count = node.review_count;
 
     let (mut remaining_new, remaining_rev) =
-        remaining_counts_for_deck(DeckID(node.deck_id), today, decks, dconf);
+        remaining_counts_for_deck(DeckId(node.deck_id), today, decks, dconf);
 
     // cap remaining to parent limits
     remaining_new = remaining_new.min(parent_limits.0);
@@ -161,18 +161,18 @@ fn apply_limits_v2_old(
 }
 
 fn remaining_counts_for_deck(
-    did: DeckID,
+    did: DeckId,
     today: u32,
-    decks: &HashMap<DeckID, Deck>,
-    dconf: &HashMap<DeckConfID, DeckConf>,
+    decks: &HashMap<DeckId, Deck>,
+    dconf: &HashMap<DeckConfId, DeckConf>,
 ) -> (u32, u32) {
     if let Some(deck) = decks.get(&did) {
         match &deck.kind {
             DeckKind::Normal(norm) => {
                 let (new_today, rev_today) = deck.new_rev_counts(today);
                 if let Some(conf) = dconf
-                    .get(&DeckConfID(norm.config_id))
-                    .or_else(|| dconf.get(&DeckConfID(1)))
+                    .get(&DeckConfId(norm.config_id))
+                    .or_else(|| dconf.get(&DeckConfId(1)))
                 {
                     let new = (conf.inner.new_per_day as i32)
                         .saturating_sub(new_today)
@@ -212,7 +212,7 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
     }
 }
 
-fn get_subnode(top: DeckTreeNode, target: DeckID) -> Option<DeckTreeNode> {
+fn get_subnode(top: DeckTreeNode, target: DeckId) -> Option<DeckTreeNode> {
     if top.deck_id == target.0 {
         return Some(top);
     }
@@ -257,7 +257,7 @@ impl Collection {
     pub fn deck_tree(
         &mut self,
         now: Option<TimestampSecs>,
-        top_deck_id: Option<DeckID>,
+        top_deck_id: Option<DeckId>,
     ) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names);
@@ -317,7 +317,7 @@ impl Collection {
         Ok(LegacyDueCounts::from(tree))
     }
 
-    pub(crate) fn add_missing_deck_names(&mut self, names: &[(DeckID, String)]) -> Result<usize> {
+    pub(crate) fn add_missing_deck_names(&mut self, names: &[(DeckId, String)]) -> Result<usize> {
         let mut parents = HashSet::new();
         let mut missing = 0;
         for (_id, name) in names {
@@ -338,7 +338,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconf::DeckConfID, err::Result};
+    use crate::{collection::open_test_collection, deckconf::DeckConfId, err::Result};
 
     #[test]
     fn wellformed() -> Result<()> {
@@ -410,7 +410,7 @@ mod test {
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
         // set the limit to 4, which should mean 3 are left
-        let mut conf = col.get_deck_config(DeckConfID(1), false)?.unwrap();
+        let mut conf = col.get_deck_config(DeckConfId(1), false)?.unwrap();
         conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf, false)?;
 

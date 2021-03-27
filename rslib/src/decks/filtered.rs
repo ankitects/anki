@@ -24,7 +24,7 @@ impl Deck {
         filt.preview_delay = 10;
         filt.reschedule = true;
         Deck {
-            id: DeckID(0),
+            id: DeckId(0),
             name: "".into(),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),

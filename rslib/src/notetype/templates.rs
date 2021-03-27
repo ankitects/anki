@@ -3,7 +3,7 @@
 
 use crate::{
     backend_proto::{CardTemplate as CardTemplateProto, CardTemplateConfig, OptionalUInt32},
-    decks::DeckID,
+    decks::DeckId,
     err::{AnkiError, Result},
     template::ParsedTemplate,
     timestamp::TimestampSecs,
@@ -44,9 +44,9 @@ impl CardTemplate {
         }
     }
 
-    pub(crate) fn target_deck_id(&self) -> Option<DeckID> {
+    pub(crate) fn target_deck_id(&self) -> Option<DeckId> {
         if self.config.target_deck_id > 0 {
-            Some(DeckID(self.config.target_deck_id))
+            Some(DeckId(self.config.target_deck_id))
         } else {
             None
         }

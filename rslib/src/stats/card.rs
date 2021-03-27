@@ -25,8 +25,8 @@ struct CardStats {
     card_type: String,
     note_type: String,
     deck: String,
-    nid: NoteID,
-    cid: CardID,
+    nid: NoteId,
+    cid: CardId,
     revlog: Vec<RevlogEntry>,
 }
 
@@ -56,12 +56,12 @@ struct RevlogText {
 }
 
 impl Collection {
-    pub fn card_stats(&mut self, cid: CardID) -> Result<String> {
+    pub fn card_stats(&mut self, cid: CardId) -> Result<String> {
         let stats = self.gather_card_stats(cid)?;
         self.card_stats_to_string(stats)
     }
 
-    fn gather_card_stats(&mut self, cid: CardID) -> Result<CardStats> {
+    fn gather_card_stats(&mut self, cid: CardId) -> Result<CardStats> {
         let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
         let note = self
             .storage
@@ -265,7 +265,7 @@ mod test {
 
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
         let _report = col.card_stats(cid)?;

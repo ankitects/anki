@@ -14,8 +14,8 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::Backen
     let value = match err {
         AnkiError::InvalidInput { .. } => V::InvalidInput(pb::Empty {}),
         AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),
-        AnkiError::IOError { .. } => V::IoError(pb::Empty {}),
-        AnkiError::DBError { .. } => V::DbError(pb::Empty {}),
+        AnkiError::IoError { .. } => V::IoError(pb::Empty {}),
+        AnkiError::DbError { .. } => V::DbError(pb::Empty {}),
         AnkiError::NetworkError { kind, .. } => {
             V::NetworkError(pb::NetworkError { kind: kind.into() })
         }
@@ -23,7 +23,7 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::Backen
         AnkiError::Interrupted => V::Interrupted(pb::Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::JSONError { info } => V::JsonError(info),
+        AnkiError::JsonError { info } => V::JsonError(info),
         AnkiError::ProtoError { info } => V::ProtoError(info),
         AnkiError::NotFound => V::NotFoundError(pb::Empty {}),
         AnkiError::Existing => V::Exists(pb::Empty {}),

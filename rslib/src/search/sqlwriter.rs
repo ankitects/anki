@@ -8,7 +8,7 @@ use crate::{
     decks::human_deck_name_to_native,
     err::Result,
     notes::field_checksum,
-    notetype::NoteTypeID,
+    notetype::NoteTypeId,
     prelude::*,
     storage::ids_to_string,
     text::{
@@ -140,10 +140,10 @@ impl SqlWriter<'_> {
                 }
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
-            SearchNode::NoteTypeID(ntid) => {
+            SearchNode::NoteTypeId(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
-            SearchNode::DeckID(did) => {
+            SearchNode::DeckId(did) => {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
             SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
@@ -154,10 +154,10 @@ impl SqlWriter<'_> {
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
             }
-            SearchNode::NoteIDs(nids) => {
+            SearchNode::NoteIds(nids) => {
                 write!(self.sql, "{} in ({})", self.note_id_column(), nids).unwrap();
             }
-            SearchNode::CardIDs(cids) => {
+            SearchNode::CardIds(cids) => {
                 write!(self.sql, "c.id in ({})", cids).unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
@@ -461,7 +461,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_dupe(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
+    fn write_dupe(&mut self, ntid: NoteTypeId, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
 
@@ -554,11 +554,11 @@ impl SearchNode {
         match self {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
-            SearchNode::DeckID(_) => RequiredTable::Cards,
+            SearchNode::DeckId(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
             SearchNode::State(_) => RequiredTable::Cards,
             SearchNode::Flag(_) => RequiredTable::Cards,
-            SearchNode::CardIDs(_) => RequiredTable::Cards,
+            SearchNode::CardIds(_) => RequiredTable::Cards,
             SearchNode::Property { .. } => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
@@ -568,11 +568,11 @@ impl SearchNode {
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
-            SearchNode::NoteTypeID(_) => RequiredTable::Notes,
+            SearchNode::NoteTypeId(_) => RequiredTable::Notes,
             SearchNode::NoteType(_) => RequiredTable::Notes,
             SearchNode::EditedInDays(_) => RequiredTable::Notes,
 
-            SearchNode::NoteIDs(_) => RequiredTable::CardsOrNotes,
+            SearchNode::NoteIds(_) => RequiredTable::CardsOrNotes,
             SearchNode::WholeCollection => RequiredTable::CardsOrNotes,
 
             SearchNode::CardTemplate(_) => RequiredTable::CardsAndNotes,

@@ -151,7 +151,7 @@ where
             }
 
             // add entry to the list
-            let data = sha1_of_file(&dentry.path()).map_err(|e| AnkiError::IOError {
+            let data = sha1_of_file(&dentry.path()).map_err(|e| AnkiError::IoError {
                 info: format!("unable to read {}: {}", fname, e),
             })?;
             let sha1 = Some(data);

@@ -412,7 +412,7 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
             if e.kind() == io::ErrorKind::NotFound {
                 return Ok(None);
             } else {
-                return Err(AnkiError::IOError {
+                return Err(AnkiError::IoError {
                     info: format!("unable to read {}: {}", fname, e),
                 });
             }

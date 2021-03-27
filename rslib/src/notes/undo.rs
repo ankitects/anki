@@ -10,8 +10,8 @@ pub(crate) enum UndoableNoteChange {
     Added(Box<Note>),
     Updated(Box<Note>),
     Removed(Box<Note>),
-    GraveAdded(Box<(NoteID, Usn)>),
-    GraveRemoved(Box<(NoteID, Usn)>),
+    GraveAdded(Box<(NoteId, Usn)>),
+    GraveRemoved(Box<(NoteId, Usn)>),
     TagsUpdated(Box<NoteTags>),
 }
 
@@ -49,7 +49,7 @@ impl Collection {
     }
 
     /// Remove a note. Cards must already have been deleted.
-    pub(crate) fn remove_note_only_undoable(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
+    pub(crate) fn remove_note_only_undoable(&mut self, nid: NoteId, usn: Usn) -> Result<()> {
         if let Some(note) = self.storage.get_note(nid)? {
             self.save_undo(UndoableNoteChange::Removed(Box::new(note)));
             self.storage.remove_note(nid)?;
@@ -112,12 +112,12 @@ impl Collection {
         Ok(())
     }
 
-    fn add_note_grave(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
+    fn add_note_grave(&mut self, nid: NoteId, usn: Usn) -> Result<()> {
         self.save_undo(UndoableNoteChange::GraveAdded(Box::new((nid, usn))));
         self.storage.add_note_grave(nid, usn)
     }
 
-    fn remove_note_grave(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
+    fn remove_note_grave(&mut self, nid: NoteId, usn: Usn) -> Result<()> {
         self.save_undo(UndoableNoteChange::GraveRemoved(Box::new((nid, usn))));
         self.storage.remove_note_grave(nid)
     }

@@ -30,7 +30,7 @@ use tempfile::NamedTempFile;
 
 pub type FullSyncProgressFn = Box<dyn FnMut(FullSyncProgress, bool) + Send + Sync + 'static>;
 
-pub struct HTTPSyncClient {
+pub struct HttpSyncClient {
     hkey: Option<String>,
     skey: String,
     client: Client,
@@ -62,7 +62,7 @@ impl Timeouts {
 }
 
 #[async_trait(?Send)]
-impl SyncServer for HTTPSyncClient {
+impl SyncServer for HttpSyncClient {
     async fn meta(&self) -> Result<SyncMeta> {
         let input = SyncRequest::Meta(MetaIn {
             sync_version: SYNC_VERSION_MAX,
@@ -175,8 +175,8 @@ impl SyncServer for HTTPSyncClient {
     }
 }
 
-impl HTTPSyncClient {
-    pub fn new(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
+impl HttpSyncClient {
+    pub fn new(hkey: Option<String>, host_number: u32) -> HttpSyncClient {
         let timeouts = Timeouts::new();
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(timeouts.connect_secs))
@@ -186,7 +186,7 @@ impl HTTPSyncClient {
             .unwrap();
         let skey = guid();
         let endpoint = sync_endpoint(host_number);
-        HTTPSyncClient {
+        HttpSyncClient {
             hkey,
             skey,
             client,
@@ -353,7 +353,7 @@ mod test {
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
-        let mut syncer = Box::new(HTTPSyncClient::new(None, 0));
+        let mut syncer = Box::new(HttpSyncClient::new(None, 0));
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
@@ -420,7 +420,7 @@ mod test {
         })));
         let out_path = syncer.full_download(None).await?;
 
-        let mut syncer = Box::new(HTTPSyncClient::new(None, 0));
+        let mut syncer = Box::new(HttpSyncClient::new(None, 0));
         syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
             println!("progress {:?}", progress);
         })));

@@ -4,8 +4,8 @@
 use crate::log::Logger;
 use crate::types::Usn;
 use crate::{
-    decks::{Deck, DeckID},
-    notetype::{NoteType, NoteTypeID},
+    decks::{Deck, DeckId},
+    notetype::{NoteType, NoteTypeId},
     prelude::*,
     storage::SqliteStorage,
     undo::UndoManager,
@@ -62,8 +62,8 @@ pub fn open_test_collection_with_server(server: bool) -> Collection {
 #[derive(Debug, Default)]
 pub struct CollectionState {
     pub(crate) undo: UndoManager,
-    pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
-    pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
+    pub(crate) notetype_cache: HashMap<NoteTypeId, Arc<NoteType>>,
+    pub(crate) deck_cache: HashMap<DeckId, Arc<Deck>>,
     pub(crate) card_queues: Option<CardQueues>,
     /// True if legacy Python code has executed SQL that has modified the
     /// database, requiring modification time to be bumped.

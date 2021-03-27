@@ -100,12 +100,12 @@ impl QueueBuilder {
         limit.new != 0
     }
 
-    fn should_add_review_card(&mut self, note_id: NoteID) -> bool {
+    fn should_add_review_card(&mut self, note_id: NoteId) -> bool {
         !self.have_seen_note_id(note_id) || !self.bury_reviews
     }
 
     /// Mark note seen, and return true if seen before.
-    fn have_seen_note_id(&mut self, note_id: NoteID) -> bool {
+    fn have_seen_note_id(&mut self, note_id: NoteId) -> bool {
         !self.seen_note_ids.insert(note_id)
     }
 }
@@ -127,26 +127,26 @@ mod test {
 
         let cards = vec![
             NewCard {
-                id: CardID(1),
-                note_id: NoteID(1),
+                id: CardId(1),
+                note_id: NoteId(1),
                 extra: 0,
                 ..Default::default()
             },
             NewCard {
-                id: CardID(2),
-                note_id: NoteID(2),
+                id: CardId(2),
+                note_id: NoteId(2),
                 extra: 1,
                 ..Default::default()
             },
             NewCard {
-                id: CardID(3),
-                note_id: NoteID(2),
+                id: CardId(3),
+                note_id: NoteId(2),
                 extra: 2,
                 ..Default::default()
             },
             NewCard {
-                id: CardID(4),
-                note_id: NoteID(2),
+                id: CardId(4),
+                note_id: NoteId(2),
                 extra: 0,
                 ..Default::default()
             },
@@ -156,8 +156,8 @@ mod test {
             builder.add_new_card(&mut limits, card.clone());
         }
 
-        assert_eq!(builder.new[0].id, CardID(1));
-        assert_eq!(builder.new[1].id, CardID(4));
+        assert_eq!(builder.new[0].id, CardId(1));
+        assert_eq!(builder.new[1].id, CardId(4));
         assert_eq!(builder.new.len(), 2);
 
         // with burying disabled, we should get all siblings in order
@@ -168,9 +168,9 @@ mod test {
             builder.add_new_card(&mut limits, card.clone());
         }
 
-        assert_eq!(builder.new[0].id, CardID(1));
-        assert_eq!(builder.new[1].id, CardID(4));
-        assert_eq!(builder.new[2].id, CardID(2));
-        assert_eq!(builder.new[3].id, CardID(3));
+        assert_eq!(builder.new[0].id, CardId(1));
+        assert_eq!(builder.new[1].id, CardId(4));
+        assert_eq!(builder.new[2].id, CardId(2));
+        assert_eq!(builder.new[3].id, CardId(3));
     }
 }
