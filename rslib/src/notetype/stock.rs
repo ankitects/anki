@@ -1,17 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::NoteTypeKind;
+use super::NotetypeKind;
 use crate::{
     config::{ConfigEntry, ConfigKey},
     err::Result,
     i18n::I18n,
-    notetype::NoteType,
+    notetype::Notetype,
     storage::SqliteStorage,
     timestamp::TimestampSecs,
 };
 
-use crate::backend_proto::stock_note_type::Kind;
+use crate::backend_proto::stock_notetype::Kind;
 
 impl SqliteStorage {
     pub(crate) fn add_stock_notetypes(&self, tr: &I18n) -> Result<()> {
@@ -19,7 +19,7 @@ impl SqliteStorage {
             self.add_new_notetype(&mut nt)?;
             if idx == Kind::Basic as usize {
                 self.set_config_entry(&ConfigEntry::boxed(
-                    ConfigKey::CurrentNoteTypeId.into(),
+                    ConfigKey::CurrentNotetypeId.into(),
                     serde_json::to_vec(&nt.id)?,
                     self.usn(false)?,
                     TimestampSecs::now(),
@@ -30,8 +30,8 @@ impl SqliteStorage {
     }
 }
 
-// if changing this, make sure to update StockNoteType enum
-pub fn all_stock_notetypes(tr: &I18n) -> Vec<NoteType> {
+// if changing this, make sure to update StockNotetype enum
+pub fn all_stock_notetypes(tr: &I18n) -> Vec<Notetype> {
     vec![
         basic(tr),
         basic_forward_reverse(tr),
@@ -46,8 +46,8 @@ fn fieldref<S: AsRef<str>>(name: S) -> String {
     format!("{{{{{}}}}}", name.as_ref())
 }
 
-pub(crate) fn basic(tr: &I18n) -> NoteType {
-    let mut nt = NoteType {
+pub(crate) fn basic(tr: &I18n) -> Notetype {
+    let mut nt = Notetype {
         name: tr.notetypes_basic_name().into(),
         ..Default::default()
     };
@@ -68,7 +68,7 @@ pub(crate) fn basic(tr: &I18n) -> NoteType {
     nt
 }
 
-pub(crate) fn basic_typing(tr: &I18n) -> NoteType {
+pub(crate) fn basic_typing(tr: &I18n) -> Notetype {
     let mut nt = basic(tr);
     nt.name = tr.notetypes_basic_type_answer_name().into();
     let front = tr.notetypes_front_field();
@@ -84,7 +84,7 @@ pub(crate) fn basic_typing(tr: &I18n) -> NoteType {
     nt
 }
 
-pub(crate) fn basic_forward_reverse(tr: &I18n) -> NoteType {
+pub(crate) fn basic_forward_reverse(tr: &I18n) -> Notetype {
     let mut nt = basic(tr);
     nt.name = tr.notetypes_basic_reversed_name().into();
     let front = tr.notetypes_front_field();
@@ -102,7 +102,7 @@ pub(crate) fn basic_forward_reverse(tr: &I18n) -> NoteType {
     nt
 }
 
-pub(crate) fn basic_optional_reverse(tr: &I18n) -> NoteType {
+pub(crate) fn basic_optional_reverse(tr: &I18n) -> Notetype {
     let mut nt = basic_forward_reverse(tr);
     nt.name = tr.notetypes_basic_optional_reversed_name().into();
     let addrev = tr.notetypes_add_reverse_field();
@@ -113,8 +113,8 @@ pub(crate) fn basic_optional_reverse(tr: &I18n) -> NoteType {
     nt
 }
 
-pub(crate) fn cloze(tr: &I18n) -> NoteType {
-    let mut nt = NoteType {
+pub(crate) fn cloze(tr: &I18n) -> Notetype {
+    let mut nt = Notetype {
         name: tr.notetypes_cloze_name().into(),
         ..Default::default()
     };
@@ -125,7 +125,7 @@ pub(crate) fn cloze(tr: &I18n) -> NoteType {
     let qfmt = format!("{{{{cloze:{}}}}}", text);
     let afmt = format!("{}<br>\n{{{{{}}}}}", qfmt, back_extra);
     nt.add_template(nt.name.clone(), qfmt, afmt);
-    nt.config.kind = NoteTypeKind::Cloze as i32;
+    nt.config.kind = NotetypeKind::Cloze as i32;
     nt.config.css += "
 .cloze {
  font-weight: bold;

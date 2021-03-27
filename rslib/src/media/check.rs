@@ -349,7 +349,7 @@ where
         renamed: &HashMap<String, String>,
     ) -> Result<HashSet<String>> {
         let mut referenced_files = HashSet::new();
-        let note_types = self.ctx.get_all_notetypes()?;
+        let notetypes = self.ctx.get_all_notetypes()?;
         let mut collection_modified = false;
 
         let nids = self.ctx.search_notes("")?;
@@ -360,7 +360,7 @@ where
                 self.fire_progress_cb()?;
             }
             let mut note = self.ctx.storage.get_note(nid)?.unwrap();
-            let nt = note_types
+            let nt = notetypes
                 .get(&note.notetype_id)
                 .ok_or_else(|| AnkiError::DbError {
                     info: "missing note type".to_string(),

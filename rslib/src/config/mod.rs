@@ -51,7 +51,7 @@ pub(crate) enum ConfigKey {
     #[strum(to_string = "curDeck")]
     CurrentDeckId,
     #[strum(to_string = "curModel")]
-    CurrentNoteTypeId,
+    CurrentNotetypeId,
     #[strum(to_string = "lastUnburied")]
     LastUnburiedDay,
     #[strum(to_string = "collapseTime")]
@@ -257,7 +257,7 @@ pub enum SortKind {
     #[serde(rename = "noteFld")]
     NoteField,
     #[serde(rename = "note")]
-    NoteType,
+    Notetype,
     NoteTags,
     CardMod,
     CardReps,

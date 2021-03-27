@@ -8,7 +8,7 @@ use crate::{
     decks::human_deck_name_to_native,
     err::Result,
     notes::field_checksum,
-    notetype::NoteTypeId,
+    notetype::NotetypeId,
     prelude::*,
     storage::ids_to_string,
     text::{
@@ -123,8 +123,8 @@ impl SqlWriter<'_> {
             SearchNode::SingleField { field, text, is_re } => {
                 self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
             }
-            SearchNode::Duplicates { note_type_id, text } => {
-                self.write_dupe(*note_type_id, &self.norm_note(text))?
+            SearchNode::Duplicates { notetype_id, text } => {
+                self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
             SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
@@ -140,13 +140,13 @@ impl SqlWriter<'_> {
                 }
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
-            SearchNode::NoteTypeId(ntid) => {
+            SearchNode::NotetypeId(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
             SearchNode::DeckId(did) => {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
-            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype)),
+            SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
             SearchNode::Tag(tag) => self.write_tag(&norm(tag)),
@@ -393,7 +393,7 @@ impl SqlWriter<'_> {
         };
     }
 
-    fn write_note_type(&mut self, nt_name: &str) {
+    fn write_notetype(&mut self, nt_name: &str) {
         if is_glob(nt_name) {
             let re = format!("(?i){}", to_re(nt_name));
             self.sql
@@ -407,10 +407,10 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.get_all_notetypes()?;
+        let notetypes = self.col.get_all_notetypes()?;
 
         let mut field_map = vec![];
-        for nt in note_types.values() {
+        for nt in notetypes.values() {
             for field in &nt.fields {
                 if matches_glob(&field.name, field_name) {
                     field_map.push((nt.id, field.ord));
@@ -457,7 +457,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_dupe(&mut self, ntid: NoteTypeId, text: &str) -> Result<()> {
+    fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
 
@@ -564,8 +564,8 @@ impl SearchNode {
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
-            SearchNode::NoteTypeId(_) => RequiredTable::Notes,
-            SearchNode::NoteType(_) => RequiredTable::Notes,
+            SearchNode::NotetypeId(_) => RequiredTable::Notes,
+            SearchNode::Notetype(_) => RequiredTable::Notes,
             SearchNode::EditedInDays(_) => RequiredTable::Notes,
 
             SearchNode::NoteIds(_) => RequiredTable::CardsOrNotes,

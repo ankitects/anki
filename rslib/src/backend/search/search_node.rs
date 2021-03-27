@@ -29,14 +29,14 @@ impl TryFrom<pb::SearchNode> for Node {
                 } else {
                     escape_anki_wildcards(&s)
                 })),
-                Filter::Note(s) => Node::Search(SearchNode::NoteType(escape_anki_wildcards(&s))),
+                Filter::Note(s) => Node::Search(SearchNode::Notetype(escape_anki_wildcards(&s))),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
                 Filter::Nid(nid) => Node::Search(SearchNode::NoteIds(nid.to_string())),
                 Filter::Nids(nids) => Node::Search(SearchNode::NoteIds(nids.into_id_string())),
                 Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                    note_type_id: dupe.notetype_id.into(),
+                    notetype_id: dupe.notetype_id.into(),
                     text: dupe.first_field,
                 }),
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {

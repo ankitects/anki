@@ -9,7 +9,7 @@ from anki.collection import Collection
 from anki.config import Config
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.models import NoteTypeId
+from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.utils import (
     fieldChecksum,
@@ -230,7 +230,7 @@ class NoteImporter(Importer):
 
     def newData(
         self, n: ForeignNote
-    ) -> Tuple[NoteId, str, NoteTypeId, int, int, str, str, str, int, int, str]:
+    ) -> Tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]:
         id = self._nextID
         self._nextID = NoteId(self._nextID + 1)
         self._ids.append(id)
@@ -255,7 +255,7 @@ class NoteImporter(Importer):
     def addNew(
         self,
         rows: List[
-            Tuple[NoteId, str, NoteTypeId, int, int, str, str, str, int, int, str]
+            Tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]
         ],
     ) -> None:
         self.col.db.executemany(

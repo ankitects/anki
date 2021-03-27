@@ -8,7 +8,7 @@ use crate::{
     decks::DeckId,
     define_newtype,
     err::{AnkiError, Result},
-    notetype::{CardGenContext, NoteField, NoteType, NoteTypeId},
+    notetype::{CardGenContext, NoteField, Notetype, NotetypeId},
     prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
@@ -39,7 +39,7 @@ pub(crate) struct TransformNoteOutput {
 pub struct Note {
     pub id: NoteId,
     pub guid: String,
-    pub notetype_id: NoteTypeId,
+    pub notetype_id: NotetypeId,
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub tags: Vec<String>,
@@ -66,7 +66,7 @@ impl NoteTags {
 }
 
 impl Note {
-    pub(crate) fn new(notetype: &NoteType) -> Self {
+    pub(crate) fn new(notetype: &Notetype) -> Self {
         Note {
             id: NoteId(0),
             guid: guid(),
@@ -84,7 +84,7 @@ impl Note {
     pub(crate) fn new_from_storage(
         id: NoteId,
         guid: String,
-        notetype_id: NoteTypeId,
+        notetype_id: NotetypeId,
         mtime: TimestampSecs,
         usn: Usn,
         tags: Vec<String>,
@@ -134,7 +134,7 @@ impl Note {
     }
 
     /// Prepare note for saving to the database. Does not mark it as modified.
-    pub fn prepare_for_update(&mut self, nt: &NoteType, normalize_text: bool) -> Result<()> {
+    pub fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
         assert!(nt.id == self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
         if notetype_field_count != self.fields.len() {
@@ -210,7 +210,7 @@ impl Note {
     }
 
     /// Pad or merge fields to match note type.
-    pub(crate) fn fix_field_count(&mut self, nt: &NoteType) {
+    pub(crate) fn fix_field_count(&mut self, nt: &Notetype) {
         while self.fields.len() < nt.fields.len() {
             self.fields.push("".into())
         }
@@ -243,7 +243,7 @@ impl From<pb::Note> for Note {
         Note {
             id: NoteId(n.id),
             guid: n.guid,
-            notetype_id: NoteTypeId(n.notetype_id),
+            notetype_id: NotetypeId(n.notetype_id),
             mtime: TimestampSecs(n.mtime_secs as i64),
             usn: Usn(n.usn),
             tags: n.tags,
@@ -388,7 +388,7 @@ impl Collection {
         &mut self,
         note: &mut Note,
         original: &Note,
-        nt: &NoteType,
+        nt: &Notetype,
         usn: Usn,
         mark_note_modified: bool,
         normalize_text: bool,
@@ -444,7 +444,7 @@ impl Collection {
         mut transformer: F,
     ) -> Result<usize>
     where
-        F: FnMut(&mut Note, &NoteType) -> Result<TransformNoteOutput>,
+        F: FnMut(&mut Note, &Notetype) -> Result<TransformNoteOutput>,
     {
         let nids_by_notetype = self.storage.note_ids_by_notetype(nids)?;
         let norm = self.get_bool(BoolKey::NormalizeNoteText);

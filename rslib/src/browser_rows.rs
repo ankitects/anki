@@ -12,7 +12,7 @@ use crate::{
     collection::Collection,
     decks::{Deck, DeckId},
     notes::Note,
-    notetype::{CardTemplate, NoteType, NoteTypeKind},
+    notetype::{CardTemplate, Notetype, NotetypeKind},
     scheduler::{timespan::time_span, timing::SchedTimingToday},
     template::RenderedNode,
     text::{extract_av_tags, html_to_text_line},
@@ -55,7 +55,7 @@ struct RowContext<'a> {
     col: &'a Collection,
     card: Card,
     note: Note,
-    notetype: Arc<NoteType>,
+    notetype: Arc<Notetype>,
     deck: Option<Deck>,
     original_deck: Option<Option<Deck>>,
     tr: &'a I18n,
@@ -94,7 +94,7 @@ impl Collection {
 }
 
 impl RenderContext {
-    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &NoteType) -> Result<Self> {
+    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &Notetype) -> Result<Self> {
         let render = col.render_card(
             note,
             card,
@@ -296,8 +296,8 @@ impl<'a> RowContext<'a> {
     fn template_str(&self) -> Result<String> {
         let name = &self.template()?.name;
         Ok(match self.notetype.config.kind() {
-            NoteTypeKind::Normal => name.to_owned(),
-            NoteTypeKind::Cloze => format!("{} {}", name, self.card.template_idx + 1),
+            NotetypeKind::Normal => name.to_owned(),
+            NotetypeKind::Cloze => format!("{} {}", name, self.card.template_idx + 1),
         })
     }
 

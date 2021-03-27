@@ -4,7 +4,7 @@
 use crate::{
     decks::DeckId,
     err::{ParseError, Result, SearchErrorKind as FailKind},
-    notetype::NoteTypeId,
+    notetype::NotetypeId,
 };
 use lazy_static::lazy_static;
 use nom::{
@@ -73,15 +73,15 @@ pub enum SearchNode {
     CardTemplate(TemplateKind),
     Deck(String),
     DeckId(DeckId),
-    NoteTypeId(NoteTypeId),
-    NoteType(String),
+    NotetypeId(NotetypeId),
+    Notetype(String),
     Rated {
         days: u32,
         ease: RatingKind,
     },
     Tag(String),
     Duplicates {
-        note_type_id: NoteTypeId,
+        notetype_id: NotetypeId,
         text: String,
     },
     State(StateKind),
@@ -325,7 +325,7 @@ fn search_node_for_text_with_argument<'a>(
 ) -> ParseResult<'a, SearchNode> {
     Ok(match key.to_ascii_lowercase().as_str() {
         "deck" => SearchNode::Deck(unescape(val)?),
-        "note" => SearchNode::NoteType(unescape(val)?),
+        "note" => SearchNode::Notetype(unescape(val)?),
         "tag" => SearchNode::Tag(unescape(val)?),
         "card" => parse_template(val)?,
         "flag" => parse_flag(val)?,
@@ -557,7 +557,7 @@ fn parse_did(s: &str) -> ParseResult<SearchNode> {
 }
 
 fn parse_mid(s: &str) -> ParseResult<SearchNode> {
-    parse_i64(s, "mid:").map(|n| SearchNode::NoteTypeId(n.into()))
+    parse_i64(s, "mid:").map(|n| SearchNode::NotetypeId(n.into()))
 }
 
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true
@@ -586,7 +586,7 @@ fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
     let ntid = parse_i64(it.next().unwrap(), s)?;
     if let Some(text) = it.next() {
         Ok(SearchNode::Duplicates {
-            note_type_id: ntid.into(),
+            notetype_id: ntid.into(),
             text: unescape_quotes_and_backslashes(text),
         })
     } else {
@@ -829,7 +829,7 @@ mod test {
             vec![Search(Deck("default one".into()))]
         );
 
-        assert_eq!(parse("note:basic")?, vec![Search(NoteType("basic".into()))]);
+        assert_eq!(parse("note:basic")?, vec![Search(Notetype("basic".into()))]);
         assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,

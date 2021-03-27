@@ -7,7 +7,7 @@ use crate::prelude::*;
 
 pub struct DeckAndNotetype {
     pub deck_id: DeckId,
-    pub notetype_id: NoteTypeId,
+    pub notetype_id: NotetypeId,
 }
 
 impl Collection {
@@ -68,7 +68,7 @@ impl Collection {
         self.get_deck(DeckId(1))?.ok_or(AnkiError::NotFound)
     }
 
-    fn get_current_notetype_for_adding(&mut self) -> Result<Arc<NoteType>> {
+    fn get_current_notetype_for_adding(&mut self) -> Result<Arc<Notetype>> {
         // try global 'current' notetype
         if let Some(ntid) = self.get_current_notetype_id() {
             if let Some(nt) = self.get_notetype(ntid)? {
@@ -83,7 +83,7 @@ impl Collection {
         }
     }
 
-    fn default_notetype_for_deck(&mut self, deck: DeckId) -> Result<Arc<NoteType>> {
+    fn default_notetype_for_deck(&mut self, deck: DeckId) -> Result<Arc<Notetype>> {
         // try last notetype used by deck
         if let Some(ntid) = self.get_last_notetype_for_deck(deck) {
             if let Some(nt) = self.get_notetype(ntid)? {
@@ -99,7 +99,7 @@ impl Collection {
     /// This is optional due to the inconsistent handling, where changes in notetype
     /// may need to update the current deck, but not vice versa. If a previous deck is
     /// not set, we want to keep the current selection, instead of resetting it.
-    pub(crate) fn default_deck_for_notetype(&mut self, ntid: NoteTypeId) -> Result<Option<DeckId>> {
+    pub(crate) fn default_deck_for_notetype(&mut self, ntid: NotetypeId) -> Result<Option<DeckId>> {
         if let Some(last_deck_id) = self.get_last_deck_added_to_for_notetype(ntid) {
             if let Some(deck) = self.get_deck(last_deck_id)? {
                 if !deck.is_filtered() {

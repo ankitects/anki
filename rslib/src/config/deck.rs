@@ -29,7 +29,7 @@ impl Collection {
         self.remove_config_prefix(&build_aux_deck_key(ntid, ""))
     }
 
-    pub(crate) fn get_last_notetype_for_deck(&self, id: DeckId) -> Option<NoteTypeId> {
+    pub(crate) fn get_last_notetype_for_deck(&self, id: DeckId) -> Option<NotetypeId> {
         let key = DeckConfigKey::LastNotetype.for_deck(id);
         self.get_config_optional(key.as_str())
     }
@@ -37,7 +37,7 @@ impl Collection {
     pub(crate) fn set_last_notetype_for_deck(
         &mut self,
         did: DeckId,
-        ntid: NoteTypeId,
+        ntid: NotetypeId,
     ) -> Result<()> {
         let key = DeckConfigKey::LastNotetype.for_deck(did);
         self.set_config(key.as_str(), &ntid)

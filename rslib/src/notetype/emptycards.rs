@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{
-    cardgen::group_generated_cards_by_note, CardGenContext, NoteType, NoteTypeId, NoteTypeKind,
+    cardgen::group_generated_cards_by_note, CardGenContext, Notetype, NotetypeId, NotetypeKind,
 };
 use crate::{card::CardId, collection::Collection, err::Result, notes::NoteId};
 use std::collections::HashSet;
@@ -16,7 +16,7 @@ pub struct EmptyCardsForNote {
 }
 
 impl Collection {
-    fn empty_cards_for_notetype(&self, nt: &NoteType) -> Result<Vec<EmptyCardsForNote>> {
+    fn empty_cards_for_notetype(&self, nt: &Notetype) -> Result<Vec<EmptyCardsForNote>> {
         let ctx = CardGenContext::new(nt, self.usn()?);
         let existing_cards = self.storage.existing_cards_for_notetype(nt.id)?;
         let by_note = group_generated_cards_by_note(existing_cards);
@@ -49,7 +49,7 @@ impl Collection {
         Ok(out)
     }
 
-    pub fn empty_cards(&mut self) -> Result<Vec<(NoteTypeId, Vec<EmptyCardsForNote>)>> {
+    pub fn empty_cards(&mut self) -> Result<Vec<(NotetypeId, Vec<EmptyCardsForNote>)>> {
         self.storage
             .get_all_notetype_names()?
             .into_iter()
@@ -63,7 +63,7 @@ impl Collection {
     /// Create a report on empty cards. Mutates the provided data to sort ordinals.
     pub fn empty_cards_report(
         &mut self,
-        empty: &mut [(NoteTypeId, Vec<EmptyCardsForNote>)],
+        empty: &mut [(NotetypeId, Vec<EmptyCardsForNote>)],
     ) -> Result<String> {
         let nts = self.get_all_notetypes()?;
         let mut buf = String::new();
@@ -81,7 +81,7 @@ impl Collection {
                     note.empty.sort_unstable();
                     let templates = match nt.config.kind() {
                         // "Front, Back"
-                        NoteTypeKind::Normal => note
+                        NotetypeKind::Normal => note
                             .empty
                             .iter()
                             .map(|(ord, _)| {
@@ -93,7 +93,7 @@ impl Collection {
                             .collect::<Vec<_>>()
                             .join(", "),
                         // "Cloze 1, 3"
-                        NoteTypeKind::Cloze => format!(
+                        NotetypeKind::Cloze => format!(
                             "{} {}",
                             self.tr.notetypes_cloze_name(),
                             note.empty

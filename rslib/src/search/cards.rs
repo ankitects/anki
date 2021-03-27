@@ -45,7 +45,7 @@ impl SortKind {
             SortKind::NoteCreation
             | SortKind::NoteMod
             | SortKind::NoteField
-            | SortKind::NoteType
+            | SortKind::Notetype
             | SortKind::NoteTags
             | SortKind::CardTemplate => RequiredTable::CardsAndNotes,
             SortKind::CardMod
@@ -152,7 +152,7 @@ fn write_order(sql: &mut String, kind: SortKind, reverse: bool) {
         SortKind::CardInterval => "c.ivl asc",
         SortKind::NoteTags => "n.tags asc",
         SortKind::CardDeck => "(select pos from sort_order where did = c.did) asc",
-        SortKind::NoteType => "(select pos from sort_order where ntid = n.mid) asc",
+        SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc",
         SortKind::CardTemplate => concat!(
             "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
             // need to fall back on ord 0 for cloze cards
@@ -176,7 +176,7 @@ fn write_order(sql: &mut String, kind: SortKind, reverse: bool) {
 
 fn needs_aux_sort_table(kind: SortKind) -> bool {
     use SortKind::*;
-    matches!(kind, CardDeck | NoteType | CardTemplate)
+    matches!(kind, CardDeck | Notetype | CardTemplate)
 }
 
 fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
@@ -187,7 +187,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
     use SortKind::*;
     let sql = match kind {
         CardDeck => include_str!("deck_order.sql"),
-        NoteType => include_str!("notetype_order.sql"),
+        Notetype => include_str!("notetype_order.sql"),
         CardTemplate => include_str!("template_order.sql"),
         _ => unreachable!(),
     };

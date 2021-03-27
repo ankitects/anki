@@ -58,7 +58,7 @@ message OpChangesWithId {
 // IDs used in RPC calls
 ///////////////////////////////////////////////////////////
 
-message NoteTypeId {
+message NotetypeId {
   int64 ntid = 1;
 }
 
@@ -97,7 +97,7 @@ enum ServiceIndex {
   SERVICE_INDEX_DECKS = 1;
   SERVICE_INDEX_NOTES = 2;
   SERVICE_INDEX_SYNC = 3;
-  SERVICE_INDEX_NOTE_TYPES = 4;
+  SERVICE_INDEX_NOTETYPES = 4;
   SERVICE_INDEX_CONFIG = 5;
   SERVICE_INDEX_CARD_RENDERING = 6;
   SERVICE_INDEX_DECK_CONFIG = 7;
@@ -153,10 +153,10 @@ service DecksService {
 }
 
 service NotesService {
-  rpc NewNote(NoteTypeId) returns (Note);
+  rpc NewNote(NotetypeId) returns (Note);
   rpc AddNote(AddNoteIn) returns (AddNoteOut);
   rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
-  rpc DefaultDeckForNotetype(NoteTypeId) returns (DeckId);
+  rpc DefaultDeckForNotetype(NotetypeId) returns (DeckId);
   rpc UpdateNote(UpdateNoteIn) returns (OpChanges);
   rpc GetNote(NoteId) returns (Note);
   rpc RemoveNotes(RemoveNotesIn) returns (OpChanges);
@@ -193,14 +193,14 @@ service ConfigService {
   rpc SetPreferences(Preferences) returns (OpChanges);
 }
 
-service NoteTypesService {
-  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeId);
-  rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
-  rpc GetNotetypeLegacy(NoteTypeId) returns (Json);
-  rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
-  rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
-  rpc GetNotetypeIdByName(String) returns (NoteTypeId);
-  rpc RemoveNotetype(NoteTypeId) returns (Empty);
+service NotetypesService {
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NotetypeId);
+  rpc GetStockNotetypeLegacy(StockNotetype) returns (Json);
+  rpc GetNotetypeLegacy(NotetypeId) returns (Json);
+  rpc GetNotetypeNames(Empty) returns (NotetypeNames);
+  rpc GetNotetypeNamesAndCounts(Empty) returns (NotetypeUseCounts);
+  rpc GetNotetypeIdByName(String) returns (NotetypeId);
+  rpc RemoveNotetype(NotetypeId) returns (Empty);
 }
 
 service CardRenderingService {
@@ -434,7 +434,7 @@ message CardTemplateConfig {
   bytes other = 255;
 }
 
-message NoteTypeConfig {
+message NotetypeConfig {
   enum Kind {
     KIND_NORMAL = 0;
     KIND_CLOZE = 1;
@@ -477,12 +477,12 @@ message Deck {
   }
 }
 
-message NoteType {
+message Notetype {
   int64 id = 1;
   string name = 2;
   uint32 mtime_secs = 3;
   sint32 usn = 4;
-  NoteTypeConfig config = 7;
+  NotetypeConfig config = 7;
   repeated NoteField fields = 8;
   repeated CardTemplate templates = 9;
 }
@@ -811,7 +811,7 @@ message SortOrder {
       NOTE_MOD = 1;
       NOTE_FIELD = 2;
       NOTE_TAGS = 3;
-      NOTE_TYPE = 4;
+      NOTETYPE = 4;
       CARD_MOD = 5;
       CARD_REPS = 6;
       CARD_DUE = 7;
@@ -957,7 +957,7 @@ message SetConfigJsonIn {
   bytes value_json = 2;
 }
 
-message StockNoteType {
+message StockNotetype {
   enum Kind {
     BASIC = 0;
     BASIC_AND_REVERSED = 1;
@@ -969,20 +969,20 @@ message StockNoteType {
   Kind kind = 1;
 }
 
-message NoteTypeNames {
-  repeated NoteTypeNameId entries = 1;
+message NotetypeNames {
+  repeated NotetypeNameId entries = 1;
 }
 
-message NoteTypeUseCounts {
-  repeated NoteTypeNameIdUseCount entries = 1;
+message NotetypeUseCounts {
+  repeated NotetypeNameIdUseCount entries = 1;
 }
 
-message NoteTypeNameId {
+message NotetypeNameId {
   int64 id = 1;
   string name = 2;
 }
 
-message NoteTypeNameIdUseCount {
+message NotetypeNameIdUseCount {
   int64 id = 1;
   string name = 2;
   uint32 use_count = 3;

@@ -11,7 +11,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import MODEL_STD
-from anki.models import NotetypeDict, NoteTypeId, TemplateDict
+from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import joinFields
 
 DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
@@ -25,7 +25,7 @@ class Note:
     flags = 0
     data = ""
     id: NoteId
-    mid: NoteTypeId
+    mid: NotetypeId
 
     def __init__(
         self,
@@ -53,7 +53,7 @@ class Note:
     def _load_from_backend_note(self, n: _pb.Note) -> None:
         self.id = NoteId(n.id)
         self.guid = n.guid
-        self.mid = NoteTypeId(n.notetype_id)
+        self.mid = NotetypeId(n.notetype_id)
         self.mod = n.mtime_secs
         self.usn = n.usn
         self.tags = list(n.tags)

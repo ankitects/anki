@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardTemplate, NoteType, NoteTypeKind};
+use super::{CardTemplate, Notetype, NotetypeKind};
 use crate::{
     card::{Card, CardId},
     collection::Collection,
@@ -32,8 +32,8 @@ impl Collection {
             .get_notetype(note.notetype_id)?
             .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
         let template = match nt.config.kind() {
-            NoteTypeKind::Normal => nt.templates.get(card.template_idx as usize),
-            NoteTypeKind::Cloze => nt.templates.get(0),
+            NotetypeKind::Normal => nt.templates.get(card.template_idx as usize),
+            NotetypeKind::Cloze => nt.templates.get(0),
         }
         .ok_or_else(|| AnkiError::invalid_input("missing template"))?;
 
@@ -86,7 +86,7 @@ impl Collection {
         &mut self,
         note: &Note,
         card: &Card,
-        nt: &NoteType,
+        nt: &Notetype,
         template: &CardTemplate,
         browser: bool,
     ) -> Result<RenderCardOutput> {
@@ -127,7 +127,7 @@ impl Collection {
         map: &mut HashMap<&str, Cow<str>>,
         note: &Note,
         card: &Card,
-        nt: &NoteType,
+        nt: &Notetype,
         template: &CardTemplate,
     ) -> Result<()> {
         let tags = note.tags.join(" ");
@@ -165,7 +165,7 @@ fn flag_name(n: u8) -> &'static str {
     }
 }
 
-fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &NoteType, tr: &I18n) {
+fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &Notetype, tr: &I18n) {
     if let Ok(tmpl) = ParsedTemplate::from_text(qfmt) {
         let cloze_fields = tmpl.cloze_fields();
 

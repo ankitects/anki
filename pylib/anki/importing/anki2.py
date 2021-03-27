@@ -10,7 +10,7 @@ from anki.collection import Collection
 from anki.consts import *
 from anki.decks import DeckId, DeckManager
 from anki.importing.base import Importer
-from anki.models import NoteTypeId
+from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
 
@@ -81,7 +81,7 @@ class Anki2Importer(Importer):
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
-        self._notes: Dict[str, Tuple[NoteId, int, NoteTypeId]] = {}
+        self._notes: Dict[str, Tuple[NoteId, int, NotetypeId]] = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"
@@ -212,9 +212,9 @@ class Anki2Importer(Importer):
 
     def _prepareModels(self) -> None:
         "Prepare index of schema hashes."
-        self._modelMap: Dict[NoteTypeId, NoteTypeId] = {}
+        self._modelMap: Dict[NotetypeId, NotetypeId] = {}
 
-    def _mid(self, srcMid: NoteTypeId) -> Any:
+    def _mid(self, srcMid: NotetypeId) -> Any:
         "Return local id for remote MID."
         # already processed this mid?
         if srcMid in self._modelMap:
@@ -243,7 +243,7 @@ class Anki2Importer(Importer):
                     self.dst.models.update(model)
                 break
             # as they don't match, try next id
-            mid = NoteTypeId(mid + 1)
+            mid = NotetypeId(mid + 1)
         # save map and return new mid
         self._modelMap[srcMid] = mid
         return mid
@@ -427,7 +427,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             # the user likely used subdirectories
             pass
 
-    def _mungeMedia(self, mid: NoteTypeId, fieldsStr: str) -> str:
+    def _mungeMedia(self, mid: NotetypeId, fieldsStr: str) -> str:
         fields = splitFields(fieldsStr)
 
         def repl(match):
