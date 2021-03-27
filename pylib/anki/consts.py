@@ -73,8 +73,9 @@ DYN_DUEPRIORITY = DynDeckOrder(8)
 DYN_MAX_SIZE = 99999
 
 # model types
-MODEL_STD = 0
-MODEL_CLOZE = 1
+ModelType = NewType("ModelType", int)
+MODEL_STD = ModelType(0)
+MODEL_CLOZE = ModelType(1)
 
 STARTING_FACTOR = 2500
 
