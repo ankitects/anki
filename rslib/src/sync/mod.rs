@@ -1337,6 +1337,7 @@ mod test {
         //     .unwrap()
     }
 
+    #[allow(clippy::borrowed_box)]
     async fn upload_download(ctx: &Box<dyn TestContext>) -> Result<()> {
         let mut col1 = ctx.col1();
         col1_setup(&mut col1);
@@ -1371,6 +1372,7 @@ mod test {
     // Regular syncs
     /////////////////////
 
+    #[allow(clippy::borrowed_box)]
     async fn regular_sync(ctx: &Box<dyn TestContext>) -> Result<()> {
         // add a deck
         let mut col1 = ctx.col1();
