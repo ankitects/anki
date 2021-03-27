@@ -386,7 +386,7 @@ hooks = [
     ),
     Hook(
         name="browser_will_search",
-        args=["context: aqt.browser.SearchContext"],
+        args=["context: aqt.table.SearchContext"],
         doc="""Allows you to modify the search text, or perform your own search.
          
          You can modify context.search to change the text that is sent to the
@@ -401,7 +401,7 @@ hooks = [
     ),
     Hook(
         name="browser_did_search",
-        args=["context: aqt.browser.SearchContext"],
+        args=["context: aqt.table.SearchContext"],
         doc="""Allows you to modify the list of returned card ids from a search.""",
     ),
     Hook(

@@ -11,9 +11,9 @@ use crate::{
     card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
     config::BoolKey,
-    decks::{Deck, DeckID},
-    notes::{Note, NoteID},
-    notetype::{CardTemplate, NoteType, NoteTypeKind},
+    decks::{Deck, DeckId},
+    notes::{Note, NoteId},
+    notetype::{CardTemplate, Notetype, NotetypeKind},
     scheduler::{timespan::time_span, timing::SchedTimingToday},
     template::RenderedNode,
     text::{extract_av_tags, html_to_text_line},
@@ -57,7 +57,7 @@ trait RowContext {
     fn get_row_color(&self) -> Color;
     fn get_row_font(&self) -> Result<Font>;
     fn note(&self) -> &Note;
-    fn notetype(&self) -> &NoteType;
+    fn notetype(&self) -> &Notetype;
 
     fn get_cell(&mut self, column: &str) -> Result<Cell> {
         Ok(Cell {
@@ -120,7 +120,7 @@ struct RenderContext {
 
 struct NoteRowContext {
     note: Note,
-    notetype: Arc<NoteType>,
+    notetype: Arc<Notetype>,
 }
 
 fn card_render_required(columns: &[String]) -> bool {
@@ -142,7 +142,7 @@ impl Collection {
         }
     }
 
-    fn get_note_maybe_with_fields(&self, id: NoteID, _with_fields: bool) -> Result<Note> {
+    fn get_note_maybe_with_fields(&self, id: NoteId, _with_fields: bool) -> Result<Note> {
         // todo: After note.sort_field has been modified so it can be displayed in the browser,
         // we can update note_field_str() and only load the note with fields if a card render is
         // necessary (see #1082).
@@ -189,7 +189,7 @@ impl<'a> CardRowContext<'a> {
     fn new(col: &'a mut Collection, id: i64, with_card_render: bool) -> Result<Self> {
         let card = col
             .storage
-            .get_card(CardID(id))?
+            .get_card(CardId(id))?
             .ok_or(AnkiError::NotFound)?;
         let note = col.get_note_maybe_with_fields(card.note_id, with_card_render)?;
         let notetype = col
@@ -382,14 +382,14 @@ impl RowContext for CardRowContext<'_> {
         &self.note
     }
 
-    fn notetype(&self) -> &NoteType {
+    fn notetype(&self) -> &Notetype {
         &self.notetype
     }
 }
 
 impl<'a> NoteRowContext {
     fn new(col: &'a mut Collection, id: i64) -> Result<Self> {
-        let note = col.get_note_maybe_with_fields(NoteID(id), false)?;
+        let note = col.get_note_maybe_with_fields(NoteId(id), false)?;
         let notetype = col
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
@@ -434,7 +434,7 @@ impl RowContext for NoteRowContext {
         &self.note
     }
 
-    fn notetype(&self) -> &NoteType {
+    fn notetype(&self) -> &Notetype {
         &self.notetype
     }
 }

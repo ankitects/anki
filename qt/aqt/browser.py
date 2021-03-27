@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import html
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import aqt
 import aqt.forms
@@ -74,16 +74,6 @@ from aqt.webview import AnkiWebView
 class FindDupesDialog:
     dialog: QDialog
     browser: Browser
-
-
-@dataclass
-class SearchContext:
-    search: str
-    browser: Browser
-    order: Union[bool, str] = True
-    # if set, provided card ids will be used instead of the regular search
-    # fixme: legacy support for card_ids?
-    ids: Optional[Sequence[int]] = None
 
 
 # Browser window

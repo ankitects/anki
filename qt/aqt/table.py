@@ -40,6 +40,19 @@ from aqt.utils import (
     tr,
 )
 
+Item = Union[CardId, NoteId]
+ItemList = Union[List[CardId], List[NoteId]]
+
+
+@dataclass
+class SearchContext:
+    search: str
+    browser: aqt.browser.Browser
+    order: Union[bool, str] = True
+    # if set, provided card ids will be used instead of the regular search
+    # fixme: legacy support for card_ids?
+    ids: Optional[Sequence[Item]] = None
+
 
 class Table:
     SELECTION_LIMIT: int = 500
@@ -54,8 +67,8 @@ class Table:
         )
         self._model = DataModel(self.col, self._state)
         self._view: Optional[QTableView] = None
-        self._current_item: Optional[int] = None
-        self._selected_items: Sequence[int] = []
+        self._current_item: Optional[Item] = None
+        self._selected_items: Sequence[Item] = []
 
     def set_view(self, view: QTableView) -> None:
         self._view = view
@@ -179,7 +192,7 @@ class Table:
 
     def search(self, txt: str) -> None:
         self._save_selection()
-        self._model.search(aqt.browser.SearchContext(search=txt, browser=self.browser))
+        self._model.search(SearchContext(search=txt, browser=self.browser))
         self._restore_selection(self._intersected_selection)
 
     def toggle_state(self, is_card_state: bool, last_search: str) -> None:
@@ -187,7 +200,7 @@ class Table:
             return
         self._save_selection()
         self._state = self._model.toggle_state(
-            aqt.browser.SearchContext(search=last_search, browser=self.browser)
+            SearchContext(search=last_search, browser=self.browser)
         )
         self.col.set_config_bool(Config.Bool.BROWSER_CARD_STATE, self.is_card_state())
         self._set_sort_indicator()
@@ -351,7 +364,7 @@ class Table:
 
     def _on_column_toggled(self, checked: bool, column: str) -> None:
         if not checked and self._model.len_columns() < 2:
-            showInfo(showInfo(tr.browsing_you_must_have_at_least_one()))
+            showInfo(tr.browsing_you_must_have_at_least_one())
             return
         self._model.toggle_column(column)
         self._set_column_sizes()
@@ -519,12 +532,12 @@ class ItemState(ABC):
 
     # Stateless Helpers
 
-    def note_ids_from_card_ids(self, items: Sequence[CardId]) -> List[NoteId]:
+    def note_ids_from_card_ids(self, items: Sequence[Item]) -> List[NoteId]:
         return self.col.db.list(
             f"select distinct nid from cards where id in {ids2str(items)}"
         )
 
-    def card_ids_from_note_ids(self, items: Sequence[NoteId]) -> List[CardId]:
+    def card_ids_from_note_ids(self, items: Sequence[Item]) -> List[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
     # Columns and sorting
@@ -560,29 +573,29 @@ class ItemState(ABC):
     # Get objects
 
     @abstractmethod
-    def get_card(self, item: int) -> Card:
+    def get_card(self, item: Item) -> Card:
         """Return the item if it's a card or its first card if it's a note."""
 
     @abstractmethod
-    def get_note(self, item: int) -> Note:
+    def get_note(self, item: Item) -> Note:
         """Return the item if it's a note or its note if it's a card."""
 
     # Get ids
 
     @abstractmethod
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[int]:
+    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[Item]:
         """Return the item ids fitting the given search and order."""
 
     @abstractmethod
-    def get_item_from_card_id(self, card: CardId) -> int:
+    def get_item_from_card_id(self, card: CardId) -> Item:
         """Return the appropriate item id for a card id."""
 
     @abstractmethod
-    def get_card_ids(self, items: List[int]) -> List[CardId]:
+    def get_card_ids(self, items: List[Item]) -> List[CardId]:
         """Return the card ids for the given item ids."""
 
     @abstractmethod
-    def get_note_ids(self, items: List[int]) -> List[NoteId]:
+    def get_note_ids(self, items: List[Item]) -> List[NoteId]:
         """Return the note ids for the given item ids."""
 
     # Toggle
@@ -592,12 +605,12 @@ class ItemState(ABC):
         """Return an instance of the other state."""
 
     @abstractmethod
-    def get_new_item(self, old_item: int) -> int:
+    def get_new_item(self, old_item: Item) -> Item:
         """Given an id from the other state, return the corresponding id for
         this state."""
 
     @abstractmethod
-    def get_new_items(self, old_items: Sequence[int]) -> List[int]:
+    def get_new_items(self, old_items: Sequence[Item]) -> ItemList:
         """Given a list of ids from the other state, return the corresponding
         ids for this state."""
 
@@ -670,31 +683,31 @@ class CardState(ItemState):
         self.col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, order)
         self._sort_backwards = order
 
-    def get_card(self, item: int) -> Card:
-        return self.col.get_card(item)
+    def get_card(self, item: Item) -> Card:
+        return self.col.get_card(CardId(item))
 
-    def get_note(self, item: int) -> Note:
+    def get_note(self, item: Item) -> Note:
         return self.get_card(item).note()
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[int]:
+    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[Item]:
         return self.col.find_cards(search, order)
 
-    def get_item_from_card_id(self, card: CardId) -> int:
+    def get_item_from_card_id(self, card: CardId) -> Item:
         return card
 
-    def get_card_ids(self, items: List[int]) -> List[CardId]:
-        return items
+    def get_card_ids(self, items: List[Item]) -> List[CardId]:
+        return list(map(CardId, items))
 
-    def get_note_ids(self, items: List[int]) -> List[NoteId]:
+    def get_note_ids(self, items: List[Item]) -> List[NoteId]:
         return super().note_ids_from_card_ids(items)
 
     def toggle_state(self) -> NoteState:
         return NoteState(self.col)
 
-    def get_new_item(self, old_item: int) -> int:
+    def get_new_item(self, old_item: Item) -> CardId:
         return super().card_ids_from_note_ids([old_item])[0]
 
-    def get_new_items(self, old_items: Sequence[int]) -> List[int]:
+    def get_new_items(self, old_items: Sequence[Item]) -> List[CardId]:
         return super().card_ids_from_note_ids(old_items)
 
 
@@ -756,31 +769,31 @@ class NoteState(ItemState):
         self.col.set_config_bool(Config.Bool.BROWSER_NOTE_SORT_BACKWARDS, order)
         self._sort_backwards = order
 
-    def get_card(self, item: int) -> Card:
+    def get_card(self, item: Item) -> Card:
         return self.get_note(item).cards()[0]
 
-    def get_note(self, item: int) -> Note:
-        return self.col.get_note(item)
+    def get_note(self, item: Item) -> Note:
+        return self.col.get_note(NoteId(item))
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[int]:
+    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[Item]:
         return self.col.find_notes(search, order)
 
-    def get_item_from_card_id(self, card: CardId) -> int:
+    def get_item_from_card_id(self, card: CardId) -> Item:
         return self.get_card(card).note().id
 
-    def get_card_ids(self, items: List[int]) -> List[CardId]:
+    def get_card_ids(self, items: List[Item]) -> List[CardId]:
         return super().card_ids_from_note_ids(items)
 
-    def get_note_ids(self, items: List[int]) -> List[NoteId]:
-        return items
+    def get_note_ids(self, items: List[Item]) -> List[NoteId]:
+        return list(map(NoteId, items))
 
     def toggle_state(self) -> CardState:
         return CardState(self.col)
 
-    def get_new_item(self, old_item: int) -> int:
+    def get_new_item(self, old_item: Item) -> NoteId:
         return super().note_ids_from_card_ids([old_item])[0]
 
-    def get_new_items(self, old_items: Sequence[int]) -> List[int]:
+    def get_new_items(self, old_items: Sequence[Item]) -> List[NoteId]:
         return super().note_ids_from_card_ids(old_items)
 
 
@@ -850,7 +863,7 @@ class DataModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
         self._state: ItemState = state
-        self._items: Sequence[int] = []
+        self._items: Sequence[Item] = []
         self._rows: Dict[int, CellRow] = {}
         self._last_refresh = 0.0
         # serve stale content to avoid hitting the DB?
@@ -942,10 +955,10 @@ class DataModel(QAbstractTableModel):
 
     # Get items (card or note ids depending on state)
 
-    def get_item(self, index: QModelIndex) -> int:
+    def get_item(self, index: QModelIndex) -> Item:
         return self._items[index.row()]
 
-    def get_items(self, indices: List[QModelIndex]) -> List[int]:
+    def get_items(self, indices: List[QModelIndex]) -> List[Item]:
         return [self.get_item(index) for index in indices]
 
     def get_card_ids(self, indices: List[QModelIndex]) -> List[CardId]:
@@ -956,13 +969,13 @@ class DataModel(QAbstractTableModel):
 
     # Get row numbers from items
 
-    def get_item_row(self, item: int) -> Optional[int]:
+    def get_item_row(self, item: Item) -> Optional[int]:
         for row, i in enumerate(self._items):
             if i == item:
                 return row
         return None
 
-    def get_item_rows(self, items: Sequence[int]) -> List[int]:
+    def get_item_rows(self, items: Sequence[Item]) -> List[int]:
         rows = []
         for row, i in enumerate(self._items):
             if i in items:
@@ -991,7 +1004,7 @@ class DataModel(QAbstractTableModel):
     # Table Interface
     ######################################################################
 
-    def toggle_state(self, context: aqt.browser.SearchContext) -> ItemState:
+    def toggle_state(self, context: SearchContext) -> ItemState:
         self.beginResetModel()
         self._state = self._state.toggle_state()
         self.search(context)
@@ -999,7 +1012,7 @@ class DataModel(QAbstractTableModel):
 
     # Rows
 
-    def search(self, context: aqt.browser.SearchContext) -> None:
+    def search(self, context: SearchContext) -> None:
         self.begin_reset()
         try:
             gui_hooks.browser_will_search(context)

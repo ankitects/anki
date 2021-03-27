@@ -258,7 +258,7 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
 
 fn needs_aux_sort_table(kind: SortKind) -> bool {
     use SortKind::*;
-    matches!(kind, CardDeck | NoteType | CardTemplate)
+    matches!(kind, CardDeck | Notetype | CardTemplate)
 }
 
 fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
