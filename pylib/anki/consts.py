@@ -59,15 +59,16 @@ DECK_STD = DeckKind(0)
 DECK_DYN = DeckKind(1)
 
 # dynamic deck order
-DYN_OLDEST = 0
-DYN_RANDOM = 1
-DYN_SMALLINT = 2
-DYN_BIGINT = 3
-DYN_LAPSES = 4
-DYN_ADDED = 5
-DYN_DUE = 6
-DYN_REVADDED = 7
-DYN_DUEPRIORITY = 8
+DynDeckOrder = NewType("DynDeckOrder", int)
+DYN_OLDEST = DynDeckOrder(0)
+DYN_RANDOM = DynDeckOrder(1)
+DYN_SMALLINT = DynDeckOrder(2)
+DYN_BIGINT = DynDeckOrder(3)
+DYN_LAPSES = DynDeckOrder(4)
+DYN_ADDED = DynDeckOrder(5)
+DYN_DUE = DynDeckOrder(6)
+DYN_REVADDED = DynDeckOrder(7)
+DYN_DUEPRIORITY = DynDeckOrder(8)
 
 DYN_MAX_SIZE = 99999
 
