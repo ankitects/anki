@@ -19,18 +19,18 @@ pub fn open_collection<P: Into<PathBuf>>(
     media_folder: P,
     media_db: P,
     server: bool,
-    i18n: I18n,
+    tr: I18n,
     log: Logger,
 ) -> Result<Collection> {
     let col_path = path.into();
-    let storage = SqliteStorage::open_or_create(&col_path, &i18n, server)?;
+    let storage = SqliteStorage::open_or_create(&col_path, &tr, server)?;
 
     let col = Collection {
         storage,
         col_path,
         media_folder: media_folder.into(),
         media_db: media_db.into(),
-        i18n,
+        tr,
         log,
         server,
         state: CollectionState::default(),
@@ -55,8 +55,8 @@ pub fn open_test_collection() -> Collection {
 #[cfg(test)]
 pub fn open_test_collection_with_server(server: bool) -> Collection {
     use crate::log;
-    let i18n = I18n::template_only();
-    open_collection(":memory:", "", "", server, i18n, log::terminal()).unwrap()
+    let tr = I18n::template_only();
+    open_collection(":memory:", "", "", server, tr, log::terminal()).unwrap()
 }
 
 #[derive(Debug, Default)]
@@ -76,7 +76,7 @@ pub struct Collection {
     pub(crate) col_path: PathBuf,
     pub(crate) media_folder: PathBuf,
     pub(crate) media_db: PathBuf,
-    pub(crate) i18n: I18n,
+    pub(crate) tr: I18n,
     pub(crate) log: Logger,
     pub(crate) server: bool,
     pub(crate) state: CollectionState,

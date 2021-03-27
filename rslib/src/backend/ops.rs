@@ -31,10 +31,10 @@ impl From<OpChanges> for pb::OpChanges {
 }
 
 impl UndoStatus {
-    pub(crate) fn into_protobuf(self, i18n: &I18n) -> pb::UndoStatus {
+    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::UndoStatus {
         pb::UndoStatus {
-            undo: self.undo.map(|op| op.describe(i18n)).unwrap_or_default(),
-            redo: self.redo.map(|op| op.describe(i18n)).unwrap_or_default(),
+            undo: self.undo.map(|op| op.describe(tr)).unwrap_or_default(),
+            redo: self.redo.map(|op| op.describe(tr)).unwrap_or_default(),
         }
     }
 }

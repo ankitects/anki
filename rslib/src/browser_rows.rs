@@ -58,7 +58,7 @@ struct RowContext<'a> {
     notetype: Arc<NoteType>,
     deck: Option<Deck>,
     original_deck: Option<Option<Deck>>,
-    i18n: &'a I18n,
+    tr: &'a I18n,
     timing: SchedTimingToday,
     render_context: Option<RenderContext>,
 }
@@ -152,7 +152,7 @@ impl<'a> RowContext<'a> {
             notetype,
             deck: None,
             original_deck: None,
-            i18n: &col.i18n,
+            tr: &col.tr,
             timing,
             render_context,
         })
@@ -236,9 +236,9 @@ impl<'a> RowContext<'a> {
 
     fn card_due_str(&mut self) -> String {
         let due = if self.card.original_deck_id != DeckID(0) {
-            self.i18n.browsing_filtered()
+            self.tr.browsing_filtered()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
-            self.i18n.statistics_due_for_new_card(self.card.due)
+            self.tr.statistics_due_for_new_card(self.card.due)
         } else {
             let date = if self.card.queue == CardQueue::Learn {
                 TimestampSecs(self.card.due as i64)
@@ -262,16 +262,16 @@ impl<'a> RowContext<'a> {
 
     fn card_ease_str(&self) -> String {
         match self.card.ctype {
-            CardType::New => self.i18n.browsing_new().into(),
+            CardType::New => self.tr.browsing_new().into(),
             _ => format!("{}%", self.card.ease_factor / 10),
         }
     }
 
     fn card_interval_str(&self) -> String {
         match self.card.ctype {
-            CardType::New => self.i18n.browsing_new().into(),
-            CardType::Learn => self.i18n.browsing_learning().into(),
-            _ => time_span((self.card.interval * 86400) as f32, self.i18n, false),
+            CardType::New => self.tr.browsing_new().into(),
+            CardType::Learn => self.tr.browsing_learning().into(),
+            _ => time_span((self.card.interval * 86400) as f32, self.tr, false),
         }
     }
 

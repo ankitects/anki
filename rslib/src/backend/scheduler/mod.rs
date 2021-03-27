@@ -34,7 +34,7 @@ impl SchedulingService for Backend {
 
     /// Message rendering only, for old graphs.
     fn studied_today_message(&self, input: pb::StudiedTodayMessageIn) -> Result<pb::String> {
-        Ok(studied_today(input.cards, input.seconds as f32, &self.i18n).into())
+        Ok(studied_today(input.cards, input.seconds as f32, &self.tr).into())
     }
 
     fn update_stats(&self, input: pb::UpdateStatsIn) -> Result<pb::Empty> {

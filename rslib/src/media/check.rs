@@ -89,7 +89,7 @@ where
 
     pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
         let mut buf = String::new();
-        let i = &self.ctx.i18n;
+        let i = &self.ctx.tr;
 
         // top summary area
         if output.trash_count > 0 {
@@ -532,9 +532,9 @@ pub(crate) mod test {
         let mgr = MediaManager::new(&media_dir, media_db.clone())?;
 
         let log = log::terminal();
-        let i18n = I18n::template_only();
+        let tr = I18n::template_only();
 
-        let col = open_collection(col_path, media_dir, media_db, false, i18n, log)?;
+        let col = open_collection(col_path, media_dir, media_db, false, tr, log)?;
 
         Ok((dir, mgr, col))
     }

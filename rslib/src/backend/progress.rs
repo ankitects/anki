@@ -52,12 +52,12 @@ pub(super) enum Progress {
     DatabaseCheck(DatabaseCheckProgress),
 }
 
-pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
+pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
     let progress = if let Some(progress) = progress {
         match progress {
-            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
+            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, tr)),
             Progress::MediaCheck(n) => {
-                pb::progress::Value::MediaCheck(i18n.media_check_checked(n).into())
+                pb::progress::Value::MediaCheck(tr.media_check_checked(n).into())
             }
             Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
                 transferred: p.transferred_bytes as u32,
@@ -65,15 +65,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
             }),
             Progress::NormalSync(p) => {
                 let stage = match p.stage {
-                    SyncStage::Connecting => i18n.sync_syncing(),
-                    SyncStage::Syncing => i18n.sync_syncing(),
-                    SyncStage::Finalizing => i18n.sync_checking(),
+                    SyncStage::Connecting => tr.sync_syncing(),
+                    SyncStage::Syncing => tr.sync_syncing(),
+                    SyncStage::Finalizing => tr.sync_checking(),
                 }
                 .to_string();
-                let added = i18n
+                let added = tr
                     .sync_added_updated_count(p.local_update, p.remote_update)
                     .into();
-                let removed = i18n
+                let removed = tr
                     .sync_media_removed_count(p.local_remove, p.remote_remove)
                     .into();
                 pb::progress::Value::NormalSync(pb::progress::NormalSync {
@@ -86,15 +86,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
                 let mut stage_total = 0;
                 let mut stage_current = 0;
                 let stage = match p {
-                    DatabaseCheckProgress::Integrity => i18n.database_check_checking_integrity(),
-                    DatabaseCheckProgress::Optimize => i18n.database_check_rebuilding(),
-                    DatabaseCheckProgress::Cards => i18n.database_check_checking_cards(),
+                    DatabaseCheckProgress::Integrity => tr.database_check_checking_integrity(),
+                    DatabaseCheckProgress::Optimize => tr.database_check_rebuilding(),
+                    DatabaseCheckProgress::Cards => tr.database_check_checking_cards(),
                     DatabaseCheckProgress::Notes { current, total } => {
                         stage_total = total;
                         stage_current = current;
-                        i18n.database_check_checking_notes()
+                        tr.database_check_checking_notes()
                     }
-                    DatabaseCheckProgress::History => i18n.database_check_checking_history(),
+                    DatabaseCheckProgress::History => tr.database_check_checking_history(),
                 }
                 .to_string();
                 pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
@@ -112,13 +112,13 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
     }
 }
 
-fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::progress::MediaSync {
+fn media_sync_progress(p: MediaSyncProgress, tr: &I18n) -> pb::progress::MediaSync {
     pb::progress::MediaSync {
-        checked: i18n.sync_media_checked_count(p.checked).into(),
-        added: i18n
+        checked: tr.sync_media_checked_count(p.checked).into(),
+        added: tr
             .sync_media_added_count(p.uploaded_files, p.downloaded_files)
             .into(),
-        removed: i18n
+        removed: tr
             .sync_media_removed_count(p.uploaded_deletions, p.downloaded_deletions)
             .into(),
     }

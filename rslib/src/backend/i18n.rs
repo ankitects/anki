@@ -19,7 +19,7 @@ impl I18nService for Backend {
             .collect();
 
         Ok(self
-            .i18n
+            .tr
             .translate_via_index(
                 input.module_index as usize,
                 input.message_index as usize,
@@ -31,15 +31,15 @@ impl I18nService for Backend {
     fn format_timespan(&self, input: pb::FormatTimespanIn) -> Result<pb::String> {
         use pb::format_timespan_in::Context;
         Ok(match input.context() {
-            Context::Precise => time_span(input.seconds, &self.i18n, true),
-            Context::Intervals => time_span(input.seconds, &self.i18n, false),
-            Context::AnswerButtons => answer_button_time(input.seconds, &self.i18n),
+            Context::Precise => time_span(input.seconds, &self.tr, true),
+            Context::Intervals => time_span(input.seconds, &self.tr, false),
+            Context::AnswerButtons => answer_button_time(input.seconds, &self.tr),
         }
         .into())
     }
 
     fn i18n_resources(&self, input: pb::I18nResourcesIn) -> Result<pb::Json> {
-        serde_json::to_vec(&self.i18n.resources_for_js(&input.modules))
+        serde_json::to_vec(&self.tr.resources_for_js(&input.modules))
             .map(Into::into)
             .map_err(Into::into)
     }

@@ -1235,8 +1235,8 @@ mod test {
 
     fn open_col(dir: &Path, server: bool, fname: &str) -> Result<Collection> {
         let path = dir.join(fname);
-        let i18n = I18n::template_only();
-        open_collection(path, "".into(), "".into(), server, i18n, log::terminal())
+        let tr = I18n::template_only();
+        open_collection(path, "".into(), "".into(), server, tr, log::terminal())
     }
 
     #[async_trait(?Send)]
@@ -1390,7 +1390,7 @@ mod test {
         col1.add_or_update_deck(&mut deck)?;
 
         // and a new notetype
-        let mut nt = all_stock_notetypes(&col1.i18n).remove(0);
+        let mut nt = all_stock_notetypes(&col1.tr).remove(0);
         nt.name = "new".into();
         col1.add_notetype(&mut nt)?;
 
@@ -1550,7 +1550,10 @@ mod test {
         // removing things like a notetype forces a full sync
         col2.remove_notetype(ntid)?;
         let out = ctx.normal_sync(&mut col2).await;
-        assert!(matches!(out.required, SyncActionRequired::FullSyncRequired { .. }));
+        assert!(matches!(
+            out.required,
+            SyncActionRequired::FullSyncRequired { .. }
+        ));
         Ok(())
     }
 

@@ -127,74 +127,71 @@ impl Collection {
     }
 
     fn card_stats_to_string(&mut self, cs: CardStats) -> Result<String> {
-        let i18n = &self.i18n;
+        let tr = &self.tr;
 
-        let mut stats = vec![(i18n.card_stats_added().into(), cs.added.date_string())];
+        let mut stats = vec![(tr.card_stats_added().into(), cs.added.date_string())];
         if let Some(first) = cs.first_review {
-            stats.push((i18n.card_stats_first_review().into(), first.date_string()))
+            stats.push((tr.card_stats_first_review().into(), first.date_string()))
         }
         if let Some(last) = cs.latest_review {
-            stats.push((i18n.card_stats_latest_review().into(), last.date_string()))
+            stats.push((tr.card_stats_latest_review().into(), last.date_string()))
         }
 
         match cs.due {
             Due::Time(secs) => {
-                stats.push((i18n.statistics_due_date().into(), secs.date_string()));
+                stats.push((tr.statistics_due_date().into(), secs.date_string()));
             }
             Due::Position(pos) => {
-                stats.push((i18n.card_stats_new_card_position().into(), pos.to_string()));
+                stats.push((tr.card_stats_new_card_position().into(), pos.to_string()));
             }
             Due::Unknown => {}
         };
 
         if cs.interval_secs > 0 {
             stats.push((
-                i18n.card_stats_interval().into(),
-                time_span(cs.interval_secs as f32, i18n, true),
+                tr.card_stats_interval().into(),
+                time_span(cs.interval_secs as f32, tr, true),
             ));
         }
 
         if cs.ease > 0 {
-            stats.push((i18n.card_stats_ease().into(), format!("{}%", cs.ease)));
+            stats.push((tr.card_stats_ease().into(), format!("{}%", cs.ease)));
         }
-        stats.push((
-            i18n.card_stats_review_count().into(),
-            cs.reviews.to_string(),
-        ));
-        stats.push((i18n.card_stats_lapse_count().into(), cs.lapses.to_string()));
+        stats.push((tr.card_stats_review_count().into(), cs.reviews.to_string()));
+        stats.push((tr.card_stats_lapse_count().into(), cs.lapses.to_string()));
 
         if cs.total_secs > 0.0 {
             stats.push((
-                i18n.card_stats_average_time().into(),
-                time_span(cs.average_secs, i18n, true),
+                tr.card_stats_average_time().into(),
+                time_span(cs.average_secs, tr, true),
             ));
             stats.push((
-                i18n.card_stats_total_time().into(),
-                time_span(cs.total_secs, i18n, true),
+                tr.card_stats_total_time().into(),
+                time_span(cs.total_secs, tr, true),
             ));
         }
 
-        stats.push((i18n.card_stats_card_template().into(), cs.card_type));
-        stats.push((i18n.card_stats_note_type().into(), cs.note_type));
-        stats.push((i18n.card_stats_deck_name().into(), cs.deck));
-        stats.push((i18n.card_stats_card_id().into(), cs.cid.0.to_string()));
-        stats.push((i18n.card_stats_note_id().into(), cs.nid.0.to_string()));
+        stats.push((tr.card_stats_card_template().into(), cs.card_type));
+        stats.push((tr.card_stats_note_type().into(), cs.note_type));
+        stats.push((tr.card_stats_deck_name().into(), cs.deck));
+        stats.push((tr.card_stats_card_id().into(), cs.cid.0.to_string()));
+        stats.push((tr.card_stats_note_id().into(), cs.nid.0.to_string()));
 
         let revlog = cs
             .revlog
             .into_iter()
             .rev()
-            .map(|e| revlog_to_text(e, i18n))
+            .map(|e| revlog_to_text(e, tr))
             .collect();
         let revlog_titles = RevlogText {
-            time: i18n.card_stats_review_log_date().into(),
-            kind: i18n.card_stats_review_log_type().into(),
+            time: tr.card_stats_review_log_date().into(),
+            kind: tr.card_stats_review_log_type().into(),
             kind_class: "".to_string(),
-            rating: i18n.card_stats_review_log_rating().into(),
-            interval: i18n.card_stats_interval().into(),
-            ease: i18n.card_stats_ease().into(),
+            rating: tr.card_stats_review_log_rating().into(),
+            interval: tr.card_stats_interval().into(),
+            ease: tr.card_stats_ease().into(),
             rating_class: "".to_string(),
-            taken_secs: i18n.card_stats_review_log_time_taken().into(),
+            taken_secs: tr.card_stats_review_log_time_taken().into(),
         };
 
         Ok(CardStatsTemplate {
@@ -207,15 +204,15 @@ impl Collection {
     }
 }
 
-fn revlog_to_text(e: RevlogEntry, i18n: &I18n) -> RevlogText {
+fn revlog_to_text(e: RevlogEntry, tr: &I18n) -> RevlogText {
     let dt = Local.timestamp(e.id.as_secs().0, 0);
     let time = dt.format("<b>%Y-%m-%d</b> @ %H:%M").to_string();
     let kind = match e.review_kind {
-        RevlogReviewKind::Learning => i18n.card_stats_review_log_type_learn().into(),
-        RevlogReviewKind::Review => i18n.card_stats_review_log_type_review().into(),
-        RevlogReviewKind::Relearning => i18n.card_stats_review_log_type_relearn().into(),
-        RevlogReviewKind::EarlyReview => i18n.card_stats_review_log_type_filtered().into(),
-        RevlogReviewKind::Manual => i18n.card_stats_review_log_type_manual().into(),
+        RevlogReviewKind::Learning => tr.card_stats_review_log_type_learn().into(),
+        RevlogReviewKind::Review => tr.card_stats_review_log_type_review().into(),
+        RevlogReviewKind::Relearning => tr.card_stats_review_log_type_relearn().into(),
+        RevlogReviewKind::EarlyReview => tr.card_stats_review_log_type_filtered().into(),
+        RevlogReviewKind::Manual => tr.card_stats_review_log_type_manual().into(),
     };
     let kind_class = match e.review_kind {
         RevlogReviewKind::Learning => String::from("revlog-learn"),
@@ -229,7 +226,7 @@ fn revlog_to_text(e: RevlogEntry, i18n: &I18n) -> RevlogText {
         String::from("")
     } else {
         let interval_secs = e.interval_secs();
-        time_span(interval_secs as f32, i18n, true)
+        time_span(interval_secs as f32, tr, true)
     };
     let ease = if e.ease_factor > 0 {
         format!("{}%", e.ease_factor / 10)
@@ -241,7 +238,7 @@ fn revlog_to_text(e: RevlogEntry, i18n: &I18n) -> RevlogText {
     } else {
         "".to_string()
     };
-    let taken_secs = i18n
+    let taken_secs = tr
         .statistics_seconds_taken((e.taken_millis / 1000) as i32)
         .into();
 

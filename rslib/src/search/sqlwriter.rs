@@ -610,13 +610,13 @@ mod test {
         let col_path = dir.path().join("col.anki2");
         fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
 
-        let i18n = I18n::template_only();
+        let tr = I18n::template_only();
         let mut col = open_collection(
             &col_path,
             &PathBuf::new(),
             &PathBuf::new(),
             false,
-            i18n,
+            tr,
             log::terminal(),
         )
         .unwrap();

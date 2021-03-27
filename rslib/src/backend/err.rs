@@ -8,9 +8,9 @@ use crate::{
 };
 
 /// Convert an Anki error to a protobuf error.
-pub(super) fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
+pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::BackendError {
     use pb::backend_error::Value as V;
-    let localized = err.localized_description(i18n);
+    let localized = err.localized_description(tr);
     let value = match err {
         AnkiError::InvalidInput { .. } => V::InvalidInput(pb::Empty {}),
         AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),

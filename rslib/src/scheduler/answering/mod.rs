@@ -207,7 +207,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
             answer_button_time_collapsible(
                 choices
@@ -216,7 +216,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
             answer_button_time_collapsible(
                 choices
@@ -225,7 +225,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
             answer_button_time_collapsible(
                 choices
@@ -234,7 +234,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
         ])
     }

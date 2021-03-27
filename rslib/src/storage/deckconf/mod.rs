@@ -113,10 +113,10 @@ impl SqliteStorage {
 
     // Creating/upgrading/downgrading
 
-    pub(super) fn add_default_deck_config(&self, i18n: &I18n) -> Result<()> {
+    pub(super) fn add_default_deck_config(&self, tr: &I18n) -> Result<()> {
         let mut conf = DeckConf::default();
         conf.id.0 = 1;
-        conf.name = i18n.deck_config_default_name().into();
+        conf.name = tr.deck_config_default_name().into();
         self.add_deck_conf(&mut conf)
     }
 

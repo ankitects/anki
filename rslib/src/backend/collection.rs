@@ -15,7 +15,7 @@ use slog::error;
 impl CollectionService for Backend {
     fn latest_progress(&self, _input: pb::Empty) -> Result<pb::Progress> {
         let progress = self.progress_state.lock().unwrap().last_progress;
-        Ok(progress_to_proto(progress, &self.i18n))
+        Ok(progress_to_proto(progress, &self.tr))
     }
 
     fn set_wants_abort(&self, _input: pb::Empty) -> Result<pb::Empty> {
@@ -43,7 +43,7 @@ impl CollectionService for Backend {
             input.media_folder_path,
             input.media_db_path,
             self.server,
-            self.i18n.clone(),
+            self.tr.clone(),
             logger,
         )?;
 
@@ -79,26 +79,26 @@ impl CollectionService for Backend {
         self.with_col(|col| {
             col.check_database(progress_fn)
                 .map(|problems| pb::CheckDatabaseOut {
-                    problems: problems.to_i18n_strings(&col.i18n),
+                    problems: problems.to_i18n_strings(&col.tr),
                 })
         })
     }
 
     fn get_undo_status(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
-        self.with_col(|col| Ok(col.undo_status().into_protobuf(&col.i18n)))
+        self.with_col(|col| Ok(col.undo_status().into_protobuf(&col.tr)))
     }
 
     fn undo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
         self.with_col(|col| {
             col.undo()?;
-            Ok(col.undo_status().into_protobuf(&col.i18n))
+            Ok(col.undo_status().into_protobuf(&col.tr))
         })
     }
 
     fn redo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
         self.with_col(|col| {
             col.redo()?;
-            Ok(col.undo_status().into_protobuf(&col.i18n))
+            Ok(col.undo_status().into_protobuf(&col.tr))
         })
     }
 }

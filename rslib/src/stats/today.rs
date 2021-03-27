@@ -3,7 +3,7 @@
 
 use crate::{i18n::I18n, prelude::*, scheduler::timespan::Timespan};
 
-pub fn studied_today(cards: u32, secs: f32, i18n: &I18n) -> String {
+pub fn studied_today(cards: u32, secs: f32, tr: &I18n) -> String {
     let span = Timespan::from_secs(secs).natural_span();
     let amount = span.as_unit();
     let unit = span.unit().as_str();
@@ -12,7 +12,7 @@ pub fn studied_today(cards: u32, secs: f32, i18n: &I18n) -> String {
     } else {
         0.0
     };
-    i18n.statistics_studied_today(unit, secs_per_card, amount, cards)
+    tr.statistics_studied_today(unit, secs_per_card, amount, cards)
         .into()
 }
 
@@ -20,7 +20,7 @@ impl Collection {
     pub fn studied_today(&mut self) -> Result<String> {
         let timing = self.timing_today()?;
         let today = self.storage.studied_today(timing.next_day_at)?;
-        Ok(studied_today(today.cards, today.seconds as f32, &self.i18n))
+        Ok(studied_today(today.cards, today.seconds as f32, &self.tr))
     }
 }
 
@@ -32,9 +32,9 @@ mod test {
     #[test]
     fn today() {
         // temporary test of fluent term handling
-        let i18n = I18n::template_only();
+        let tr = I18n::template_only();
         assert_eq!(
-            &studied_today(3, 13.0, &i18n).replace("\n", " "),
+            &studied_today(3, 13.0, &tr).replace("\n", " "),
             "Studied 3 cards in 13 seconds today (4.33s/card)"
         );
     }

@@ -90,37 +90,37 @@ impl AnkiError {
         }
     }
 
-    pub fn localized_description(&self, i18n: &I18n) -> String {
+    pub fn localized_description(&self, tr: &I18n) -> String {
         match self {
             AnkiError::SyncError { info, kind } => match kind {
                 SyncErrorKind::ServerMessage => info.into(),
                 SyncErrorKind::Other => info.into(),
-                SyncErrorKind::Conflict => i18n.sync_conflict(),
-                SyncErrorKind::ServerError => i18n.sync_server_error(),
-                SyncErrorKind::ClientTooOld => i18n.sync_client_too_old(),
-                SyncErrorKind::AuthFailed => i18n.sync_wrong_pass(),
-                SyncErrorKind::ResyncRequired => i18n.sync_resync_required(),
-                SyncErrorKind::ClockIncorrect => i18n.sync_clock_off(),
-                SyncErrorKind::DatabaseCheckRequired => i18n.sync_sanity_check_failed(),
+                SyncErrorKind::Conflict => tr.sync_conflict(),
+                SyncErrorKind::ServerError => tr.sync_server_error(),
+                SyncErrorKind::ClientTooOld => tr.sync_client_too_old(),
+                SyncErrorKind::AuthFailed => tr.sync_wrong_pass(),
+                SyncErrorKind::ResyncRequired => tr.sync_resync_required(),
+                SyncErrorKind::ClockIncorrect => tr.sync_clock_off(),
+                SyncErrorKind::DatabaseCheckRequired => tr.sync_sanity_check_failed(),
                 // server message
                 SyncErrorKind::SyncNotStarted => "sync not started".into(),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
                 let summary = match kind {
-                    NetworkErrorKind::Offline => i18n.network_offline(),
-                    NetworkErrorKind::Timeout => i18n.network_timeout(),
-                    NetworkErrorKind::ProxyAuth => i18n.network_proxy_auth(),
-                    NetworkErrorKind::Other => i18n.network_other(),
+                    NetworkErrorKind::Offline => tr.network_offline(),
+                    NetworkErrorKind::Timeout => tr.network_timeout(),
+                    NetworkErrorKind::ProxyAuth => tr.network_proxy_auth(),
+                    NetworkErrorKind::Other => tr.network_other(),
                 };
-                let details = i18n.network_details(info.as_str());
+                let details = tr.network_details(info.as_str());
                 format!("{}\n\n{}", summary, details)
             }
             AnkiError::TemplateError { info } => {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError { ordinal } => i18n
+            AnkiError::TemplateSaveError { ordinal } => tr
                 .card_templates_invalid_template_number(ordinal + 1)
                 .into(),
             AnkiError::DBError { info, kind } => match kind {
@@ -130,75 +130,75 @@ impl AnkiError {
             },
             AnkiError::SearchError(kind) => {
                 let reason = match kind {
-                    SearchErrorKind::MisplacedAnd => i18n.search_misplaced_and(),
-                    SearchErrorKind::MisplacedOr => i18n.search_misplaced_or(),
-                    SearchErrorKind::EmptyGroup => i18n.search_empty_group(),
-                    SearchErrorKind::UnopenedGroup => i18n.search_unopened_group(),
-                    SearchErrorKind::UnclosedGroup => i18n.search_unclosed_group(),
-                    SearchErrorKind::EmptyQuote => i18n.search_empty_quote(),
-                    SearchErrorKind::UnclosedQuote => i18n.search_unclosed_quote(),
-                    SearchErrorKind::MissingKey => i18n.search_missing_key(),
+                    SearchErrorKind::MisplacedAnd => tr.search_misplaced_and(),
+                    SearchErrorKind::MisplacedOr => tr.search_misplaced_or(),
+                    SearchErrorKind::EmptyGroup => tr.search_empty_group(),
+                    SearchErrorKind::UnopenedGroup => tr.search_unopened_group(),
+                    SearchErrorKind::UnclosedGroup => tr.search_unclosed_group(),
+                    SearchErrorKind::EmptyQuote => tr.search_empty_quote(),
+                    SearchErrorKind::UnclosedQuote => tr.search_unclosed_quote(),
+                    SearchErrorKind::MissingKey => tr.search_missing_key(),
                     SearchErrorKind::UnknownEscape(ctx) => {
-                        i18n.search_unknown_escape(ctx.replace('`', "'"))
+                        tr.search_unknown_escape(ctx.replace('`', "'"))
                     }
                     SearchErrorKind::InvalidState(state) => {
-                        i18n.search_invalid_argument("is:", state.replace('`', "'"))
+                        tr.search_invalid_argument("is:", state.replace('`', "'"))
                     }
 
-                    SearchErrorKind::InvalidFlag => i18n.search_invalid_flag(),
+                    SearchErrorKind::InvalidFlag => tr.search_invalid_flag(),
                     SearchErrorKind::InvalidPropProperty(prop) => {
-                        i18n.search_invalid_argument("prop:", prop.replace('`', "'"))
+                        tr.search_invalid_argument("prop:", prop.replace('`', "'"))
                     }
                     SearchErrorKind::InvalidPropOperator(ctx) => {
-                        i18n.search_invalid_prop_operator(ctx.as_str())
+                        tr.search_invalid_prop_operator(ctx.as_str())
                     }
                     SearchErrorKind::Regex(text) => {
                         format!("<pre>`{}`</pre>", text.replace('`', "'")).into()
                     }
                     SearchErrorKind::Other(Some(info)) => info.into(),
-                    SearchErrorKind::Other(None) => i18n.search_invalid_other(),
-                    SearchErrorKind::InvalidNumber { provided, context } => i18n
+                    SearchErrorKind::Other(None) => tr.search_invalid_other(),
+                    SearchErrorKind::InvalidNumber { provided, context } => tr
                         .search_invalid_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
                         ),
 
-                    SearchErrorKind::InvalidWholeNumber { provided, context } => i18n
+                    SearchErrorKind::InvalidWholeNumber { provided, context } => tr
                         .search_invalid_whole_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
                         ),
 
-                    SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => i18n
+                    SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => tr
                         .search_invalid_positive_whole_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
                         ),
 
-                    SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => i18n
+                    SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => tr
                         .search_invalid_negative_whole_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
                         ),
 
-                    SearchErrorKind::InvalidAnswerButton { provided, context } => i18n
+                    SearchErrorKind::InvalidAnswerButton { provided, context } => tr
                         .search_invalid_answer_button(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
                         ),
                 };
-                i18n.search_invalid_search(reason).into()
+                tr.search_invalid_search(reason).into()
             }
             AnkiError::InvalidInput { info } => {
                 if info.is_empty() {
-                    i18n.errors_invalid_input_empty().into()
+                    tr.errors_invalid_input_empty().into()
                 } else {
-                    i18n.errors_invalid_input_details(info.as_str()).into()
+                    tr.errors_invalid_input_details(info.as_str()).into()
                 }
             }
-            AnkiError::ParseNumError => i18n.errors_parse_number_fail().into(),
-            AnkiError::DeckIsFiltered => i18n.errors_filtered_parent_deck().into(),
-            AnkiError::FilteredDeckEmpty => i18n.decks_filtered_deck_search_empty().into(),
+            AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
+            AnkiError::DeckIsFiltered => tr.errors_filtered_parent_deck().into(),
+            AnkiError::FilteredDeckEmpty => tr.decks_filtered_deck_search_empty().into(),
             _ => format!("{:?}", self),
         }
     }
