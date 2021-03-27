@@ -382,7 +382,7 @@ class DeckManager:
         return dids
 
     def restoreToDefault(self, conf: DeckConfigDict) -> None:
-        oldOrder = conf["new"]["order"]
+        oldOrder = NewCardsInsertionOrder(conf["new"]["order"])
         new = from_json_bytes(self.col._backend.new_deck_config_legacy())
         new["id"] = conf["id"]
         new["name"] = conf["name"]

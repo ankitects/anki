@@ -207,7 +207,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
 
     def resortConf(self, conf: DeckConfigDict) -> None:
         for did in self.col.decks.didsForConf(conf):
-            if conf["new"]["order"] == 0:
+            if conf["new"]["order"] == NEW_CARDS_RANDOM:
                 self.randomizeCards(did)
             else:
                 self.orderCards(did)

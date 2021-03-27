@@ -14,8 +14,9 @@ NEW_CARDS_LAST = 1
 NEW_CARDS_FIRST = 2
 
 # new card insertion order
-NEW_CARDS_RANDOM = 0
-NEW_CARDS_DUE = 1
+NewCardsInsertionOrder = NewType("NewCardsInsertionOrder", int)
+NEW_CARDS_RANDOM = NewCardsInsertionOrder(0)
+NEW_CARDS_DUE = NewCardsInsertionOrder(1)
 
 # Queue types
 CardQueue = NewType("CardQueue", int)

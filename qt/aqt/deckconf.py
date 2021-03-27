@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 from PyQt5.QtWidgets import QLineEdit
 
 import aqt
-from anki.consts import NEW_CARDS_RANDOM
+from anki.consts import NEW_CARDS_RANDOM, NewCardsInsertionOrder
 from anki.decks import DeckConfigDict
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
@@ -27,6 +27,8 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
+    _origNewOrder: Optional[NewCardsInsertionOrder]
+
     def __init__(self, mw: aqt.AnkiQt, deck: Dict) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
@@ -88,7 +90,9 @@ class DeckConf(QDialog):
         self.ignoreConfChange = False
         self.form.dconf.setCurrentIndex(startOn)
         if self._origNewOrder is None:
-            self._origNewOrder = self.confList[startOn]["new"]["order"]
+            self._origNewOrder = NewCardsInsertionOrder(
+                self.confList[startOn]["new"]["order"]
+            )
         self.onConfChange(startOn)
 
     def confOpts(self) -> None:
@@ -247,8 +251,8 @@ class DeckConf(QDialog):
     # New order
     ##################################################
 
-    def onNewOrderChanged(self, new: bool) -> None:
-        old = self.conf["new"]["order"]
+    def onNewOrderChanged(self, new: NewCardsInsertionOrder) -> None:
+        old = NewCardsInsertionOrder(self.conf["new"]["order"])
         if old == new:
             return
         self.conf["new"]["order"] = new
@@ -288,10 +292,10 @@ class DeckConf(QDialog):
         c["ints"][0] = f.lrnGradInt.value()
         c["ints"][1] = f.lrnEasyInt.value()
         c["initialFactor"] = f.lrnFactor.value() * 10
-        c["order"] = f.newOrder.currentIndex()
+        c["order"] = NewCardsInsertionOrder(f.newOrder.currentIndex())
         c["perDay"] = f.newPerDay.value()
         c["bury"] = f.bury.isChecked()
-        if self._origNewOrder != c["order"]:
+        if self._origNewOrder != NewCardsInsertionOrder(c["order"]):
             # order of current deck has changed, so have to resort
             if c["order"] == NEW_CARDS_RANDOM:
                 self.mw.col.sched.randomizeCards(self.deck["id"])
