@@ -38,9 +38,10 @@ CARD_TYPE_REV = CardType(2)
 CARD_TYPE_RELEARNING = CardType(3)
 
 # removal types
-REM_CARD = 0
-REM_NOTE = 1
-REM_DECK = 2
+RemovalType = NewType("RemovalType", int)
+REM_CARD = RemovalType(0)
+REM_NOTE = RemovalType(1)
+REM_DECK = RemovalType(2)
 
 # count display
 COUNT_ANSWERED = 0
