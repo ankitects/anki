@@ -31,7 +31,6 @@ cargo_build_script(
         "@extra_ftl//:l10n.toml",
     ],
     deps = [
-        "//rslib/cargo:fluent_syntax",
         "//rslib/cargo:prost_build",
     ],
 )

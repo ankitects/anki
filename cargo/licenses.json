@@ -1,5 +1,14 @@
 [
   {
+    "name": "Inflector",
+    "version": "0.11.4",
+    "authors": "Josh Teeter<joshteeter@gmail.com>",
+    "repository": "https://github.com/whatisinternet/inflector",
+    "license": "BSD-2-Clause",
+    "license_file": null,
+    "description": "Adds String based inflections for Rust. Snake, kebab, camel, sentence, class, title and table cases as well as ordinalize, deordinalize, demodulize, foreign key, and pluralize/singularize are supported as both traits and pure functions acting on String types."
+  },
+  {
     "name": "addr2line",
     "version": "0.14.1",
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>|Philip Craig <philipjcraig@gmail.com>|Jon Gjengset <jon@thesquareplanet.com>|Noah Bergbauer <noah.bergbauer@tum.de>",
@@ -541,7 +550,7 @@
   },
   {
     "name": "fluent",
-    "version": "0.13.1",
+    "version": "0.15.0",
     "authors": "Zibi Braniecki <gandalf@mozilla.com>|Staś Małolepszy <stas@mozilla.com>",
     "repository": "https://github.com/projectfluent/fluent-rs",
     "license": "Apache-2.0 OR MIT",
@@ -550,7 +559,7 @@
   },
   {
     "name": "fluent-bundle",
-    "version": "0.13.2",
+    "version": "0.15.0",
     "authors": "Zibi Braniecki <gandalf@mozilla.com>|Staś Małolepszy <stas@mozilla.com>",
     "repository": "https://github.com/projectfluent/fluent-rs",
     "license": "Apache-2.0 OR MIT",
@@ -568,7 +577,7 @@
   },
   {
     "name": "fluent-syntax",
-    "version": "0.10.3",
+    "version": "0.11.0",
     "authors": "Zibi Braniecki <gandalf@mozilla.com>|Staś Małolepszy <stas@mozilla.com>",
     "repository": "https://github.com/projectfluent/fluent-rs",
     "license": "Apache-2.0 OR MIT",
@@ -1395,6 +1404,24 @@
     "description": "FFI bindings to OpenSSL"
   },
   {
+    "name": "ouroboros",
+    "version": "0.8.3",
+    "authors": "Joshua Maros <joshua-maros@github.com>",
+    "repository": "https://github.com/joshua-maros/ouroboros",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Easy, safe self-referential struct generation."
+  },
+  {
+    "name": "ouroboros_macro",
+    "version": "0.8.3",
+    "authors": "Joshua Maros <joshua-maros@github.com>",
+    "repository": "https://github.com/joshua-maros/ouroboros",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Proc macro for ouroboros crate."
+  },
+  {
     "name": "parking_lot",
     "version": "0.11.1",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
@@ -1582,6 +1609,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Replacement for crate (macro_rules keyword) in proc-macros"
+  },
+  {
+    "name": "proc-macro-error",
+    "version": "1.0.4",
+    "authors": "CreepySkeleton <creepy-skeleton@yandex.ru>",
+    "repository": "https://gitlab.com/CreepySkeleton/proc-macro-error",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Almost drop-in replacement to panics in proc-macros"
+  },
+  {
+    "name": "proc-macro-error-attr",
+    "version": "1.0.4",
+    "authors": "CreepySkeleton <creepy-skeleton@yandex.ru>",
+    "repository": "https://gitlab.com/CreepySkeleton/proc-macro-error",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Attribute macro for proc-macro-error crate"
   },
   {
     "name": "proc-macro-hack",
@@ -1834,24 +1879,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A safe, reliable implementation of remove_dir_all for Windows"
-  },
-  {
-    "name": "rental",
-    "version": "0.5.5",
-    "authors": "Jameson Ernst <jameson@jpernst.com>",
-    "repository": "https://github.com/jpernst/rental",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A macro to generate safe self-referential structs, plus premade types for common use cases."
-  },
-  {
-    "name": "rental-impl",
-    "version": "0.5.5",
-    "authors": "Jameson Ernst <jameson@jpernst.com>",
-    "repository": "https://github.com/jpernst/rental",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "An implementation detail of rental. Should not be used directly."
   },
   {
     "name": "reqwest",

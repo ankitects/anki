@@ -3,7 +3,8 @@
 
 mod generated;
 
-use fluent::{concurrent::FluentBundle, FluentArgs, FluentResource, FluentValue};
+use fluent::{FluentArgs, FluentResource, FluentValue};
+use fluent_bundle::bundle::FluentBundle as FluentBundleOrig;
 use num_format::Locale;
 use serde::Serialize;
 use std::borrow::Cow;
@@ -11,6 +12,8 @@ use std::sync::{Arc, Mutex};
 use unic_langid::LanguageIdentifier;
 
 use generated::{KEYS_BY_MODULE, STRINGS};
+
+type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 pub use fluent::fluent_args as tr_args;
 
@@ -88,7 +91,7 @@ fn get_bundle(
         })
         .ok()?;
 
-    let mut bundle: FluentBundle<FluentResource> = FluentBundle::new(locales);
+    let mut bundle: FluentBundle<FluentResource> = FluentBundle::new_concurrent(locales.to_vec());
     bundle
         .add_resource(res)
         .map_err(|e| {
@@ -236,7 +239,7 @@ impl I18n {
                 None => continue,
             };
 
-            let pat = match msg.value {
+            let pat = match msg.value() {
                 Some(val) => val,
                 // empty value
                 None => continue,

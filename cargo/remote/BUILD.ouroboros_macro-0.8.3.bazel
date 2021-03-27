@@ -25,20 +25,18 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "resolver" with type "bench" omitted
-
 rust_library(
-    name = "fluent_bundle",
+    name = "ouroboros_macro",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
+    crate_type = "proc-macro",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -48,15 +46,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.13.2",
+    version = "0.8.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__fluent_langneg__0_13_0//:fluent_langneg",
-        "@raze__fluent_syntax__0_10_3//:fluent_syntax",
-        "@raze__intl_memoizer__0_5_1//:intl_memoizer",
-        "@raze__intl_pluralrules__7_0_1//:intl_pluralrules",
-        "@raze__rental__0_5_5//:rental",
-        "@raze__smallvec__1_6_1//:smallvec",
-        "@raze__unic_langid__0_9_0//:unic_langid",
+        "@raze__Inflector__0_11_4//:Inflector",
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__proc_macro_error__1_0_4//:proc_macro_error",
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_63//:syn",
     ],
 )

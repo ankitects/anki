@@ -1,22 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use super::Backend;
 use crate::{
     backend_proto as pb,
     prelude::*,
     scheduler::timespan::{answer_button_time, time_span},
 };
-use fluent::FluentValue;
+use fluent::{FluentArgs, FluentValue};
 pub(super) use pb::i18n_service::Service as I18nService;
 
 impl I18nService for Backend {
     fn translate_string(&self, input: pb::TranslateStringIn) -> Result<pb::String> {
-        let args = input
-            .args
-            .iter()
-            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
-            .collect();
+        let args = build_fluent_args(input.args);
 
         Ok(self
             .tr
@@ -45,11 +43,19 @@ impl I18nService for Backend {
     }
 }
 
-fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
+fn build_fluent_args(input: HashMap<String, pb::TranslateArgValue>) -> FluentArgs<'static> {
+    let mut args = FluentArgs::new();
+    for (key, val) in input {
+        args.set(key, translate_arg_to_fluent_val(&val));
+    }
+    args
+}
+
+fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue<'static> {
     use pb::translate_arg_value::Value as V;
     match &arg.value {
         Some(val) => match val {
-            V::Str(s) => FluentValue::String(s.into()),
+            V::Str(s) => FluentValue::String(s.to_owned().into()),
             V::Number(f) => FluentValue::Number(f.into()),
         },
         None => FluentValue::String("".into()),

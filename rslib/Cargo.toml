@@ -14,7 +14,6 @@ path = "src/lib.rs"
 # After updating anything below, run ../cargo/update.py
 
 [build-dependencies]
-fluent-syntax = "0.10"
 prost-build = "0.7"
 
 [dev-dependencies]
@@ -41,7 +40,8 @@ chrono = "0.4.13"
 coarsetime = "0.1.16"
 failure = "0.1.8"
 flate2 = "1.0.16"
-fluent = "0.13.1"
+fluent = "0.15"
+fluent-bundle = "0.15"
 futures = "0.3.5"
 hex = "0.4.2"
 htmlescape = "0.3.1"
