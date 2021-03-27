@@ -49,8 +49,9 @@ COUNT_ANSWERED = CountDisplay(0)
 COUNT_REMAINING = CountDisplay(1)
 
 # media log
-MEDIA_ADD = 0
-MEDIA_REM = 1
+MediaLog = NewType("MediaLog", int)
+MEDIA_ADD = MediaLog(0)
+MEDIA_REM = MediaLog(1)
 
 # Kind of decks
 DECK_STD = 0
