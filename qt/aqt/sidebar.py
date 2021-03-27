@@ -8,8 +8,8 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
-from anki.decks import DeckID, DeckTreeNode
-from anki.models import NoteTypeID
+from anki.decks import DeckId, DeckTreeNode
+from anki.models import NoteTypeId
 from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
@@ -594,14 +594,14 @@ class SidebarTreeView(QTreeView):
         self, sources: List[SidebarItem], target: SidebarItem
     ) -> bool:
         deck_ids = [
-            DeckID(source.id)
+            DeckId(source.id)
             for source in sources
             if source.item_type == SidebarItemType.DECK
         ]
         if not deck_ids:
             return False
 
-        new_parent = DeckID(target.id)
+        new_parent = DeckId(target.id)
 
         reparent_decks(
             mw=self.mw, parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
@@ -968,7 +968,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
 
                 def toggle_expand() -> Callable[[bool], None]:
-                    did = DeckID(node.deck_id)  # pylint: disable=cell-var-from-loop
+                    did = DeckId(node.deck_id)  # pylint: disable=cell-var-from-loop
                     return lambda _: self.mw.col.decks.collapseBrowser(did)
 
                 item = SidebarItem(
@@ -1148,7 +1148,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
-        deck = self.mw.col.decks.get(DeckID(item.id))
+        deck = self.mw.col.decks.get(DeckId(item.id))
         if not new_name:
             return
         new_name = item.name_prefix + new_name
@@ -1157,7 +1157,7 @@ class SidebarTreeView(QTreeView):
 
         rename_deck(
             mw=self.mw,
-            deck_id=DeckID(item.id),
+            deck_id=DeckId(item.id),
             new_name=new_name,
             after_rename=lambda: self.refresh(
                 lambda other: other.item_type == SidebarItemType.DECK
@@ -1284,11 +1284,11 @@ class SidebarTreeView(QTreeView):
             self.mw,
             parent=self.browser,
             fromMain=True,
-            selected_notetype_id=NoteTypeID(item.id),
+            selected_notetype_id=NoteTypeId(item.id),
         )
 
     def manage_template(self, item: SidebarItem) -> None:
-        note = Note(self.col, self.col.models.get(NoteTypeID(item._parent_item.id)))
+        note = Note(self.col, self.col.models.get(NoteTypeId(item._parent_item.id)))
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
 
     # Helpers
@@ -1297,9 +1297,9 @@ class SidebarTreeView(QTreeView):
     def _selected_items(self) -> List[SidebarItem]:
         return [self.model().item_for_index(idx) for idx in self.selectedIndexes()]
 
-    def _selected_decks(self) -> List[DeckID]:
+    def _selected_decks(self) -> List[DeckId]:
         return [
-            DeckID(item.id)
+            DeckId(item.id)
             for item in self._selected_items()
             if item.item_type == SidebarItemType.DECK
         ]

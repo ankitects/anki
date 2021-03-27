@@ -4,8 +4,8 @@
 from typing import List, Optional, Tuple
 
 import aqt
-from anki.collection import OpChangesWithID, SearchNode
-from anki.decks import DeckDict, DeckID, FilteredDeckConfig
+from anki.collection import OpChangesWithId, SearchNode
+from anki.decks import DeckDict, DeckId, FilteredDeckConfig
 from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
 from anki.scheduler import FilteredDeckForUpdate
@@ -34,7 +34,7 @@ class FilteredDeckConfigDialog(QDialog):
     def __init__(
         self,
         mw: AnkiQt,
-        deck_id: DeckID = DeckID(0),
+        deck_id: DeckId = DeckId(0),
         search: Optional[str] = None,
         search_2: Optional[str] = None,
     ) -> None:
@@ -300,7 +300,7 @@ class FilteredDeckConfigDialog(QDialog):
         if not self._update_deck():
             return
 
-        def success(out: OpChangesWithID) -> None:
+        def success(out: OpChangesWithId) -> None:
             gui_hooks.filtered_deck_dialog_did_add_or_update_deck(
                 self, self.deck, out.id
             )

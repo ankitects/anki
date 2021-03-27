@@ -8,7 +8,7 @@ from typing import List, Optional, Sequence
 import aqt.clayout
 from anki import Collection, stdmodels
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType, NoteTypeID, NoteTypeNameIDUseCount
+from anki.models import NoteType, NoteTypeId, NoteTypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -32,7 +32,7 @@ class Models(QDialog):
         mw: AnkiQt,
         parent: Optional[QWidget] = None,
         fromMain: bool = False,
-        selected_notetype_id: Optional[NoteTypeID] = None,
+        selected_notetype_id: Optional[NoteTypeId] = None,
     ):
         self.mw = mw
         parent = parent or mw
@@ -49,7 +49,7 @@ class Models(QDialog):
             self.form.buttonBox.helpRequested,
             lambda: openHelp(HelpPage.ADDING_A_NOTE_TYPE),
         )
-        self.models: List[NoteTypeNameIDUseCount] = []
+        self.models: List[NoteTypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
         self.exec_()
@@ -109,7 +109,7 @@ class Models(QDialog):
             self.saveAndRefresh(nt)
 
     def saveAndRefresh(self, nt: NoteType) -> None:
-        def save() -> Sequence[NoteTypeNameIDUseCount]:
+        def save() -> Sequence[NoteTypeNameIdUseCount]:
             self.mm.save(nt)
             return self.col.models.all_use_counts()
 
@@ -118,7 +118,7 @@ class Models(QDialog):
 
         self.mw.taskman.with_progress(save, on_done, self)
 
-    def updateModelsList(self, notetypes: List[NoteTypeNameIDUseCount]) -> None:
+    def updateModelsList(self, notetypes: List[NoteTypeNameIdUseCount]) -> None:
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
@@ -133,7 +133,7 @@ class Models(QDialog):
 
     def current_notetype(self) -> NoteType:
         row = self.form.modelsList.currentRow()
-        return self.mm.get(NoteTypeID(self.models[row].id))
+        return self.mm.get(NoteTypeId(self.models[row].id))
 
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
@@ -159,7 +159,7 @@ class Models(QDialog):
 
         nt = self.current_notetype()
 
-        def save() -> Sequence[NoteTypeNameIDUseCount]:
+        def save() -> Sequence[NoteTypeNameIdUseCount]:
             self.mm.rem(nt)
             return self.col.models.all_use_counts()
 

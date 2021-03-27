@@ -27,7 +27,7 @@ from anki.sound import AVTag
 # - lrn queue: integer timestamp
 
 # types
-CardID = NewType("CardID", int)
+CardId = NewType("CardId", int)
 
 
 class Card:
@@ -35,15 +35,15 @@ class Card:
     timerStarted: Optional[float]
     lastIvl: int
     ord: int
-    nid: anki.notes.NoteID
-    id: CardID
-    did: anki.decks.DeckID
-    odid: anki.decks.DeckID
+    nid: anki.notes.NoteId
+    id: CardId
+    did: anki.decks.DeckId
+    odid: anki.decks.DeckId
     queue: CardQueue
     type: CardType
 
     def __init__(
-        self, col: anki.collection.Collection, id: Optional[CardID] = None
+        self, col: anki.collection.Collection, id: Optional[CardId] = None
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None
@@ -64,9 +64,9 @@ class Card:
     def _load_from_backend_card(self, c: _pb.Card) -> None:
         self._render_output = None
         self._note = None
-        self.id = CardID(c.id)
-        self.nid = anki.notes.NoteID(c.note_id)
-        self.did = anki.decks.DeckID(c.deck_id)
+        self.id = CardId(c.id)
+        self.nid = anki.notes.NoteId(c.note_id)
+        self.did = anki.decks.DeckId(c.deck_id)
         self.ord = c.template_idx
         self.mod = c.mtime_secs
         self.usn = c.usn
@@ -79,7 +79,7 @@ class Card:
         self.lapses = c.lapses
         self.left = c.remaining_steps
         self.odue = c.original_due
-        self.odid = anki.decks.DeckID(c.original_deck_id)
+        self.odid = anki.decks.DeckId(c.original_deck_id)
         self.flags = c.flags
         self.data = c.data
 
@@ -167,8 +167,8 @@ class Card:
     def startTimer(self) -> None:
         self.timerStarted = time.time()
 
-    def current_deck_id(self) -> anki.decks.DeckID:
-        return anki.decks.DeckID(self.odid or self.did)
+    def current_deck_id(self) -> anki.decks.DeckId:
+        return anki.decks.DeckId(self.odid or self.did)
 
     def timeLimit(self) -> int:
         "Time limit for answering in milliseconds."

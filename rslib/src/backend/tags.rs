@@ -56,14 +56,14 @@ impl TagsService for Backend {
             .map(Into::into)
     }
 
-    fn add_note_tags(&self, input: pb::NoteIDsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn add_note_tags(&self, input: pb::NoteIdsAndTagsIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.add_tags_to_notes(&to_note_ids(input.note_ids), &input.tags)
                 .map(Into::into)
         })
     }
 
-    fn remove_note_tags(&self, input: pb::NoteIDsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn remove_note_tags(&self, input: pb::NoteIdsAndTagsIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.remove_tags_from_notes(&to_note_ids(input.note_ids), &input.tags)
                 .map(Into::into)

@@ -19,8 +19,8 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 import anki.collection
 from anki.collection import OpChangesWithCount
-from anki.decks import DeckID
-from anki.notes import NoteID
+from anki.decks import DeckId
+from anki.notes import NoteId
 from anki.utils import ids2str
 
 # public exports
@@ -50,7 +50,7 @@ class TagManager:
     def clear_unused_tags(self) -> OpChangesWithCount:
         return self.col._backend.clear_unused_tags()
 
-    def byDeck(self, did: DeckID, children: bool = False) -> List[str]:
+    def byDeck(self, did: DeckId, children: bool = False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = f"{basequery} AND c.did=?"
@@ -70,11 +70,11 @@ class TagManager:
     # Bulk addition/removal from specific notes
     #############################################################
 
-    def bulk_add(self, note_ids: Sequence[NoteID], tags: str) -> OpChangesWithCount:
+    def bulk_add(self, note_ids: Sequence[NoteId], tags: str) -> OpChangesWithCount:
         """Add space-separate tags to provided notes, returning changed count."""
         return self.col._backend.add_note_tags(note_ids=note_ids, tags=tags)
 
-    def bulk_remove(self, note_ids: Sequence[NoteID], tags: str) -> OpChangesWithCount:
+    def bulk_remove(self, note_ids: Sequence[NoteId], tags: str) -> OpChangesWithCount:
         return self.col._backend.remove_note_tags(note_ids=note_ids, tags=tags)
 
     # Find&replace
@@ -177,12 +177,12 @@ class TagManager:
     ) -> None:
         print("tags.register() is deprecated and no longer works")
 
-    def bulkAdd(self, ids: List[NoteID], tags: str, add: bool = True) -> None:
+    def bulkAdd(self, ids: List[NoteId], tags: str, add: bool = True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         if add:
             self.bulk_add(ids, tags)
         else:
             self.bulk_remove(ids, tags)
 
-    def bulkRem(self, ids: List[NoteID], tags: str) -> None:
+    def bulkRem(self, ids: List[NoteId], tags: str) -> None:
         self.bulkAdd(ids, tags, False)

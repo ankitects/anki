@@ -11,27 +11,27 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import MODEL_STD
-from anki.models import NoteType, NoteTypeID, Template
+from anki.models import NoteType, NoteTypeId, Template
 from anki.utils import joinFields
 
 DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
 
 # types
-NoteID = NewType("NoteID", int)
+NoteId = NewType("NoteId", int)
 
 
 class Note:
     # not currently exposed
     flags = 0
     data = ""
-    id: NoteID
-    mid: NoteTypeID
+    id: NoteId
+    mid: NoteTypeId
 
     def __init__(
         self,
         col: anki.collection.Collection,
         model: Optional[NoteType] = None,
-        id: Optional[NoteID] = None,
+        id: Optional[NoteId] = None,
     ) -> None:
         assert not (model and id)
         self.col = col.weakref()
@@ -51,9 +51,9 @@ class Note:
         self._load_from_backend_note(n)
 
     def _load_from_backend_note(self, n: _pb.Note) -> None:
-        self.id = NoteID(n.id)
+        self.id = NoteId(n.id)
         self.guid = n.guid
-        self.mid = NoteTypeID(n.notetype_id)
+        self.mid = NoteTypeId(n.notetype_id)
         self.mod = n.mtime_secs
         self.usn = n.usn
         self.tags = list(n.tags)
@@ -124,7 +124,7 @@ class Note:
     def cards(self) -> List[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
 
-    def card_ids(self) -> Sequence[anki.cards.CardID]:
+    def card_ids(self) -> Sequence[anki.cards.CardId]:
         return self.col.card_ids_of_note(self.id)
 
     def model(self) -> Optional[NoteType]:
