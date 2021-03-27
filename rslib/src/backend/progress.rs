@@ -119,14 +119,12 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
 fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::progress::MediaSync {
     pb::progress::MediaSync {
         checked: i18n.sync_media_checked_count(p.checked).into(),
-        added: i18n.trn(
-            TR::SyncMediaAddedCount,
-            tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
-        ),
-        removed: i18n.trn(
-            TR::SyncMediaRemovedCount,
-            tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
-        ),
+        added: i18n
+            .sync_media_added_count(p.uploaded_files, p.downloaded_files)
+            .into(),
+        removed: i18n
+            .sync_media_removed_count(p.uploaded_deletions, p.downloaded_deletions)
+            .into(),
     }
 }
 

@@ -94,10 +94,7 @@ where
         // top summary area
         if output.trash_count > 0 {
             let megs = (output.trash_bytes as f32) / 1024.0 / 1024.0;
-            buf += &i.trn(
-                TR::MediaCheckTrashCount,
-                tr_args!["count"=>output.trash_count, "megs"=>megs],
-            );
+            buf += &i.media_check_trash_count(output.trash_count, megs);
             buf.push('\n');
         }
 
@@ -126,7 +123,7 @@ where
             buf += &i.media_check_renamed_header();
             buf.push('\n');
             for (old, new) in &output.renamed {
-                buf += &i.trn(TR::MediaCheckRenamedFile, tr_strs!["old"=>old,"new"=>new]);
+                buf += &i.media_check_renamed_file(old.as_str(), new.as_str());
                 buf.push('\n');
             }
             buf.push('\n')

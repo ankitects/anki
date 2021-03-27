@@ -142,17 +142,11 @@ impl AnkiError {
                         i18n.search_unknown_escape(ctx.replace('`', "'")).into()
                     }
                     SearchErrorKind::InvalidState(state) => i18n
-                        .trn(
-                            TR::SearchInvalidArgument,
-                            tr_strs!("term" => "is:", "argument" => state.replace('`', "'")),
-                        )
+                        .search_invalid_argument("is:", state.replace('`', "'"))
                         .into(),
                     SearchErrorKind::InvalidFlag => i18n.search_invalid_flag(),
                     SearchErrorKind::InvalidPropProperty(prop) => i18n
-                        .trn(
-                            TR::SearchInvalidArgument,
-                            tr_strs!("term" => "prop:", "argument" => prop.replace('`', "'")),
-                        )
+                        .search_invalid_argument("prop:", prop.replace('`', "'"))
                         .into(),
                     SearchErrorKind::InvalidPropOperator(ctx) => {
                         i18n.search_invalid_prop_operator(ctx.as_str()).into()
@@ -163,33 +157,33 @@ impl AnkiError {
                     SearchErrorKind::Other(Some(info)) => info.into(),
                     SearchErrorKind::Other(None) => i18n.search_invalid_other(),
                     SearchErrorKind::InvalidNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
+                        .search_invalid_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
                         )
                         .into(),
                     SearchErrorKind::InvalidWholeNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidWholeNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
+                        .search_invalid_whole_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
                         )
                         .into(),
                     SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidPositiveWholeNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
+                        .search_invalid_positive_whole_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
                         )
                         .into(),
                     SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidNegativeWholeNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
+                        .search_invalid_negative_whole_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
                         )
                         .into(),
                     SearchErrorKind::InvalidAnswerButton { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidAnswerButton,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
+                        .search_invalid_answer_button(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
                         )
                         .into(),
                 };
