@@ -3,7 +3,7 @@
 
 mod generated;
 
-use fluent::{FluentArgs, FluentResource, FluentValue};
+use fluent::{types::FluentNumber, FluentArgs, FluentResource, FluentValue};
 use fluent_bundle::bundle::FluentBundle as FluentBundleOrig;
 use num_format::Locale;
 use serde::Serialize;
@@ -16,6 +16,14 @@ use generated::{KEYS_BY_MODULE, STRINGS};
 type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 pub use fluent::fluent_args as tr_args;
+
+pub trait Number: Into<FluentNumber> {}
+impl Number for i32 {}
+impl Number for i64 {}
+impl Number for u32 {}
+impl Number for f32 {}
+impl Number for u64 {}
+impl Number for usize {}
 
 fn remapped_lang_name(lang: &LanguageIdentifier) -> &str {
     let region = match &lang.region {

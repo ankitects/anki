@@ -165,9 +165,11 @@ impl From<String> for Variable {
             | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"
             | "hourStart" | "hourEnd" | "correct" => VariableKind::Int,
             "average-seconds" | "cards-per-minute" => VariableKind::Float,
-            "val" | "found" | "expected" | "part" | "percent" | "day" => VariableKind::Any,
+            "val" | "found" | "expected" | "part" | "percent" | "day" | "number" | "up"
+            | "down" | "seconds" | "megs" => VariableKind::Any,
             term => {
-                if term.ends_with("Count") || term.ends_with("Secs") {
+                let term = term.to_ascii_lowercase();
+                if term.ends_with("count") {
                     VariableKind::Int
                 } else {
                     VariableKind::String
