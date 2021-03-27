@@ -20,7 +20,6 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
     write_translations_by_module(map, &mut buf);
     // ordered list of translations by module
     write_translation_key_index(modules, &mut buf);
-    write_legacy_tr_enum(modules, &mut buf);
     // methods to generate messages
     write_methods(modules, &mut buf);
 
@@ -61,7 +60,7 @@ impl I18n {
     /// {doc}
     #[inline]
     pub fn {func}<'a>(&'a self{in_args}) -> Cow<'a, str> {{
-        self.tr_("{key}"{out_args})
+        self.translate("{key}"{out_args})
     }}"#,
                 func = func,
                 key = key,
@@ -107,19 +106,6 @@ fn build_in_args(translation: &Translation) -> String {
         })
         .collect();
     format!(", {}", v.join(", "))
-}
-
-fn write_legacy_tr_enum(modules: &[Module], buf: &mut String) {
-    buf.push_str("pub enum LegacyKey {\n");
-    for module in modules {
-        for translation in &module.translations {
-            let key = translation.key.to_pascal_case();
-            let number = module.index * 1000 + translation.index;
-            writeln!(buf, r#"    {key} = {number},"#, key = key, number = number).unwrap();
-        }
-    }
-
-    buf.push_str("}\n");
 }
 
 fn write_translation_key_index(modules: &[Module], buf: &mut String) {

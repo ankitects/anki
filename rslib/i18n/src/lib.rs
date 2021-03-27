@@ -12,23 +12,7 @@ use unic_langid::LanguageIdentifier;
 
 use generated::{KEYS_BY_MODULE, STRINGS};
 
-pub use generated::LegacyKey as TR;
-
 pub use fluent::fluent_args as tr_args;
-
-/// Helper for creating args with &strs
-#[macro_export]
-macro_rules! tr_strs {
-    ( $($key:expr => $value:expr),* ) => {
-        {
-            let mut args: fluent::FluentArgs = fluent::FluentArgs::new();
-            $(
-                args.add($key, $value.to_string().into());
-            )*
-            args
-        }
-    };
-}
 
 fn remapped_lang_name(lang: &LanguageIdentifier) -> &str {
     let region = match &lang.region {
@@ -162,11 +146,6 @@ pub struct I18n {
     inner: Arc<Mutex<I18nInner>>,
 }
 
-fn get_key_legacy(val: usize) -> &'static str {
-    let (module_idx, translation_idx) = (val / 1000, val % 1000);
-    get_key(module_idx, translation_idx)
-}
-
 fn get_key(module_idx: usize, translation_idx: usize) -> &'static str {
     KEYS_BY_MODULE
         .get(module_idx)
@@ -239,24 +218,17 @@ impl I18n {
         }
     }
 
-    /// Get translation with zero arguments.
-    pub fn tr(&self, key: TR) -> Cow<str> {
-        let key = get_key_legacy(key as usize);
-        self.tr_(key, None)
+    pub fn translate_via_index(
+        &self,
+        module_index: usize,
+        message_index: usize,
+        args: FluentArgs,
+    ) -> String {
+        let key = get_key(module_index, message_index);
+        self.translate(key, Some(args)).into()
     }
 
-    /// Get translation with one or more arguments.
-    pub fn trn(&self, key: TR, args: FluentArgs) -> String {
-        let key = get_key_legacy(key as usize);
-        self.tr_(key, Some(args)).into()
-    }
-
-    pub fn trn2(&self, key: usize, args: FluentArgs) -> String {
-        let key = get_key_legacy(key);
-        self.tr_(key, Some(args)).into()
-    }
-
-    fn tr_<'a>(&'a self, key: &str, args: Option<FluentArgs>) -> Cow<'a, str> {
+    fn translate<'a>(&'a self, key: &str, args: Option<FluentArgs>) -> Cow<'a, str> {
         for bundle in &self.inner.lock().unwrap().bundles {
             let msg = match bundle.get_message(key) {
                 Some(msg) => msg,
@@ -455,35 +427,35 @@ mod test {
     fn i18n() {
         // English template
         let i18n = I18n::new(&["zz"]);
-        assert_eq!(i18n.tr_("valid-key", None), "a valid key");
-        assert_eq!(i18n.tr_("invalid-key", None), "invalid-key");
+        assert_eq!(i18n.translate("valid-key", None), "a valid key");
+        assert_eq!(i18n.translate("invalid-key", None), "invalid-key");
 
         assert_eq!(
-            i18n.tr_("two-args-key", Some(tr_args!["one"=>1.1, "two"=>"2"])),
+            i18n.translate("two-args-key", Some(tr_args!["one"=>1.1, "two"=>"2"])),
             "two args: 1.1 and 2"
         );
 
         assert_eq!(
-            i18n.tr_("plural", Some(tr_args!["hats"=>1.0])),
+            i18n.translate("plural", Some(tr_args!["hats"=>1.0])),
             "You have 1 hat."
         );
         assert_eq!(
-            i18n.tr_("plural", Some(tr_args!["hats"=>1.1])),
+            i18n.translate("plural", Some(tr_args!["hats"=>1.1])),
             "You have 1.1 hats."
         );
         assert_eq!(
-            i18n.tr_("plural", Some(tr_args!["hats"=>3])),
+            i18n.translate("plural", Some(tr_args!["hats"=>3])),
             "You have 3 hats."
         );
 
         // Another language
         let i18n = I18n::new(&["ja_JP"]);
-        assert_eq!(i18n.tr_("valid-key", None), "キー");
-        assert_eq!(i18n.tr_("only-in-english", None), "not translated");
-        assert_eq!(i18n.tr_("invalid-key", None), "invalid-key");
+        assert_eq!(i18n.translate("valid-key", None), "キー");
+        assert_eq!(i18n.translate("only-in-english", None), "not translated");
+        assert_eq!(i18n.translate("invalid-key", None), "invalid-key");
 
         assert_eq!(
-            i18n.tr_("two-args-key", Some(tr_args!["one"=>1, "two"=>"2"])),
+            i18n.translate("two-args-key", Some(tr_args!["one"=>1, "two"=>"2"])),
             "1と2"
         );
 
@@ -491,13 +463,13 @@ mod test {
         let i18n = I18n::new(&["pl-PL"]);
         // Polish will use a comma if the string is translated
         assert_eq!(
-            i18n.tr_("one-arg-key", Some(tr_args!["one"=>2.07])),
+            i18n.translate("one-arg-key", Some(tr_args!["one"=>2.07])),
             "fake Polish 2,07"
         );
 
         // but if it falls back on English, it will use an English separator
         assert_eq!(
-            i18n.tr_("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),
+            i18n.translate("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),
             "two args: 1 and 2.07"
         );
     }

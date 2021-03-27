@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Sequence, Union
+import os
+import sys
+import traceback
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from weakref import ref
 
 import anki.buildinfo
@@ -79,16 +82,20 @@ class RustBackend(RustBackendGenerated):
         raise backend_exception_to_pylib(err)
 
     def translate(
-        self, key: Union[LegacyTranslationEnum, int], **kwargs: Union[str, int, float]
+        self, module_index: int, message_index: int, **kwargs: Union[str, int, float]
     ) -> str:
-        int_key = key if isinstance(key, int) else key.value
-        return self.translate_string(translate_string_in(key=int_key, **kwargs))
+        return self.translate_string(
+            translate_string_in(
+                module_index=module_index, message_index=message_index, **kwargs
+            )
+        )
 
     def format_time_span(
         self,
         seconds: Any,
         context: Any = 2,
     ) -> str:
+        traceback.print_stack(file=sys.stdout)
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"
         )
@@ -106,7 +113,7 @@ class RustBackend(RustBackendGenerated):
 
 
 def translate_string_in(
-    key: int, **kwargs: Union[str, int, float]
+    module_index: int, message_index: int, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:
     args = {}
     for (k, v) in kwargs.items():
@@ -114,18 +121,29 @@ def translate_string_in(
             args[k] = pb.TranslateArgValue(str=v)
         else:
             args[k] = pb.TranslateArgValue(number=v)
-    return pb.TranslateStringIn(key=key, args=args)
+    return pb.TranslateStringIn(
+        module_index=module_index, message_index=message_index, args=args
+    )
 
 
 class Translations(GeneratedTranslations):
     def __init__(self, backend: Optional[ref[RustBackend]]):
         self.backend = backend
 
-    def __call__(self, *args: Any, **kwargs: Any) -> str:
+    def __call__(self, key: Tuple[int, int], **kwargs: Any) -> str:
         "Mimic the old col.tr / TR interface"
-        return self.backend().translate(*args, **kwargs)
+        if "pytest" not in sys.modules:
+            traceback.print_stack(file=sys.stdout)
+            print("please use tr.message_name() instead of tr(TR.MESSAGE_NAME)")
+
+        (module, message) = key
+        return self.backend().translate(
+            module_index=module, message_index=message, **kwargs
+        )
 
     def _translate(
-        self, module: int, translation: int, args: Dict[str, Union[str, int, float]]
+        self, module: int, message: int, args: Dict[str, Union[str, int, float]]
     ) -> str:
-        return self.backend().translate(module * 1000 + translation, **args)
+        return self.backend().translate(
+            module_index=module, message_index=message, **args
+        )
