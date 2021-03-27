@@ -44,8 +44,9 @@ REM_NOTE = RemovalType(1)
 REM_DECK = RemovalType(2)
 
 # count display
-COUNT_ANSWERED = 0
-COUNT_REMAINING = 1
+CountDisplay = NewType("CountDisplay", int)
+COUNT_ANSWERED = CountDisplay(0)
+COUNT_REMAINING = CountDisplay(1)
 
 # media log
 MEDIA_ADD = 0
