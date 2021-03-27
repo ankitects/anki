@@ -54,8 +54,9 @@ MEDIA_ADD = MediaLog(0)
 MEDIA_REM = MediaLog(1)
 
 # Kind of decks
-DECK_STD = 0
-DECK_DYN = 1
+DeckKind = NewType("DeckKind", int)
+DECK_STD = DeckKind(0)
+DECK_DYN = DeckKind(1)
 
 # dynamic deck order
 DYN_OLDEST = 0
