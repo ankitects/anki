@@ -94,11 +94,12 @@ BUTTON_THREE = ButtonNumber(3)
 BUTTON_FOUR = ButtonNumber(4)
 
 # Revlog types
-REVLOG_LRN = 0
-REVLOG_REV = 1
-REVLOG_RELRN = 2
-REVLOG_CRAM = 3
-REVLOG_RESCHED = 4
+RevlogType = NewType("RevlogType", int)
+REVLOG_LRN = RevlogType(0)
+REVLOG_REV = RevlogType(1)
+REVLOG_RELRN = RevlogType(2)
+REVLOG_CRAM = RevlogType(3)
+REVLOG_RESCHED = RevlogType(4)
 
 # Labels
 ##########################################################################
