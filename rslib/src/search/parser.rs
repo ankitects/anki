@@ -857,7 +857,7 @@ mod test {
     }
 
     #[test]
-    fn errors() -> Result<()> {
+    fn errors() {
         use crate::err::AnkiError;
         use FailKind::*;
 
@@ -939,28 +939,53 @@ mod test {
         assert_err_kind("flag:1.1", InvalidFlag);
 
         for term in &["added", "edited", "rated", "resched"] {
-            assert!(
-                matches!(failkind(&format!("{}:1.1", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
-            assert!(
-                matches!(failkind(&format!("{}:-1", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
-            assert!(
-                matches!(failkind(&format!("{}:", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
-            assert!(
-                matches!(failkind(&format!("{}:foo", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
+            assert!(matches!(
+                failkind(&format!("{}:1.1", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
+            assert!(matches!(
+                failkind(&format!("{}:-1", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
+            assert!(matches!(
+                failkind(&format!("{}:", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
+            assert!(matches!(
+                failkind(&format!("{}:foo", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
         }
 
-        assert!(matches!(failkind("rated:1:"), SearchErrorKind::InvalidAnswerButton { .. }));
-        assert!(matches!(failkind("rated:2:-1"), SearchErrorKind::InvalidAnswerButton { .. }));
-        assert!(matches!(failkind("rated:3:1.1"), SearchErrorKind::InvalidAnswerButton { .. }));
-        assert!(matches!(failkind("rated:0:foo"), SearchErrorKind::InvalidAnswerButton { .. }));
+        assert!(matches!(
+            failkind("rated:1:"),
+            SearchErrorKind::InvalidAnswerButton { .. }
+        ));
+        assert!(matches!(
+            failkind("rated:2:-1"),
+            SearchErrorKind::InvalidAnswerButton { .. }
+        ));
+        assert!(matches!(
+            failkind("rated:3:1.1"),
+            SearchErrorKind::InvalidAnswerButton { .. }
+        ));
+        assert!(matches!(
+            failkind("rated:0:foo"),
+            SearchErrorKind::InvalidAnswerButton { .. }
+        ));
 
-        assert!(matches!(failkind("dupe:"), SearchErrorKind::InvalidWholeNumber { .. }));
-        assert!(matches!(failkind("dupe:1.1"), SearchErrorKind::InvalidWholeNumber { .. }));
-        assert!(matches!(failkind("dupe:foo"), SearchErrorKind::InvalidWholeNumber { .. }));
+        assert!(matches!(
+            failkind("dupe:"),
+            SearchErrorKind::InvalidWholeNumber { .. }
+        ));
+        assert!(matches!(
+            failkind("dupe:1.1"),
+            SearchErrorKind::InvalidWholeNumber { .. }
+        ));
+        assert!(matches!(
+            failkind("dupe:foo"),
+            SearchErrorKind::InvalidWholeNumber { .. }
+        ));
 
         assert_err_kind("prop:", InvalidPropProperty("".into()));
         assert_err_kind("prop:=1", InvalidPropProperty("=1".into()));
@@ -973,32 +998,49 @@ mod test {
         // unsigned
 
         for term in &["ivl", "reps", "lapses", "pos"] {
-            assert!(
-                matches!(failkind(&format!("prop:{}>", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
-            assert!(
-                matches!(failkind(&format!("prop:{}=0.5", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
-            assert!(
-                matches!(failkind(&format!("prop:{}!=-1", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
-            assert!(
-                matches!(failkind(&format!("prop:{}<foo", term)), SearchErrorKind::InvalidPositiveWholeNumber { .. })
-            );
+            assert!(matches!(
+                failkind(&format!("prop:{}>", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
+            assert!(matches!(
+                failkind(&format!("prop:{}=0.5", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
+            assert!(matches!(
+                failkind(&format!("prop:{}!=-1", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
+            assert!(matches!(
+                failkind(&format!("prop:{}<foo", term)),
+                SearchErrorKind::InvalidPositiveWholeNumber { .. }
+            ));
         }
 
         // signed
 
-        assert!(matches!(failkind("prop:due>"), SearchErrorKind::InvalidWholeNumber { .. }));
-        assert!(matches!(failkind("prop:due=0.5"), SearchErrorKind::InvalidWholeNumber { .. }));
+        assert!(matches!(
+            failkind("prop:due>"),
+            SearchErrorKind::InvalidWholeNumber { .. }
+        ));
+        assert!(matches!(
+            failkind("prop:due=0.5"),
+            SearchErrorKind::InvalidWholeNumber { .. }
+        ));
 
         // float
 
-        assert!(matches!(failkind("prop:ease>"), SearchErrorKind::InvalidNumber { .. }));
-        assert!(matches!(failkind("prop:ease!=one"), SearchErrorKind::InvalidNumber { .. }));
-        assert!(matches!(failkind("prop:ease<1,3"), SearchErrorKind::InvalidNumber { .. }));
-
-        Ok(())
+        assert!(matches!(
+            failkind("prop:ease>"),
+            SearchErrorKind::InvalidNumber { .. }
+        ));
+        assert!(matches!(
+            failkind("prop:ease!=one"),
+            SearchErrorKind::InvalidNumber { .. }
+        ));
+        assert!(matches!(
+            failkind("prop:ease<1,3"),
+            SearchErrorKind::InvalidNumber { .. }
+        ));
     }
 
     #[test]

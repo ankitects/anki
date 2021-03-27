@@ -155,11 +155,12 @@ mod test {
 
     #[test]
     fn v2_card() {
-        let mut c = Card::default();
-
+        let mut c = Card {
+            ctype: CardType::Review,
+            queue: CardQueue::DayLearn,
+            ..Default::default()
+        };
         // relearning cards should be reclassified
-        c.ctype = CardType::Review;
-        c.queue = CardQueue::DayLearn;
         c.upgrade_to_v2(None);
         assert_eq!(c.ctype, CardType::Relearn);
 
