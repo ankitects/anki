@@ -11,7 +11,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import MODEL_STD
-from anki.models import NoteType, NoteTypeId, Template
+from anki.models import NotetypeDict, NoteTypeId, TemplateDict
 from anki.utils import joinFields
 
 DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
@@ -30,7 +30,7 @@ class Note:
     def __init__(
         self,
         col: anki.collection.Collection,
-        model: Optional[NoteType] = None,
+        model: Optional[NotetypeDict] = None,
         id: Optional[NoteId] = None,
     ) -> None:
         assert not (model and id)
@@ -92,8 +92,8 @@ class Note:
         self,
         ord: int = 0,
         *,
-        custom_note_type: NoteType = None,
-        custom_template: Template = None,
+        custom_note_type: NotetypeDict = None,
+        custom_template: TemplateDict = None,
         fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
@@ -127,7 +127,7 @@ class Note:
     def card_ids(self) -> Sequence[anki.cards.CardId]:
         return self.col.card_ids_of_note(self.id)
 
-    def model(self) -> Optional[NoteType]:
+    def model(self) -> Optional[NotetypeDict]:
         return self.col.models.get(self.mid)
 
     _model = property(model)

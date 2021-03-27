@@ -11,7 +11,7 @@ import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import *
-from anki.models import NoteType, Template
+from anki.models import NotetypeDict, TemplateDict
 from anki.notes import Note
 from anki.sound import AVTag
 
@@ -148,7 +148,7 @@ class Card:
             self._note = self.col.get_note(self.nid)
         return self._note
 
-    def note_type(self) -> NoteType:
+    def note_type(self) -> NotetypeDict:
         return self.col.models.get(self.note().mid)
 
     # legacy aliases
@@ -157,7 +157,7 @@ class Card:
     a = answer
     model = note_type
 
-    def template(self) -> Template:
+    def template(self) -> TemplateDict:
         m = self.model()
         if m["type"] == MODEL_STD:
             return self.model()["tmpls"][self.ord]

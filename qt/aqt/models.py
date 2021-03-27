@@ -8,7 +8,7 @@ from typing import List, Optional, Sequence
 import aqt.clayout
 from anki import Collection, stdmodels
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType, NoteTypeId, NoteTypeNameIdUseCount
+from anki.models import NotetypeDict, NoteTypeId, NoteTypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -108,7 +108,7 @@ class Models(QDialog):
             nt["name"] = name
             self.saveAndRefresh(nt)
 
-    def saveAndRefresh(self, nt: NoteType) -> None:
+    def saveAndRefresh(self, nt: NotetypeDict) -> None:
         def save() -> Sequence[NoteTypeNameIdUseCount]:
             self.mm.save(nt)
             return self.col.models.all_use_counts()
@@ -131,7 +131,7 @@ class Models(QDialog):
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
-    def current_notetype(self) -> NoteType:
+    def current_notetype(self) -> NotetypeDict:
         row = self.form.modelsList.currentRow()
         return self.mm.get(NoteTypeId(self.models[row].id))
 
@@ -217,7 +217,7 @@ class Models(QDialog):
 
 
 class AddModel(QDialog):
-    model: Optional[NoteType]
+    model: Optional[NotetypeDict]
 
     def __init__(self, mw: AnkiQt, parent: Optional[QWidget] = None) -> None:
         self.parent_ = parent or mw
@@ -229,7 +229,9 @@ class AddModel(QDialog):
         self.dialog.setupUi(self)
         disable_help_button(self)
         # standard models
-        self.notetypes: List[Union[NoteType, Callable[[Collection], NoteType]]] = []
+        self.notetypes: List[
+            Union[NotetypeDict, Callable[[Collection], NotetypeDict]]
+        ] = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)
@@ -246,7 +248,7 @@ class AddModel(QDialog):
         # help
         qconnect(self.dialog.buttonBox.helpRequested, self.onHelp)
 
-    def get(self) -> Optional[NoteType]:
+    def get(self) -> Optional[NotetypeDict]:
         self.exec_()
         return self.model
 

@@ -27,7 +27,7 @@ from anki.collection import BrowserRow, Collection, Config, OpChanges, SearchNod
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from anki.notes import NoteId
 from anki.stats import CardStats
 from anki.tags import MARKED_TAG
@@ -1645,7 +1645,7 @@ class ChangeModel(QDialog):
         self.fcombos: List[QComboBox] = []
         self.exec_()
 
-    def on_note_type_change(self, notetype: NoteType) -> None:
+    def on_note_type_change(self, notetype: NotetypeDict) -> None:
         self.onReset()
 
     def setup(self) -> None:

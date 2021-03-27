@@ -42,7 +42,7 @@ from anki.decks import DeckId, DeckManager
 from anki.errors import AnkiError, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager, NoteType, NoteTypeId
+from anki.models import ModelManager, NotetypeDict, NoteTypeId
 from anki.notes import Note, NoteId
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
@@ -365,7 +365,7 @@ class Collection:
     # Notes
     ##########################################################################
 
-    def new_note(self, notetype: NoteType) -> Note:
+    def new_note(self, notetype: NotetypeDict) -> Note:
         return Note(self, notetype)
 
     def add_note(self, note: Note, deck_id: DeckId) -> OpChanges:
