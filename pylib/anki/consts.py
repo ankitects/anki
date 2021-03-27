@@ -87,10 +87,11 @@ LEECH_SUSPEND = LeechAction(0)
 LEECH_TAGONLY = LeechAction(1)
 
 # Buttons
-BUTTON_ONE = 1
-BUTTON_TWO = 2
-BUTTON_THREE = 3
-BUTTON_FOUR = 4
+ButtonNumber = NewType("ButtonNumber", int)
+BUTTON_ONE = ButtonNumber(1)
+BUTTON_TWO = ButtonNumber(2)
+BUTTON_THREE = ButtonNumber(3)
+BUTTON_FOUR = ButtonNumber(4)
 
 # Revlog types
 REVLOG_LRN = 0
