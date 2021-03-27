@@ -70,3 +70,9 @@ qt-misc-second =
         [one] { $count } second
        *[other] { $count } seconds
     }
+
+## deprecated- these strings will be removed in the future, and do not need
+## to be translated
+
+qt-misc-resume-now = Resume Now
+qt-misc-waiting-for-editing-to-finish = Waiting for editing to finish.
