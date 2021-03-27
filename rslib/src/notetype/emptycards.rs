@@ -73,7 +73,7 @@ impl Collection {
                 write!(
                     buf,
                     "<div><b>{}</b></div><ol>",
-                    self.i18n.empty_cards_for_note_type(nt.name.clone())
+                    self.tr.empty_cards_for_note_type(nt.name.clone())
                 )
                 .unwrap();
 
@@ -95,7 +95,7 @@ impl Collection {
                         // "Cloze 1, 3"
                         NoteTypeKind::Cloze => format!(
                             "{} {}",
-                            self.i18n.notetypes_cloze_name(),
+                            self.tr.notetypes_cloze_name(),
                             note.empty
                                 .iter()
                                 .map(|(ord, _)| (ord + 1).to_string())
@@ -113,7 +113,7 @@ impl Collection {
                         "<li class={}>[anki:nid:{}] {}</li>",
                         class,
                         note.nid,
-                        self.i18n.empty_cards_count_line(
+                        self.tr.empty_cards_count_line(
                             note.empty.len(),
                             note.current_count,
                             templates

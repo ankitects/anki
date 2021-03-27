@@ -136,7 +136,7 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path, i18n: &I18n, server: bool) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path, tr: &I18n, server: bool) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
 
@@ -184,9 +184,9 @@ impl SqliteStorage {
         }
 
         if create {
-            storage.add_default_deck_config(i18n)?;
-            storage.add_default_deck(i18n)?;
-            storage.add_stock_notetypes(i18n)?;
+            storage.add_default_deck_config(tr)?;
+            storage.add_default_deck(tr)?;
+            storage.add_stock_notetypes(tr)?;
         }
 
         if create || upgrade {

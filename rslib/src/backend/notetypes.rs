@@ -25,7 +25,7 @@ impl NoteTypesService for Backend {
 
     fn get_stock_notetype_legacy(&self, input: pb::StockNoteType) -> Result<pb::Json> {
         // fixme: use individual functions instead of full vec
-        let mut all = all_stock_notetypes(&self.i18n);
+        let mut all = all_stock_notetypes(&self.tr);
         let idx = (input.kind as usize).min(all.len() - 1);
         let nt = all.swap_remove(idx);
         let schema11: NoteTypeSchema11 = nt.into();

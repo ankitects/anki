@@ -335,11 +335,11 @@ impl SqliteStorage {
 
     // Upgrading/downgrading/legacy
 
-    pub(super) fn add_default_deck(&self, i18n: &I18n) -> Result<()> {
+    pub(super) fn add_default_deck(&self, tr: &I18n) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id.0 = 1;
         // fixme: separate key
-        deck.name = i18n.deck_config_default_name().into();
+        deck.name = tr.deck_config_default_name().into();
         self.add_or_update_deck_with_existing_id(&deck)
     }
 

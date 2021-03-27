@@ -356,7 +356,7 @@ impl Backend {
             media_folder_path,
             media_db_path,
             self.server,
-            self.i18n.clone(),
+            self.tr.clone(),
             logger,
         )?);
 

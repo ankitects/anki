@@ -426,50 +426,50 @@ mod test {
     #[test]
     fn i18n() {
         // English template
-        let i18n = I18n::new(&["zz"]);
-        assert_eq!(i18n.translate("valid-key", None), "a valid key");
-        assert_eq!(i18n.translate("invalid-key", None), "invalid-key");
+        let tr = I18n::new(&["zz"]);
+        assert_eq!(tr.translate("valid-key", None), "a valid key");
+        assert_eq!(tr.translate("invalid-key", None), "invalid-key");
 
         assert_eq!(
-            i18n.translate("two-args-key", Some(tr_args!["one"=>1.1, "two"=>"2"])),
+            tr.translate("two-args-key", Some(tr_args!["one"=>1.1, "two"=>"2"])),
             "two args: 1.1 and 2"
         );
 
         assert_eq!(
-            i18n.translate("plural", Some(tr_args!["hats"=>1.0])),
+            tr.translate("plural", Some(tr_args!["hats"=>1.0])),
             "You have 1 hat."
         );
         assert_eq!(
-            i18n.translate("plural", Some(tr_args!["hats"=>1.1])),
+            tr.translate("plural", Some(tr_args!["hats"=>1.1])),
             "You have 1.1 hats."
         );
         assert_eq!(
-            i18n.translate("plural", Some(tr_args!["hats"=>3])),
+            tr.translate("plural", Some(tr_args!["hats"=>3])),
             "You have 3 hats."
         );
 
         // Another language
-        let i18n = I18n::new(&["ja_JP"]);
-        assert_eq!(i18n.translate("valid-key", None), "キー");
-        assert_eq!(i18n.translate("only-in-english", None), "not translated");
-        assert_eq!(i18n.translate("invalid-key", None), "invalid-key");
+        let tr = I18n::new(&["ja_JP"]);
+        assert_eq!(tr.translate("valid-key", None), "キー");
+        assert_eq!(tr.translate("only-in-english", None), "not translated");
+        assert_eq!(tr.translate("invalid-key", None), "invalid-key");
 
         assert_eq!(
-            i18n.translate("two-args-key", Some(tr_args!["one"=>1, "two"=>"2"])),
+            tr.translate("two-args-key", Some(tr_args!["one"=>1, "two"=>"2"])),
             "1と2"
         );
 
         // Decimal separator
-        let i18n = I18n::new(&["pl-PL"]);
+        let tr = I18n::new(&["pl-PL"]);
         // Polish will use a comma if the string is translated
         assert_eq!(
-            i18n.translate("one-arg-key", Some(tr_args!["one"=>2.07])),
+            tr.translate("one-arg-key", Some(tr_args!["one"=>2.07])),
             "fake Polish 2,07"
         );
 
         // but if it falls back on English, it will use an English separator
         assert_eq!(
-            i18n.translate("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),
+            tr.translate("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),
             "two args: 1 and 2.07"
         );
     }

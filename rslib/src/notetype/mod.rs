@@ -491,7 +491,7 @@ impl Collection {
             col.storage.remove_notetype(ntid)?;
             let all = col.storage.get_all_notetype_names()?;
             if all.is_empty() {
-                let mut nt = all_stock_notetypes(&col.i18n).remove(0);
+                let mut nt = all_stock_notetypes(&col.tr).remove(0);
                 col.add_notetype_inner(&mut nt, col.usn()?)?;
                 col.set_current_notetype_id(nt.id)
             } else {

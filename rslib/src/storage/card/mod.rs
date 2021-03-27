@@ -507,8 +507,8 @@ mod test {
 
     #[test]
     fn add_card() {
-        let i18n = I18n::template_only();
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:"), &i18n, false).unwrap();
+        let tr = I18n::template_only();
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false).unwrap();
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();
         let id1 = card.id;

@@ -41,39 +41,39 @@ pub(crate) enum DatabaseCheckProgress {
 }
 
 impl CheckDatabaseOutput {
-    pub fn to_i18n_strings(&self, i18n: &I18n) -> Vec<String> {
+    pub fn to_i18n_strings(&self, tr: &I18n) -> Vec<String> {
         let mut probs = Vec::new();
 
         if self.notetypes_recovered > 0 {
-            probs.push(i18n.database_check_notetypes_recovered());
+            probs.push(tr.database_check_notetypes_recovered());
         }
 
         if self.card_position_too_high > 0 {
-            probs.push(i18n.database_check_new_card_high_due(self.card_position_too_high));
+            probs.push(tr.database_check_new_card_high_due(self.card_position_too_high));
         }
         if self.card_properties_invalid > 0 {
-            probs.push(i18n.database_check_card_properties(self.card_properties_invalid));
+            probs.push(tr.database_check_card_properties(self.card_properties_invalid));
         }
         if self.cards_missing_note > 0 {
-            probs.push(i18n.database_check_card_missing_note(self.cards_missing_note));
+            probs.push(tr.database_check_card_missing_note(self.cards_missing_note));
         }
         if self.decks_missing > 0 {
-            probs.push(i18n.database_check_missing_decks(self.decks_missing));
+            probs.push(tr.database_check_missing_decks(self.decks_missing));
         }
         if self.field_count_mismatch > 0 {
-            probs.push(i18n.database_check_field_count(self.field_count_mismatch));
+            probs.push(tr.database_check_field_count(self.field_count_mismatch));
         }
         if self.card_ords_duplicated > 0 {
-            probs.push(i18n.database_check_duplicate_card_ords(self.card_ords_duplicated));
+            probs.push(tr.database_check_duplicate_card_ords(self.card_ords_duplicated));
         }
         if self.templates_missing > 0 {
-            probs.push(i18n.database_check_missing_templates(self.templates_missing));
+            probs.push(tr.database_check_missing_templates(self.templates_missing));
         }
         if self.revlog_properties_invalid > 0 {
-            probs.push(i18n.database_check_revlog_properties(self.revlog_properties_invalid));
+            probs.push(tr.database_check_revlog_properties(self.revlog_properties_invalid));
         }
         if self.invalid_utf8 > 0 {
-            probs.push(i18n.database_check_notes_with_invalid_utf8(self.invalid_utf8));
+            probs.push(tr.database_check_notes_with_invalid_utf8(self.invalid_utf8));
         }
 
         probs.into_iter().map(Into::into).collect()
@@ -91,7 +91,7 @@ impl Collection {
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
             return Err(AnkiError::DBError {
-                info: self.i18n.database_check_corrupt().into(),
+                info: self.tr.database_check_corrupt().into(),
                 kind: DBErrorKind::Corrupt,
             });
         }
@@ -266,7 +266,7 @@ impl Collection {
         // if the collection is empty and the user has deleted all note types, ensure at least
         // one note type exists
         if self.storage.get_all_notetype_names()?.is_empty() {
-            let mut nt = all_stock_notetypes(&self.i18n).remove(0);
+            let mut nt = all_stock_notetypes(&self.tr).remove(0);
             self.add_notetype_inner(&mut nt, usn)?;
         }
 
@@ -349,7 +349,7 @@ impl Collection {
         let extra_cards_required = self
             .storage
             .highest_card_ordinal_for_notetype(previous_id)?;
-        let mut basic = all_stock_notetypes(&self.i18n).remove(0);
+        let mut basic = all_stock_notetypes(&self.tr).remove(0);
         let mut field = 3;
         while basic.fields.len() < field_count {
             basic.add_field(format!("{}", field));

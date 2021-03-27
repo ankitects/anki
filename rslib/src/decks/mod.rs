@@ -512,7 +512,7 @@ impl Collection {
         if deck.id.0 == 1 {
             // if deleting the default deck, ensure there's a new one, and avoid the grave
             let mut deck = deck.to_owned();
-            deck.name = self.i18n.deck_config_default_name().into();
+            deck.name = self.tr.deck_config_default_name().into();
             deck.set_modified(usn);
             self.add_or_update_single_deck_with_existing_id(&mut deck, usn)?;
         } else {
