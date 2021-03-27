@@ -3,7 +3,6 @@
 
 // infallible backend methods still return a result
 #![allow(clippy::unnecessary_wraps)]
-#![allow(clippy::unknown_clippy_lints)]
 
 mod adding;
 mod card;

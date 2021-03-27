@@ -863,6 +863,8 @@ mod test {
         fn n(s: &str) -> String {
             s.replace(":", "\x1f")
         }
+
+        #[allow(clippy::unnecessary_wraps)]
         fn n_opt(s: &str) -> Option<String> {
             Some(n(s))
         }
