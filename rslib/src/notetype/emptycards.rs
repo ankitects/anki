@@ -79,10 +79,7 @@ impl Collection {
                 write!(
                     buf,
                     "<div><b>{}</b></div><ol>",
-                    self.i18n.trn(
-                        TR::EmptyCardsForNoteType,
-                        tr_args!["notetype"=>nt.name.clone()],
-                    )
+                    self.i18n.empty_cards_for_note_type(nt.name.clone())
                 )
                 .unwrap();
 

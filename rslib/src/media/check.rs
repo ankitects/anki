@@ -3,7 +3,6 @@
 
 use crate::collection::Collection;
 use crate::err::{AnkiError, DBErrorKind, Result};
-use crate::i18n::{tr_args, tr_strs, TR};
 use crate::latex::extract_latex_expanding_clozes;
 use crate::log::debug;
 use crate::media::database::MediaDatabaseContext;
@@ -102,37 +101,22 @@ where
             buf.push('\n');
         }
 
-        buf += &i.trn(
-            TR::MediaCheckMissingCount,
-            tr_args!["count"=>output.missing.len()],
-        );
+        buf += &i.media_check_missing_count(output.missing.len());
         buf.push('\n');
 
-        buf += &i.trn(
-            TR::MediaCheckUnusedCount,
-            tr_args!["count"=>output.unused.len()],
-        );
+        buf += &i.media_check_unused_count(output.unused.len());
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &i.trn(
-                TR::MediaCheckRenamedCount,
-                tr_args!["count"=>output.renamed.len()],
-            );
+            buf += &i.media_check_renamed_count(output.renamed.len());
             buf.push('\n');
         }
         if !output.oversize.is_empty() {
-            buf += &i.trn(
-                TR::MediaCheckOversizeCount,
-                tr_args!["count"=>output.oversize.len()],
-            );
+            buf += &i.media_check_oversize_count(output.oversize.len());
             buf.push('\n');
         }
         if !output.dirs.is_empty() {
-            buf += &i.trn(
-                TR::MediaCheckSubfolderCount,
-                tr_args!["count"=>output.dirs.len()],
-            );
+            buf += &i.media_check_subfolder_count(output.dirs.len());
             buf.push('\n');
         }
 
@@ -153,7 +137,7 @@ where
             buf += &i.media_check_oversize_header();
             buf.push('\n');
             for fname in &output.oversize {
-                buf += &i.trn(TR::MediaCheckOversizeFile, tr_strs!["filename"=>fname]);
+                buf += &i.media_check_oversize_file(fname.as_str());
                 buf.push('\n');
             }
             buf.push('\n')
@@ -164,7 +148,7 @@ where
             buf += &i.media_check_subfolder_header();
             buf.push('\n');
             for fname in &output.dirs {
-                buf += &i.trn(TR::MediaCheckSubfolderFile, tr_strs!["filename"=>fname]);
+                buf += &i.media_check_subfolder_file(fname.as_str());
                 buf.push('\n');
             }
             buf.push('\n')
@@ -175,7 +159,7 @@ where
             buf += &i.media_check_missing_header();
             buf.push('\n');
             for fname in &output.missing {
-                buf += &i.trn(TR::MediaCheckMissingFile, tr_strs!["filename"=>fname]);
+                buf += &i.media_check_missing_file(fname.as_str());
                 buf.push('\n');
             }
             buf.push('\n')
@@ -186,7 +170,7 @@ where
             buf += &i.media_check_unused_header();
             buf.push('\n');
             for fname in &output.unused {
-                buf += &i.trn(TR::MediaCheckUnusedFile, tr_strs!["filename"=>fname]);
+                buf += &i.media_check_unused_file(fname.as_str());
                 buf.push('\n');
             }
         }

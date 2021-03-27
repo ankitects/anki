@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_args, tr_strs, I18n, TR};
+use crate::i18n::I18n;
 pub use failure::{Error, Fail};
 use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
 use reqwest::StatusCode;
@@ -113,17 +113,16 @@ impl AnkiError {
                     NetworkErrorKind::ProxyAuth => i18n.network_proxy_auth(),
                     NetworkErrorKind::Other => i18n.network_other(),
                 };
-                let details = i18n.trn(TR::NetworkDetails, tr_strs!["details"=>info]);
+                let details = i18n.network_details(info.as_str());
                 format!("{}\n\n{}", summary, details)
             }
             AnkiError::TemplateError { info } => {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError { ordinal } => i18n.trn(
-                TR::CardTemplatesInvalidTemplateNumber,
-                tr_args!["number"=>ordinal+1],
-            ),
+            AnkiError::TemplateSaveError { ordinal } => i18n
+                .card_templates_invalid_template_number(ordinal + 1)
+                .into(),
             AnkiError::DBError { info, kind } => match kind {
                 DBErrorKind::Corrupt => info.clone(),
                 DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
@@ -139,12 +138,9 @@ impl AnkiError {
                     SearchErrorKind::EmptyQuote => i18n.search_empty_quote(),
                     SearchErrorKind::UnclosedQuote => i18n.search_unclosed_quote(),
                     SearchErrorKind::MissingKey => i18n.search_missing_key(),
-                    SearchErrorKind::UnknownEscape(ctx) => i18n
-                        .trn(
-                            TR::SearchUnknownEscape,
-                            tr_strs!["val"=>(ctx.replace('`', "'"))],
-                        )
-                        .into(),
+                    SearchErrorKind::UnknownEscape(ctx) => {
+                        i18n.search_unknown_escape(ctx.replace('`', "'")).into()
+                    }
                     SearchErrorKind::InvalidState(state) => i18n
                         .trn(
                             TR::SearchInvalidArgument,
@@ -158,10 +154,12 @@ impl AnkiError {
                             tr_strs!("term" => "prop:", "argument" => prop.replace('`', "'")),
                         )
                         .into(),
-                    SearchErrorKind::InvalidPropOperator(ctx) => i18n
-                        .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
-                        .into(),
-                    SearchErrorKind::Regex(text) => format!("<pre>`{}`</pre>", text.replace('`', "'")).into(),
+                    SearchErrorKind::InvalidPropOperator(ctx) => {
+                        i18n.search_invalid_prop_operator(ctx.as_str()).into()
+                    }
+                    SearchErrorKind::Regex(text) => {
+                        format!("<pre>`{}`</pre>", text.replace('`', "'")).into()
+                    }
                     SearchErrorKind::Other(Some(info)) => info.into(),
                     SearchErrorKind::Other(None) => i18n.search_invalid_other(),
                     SearchErrorKind::InvalidNumber { provided, context } => i18n
@@ -195,19 +193,13 @@ impl AnkiError {
                         )
                         .into(),
                 };
-                i18n.trn(
-                    TR::SearchInvalidSearch,
-                    tr_args!("reason" => reason.into_owned()),
-                )
+                i18n.search_invalid_search(reason).into()
             }
             AnkiError::InvalidInput { info } => {
                 if info.is_empty() {
                     i18n.errors_invalid_input_empty().into()
                 } else {
-                    i18n.trn(
-                        TR::ErrorsInvalidInputDetails,
-                        tr_args!("details" => info.to_owned()),
-                    )
+                    i18n.errors_invalid_input_details(info.as_str()).into()
                 }
             }
             AnkiError::ParseNumError => i18n.errors_parse_number_fail().into(),

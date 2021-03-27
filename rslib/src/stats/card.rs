@@ -241,10 +241,9 @@ fn revlog_to_text(e: RevlogEntry, i18n: &I18n) -> RevlogText {
     } else {
         "".to_string()
     };
-    let taken_secs = i18n.trn(
-        TR::StatisticsSecondsTaken,
-        tr_args!["seconds"=>(e.taken_millis / 1000) as i32],
-    );
+    let taken_secs = i18n
+        .statistics_seconds_taken((e.taken_millis / 1000) as i32)
+        .into();
 
     RevlogText {
         time,

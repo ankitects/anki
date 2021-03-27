@@ -57,8 +57,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
         match progress {
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
             Progress::MediaCheck(n) => {
-                let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
-                pb::progress::Value::MediaCheck(s)
+                pb::progress::Value::MediaCheck(i18n.media_check_checked(n).into())
             }
             Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
                 transferred: p.transferred_bytes as u32,
@@ -119,7 +118,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
 
 fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::progress::MediaSync {
     pb::progress::MediaSync {
-        checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
+        checked: i18n.sync_media_checked_count(p.checked).into(),
         added: i18n.trn(
             TR::SyncMediaAddedCount,
             tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],

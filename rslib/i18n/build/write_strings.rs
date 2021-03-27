@@ -7,7 +7,7 @@ use inflections::Inflect;
 use std::{fmt::Write, fs, path::PathBuf};
 
 use crate::{
-    extract::{Module, Translation, VariableKind},
+    extract::{Module, Translation},
     gather::{TranslationsByFile, TranslationsByLang},
 };
 
@@ -34,6 +34,7 @@ fn write_methods(modules: &[Module], buf: &mut String) {
         r#"
 use crate::I18n;
 use crate::tr_args;
+use fluent::FluentValue;
 use std::borrow::Cow;
 
 impl I18n {
@@ -46,18 +47,12 @@ impl I18n {
             let doc = translation.text.replace("\n", " ");
             let in_args;
             let out_args;
-            let outtype;
-            let trailer;
             if translation.variables.is_empty() {
                 in_args = "".to_string();
                 out_args = ", None".to_string();
-                outtype = "Cow<'a, str>";
-                trailer = "";
             } else {
                 in_args = build_in_args(translation);
                 out_args = build_out_args(translation);
-                outtype = "String";
-                trailer = ".to_string()";
             }
 
             writeln!(
@@ -65,16 +60,14 @@ impl I18n {
                 r#"
     /// {doc}
     #[inline]
-    pub fn {func}<'a>(&'a self{in_args}) -> {outtype} {{
-        self.tr_("{key}"{out_args}){trailer}
+    pub fn {func}<'a>(&'a self{in_args}) -> Cow<'a, str> {{
+        self.tr_("{key}"{out_args})
     }}"#,
                 func = func,
                 key = key,
                 doc = doc,
-                outtype = outtype,
                 in_args = in_args,
                 out_args = out_args,
-                trailer = trailer,
             )
             .unwrap();
         }
@@ -103,12 +96,13 @@ fn build_in_args(translation: &Translation) -> String {
         .variables
         .iter()
         .map(|var| {
-            let kind = match var.kind {
-                VariableKind::Int => "i64",
-                VariableKind::Float => "f64",
-                VariableKind::String => "&str",
-                VariableKind::Any => "&str",
-            };
+            // let kind = match var.kind {
+            //     VariableKind::Int => "i64",
+            //     VariableKind::Float => "f64",
+            //     VariableKind::String => "&str",
+            //     VariableKind::Any => "&str",
+            // };
+            let kind = "impl Into<FluentValue<'a>>";
             format!("{}: {}", var.name.to_snake_case(), kind)
         })
         .collect();

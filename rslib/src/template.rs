@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
-use crate::i18n::{tr_args, tr_strs, I18n, TR};
+use crate::i18n::{tr_strs, I18n, TR};
 use crate::{cloze::add_cloze_numbers_in_string, template_filters::apply_filters};
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -267,11 +267,9 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
         TemplateError::NoClosingBrackets(tag) => i18n.trn(
             TR::CardTemplateRenderingNoClosingBrackets,
             tr_strs!("tag"=>tag, "missing"=>"}}"),
-        ),
-        TemplateError::ConditionalNotClosed(tag) => i18n.trn(
-            TR::CardTemplateRenderingConditionalNotClosed,
-            tr_strs!("missing"=>format!("{{{{/{}}}}}", tag)),
-        ),
+        TemplateError::ConditionalNotClosed(tag) => i18n
+            .card_template_rendering_conditional_not_closed(format!("{{{{/{}}}}}", tag))
+            .into(),
         TemplateError::ConditionalNotOpen {
             closed,
             currently_open,
@@ -561,10 +559,7 @@ pub fn render_card(
     let empty_message = if is_cloze && cloze_is_empty(field_map, card_ord) {
         Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
-            i18n.trn(
-                TR::CardTemplateRenderingMissingCloze,
-                tr_args!["number"=>card_ord+1]
-            ),
+            i18n.card_template_rendering_missing_cloze(card_ord + 1),
             TEMPLATE_BLANK_CLOZE_LINK,
             i18n.card_template_rendering_more_info()
         ))
