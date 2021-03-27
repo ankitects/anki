@@ -10,6 +10,7 @@ use strum::IntoStaticStr;
 #[strum(serialize_all = "camelCase")]
 pub enum BoolKey {
     BrowserCardState,
+    BrowserNoteSortBackwards,
     CardCountsSeparateInactive,
     CollapseCardState,
     CollapseDecks,

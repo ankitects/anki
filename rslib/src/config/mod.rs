@@ -48,6 +48,8 @@ pub(crate) enum ConfigKey {
     AnswerTimeLimitSecs,
     #[strum(to_string = "sortType")]
     BrowserSortKind,
+    #[strum(to_string = "noteSortType")]
+    BrowserNoteSortKind,
     #[strum(to_string = "curDeck")]
     CurrentDeckID,
     #[strum(to_string = "curModel")]
@@ -65,6 +67,8 @@ pub(crate) enum ConfigKey {
 
     #[strum(to_string = "activeCols")]
     DesktopBrowserCardColumns,
+    #[strum(to_string = "activeNoteCols")]
+    DesktopBrowserNoteColumns,
 }
 
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
@@ -132,6 +136,10 @@ impl Collection {
         self.get_config_default(ConfigKey::BrowserSortKind)
     }
 
+    pub(crate) fn get_browser_note_sort_kind(&self) -> SortKind {
+        self.get_config_default(ConfigKey::BrowserNoteSortKind)
+    }
+
     pub(crate) fn get_desktop_browser_card_columns(&self) -> Vec<String> {
         self.get_config_optional(ConfigKey::DesktopBrowserCardColumns)
             .unwrap_or_else(|| {
@@ -140,6 +148,18 @@ impl Collection {
                     "template".to_string(),
                     "cardDue".to_string(),
                     "deck".to_string(),
+                ]
+            })
+    }
+
+    pub(crate) fn get_desktop_browser_note_columns(&self) -> Vec<String> {
+        self.get_config_optional(ConfigKey::DesktopBrowserNoteColumns)
+            .unwrap_or_else(|| {
+                vec![
+                    "noteFld".to_string(),
+                    "note".to_string(),
+                    "noteTags".to_string(),
+                    "noteMod".to_string(),
                 ]
             })
     }

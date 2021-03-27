@@ -131,13 +131,14 @@ fn card_render_required(columns: &[String]) -> bool {
 
 impl Collection {
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
-        // this is inefficient; we may want to use an enum in the future
-        let columns = self.get_desktop_browser_card_columns();
-
-        match self.get_bool(BoolKey::BrowserCardState) {
-            true => CardRowContext::new(self, id, card_render_required(&columns))?
-                .browser_row_for_id(&columns),
-            false => NoteRowContext::new(self, id)?.browser_row_for_id(&columns),
+        if self.get_bool(BoolKey::BrowserCardState) {
+            // this is inefficient; we may want to use an enum in the future
+            let columns = self.get_desktop_browser_card_columns();
+            CardRowContext::new(self, id, card_render_required(&columns))?
+                .browser_row_for_id(&columns)
+        } else {
+            let columns = self.get_desktop_browser_note_columns();
+            NoteRowContext::new(self, id)?.browser_row_for_id(&columns)
         }
     }
 
