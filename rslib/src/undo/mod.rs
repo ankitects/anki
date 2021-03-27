@@ -228,8 +228,8 @@ impl Collection {
 
     /// Return changes made by the current op. Must only be called in a transaction,
     /// when an operation was passed to transact().
-    pub(crate) fn op_changes(&self) -> Result<OpChanges> {
-        Ok(self.state.undo.op_changes())
+    pub(crate) fn op_changes(&self) -> OpChanges {
+        self.state.undo.op_changes()
     }
 }
 

@@ -134,9 +134,9 @@ impl SqlWriter<'_> {
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
             SearchNode::CardTemplate(template) => match template {
-                TemplateKind::Ordinal(_) => self.write_template(template)?,
+                TemplateKind::Ordinal(_) => self.write_template(template),
                 TemplateKind::Name(name) => {
-                    self.write_template(&TemplateKind::Name(norm(name).into()))?
+                    self.write_template(&TemplateKind::Name(norm(name).into()))
                 }
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
@@ -146,10 +146,10 @@ impl SqlWriter<'_> {
             SearchNode::DeckId(did) => {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
-            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
+            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
-            SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
+            SearchNode::Tag(tag) => self.write_tag(&norm(tag)),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -192,7 +192,7 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) -> Result<()> {
+    fn write_tag(&mut self, text: &str) {
         if text.contains(' ') {
             write!(self.sql, "false").unwrap();
         } else {
@@ -210,8 +210,6 @@ impl SqlWriter<'_> {
                 }
             }
         }
-
-        Ok(())
     }
 
     fn write_rated(&mut self, op: &str, days: i64, ease: &RatingKind) -> Result<()> {
@@ -373,7 +371,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_template(&mut self, template: &TemplateKind) -> Result<()> {
+    fn write_template(&mut self, template: &TemplateKind) {
         match template {
             TemplateKind::Ordinal(n) => {
                 write!(self.sql, "c.ord = {}", n).unwrap();
@@ -393,10 +391,9 @@ impl SqlWriter<'_> {
                 }
             }
         };
-        Ok(())
     }
 
-    fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
+    fn write_note_type(&mut self, nt_name: &str) {
         if is_glob(nt_name) {
             let re = format!("(?i){}", to_re(nt_name));
             self.sql
@@ -407,7 +404,6 @@ impl SqlWriter<'_> {
                 .push_str("n.mid in (select id from notetypes where name = ?)");
             self.args.push(to_text(nt_name).into());
         }
-        Ok(())
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {

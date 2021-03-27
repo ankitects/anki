@@ -192,7 +192,7 @@ delete from media where fname=?"
             .query_row(
                 "select count(*) from media where csum is not null",
                 NO_PARAMS,
-                |row| Ok(row.get(0)?),
+                |row| row.get(0),
             )
             .map_err(Into::into)
     }

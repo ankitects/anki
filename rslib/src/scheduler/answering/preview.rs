@@ -4,7 +4,6 @@
 use crate::{
     card::CardQueue,
     config::SchedulerVersion,
-    prelude::*,
     scheduler::states::{CardState, IntervalKind, PreviewState},
 };
 
@@ -17,11 +16,11 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: PreviewState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         if next.finished {
             self.card
                 .remove_from_filtered_deck_restoring_queue(SchedulerVersion::V2);
-            return Ok(None);
+            return None;
         }
 
         self.card.queue = CardQueue::PreviewRepeat;
@@ -36,18 +35,14 @@ impl CardStateUpdater {
             }
         }
 
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            0.0,
-            self.secs_until_rollover(),
-        ))
+        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
     }
 }
 
 #[cfg(test)]
 mod test {
     use crate::collection::open_test_collection;
+    use crate::prelude::*;
 
     use super::*;
     use crate::{

@@ -51,9 +51,9 @@ impl From<pb::CardId> for CardId {
     }
 }
 
-impl Into<Vec<CardId>> for pb::CardIDs {
-    fn into(self) -> Vec<CardId> {
-        self.cids.into_iter().map(CardId).collect()
+impl From<pb::CardIDs> for Vec<CardId> {
+    fn from(c: pb::CardIDs) -> Self {
+        c.cids.into_iter().map(CardId).collect()
     }
 }
 

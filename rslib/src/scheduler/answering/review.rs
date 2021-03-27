@@ -3,7 +3,6 @@
 
 use crate::{
     card::{CardQueue, CardType},
-    prelude::*,
     scheduler::states::{CardState, ReviewState},
 };
 
@@ -14,7 +13,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: ReviewState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         self.card.queue = CardQueue::Review;
         self.card.ctype = CardType::Review;
         self.card.interval = next.scheduled_days;
@@ -22,11 +21,11 @@ impl CardStateUpdater {
         self.card.ease_factor = (next.ease_factor * 1000.0).round() as u16;
         self.card.lapses = next.lapses;
 
-        Ok(RevlogEntryPartial::maybe_new(
+        RevlogEntryPartial::maybe_new(
             current,
             next.into(),
             next.ease_factor,
             self.secs_until_rollover(),
-        ))
+        )
     }
 }

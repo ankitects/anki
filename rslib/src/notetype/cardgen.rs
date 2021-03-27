@@ -334,9 +334,8 @@ impl Collection {
 
     fn default_deck_conf(&mut self) -> Result<(DeckId, DeckConfId)> {
         // currently hard-coded to 1, we could create this as needed in the future
-        Ok(self
-            .deck_conf_if_normal(DeckId(1))?
-            .ok_or_else(|| AnkiError::invalid_input("invalid default deck"))?)
+        self.deck_conf_if_normal(DeckId(1))?
+            .ok_or_else(|| AnkiError::invalid_input("invalid default deck"))
     }
 
     /// If deck exists and and is a normal deck, return its ID and config

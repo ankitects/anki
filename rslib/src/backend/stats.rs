@@ -16,7 +16,7 @@ impl StatsService for Backend {
     }
 
     fn get_graph_preferences(&self, _input: pb::Empty) -> Result<pb::GraphPreferences> {
-        self.with_col(|col| col.get_graph_preferences())
+        self.with_col(|col| Ok(col.get_graph_preferences()))
     }
 
     fn set_graph_preferences(&self, input: pb::GraphPreferences) -> Result<pb::Empty> {
