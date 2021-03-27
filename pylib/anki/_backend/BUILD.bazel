@@ -12,14 +12,6 @@ py_proto_library_typed(
     ],
 )
 
-py_proto_library_typed(
-    name = "fluent_pb2",
-    src = "//rslib:fluent.proto",
-    visibility = [
-        "//visibility:public",
-    ],
-)
-
 py_binary(
     name = "genbackend",
     srcs = [
@@ -40,6 +32,27 @@ genrule(
     tools = ["genbackend"],
 )
 
+py_binary(
+    name = "genfluent",
+    srcs = [
+        "genfluent.py",
+    ],
+    deps = [
+        requirement("black"),
+        requirement("stringcase"),
+    ],
+)
+
+genrule(
+    name = "fluent_gen",
+    outs = ["fluent.py"],
+    cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $@",
+    tools = [
+        "genfluent",
+        "//rslib/i18n:strings.json",
+    ],
+)
+
 copy_file(
     name = "rsbridge_unix",
     src = "//pylib/rsbridge",
@@ -56,7 +69,7 @@ alias(
     name = "rsbridge",
     actual = selects.with_or({
         (
-            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): ":rsbridge_win",
         "//conditions:default": ":rsbridge_unix",
     }),
@@ -82,7 +95,7 @@ filegroup(
         "__init__.py",
         "rsbridge.pyi",
         ":backend_pb2",
-        ":fluent_pb2",
+        ":fluent_gen",
         ":rsbackend_gen",
         ":rsbridge",
     ],

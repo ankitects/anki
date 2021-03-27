@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -29,9 +29,10 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
 # buildifier: disable=load-on-top
 load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "@rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
 )
 
@@ -103,7 +104,7 @@ rust_library(
     compile_data = glob(["**/*.md"]),
     edition = "2018",
     proc_macro_deps = [
-        "@raze__ctor__0_1_19//:ctor",
+        "@raze__ctor__0_1_20//:ctor",
         "@raze__pyo3_macros__0_13_2//:pyo3_macros",
     ],
     rustc_flags = [
@@ -120,7 +121,7 @@ rust_library(
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__indoc__0_3_6//:indoc",
         "@raze__inventory__0_1_10//:inventory",
-        "@raze__libc__0_2_88//:libc",
+        "@raze__libc__0_2_91//:libc",
         "@raze__parking_lot__0_11_1//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",

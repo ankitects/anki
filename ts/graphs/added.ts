@@ -18,10 +18,11 @@ import {
 } from "d3";
 import type { Bin } from "d3";
 import type { HistogramData } from "./histogram-graph";
-import type { I18n } from "anki/i18n";
+
 import { dayLabel } from "anki/time";
 import { GraphRange } from "./graph-helpers";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
+import * as tr from "anki/i18n";
 
 export interface GraphData {
     daysAdded: number[];
@@ -49,7 +50,6 @@ function makeQuery(start: number, end: number): string {
 export function buildHistogram(
     data: GraphData,
     range: GraphRange,
-    i18n: I18n,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
@@ -99,12 +99,12 @@ export function buildHistogram(
     const cardsPerDay = Math.round(totalInPeriod / periodDays);
     const tableData = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_TOTAL),
-            value: i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: totalInPeriod }),
+            label: tr.statisticsTotal(),
+            value: tr.statisticsCards({ cards: totalInPeriod }),
         },
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE),
-            value: i18n.tr(i18n.TR.STATISTICS_CARDS_PER_DAY, { count: cardsPerDay }),
+            label: tr.statisticsAverage(),
+            value: tr.statisticsCardsPerDay({ count: cardsPerDay }),
         },
     ];
 
@@ -113,10 +113,10 @@ export function buildHistogram(
         cumulative: number,
         _percent: number
     ): string {
-        const day = dayLabel(i18n, bin.x0!, bin.x1!);
-        const cards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: bin.length });
-        const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
-        const totalCards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: cumulative });
+        const day = dayLabel(bin.x0!, bin.x1!);
+        const cards = tr.statisticsCards({ cards: bin.length });
+        const total = tr.statisticsRunningTotal();
+        const totalCards = tr.statisticsCards({ cards: cumulative });
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
     }
 

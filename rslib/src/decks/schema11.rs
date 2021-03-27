@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::DeckID;
+use super::DeckId;
 use super::{
     human_deck_name_to_native, Deck, DeckCommon, DeckKind, FilteredDeck, FilteredSearchTerm,
     NormalDeck,
@@ -82,7 +82,7 @@ fn is_false(b: &bool) -> bool {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct DeckCommonSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub(crate) id: DeckID,
+    pub(crate) id: DeckId,
     #[serde(
         rename = "mod",
         deserialize_with = "deserialize_number_from_string",
@@ -195,7 +195,7 @@ impl DeckSchema11 {
     //     }
     // }
 
-    pub fn id(&self) -> DeckID {
+    pub fn id(&self) -> DeckId {
         self.common().id
     }
 
@@ -214,7 +214,7 @@ impl Default for NormalDeckSchema11 {
     fn default() -> Self {
         NormalDeckSchema11 {
             common: DeckCommonSchema11 {
-                id: DeckID(0),
+                id: DeckId(0),
                 mtime: TimestampSecs(0),
                 name: "".to_string(),
                 usn: Usn(0),

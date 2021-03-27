@@ -11,10 +11,11 @@ from typing import List, Optional
 
 import aqt
 from anki import hooks
+from anki.cards import CardId
+from anki.decks import DeckId
 from anki.exporting import Exporter, exporters
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     checkInvalidFilename,
     disable_help_button,
     getSaveFile,
@@ -28,8 +29,8 @@ class ExportDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        did: Optional[DeckId] = None,
+        cids: Optional[List[CardId]] = None,
     ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
@@ -42,7 +43,7 @@ class ExportDialog(QDialog):
         self.setup(did)
         self.exec_()
 
-    def setup(self, did: Optional[int]) -> None:
+    def setup(self, did: Optional[DeckId]) -> None:
         self.exporters = exporters(self.col)
         # if a deck specified, start with .apkg type selected
         idx = 0
@@ -57,13 +58,13 @@ class ExportDialog(QDialog):
         self.exporterChanged(idx)
         # deck list
         if self.cids is None:
-            self.decks = [tr(TR.EXPORTING_ALL_DECKS)]
+            self.decks = [tr.exporting_all_decks()]
             self.decks.extend(d.name for d in self.col.decks.all_names_and_ids())
         else:
-            self.decks = [tr(TR.EXPORTING_SELECTED_NOTES)]
+            self.decks = [tr.exporting_selected_notes()]
         self.frm.deck.addItems(self.decks)
         # save button
-        b = QPushButton(tr(TR.EXPORTING_EXPORT))
+        b = QPushButton(tr.exporting_export())
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         # set default option if accessed through deck button
         if did:
@@ -115,7 +116,7 @@ class ExportDialog(QDialog):
             self.exporter.did = self.col.decks.id(name)
         if self.isVerbatim:
             name = time.strftime("-%Y-%m-%d@%H-%M-%S", time.localtime(time.time()))
-            deck_name = tr(TR.EXPORTING_COLLECTION) + name
+            deck_name = tr.exporting_collection() + name
         else:
             # Get deck name and remove invalid filename characters
             deck_name = self.decks[self.frm.deck.currentIndex()]
@@ -129,7 +130,7 @@ class ExportDialog(QDialog):
         while 1:
             file = getSaveFile(
                 self,
-                tr(TR.ACTIONS_EXPORT),
+                tr.actions_export(),
                 "export",
                 key_str,
                 self.exporter.ext,
@@ -150,7 +151,7 @@ class ExportDialog(QDialog):
                 f = open(file, "wb")
                 f.close()
             except OSError as e:
-                showWarning(tr(TR.EXPORTING_COULDNT_SAVE_FILE, val=str(e)))
+                showWarning(tr.exporting_couldnt_save_file(val=str(e)))
             else:
                 os.unlink(file)
 
@@ -158,7 +159,7 @@ class ExportDialog(QDialog):
             def exported_media(cnt: int) -> None:
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
-                        label=tr(TR.EXPORTING_EXPORTED_MEDIA_FILE, count=cnt)
+                        label=tr.exporting_exported_media_file(count=cnt)
                     )
                 )
 
@@ -179,12 +180,12 @@ class ExportDialog(QDialog):
 
     def on_export_finished(self) -> None:
         if self.isVerbatim:
-            msg = tr(TR.EXPORTING_COLLECTION_EXPORTED)
+            msg = tr.exporting_collection_exported()
             self.mw.reopen()
         else:
             if self.isTextNote:
-                msg = tr(TR.EXPORTING_NOTE_EXPORTED, count=self.exporter.count)
+                msg = tr.exporting_note_exported(count=self.exporter.count)
             else:
-                msg = tr(TR.EXPORTING_CARD_EXPORTED, count=self.exporter.count)
+                msg = tr.exporting_card_exported(count=self.exporter.count)
         tooltip(msg, period=3000)
         QDialog.reject(self)

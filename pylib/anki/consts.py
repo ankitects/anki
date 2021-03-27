@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+import sys
+from typing import Any, Dict, NewType, Optional
 
 import anki
-from anki.lang import TR
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
@@ -18,20 +18,22 @@ NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
 # Queue types
-QUEUE_TYPE_MANUALLY_BURIED = -3
-QUEUE_TYPE_SIBLING_BURIED = -2
-QUEUE_TYPE_SUSPENDED = -1
-QUEUE_TYPE_NEW = 0
-QUEUE_TYPE_LRN = 1
-QUEUE_TYPE_REV = 2
-QUEUE_TYPE_DAY_LEARN_RELEARN = 3
-QUEUE_TYPE_PREVIEW = 4
+CardQueue = NewType("CardQueue", int)
+QUEUE_TYPE_MANUALLY_BURIED = CardQueue(-3)
+QUEUE_TYPE_SIBLING_BURIED = CardQueue(-2)
+QUEUE_TYPE_SUSPENDED = CardQueue(-1)
+QUEUE_TYPE_NEW = CardQueue(0)
+QUEUE_TYPE_LRN = CardQueue(1)
+QUEUE_TYPE_REV = CardQueue(2)
+QUEUE_TYPE_DAY_LEARN_RELEARN = CardQueue(3)
+QUEUE_TYPE_PREVIEW = CardQueue(4)
 
 # Card types
-CARD_TYPE_NEW = 0
-CARD_TYPE_LRN = 1
-CARD_TYPE_REV = 2
-CARD_TYPE_RELEARNING = 3
+CardType = NewType("CardType", int)
+CARD_TYPE_NEW = CardType(0)
+CARD_TYPE_LRN = CardType(1)
+CARD_TYPE_REV = CardType(2)
+CARD_TYPE_RELEARNING = CardType(3)
 
 # removal types
 REM_CARD = 0
@@ -97,6 +99,9 @@ def _tr(col: Optional[anki.collection.Collection]) -> Any:
         return col.tr
     else:
         print("routine in consts.py should be passed col")
+        import traceback
+
+        traceback.print_stack(file=sys.stdout)
         from anki.lang import tr_legacyglobal
 
         return tr_legacyglobal
@@ -105,8 +110,8 @@ def _tr(col: Optional[anki.collection.Collection]) -> Any:
 def newCardOrderLabels(col: Optional[anki.collection.Collection]) -> Dict[int, Any]:
     tr = _tr(col)
     return {
-        0: tr(TR.SCHEDULING_SHOW_NEW_CARDS_IN_RANDOM_ORDER),
-        1: tr(TR.SCHEDULING_SHOW_NEW_CARDS_IN_ORDER_ADDED),
+        0: tr.scheduling_show_new_cards_in_random_order(),
+        1: tr.scheduling_show_new_cards_in_order_added(),
     }
 
 
@@ -115,22 +120,22 @@ def newCardSchedulingLabels(
 ) -> Dict[int, Any]:
     tr = _tr(col)
     return {
-        0: tr(TR.SCHEDULING_MIX_NEW_CARDS_AND_REVIEWS),
-        1: tr(TR.SCHEDULING_SHOW_NEW_CARDS_AFTER_REVIEWS),
-        2: tr(TR.SCHEDULING_SHOW_NEW_CARDS_BEFORE_REVIEWS),
+        0: tr.scheduling_mix_new_cards_and_reviews(),
+        1: tr.scheduling_show_new_cards_after_reviews(),
+        2: tr.scheduling_show_new_cards_before_reviews(),
     }
 
 
 def dynOrderLabels(col: Optional[anki.collection.Collection]) -> Dict[int, Any]:
     tr = _tr(col)
     return {
-        0: tr(TR.DECKS_OLDEST_SEEN_FIRST),
-        1: tr(TR.DECKS_RANDOM),
-        2: tr(TR.DECKS_INCREASING_INTERVALS),
-        3: tr(TR.DECKS_DECREASING_INTERVALS),
-        4: tr(TR.DECKS_MOST_LAPSES),
-        5: tr(TR.DECKS_ORDER_ADDED),
-        6: tr(TR.DECKS_ORDER_DUE),
-        7: tr(TR.DECKS_LATEST_ADDED_FIRST),
-        8: tr(TR.DECKS_RELATIVE_OVERDUENESS),
+        0: tr.decks_oldest_seen_first(),
+        1: tr.decks_random(),
+        2: tr.decks_increasing_intervals(),
+        3: tr.decks_decreasing_intervals(),
+        4: tr.decks_most_lapses(),
+        5: tr.decks_order_added(),
+        6: tr.decks_order_due(),
+        7: tr.decks_latest_added_first(),
+        8: tr.decks_relative_overdueness(),
     }

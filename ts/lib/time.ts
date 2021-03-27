@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { I18n } from "./i18n";
+import * as tr from "./i18n";
 
 export const SECOND = 1.0;
 export const MINUTE = 60.0 * SECOND;
@@ -70,7 +70,7 @@ export function unitAmount(unit: TimespanUnit, secs: number): number {
     }
 }
 
-export function studiedToday(i18n: I18n, cards: number, secs: number): string {
+export function studiedToday(cards: number, secs: number): string {
     const unit = naturalUnit(secs);
     const amount = unitAmount(unit, secs);
     const name = unitName(unit);
@@ -79,44 +79,47 @@ export function studiedToday(i18n: I18n, cards: number, secs: number): string {
     if (cards > 0) {
         secsPer = secs / cards;
     }
-    return i18n.tr(i18n.TR.STATISTICS_STUDIED_TODAY, {
+    return tr.statisticsStudiedToday({
+        unit: name,
+        secsPerCard: secsPer,
         cards,
         amount,
-        unit: name,
-        "secs-per-card": secsPer,
     });
 }
 
-function i18nKeyForUnit(i18n: I18n, unit: TimespanUnit, short: boolean): number {
+function i18nFuncForUnit(
+    unit: TimespanUnit,
+    short: boolean
+): ({ amount: number }) => string {
     if (short) {
         switch (unit) {
             case TimespanUnit.Seconds:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_SECONDS;
+                return tr.statisticsElapsedTimeSeconds;
             case TimespanUnit.Minutes:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_MINUTES;
+                return tr.statisticsElapsedTimeMinutes;
             case TimespanUnit.Hours:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_HOURS;
+                return tr.statisticsElapsedTimeHours;
             case TimespanUnit.Days:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_DAYS;
+                return tr.statisticsElapsedTimeDays;
             case TimespanUnit.Months:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_MONTHS;
+                return tr.statisticsElapsedTimeMonths;
             case TimespanUnit.Years:
-                return i18n.TR.STATISTICS_ELAPSED_TIME_YEARS;
+                return tr.statisticsElapsedTimeYears;
         }
     } else {
         switch (unit) {
             case TimespanUnit.Seconds:
-                return i18n.TR.SCHEDULING_TIME_SPAN_SECONDS;
+                return tr.schedulingTimeSpanSeconds;
             case TimespanUnit.Minutes:
-                return i18n.TR.SCHEDULING_TIME_SPAN_MINUTES;
+                return tr.schedulingTimeSpanMinutes;
             case TimespanUnit.Hours:
-                return i18n.TR.SCHEDULING_TIME_SPAN_HOURS;
+                return tr.schedulingTimeSpanHours;
             case TimespanUnit.Days:
-                return i18n.TR.SCHEDULING_TIME_SPAN_DAYS;
+                return tr.schedulingTimeSpanDays;
             case TimespanUnit.Months:
-                return i18n.TR.SCHEDULING_TIME_SPAN_MONTHS;
+                return tr.schedulingTimeSpanMonths;
             case TimespanUnit.Years:
-                return i18n.TR.SCHEDULING_TIME_SPAN_YEARS;
+                return tr.schedulingTimeSpanYears;
         }
     }
 }
@@ -125,32 +128,31 @@ function i18nKeyForUnit(i18n: I18n, unit: TimespanUnit, short: boolean): number 
 /// If precise is true, show to two decimal places, eg
 /// eg 70 seconds -> "1.17 minutes"
 /// If false, seconds and days are shown without decimals.
-export function timeSpan(i18n: I18n, seconds: number, short = false): string {
+export function timeSpan(seconds: number, short = false): string {
     const unit = naturalUnit(seconds);
     const amount = unitAmount(unit, seconds);
-    const key = i18nKeyForUnit(i18n, unit, short);
-    return i18n.tr(key, { amount });
+    return i18nFuncForUnit(unit, short)({ amount });
 }
 
-export function dayLabel(i18n: I18n, daysStart: number, daysEnd: number): string {
+export function dayLabel(daysStart: number, daysEnd: number): string {
     const larger = Math.max(Math.abs(daysStart), Math.abs(daysEnd));
     const smaller = Math.min(Math.abs(daysStart), Math.abs(daysEnd));
     if (larger - smaller <= 1) {
         // singular
         if (daysStart >= 0) {
-            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_SINGLE, { days: daysStart });
+            return tr.statisticsInDaysSingle({ days: daysStart });
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_SINGLE, { days: -daysStart });
+            return tr.statisticsDaysAgoSingle({ days: -daysStart });
         }
     } else {
         // range
         if (daysStart >= 0) {
-            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_RANGE, {
+            return tr.statisticsInDaysRange({
                 daysStart,
                 daysEnd: daysEnd - 1,
             });
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_RANGE, {
+            return tr.statisticsDaysAgoRange({
                 daysStart: Math.abs(daysEnd - 1),
                 daysEnd: -daysStart,
             });

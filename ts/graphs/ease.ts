@@ -18,8 +18,9 @@ import {
 import type { Bin, ScaleLinear } from "d3";
 import { CardType } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
-import type { I18n } from "anki/i18n";
+
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
+import * as tr from "anki/i18n";
 
 export interface GraphData {
     eases: number[];
@@ -69,7 +70,6 @@ function getAdjustedScaleAndTicks(
 
 export function prepareData(
     data: GraphData,
-    i18n: I18n,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean
 ): [HistogramData | null, TableDatum[]] {
@@ -96,7 +96,7 @@ export function prepareData(
         const minPct = Math.floor(bin.x0!);
         const maxPct = Math.floor(bin.x1!);
         const percent = maxPct - minPct <= 10 ? `${bin.x0}%` : `${bin.x0}%-${bin.x1}%`;
-        return i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TOOLTIP, {
+        return tr.statisticsCardEaseTooltip({
             cards: bin.length,
             percent,
         });
@@ -112,7 +112,7 @@ export function prepareData(
     const xTickFormat = (num: number): string => `${num.toFixed(0)}%`;
     const tableData = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_EASE),
+            label: tr.statisticsAverageEase(),
             value: xTickFormat(sum(allEases) / total),
         },
     ];

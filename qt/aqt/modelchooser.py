@@ -4,11 +4,11 @@ from typing import List, Optional
 
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, HelpPage, shortcut, tr
+from aqt.utils import HelpPage, shortcut, tr
 
 
 class ModelChooser(QHBoxLayout):
-    "New code should prefer NoteTypeChooser."
+    "New code should prefer NotetypeChooser."
 
     def __init__(
         self,
@@ -37,11 +37,11 @@ class ModelChooser(QHBoxLayout):
 
     def setupModels(self) -> None:
         if self.label:
-            self.modelLabel = QLabel(tr(TR.NOTETYPES_TYPE))
+            self.modelLabel = QLabel(tr.notetypes_type())
             self.addWidget(self.modelLabel)
         # models box
         self.models = QPushButton()
-        self.models.setToolTip(shortcut(tr(TR.QT_MISC_CHANGE_NOTE_TYPE_CTRLANDN)))
+        self.models.setToolTip(shortcut(tr.qt_misc_change_note_type_ctrlandn()))
         QShortcut(QKeySequence("Ctrl+N"), self._widget, activated=self.on_activated)  # type: ignore
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
@@ -73,7 +73,7 @@ class ModelChooser(QHBoxLayout):
 
         current = self.deck.models.current()["name"]
         # edit button
-        edit = QPushButton(tr(TR.QT_MISC_MANAGE), clicked=self.onEdit)  # type: ignore
+        edit = QPushButton(tr.qt_misc_manage(), clicked=self.onEdit)  # type: ignore
 
         def nameFunc() -> List[str]:
             return sorted(self.deck.models.allNames())
@@ -81,8 +81,8 @@ class ModelChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             names=nameFunc,
-            accept=tr(TR.ACTIONS_CHOOSE),
-            title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
+            accept=tr.actions_choose(),
+            title=tr.qt_misc_choose_note_type(),
             help=HelpPage.NOTE_TYPE,
             current=current,
             parent=self._widget,

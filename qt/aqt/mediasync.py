@@ -11,7 +11,6 @@ from typing import Any, Callable, List, Optional, Union
 import aqt
 from anki.collection import Progress
 from anki.errors import Interrupted, NetworkError
-from anki.lang import TR
 from anki.types import assert_exhaustive
 from anki.utils import intTime
 from aqt import gui_hooks
@@ -48,14 +47,14 @@ class MediaSyncer:
             return
 
         if not self.mw.pm.media_syncing_enabled():
-            self._log_and_notify(tr(TR.SYNC_MEDIA_DISABLED))
+            self._log_and_notify(tr.sync_media_disabled())
             return
 
         auth = self.mw.pm.sync_auth()
         if auth is None:
             return
 
-        self._log_and_notify(tr(TR.SYNC_MEDIA_STARTING))
+        self._log_and_notify(tr.sync_media_starting())
         self._syncing = True
         self._progress_timer = self.mw.progress.timer(
             1000, self._on_progress, True, True
@@ -85,18 +84,18 @@ class MediaSyncer:
         if exc is not None:
             self._handle_sync_error(exc)
         else:
-            self._log_and_notify(tr(TR.SYNC_MEDIA_COMPLETE))
+            self._log_and_notify(tr.sync_media_complete())
 
     def _handle_sync_error(self, exc: BaseException) -> None:
         if isinstance(exc, Interrupted):
-            self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTED))
+            self._log_and_notify(tr.sync_media_aborted())
             return
         elif isinstance(exc, NetworkError):
             # avoid popups for network errors
             self._log_and_notify(str(exc))
             return
 
-        self._log_and_notify(tr(TR.SYNC_MEDIA_FAILED))
+        self._log_and_notify(tr.sync_media_failed())
         showWarning(str(exc))
 
     def entries(self) -> List[LogEntryWithTime]:
@@ -105,7 +104,7 @@ class MediaSyncer:
     def abort(self) -> None:
         if not self.is_syncing():
             return
-        self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTING))
+        self._log_and_notify(tr.sync_media_aborting())
         self.mw.col.set_wants_abort()
         self.mw.col.abort_media_sync()
 
@@ -158,9 +157,9 @@ class MediaSyncDialog(QDialog):
         self._close_when_done = close_when_done
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(tr(TR.SYNC_MEDIA_LOG_TITLE))
+        self.setWindowTitle(tr.sync_media_log_title())
         disable_help_button(self)
-        self.abort_button = QPushButton(tr(TR.SYNC_ABORT_BUTTON))
+        self.abort_button = QPushButton(tr.sync_abort_button())
         qconnect(self.abort_button.clicked, self._on_abort)
         self.abort_button.setAutoDefault(False)
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)

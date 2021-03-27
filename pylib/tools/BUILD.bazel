@@ -46,6 +46,17 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "rewrite_tr",
+    srcs = [
+        "rewrite_tr.py",
+    ],
+    tags = ["manual"],
+    deps = [
+        requirement("stringcase"),
+    ],
+)
+
 filegroup(
     name = "py_source_files",
     srcs = glob(["*.py"]),

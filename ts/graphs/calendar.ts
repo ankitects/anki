@@ -5,7 +5,6 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import type { I18n } from "anki/i18n";
 import pb from "anki/backend_proto";
 import {
     interpolateBlues,
@@ -30,6 +29,8 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
+import { i18n } from "anki/i18n";
+import * as tr from "anki/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today
@@ -91,7 +92,6 @@ export function renderCalendar(
     sourceData: GraphData,
     dispatch: SearchDispatch,
     targetYear: number,
-    i18n: I18n,
     nightMode: boolean,
     revlogRange: RevlogRange,
     setFirstDayOfWeek: (d: number) => void
@@ -169,7 +169,7 @@ export function renderCalendar(
             month: "long",
             day: "numeric",
         });
-        const cards = i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: d.count });
+        const cards = tr.statisticsReviews({ reviews: d.count });
         return `${date}<br>${cards}`;
     }
 

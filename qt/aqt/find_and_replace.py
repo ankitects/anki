@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import List, Optional, Sequence
 
 import aqt
-from anki.lang import TR
+from anki.notes import NoteId
 from aqt import AnkiQt, QWidget
 from aqt.qt import QDialog, Qt
 from aqt.utils import (
@@ -22,7 +22,6 @@ from aqt.utils import (
     save_combo_index_for_session,
     save_is_checked,
     saveGeom,
-    show_invalid_search_error,
     tooltip,
     tr,
 )
@@ -32,7 +31,7 @@ def find_and_replace(
     *,
     mw: AnkiQt,
     parent: QWidget,
-    note_ids: Sequence[int],
+    note_ids: Sequence[NoteId],
     search: str,
     replacement: str,
     regex: bool,
@@ -49,10 +48,9 @@ def find_and_replace(
             match_case=match_case,
         ),
         success=lambda out: tooltip(
-            tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
             parent=parent,
         ),
-        failure=lambda exc: show_invalid_search_error(exc, parent=parent),
     )
 
 
@@ -75,17 +73,18 @@ def find_and_replace_tag(
             match_case=match_case,
         ),
         success=lambda out: tooltip(
-            tr(TR.FINDREPLACE_NOTES_UPDATED, changed=out.count, total=len(note_ids)),
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
             parent=parent,
         ),
-        failure=lambda exc: show_invalid_search_error(exc, parent=parent),
     )
 
 
 class FindAndReplaceDialog(QDialog):
     COMBO_NAME = "BrowserFindAndReplace"
 
-    def __init__(self, parent: QWidget, *, mw: AnkiQt, note_ids: Sequence[int]) -> None:
+    def __init__(
+        self, parent: QWidget, *, mw: AnkiQt, note_ids: Sequence[NoteId]
+    ) -> None:
         super().__init__(parent)
         self.mw = mw
         self.note_ids = note_ids
@@ -100,8 +99,8 @@ class FindAndReplaceDialog(QDialog):
     def _show(self, field_names: Sequence[str]) -> None:
         # add "all fields" and "tags" to the top of the list
         self.field_names = [
-            tr(TR.BROWSING_ALL_FIELDS),
-            tr(TR.EDITING_TAGS),
+            tr.browsing_all_fields(),
+            tr.editing_tags(),
         ] + list(field_names)
 
         disable_help_button(self)
@@ -112,11 +111,11 @@ class FindAndReplaceDialog(QDialog):
         self._find_history = restore_combo_history(
             self.form.find, self.COMBO_NAME + "Find"
         )
-        self.form.find.completer().setCaseSensitivity(True)
+        self.form.find.completer().setCaseSensitivity(Qt.CaseSensitive)
         self._replace_history = restore_combo_history(
             self.form.replace, self.COMBO_NAME + "Replace"
         )
-        self.form.replace.completer().setCaseSensitivity(True)
+        self.form.replace.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         restore_is_checked(self.form.re, self.COMBO_NAME + "Regex")
         restore_is_checked(self.form.ignoreCase, self.COMBO_NAME + "ignoreCase")

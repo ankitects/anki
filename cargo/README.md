@@ -5,6 +5,7 @@ To update dependencies, ensure a local Rust environment is available
 
 ```
 cargo install cargo-raze --version 0.8.0
+cargo install cargo-license
 ```
 
 After updating dependencies in ../rslib/Cargo.toml, change to this

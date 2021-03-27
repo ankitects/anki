@@ -5,28 +5,33 @@ from __future__ import annotations
 
 import copy
 import pprint
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, List, NewType, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import MODEL_STD
-from anki.models import NoteType, Template
+from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import joinFields
 
 DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
+
+# types
+NoteId = NewType("NoteId", int)
 
 
 class Note:
     # not currently exposed
     flags = 0
     data = ""
+    id: NoteId
+    mid: NotetypeId
 
     def __init__(
         self,
         col: anki.collection.Collection,
-        model: Optional[NoteType] = None,
-        id: Optional[int] = None,
+        model: Optional[NotetypeDict] = None,
+        id: Optional[NoteId] = None,
     ) -> None:
         assert not (model and id)
         self.col = col.weakref()
@@ -46,9 +51,9 @@ class Note:
         self._load_from_backend_note(n)
 
     def _load_from_backend_note(self, n: _pb.Note) -> None:
-        self.id = n.id
+        self.id = NoteId(n.id)
         self.guid = n.guid
-        self.mid = n.notetype_id
+        self.mid = NotetypeId(n.notetype_id)
         self.mod = n.mtime_secs
         self.usn = n.usn
         self.tags = list(n.tags)
@@ -87,13 +92,13 @@ class Note:
         self,
         ord: int = 0,
         *,
-        custom_note_type: NoteType = None,
-        custom_template: Template = None,
+        custom_note_type: NotetypeDict = None,
+        custom_template: TemplateDict = None,
         fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
-        card.did = 1
+        card.did = anki.decks.DEFAULT_DECK_ID
 
         model = custom_note_type or self.model()
         template = copy.copy(
@@ -119,10 +124,10 @@ class Note:
     def cards(self) -> List[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
 
-    def card_ids(self) -> Sequence[int]:
+    def card_ids(self) -> Sequence[anki.cards.CardId]:
         return self.col.card_ids_of_note(self.id)
 
-    def model(self) -> Optional[NoteType]:
+    def model(self) -> Optional[NotetypeDict]:
         return self.col.models.get(self.mid)
 
     _model = property(model)

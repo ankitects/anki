@@ -2,9 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    decks::DeckID as DeckIDType,
-    notetype::NoteTypeID as NoteTypeIDType,
-    search::parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
+    decks::DeckId as DeckIdType,
+    notetype::NotetypeId as NotetypeIdType,
+    prelude::*,
+    search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
+    text::escape_anki_wildcards,
 };
 use std::mem;
 
@@ -83,16 +85,16 @@ fn write_search_node(node: &SearchNode) -> String {
         EditedInDays(u) => format!("\"edited:{}\"", u),
         CardTemplate(t) => write_template(t),
         Deck(s) => quote(&format!("deck:{}", s)),
-        DeckID(DeckIDType(i)) => format!("\"did:{}\"", i),
-        NoteTypeID(NoteTypeIDType(i)) => format!("\"mid:{}\"", i),
-        NoteType(s) => quote(&format!("note:{}", s)),
+        DeckId(DeckIdType(i)) => format!("\"did:{}\"", i),
+        NotetypeId(NotetypeIdType(i)) => format!("\"mid:{}\"", i),
+        Notetype(s) => quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),
         Tag(s) => quote(&format!("tag:{}", s)),
-        Duplicates { note_type_id, text } => write_dupe(note_type_id, text),
+        Duplicates { notetype_id, text } => write_dupe(notetype_id, text),
         State(k) => write_state(k),
         Flag(u) => format!("\"flag:{}\"", u),
-        NoteIDs(s) => format!("\"nid:{}\"", s),
-        CardIDs(s) => format!("\"cid:{}\"", s),
+        NoteIds(s) => format!("\"nid:{}\"", s),
+        CardIds(s) => format!("\"cid:{}\"", s),
         Property { operator, kind } => write_property(operator, kind),
         WholeCollection => "\"deck:*\"".to_string(),
         Regex(s) => quote(&format!("re:{}", s)),
@@ -133,9 +135,9 @@ fn write_rated(days: &u32, ease: &RatingKind) -> String {
 }
 
 /// Escape double quotes and backslashes: \"
-fn write_dupe(note_type_id: &NoteTypeIDType, text: &str) -> String {
+fn write_dupe(notetype_id: &NotetypeId, text: &str) -> String {
     let esc = text.replace(r"\", r"\\").replace('"', r#"\""#);
-    format!("\"dupe:{},{}\"", note_type_id, esc)
+    format!("\"dupe:{},{}\"", notetype_id, esc)
 }
 
 fn write_state(kind: &StateKind) -> String {
@@ -172,20 +174,24 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
     }
 }
 
+pub(crate) fn deck_search(name: &str) -> String {
+    write_nodes(&[Node::Search(SearchNode::Deck(escape_anki_wildcards(name)))])
+}
+
+/// Take an Anki-style search string and convert it into an equivalent
+/// search string with normalized syntax.
+pub(crate) fn normalize_search(input: &str) -> Result<String> {
+    Ok(write_nodes(&parse(input)?))
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::err::Result;
     use crate::search::parse_search as parse;
 
-    /// Take an Anki-style search string and convert it into an equivalent
-    /// search string with normalized syntax.
-    fn normalize_search(input: &str) -> Result<String> {
-        Ok(write_nodes(&parse(input)?))
-    }
-
     #[test]
-    fn normalizing() -> Result<()> {
+    fn normalizing() {
         assert_eq!(r#""(" AND "-""#, normalize_search(r"\( \-").unwrap());
         assert_eq!(r#""deck::""#, normalize_search(r"deck:\:").unwrap());
         assert_eq!(r#""\*" OR "\:""#, normalize_search(r"\* or \:").unwrap());
@@ -197,12 +203,10 @@ mod test {
             r#""prop:ease>1""#,
             normalize_search("prop:ease>1.0").unwrap()
         );
-
-        Ok(())
     }
 
     #[test]
-    fn concatenating() -> Result<()> {
+    fn concatenating() {
         assert_eq!(
             concatenate_searches(
                 BoolSeparator::And,
@@ -235,8 +239,6 @@ mod test {
             ),
             r#""bar""#,
         );
-
-        Ok(())
     }
 
     #[test]

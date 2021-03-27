@@ -3,9 +3,10 @@
 
 from typing import Optional
 
+from anki.decks import DEFAULT_DECK_ID, DeckId
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import TR, HelpPage, shortcut, tr
+from aqt.utils import HelpPage, shortcut, tr
 
 
 class DeckChooser(QHBoxLayout):
@@ -14,17 +15,17 @@ class DeckChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         label: bool = True,
-        starting_deck_id: Optional[int] = None,
+        starting_deck_id: Optional[DeckId] = None,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore
         self.mw = mw
         self._setup_ui(show_label=label)
 
-        self._selected_deck_id = 0
+        self._selected_deck_id = DeckId(0)
         # default to current deck if starting id not provided
         if starting_deck_id is None:
-            starting_deck_id = self.mw.col.get_config("curDeck", default=1) or 1
+            starting_deck_id = DeckId(self.mw.col.get_config("curDeck", default=1) or 1)
         self.selected_deck_id = starting_deck_id
 
     def _setup_ui(self, show_label: bool) -> None:
@@ -33,14 +34,14 @@ class DeckChooser(QHBoxLayout):
 
         # text label before button?
         if show_label:
-            self.deckLabel = QLabel(tr(TR.DECKS_DECK))
+            self.deckLabel = QLabel(tr.decks_deck())
             self.addWidget(self.deckLabel)
 
         # decks box
         self.deck = QPushButton()
         qconnect(self.deck.clicked, self.choose_deck)
         self.deck.setAutoDefault(False)
-        self.deck.setToolTip(shortcut(tr(TR.QT_MISC_TARGET_DECK_CTRLANDD)))
+        self.deck.setToolTip(shortcut(tr.qt_misc_target_deck_ctrlandd()))
         qconnect(
             QShortcut(QKeySequence("Ctrl+D"), self._widget).activated, self.choose_deck
         )
@@ -56,13 +57,13 @@ class DeckChooser(QHBoxLayout):
         )
 
     @property
-    def selected_deck_id(self) -> int:
+    def selected_deck_id(self) -> DeckId:
         self._ensure_selected_deck_valid()
 
         return self._selected_deck_id
 
     @selected_deck_id.setter
-    def selected_deck_id(self, id: int) -> None:
+    def selected_deck_id(self, id: DeckId) -> None:
         if id != self._selected_deck_id:
             self._selected_deck_id = id
             self._ensure_selected_deck_valid()
@@ -70,7 +71,7 @@ class DeckChooser(QHBoxLayout):
 
     def _ensure_selected_deck_valid(self) -> None:
         if not self.mw.col.decks.get(self._selected_deck_id, default=False):
-            self.selected_deck_id = 1
+            self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
         self.deck.setText(self.selected_deck_name().replace("&", "&&"))
@@ -88,8 +89,8 @@ class DeckChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             current=current,
-            accept=tr(TR.ACTIONS_CHOOSE),
-            title=tr(TR.QT_MISC_CHOOSE_DECK),
+            accept=tr.actions_choose(),
+            title=tr.qt_misc_choose_deck(),
             help=HelpPage.EDITING,
             cancel=False,
             parent=self._widget,
@@ -103,7 +104,7 @@ class DeckChooser(QHBoxLayout):
     onDeckChange = choose_deck
     deckName = selected_deck_name
 
-    def selectedId(self) -> int:
+    def selectedId(self) -> DeckId:
         return self.selected_deck_id
 
     def cleanup(self) -> None:

@@ -9,7 +9,7 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
-pub(super) enum DBRequest {
+pub(super) enum DbRequest {
     Query {
         sql: String,
         args: Vec<SqlValue>,
@@ -26,7 +26,7 @@ pub(super) enum DBRequest {
 
 #[derive(Serialize)]
 #[serde(untagged)]
-pub(super) enum DBResult {
+pub(super) enum DbResult {
     Rows(Vec<Vec<SqlValue>>),
     None,
 }
@@ -68,9 +68,9 @@ impl FromSql for SqlValue {
 }
 
 pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec<u8>> {
-    let req: DBRequest = serde_json::from_slice(input)?;
+    let req: DbRequest = serde_json::from_slice(input)?;
     let resp = match req {
-        DBRequest::Query {
+        DbRequest::Query {
             sql,
             args,
             first_row_only,
@@ -82,24 +82,24 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
                 db_query(&col.storage, &sql, &args)?
             }
         }
-        DBRequest::Begin => {
+        DbRequest::Begin => {
             col.storage.begin_trx()?;
-            DBResult::None
+            DbResult::None
         }
-        DBRequest::Commit => {
+        DbRequest::Commit => {
             if col.state.modified_by_dbproxy {
                 col.storage.set_modified()?;
                 col.state.modified_by_dbproxy = false;
             }
             col.storage.commit_trx()?;
-            DBResult::None
+            DbResult::None
         }
-        DBRequest::Rollback => {
+        DbRequest::Rollback => {
             col.clear_caches();
             col.storage.rollback_trx()?;
-            DBResult::None
+            DbResult::None
         }
-        DBRequest::ExecuteMany { sql, args } => {
+        DbRequest::ExecuteMany { sql, args } => {
             update_state_after_modification(col, &sql);
             db_execute_many(&col.storage, &sql, &args)?
         }
@@ -125,7 +125,7 @@ fn is_dql(sql: &str) -> bool {
     head.starts_with("select ")
 }
 
-pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
+pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DbResult> {
     let mut stmt = ctx.db.prepare_cached(sql)?;
     let columns = stmt.column_count();
 
@@ -146,10 +146,10 @@ pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) ->
         vec![]
     };
 
-    Ok(DBResult::Rows(rows))
+    Ok(DbResult::Rows(rows))
 }
 
-pub(super) fn db_query(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
+pub(super) fn db_query(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DbResult> {
     let mut stmt = ctx.db.prepare_cached(sql)?;
     let columns = stmt.column_count();
 
@@ -164,19 +164,19 @@ pub(super) fn db_query(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Res
         })?
         .collect();
 
-    Ok(DBResult::Rows(res?))
+    Ok(DbResult::Rows(res?))
 }
 
 pub(super) fn db_execute_many(
     ctx: &SqliteStorage,
     sql: &str,
     args: &[Vec<SqlValue>],
-) -> Result<DBResult> {
+) -> Result<DbResult> {
     let mut stmt = ctx.db.prepare_cached(sql)?;
 
     for params in args {
         stmt.execute(params)?;
     }
 
-    Ok(DBResult::None)
+    Ok(DbResult::None)
 }

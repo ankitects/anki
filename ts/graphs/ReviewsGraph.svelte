@@ -1,6 +1,5 @@
 <script lang="typescript">
     import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -18,7 +17,7 @@
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
 
     let graphData: GraphData | null = null;
 
@@ -38,19 +37,18 @@
             bounds,
             graphData,
             graphRange,
-            showTime,
-            i18n
+            showTime
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
-    const time = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_CHECKBOX);
+    const title = tr.statisticsReviewsTitle();
+    const time = tr.statisticsReviewsTimeCheckbox();
 
     let subtitle = "";
     $: if (showTime) {
-        subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_SUBTITLE);
+        subtitle = tr.statisticsReviewsTimeSubtitle();
     } else {
-        subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_COUNT_SUBTITLE);
+        subtitle = tr.statisticsReviewsCountSubtitle();
     }
 </script>
 
@@ -58,7 +56,7 @@
     <InputBox>
         <label> <input type="checkbox" bind:checked={showTime} /> {time} </label>
 
-        <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
+        <GraphRangeRadios bind:graphRange {revlogRange} followRevlog={true} />
     </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
@@ -68,8 +66,8 @@
         <CumulativeOverlay />
         <HoverColumns />
         <AxisTicks {bounds} />
-        <NoDataOverlay {bounds} {i18n} />
+        <NoDataOverlay {bounds} />
     </svg>
 
-    <TableData {i18n} {tableData} />
+    <TableData {tableData} />
 </Graph>

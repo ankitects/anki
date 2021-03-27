@@ -1,9 +1,8 @@
 <script lang="typescript">
-    import type { I18n } from "anki/i18n";
     import type { GraphBounds } from "./graph-helpers";
     export let bounds: GraphBounds;
-    export let i18n: I18n;
-    const noData = i18n.tr(i18n.TR.STATISTICS_NO_DATA);
+    import * as tr from "anki/i18n";
+    const noData = tr.statisticsNoData();
 </script>
 
 <style lang="scss">

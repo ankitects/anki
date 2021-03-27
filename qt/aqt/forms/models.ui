@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>NOTETYPES_NOTE_TYPES</string>
+   <string>notetypes_note_types</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5" stretch="100,0">
    <property name="spacing">

@@ -28,7 +28,6 @@ from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     askUser,
     disable_help_button,
     getFile,
@@ -220,8 +219,7 @@ class AddonManager:
                 pass
             except:
                 showWarning(
-                    tr(
-                        TR.ADDONS_FAILED_TO_LOAD,
+                    tr.addons_failed_to_load(
                         name=addon.human_name(),
                         traceback=traceback.format_exc(),
                     )
@@ -286,8 +284,7 @@ class AddonManager:
             if conflicting:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
                 showInfo(
-                    tr(
-                        TR.ADDONS_THE_FOLLOWING_ADDONS_ARE_INCOMPATIBLE_WITH,
+                    tr.addons_the_following_addons_are_incompatible_with(
                         name=addon.human_name(),
                         found=addons,
                     ),
@@ -320,7 +317,7 @@ class AddonManager:
         meta = self.addon_meta(dir)
         name = meta.human_name()
         if not meta.enabled:
-            name += f" {tr(TR.ADDONS_DISABLED)}"
+            name += f" {tr.addons_disabled()}"
         return name
 
     # Conflict resolution
@@ -433,7 +430,7 @@ class AddonManager:
             return True
         except OSError as e:
             showWarning(
-                tr(TR.ADDONS_UNABLE_TO_UPDATE_OR_DELETE_ADDON, val=str(e)),
+                tr.addons_unable_to_update_or_delete_addon(val=str(e)),
                 textFormat="plain",
             )
             return False
@@ -475,18 +472,16 @@ class AddonManager:
     ) -> List[str]:
 
         messages = {
-            "zip": tr(TR.ADDONS_CORRUPT_ADDON_FILE),
-            "manifest": tr(TR.ADDONS_INVALID_ADDON_MANIFEST),
+            "zip": tr.addons_corrupt_addon_file(),
+            "manifest": tr.addons_invalid_addon_manifest(),
         }
 
-        msg = messages.get(
-            result.errmsg, tr(TR.ADDONS_UNKNOWN_ERROR, val=result.errmsg)
-        )
+        msg = messages.get(result.errmsg, tr.addons_unknown_error(val=result.errmsg))
 
         if mode == "download":
-            template = tr(TR.ADDONS_ERROR_DOWNLOADING_IDS_ERRORS, id=base, error=msg)
+            template = tr.addons_error_downloading_ids_errors(id=base, error=msg)
         else:
-            template = tr(TR.ADDONS_ERROR_INSTALLING_BASES_ERRORS, base=base, error=msg)
+            template = tr.addons_error_installing_bases_errors(base=base, error=msg)
 
         return [template]
 
@@ -496,21 +491,21 @@ class AddonManager:
 
         name = result.name or base
         if mode == "download":
-            template = tr(TR.ADDONS_DOWNLOADED_FNAMES, fname=name)
+            template = tr.addons_downloaded_fnames(fname=name)
         else:
-            template = tr(TR.ADDONS_INSTALLED_NAMES, name=name)
+            template = tr.addons_installed_names(name=name)
 
         strings = [template]
 
         if result.conflicts:
             strings.append(
-                tr(TR.ADDONS_THE_FOLLOWING_CONFLICTING_ADDONS_WERE_DISABLED)
+                tr.addons_the_following_conflicting_addons_were_disabled()
                 + " "
                 + ", ".join(self.addonName(f) for f in result.conflicts)
             )
 
         if not result.compatible:
-            strings.append(tr(TR.ADDONS_THIS_ADDON_IS_NOT_COMPATIBLE_WITH))
+            strings.append(tr.addons_this_addon_is_not_compatible_with())
 
         return strings
 
@@ -714,7 +709,7 @@ class AddonsDialog(QDialog):
         qconnect(f.config.clicked, self.onConfig)
         qconnect(self.form.addonList.itemDoubleClicked, self.onConfig)
         qconnect(self.form.addonList.currentRowChanged, self._onAddonItemSelected)
-        self.setWindowTitle(tr(TR.ADDONS_WINDOW_TITLE))
+        self.setWindowTitle(tr.addons_window_title())
         disable_help_button(self)
         self.setAcceptDrops(True)
         self.redrawAddons()
@@ -752,9 +747,9 @@ class AddonsDialog(QDialog):
         name = addon.human_name()
 
         if not addon.enabled:
-            return f"{name} {tr(TR.ADDONS_DISABLED2)}"
+            return f"{name} {tr.addons_disabled2()}"
         elif not addon.compatible():
-            return f"{name} {tr(TR.ADDONS_REQUIRES, val=self.compatible_string(addon))}"
+            return f"{name} {tr.addons_requires(val=self.compatible_string(addon))}"
 
         return name
 
@@ -813,7 +808,7 @@ class AddonsDialog(QDialog):
     def onlyOneSelected(self) -> Optional[str]:
         dirs = self.selectedAddons()
         if len(dirs) != 1:
-            showInfo(tr(TR.ADDONS_PLEASE_SELECT_A_SINGLE_ADDON_FIRST))
+            showInfo(tr.addons_please_select_a_single_addon_first())
             return None
         return dirs[0]
 
@@ -829,7 +824,7 @@ class AddonsDialog(QDialog):
         if re.match(r"^\d+$", addon):
             openLink(f"{aqt.appShared}info/{addon}")
         else:
-            showWarning(tr(TR.ADDONS_ADDON_WAS_NOT_DOWNLOADED_FROM_ANKIWEB))
+            showWarning(tr.addons_addon_was_not_downloaded_from_ankiweb())
 
     def onViewFiles(self) -> None:
         # if nothing selected, open top level folder
@@ -849,9 +844,7 @@ class AddonsDialog(QDialog):
         selected = self.selectedAddons()
         if not selected:
             return
-        if not askUser(
-            tr(TR.ADDONS_DELETE_THE_NUMD_SELECTED_ADDON, count=len(selected))
-        ):
+        if not askUser(tr.addons_delete_the_numd_selected_addon(count=len(selected))):
             return
         for dir in selected:
             if not self.mgr.deleteAddon(dir):
@@ -869,13 +862,13 @@ class AddonsDialog(QDialog):
         if log:
             show_log_to_user(self, log)
         else:
-            tooltip(tr(TR.ADDONS_NO_UPDATES_AVAILABLE))
+            tooltip(tr.addons_no_updates_available())
 
     def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
-            key = f"{tr(TR.ADDONS_PACKAGED_ANKI_ADDON)} (*{self.mgr.ext})"
+            key = f"{tr.addons_packaged_anki_addon()} (*{self.mgr.ext})"
             paths_ = getFile(
-                self, tr(TR.ADDONS_INSTALL_ADDONS), None, key, key="addons", multi=True
+                self, tr.addons_install_addons(), None, key, key="addons", multi=True
             )
             paths = paths_  # type: ignore
             if not paths:
@@ -887,7 +880,7 @@ class AddonsDialog(QDialog):
         return None
 
     def check_for_updates(self) -> None:
-        tooltip(tr(TR.ADDONS_CHECKING))
+        tooltip(tr.addons_checking())
         check_and_prompt_for_updates(self, self.mgr, self.after_downloading)
 
     def onConfig(self) -> None:
@@ -904,7 +897,7 @@ class AddonsDialog(QDialog):
 
         conf = self.mgr.getConfig(addon)
         if conf is None:
-            showInfo(tr(TR.ADDONS_ADDON_HAS_NO_CONFIGURATION))
+            showInfo(tr.addons_addon_has_no_configuration())
             return
 
         ConfigEditor(self, addon, conf)
@@ -924,7 +917,7 @@ class GetAddons(QDialog):
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
-            tr(TR.ADDONS_BROWSE_ADDONS), QDialogButtonBox.ActionRole
+            tr.addons_browse_addons(), QDialogButtonBox.ActionRole
         )
         qconnect(b.clicked, self.onBrowse)
         disable_help_button(self)
@@ -940,7 +933,7 @@ class GetAddons(QDialog):
         try:
             ids = [int(n) for n in self.form.code.text().split()]
         except ValueError:
-            showWarning(tr(TR.ADDONS_INVALID_CODE))
+            showWarning(tr.addons_invalid_code())
             return
 
         self.ids = ids
@@ -1013,19 +1006,19 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
     if isinstance(entry, DownloadError):
         if entry.status_code is not None:
             if entry.status_code in (403, 404):
-                buf += tr(TR.ADDONS_INVALID_CODE_OR_ADDON_NOT_AVAILABLE)
+                buf += tr.addons_invalid_code_or_addon_not_available()
             else:
-                buf += tr(TR.QT_MISC_UNEXPECTED_RESPONSE_CODE, val=entry.status_code)
+                buf += tr.qt_misc_unexpected_response_code(val=entry.status_code)
         else:
             buf += (
-                tr(TR.ADDONS_PLEASE_CHECK_YOUR_INTERNET_CONNECTION)
+                tr.addons_please_check_your_internet_connection()
                 + "\n\n"
                 + str(entry.exception)
             )
     elif isinstance(entry, InstallError):
         buf += entry.errmsg
     else:
-        buf += tr(TR.ADDONS_INSTALLED_SUCCESSFULLY)
+        buf += tr.addons_installed_successfully()
 
     return buf
 
@@ -1094,11 +1087,10 @@ class DownloaderInstaller(QObject):
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
         self.mgr.mw.progress.update(
-            label=tr(
-                TR.ADDONS_DOWNLOADING_ADBD_KB02FKB,
+            label=tr.addons_downloading_adbd_kb02fkb(
                 part=len(self.log) + 1,
                 total=len(self.ids),
-                kilobytes=self.dl_bytes / 1024,
+                kilobytes=self.dl_bytes // 1024,
             )
         )
 
@@ -1117,9 +1109,9 @@ def show_log_to_user(parent: QWidget, log: List[DownloadLogEntry]) -> None:
     have_problem = download_encountered_problem(log)
 
     if have_problem:
-        text = tr(TR.ADDONS_ONE_OR_MORE_ERRORS_OCCURRED)
+        text = tr.addons_one_or_more_errors_occurred()
     else:
-        text = tr(TR.ADDONS_DOWNLOAD_COMPLETE_PLEASE_RESTART_ANKI_TO)
+        text = tr.addons_download_complete_please_restart_anki_to()
     text += f"<br><br>{download_log_to_html(log)}"
 
     if have_problem:
@@ -1223,7 +1215,7 @@ class ChooseAddonsToUpdateList(QListWidget):
         item = self.itemAt(point)
         addon_id = item.data(self.ADDON_ID_ROLE)
         m = QMenu()
-        a = m.addAction(tr(TR.ADDONS_VIEW_ADDON_PAGE))
+        a = m.addAction(tr.addons_view_addon_page())
         qconnect(a.triggered, lambda _: openLink(f"{aqt.appShared}info/{addon_id}"))
         m.exec_(QCursor.pos())
 
@@ -1268,7 +1260,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
         self, parent: QWidget, mgr: AddonManager, updated_addons: List[UpdateInfo]
     ) -> None:
         QDialog.__init__(self, parent)
-        self.setWindowTitle(tr(TR.ADDONS_CHOOSE_UPDATE_WINDOW_TITLE))
+        self.setWindowTitle(tr.addons_choose_update_window_title())
         self.setWindowModality(Qt.WindowModal)
         self.mgr = mgr
         self.updated_addons = updated_addons
@@ -1277,7 +1269,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
 
     def setup(self) -> None:
         layout = QVBoxLayout()
-        label = QLabel(tr(TR.ADDONS_THE_FOLLOWING_ADDONS_HAVE_UPDATES_AVAILABLE))
+        label = QLabel(tr.addons_the_following_addons_have_updates_available())
         layout.addWidget(label)
         addons_list_widget = ChooseAddonsToUpdateList(
             self, self.mgr, self.updated_addons
@@ -1463,8 +1455,7 @@ class ConfigEditor(QDialog):
         restoreSplitter(self.form.splitter, "addonconf")
         self.setWindowTitle(
             without_unicode_isolation(
-                tr(
-                    TR.ADDONS_CONFIG_WINDOW_TITLE,
+                tr.addons_config_window_title(
                     name=self.mgr.addon_meta(addon).human_name(),
                 )
             )
@@ -1475,7 +1466,7 @@ class ConfigEditor(QDialog):
     def onRestoreDefaults(self) -> None:
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
-        tooltip(tr(TR.ADDONS_RESTORED_DEFAULTS), parent=self)
+        tooltip(tr.addons_restored_defaults(), parent=self)
 
     def setupFonts(self) -> None:
         font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -1532,8 +1523,7 @@ class ConfigEditor(QDialog):
                     erroneous_conf=erroneous_conf,
                 )
             else:
-                msg = tr(
-                    TR.ADDONS_CONFIG_VALIDATION_ERROR,
+                msg = tr.addons_config_validation_error(
                     problem=e.message,
                     path=path,
                     schema=str(schema),
@@ -1541,11 +1531,11 @@ class ConfigEditor(QDialog):
             showInfo(msg)
             return
         except Exception as e:
-            showInfo(f"{tr(TR.ADDONS_INVALID_CONFIGURATION)} {repr(e)}")
+            showInfo(f"{tr.addons_invalid_configuration()} {repr(e)}")
             return
 
         if not isinstance(new_conf, dict):
-            showInfo(tr(TR.ADDONS_INVALID_CONFIGURATION_TOP_LEVEL_OBJECT_MUST))
+            showInfo(tr.addons_invalid_configuration_top_level_object_must())
             return
 
         if new_conf != self.conf:
@@ -1574,14 +1564,12 @@ def installAddonPackages(
 
     if warn:
         names = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
-        q = tr(TR.ADDONS_IMPORTANT_AS_ADDONS_ARE_PROGRAMS_DOWNLOADED) % dict(
-            names=names
-        )
+        q = tr.addons_important_as_addons_are_programs_downloaded() % dict(names=names)
         if (
             not showInfo(
                 q,
                 parent=parent,
-                title=tr(TR.ADDONS_INSTALL_ANKI_ADDON),
+                title=tr.addons_install_anki_addon(),
                 type="warning",
                 customBtns=[QMessageBox.No, QMessageBox.Yes],
             )
@@ -1594,7 +1582,7 @@ def installAddonPackages(
     if log:
         log_html = "<br>".join(log)
         if advise_restart:
-            log_html += f"<br><br>{tr(TR.ADDONS_PLEASE_RESTART_ANKI_TO_COMPLETE_THE)}"
+            log_html += f"<br><br>{tr.addons_please_restart_anki_to_complete_the()}"
         if len(log) == 1 and not strictly_modal:
             tooltip(log_html, parent=parent)
         else:
@@ -1602,15 +1590,15 @@ def installAddonPackages(
                 log_html,
                 parent=parent,
                 textFormat="rich",
-                title=tr(TR.ADDONS_INSTALLATION_COMPLETE),
+                title=tr.addons_installation_complete(),
             )
     if errs:
-        msg = tr(TR.ADDONS_PLEASE_REPORT_THIS_TO_THE_RESPECTIVE)
+        msg = tr.addons_please_report_this_to_the_respective()
         showWarning(
             "<br><br>".join(errs + [msg]),
             parent=parent,
             textFormat="rich",
-            title=tr(TR.ADDONS_ADDON_INSTALLATION_ERROR),
+            title=tr.addons_addon_installation_error(),
         )
 
     return not errs

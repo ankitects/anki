@@ -1,53 +1,61 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use super::Backend;
 use crate::{
     backend_proto as pb,
     prelude::*,
     scheduler::timespan::{answer_button_time, time_span},
 };
-use fluent::FluentValue;
+use fluent::{FluentArgs, FluentValue};
 pub(super) use pb::i18n_service::Service as I18nService;
 
 impl I18nService for Backend {
     fn translate_string(&self, input: pb::TranslateStringIn) -> Result<pb::String> {
-        let key = match crate::fluent_proto::FluentString::from_i32(input.key) {
-            Some(key) => key,
-            None => return Ok("invalid key".to_string().into()),
-        };
+        let args = build_fluent_args(input.args);
 
-        let map = input
-            .args
-            .iter()
-            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
-            .collect();
-
-        Ok(self.i18n.trn(key, map).into())
+        Ok(self
+            .tr
+            .translate_via_index(
+                input.module_index as usize,
+                input.message_index as usize,
+                args,
+            )
+            .into())
     }
 
     fn format_timespan(&self, input: pb::FormatTimespanIn) -> Result<pb::String> {
         use pb::format_timespan_in::Context;
         Ok(match input.context() {
-            Context::Precise => time_span(input.seconds, &self.i18n, true),
-            Context::Intervals => time_span(input.seconds, &self.i18n, false),
-            Context::AnswerButtons => answer_button_time(input.seconds, &self.i18n),
+            Context::Precise => time_span(input.seconds, &self.tr, true),
+            Context::Intervals => time_span(input.seconds, &self.tr, false),
+            Context::AnswerButtons => answer_button_time(input.seconds, &self.tr),
         }
         .into())
     }
 
-    fn i18n_resources(&self, _input: pb::Empty) -> Result<pb::Json> {
-        serde_json::to_vec(&self.i18n.resources_for_js())
+    fn i18n_resources(&self, input: pb::I18nResourcesIn) -> Result<pb::Json> {
+        serde_json::to_vec(&self.tr.resources_for_js(&input.modules))
             .map(Into::into)
             .map_err(Into::into)
     }
 }
 
-fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
+fn build_fluent_args(input: HashMap<String, pb::TranslateArgValue>) -> FluentArgs<'static> {
+    let mut args = FluentArgs::new();
+    for (key, val) in input {
+        args.set(key, translate_arg_to_fluent_val(&val));
+    }
+    args
+}
+
+fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue<'static> {
     use pb::translate_arg_value::Value as V;
     match &arg.value {
         Some(val) => match val {
-            V::Str(s) => FluentValue::String(s.into()),
+            V::Str(s) => FluentValue::String(s.to_owned().into()),
             V::Number(f) => FluentValue::Number(f.into()),
         },
         None => FluentValue::String("".into()),

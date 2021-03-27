@@ -10,11 +10,21 @@ compileUi(open(ui_file), buf, from_imports=True)
 
 outdata = buf.getvalue()
 outdata = outdata.replace(
-    "# -*- coding: utf-8 -*-", "# -*- coding: utf-8 -*-\nfrom aqt.utils import tr, TR\n"
+    "# -*- coding: utf-8 -*-", "# -*- coding: utf-8 -*-\nfrom aqt.utils import tr\n"
 )
 outdata = re.sub(
-    r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr(TR.\\1", outdata
+    r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr.\\1(", outdata
 )
 
+
+outlines = []
+qt_bad_types = [".connect(", "setStandardButtons", "setTextInteractionFlags", "setAlignment"]
+for line in outdata.splitlines():
+    for substr in qt_bad_types:
+        if substr in line:
+            line = line + "  # type: ignore"
+            break
+    outlines.append(line)
+
 with open(py_file, "w") as file:
-    file.write(outdata)
+    file.write("\n".join(outlines))

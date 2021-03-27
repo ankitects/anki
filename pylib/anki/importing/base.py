@@ -26,6 +26,14 @@ class Importer:
     def run(self) -> None:
         pass
 
+    def open(self) -> None:
+        "Open file and ensure it's in the right format."
+        return
+
+    def close(self) -> None:
+        "Closes the open file."
+        return
+
     # Timestamps
     ######################################################################
     # It's too inefficient to check for existing ids on every object,

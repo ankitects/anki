@@ -3,7 +3,7 @@
 
 use crate::config::schema11::schema11_config_as_string;
 use crate::err::Result;
-use crate::err::{AnkiError, DBErrorKind};
+use crate::err::{AnkiError, DbErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{i18n::I18n, scheduler::timing::v1_creation_date, text::without_combining};
 use regex::Regex;
@@ -127,7 +127,9 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
 
     Ok((
         false,
-        db.query_row("select ver from col", NO_PARAMS, |r| Ok(r.get(0)?))?,
+        db.query_row("select ver from col", NO_PARAMS, |r| {
+            r.get(0).map_err(Into::into)
+        })?,
     ))
 }
 
@@ -136,22 +138,22 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path, i18n: &I18n, server: bool) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path, tr: &I18n, server: bool) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
 
         let err = match ver {
-            v if v < SCHEMA_MIN_VERSION => Some(DBErrorKind::FileTooOld),
-            v if v > SCHEMA_MAX_VERSION => Some(DBErrorKind::FileTooNew),
+            v if v < SCHEMA_MIN_VERSION => Some(DbErrorKind::FileTooOld),
+            v if v > SCHEMA_MAX_VERSION => Some(DbErrorKind::FileTooNew),
             12 | 13 => {
                 // as schema definition changed, user must perform clean
                 // shutdown to return to schema 11 prior to running this version
-                Some(DBErrorKind::FileTooNew)
+                Some(DbErrorKind::FileTooNew)
             }
             _ => None,
         };
         if let Some(kind) = err {
-            return Err(AnkiError::DBError {
+            return Err(AnkiError::DbError {
                 info: "".to_string(),
                 kind,
             });
@@ -184,9 +186,9 @@ impl SqliteStorage {
         }
 
         if create {
-            storage.add_default_deck_config(i18n)?;
-            storage.add_default_deck(i18n)?;
-            storage.add_stock_notetypes(i18n)?;
+            storage.add_default_deck_config(tr)?;
+            storage.add_default_deck(tr)?;
+            storage.add_stock_notetypes(tr)?;
         }
 
         if create || upgrade {

@@ -3,9 +3,10 @@
 
 from typing import List, Optional, Tuple
 
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
-from anki.decks import DeckConfig
+from anki.decks import DeckConfigDict, DeckId
+from anki.notes import NoteId
 from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
 from anki.utils import from_json_bytes, ids2str
 
@@ -14,11 +15,11 @@ class SchedulerBaseWithLegacy(SchedulerBase):
     "Legacy aliases and helpers. These will go away in the future."
 
     def reschedCards(
-        self, card_ids: List[int], min_interval: int, max_interval: int
+        self, card_ids: List[CardId], min_interval: int, max_interval: int
     ) -> None:
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
-    def buryNote(self, nid: int) -> None:
+    def buryNote(self, nid: NoteId) -> None:
         note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 
@@ -48,16 +49,16 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         print("_nextDueMsg() is obsolete")
         return ""
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+    def rebuildDyn(self, did: Optional[DeckId] = None) -> Optional[int]:
         did = did or self.col.decks.selected()
-        count = self.rebuild_filtered_deck(did) or None
+        count = self.rebuild_filtered_deck(did).count or None
         if not count:
             return None
         # and change to our new deck
         self.col.decks.select(did)
         return count
 
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: Optional[DeckId], lim: Optional[str] = None) -> None:
         if lim is None:
             self.empty_filtered_deck(did)
             return
@@ -79,13 +80,13 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids: List[int]) -> None:
+    def remFromDyn(self, cids: List[CardId]) -> None:
         self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
 
     # used by v2 scheduler and some add-ons
     def update_stats(
         self,
-        deck_id: int,
+        deck_id: DeckId,
         new_delta: int = 0,
         review_delta: int = 0,
         milliseconds_delta: int = 0,
@@ -115,7 +116,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     # legacy in v3 but used by unit tests; redefined in v2/v1
 
-    def _cardConf(self, card: Card) -> DeckConfig:
+    def _cardConf(self, card: Card) -> DeckConfigDict:
         return self.col.decks.confForDid(card.did)
 
     def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:

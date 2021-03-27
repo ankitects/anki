@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from markdown import markdown
+
 import anki._backend.backend_pb2 as _pb
 
 # fixme: notfounderror etc need to be in rsbackend.py
@@ -59,7 +61,15 @@ class DeckIsFilteredError(StringError, DeckRenameError):
     pass
 
 
+class FilteredDeckEmpty(StringError):
+    pass
+
+
 class InvalidInput(StringError):
+    pass
+
+
+class SearchError(StringError):
     pass
 
 
@@ -87,8 +97,12 @@ def backend_exception_to_pylib(err: _pb.BackendError) -> Exception:
         return ExistsError()
     elif val == "deck_is_filtered":
         return DeckIsFilteredError(err.localized)
+    elif val == "filtered_deck_empty":
+        return FilteredDeckEmpty(err.localized)
     elif val == "proto_error":
         return StringError(err.localized)
+    elif val == "search_error":
+        return SearchError(markdown(err.localized))
     else:
         print("unhandled error type:", val)
         return StringError(err.localized)

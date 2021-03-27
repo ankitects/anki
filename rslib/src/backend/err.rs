@@ -8,14 +8,14 @@ use crate::{
 };
 
 /// Convert an Anki error to a protobuf error.
-pub(super) fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
+pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::BackendError {
     use pb::backend_error::Value as V;
-    let localized = err.localized_description(i18n);
+    let localized = err.localized_description(tr);
     let value = match err {
         AnkiError::InvalidInput { .. } => V::InvalidInput(pb::Empty {}),
         AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),
-        AnkiError::IOError { .. } => V::IoError(pb::Empty {}),
-        AnkiError::DBError { .. } => V::DbError(pb::Empty {}),
+        AnkiError::IoError { .. } => V::IoError(pb::Empty {}),
+        AnkiError::DbError { .. } => V::DbError(pb::Empty {}),
         AnkiError::NetworkError { kind, .. } => {
             V::NetworkError(pb::NetworkError { kind: kind.into() })
         }
@@ -23,14 +23,15 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::Back
         AnkiError::Interrupted => V::Interrupted(pb::Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::JSONError { info } => V::JsonError(info),
+        AnkiError::JsonError { info } => V::JsonError(info),
         AnkiError::ProtoError { info } => V::ProtoError(info),
         AnkiError::NotFound => V::NotFoundError(pb::Empty {}),
         AnkiError::Existing => V::Exists(pb::Empty {}),
         AnkiError::DeckIsFiltered => V::DeckIsFiltered(pb::Empty {}),
-        AnkiError::SearchError(_) => V::InvalidInput(pb::Empty {}),
+        AnkiError::SearchError(_) => V::SearchError(pb::Empty {}),
         AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
         AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
+        AnkiError::FilteredDeckEmpty => V::FilteredDeckEmpty(pb::Empty {}),
     };
 
     pb::BackendError {

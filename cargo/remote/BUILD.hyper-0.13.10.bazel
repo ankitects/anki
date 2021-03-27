@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -105,7 +105,7 @@ rust_library(
         "@raze__httparse__1_3_5//:httparse",
         "@raze__httpdate__0_3_2//:httpdate",
         "@raze__itoa__0_4_7//:itoa",
-        "@raze__pin_project__1_0_5//:pin_project",
+        "@raze__pin_project__1_0_6//:pin_project",
         "@raze__socket2__0_3_19//:socket2",
         "@raze__tokio__0_2_25//:tokio",
         "@raze__tower_service__0_3_1//:tower_service",
@@ -114,9 +114,9 @@ rust_library(
     ] + selects.with_or({
         # cfg(any(target_os = "linux", target_os = "macos"))
         (
-            "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
-            "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],

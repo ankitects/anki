@@ -4,8 +4,9 @@
 use super::Backend;
 use crate::{
     backend_proto::{self as pb},
-    decks::{Deck, DeckID, DeckSchema11},
+    decks::{Deck, DeckId, DeckSchema11},
     prelude::*,
+    scheduler::filtered::FilteredDeckForUpdate,
 };
 pub(super) use pb::decks_service::Service as DecksService;
 
@@ -37,7 +38,7 @@ impl DecksService for Backend {
 
     fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
         let lim = if input.top_deck_id > 0 {
-            Some(DeckID(input.top_deck_id))
+            Some(DeckId(input.top_deck_id))
         } else {
             None
         };
@@ -118,8 +119,8 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn remove_decks(&self, input: pb::DeckIDs) -> Result<pb::OpChangesWithCount> {
-        self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckID>>::into(input)))
+    fn remove_decks(&self, input: pb::DeckIds) -> Result<pb::OpChangesWithCount> {
+        self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckId>>::into(input)))
             .map(Into::into)
     }
 
@@ -138,23 +139,57 @@ impl DecksService for Backend {
         self.with_col(|col| col.rename_deck(input.deck_id.into(), &input.new_name))
             .map(Into::into)
     }
+
+    fn get_or_create_filtered_deck(&self, input: pb::DeckId) -> Result<pb::FilteredDeckForUpdate> {
+        self.with_col(|col| col.get_or_create_filtered_deck(input.into()))
+            .map(Into::into)
+    }
+
+    fn add_or_update_filtered_deck(
+        &self,
+        input: pb::FilteredDeckForUpdate,
+    ) -> Result<pb::OpChangesWithId> {
+        self.with_col(|col| col.add_or_update_filtered_deck(input.into()))
+            .map(|out| out.map(i64::from))
+            .map(Into::into)
+    }
 }
 
-impl From<pb::DeckId> for DeckID {
+impl From<pb::DeckId> for DeckId {
     fn from(did: pb::DeckId) -> Self {
-        DeckID(did.did)
+        DeckId(did.did)
     }
 }
 
-impl From<pb::DeckIDs> for Vec<DeckID> {
-    fn from(dids: pb::DeckIDs) -> Self {
-        dids.dids.into_iter().map(DeckID).collect()
+impl From<pb::DeckIds> for Vec<DeckId> {
+    fn from(dids: pb::DeckIds) -> Self {
+        dids.dids.into_iter().map(DeckId).collect()
     }
 }
 
-impl From<DeckID> for pb::DeckId {
-    fn from(did: DeckID) -> Self {
+impl From<DeckId> for pb::DeckId {
+    fn from(did: DeckId) -> Self {
         pb::DeckId { did: did.0 }
+    }
+}
+
+impl From<FilteredDeckForUpdate> for pb::FilteredDeckForUpdate {
+    fn from(deck: FilteredDeckForUpdate) -> Self {
+        pb::FilteredDeckForUpdate {
+            id: deck.id.into(),
+            name: deck.human_name,
+            config: Some(deck.config),
+        }
+    }
+}
+
+impl From<pb::FilteredDeckForUpdate> for FilteredDeckForUpdate {
+    fn from(deck: pb::FilteredDeckForUpdate) -> Self {
+        FilteredDeckForUpdate {
+            id: deck.id.into(),
+            human_name: deck.name,
+            config: deck.config.unwrap_or_default(),
+        }
     }
 }
 

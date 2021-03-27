@@ -113,7 +113,7 @@ alias(
 
 alias(
     name = "fluent",
-    actual = "@raze__fluent__0_13_1//:fluent",
+    actual = "@raze__fluent__0_15_0//:fluent",
     tags = [
         "cargo-raze",
         "manual",
@@ -121,8 +121,8 @@ alias(
 )
 
 alias(
-    name = "fluent_syntax",
-    actual = "@raze__fluent_syntax__0_10_3//:fluent_syntax",
+    name = "fluent_bundle",
+    actual = "@raze__fluent_bundle__0_15_0//:fluent_bundle",
     tags = [
         "cargo-raze",
         "manual",
@@ -202,15 +202,6 @@ alias(
 )
 
 alias(
-    name = "num_format",
-    actual = "@raze__num_format__0_4_0//:num_format",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "num_integer",
     actual = "@raze__num_integer__0_1_44//:num_integer",
     tags = [
@@ -239,7 +230,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_5//:pin_project",
+    actual = "@raze__pin_project__1_0_6//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -293,7 +284,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_4_3//:regex",
+    actual = "@raze__regex__1_4_5//:regex",
     tags = [
         "cargo-raze",
         "manual",
@@ -329,7 +320,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_124//:serde",
+    actual = "@raze__serde__1_0_125//:serde",
     tags = [
         "cargo-raze",
         "manual",
@@ -347,7 +338,7 @@ alias(
 
 alias(
     name = "serde_derive",
-    actual = "@raze__serde_derive__1_0_124//:serde_derive",
+    actual = "@raze__serde_derive__1_0_125//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",

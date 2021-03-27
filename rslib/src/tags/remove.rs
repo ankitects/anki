@@ -13,7 +13,7 @@ impl Collection {
     /// Remove whitespace-separated tags from provided notes.
     pub fn remove_tags_from_notes(
         &mut self,
-        nids: &[NoteID],
+        nids: &[NoteId],
         tags: &str,
     ) -> Result<OpOutput<usize>> {
         self.transact(Op::RemoveTag, |col| {
@@ -54,7 +54,7 @@ impl Collection {
         Ok(match_count)
     }
 
-    fn remove_tags_from_notes_inner(&mut self, nids: &[NoteID], tags: &str) -> Result<usize> {
+    fn remove_tags_from_notes_inner(&mut self, nids: &[NoteId], tags: &str) -> Result<usize> {
         let usn = self.usn()?;
 
         let mut re = TagMatcher::new(tags)?;
@@ -106,7 +106,7 @@ mod test {
         let mut note = nt.new_note();
         note.tags.push("one".into());
         note.tags.push("two".into());
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         col.set_tag_expanded("one", true)?;
         col.clear_unused_tags()?;
@@ -115,7 +115,7 @@ mod test {
 
         // tag children are also cleared when clearing their parent
         col.storage.clear_all_tags()?;
-        for name in vec!["a", "a::b", "A::b::c"] {
+        for name in &["a", "a::b", "A::b::c"] {
             col.register_tag(&mut Tag::new(name.to_string(), Usn(0)))?;
         }
         col.remove_tags("a")?;

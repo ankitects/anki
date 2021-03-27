@@ -11,7 +11,7 @@ use crate::{
     decks::human_deck_name_to_native,
     err::Result,
     notes::field_checksum,
-    notetype::NoteTypeID,
+    notetype::NotetypeId,
     prelude::*,
     storage::ids_to_string,
     text::{
@@ -119,8 +119,8 @@ impl SqlWriter<'_> {
             SearchNode::SingleField { field, text, is_re } => {
                 self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
             }
-            SearchNode::Duplicates { note_type_id, text } => {
-                self.write_dupe(*note_type_id, &self.norm_note(text))?
+            SearchNode::Duplicates { notetype_id, text } => {
+                self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
             SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
@@ -130,30 +130,30 @@ impl SqlWriter<'_> {
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
             SearchNode::CardTemplate(template) => match template {
-                TemplateKind::Ordinal(_) => self.write_template(template)?,
+                TemplateKind::Ordinal(_) => self.write_template(template),
                 TemplateKind::Name(name) => {
-                    self.write_template(&TemplateKind::Name(norm(name).into()))?
+                    self.write_template(&TemplateKind::Name(norm(name).into()))
                 }
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
-            SearchNode::NoteTypeID(ntid) => {
+            SearchNode::NotetypeId(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
-            SearchNode::DeckID(did) => {
+            SearchNode::DeckId(did) => {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
-            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
+            SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
-            SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
+            SearchNode::Tag(tag) => self.write_tag(&norm(tag)),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
             }
-            SearchNode::NoteIDs(nids) => {
+            SearchNode::NoteIds(nids) => {
                 write!(self.sql, "{} in ({})", self.note_id_column(), nids).unwrap();
             }
-            SearchNode::CardIDs(cids) => {
+            SearchNode::CardIds(cids) => {
                 write!(self.sql, "c.id in ({})", cids).unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
@@ -188,7 +188,7 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) -> Result<()> {
+    fn write_tag(&mut self, text: &str) {
         if text.contains(' ') {
             write!(self.sql, "false").unwrap();
         } else {
@@ -206,8 +206,6 @@ impl SqlWriter<'_> {
                 }
             }
         }
-
-        Ok(())
     }
 
     fn write_rated(&mut self, op: &str, days: i64, ease: &RatingKind) -> Result<()> {
@@ -369,7 +367,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_template(&mut self, template: &TemplateKind) -> Result<()> {
+    fn write_template(&mut self, template: &TemplateKind) {
         match template {
             TemplateKind::Ordinal(n) => {
                 write!(self.sql, "c.ord = {}", n).unwrap();
@@ -389,10 +387,9 @@ impl SqlWriter<'_> {
                 }
             }
         };
-        Ok(())
     }
 
-    fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
+    fn write_notetype(&mut self, nt_name: &str) {
         if is_glob(nt_name) {
             let re = format!("(?i){}", to_re(nt_name));
             self.sql
@@ -403,14 +400,13 @@ impl SqlWriter<'_> {
                 .push_str("n.mid in (select id from notetypes where name = ?)");
             self.args.push(to_text(nt_name).into());
         }
-        Ok(())
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.get_all_notetypes()?;
+        let notetypes = self.col.get_all_notetypes()?;
 
         let mut field_map = vec![];
-        for nt in note_types.values() {
+        for nt in notetypes.values() {
             for field in &nt.fields {
                 if matches_glob(&field.name, field_name) {
                     field_map.push((nt.id, field.ord));
@@ -457,7 +453,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_dupe(&mut self, ntid: NoteTypeID, text: &str) -> Result<()> {
+    fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
 
@@ -550,11 +546,11 @@ impl SearchNode {
         match self {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
-            SearchNode::DeckID(_) => RequiredTable::Cards,
+            SearchNode::DeckId(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
             SearchNode::State(_) => RequiredTable::Cards,
             SearchNode::Flag(_) => RequiredTable::Cards,
-            SearchNode::CardIDs(_) => RequiredTable::Cards,
+            SearchNode::CardIds(_) => RequiredTable::Cards,
             SearchNode::Property { .. } => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
@@ -564,11 +560,11 @@ impl SearchNode {
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
-            SearchNode::NoteTypeID(_) => RequiredTable::Notes,
-            SearchNode::NoteType(_) => RequiredTable::Notes,
+            SearchNode::NotetypeId(_) => RequiredTable::Notes,
+            SearchNode::Notetype(_) => RequiredTable::Notes,
             SearchNode::EditedInDays(_) => RequiredTable::Notes,
 
-            SearchNode::NoteIDs(_) => RequiredTable::CardsOrNotes,
+            SearchNode::NoteIds(_) => RequiredTable::CardsOrNotes,
             SearchNode::WholeCollection => RequiredTable::CardsOrNotes,
 
             SearchNode::CardTemplate(_) => RequiredTable::CardsAndNotes,
@@ -599,20 +595,20 @@ mod test {
     }
 
     #[test]
-    fn sql() -> Result<()> {
+    fn sql() {
         // re-use the mediacheck .anki2 file for now
         use crate::media::check::test::MEDIACHECK_ANKI2;
         let dir = tempdir().unwrap();
         let col_path = dir.path().join("col.anki2");
         fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
 
-        let i18n = I18n::new(&[""], "", log::terminal());
+        let tr = I18n::template_only();
         let mut col = open_collection(
             &col_path,
             &PathBuf::new(),
             &PathBuf::new(),
             false,
-            i18n,
+            tr,
             log::terminal(),
         )
         .unwrap();
@@ -804,8 +800,6 @@ mod test {
             s(ctx, r"w:*fo_o*"),
             ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*fo.o.*\b".into()])
         );
-
-        Ok(())
     }
 
     #[test]

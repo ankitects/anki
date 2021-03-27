@@ -1,26 +1,22 @@
 <script lang="ts">
     import "../sass/core.css";
 
-    import { I18n } from "anki/i18n";
-    import pb from "anki/backend_proto";
+    import type pb from "anki/backend_proto";
     import { buildNextLearnMsg } from "./lib";
     import { bridgeLink } from "anki/bridgecommand";
 
     export let info: pb.BackendProto.CongratsInfoOut;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
 
-    const congrats = i18n.tr(i18n.TR.SCHEDULING_CONGRATULATIONS_FINISHED);
-    const nextLearnMsg = buildNextLearnMsg(info, i18n);
-    const today_reviews = i18n.tr(i18n.TR.SCHEDULING_TODAY_REVIEW_LIMIT_REACHED);
-    const today_new = i18n.tr(i18n.TR.SCHEDULING_TODAY_NEW_LIMIT_REACHED);
+    const congrats = tr.schedulingCongratulationsFinished();
+    const nextLearnMsg = buildNextLearnMsg(info);
+    const today_reviews = tr.schedulingTodayReviewLimitReached();
+    const today_new = tr.schedulingTodayNewLimitReached();
 
-    const unburyThem = bridgeLink("unbury", i18n.tr(i18n.TR.SCHEDULING_UNBURY_THEM));
-    const buriedMsg = i18n.tr(i18n.TR.SCHEDULING_BURIED_CARDS_FOUND, { unburyThem });
-    const customStudy = bridgeLink(
-        "customStudy",
-        i18n.tr(i18n.TR.SCHEDULING_CUSTOM_STUDY)
-    );
-    const customStudyMsg = i18n.tr(i18n.TR.SCHEDULING_HOW_TO_CUSTOM_STUDY, {
+    const unburyThem = bridgeLink("unbury", tr.schedulingUnburyThem());
+    const buriedMsg = tr.schedulingBuriedCardsFound({ unburyThem });
+    const customStudy = bridgeLink("customStudy", tr.schedulingCustomStudy());
+    const customStudyMsg = tr.schedulingHowToCustomStudy({
         customStudy,
     });
 </script>

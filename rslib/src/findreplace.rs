@@ -4,7 +4,7 @@
 use crate::{
     collection::Collection,
     err::{AnkiError, Result},
-    notes::{NoteID, TransformNoteOutput},
+    notes::{NoteId, TransformNoteOutput},
     prelude::*,
     text::normalize_to_nfc,
 };
@@ -12,7 +12,7 @@ use regex::Regex;
 use std::borrow::Cow;
 
 pub struct FindReplaceContext {
-    nids: Vec<NoteID>,
+    nids: Vec<NoteId>,
     search: Regex,
     replacement: String,
     field_name: Option<String>,
@@ -20,7 +20,7 @@ pub struct FindReplaceContext {
 
 impl FindReplaceContext {
     pub fn new(
-        nids: Vec<NoteID>,
+        nids: Vec<NoteId>,
         search_re: &str,
         repl: impl Into<String>,
         field_name: Option<String>,
@@ -41,7 +41,7 @@ impl FindReplaceContext {
 impl Collection {
     pub fn find_and_replace(
         &mut self,
-        nids: Vec<NoteID>,
+        nids: Vec<NoteId>,
         search_re: &str,
         repl: &str,
         field_name: Option<String>,
@@ -101,7 +101,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckID};
+    use crate::{collection::open_test_collection, decks::DeckId};
 
     #[test]
     fn findreplace() -> Result<()> {
@@ -111,12 +111,12 @@ mod test {
         let mut note = nt.new_note();
         note.set_field(0, "one aaa")?;
         note.set_field(1, "two aaa")?;
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         let nt = col.get_notetype_by_name("Cloze")?.unwrap();
         let mut note2 = nt.new_note();
         note2.set_field(0, "three aaa")?;
-        col.add_note(&mut note2, DeckID(1))?;
+        col.add_note(&mut note2, DeckId(1))?;
 
         let nids = col.search_notes("")?;
         let out = col.find_and_replace(nids.clone(), "(?i)AAA", "BBB", None)?;

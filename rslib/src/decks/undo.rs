@@ -9,8 +9,8 @@ pub(crate) enum UndoableDeckChange {
     Added(Box<Deck>),
     Updated(Box<Deck>),
     Removed(Box<Deck>),
-    GraveAdded(Box<(DeckID, Usn)>),
-    GraveRemoved(Box<(DeckID, Usn)>),
+    GraveAdded(Box<(DeckId, Usn)>),
+    GraveRemoved(Box<(DeckId, Usn)>),
 }
 
 impl Collection {
@@ -84,12 +84,12 @@ impl Collection {
         Ok(())
     }
 
-    fn add_deck_grave_undoable(&mut self, did: DeckID, usn: Usn) -> Result<()> {
+    fn add_deck_grave_undoable(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         self.save_undo(UndoableDeckChange::GraveAdded(Box::new((did, usn))));
         self.storage.add_deck_grave(did, usn)
     }
 
-    fn remove_deck_grave(&mut self, did: DeckID, usn: Usn) -> Result<()> {
+    fn remove_deck_grave(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         self.save_undo(UndoableDeckChange::GraveRemoved(Box::new((did, usn))));
         self.storage.remove_deck_grave(did)
     }

@@ -69,7 +69,7 @@ except ImportError as e:
 # - make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, addons, browser, editcurrent, dyndeckconf  # isort:skip
+from aqt import addcards, addons, browser, editcurrent, filtered_deck  # isort:skip
 from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
@@ -80,7 +80,7 @@ class DialogManager:
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
-        "DynDeckConfDialog": [dyndeckconf.DeckConf, None],
+        "FilteredDeckConfigDialog": [filtered_deck.FilteredDeckConfigDialog, None],
         "DeckStats": [stats.DeckStats, None],
         "NewDeckStats": [stats.NewDeckStats, None],
         "About": [about.show, None],
@@ -209,10 +209,9 @@ def setupLangAndBackend(
         lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    ldir = locale_dir()
     if not firstTime:
         # set active language
-        anki.lang.set_lang(lang, ldir)
+        anki.lang.set_lang(lang)
 
     # switch direction for RTL languages
     if anki.lang.is_rtl(lang):
@@ -286,8 +285,8 @@ class AnkiApp(QApplication):
             # existing instance running but hung
             QMessageBox.warning(
                 None,
-                tr(TR.QT_MISC_ANKI_IS_RUNNING),
-                tr(TR.QT_MISC_IF_INSTANCE_IS_NOT_RESPONDING),
+                tr.qt_misc_anki_is_running(),
+                tr.qt_misc_if_instance_is_not_responding(),
             )
 
             sys.exit(1)
@@ -380,9 +379,8 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
         if "Failed to create OpenGL context" in msg:
             QMessageBox.critical(
                 None,
-                tr(TR.QT_MISC_ERROR),
-                tr(
-                    TR.QT_MISC_ERROR_LOADING_GRAPHICS_DRIVER,
+                tr.qt_misc_error(),
+                tr.qt_misc_error_loading_graphics_driver(
                     mode=driver.value,
                     context=context,
                 ),
@@ -465,7 +463,7 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     # default to specified/system language before getting user's preference so that we can localize some more strings
     lang = anki.lang.get_def_lang(opts.lang)
-    anki.lang.set_lang(lang[1], locale_dir())
+    anki.lang.set_lang(lang[1])
 
     # profile manager
     pm = None
@@ -516,8 +514,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if not pm:
         QMessageBox.critical(
             None,
-            tr(TR.QT_MISC_ERROR),
-            tr(TR.PROFILES_COULD_NOT_CREATE_DATA_FOLDER),
+            tr.qt_misc_error(),
+            tr.profiles_could_not_create_data_folder(),
         )
         return None
 
@@ -556,8 +554,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     except:
         QMessageBox.critical(
             None,
-            tr(TR.QT_MISC_ERROR),
-            tr(TR.QT_MISC_NO_TEMP_FOLDER),
+            tr.qt_misc_error(),
+            tr.qt_misc_no_temp_folder(),
         )
         return None
 
@@ -567,8 +565,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if pmLoadResult.loadError:
         QMessageBox.warning(
             None,
-            tr(TR.PROFILES_PREFS_CORRUPT_TITLE),
-            tr(TR.PROFILES_PREFS_FILE_IS_CORRUPT),
+            tr.profiles_prefs_corrupt_title(),
+            tr.profiles_prefs_file_is_corrupt(),
         )
 
     if opts.profile:
@@ -585,8 +583,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
             pm.set_video_driver(driver.next())
             QMessageBox.critical(
                 None,
-                tr(TR.QT_MISC_ERROR),
-                tr(TR.QT_MISC_INCOMPATIBLE_VIDEO_DRIVER),
+                tr.qt_misc_error(),
+                tr.qt_misc_incompatible_video_driver(),
             )
             sys.exit(1)
 

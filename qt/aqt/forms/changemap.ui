@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ACTIONS_IMPORT</string>
+   <string>actions_import</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>BROWSING_TARGET_FIELD</string>
+      <string>browsing_target_field</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

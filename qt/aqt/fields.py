@@ -7,12 +7,11 @@ import aqt
 from anki.consts import *
 from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -26,7 +25,7 @@ from aqt.utils import (
 
 class FieldDialog(QDialog):
     def __init__(
-        self, mw: AnkiQt, nt: NoteType, parent: Optional[QWidget] = None
+        self, mw: AnkiQt, nt: NotetypeDict, parent: Optional[QWidget] = None
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
@@ -34,12 +33,12 @@ class FieldDialog(QDialog):
         self.mm = self.mw.col.models
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
-        self.mw.checkpoint(tr(TR.EDITING_FIELDS))
+        self.mw.checkpoint(tr.editing_fields())
         self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(
-            without_unicode_isolation(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
+            without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
         disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
@@ -50,7 +49,7 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.setupSignals()
         self.form.fieldList.setDragDropMode(QAbstractItemView.InternalMove)
-        self.form.fieldList.dropEvent = self.onDrop
+        self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
         self.form.fieldList.setCurrentRow(0)
         self.exec_()
 
@@ -103,24 +102,24 @@ class FieldDialog(QDialog):
         if not txt:
             return None
         if txt[0] in "#^/":
-            showWarning(tr(TR.FIELDS_NAME_FIRST_LETTER_NOT_VALID))
+            showWarning(tr.fields_name_first_letter_not_valid())
             return None
         for letter in """:{"}""":
             if letter in txt:
-                showWarning(tr(TR.FIELDS_NAME_INVALID_LETTER))
+                showWarning(tr.fields_name_invalid_letter())
                 return None
         for f in self.model["flds"]:
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
             if f["name"] == txt:
-                showWarning(tr(TR.FIELDS_THAT_FIELD_NAME_IS_ALREADY_USED))
+                showWarning(tr.fields_that_field_name_is_already_used())
                 return None
         return txt
 
     def onRename(self) -> None:
         idx = self.currentIdx
         f = self.model["flds"][idx]
-        name = self._uniqueName(tr(TR.ACTIONS_NEW_NAME), self.currentIdx, f["name"])
+        name = self._uniqueName(tr.actions_new_name(), self.currentIdx, f["name"])
         if not name:
             return
 
@@ -134,7 +133,7 @@ class FieldDialog(QDialog):
         self.form.fieldList.setCurrentRow(idx)
 
     def onAdd(self) -> None:
-        name = self._uniqueName(tr(TR.FIELDS_FIELD_NAME))
+        name = self._uniqueName(tr.fields_field_name())
         if not name:
             return
         if not self.change_tracker.mark_schema():
@@ -147,11 +146,11 @@ class FieldDialog(QDialog):
 
     def onDelete(self) -> None:
         if len(self.model["flds"]) < 2:
-            showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
+            showWarning(tr.fields_notes_require_at_least_one_field())
             return
         count = self.mm.useCount(self.model)
-        c = tr(TR.BROWSING_NOTE_COUNT, count=count)
-        if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val=c)):
+        c = tr.browsing_note_count(count=count)
+        if not askUser(tr.fields_delete_field_from(val=c)):
             return
         if not self.change_tracker.mark_schema():
             return
@@ -165,7 +164,7 @@ class FieldDialog(QDialog):
     def onPosition(self, delta: int = -1) -> None:
         idx = self.currentIdx
         l = len(self.model["flds"])
-        txt = getOnlyText(tr(TR.FIELDS_NEW_POSITION_1, val=l), default=str(idx + 1))
+        txt = getOnlyText(tr.fields_new_position_1(val=l), default=str(idx + 1))
         if not txt:
             return
         try:

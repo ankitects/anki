@@ -14,24 +14,19 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: NewState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         self.card.ctype = CardType::New;
         self.card.queue = CardQueue::New;
         self.card.due = next.position as i32;
 
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            0.0,
-            self.secs_until_rollover(),
-        ))
+        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
     }
 
     pub(super) fn apply_learning_state(
         &mut self,
         current: CardState,
         next: LearnState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         self.card.remaining_steps = next.remaining_steps;
         self.card.ctype = CardType::Learn;
 
@@ -49,11 +44,6 @@ impl CardStateUpdater {
             }
         }
 
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            0.0,
-            self.secs_until_rollover(),
-        ))
+        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
     }
 }

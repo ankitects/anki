@@ -1,0 +1,36 @@
+[package]
+name = "anki_i18n"
+version = "0.0.0"
+edition = "2018"
+authors = ["Ankitects Pty Ltd and contributors"]
+license = "AGPL-3.0-or-later"
+description = "Anki's Rust library i18n code"
+build = "build/main.rs"
+
+[lib]
+name = "anki_i18n"
+path = "src/lib.rs"
+
+[[bin]]
+name = "write_json"
+path = "build/write_json.rs"
+
+# After updating anything below, run ../cargo/update.py
+
+[build-dependencies]
+fluent-syntax = "0.11.0"
+fluent = "0.15.0"
+unic-langid = { version = "0.9", features = ["macros"] }
+serde = { version = "1.0.114", features = ["derive"] }
+serde_json = "1.0.56"
+inflections = "1.1.1"
+
+[dependencies]
+phf = { version = "0.8", features = ["macros"] }
+fluent = "0.15.0"
+num-format = "0.4.0"
+unic-langid = { version = "0.9", features = ["macros"] }
+serde = { version = "1.0.114", features = ["derive"] }
+serde_json = "1.0.56"
+intl-memoizer = "0.5"
+fluent-bundle = "0.15.0"

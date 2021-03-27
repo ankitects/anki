@@ -36,7 +36,7 @@ pub enum Rating {
 }
 
 pub struct CardAnswer {
-    pub card_id: CardID,
+    pub card_id: CardId,
     pub current_state: CardState,
     pub new_state: CardState,
     pub rating: Rating,
@@ -133,7 +133,7 @@ impl CardStateUpdater {
                     }
                 }
             }
-        }?;
+        };
 
         Ok(revlog)
     }
@@ -142,7 +142,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: NormalState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         self.card.reps += 1;
         self.card.original_due = 0;
 
@@ -151,13 +151,13 @@ impl CardStateUpdater {
             NormalState::Learning(next) => self.apply_learning_state(current, next),
             NormalState::Review(next) => self.apply_review_state(current, next),
             NormalState::Relearning(next) => self.apply_relearning_state(current, next),
-        }?;
+        };
 
         if next.leeched() && self.config.inner.leech_action() == LeechAction::Suspend {
             self.card.queue = CardQueue::Suspended;
         }
 
-        Ok(revlog)
+        revlog
     }
 
     fn ensure_filtered(&self) -> Result<()> {
@@ -184,7 +184,7 @@ impl Rating {
 
 impl Collection {
     /// Return the next states that will be applied for each answer button.
-    pub fn get_next_card_states(&mut self, cid: CardID) -> Result<NextCardStates> {
+    pub fn get_next_card_states(&mut self, cid: CardId) -> Result<NextCardStates> {
         let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
@@ -207,7 +207,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
             answer_button_time_collapsible(
                 choices
@@ -216,7 +216,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
             answer_button_time_collapsible(
                 choices
@@ -225,7 +225,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
             answer_button_time_collapsible(
                 choices
@@ -234,7 +234,7 @@ impl Collection {
                     .maybe_as_days(secs_until_rollover)
                     .as_seconds(),
                 collapse_time,
-                &self.i18n,
+                &self.tr,
             ),
         ])
     }
@@ -355,8 +355,8 @@ impl Collection {
 
     fn home_deck_config(
         &self,
-        config_id: Option<DeckConfID>,
-        home_deck_id: DeckID,
+        config_id: Option<DeckConfId>,
+        home_deck_id: DeckId,
     ) -> Result<DeckConf> {
         let config_id = if let Some(config_id) = config_id {
             config_id
@@ -371,7 +371,7 @@ impl Collection {
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())
     }
 
-    fn add_leech_tag(&mut self, nid: NoteID) -> Result<()> {
+    fn add_leech_tag(&mut self, nid: NoteId) -> Result<()> {
         self.update_note_tags(nid, |tags| tags.push("leech".into()))
     }
 }

@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
-from anki.lang import TR, FormatTimeSpan
+from anki.lang import FormatTimeSpan
 from anki.utils import ids2str
 
 # Card stats
@@ -246,7 +246,7 @@ from revlog where id > ? """
         self._line(
             i,
             "Total",
-            self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
+            self.col.tr.statistics_reviews(reviews=tot),
         )
         self._line(i, "Average", self._avgDay(tot, num, "reviews"))
         tomorrow = self.col.db.scalar(
@@ -421,9 +421,8 @@ group by day order by day"""
             self._line(
                 i,
                 "Average answer time",
-                self.col.tr(
-                    TR.STATISTICS_AVERAGE_ANSWER_TIME,
-                    **{"cards-per-minute": perMin, "average-seconds": average_secs},
+                self.col.tr.statistics_average_answer_time(
+                    average_seconds=average_secs, cards_per_minute=perMin
                 ),
             )
         return self._lineTbl(i), int(tot)

@@ -2,12 +2,13 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import List, Optional
 
+from anki.models import NotetypeId
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, HelpPage, shortcut, tr
+from aqt.utils import HelpPage, shortcut, tr
 
 
-class NoteTypeChooser(QHBoxLayout):
+class NotetypeChooser(QHBoxLayout):
     """
     Unlike the older modelchooser, this does not modify the "current model",
     so changes made here do not affect other parts of the UI. To read the
@@ -22,14 +23,16 @@ class NoteTypeChooser(QHBoxLayout):
     deleted.
     """
 
+    _selected_notetype_id: NotetypeId
+
     def __init__(
         self,
         *,
         mw: AnkiQt,
         widget: QWidget,
-        starting_notetype_id: int,
+        starting_notetype_id: NotetypeId,
         on_button_activated: Optional[Callable[[], None]] = None,
-        on_notetype_changed: Optional[Callable[[int], None]] = None,
+        on_notetype_changed: Optional[Callable[[NotetypeId], None]] = None,
         show_prefix_label: bool = True,
     ) -> None:
         QHBoxLayout.__init__(self)
@@ -41,7 +44,7 @@ class NoteTypeChooser(QHBoxLayout):
             self.on_button_activated = self.choose_notetype
         self._setup_ui(show_label=show_prefix_label)
         gui_hooks.state_did_reset.append(self.reset_state)
-        self._selected_notetype_id = 0
+        self._selected_notetype_id = NotetypeId(0)
         # triggers UI update; avoid firing changed hook on startup
         self.on_notetype_changed = None
         self.selected_notetype_id = starting_notetype_id
@@ -52,12 +55,12 @@ class NoteTypeChooser(QHBoxLayout):
         self.setSpacing(8)
 
         if show_label:
-            self.label = QLabel(tr(TR.NOTETYPES_TYPE))
+            self.label = QLabel(tr.notetypes_type())
             self.addWidget(self.label)
 
         # button
         self.button = QPushButton()
-        self.button.setToolTip(shortcut(tr(TR.QT_MISC_CHANGE_NOTE_TYPE_CTRLANDN)))
+        self.button.setToolTip(shortcut(tr.qt_misc_change_note_type_ctrlandn()))
         qconnect(
             QShortcut(QKeySequence("Ctrl+N"), self._widget).activated,
             self.on_button_activated,
@@ -92,7 +95,7 @@ class NoteTypeChooser(QHBoxLayout):
         current = self.selected_notetype_name()
 
         # edit button
-        edit = QPushButton(tr(TR.QT_MISC_MANAGE))
+        edit = QPushButton(tr.qt_misc_manage())
         qconnect(edit.clicked, self.onEdit)
 
         def nameFunc() -> List[str]:
@@ -101,8 +104,8 @@ class NoteTypeChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             names=nameFunc,
-            accept=tr(TR.ACTIONS_CHOOSE),
-            title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
+            accept=tr.actions_choose(),
+            title=tr.qt_misc_choose_note_type(),
             help=HelpPage.NOTE_TYPE,
             current=current,
             parent=self._widget,
@@ -118,7 +121,7 @@ class NoteTypeChooser(QHBoxLayout):
             self.selected_notetype_id = id
 
     @property
-    def selected_notetype_id(self) -> int:
+    def selected_notetype_id(self) -> NotetypeId:
         # theoretically this should not be necessary, as we're listening to
         # resets
         self._ensure_selected_notetype_valid()
@@ -126,7 +129,7 @@ class NoteTypeChooser(QHBoxLayout):
         return self._selected_notetype_id
 
     @selected_notetype_id.setter
-    def selected_notetype_id(self, id: int) -> None:
+    def selected_notetype_id(self, id: NotetypeId) -> None:
         if id != self._selected_notetype_id:
             self._selected_notetype_id = id
             self._ensure_selected_notetype_valid()
@@ -139,7 +142,9 @@ class NoteTypeChooser(QHBoxLayout):
 
     def _ensure_selected_notetype_valid(self) -> None:
         if not self.mw.col.models.get(self._selected_notetype_id):
-            self.selected_notetype_id = self.mw.col.models.all_names_and_ids()[0].id
+            self.selected_notetype_id = NotetypeId(
+                self.mw.col.models.all_names_and_ids()[0].id
+            )
 
     def _update_button_label(self) -> None:
         self.button.setText(self.selected_notetype_name().replace("&", "&&"))

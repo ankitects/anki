@@ -1,6 +1,4 @@
 <script lang="typescript">
-    import type { I18n } from "anki/i18n";
-
     import AxisTicks from "./AxisTicks.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
@@ -11,7 +9,7 @@
     import { defaultGraphBounds } from "./graph-helpers";
 
     export let data: HistogramData | null = null;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
 
     let bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
@@ -24,5 +22,5 @@
     <HoverColumns />
     <CumulativeOverlay />
     <AxisTicks {bounds} />
-    <NoDataOverlay {bounds} {i18n} />
+    <NoDataOverlay {bounds} />
 </svg>

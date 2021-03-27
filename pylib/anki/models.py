@@ -8,13 +8,13 @@ import pprint
 import sys
 import time
 import traceback
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.lang import TR, without_unicode_isolation
+from anki.lang import without_unicode_isolation
 from anki.stdmodels import StockNotetypeKind
 from anki.utils import (
     checksum,
@@ -27,14 +27,15 @@ from anki.utils import (
 )
 
 # public exports
-NoteTypeNameID = _pb.NoteTypeNameID
-NoteTypeNameIDUseCount = _pb.NoteTypeNameIDUseCount
+NotetypeNameId = _pb.NotetypeNameId
+NotetypeNameIdUseCount = _pb.NotetypeNameIdUseCount
 
 
 # types
-NoteType = Dict[str, Any]
-Field = Dict[str, Any]
-Template = Dict[str, Union[str, int, None]]
+NotetypeDict = Dict[str, Any]
+FieldDict = Dict[str, Any]
+TemplateDict = Dict[str, Union[str, int, None]]
+NotetypeId = NewType("NotetypeId", int)
 
 
 class ModelsDictProxy:
@@ -47,7 +48,7 @@ class ModelsDictProxy:
 
     def __getitem__(self, item: Any) -> Any:
         self._warn()
-        return self._col.models.get(int(item))
+        return self._col.models.get(NotetypeId(int(item)))
 
     def __setitem__(self, key: str, val: Any) -> None:
         self._warn()
@@ -91,7 +92,7 @@ class ModelManager:
 
     def save(
         self,
-        m: NoteType = None,
+        m: NotetypeDict = None,
         # no longer used
         templates: bool = False,
         updateReqs: bool = True,
@@ -114,16 +115,16 @@ class ModelManager:
     # need to cache responses from the backend. Please do not
     # access the cache directly!
 
-    _cache: Dict[int, NoteType] = {}
+    _cache: Dict[NotetypeId, NotetypeDict] = {}
 
-    def _update_cache(self, nt: NoteType) -> None:
+    def _update_cache(self, nt: NotetypeDict) -> None:
         self._cache[nt["id"]] = nt
 
-    def _remove_from_cache(self, ntid: int) -> None:
+    def _remove_from_cache(self, ntid: NotetypeId) -> None:
         if ntid in self._cache:
             del self._cache[ntid]
 
-    def _get_cached(self, ntid: int) -> Optional[NoteType]:
+    def _get_cached(self, ntid: NotetypeId) -> Optional[NotetypeDict]:
         return self._cache.get(ntid)
 
     def _clear_cache(self) -> None:
@@ -132,10 +133,10 @@ class ModelManager:
     # Listing note types
     #############################################################
 
-    def all_names_and_ids(self) -> Sequence[NoteTypeNameID]:
+    def all_names_and_ids(self) -> Sequence[NotetypeNameId]:
         return self.col._backend.get_notetype_names()
 
-    def all_use_counts(self) -> Sequence[NoteTypeNameIDUseCount]:
+    def all_use_counts(self) -> Sequence[NotetypeNameIdUseCount]:
         return self.col._backend.get_notetype_names_and_counts()
 
     # legacy
@@ -143,11 +144,11 @@ class ModelManager:
     def allNames(self) -> List[str]:
         return [n.name for n in self.all_names_and_ids()]
 
-    def ids(self) -> List[int]:
-        return [n.id for n in self.all_names_and_ids()]
+    def ids(self) -> List[NotetypeId]:
+        return [NotetypeId(n.id) for n in self.all_names_and_ids()]
 
     # only used by importing code
-    def have(self, id: int) -> bool:
+    def have(self, id: NotetypeId) -> bool:
         if isinstance(id, str):
             id = int(id)
         return any(True for e in self.all_names_and_ids() if e.id == id)
@@ -155,28 +156,28 @@ class ModelManager:
     # Current note type
     #############################################################
 
-    def current(self, forDeck: bool = True) -> NoteType:
+    def current(self, forDeck: bool = True) -> NotetypeDict:
         "Get current model."
         m = self.get(self.col.decks.current().get("mid"))
         if not forDeck or not m:
             m = self.get(self.col.conf["curModel"])
         if m:
             return m
-        return self.get(self.all_names_and_ids()[0].id)
+        return self.get(NotetypeId(self.all_names_and_ids()[0].id))
 
-    def setCurrent(self, m: NoteType) -> None:
+    def setCurrent(self, m: NotetypeDict) -> None:
         self.col.conf["curModel"] = m["id"]
 
     # Retrieving and creating models
     #############################################################
 
-    def id_for_name(self, name: str) -> Optional[int]:
+    def id_for_name(self, name: str) -> Optional[NotetypeId]:
         try:
-            return self.col._backend.get_notetype_id_by_name(name)
+            return NotetypeId(self.col._backend.get_notetype_id_by_name(name))
         except NotFoundError:
             return None
 
-    def get(self, id: int) -> Optional[NoteType]:
+    def get(self, id: NotetypeId) -> Optional[NotetypeDict]:
         "Get model with ID, or None."
         # deal with various legacy input types
         if id is None:
@@ -193,11 +194,11 @@ class ModelManager:
                 return None
         return nt
 
-    def all(self) -> List[NoteType]:
+    def all(self) -> List[NotetypeDict]:
         "Get all models."
-        return [self.get(nt.id) for nt in self.all_names_and_ids()]
+        return [self.get(NotetypeId(nt.id)) for nt in self.all_names_and_ids()]
 
-    def byName(self, name: str) -> Optional[NoteType]:
+    def byName(self, name: str) -> Optional[NotetypeDict]:
         "Get model with NAME."
         id = self.id_for_name(name)
         if id:
@@ -205,7 +206,7 @@ class ModelManager:
         else:
             return None
 
-    def new(self, name: str) -> NoteType:
+    def new(self, name: str) -> NotetypeDict:
         "Create a new model, and return it."
         # caller should call save() after modifying
         nt = from_json_bytes(
@@ -216,29 +217,29 @@ class ModelManager:
         nt["name"] = name
         return nt
 
-    def rem(self, m: NoteType) -> None:
+    def rem(self, m: NotetypeDict) -> None:
         "Delete model, and all its cards/notes."
         self.remove(m["id"])
 
     def remove_all_notetypes(self) -> None:
         for nt in self.all_names_and_ids():
-            self._remove_from_cache(nt.id)
+            self._remove_from_cache(NotetypeId(nt.id))
             self.col._backend.remove_notetype(nt.id)
 
-    def remove(self, id: int) -> None:
+    def remove(self, id: NotetypeId) -> None:
         "Modifies schema."
         self._remove_from_cache(id)
         self.col._backend.remove_notetype(id)
 
-    def add(self, m: NoteType) -> None:
+    def add(self, m: NotetypeDict) -> None:
         self.save(m)
 
-    def ensureNameUnique(self, m: NoteType) -> None:
+    def ensureNameUnique(self, m: NotetypeDict) -> None:
         existing_id = self.id_for_name(m["name"])
         if existing_id is not None and existing_id != m["id"]:
             m["name"] += "-" + checksum(str(time.time()))[:5]
 
-    def update(self, m: NoteType, preserve_usn: bool = True) -> None:
+    def update(self, m: NotetypeDict, preserve_usn: bool = True) -> None:
         "Add or update an existing model. Use .save() instead."
         self._remove_from_cache(m["id"])
         self.ensureNameUnique(m)
@@ -248,7 +249,7 @@ class ModelManager:
         self.setCurrent(m)
         self._mutate_after_write(m)
 
-    def _mutate_after_write(self, nt: NoteType) -> None:
+    def _mutate_after_write(self, nt: NotetypeDict) -> None:
         # existing code expects the note type to be mutated to reflect
         # the changes made when adding, such as ordinal assignment :-(
         updated = self.get(nt["id"])
@@ -257,25 +258,25 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def nids(self, ntid: int) -> List[int]:
+    def nids(self, ntid: NotetypeId) -> List[anki.notes.NoteId]:
         "Note ids for M."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
             ntid = ntid["id"]
         return self.col.db.list("select id from notes where mid = ?", ntid)
 
-    def useCount(self, m: NoteType) -> int:
+    def useCount(self, m: NotetypeDict) -> int:
         "Number of note using M."
         return self.col.db.scalar("select count() from notes where mid = ?", m["id"])
 
     # Copying
     ##################################################
 
-    def copy(self, m: NoteType) -> NoteType:
+    def copy(self, m: NotetypeDict) -> NotetypeDict:
         "Copy, save and return."
         m2 = copy.deepcopy(m)
         m2["name"] = without_unicode_isolation(
-            self.col.tr(TR.NOTETYPES_COPY, val=m2["name"])
+            self.col.tr.notetypes_copy(val=m2["name"])
         )
         m2["id"] = 0
         self.add(m2)
@@ -284,20 +285,20 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[int, Field]]:
+    def fieldMap(self, m: NotetypeDict) -> Dict[str, Tuple[int, FieldDict]]:
         "Mapping of field name -> (ord, field)."
         return {f["name"]: (f["ord"], f) for f in m["flds"]}
 
-    def fieldNames(self, m: NoteType) -> List[str]:
+    def fieldNames(self, m: NotetypeDict) -> List[str]:
         return [f["name"] for f in m["flds"]]
 
-    def sortIdx(self, m: NoteType) -> int:
+    def sortIdx(self, m: NotetypeDict) -> int:
         return m["sortf"]
 
     # Adding & changing fields
     ##################################################
 
-    def new_field(self, name: str) -> Field:
+    def new_field(self, name: str) -> FieldDict:
         assert isinstance(name, str)
         nt = from_json_bytes(
             self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
@@ -307,15 +308,15 @@ class ModelManager:
         field["ord"] = None
         return field
 
-    def add_field(self, m: NoteType, field: Field) -> None:
+    def add_field(self, m: NotetypeDict, field: FieldDict) -> None:
         "Modifies schema."
         m["flds"].append(field)
 
-    def remove_field(self, m: NoteType, field: Field) -> None:
+    def remove_field(self, m: NotetypeDict, field: FieldDict) -> None:
         "Modifies schema."
         m["flds"].remove(field)
 
-    def reposition_field(self, m: NoteType, field: Field, idx: int) -> None:
+    def reposition_field(self, m: NotetypeDict, field: FieldDict, idx: int) -> None:
         "Modifies schema."
         oldidx = m["flds"].index(field)
         if oldidx == idx:
@@ -324,11 +325,11 @@ class ModelManager:
         m["flds"].remove(field)
         m["flds"].insert(idx, field)
 
-    def rename_field(self, m: NoteType, field: Field, new_name: str) -> None:
+    def rename_field(self, m: NotetypeDict, field: FieldDict, new_name: str) -> None:
         assert field in m["flds"]
         field["name"] = new_name
 
-    def set_sort_index(self, nt: NoteType, idx: int) -> None:
+    def set_sort_index(self, nt: NotetypeDict, idx: int) -> None:
         "Modifies schema."
         assert 0 <= idx < len(nt["flds"])
         nt["sortf"] = idx
@@ -337,27 +338,27 @@ class ModelManager:
 
     newField = new_field
 
-    def addField(self, m: NoteType, field: Field) -> None:
+    def addField(self, m: NotetypeDict, field: FieldDict) -> None:
         self.add_field(m, field)
         if m["id"]:
             self.save(m)
 
-    def remField(self, m: NoteType, field: Field) -> None:
+    def remField(self, m: NotetypeDict, field: FieldDict) -> None:
         self.remove_field(m, field)
         self.save(m)
 
-    def moveField(self, m: NoteType, field: Field, idx: int) -> None:
+    def moveField(self, m: NotetypeDict, field: FieldDict, idx: int) -> None:
         self.reposition_field(m, field, idx)
         self.save(m)
 
-    def renameField(self, m: NoteType, field: Field, newName: str) -> None:
+    def renameField(self, m: NotetypeDict, field: FieldDict, newName: str) -> None:
         self.rename_field(m, field, newName)
         self.save(m)
 
     # Adding & changing templates
     ##################################################
 
-    def new_template(self, name: str) -> Template:
+    def new_template(self, name: str) -> TemplateDict:
         nt = from_json_bytes(
             self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
         )
@@ -368,16 +369,18 @@ class ModelManager:
         template["ord"] = None
         return template
 
-    def add_template(self, m: NoteType, template: Template) -> None:
+    def add_template(self, m: NotetypeDict, template: TemplateDict) -> None:
         "Modifies schema."
         m["tmpls"].append(template)
 
-    def remove_template(self, m: NoteType, template: Template) -> None:
+    def remove_template(self, m: NotetypeDict, template: TemplateDict) -> None:
         "Modifies schema."
         assert len(m["tmpls"]) > 1
         m["tmpls"].remove(template)
 
-    def reposition_template(self, m: NoteType, template: Template, idx: int) -> None:
+    def reposition_template(
+        self, m: NotetypeDict, template: TemplateDict, idx: int
+    ) -> None:
         "Modifies schema."
         oldidx = m["tmpls"].index(template)
         if oldidx == idx:
@@ -390,20 +393,20 @@ class ModelManager:
 
     newTemplate = new_template
 
-    def addTemplate(self, m: NoteType, template: Template) -> None:
+    def addTemplate(self, m: NotetypeDict, template: TemplateDict) -> None:
         self.add_template(m, template)
         if m["id"]:
             self.save(m)
 
-    def remTemplate(self, m: NoteType, template: Template) -> None:
+    def remTemplate(self, m: NotetypeDict, template: TemplateDict) -> None:
         self.remove_template(m, template)
         self.save(m)
 
-    def moveTemplate(self, m: NoteType, template: Template, idx: int) -> None:
+    def moveTemplate(self, m: NotetypeDict, template: TemplateDict, idx: int) -> None:
         self.reposition_template(m, template, idx)
         self.save(m)
 
-    def template_use_count(self, ntid: int, ord: int) -> int:
+    def template_use_count(self, ntid: NotetypeId, ord: int) -> int:
         return self.col.db.scalar(
             """
 select count() from cards, notes where cards.nid = notes.id
@@ -419,9 +422,9 @@ and notes.mid = ? and cards.ord = ?""",
 
     def change(
         self,
-        m: NoteType,
-        nids: List[int],
-        newModel: NoteType,
+        m: NotetypeDict,
+        nids: List[anki.notes.NoteId],
+        newModel: NotetypeDict,
         fmap: Optional[Dict[int, Union[None, int]]],
         cmap: Optional[Dict[int, Union[None, int]]],
     ) -> None:
@@ -434,7 +437,10 @@ and notes.mid = ? and cards.ord = ?""",
         self.col.after_note_updates(nids, mark_modified=True)
 
     def _changeNotes(
-        self, nids: List[int], newModel: NoteType, map: Dict[int, Union[None, int]]
+        self,
+        nids: List[anki.notes.NoteId],
+        newModel: NotetypeDict,
+        map: Dict[int, Union[None, int]],
     ) -> None:
         d = []
         nfields = len(newModel["flds"])
@@ -464,9 +470,9 @@ and notes.mid = ? and cards.ord = ?""",
 
     def _changeCards(
         self,
-        nids: List[int],
-        oldModel: NoteType,
-        newModel: NoteType,
+        nids: List[anki.notes.NoteId],
+        oldModel: NotetypeDict,
+        newModel: NotetypeDict,
         map: Dict[int, Union[None, int]],
     ) -> None:
         d = []
@@ -496,7 +502,7 @@ and notes.mid = ? and cards.ord = ?""",
     # Schema hash
     ##########################################################################
 
-    def scmhash(self, m: NoteType) -> str:
+    def scmhash(self, m: NotetypeDict) -> str:
         "Return a hash of the schema, to see if models are compatible."
         s = ""
         for f in m["flds"]:
@@ -509,7 +515,7 @@ and notes.mid = ? and cards.ord = ?""",
     ##########################################################################
 
     def _availClozeOrds(
-        self, m: NoteType, flds: str, allowEmpty: bool = True
+        self, m: NotetypeDict, flds: str, allowEmpty: bool = True
     ) -> List[int]:
         print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
         note = _pb.Note(fields=[flds])

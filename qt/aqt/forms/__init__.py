@@ -13,7 +13,7 @@ from . import clayout_top
 from . import customstudy
 from . import dconf
 from . import debug
-from . import dyndconf
+from . import filtered_deck
 from . import editaddon
 from . import editcurrent
 from . import edithtml

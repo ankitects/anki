@@ -7,7 +7,7 @@ from typing import Callable, Optional
 
 import aqt.forms
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, tr
+from aqt.utils import disable_help_button, tr
 
 # Progress info
 ##########################################################################
@@ -86,7 +86,7 @@ class ProgressManager:
         if not parent and self.mw.isVisible():
             parent = self.mw
 
-        label = label or tr(TR.QT_MISC_PROCESSING)
+        label = label or tr.qt_misc_processing()
         self._win = ProgressDialog(parent)
         self._win.form.progressBar.setMinimum(min)
         self._win.form.progressBar.setMaximum(max)

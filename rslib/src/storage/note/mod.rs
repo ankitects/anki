@@ -5,8 +5,8 @@ use std::collections::HashSet;
 
 use crate::{
     err::Result,
-    notes::{Note, NoteID, NoteTags},
-    notetype::NoteTypeID,
+    notes::{Note, NoteId, NoteTags},
+    notetype::NotetypeId,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
@@ -21,7 +21,7 @@ pub(crate) fn join_fields(fields: &[String]) -> String {
 }
 
 impl super::SqliteStorage {
-    pub fn get_note(&self, nid: NoteID) -> Result<Option<Note>> {
+    pub fn get_note(&self, nid: NoteId) -> Result<Option<Note>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?
             .query_and_then(params![nid], row_to_note)?
@@ -29,7 +29,7 @@ impl super::SqliteStorage {
             .transpose()
     }
 
-    pub fn get_note_without_fields(&self, nid: NoteID) -> Result<Option<Note>> {
+    pub fn get_note_without_fields(&self, nid: NoteId) -> Result<Option<Note>> {
         self.db
             .prepare_cached(concat!(
                 include_str!("get_without_fields.sql"),
@@ -93,14 +93,14 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn remove_note(&self, nid: NoteID) -> Result<()> {
+    pub(crate) fn remove_note(&self, nid: NoteId) -> Result<()> {
         self.db
             .prepare_cached("delete from notes where id = ?")?
             .execute(&[nid])?;
         Ok(())
     }
 
-    pub(crate) fn note_is_orphaned(&self, nid: NoteID) -> Result<bool> {
+    pub(crate) fn note_is_orphaned(&self, nid: NoteId) -> Result<bool> {
         self.db
             .prepare_cached(include_str!("is_orphaned.sql"))?
             .query_row(&[nid], |r| r.get(0))
@@ -114,7 +114,7 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn fix_invalid_utf8_in_note(&self, nid: NoteID) -> Result<()> {
+    pub(crate) fn fix_invalid_utf8_in_note(&self, nid: NoteId) -> Result<()> {
         self.db
             .query_row(
                 "select cast(flds as blob) from notes where id=?",
@@ -137,9 +137,9 @@ impl super::SqliteStorage {
     /// match.
     pub(crate) fn note_fields_by_checksum(
         &self,
-        ntid: NoteTypeID,
+        ntid: NotetypeId,
         csum: u32,
-    ) -> Result<Vec<(NoteID, String)>> {
+    ) -> Result<Vec<(NoteId, String)>> {
         self.db
             .prepare("select id, field_at_index(flds, 0) from notes where csum=? and mid=?")?
             .query_and_then(params![csum, ntid], |r| Ok((r.get(0)?, r.get(1)?)))?
@@ -170,7 +170,7 @@ impl super::SqliteStorage {
         Ok(seen)
     }
 
-    pub(crate) fn get_note_tags_by_id(&mut self, note_id: NoteID) -> Result<Option<NoteTags>> {
+    pub(crate) fn get_note_tags_by_id(&mut self, note_id: NoteId) -> Result<Option<NoteTags>> {
         self.db
             .prepare_cached(&format!("{} where id = ?", include_str!("get_tags.sql")))?
             .query_and_then(&[note_id], row_to_note_tags)?
@@ -180,7 +180,7 @@ impl super::SqliteStorage {
 
     pub(crate) fn get_note_tags_by_id_list(
         &mut self,
-        note_ids: &[NoteID],
+        note_ids: &[NoteId],
     ) -> Result<Vec<NoteTags>> {
         self.set_search_table_to_note_ids(note_ids)?;
         let out = self
@@ -233,7 +233,7 @@ impl super::SqliteStorage {
     /// Injects the provided card IDs into the search_nids table, for
     /// when ids have arrived outside of a search.
     /// Clear with clear_searched_notes_table().
-    fn set_search_table_to_note_ids(&mut self, notes: &[NoteID]) -> Result<()> {
+    fn set_search_table_to_note_ids(&mut self, notes: &[NoteId]) -> Result<()> {
         self.setup_searched_notes_table()?;
         let mut stmt = self
             .db

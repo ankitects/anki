@@ -6,9 +6,9 @@ use std::sync::Arc;
 use itertools::Itertools;
 
 use crate::err::{AnkiError, Result};
-use crate::i18n::{tr_args, I18n, TR};
+use crate::i18n::I18n;
 use crate::{
-    card::{Card, CardID, CardQueue, CardType},
+    card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
     config::BoolKey,
     decks::{Deck, DeckID},
@@ -103,10 +103,10 @@ struct CardRowContext<'a> {
     col: &'a Collection,
     card: Card,
     note: Note,
-    notetype: Arc<NoteType>,
+    notetype: Arc<Notetype>,
     deck: Option<Deck>,
     original_deck: Option<Option<Deck>>,
-    i18n: &'a I18n,
+    tr: &'a I18n,
     timing: SchedTimingToday,
     render_context: Option<RenderContext>,
 }
@@ -156,7 +156,7 @@ impl Collection {
 }
 
 impl RenderContext {
-    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &NoteType) -> Result<Self> {
+    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &Notetype) -> Result<Self> {
         let render = col.render_card(
             note,
             card,
@@ -209,7 +209,7 @@ impl<'a> CardRowContext<'a> {
             notetype,
             deck: None,
             original_deck: None,
-            i18n: &col.i18n,
+            tr: &col.tr,
             timing,
             render_context,
         })
@@ -264,13 +264,10 @@ impl<'a> CardRowContext<'a> {
     }
 
     fn card_due_str(&mut self) -> String {
-        let due = if self.card.original_deck_id != DeckID(0) {
-            self.i18n.tr(TR::BrowsingFiltered).into()
+        let due = if self.card.original_deck_id != DeckId(0) {
+            self.tr.browsing_filtered()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
-            self.i18n.trn(
-                TR::StatisticsDueForNewCard,
-                tr_args!["number"=>self.card.due],
-            )
+            self.tr.statistics_due_for_new_card(self.card.due)
         } else {
             let date = if self.card.queue == CardQueue::Learn {
                 TimestampSecs(self.card.due as i64)
@@ -283,27 +280,27 @@ impl<'a> CardRowContext<'a> {
             } else {
                 return "".into();
             };
-            date.date_string()
+            date.date_string().into()
         };
         if (self.card.queue as i8) < 0 {
             format!("({})", due)
         } else {
-            due
+            due.into()
         }
     }
 
     fn card_ease_str(&self) -> String {
         match self.card.ctype {
-            CardType::New => self.i18n.tr(TR::BrowsingNew).into(),
+            CardType::New => self.tr.browsing_new().into(),
             _ => format!("{}%", self.card.ease_factor / 10),
         }
     }
 
     fn card_interval_str(&self) -> String {
         match self.card.ctype {
-            CardType::New => self.i18n.tr(TR::BrowsingNew).into(),
-            CardType::Learn => self.i18n.tr(TR::BrowsingLearning).into(),
-            _ => time_span((self.card.interval * 86400) as f32, self.i18n, false),
+            CardType::New => self.tr.browsing_new().into(),
+            CardType::Learn => self.tr.browsing_learning().into(),
+            _ => time_span((self.card.interval * 86400) as f32, self.tr, false),
         }
     }
 
@@ -319,8 +316,8 @@ impl<'a> CardRowContext<'a> {
     fn template_str(&self) -> Result<String> {
         let name = &self.template()?.name;
         Ok(match self.notetype.config.kind() {
-            NoteTypeKind::Normal => name.to_owned(),
-            NoteTypeKind::Cloze => format!("{} {}", name, self.card.template_idx + 1),
+            NotetypeKind::Normal => name.to_owned(),
+            NotetypeKind::Cloze => format!("{} {}", name, self.card.template_idx + 1),
         })
     }
 

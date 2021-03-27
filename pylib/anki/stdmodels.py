@@ -10,7 +10,7 @@ import anki._backend.backend_pb2 as _pb
 from anki.utils import from_json_bytes
 
 # pylint: disable=no-member
-StockNotetypeKind = _pb.StockNoteType.Kind
+StockNotetypeKind = _pb.StockNotetype.Kind
 
 # add-on authors can add ("note type name", function_like_addBasicModel)
 # to this list to have it shown in the add/clone note type screen
@@ -19,37 +19,39 @@ models: List[Tuple] = []
 
 def _add_stock_notetype(
     col: anki.collection.Collection, kind: StockNotetypeKind.V
-) -> anki.models.NoteType:
+) -> anki.models.NotetypeDict:
     m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
     col.models.add(m)
     return m
 
 
-def addBasicModel(col: anki.collection.Collection) -> anki.models.NoteType:
+def addBasicModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
     return _add_stock_notetype(col, StockNotetypeKind.BASIC)
 
 
-def addBasicTypingModel(col: anki.collection.Collection) -> anki.models.NoteType:
+def addBasicTypingModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
     return _add_stock_notetype(col, StockNotetypeKind.BASIC_TYPING)
 
 
-def addForwardReverse(col: anki.collection.Collection) -> anki.models.NoteType:
+def addForwardReverse(col: anki.collection.Collection) -> anki.models.NotetypeDict:
     return _add_stock_notetype(col, StockNotetypeKind.BASIC_AND_REVERSED)
 
 
-def addForwardOptionalReverse(col: anki.collection.Collection) -> anki.models.NoteType:
+def addForwardOptionalReverse(
+    col: anki.collection.Collection,
+) -> anki.models.NotetypeDict:
     return _add_stock_notetype(col, StockNotetypeKind.BASIC_OPTIONAL_REVERSED)
 
 
-def addClozeModel(col: anki.collection.Collection) -> anki.models.NoteType:
+def addClozeModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
     return _add_stock_notetype(col, StockNotetypeKind.CLOZE)
 
 
 def get_stock_notetypes(
     col: anki.collection.Collection,
-) -> List[Tuple[str, Callable[[anki.collection.Collection], anki.models.NoteType]]]:
+) -> List[Tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]]:
     out: List[
-        Tuple[str, Callable[[anki.collection.Collection], anki.models.NoteType]]
+        Tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]
     ] = []
     # add standard
     for (kind, func) in [

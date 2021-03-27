@@ -12,8 +12,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
+from anki.cards import CardId
 from anki.collection import Collection
-from anki.lang import TR
+from anki.decks import DeckId
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 
@@ -27,8 +28,8 @@ class Exporter:
     def __init__(
         self,
         col: Collection,
-        did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        did: Optional[DeckId] = None,
+        cids: Optional[List[CardId]] = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did
@@ -103,7 +104,7 @@ class TextCardExporter(Exporter):
 
     @staticmethod
     def key(col: Collection) -> str:
-        return col.tr(TR.EXPORTING_CARDS_IN_PLAIN_TEXT)
+        return col.tr.exporting_cards_in_plain_text()
 
     def doExport(self, file) -> None:
         ids = sorted(self.cardIds())
@@ -138,7 +139,7 @@ class TextNoteExporter(Exporter):
 
     @staticmethod
     def key(col: Collection) -> str:
-        return col.tr(TR.EXPORTING_NOTES_IN_PLAIN_TEXT)
+        return col.tr.exporting_notes_in_plain_text()
 
     def doExport(self, file: BufferedWriter) -> None:
         cardIds = self.cardIds()
@@ -182,9 +183,9 @@ class AnkiExporter(Exporter):
 
     @staticmethod
     def key(col: Collection) -> str:
-        return col.tr(TR.EXPORTING_ANKI_20_DECK)
+        return col.tr.exporting_anki_20_deck()
 
-    def deckIds(self) -> List[int]:
+    def deckIds(self) -> List[DeckId]:
         if self.cids:
             return self.col.decks.for_card_ids(self.cids)
         elif self.did:
@@ -331,7 +332,7 @@ class AnkiPackageExporter(AnkiExporter):
 
     @staticmethod
     def key(col: Collection) -> str:
-        return col.tr(TR.EXPORTING_ANKI_DECK_PACKAGE)
+        return col.tr.exporting_anki_deck_package()
 
     def exportInto(self, path: str) -> None:
         # open a zip file
@@ -418,7 +419,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
     @staticmethod
     def key(col: Collection) -> str:
-        return col.tr(TR.EXPORTING_ANKI_COLLECTION_PACKAGE)
+        return col.tr.exporting_anki_collection_package()
 
     def doExport(self, z, path):
         "Export collection. Caller must re-open afterwards."

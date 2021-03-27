@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import List, Optional
+from typing import List, NewType, Optional
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
 from anki.consts import *
-from anki.models import NoteType, Template
+from anki.models import NotetypeDict, TemplateDict
 from anki.notes import Note
 from anki.sound import AVTag
 
@@ -26,15 +26,24 @@ from anki.sound import AVTag
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
+# types
+CardId = NewType("CardId", int)
+
 
 class Card:
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: int
     ord: int
+    nid: anki.notes.NoteId
+    id: CardId
+    did: anki.decks.DeckId
+    odid: anki.decks.DeckId
+    queue: CardQueue
+    type: CardType
 
     def __init__(
-        self, col: anki.collection.Collection, id: Optional[int] = None
+        self, col: anki.collection.Collection, id: Optional[CardId] = None
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None
@@ -55,14 +64,14 @@ class Card:
     def _load_from_backend_card(self, c: _pb.Card) -> None:
         self._render_output = None
         self._note = None
-        self.id = c.id
-        self.nid = c.note_id
-        self.did = c.deck_id
+        self.id = CardId(c.id)
+        self.nid = anki.notes.NoteId(c.note_id)
+        self.did = anki.decks.DeckId(c.deck_id)
         self.ord = c.template_idx
         self.mod = c.mtime_secs
         self.usn = c.usn
-        self.type = c.ctype
-        self.queue = c.queue
+        self.type = CardType(c.ctype)
+        self.queue = CardQueue(c.queue)
         self.due = c.due
         self.ivl = c.interval
         self.factor = c.ease_factor
@@ -70,7 +79,7 @@ class Card:
         self.lapses = c.lapses
         self.left = c.remaining_steps
         self.odue = c.original_due
-        self.odid = c.original_deck_id
+        self.odid = anki.decks.DeckId(c.original_deck_id)
         self.flags = c.flags
         self.data = c.data
 
@@ -139,7 +148,7 @@ class Card:
             self._note = self.col.get_note(self.nid)
         return self._note
 
-    def note_type(self) -> NoteType:
+    def note_type(self) -> NotetypeDict:
         return self.col.models.get(self.note().mid)
 
     # legacy aliases
@@ -148,7 +157,7 @@ class Card:
     a = answer
     model = note_type
 
-    def template(self) -> Template:
+    def template(self) -> TemplateDict:
         m = self.model()
         if m["type"] == MODEL_STD:
             return self.model()["tmpls"][self.ord]
@@ -158,21 +167,24 @@ class Card:
     def startTimer(self) -> None:
         self.timerStarted = time.time()
 
+    def current_deck_id(self) -> anki.decks.DeckId:
+        return anki.decks.DeckId(self.odid or self.did)
+
     def timeLimit(self) -> int:
         "Time limit for answering in milliseconds."
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.current_deck_id())
         return conf["maxTaken"] * 1000
 
     def shouldShowTimer(self) -> bool:
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.current_deck_id())
         return conf["timer"]
 
     def replay_question_audio_on_answer_side(self) -> bool:
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.current_deck_id())
         return conf.get("replayq", True)
 
     def autoplay(self) -> bool:
-        return self.col.decks.confForDid(self.odid or self.did)["autoplay"]
+        return self.col.decks.confForDid(self.current_deck_id())["autoplay"]
 
     def timeTaken(self) -> int:
         "Time taken to answer card, in integer MS."

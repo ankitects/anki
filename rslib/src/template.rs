@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
-use crate::i18n::{tr_args, tr_strs, I18n, TR};
+use crate::i18n::I18n;
 use crate::{cloze::add_cloze_numbers_in_string, template_filters::apply_filters};
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -246,14 +246,14 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     }
 }
 
-fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -> AnkiError {
-    let header = i18n.tr(if q_side {
-        TR::CardTemplateRenderingFrontSideProblem
+fn template_error_to_anki_error(err: TemplateError, q_side: bool, tr: &I18n) -> AnkiError {
+    let header = if q_side {
+        tr.card_template_rendering_front_side_problem()
     } else {
-        TR::CardTemplateRenderingBackSideProblem
-    });
-    let details = localized_template_error(i18n, err);
-    let more_info = i18n.tr(TR::CardTemplateRenderingMoreInfo);
+        tr.card_template_rendering_back_side_problem()
+    };
+    let details = localized_template_error(tr, err);
+    let more_info = tr.card_template_rendering_more_info();
     let info = format!(
         "{}<br>{}<br><a href='{}'>{}</a>",
         header, details, TEMPLATE_ERROR_LINK, more_info
@@ -262,44 +262,33 @@ fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -
     AnkiError::TemplateError { info }
 }
 
-fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
+fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
     match err {
-        TemplateError::NoClosingBrackets(tag) => i18n.trn(
-            TR::CardTemplateRenderingNoClosingBrackets,
-            tr_strs!("tag"=>tag, "missing"=>"}}"),
-        ),
-        TemplateError::ConditionalNotClosed(tag) => i18n.trn(
-            TR::CardTemplateRenderingConditionalNotClosed,
-            tr_strs!("missing"=>format!("{{{{/{}}}}}", tag)),
-        ),
+        TemplateError::NoClosingBrackets(tag) => tr
+            .card_template_rendering_no_closing_brackets("}}", tag)
+            .into(),
+        TemplateError::ConditionalNotClosed(tag) => tr
+            .card_template_rendering_conditional_not_closed(format!("{{{{/{}}}}}", tag))
+            .into(),
         TemplateError::ConditionalNotOpen {
             closed,
             currently_open,
-        } => {
-            if let Some(open) = currently_open {
-                i18n.trn(
-                    TR::CardTemplateRenderingWrongConditionalClosed,
-                    tr_strs!(
-                "found"=>format!("{{{{/{}}}}}", closed),
-                "expected"=>format!("{{{{/{}}}}}", open)),
-                )
-            } else {
-                i18n.trn(
-                    TR::CardTemplateRenderingConditionalNotOpen,
-                    tr_strs!(
-                    "found"=>format!("{{{{/{}}}}}", closed),
-                    "missing1"=>format!("{{{{#{}}}}}", closed),
-                    "missing2"=>format!("{{{{^{}}}}}", closed)
-                    ),
-                )
-            }
+        } => if let Some(open) = currently_open {
+            tr.card_template_rendering_wrong_conditional_closed(
+                format!("{{{{/{}}}}}", closed),
+                format!("{{{{/{}}}}}", open),
+            )
+        } else {
+            tr.card_template_rendering_conditional_not_open(
+                format!("{{{{/{}}}}}", closed),
+                format!("{{{{#{}}}}}", closed),
+                format!("{{{{^{}}}}}", closed),
+            )
         }
-        TemplateError::FieldNotFound { field, filters } => i18n.trn(
-            TR::CardTemplateRenderingNoSuchField,
-            tr_strs!(
-            "found"=>format!("{{{{{}{}}}}}", filters, field),
-            "field"=>field),
-        ),
+        .into(),
+        TemplateError::FieldNotFound { field, filters } => tr
+            .card_template_rendering_no_such_field(format!("{{{{{}{}}}}}", filters, field), field)
+            .into(),
     }
 }
 
@@ -542,7 +531,7 @@ pub fn render_card(
     field_map: &HashMap<&str, Cow<str>>,
     card_ord: u16,
     is_cloze: bool,
-    i18n: &I18n,
+    tr: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
     let mut context = RenderContext {
@@ -555,25 +544,22 @@ pub fn render_card(
     // question side
     let (mut qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
         .and_then(|tmpl| Ok((tmpl.render(&context)?, tmpl)))
-        .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
+        .map_err(|e| template_error_to_anki_error(e, true, tr))?;
 
     // check if the front side was empty
     let empty_message = if is_cloze && cloze_is_empty(field_map, card_ord) {
         Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
-            i18n.trn(
-                TR::CardTemplateRenderingMissingCloze,
-                tr_args!["number"=>card_ord+1]
-            ),
+            tr.card_template_rendering_missing_cloze(card_ord + 1),
             TEMPLATE_BLANK_CLOZE_LINK,
-            i18n.tr(TR::CardTemplateRenderingMoreInfo)
+            tr.card_template_rendering_more_info()
         ))
     } else if !is_cloze && !qtmpl.renders_with_fields(context.nonempty_fields) {
         Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
-            i18n.tr(TR::CardTemplateRenderingEmptyFront),
+            tr.card_template_rendering_empty_front(),
             TEMPLATE_BLANK_LINK,
-            i18n.tr(TR::CardTemplateRenderingMoreInfo)
+            tr.card_template_rendering_more_info()
         ))
     } else {
         None
@@ -587,7 +573,7 @@ pub fn render_card(
     context.question_side = false;
     let anodes = ParsedTemplate::from_text(afmt)
         .and_then(|tmpl| tmpl.render(&context))
-        .map_err(|e| template_error_to_anki_error(e, false, i18n))?;
+        .map_err(|e| template_error_to_anki_error(e, false, tr))?;
 
     Ok((qnodes, anodes))
 }
@@ -810,11 +796,9 @@ mod test {
     use crate::err::TemplateError;
     use crate::{
         i18n::I18n,
-        log,
         template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
     };
-    use std::collections::{HashMap, HashSet};
-    use std::iter::FromIterator;
+    use std::collections::HashMap;
 
     #[test]
     fn field_empty() {
@@ -888,7 +872,7 @@ mod test {
 
     #[test]
     fn nonempty() {
-        let fields = HashSet::from_iter(vec!["1", "3"].into_iter());
+        let fields = vec!["1", "3"].into_iter().collect();
         let mut tmpl = PT::from_text("{{2}}{{1}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), true);
         tmpl = PT::from_text("{{2}}").unwrap();
@@ -914,13 +898,13 @@ mod test {
         let mut tmpl = PT::from_text("{{a}}{{b}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::Any(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::Any(vec![0, 1].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{#a}}{{b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::All(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::All(vec![0, 1].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{z}}").unwrap();
@@ -929,19 +913,19 @@ mod test {
         tmpl = PT::from_text("{{^a}}{{b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::Any(HashSet::from_iter(vec![1].into_iter()))
+            FieldRequirements::Any(vec![1].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{^a}}{{#b}}{{c}}{{/b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::All(HashSet::from_iter(vec![1, 2].into_iter()))
+            FieldRequirements::All(vec![1, 2].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{#a}}{{#b}}{{a}}{{/b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::All(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::All(vec![0, 1].into_iter().collect())
         );
 
         tmpl = PT::from_text(
@@ -960,7 +944,7 @@ mod test {
 
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::Any(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::Any(vec![0, 1].into_iter().collect())
         );
     }
 
@@ -1128,10 +1112,10 @@ mod test {
             .map(|r| (r.0, r.1.into()))
             .collect();
 
-        let i18n = I18n::new(&[""], "", log::terminal());
+        let tr = I18n::template_only();
         use crate::template::RenderedNode as FN;
 
-        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, &i18n)
+        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, &tr)
             .unwrap()
             .0;
         assert_eq!(

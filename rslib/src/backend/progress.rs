@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
     backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
-    i18n::{tr_args, I18n, TR},
+    i18n::I18n,
     media::sync::MediaSyncProgress,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
@@ -52,13 +52,12 @@ pub(super) enum Progress {
     DatabaseCheck(DatabaseCheckProgress),
 }
 
-pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
+pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
     let progress = if let Some(progress) = progress {
         match progress {
-            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
+            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, tr)),
             Progress::MediaCheck(n) => {
-                let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
-                pb::progress::Value::MediaCheck(s)
+                pb::progress::Value::MediaCheck(tr.media_check_checked(n).into())
             }
             Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
                 transferred: p.transferred_bytes as u32,
@@ -66,21 +65,17 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
             }),
             Progress::NormalSync(p) => {
                 let stage = match p.stage {
-                    SyncStage::Connecting => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Syncing => i18n.tr(TR::SyncSyncing),
-                    SyncStage::Finalizing => i18n.tr(TR::SyncChecking),
+                    SyncStage::Connecting => tr.sync_syncing(),
+                    SyncStage::Syncing => tr.sync_syncing(),
+                    SyncStage::Finalizing => tr.sync_checking(),
                 }
                 .to_string();
-                let added = i18n.trn(
-                    TR::SyncAddedUpdatedCount,
-                    tr_args![
-                            "up"=>p.local_update, "down"=>p.remote_update],
-                );
-                let removed = i18n.trn(
-                    TR::SyncMediaRemovedCount,
-                    tr_args![
-                            "up"=>p.local_remove, "down"=>p.remote_remove],
-                );
+                let added = tr
+                    .sync_added_updated_count(p.local_update, p.remote_update)
+                    .into();
+                let removed = tr
+                    .sync_media_removed_count(p.local_remove, p.remote_remove)
+                    .into();
                 pb::progress::Value::NormalSync(pb::progress::NormalSync {
                     stage,
                     added,
@@ -91,15 +86,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
                 let mut stage_total = 0;
                 let mut stage_current = 0;
                 let stage = match p {
-                    DatabaseCheckProgress::Integrity => i18n.tr(TR::DatabaseCheckCheckingIntegrity),
-                    DatabaseCheckProgress::Optimize => i18n.tr(TR::DatabaseCheckRebuilding),
-                    DatabaseCheckProgress::Cards => i18n.tr(TR::DatabaseCheckCheckingCards),
+                    DatabaseCheckProgress::Integrity => tr.database_check_checking_integrity(),
+                    DatabaseCheckProgress::Optimize => tr.database_check_rebuilding(),
+                    DatabaseCheckProgress::Cards => tr.database_check_checking_cards(),
                     DatabaseCheckProgress::Notes { current, total } => {
                         stage_total = total;
                         stage_current = current;
-                        i18n.tr(TR::DatabaseCheckCheckingNotes)
+                        tr.database_check_checking_notes()
                     }
-                    DatabaseCheckProgress::History => i18n.tr(TR::DatabaseCheckCheckingHistory),
+                    DatabaseCheckProgress::History => tr.database_check_checking_history(),
                 }
                 .to_string();
                 pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
@@ -117,17 +112,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
     }
 }
 
-fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::progress::MediaSync {
+fn media_sync_progress(p: MediaSyncProgress, tr: &I18n) -> pb::progress::MediaSync {
     pb::progress::MediaSync {
-        checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
-        added: i18n.trn(
-            TR::SyncMediaAddedCount,
-            tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
-        ),
-        removed: i18n.trn(
-            TR::SyncMediaRemovedCount,
-            tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
-        ),
+        checked: tr.sync_media_checked_count(p.checked).into(),
+        added: tr
+            .sync_media_added_count(p.uploaded_files, p.downloaded_files)
+            .into(),
+        removed: tr
+            .sync_media_removed_count(p.uploaded_deletions, p.downloaded_deletions)
+            .into(),
     }
 }
 

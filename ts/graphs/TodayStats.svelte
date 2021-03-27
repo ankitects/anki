@@ -1,6 +1,5 @@
 <script lang="typescript">
     import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
 
     import Graph from "./Graph.svelte";
 
@@ -8,11 +7,10 @@
     import { gatherData } from "./today";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let i18n: I18n;
 
     let todayData: TodayData | null = null;
     $: if (sourceData) {
-        todayData = gatherData(sourceData, i18n);
+        todayData = gatherData(sourceData);
     }
 </script>
 

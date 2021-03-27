@@ -29,5 +29,5 @@ decks-repeat-failed-cards-after = Repeat failed cards after
 decks-reschedule-cards-based-on-my-answers = Reschedule cards based on my answers in this deck
 decks-study = Study
 decks-study-deck = Study Deck
-decks-the-provided-search-did-not-match = The provided search did not match any cards. Would you like to revise it?
+decks-filtered-deck-search-empty = No cards matched the provided search. Some cards may have been excluded because they are in a different filtered deck, or suspended.
 decks-unmovable-cards = Show any excluded cards

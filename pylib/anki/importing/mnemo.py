@@ -7,7 +7,6 @@ from typing import cast
 
 from anki.db import DB
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
-from anki.lang import TR
 from anki.stdmodels import addBasicModel, addClozeModel
 
 
@@ -22,7 +21,7 @@ class MnemosyneImporter(NoteImporter):
         ver = db.scalar("select value from global_variables where key='version'")
         if not ver.startswith("Mnemosyne SQL 1") and ver not in ("2", "3"):
             self.log.append(
-                self.col.tr(TR.IMPORTING_FILE_VERSION_UNKNOWN_TRYING_IMPORT_ANYWAY)
+                self.col.tr.importing_file_version_unknown_trying_import_anyway()
             )
         # gather facts into temp objects
         curid = None
@@ -103,7 +102,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         self.total += total
         self._addCloze(cloze)
         self.total += total
-        self.log.append(self.col.tr(TR.IMPORTING_NOTE_IMPORTED, count=self.total))
+        self.log.append(self.col.tr.importing_note_imported(count=self.total))
 
     def fields(self):
         return self._fields

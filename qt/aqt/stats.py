@@ -10,7 +10,6 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     addCloseShortcut,
     disable_help_button,
     getSaveFile,
@@ -41,9 +40,7 @@ class NewDeckStats(QDialog):
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(
-            tr(TR.STATISTICS_SAVE_PDF), QDialogButtonBox.ActionRole
-        )
+        b = f.buttonBox.addButton(tr.statistics_save_pdf(), QDialogButtonBox.ActionRole)
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
@@ -66,10 +63,10 @@ class NewDeckStats(QDialog):
 
     def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
-        name = f"anki-{tr(TR.STATISTICS_STATS)}{name}"
+        name = f"anki-{tr.statistics_stats()}{name}"
         file = getSaveFile(
             self,
-            title=tr(TR.STATISTICS_SAVE_PDF),
+            title=tr.statistics_save_pdf(),
             dir_description="stats",
             key="stats",
             ext=".pdf",
@@ -82,7 +79,7 @@ class NewDeckStats(QDialog):
         if not path:
             return
         self.form.web.page().printToPdf(path)
-        tooltip(tr(TR.STATISTICS_SAVED))
+        tooltip(tr.statistics_saved())
 
     # legacy add-ons
     def changePeriod(self, n: Any) -> None:
@@ -126,9 +123,7 @@ class DeckStats(QDialog):
             self.setStyleSheet("QGroupBox { border: 0; }")
         f.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(
-            tr(TR.STATISTICS_SAVE_PDF), QDialogButtonBox.ActionRole
-        )
+        b = f.buttonBox.addButton(tr.statistics_save_pdf(), QDialogButtonBox.ActionRole)
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         qconnect(f.groups.clicked, lambda: self.changeScope("deck"))
@@ -156,10 +151,10 @@ class DeckStats(QDialog):
 
     def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
-        name = f"anki-{tr(TR.STATISTICS_STATS)}{name}"
+        name = f"anki-{tr.statistics_stats()}{name}"
         file = getSaveFile(
             self,
-            title=tr(TR.STATISTICS_SAVE_PDF),
+            title=tr.statistics_save_pdf(),
             dir_description="stats",
             key="stats",
             ext=".pdf",
@@ -172,7 +167,7 @@ class DeckStats(QDialog):
         if not path:
             return
         self.form.web.page().printToPdf(path)
-        tooltip(tr(TR.STATISTICS_SAVED))
+        tooltip(tr.statistics_saved())
 
     def changePeriod(self, n: int) -> None:
         self.period = n
@@ -187,7 +182,7 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.title = "deck stats"
+        self.form.web.set_title("deck stats")
         self.form.web.stdHtml(
             f"<html><body>{self.report}</body></html>",
             js=["js/vendor/jquery.min.js", "js/vendor/plot.js"],

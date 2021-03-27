@@ -9,7 +9,7 @@ from anki.sync import SyncStatus
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sync import get_sync_status
-from aqt.utils import TR, tr
+from aqt.utils import tr
 from aqt.webview import AnkiWebView
 
 
@@ -100,30 +100,30 @@ class Toolbar:
         links = [
             self.create_link(
                 "decks",
-                tr(TR.ACTIONS_DECKS),
+                tr.actions_decks(),
                 self._deckLinkHandler,
-                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="D"),
+                tip=tr.actions_shortcut_key(val="D"),
                 id="decks",
             ),
             self.create_link(
                 "add",
-                tr(TR.ACTIONS_ADD),
+                tr.actions_add(),
                 self._addLinkHandler,
-                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="A"),
+                tip=tr.actions_shortcut_key(val="A"),
                 id="add",
             ),
             self.create_link(
                 "browse",
-                tr(TR.QT_MISC_BROWSE),
+                tr.qt_misc_browse(),
                 self._browseLinkHandler,
-                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="B"),
+                tip=tr.actions_shortcut_key(val="B"),
                 id="browse",
             ),
             self.create_link(
                 "stats",
-                tr(TR.QT_MISC_STATS),
+                tr.qt_misc_stats(),
                 self._statsLinkHandler,
-                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="T"),
+                tip=tr.actions_shortcut_key(val="T"),
                 id="stats",
             ),
         ]
@@ -138,8 +138,8 @@ class Toolbar:
     ######################################################################
 
     def _create_sync_link(self) -> str:
-        name = tr(TR.QT_MISC_SYNC)
-        title = tr(TR.ACTIONS_SHORTCUT_KEY, val="Y")
+        name = tr.qt_misc_sync()
+        title = tr.actions_shortcut_key(val="Y")
         label = "sync"
         self.link_handlers[label] = self._syncLinkHandler
 

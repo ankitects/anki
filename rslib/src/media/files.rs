@@ -122,7 +122,7 @@ pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
 /// On Apple devices, the filename may be stored on disk in NFD encoding,
 /// but can be accessed as NFC. On these devices, if the filename
 /// is otherwise valid, the filename is returned as NFC.
-#[allow(clippy::collapsible_if)]
+#[allow(clippy::collapsible_else_if)]
 pub(super) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
     if cfg!(target_vendor = "apple") {
         if !is_nfc(fname) {
@@ -412,7 +412,7 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
             if e.kind() == io::ErrorKind::NotFound {
                 return Ok(None);
             } else {
-                return Err(AnkiError::IOError {
+                return Err(AnkiError::IoError {
                     info: format!("unable to read {}: {}", fname, e),
                 });
             }

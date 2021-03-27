@@ -1,5 +1,4 @@
 <script lang="typescript">
-    import type { I18n } from "anki/i18n";
     import type pb from "anki/backend_proto";
     import { createEventDispatcher } from "svelte";
 
@@ -17,7 +16,7 @@
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
     export let preferences: PreferenceStore;
 
     let histogramData = null as HistogramData | null;
@@ -36,22 +35,21 @@
         [histogramData, tableData] = buildHistogram(
             addedData,
             graphRange,
-            i18n,
             dispatch,
             $browserLinksSupported
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_ADDED_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_ADDED_SUBTITLE);
+    const title = tr.statisticsAddedTitle();
+    const subtitle = tr.statisticsAddedSubtitle();
 </script>
 
 <Graph {title} {subtitle}>
     <InputBox>
-        <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
+        <GraphRangeRadios bind:graphRange revlogRange={RevlogRange.All} />
     </InputBox>
 
-    <HistogramGraph data={histogramData} {i18n} />
+    <HistogramGraph data={histogramData} />
 
-    <TableData {i18n} {tableData} />
+    <TableData {tableData} />
 </Graph>

@@ -29,14 +29,14 @@ impl TryFrom<pb::SearchNode> for Node {
                 } else {
                     escape_anki_wildcards(&s)
                 })),
-                Filter::Note(s) => Node::Search(SearchNode::NoteType(escape_anki_wildcards(&s))),
+                Filter::Note(s) => Node::Search(SearchNode::Notetype(escape_anki_wildcards(&s))),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
-                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string())),
-                Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string())),
+                Filter::Nid(nid) => Node::Search(SearchNode::NoteIds(nid.to_string())),
+                Filter::Nids(nids) => Node::Search(SearchNode::NoteIds(nids.into_id_string())),
                 Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
-                    note_type_id: dupe.notetype_id.into(),
+                    notetype_id: dupe.notetype_id.into(),
                     text: dupe.first_field,
                 }),
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
@@ -88,7 +88,8 @@ impl TryFrom<pb::SearchNode> for Node {
                                 .into_iter()
                                 .map(TryFrom::try_from)
                                 .collect::<Result<_>>()?;
-                            let joined = parsed.into_iter().intersperse(joiner).collect();
+                            let joined =
+                                Itertools::intersperse(parsed.into_iter(), joiner).collect();
                             Node::Group(joined)
                         }
                     }

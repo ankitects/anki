@@ -14,7 +14,6 @@ path = "src/lib.rs"
 # After updating anything below, run ../cargo/update.py
 
 [build-dependencies]
-fluent-syntax = "0.10"
 prost-build = "0.7"
 
 [dev-dependencies]
@@ -30,6 +29,9 @@ proc-macro-nested = "=0.1.6"
 # as cargo-raze doesn't seem to be included the rustversion crate.
 slog-term = "=2.6.0"
 
+anki_i18n = { path = "i18n" }
+
+
 askama = "0.10.1"
 async-compression = { version = "0.3.5", features = ["stream", "gzip"] }
 blake3 = "0.3.5"
@@ -38,7 +40,8 @@ chrono = "0.4.13"
 coarsetime = "0.1.16"
 failure = "0.1.8"
 flate2 = "1.0.16"
-fluent = "0.13.1"
+fluent = "0.15"
+fluent-bundle = "0.15"
 futures = "0.3.5"
 hex = "0.4.2"
 htmlescape = "0.3.1"
@@ -47,7 +50,6 @@ itertools = "0.9.0"
 lazy_static = "1.4.0"
 nom = "6.0.1"
 num_enum = "0.5.0"
-num-format = "0.4.0"
 num-integer = "0.1.43"
 once_cell = "1.4.1"
 pin-project = "1"

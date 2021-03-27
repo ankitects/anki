@@ -21,9 +21,9 @@ from typing import Any, Callable, List, Sequence, Tuple, Optional, Union
 import anki
 import aqt
 from anki.cards import Card
-from anki.decks import Deck, DeckConfig
+from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
 """
@@ -229,20 +229,28 @@ hooks = [
     ),
     Hook(
         name="deck_conf_did_load_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
+        ],
         doc="Called once widget state has been set from deck config",
     ),
     Hook(
         name="deck_conf_will_save_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
+        ],
         doc="Called before widget state is saved to config",
     ),
     Hook(
         name="deck_conf_did_add_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Deck",
-            "config: DeckConfig",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
             "new_name: str",
             "new_conf_id: int",
         ],
@@ -259,18 +267,49 @@ hooks = [
     ),
     Hook(
         name="deck_conf_will_remove_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
+        ],
         doc="Called before current config group is removed",
     ),
     Hook(
         name="deck_conf_will_rename_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Deck",
-            "config: DeckConfig",
+            "deck: DeckDict",
+            "config: DeckConfigDict",
             "new_name: str",
         ],
         doc="Called before config group is renamed",
+    ),
+    # Filtered deck options
+    ###################
+    Hook(
+        name="filtered_deck_dialog_did_load_deck",
+        args=[
+            "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
+            "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+        ],
+        doc="Allows updating widget state once the filtered deck config is loaded",
+    ),
+    Hook(
+        name="filtered_deck_dialog_will_add_or_update_deck",
+        args=[
+            "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
+            "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+        ],
+        doc="Allows modifying the filtered deck config object before it is written",
+    ),
+    Hook(
+        name="filtered_deck_dialog_did_add_or_update_deck",
+        args=[
+            "filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog",
+            "filtered_deck: anki.scheduler.FilteredDeckForUpdate",
+            "deck_id: int",
+        ],
+        doc="Allows performing changes after a filtered deck has been added or updated",
     ),
     # Browser
     ###################
@@ -816,13 +855,13 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="fields_did_rename_field",
         args=[
             "dialog: aqt.fields.FieldDialog",
-            "field: anki.models.Field",
+            "field: anki.models.FieldDict",
             "old_name: str",
         ],
     ),
     Hook(
         name="fields_did_delete_field",
-        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.Field"],
+        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.FieldDict"],
     ),
     # Stats
     ###################
@@ -840,11 +879,11 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ###################
     Hook(
         name="current_note_type_did_change",
-        args=["notetype: NoteType"],
+        args=["notetype: NotetypeDict"],
         legacy_hook="currentModelChanged",
         legacy_no_args=True,
     ),
-    Hook(name="sidebar_should_refresh_decks"),
+    Hook(name="sidebar_should_refresh_decks", doc="Legacy, do not use."),
     Hook(name="sidebar_should_refresh_notetypes"),
     Hook(
         name="deck_browser_will_show_options_menu",

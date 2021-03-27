@@ -23,7 +23,7 @@ hooks = [
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
         name="notes_will_be_deleted",
-        args=["col: anki.collection.Collection", "ids: Sequence[int]"],
+        args=["col: anki.collection.Collection", "ids: Sequence[anki.notes.NoteId]"],
         legacy_hook="remNotes",
     ),
     Hook(name="media_files_did_export", args=["count: int"]),
@@ -76,25 +76,27 @@ hooks = [
     ),
     Hook(
         name="scheduler_new_limit_for_single_deck",
-        args=["count: int", "deck: anki.decks.Deck"],
+        args=["count: int", "deck: anki.decks.DeckDict"],
         return_type="int",
         doc="""Allows changing the number of new card for this deck (without
         considering descendants).""",
     ),
     Hook(
         name="scheduler_review_limit_for_single_deck",
-        args=["count: int", "deck: anki.decks.Deck"],
+        args=["count: int", "deck: anki.decks.DeckDict"],
         return_type="int",
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
     # obsolete
     Hook(
-        name="deck_added", args=["deck: anki.decks.Deck"], doc="Obsolete, do not use."
+        name="deck_added",
+        args=["deck: anki.decks.DeckDict"],
+        doc="Obsolete, do not use.",
     ),
     Hook(
         name="note_type_added",
-        args=["notetype: anki.models.NoteType"],
+        args=["notetype: anki.models.NotetypeDict"],
         doc="Obsolete, do not use.",
     ),
     Hook(

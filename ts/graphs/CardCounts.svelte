@@ -1,7 +1,6 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
     import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -13,7 +12,7 @@
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut;
-    export let i18n: I18n;
+    import * as tr2 from "anki/i18n";
     export let preferences: PreferenceStore;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
@@ -29,12 +28,12 @@
     let tableData = (null as unknown) as TableDatum[];
 
     $: {
-        graphData = gatherData(sourceData, $cardCountsSeparateInactive, i18n);
+        graphData = gatherData(sourceData, $cardCountsSeparateInactive);
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
-    const label = i18n.tr(i18n.TR.STATISTICS_COUNTS_SEPARATE_SUSPENDED_BURIED_CARDS);
-    const total = i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS);
+    const label = tr2.statisticsCountsSeparateSuspendedBuriedCards();
+    const total = tr2.statisticsCountsTotalCards();
 </script>
 
 <style lang="scss">

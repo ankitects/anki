@@ -21,7 +21,6 @@ from typing import (
     cast,
 )
 
-from markdown import markdown
 from PyQt5.QtWidgets import (
     QAction,
     QDialog,
@@ -34,11 +33,9 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-import anki
 import aqt
 from anki import Collection
-from anki.errors import InvalidInput
-from anki.lang import TR  # pylint: disable=unused-import
+from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -69,9 +66,8 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(key: TR.V, **kwargs: Union[str, int, float]) -> str:
-    "Shortcut to access Fluent translations."
-    return anki.lang.current_i18n.translate(key, **kwargs)
+# shortcut to access Fluent translations; set as
+tr = tr_legacyglobal
 
 
 class HelpPage(Enum):
@@ -112,7 +108,7 @@ def openHelp(section: HelpPageArgument) -> None:
 
 
 def openLink(link: Union[str, QUrl]) -> None:
-    tooltip(tr(TR.QT_MISC_LOADING), period=1000)
+    tooltip(tr.qt_misc_loading(), period=1000)
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
 
@@ -137,14 +133,6 @@ def showCritical(
 ) -> int:
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
-
-
-def show_invalid_search_error(err: Exception, parent: Optional[QWidget] = None) -> None:
-    "Render search errors in markdown, then display a warning."
-    text = str(err)
-    if isinstance(err, InvalidInput):
-        text = markdown(text)
-    showWarning(text, parent=parent)
 
 
 def showInfo(
@@ -236,7 +224,7 @@ def showText(
         def onCopy() -> None:
             QApplication.clipboard().setText(text.toPlainText())
 
-        btn = QPushButton(tr(TR.QT_MISC_COPY_TO_CLIPBOARD))
+        btn = QPushButton(tr.qt_misc_copy_to_clipboard())
         qconnect(btn.clicked, onCopy)
         box.addButton(btn, QDialogButtonBox.ActionRole)
 
@@ -311,8 +299,8 @@ class ButtonedDialog(QMessageBox):
         for b in buttons:
             self._buttons.append(self.addButton(b, QMessageBox.AcceptRole))
         if help:
-            self.addButton(tr(TR.ACTIONS_HELP), QMessageBox.HelpRole)
-            buttons.append(tr(TR.ACTIONS_HELP))
+            self.addButton(tr.actions_help(), QMessageBox.HelpRole)
+            buttons.append(tr.actions_help())
 
     def run(self) -> str:
         self.exec_()
@@ -546,7 +534,7 @@ def getSaveFile(
         aqt.mw.pm.profile[config_key] = dir
         # check if it exists
         if os.path.exists(file):
-            if not askUser(tr(TR.QT_MISC_THIS_FILE_EXISTS_ARE_YOU_SURE), parent):
+            if not askUser(tr.qt_misc_this_file_exists_are_you_sure(), parent):
                 return None
     return file
 
@@ -815,7 +803,7 @@ def closeTooltip() -> None:
 def checkInvalidFilename(str: str, dirsep: bool = True) -> bool:
     bad = invalidFilename(str, dirsep)
     if bad:
-        showWarning(tr(TR.QT_MISC_THE_FOLLOWING_CHARACTER_CAN_NOT_BE, val=bad))
+        showWarning(tr.qt_misc_the_following_character_can_not_be(val=bad))
         return True
     return False
 

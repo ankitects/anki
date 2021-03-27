@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import re
 from concurrent.futures import Future
-from typing import Any
+from typing import Any, List
 
 import aqt
+from anki.cards import CardId
 from anki.collection import EmptyCardsReport
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
-from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tooltip, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tooltip, tr
 
 
 def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
@@ -21,7 +22,7 @@ def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
         mw.progress.finish()
         report: EmptyCardsReport = fut.result()
         if not report.notes:
-            tooltip(tr(TR.EMPTY_CARDS_NOT_FOUND))
+            tooltip(tr.empty_cards_not_found())
             return
         diag = EmptyCardsDialog(mw, report)
         diag.show()
@@ -39,10 +40,10 @@ class EmptyCardsDialog(QDialog):
         self.form = aqt.forms.emptycards.Ui_Dialog()
         self.form.setupUi(self)
         restoreGeom(self, "emptycards")
-        self.setWindowTitle(tr(TR.EMPTY_CARDS_WINDOW_TITLE))
+        self.setWindowTitle(tr.empty_cards_window_title())
         disable_help_button(self)
-        self.form.keep_notes.setText(tr(TR.EMPTY_CARDS_PRESERVE_NOTES_CHECKBOX))
-        self.form.webview.title = "empty cards"
+        self.form.keep_notes.setText(tr.empty_cards_preserve_notes_checkbox())
+        self.form.webview.set_title("empty cards")
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)
 
         gui_hooks.empty_cards_will_show(self)
@@ -62,10 +63,10 @@ class EmptyCardsDialog(QDialog):
         qconnect(self.finished, on_finished)
 
         self._delete_button = self.form.buttonBox.addButton(
-            tr(TR.EMPTY_CARDS_DELETE_BUTTON), QDialogButtonBox.ActionRole
+            tr.empty_cards_delete_button(), QDialogButtonBox.ActionRole
         )
         self._delete_button.setAutoDefault(False)
-        self._delete_button.clicked.connect(self._on_delete)
+        qconnect(self._delete_button.clicked, self._on_delete)
 
     def _on_note_link_clicked(self, link: str) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(link,))
@@ -82,20 +83,20 @@ class EmptyCardsDialog(QDialog):
                 count = fut.result()
             finally:
                 self.close()
-            tooltip(tr(TR.EMPTY_CARDS_DELETED_COUNT, cards=count))
+            tooltip(tr.empty_cards_deleted_count(cards=count))
             self.mw.reset()
 
         self.mw.taskman.run_in_background(delete, on_done)
 
     def _delete_cards(self, keep_notes: bool) -> int:
-        to_delete = []
+        to_delete: List[CardId] = []
         note: EmptyCardsReport.NoteWithEmptyCards
         for note in self.report.notes:
             if keep_notes and note.will_delete_note:
                 # leave first card
-                to_delete.extend(note.card_ids[1:])
+                to_delete.extend([CardId(id) for id in note.card_ids[1:]])
             else:
-                to_delete.extend(note.card_ids)
+                to_delete.extend([CardId(id) for id in note.card_ids])
 
         self.mw.col.remove_cards_and_orphaned_notes(to_delete)
         return len(to_delete)

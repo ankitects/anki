@@ -38,7 +38,7 @@ impl RevlogEntryPartial {
     pub(super) fn into_revlog_entry(
         self,
         usn: Usn,
-        cid: CardID,
+        cid: CardId,
         button_chosen: u8,
         answered_at: TimestampMillis,
         taken_millis: u32,

@@ -13,4 +13,12 @@ licenses([
 
 # No targets defined
 
+# Export file for Stardoc support
+exports_files(
+    [
+        "crates.bzl",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(["licenses.json"])

@@ -9,12 +9,13 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import aqt
 import aqt.forms
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
-from anki.errors import InvalidInput, NotFoundError
+from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType
+from anki.models import NotetypeDict
+from anki.notes import NoteId
 from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
@@ -39,7 +40,6 @@ from aqt.sidebar import SidebarTreeView
 from aqt.table import Table
 from aqt.tag_ops import add_tags, clear_unused_tags, remove_tags_for_notes
 from aqt.utils import (
-    TR,
     HelpPage,
     KeyboardModifiersPressed,
     askUser,
@@ -62,8 +62,8 @@ from aqt.utils import (
     saveSplitter,
     saveState,
     shortcut,
-    show_invalid_search_error,
     showInfo,
+    showWarning,
     tooltip,
     tr,
 )
@@ -278,7 +278,7 @@ class Browser(QMainWindow):
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.lineEdit().setPlaceholderText(
-            tr(TR.BROWSING_SEARCH_BAR_HINT)
+            tr.browsing_search_bar_hint()
         )
         self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
         if search is not None:
@@ -297,8 +297,8 @@ class Browser(QMainWindow):
         text = self.form.searchEdit.lineEdit().text()
         try:
             normed = self.col.build_search_string(text)
-        except InvalidInput as err:
-            show_invalid_search_error(err)
+        except Exception as err:
+            showWarning(str(err))
         else:
             self.search_for(normed)
             self.update_history()
@@ -323,7 +323,7 @@ class Browser(QMainWindow):
         try:
             self.table.search(self._lastSearchTxt)
         except Exception as err:
-            show_invalid_search_error(err)
+            showWarning(str(err))
 
     def update_history(self) -> None:
         sh = self.mw.pm.profile["searchHistory"]
@@ -338,13 +338,13 @@ class Browser(QMainWindow):
     def updateTitle(self) -> None:
         selected = self.table.len_selection()
         cur = self.table.len()
-        title = (
-            TR.BROWSING_WINDOW_TITLE
+        tr_title = (
+            tr.browsing_window_title
             if self.table.is_card_state()
-            else TR.BROWSING_WINDOW_TITLE_NOTES
+            else tr.browsing_window_title_notes
         )
         self.setWindowTitle(
-            without_unicode_isolation(tr(title, total=cur, selected=selected))
+            without_unicode_isolation(tr_title(total=cur, selected=selected))
         )
 
     def search_for_terms(self, *search_terms: Union[str, SearchNode]) -> None:
@@ -398,11 +398,10 @@ class Browser(QMainWindow):
                     None,
                     "preview",
                     lambda _editor: self.onTogglePreview(),
-                    tr(
-                        TR.BROWSING_PREVIEW_SELECTED_CARD,
+                    tr.browsing_preview_selected_card(
                         val=shortcut(preview_shortcut),
                     ),
-                    tr(TR.ACTIONS_PREVIEW),
+                    tr.actions_preview(),
                     id="previewButton",
                     keys=preview_shortcut,
                     disables=False,
@@ -451,7 +450,7 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSidebar(self) -> None:
-        dw = self.sidebarDockWidget = QDockWidget(tr(TR.BROWSING_SIDEBAR), self)
+        dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
@@ -544,16 +543,16 @@ class Browser(QMainWindow):
     # Menu helpers
     ######################################################################
 
-    def selected_cards(self) -> List[int]:
+    def selected_cards(self) -> List[CardId]:
         return self.table.get_selected_card_ids()
 
-    def selected_notes(self) -> List[int]:
+    def selected_notes(self) -> List[NoteId]:
         return self.table.get_selected_note_ids()
 
-    def selectedNotesAsCards(self) -> List[int]:
+    def selectedNotesAsCards(self) -> List[CardId]:
         return self.table.get_card_ids_from_selected_note_ids()
 
-    def oneModelNotes(self) -> List[int]:
+    def oneModelNotes(self) -> List[NoteId]:
         sf = self.selected_notes()
         if not sf:
             return []
@@ -564,7 +563,7 @@ where id in %s"""
             % ids2str(sf)
         )
         if mods > 1:
-            showInfo(tr(TR.BROWSING_PLEASE_SELECT_CARDS_FROM_ONLY_ONE))
+            showInfo(tr.browsing_please_select_cards_from_only_one())
             return []
         return sf
 
@@ -588,9 +587,9 @@ where id in %s"""
     def createFilteredDeck(self) -> None:
         search = self.form.searchEdit.lineEdit().text()
         if self.mw.col.schedVer() != 1 and KeyboardModifiersPressed().alt:
-            aqt.dialogs.open("DynDeckConfDialog", self.mw, search_2=search)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search_2=search)
         else:
-            aqt.dialogs.open("DynDeckConfDialog", self.mw, search=search)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search=search)
 
     # Preview
     ######################################################################
@@ -642,7 +641,7 @@ where id in %s"""
         remove_notes(
             mw=self.mw,
             note_ids=nids,
-            success=lambda _: tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids))),
+            success=lambda _: tooltip(tr.browsing_note_deleted(count=len(nids))),
         )
 
     # legacy
@@ -665,8 +664,8 @@ where id in %s"""
         ret = StudyDeck(
             self.mw,
             current=current,
-            accept=tr(TR.BROWSING_MOVE_CARDS),
-            title=tr(TR.BROWSING_CHANGE_DECK),
+            accept=tr.browsing_move_cards(),
+            title=tr.browsing_change_deck(),
             help=HelpPage.BROWSING,
             parent=self,
         )
@@ -689,16 +688,14 @@ where id in %s"""
         tags: Optional[str] = None,
     ) -> None:
         "Shows prompt if tags not provided."
-        if not (
-            tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_ADD))
-        ):
+        if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
         add_tags(
             mw=self.mw,
             note_ids=self.selected_notes(),
             space_separated_tags=tags,
             success=lambda out: tooltip(
-                tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=self
+                tr.browsing_notes_updated(count=out.count), parent=self
             ),
         )
 
@@ -706,7 +703,7 @@ where id in %s"""
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
         if not (
-            tags := tags or self._prompt_for_tags(tr(TR.BROWSING_ENTER_TAGS_TO_DELETE))
+            tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
         ):
             return
         remove_tags_for_notes(
@@ -714,7 +711,7 @@ where id in %s"""
             note_ids=self.selected_notes(),
             space_separated_tags=tags,
             success=lambda out: tooltip(
-                tr(TR.BROWSING_NOTES_UPDATED, count=out.count), parent=self
+                tr.browsing_notes_updated(count=out.count), parent=self
             ),
         )
 
@@ -800,7 +797,7 @@ where id in %s"""
     @ensure_editor_saved_on_trigger
     def reposition(self) -> None:
         if self.card and self.card.queue != QUEUE_TYPE_NEW:
-            showInfo(tr(TR.BROWSING_ONLY_NEW_CARDS_CAN_BE_REPOSITIONED), parent=self)
+            showInfo(tr.browsing_only_new_cards_can_be_repositioned(), parent=self)
             return
 
         reposition_new_cards_dialog(
@@ -843,8 +840,7 @@ where id in %s"""
 
     def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
-        # fixme: remove these once all items are using `operation_did_execute`
-        gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
+        # fixme: remove this once all items are using `operation_did_execute`
         gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
         gui_hooks.backend_will_block.append(self.table.on_backend_will_block)
         gui_hooks.backend_did_block.append(self.table.on_backend_did_block)
@@ -853,18 +849,13 @@ where id in %s"""
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
-        gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
         gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
         gui_hooks.backend_will_block.remove(self.table.on_backend_will_block)
         gui_hooks.backend_did_block.remove(self.table.on_backend_will_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
 
-    # covers the tag, note and deck case
     def on_item_added(self, item: Any = None) -> None:
-        self.sidebar.refresh()
-
-    def on_tag_list_update(self) -> None:
         self.sidebar.refresh()
 
     # Undo
@@ -913,10 +904,10 @@ where id in %s"""
         )
         frm.fields.addItems(fields)
         restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
-        self._dupesButton = None
+        self._dupesButton: Optional[QPushButton] = None
 
         # links
-        frm.webView.title = "find duplicates"
+        frm.webView.set_title("find duplicates")
         web_context = FindDupesDialog(dialog=d, browser=self)
         frm.webView.set_bridge_command(self.dupeLinkClicked, web_context)
         frm.webView.stdHtml("", context=web_context)
@@ -933,7 +924,7 @@ where id in %s"""
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
         search = frm.buttonBox.addButton(
-            tr(TR.ACTIONS_SEARCH), QDialogButtonBox.ActionRole
+            tr.actions_search(), QDialogButtonBox.ActionRole
         )
         qconnect(search.clicked, onClick)
         d.show()
@@ -949,21 +940,21 @@ where id in %s"""
         self.mw.progress.start()
         try:
             res = self.mw.col.findDupes(fname, search)
-        except InvalidInput as e:
+        except Exception as e:
             self.mw.progress.finish()
-            show_invalid_search_error(e)
+            showWarning(str(e))
             return
         if not self._dupesButton:
             self._dupesButton = b = frm.buttonBox.addButton(
-                tr(TR.BROWSING_TAG_DUPLICATES), QDialogButtonBox.ActionRole
+                tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
             )
             qconnect(b.clicked, lambda: self._onTagDupes(res))
         t = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
-        part1 = tr(TR.BROWSING_GROUP, count=groups)
-        part2 = tr(TR.BROWSING_NOTE_COUNT, count=notes)
-        t += tr(TR.BROWSING_FOUND_AS_ACROSS_BS, part=part1, whole=part2)
+        part1 = tr.browsing_group(count=groups)
+        part2 = tr.browsing_note_count(count=notes)
+        t += tr.browsing_found_as_across_bs(part=part1, whole=part2)
         t += "<p><ol>"
         for val, nids in res:
             t += (
@@ -974,7 +965,7 @@ where id in %s"""
                             SearchNode(nids=SearchNode.IdList(ids=nids))
                         )
                     ),
-                    tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
+                    tr.browsing_note_count(count=len(nids)),
                     html.escape(val),
                 )
             )
@@ -986,15 +977,15 @@ where id in %s"""
         if not res:
             return
         self.begin_reset()
-        self.mw.checkpoint(tr(TR.BROWSING_TAG_DUPLICATES))
+        self.mw.checkpoint(tr.browsing_tag_duplicates())
         nids = set()
         for _, nidlist in res:
             nids.update(nidlist)
-        self.col.tags.bulk_add(list(nids), tr(TR.BROWSING_DUPLICATE))
+        self.col.tags.bulk_add(list(nids), tr.browsing_duplicate())
         self.mw.progress.finish()
         self.end_reset()
         self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
-        tooltip(tr(TR.BROWSING_NOTES_TAGGED))
+        tooltip(tr.browsing_notes_tagged())
 
     def dupeLinkClicked(self, link: str) -> None:
         self.search_for(link)
@@ -1046,7 +1037,7 @@ where id in %s"""
 
 
 class ChangeModel(QDialog):
-    def __init__(self, browser: Browser, nids: List[int]) -> None:
+    def __init__(self, browser: Browser, nids: List[NoteId]) -> None:
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids
@@ -1064,7 +1055,7 @@ class ChangeModel(QDialog):
         self.fcombos: List[QComboBox] = []
         self.exec_()
 
-    def on_note_type_change(self, notetype: NoteType) -> None:
+    def on_note_type_change(self, notetype: NotetypeDict) -> None:
         self.onReset()
 
     def setup(self) -> None:
@@ -1123,10 +1114,10 @@ class ChangeModel(QDialog):
         map = QWidget()
         l = QGridLayout()
         combos = []
-        targets = [x["name"] for x in dst] + [tr(TR.BROWSING_NOTHING)]
+        targets = [x["name"] for x in dst] + [tr.browsing_nothing()]
         indices = {}
         for i, x in enumerate(src):
-            l.addWidget(QLabel(tr(TR.BROWSING_CHANGE_TO, val=x["name"])), i, 0)
+            l.addWidget(QLabel(tr.browsing_change_to(val=x["name"])), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets) - 1)
@@ -1209,9 +1200,9 @@ class ChangeModel(QDialog):
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
         if any(True for c in list(cmap.values()) if c is None):
-            if not askUser(tr(TR.BROWSING_ANY_CARDS_MAPPED_TO_NOTHING_WILL)):
+            if not askUser(tr.browsing_any_cards_mapped_to_nothing_will()):
                 return
-        self.browser.mw.checkpoint(tr(TR.BROWSING_CHANGE_NOTE_TYPE))
+        self.browser.mw.checkpoint(tr.browsing_change_note_type())
         b = self.browser
         b.mw.col.modSchema(check=True)
         b.mw.progress.start()

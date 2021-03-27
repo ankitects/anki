@@ -7,7 +7,7 @@ if not exist WORKSPACE (
 
 rd /s /q bazel-dist
 
-set BUILDARGS=-k -c opt dist --color=yes --@io_bazel_rules_rust//worker:use_worker=False
+set BUILDARGS=-k -c opt dist --color=yes --@rules_rust//worker:use_worker=False
 call .\bazel build %BUILDARGS%
 :: repeat on failure
 IF %ERRORLEVEL% NEQ 0 call .\bazel build %BUILDARGS%

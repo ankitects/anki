@@ -13,7 +13,7 @@ from anki.utils import isLin, isMac, isWin
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import TR, openLink, showInfo, tr
+from aqt.utils import openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -213,7 +213,7 @@ class AnkiWebView(QWebEngineView):
         self, parent: Optional[QWidget] = None, title: str = "default"
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.title = title  # type: ignore
+        self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 
@@ -251,6 +251,9 @@ class AnkiWebView(QWebEngineView):
                 context=Qt.WidgetWithChildrenShortcut,
                 activated=self.onPaste,
             )
+
+    def set_title(self, title: str) -> None:
+        self.title = title  # type: ignore[assignment]
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         # disable pinch to zoom gesture
@@ -305,7 +308,7 @@ class AnkiWebView(QWebEngineView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(tr(TR.ACTIONS_COPY))
+        a = m.addAction(tr.actions_copy())
         qconnect(a.triggered, self.onCopy)
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
@@ -396,7 +399,7 @@ class AnkiWebView(QWebEngineView):
 
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
-            family = tr(TR.QT_MISC_SEGOE_UI)
+            family = tr.qt_misc_segoe_ui()
             button_style = "button { font-family:%s; }" % family
             button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
             font = f"font-size:12px;font-family:{family};"

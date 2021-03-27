@@ -1,29 +1,29 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_args, I18n, TR};
+use crate::i18n::I18n;
 
 /// Short string like '4d' to place above answer buttons.
-pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
+pub fn answer_button_time(seconds: f32, tr: &I18n) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
-    let args = tr_args!["amount" => span.as_rounded_unit_for_answer_buttons()];
-    let key = match span.unit() {
-        TimespanUnit::Seconds => TR::SchedulingAnswerButtonTimeSeconds,
-        TimespanUnit::Minutes => TR::SchedulingAnswerButtonTimeMinutes,
-        TimespanUnit::Hours => TR::SchedulingAnswerButtonTimeHours,
-        TimespanUnit::Days => TR::SchedulingAnswerButtonTimeDays,
-        TimespanUnit::Months => TR::SchedulingAnswerButtonTimeMonths,
-        TimespanUnit::Years => TR::SchedulingAnswerButtonTimeYears,
-    };
-    i18n.trn(key, args)
+    let amount = span.as_rounded_unit_for_answer_buttons();
+    match span.unit() {
+        TimespanUnit::Seconds => tr.scheduling_answer_button_time_seconds(amount),
+        TimespanUnit::Minutes => tr.scheduling_answer_button_time_minutes(amount),
+        TimespanUnit::Hours => tr.scheduling_answer_button_time_hours(amount),
+        TimespanUnit::Days => tr.scheduling_answer_button_time_days(amount),
+        TimespanUnit::Months => tr.scheduling_answer_button_time_months(amount),
+        TimespanUnit::Years => tr.scheduling_answer_button_time_years(amount),
+    }
+    .into()
 }
 
 /// Short string like '4d' to place above answer buttons.
 /// Times within the collapse time are represented like '<10m'
-pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, i18n: &I18n) -> String {
-    let string = answer_button_time(seconds as f32, i18n);
+pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, tr: &I18n) -> String {
+    let string = answer_button_time(seconds as f32, tr);
     if seconds == 0 {
-        i18n.tr(TR::SchedulingEnd).into()
+        tr.scheduling_end().into()
     } else if seconds < collapse_secs {
         format!("<{}", string)
     } else {
@@ -35,23 +35,22 @@ pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, i18n: &I
 /// If precise is true, show to two decimal places, eg
 /// eg 70 seconds -> "1.17 minutes"
 /// If false, seconds and days are shown without decimals.
-pub fn time_span(seconds: f32, i18n: &I18n, precise: bool) -> String {
+pub fn time_span(seconds: f32, tr: &I18n, precise: bool) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
     let amount = if precise {
         span.as_unit()
     } else {
         span.as_rounded_unit()
     };
-    let args = tr_args!["amount" => amount];
-    let key = match span.unit() {
-        TimespanUnit::Seconds => TR::SchedulingTimeSpanSeconds,
-        TimespanUnit::Minutes => TR::SchedulingTimeSpanMinutes,
-        TimespanUnit::Hours => TR::SchedulingTimeSpanHours,
-        TimespanUnit::Days => TR::SchedulingTimeSpanDays,
-        TimespanUnit::Months => TR::SchedulingTimeSpanMonths,
-        TimespanUnit::Years => TR::SchedulingTimeSpanYears,
-    };
-    i18n.trn(key, args)
+    match span.unit() {
+        TimespanUnit::Seconds => tr.scheduling_time_span_seconds(amount),
+        TimespanUnit::Minutes => tr.scheduling_time_span_minutes(amount),
+        TimespanUnit::Hours => tr.scheduling_time_span_hours(amount),
+        TimespanUnit::Days => tr.scheduling_time_span_days(amount),
+        TimespanUnit::Months => tr.scheduling_time_span_months(amount),
+        TimespanUnit::Years => tr.scheduling_time_span_years(amount),
+    }
+    .into()
 }
 
 const SECOND: f32 = 1.0;
@@ -168,27 +167,24 @@ impl Timespan {
 #[cfg(test)]
 mod test {
     use crate::i18n::I18n;
-    use crate::log;
     use crate::scheduler::timespan::{answer_button_time, time_span, MONTH};
 
     #[test]
     fn answer_buttons() {
-        let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "", log);
-        assert_eq!(answer_button_time(30.0, &i18n), "30s");
-        assert_eq!(answer_button_time(70.0, &i18n), "1m");
-        assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.1mo");
+        let tr = I18n::template_only();
+        assert_eq!(answer_button_time(30.0, &tr), "30s");
+        assert_eq!(answer_button_time(70.0, &tr), "1m");
+        assert_eq!(answer_button_time(1.1 * MONTH, &tr), "1.1mo");
     }
 
     #[test]
     fn time_spans() {
-        let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "", log);
-        assert_eq!(time_span(1.0, &i18n, false), "1 second");
-        assert_eq!(time_span(30.3, &i18n, false), "30 seconds");
-        assert_eq!(time_span(30.3, &i18n, true), "30.3 seconds");
-        assert_eq!(time_span(90.0, &i18n, false), "1.5 minutes");
-        assert_eq!(time_span(45.0 * 86_400.0, &i18n, false), "1.5 months");
-        assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &i18n, false), "1.5 years");
+        let tr = I18n::template_only();
+        assert_eq!(time_span(1.0, &tr, false), "1 second");
+        assert_eq!(time_span(30.3, &tr, false), "30 seconds");
+        assert_eq!(time_span(30.3, &tr, true), "30.3 seconds");
+        assert_eq!(time_span(90.0, &tr, false), "1.5 minutes");
+        assert_eq!(time_span(45.0 * 86_400.0, &tr, false), "1.5 months");
+        assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &tr, false), "1.5 years");
     }
 }

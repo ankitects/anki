@@ -24,7 +24,7 @@ from anki.sync import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.utils import TR, disable_help_button, locale_dir, showWarning, tr
+from aqt.utils import disable_help_button, showWarning, tr
 
 # Profile handling
 ##########################################################################
@@ -138,7 +138,7 @@ class ProfileManager:
         if profile:
             if profile not in self.profiles():
                 QMessageBox.critical(
-                    None, tr(TR.QT_MISC_ERROR), tr(TR.PROFILES_PROFILE_DOES_NOT_EXIST)
+                    None, tr.qt_misc_error(), tr.profiles_profile_does_not_exist()
                 )
                 sys.exit(1)
             try:
@@ -299,8 +299,8 @@ class ProfileManager:
         except:
             QMessageBox.warning(
                 None,
-                tr(TR.PROFILES_PROFILE_CORRUPT),
-                tr(TR.PROFILES_ANKI_COULD_NOT_READ_YOUR_PROFILE),
+                tr.profiles_profile_corrupt(),
+                tr.profiles_anki_could_not_read_your_profile(),
             )
             traceback.print_stack()
             print("resetting corrupt profile")
@@ -347,13 +347,11 @@ class ProfileManager:
                     os.rename(oldFolder, midFolder)
                     oldFolder = midFolder
                 else:
-                    showWarning(
-                        tr(TR.PROFILES_PLEASE_REMOVE_THE_FOLDER_AND, val=midFolder)
-                    )
+                    showWarning(tr.profiles_please_remove_the_folder_and(val=midFolder))
                     self.name = oldName
                     return
             else:
-                showWarning(tr(TR.PROFILES_FOLDER_ALREADY_EXISTS))
+                showWarning(tr.profiles_folder_already_exists())
                 self.name = oldName
                 return
 
@@ -365,7 +363,7 @@ class ProfileManager:
         except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
-                showWarning(tr(TR.PROFILES_ANKI_COULD_NOT_RENAME_YOUR_PROFILE))
+                showWarning(tr.profiles_anki_could_not_rename_your_profile())
             else:
                 raise
         except:
@@ -513,13 +511,12 @@ create table if not exists profiles
 
     def _ensureProfile(self) -> None:
         "Create a new profile if none exists."
-        self.create(tr(TR.PROFILES_USER_1))
+        self.create(tr.profiles_user_1())
         p = os.path.join(self.base, "README.txt")
         with open(p, "w", encoding="utf8") as file:
             file.write(
                 without_unicode_isolation(
-                    tr(
-                        TR.PROFILES_FOLDER_README,
+                    tr.profiles_folder_readme(
                         link=f"{appHelpSite}files?id=startup-options",
                     )
                 )
@@ -552,7 +549,7 @@ create table if not exists profiles
         code = obj[1]
         name = obj[0]
         r = QMessageBox.question(
-            None, "Anki", tr(TR.PROFILES_CONFIRM_LANG_CHOICE, lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
+            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
         )
         if r != QMessageBox.Yes:
             return self.setDefaultLang(f.lang.currentRow())
@@ -563,7 +560,7 @@ create table if not exists profiles
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
-        anki.lang.set_lang(code, locale_dir())
+        anki.lang.set_lang(code)
 
     # OpenGL
     ######################################################################

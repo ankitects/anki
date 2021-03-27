@@ -121,7 +121,7 @@ mod test {
         let mut note = nt.new_note();
         note.tags.push("foo::bar::a".into());
         note.tags.push("foo::bar::b".into());
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // missing parents are added
         assert_eq!(

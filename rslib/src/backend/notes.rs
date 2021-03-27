@@ -12,7 +12,7 @@ use crate::{
 pub(super) use pb::notes_service::Service as NotesService;
 
 impl NotesService for Backend {
-    fn new_note(&self, input: pb::NoteTypeId) -> Result<pb::Note> {
+    fn new_note(&self, input: pb::NotetypeId) -> Result<pb::Note> {
         self.with_col(|col| {
             let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
             Ok(nt.new_note().into())
@@ -22,7 +22,7 @@ impl NotesService for Backend {
     fn add_note(&self, input: pb::AddNoteIn) -> Result<pb::AddNoteOut> {
         self.with_col(|col| {
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            let changes = col.add_note(&mut note, DeckID(input.deck_id))?;
+            let changes = col.add_note(&mut note, DeckId(input.deck_id))?;
             Ok(pb::AddNoteOut {
                 note_id: note.id.0,
                 changes: Some(changes.into()),
@@ -32,16 +32,16 @@ impl NotesService for Backend {
 
     fn defaults_for_adding(&self, input: pb::DefaultsForAddingIn) -> Result<pb::DeckAndNotetype> {
         self.with_col(|col| {
-            let home_deck: DeckID = input.home_deck_of_current_review_card.into();
+            let home_deck: DeckId = input.home_deck_of_current_review_card.into();
             col.defaults_for_adding(home_deck).map(Into::into)
         })
     }
 
-    fn default_deck_for_notetype(&self, input: pb::NoteTypeId) -> Result<pb::DeckId> {
+    fn default_deck_for_notetype(&self, input: pb::NotetypeId) -> Result<pb::DeckId> {
         self.with_col(|col| {
             Ok(col
                 .default_deck_for_notetype(input.into())?
-                .unwrap_or(DeckID(0))
+                .unwrap_or(DeckId(0))
                 .into())
         })
     }
@@ -113,7 +113,7 @@ impl NotesService for Backend {
         input: pb::FieldNamesForNotesIn,
     ) -> Result<pb::FieldNamesForNotesOut> {
         self.with_col(|col| {
-            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
+            let nids: Vec<_> = input.nids.into_iter().map(NoteId).collect();
             col.storage
                 .field_names_for_notes(&nids)
                 .map(|fields| pb::FieldNamesForNotesOut { fields })
@@ -128,17 +128,17 @@ impl NotesService for Backend {
         })
     }
 
-    fn cards_of_note(&self, input: pb::NoteId) -> Result<pb::CardIDs> {
+    fn cards_of_note(&self, input: pb::NoteId) -> Result<pb::CardIds> {
         self.with_col(|col| {
             col.storage
-                .all_card_ids_of_note(NoteID(input.nid))
-                .map(|v| pb::CardIDs {
+                .all_card_ids_of_note(NoteId(input.nid))
+                .map(|v| pb::CardIds {
                     cids: v.into_iter().map(Into::into).collect(),
                 })
         })
     }
 }
 
-pub(super) fn to_note_ids(ids: Vec<i64>) -> Vec<NoteID> {
-    ids.into_iter().map(NoteID).collect()
+pub(super) fn to_note_ids(ids: Vec<i64>) -> Vec<NoteId> {
+    ids.into_iter().map(NoteId).collect()
 }

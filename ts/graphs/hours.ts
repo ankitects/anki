@@ -6,7 +6,6 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { I18n } from "anki/i18n";
 import pb from "anki/backend_proto";
 import {
     interpolateBlues,
@@ -30,6 +29,7 @@ import {
     millisecondCutoffForRange,
 } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
+import * as tr from "anki/i18n";
 
 interface Hour {
     hour: number;
@@ -75,7 +75,6 @@ export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
     origData: pb.BackendProto.GraphsOut,
-    i18n: I18n,
     range: GraphRange
 ): void {
     const data = gatherData(origData, range);
@@ -185,11 +184,11 @@ export function renderHours(
         );
 
     function tooltipText(d: Hour): string {
-        const hour = i18n.tr(i18n.TR.STATISTICS_HOURS_RANGE, {
+        const hour = tr.statisticsHoursRange({
             hourStart: d.hour,
             hourEnd: d.hour + 1,
         });
-        const correct = i18n.tr(i18n.TR.STATISTICS_HOURS_CORRECT, {
+        const correct = tr.statisticsHoursCorrect({
             correct: d.correctCount,
             total: d.totalCount,
             percent: d.totalCount ? (d.correctCount / d.totalCount) * 100 : 0,

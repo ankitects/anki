@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ADDONS_CONFIGURATION</string>
+   <string>addons_configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

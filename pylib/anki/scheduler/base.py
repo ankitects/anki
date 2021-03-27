@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import anki
 import anki._backend.backend_pb2 as _pb
-from anki.collection import OpChanges, OpChangesWithCount
+from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
 SchedTimingToday = _pb.SchedTimingTodayOut
@@ -13,14 +13,16 @@ SchedTimingToday = _pb.SchedTimingTodayOut
 
 from typing import List, Optional, Sequence
 
+from anki.cards import CardId
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
-from anki.decks import DeckConfig, DeckTreeNode
+from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import Note
 from anki.utils import ids2str, intTime
 
 CongratsInfo = _pb.CongratsInfoOut
 UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
 BuryOrSuspend = _pb.BuryOrSuspendCardsIn
+FilteredDeckForUpdate = _pb.FilteredDeckForUpdate
 
 
 class SchedulerBase:
@@ -71,6 +73,7 @@ class SchedulerBase:
 
     # fixme: used by custom study
     def totalRevForCurrentDeck(self) -> int:
+        assert self.col.db
         return self.col.db.scalar(
             f"""
 select count() from cards where id in (
@@ -88,19 +91,27 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Filtered deck handling
     ##########################################################################
 
-    def rebuild_filtered_deck(self, deck_id: int) -> int:
+    def rebuild_filtered_deck(self, deck_id: DeckId) -> OpChangesWithCount:
         return self.col._backend.rebuild_filtered_deck(deck_id)
 
-    def empty_filtered_deck(self, deck_id: int) -> None:
-        self.col._backend.empty_filtered_deck(deck_id)
+    def empty_filtered_deck(self, deck_id: DeckId) -> OpChanges:
+        return self.col._backend.empty_filtered_deck(deck_id)
+
+    def get_or_create_filtered_deck(self, deck_id: DeckId) -> FilteredDeckForUpdate:
+        return self.col._backend.get_or_create_filtered_deck(deck_id)
+
+    def add_or_update_filtered_deck(
+        self, deck: FilteredDeckForUpdate
+    ) -> OpChangesWithId:
+        return self.col._backend.add_or_update_filtered_deck(deck)
 
     # Suspending & burying
     ##########################################################################
 
-    def unsuspend_cards(self, ids: Sequence[int]) -> OpChanges:
+    def unsuspend_cards(self, ids: Sequence[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
-    def unbury_cards(self, ids: List[int]) -> OpChanges:
+    def unbury_cards(self, ids: List[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_cards_in_current_deck(
@@ -109,12 +120,12 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     ) -> None:
         self.col._backend.unbury_cards_in_current_deck(mode)
 
-    def suspend_cards(self, ids: Sequence[int]) -> OpChanges:
+    def suspend_cards(self, ids: Sequence[CardId]) -> OpChanges:
         return self.col._backend.bury_or_suspend_cards(
             card_ids=ids, mode=BuryOrSuspend.SUSPEND
         )
 
-    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> OpChanges:
+    def bury_cards(self, ids: Sequence[CardId], manual: bool = True) -> OpChanges:
         if manual:
             mode = BuryOrSuspend.BURY_USER
         else:
@@ -127,30 +138,35 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Resetting/rescheduling
     ##########################################################################
 
-    def schedule_cards_as_new(self, card_ids: List[int]) -> OpChanges:
+    def schedule_cards_as_new(self, card_ids: List[CardId]) -> OpChanges:
         "Put cards at the end of the new queue."
         return self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
     def set_due_date(
         self,
-        card_ids: List[int],
+        card_ids: List[CardId],
         days: str,
         config_key: Optional[Config.String.Key.V] = None,
     ) -> OpChanges:
         """Set cards to be due in `days`, turning them into review cards if necessary.
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
+        key: Optional[Config.String]
         if config_key:
             key = Config.String(key=config_key)
         else:
             key = None
         return self.col._backend.set_due_date(
-            card_ids=card_ids, days=days, config_key=key
+            card_ids=card_ids,
+            days=days,
+            # this value is optional; the auto-generated typing is wrong
+            config_key=key,  # type: ignore
         )
 
-    def resetCards(self, ids: List[int]) -> None:
+    def resetCards(self, ids: List[CardId]) -> None:
         "Completely reset cards for export."
         sids = ids2str(ids)
+        assert self.col.db
         # we want to avoid resetting due number of existing new cards on export
         nonNew = self.col.db.list(
             f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})"
@@ -169,7 +185,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
 
     def reposition_new_cards(
         self,
-        card_ids: Sequence[int],
+        card_ids: Sequence[CardId],
         starting_from: int,
         step_size: int,
         randomize: bool,
@@ -183,13 +199,13 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             shift_existing=shift_existing,
         )
 
-    def randomizeCards(self, did: int) -> None:
+    def randomizeCards(self, did: DeckId) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=True)
 
-    def orderCards(self, did: int) -> None:
+    def orderCards(self, did: DeckId) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=False)
 
-    def resortConf(self, conf: DeckConfig) -> None:
+    def resortConf(self, conf: DeckConfigDict) -> None:
         for did in self.col.decks.didsForConf(conf):
             if conf["new"]["order"] == 0:
                 self.randomizeCards(did)
@@ -197,7 +213,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did: Optional[int] = None) -> None:
+    def maybeRandomizeDeck(self, did: Optional[DeckId] = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)
@@ -208,7 +224,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # legacy
     def sortCards(
         self,
-        cids: List[int],
+        cids: List[CardId],
         start: int = 1,
         step: int = 1,
         shuffle: bool = False,

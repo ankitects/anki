@@ -12,8 +12,7 @@ from typing import Any, List, Optional, Tuple
 import anki
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki.lang import TR
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, isMac, namedtmp, tmpdir
 
@@ -65,7 +64,9 @@ def on_card_did_render(
     output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
 
 
-def render_latex(html: str, model: NoteType, col: anki.collection.Collection) -> str:
+def render_latex(
+    html: str, model: NotetypeDict, col: anki.collection.Collection
+) -> str:
     "Convert embedded latex tags in text to image links."
     html, err = render_latex_returning_errors(html, model, col)
     if err:
@@ -75,7 +76,7 @@ def render_latex(html: str, model: NoteType, col: anki.collection.Collection) ->
 
 def render_latex_returning_errors(
     html: str,
-    model: NoteType,
+    model: NotetypeDict,
     col: anki.collection.Collection,
     expand_clozes: bool = False,
 ) -> Tuple[str, List[str]]:
@@ -129,7 +130,7 @@ def _save_latex_image(
         # don't mind if the sequence is only part of a command
         bad_re = f"\\{bad}[^a-zA-Z]"
         if re.search(bad_re, tmplatex):
-            return col.tr(TR.MEDIA_FOR_SECURITY_REASONS_IS_NOT, val=bad)
+            return col.tr.media_for_security_reasons_is_not(val=bad)
 
     # commands to use
     if svg:
@@ -165,8 +166,8 @@ def _save_latex_image(
 
 
 def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
-    msg = f"{col.tr(TR.MEDIA_ERROR_EXECUTING, val=type)}<br>"
-    msg += f"{col.tr(TR.MEDIA_GENERATED_FILE, val=texpath)}<br>"
+    msg = f"{col.tr.media_error_executing(val=type)}<br>"
+    msg += f"{col.tr.media_generated_file(val=texpath)}<br>"
     try:
         with open(namedtmp("latex_log.txt", rm=False)) as f:
             log = f.read()
@@ -174,7 +175,7 @@ def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
             raise Exception()
         msg += f"<small><pre>{html.escape(log)}</pre></small>"
     except:
-        msg += col.tr(TR.MEDIA_HAVE_YOU_INSTALLED_LATEX_AND_DVIPNGDVISVGM)
+        msg += col.tr.media_have_you_installed_latex_and_dvipngdvisvgm()
     return msg
 
 

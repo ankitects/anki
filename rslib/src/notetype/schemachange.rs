@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardGenContext, NoteType};
+use super::{CardGenContext, Notetype};
 use crate::{collection::Collection, err::Result};
 
 /// True if any ordinals added, removed or reordered.
@@ -52,7 +52,7 @@ impl Collection {
     /// Caller must create transaction.
     pub(crate) fn update_notes_for_changed_fields(
         &mut self,
-        nt: &NoteType,
+        nt: &Notetype,
         previous_field_count: usize,
         previous_sort_idx: u32,
         normalize_text: bool,
@@ -106,7 +106,7 @@ impl Collection {
     /// Caller must create transaction.
     pub(crate) fn update_cards_for_changed_templates(
         &mut self,
-        nt: &NoteType,
+        nt: &Notetype,
         previous_template_count: usize,
     ) -> Result<()> {
         let ords: Vec<_> = nt.templates.iter().map(|f| f.ord).collect();
@@ -137,7 +137,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::{ords_changed, TemplateOrdChanges};
-    use crate::{collection::open_test_collection, decks::DeckID, err::Result, search::SortMode};
+    use crate::{collection::open_test_collection, decks::DeckId, err::Result, search::SortMode};
 
     #[test]
     fn ord_changes() {
@@ -205,7 +205,7 @@ mod test {
         assert_eq!(note.fields().len(), 2);
         note.set_field(0, "one")?;
         note.set_field(1, "two")?;
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         nt.add_field("three");
         col.update_notetype(&mut nt, false)?;
@@ -254,7 +254,7 @@ mod test {
         assert_eq!(note.fields().len(), 2);
         note.set_field(0, "one")?;
         note.set_field(1, "two")?;
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         assert_eq!(
             col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)

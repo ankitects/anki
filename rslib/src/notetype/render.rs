@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardTemplate, NoteType, NoteTypeKind};
+use super::{CardTemplate, Notetype, NotetypeKind};
 use crate::{
-    card::{Card, CardID},
+    card::{Card, CardId},
     collection::Collection,
     err::{AnkiError, Result},
-    i18n::{I18n, TR},
-    notes::{Note, NoteID},
+    i18n::I18n,
+    notes::{Note, NoteId},
     template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
 };
 use std::{borrow::Cow, collections::HashMap};
@@ -19,7 +19,7 @@ pub struct RenderCardOutput {
 
 impl Collection {
     /// Render an existing card saved in the database.
-    pub fn render_existing_card(&mut self, cid: CardID, browser: bool) -> Result<RenderCardOutput> {
+    pub fn render_existing_card(&mut self, cid: CardId, browser: bool) -> Result<RenderCardOutput> {
         let card = self
             .storage
             .get_card(cid)?
@@ -32,8 +32,8 @@ impl Collection {
             .get_notetype(note.notetype_id)?
             .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
         let template = match nt.config.kind() {
-            NoteTypeKind::Normal => nt.templates.get(card.template_idx as usize),
-            NoteTypeKind::Cloze => nt.templates.get(0),
+            NotetypeKind::Normal => nt.templates.get(card.template_idx as usize),
+            NotetypeKind::Cloze => nt.templates.get(0),
         }
         .ok_or_else(|| AnkiError::invalid_input("missing template"))?;
 
@@ -56,7 +56,7 @@ impl Collection {
             .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
 
         if fill_empty {
-            fill_empty_fields(note, &template.config.q_format, &nt, &self.i18n);
+            fill_empty_fields(note, &template.config.q_format, &nt, &self.tr);
         }
 
         self.render_card(note, &card, &nt, template, false)
@@ -64,7 +64,7 @@ impl Collection {
 
     fn existing_or_synthesized_card(
         &self,
-        nid: NoteID,
+        nid: NoteId,
         template_ord: Option<u32>,
         card_ord: u16,
     ) -> Result<Card> {
@@ -86,7 +86,7 @@ impl Collection {
         &mut self,
         note: &Note,
         card: &Card,
-        nt: &NoteType,
+        nt: &Notetype,
         template: &CardTemplate,
         browser: bool,
     ) -> Result<RenderCardOutput> {
@@ -116,7 +116,7 @@ impl Collection {
             &field_map,
             card.template_idx,
             nt.is_cloze(),
-            &self.i18n,
+            &self.tr,
         )?;
         Ok(RenderCardOutput { qnodes, anodes })
     }
@@ -127,7 +127,7 @@ impl Collection {
         map: &mut HashMap<&str, Cow<str>>,
         note: &Note,
         card: &Card,
-        nt: &NoteType,
+        nt: &Notetype,
         template: &CardTemplate,
     ) -> Result<()> {
         let tags = note.tags.join(" ");
@@ -165,14 +165,14 @@ fn flag_name(n: u8) -> &'static str {
     }
 }
 
-fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &NoteType, i18n: &I18n) {
+fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &Notetype, tr: &I18n) {
     if let Ok(tmpl) = ParsedTemplate::from_text(qfmt) {
         let cloze_fields = tmpl.cloze_fields();
 
         for (val, field) in note.fields_mut().iter_mut().zip(nt.fields.iter()) {
             if field_is_empty(val) {
                 if cloze_fields.contains(&field.name.as_str()) {
-                    *val = i18n.tr(TR::CardTemplatesSampleCloze).into();
+                    *val = tr.card_templates_sample_cloze().into();
                 } else {
                     *val = format!("({})", field.name);
                 }

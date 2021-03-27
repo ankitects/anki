@@ -152,7 +152,7 @@ If you're frequently modifying the Rust parts of Anki, you can place the
 following in your user.bazelrc file to enable incremental compilation:
 
 ```
-build --@io_bazel_rules_rust//worker:use_worker=True
+build --@rules_rust//worker:use_worker=True
 build:windows --worker_quit_after_build
 ```
 

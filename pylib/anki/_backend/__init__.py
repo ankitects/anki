@@ -4,18 +4,21 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional, Sequence, Union
+import sys
+import traceback
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from weakref import ref
 
 import anki.buildinfo
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.errors import backend_exception_to_pylib
-from anki.lang import TR, FormatTimeSpan
 from anki.utils import from_json_bytes, to_json_bytes
 
 from . import backend_pb2 as pb
 from . import rsbridge
+from .fluent import GeneratedTranslations, LegacyTranslationEnum
 
 # pylint: disable=c-extension-no-member
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
@@ -37,18 +40,14 @@ class RustBackend(RustBackendGenerated):
 
     def __init__(
         self,
-        ftl_folder: Optional[str] = None,
         langs: Optional[List[str]] = None,
         server: bool = False,
     ) -> None:
         # pick up global defaults if not provided
-        if ftl_folder is None:
-            ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
         if langs is None:
             langs = [anki.lang.currentLang]
 
         init_msg = pb.BackendInit(
-            locale_folder_path=ftl_folder,
             preferred_langs=langs,
             server=server,
         )
@@ -82,14 +81,21 @@ class RustBackend(RustBackendGenerated):
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
 
-    def translate(self, key: TR.V, **kwargs: Union[str, int, float]) -> str:
-        return self.translate_string(translate_string_in(key, **kwargs))
+    def translate(
+        self, module_index: int, message_index: int, **kwargs: Union[str, int, float]
+    ) -> str:
+        return self.translate_string(
+            translate_string_in(
+                module_index=module_index, message_index=message_index, **kwargs
+            )
+        )
 
     def format_time_span(
         self,
-        seconds: float,
-        context: FormatTimeSpan.Context.V = FormatTimeSpan.INTERVALS,
+        seconds: Any,
+        context: Any = 2,
     ) -> str:
+        traceback.print_stack(file=sys.stdout)
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"
         )
@@ -107,7 +113,7 @@ class RustBackend(RustBackendGenerated):
 
 
 def translate_string_in(
-    key: TR.V, **kwargs: Union[str, int, float]
+    module_index: int, message_index: int, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:
     args = {}
     for (k, v) in kwargs.items():
@@ -115,4 +121,29 @@ def translate_string_in(
             args[k] = pb.TranslateArgValue(str=v)
         else:
             args[k] = pb.TranslateArgValue(number=v)
-    return pb.TranslateStringIn(key=key, args=args)
+    return pb.TranslateStringIn(
+        module_index=module_index, message_index=message_index, args=args
+    )
+
+
+class Translations(GeneratedTranslations):
+    def __init__(self, backend: Optional[ref[RustBackend]]):
+        self.backend = backend
+
+    def __call__(self, key: Tuple[int, int], **kwargs: Any) -> str:
+        "Mimic the old col.tr / TR interface"
+        if "pytest" not in sys.modules:
+            traceback.print_stack(file=sys.stdout)
+            print("please use tr.message_name() instead of tr(TR.MESSAGE_NAME)")
+
+        (module, message) = key
+        return self.backend().translate(
+            module_index=module, message_index=message, **kwargs
+        )
+
+    def _translate(
+        self, module: int, message: int, args: Dict[str, Union[str, int, float]]
+    ) -> str:
+        return self.backend().translate(
+            module_index=module, message_index=message, **args
+        )

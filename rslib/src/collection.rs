@@ -4,8 +4,8 @@
 use crate::log::Logger;
 use crate::types::Usn;
 use crate::{
-    decks::{Deck, DeckID},
-    notetype::{NoteType, NoteTypeID},
+    decks::{Deck, DeckId},
+    notetype::{Notetype, NotetypeId},
     prelude::*,
     storage::SqliteStorage,
     undo::UndoManager,
@@ -19,18 +19,18 @@ pub fn open_collection<P: Into<PathBuf>>(
     media_folder: P,
     media_db: P,
     server: bool,
-    i18n: I18n,
+    tr: I18n,
     log: Logger,
 ) -> Result<Collection> {
     let col_path = path.into();
-    let storage = SqliteStorage::open_or_create(&col_path, &i18n, server)?;
+    let storage = SqliteStorage::open_or_create(&col_path, &tr, server)?;
 
     let col = Collection {
         storage,
         col_path,
         media_folder: media_folder.into(),
         media_db: media_db.into(),
-        i18n,
+        tr,
         log,
         server,
         state: CollectionState::default(),
@@ -55,15 +55,15 @@ pub fn open_test_collection() -> Collection {
 #[cfg(test)]
 pub fn open_test_collection_with_server(server: bool) -> Collection {
     use crate::log;
-    let i18n = I18n::new(&[""], "", log::terminal());
-    open_collection(":memory:", "", "", server, i18n, log::terminal()).unwrap()
+    let tr = I18n::template_only();
+    open_collection(":memory:", "", "", server, tr, log::terminal()).unwrap()
 }
 
 #[derive(Debug, Default)]
 pub struct CollectionState {
     pub(crate) undo: UndoManager,
-    pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
-    pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
+    pub(crate) notetype_cache: HashMap<NotetypeId, Arc<Notetype>>,
+    pub(crate) deck_cache: HashMap<DeckId, Arc<Deck>>,
     pub(crate) card_queues: Option<CardQueues>,
     /// True if legacy Python code has executed SQL that has modified the
     /// database, requiring modification time to be bumped.
@@ -76,7 +76,7 @@ pub struct Collection {
     pub(crate) col_path: PathBuf,
     pub(crate) media_folder: PathBuf,
     pub(crate) media_db: PathBuf,
-    pub(crate) i18n: I18n,
+    pub(crate) tr: I18n,
     pub(crate) log: Logger,
     pub(crate) server: bool,
     pub(crate) state: CollectionState,
@@ -103,7 +103,7 @@ impl Collection {
         match res {
             Ok(output) => {
                 let changes = if op.is_some() {
-                    let changes = self.op_changes()?;
+                    let changes = self.op_changes();
                     self.maybe_clear_study_queues_after_op(changes);
                     self.maybe_coalesce_note_undo_entry(changes);
                     changes

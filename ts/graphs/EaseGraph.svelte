@@ -1,6 +1,6 @@
 <script lang="typescript">
     import type pb from "anki/backend_proto";
-    import type { I18n } from "anki/i18n";
+
     import { createEventDispatcher } from "svelte";
 
     import HistogramGraph from "./HistogramGraph.svelte";
@@ -13,7 +13,7 @@
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
     export let preferences: PreferenceStore;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
@@ -25,18 +25,17 @@
     $: if (sourceData) {
         [histogramData, tableData] = prepareData(
             gatherData(sourceData),
-            i18n,
             dispatch,
             $browserLinksSupported
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_SUBTITLE);
+    const title = tr.statisticsCardEaseTitle();
+    const subtitle = tr.statisticsCardEaseSubtitle();
 </script>
 
 <Graph {title} {subtitle}>
-    <HistogramGraph data={histogramData} {i18n} />
+    <HistogramGraph data={histogramData} />
 
-    <TableData {i18n} {tableData} />
+    <TableData {tableData} />
 </Graph>

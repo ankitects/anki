@@ -35,7 +35,6 @@ from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     KeyboardModifiersPressed,
     disable_help_button,
@@ -143,16 +142,16 @@ class Editor:
             self._addButton(
                 None,
                 "fields",
-                tr(TR.EDITING_CUSTOMIZE_FIELDS),
-                f"{tr(TR.EDITING_FIELDS)}...",
+                tr.editing_customize_fields(),
+                f"{tr.editing_fields()}...",
                 disables=False,
                 rightside=False,
             ),
             self._addButton(
                 None,
                 "cards",
-                tr(TR.EDITING_CUSTOMIZE_CARD_TEMPLATES_CTRLANDL),
-                f"{tr(TR.EDITING_CARDS)}...",
+                tr.editing_customize_card_templates_ctrlandl(),
+                f"{tr.editing_cards()}...",
                 disables=False,
                 rightside=False,
             ),
@@ -162,36 +161,36 @@ class Editor:
 
         righttopbtns: List[str] = [
             self._addButton(
-                "text_bold", "bold", tr(TR.EDITING_BOLD_TEXT_CTRLANDB), id="bold"
+                "text_bold", "bold", tr.editing_bold_text_ctrlandb(), id="bold"
             ),
             self._addButton(
                 "text_italic",
                 "italic",
-                tr(TR.EDITING_ITALIC_TEXT_CTRLANDI),
+                tr.editing_italic_text_ctrlandi(),
                 id="italic",
             ),
             self._addButton(
                 "text_under",
                 "underline",
-                tr(TR.EDITING_UNDERLINE_TEXT_CTRLANDU),
+                tr.editing_underline_text_ctrlandu(),
                 id="underline",
             ),
             self._addButton(
                 "text_super",
                 "super",
-                tr(TR.EDITING_SUPERSCRIPT_CTRLANDAND),
+                tr.editing_superscript_ctrlandand(),
                 id="superscript",
             ),
             self._addButton(
-                "text_sub", "sub", tr(TR.EDITING_SUBSCRIPT_CTRLAND), id="subscript"
+                "text_sub", "sub", tr.editing_subscript_ctrland(), id="subscript"
             ),
             self._addButton(
-                "text_clear", "clear", tr(TR.EDITING_REMOVE_FORMATTING_CTRLANDR)
+                "text_clear", "clear", tr.editing_remove_formatting_ctrlandr()
             ),
             self._addButton(
                 None,
                 "colour",
-                tr(TR.EDITING_SET_FOREGROUND_COLOUR_F7),
+                tr.editing_set_foreground_colour_f7(),
                 """
 <span id="forecolor" class="topbut rounded" style="background: #000"></span>
 """,
@@ -199,18 +198,18 @@ class Editor:
             self._addButton(
                 None,
                 "changeCol",
-                tr(TR.EDITING_CHANGE_COLOUR_F8),
+                tr.editing_change_colour_f8(),
                 """
 <span class="topbut rounded rainbow"></span>
 """,
             ),
             self._addButton(
-                "text_cloze", "cloze", tr(TR.EDITING_CLOZE_DELETION_CTRLANDSHIFTANDC)
+                "text_cloze", "cloze", tr.editing_cloze_deletion_ctrlandshiftandc()
             ),
             self._addButton(
-                "paperclip", "attach", tr(TR.EDITING_ATTACH_PICTURESAUDIOVIDEO_F3)
+                "paperclip", "attach", tr.editing_attach_picturesaudiovideo_f3()
             ),
-            self._addButton("media-record", "record", tr(TR.EDITING_RECORD_AUDIO_F5)),
+            self._addButton("media-record", "record", tr.editing_record_audio_f5()),
             self._addButton("more", "more"),
         ]
 
@@ -232,7 +231,7 @@ class Editor:
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
-            _html % (bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
+            _html % (bgcol, topbuts, tr.editing_show_duplicates()),
             css=[
                 "css/vendor/bootstrap.min.css",
                 "css/vendor/bootstrap-icons.css",
@@ -696,13 +695,11 @@ class Editor:
         tb.setSpacing(12)
         tb.setContentsMargins(2, 6, 2, 6)
         # tags
-        l = QLabel(tr(TR.EDITING_TAGS))
+        l = QLabel(tr.editing_tags())
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
-        self.tags.setToolTip(
-            shortcut(tr(TR.EDITING_JUMP_TO_TAGS_WITH_CTRLANDSHIFTANDT))
-        )
+        self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
         border = theme_manager.color(colors.BORDER)
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
@@ -768,9 +765,9 @@ class Editor:
         # check that the model is set up for cloze deletion
         if self.note.model()["type"] != MODEL_CLOZE:
             if self.addMode:
-                tooltip(tr(TR.EDITING_WARNING_CLOZE_DELETIONS_WILL_NOT_WORK))
+                tooltip(tr.editing_warning_cloze_deletions_will_not_work())
             else:
-                showInfo(tr(TR.EDITING_TO_MAKE_A_CLOZE_DELETION_ON))
+                showInfo(tr.editing_to_make_a_cloze_deletion_on())
                 return
         # find the highest existing cloze
         highest = 0
@@ -828,14 +825,14 @@ class Editor:
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
-        filter = f"{tr(TR.EDITING_MEDIA)} ({extension_filter})"
+        filter = f"{tr.editing_media()} ({extension_filter})"
 
         def accept(file: str) -> None:
             self.addMedia(file)
 
         file = getFile(
             parent=self.widget,
-            title=tr(TR.EDITING_ADD_MEDIA),
+            title=tr.editing_add_media(),
             cb=cast(Callable[[Any], None], accept),
             filter=filter,
             key="media",
@@ -959,15 +956,14 @@ class Editor:
                     client.timeout = 30
                     with client.get(url) as response:
                         if response.status_code != 200:
-                            error_msg = tr(
-                                TR.QT_MISC_UNEXPECTED_RESPONSE_CODE,
+                            error_msg = tr.qt_misc_unexpected_response_code(
                                 val=response.status_code,
                             )
                             return None
                         filecontents = response.content
                         content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
-            error_msg = tr(TR.EDITING_AN_ERROR_OCCURRED_WHILE_OPENING, val=str(e))
+            error_msg = tr.editing_an_error_occurred_while_opening(val=str(e))
             return None
         finally:
             self.mw.progress.finish()
@@ -1062,17 +1058,17 @@ class Editor:
         m = QMenu(self.mw)
 
         for text, handler, shortcut in (
-            (tr(TR.EDITING_MATHJAX_INLINE), self.insertMathjaxInline, "Ctrl+M, M"),
-            (tr(TR.EDITING_MATHJAX_BLOCK), self.insertMathjaxBlock, "Ctrl+M, E"),
+            (tr.editing_mathjax_inline(), self.insertMathjaxInline, "Ctrl+M, M"),
+            (tr.editing_mathjax_block(), self.insertMathjaxBlock, "Ctrl+M, E"),
             (
-                tr(TR.EDITING_MATHJAX_CHEMISTRY),
+                tr.editing_mathjax_chemistry(),
                 self.insertMathjaxChemistry,
                 "Ctrl+M, C",
             ),
-            (tr(TR.EDITING_LATEX), self.insertLatex, "Ctrl+T, T"),
-            (tr(TR.EDITING_LATEX_EQUATION), self.insertLatexEqn, "Ctrl+T, E"),
-            (tr(TR.EDITING_LATEX_MATH_ENV), self.insertLatexMathEnv, "Ctrl+T, M"),
-            (tr(TR.EDITING_EDIT_HTML), self.onHtmlEdit, "Ctrl+Shift+X"),
+            (tr.editing_latex(), self.insertLatex, "Ctrl+T, T"),
+            (tr.editing_latex_equation(), self.insertLatexEqn, "Ctrl+T, E"),
+            (tr.editing_latex_math_env(), self.insertLatexMathEnv, "Ctrl+T, M"),
+            (tr.editing_edit_html(), self.onHtmlEdit, "Ctrl+Shift+X"),
         ):
             a = m.addAction(text)
             qconnect(a.triggered, handler)
@@ -1323,11 +1319,11 @@ class EditorWebView(AnkiWebView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(tr(TR.EDITING_CUT))
+        a = m.addAction(tr.editing_cut())
         qconnect(a.triggered, self.onCut)
-        a = m.addAction(tr(TR.ACTIONS_COPY))
+        a = m.addAction(tr.actions_copy())
         qconnect(a.triggered, self.onCopy)
-        a = m.addAction(tr(TR.EDITING_PASTE))
+        a = m.addAction(tr.editing_paste())
         qconnect(a.triggered, self.onPaste)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())

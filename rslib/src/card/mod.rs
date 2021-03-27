@@ -4,21 +4,21 @@
 pub(crate) mod undo;
 
 use crate::err::{AnkiError, Result};
-use crate::notes::NoteID;
+use crate::notes::NoteId;
 use crate::{
     collection::Collection, config::SchedulerVersion, prelude::*, timestamp::TimestampSecs,
     types::Usn,
 };
 use crate::{define_newtype, ops::StateChanges};
 
-use crate::{deckconf::DeckConf, decks::DeckID};
+use crate::{deckconf::DeckConf, decks::DeckId};
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::collections::HashSet;
 
-define_newtype!(CardID, i64);
+define_newtype!(CardId, i64);
 
-impl CardID {
+impl CardId {
     pub fn as_secs(self) -> TimestampSecs {
         TimestampSecs(self.0 / 1000)
     }
@@ -54,9 +54,9 @@ pub enum CardQueue {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Card {
-    pub(crate) id: CardID,
-    pub(crate) note_id: NoteID,
-    pub(crate) deck_id: DeckID,
+    pub(crate) id: CardId,
+    pub(crate) note_id: NoteId,
+    pub(crate) deck_id: DeckId,
     pub(crate) template_idx: u16,
     pub(crate) mtime: TimestampSecs,
     pub(crate) usn: Usn,
@@ -69,7 +69,7 @@ pub struct Card {
     pub(crate) lapses: u32,
     pub(crate) remaining_steps: u32,
     pub(crate) original_due: i32,
-    pub(crate) original_deck_id: DeckID,
+    pub(crate) original_deck_id: DeckId,
     pub(crate) flags: u8,
     pub(crate) data: String,
 }
@@ -77,9 +77,9 @@ pub struct Card {
 impl Default for Card {
     fn default() -> Self {
         Self {
-            id: CardID(0),
-            note_id: NoteID(0),
-            deck_id: DeckID(0),
+            id: CardId(0),
+            note_id: NoteId(0),
+            deck_id: DeckId(0),
             template_idx: 0,
             mtime: TimestampSecs(0),
             usn: Usn(0),
@@ -92,7 +92,7 @@ impl Default for Card {
             lapses: 0,
             remaining_steps: 0,
             original_due: 0,
-            original_deck_id: DeckID(0),
+            original_deck_id: DeckId(0),
             flags: 0,
             data: "".to_string(),
         }
@@ -106,7 +106,7 @@ impl Card {
     }
 
     /// Caller must ensure provided deck exists and is not filtered.
-    fn set_deck(&mut self, deck: DeckID, sched: SchedulerVersion) {
+    fn set_deck(&mut self, deck: DeckId, sched: SchedulerVersion) {
         self.remove_from_filtered_deck_restoring_queue(sched);
         self.deck_id = deck;
     }
@@ -137,7 +137,7 @@ impl Card {
 }
 
 impl Card {
-    pub fn new(note_id: NoteID, template_idx: u16, deck_id: DeckID, due: i32) -> Self {
+    pub fn new(note_id: NoteId, template_idx: u16, deck_id: DeckId, due: i32) -> Self {
         Card {
             note_id,
             template_idx,
@@ -177,7 +177,7 @@ impl Collection {
     }
 
     #[cfg(test)]
-    pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardID, func: F) -> Result<Card>
+    pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardId, func: F) -> Result<Card>
     where
         F: FnOnce(&mut Card) -> Result<T>,
     {
@@ -213,7 +213,7 @@ impl Collection {
 
     /// Remove cards and any resulting orphaned notes.
     /// Expects a transaction.
-    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardID]) -> Result<()> {
+    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<()> {
         let usn = self.usn()?;
         let mut nids = HashSet::new();
         for cid in cids {
@@ -231,7 +231,7 @@ impl Collection {
         Ok(())
     }
 
-    pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<OpOutput<()>> {
+    pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<()>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         if deck.is_filtered() {
             return Err(AnkiError::DeckIsFiltered);
@@ -252,7 +252,7 @@ impl Collection {
         })
     }
 
-    pub fn set_card_flag(&mut self, cards: &[CardID], flag: u32) -> Result<OpOutput<()>> {
+    pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<()>> {
         if flag > 4 {
             return Err(AnkiError::invalid_input("invalid flag"));
         }

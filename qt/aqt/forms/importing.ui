@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ACTIONS_IMPORT</string>
+   <string>actions_import</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>IMPORTING_IMPORT_OPTIONS</string>
+      <string>importing_import_options</string>
      </property>
      <layout class="QVBoxLayout" name="toplayout">
       <item>
@@ -31,14 +31,14 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>NOTETYPES_TYPE</string>
+           <string>notetypes_type</string>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>DECKS_DECK</string>
+           <string>decks_deck</string>
           </property>
          </widget>
         </item>
@@ -55,17 +55,17 @@
        <widget class="QComboBox" name="importMode">
         <item>
          <property name="text">
-          <string>IMPORTING_UPDATE_EXISTING_NOTES_WHEN_FIRST_FIELD</string>
+          <string>importing_update_existing_notes_when_first_field</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>IMPORTING_IGNORE_LINES_WHERE_FIRST_FIELD_MATCHES</string>
+          <string>importing_ignore_lines_where_first_field_matches</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>IMPORTING_IMPORT_EVEN_IF_EXISTING_NOTE_HAS</string>
+          <string>importing_import_even_if_existing_note_has</string>
          </property>
         </item>
        </widget>
@@ -73,7 +73,7 @@
       <item>
        <widget class="QCheckBox" name="allowHTML">
         <property name="text">
-         <string>IMPORTING_ALLOW_HTML_IN_FIELDS</string>
+         <string>importing_allow_html_in_fields</string>
         </property>
        </widget>
       </item>
@@ -82,7 +82,7 @@
         <item>
          <widget class="QLabel" name="tagModifiedLabel">
           <property name="text">
-           <string>IMPORTING_TAG_MODIFIED_NOTES</string>
+           <string>importing_tag_modified_notes</string>
           </property>
          </widget>
         </item>
@@ -103,7 +103,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>IMPORTING_FIELD_MAPPING</string>
+      <string>importing_field_mapping</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>

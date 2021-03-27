@@ -11,7 +11,7 @@ from markdown import markdown
 from aqt import mw
 from aqt.main import AnkiQt
 from aqt.qt import *
-from aqt.utils import TR, showText, showWarning, supportText, tr
+from aqt.utils import showText, showWarning, supportText, tr
 
 if not os.environ.get("DEBUG"):
 
@@ -65,7 +65,7 @@ class ErrorHandler(QObject):
         self.timer.start()
 
     def tempFolderMsg(self) -> str:
-        return tr(TR.QT_MISC_UNABLE_TO_ACCESS_ANKI_MEDIA_FOLDER)
+        return tr.qt_misc_unable_to_access_anki_media_folder()
 
     def onTimeout(self) -> None:
         error = html.escape(self.pool)
@@ -76,10 +76,10 @@ class ErrorHandler(QObject):
         if "DeprecationWarning" in error:
             return
         if "10013" in error:
-            showWarning(tr(TR.QT_MISC_YOUR_FIREWALL_OR_ANTIVIRUS_PROGRAM_IS))
+            showWarning(tr.qt_misc_your_firewall_or_antivirus_program_is())
             return
         if "no default input" in error.lower():
-            showWarning(tr(TR.QT_MISC_PLEASE_CONNECT_A_MICROPHONE_AND_ENSURE))
+            showWarning(tr.qt_misc_please_connect_a_microphone_and_ensure())
             return
         if "invalidTempFolder" in error:
             showWarning(self.tempFolderMsg())
@@ -87,17 +87,17 @@ class ErrorHandler(QObject):
         if "Beautiful Soup is not an HTTP client" in error:
             return
         if "database or disk is full" in error or "Errno 28" in error:
-            showWarning(tr(TR.QT_MISC_YOUR_COMPUTERS_STORAGE_MAY_BE_FULL))
+            showWarning(tr.qt_misc_your_computers_storage_may_be_full())
             return
         if "disk I/O error" in error:
-            showWarning(markdown(tr(TR.ERRORS_ACCESSING_DB)))
+            showWarning(markdown(tr.errors_accessing_db()))
             return
 
         if self.mw.addonManager.dirty:
-            txt = markdown(tr(TR.ERRORS_ADDONS_ACTIVE_POPUP))
+            txt = markdown(tr.errors_addons_active_popup())
             error = f"{supportText() + self._addonText(error)}\n{error}"
         else:
-            txt = markdown(tr(TR.ERRORS_STANDARD_POPUP))
+            txt = markdown(tr.errors_standard_popup())
             error = f"{supportText()}\n{error}"
 
         # show dialog
@@ -115,4 +115,4 @@ class ErrorHandler(QObject):
         # highlight importance of first add-on:
         addons[0] = f"<b>{addons[0]}</b>"
         addons_str = ", ".join(addons)
-        return f"{tr(TR.ADDONS_POSSIBLY_INVOLVED, addons=addons_str)}\n"
+        return f"{tr.addons_possibly_involved(addons=addons_str)}\n"

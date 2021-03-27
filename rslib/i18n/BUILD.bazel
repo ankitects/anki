@@ -1,0 +1,103 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+load("@rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust_test")
+load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
+load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
+
+# Build script
+#######################
+
+cargo_build_script(
+    name = "build_script",
+    srcs = glob(["build/*.rs"]),
+    build_script_env = {
+        "RSLIB_FTL_ROOT": "$(location @rslib_ftl//:l10n.toml)",
+        "EXTRA_FTL_ROOT": "$(location @extra_ftl//:l10n.toml)",
+    },
+    crate_root = "build/main.rs",
+    data = [
+        "//ftl",
+        # bazel requires us to list these out separately
+        "@rslib_ftl//:l10n.toml",
+        "@extra_ftl//:l10n.toml",
+    ],
+    deps = [
+        "//rslib/i18n/cargo:fluent",
+        "//rslib/i18n/cargo:fluent_syntax",
+        "//rslib/i18n/cargo:inflections",
+        "//rslib/i18n/cargo:serde",
+        "//rslib/i18n/cargo:serde_json",
+        "//rslib/i18n/cargo:unic_langid",
+    ],
+)
+
+# Library
+#######################
+
+rust_library(
+    name = "anki_i18n",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    visibility = ["//rslib:__subpackages__"],
+    deps = [
+        ":build_script",
+        "//rslib/i18n/cargo:fluent",
+        "//rslib/i18n/cargo:fluent_bundle",
+        "//rslib/i18n/cargo:intl_memoizer",
+        "//rslib/i18n/cargo:num_format",
+        "//rslib/i18n/cargo:phf",
+        "//rslib/i18n/cargo:serde",
+        "//rslib/i18n/cargo:serde_json",
+        "//rslib/i18n/cargo:unic_langid",
+    ],
+)
+
+# Tests
+#######################
+
+rust_test(
+    name = "i18n_tests",
+    crate = ":anki_i18n",
+)
+
+rustfmt_test(
+    name = "format_check",
+    srcs = glob([
+        "**/*.rs",
+    ]),
+)
+
+rustfmt_fix(
+    name = "format",
+    srcs = glob([
+        "**/*.rs",
+    ]),
+)
+
+# strings.json copying
+###########################
+# This separate binary is used to copy the generated strings.json into another location
+# for downstream consumers
+
+rust_binary(
+    name = "write_json",
+    srcs = [
+        "build/write_json.rs",
+    ],
+    deps = [
+        ":build_script",
+    ],
+)
+
+genrule(
+    name = "strings_json",
+    outs = ["strings.json"],
+    cmd = """\
+$(location :write_json) $(location strings.json)""",
+    tools = [
+        ":write_json",
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Set
 
 from anki.hooks import *
+from anki.notes import NoteId
 
 if TYPE_CHECKING:
     from anki.collection import Collection
@@ -29,7 +30,7 @@ class Finder:
 
 def findReplace(
     col: Collection,
-    nids: List[int],
+    nids: List[NoteId],
     src: str,
     dst: str,
     regex: bool = False,
@@ -48,7 +49,7 @@ def findReplace(
     ).count
 
 
-def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
+def fieldNamesForNotes(col: Collection, nids: List[NoteId]) -> List[str]:
     return list(col.field_names_for_note_ids(nids))
 
 

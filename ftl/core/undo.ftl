@@ -1,3 +1,6 @@
+### The strings in this file are currently in development,
+### and you may want to skip translating them for now.
+
 undo-undo = Undo
 undo-redo = Redo
 # eg "Undo Answer Card"
@@ -19,3 +22,4 @@ undo-update-card = Update Card
 undo-update-deck = Update Deck
 undo-forget-card = Forget Card
 undo-set-flag = Set Flag
+undo-build-filtered-deck = Build Deck

@@ -7,7 +7,7 @@
  */
 
 import pb from "anki/backend_proto";
-import type { I18n } from "anki/i18n";
+
 import {
     interpolateRdYlGn,
     select,
@@ -26,6 +26,7 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
+import * as tr from "anki/i18n";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -99,7 +100,6 @@ export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
     origData: pb.BackendProto.GraphsOut,
-    i18n: I18n,
     range: GraphRange
 ): void {
     const sourceData = gatherData(origData, range);
@@ -160,14 +160,14 @@ export function renderButtons(
                     let kind: string;
                     switch (d) {
                         case "learning":
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS);
+                            kind = tr.statisticsCountsLearningCards();
                             break;
                         case "young":
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
+                            kind = tr.statisticsCountsYoungCards();
                             break;
                         case "mature":
                         default:
-                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
+                            kind = tr.statisticsCountsMatureCards();
                             break;
                     }
                     return `${kind} \u200e(${totalCorrect(d).percent}%)`;
@@ -239,12 +239,9 @@ export function renderButtons(
     // hover/tooltip
 
     function tooltipText(d: Datum): string {
-        const button = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_NUMBER);
-        const timesPressed = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_PRESSED);
-        const correctStr = i18n.tr(
-            i18n.TR.STATISTICS_HOURS_CORRECT,
-            totalCorrect(d.group)
-        );
+        const button = tr.statisticsAnswerButtonsButtonNumber();
+        const timesPressed = tr.statisticsAnswerButtonsButtonPressed();
+        const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
         return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}<br>${correctStr}`;
     }
 

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PREFERENCES_PREFERENCES</string>
+   <string>preferences_preferences</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -24,7 +24,7 @@
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
-       <string>PREFERENCES_BASIC</string>
+       <string>preferences_basic</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
@@ -61,35 +61,35 @@
        <item>
         <widget class="QCheckBox" name="showPlayButtons">
          <property name="text">
-          <string>PREFERENCES_SHOW_PLAY_BUTTONS_ON_CARDS_WITH</string>
+          <string>preferences_show_play_buttons_on_cards_with</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="interrupt_audio">
          <property name="text">
-          <string>PREFERENCES_INTERRUPT_CURRENT_AUDIO_WHEN_ANSWERING</string>
+          <string>preferences_interrupt_current_audio_when_answering</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="pastePNG">
          <property name="text">
-          <string>PREFERENCES_PASTE_CLIPBOARD_IMAGES_AS_PNG</string>
+          <string>preferences_paste_clipboard_images_as_png</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
-          <string>PREFERENCES_PASTE_WITHOUT_SHIFT_KEY_STRIPS_FORMATTING</string>
+          <string>preferences_paste_without_shift_key_strips_formatting</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="nightMode">
          <property name="text">
-          <string>PREFERENCES_NIGHT_MODE</string>
+          <string>preferences_night_mode</string>
          </property>
         </widget>
        </item>
@@ -97,12 +97,12 @@
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
-           <string>PREFERENCES_WHEN_ADDING_DEFAULT_TO_CURRENT_DECK</string>
+           <string>preferences_when_adding_default_to_current_deck</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>PREFERENCES_CHANGE_DECK_DEPENDING_ON_NOTE_TYPE</string>
+           <string>preferences_change_deck_depending_on_note_type</string>
           </property>
          </item>
         </widget>
@@ -119,7 +119,7 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>PREFERENCES_USER_INTERFACE_SIZE</string>
+            <string>preferences_user_interface_size</string>
            </property>
           </widget>
          </item>
@@ -174,34 +174,34 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>PREFERENCES_SCHEDULING</string>
+       <string>preferences_scheduling</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
-          <string>PREFERENCES_SHOW_NEXT_REVIEW_TIME_ABOVE_ANSWER</string>
+          <string>preferences_show_next_review_time_above_answer</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
-          <string>PREFERENCES_SHOW_REMAINING_CARD_COUNT_DURING_REVIEW</string>
+          <string>preferences_show_remaining_card_count_during_review</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="dayLearnFirst">
          <property name="text">
-          <string>PREFERENCES_SHOW_LEARNING_CARDS_WITH_LARGER_STEPS</string>
+          <string>preferences_show_learning_cards_with_larger_steps</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="legacy_timezone">
          <property name="text">
-          <string>PREFERENCES_LEGACY_TIMEZONE_HANDLING</string>
+          <string>preferences_legacy_timezone_handling</string>
          </property>
         </widget>
        </item>
@@ -216,7 +216,7 @@
          <item row="1" column="2">
           <widget class="QLabel" name="label_29">
            <property name="text">
-            <string>PREFERENCES_MINS</string>
+            <string>preferences_mins</string>
            </property>
           </widget>
          </item>
@@ -243,28 +243,28 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_30">
            <property name="text">
-            <string>PREFERENCES_TIMEBOX_TIME_LIMIT</string>
+            <string>preferences_timebox_time_limit</string>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_40">
            <property name="text">
-            <string>PREFERENCES_HOURS_PAST_MIDNIGHT</string>
+            <string>preferences_hours_past_midnight</string>
            </property>
           </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>PREFERENCES_LEARN_AHEAD_LIMIT</string>
+            <string>preferences_learn_ahead_limit</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
           <widget class="QLabel" name="label_39">
            <property name="text">
-            <string>PREFERENCES_MINS</string>
+            <string>preferences_mins</string>
            </property>
           </widget>
          </item>
@@ -284,7 +284,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
-            <string>PREFERENCES_NEXT_DAY_STARTS_AT</string>
+            <string>preferences_next_day_starts_at</string>
            </property>
           </widget>
          </item>
@@ -307,7 +307,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>PREFERENCES_NETWORK</string>
+       <string>preferences_network</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="spacing">
@@ -335,7 +335,7 @@
            <item>
             <widget class="QLabel" name="syncLabel">
              <property name="text">
-              <string>PREFERENCES_SYNCHRONISATION</string>
+              <string>preferences_synchronisation</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -348,28 +348,28 @@
            <item>
             <widget class="QCheckBox" name="syncMedia">
              <property name="text">
-              <string>PREFERENCES_SYNCHRONIZE_AUDIO_AND_IMAGES_TOO</string>
+              <string>preferences_synchronize_audio_and_images_too</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
-              <string>PREFERENCES_AUTOMATICALLY_SYNC_ON_PROFILE_OPENCLOSE</string>
+              <string>preferences_automatically_sync_on_profile_openclose</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="autoSyncMedia">
              <property name="text">
-              <string>PREFERENCES_PERIODICALLY_SYNC_MEDIA</string>
+              <string>preferences_periodically_sync_media</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="fullSync">
              <property name="text">
-              <string>PREFERENCES_ON_NEXT_SYNC_FORCE_CHANGES_IN</string>
+              <string>preferences_on_next_sync_force_changes_in</string>
              </property>
             </widget>
            </item>
@@ -452,7 +452,7 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>PREFERENCES_BACKUPS</string>
+       <string>preferences_backups</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="spacing">
@@ -473,7 +473,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>PREFERENCES_BACKUPSANKI_WILL_CREATE_A_BACKUP_OF</string>
+          <string>preferences_backupsanki_will_create_a_backup_of</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -485,7 +485,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>PREFERENCES_KEEP</string>
+            <string>preferences_keep</string>
            </property>
           </widget>
          </item>
@@ -508,7 +508,7 @@
          <item row="0" column="2">
           <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>PREFERENCES_BACKUPS2</string>
+            <string>preferences_backups2</string>
            </property>
           </widget>
          </item>
@@ -530,14 +530,14 @@
        <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
-          <string>PREFERENCES_YOU_CAN_RESTORE_BACKUPS_VIA_FILESWITCH</string>
+          <string>preferences_you_can_restore_backups_via_fileswitch</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>PREFERENCES_NOTE_MEDIA_IS_NOT_BACKED_UP</string>
+          <string>preferences_note_media_is_not_backed_up</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -560,7 +560,7 @@
        <item>
         <widget class="QLabel" name="label_21">
          <property name="text">
-          <string>PREFERENCES_SOME_SETTINGS_WILL_TAKE_EFFECT_AFTER</string>
+          <string>preferences_some_settings_will_take_effect_after</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

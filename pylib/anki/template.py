@@ -37,7 +37,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.decks import DeckManager
 from anki.errors import TemplateError
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from anki.notes import Note
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.utils import to_json_bytes
@@ -121,7 +121,7 @@ class TemplateRenderContext:
         cls,
         note: Note,
         card: Card,
-        notetype: NoteType,
+        notetype: NotetypeDict,
         template: Dict,
         fill_empty: bool,
     ) -> TemplateRenderContext:
@@ -140,7 +140,7 @@ class TemplateRenderContext:
         card: Card,
         note: Note,
         browser: bool = False,
-        notetype: NoteType = None,
+        notetype: NotetypeDict = None,
         template: Optional[Dict] = None,
         fill_empty: bool = False,
     ) -> None:
@@ -172,7 +172,7 @@ class TemplateRenderContext:
             # add (most) special fields
             fields["Tags"] = self._note.stringTags().strip()
             fields["Type"] = self._note_type["name"]
-            fields["Deck"] = self._col.decks.name(self._card.odid or self._card.did)
+            fields["Deck"] = self._col.decks.name(self._card.current_deck_id())
             fields["Subdeck"] = DeckManager.basename(fields["Deck"])
             if self._template:
                 fields["Card"] = self._template["name"]
@@ -194,7 +194,7 @@ class TemplateRenderContext:
     def note(self) -> Note:
         return self._note
 
-    def note_type(self) -> NoteType:
+    def note_type(self) -> NotetypeDict:
         return self._note_type
 
     # legacy

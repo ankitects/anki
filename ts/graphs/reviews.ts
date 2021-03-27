@@ -7,7 +7,7 @@
  */
 
 import pb from "anki/backend_proto";
-import type { I18n } from "anki/i18n";
+
 import { timeSpan, dayLabel } from "anki/time";
 import {
     interpolateGreens,
@@ -34,6 +34,7 @@ import type { Bin } from "d3";
 import type { TableDatum } from "./graph-helpers";
 import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import { showTooltip, hideTooltip } from "./tooltip";
+import * as tr from "anki/i18n";
 
 interface Reviews {
     learn: number;
@@ -121,8 +122,7 @@ export function renderReviews(
     bounds: GraphBounds,
     sourceData: GraphData,
     range: GraphRange,
-    showTime: boolean,
-    i18n: I18n
+    showTime: boolean
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -175,7 +175,7 @@ export function renderReviews(
 
     const yTickFormat = (n: number): string => {
         if (showTime) {
-            return timeSpan(i18n, n / 1000, true);
+            return timeSpan(n / 1000, true);
         } else {
             if (Math.round(n) != n) {
                 return "";
@@ -226,48 +226,24 @@ export function renderReviews(
 
     function valueLabel(n: number): string {
         if (showTime) {
-            return timeSpan(i18n, n / 1000);
+            return timeSpan(n / 1000);
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: n });
+            return tr.statisticsReviews({ reviews: n });
         }
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
-        const day = dayLabel(i18n, d.x0!, d.x1!);
+        const day = dayLabel(d.x0!, d.x1!);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
         let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
         const lines = [
-            [
-                oranges(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
-                valueLabel(totals[0]),
-            ],
-            [
-                reds(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
-                valueLabel(totals[1]),
-            ],
-            [
-                lighterGreens(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
-                valueLabel(totals[2]),
-            ],
-            [
-                darkerGreens(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
-                valueLabel(totals[3]),
-            ],
-            [
-                purples(1),
-                i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS),
-                valueLabel(totals[4]),
-            ],
-            [
-                "transparent",
-                i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL),
-                valueLabel(cumulative),
-            ],
+            [oranges(1), tr.statisticsCountsLearningCards(), valueLabel(totals[0])],
+            [reds(1), tr.statisticsCountsRelearningCards(), valueLabel(totals[1])],
+            [lighterGreens(1), tr.statisticsCountsYoungCards(), valueLabel(totals[2])],
+            [darkerGreens(1), tr.statisticsCountsMatureCards(), valueLabel(totals[3])],
+            [purples(1), tr.statisticsCountsEarlyCards(), valueLabel(totals[4])],
+            ["transparent", tr.statisticsRunningTotal(), valueLabel(cumulative)],
         ];
         for (const [colour, label, detail] of lines) {
             buf += `<tr>
@@ -393,14 +369,14 @@ export function renderReviews(
         averageAnswerTime: string,
         averageAnswerTimeLabel: string;
     if (showTime) {
-        totalString = timeSpan(i18n, total / 1000, false);
-        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+        totalString = timeSpan(total / 1000, false);
+        averageForDaysStudied = tr.statisticsMinutesPerDay({
             count: Math.round(studiedAvg / 1000 / 60),
         });
-        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+        averageForPeriod = tr.statisticsMinutesPerDay({
             count: Math.round(periodAvg / 1000 / 60),
         });
-        averageAnswerTimeLabel = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME_LABEL);
+        averageAnswerTimeLabel = tr.statisticsAverageAnswerTimeLabel();
 
         // need to get total review count to calculate average time
         const countBins = histogram()
@@ -412,16 +388,16 @@ export function renderReviews(
         const totalSecs = total / 1000;
         const avgSecs = totalSecs / totalReviews;
         const cardsPerMin = (totalReviews * 60) / totalSecs;
-        averageAnswerTime = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME, {
-            "average-seconds": avgSecs,
-            "cards-per-minute": cardsPerMin,
+        averageAnswerTime = tr.statisticsAverageAnswerTime({
+            averageSeconds: avgSecs,
+            cardsPerMinute: cardsPerMin,
         });
     } else {
-        totalString = i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total });
-        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+        totalString = tr.statisticsReviews({ reviews: total });
+        averageForDaysStudied = tr.statisticsReviewsPerDay({
             count: Math.round(studiedAvg),
         });
-        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+        averageForPeriod = tr.statisticsReviewsPerDay({
             count: Math.round(periodAvg),
         });
         averageAnswerTime = averageAnswerTimeLabel = "";
@@ -429,23 +405,23 @@ export function renderReviews(
 
     const tableData: TableDatum[] = [
         {
-            label: i18n.tr(i18n.TR.STATISTICS_DAYS_STUDIED),
-            value: i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
+            label: tr.statisticsDaysStudied(),
+            value: tr.statisticsAmountOfTotalWithPercentage({
                 amount: studiedDays,
                 total: periodDays,
                 percent: Math.round((studiedDays / periodDays) * 100),
             }),
         },
 
-        { label: i18n.tr(i18n.TR.STATISTICS_TOTAL), value: totalString },
+        { label: tr.statisticsTotal(), value: totalString },
 
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_FOR_DAYS_STUDIED),
+            label: tr.statisticsAverageForDaysStudied(),
             value: averageForDaysStudied,
         },
 
         {
-            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_OVER_PERIOD),
+            label: tr.statisticsAverageOverPeriod(),
             value: averageForPeriod,
         },
     ];

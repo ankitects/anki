@@ -2,11 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    card::{Card, CardID, CardQueue, CardType},
+    card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
-    decks::DeckID,
+    decks::DeckId,
     err::Result,
-    notes::NoteID,
+    notes::NoteId,
     prelude::*,
     search::SortMode,
     types::Usn,
@@ -35,7 +35,7 @@ impl Card {
     }
 }
 pub(crate) struct NewCardSorter {
-    position: HashMap<NoteID, u32>,
+    position: HashMap<NoteId, u32>,
 }
 
 #[derive(PartialEq)]
@@ -71,7 +71,7 @@ impl NewCardSorter {
     }
 }
 
-fn nids_in_desired_order(cards: &[Card], order: NewCardSortOrder) -> Vec<NoteID> {
+fn nids_in_desired_order(cards: &[Card], order: NewCardSortOrder) -> Vec<NoteId> {
     if order == NewCardSortOrder::Preserve {
         nids_in_preserved_order(cards)
     } else {
@@ -90,7 +90,7 @@ fn nids_in_desired_order(cards: &[Card], order: NewCardSortOrder) -> Vec<NoteID>
     }
 }
 
-fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteID> {
+fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteId> {
     let mut seen = HashSet::new();
     cards
         .iter()
@@ -105,7 +105,7 @@ fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteID> {
 }
 
 impl Collection {
-    pub fn reschedule_cards_as_new(&mut self, cids: &[CardID], log: bool) -> Result<OpOutput<()>> {
+    pub fn reschedule_cards_as_new(&mut self, cids: &[CardId], log: bool) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(Op::ScheduleAsNew, |col| {
@@ -127,7 +127,7 @@ impl Collection {
 
     pub fn sort_cards(
         &mut self,
-        cids: &[CardID],
+        cids: &[CardId],
         starting_from: u32,
         step: u32,
         order: NewCardSortOrder,
@@ -141,7 +141,7 @@ impl Collection {
 
     fn sort_cards_inner(
         &mut self,
-        cids: &[CardID],
+        cids: &[CardId],
         starting_from: u32,
         step: u32,
         order: NewCardSortOrder,
@@ -168,7 +168,7 @@ impl Collection {
 
     /// This creates a transaction - we probably want to split it out
     /// in the future if calling it as part of a deck options update.
-    pub fn sort_deck(&mut self, deck: DeckID, random: bool) -> Result<OpOutput<usize>> {
+    pub fn sort_deck(&mut self, deck: DeckId, random: bool) -> Result<OpOutput<usize>> {
         let cids = self.search_cards(&format!("did:{} is:new", deck), SortMode::NoOrder)?;
         let order = if random {
             NewCardSortOrder::Random
@@ -196,11 +196,11 @@ mod test {
 
     #[test]
     fn new_order() {
-        let mut c1 = Card::new(NoteID(6), 0, DeckID(0), 0);
+        let mut c1 = Card::new(NoteId(6), 0, DeckId(0), 0);
         c1.id.0 = 2;
-        let mut c2 = Card::new(NoteID(5), 0, DeckID(0), 0);
+        let mut c2 = Card::new(NoteId(5), 0, DeckId(0), 0);
         c2.id.0 = 3;
-        let mut c3 = Card::new(NoteID(4), 0, DeckID(0), 0);
+        let mut c3 = Card::new(NoteId(4), 0, DeckId(0), 0);
         c3.id.0 = 1;
         let cards = vec![c1.clone(), c2.clone(), c3.clone()];
 
@@ -210,7 +210,7 @@ mod test {
         assert_eq!(sorter.position(&c2), 1);
         assert_eq!(sorter.position(&c3), 2);
 
-        // NoteID/step/starting
+        // NoteId/step/starting
         let sorter = NewCardSorter::new(&cards, 3, 2, NewCardSortOrder::NoteId);
         assert_eq!(sorter.position(&c3), 3);
         assert_eq!(sorter.position(&c2), 5);

@@ -76,7 +76,7 @@ impl SearchService for Backend {
         if !input.match_case {
             search = format!("(?i){}", search);
         }
-        let nids = input.nids.into_iter().map(NoteID).collect();
+        let nids = input.nids.into_iter().map(NoteId).collect();
         let field_name = if input.field_name.is_empty() {
             None
         } else {
@@ -101,7 +101,7 @@ impl From<SortKindProto> for SortKind {
             SortKindProto::NoteMod => SortKind::NoteMod,
             SortKindProto::NoteField => SortKind::NoteField,
             SortKindProto::NoteTags => SortKind::NoteTags,
-            SortKindProto::NoteType => SortKind::NoteType,
+            SortKindProto::Notetype => SortKind::Notetype,
             SortKindProto::CardMod => SortKind::CardMod,
             SortKindProto::CardReps => SortKind::CardReps,
             SortKindProto::CardDue => SortKind::CardDue,

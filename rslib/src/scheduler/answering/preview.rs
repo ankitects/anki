@@ -4,7 +4,6 @@
 use crate::{
     card::CardQueue,
     config::SchedulerVersion,
-    prelude::*,
     scheduler::states::{CardState, IntervalKind, PreviewState},
 };
 
@@ -17,11 +16,11 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: PreviewState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         if next.finished {
             self.card
                 .remove_from_filtered_deck_restoring_queue(SchedulerVersion::V2);
-            return Ok(None);
+            return None;
         }
 
         self.card.queue = CardQueue::PreviewRepeat;
@@ -36,18 +35,14 @@ impl CardStateUpdater {
             }
         }
 
-        Ok(RevlogEntryPartial::maybe_new(
-            current,
-            next.into(),
-            0.0,
-            self.secs_until_rollover(),
-        ))
+        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
     }
 }
 
 #[cfg(test)]
 mod test {
     use crate::collection::open_test_collection;
+    use crate::prelude::*;
 
     use super::*;
     use crate::{
@@ -63,7 +58,7 @@ mod test {
     fn preview() -> Result<()> {
         let mut col = open_test_collection();
         let mut c = Card {
-            deck_id: DeckID(1),
+            deck_id: DeckId(1),
             ctype: CardType::Learn,
             queue: CardQueue::DayLearn,
             remaining_steps: 2,
@@ -76,7 +71,7 @@ mod test {
         let mut filtered_deck = Deck::new_filtered();
         filtered_deck.filtered_mut()?.reschedule = false;
         col.add_or_update_deck(&mut filtered_deck)?;
-        assert_eq!(col.rebuild_filtered_deck(filtered_deck.id)?, 1);
+        assert_eq!(col.rebuild_filtered_deck(filtered_deck.id)?.output, 1);
 
         let next = col.get_next_card_states(c.id)?;
         assert!(matches!(

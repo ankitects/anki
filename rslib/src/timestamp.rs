@@ -28,6 +28,11 @@ impl TimestampSecs {
         Local.timestamp(self.0, 0).format("%Y-%m-%d").to_string()
     }
 
+    /// HH-MM
+    pub(crate) fn time_string(self) -> String {
+        Local.timestamp(self.0, 0).format("%H:%M").to_string()
+    }
+
     pub fn local_utc_offset(self) -> FixedOffset {
         *Local.timestamp(self.0, 0).offset()
     }

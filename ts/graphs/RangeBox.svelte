@@ -3,7 +3,7 @@
 
     import InputBox from "./InputBox.svelte";
 
-    import type { I18n } from "anki/i18n";
+    import * as tr from "anki/i18n";
     import { RevlogRange, daysToRevlogRange } from "./graph-helpers";
 
     enum SearchRange {
@@ -12,7 +12,6 @@
         Custom = 3,
     }
 
-    export let i18n: I18n;
     export let loading: boolean;
 
     export let days: Writable<number>;
@@ -57,11 +56,11 @@
         }
     }
 
-    const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
-    const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
-    const collection = i18n.tr(i18n.TR.STATISTICS_RANGE_COLLECTION);
-    const searchLabel = i18n.tr(i18n.TR.STATISTICS_RANGE_SEARCH);
-    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
+    const year = tr.statisticsRange_1YearHistory();
+    const deck = tr.statisticsRangeDeck();
+    const collection = tr.statisticsRangeCollection();
+    const searchLabel = tr.statisticsRangeSearch();
+    const all = tr.statisticsRangeAllHistory();
 </script>
 
 <style lang="scss">

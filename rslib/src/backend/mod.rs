@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+// infallible backend methods still return a result
+#![allow(clippy::unnecessary_wraps)]
+
 mod adding;
 mod card;
 mod cardrendering;
@@ -33,7 +36,7 @@ use self::{
     i18n::I18nService,
     media::MediaService,
     notes::NotesService,
-    notetypes::NoteTypesService,
+    notetypes::NotetypesService,
     progress::ProgressState,
     scheduler::SchedulingService,
     search::SearchService,
@@ -48,7 +51,6 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     i18n::I18n,
-    log,
 };
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
@@ -63,7 +65,7 @@ use self::err::anki_error_to_proto_error;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
-    i18n: I18n,
+    tr: I18n,
     server: bool,
     sync_abort: AbortHandleSlot,
     progress_state: Arc<Mutex<ProgressState>>,
@@ -82,20 +84,16 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
-    let i18n = I18n::new(
-        &input.preferred_langs,
-        input.locale_folder_path,
-        log::terminal(),
-    );
+    let tr = I18n::new(&input.preferred_langs);
 
-    Ok(Backend::new(i18n, input.server))
+    Ok(Backend::new(tr, input.server))
 }
 
 impl Backend {
-    pub fn new(i18n: I18n, server: bool) -> Backend {
+    pub fn new(tr: I18n, server: bool) -> Backend {
         Backend {
             col: Arc::new(Mutex::new(None)),
-            i18n,
+            tr,
             server,
             sync_abort: Arc::new(Mutex::new(None)),
             progress_state: Arc::new(Mutex::new(ProgressState {
@@ -108,7 +106,7 @@ impl Backend {
     }
 
     pub fn i18n(&self) -> &I18n {
-        &self.i18n
+        &self.tr
     }
 
     pub fn run_method(
@@ -123,7 +121,7 @@ impl Backend {
                 pb::ServiceIndex::Scheduling => SchedulingService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
                 pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
-                pb::ServiceIndex::NoteTypes => NoteTypesService::run_method(self, method, input),
+                pb::ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
                 pb::ServiceIndex::Config => ConfigService::run_method(self, method, input),
                 pb::ServiceIndex::Sync => SyncService::run_method(self, method, input),
                 pb::ServiceIndex::Tags => TagsService::run_method(self, method, input),
@@ -139,7 +137,7 @@ impl Backend {
                 pb::ServiceIndex::Cards => CardsService::run_method(self, method, input),
             })
             .map_err(|err| {
-                let backend_err = anki_error_to_proto_error(err, &self.i18n);
+                let backend_err = anki_error_to_proto_error(err, &self.tr);
                 let mut bytes = Vec::new();
                 backend_err.encode(&mut bytes).unwrap();
                 bytes
@@ -148,7 +146,7 @@ impl Backend {
 
     pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {
         self.db_command(input).map_err(|err| {
-            let backend_err = anki_error_to_proto_error(err, &self.i18n);
+            let backend_err = anki_error_to_proto_error(err, &self.tr);
             let mut bytes = Vec::new();
             backend_err.encode(&mut bytes).unwrap();
             bytes

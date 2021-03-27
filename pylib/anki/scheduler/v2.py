@@ -11,15 +11,18 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, QueueConfig
+from anki.decks import DeckConfigDict, DeckDict, DeckId
 from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.utils import ids2str, intTime
 
 CountsForDeckToday = _pb.CountsForDeckTodayOut
 SchedTimingToday = _pb.SchedTimingTodayOut
+
+# legacy type alias
+QueueConfig = Dict[str, Any]
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -72,7 +75,9 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _reset_counts(self) -> None:
         tree = self.deck_due_tree(self.col.decks.selected())
-        node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
+        node = self.col.decks.find_deck_in_tree(
+            tree, DeckId(int(self.col.conf["curDeck"]))
+        )
         if not node:
             # current deck points to a missing deck
             self.newCount = 0
@@ -141,7 +146,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _resetNew(self) -> None:
         self._newDids = self.col.decks.active()[:]
-        self._newQueue: List[int] = []
+        self._newQueue: List[CardId] = []
         self._updateNewCardRatio()
 
     def _fillNew(self, recursing: bool = False) -> bool:
@@ -207,7 +212,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Optional[Callable[[Deck], int]] = None
+        self, did: DeckId, fn: Optional[Callable[[DeckDict], int]] = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -222,7 +227,7 @@ class Scheduler(SchedulerBaseWithLegacy):
                 lim = min(rem, lim)
         return lim
 
-    def _newForDeck(self, did: int, lim: int) -> int:
+    def _newForDeck(self, did: DeckId, lim: int) -> int:
         "New count for a single deck."
         if not lim:
             return 0
@@ -235,7 +240,7 @@ select count() from
             lim,
         )
 
-    def _deckNewLimitSingle(self, g: DeckConfig) -> int:
+    def _deckNewLimitSingle(self, g: DeckConfigDict) -> int:
         "Limit for deck without parent limits."
         if g["dyn"]:
             return self.dynReportLimit
@@ -298,8 +303,8 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
     def _resetLrn(self) -> None:
         self._updateLrnCutoff(force=True)
         self._resetLrnCount()
-        self._lrnQueue: List[Tuple[int, int]] = []
-        self._lrnDayQueue: List[int] = []
+        self._lrnQueue: List[Tuple[int, CardId]] = []
+        self._lrnDayQueue: List[CardId] = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
@@ -394,7 +399,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
     def _resetRev(self) -> None:
-        self._revQueue: List[int] = []
+        self._revQueue: List[CardId] = []
 
     def _fillRev(self, recursing: bool = False) -> bool:
         "True if a review card can be fetched."
@@ -490,7 +495,7 @@ limit ?"""
         if card.odue:
             card.odue = 0
 
-    def _cardConf(self, card: Card) -> DeckConfig:
+    def _cardConf(self, card: Card) -> DeckConfigDict:
         return self.col.decks.confForDid(card.did)
 
     def _deckLimit(self) -> str:
@@ -717,7 +722,8 @@ limit ?"""
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today + card.ivl
         card.factor = conf["initialFactor"]
-        card.type = card.queue = QUEUE_TYPE_REV
+        card.type = CARD_TYPE_REV
+        card.queue = QUEUE_TYPE_REV
 
     def _logLrn(
         self,
@@ -785,7 +791,7 @@ limit ?"""
         if card.odid:
             card.did = card.odid
             card.odue = 0
-            card.odid = 0
+            card.odid = DeckId(0)
 
     def _restorePreviewCard(self, card: Card) -> None:
         assert card.odid
@@ -800,7 +806,7 @@ limit ?"""
             else:
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
-            card.queue = card.type
+            card.queue = CardQueue(card.type)
 
     # Answering a review card
     ##########################################################################
@@ -1069,7 +1075,7 @@ limit ?"""
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury: List[int] = []
+        toBury: List[CardId] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)
@@ -1127,7 +1133,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         "Return the next interval for CARD as a string."
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
-            return self.col.tr(TR.SCHEDULING_END)
+            return self.col.tr.scheduling_end()
         s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s

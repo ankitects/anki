@@ -13,7 +13,7 @@ use crate::{prelude::*, scheduler::timing::SchedTimingToday};
 pub(crate) struct LearningQueueEntry {
     // due comes first, so the derived ordering sorts by due
     pub due: TimestampSecs,
-    pub id: CardID,
+    pub id: CardId,
     pub mtime: TimestampSecs,
 }
 
@@ -37,7 +37,7 @@ impl CardQueues {
         self.due_learning.front().copied()
     }
 
-    pub(super) fn pop_learning_entry(&mut self, id: CardID) -> Option<LearningQueueEntry> {
+    pub(super) fn pop_learning_entry(&mut self, id: CardId) -> Option<LearningQueueEntry> {
         if let Some(top) = self.due_learning.front() {
             if top.id == id {
                 self.counts.learning -= 1;
@@ -135,7 +135,7 @@ impl CardQueues {
         }
     }
 
-    pub(super) fn remove_requeued_learning_card_after_undo(&mut self, id: CardID) {
+    pub(super) fn remove_requeued_learning_card_after_undo(&mut self, id: CardId) {
         let due_idx = self
             .due_learning
             .iter()

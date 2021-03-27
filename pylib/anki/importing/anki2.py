@@ -5,11 +5,13 @@ import os
 import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
+from anki.cards import CardId
 from anki.collection import Collection
 from anki.consts import *
-from anki.decks import DeckManager
+from anki.decks import DeckId, DeckManager
 from anki.importing.base import Importer
-from anki.lang import TR
+from anki.models import NotetypeId
+from anki.notes import NoteId
 from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
 
 GUID = 1
@@ -29,7 +31,7 @@ class Anki2Importer(Importer):
         super().__init__(col, file)
 
         # set later, defined here for typechecking
-        self._decks: Dict[int, int] = {}
+        self._decks: Dict[DeckId, DeckId] = {}
         self.source_needs_upgrade = False
 
     def run(self, media: None = None) -> None:
@@ -79,7 +81,7 @@ class Anki2Importer(Importer):
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
-        self._notes: Dict[str, Tuple[int, int, int]] = {}
+        self._notes: Dict[str, Tuple[NoteId, int, NotetypeId]] = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"
@@ -135,28 +137,23 @@ class Anki2Importer(Importer):
                     else:
                         dupesIdentical.append(note)
 
-        self.log.append(self.dst.tr(TR.IMPORTING_NOTES_FOUND_IN_FILE, val=total))
+        self.log.append(self.dst.tr.importing_notes_found_in_file(val=total))
 
         if dupesIgnored:
             self.log.append(
-                self.dst.tr(
-                    TR.IMPORTING_NOTES_THAT_COULD_NOT_BE_IMPORTED, val=len(dupesIgnored)
+                self.dst.tr.importing_notes_that_could_not_be_imported(
+                    val=len(dupesIgnored)
                 )
             )
         if update:
             self.log.append(
-                self.dst.tr(
-                    TR.IMPORTING_NOTES_UPDATED_AS_FILE_HAD_NEWER, val=len(update)
-                )
+                self.dst.tr.importing_notes_updated_as_file_had_newer(val=len(update))
             )
         if add:
-            self.log.append(
-                self.dst.tr(TR.IMPORTING_NOTES_ADDED_FROM_FILE, val=len(add))
-            )
+            self.log.append(self.dst.tr.importing_notes_added_from_file(val=len(add)))
         if dupesIdentical:
             self.log.append(
-                self.dst.tr(
-                    TR.IMPORTING_NOTES_SKIPPED_AS_THEYRE_ALREADY_IN,
+                self.dst.tr.importing_notes_skipped_as_theyre_already_in(
                     val=len(dupesIdentical),
                 )
             )
@@ -165,16 +162,16 @@ class Anki2Importer(Importer):
 
         if dupesIgnored:
             for row in dupesIgnored:
-                self._logNoteRow(self.dst.tr(TR.IMPORTING_SKIPPED), row)
+                self._logNoteRow(self.dst.tr.importing_skipped(), row)
         if update:
             for row in update:
-                self._logNoteRow(self.dst.tr(TR.IMPORTING_UPDATED), row)
+                self._logNoteRow(self.dst.tr.importing_updated(), row)
         if add:
             for row in add:
-                self._logNoteRow(self.dst.tr(TR.ADDING_ADDED), row)
+                self._logNoteRow(self.dst.tr.adding_added(), row)
         if dupesIdentical:
             for row in dupesIdentical:
-                self._logNoteRow(self.dst.tr(TR.IMPORTING_IDENTICAL), row)
+                self._logNoteRow(self.dst.tr.importing_identical(), row)
 
         # export info for calling code
         self.dupes = len(dupesIdentical)
@@ -215,9 +212,9 @@ class Anki2Importer(Importer):
 
     def _prepareModels(self) -> None:
         "Prepare index of schema hashes."
-        self._modelMap: Dict[int, int] = {}
+        self._modelMap: Dict[NotetypeId, NotetypeId] = {}
 
-    def _mid(self, srcMid: int) -> Any:
+    def _mid(self, srcMid: NotetypeId) -> Any:
         "Return local id for remote MID."
         # already processed this mid?
         if srcMid in self._modelMap:
@@ -246,7 +243,7 @@ class Anki2Importer(Importer):
                     self.dst.models.update(model)
                 break
             # as they don't match, try next id
-            mid += 1
+            mid = NotetypeId(mid + 1)
         # save map and return new mid
         self._modelMap[srcMid] = mid
         return mid
@@ -254,7 +251,7 @@ class Anki2Importer(Importer):
     # Decks
     ######################################################################
 
-    def _did(self, did: int) -> Any:
+    def _did(self, did: DeckId) -> Any:
         "Given did in src col, return local id."
         # already converted?
         if did in self._decks:
@@ -305,7 +302,7 @@ class Anki2Importer(Importer):
         if self.source_needs_upgrade:
             self.src.upgrade_to_v2_scheduler()
         # build map of (guid, ord) -> cid and used id cache
-        self._cards: Dict[Tuple[str, int], int] = {}
+        self._cards: Dict[Tuple[str, int], CardId] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
             "select f.guid, c.ord, c.id from cards c, notes f " "where c.nid = f.id"
@@ -430,7 +427,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             # the user likely used subdirectories
             pass
 
-    def _mungeMedia(self, mid: int, fieldsStr: str) -> str:
+    def _mungeMedia(self, mid: NotetypeId, fieldsStr: str) -> str:
         fields = splitFields(fieldsStr)
 
         def repl(match):

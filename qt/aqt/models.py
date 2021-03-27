@@ -3,17 +3,16 @@
 
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
 import aqt.clayout
-from anki import stdmodels
+from anki import Collection, stdmodels
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType, NoteTypeNameIDUseCount
+from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
-    TR,
     HelpPage,
     askUser,
     disable_help_button,
@@ -33,7 +32,7 @@ class Models(QDialog):
         mw: AnkiQt,
         parent: Optional[QWidget] = None,
         fromMain: bool = False,
-        selected_notetype_id: Optional[int] = None,
+        selected_notetype_id: Optional[NotetypeId] = None,
     ):
         self.mw = mw
         parent = parent or mw
@@ -43,14 +42,14 @@ class Models(QDialog):
         self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
-        self.mw.checkpoint(tr(TR.NOTETYPES_NOTE_TYPES))
+        self.mw.checkpoint(tr.notetypes_note_types())
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         qconnect(
             self.form.buttonBox.helpRequested,
             lambda: openHelp(HelpPage.ADDING_A_NOTE_TYPE),
         )
-        self.models: List[NoteTypeNameIDUseCount] = []
+        self.models: List[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
         self.exec_()
@@ -73,20 +72,20 @@ class Models(QDialog):
         box = f.buttonBox
 
         default_buttons = [
-            (tr(TR.ACTIONS_ADD), self.onAdd),
-            (tr(TR.ACTIONS_RENAME), self.onRename),
-            (tr(TR.ACTIONS_DELETE), self.onDelete),
+            (tr.actions_add(), self.onAdd),
+            (tr.actions_rename(), self.onRename),
+            (tr.actions_delete(), self.onDelete),
         ]
 
         if self.fromMain:
             default_buttons.extend(
                 [
-                    (tr(TR.NOTETYPES_FIELDS), self.onFields),
-                    (tr(TR.NOTETYPES_CARDS), self.onCards),
+                    (tr.notetypes_fields(), self.onFields),
+                    (tr.notetypes_cards(), self.onCards),
                 ]
             )
 
-        default_buttons.append((tr(TR.NOTETYPES_OPTIONS), self.onAdvanced))
+        default_buttons.append((tr.notetypes_options(), self.onAdvanced))
 
         for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
             button = box.addButton(label, QDialogButtonBox.ActionRole)
@@ -103,14 +102,14 @@ class Models(QDialog):
 
     def onRename(self) -> None:
         nt = self.current_notetype()
-        txt = getText(tr(TR.ACTIONS_NEW_NAME), default=nt["name"])
+        txt = getText(tr.actions_new_name(), default=nt["name"])
         name = txt[0].replace('"', "")
         if txt[1] and name:
             nt["name"] = name
             self.saveAndRefresh(nt)
 
-    def saveAndRefresh(self, nt: NoteType) -> None:
-        def save() -> Sequence[NoteTypeNameIDUseCount]:
+    def saveAndRefresh(self, nt: NotetypeDict) -> None:
+        def save() -> Sequence[NotetypeNameIdUseCount]:
             self.mm.save(nt)
             return self.col.models.all_use_counts()
 
@@ -119,7 +118,7 @@ class Models(QDialog):
 
         self.mw.taskman.with_progress(save, on_done, self)
 
-    def updateModelsList(self, notetypes: List[NoteTypeNameIDUseCount]) -> None:
+    def updateModelsList(self, notetypes: List[NotetypeNameIdUseCount]) -> None:
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
@@ -127,32 +126,32 @@ class Models(QDialog):
 
         self.models = notetypes
         for m in self.models:
-            mUse = tr(TR.BROWSING_NOTE_COUNT, count=m.use_count)
+            mUse = tr.browsing_note_count(count=m.use_count)
             item = QListWidgetItem(f"{m.name} [{mUse}]")
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
-    def current_notetype(self) -> NoteType:
+    def current_notetype(self) -> NotetypeDict:
         row = self.form.modelsList.currentRow()
-        return self.mm.get(self.models[row].id)
+        return self.mm.get(NotetypeId(self.models[row].id))
 
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(tr(TR.ACTIONS_NAME), default=m["name"])[0].replace('"', "")
+            txt = getText(tr.actions_name(), default=m["name"])[0].replace('"', "")
             if txt:
                 m["name"] = txt
             self.saveAndRefresh(m)
 
     def onDelete(self) -> None:
         if len(self.models) < 2:
-            showInfo(tr(TR.NOTETYPES_PLEASE_ADD_ANOTHER_NOTE_TYPE_FIRST), parent=self)
+            showInfo(tr.notetypes_please_add_another_note_type_first(), parent=self)
             return
         idx = self.form.modelsList.currentRow()
         if self.models[idx].use_count:
-            msg = tr(TR.NOTETYPES_DELETE_THIS_NOTE_TYPE_AND_ALL)
+            msg = tr.notetypes_delete_this_note_type_and_all()
         else:
-            msg = tr(TR.NOTETYPES_DELETE_THIS_UNUSED_NOTE_TYPE)
+            msg = tr.notetypes_delete_this_unused_note_type()
         if not askUser(msg, parent=self):
             return
 
@@ -160,7 +159,7 @@ class Models(QDialog):
 
         nt = self.current_notetype()
 
-        def save() -> Sequence[NoteTypeNameIDUseCount]:
+        def save() -> Sequence[NotetypeNameIdUseCount]:
             self.mm.rem(nt)
             return self.col.models.all_use_counts()
 
@@ -179,7 +178,7 @@ class Models(QDialog):
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
         d.setWindowTitle(
-            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
+            without_unicode_isolation(tr.actions_options_for(val=nt["name"]))
         )
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp(HelpPage.LATEX))
         restoreGeom(d, "modelopts")
@@ -218,7 +217,7 @@ class Models(QDialog):
 
 
 class AddModel(QDialog):
-    model: Optional[NoteType]
+    model: Optional[NotetypeDict]
 
     def __init__(self, mw: AnkiQt, parent: Optional[QWidget] = None) -> None:
         self.parent_ = parent or mw
@@ -230,16 +229,18 @@ class AddModel(QDialog):
         self.dialog.setupUi(self)
         disable_help_button(self)
         # standard models
-        self.models = []
+        self.notetypes: List[
+            Union[NotetypeDict, Callable[[Collection], NotetypeDict]]
+        ] = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):
-            item = QListWidgetItem(tr(TR.NOTETYPES_ADD, val=name))
+            item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)
-            self.models.append((True, func))
+            self.notetypes.append(func)
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(tr(TR.NOTETYPES_CLONE, val=m["name"]))
+            item = QListWidgetItem(tr.notetypes_clone(val=m["name"]))
             self.dialog.models.addItem(item)
-            self.models.append((False, m))  # type: ignore
+            self.notetypes.append(m)
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
@@ -247,7 +248,7 @@ class AddModel(QDialog):
         # help
         qconnect(self.dialog.buttonBox.helpRequested, self.onHelp)
 
-    def get(self) -> Any:
+    def get(self) -> Optional[NotetypeDict]:
         self.exec_()
         return self.model
 
@@ -255,14 +256,14 @@ class AddModel(QDialog):
         QDialog.reject(self)
 
     def accept(self) -> None:
-        (isStd, model) = self.models[self.dialog.models.currentRow()]
-        if isStd:
-            # create
-            self.model = model(self.col)
-        else:
+        model = self.notetypes[self.dialog.models.currentRow()]
+        if isinstance(model, dict):
             # add copy to deck
             self.model = self.mw.col.models.copy(model)
             self.mw.col.models.setCurrent(self.model)
+        else:
+            # create
+            self.model = model(self.col)
         QDialog.accept(self)
 
     def onHelp(self) -> None:

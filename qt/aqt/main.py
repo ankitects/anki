@@ -47,13 +47,14 @@ from anki.collection import (
     Config,
     OpChanges,
     OpChangesWithCount,
-    OpChangesWithID,
+    OpChangesWithId,
     ReviewUndo,
     UndoResult,
     UndoStatus,
 )
-from anki.decks import Deck
+from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
+from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -71,7 +72,6 @@ from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     HelpPage,
     KeyboardModifiersPressed,
     askUser,
@@ -104,10 +104,13 @@ class HasChangesProperty(Protocol):
 # either need to be added here, or cast at call time
 ResultWithChanges = TypeVar(
     "ResultWithChanges",
-    bound=Union[OpChanges, OpChangesWithCount, OpChangesWithID, HasChangesProperty],
+    bound=Union[OpChanges, OpChangesWithCount, OpChangesWithId, HasChangesProperty],
 )
 
+T = TypeVar("T")
+
 PerformOpOptionalSuccessCallback = Optional[Callable[[ResultWithChanges], Any]]
+PerformOpOptionalFailureCallback = Optional[Callable[[Exception], Any]]
 
 install_pylib_legacy()
 
@@ -147,11 +150,11 @@ class AnkiQt(QMainWindow):
             self.setupAddons(args)
             self.finish_ui_setup()
         except:
-            showInfo(tr(TR.QT_MISC_ERROR_DURING_STARTUP, val=traceback.format_exc()))
+            showInfo(tr.qt_misc_error_during_startup(val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
-            tooltip(tr(TR.QT_MISC_SHIFT_KEY_WAS_HELD_DOWN_SKIPPING))
+            tooltip(tr.qt_misc_shift_key_was_held_down_skipping())
         # were we given a file to import?
         if args and args[0] and not self._isAddon(args[0]):
             self.onAppMsg(args[0])
@@ -278,7 +281,7 @@ class AnkiQt(QMainWindow):
         qconnect(f.profiles.currentRowChanged, self.onProfileRowChange)
         f.statusbar.setVisible(False)
         qconnect(f.downgrade_button.clicked, self._on_downgrade)
-        f.downgrade_button.setText(tr(TR.PROFILES_DOWNGRADE_AND_QUIT))
+        f.downgrade_button.setText(tr.profiles_downgrade_and_quit())
         # enter key opens profile
         QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
         self.refreshProfilesList()
@@ -320,10 +323,10 @@ class AnkiQt(QMainWindow):
         return not checkInvalidFilename(name) and name != "addons21"
 
     def onAddProfile(self) -> None:
-        name = getOnlyText(tr(TR.ACTIONS_NAME)).strip()
+        name = getOnlyText(tr.actions_name()).strip()
         if name:
             if name in self.pm.profiles():
-                showWarning(tr(TR.QT_MISC_NAME_EXISTS))
+                showWarning(tr.qt_misc_name_exists())
                 return
             if not self.profileNameOk(name):
                 return
@@ -332,13 +335,13 @@ class AnkiQt(QMainWindow):
             self.refreshProfilesList()
 
     def onRenameProfile(self) -> None:
-        name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=self.pm.name).strip()
+        name = getOnlyText(tr.actions_new_name(), default=self.pm.name).strip()
         if not name:
             return
         if name == self.pm.name:
             return
         if name in self.pm.profiles():
-            showWarning(tr(TR.QT_MISC_NAME_EXISTS))
+            showWarning(tr.qt_misc_name_exists())
             return
         if not self.profileNameOk(name):
             return
@@ -348,11 +351,11 @@ class AnkiQt(QMainWindow):
     def onRemProfile(self) -> None:
         profs = self.pm.profiles()
         if len(profs) < 2:
-            showWarning(tr(TR.QT_MISC_THERE_MUST_BE_AT_LEAST_ONE))
+            showWarning(tr.qt_misc_there_must_be_at_least_one())
             return
         # sure?
         if not askUser(
-            tr(TR.QT_MISC_ALL_CARDS_NOTES_AND_MEDIA_FOR),
+            tr.qt_misc_all_cards_notes_and_media_for(),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -362,7 +365,7 @@ class AnkiQt(QMainWindow):
 
     def onOpenBackup(self) -> None:
         if not askUser(
-            tr(TR.QT_MISC_REPLACE_YOUR_COLLECTION_WITH_AN_EARLIER),
+            tr.qt_misc_replace_your_collection_with_an_earlier(),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -373,7 +376,7 @@ class AnkiQt(QMainWindow):
 
         getFile(
             self.profileDiag,
-            tr(TR.QT_MISC_REVERT_TO_BACKUP),
+            tr.qt_misc_revert_to_backup(),
             cb=doOpen,  # type: ignore
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
@@ -384,13 +387,13 @@ class AnkiQt(QMainWindow):
             # move the existing collection to the trash, as it may not open
             self.pm.trashCollection()
         except:
-            showWarning(tr(TR.QT_MISC_UNABLE_TO_MOVE_EXISTING_FILE_TO))
+            showWarning(tr.qt_misc_unable_to_move_existing_file_to())
             return
 
         self.pendingImport = path
         self.restoringBackup = True
 
-        showInfo(tr(TR.QT_MISC_AUTOMATIC_SYNCING_AND_BACKUPS_HAVE_BEEN))
+        showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
         self.onOpenProfile()
 
@@ -518,7 +521,7 @@ class AnkiQt(QMainWindow):
                 )
             else:
                 showWarning(
-                    f"{tr(TR.ERRORS_UNABLE_OPEN_COLLECTION)}\n{traceback.format_exc()}"
+                    f"{tr.errors_unable_open_collection()}\n{traceback.format_exc()}"
                 )
             # clean up open collection if possible
             try:
@@ -570,9 +573,9 @@ class AnkiQt(QMainWindow):
         if not self.col:
             return
         if self.restoringBackup:
-            label = tr(TR.QT_MISC_CLOSING)
+            label = tr.qt_misc_closing()
         else:
-            label = tr(TR.QT_MISC_BACKING_UP)
+            label = tr.qt_misc_backing_up()
         self.progress.start(label=label)
         corrupt = False
         try:
@@ -590,7 +593,7 @@ class AnkiQt(QMainWindow):
             self.col = None
             self.progress.finish()
         if corrupt:
-            showWarning(tr(TR.QT_MISC_YOUR_COLLECTION_FILE_APPEARS_TO_BE))
+            showWarning(tr.qt_misc_your_collection_file_appears_to_be())
         if not corrupt and not self.restoringBackup:
             self.backup()
 
@@ -667,7 +670,7 @@ class AnkiQt(QMainWindow):
         # have two weeks passed?
         if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
-        self.progress.start(label=tr(TR.QT_MISC_OPTIMIZING))
+        self.progress.start(label=tr.qt_misc_optimizing())
         self.col.optimize()
         self.pm.profile["lastOptimize"] = intTime()
         self.pm.save()
@@ -695,10 +698,10 @@ class AnkiQt(QMainWindow):
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
-    def _selectedDeck(self) -> Optional[Deck]:
+    def _selectedDeck(self) -> Optional[DeckDict]:
         did = self.col.decks.selected()
         if not self.col.decks.name_if_exists(did):
-            showInfo(tr(TR.QT_MISC_PLEASE_SELECT_A_DECK))
+            showInfo(tr.qt_misc_please_select_a_deck())
             return None
         return self.col.decks.get(did)
 
@@ -719,9 +722,9 @@ class AnkiQt(QMainWindow):
 
     def query_op(
         self,
-        op: Callable[[], Any],
+        op: Callable[[], T],
         *,
-        success: Callable[[Any], Any] = None,
+        success: Callable[[T], Any] = None,
         failure: Optional[Callable[[Exception], Any]] = None,
     ) -> None:
         """Run an operation that queries the DB on a background thread.
@@ -764,7 +767,7 @@ class AnkiQt(QMainWindow):
         op: Callable[[], ResultWithChanges],
         *,
         success: PerformOpOptionalSuccessCallback = None,
-        failure: Optional[Callable[[Exception], Any]] = None,
+        failure: PerformOpOptionalFailureCallback = None,
         after_hooks: Optional[Callable[[], None]] = None,
     ) -> None:
         """Run the provided operation on a background thread.
@@ -940,7 +943,7 @@ class AnkiQt(QMainWindow):
     ) -> str:
         class_ = f"but {class_}"
         if key:
-            key = tr(TR.ACTIONS_SHORTCUT_KEY, val=key)
+            key = tr.actions_shortcut_key(val=key)
         else:
             key = ""
         return """
@@ -1218,7 +1221,7 @@ title="%s" %s>%s</button>""" % (
                 return
 
             elif isinstance(result, ReviewUndo):
-                name = tr(TR.SCHEDULING_REVIEW)
+                name = tr.scheduling_review()
 
                 if reviewing:
                     # push the undone card to the top of the queue
@@ -1250,7 +1253,7 @@ title="%s" %s>%s</button>""" % (
                 # full queue+gui reset required
                 self.reset()
 
-            tooltip(tr(TR.UNDO_ACTION_UNDONE, action=name))
+            tooltip(tr.undo_action_undone(action=name))
             gui_hooks.state_did_revert(name)
             self.update_undo_actions()
             if on_done:
@@ -1270,12 +1273,12 @@ title="%s" %s>%s</button>""" % (
             undo_action = None
 
         if undo_action:
-            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            undo_action = tr.undo_undo_action(val=undo_action)
             self.form.actionUndo.setText(undo_action)
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
-            self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
+            self.form.actionUndo.setText(tr.undo_undo())
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
@@ -1285,12 +1288,12 @@ title="%s" %s>%s</button>""" % (
         undo_action = status.undo
 
         if undo_action:
-            undo_action = tr(TR.UNDO_UNDO_ACTION, val=undo_action)
+            undo_action = tr.undo_undo_action(val=undo_action)
             self.form.actionUndo.setText(undo_action)
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
-            self.form.actionUndo.setText(tr(TR.UNDO_UNDO))
+            self.form.actionUndo.setText(tr.undo_undo())
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
@@ -1319,13 +1322,13 @@ title="%s" %s>%s</button>""" % (
     def onEditCurrent(self) -> None:
         aqt.dialogs.open("EditCurrent", self)
 
-    def onDeckConf(self, deck: Optional[Deck] = None) -> None:
+    def onDeckConf(self, deck: Optional[DeckDict] = None) -> None:
         import aqt.deckconf
 
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
-            aqt.dialogs.open("DynDeckConfDialog", self, deck=deck)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self, deck_id=deck["id"])
         else:
             aqt.deckconf.DeckConf(self, deck)
 
@@ -1367,7 +1370,7 @@ title="%s" %s>%s</button>""" % (
         import aqt.importing
 
         if not os.path.exists(path):
-            showInfo(tr(TR.QT_MISC_PLEASE_USE_FILEIMPORT_TO_IMPORT_THIS))
+            showInfo(tr.qt_misc_please_use_fileimport_to_import_this())
             return None
 
         aqt.importing.importFile(self, path)
@@ -1378,7 +1381,7 @@ title="%s" %s>%s</button>""" % (
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did: Optional[int] = None) -> None:
+    def onExport(self, did: Optional[DeckId] = None) -> None:
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)
@@ -1402,7 +1405,7 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def onCram(self) -> None:
-        aqt.dialogs.open("DynDeckConfDialog", self)
+        aqt.dialogs.open("FilteredDeckConfigDialog", self)
 
     # Menu, title bar & status
     ##########################################################################
@@ -1455,8 +1458,8 @@ title="%s" %s>%s</button>""" % (
         if devMode:
             print("clock is off; ignoring")
             return
-        diffText = tr(TR.QT_MISC_SECOND, count=diff)
-        warn = tr(TR.QT_MISC_IN_ORDER_TO_ENSURE_YOUR_COLLECTION, val="%s") % diffText
+        diffText = tr.qt_misc_second(count=diff)
+        warn = tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diffText
         showWarning(warn)
         self.app.closeAllWindows()
 
@@ -1504,7 +1507,7 @@ title="%s" %s>%s</button>""" % (
         self._activeWindowOnPlay: Optional[QWidget] = None
 
     def onOdueInvalid(self) -> None:
-        showWarning(tr(TR.QT_MISC_INVALID_PROPERTY_FOUND_ON_CARD_PLEASE))
+        showWarning(tr.qt_misc_invalid_property_found_on_card_please())
 
     def _isVideo(self, tag: AVTag) -> bool:
         if isinstance(tag, SoundOrVideoTag):
@@ -1531,7 +1534,7 @@ title="%s" %s>%s</button>""" % (
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
+    def onRemNotes(self, col: Collection, nids: Sequence[NoteId]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:
@@ -1553,7 +1556,7 @@ title="%s" %s>%s</button>""" % (
         progress_shown = self.progress.busy()
         if progress_shown:
             self.progress.finish()
-        ret = askUser(tr(TR.QT_MISC_THE_REQUESTED_CHANGE_WILL_REQUIRE_A))
+        ret = askUser(tr.qt_misc_the_requested_change_will_require_a())
         if progress_shown:
             self.progress.start()
         return ret
@@ -1564,7 +1567,7 @@ title="%s" %s>%s</button>""" % (
         True if confirmed or already modified."""
         if self.col.schemaChanged():
             return True
-        return askUser(tr(TR.QT_MISC_THE_REQUESTED_CHANGE_WILL_REQUIRE_A))
+        return askUser(tr.qt_misc_the_requested_change_will_require_a())
 
     # Advanced features
     ##########################################################################
@@ -1619,22 +1622,24 @@ title="%s" %s>%s</button>""" % (
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         qconnect(s.activated, frm.text.clear)
 
-        def addContextMenu(ev: QCloseEvent, name: str) -> None:
+        def addContextMenu(
+            ev: Union[QCloseEvent, QContextMenuEvent], name: str
+        ) -> None:
             ev.accept()
             menu = frm.log.createStandardContextMenu(QCursor.pos())
             menu.addSeparator()
             if name == "log":
                 a = menu.addAction("Clear Log")
-                a.setShortcuts(QKeySequence("ctrl+l"))
+                a.setShortcut(QKeySequence("ctrl+l"))
                 qconnect(a.triggered, frm.log.clear)
             elif name == "text":
                 a = menu.addAction("Clear Code")
-                a.setShortcuts(QKeySequence("ctrl+shift+l"))
+                a.setShortcut(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
             menu.exec_(QCursor.pos())
 
-        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")
-        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")
+        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")  # type: ignore[assignment]
+        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]
         gui_hooks.debug_console_will_show(d)
         d.show()
 
@@ -1735,7 +1740,7 @@ title="%s" %s>%s</button>""" % (
             )
             frm.log.appendPlainText(to_append)
         except UnicodeDecodeError:
-            to_append = tr(TR.QT_MISC_NON_UNICODE_TEXT)
+            to_append = tr.qt_misc_non_unicode_text()
             to_append = gui_hooks.debug_console_did_evaluate_python(
                 to_append, text, frm
             )
@@ -1800,16 +1805,16 @@ title="%s" %s>%s</button>""" % (
                 return None
             self.pendingImport = buf
             if is_addon:
-                msg = tr(TR.QT_MISC_ADDON_WILL_BE_INSTALLED_WHEN_A)
+                msg = tr.qt_misc_addon_will_be_installed_when_a()
             else:
-                msg = tr(TR.QT_MISC_DECK_WILL_BE_IMPORTED_WHEN_A)
+                msg = tr.qt_misc_deck_will_be_imported_when_a()
             tooltip(msg)
             return
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
                 showInfo(
-                    tr(TR.QT_MISC_PLEASE_ENSURE_A_PROFILE_IS_OPEN),
+                    tr.qt_misc_please_ensure_a_profile_is_open(),
                     parent=None,
                 )
             return None

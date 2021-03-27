@@ -16,7 +16,7 @@
      <item>
       <widget class="QLabel" name="label_31">
        <property name="text">
-        <string>SCHEDULING_OPTIONS_GROUP</string>
+        <string>scheduling_options_group</string>
        </property>
       </widget>
      </item>
@@ -39,7 +39,7 @@
         </size>
        </property>
        <property name="text">
-        <string>ACTIONS_MANAGE</string>
+        <string>actions_manage</string>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -74,7 +74,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>SCHEDULING_NEW_CARDS</string>
+       <string>scheduling_new_cards</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="leftMargin">
@@ -97,7 +97,7 @@
          <item row="5" column="0">
           <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>SCHEDULING_STARTING_EASE</string>
+            <string>scheduling_starting_ease</string>
            </property>
           </widget>
          </item>
@@ -120,7 +120,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>SCHEDULING_ORDER</string>
+            <string>scheduling_order</string>
            </property>
           </widget>
          </item>
@@ -148,14 +148,14 @@
          <item row="4" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>SCHEDULING_EASY_INTERVAL</string>
+            <string>scheduling_easy_interval</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>SCHEDULING_GRADUATING_INTERVAL</string>
+            <string>scheduling_graduating_interval</string>
            </property>
           </widget>
          </item>
@@ -169,7 +169,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>SCHEDULING_NEW_CARDSDAY</string>
+            <string>scheduling_new_cardsday</string>
            </property>
           </widget>
          </item>
@@ -179,7 +179,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>SCHEDULING_STEPS_IN_MINUTES</string>
+            <string>scheduling_steps_in_minutes</string>
            </property>
           </widget>
          </item>
@@ -189,14 +189,14 @@
          <item row="6" column="0" colspan="3">
           <widget class="QCheckBox" name="bury">
            <property name="text">
-            <string>SCHEDULING_BURY_RELATED_NEW_CARDS_UNTIL_THE</string>
+            <string>scheduling_bury_related_new_cards_until_the</string>
            </property>
           </widget>
          </item>
          <item row="4" column="2">
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>SCHEDULING_DAYS</string>
+            <string>scheduling_days</string>
            </property>
           </widget>
          </item>
@@ -209,7 +209,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>SCHEDULING_DAYS</string>
+            <string>scheduling_days</string>
            </property>
           </widget>
          </item>
@@ -232,7 +232,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>SCHEDULING_REVIEWS</string>
+       <string>scheduling_reviews</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="leftMargin">
@@ -255,7 +255,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
-            <string>SCHEDULING_EASY_BONUS</string>
+            <string>scheduling_easy_bonus</string>
            </property>
           </widget>
          </item>
@@ -288,21 +288,21 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_33">
            <property name="text">
-            <string>SCHEDULING_INTERVAL_MODIFIER</string>
+            <string>scheduling_interval_modifier</string>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_37">
            <property name="text">
-            <string>SCHEDULING_MAXIMUM_REVIEWSDAY</string>
+            <string>scheduling_maximum_reviewsday</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>SCHEDULING_MAXIMUM_INTERVAL</string>
+            <string>scheduling_maximum_interval</string>
            </property>
           </widget>
          </item>
@@ -322,7 +322,7 @@
          <item row="3" column="2">
           <widget class="QLabel" name="label_23">
            <property name="text">
-            <string>SCHEDULING_DAYS</string>
+            <string>scheduling_days</string>
            </property>
           </widget>
          </item>
@@ -358,14 +358,14 @@
          <item row="5" column="0" colspan="3">
           <widget class="QCheckBox" name="buryRev">
            <property name="text">
-            <string>SCHEDULING_BURY_RELATED_REVIEWS_UNTIL_THE_NEXT</string>
+            <string>scheduling_bury_related_reviews_until_the_next</string>
            </property>
           </widget>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="hardFactorLabel">
            <property name="text">
-            <string>SCHEDULING_HARD_INTERVAL</string>
+            <string>scheduling_hard_interval</string>
            </property>
           </widget>
          </item>
@@ -401,7 +401,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>SCHEDULING_LAPSES</string>
+       <string>scheduling_lapses</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="leftMargin">
@@ -424,7 +424,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>SCHEDULING_STEPS_IN_MINUTES</string>
+            <string>scheduling_steps_in_minutes</string>
            </property>
           </widget>
          </item>
@@ -434,14 +434,14 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>SCHEDULING_NEW_INTERVAL</string>
+            <string>scheduling_new_interval</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>SCHEDULING_LEECH_THRESHOLD</string>
+            <string>scheduling_leech_threshold</string>
            </property>
           </widget>
          </item>
@@ -457,14 +457,14 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>SCHEDULING_LAPSES2</string>
+            <string>scheduling_lapses2</string>
            </property>
           </widget>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>SCHEDULING_LEECH_ACTION</string>
+            <string>scheduling_leech_action</string>
            </property>
           </widget>
          </item>
@@ -481,14 +481,14 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>SCHEDULING_MINIMUM_INTERVAL</string>
+            <string>scheduling_minimum_interval</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
           <widget class="QLabel" name="label_14">
            <property name="text">
-            <string>SCHEDULING_DAYS</string>
+            <string>scheduling_days</string>
            </property>
           </widget>
          </item>
@@ -498,12 +498,12 @@
             <widget class="QComboBox" name="leechAction">
              <item>
               <property name="text">
-               <string>ACTIONS_SUSPEND_CARD</string>
+               <string>actions_suspend_card</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>SCHEDULING_TAG_ONLY</string>
+               <string>scheduling_tag_only</string>
               </property>
              </item>
             </widget>
@@ -555,7 +555,7 @@
      </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
-       <string>SCHEDULING_GENERAL</string>
+       <string>scheduling_general</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <property name="leftMargin">
@@ -578,7 +578,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_25">
            <property name="text">
-            <string>SCHEDULING_IGNORE_ANSWER_TIMES_LONGER_THAN</string>
+            <string>scheduling_ignore_answer_times_longer_than</string>
            </property>
           </widget>
          </item>
@@ -598,7 +598,7 @@
          <item row="0" column="2">
           <widget class="QLabel" name="label_26">
            <property name="text">
-            <string>SCHEDULING_SECONDS</string>
+            <string>scheduling_seconds</string>
            </property>
           </widget>
          </item>
@@ -607,21 +607,21 @@
        <item>
         <widget class="QCheckBox" name="showTimer">
          <property name="text">
-          <string>SCHEDULING_SHOW_ANSWER_TIMER</string>
+          <string>scheduling_show_answer_timer</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="autoplaySounds">
          <property name="text">
-          <string>SCHEDULING_AUTOMATICALLY_PLAY_AUDIO</string>
+          <string>scheduling_automatically_play_audio</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="replayQuestion">
          <property name="text">
-          <string>SCHEDULING_ALWAYS_INCLUDE_QUESTION_SIDE_WHEN_REPLAYING</string>
+          <string>scheduling_always_include_question_side_when_replaying</string>
          </property>
          <property name="checked">
           <bool>false</bool>
@@ -645,7 +645,7 @@
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
-       <string>SCHEDULING_DESCRIPTION</string>
+       <string>scheduling_description</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <property name="spacing">
@@ -666,17 +666,17 @@
        <item>
         <widget class="QLabel" name="label_22">
          <property name="text">
-          <string>SCHEDULING_DESCRIPTION_TO_SHOW_ON_OVERVIEW_SCREEN</string>
+          <string>scheduling_description_to_show_on_overview_screen</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="enable_markdown">
          <property name="toolTip">
-          <string>DECK_CONFIG_DESCRIPTION_MARKDOWN_HINT</string>
+          <string>deck_config_description_markdown_hint</string>
          </property>
          <property name="text">
-          <string>DECK_CONFIG_DESCRIPTION_MARKDOWN</string>
+          <string>deck_config_description_markdown</string>
          </property>
         </widget>
        </item>

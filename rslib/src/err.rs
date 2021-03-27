@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_args, tr_strs, I18n, TR};
+use crate::i18n::I18n;
 pub use failure::{Error, Fail};
 use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
 use reqwest::StatusCode;
@@ -22,10 +22,10 @@ pub enum AnkiError {
     TemplateSaveError { ordinal: usize },
 
     #[fail(display = "I/O error: {}", info)]
-    IOError { info: String },
+    IoError { info: String },
 
     #[fail(display = "DB error: {}", info)]
-    DBError { info: String, kind: DBErrorKind },
+    DbError { info: String, kind: DbErrorKind },
 
     #[fail(display = "Network error: {:?} {}", kind, info)]
     NetworkError {
@@ -37,7 +37,7 @@ pub enum AnkiError {
     SyncError { info: String, kind: SyncErrorKind },
 
     #[fail(display = "JSON encode/decode error: {}", info)]
-    JSONError { info: String },
+    JsonError { info: String },
 
     #[fail(display = "Protobuf encode/decode error: {}", info)]
     ProtoError { info: String },
@@ -65,6 +65,9 @@ pub enum AnkiError {
 
     #[fail(display = "Invalid search.")]
     SearchError(SearchErrorKind),
+
+    #[fail(display = "Provided search(es) did not match any cards.")]
+    FilteredDeckEmpty,
 }
 
 // error helpers
@@ -87,128 +90,115 @@ impl AnkiError {
         }
     }
 
-    pub fn localized_description(&self, i18n: &I18n) -> String {
+    pub fn localized_description(&self, tr: &I18n) -> String {
         match self {
             AnkiError::SyncError { info, kind } => match kind {
                 SyncErrorKind::ServerMessage => info.into(),
                 SyncErrorKind::Other => info.into(),
-                SyncErrorKind::Conflict => i18n.tr(TR::SyncConflict),
-                SyncErrorKind::ServerError => i18n.tr(TR::SyncServerError),
-                SyncErrorKind::ClientTooOld => i18n.tr(TR::SyncClientTooOld),
-                SyncErrorKind::AuthFailed => i18n.tr(TR::SyncWrongPass),
-                SyncErrorKind::ResyncRequired => i18n.tr(TR::SyncResyncRequired),
-                SyncErrorKind::ClockIncorrect => i18n.tr(TR::SyncClockOff),
-                SyncErrorKind::DatabaseCheckRequired => i18n.tr(TR::SyncSanityCheckFailed),
+                SyncErrorKind::Conflict => tr.sync_conflict(),
+                SyncErrorKind::ServerError => tr.sync_server_error(),
+                SyncErrorKind::ClientTooOld => tr.sync_client_too_old(),
+                SyncErrorKind::AuthFailed => tr.sync_wrong_pass(),
+                SyncErrorKind::ResyncRequired => tr.sync_resync_required(),
+                SyncErrorKind::ClockIncorrect => tr.sync_clock_off(),
+                SyncErrorKind::DatabaseCheckRequired => tr.sync_sanity_check_failed(),
                 // server message
                 SyncErrorKind::SyncNotStarted => "sync not started".into(),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
                 let summary = match kind {
-                    NetworkErrorKind::Offline => i18n.tr(TR::NetworkOffline),
-                    NetworkErrorKind::Timeout => i18n.tr(TR::NetworkTimeout),
-                    NetworkErrorKind::ProxyAuth => i18n.tr(TR::NetworkProxyAuth),
-                    NetworkErrorKind::Other => i18n.tr(TR::NetworkOther),
+                    NetworkErrorKind::Offline => tr.network_offline(),
+                    NetworkErrorKind::Timeout => tr.network_timeout(),
+                    NetworkErrorKind::ProxyAuth => tr.network_proxy_auth(),
+                    NetworkErrorKind::Other => tr.network_other(),
                 };
-                let details = i18n.trn(TR::NetworkDetails, tr_strs!["details"=>info]);
+                let details = tr.network_details(info.as_str());
                 format!("{}\n\n{}", summary, details)
             }
             AnkiError::TemplateError { info } => {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError { ordinal } => i18n.trn(
-                TR::CardTemplatesInvalidTemplateNumber,
-                tr_args!["number"=>ordinal+1],
-            ),
-            AnkiError::DBError { info, kind } => match kind {
-                DBErrorKind::Corrupt => info.clone(),
-                DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
+            AnkiError::TemplateSaveError { ordinal } => tr
+                .card_templates_invalid_template_number(ordinal + 1)
+                .into(),
+            AnkiError::DbError { info, kind } => match kind {
+                DbErrorKind::Corrupt => info.clone(),
+                DbErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
                 _ => format!("{:?}", self),
             },
             AnkiError::SearchError(kind) => {
                 let reason = match kind {
-                    SearchErrorKind::MisplacedAnd => i18n.tr(TR::SearchMisplacedAnd),
-                    SearchErrorKind::MisplacedOr => i18n.tr(TR::SearchMisplacedOr),
-                    SearchErrorKind::EmptyGroup => i18n.tr(TR::SearchEmptyGroup),
-                    SearchErrorKind::UnopenedGroup => i18n.tr(TR::SearchUnopenedGroup),
-                    SearchErrorKind::UnclosedGroup => i18n.tr(TR::SearchUnclosedGroup),
-                    SearchErrorKind::EmptyQuote => i18n.tr(TR::SearchEmptyQuote),
-                    SearchErrorKind::UnclosedQuote => i18n.tr(TR::SearchUnclosedQuote),
-                    SearchErrorKind::MissingKey => i18n.tr(TR::SearchMissingKey),
-                    SearchErrorKind::UnknownEscape(ctx) => i18n
-                        .trn(
-                            TR::SearchUnknownEscape,
-                            tr_strs!["val"=>(ctx.replace('`', "'"))],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidState(state) => i18n
-                        .trn(
-                            TR::SearchInvalidArgument,
-                            tr_strs!("term" => "is:", "argument" => state.replace('`', "'")),
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidFlag => i18n.tr(TR::SearchInvalidFlag),
-                    SearchErrorKind::InvalidPropProperty(prop) => i18n
-                        .trn(
-                            TR::SearchInvalidArgument,
-                            tr_strs!("term" => "prop:", "argument" => prop.replace('`', "'")),
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidPropOperator(ctx) => i18n
-                        .trn(TR::SearchInvalidPropOperator, tr_strs!["val"=>(ctx)])
-                        .into(),
-                    SearchErrorKind::Regex(text) => format!("<pre>`{}`</pre>", text.replace('`', "'")).into(),
+                    SearchErrorKind::MisplacedAnd => tr.search_misplaced_and(),
+                    SearchErrorKind::MisplacedOr => tr.search_misplaced_or(),
+                    SearchErrorKind::EmptyGroup => tr.search_empty_group(),
+                    SearchErrorKind::UnopenedGroup => tr.search_unopened_group(),
+                    SearchErrorKind::UnclosedGroup => tr.search_unclosed_group(),
+                    SearchErrorKind::EmptyQuote => tr.search_empty_quote(),
+                    SearchErrorKind::UnclosedQuote => tr.search_unclosed_quote(),
+                    SearchErrorKind::MissingKey => tr.search_missing_key(),
+                    SearchErrorKind::UnknownEscape(ctx) => {
+                        tr.search_unknown_escape(ctx.replace('`', "'"))
+                    }
+                    SearchErrorKind::InvalidState(state) => {
+                        tr.search_invalid_argument("is:", state.replace('`', "'"))
+                    }
+
+                    SearchErrorKind::InvalidFlag => tr.search_invalid_flag(),
+                    SearchErrorKind::InvalidPropProperty(prop) => {
+                        tr.search_invalid_argument("prop:", prop.replace('`', "'"))
+                    }
+                    SearchErrorKind::InvalidPropOperator(ctx) => {
+                        tr.search_invalid_prop_operator(ctx.as_str())
+                    }
+                    SearchErrorKind::Regex(text) => {
+                        format!("<pre>`{}`</pre>", text.replace('`', "'")).into()
+                    }
                     SearchErrorKind::Other(Some(info)) => info.into(),
-                    SearchErrorKind::Other(None) => i18n.tr(TR::SearchInvalidOther),
-                    SearchErrorKind::InvalidNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidWholeNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidWholeNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidPositiveWholeNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidNegativeWholeNumber,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
-                        )
-                        .into(),
-                    SearchErrorKind::InvalidAnswerButton { provided, context } => i18n
-                        .trn(
-                            TR::SearchInvalidAnswerButton,
-                            tr_strs!["provided"=>provided.replace('`', "'"), "context"=>context.replace('`', "'")],
-                        )
-                        .into(),
+                    SearchErrorKind::Other(None) => tr.search_invalid_other(),
+                    SearchErrorKind::InvalidNumber { provided, context } => tr
+                        .search_invalid_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
+                        ),
+
+                    SearchErrorKind::InvalidWholeNumber { provided, context } => tr
+                        .search_invalid_whole_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
+                        ),
+
+                    SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => tr
+                        .search_invalid_positive_whole_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
+                        ),
+
+                    SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => tr
+                        .search_invalid_negative_whole_number(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
+                        ),
+
+                    SearchErrorKind::InvalidAnswerButton { provided, context } => tr
+                        .search_invalid_answer_button(
+                            context.replace('`', "'"),
+                            provided.replace('`', "'"),
+                        ),
                 };
-                i18n.trn(
-                    TR::SearchInvalidSearch,
-                    tr_args!("reason" => reason.into_owned()),
-                )
+                tr.search_invalid_search(reason).into()
             }
             AnkiError::InvalidInput { info } => {
                 if info.is_empty() {
-                    i18n.tr(TR::ErrorsInvalidInputEmpty).into()
+                    tr.errors_invalid_input_empty().into()
                 } else {
-                    i18n.trn(
-                        TR::ErrorsInvalidInputDetails,
-                        tr_args!("details" => info.to_owned()),
-                    )
+                    tr.errors_invalid_input_details(info.as_str()).into()
                 }
             }
-            AnkiError::ParseNumError => i18n.tr(TR::ErrorsParseNumberFail).into(),
-            AnkiError::DeckIsFiltered => i18n.tr(TR::ErrorsFilteredParentDeck).into(),
+            AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
+            AnkiError::DeckIsFiltered => tr.errors_filtered_parent_deck().into(),
+            AnkiError::FilteredDeckEmpty => tr.decks_filtered_deck_search_empty().into(),
             _ => format!("{:?}", self),
         }
     }
@@ -230,7 +220,7 @@ pub enum TemplateError {
 
 impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
-        AnkiError::IOError {
+        AnkiError::IoError {
             info: format!("{:?}", err),
         }
     }
@@ -240,18 +230,18 @@ impl From<rusqlite::Error> for AnkiError {
     fn from(err: rusqlite::Error) -> Self {
         if let rusqlite::Error::SqliteFailure(error, Some(reason)) = &err {
             if error.code == rusqlite::ErrorCode::DatabaseBusy {
-                return AnkiError::DBError {
+                return AnkiError::DbError {
                     info: "".to_string(),
-                    kind: DBErrorKind::Locked,
+                    kind: DbErrorKind::Locked,
                 };
             }
             if reason.contains("regex parse error") {
                 return AnkiError::SearchError(SearchErrorKind::Regex(reason.to_owned()));
             }
         }
-        AnkiError::DBError {
+        AnkiError::DbError {
             info: format!("{:?}", err),
-            kind: DBErrorKind::Other,
+            kind: DbErrorKind::Other,
         }
     }
 }
@@ -260,15 +250,15 @@ impl From<rusqlite::types::FromSqlError> for AnkiError {
     fn from(err: rusqlite::types::FromSqlError) -> Self {
         if let rusqlite::types::FromSqlError::Other(ref err) = err {
             if let Some(_err) = err.downcast_ref::<Utf8Error>() {
-                return AnkiError::DBError {
+                return AnkiError::DbError {
                     info: "".to_string(),
-                    kind: DBErrorKind::Utf8,
+                    kind: DbErrorKind::Utf8,
                 };
             }
         }
-        AnkiError::DBError {
+        AnkiError::DbError {
             info: format!("{:?}", err),
-            kind: DBErrorKind::Other,
+            kind: DbErrorKind::Other,
         }
     }
 }
@@ -383,7 +373,7 @@ impl From<zip::result::ZipError> for AnkiError {
 
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
-        AnkiError::JSONError {
+        AnkiError::JsonError {
             info: err.to_string(),
         }
     }
@@ -406,7 +396,7 @@ impl From<prost::DecodeError> for AnkiError {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum DBErrorKind {
+pub enum DbErrorKind {
     FileTooNew,
     FileTooOld,
     MissingEntity,
@@ -418,7 +408,7 @@ pub enum DBErrorKind {
 
 impl From<PathPersistError> for AnkiError {
     fn from(e: PathPersistError) -> Self {
-        AnkiError::IOError {
+        AnkiError::IoError {
             info: e.to_string(),
         }
     }

@@ -1,12 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub(crate) mod filtered;
+
 use crate::{
-    card::{Card, CardID, CardQueue, CardType},
-    deckconf::DeckConfID,
-    decks::{Deck, DeckID, DeckKind},
+    card::{Card, CardId, CardQueue, CardType},
+    deckconf::DeckConfId,
+    decks::{Deck, DeckId, DeckKind},
     err::Result,
-    notes::NoteID,
+    notes::NoteId,
     scheduler::{
         congrats::CongratsInfo,
         queue::{DueCard, NewCard},
@@ -68,7 +70,7 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
 }
 
 impl super::SqliteStorage {
-    pub fn get_card(&self, cid: CardID) -> Result<Option<Card>> {
+    pub fn get_card(&self, cid: CardId) -> Result<Option<Card>> {
         self.db
             .prepare_cached(concat!(include_str!("get_card.sql"), " where id = ?"))?
             .query_row(params![cid], row_to_card)
@@ -124,7 +126,7 @@ impl super::SqliteStorage {
             card.flags,
             card.data,
         ])?;
-        card.id = CardID(self.db.last_insert_rowid());
+        card.id = CardId(self.db.last_insert_rowid());
         Ok(())
     }
 
@@ -155,7 +157,7 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn remove_card(&self, cid: CardID) -> Result<()> {
+    pub(crate) fn remove_card(&self, cid: CardId) -> Result<()> {
         self.db
             .prepare_cached("delete from cards where id = ?")?
             .execute(&[cid])?;
@@ -168,7 +170,7 @@ impl super::SqliteStorage {
         &self,
         day_cutoff: u32,
         learn_cutoff: i64,
-        deck: DeckID,
+        deck: DeckId,
         mut func: F,
     ) -> Result<()>
     where
@@ -203,7 +205,7 @@ impl super::SqliteStorage {
 
     /// Call func() for each new card, stopping when it returns false
     /// or no more cards found. Cards will arrive in (deck_id, due) order.
-    pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckID, mut func: F) -> Result<()>
+    pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckId, mut func: F) -> Result<()>
     where
         F: FnMut(NewCard) -> bool,
     {
@@ -258,7 +260,7 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn all_filtered_cards_by_deck(&self) -> Result<Vec<(CardID, DeckID)>> {
+    pub(crate) fn all_filtered_cards_by_deck(&self) -> Result<Vec<(CardId, DeckId)>> {
         self.db
             .prepare("select id, did from cards where odid > 0")?
             .query_and_then(NO_PARAMS, |r| -> Result<_> { Ok((r.get(0)?, r.get(1)?)) })?
@@ -272,7 +274,7 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn get_card_by_ordinal(&self, nid: NoteID, ord: u16) -> Result<Option<Card>> {
+    pub(crate) fn get_card_by_ordinal(&self, nid: NoteId, ord: u16) -> Result<Option<Card>> {
         self.db
             .prepare_cached(concat!(
                 include_str!("get_card.sql"),
@@ -299,25 +301,25 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn all_cards_of_note(&self, nid: NoteID) -> Result<Vec<Card>> {
+    pub(crate) fn all_cards_of_note(&self, nid: NoteId) -> Result<Vec<Card>> {
         self.db
             .prepare_cached(concat!(include_str!("get_card.sql"), " where nid = ?"))?
             .query_and_then(&[nid], |r| row_to_card(r).map_err(Into::into))?
             .collect()
     }
 
-    pub(crate) fn all_card_ids_of_note(&self, nid: NoteID) -> Result<Vec<CardID>> {
+    pub(crate) fn all_card_ids_of_note(&self, nid: NoteId) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached("select id from cards where nid = ? order by ord")?
-            .query_and_then(&[nid], |r| Ok(CardID(r.get(0)?)))?
+            .query_and_then(&[nid], |r| Ok(CardId(r.get(0)?)))?
             .collect()
     }
 
     /// Place matching card ids into the search table.
     pub(crate) fn search_siblings_for_bury(
         &self,
-        cid: CardID,
-        nid: NoteID,
+        cid: CardId,
+        nid: NoteId,
         include_new: bool,
         include_reviews: bool,
     ) -> Result<()> {
@@ -335,14 +337,14 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn note_ids_of_cards(&self, cids: &[CardID]) -> Result<HashSet<NoteID>> {
+    pub(crate) fn note_ids_of_cards(&self, cids: &[CardId]) -> Result<HashSet<NoteId>> {
         let mut stmt = self
             .db
             .prepare_cached("select nid from cards where id = ?")?;
         let mut nids = HashSet::new();
         for cid in cids {
             if let Some(nid) = stmt
-                .query_row(&[cid], |r| r.get::<_, NoteID>(0))
+                .query_row(&[cid], |r| r.get::<_, NoteId>(0))
                 .optional()?
             {
                 nids.insert(nid);
@@ -449,7 +451,7 @@ impl super::SqliteStorage {
     /// Clear with clear_searched_cards_table().
     pub(crate) fn set_search_table_to_card_ids(
         &mut self,
-        cards: &[CardID],
+        cards: &[CardId],
         preserve_order: bool,
     ) -> Result<()> {
         if preserve_order {
@@ -472,7 +474,7 @@ impl super::SqliteStorage {
     /// 130% when the deck options were edited for the first time.
     pub(crate) fn fix_low_card_eases_for_configs(
         &self,
-        configs: &[DeckConfID],
+        configs: &[DeckConfId],
         server: bool,
     ) -> Result<()> {
         let mut affected_decks = vec![];
@@ -500,13 +502,13 @@ impl super::SqliteStorage {
 
 #[cfg(test)]
 mod test {
-    use crate::{card::Card, i18n::I18n, log, storage::SqliteStorage};
+    use crate::{card::Card, i18n::I18n, storage::SqliteStorage};
     use std::path::Path;
 
     #[test]
     fn add_card() {
-        let i18n = I18n::new(&[""], "", log::terminal());
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:"), &i18n, false).unwrap();
+        let tr = I18n::template_only();
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false).unwrap();
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();
         let id1 = card.id;

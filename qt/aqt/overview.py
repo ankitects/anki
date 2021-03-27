@@ -8,9 +8,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import aqt
 from anki.collection import OpChanges
 from aqt import gui_hooks
+from aqt.scheduling_ops import empty_filtered_deck, rebuild_filtered_deck
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import TR, askUserDialog, openLink, shortcut, tooltip, tr
+from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
 
 
 class OverviewBottomBar:
@@ -52,12 +53,12 @@ class Overview:
         self.refresh()
 
     def refresh(self) -> None:
+        self._refresh_needed = False
         self.mw.col.reset()
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
         gui_hooks.overview_did_refresh(self)
-        self._refresh_needed = False
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed:
@@ -80,19 +81,17 @@ class Overview:
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
             if self.mw.state == "overview":
-                tooltip(tr(TR.STUDYING_NO_CARDS_ARE_DUE_YET))
+                tooltip(tr.studying_no_cards_are_due_yet())
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "cram":
-            aqt.dialogs.open("DynDeckConfDialog", self.mw)
+            aqt.dialogs.open("FilteredDeckConfigDialog", self.mw)
         elif url == "refresh":
-            self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+            self.rebuild_current_filtered_deck()
         elif url == "empty":
-            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+            self.empty_current_filtered_deck()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
         elif url == "review":
@@ -108,27 +107,25 @@ class Overview:
     def _shortcutKeys(self) -> List[Tuple[str, Callable]]:
         return [
             ("o", self.mw.onDeckConf),
-            ("r", self.onRebuildKey),
-            ("e", self.onEmptyKey),
+            ("r", self.rebuild_current_filtered_deck),
+            ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),
             ("u", self.onUnbury),
         ]
 
-    def _filteredDeck(self) -> int:
+    def _current_deck_is_filtered(self) -> int:
         return self.mw.col.decks.current()["dyn"]
 
-    def onRebuildKey(self) -> None:
-        if self._filteredDeck():
-            self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+    def rebuild_current_filtered_deck(self) -> None:
+        if self._current_deck_is_filtered():
+            rebuild_filtered_deck(mw=self.mw, deck_id=self.mw.col.decks.selected())
 
-    def onEmptyKey(self) -> None:
-        if self._filteredDeck():
-            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
-            self.mw.reset()
+    def empty_current_filtered_deck(self) -> None:
+        if self._current_deck_is_filtered():
+            empty_filtered_deck(mw=self.mw, deck_id=self.mw.col.decks.selected())
 
     def onCustomStudyKey(self) -> None:
-        if not self._filteredDeck():
+        if not self._current_deck_is_filtered():
             self.onStudyMore()
 
     def onUnbury(self) -> None:
@@ -140,13 +137,13 @@ class Overview:
         info = self.mw.col.sched.congratulations_info()
         if info.have_sched_buried and info.have_user_buried:
             opts = [
-                tr(TR.STUDYING_MANUALLY_BURIED_CARDS),
-                tr(TR.STUDYING_BURIED_SIBLINGS),
-                tr(TR.STUDYING_ALL_BURIED_CARDS),
-                tr(TR.ACTIONS_CANCEL),
+                tr.studying_manually_buried_cards(),
+                tr.studying_buried_siblings(),
+                tr.studying_all_buried_cards(),
+                tr.actions_cancel(),
             ]
 
-            diag = askUserDialog(tr(TR.STUDYING_WHAT_WOULD_YOU_LIKE_TO_UNBURY), opts)
+            diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
             diag.setDefault(0)
             ret = diag.run()
             if ret == opts[0]:
@@ -195,9 +192,9 @@ class Overview:
 
     def _desc(self, deck: Dict[str, Any]) -> str:
         if deck["dyn"]:
-            desc = tr(TR.STUDYING_THIS_IS_A_SPECIAL_DECK_FOR)
-            desc += f" {tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)}"
-            desc += f" {tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)}"
+            desc = tr.studying_this_is_a_special_deck_for()
+            desc += f" {tr.studying_cards_will_be_automatically_returned_to()}"
+            desc += f" {tr.studying_deleting_this_deck_from_the_deck()}"
         else:
             desc = deck.get("desc", "")
             if deck.get("md", False):
@@ -223,13 +220,13 @@ class Overview:
 </table>
 </td><td align=center>
 %s</td></tr></table>""" % (
-            tr(TR.ACTIONS_NEW),
+            tr.actions_new(),
             counts[0],
-            tr(TR.SCHEDULING_LEARNING),
+            tr.scheduling_learning(),
             counts[1],
-            tr(TR.STUDYING_TO_REVIEW),
+            tr.studying_to_review(),
             counts[2],
-            but("study", tr(TR.STUDYING_STUDY_NOW), id="study", extra=" autofocus"),
+            but("study", tr.studying_study_now(), id="study", extra=" autofocus"),
         )
 
     _body = """
@@ -246,20 +243,20 @@ class Overview:
 
     def _renderBottom(self) -> None:
         links = [
-            ["O", "opts", tr(TR.ACTIONS_OPTIONS)],
+            ["O", "opts", tr.actions_options()],
         ]
         if self.mw.col.decks.current()["dyn"]:
-            links.append(["R", "refresh", tr(TR.ACTIONS_REBUILD)])
-            links.append(["E", "empty", tr(TR.STUDYING_EMPTY)])
+            links.append(["R", "refresh", tr.actions_rebuild()])
+            links.append(["E", "empty", tr.studying_empty()])
         else:
-            links.append(["C", "studymore", tr(TR.ACTIONS_CUSTOM_STUDY)])
+            links.append(["C", "studymore", tr.actions_custom_study()])
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.haveBuried():
-            links.append(["U", "unbury", tr(TR.STUDYING_UNBURY)])
+            links.append(["U", "unbury", tr.studying_unbury()])
         buf = ""
         for b in links:
             if b[0]:
-                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val=shortcut(b[0]))
+                b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
 <button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
                 b

@@ -29,7 +29,7 @@ from aqt.qt import (
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import TR, disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
 LastStateAndMod = Tuple[str, int, int]
@@ -70,7 +70,7 @@ class Previewer(QDialog):
         self.show()
 
     def _create_gui(self) -> None:
-        self.setWindowTitle(tr(TR.ACTIONS_PREVIEW))
+        self.setWindowTitle(tr.actions_preview())
 
         self.close_shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         qconnect(self.close_shortcut.activated, self.close)
@@ -84,16 +84,16 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
 
         self._replay = self.bbox.addButton(
-            tr(TR.ACTIONS_REPLAY_AUDIO), QDialogButtonBox.ActionRole
+            tr.actions_replay_audio(), QDialogButtonBox.ActionRole
         )
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
-        self._replay.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="R"))
+        self._replay.setToolTip(tr.actions_shortcut_key(val="R"))
         qconnect(self._replay.clicked, self._on_replay_audio)
 
-        both_sides_button = QCheckBox(tr(TR.QT_MISC_BACK_SIDE_ONLY))
+        both_sides_button = QCheckBox(tr.qt_misc_back_side_only())
         both_sides_button.setShortcut(QKeySequence("B"))
-        both_sides_button.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="B"))
+        both_sides_button.setToolTip(tr.actions_shortcut_key(val="B"))
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
         self._show_both_sides = self.mw.col.get_config_bool(
             Config.Bool.PREVIEW_BOTH_SIDES
@@ -172,7 +172,7 @@ class Previewer(QDialog):
         c = self.card()
         func = "_showQuestion"
         if not c:
-            txt = tr(TR.QT_MISC_PLEASE_SELECT_1_CARD)
+            txt = tr.qt_misc_please_select_1_card()
             bodyclass = ""
             self._last_state = None
         else:
@@ -252,12 +252,12 @@ class MultiCardPreviewer(Previewer):
         self._prev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
-        self._prev.setToolTip(tr(TR.QT_MISC_SHORTCUT_KEY_LEFT_ARROW))
+        self._prev.setToolTip(tr.qt_misc_shortcut_key_left_arrow())
 
         self._next = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
-        self._next.setToolTip(tr(TR.QT_MISC_SHORTCUT_KEY_RIGHT_ARROW_OR_ENTER))
+        self._next.setToolTip(tr.qt_misc_shortcut_key_right_arrow_or_enter())
 
         qconnect(self._prev.clicked, self._on_prev)
         qconnect(self._next.clicked, self._on_next)

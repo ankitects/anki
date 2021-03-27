@@ -2,21 +2,22 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod counts;
+mod filtered;
 mod schema11;
 mod tree;
 pub(crate) mod undo;
 
 pub use crate::backend_proto::{
-    deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
-    DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
+    deck_kind::Kind as DeckKind,
+    filtered_deck::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
+    Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto, FilteredDeck, NormalDeck,
 };
 use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
     collection::Collection,
-    deckconf::DeckConfID,
+    deckconf::DeckConfId,
     define_newtype,
     err::{AnkiError, Result},
-    i18n::TR,
     prelude::*,
     text::normalize_to_nfc,
     timestamp::TimestampSecs,
@@ -26,11 +27,11 @@ pub(crate) use counts::DueCounts;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
 
-define_newtype!(DeckID, i64);
+define_newtype!(DeckId, i64);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Deck {
-    pub id: DeckID,
+    pub id: DeckId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
@@ -41,7 +42,7 @@ pub struct Deck {
 impl Deck {
     pub fn new_normal() -> Deck {
         Deck {
-            id: DeckID(0),
+            id: DeckId(0),
             name: "".into(),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
@@ -71,9 +72,9 @@ impl Deck {
     }
 
     /// Returns deck config ID if deck is a normal deck.
-    pub(crate) fn config_id(&self) -> Option<DeckConfID> {
+    pub(crate) fn config_id(&self) -> Option<DeckConfId> {
         if let DeckKind::Normal(ref norm) = self.kind {
-            Some(DeckConfID(norm.config_id))
+            Some(DeckConfId(norm.config_id))
         } else {
             None
         }
@@ -96,6 +97,14 @@ impl Deck {
             Ok(normal)
         } else {
             Err(AnkiError::invalid_input("deck not normal"))
+        }
+    }
+
+    pub(crate) fn filtered(&self) -> Result<&FilteredDeck> {
+        if let DeckKind::Filtered(filtered) = &self.kind {
+            Ok(filtered)
+        } else {
+            Err(AnkiError::invalid_input("deck not filtered"))
         }
     }
 
@@ -188,7 +197,7 @@ pub(crate) fn human_deck_name_to_native(name: &str) -> String {
 }
 
 impl Collection {
-    pub(crate) fn get_deck(&mut self, did: DeckID) -> Result<Option<Arc<Deck>>> {
+    pub(crate) fn get_deck(&mut self, did: DeckId) -> Result<Option<Arc<Deck>>> {
         if let Some(deck) = self.state.deck_cache.get(&did) {
             return Ok(Some(deck.clone()));
         }
@@ -250,7 +259,7 @@ pub(crate) fn reparented_name(dragged: &str, dropped: Option<&str>) -> Option<St
 
 impl Collection {
     pub(crate) fn default_deck_is_empty(&self) -> Result<bool> {
-        self.storage.deck_is_empty(DeckID(1))
+        self.storage.deck_is_empty(DeckId(1))
     }
 
     /// Normalize deck name and rename if not unique. Bumps mtime and usn if
@@ -281,13 +290,14 @@ impl Collection {
             return Err(AnkiError::invalid_input("deck to add must have id 0"));
         }
 
-        self.transact(Op::AddDeck, |col| {
-            let usn = col.usn()?;
-            col.prepare_deck_for_update(deck, usn)?;
-            deck.set_modified(usn);
-            col.match_or_create_parents(deck, usn)?;
-            col.add_deck_undoable(deck)
-        })
+        self.transact(Op::AddDeck, |col| col.add_deck_inner(deck, col.usn()?))
+    }
+
+    pub(crate) fn add_deck_inner(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
+        self.prepare_deck_for_update(deck, usn)?;
+        deck.set_modified(usn);
+        self.match_or_create_parents(deck, usn)?;
+        self.add_deck_undoable(deck)
     }
 
     pub fn update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
@@ -297,7 +307,7 @@ impl Collection {
         })
     }
 
-    pub fn rename_deck(&mut self, did: DeckID, new_human_name: &str) -> Result<OpOutput<()>> {
+    pub fn rename_deck(&mut self, did: DeckId, new_human_name: &str) -> Result<OpOutput<()>> {
         self.transact(Op::RenameDeck, |col| {
             let existing_deck = col.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
             let mut deck = existing_deck.clone();
@@ -306,7 +316,12 @@ impl Collection {
         })
     }
 
-    fn update_deck_inner(&mut self, deck: &mut Deck, original: Deck, usn: Usn) -> Result<()> {
+    pub(crate) fn update_deck_inner(
+        &mut self,
+        deck: &mut Deck,
+        original: Deck,
+        usn: Usn,
+    ) -> Result<()> {
         self.prepare_deck_for_update(deck, usn)?;
         deck.set_modified(usn);
         let name_changed = original.name != deck.name;
@@ -353,7 +368,7 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn recover_missing_deck(&mut self, did: DeckID, usn: Usn) -> Result<()> {
+    pub(crate) fn recover_missing_deck(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id = did;
         deck.name = format!("recovered{}", did);
@@ -459,12 +474,12 @@ impl Collection {
 
     /// Get a deck based on its human name. If you have a machine name,
     /// use the method in storage instead.
-    pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckID>> {
+    pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
         let machine_name = human_deck_name_to_native(&human_name);
         self.storage.get_deck_id(&machine_name)
     }
 
-    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckID]) -> Result<OpOutput<usize>> {
+    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckId]) -> Result<OpOutput<usize>> {
         self.transact(Op::RemoveDeck, |col| {
             let mut card_count = 0;
             let usn = col.usn()?;
@@ -497,7 +512,7 @@ impl Collection {
         if deck.id.0 == 1 {
             // if deleting the default deck, ensure there's a new one, and avoid the grave
             let mut deck = deck.to_owned();
-            deck.name = self.i18n.tr(TR::DeckConfigDefaultName).into();
+            deck.name = self.tr.deck_config_default_name().into();
             deck.set_modified(usn);
             self.add_or_update_single_deck_with_existing_id(&mut deck, usn)?;
         } else {
@@ -506,13 +521,13 @@ impl Collection {
         Ok(card_count)
     }
 
-    fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<usize> {
+    fn delete_all_cards_in_normal_deck(&mut self, did: DeckId) -> Result<usize> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.remove_cards_and_orphaned_notes(&cids)?;
         Ok(cids.len())
     }
 
-    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckID, String)>> {
+    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckId, String)>> {
         if skip_empty_default && self.default_deck_is_empty()? {
             Ok(self
                 .storage
@@ -525,7 +540,7 @@ impl Collection {
         }
     }
 
-    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckID, String)>> {
+    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckId, String)>> {
         Ok(self
             .storage
             .get_all_deck_names()?
@@ -567,7 +582,7 @@ impl Collection {
         &mut self,
         today: u32,
         usn: Usn,
-        did: DeckID,
+        did: DeckId,
         new_delta: i32,
         review_delta: i32,
     ) -> Result<()> {
@@ -590,7 +605,7 @@ impl Collection {
 
     pub(crate) fn counts_for_deck_today(
         &mut self,
-        did: DeckID,
+        did: DeckId,
     ) -> Result<pb::CountsForDeckTodayOut> {
         let today = self.current_due_day(0)?;
         let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
@@ -620,8 +635,8 @@ impl Collection {
 
     pub fn reparent_decks(
         &mut self,
-        deck_ids: &[DeckID],
-        new_parent: Option<DeckID>,
+        deck_ids: &[DeckId],
+        new_parent: Option<DeckId>,
     ) -> Result<OpOutput<usize>> {
         self.transact(Op::ReparentDeck, |col| {
             col.reparent_decks_inner(deck_ids, new_parent)
@@ -630,8 +645,8 @@ impl Collection {
 
     pub fn reparent_decks_inner(
         &mut self,
-        deck_ids: &[DeckID],
-        new_parent: Option<DeckID>,
+        deck_ids: &[DeckId],
+        new_parent: Option<DeckId>,
     ) -> Result<usize> {
         let usn = self.usn()?;
         let target_deck;
@@ -848,6 +863,8 @@ mod test {
         fn n(s: &str) -> String {
             s.replace(":", "\x1f")
         }
+
+        #[allow(clippy::unnecessary_wraps)]
         fn n_opt(s: &str) -> Option<String> {
             Some(n(s))
         }

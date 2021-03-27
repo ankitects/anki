@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct MainQueueEntry {
-    pub id: CardID,
+    pub id: CardId,
     pub mtime: TimestampSecs,
     pub kind: MainQueueEntryKind,
 }
@@ -22,7 +22,7 @@ impl CardQueues {
         self.main.front().copied()
     }
 
-    pub(super) fn pop_main_entry(&mut self, id: CardID) -> Option<MainQueueEntry> {
+    pub(super) fn pop_main_entry(&mut self, id: CardId) -> Option<MainQueueEntry> {
         if let Some(last) = self.main.front() {
             if last.id == id {
                 match last.kind {

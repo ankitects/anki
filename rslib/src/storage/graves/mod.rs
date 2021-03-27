@@ -3,10 +3,10 @@
 
 use super::SqliteStorage;
 use crate::{
-    card::CardID,
-    decks::DeckID,
+    card::CardId,
+    decks::DeckId,
     err::{AnkiError, Result},
-    notes::NoteID,
+    notes::NoteId,
     sync::Graves,
     types::Usn,
 };
@@ -28,27 +28,27 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn add_card_grave(&self, cid: CardID, usn: Usn) -> Result<()> {
+    pub(crate) fn add_card_grave(&self, cid: CardId, usn: Usn) -> Result<()> {
         self.add_grave(cid.0, GraveKind::Card, usn)
     }
 
-    pub(crate) fn add_note_grave(&self, nid: NoteID, usn: Usn) -> Result<()> {
+    pub(crate) fn add_note_grave(&self, nid: NoteId, usn: Usn) -> Result<()> {
         self.add_grave(nid.0, GraveKind::Note, usn)
     }
 
-    pub(crate) fn add_deck_grave(&self, did: DeckID, usn: Usn) -> Result<()> {
+    pub(crate) fn add_deck_grave(&self, did: DeckId, usn: Usn) -> Result<()> {
         self.add_grave(did.0, GraveKind::Deck, usn)
     }
 
-    pub(crate) fn remove_card_grave(&self, cid: CardID) -> Result<()> {
+    pub(crate) fn remove_card_grave(&self, cid: CardId) -> Result<()> {
         self.remove_grave(cid.0, GraveKind::Card)
     }
 
-    pub(crate) fn remove_note_grave(&self, nid: NoteID) -> Result<()> {
+    pub(crate) fn remove_note_grave(&self, nid: NoteId) -> Result<()> {
         self.remove_grave(nid.0, GraveKind::Note)
     }
 
-    pub(crate) fn remove_deck_grave(&self, did: DeckID) -> Result<()> {
+    pub(crate) fn remove_deck_grave(&self, did: DeckId) -> Result<()> {
         self.remove_grave(did.0, GraveKind::Deck)
     }
 
@@ -64,9 +64,9 @@ impl SqliteStorage {
             let kind = GraveKind::try_from(row.get::<_, u8>(1)?)
                 .map_err(|_| AnkiError::invalid_input("invalid grave kind"))?;
             match kind {
-                GraveKind::Card => graves.cards.push(CardID(oid)),
-                GraveKind::Note => graves.notes.push(NoteID(oid)),
-                GraveKind::Deck => graves.decks.push(DeckID(oid)),
+                GraveKind::Card => graves.cards.push(CardId(oid)),
+                GraveKind::Note => graves.notes.push(NoteId(oid)),
+                GraveKind::Deck => graves.decks.push(DeckId(oid)),
             }
         }
         Ok(graves)

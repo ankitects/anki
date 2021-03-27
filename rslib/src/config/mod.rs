@@ -51,9 +51,9 @@ pub(crate) enum ConfigKey {
     #[strum(to_string = "noteSortType")]
     BrowserNoteSortKind,
     #[strum(to_string = "curDeck")]
-    CurrentDeckID,
+    CurrentDeckId,
     #[strum(to_string = "curModel")]
-    CurrentNoteTypeID,
+    CurrentNotetypeId,
     #[strum(to_string = "lastUnburied")]
     LastUnburiedDay,
     #[strum(to_string = "collapseTime")]
@@ -277,7 +277,7 @@ pub enum SortKind {
     #[serde(rename = "noteFld")]
     NoteField,
     #[serde(rename = "note")]
-    NoteType,
+    Notetype,
     NoteTags,
     CardMod,
     CardReps,
@@ -324,12 +324,12 @@ pub(crate) enum Weekday {
 mod test {
     use super::SortKind;
     use crate::collection::open_test_collection;
-    use crate::decks::DeckID;
+    use crate::decks::DeckId;
 
     #[test]
     fn defaults() {
         let col = open_test_collection();
-        assert_eq!(col.get_current_deck_id(), DeckID(1));
+        assert_eq!(col.get_current_deck_id(), DeckId(1));
         assert_eq!(col.get_browser_sort_kind(), SortKind::NoteField);
     }
 

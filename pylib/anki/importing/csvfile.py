@@ -7,7 +7,6 @@ from typing import Any, List, Optional, TextIO, Union
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter
-from anki.lang import TR
 
 
 class TextImporter(NoteImporter):
@@ -41,8 +40,7 @@ class TextImporter(NoteImporter):
                 if len(row) != self.numFields:
                     if row:
                         log.append(
-                            self.col.tr(
-                                TR.IMPORTING_ROWS_HAD_NUM1D_FIELDS_EXPECTED_NUM2D,
+                            self.col.tr.importing_rows_had_num1d_fields_expected_num2d(
                                 row=" ".join(row),
                                 found=len(row),
                                 expected=self.numFields,
@@ -53,7 +51,7 @@ class TextImporter(NoteImporter):
                 note = self.noteFromFields(row)
                 notes.append(note)
         except (csv.Error) as e:
-            log.append(self.col.tr(TR.IMPORTING_ABORTED, val=str(e)))
+            log.append(self.col.tr.importing_aborted(val=str(e)))
         self.log = log
         self.ignored = ignored
         self.close()

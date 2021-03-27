@@ -228,8 +228,8 @@ impl Collection {
 
     /// Return changes made by the current op. Must only be called in a transaction,
     /// when an operation was passed to transact().
-    pub(crate) fn op_changes(&self) -> Result<OpChanges> {
-        Ok(self.state.undo.op_changes())
+    pub(crate) fn op_changes(&self) -> OpChanges {
+        self.state.undo.op_changes()
     }
 }
 
@@ -242,8 +242,10 @@ mod test {
     fn undo() {
         let mut col = open_test_collection();
 
-        let mut card = Card::default();
-        card.interval = 1;
+        let mut card = Card {
+            interval: 1,
+            ..Default::default()
+        };
         col.add_card(&mut card).unwrap();
         let cid = card.id;
 

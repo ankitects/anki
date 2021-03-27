@@ -3,9 +3,9 @@
 
 use super::SqliteStorage;
 use crate::{
-    deckconf::{DeckConf, DeckConfID, DeckConfSchema11, DeckConfigInner},
+    deckconf::{DeckConf, DeckConfId, DeckConfSchema11, DeckConfigInner},
     err::Result,
-    i18n::{I18n, TR},
+    i18n::I18n,
 };
 use prost::Message;
 use rusqlite::{params, Row, NO_PARAMS};
@@ -31,7 +31,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfID, DeckConf>> {
+    pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfId, DeckConf>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
             .query_and_then(NO_PARAMS, row_to_deckconf)?
@@ -39,7 +39,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_deck_config(&self, dcid: DeckConfID) -> Result<Option<DeckConf>> {
+    pub(crate) fn get_deck_config(&self, dcid: DeckConfId) -> Result<Option<DeckConf>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?
             .query_and_then(params![dcid], row_to_deckconf)?
@@ -97,7 +97,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn remove_deck_conf(&self, dcid: DeckConfID) -> Result<()> {
+    pub(crate) fn remove_deck_conf(&self, dcid: DeckConfId) -> Result<()> {
         self.db
             .prepare_cached("delete from deck_config where id=?")?
             .execute(params![dcid])?;
@@ -113,10 +113,10 @@ impl SqliteStorage {
 
     // Creating/upgrading/downgrading
 
-    pub(super) fn add_default_deck_config(&self, i18n: &I18n) -> Result<()> {
+    pub(super) fn add_default_deck_config(&self, tr: &I18n) -> Result<()> {
         let mut conf = DeckConf::default();
         conf.id.0 = 1;
-        conf.name = i18n.tr(TR::DeckConfigDefaultName).into();
+        conf.name = tr.deck_config_default_name().into();
         self.add_deck_conf(&mut conf)
     }
 
@@ -140,7 +140,7 @@ impl SqliteStorage {
     }
 
     pub(super) fn upgrade_deck_conf_to_schema14(&self) -> Result<()> {
-        let conf: HashMap<DeckConfID, DeckConfSchema11> =
+        let conf: HashMap<DeckConfId, DeckConfSchema11> =
             self.db
                 .query_row_and_then("select dconf from col", NO_PARAMS, |row| -> Result<_> {
                     let text = row.get_raw(0).as_str()?;
@@ -208,7 +208,7 @@ impl SqliteStorage {
 
     pub(super) fn downgrade_deck_conf_from_schema16(&self) -> Result<()> {
         let allconf = self.all_deck_config()?;
-        let confmap: HashMap<DeckConfID, DeckConfSchema11> = allconf
+        let confmap: HashMap<DeckConfId, DeckConfSchema11> = allconf
             .into_iter()
             .map(|c| -> DeckConfSchema11 { c.into() })
             .map(|c| (c.id, c))

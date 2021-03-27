@@ -4,11 +4,11 @@
 use crate::{
     collection::Collection,
     config::SchedulerVersion,
-    err::{AnkiError, DBErrorKind, Result},
-    i18n::{tr_args, I18n, TR},
+    err::{AnkiError, DbErrorKind, Result},
+    i18n::I18n,
     notetype::{
-        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeID,
-        NoteTypeKind,
+        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, Notetype, NotetypeId,
+        NotetypeKind,
     },
     prelude::*,
     timestamp::{TimestampMillis, TimestampSecs},
@@ -41,72 +41,42 @@ pub(crate) enum DatabaseCheckProgress {
 }
 
 impl CheckDatabaseOutput {
-    pub fn to_i18n_strings(&self, i18n: &I18n) -> Vec<String> {
+    pub fn to_i18n_strings(&self, tr: &I18n) -> Vec<String> {
         let mut probs = Vec::new();
 
         if self.notetypes_recovered > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckNotetypesRecovered,
-                tr_args!["count"=>self.revlog_properties_invalid],
-            ));
+            probs.push(tr.database_check_notetypes_recovered());
         }
 
         if self.card_position_too_high > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckNewCardHighDue,
-                tr_args!["count"=>self.card_position_too_high],
-            ));
+            probs.push(tr.database_check_new_card_high_due(self.card_position_too_high));
         }
         if self.card_properties_invalid > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckCardProperties,
-                tr_args!["count"=>self.card_properties_invalid],
-            ));
+            probs.push(tr.database_check_card_properties(self.card_properties_invalid));
         }
         if self.cards_missing_note > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckCardMissingNote,
-                tr_args!["count"=>self.cards_missing_note],
-            ));
+            probs.push(tr.database_check_card_missing_note(self.cards_missing_note));
         }
         if self.decks_missing > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckMissingDecks,
-                tr_args!["count"=>self.decks_missing],
-            ));
+            probs.push(tr.database_check_missing_decks(self.decks_missing));
         }
         if self.field_count_mismatch > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckFieldCount,
-                tr_args!["count"=>self.field_count_mismatch],
-            ));
+            probs.push(tr.database_check_field_count(self.field_count_mismatch));
         }
         if self.card_ords_duplicated > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckDuplicateCardOrds,
-                tr_args!["count"=>self.card_ords_duplicated],
-            ));
+            probs.push(tr.database_check_duplicate_card_ords(self.card_ords_duplicated));
         }
         if self.templates_missing > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckMissingTemplates,
-                tr_args!["count"=>self.templates_missing],
-            ));
+            probs.push(tr.database_check_missing_templates(self.templates_missing));
         }
         if self.revlog_properties_invalid > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckRevlogProperties,
-                tr_args!["count"=>self.revlog_properties_invalid],
-            ));
+            probs.push(tr.database_check_revlog_properties(self.revlog_properties_invalid));
         }
         if self.invalid_utf8 > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckNotesWithInvalidUtf8,
-                tr_args!["count"=>self.invalid_utf8],
-            ));
+            probs.push(tr.database_check_notes_with_invalid_utf8(self.invalid_utf8));
         }
 
-        probs
+        probs.into_iter().map(Into::into).collect()
     }
 }
 
@@ -120,9 +90,9 @@ impl Collection {
         debug!(self.log, "quick check");
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
-            return Err(AnkiError::DBError {
-                info: self.i18n.tr(TR::DatabaseCheckCorrupt).into(),
-                kind: DBErrorKind::Corrupt,
+            return Err(AnkiError::DbError {
+                info: self.tr.database_check_corrupt().into(),
+                kind: DbErrorKind::Corrupt,
             });
         }
 
@@ -296,7 +266,7 @@ impl Collection {
         // if the collection is empty and the user has deleted all note types, ensure at least
         // one note type exists
         if self.storage.get_all_notetype_names()?.is_empty() {
-            let mut nt = all_stock_notetypes(&self.i18n).remove(0);
+            let mut nt = all_stock_notetypes(&self.tr).remove(0);
             self.add_notetype_inner(&mut nt, usn)?;
         }
 
@@ -313,14 +283,14 @@ impl Collection {
 
     fn get_note_fixing_invalid_utf8(
         &self,
-        nid: NoteID,
+        nid: NoteId,
         out: &mut CheckDatabaseOutput,
     ) -> Result<Note> {
         match self.storage.get_note(nid) {
             Ok(note) => Ok(note.unwrap()),
             Err(err) => match err {
-                AnkiError::DBError {
-                    kind: DBErrorKind::Utf8,
+                AnkiError::DbError {
+                    kind: DbErrorKind::Utf8,
                     ..
                 } => {
                     // fix note then fetch again
@@ -352,10 +322,10 @@ impl Collection {
 
     fn remove_cards_without_template(
         &mut self,
-        nt: &NoteType,
+        nt: &Notetype,
         cards: &[AlreadyGeneratedCardInfo],
     ) -> Result<usize> {
-        if nt.config.kind() == NoteTypeKind::Cloze {
+        if nt.config.kind() == NotetypeKind::Cloze {
             return Ok(0);
         }
         let mut removed = 0;
@@ -373,13 +343,13 @@ impl Collection {
         &mut self,
         stamp: TimestampMillis,
         field_count: usize,
-        previous_id: NoteTypeID,
-    ) -> Result<Arc<NoteType>> {
+        previous_id: NotetypeId,
+    ) -> Result<Arc<Notetype>> {
         debug!(self.log, "create recovery notetype");
         let extra_cards_required = self
             .storage
             .highest_card_ordinal_for_notetype(previous_id)?;
-        let mut basic = all_stock_notetypes(&self.i18n).remove(0);
+        let mut basic = all_stock_notetypes(&self.tr).remove(0);
         let mut field = 3;
         while basic.fields.len() < field_count {
             basic.add_field(format!("{}", field));
@@ -420,7 +390,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckID, search::SortMode};
+    use crate::{collection::open_test_collection, decks::DeckId, search::SortMode};
 
     fn progress_fn(_progress: DatabaseCheckProgress, _throttle: bool) {}
 
@@ -429,7 +399,7 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // card properties
         col.storage
@@ -460,7 +430,7 @@ mod test {
             }
         );
         assert_eq!(
-            col.storage.get_deck(DeckID(123))?.unwrap().name,
+            col.storage.get_deck(DeckId(123))?.unwrap().name,
             "recovered123"
         );
 
@@ -514,7 +484,7 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // duplicate ordinals
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
@@ -563,7 +533,7 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // excess fields get joined into the last one
         col.storage
@@ -639,7 +609,7 @@ mod test {
         let mut note = nt.new_note();
         note.tags.push("one".into());
         note.tags.push("two".into());
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         col.set_tag_expanded("one", true)?;
 

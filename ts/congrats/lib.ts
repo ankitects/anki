@@ -4,7 +4,8 @@
 import pb from "anki/backend_proto";
 import { postRequest } from "anki/postrequest";
 import { naturalUnit, unitAmount, unitName } from "anki/time";
-import type { I18n } from "anki/i18n";
+
+import * as tr from "anki/i18n";
 
 export async function getCongratsInfo(): Promise<pb.BackendProto.CongratsInfoOut> {
     return pb.BackendProto.CongratsInfoOut.decode(
@@ -12,10 +13,7 @@ export async function getCongratsInfo(): Promise<pb.BackendProto.CongratsInfoOut
     );
 }
 
-export function buildNextLearnMsg(
-    info: pb.BackendProto.CongratsInfoOut,
-    i18n: I18n
-): string {
+export function buildNextLearnMsg(info: pb.BackendProto.CongratsInfoOut): string {
     const secsUntil = info.secsUntilNextLearn;
     // next learning card not due (/ until tomorrow)?
     if (secsUntil == 0 || secsUntil > 86_400) {
@@ -25,11 +23,11 @@ export function buildNextLearnMsg(
     const unit = naturalUnit(secsUntil);
     const amount = Math.round(unitAmount(unit, secsUntil));
     const unitStr = unitName(unit);
-    const nextLearnDue = i18n.tr(i18n.TR.SCHEDULING_NEXT_LEARN_DUE, {
+    const nextLearnDue = tr.schedulingNextLearnDue({
         amount,
         unit: unitStr,
     });
-    const remaining = i18n.tr(i18n.TR.SCHEDULING_LEARN_REMAINING, {
+    const remaining = tr.schedulingLearnRemaining({
         remaining: info.learnRemaining,
     });
     return `${nextLearnDue} ${remaining}`;

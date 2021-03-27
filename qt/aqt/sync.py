@@ -10,7 +10,7 @@ from typing import Callable, Tuple
 
 import aqt
 from anki.errors import Interrupted, SyncError
-from anki.lang import TR, without_unicode_isolation
+from anki.lang import without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus
 from anki.utils import platDesc
 from aqt.qt import (
@@ -119,7 +119,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.taskman.with_progress(
         lambda: mw.col.sync_collection(auth),
         on_future_done,
-        label=tr(TR.SYNC_CHECKING),
+        label=tr.sync_checking(),
         immediate=True,
     )
 
@@ -144,7 +144,7 @@ def full_sync(
 def confirm_full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
-    if not askUser(tr(TR.SYNC_CONFIRM_EMPTY_DOWNLOAD)):
+    if not askUser(tr.sync_confirm_empty_download()):
         return on_done()
     else:
         mw.closeAllWindows(lambda: full_download(mw, on_done))
@@ -157,7 +157,7 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
     sync_progress = progress.full_sync
 
     if sync_progress.transferred == sync_progress.total:
-        label = tr(TR.SYNC_CHECKING)
+        label = tr.sync_checking()
     else:
         label = None
     mw.progress.update(
@@ -197,7 +197,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.taskman.with_progress(
         download,
         on_future_done,
-        label=tr(TR.SYNC_DOWNLOADING_FROM_ANKIWEB),
+        label=tr.sync_downloading_from_ankiweb(),
     )
 
 
@@ -226,7 +226,7 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.taskman.with_progress(
         lambda: mw.col.full_upload(mw.pm.sync_auth()),
         on_future_done,
-        label=tr(TR.SYNC_UPLOADING_TO_ANKIWEB),
+        label=tr.sync_uploading_to_ankiweb(),
     )
 
 
@@ -271,11 +271,11 @@ def sync_login(
 
 def ask_user_to_decide_direction() -> FullSyncChoice:
     button_labels = [
-        tr(TR.SYNC_UPLOAD_TO_ANKIWEB),
-        tr(TR.SYNC_DOWNLOAD_FROM_ANKIWEB),
-        tr(TR.SYNC_CANCEL_BUTTON),
+        tr.sync_upload_to_ankiweb(),
+        tr.sync_download_from_ankiweb(),
+        tr.sync_cancel_button(),
     ]
-    diag = askUserDialog(tr(TR.SYNC_CONFLICT_EXPLANATION), button_labels)
+    diag = askUserDialog(tr.sync_conflict_explanation(), button_labels)
     diag.setDefault(2)
     ret = diag.run()
     if ret == button_labels[0]:
@@ -296,7 +296,7 @@ def get_id_and_pass_from_user(
     vbox = QVBoxLayout()
     info_label = QLabel(
         without_unicode_isolation(
-            tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/register")
+            tr.sync_account_required(link="https://ankiweb.net/account/register")
         )
     )
     info_label.setOpenExternalLinks(True)
@@ -304,12 +304,12 @@ def get_id_and_pass_from_user(
     vbox.addWidget(info_label)
     vbox.addSpacing(20)
     g = QGridLayout()
-    l1 = QLabel(tr(TR.SYNC_ANKIWEB_ID_LABEL))
+    l1 = QLabel(tr.sync_ankiweb_id_label())
     g.addWidget(l1, 0, 0)
     user = QLineEdit()
     user.setText(username)
     g.addWidget(user, 0, 1)
-    l2 = QLabel(tr(TR.SYNC_PASSWORD_LABEL))
+    l2 = QLabel(tr.sync_password_label())
     g.addWidget(l2, 1, 0)
     passwd = QLineEdit()
     passwd.setText(password)

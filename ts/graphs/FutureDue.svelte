@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
-    import type { I18n } from "anki/i18n";
+
     import type pb from "anki/backend_proto";
 
     import Graph from "./Graph.svelte";
@@ -17,7 +17,7 @@
     import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let i18n: I18n;
+    import * as tr from "anki/i18n";
     export let preferences: PreferenceStore;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
@@ -37,15 +37,14 @@
             graphData,
             graphRange,
             $futureDueShowBacklog,
-            i18n,
             dispatch,
             $browserLinksSupported
         ));
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_TITLE);
-    const subtitle = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_SUBTITLE);
-    const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
+    const title = tr.statisticsFutureDueTitle();
+    const subtitle = tr.statisticsFutureDueSubtitle();
+    const backlogLabel = tr.statisticsBacklogCheckbox();
 </script>
 
 <Graph {title} {subtitle}>
@@ -57,10 +56,10 @@
             </label>
         {/if}
 
-        <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
+        <GraphRangeRadios bind:graphRange revlogRange={RevlogRange.All} />
     </InputBox>
 
-    <HistogramGraph data={histogramData} {i18n} />
+    <HistogramGraph data={histogramData} />
 
-    <TableData {i18n} {tableData} />
+    <TableData {tableData} />
 </Graph>

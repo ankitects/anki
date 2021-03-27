@@ -9,7 +9,8 @@ from anki.collection import Collection
 from anki.config import Config
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.lang import TR
+from anki.models import NotetypeId
+from anki.notes import NoteId
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -18,6 +19,11 @@ from anki.utils import (
     splitFields,
     timestampID,
 )
+
+TagMappedUpdate = Tuple[int, int, str, str, NoteId, str, str]
+TagModifiedUpdate = Tuple[int, int, str, str, NoteId, str]
+NoTagUpdate = Tuple[int, int, str, NoteId, str]
+Updates = Union[TagMappedUpdate, TagModifiedUpdate, NoTagUpdate]
 
 # Stores a list of fields, tags and deck
 ######################################################################
@@ -105,14 +111,6 @@ class NoteImporter(Importer):
         "Return a list of foreign notes for importing."
         return []
 
-    def open(self) -> None:
-        "Open file and ensure it's in the right format."
-        return
-
-    def close(self) -> None:
-        "Closes the open file."
-        return
-
     def importNotes(self, notes: List[ForeignNote]) -> None:
         "Convert each card into a note, apply attributes and add to col."
         assert self.mappingOk()
@@ -122,7 +120,7 @@ class NoteImporter(Importer):
             if f == "_tags":
                 self._tagsMapped = True
         # gather checks for duplicate comparison
-        csums: Dict[str, List[int]] = {}
+        csums: Dict[str, List[NoteId]] = {}
         for csum, id in self.col.db.execute(
             "select csum, id from notes where mid = ?", self.model["id"]
         ):
@@ -133,12 +131,12 @@ class NoteImporter(Importer):
         firsts: Dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model["flds"][0]["name"])
         self._fmap = self.col.models.fieldMap(self.model)
-        self._nextID = timestampID(self.col.db, "notes")
+        self._nextID = NoteId(timestampID(self.col.db, "notes"))
         # loop through the notes
-        updates = []
+        updates: List[Updates] = []
         updateLog = []
         new = []
-        self._ids: List[int] = []
+        self._ids: List[NoteId] = []
         self._cards: List[Tuple] = []
         dupeCount = 0
         dupes: List[str] = []
@@ -153,16 +151,14 @@ class NoteImporter(Importer):
             # first field must exist
             if not fld0:
                 self.log.append(
-                    self.col.tr(TR.IMPORTING_EMPTY_FIRST_FIELD, val=" ".join(n.fields))
+                    self.col.tr.importing_empty_first_field(val=" ".join(n.fields))
                 )
                 continue
             csum = fieldChecksum(fld0)
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
-                self.log.append(
-                    self.col.tr(TR.IMPORTING_APPEARED_TWICE_IN_FILE, val=fld0)
-                )
+                self.log.append(self.col.tr.importing_appeared_twice_in_file(val=fld0))
                 continue
             firsts[fld0] = True
             # already exists?
@@ -180,9 +176,7 @@ class NoteImporter(Importer):
                             if data:
                                 updates.append(data)
                                 updateLog.append(
-                                    self.col.tr(
-                                        TR.IMPORTING_FIRST_FIELD_MATCHED, val=fld0
-                                    )
+                                    self.col.tr.importing_first_field_matched(val=fld0)
                                 )
                                 dupeCount += 1
                                 found = True
@@ -194,8 +188,7 @@ class NoteImporter(Importer):
                                 # only show message once, no matter how many
                                 # duplicates are in the collection already
                                 updateLog.append(
-                                    self.col.tr(
-                                        TR.IMPORTING_ADDED_DUPLICATE_WITH_FIRST_FIELD,
+                                    self.col.tr.importing_added_duplicate_with_first_field(
                                         val=fld0,
                                     )
                                 )
@@ -203,9 +196,9 @@ class NoteImporter(Importer):
                             found = False
             # newly add
             if not found:
-                data = self.newData(n)
-                if data:
-                    new.append(data)
+                new_data = self.newData(n)
+                if new_data:
+                    new.append(new_data)
                     # note that we've seen this note once already
                     firsts[fld0] = True
         self.addNew(new)
@@ -222,28 +215,30 @@ class NoteImporter(Importer):
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)
 
-        part1 = self.col.tr(TR.IMPORTING_NOTE_ADDED, count=len(new))
-        part2 = self.col.tr(TR.IMPORTING_NOTE_UPDATED, count=self.updateCount)
+        part1 = self.col.tr.importing_note_added(count=len(new))
+        part2 = self.col.tr.importing_note_updated(count=self.updateCount)
         if self.importMode == UPDATE_MODE:
             unchanged = dupeCount - self.updateCount
         elif self.importMode == IGNORE_MODE:
             unchanged = dupeCount
         else:
             unchanged = 0
-        part3 = self.col.tr(TR.IMPORTING_NOTE_UNCHANGED, count=unchanged)
+        part3 = self.col.tr.importing_note_unchanged(count=unchanged)
         self.log.append(f"{part1}, {part2}, {part3}.")
         self.log.extend(updateLog)
         self.total = len(self._ids)
 
-    def newData(self, n: ForeignNote) -> Optional[list]:
+    def newData(
+        self, n: ForeignNote
+    ) -> Tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]:
         id = self._nextID
-        self._nextID += 1
+        self._nextID = NoteId(self._nextID + 1)
         self._ids.append(id)
         self.processFields(n)
         # note id for card updates later
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
-        return [
+        return (
             id,
             guid64(),
             self.model["id"],
@@ -255,28 +250,35 @@ class NoteImporter(Importer):
             0,
             0,
             "",
-        ]
+        )
 
-    def addNew(self, rows: List[List[Union[int, str]]]) -> None:
+    def addNew(
+        self,
+        rows: List[
+            Tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]
+        ],
+    ) -> None:
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", rows
         )
 
-    def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
+    def updateData(
+        self, n: ForeignNote, id: NoteId, sflds: List[str]
+    ) -> Optional[Updates]:
         self._ids.append(id)
         self.processFields(n, sflds)
         if self._tagsMapped:
             tags = self.col.tags.join(n.tags)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
+            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags)
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
             tagList = self.col.tags.split(tags) + self.tagModified.split()
             tags = self.col.tags.join(tagList)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr]
+            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr)
         else:
-            return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
+            return (intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
 
-    def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
+    def addUpdates(self, rows: List[Updates]) -> None:
         changes = self.col.db.scalar("select total_changes()")
         if self._tagsMapped:
             self.col.db.executemany(
