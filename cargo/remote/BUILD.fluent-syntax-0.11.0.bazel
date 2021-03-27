@@ -32,6 +32,8 @@ licenses([
 
 # Unsupported target "parser" with type "bench" omitted
 
+# Unsupported target "parser_iai" with type "bench" omitted
+
 rust_binary(
     # Prefix bin name to disambiguate from (probable) collision with lib name
     # N.B.: The exact form of this is subject to change.
@@ -50,11 +52,12 @@ rust_binary(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.3",
+    version = "0.11.0",
     # buildifier: leave-alone
     deps = [
         # Binaries get an implicit dependency on their crate's lib
         ":fluent_syntax",
+        "@raze__thiserror__1_0_24//:thiserror",
     ],
 )
 
@@ -76,11 +79,12 @@ rust_binary(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.3",
+    version = "0.11.0",
     # buildifier: leave-alone
     deps = [
         # Binaries get an implicit dependency on their crate's lib
         ":fluent_syntax",
+        "@raze__thiserror__1_0_24//:thiserror",
     ],
 )
 
@@ -101,9 +105,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.3",
+    version = "0.11.0",
     # buildifier: leave-alone
     deps = [
+        "@raze__thiserror__1_0_24//:thiserror",
     ],
 )
 

@@ -25,18 +25,31 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "restricted",  # BSD-2-Clause from expression "BSD-2-Clause"
 ])
 
 # Generated Targets
 
+alias(
+    name = "Inflector",
+    actual = ":inflector",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
 rust_library(
-    name = "rental_impl",
+    name = "inflector",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "heavyweight",
+        "lazy_static",
+        "regex",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_type = "lib",
     data = [],
     edition = "2015",
     rustc_flags = [
@@ -46,11 +59,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.5.5",
+    version = "0.11.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_63//:syn",
+        "@raze__lazy_static__1_4_0//:lazy_static",
+        "@raze__regex__1_4_3//:regex",
     ],
 )
+
+# Unsupported target "lib" with type "test" omitted

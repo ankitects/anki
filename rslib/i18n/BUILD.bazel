@@ -44,6 +44,7 @@ rust_library(
     deps = [
         ":build_script",
         "//rslib/i18n/cargo:fluent",
+        "//rslib/i18n/cargo:fluent_bundle",
         "//rslib/i18n/cargo:intl_memoizer",
         "//rslib/i18n/cargo:num_format",
         "//rslib/i18n/cargo:phf",

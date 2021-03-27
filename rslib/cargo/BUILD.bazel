@@ -113,7 +113,7 @@ alias(
 
 alias(
     name = "fluent",
-    actual = "@raze__fluent__0_13_1//:fluent",
+    actual = "@raze__fluent__0_15_0//:fluent",
     tags = [
         "cargo-raze",
         "manual",
@@ -121,8 +121,8 @@ alias(
 )
 
 alias(
-    name = "fluent_syntax",
-    actual = "@raze__fluent_syntax__0_10_3//:fluent_syntax",
+    name = "fluent_bundle",
+    actual = "@raze__fluent_bundle__0_15_0//:fluent_bundle",
     tags = [
         "cargo-raze",
         "manual",

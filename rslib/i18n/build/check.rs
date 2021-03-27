@@ -21,7 +21,7 @@ fn check_content(lang: &str, fname: &str, content: &str) {
         panic!("{}\nUnable to parse {}/{}: {:?}", content, lang, fname, e);
     });
 
-    let mut bundle: FluentBundle<FluentResource> = FluentBundle::new(&[lang_id]);
+    let mut bundle: FluentBundle<FluentResource> = FluentBundle::new(vec![lang_id]);
     bundle.add_resource(resource).unwrap_or_else(|e| {
         panic!(
             "{}\nUnable to bundle - duplicate key? {}/{}: {:?}",

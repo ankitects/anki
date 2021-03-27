@@ -3,7 +3,7 @@
 
 use crate::gather::TranslationsByLang;
 use fluent_syntax::ast::{Entry, Expression, InlineExpression, Pattern, PatternElement};
-use fluent_syntax::parser::Parser;
+use fluent_syntax::parser::parse;
 use serde::Serialize;
 use std::{collections::HashSet, fmt::Write};
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
@@ -59,7 +59,7 @@ pub fn get_modules(data: &TranslationsByLang) -> Vec<Module> {
 }
 
 fn extract_metadata(ftl_text: &str) -> Vec<Translation> {
-    let res = Parser::new(ftl_text).parse().unwrap();
+    let res = parse(ftl_text).unwrap();
     let mut output = vec![];
 
     for entry in res.body {
@@ -147,11 +147,11 @@ impl Visitor {
 
     fn visit_expression(&mut self, expression: &Expression<&str>) {
         match expression {
-            Expression::SelectExpression { selector, variants } => {
+            Expression::Select { selector, variants } => {
                 self.visit_inline_expression(&selector, true);
                 self.visit_pattern(&variants.last().unwrap().value)
             }
-            Expression::InlineExpression(expr) => self.visit_inline_expression(expr, false),
+            Expression::Inline(expr) => self.visit_inline_expression(expr, false),
         }
     }
 }
