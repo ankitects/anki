@@ -149,8 +149,8 @@ def register_repos():
     core_i18n_zip_csum = "353647e9445045153260b9eee7ff30cd782dd46c94360d73dbcc4e33e1bb1143"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "a7d774be40d9c4fb8a4900d7cc41ec0a2d40a47d"
-    qtftl_i18n_zip_csum = "b2f175c6e1a6f566abbd4dd9dd407929ad0aa9d1f31ea4956ee8cc8b0e63b89f"
+    qtftl_i18n_commit = "463bc53e3ff12e5c8446addb7a4dcdb13965ba3b"
+    qtftl_i18n_zip_csum = "aa727e38e96aa135a80b30a9155e051cd9012a42353282bd2048ebbc98feba32"
 
     i18n_build_content = """
 filegroup(
