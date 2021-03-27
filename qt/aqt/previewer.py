@@ -13,7 +13,6 @@ from anki.cards import Card
 from anki.collection import Config
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
-    QAbstractItemView,
     QCheckBox,
     QDialog,
     QDialogButtonBox,
@@ -326,23 +325,16 @@ class BrowserPreviewer(MultiCardPreviewer):
             return changed
 
     def _on_prev_card(self) -> None:
-        self._parent.editor.call_after_note_saved(
-            lambda: self._parent._moveCur(QAbstractItemView.MoveUp)
-        )
+        self._parent.onPreviousCard()
 
     def _on_next_card(self) -> None:
-        self._parent.editor.call_after_note_saved(
-            lambda: self._parent._moveCur(QAbstractItemView.MoveDown)
-        )
+        self._parent.onNextCard()
 
     def _should_enable_prev(self) -> bool:
-        return super()._should_enable_prev() or self._parent.currentRow() > 0
+        return super()._should_enable_prev() or self._parent.has_previous_card()
 
     def _should_enable_next(self) -> bool:
-        return (
-            super()._should_enable_next()
-            or self._parent.currentRow() < self._parent.model.rowCount(None) - 1
-        )
+        return super()._should_enable_next() or self._parent.has_next_card()
 
     def _render_scheduled(self) -> None:
         super()._render_scheduled()

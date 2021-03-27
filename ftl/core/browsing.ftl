@@ -100,6 +100,7 @@ browsing-toggle-suspend = Toggle Suspend
 browsing-treat-input-as-regular-expression = Treat input as regular expression
 browsing-update-saved-search = Update with Current Search
 browsing-whole-collection = Whole Collection
+browsing-window-title-notes = Browse ({ $selected } of { $total } notes selected)
 browsing-you-must-have-at-least-one = You must have at least one column.
 browsing-group =
     { $count ->
