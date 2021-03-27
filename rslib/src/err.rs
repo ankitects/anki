@@ -139,17 +139,18 @@ impl AnkiError {
                     SearchErrorKind::UnclosedQuote => i18n.search_unclosed_quote(),
                     SearchErrorKind::MissingKey => i18n.search_missing_key(),
                     SearchErrorKind::UnknownEscape(ctx) => {
-                        i18n.search_unknown_escape(ctx.replace('`', "'")).into()
+                        i18n.search_unknown_escape(ctx.replace('`', "'"))
                     }
-                    SearchErrorKind::InvalidState(state) => i18n
-                        .search_invalid_argument("is:", state.replace('`', "'"))
-                        .into(),
+                    SearchErrorKind::InvalidState(state) => {
+                        i18n.search_invalid_argument("is:", state.replace('`', "'"))
+                    }
+
                     SearchErrorKind::InvalidFlag => i18n.search_invalid_flag(),
-                    SearchErrorKind::InvalidPropProperty(prop) => i18n
-                        .search_invalid_argument("prop:", prop.replace('`', "'"))
-                        .into(),
+                    SearchErrorKind::InvalidPropProperty(prop) => {
+                        i18n.search_invalid_argument("prop:", prop.replace('`', "'"))
+                    }
                     SearchErrorKind::InvalidPropOperator(ctx) => {
-                        i18n.search_invalid_prop_operator(ctx.as_str()).into()
+                        i18n.search_invalid_prop_operator(ctx.as_str())
                     }
                     SearchErrorKind::Regex(text) => {
                         format!("<pre>`{}`</pre>", text.replace('`', "'")).into()
@@ -160,32 +161,31 @@ impl AnkiError {
                         .search_invalid_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
-                        )
-                        .into(),
+                        ),
+
                     SearchErrorKind::InvalidWholeNumber { provided, context } => i18n
                         .search_invalid_whole_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
-                        )
-                        .into(),
+                        ),
+
                     SearchErrorKind::InvalidPositiveWholeNumber { provided, context } => i18n
                         .search_invalid_positive_whole_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
-                        )
-                        .into(),
+                        ),
+
                     SearchErrorKind::InvalidNegativeWholeNumber { provided, context } => i18n
                         .search_invalid_negative_whole_number(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
-                        )
-                        .into(),
+                        ),
+
                     SearchErrorKind::InvalidAnswerButton { provided, context } => i18n
                         .search_invalid_answer_button(
                             context.replace('`', "'"),
                             provided.replace('`', "'"),
-                        )
-                        .into(),
+                        ),
                 };
                 i18n.search_invalid_search(reason).into()
             }

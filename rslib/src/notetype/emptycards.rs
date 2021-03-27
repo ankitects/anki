@@ -4,13 +4,7 @@
 use super::{
     cardgen::group_generated_cards_by_note, CardGenContext, NoteType, NoteTypeID, NoteTypeKind,
 };
-use crate::{
-    card::CardID,
-    collection::Collection,
-    err::Result,
-    i18n::{tr_args, TR},
-    notes::NoteID,
-};
+use crate::{card::CardID, collection::Collection, err::Result, notes::NoteID};
 use std::collections::HashSet;
 use std::fmt::Write;
 
@@ -119,13 +113,10 @@ impl Collection {
                         "<li class={}>[anki:nid:{}] {}</li>",
                         class,
                         note.nid,
-                        self.i18n.trn(
-                            TR::EmptyCardsCountLine,
-                            tr_args![
-                            "empty_count"=>note.empty.len(),
-                            "existing_count"=>note.current_count,
-                            "template_names"=>templates
-                            ],
+                        self.i18n.empty_cards_count_line(
+                            note.empty.len(),
+                            note.current_count,
+                            templates
                         )
                     )
                     .unwrap();

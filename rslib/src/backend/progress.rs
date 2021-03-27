@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
     backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
-    i18n::{tr_args, I18n, TR},
+    i18n::I18n,
     media::sync::MediaSyncProgress,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
@@ -70,16 +70,12 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::
                     SyncStage::Finalizing => i18n.sync_checking(),
                 }
                 .to_string();
-                let added = i18n.trn(
-                    TR::SyncAddedUpdatedCount,
-                    tr_args![
-                            "up"=>p.local_update, "down"=>p.remote_update],
-                );
-                let removed = i18n.trn(
-                    TR::SyncMediaRemovedCount,
-                    tr_args![
-                            "up"=>p.local_remove, "down"=>p.remote_remove],
-                );
+                let added = i18n
+                    .sync_added_updated_count(p.local_update, p.remote_update)
+                    .into();
+                let removed = i18n
+                    .sync_media_removed_count(p.local_remove, p.remote_remove)
+                    .into();
                 pb::progress::Value::NormalSync(pb::progress::NormalSync {
                     stage,
                     added,

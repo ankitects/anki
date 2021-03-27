@@ -7,14 +7,13 @@ pub fn studied_today(cards: u32, secs: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(secs).natural_span();
     let amount = span.as_unit();
     let unit = span.unit().as_str();
-    let secs_per = if cards > 0 {
+    let secs_per_card = if cards > 0 {
         secs / (cards as f32)
     } else {
         0.0
     };
-    let args = tr_args!["amount" => amount, "unit" => unit,
-        "cards" => cards, "secs-per-card" => secs_per];
-    i18n.trn(TR::StatisticsStudiedToday, args)
+    i18n.statistics_studied_today(unit, secs_per_card, amount, cards)
+        .into()
 }
 
 impl Collection {

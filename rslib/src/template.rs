@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
-use crate::i18n::{tr_strs, I18n, TR};
+use crate::i18n::I18n;
 use crate::{cloze::add_cloze_numbers_in_string, template_filters::apply_filters};
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -247,11 +247,11 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
 }
 
 fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -> AnkiError {
-    let header = i18n.tr(if q_side {
-        TR::CardTemplateRenderingFrontSideProblem
+    let header = if q_side {
+        i18n.card_template_rendering_front_side_problem()
     } else {
-        TR::CardTemplateRenderingBackSideProblem
-    });
+        i18n.card_template_rendering_back_side_problem()
+    };
     let details = localized_template_error(i18n, err);
     let more_info = i18n.card_template_rendering_more_info();
     let info = format!(
@@ -273,31 +273,22 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
         TemplateError::ConditionalNotOpen {
             closed,
             currently_open,
-        } => {
-            if let Some(open) = currently_open {
-                i18n.trn(
-                    TR::CardTemplateRenderingWrongConditionalClosed,
-                    tr_strs!(
-                "found"=>format!("{{{{/{}}}}}", closed),
-                "expected"=>format!("{{{{/{}}}}}", open)),
-                )
-            } else {
-                i18n.trn(
-                    TR::CardTemplateRenderingConditionalNotOpen,
-                    tr_strs!(
-                    "found"=>format!("{{{{/{}}}}}", closed),
-                    "missing1"=>format!("{{{{#{}}}}}", closed),
-                    "missing2"=>format!("{{{{^{}}}}}", closed)
-                    ),
-                )
-            }
+        } => if let Some(open) = currently_open {
+            i18n.card_template_rendering_wrong_conditional_closed(
+                format!("{{{{/{}}}}}", closed),
+                format!("{{{{/{}}}}}", open),
+            )
+        } else {
+            i18n.card_template_rendering_conditional_not_open(
+                format!("{{{{/{}}}}}", closed),
+                format!("{{{{#{}}}}}", closed),
+                format!("{{{{^{}}}}}", closed),
+            )
         }
-        TemplateError::FieldNotFound { field, filters } => i18n.trn(
-            TR::CardTemplateRenderingNoSuchField,
-            tr_strs!(
-            "found"=>format!("{{{{{}{}}}}}", filters, field),
-            "field"=>field),
-        ),
+        .into(),
+        TemplateError::FieldNotFound { field, filters } => i18n
+            .card_template_rendering_no_such_field(format!("{{{{{}{}}}}}", filters, field), field)
+            .into(),
     }
 }
 
