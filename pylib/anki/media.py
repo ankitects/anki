@@ -17,7 +17,7 @@ import anki
 import anki._backend.backend_pb2 as _pb
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
-from anki.models import NoteTypeID
+from anki.models import NoteTypeId
 from anki.sound import SoundOrVideoTag
 from anki.template import av_tags_to_native
 from anki.utils import intTime
@@ -160,7 +160,7 @@ class MediaManager:
     ##########################################################################
 
     def filesInStr(
-        self, mid: NoteTypeID, string: str, includeRemote: bool = False
+        self, mid: NoteTypeId, string: str, includeRemote: bool = False
     ) -> List[str]:
         l = []
         model = self.col.models.get(mid)

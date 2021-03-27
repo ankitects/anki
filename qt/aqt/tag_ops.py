@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Callable, Sequence
 
 from anki.collection import OpChangesWithCount
-from anki.notes import NoteID
+from anki.notes import NoteId
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.utils import showInfo, tooltip, tr
@@ -15,7 +15,7 @@ from aqt.utils import showInfo, tooltip, tr
 def add_tags(
     *,
     mw: AnkiQt,
-    note_ids: Sequence[NoteID],
+    note_ids: Sequence[NoteId],
     space_separated_tags: str,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
@@ -27,7 +27,7 @@ def add_tags(
 def remove_tags_for_notes(
     *,
     mw: AnkiQt,
-    note_ids: Sequence[NoteID],
+    note_ids: Sequence[NoteId],
     space_separated_tags: str,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:

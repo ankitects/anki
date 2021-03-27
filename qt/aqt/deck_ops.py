@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Callable, Sequence
 
-from anki.decks import DeckID
+from anki.decks import DeckId
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.utils import getOnlyText, tooltip, tr
@@ -15,7 +15,7 @@ def remove_decks(
     *,
     mw: AnkiQt,
     parent: QWidget,
-    deck_ids: Sequence[DeckID],
+    deck_ids: Sequence[DeckId],
 ) -> None:
     mw.perform_op(
         lambda: mw.col.decks.remove(deck_ids),
@@ -26,7 +26,7 @@ def remove_decks(
 
 
 def reparent_decks(
-    *, mw: AnkiQt, parent: QWidget, deck_ids: Sequence[DeckID], new_parent: DeckID
+    *, mw: AnkiQt, parent: QWidget, deck_ids: Sequence[DeckId], new_parent: DeckId
 ) -> None:
     mw.perform_op(
         lambda: mw.col.decks.reparent(deck_ids=deck_ids, new_parent=new_parent),
@@ -39,7 +39,7 @@ def reparent_decks(
 def rename_deck(
     *,
     mw: AnkiQt,
-    deck_id: DeckID,
+    deck_id: DeckId,
     new_name: str,
     after_rename: Callable[[], None] = None,
 ) -> None:

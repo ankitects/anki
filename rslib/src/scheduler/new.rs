@@ -210,7 +210,7 @@ mod test {
         assert_eq!(sorter.position(&c2), 1);
         assert_eq!(sorter.position(&c3), 2);
 
-        // NoteID/step/starting
+        // NoteId/step/starting
         let sorter = NewCardSorter::new(&cards, 3, 2, NewCardSortOrder::NoteId);
         assert_eq!(sorter.position(&c3), 3);
         assert_eq!(sorter.position(&c2), 5);

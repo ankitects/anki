@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import List, Optional
 
-from anki.models import NoteTypeID
+from anki.models import NoteTypeId
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import HelpPage, shortcut, tr
@@ -23,16 +23,16 @@ class NoteTypeChooser(QHBoxLayout):
     deleted.
     """
 
-    _selected_notetype_id: NoteTypeID
+    _selected_notetype_id: NoteTypeId
 
     def __init__(
         self,
         *,
         mw: AnkiQt,
         widget: QWidget,
-        starting_notetype_id: NoteTypeID,
+        starting_notetype_id: NoteTypeId,
         on_button_activated: Optional[Callable[[], None]] = None,
-        on_notetype_changed: Optional[Callable[[NoteTypeID], None]] = None,
+        on_notetype_changed: Optional[Callable[[NoteTypeId], None]] = None,
         show_prefix_label: bool = True,
     ) -> None:
         QHBoxLayout.__init__(self)
@@ -44,7 +44,7 @@ class NoteTypeChooser(QHBoxLayout):
             self.on_button_activated = self.choose_notetype
         self._setup_ui(show_label=show_prefix_label)
         gui_hooks.state_did_reset.append(self.reset_state)
-        self._selected_notetype_id = NoteTypeID(0)
+        self._selected_notetype_id = NoteTypeId(0)
         # triggers UI update; avoid firing changed hook on startup
         self.on_notetype_changed = None
         self.selected_notetype_id = starting_notetype_id
@@ -121,7 +121,7 @@ class NoteTypeChooser(QHBoxLayout):
             self.selected_notetype_id = id
 
     @property
-    def selected_notetype_id(self) -> NoteTypeID:
+    def selected_notetype_id(self) -> NoteTypeId:
         # theoretically this should not be necessary, as we're listening to
         # resets
         self._ensure_selected_notetype_valid()
@@ -129,7 +129,7 @@ class NoteTypeChooser(QHBoxLayout):
         return self._selected_notetype_id
 
     @selected_notetype_id.setter
-    def selected_notetype_id(self, id: NoteTypeID) -> None:
+    def selected_notetype_id(self, id: NoteTypeId) -> None:
         if id != self._selected_notetype_id:
             self._selected_notetype_id = id
             self._ensure_selected_notetype_valid()
@@ -142,7 +142,7 @@ class NoteTypeChooser(QHBoxLayout):
 
     def _ensure_selected_notetype_valid(self) -> None:
         if not self.mw.col.models.get(self._selected_notetype_id):
-            self.selected_notetype_id = NoteTypeID(
+            self.selected_notetype_id = NoteTypeId(
                 self.mw.col.models.all_names_and_ids()[0].id
             )
 

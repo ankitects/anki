@@ -72,7 +72,7 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.congrats_info())
     }
 
-    fn restore_buried_and_suspended_cards(&self, input: pb::CardIDs) -> Result<pb::OpChanges> {
+    fn restore_buried_and_suspended_cards(&self, input: pb::CardIds) -> Result<pb::OpChanges> {
         let cids: Vec<_> = input.into();
         self.with_col(|col| col.unbury_or_unsuspend_cards(&cids).map(Into::into))
     }

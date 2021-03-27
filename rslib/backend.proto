@@ -50,7 +50,7 @@ message OpChangesWithCount {
   OpChanges changes = 2;
 }
 
-message OpChangesWithID {
+message OpChangesWithId {
   int64 id = 1;
   OpChanges changes = 2;
 }
@@ -58,31 +58,31 @@ message OpChangesWithID {
 // IDs used in RPC calls
 ///////////////////////////////////////////////////////////
 
-message NoteTypeID {
+message NoteTypeId {
   int64 ntid = 1;
 }
 
-message NoteID {
+message NoteId {
   int64 nid = 1;
 }
 
-message CardID {
+message CardId {
   int64 cid = 1;
 }
 
-message CardIDs {
+message CardIds {
   repeated int64 cids = 1;
 }
 
-message DeckID {
+message DeckId {
   int64 did = 1;
 }
 
-message DeckIDs {
+message DeckIds {
   repeated int64 dids = 1;
 }
 
-message DeckConfigID {
+message DeckConfigId {
   int64 dcid = 1;
 }
 
@@ -116,18 +116,18 @@ service SchedulingService {
   rpc StudiedTodayMessage(StudiedTodayMessageIn) returns (String);
   rpc UpdateStats(UpdateStatsIn) returns (Empty);
   rpc ExtendLimits(ExtendLimitsIn) returns (Empty);
-  rpc CountsForDeckToday(DeckID) returns (CountsForDeckTodayOut);
+  rpc CountsForDeckToday(DeckId) returns (CountsForDeckTodayOut);
   rpc CongratsInfo(Empty) returns (CongratsInfoOut);
-  rpc RestoreBuriedAndSuspendedCards(CardIDs) returns (OpChanges);
+  rpc RestoreBuriedAndSuspendedCards(CardIds) returns (OpChanges);
   rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
   rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChanges);
-  rpc EmptyFilteredDeck(DeckID) returns (OpChanges);
-  rpc RebuildFilteredDeck(DeckID) returns (OpChangesWithCount);
+  rpc EmptyFilteredDeck(DeckId) returns (OpChanges);
+  rpc RebuildFilteredDeck(DeckId) returns (OpChangesWithCount);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (OpChanges);
   rpc SetDueDate(SetDueDateIn) returns (OpChanges);
   rpc SortCards(SortCardsIn) returns (OpChangesWithCount);
   rpc SortDeck(SortDeckIn) returns (OpChangesWithCount);
-  rpc GetNextCardStates(CardID) returns (NextCardStates);
+  rpc GetNextCardStates(CardId) returns (NextCardStates);
   rpc DescribeNextStates(NextCardStates) returns (StringList);
   rpc StateIsLeech(SchedulingState) returns (Bool);
   rpc AnswerCard(AnswerCardIn) returns (OpChanges);
@@ -136,35 +136,35 @@ service SchedulingService {
 }
 
 service DecksService {
-  rpc AddDeckLegacy(Json) returns (OpChangesWithID);
-  rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckID);
+  rpc AddDeckLegacy(Json) returns (OpChangesWithId);
+  rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyIn) returns (DeckId);
   rpc DeckTree(DeckTreeIn) returns (DeckTreeNode);
   rpc DeckTreeLegacy(Empty) returns (Json);
   rpc GetAllDecksLegacy(Empty) returns (Json);
-  rpc GetDeckIDByName(String) returns (DeckID);
-  rpc GetDeckLegacy(DeckID) returns (Json);
+  rpc GetDeckIdByName(String) returns (DeckId);
+  rpc GetDeckLegacy(DeckId) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
-  rpc RemoveDecks(DeckIDs) returns (OpChangesWithCount);
+  rpc RemoveDecks(DeckIds) returns (OpChangesWithCount);
   rpc ReparentDecks(ReparentDecksIn) returns (OpChangesWithCount);
   rpc RenameDeck(RenameDeckIn) returns (OpChanges);
-  rpc GetOrCreateFilteredDeck(DeckID) returns (FilteredDeckForUpdate);
-  rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithID);
+  rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
+  rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithId);
 }
 
 service NotesService {
-  rpc NewNote(NoteTypeID) returns (Note);
+  rpc NewNote(NoteTypeId) returns (Note);
   rpc AddNote(AddNoteIn) returns (AddNoteOut);
   rpc DefaultsForAdding(DefaultsForAddingIn) returns (DeckAndNotetype);
-  rpc DefaultDeckForNotetype(NoteTypeID) returns (DeckID);
+  rpc DefaultDeckForNotetype(NoteTypeId) returns (DeckId);
   rpc UpdateNote(UpdateNoteIn) returns (OpChanges);
-  rpc GetNote(NoteID) returns (Note);
+  rpc GetNote(NoteId) returns (Note);
   rpc RemoveNotes(RemoveNotesIn) returns (OpChanges);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
   rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChanges);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
   rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
-  rpc CardsOfNote(NoteID) returns (CardIDs);
+  rpc CardsOfNote(NoteId) returns (CardIds);
 }
 
 service SyncService {
@@ -194,13 +194,13 @@ service ConfigService {
 }
 
 service NoteTypesService {
-  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeID);
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NoteTypeId);
   rpc GetStockNotetypeLegacy(StockNoteType) returns (Json);
-  rpc GetNotetypeLegacy(NoteTypeID) returns (Json);
+  rpc GetNotetypeLegacy(NoteTypeId) returns (Json);
   rpc GetNotetypeNames(Empty) returns (NoteTypeNames);
   rpc GetNotetypeNamesAndCounts(Empty) returns (NoteTypeUseCounts);
-  rpc GetNotetypeIDByName(String) returns (NoteTypeID);
-  rpc RemoveNotetype(NoteTypeID) returns (Empty);
+  rpc GetNotetypeIdByName(String) returns (NoteTypeId);
+  rpc RemoveNotetype(NoteTypeId) returns (Empty);
 }
 
 service CardRenderingService {
@@ -215,11 +215,11 @@ service CardRenderingService {
 
 service DeckConfigService {
   rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
-      returns (DeckConfigID);
+      returns (DeckConfigId);
   rpc AllDeckConfigLegacy(Empty) returns (Json);
-  rpc GetDeckConfigLegacy(DeckConfigID) returns (Json);
+  rpc GetDeckConfigLegacy(DeckConfigId) returns (Json);
   rpc NewDeckConfigLegacy(Empty) returns (Json);
-  rpc RemoveDeckConfig(DeckConfigID) returns (Empty);
+  rpc RemoveDeckConfig(DeckConfigId) returns (Empty);
 }
 
 service TagsService {
@@ -230,8 +230,8 @@ service TagsService {
   rpc TagTree(Empty) returns (TagTreeNode);
   rpc ReparentTags(ReparentTagsIn) returns (OpChangesWithCount);
   rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
-  rpc AddNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
-  rpc RemoveNoteTags(NoteIDsAndTagsIn) returns (OpChangesWithCount);
+  rpc AddNoteTags(NoteIdsAndTagsIn) returns (OpChangesWithCount);
+  rpc RemoveNoteTags(NoteIdsAndTagsIn) returns (OpChangesWithCount);
   rpc FindAndReplaceTag(FindAndReplaceTagIn) returns (OpChangesWithCount);
 }
 
@@ -242,11 +242,11 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
-  rpc BrowserRowForCard(CardID) returns (BrowserRow);
+  rpc BrowserRowForCard(CardId) returns (BrowserRow);
 }
 
 service StatsService {
-  rpc CardStats(CardID) returns (String);
+  rpc CardStats(CardId) returns (String);
   rpc Graphs(GraphsIn) returns (GraphsOut);
   rpc GetGraphPreferences(Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (Empty);
@@ -278,7 +278,7 @@ service CollectionService {
 }
 
 service CardsService {
-  rpc GetCard(CardID) returns (Card);
+  rpc GetCard(CardId) returns (Card);
   rpc UpdateCard(UpdateCardIn) returns (OpChanges);
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
   rpc SetDeck(SetDeckIn) returns (OpChanges);
@@ -970,19 +970,19 @@ message StockNoteType {
 }
 
 message NoteTypeNames {
-  repeated NoteTypeNameID entries = 1;
+  repeated NoteTypeNameId entries = 1;
 }
 
 message NoteTypeUseCounts {
-  repeated NoteTypeNameIDUseCount entries = 1;
+  repeated NoteTypeNameIdUseCount entries = 1;
 }
 
-message NoteTypeNameID {
+message NoteTypeNameId {
   int64 id = 1;
   string name = 2;
 }
 
-message NoteTypeNameIDUseCount {
+message NoteTypeNameIdUseCount {
   int64 id = 1;
   string name = 2;
   uint32 use_count = 3;
@@ -1024,10 +1024,10 @@ message EmptyCardsReport {
 }
 
 message DeckNames {
-  repeated DeckNameID entries = 1;
+  repeated DeckNameId entries = 1;
 }
 
-message DeckNameID {
+message DeckNameId {
   int64 id = 1;
   string name = 2;
 }
@@ -1080,7 +1080,7 @@ message AfterNoteUpdatesIn {
   bool generate_cards = 3;
 }
 
-message NoteIDsAndTagsIn {
+message NoteIdsAndTagsIn {
   repeated int64 note_ids = 1;
   string tags = 2;
 }

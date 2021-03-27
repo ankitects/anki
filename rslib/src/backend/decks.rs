@@ -119,7 +119,7 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn remove_decks(&self, input: pb::DeckIDs) -> Result<pb::OpChangesWithCount> {
+    fn remove_decks(&self, input: pb::DeckIds) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| col.remove_decks_and_child_decks(&Into::<Vec<DeckId>>::into(input)))
             .map(Into::into)
     }
@@ -161,8 +161,8 @@ impl From<pb::DeckId> for DeckId {
     }
 }
 
-impl From<pb::DeckIDs> for Vec<DeckId> {
-    fn from(dids: pb::DeckIDs) -> Self {
+impl From<pb::DeckIds> for Vec<DeckId> {
+    fn from(dids: pb::DeckIds) -> Self {
         dids.dids.into_iter().map(DeckId).collect()
     }
 }

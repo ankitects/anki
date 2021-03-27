@@ -128,11 +128,11 @@ impl NotesService for Backend {
         })
     }
 
-    fn cards_of_note(&self, input: pb::NoteId) -> Result<pb::CardIDs> {
+    fn cards_of_note(&self, input: pb::NoteId) -> Result<pb::CardIds> {
         self.with_col(|col| {
             col.storage
                 .all_card_ids_of_note(NoteId(input.nid))
-                .map(|v| pb::CardIDs {
+                .map(|v| pb::CardIds {
                     cids: v.into_iter().map(Into::into).collect(),
                 })
         })

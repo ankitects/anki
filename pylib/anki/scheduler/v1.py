@@ -12,7 +12,7 @@ import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import DeckID
+from anki.decks import DeckId
 from anki.utils import ids2str, intTime
 
 from .v2 import QueueConfig
@@ -300,7 +300,7 @@ limit %d"""
         if card.odid:
             card.did = card.odid
             card.odue = 0
-            card.odid = DeckID(0)
+            card.odid = DeckId(0)
             # if rescheduling is off, it needs to be set back to a new card
             if not resched and not lapse:
                 card.queue = QUEUE_TYPE_NEW
@@ -403,7 +403,7 @@ where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CAR
             )
         )
 
-    def _lrnForDeck(self, did: DeckID) -> int:
+    def _lrnForDeck(self, did: DeckId) -> int:
         cnt = (
             self.col.db.scalar(
                 f"""
@@ -428,7 +428,7 @@ and due <= ? limit ?)""",
     # Reviews
     ##########################################################################
 
-    def _deckRevLimit(self, did: DeckID) -> int:
+    def _deckRevLimit(self, did: DeckId) -> int:
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
     def _resetRev(self) -> None:
@@ -543,7 +543,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             card.due = card.odue
         if card.odid:
             card.did = card.odid
-            card.odid = DeckID(0)
+            card.odid = DeckId(0)
             card.odue = 0
 
     # Interval management
@@ -620,7 +620,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
                 if card.odid:
                     card.did = card.odid
                 card.odue = 0
-                card.odid = DeckID(0)
+                card.odid = DeckId(0)
                 card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)

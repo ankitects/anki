@@ -8,7 +8,7 @@ from concurrent.futures import Future
 from typing import Any, List
 
 import aqt
-from anki.cards import CardID
+from anki.cards import CardId
 from anki.collection import EmptyCardsReport
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
@@ -89,14 +89,14 @@ class EmptyCardsDialog(QDialog):
         self.mw.taskman.run_in_background(delete, on_done)
 
     def _delete_cards(self, keep_notes: bool) -> int:
-        to_delete: List[CardID] = []
+        to_delete: List[CardId] = []
         note: EmptyCardsReport.NoteWithEmptyCards
         for note in self.report.notes:
             if keep_notes and note.will_delete_note:
                 # leave first card
-                to_delete.extend([CardID(id) for id in note.card_ids[1:]])
+                to_delete.extend([CardId(id) for id in note.card_ids[1:]])
             else:
-                to_delete.extend([CardID(id) for id in note.card_ids])
+                to_delete.extend([CardId(id) for id in note.card_ids])
 
         self.mw.col.remove_cards_and_orphaned_notes(to_delete)
         return len(to_delete)

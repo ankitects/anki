@@ -4,8 +4,8 @@
 from typing import List, Optional
 
 import aqt
-from anki.collection import OpChangesWithID
-from anki.decks import DeckID
+from anki.collection import OpChangesWithId
+from anki.decks import DeckId
 from aqt import gui_hooks
 from aqt.deck_ops import add_deck_dialog
 from aqt.qt import *
@@ -166,8 +166,8 @@ class StudyDeck(QDialog):
         else:
             default = self.names[self.form.list.currentRow()]
 
-        def success(out: OpChangesWithID) -> None:
-            deck = self.mw.col.decks.get(DeckID(out.id))
+        def success(out: OpChangesWithId) -> None:
+            deck = self.mw.col.decks.get(DeckId(out.id))
             self.name = deck["name"]
 
             # make sure we clean up reset hook when manually exiting

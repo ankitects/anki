@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from typing import Callable, Sequence
 
-from anki.decks import DeckID
-from anki.notes import Note, NoteID
+from anki.decks import DeckId
+from anki.notes import Note, NoteId
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
 
@@ -15,7 +15,7 @@ def add_note(
     *,
     mw: AnkiQt,
     note: Note,
-    target_deck_id: DeckID,
+    target_deck_id: DeckId,
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.perform_op(lambda: mw.col.add_note(note, target_deck_id), success=success)
@@ -31,7 +31,7 @@ def update_note(*, mw: AnkiQt, note: Note, after_hooks: Callable[[], None]) -> N
 def remove_notes(
     *,
     mw: AnkiQt,
-    note_ids: Sequence[NoteID],
+    note_ids: Sequence[NoteId],
     success: PerformOpOptionalSuccessCallback = None,
 ) -> None:
     mw.perform_op(lambda: mw.col.remove_notes(note_ids), success=success)

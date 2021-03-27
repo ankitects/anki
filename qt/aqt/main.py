@@ -47,14 +47,14 @@ from anki.collection import (
     Config,
     OpChanges,
     OpChangesWithCount,
-    OpChangesWithID,
+    OpChangesWithId,
     ReviewUndo,
     UndoResult,
     UndoStatus,
 )
-from anki.decks import DeckDict, DeckID
+from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
-from anki.notes import NoteID
+from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -104,7 +104,7 @@ class HasChangesProperty(Protocol):
 # either need to be added here, or cast at call time
 ResultWithChanges = TypeVar(
     "ResultWithChanges",
-    bound=Union[OpChanges, OpChangesWithCount, OpChangesWithID, HasChangesProperty],
+    bound=Union[OpChanges, OpChangesWithCount, OpChangesWithId, HasChangesProperty],
 )
 
 T = TypeVar("T")
@@ -1381,7 +1381,7 @@ title="%s" %s>%s</button>""" % (
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did: Optional[DeckID] = None) -> None:
+    def onExport(self, did: Optional[DeckId] = None) -> None:
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)
@@ -1534,7 +1534,7 @@ title="%s" %s>%s</button>""" % (
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: Collection, nids: Sequence[NoteID]) -> None:
+    def onRemNotes(self, col: Collection, nids: Sequence[NoteId]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:
