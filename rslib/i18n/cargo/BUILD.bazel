@@ -77,7 +77,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_124//:serde",
+    actual = "@raze__serde__1_0_125//:serde",
     tags = [
         "cargo-raze",
         "manual",

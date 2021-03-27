@@ -25,7 +25,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -36,11 +36,15 @@ load(
 )
 
 cargo_build_script(
-    name = "openssl_build_script",
+    name = "serde_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "default",
+        "derive",
+        "serde_derive",
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -52,24 +56,28 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.32",
+    version = "1.0.125",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__openssl_sys__0_9_60//:openssl_sys",
     ],
 )
 
-# Unsupported target "mk_certs" with type "example" omitted
-
 rust_library(
-    name = "openssl",
+    name = "serde",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "derive",
+        "serde_derive",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2015",
+    proc_macro_deps = [
+        "@raze__serde_derive__1_0_125//:serde_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -77,15 +85,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.32",
+    version = "1.0.125",
     # buildifier: leave-alone
     deps = [
-        ":openssl_build_script",
-        "@raze__bitflags__1_2_1//:bitflags",
-        "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__foreign_types__0_3_2//:foreign_types",
-        "@raze__lazy_static__1_4_0//:lazy_static",
-        "@raze__libc__0_2_88//:libc",
-        "@raze__openssl_sys__0_9_60//:openssl_sys",
+        ":serde_build_script",
     ],
 )

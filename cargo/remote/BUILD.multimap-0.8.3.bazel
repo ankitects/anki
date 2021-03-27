@@ -31,28 +31,14 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "web_sys",
+    name = "multimap",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "Blob",
-        "BlobPropertyBag",
-        "Crypto",
-        "Event",
-        "EventTarget",
-        "FormData",
-        "Headers",
-        "MessageEvent",
-        "Request",
-        "RequestInit",
-        "RequestMode",
-        "Response",
-        "Window",
-        "Worker",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -60,12 +46,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.48",
+    version = "0.8.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__js_sys__0_3_48//:js_sys",
-        "@raze__wasm_bindgen__0_2_71//:wasm_bindgen",
     ],
 )
-
-# Unsupported target "wasm" with type "test" omitted

@@ -64,7 +64,7 @@ rust_library(
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__pin_project_internal__1_0_5//:pin_project_internal",
+        "@raze__pin_project_internal__1_0_6//:pin_project_internal",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -73,7 +73,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.5",
+    version = "1.0.6",
     # buildifier: leave-alone
     deps = [
     ],

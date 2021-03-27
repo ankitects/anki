@@ -25,59 +25,24 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
 ])
 
 # Generated Targets
-# buildifier: disable=load-on-top
-load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
-    "cargo_build_script",
-)
 
-cargo_build_script(
-    name = "serde_build_script",
-    srcs = glob(["**/*.rs"]),
-    build_script_env = {
-    },
-    crate_features = [
-        "default",
-        "derive",
-        "serde_derive",
-        "std",
-    ],
-    crate_root = "build.rs",
-    data = glob(["**"]),
-    edition = "2015",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    version = "1.0.124",
-    visibility = ["//visibility:private"],
-    deps = [
-    ],
-)
+# Unsupported target "bench" with type "bench" omitted
 
 rust_library(
-    name = "serde",
+    name = "byteorder",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
-        "derive",
-        "serde_derive",
         "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
-    proc_macro_deps = [
-        "@raze__serde_derive__1_0_124//:serde_derive",
-    ],
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -85,9 +50,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.124",
+    version = "1.4.3",
     # buildifier: leave-alone
     deps = [
-        ":serde_build_script",
     ],
 )

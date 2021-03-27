@@ -29,44 +29,16 @@ licenses([
 ])
 
 # Generated Targets
-# buildifier: disable=load-on-top
-load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
-    "cargo_build_script",
-)
-
-cargo_build_script(
-    name = "typenum_build_script",
-    srcs = glob(["**/*.rs"]),
-    build_script_env = {
-    },
-    crate_features = [
-    ],
-    crate_root = "build/main.rs",
-    data = glob(["**"]),
-    edition = "2015",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    version = "1.12.0",
-    visibility = ["//visibility:private"],
-    deps = [
-    ],
-)
 
 rust_library(
-    name = "typenum",
+    name = "wasm_bindgen_futures",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -74,11 +46,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.12.0",
+    version = "0.4.22",
     # buildifier: leave-alone
     deps = [
-        ":typenum_build_script",
+        "@raze__cfg_if__1_0_0//:cfg_if",
+        "@raze__js_sys__0_3_49//:js_sys",
+        "@raze__wasm_bindgen__0_2_72//:wasm_bindgen",
     ],
 )
 
-# Unsupported target "test" with type "test" omitted
+# Unsupported target "tests" with type "test" omitted

@@ -47,7 +47,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.71",
+    version = "0.2.72",
     # buildifier: leave-alone
     deps = [
         "@raze__bumpalo__3_6_1//:bumpalo",
@@ -55,7 +55,7 @@ rust_library(
         "@raze__log__0_4_14//:log",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_63//:syn",
-        "@raze__wasm_bindgen_shared__0_2_71//:wasm_bindgen_shared",
+        "@raze__syn__1_0_65//:syn",
+        "@raze__wasm_bindgen_shared__0_2_72//:wasm_bindgen_shared",
     ],
 )

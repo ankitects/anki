@@ -62,7 +62,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_88//:libc",
+            "@raze__libc__0_2_91//:libc",
         ],
         "//conditions:default": [],
     }),
