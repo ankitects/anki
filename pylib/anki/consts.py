@@ -9,9 +9,10 @@ from typing import Any, Dict, NewType, Optional
 import anki
 
 # whether new cards should be mixed with reviews, or shown first or last
-NEW_CARDS_DISTRIBUTE = 0
-NEW_CARDS_LAST = 1
-NEW_CARDS_FIRST = 2
+NewCardsReviewOrder = NewType("NewCardsReviewOrder", int)
+NEW_CARDS_DISTRIBUTE = NewCardsReviewOrder(0)
+NEW_CARDS_LAST = NewCardsReviewOrder(1)
+NEW_CARDS_FIRST = NewCardsReviewOrder(2)
 
 # new card insertion order
 NewCardsInsertionOrder = NewType("NewCardsInsertionOrder", int)
