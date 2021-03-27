@@ -83,7 +83,7 @@ impl Collection {
             SortMode::Builtin { kind, reverse } => {
                 prepare_sort(self, kind)?;
                 sql.push_str(" order by ");
-                write_order(sql, kind, reverse)?;
+                write_order(sql, kind, reverse);
             }
             SortMode::Custom(order_clause) => {
                 sql.push_str(" order by ");
@@ -135,7 +135,7 @@ impl Collection {
 }
 
 /// Add the order clause to the sql.
-fn write_order(sql: &mut String, kind: SortKind, reverse: bool) -> Result<()> {
+fn write_order(sql: &mut String, kind: SortKind, reverse: bool) {
     let tmp_str;
     let order = match kind {
         SortKind::NoteCreation => "n.id asc, c.ord asc",
@@ -160,7 +160,7 @@ fn write_order(sql: &mut String, kind: SortKind, reverse: bool) -> Result<()> {
         ),
     };
     if order.is_empty() {
-        return Ok(());
+        return;
     }
     if reverse {
         sql.push_str(
@@ -172,7 +172,6 @@ fn write_order(sql: &mut String, kind: SortKind, reverse: bool) -> Result<()> {
     } else {
         sql.push_str(order);
     }
-    Ok(())
 }
 
 fn needs_aux_sort_table(kind: SortKind) -> bool {

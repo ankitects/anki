@@ -103,7 +103,7 @@ impl Collection {
         match res {
             Ok(output) => {
                 let changes = if op.is_some() {
-                    let changes = self.op_changes()?;
+                    let changes = self.op_changes();
                     self.maybe_clear_study_queues_after_op(changes);
                     self.maybe_coalesce_note_undo_entry(changes);
                     changes

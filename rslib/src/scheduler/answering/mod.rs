@@ -133,7 +133,7 @@ impl CardStateUpdater {
                     }
                 }
             }
-        }?;
+        };
 
         Ok(revlog)
     }
@@ -142,7 +142,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: NormalState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Option<RevlogEntryPartial> {
         self.card.reps += 1;
         self.card.original_due = 0;
 
@@ -151,13 +151,13 @@ impl CardStateUpdater {
             NormalState::Learning(next) => self.apply_learning_state(current, next),
             NormalState::Review(next) => self.apply_review_state(current, next),
             NormalState::Relearning(next) => self.apply_relearning_state(current, next),
-        }?;
+        };
 
         if next.leeched() && self.config.inner.leech_action() == LeechAction::Suspend {
             self.card.queue = CardQueue::Suspended;
         }
 
-        Ok(revlog)
+        revlog
     }
 
     fn ensure_filtered(&self) -> Result<()> {

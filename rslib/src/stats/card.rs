@@ -58,7 +58,7 @@ struct RevlogText {
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<String> {
         let stats = self.gather_card_stats(cid)?;
-        self.card_stats_to_string(stats)
+        Ok(self.card_stats_to_string(stats))
     }
 
     fn gather_card_stats(&mut self, cid: CardId) -> Result<CardStats> {
@@ -126,7 +126,7 @@ impl Collection {
         })
     }
 
-    fn card_stats_to_string(&mut self, cs: CardStats) -> Result<String> {
+    fn card_stats_to_string(&mut self, cs: CardStats) -> String {
         let tr = &self.tr;
 
         let mut stats = vec![(tr.card_stats_added().into(), cs.added.date_string())];
@@ -194,13 +194,13 @@ impl Collection {
             taken_secs: tr.card_stats_review_log_time_taken().into(),
         };
 
-        Ok(CardStatsTemplate {
+        CardStatsTemplate {
             stats,
             revlog,
             revlog_titles,
         }
         .render()
-        .unwrap())
+        .unwrap()
     }
 }
 

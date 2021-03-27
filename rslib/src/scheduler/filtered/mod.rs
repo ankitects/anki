@@ -140,11 +140,8 @@ impl Collection {
         Ok(position)
     }
 
-    fn get_next_filtered_deck_name(&self) -> Result<String> {
-        Ok(format!(
-            "Filtered Deck {}",
-            TimestampSecs::now().time_string()
-        ))
+    fn get_next_filtered_deck_name(&self) -> String {
+        format!("Filtered Deck {}", TimestampSecs::now().time_string())
     }
 
     fn add_or_update_filtered_deck_inner(
@@ -203,7 +200,7 @@ impl Collection {
 
     fn new_filtered_deck_for_adding(&mut self) -> Result<Deck> {
         let mut deck = Deck {
-            name: self.get_next_filtered_deck_name()?,
+            name: self.get_next_filtered_deck_name(),
             ..Deck::new_filtered()
         };
         if let Some(current) = self.get_deck(self.get_current_deck_id())? {
