@@ -22,11 +22,11 @@ from typing import (
 
 import aqt
 import aqt.forms
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.collection import BrowserRow, Collection, Config, OpChanges
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.notes import Note
+from anki.notes import Note, NoteId
 from anki.utils import ids2str, isWin
 from aqt import colors, gui_hooks
 from aqt.qt import *
@@ -106,13 +106,13 @@ class Table:
 
     # Get ids
 
-    def get_selected_card_ids(self) -> List[int]:
+    def get_selected_card_ids(self) -> List[CardId]:
         return self._model.get_card_ids(self._selected())
 
-    def get_selected_note_ids(self) -> List[int]:
+    def get_selected_note_ids(self) -> List[NoteId]:
         return self._model.get_note_ids(self._selected())
 
-    def get_card_ids_from_selected_note_ids(self) -> List[int]:
+    def get_card_ids_from_selected_note_ids(self) -> List[CardId]:
         return self._state.card_ids_from_note_ids(self.get_selected_note_ids())
 
     # Selecting
@@ -134,7 +134,7 @@ class Table:
             ),
         )
 
-    def select_single_card(self, card_id: int) -> None:
+    def select_single_card(self, card_id: CardId) -> None:
         """Try to set the selection to the item corresponding to the given card."""
         self.clear_selection()
         try:
@@ -351,7 +351,7 @@ class Table:
 
     def _on_column_toggled(self, checked: bool, column: str) -> None:
         if not checked and self._model.len_columns() < 2:
-            showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
+            showInfo(showInfo(tr.browsing_you_must_have_at_least_one()))
             return
         self._model.toggle_column(column)
         self._set_column_sizes()
@@ -364,7 +364,7 @@ class Table:
         order = bool(order)
         sort_column = self._model.active_column(index)
         if sort_column in ("question", "answer"):
-            showInfo(tr(TR.BROWSING_SORTING_ON_THIS_COLUMN_IS_NOT))
+            showInfo(tr.browsing_sorting_on_this_column_is_not())
             sort_column = self._state.sort_column
         if self._state.sort_column != sort_column:
             self._state.sort_column = sort_column
@@ -519,12 +519,12 @@ class ItemState(ABC):
 
     # Stateless Helpers
 
-    def note_ids_from_card_ids(self, items: Sequence[int]) -> List[int]:
+    def note_ids_from_card_ids(self, items: Sequence[CardId]) -> List[NoteId]:
         return self.col.db.list(
             f"select distinct nid from cards where id in {ids2str(items)}"
         )
 
-    def card_ids_from_note_ids(self, items: Sequence[int]) -> List[int]:
+    def card_ids_from_note_ids(self, items: Sequence[NoteId]) -> List[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
     # Columns and sorting
@@ -574,15 +574,15 @@ class ItemState(ABC):
         """Return the item ids fitting the given search and order."""
 
     @abstractmethod
-    def get_item_from_card_id(self, card: int) -> int:
+    def get_item_from_card_id(self, card: CardId) -> int:
         """Return the appropriate item id for a card id."""
 
     @abstractmethod
-    def get_card_ids(self, items: List[int]) -> List[int]:
+    def get_card_ids(self, items: List[int]) -> List[CardId]:
         """Return the card ids for the given item ids."""
 
     @abstractmethod
-    def get_note_ids(self, items: List[int]) -> List[int]:
+    def get_note_ids(self, items: List[int]) -> List[NoteId]:
         """Return the note ids for the given item ids."""
 
     # Toggle
@@ -614,21 +614,21 @@ class CardState(ItemState):
 
     def _load_columns(self) -> None:
         self._columns = [
-            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
-            ("noteCrt", tr(TR.BROWSING_CREATED)),
-            ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
-            ("noteTags", tr(TR.EDITING_TAGS)),
-            ("note", tr(TR.BROWSING_NOTE)),
-            ("question", tr(TR.BROWSING_QUESTION)),
-            ("answer", tr(TR.BROWSING_ANSWER)),
-            ("template", tr(TR.BROWSING_CARD)),
-            ("deck", tr(TR.DECKS_DECK)),
-            ("cardMod", tr(TR.SEARCH_CARD_MODIFIED)),
-            ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
-            ("cardIvl", tr(TR.BROWSING_INTERVAL)),
-            ("cardEase", tr(TR.BROWSING_EASE)),
-            ("cardReps", tr(TR.SCHEDULING_REVIEWS)),
-            ("cardLapses", tr(TR.SCHEDULING_LAPSES)),
+            ("question", tr.browsing_question()),
+            ("answer", tr.browsing_answer()),
+            ("template", tr.browsing_card()),
+            ("deck", tr.decks_deck()),
+            ("noteFld", tr.browsing_sort_field()),
+            ("noteCrt", tr.browsing_created()),
+            ("noteMod", tr.search_note_modified()),
+            ("cardMod", tr.search_card_modified()),
+            ("cardDue", tr.statistics_due_date()),
+            ("cardIvl", tr.browsing_interval()),
+            ("cardEase", tr.browsing_ease()),
+            ("cardReps", tr.scheduling_reviews()),
+            ("cardLapses", tr.scheduling_lapses()),
+            ("noteTags", tr.editing_tags()),
+            ("note", tr.browsing_note()),
         ]
         self._columns.sort(key=itemgetter(1))
 
@@ -679,13 +679,13 @@ class CardState(ItemState):
     def find_items(self, search: str, order: Union[bool, str]) -> Sequence[int]:
         return self.col.find_cards(search, order)
 
-    def get_item_from_card_id(self, card: int) -> int:
+    def get_item_from_card_id(self, card: CardId) -> int:
         return card
 
-    def get_card_ids(self, items: List[int]) -> List[int]:
+    def get_card_ids(self, items: List[int]) -> List[CardId]:
         return items
 
-    def get_note_ids(self, items: List[int]) -> List[int]:
+    def get_note_ids(self, items: List[int]) -> List[NoteId]:
         return super().note_ids_from_card_ids(items)
 
     def toggle_state(self) -> NoteState:
@@ -710,11 +710,11 @@ class NoteState(ItemState):
 
     def _load_columns(self) -> None:
         self._columns = [
-            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
-            ("noteCrt", tr(TR.BROWSING_CREATED)),
-            ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
-            ("noteTags", tr(TR.EDITING_TAGS)),
-            ("note", tr(TR.BROWSING_NOTE)),
+            ("noteFld", tr.browsing_sort_field()),
+            ("noteCrt", tr.browsing_created()),
+            ("noteMod", tr.search_note_modified()),
+            ("noteTags", tr.editing_tags()),
+            ("note", tr.browsing_note()),
         ]
         self._columns.sort(key=itemgetter(1))
 
@@ -765,13 +765,13 @@ class NoteState(ItemState):
     def find_items(self, search: str, order: Union[bool, str]) -> Sequence[int]:
         return self.col.find_notes(search, order)
 
-    def get_item_from_card_id(self, card: int) -> int:
+    def get_item_from_card_id(self, card: CardId) -> int:
         return self.get_card(card).note().id
 
-    def get_card_ids(self, items: List[int]) -> List[int]:
+    def get_card_ids(self, items: List[int]) -> List[CardId]:
         return super().card_ids_from_note_ids(items)
 
-    def get_note_ids(self, items: List[int]) -> List[int]:
+    def get_note_ids(self, items: List[int]) -> List[NoteId]:
         return items
 
     def toggle_state(self) -> CardState:
@@ -826,7 +826,7 @@ class CellRow:
 
     @staticmethod
     def deleted(length: int) -> CellRow:
-        return CellRow.generic(length, tr(TR.BROWSING_ROW_DELETED))
+        return CellRow.generic(length, tr.browsing_row_deleted())
 
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str, str]]:
@@ -948,10 +948,10 @@ class DataModel(QAbstractTableModel):
     def get_items(self, indices: List[QModelIndex]) -> List[int]:
         return [self.get_item(index) for index in indices]
 
-    def get_card_ids(self, indices: List[QModelIndex]) -> List[int]:
+    def get_card_ids(self, indices: List[QModelIndex]) -> List[CardId]:
         return self._state.get_card_ids(self.get_items(indices))
 
-    def get_note_ids(self, indices: List[QModelIndex]) -> List[int]:
+    def get_note_ids(self, indices: List[QModelIndex]) -> List[NoteId]:
         return self._state.get_note_ids(self.get_items(indices))
 
     # Get row numbers from items
@@ -969,7 +969,7 @@ class DataModel(QAbstractTableModel):
                 rows.append(row)
         return rows
 
-    def get_card_row(self, card_id: int) -> Optional[int]:
+    def get_card_row(self, card_id: CardId) -> Optional[int]:
         return self.get_item_row(self._state.get_item_from_card_id(card_id))
 
     # Get objects (cards or notes)
@@ -1091,7 +1091,7 @@ class DataModel(QAbstractTableModel):
                     break
             # give the user a hint an invalid column was added by an add-on
             if not txt:
-                txt = tr(TR.BROWSING_ADDON)
+                txt = tr.browsing_addon()
             return txt
         else:
             return None

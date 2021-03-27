@@ -14,12 +14,12 @@ use rusqlite::types::FromSql;
 use std::borrow::Cow;
 
 use crate::{
-    card::CardID,
+    card::CardId,
     card::CardType,
     collection::Collection,
     config::{BoolKey, SortKind},
     err::Result,
-    notes::NoteID,
+    notes::NoteId,
     prelude::AnkiError,
     search::parser::parse,
 };
@@ -43,13 +43,13 @@ pub trait AsSearchItems {
     fn as_search_items() -> SearchItems;
 }
 
-impl AsSearchItems for CardID {
+impl AsSearchItems for CardId {
     fn as_search_items() -> SearchItems {
         SearchItems::Cards
     }
 }
 
-impl AsSearchItems for NoteID {
+impl AsSearchItems for NoteId {
     fn as_search_items() -> SearchItems {
         SearchItems::Notes
     }
@@ -91,7 +91,7 @@ impl SortKind {
             SortKind::NoteCreation
             | SortKind::NoteMod
             | SortKind::NoteField
-            | SortKind::NoteType
+            | SortKind::Notetype
             | SortKind::NoteTags => RequiredTable::Notes,
             SortKind::CardTemplate => RequiredTable::CardsAndNotes,
             SortKind::CardMod
@@ -126,11 +126,11 @@ impl Collection {
         Ok(ids)
     }
 
-    pub fn search_cards(&mut self, search: &str, mode: SortMode) -> Result<Vec<CardID>> {
+    pub fn search_cards(&mut self, search: &str, mode: SortMode) -> Result<Vec<CardId>> {
         self.search(search, mode)
     }
 
-    pub fn search_notes(&mut self, search: &str) -> Result<Vec<NoteID>> {
+    pub fn search_notes(&mut self, search: &str) -> Result<Vec<NoteId>> {
         self.search(search, SortMode::NoOrder)
     }
 
@@ -235,7 +235,7 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
         SortKind::CardInterval => "c.ivl asc".into(),
         SortKind::NoteTags => "n.tags asc".into(),
         SortKind::CardDeck => "(select pos from sort_order where did = c.did) asc".into(),
-        SortKind::NoteType => "(select pos from sort_order where ntid = n.mid) asc".into(),
+        SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
         SortKind::CardTemplate => concat!(
             "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
             // need to fall back on ord 0 for cloze cards
@@ -251,7 +251,7 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
         SortKind::NoteMod => "n.mod asc".into(),
         SortKind::NoteField => "n.sfld collate nocase asc".into(),
         SortKind::NoteTags => "n.tags asc".into(),
-        SortKind::NoteType => "(select pos from sort_order where ntid = n.mid) asc".into(),
+        SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
         _ => "".into(),
     }
 }
@@ -269,7 +269,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
     use SortKind::*;
     let sql = match kind {
         CardDeck => include_str!("deck_order.sql"),
-        NoteType => include_str!("notetype_order.sql"),
+        Notetype => include_str!("notetype_order.sql"),
         CardTemplate => include_str!("template_order.sql"),
         _ => unreachable!(),
     };
