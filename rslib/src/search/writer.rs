@@ -191,7 +191,7 @@ mod test {
     use crate::search::parse_search as parse;
 
     #[test]
-    fn normalizing() -> Result<()> {
+    fn normalizing() {
         assert_eq!(r#""(" AND "-""#, normalize_search(r"\( \-").unwrap());
         assert_eq!(r#""deck::""#, normalize_search(r"deck:\:").unwrap());
         assert_eq!(r#""\*" OR "\:""#, normalize_search(r"\* or \:").unwrap());
@@ -203,12 +203,10 @@ mod test {
             r#""prop:ease>1""#,
             normalize_search("prop:ease>1.0").unwrap()
         );
-
-        Ok(())
     }
 
     #[test]
-    fn concatenating() -> Result<()> {
+    fn concatenating() {
         assert_eq!(
             concatenate_searches(
                 BoolSeparator::And,
@@ -241,8 +239,6 @@ mod test {
             ),
             r#""bar""#,
         );
-
-        Ok(())
     }
 
     #[test]

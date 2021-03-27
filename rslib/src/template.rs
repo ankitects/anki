@@ -798,8 +798,7 @@ mod test {
         i18n::I18n,
         template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
     };
-    use std::collections::{HashMap, HashSet};
-    use std::iter::FromIterator;
+    use std::collections::HashMap;
 
     #[test]
     fn field_empty() {
@@ -873,7 +872,7 @@ mod test {
 
     #[test]
     fn nonempty() {
-        let fields = HashSet::from_iter(vec!["1", "3"].into_iter());
+        let fields = vec!["1", "3"].into_iter().collect();
         let mut tmpl = PT::from_text("{{2}}{{1}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), true);
         tmpl = PT::from_text("{{2}}").unwrap();
@@ -899,13 +898,13 @@ mod test {
         let mut tmpl = PT::from_text("{{a}}{{b}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::Any(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::Any(vec![0, 1].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{#a}}{{b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::All(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::All(vec![0, 1].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{z}}").unwrap();
@@ -914,19 +913,19 @@ mod test {
         tmpl = PT::from_text("{{^a}}{{b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::Any(HashSet::from_iter(vec![1].into_iter()))
+            FieldRequirements::Any(vec![1].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{^a}}{{#b}}{{c}}{{/b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::All(HashSet::from_iter(vec![1, 2].into_iter()))
+            FieldRequirements::All(vec![1, 2].into_iter().collect())
         );
 
         tmpl = PT::from_text("{{#a}}{{#b}}{{a}}{{/b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::All(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::All(vec![0, 1].into_iter().collect())
         );
 
         tmpl = PT::from_text(
@@ -945,7 +944,7 @@ mod test {
 
         assert_eq!(
             tmpl.requirements(&field_map),
-            FieldRequirements::Any(HashSet::from_iter(vec![0, 1].into_iter()))
+            FieldRequirements::Any(vec![0, 1].into_iter().collect())
         );
     }
 

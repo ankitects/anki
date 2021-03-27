@@ -599,7 +599,7 @@ mod test {
     }
 
     #[test]
-    fn sql() -> Result<()> {
+    fn sql() {
         // re-use the mediacheck .anki2 file for now
         use crate::media::check::test::MEDIACHECK_ANKI2;
         let dir = tempdir().unwrap();
@@ -804,8 +804,6 @@ mod test {
             s(ctx, r"w:*fo_o*"),
             ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*fo.o.*\b".into()])
         );
-
-        Ok(())
     }
 
     #[test]
