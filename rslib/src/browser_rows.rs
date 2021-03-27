@@ -6,7 +6,7 @@ use std::sync::Arc;
 use itertools::Itertools;
 
 use crate::err::{AnkiError, Result};
-use crate::i18n::{tr_args, I18n, TR};
+use crate::i18n::I18n;
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
@@ -236,12 +236,9 @@ impl<'a> RowContext<'a> {
 
     fn card_due_str(&mut self) -> String {
         let due = if self.card.original_deck_id != DeckID(0) {
-            self.i18n.browsing_filtered().into()
+            self.i18n.browsing_filtered()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
-            self.i18n.trn(
-                TR::StatisticsDueForNewCard,
-                tr_args!["number"=>self.card.due],
-            )
+            self.i18n.statistics_due_for_new_card(self.card.due)
         } else {
             let date = if self.card.queue == CardQueue::Learn {
                 TimestampSecs(self.card.due as i64)
@@ -254,12 +251,12 @@ impl<'a> RowContext<'a> {
             } else {
                 return "".into();
             };
-            date.date_string()
+            date.date_string().into()
         };
         if (self.card.queue as i8) < 0 {
             format!("({})", due)
         } else {
-            due
+            due.into()
         }
     }
 

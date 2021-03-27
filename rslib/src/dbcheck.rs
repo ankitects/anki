@@ -5,7 +5,7 @@ use crate::{
     collection::Collection,
     config::SchedulerVersion,
     err::{AnkiError, DBErrorKind, Result},
-    i18n::{tr_args, I18n, TR},
+    i18n::I18n,
     notetype::{
         all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeID,
         NoteTypeKind,
@@ -45,68 +45,38 @@ impl CheckDatabaseOutput {
         let mut probs = Vec::new();
 
         if self.notetypes_recovered > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckNotetypesRecovered,
-                tr_args!["count"=>self.revlog_properties_invalid],
-            ));
+            probs.push(i18n.database_check_notetypes_recovered());
         }
 
         if self.card_position_too_high > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckNewCardHighDue,
-                tr_args!["count"=>self.card_position_too_high],
-            ));
+            probs.push(i18n.database_check_new_card_high_due(self.card_position_too_high));
         }
         if self.card_properties_invalid > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckCardProperties,
-                tr_args!["count"=>self.card_properties_invalid],
-            ));
+            probs.push(i18n.database_check_card_properties(self.card_properties_invalid));
         }
         if self.cards_missing_note > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckCardMissingNote,
-                tr_args!["count"=>self.cards_missing_note],
-            ));
+            probs.push(i18n.database_check_card_missing_note(self.cards_missing_note));
         }
         if self.decks_missing > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckMissingDecks,
-                tr_args!["count"=>self.decks_missing],
-            ));
+            probs.push(i18n.database_check_missing_decks(self.decks_missing));
         }
         if self.field_count_mismatch > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckFieldCount,
-                tr_args!["count"=>self.field_count_mismatch],
-            ));
+            probs.push(i18n.database_check_field_count(self.field_count_mismatch));
         }
         if self.card_ords_duplicated > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckDuplicateCardOrds,
-                tr_args!["count"=>self.card_ords_duplicated],
-            ));
+            probs.push(i18n.database_check_duplicate_card_ords(self.card_ords_duplicated));
         }
         if self.templates_missing > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckMissingTemplates,
-                tr_args!["count"=>self.templates_missing],
-            ));
+            probs.push(i18n.database_check_missing_templates(self.templates_missing));
         }
         if self.revlog_properties_invalid > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckRevlogProperties,
-                tr_args!["count"=>self.revlog_properties_invalid],
-            ));
+            probs.push(i18n.database_check_revlog_properties(self.revlog_properties_invalid));
         }
         if self.invalid_utf8 > 0 {
-            probs.push(i18n.trn(
-                TR::DatabaseCheckNotesWithInvalidUtf8,
-                tr_args!["count"=>self.invalid_utf8],
-            ));
+            probs.push(i18n.database_check_notes_with_invalid_utf8(self.invalid_utf8));
         }
 
-        probs
+        probs.into_iter().map(Into::into).collect()
     }
 }
 
