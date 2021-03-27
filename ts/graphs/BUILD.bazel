@@ -52,7 +52,7 @@ esbuild(
     ],
     args = [
         "--global-name=anki",
-        "--inject:ts/protobuf-shim.js",
+        "--inject:$(location //ts:protobuf-shim.js)",
     ],
     entry_point = "index.ts",
     external = [
