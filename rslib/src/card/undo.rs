@@ -8,8 +8,8 @@ pub(crate) enum UndoableCardChange {
     Added(Box<Card>),
     Updated(Box<Card>),
     Removed(Box<Card>),
-    GraveAdded(Box<(CardID, Usn)>),
-    GraveRemoved(Box<(CardID, Usn)>),
+    GraveAdded(Box<(CardId, Usn)>),
+    GraveRemoved(Box<(CardId, Usn)>),
 }
 
 impl Collection {
@@ -66,12 +66,12 @@ impl Collection {
         Ok(())
     }
 
-    fn add_card_grave_undoable(&mut self, cid: CardID, usn: Usn) -> Result<()> {
+    fn add_card_grave_undoable(&mut self, cid: CardId, usn: Usn) -> Result<()> {
         self.save_undo(UndoableCardChange::GraveAdded(Box::new((cid, usn))));
         self.storage.add_card_grave(cid, usn)
     }
 
-    fn remove_card_grave(&mut self, cid: CardID, usn: Usn) -> Result<()> {
+    fn remove_card_grave(&mut self, cid: CardId, usn: Usn) -> Result<()> {
         self.save_undo(UndoableCardChange::GraveRemoved(Box::new((cid, usn))));
         self.storage.remove_card_grave(cid)
     }

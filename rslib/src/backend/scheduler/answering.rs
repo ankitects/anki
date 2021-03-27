@@ -13,7 +13,7 @@ use crate::{
 impl From<pb::AnswerCardIn> for CardAnswer {
     fn from(answer: pb::AnswerCardIn) -> Self {
         CardAnswer {
-            card_id: CardID(answer.card_id),
+            card_id: CardId(answer.card_id),
             rating: answer.rating().into(),
             current_state: answer.current_state.unwrap_or_default().into(),
             new_state: answer.new_state.unwrap_or_default().into(),

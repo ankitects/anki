@@ -162,14 +162,14 @@ fn normalize_tag_name(name: &str) -> Cow<str> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckID};
+    use crate::{collection::open_test_collection, decks::DeckId};
 
     #[test]
     fn tags() -> Result<()> {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         let tags: String = col.storage.db_scalar("select tags from notes")?;
         assert_eq!(tags, "");

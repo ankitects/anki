@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    decks::DeckID,
+    decks::DeckId,
     err::{ParseError, Result, SearchErrorKind as FailKind},
-    notetype::NoteTypeID,
+    notetype::NoteTypeId,
 };
 use lazy_static::lazy_static;
 use nom::{
@@ -72,8 +72,8 @@ pub enum SearchNode {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(String),
-    DeckID(DeckID),
-    NoteTypeID(NoteTypeID),
+    DeckId(DeckId),
+    NoteTypeId(NoteTypeId),
     NoteType(String),
     Rated {
         days: u32,
@@ -81,13 +81,13 @@ pub enum SearchNode {
     },
     Tag(String),
     Duplicates {
-        note_type_id: NoteTypeID,
+        note_type_id: NoteTypeId,
         text: String,
     },
     State(StateKind),
     Flag(u8),
-    NoteIDs(String),
-    CardIDs(String),
+    NoteIds(String),
+    CardIds(String),
     Property {
         operator: String,
         kind: PropertyKind,
@@ -337,8 +337,8 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val)?,
         "did" => parse_did(val)?,
         "mid" => parse_mid(val)?,
-        "nid" => SearchNode::NoteIDs(check_id_list(val, key)?.into()),
-        "cid" => SearchNode::CardIDs(check_id_list(val, key)?.into()),
+        "nid" => SearchNode::NoteIds(check_id_list(val, key)?.into()),
+        "cid" => SearchNode::CardIds(check_id_list(val, key)?.into()),
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
@@ -553,11 +553,11 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
 }
 
 fn parse_did(s: &str) -> ParseResult<SearchNode> {
-    parse_i64(s, "did:").map(|n| SearchNode::DeckID(n.into()))
+    parse_i64(s, "did:").map(|n| SearchNode::DeckId(n.into()))
 }
 
 fn parse_mid(s: &str) -> ParseResult<SearchNode> {
-    parse_i64(s, "mid:").map(|n| SearchNode::NoteTypeID(n.into()))
+    parse_i64(s, "mid:").map(|n| SearchNode::NoteTypeId(n.into()))
 }
 
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true
@@ -833,7 +833,7 @@ mod test {
         assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,
-            vec![Search(NoteIDs("1237123712,2,3".into()))]
+            vec![Search(NoteIds("1237123712,2,3".into()))]
         );
         assert_eq!(parse("is:due")?, vec![Search(State(StateKind::Due))]);
         assert_eq!(parse("flag:3")?, vec![Search(Flag(3))]);

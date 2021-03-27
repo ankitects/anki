@@ -27,7 +27,7 @@ impl Collection {
     }
 
     /// Add the provided revlog entry, modifying the ID if it is not unique.
-    pub(crate) fn add_revlog_entry_undoable(&mut self, mut entry: RevlogEntry) -> Result<RevlogID> {
+    pub(crate) fn add_revlog_entry_undoable(&mut self, mut entry: RevlogEntry) -> Result<RevlogId> {
         entry.id = self.storage.add_revlog_entry(&entry, true)?;
         let id = entry.id;
         self.save_undo(UndoableRevlogChange::Added(Box::new(entry)));

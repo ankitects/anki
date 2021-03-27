@@ -36,7 +36,7 @@ pub enum Rating {
 }
 
 pub struct CardAnswer {
-    pub card_id: CardID,
+    pub card_id: CardId,
     pub current_state: CardState,
     pub new_state: CardState,
     pub rating: Rating,
@@ -184,7 +184,7 @@ impl Rating {
 
 impl Collection {
     /// Return the next states that will be applied for each answer button.
-    pub fn get_next_card_states(&mut self, cid: CardID) -> Result<NextCardStates> {
+    pub fn get_next_card_states(&mut self, cid: CardId) -> Result<NextCardStates> {
         let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
@@ -355,8 +355,8 @@ impl Collection {
 
     fn home_deck_config(
         &self,
-        config_id: Option<DeckConfID>,
-        home_deck_id: DeckID,
+        config_id: Option<DeckConfId>,
+        home_deck_id: DeckId,
     ) -> Result<DeckConf> {
         let config_id = if let Some(config_id) = config_id {
             config_id
@@ -371,7 +371,7 @@ impl Collection {
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())
     }
 
-    fn add_leech_tag(&mut self, nid: NoteID) -> Result<()> {
+    fn add_leech_tag(&mut self, nid: NoteId) -> Result<()> {
         self.update_note_tags(nid, |tags| tags.push("leech".into()))
     }
 }

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    card::{Card, CardID, CardQueue, CardType},
+    card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
     config::StringKey,
     deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
@@ -90,7 +90,7 @@ impl Collection {
     /// value of `days`.
     pub fn set_due_date(
         &mut self,
-        cids: &[CardID],
+        cids: &[CardId],
         days: &str,
         context: Option<StringKey>,
     ) -> Result<OpOutput<()>> {
@@ -165,7 +165,7 @@ mod test {
 
     #[test]
     fn due_date() {
-        let mut c = Card::new(NoteID(0), 0, DeckID(0), 0);
+        let mut c = Card::new(NoteId(0), 0, DeckId(0), 0);
 
         // setting the due date of a new card will convert it
         c.set_due_date(5, 2, false);
@@ -191,7 +191,7 @@ mod test {
         // should work in a filtered deck
         c.interval = 2;
         c.original_due = 7;
-        c.original_deck_id = DeckID(1);
+        c.original_deck_id = DeckId(1);
         c.due = -10000;
         c.queue = CardQueue::New;
         c.set_due_date(6, 1, false);
@@ -199,7 +199,7 @@ mod test {
         assert_eq!(c.interval, 2);
         assert_eq!(c.queue, CardQueue::Review);
         assert_eq!(c.original_due, 0);
-        assert_eq!(c.original_deck_id, DeckID(0));
+        assert_eq!(c.original_deck_id, DeckId(0));
 
         // relearning treated like review
         c.ctype = CardType::Relearn;

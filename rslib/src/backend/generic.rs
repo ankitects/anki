@@ -45,33 +45,33 @@ impl From<()> for pb::Empty {
     }
 }
 
-impl From<pb::CardId> for CardID {
+impl From<pb::CardId> for CardId {
     fn from(cid: pb::CardId) -> Self {
-        CardID(cid.cid)
+        CardId(cid.cid)
     }
 }
 
-impl Into<Vec<CardID>> for pb::CardIDs {
-    fn into(self) -> Vec<CardID> {
-        self.cids.into_iter().map(CardID).collect()
+impl Into<Vec<CardId>> for pb::CardIDs {
+    fn into(self) -> Vec<CardId> {
+        self.cids.into_iter().map(CardId).collect()
     }
 }
 
-impl From<pb::NoteId> for NoteID {
+impl From<pb::NoteId> for NoteId {
     fn from(nid: pb::NoteId) -> Self {
-        NoteID(nid.nid)
+        NoteId(nid.nid)
     }
 }
 
-impl From<pb::NoteTypeId> for NoteTypeID {
+impl From<pb::NoteTypeId> for NoteTypeId {
     fn from(ntid: pb::NoteTypeId) -> Self {
-        NoteTypeID(ntid.ntid)
+        NoteTypeId(ntid.ntid)
     }
 }
 
-impl From<pb::DeckConfigId> for DeckConfID {
+impl From<pb::DeckConfigId> for DeckConfId {
     fn from(dcid: pb::DeckConfigId) -> Self {
-        DeckConfID(dcid.dcid)
+        DeckConfId(dcid.dcid)
     }
 }
 

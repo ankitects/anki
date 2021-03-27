@@ -12,7 +12,7 @@ impl Collection {
     /// Replace occurences of a search with a new value in tags.
     pub fn find_and_replace_tag(
         &mut self,
-        nids: &[NoteID],
+        nids: &[NoteId],
         search: &str,
         replacement: &str,
         regex: bool,
@@ -47,7 +47,7 @@ impl Collection {
 impl Collection {
     fn replace_tags_for_notes_inner<R: Replacer>(
         &mut self,
-        nids: &[NoteID],
+        nids: &[NoteId],
         regex: Regex,
         mut repl: R,
     ) -> Result<usize> {
@@ -97,7 +97,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckID};
+    use crate::{collection::open_test_collection, decks::DeckId};
 
     #[test]
     fn find_replace() -> Result<()> {
@@ -105,7 +105,7 @@ mod test {
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         note.tags.push("test".into());
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         col.find_and_replace_tag(&[note.id], "foo|test", "bar", true, false)?;
         let note = col.storage.get_note(note.id)?.unwrap();

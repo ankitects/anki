@@ -2,16 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{
-    cardgen::group_generated_cards_by_note, CardGenContext, NoteType, NoteTypeID, NoteTypeKind,
+    cardgen::group_generated_cards_by_note, CardGenContext, NoteType, NoteTypeId, NoteTypeKind,
 };
-use crate::{card::CardID, collection::Collection, err::Result, notes::NoteID};
+use crate::{card::CardId, collection::Collection, err::Result, notes::NoteId};
 use std::collections::HashSet;
 use std::fmt::Write;
 
 pub struct EmptyCardsForNote {
-    pub nid: NoteID,
+    pub nid: NoteId,
     // (ordinal, card id)
-    pub empty: Vec<(u32, CardID)>,
+    pub empty: Vec<(u32, CardId)>,
     pub current_count: usize,
 }
 
@@ -49,7 +49,7 @@ impl Collection {
         Ok(out)
     }
 
-    pub fn empty_cards(&mut self) -> Result<Vec<(NoteTypeID, Vec<EmptyCardsForNote>)>> {
+    pub fn empty_cards(&mut self) -> Result<Vec<(NoteTypeId, Vec<EmptyCardsForNote>)>> {
         self.storage
             .get_all_notetype_names()?
             .into_iter()
@@ -63,7 +63,7 @@ impl Collection {
     /// Create a report on empty cards. Mutates the provided data to sort ordinals.
     pub fn empty_cards_report(
         &mut self,
-        empty: &mut [(NoteTypeID, Vec<EmptyCardsForNote>)],
+        empty: &mut [(NoteTypeId, Vec<EmptyCardsForNote>)],
     ) -> Result<String> {
         let nts = self.get_all_notetypes()?;
         let mut buf = String::new();

@@ -8,9 +8,9 @@ use itertools::Itertools;
 use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::{
-    card::{Card, CardID, CardQueue, CardType},
+    card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
-    decks::{Deck, DeckID},
+    decks::{Deck, DeckId},
     notes::Note,
     notetype::{CardTemplate, NoteType, NoteTypeKind},
     scheduler::{timespan::time_span, timing::SchedTimingToday},
@@ -77,7 +77,7 @@ fn card_render_required(columns: &[String]) -> bool {
 }
 
 impl Collection {
-    pub fn browser_row_for_card(&mut self, id: CardID) -> Result<Row> {
+    pub fn browser_row_for_card(&mut self, id: CardId) -> Result<Row> {
         // this is inefficient; we may want to use an enum in the future
         let columns = self.get_desktop_browser_card_columns();
         let mut context = RowContext::new(self, id, card_render_required(&columns))?;
@@ -124,7 +124,7 @@ impl RenderContext {
 }
 
 impl<'a> RowContext<'a> {
-    fn new(col: &'a mut Collection, id: CardID, with_card_render: bool) -> Result<Self> {
+    fn new(col: &'a mut Collection, id: CardId, with_card_render: bool) -> Result<Self> {
         let card = col.storage.get_card(id)?.ok_or(AnkiError::NotFound)?;
         // todo: After note.sort_field has been modified so it can be displayed in the browser,
         // we can update note_field_str() and only load the note with fields if a card render is
@@ -235,7 +235,7 @@ impl<'a> RowContext<'a> {
     }
 
     fn card_due_str(&mut self) -> String {
-        let due = if self.card.original_deck_id != DeckID(0) {
+        let due = if self.card.original_deck_id != DeckId(0) {
             self.tr.browsing_filtered()
         } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
             self.tr.statistics_due_for_new_card(self.card.due)

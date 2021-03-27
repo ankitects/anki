@@ -5,10 +5,10 @@ pub(crate) mod undo;
 
 use crate::{
     backend_proto as pb,
-    decks::DeckID,
+    decks::DeckId,
     define_newtype,
     err::{AnkiError, Result},
-    notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
+    notetype::{CardGenContext, NoteField, NoteType, NoteTypeId},
     prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
@@ -26,7 +26,7 @@ use std::{
     convert::TryInto,
 };
 
-define_newtype!(NoteID, i64);
+define_newtype!(NoteId, i64);
 
 #[derive(Default)]
 pub(crate) struct TransformNoteOutput {
@@ -37,9 +37,9 @@ pub(crate) struct TransformNoteOutput {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Note {
-    pub id: NoteID,
+    pub id: NoteId,
     pub guid: String,
-    pub notetype_id: NoteTypeID,
+    pub notetype_id: NoteTypeId,
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub tags: Vec<String>,
@@ -52,7 +52,7 @@ pub struct Note {
 /// Tags are stored in their DB form, separated by spaces.
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) struct NoteTags {
-    pub id: NoteID,
+    pub id: NoteId,
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub tags: String,
@@ -68,7 +68,7 @@ impl NoteTags {
 impl Note {
     pub(crate) fn new(notetype: &NoteType) -> Self {
         Note {
-            id: NoteID(0),
+            id: NoteId(0),
             guid: guid(),
             notetype_id: notetype.id,
             mtime: TimestampSecs(0),
@@ -82,9 +82,9 @@ impl Note {
 
     #[allow(clippy::clippy::too_many_arguments)]
     pub(crate) fn new_from_storage(
-        id: NoteID,
+        id: NoteId,
         guid: String,
-        notetype_id: NoteTypeID,
+        notetype_id: NoteTypeId,
         mtime: TimestampSecs,
         usn: Usn,
         tags: Vec<String>,
@@ -241,9 +241,9 @@ impl From<Note> for pb::Note {
 impl From<pb::Note> for Note {
     fn from(n: pb::Note) -> Self {
         Note {
-            id: NoteID(n.id),
+            id: NoteId(n.id),
             guid: n.guid,
-            notetype_id: NoteTypeID(n.notetype_id),
+            notetype_id: NoteTypeId(n.notetype_id),
             mtime: TimestampSecs(n.mtime_secs as i64),
             usn: Usn(n.usn),
             tags: n.tags,
@@ -291,7 +291,7 @@ impl Collection {
         Ok(())
     }
 
-    pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<OpOutput<()>> {
+    pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<()>> {
         self.transact(Op::AddNote, |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
@@ -306,7 +306,7 @@ impl Collection {
         &mut self,
         ctx: &CardGenContext,
         note: &mut Note,
-        did: DeckID,
+        did: DeckId,
         normalize_text: bool,
     ) -> Result<()> {
         self.canonify_note_tags(note, ctx.usn)?;
@@ -402,7 +402,7 @@ impl Collection {
     }
 
     /// Remove provided notes, and any cards that use them.
-    pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<OpOutput<()>> {
+    pub(crate) fn remove_notes(&mut self, nids: &[NoteId]) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         self.transact(Op::RemoveNote, |col| {
             for nid in nids {
@@ -422,7 +422,7 @@ impl Collection {
     /// If gencards is false, skip card generation.
     pub fn after_note_updates(
         &mut self,
-        nids: &[NoteID],
+        nids: &[NoteId],
         generate_cards: bool,
         mark_notes_modified: bool,
     ) -> Result<OpOutput<()>> {
@@ -440,7 +440,7 @@ impl Collection {
 
     pub(crate) fn transform_notes<F>(
         &mut self,
-        nids: &[NoteID],
+        nids: &[NoteId],
         mut transformer: F,
     ) -> Result<usize>
     where
@@ -528,7 +528,7 @@ impl Collection {
     /// Fixme: this currently pulls in the note type, and does more work than necessary. We
     /// could add a separate method to the storage layer to just update the tags in the future,
     /// though  it does slightly complicate the undo story.
-    pub(crate) fn update_note_tags<F>(&mut self, nid: NoteID, mutator: F) -> Result<()>
+    pub(crate) fn update_note_tags<F>(&mut self, nid: NoteId, mutator: F) -> Result<()>
     where
         F: Fn(&mut Vec<String>),
     {
@@ -570,7 +570,7 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 mod test {
     use super::{anki_base91, field_checksum};
     use crate::{
-        collection::open_test_collection, config::BoolKey, decks::DeckID, err::Result, prelude::*,
+        collection::open_test_collection, config::BoolKey, decks::DeckId, err::Result, prelude::*,
         search::SortMode,
     };
 
@@ -598,7 +598,7 @@ mod test {
 
         let mut note = nt.new_note();
         // if no cards are generated, 1 card is added
-        col.add_note(&mut note, DeckID(1)).unwrap();
+        col.add_note(&mut note, DeckId(1)).unwrap();
         let existing = col.storage.existing_cards_for_note(note.id)?;
         assert_eq!(existing.len(), 1);
         assert_eq!(existing[0].ord, 0);
@@ -620,11 +620,11 @@ mod test {
         // cloze cards also generate card 0 if no clozes are found
         let nt = col.get_notetype_by_name("cloze")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1)).unwrap();
+        col.add_note(&mut note, DeckId(1)).unwrap();
         let existing = col.storage.existing_cards_for_note(note.id)?;
         assert_eq!(existing.len(), 1);
         assert_eq!(existing[0].ord, 0);
-        assert_eq!(existing[0].original_deck_id, DeckID(1));
+        assert_eq!(existing[0].original_deck_id, DeckId(1));
 
         // and generate cards for any cloze deletions
         note.fields[0] = "{{c1::foo}} {{c2::bar}} {{c3::baz}} {{c0::quux}} {{c501::over}}".into();
@@ -644,7 +644,7 @@ mod test {
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         note.fields[0] = "\u{fa47}".into();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
         assert_eq!(note.fields[0], "\u{6f22}");
         // non-normalized searches should be converted
         assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
@@ -659,7 +659,7 @@ mod test {
         let mut note = nt.new_note();
         note.fields[0] = "\u{fa47}".into();
         col.set_config(BoolKey::NormalizeNoteText, &false).unwrap();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
         assert_eq!(note.fields[0], "\u{fa47}");
         // normalized searches won't match
         assert_eq!(col.search_cards("\u{6f22}", SortMode::NoOrder)?.len(), 0);
@@ -704,7 +704,7 @@ mod test {
         note.set_field(0, "a")?;
         note.set_field(1, "b")?;
 
-        col.add_note(&mut note, DeckID(1)).unwrap();
+        col.add_note(&mut note, DeckId(1)).unwrap();
 
         assert_after_add(&mut col)?;
         col.undo()?;

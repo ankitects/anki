@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    decks::DeckID,
+    decks::DeckId,
     notetype::{
         CardRequirement, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteType,
         NoteTypeConfig,
@@ -17,7 +17,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
 use std::collections::HashMap;
 
-use super::{CardRequirementKind, NoteTypeID};
+use super::{CardRequirementKind, NoteTypeId};
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
 #[repr(u8)]
@@ -30,7 +30,7 @@ pub enum NoteTypeKind {
 #[serde(rename_all = "camelCase")]
 pub struct NoteTypeSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub(crate) id: NoteTypeID,
+    pub(crate) id: NoteTypeId,
     pub(crate) name: String,
     #[serde(rename = "type")]
     pub(crate) kind: NoteTypeKind,
@@ -39,7 +39,7 @@ pub struct NoteTypeSchema11 {
     pub(crate) usn: Usn,
     pub(crate) sortf: u16,
     #[serde(deserialize_with = "default_on_invalid")]
-    pub(crate) did: Option<DeckID>,
+    pub(crate) did: Option<DeckId>,
     pub(crate) tmpls: Vec<CardTemplateSchema11>,
     pub(crate) flds: Vec<NoteFieldSchema11>,
     #[serde(deserialize_with = "default_on_invalid")]
@@ -97,7 +97,7 @@ impl From<NoteTypeSchema11> for NoteType {
                 kind: nt.kind as i32,
                 sort_field_idx: nt.sortf as u32,
                 css: nt.css,
-                target_deck_id: nt.did.unwrap_or(DeckID(0)).0,
+                target_deck_id: nt.did.unwrap_or(DeckId(0)).0,
                 latex_pre: nt.latex_pre,
                 latex_post: nt.latex_post,
                 latex_svg: nt.latexsvg,
@@ -150,7 +150,7 @@ impl From<NoteType> for NoteTypeSchema11 {
             did: if c.target_deck_id == 0 {
                 None
             } else {
-                Some(DeckID(c.target_deck_id))
+                Some(DeckId(c.target_deck_id))
             },
             tmpls: p.templates.into_iter().map(Into::into).collect(),
             flds: p.fields.into_iter().map(Into::into).collect(),
@@ -265,7 +265,7 @@ pub struct CardTemplateSchema11 {
     #[serde(default)]
     pub(crate) bafmt: String,
     #[serde(deserialize_with = "default_on_invalid", default)]
-    pub(crate) did: Option<DeckID>,
+    pub(crate) did: Option<DeckId>,
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) bfont: String,
     #[serde(default, deserialize_with = "default_on_invalid")]
@@ -286,7 +286,7 @@ impl From<CardTemplateSchema11> for CardTemplate {
                 a_format: t.afmt,
                 q_format_browser: t.bqfmt,
                 a_format_browser: t.bafmt,
-                target_deck_id: t.did.unwrap_or(DeckID(0)).0,
+                target_deck_id: t.did.unwrap_or(DeckId(0)).0,
                 browser_font_name: t.bfont,
                 browser_font_size: t.bsize as u32,
                 other: other_to_bytes(&t.other),
@@ -308,7 +308,7 @@ impl From<CardTemplate> for CardTemplateSchema11 {
             bqfmt: conf.q_format_browser,
             bafmt: conf.a_format_browser,
             did: if conf.target_deck_id > 0 {
-                Some(DeckID(conf.target_deck_id))
+                Some(DeckId(conf.target_deck_id))
             } else {
                 None
             },

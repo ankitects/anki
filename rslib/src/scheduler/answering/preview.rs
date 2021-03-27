@@ -63,7 +63,7 @@ mod test {
     fn preview() -> Result<()> {
         let mut col = open_test_collection();
         let mut c = Card {
-            deck_id: DeckID(1),
+            deck_id: DeckId(1),
             ctype: CardType::Learn,
             queue: CardQueue::DayLearn,
             remaining_steps: 2,

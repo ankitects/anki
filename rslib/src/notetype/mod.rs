@@ -24,7 +24,7 @@ pub use templates::CardTemplate;
 
 use crate::{
     collection::Collection,
-    decks::DeckID,
+    decks::DeckId,
     define_newtype,
     err::{AnkiError, Result},
     notes::Note,
@@ -40,7 +40,7 @@ use std::{
 };
 use unicase::UniCase;
 
-define_newtype!(NoteTypeID, i64);
+define_newtype!(NoteTypeId, i64);
 
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
@@ -48,7 +48,7 @@ pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 
 #[derive(Debug, PartialEq)]
 pub struct NoteType {
-    pub id: NoteTypeID,
+    pub id: NoteTypeId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
@@ -60,7 +60,7 @@ pub struct NoteType {
 impl Default for NoteType {
     fn default() -> Self {
         NoteType {
-            id: NoteTypeID(0),
+            id: NoteTypeId(0),
             name: "".into(),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
@@ -324,8 +324,8 @@ impl NoteType {
         Note::new(&self)
     }
 
-    pub fn target_deck_id(&self) -> DeckID {
-        DeckID(self.config.target_deck_id)
+    pub fn target_deck_id(&self) -> DeckId {
+        DeckId(self.config.target_deck_id)
     }
 
     fn fix_field_names(&mut self) -> Result<()> {
@@ -455,7 +455,7 @@ impl Collection {
         }
     }
 
-    pub fn get_notetype(&mut self, ntid: NoteTypeID) -> Result<Option<Arc<NoteType>>> {
+    pub fn get_notetype(&mut self, ntid: NoteTypeId) -> Result<Option<Arc<NoteType>>> {
         if let Some(nt) = self.state.notetype_cache.get(&ntid) {
             return Ok(Some(nt.clone()));
         }
@@ -468,7 +468,7 @@ impl Collection {
         }
     }
 
-    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NoteTypeID, Arc<NoteType>>> {
+    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NoteTypeId, Arc<NoteType>>> {
         self.storage
             .get_all_notetype_names()?
             .into_iter()
@@ -481,7 +481,7 @@ impl Collection {
             .collect()
     }
 
-    pub fn remove_notetype(&mut self, ntid: NoteTypeID) -> Result<()> {
+    pub fn remove_notetype(&mut self, ntid: NoteTypeId) -> Result<()> {
         // fixme: currently the storage layer is taking care of removing the notes and cards,
         // but we need to do it in this layer in the future for undo handling
         self.transact_no_undo(|col| {

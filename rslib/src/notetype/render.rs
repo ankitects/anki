@@ -3,11 +3,11 @@
 
 use super::{CardTemplate, NoteType, NoteTypeKind};
 use crate::{
-    card::{Card, CardID},
+    card::{Card, CardId},
     collection::Collection,
     err::{AnkiError, Result},
     i18n::I18n,
-    notes::{Note, NoteID},
+    notes::{Note, NoteId},
     template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
 };
 use std::{borrow::Cow, collections::HashMap};
@@ -19,7 +19,7 @@ pub struct RenderCardOutput {
 
 impl Collection {
     /// Render an existing card saved in the database.
-    pub fn render_existing_card(&mut self, cid: CardID, browser: bool) -> Result<RenderCardOutput> {
+    pub fn render_existing_card(&mut self, cid: CardId, browser: bool) -> Result<RenderCardOutput> {
         let card = self
             .storage
             .get_card(cid)?
@@ -64,7 +64,7 @@ impl Collection {
 
     fn existing_or_synthesized_card(
         &self,
-        nid: NoteID,
+        nid: NoteId,
         template_ord: Option<u32>,
         card_ord: u16,
     ) -> Result<Card> {

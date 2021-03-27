@@ -3,13 +3,13 @@
 
 use super::{ids_to_string, SqliteStorage};
 use crate::{
-    err::{AnkiError, DBErrorKind, Result},
-    notes::NoteID,
+    err::{AnkiError, DbErrorKind, Result},
+    notes::NoteId,
     notetype::{
         AlreadyGeneratedCardInfo, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig,
         NoteTypeConfig,
     },
-    notetype::{NoteType, NoteTypeID, NoteTypeSchema11},
+    notetype::{NoteType, NoteTypeId, NoteTypeSchema11},
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -41,7 +41,7 @@ fn row_to_existing_card(row: &Row) -> Result<AlreadyGeneratedCardInfo> {
 }
 
 impl SqliteStorage {
-    pub(crate) fn get_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
+    pub(crate) fn get_notetype(&self, ntid: NoteTypeId) -> Result<Option<NoteType>> {
         match self.get_notetype_core(ntid)? {
             Some(mut nt) => {
                 nt.fields = self.get_notetype_fields(ntid)?;
@@ -52,7 +52,7 @@ impl SqliteStorage {
         }
     }
 
-    fn get_notetype_core(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
+    fn get_notetype_core(&self, ntid: NoteTypeId) -> Result<Option<NoteType>> {
         self.db
             .prepare_cached(concat!(include_str!("get_notetype.sql"), " where id = ?"))?
             .query_and_then(&[ntid], row_to_notetype_core)?
@@ -60,7 +60,7 @@ impl SqliteStorage {
             .transpose()
     }
 
-    fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteField>> {
+    fn get_notetype_fields(&self, ntid: NoteTypeId) -> Result<Vec<NoteField>> {
         self.db
             .prepare_cached(include_str!("get_fields.sql"))?
             .query_and_then(&[ntid], |row| {
@@ -74,7 +74,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    fn get_notetype_templates(&self, ntid: NoteTypeID) -> Result<Vec<CardTemplate>> {
+    fn get_notetype_templates(&self, ntid: NoteTypeId) -> Result<Vec<CardTemplate>> {
         self.db
             .prepare_cached(include_str!("get_templates.sql"))?
             .query_and_then(&[ntid], |row| {
@@ -90,7 +90,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_notetype_id(&self, name: &str) -> Result<Option<NoteTypeID>> {
+    pub(crate) fn get_notetype_id(&self, name: &str) -> Result<Option<NoteTypeId>> {
         self.db
             .prepare_cached("select id from notetypes where name = ?")?
             .query_row(params![name], |row| row.get(0))
@@ -98,7 +98,7 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub fn get_all_notetype_names(&self) -> Result<Vec<(NoteTypeID, String)>> {
+    pub fn get_all_notetype_names(&self) -> Result<Vec<(NoteTypeId, String)>> {
         self.db
             .prepare_cached(include_str!("get_notetype_names.sql"))?
             .query_and_then(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
@@ -106,7 +106,7 @@ impl SqliteStorage {
     }
 
     /// Returns list of (id, name, use_count)
-    pub fn get_notetype_use_counts(&self) -> Result<Vec<(NoteTypeID, String, u32)>> {
+    pub fn get_notetype_use_counts(&self) -> Result<Vec<(NoteTypeId, String, u32)>> {
         self.db
             .prepare_cached(include_str!("get_use_counts.sql"))?
             .query_and_then(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
@@ -115,7 +115,7 @@ impl SqliteStorage {
 
     pub(crate) fn update_notetype_fields(
         &self,
-        ntid: NoteTypeID,
+        ntid: NoteTypeId,
         fields: &[NoteField],
     ) -> Result<()> {
         self.db
@@ -133,7 +133,7 @@ impl SqliteStorage {
 
     /// A sorted list of all field names used by provided notes, for use with
     /// the find&replace feature.
-    pub(crate) fn field_names_for_notes(&self, nids: &[NoteID]) -> Result<Vec<String>> {
+    pub(crate) fn field_names_for_notes(&self, nids: &[NoteId]) -> Result<Vec<String>> {
         let mut sql = include_str!("field_names_for_notes.sql").to_string();
         sql.push(' ');
         ids_to_string(&mut sql, nids);
@@ -146,8 +146,8 @@ impl SqliteStorage {
 
     pub(crate) fn note_ids_by_notetype(
         &self,
-        nids: &[NoteID],
-    ) -> Result<Vec<(NoteTypeID, NoteID)>> {
+        nids: &[NoteId],
+    ) -> Result<Vec<(NoteTypeId, NoteId)>> {
         let mut sql = String::from("select mid, id from notes where id in ");
         ids_to_string(&mut sql, nids);
         sql += " order by mid, id";
@@ -157,7 +157,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn all_note_ids_by_notetype(&self) -> Result<Vec<(NoteTypeID, NoteID)>> {
+    pub(crate) fn all_note_ids_by_notetype(&self) -> Result<Vec<(NoteTypeId, NoteId)>> {
         let sql = String::from("select mid, id from notes order by mid, id");
         self.db
             .prepare(&sql)?
@@ -167,7 +167,7 @@ impl SqliteStorage {
 
     pub(crate) fn update_notetype_templates(
         &self,
-        ntid: NoteTypeID,
+        ntid: NoteTypeId,
         templates: &[CardTemplate],
     ) -> Result<()> {
         self.db
@@ -240,7 +240,7 @@ impl SqliteStorage {
 
     pub(crate) fn remove_cards_for_deleted_templates(
         &self,
-        ntid: NoteTypeID,
+        ntid: NoteTypeId,
         ords: &[u32],
     ) -> Result<()> {
         let mut stmt = self
@@ -252,7 +252,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn remove_notetype(&self, ntid: NoteTypeID) -> Result<()> {
+    pub(crate) fn remove_notetype(&self, ntid: NoteTypeId) -> Result<()> {
         self.db
             .prepare_cached("delete from cards where nid in (select id from notes where mid=?)")?
             .execute(&[ntid])?;
@@ -274,7 +274,7 @@ impl SqliteStorage {
 
     pub(crate) fn move_cards_for_repositioned_templates(
         &self,
-        ntid: NoteTypeID,
+        ntid: NoteTypeId,
         changes: &[(u32, u32)],
     ) -> Result<()> {
         let case_clauses: Vec<_> = changes
@@ -297,7 +297,7 @@ and ord in ",
 
     pub(crate) fn existing_cards_for_notetype(
         &self,
-        ntid: NoteTypeID,
+        ntid: NoteTypeId,
     ) -> Result<Vec<AlreadyGeneratedCardInfo>> {
         self.db
             .prepare_cached(concat!(
@@ -310,7 +310,7 @@ and ord in ",
 
     pub(crate) fn existing_cards_for_note(
         &self,
-        nid: NoteID,
+        nid: NoteId,
     ) -> Result<Vec<AlreadyGeneratedCardInfo>> {
         self.db
             .prepare_cached(concat!(
@@ -328,7 +328,7 @@ and ord in ",
         Ok(())
     }
 
-    pub(crate) fn highest_card_ordinal_for_notetype(&self, ntid: NoteTypeID) -> Result<u16> {
+    pub(crate) fn highest_card_ordinal_for_notetype(&self, ntid: NoteTypeId) -> Result<u16> {
         self.db
             .prepare(include_str!("highest_card_ord.sql"))?
             .query_row(&[ntid], |row| row.get(0))
@@ -339,7 +339,7 @@ and ord in ",
 
     pub(crate) fn get_all_notetypes_as_schema11(
         &self,
-    ) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
+    ) -> Result<HashMap<NoteTypeId, NoteTypeSchema11>> {
         let mut nts = HashMap::new();
         for (ntid, _name) in self.get_all_notetype_names()? {
             let full = self.get_notetype(ntid)?.unwrap();
@@ -381,28 +381,28 @@ and ord in ",
         self.set_schema11_notetypes(nts)
     }
 
-    fn get_schema11_notetypes(&self) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
+    fn get_schema11_notetypes(&self) -> Result<HashMap<NoteTypeId, NoteTypeSchema11>> {
         let mut stmt = self.db.prepare("select models from col")?;
         let note_types = stmt
             .query_and_then(
                 NO_PARAMS,
-                |row| -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
-                    let v: HashMap<NoteTypeID, NoteTypeSchema11> =
+                |row| -> Result<HashMap<NoteTypeId, NoteTypeSchema11>> {
+                    let v: HashMap<NoteTypeId, NoteTypeSchema11> =
                         serde_json::from_str(row.get_raw(0).as_str()?)?;
                     Ok(v)
                 },
             )?
             .next()
-            .ok_or_else(|| AnkiError::DBError {
+            .ok_or_else(|| AnkiError::DbError {
                 info: "col table empty".to_string(),
-                kind: DBErrorKind::MissingEntity,
+                kind: DbErrorKind::MissingEntity,
             })??;
         Ok(note_types)
     }
 
     pub(crate) fn set_schema11_notetypes(
         &self,
-        notetypes: HashMap<NoteTypeID, NoteTypeSchema11>,
+        notetypes: HashMap<NoteTypeId, NoteTypeSchema11>,
     ) -> Result<()> {
         let json = serde_json::to_string(&notetypes)?;
         self.db.execute("update col set models = ?", &[json])?;

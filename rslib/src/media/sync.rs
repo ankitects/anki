@@ -64,9 +64,9 @@ struct SyncBeginResponse {
 
 #[derive(Debug, Clone, Copy)]
 enum LocalState {
-    NotInDB,
-    InDBNotPending,
-    InDBAndPending,
+    NotInDb,
+    InDbNotPending,
+    InDbAndPending,
 }
 
 #[derive(PartialEq, Debug)]
@@ -468,17 +468,17 @@ fn determine_required_change(
 
     match (local_sha1, remote_sha1, local_state) {
         // both deleted, not in local DB
-        ("", "", L::NotInDB) => R::None,
+        ("", "", L::NotInDb) => R::None,
         // both deleted, in local DB
         ("", "", _) => R::Delete,
         // added on server, add even if local deletion pending
         ("", _, _) => R::Download,
         // deleted on server but added locally; upload later
-        (_, "", L::InDBAndPending) => R::None,
+        (_, "", L::InDbAndPending) => R::None,
         // deleted on server and not pending sync
         (_, "", _) => R::Delete,
         // if pending but the same as server, don't need to upload
-        (lsum, rsum, L::InDBAndPending) if lsum == rsum => R::RemovePending,
+        (lsum, rsum, L::InDbAndPending) if lsum == rsum => R::RemovePending,
         (lsum, rsum, _) => {
             if lsum == rsum {
                 // not pending and same as server, nothing to do
@@ -510,12 +510,12 @@ fn determine_required_changes<'a>(
                     None => "".to_string(),
                 },
                 if entry.sync_required {
-                    LocalState::InDBAndPending
+                    LocalState::InDbAndPending
                 } else {
-                    LocalState::InDBNotPending
+                    LocalState::InDbNotPending
                 },
             ),
-            None => ("".to_string(), LocalState::NotInDB),
+            None => ("".to_string(), LocalState::NotInDb),
         };
 
         let req_change = determine_required_change(&local_sha1, &remote.sha1, local_state);
@@ -855,14 +855,14 @@ mod test {
         use determine_required_change as d;
         use LocalState as L;
         use RequiredChange as R;
-        assert_eq!(d("", "", L::NotInDB), R::None);
-        assert_eq!(d("", "", L::InDBNotPending), R::Delete);
-        assert_eq!(d("", "1", L::InDBAndPending), R::Download);
-        assert_eq!(d("1", "", L::InDBAndPending), R::None);
-        assert_eq!(d("1", "", L::InDBNotPending), R::Delete);
-        assert_eq!(d("1", "1", L::InDBNotPending), R::None);
-        assert_eq!(d("1", "1", L::InDBAndPending), R::RemovePending);
-        assert_eq!(d("a", "b", L::InDBAndPending), R::Download);
-        assert_eq!(d("a", "b", L::InDBNotPending), R::Download);
+        assert_eq!(d("", "", L::NotInDb), R::None);
+        assert_eq!(d("", "", L::InDbNotPending), R::Delete);
+        assert_eq!(d("", "1", L::InDbAndPending), R::Download);
+        assert_eq!(d("1", "", L::InDbAndPending), R::None);
+        assert_eq!(d("1", "", L::InDbNotPending), R::Delete);
+        assert_eq!(d("1", "1", L::InDbNotPending), R::None);
+        assert_eq!(d("1", "1", L::InDbAndPending), R::RemovePending);
+        assert_eq!(d("a", "b", L::InDbAndPending), R::Download);
+        assert_eq!(d("a", "b", L::InDbNotPending), R::Download);
     }
 }

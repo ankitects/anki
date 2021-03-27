@@ -12,7 +12,7 @@ pub(crate) enum QueueEntry {
 }
 
 impl QueueEntry {
-    pub fn card_id(&self) -> CardID {
+    pub fn card_id(&self) -> CardId {
         match self {
             QueueEntry::IntradayLearning(e) => e.id,
             QueueEntry::Main(e) => e.id,

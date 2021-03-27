@@ -21,10 +21,10 @@ mod test {
         let mut note = nt.new_note();
         note.set_field(0, "one")?;
         note.set_field(1, "two")?;
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // turn burying and leech suspension on
-        let mut conf = col.storage.get_deck_config(DeckConfID(1))?.unwrap();
+        let mut conf = col.storage.get_deck_config(DeckConfId(1))?.unwrap();
         conf.inner.bury_new = true;
         conf.inner.leech_action = LeechAction::Suspend as i32;
         col.storage.update_deck_conf(&conf)?;
@@ -94,7 +94,7 @@ mod test {
             assert_eq!(note.tags, vec!["leech".to_string()]);
             assert_eq!(col.storage.all_tags()?.is_empty(), false);
 
-            let deck = col.get_deck(DeckID(1))?.unwrap();
+            let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 1);
 
             dbg!(&col.next_card()?);
@@ -121,7 +121,7 @@ mod test {
             assert_eq!(note.tags.is_empty(), true);
             assert_eq!(col.storage.all_tags()?.is_empty(), true);
 
-            let deck = col.get_deck(DeckID(1))?.unwrap();
+            let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 0);
 
             assert_eq!(col.next_card()?.is_some(), true);

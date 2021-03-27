@@ -6,8 +6,8 @@ use std::sync::Arc;
 use crate::prelude::*;
 
 pub struct DeckAndNotetype {
-    pub deck_id: DeckID,
-    pub notetype_id: NoteTypeID,
+    pub deck_id: DeckId,
+    pub notetype_id: NoteTypeId,
 }
 
 impl Collection {
@@ -23,7 +23,7 @@ impl Collection {
     ///   Default otherwise.
     pub fn defaults_for_adding(
         &mut self,
-        home_deck_of_reviewer_card: DeckID,
+        home_deck_of_reviewer_card: DeckId,
     ) -> Result<DeckAndNotetype> {
         let deck_id;
         let notetype_id;
@@ -52,7 +52,7 @@ impl Collection {
     /// The currently selected deck, the home deck of the provided card, or the default deck.
     fn get_current_deck_for_adding(
         &mut self,
-        home_deck_of_reviewer_card: DeckID,
+        home_deck_of_reviewer_card: DeckId,
     ) -> Result<Arc<Deck>> {
         // current deck, if not filtered
         if let Some(current) = self.get_deck(self.get_current_deck_id())? {
@@ -65,7 +65,7 @@ impl Collection {
             return Ok(home_deck);
         }
         // default deck
-        self.get_deck(DeckID(1))?.ok_or(AnkiError::NotFound)
+        self.get_deck(DeckId(1))?.ok_or(AnkiError::NotFound)
     }
 
     fn get_current_notetype_for_adding(&mut self) -> Result<Arc<NoteType>> {
@@ -83,7 +83,7 @@ impl Collection {
         }
     }
 
-    fn default_notetype_for_deck(&mut self, deck: DeckID) -> Result<Arc<NoteType>> {
+    fn default_notetype_for_deck(&mut self, deck: DeckId) -> Result<Arc<NoteType>> {
         // try last notetype used by deck
         if let Some(ntid) = self.get_last_notetype_for_deck(deck) {
             if let Some(nt) = self.get_notetype(ntid)? {
@@ -99,7 +99,7 @@ impl Collection {
     /// This is optional due to the inconsistent handling, where changes in notetype
     /// may need to update the current deck, but not vice versa. If a previous deck is
     /// not set, we want to keep the current selection, instead of resetting it.
-    pub(crate) fn default_deck_for_notetype(&mut self, ntid: NoteTypeID) -> Result<Option<DeckID>> {
+    pub(crate) fn default_deck_for_notetype(&mut self, ntid: NoteTypeId) -> Result<Option<DeckId>> {
         if let Some(last_deck_id) = self.get_last_deck_added_to_for_notetype(ntid) {
             if let Some(deck) = self.get_deck(last_deck_id)? {
                 if !deck.is_filtered() {

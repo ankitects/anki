@@ -10,13 +10,13 @@ use super::{join_tags, split_tags};
 use crate::{notes::NoteTags, prelude::*};
 
 impl Collection {
-    pub fn add_tags_to_notes(&mut self, nids: &[NoteID], tags: &str) -> Result<OpOutput<usize>> {
+    pub fn add_tags_to_notes(&mut self, nids: &[NoteId], tags: &str) -> Result<OpOutput<usize>> {
         self.transact(Op::UpdateTag, |col| col.add_tags_to_notes_inner(nids, tags))
     }
 }
 
 impl Collection {
-    fn add_tags_to_notes_inner(&mut self, nids: &[NoteID], tags: &str) -> Result<usize> {
+    fn add_tags_to_notes_inner(&mut self, nids: &[NoteId], tags: &str) -> Result<usize> {
         let usn = self.usn()?;
 
         // will update tag list for any new tags, and match case

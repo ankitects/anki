@@ -19,7 +19,7 @@ impl SqliteStorage {
             self.add_new_notetype(&mut nt)?;
             if idx == Kind::Basic as usize {
                 self.set_config_entry(&ConfigEntry::boxed(
-                    ConfigKey::CurrentNoteTypeID.into(),
+                    ConfigKey::CurrentNoteTypeId.into(),
                     serde_json::to_vec(&nt.id)?,
                     self.usn(false)?,
                     TimestampSecs::now(),

@@ -75,7 +75,7 @@ impl SearchService for Backend {
         if !input.match_case {
             search = format!("(?i){}", search);
         }
-        let nids = input.nids.into_iter().map(NoteID).collect();
+        let nids = input.nids.into_iter().map(NoteId).collect();
         let field_name = if input.field_name.is_empty() {
             None
         } else {

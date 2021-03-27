@@ -4,11 +4,11 @@
 use super::{parser::Node, sqlwriter::SqlWriter};
 use crate::collection::Collection;
 use crate::err::Result;
-use crate::notes::NoteID;
+use crate::notes::NoteId;
 use crate::search::parser::parse;
 
 impl Collection {
-    pub fn search_notes(&mut self, search: &str) -> Result<Vec<NoteID>> {
+    pub fn search_notes(&mut self, search: &str) -> Result<Vec<NoteId>> {
         let top_node = Node::Group(parse(search)?);
         let writer = SqlWriter::new(self);
         let (sql, args) = writer.build_notes_query(&top_node)?;

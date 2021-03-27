@@ -3,7 +3,7 @@
 
 use crate::config::schema11::schema11_config_as_string;
 use crate::err::Result;
-use crate::err::{AnkiError, DBErrorKind};
+use crate::err::{AnkiError, DbErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{i18n::I18n, scheduler::timing::v1_creation_date, text::without_combining};
 use regex::Regex;
@@ -141,17 +141,17 @@ impl SqliteStorage {
         let (create, ver) = schema_version(&db)?;
 
         let err = match ver {
-            v if v < SCHEMA_MIN_VERSION => Some(DBErrorKind::FileTooOld),
-            v if v > SCHEMA_MAX_VERSION => Some(DBErrorKind::FileTooNew),
+            v if v < SCHEMA_MIN_VERSION => Some(DbErrorKind::FileTooOld),
+            v if v > SCHEMA_MAX_VERSION => Some(DbErrorKind::FileTooNew),
             12 | 13 => {
                 // as schema definition changed, user must perform clean
                 // shutdown to return to schema 11 prior to running this version
-                Some(DBErrorKind::FileTooNew)
+                Some(DbErrorKind::FileTooNew)
             }
             _ => None,
         };
         if let Some(kind) = err {
-            return Err(AnkiError::DBError {
+            return Err(AnkiError::DbError {
                 info: "".to_string(),
                 kind,
             });

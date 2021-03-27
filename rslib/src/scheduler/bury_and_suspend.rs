@@ -3,7 +3,7 @@
 
 use crate::{
     backend_proto as pb,
-    card::{Card, CardID, CardQueue},
+    card::{Card, CardId, CardQueue},
     collection::Collection,
     config::SchedulerVersion,
     err::Result,
@@ -68,7 +68,7 @@ impl Collection {
         self.storage.clear_searched_cards_table()
     }
 
-    pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<OpOutput<()>> {
+    pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardId]) -> Result<OpOutput<()>> {
         self.transact(Op::UnburyUnsuspend, |col| {
             col.storage.set_search_table_to_card_ids(cids, false)?;
             col.unsuspend_or_unbury_searched_cards()
@@ -122,7 +122,7 @@ impl Collection {
 
     pub fn bury_or_suspend_cards(
         &mut self,
-        cids: &[CardID],
+        cids: &[CardId],
         mode: BuryOrSuspendMode,
     ) -> Result<OpOutput<()>> {
         let op = match mode {
@@ -137,8 +137,8 @@ impl Collection {
 
     pub(crate) fn bury_siblings(
         &mut self,
-        cid: CardID,
-        nid: NoteID,
+        cid: CardId,
+        nid: NoteId,
         include_new: bool,
         include_reviews: bool,
     ) -> Result<()> {

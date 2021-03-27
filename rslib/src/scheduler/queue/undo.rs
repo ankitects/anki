@@ -51,7 +51,7 @@ impl CardQueues {
         self.undo.last().copied()
     }
 
-    pub(super) fn pop_undo_entry(&mut self, id: CardID) -> Option<QueueEntry> {
+    pub(super) fn pop_undo_entry(&mut self, id: CardId) -> Option<QueueEntry> {
         if let Some(last) = self.undo.last() {
             if last.card_id() == id {
                 match last.kind() {

@@ -33,8 +33,8 @@ impl TryFrom<pb::SearchNode> for Node {
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
-                Filter::Nid(nid) => Node::Search(SearchNode::NoteIDs(nid.to_string())),
-                Filter::Nids(nids) => Node::Search(SearchNode::NoteIDs(nids.into_id_string())),
+                Filter::Nid(nid) => Node::Search(SearchNode::NoteIds(nid.to_string())),
+                Filter::Nids(nids) => Node::Search(SearchNode::NoteIds(nids.into_id_string())),
                 Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                     note_type_id: dupe.notetype_id.into(),
                     text: dupe.first_field,

@@ -4,10 +4,10 @@
 use crate::{
     collection::Collection,
     config::SchedulerVersion,
-    err::{AnkiError, DBErrorKind, Result},
+    err::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
     notetype::{
-        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeID,
+        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeId,
         NoteTypeKind,
     },
     prelude::*,
@@ -90,9 +90,9 @@ impl Collection {
         debug!(self.log, "quick check");
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
-            return Err(AnkiError::DBError {
+            return Err(AnkiError::DbError {
                 info: self.tr.database_check_corrupt().into(),
-                kind: DBErrorKind::Corrupt,
+                kind: DbErrorKind::Corrupt,
             });
         }
 
@@ -283,14 +283,14 @@ impl Collection {
 
     fn get_note_fixing_invalid_utf8(
         &self,
-        nid: NoteID,
+        nid: NoteId,
         out: &mut CheckDatabaseOutput,
     ) -> Result<Note> {
         match self.storage.get_note(nid) {
             Ok(note) => Ok(note.unwrap()),
             Err(err) => match err {
-                AnkiError::DBError {
-                    kind: DBErrorKind::Utf8,
+                AnkiError::DbError {
+                    kind: DbErrorKind::Utf8,
                     ..
                 } => {
                     // fix note then fetch again
@@ -343,7 +343,7 @@ impl Collection {
         &mut self,
         stamp: TimestampMillis,
         field_count: usize,
-        previous_id: NoteTypeID,
+        previous_id: NoteTypeId,
     ) -> Result<Arc<NoteType>> {
         debug!(self.log, "create recovery notetype");
         let extra_cards_required = self
@@ -390,7 +390,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckID, search::SortMode};
+    use crate::{collection::open_test_collection, decks::DeckId, search::SortMode};
 
     fn progress_fn(_progress: DatabaseCheckProgress, _throttle: bool) {}
 
@@ -399,7 +399,7 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // card properties
         col.storage
@@ -430,7 +430,7 @@ mod test {
             }
         );
         assert_eq!(
-            col.storage.get_deck(DeckID(123))?.unwrap().name,
+            col.storage.get_deck(DeckId(123))?.unwrap().name,
             "recovered123"
         );
 
@@ -484,7 +484,7 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // duplicate ordinals
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
@@ -533,7 +533,7 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         // excess fields get joined into the last one
         col.storage
@@ -609,7 +609,7 @@ mod test {
         let mut note = nt.new_note();
         note.tags.push("one".into());
         note.tags.push("two".into());
-        col.add_note(&mut note, DeckID(1))?;
+        col.add_note(&mut note, DeckId(1))?;
 
         col.set_tag_expanded("one", true)?;
 

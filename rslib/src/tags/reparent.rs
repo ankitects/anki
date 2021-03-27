@@ -138,7 +138,7 @@ mod test {
         ] {
             let mut note = nt.new_note();
             note.tags.push(tag.to_string());
-            col.add_note(&mut note, DeckID(1))?;
+            col.add_note(&mut note, DeckId(1))?;
         }
 
         // two decks with the same base name; they both get mapped

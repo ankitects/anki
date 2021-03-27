@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{DeckConf, DeckConfID, INITIAL_EASE_FACTOR_THOUSANDS};
+use super::{DeckConf, DeckConfId, INITIAL_EASE_FACTOR_THOUSANDS};
 use crate::backend_proto::deck_config_inner::NewCardOrder;
 use crate::backend_proto::DeckConfigInner;
 use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
@@ -16,7 +16,7 @@ use std::collections::HashMap;
 #[serde(rename_all = "camelCase")]
 pub struct DeckConfSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub(crate) id: DeckConfID,
+    pub(crate) id: DeckConfId,
     #[serde(rename = "mod", deserialize_with = "deserialize_number_from_string")]
     pub(crate) mtime: TimestampSecs,
     pub(crate) name: String,
@@ -191,7 +191,7 @@ impl Default for LapseConfSchema11 {
 impl Default for DeckConfSchema11 {
     fn default() -> Self {
         DeckConfSchema11 {
-            id: DeckConfID(0),
+            id: DeckConfId(0),
             mtime: TimestampSecs(0),
             name: "Default".to_string(),
             usn: Usn(0),
