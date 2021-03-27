@@ -612,8 +612,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             f.add_tag("leech")
             f.flush()
             # handle
-            a = conf["leechAction"]
-            if a == LEECH_SUSPEND:
+            if conf["leechAction"] == LEECH_SUSPEND:
                 # if it has an old due, remove it from cram/relearning
                 if card.odue:
                     card.due = card.odue

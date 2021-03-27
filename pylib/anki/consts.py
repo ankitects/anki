@@ -82,8 +82,9 @@ STARTING_FACTOR = 2500
 HELP_SITE = "https://docs.ankiweb.net/#/"
 
 # Leech actions
-LEECH_SUSPEND = 0
-LEECH_TAGONLY = 1
+LeechAction = NewType("LeechAction", int)
+LEECH_SUSPEND = LeechAction(0)
+LEECH_TAGONLY = LeechAction(1)
 
 # Buttons
 BUTTON_ONE = 1

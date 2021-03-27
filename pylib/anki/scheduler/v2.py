@@ -1063,8 +1063,7 @@ limit ?"""
             f.add_tag("leech")
             f.flush()
             # handle
-            a = conf["leechAction"]
-            if a == LEECH_SUSPEND:
+            if conf["leechAction"] == LEECH_SUSPEND:
                 card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)
