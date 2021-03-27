@@ -23,7 +23,7 @@ import aqt
 from anki.cards import Card
 from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
 """
@@ -855,13 +855,13 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="fields_did_rename_field",
         args=[
             "dialog: aqt.fields.FieldDialog",
-            "field: anki.models.Field",
+            "field: anki.models.FieldDict",
             "old_name: str",
         ],
     ),
     Hook(
         name="fields_did_delete_field",
-        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.Field"],
+        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.FieldDict"],
     ),
     # Stats
     ###################
@@ -879,7 +879,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ###################
     Hook(
         name="current_note_type_did_change",
-        args=["notetype: NoteType"],
+        args=["notetype: NotetypeDict"],
         legacy_hook="currentModelChanged",
         legacy_no_args=True,
     ),

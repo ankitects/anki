@@ -96,7 +96,7 @@ hooks = [
     ),
     Hook(
         name="note_type_added",
-        args=["notetype: anki.models.NoteType"],
+        args=["notetype: anki.models.NotetypeDict"],
         doc="Obsolete, do not use.",
     ),
     Hook(

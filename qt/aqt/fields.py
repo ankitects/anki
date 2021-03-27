@@ -7,7 +7,7 @@ import aqt
 from anki.consts import *
 from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
@@ -25,7 +25,7 @@ from aqt.utils import (
 
 class FieldDialog(QDialog):
     def __init__(
-        self, mw: AnkiQt, nt: NoteType, parent: Optional[QWidget] = None
+        self, mw: AnkiQt, nt: NotetypeDict, parent: Optional[QWidget] = None
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw

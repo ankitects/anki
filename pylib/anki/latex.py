@@ -12,7 +12,7 @@ from typing import Any, List, Optional, Tuple
 import anki
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
-from anki.models import NoteType
+from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, isMac, namedtmp, tmpdir
 
@@ -64,7 +64,9 @@ def on_card_did_render(
     output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
 
 
-def render_latex(html: str, model: NoteType, col: anki.collection.Collection) -> str:
+def render_latex(
+    html: str, model: NotetypeDict, col: anki.collection.Collection
+) -> str:
     "Convert embedded latex tags in text to image links."
     html, err = render_latex_returning_errors(html, model, col)
     if err:
@@ -74,7 +76,7 @@ def render_latex(html: str, model: NoteType, col: anki.collection.Collection) ->
 
 def render_latex_returning_errors(
     html: str,
-    model: NoteType,
+    model: NotetypeDict,
     col: anki.collection.Collection,
     expand_clozes: bool = False,
 ) -> Tuple[str, List[str]]:
