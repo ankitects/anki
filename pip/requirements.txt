@@ -1,6 +1,6 @@
 appdirs==1.4.4
     # via black
-astroid==2.4.2
+astroid==2.5.1
     # via pylint
 atomicwrites==1.4.0 ; sys_platform == "win32"
     # via
@@ -48,7 +48,7 @@ idna==2.10
     # via requests
 iniconfig==1.1.1
     # via pytest
-isort==5.7.0
+isort==5.8.0
     # via
     #   -r requirements.in
     #   pylint
@@ -58,9 +58,9 @@ jinja2==2.11.3
     # via flask
 jsonschema==3.2.0
     # via -r requirements.in
-lazy-object-proxy==1.4.3
+lazy-object-proxy==1.6.0
     # via astroid
-markdown==3.3.3
+markdown==3.3.4
     # via -r requirements.in
 markupsafe==1.1.1
     # via jinja2
@@ -72,21 +72,23 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy-protobuf==2.1
+mypy-protobuf==2.4
     # via -r requirements.in
-mypy==0.800
+mypy==0.812
     # via -r requirements.in
-orjson==3.4.7
+orjson==3.5.1
     # via -r requirements.in
 packaging==20.9
     # via pytest
 pathspec==0.8.1
     # via black
-pip-tools==5.5.0
+pep517==0.10.0
+    # via pip-tools
+pip-tools==6.0.1
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest
-protobuf==3.14.0
+protobuf==3.15.6
     # via
     #   -r requirements.in
     #   mypy-protobuf
@@ -94,7 +96,7 @@ psutil==5.8.0 ; sys_platform == "win32"
     # via -r requirements.in
 py==1.10.0
     # via pytest
-pylint==2.6.0
+pylint==2.7.2
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
@@ -108,7 +110,7 @@ pytoml==0.1.21
     # via compare-locales
 pywin32==300 ; sys_platform == "win32"
     # via -r requirements.in
-regex==2020.11.13
+regex==2021.3.17
     # via black
 requests[socks]==2.25.1
     # via -r requirements.in
@@ -116,20 +118,20 @@ send2trash==1.5.0
     # via -r requirements.in
 six==1.15.0
     # via
-    #   astroid
     #   compare-locales
     #   flask-cors
     #   jsonschema
     #   protobuf
 snakeviz==2.1.0
     # via -r requirements.in
-soupsieve==2.1
+soupsieve==2.2.1
     # via beautifulsoup4
 stringcase==1.2.0
     # via -r requirements.in
 toml==0.10.2
     # via
     #   black
+    #   pep517
     #   pylint
     #   pytest
 tornado==6.1
@@ -142,9 +144,9 @@ typing-extensions==3.7.4.3
     # via
     #   black
     #   mypy
-urllib3==1.26.3
+urllib3==1.26.4
     # via requests
-waitress==2.0.0b1
+waitress==2.0.0
     # via -r requirements.in
 werkzeug==1.0.1
     # via flask
@@ -156,5 +158,5 @@ wrapt==1.12.1
 # The following packages are considered to be unsafe in a requirements file:
 pip==21.0.1
     # via pip-tools
-setuptools==53.0.0
+setuptools==54.2.0
     # via jsonschema
