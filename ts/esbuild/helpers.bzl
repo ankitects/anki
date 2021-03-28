@@ -89,8 +89,9 @@ def write_jsconfig_file(ctx, path_alias_mappings):
         File object reference for the jsconfig file
     """
 
-    # The package path
-    rule_path = paths.dirname(ctx.build_file_path)
+    # The package path, including an "external/repo_name/" prefix if the package is in
+    # an external repo.
+    rule_path = paths.join(ctx.label.workspace_root, paths.dirname(ctx.build_file_path))
 
     # Replace all segments in the path with .. join them with "/" and postfix
     # it with another / to get a relative path from the build file dir
