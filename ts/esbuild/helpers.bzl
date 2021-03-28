@@ -2,6 +2,9 @@
 NOTE: this file was forked from the following repo (Apache2)
 https://github.com/bazelbuild/rules_nodejs/blob/c47b770a122e9614516df2e3fdca6fe0bf6e3420/packages/esbuild/helpers.bzl
 
+Local changes not in upstream:
+https://github.com/bazelbuild/rules_nodejs/pull/2563
+
 Utility helper functions for the esbuild rule
 """
 

@@ -4,6 +4,7 @@ https://github.com/bazelbuild/rules_nodejs/blob/c47b770a122e9614516df2e3fdca6fe0
 
 Local changes not in upstream:
 https://github.com/bazelbuild/rules_nodejs/pull/2545
+https://github.com/bazelbuild/rules_nodejs/pull/2564
 
 esbuild rule
 """
