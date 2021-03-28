@@ -40,6 +40,11 @@ jest_test(
         "//ts:jest.config.js",
         "//ts:package.json",
     ],
+    target_compatible_with = select({
+        "@platforms//os:osx": [],
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//os:linux"],
+    }),
 )
 
 # Tests
