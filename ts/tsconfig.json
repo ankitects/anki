@@ -26,7 +26,7 @@
         "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
         "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
         "jsx": "react",
-        "types": ["svelte", "long", "node"],
+        "types": ["svelte", "long", "node", "jest"],
         "noEmitHelpers": true,
         "importHelpers": true
     }

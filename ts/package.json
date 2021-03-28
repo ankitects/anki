@@ -14,6 +14,7 @@
         "@tsconfig/svelte": "^1.0.10",
         "@types/d3": "^6.3.0",
         "@types/diff": "^5.0.0",
+        "@types/jest": "^26.0.22",
         "@types/jquery": "^3.5.0",
         "@types/jqueryui": "^1.12.13",
         "@types/lodash": "^4.14.162",
@@ -32,9 +33,11 @@
         "espree": "^7.3.1",
         "estraverse": "^5.2.0",
         "glob": "^7.1.6",
+        "jest-cli": "^24.9",
         "jsdoc": "^3.6.6",
         "license-checker-rseidelsohn": "=1.1.2",
         "minimist": "^1.2.5",
+        "patch-package": "^6.4.7",
         "prettier": "^2.1.2",
         "prettier-plugin-svelte": "^1.4.0",
         "sass": "^1.32.6",
@@ -49,7 +52,8 @@
         "uglify-js": "^3.13.1"
     },
     "scripts": {
-        "fix": "prettier --write */*.ts */*.svelte"
+        "fix": "prettier --write */*.ts */*.svelte",
+        "postinstall": "patch-package"
     },
     "dependencies": {
         "@fluent/bundle": "^0.15.1",

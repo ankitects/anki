@@ -23,6 +23,8 @@ exports_files([
     "licenses.json",
     "sql_format.ts",
     "protobuf-shim.js",
+    "jest.config.js",
+    "package.json",
 ])
 
 alias(
