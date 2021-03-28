@@ -1,10 +1,16 @@
 """
+NOTE: this file was forked from the following repo (Apache2)
+https://github.com/bazelbuild/rules_nodejs/blob/c47b770a122e9614516df2e3fdca6fe0bf6e3420/packages/esbuild/esbuild.bzl
+
+Local changes not in upstream:
+https://github.com/bazelbuild/rules_nodejs/pull/2545
+
 esbuild rule
 """
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
-load("@npm//@bazel/esbuild:helpers.bzl", "filter_files", "generate_path_mapping", "resolve_js_input", "write_jsconfig_file")
+load(":helpers.bzl", "filter_files", "generate_path_mapping", "resolve_js_input", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
