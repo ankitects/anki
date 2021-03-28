@@ -261,19 +261,7 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     }
 }
 
-fn needs_aux_sort_table(kind: SortKind) -> bool {
-    use SortKind::*;
-    matches!(
-        kind,
-        CardDeck | Notetype | CardTemplate | NoteCards | NoteEase
-    )
-}
-
 fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
-    if !needs_aux_sort_table(kind) {
-        return Ok(());
-    }
-
     use SortKind::*;
     let sql = match kind {
         CardDeck => include_str!("deck_order.sql"),
@@ -281,7 +269,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
         CardTemplate => include_str!("template_order.sql"),
         NoteCards => include_str!("note_cards_order.sql"),
         NoteEase => include_str!("note_ease_order.sql"),
-        _ => unreachable!(),
+        _ => return Ok(()),
     };
 
     col.storage.db.execute_batch(sql)?;
