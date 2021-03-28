@@ -1,0 +1,16 @@
+diff --git a/node_modules/jest-haste-map/build/crawlers/node.js b/node_modules/jest-haste-map/build/crawlers/node.js
+index 23985ae..a728a9a 100644
+--- a/node_modules/jest-haste-map/build/crawlers/node.js
++++ b/node_modules/jest-haste-map/build/crawlers/node.js
+@@ -166,7 +166,11 @@ function find(roots, extensions, ignore, callback) {
+
+ function findNative(roots, extensions, ignore, callback) {
+   const args = Array.from(roots);
++  args.push('(');
+   args.push('-type', 'f');
++  args.push('-o');
++  args.push('-type', 'l');
++  args.push(')');
+
+   if (extensions.length) {
+     args.push('(');
