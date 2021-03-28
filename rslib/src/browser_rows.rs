@@ -118,10 +118,11 @@ struct RenderContext {
     answer_nodes: Vec<RenderedNode>,
 }
 
-struct NoteRowContext {
+struct NoteRowContext<'a> {
     note: Note,
     notetype: Arc<Notetype>,
     cards: Vec<Card>,
+    tr: &'a I18n,
 }
 
 fn card_render_required(columns: &[String]) -> bool {
@@ -388,7 +389,7 @@ impl RowContext for CardRowContext<'_> {
     }
 }
 
-impl<'a> NoteRowContext {
+impl<'a> NoteRowContext<'a> {
     fn new(col: &'a mut Collection, id: i64) -> Result<Self> {
         let note = col.get_note_maybe_with_fields(NoteId(id), false)?;
         let notetype = col
@@ -400,19 +401,35 @@ impl<'a> NoteRowContext {
             note,
             notetype,
             cards,
+            tr: &col.tr,
         })
+    }
+
+    fn note_ease_str(&self) -> String {
+        let cards = self
+            .cards
+            .iter()
+            .filter(|c| c.ctype != CardType::New)
+            .collect::<Vec<&Card>>();
+        if cards.is_empty() {
+            self.tr.browsing_new().into()
+        } else {
+            let ease = cards.iter().map(|c| c.ease_factor).sum::<u16>() / cards.len() as u16;
+            format!("{}%", ease / 10)
+        }
     }
 }
 
-impl RowContext for NoteRowContext {
+impl RowContext for NoteRowContext<'_> {
     fn get_cell_text(&mut self, column: &str) -> Result<String> {
         Ok(match column {
             "note" => self.notetype.name.to_owned(),
+            "noteCards" => self.cards.len().to_string(),
             "noteCrt" => self.note_creation_str(),
+            "noteEase" => self.note_ease_str(),
             "noteFld" => self.note_field_str(),
             "noteMod" => self.note.mtime.date_string(),
             "noteTags" => self.note.tags.join(" "),
-            "noteCards" => self.cards.len().to_string(),
             _ => "".to_string(),
         })
     }

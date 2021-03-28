@@ -7,6 +7,7 @@ browsing-all-fields = All Fields
 browsing-answer = Answer
 browsing-any-cards-mapped-to-nothing-will = Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?
 browsing-any-flag = Any Flag
+browsing-average-ease = Average Ease
 browsing-browser-appearance = Browser Appearance
 browsing-browser-options = Browser Options
 browsing-buried = Buried

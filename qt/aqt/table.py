@@ -722,12 +722,13 @@ class NoteState(ItemState):
 
     def _load_columns(self) -> None:
         self._columns = [
-            ("noteFld", tr.browsing_sort_field()),
-            ("noteCrt", tr.browsing_created()),
-            ("noteMod", tr.search_note_modified()),
-            ("noteTags", tr.editing_tags()),
             ("note", tr.browsing_note()),
             ("noteCards", tr.qt_accel_cards().replace("&", "")),
+            ("noteCrt", tr.browsing_created()),
+            ("noteEase", tr.browsing_average_ease()),
+            ("noteFld", tr.browsing_sort_field()),
+            ("noteMod", tr.search_note_modified()),
+            ("noteTags", tr.editing_tags()),
         ]
         self._columns.sort(key=itemgetter(1))
 

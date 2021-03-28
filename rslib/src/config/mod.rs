@@ -271,15 +271,16 @@ impl Collection {
 #[derive(Deserialize, PartialEq, Debug, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum SortKind {
+    NoteCards,
     #[serde(rename = "noteCrt")]
     NoteCreation,
+    NoteEase,
     NoteMod,
     #[serde(rename = "noteFld")]
     NoteField,
     #[serde(rename = "note")]
     Notetype,
     NoteTags,
-    NoteCards,
     CardMod,
     CardReps,
     CardDue,
