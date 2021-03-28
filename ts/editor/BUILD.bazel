@@ -2,7 +2,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "vendor_js_lib", "pkg_from_name")
+load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
 sass_binary(
@@ -27,14 +27,9 @@ ts_library(
     ],
 )
 
-vendor_js_lib(
+copy_bootstrap_icons(
     name = "bootstrap-icons",
-    pkg = pkg_from_name("bootstrap-icons"),
-    include = [
-        "icons/pin-angle.svg",
-    ],
-    strip_prefix = "icons/",
-    visibility = ["//visibility:public"],
+    icons = ["pin-angle.svg"],
 )
 
 esbuild(
