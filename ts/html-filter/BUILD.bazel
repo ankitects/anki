@@ -40,6 +40,10 @@ jest_test(
         "//ts:jest.config.js",
         "//ts:package.json",
     ],
+    templated_args = [
+        "-preserve-symlinks",
+        "--preserve-symlinks-main",
+    ],
 )
 
 # Tests
