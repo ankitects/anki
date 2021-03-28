@@ -121,6 +121,7 @@ struct RenderContext {
 struct NoteRowContext {
     note: Note,
     notetype: Arc<Notetype>,
+    cards: Vec<Card>,
 }
 
 fn card_render_required(columns: &[String]) -> bool {
@@ -393,8 +394,13 @@ impl<'a> NoteRowContext {
         let notetype = col
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
+        let cards = col.storage.all_cards_of_note(note.id)?;
 
-        Ok(NoteRowContext { note, notetype })
+        Ok(NoteRowContext {
+            note,
+            notetype,
+            cards,
+        })
     }
 }
 
@@ -406,6 +412,7 @@ impl RowContext for NoteRowContext {
             "noteFld" => self.note_field_str(),
             "noteMod" => self.note.mtime.date_string(),
             "noteTags" => self.note.tags.join(" "),
+            "noteCards" => self.cards.len().to_string(),
             _ => "".to_string(),
         })
     }

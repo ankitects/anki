@@ -812,6 +812,7 @@ message SortOrder {
       NOTE_FIELD = 2;
       NOTE_TAGS = 3;
       NOTETYPE = 4;
+      NOTE_CARDS = 13;
       CARD_MOD = 5;
       CARD_REPS = 6;
       CARD_DUE = 7;

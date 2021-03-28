@@ -32,7 +32,6 @@ from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
-    TR,
     KeyboardModifiersPressed,
     qtMenuShortcutWorkaround,
     restoreHeader,
@@ -330,15 +329,15 @@ class Table:
         if self.is_card_state():
             main = self.browser.form.menu_Cards
             other = self.browser.form.menu_Notes
-            other_name = TR.QT_ACCEL_NOTES
+            other_name = tr.qt_accel_notes()
         else:
             main = self.browser.form.menu_Notes
             other = self.browser.form.menu_Cards
-            other_name = TR.QT_ACCEL_CARDS
+            other_name = tr.qt_accel_cards()
         for action in main.actions():
             menu.addAction(action)
         menu.addSeparator()
-        sub_menu = menu.addMenu(tr(other_name))
+        sub_menu = menu.addMenu(other_name)
         for action in other.actions():
             sub_menu.addAction(action)
         gui_hooks.browser_will_show_context_menu(self.browser, menu)
@@ -728,12 +727,13 @@ class NoteState(ItemState):
             ("noteMod", tr.search_note_modified()),
             ("noteTags", tr.editing_tags()),
             ("note", tr.browsing_note()),
+            ("noteCards", tr.qt_accel_cards().replace("&", "")),
         ]
         self._columns.sort(key=itemgetter(1))
 
     def _load_active_columns(self) -> None:
         self._active_columns = self.col.get_config(
-            "activeNoteCols", ["noteFld", "note", "noteTags", "noteMod"]
+            "activeNoteCols", ["noteFld", "note", "noteCards", "noteTags"]
         )
 
     @property

@@ -92,7 +92,8 @@ impl SortKind {
             | SortKind::NoteMod
             | SortKind::NoteField
             | SortKind::Notetype
-            | SortKind::NoteTags => RequiredTable::Notes,
+            | SortKind::NoteTags
+            | SortKind::NoteCards => RequiredTable::Notes,
             SortKind::CardTemplate => RequiredTable::CardsAndNotes,
             SortKind::CardMod
             | SortKind::CardReps
@@ -242,6 +243,7 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
             "(select pos from sort_order where ntid = n.mid and ord = 0)) asc"
         )
         .into(),
+        _ => "".into(),
     }
 }
 
@@ -252,13 +254,14 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
         SortKind::NoteField => "n.sfld collate nocase asc".into(),
         SortKind::NoteTags => "n.tags asc".into(),
         SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
+        SortKind::NoteCards => "(select pos from sort_order where nid = n.id) asc".into(),
         _ => "".into(),
     }
 }
 
 fn needs_aux_sort_table(kind: SortKind) -> bool {
     use SortKind::*;
-    matches!(kind, CardDeck | Notetype | CardTemplate)
+    matches!(kind, CardDeck | Notetype | CardTemplate | NoteCards)
 }
 
 fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
@@ -271,6 +274,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
         CardDeck => include_str!("deck_order.sql"),
         Notetype => include_str!("notetype_order.sql"),
         CardTemplate => include_str!("template_order.sql"),
+        NoteCards => include_str!("note_cards_order.sql"),
         _ => unreachable!(),
     };
 

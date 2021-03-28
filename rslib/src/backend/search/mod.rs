@@ -102,6 +102,7 @@ impl From<SortKindProto> for SortKind {
             SortKindProto::NoteField => SortKind::NoteField,
             SortKindProto::NoteTags => SortKind::NoteTags,
             SortKindProto::Notetype => SortKind::Notetype,
+            SortKindProto::NoteCards => SortKind::NoteCards,
             SortKindProto::CardMod => SortKind::CardMod,
             SortKindProto::CardReps => SortKind::CardReps,
             SortKindProto::CardDue => SortKind::CardDue,
