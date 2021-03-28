@@ -1154,7 +1154,7 @@ class EditorWebView(AnkiWebView):
         )
         if KeyboardModifiersPressed().shift:
             strip_html = not strip_html
-        return strip_html
+        return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
         extended = self._wantsExtendedPaste()
