@@ -103,4 +103,9 @@ jest_test(
         "//ts:package.json",
         "@npm//protobufjs",
     ],
+    target_compatible_with = select({
+        "@platforms//os:osx": [],
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//os:linux"],
+    }),
 )
