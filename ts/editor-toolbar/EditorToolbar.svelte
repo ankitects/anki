@@ -1,46 +1,8 @@
 <script lang="typescript">
     import ButtonGroup from "./ButtonGroup.svelte";
+    import type { Buttons } from "./ButtonGroup.svelte";
 
-    import LabelButton from "./LabelButton.svelte";
-    import IconButton from "./IconButton.svelte";
-
-    import bracketsIcon from "./code-brackets.svg";
-
-    import paperclipIcon from "./paperclip.svg";
-    import micIcon from "./mic.svg";
-    import threeDotsIcon from "./three-dots.svg";
-
-    import {
-        boldButton,
-        italicButton,
-        underlineButton,
-        superscriptButton,
-        subscriptButton,
-        eraserButton,
-    } from "./format";
-    import { forecolorButton, colorpickerButton } from "./color";
-
-    export let buttons = [
-        [
-            { component: LabelButton, label: "Fields..." },
-            { component: LabelButton, label: "Cards..." },
-        ],
-        [
-            boldButton,
-            italicButton,
-            underlineButton,
-            superscriptButton,
-            subscriptButton,
-            eraserButton,
-        ],
-        [forecolorButton, colorpickerButton],
-        [
-            { component: IconButton, icon: bracketsIcon },
-            { component: IconButton, icon: paperclipIcon },
-            { component: IconButton, icon: micIcon },
-            { component: IconButton, icon: threeDotsIcon },
-        ],
-    ];
+    export let buttons: Buttons = [];
     export let nightMode: boolean;
 
     console.log(nightMode);
@@ -58,6 +20,18 @@
         padding: 2px;
 
         background: var(--bg-color);
+        border-bottom: 1px solid var(--border);
+
+        /* Remove most outer marigns */
+        & > :global(ul) {
+            & > :global(li:nth-child(1)) {
+                margin-left: 0;
+            }
+
+            & > :global(li:nth-last-child(1)) {
+                margin-right: 0;
+            }
+        }
     }
 </style>
 
