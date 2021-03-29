@@ -2,11 +2,23 @@
     import ButtonBarOuter from "./ButtonBarOuter.svelte";
     import ButtonBar from "./ButtonBar.svelte";
 
-    import LeftButton from "./LeftButton.svelte";
-    import RightButton from "./RightButton.svelte";
+    import LabelButton from "./LabelButton.svelte";
+    import IconButton from "./IconButton.svelte";
 
-    export let leftButtons = ["Fields...", "Cards..."];
-    export let rightButtons = ["bi bi-type-bold", "bi bi-pin-angle"];
+    import boldIcon from "./type-bold.svg";
+    import italicIcon from "./type-italic.svg";
+    import underlineIcon from "./type-underline.svg";
+
+    export let leftButtons = [
+        { component: LabelButton, label: "Fields..." },
+        { component: LabelButton, label: "Cards..." },
+    ];
+
+    export let rightButtons = [
+        { component: IconButton, icon: boldIcon },
+        { component: IconButton, icon: italicIcon },
+        { component: IconButton, icon: underlineIcon },
+    ];
     export let nightMode: boolean;
 
     console.log(nightMode);
@@ -15,13 +27,13 @@
 <ButtonBarOuter>
     <ButtonBar>
         {#each leftButtons as leftButton}
-            <LeftButton>{leftButton}</LeftButton>
+            <svelte:component this={leftButton.component} {...leftButton} />
         {/each}
     </ButtonBar>
 
     <ButtonBar>
         {#each rightButtons as rightButton}
-            <RightButton className={rightButton} />
+            <svelte:component this={rightButton.component} {...rightButton} />
         {/each}
     </ButtonBar>
 </ButtonBarOuter>
