@@ -736,7 +736,7 @@ class NoteState(ItemState):
 
     def _load_active_columns(self) -> None:
         self._active_columns = self.col.get_config(
-            "activeNoteCols", ["noteFld", "note", "noteCards", "noteTags"]
+            "activeNoteCols", ["noteFld", "note", "noteTags", "noteMod"]
         )
 
     @property
