@@ -133,15 +133,18 @@ button.highlighted {
     }
 }
 
-.icon {
-    cursor: pointer;
-    color: var(--text-fg);
+.icon > svg {
+    fill: var(--text-fg);
+}
 
-    &.is-inactive::before {
+.pin-icon {
+    cursor: pointer;
+
+    &.is-inactive {
         opacity: 0.1;
     }
 
-    &.icon--hover::before {
+    &.icon--hover {
         opacity: 0.5;
     }
 }
