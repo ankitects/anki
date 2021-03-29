@@ -3,7 +3,7 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_bootstrap_icons")
+load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 
 svelte_files = glob(["*.svelte"])
 
@@ -45,6 +45,20 @@ copy_bootstrap_icons(
         "type-bold.svg",
         "type-italic.svg",
         "type-underline.svg",
+        "eraser.svg",
+        "square-fill.svg",
+        "paperclip.svg",
+        "mic.svg",
+        "three-dots.svg",
+    ],
+)
+
+copy_mdi_icons(
+    name = "mdi-icons",
+    icons = [
+        "format-superscript.svg",
+        "format-subscript.svg",
+        "code-brackets.svg",
     ],
 )
 
@@ -71,6 +85,7 @@ esbuild(
         "//ts/sass:core_css",
         "//ts:image_module_support",
         "bootstrap-icons",
+        "mdi-icons",
     ] + svelte_names,
 )
 
