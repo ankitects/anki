@@ -10,10 +10,6 @@ button.linkb {
         opacity: 0.3;
         cursor: not-allowed;
     }
-
-    .nightMode & > img {
-        filter: invert(180);
-    }
 }
 
 button:focus {
@@ -26,15 +22,6 @@ button.highlighted {
 
         .nightMode & {
             background: linear-gradient(0deg, #333333 0%, #434343 100%);
-        }
-    }
-
-    #topbutsright & {
-        border-bottom: 3px solid black;
-        border-radius: 3px;
-
-        .nightMode & {
-            border-bottom-color: white;
         }
     }
 }
