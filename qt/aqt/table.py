@@ -48,8 +48,7 @@ class SearchContext:
     search: str
     browser: aqt.browser.Browser
     order: Union[bool, str] = True
-    # if set, provided card ids will be used instead of the regular search
-    # fixme: legacy support for card_ids?
+    # if set, provided ids will be used instead of the regular search
     ids: Optional[Sequence[ItemId]] = None
 
 
