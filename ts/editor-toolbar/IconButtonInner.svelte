@@ -7,8 +7,8 @@
 <style lang="scss">
     button {
         display: inline-block;
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
 
         vertical-align: -webkit-baseline-middle;
         padding: 2px;
@@ -19,14 +19,13 @@
             width: 100%;
             height: 100%;
         }
-    }
 
-    .active {
-        border-bottom: 3px solid black;
-        border-radius: 3px;
+        &:hover {
+            background-color: #eee;
+        }
 
-        :global(.nightMode) & {
-            border-bottom-color: white;
+        &:active, &.active {
+            box-shadow: inset 0 0 10px 3px rgb(0 0 0 / 30%);
         }
     }
 </style>
