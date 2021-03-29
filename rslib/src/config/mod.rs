@@ -275,6 +275,7 @@ pub enum SortKind {
     #[serde(rename = "noteCrt")]
     NoteCreation,
     NoteEase,
+    NoteLapses,
     NoteMod,
     #[serde(rename = "noteFld")]
     NoteField,
