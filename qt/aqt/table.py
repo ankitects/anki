@@ -417,7 +417,8 @@ class Table:
             current = current or rows[0]
             self._select_rows(rows)
             self._set_current(current)
-            self._scroll_to_row(current)
+            # editor may pop up and hide the row later on
+            QTimer.singleShot(100, lambda: self._scroll_to_row(current))
         if self.len_selection() == 0:
             # no row change will fire
             self.browser.onRowChanged(QItemSelection(), QItemSelection())
@@ -462,8 +463,9 @@ class Table:
 
     def _scroll_to_row(self, row: int) -> None:
         """Scroll vertically to row."""
-        position = self._view.rowViewportPosition(row)
-        visible = 0 <= position < self._view.viewport().height()
+        top_border = self._view.rowViewportPosition(row)
+        bottom_border = top_border + self._view.rowHeight(0)
+        visible = top_border >= 0 and bottom_border < self._view.viewport().height()
         if not visible:
             horizontal = self._view.horizontalScrollBar().value()
             self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtCenter)
