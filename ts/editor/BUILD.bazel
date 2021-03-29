@@ -34,11 +34,14 @@ copy_bootstrap_icons(
 
 esbuild(
     name = "editor",
+    args = [
+        "--loader:.svg=text",
+    ],
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
-        "editor_ts",
         "bootstrap-icons",
+        "editor_ts",
     ],
 )
 
