@@ -6,8 +6,12 @@
 
 <style lang="scss">
     button {
+        display: inline-block;
+        vertical-align: middle;
+        width: auto;
+        height: 30px;
+
         padding: 3px 10px;
-        vertical-align: -0.425em;
         margin-right: 3px;
 
         &:focus {

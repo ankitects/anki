@@ -1,5 +1,5 @@
 <script lang="typescript">
-    export let className: string = '';
+    export let className: string = "";
     export let onClick: (event: ClickEvent) => void;
     export let active = false;
     export let disabled = false;
@@ -8,12 +8,11 @@
 <style lang="scss">
     button {
         display: inline-block;
-
+        vertical-align: middle;
         width: 30px;
         height: 30px;
 
         background-color: white;
-        vertical-align: -webkit-baseline-middle;
 
         & > :global(svg),
         & > :global(img) {
@@ -26,7 +25,8 @@
             background-color: #eee;
         }
 
-        &:active, &.active {
+        &:active,
+        &.active {
             box-shadow: inset 0 0 10px 3px rgb(0 0 0 / 30%);
         }
 
@@ -37,7 +37,8 @@
                 background-color: white;
             }
 
-            &:active, &.active {
+            &:active,
+            &.active {
                 box-shadow: none;
             }
         }
@@ -49,7 +50,6 @@
     class:active
     {disabled}
     on:click={onClick}
-    on:mousedown|preventDefault
->
+    on:mousedown|preventDefault>
     <slot />
 </button>
