@@ -39,7 +39,7 @@ from aqt.utils import (
     tr,
 )
 
-Item = Union[CardId, NoteId]
+ItemId = Union[CardId, NoteId]
 ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 
 
@@ -50,7 +50,7 @@ class SearchContext:
     order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
     # fixme: legacy support for card_ids?
-    ids: Optional[Sequence[Item]] = None
+    ids: Optional[Sequence[ItemId]] = None
 
 
 class Table:
@@ -66,8 +66,8 @@ class Table:
         )
         self._model = DataModel(self.col, self._state)
         self._view: Optional[QTableView] = None
-        self._current_item: Optional[Item] = None
-        self._selected_items: Sequence[Item] = []
+        self._current_item: Optional[ItemId] = None
+        self._selected_items: Sequence[ItemId] = []
 
     def set_view(self, view: QTableView) -> None:
         self._view = view
@@ -531,12 +531,12 @@ class ItemState(ABC):
 
     # Stateless Helpers
 
-    def note_ids_from_card_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
+    def note_ids_from_card_ids(self, items: Sequence[ItemId]) -> Sequence[NoteId]:
         return self.col.db.list(
             f"select distinct nid from cards where id in {ids2str(items)}"
         )
 
-    def card_ids_from_note_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
+    def card_ids_from_note_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
     # Columns and sorting
@@ -572,29 +572,29 @@ class ItemState(ABC):
     # Get objects
 
     @abstractmethod
-    def get_card(self, item: Item) -> Card:
+    def get_card(self, item: ItemId) -> Card:
         """Return the item if it's a card or its first card if it's a note."""
 
     @abstractmethod
-    def get_note(self, item: Item) -> Note:
+    def get_note(self, item: ItemId) -> Note:
         """Return the item if it's a note or its note if it's a card."""
 
     # Get ids
 
     @abstractmethod
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[Item]:
+    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
         """Return the item ids fitting the given search and order."""
 
     @abstractmethod
-    def get_item_from_card_id(self, card: CardId) -> Item:
+    def get_item_from_card_id(self, card: CardId) -> ItemId:
         """Return the appropriate item id for a card id."""
 
     @abstractmethod
-    def get_card_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
+    def get_card_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         """Return the card ids for the given item ids."""
 
     @abstractmethod
-    def get_note_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
+    def get_note_ids(self, items: Sequence[ItemId]) -> Sequence[NoteId]:
         """Return the note ids for the given item ids."""
 
     # Toggle
@@ -604,12 +604,12 @@ class ItemState(ABC):
         """Return an instance of the other state."""
 
     @abstractmethod
-    def get_new_item(self, old_item: Item) -> Item:
+    def get_new_item(self, old_item: ItemId) -> ItemId:
         """Given an id from the other state, return the corresponding id for
         this state."""
 
     @abstractmethod
-    def get_new_items(self, old_items: Sequence[Item]) -> ItemList:
+    def get_new_items(self, old_items: Sequence[ItemId]) -> ItemList:
         """Given a list of ids from the other state, return the corresponding
         ids for this state."""
 
@@ -682,31 +682,31 @@ class CardState(ItemState):
         self.col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, order)
         self._sort_backwards = order
 
-    def get_card(self, item: Item) -> Card:
+    def get_card(self, item: ItemId) -> Card:
         return self.col.get_card(CardId(item))
 
-    def get_note(self, item: Item) -> Note:
+    def get_note(self, item: ItemId) -> Note:
         return self.get_card(item).note()
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[Item]:
+    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
         return self.col.find_cards(search, order)
 
-    def get_item_from_card_id(self, card: CardId) -> Item:
+    def get_item_from_card_id(self, card: CardId) -> ItemId:
         return card
 
-    def get_card_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
+    def get_card_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return cast(Sequence[CardId], items)
 
-    def get_note_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
+    def get_note_ids(self, items: Sequence[ItemId]) -> Sequence[NoteId]:
         return super().note_ids_from_card_ids(items)
 
     def toggle_state(self) -> NoteState:
         return NoteState(self.col)
 
-    def get_new_item(self, old_item: Item) -> CardId:
+    def get_new_item(self, old_item: ItemId) -> CardId:
         return super().card_ids_from_note_ids([old_item])[0]
 
-    def get_new_items(self, old_items: Sequence[Item]) -> Sequence[CardId]:
+    def get_new_items(self, old_items: Sequence[ItemId]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(old_items)
 
 
@@ -770,31 +770,31 @@ class NoteState(ItemState):
         self.col.set_config_bool(Config.Bool.BROWSER_NOTE_SORT_BACKWARDS, order)
         self._sort_backwards = order
 
-    def get_card(self, item: Item) -> Card:
+    def get_card(self, item: ItemId) -> Card:
         return self.get_note(item).cards()[0]
 
-    def get_note(self, item: Item) -> Note:
+    def get_note(self, item: ItemId) -> Note:
         return self.col.get_note(NoteId(item))
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[Item]:
+    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
         return self.col.find_notes(search, order)
 
-    def get_item_from_card_id(self, card: CardId) -> Item:
+    def get_item_from_card_id(self, card: CardId) -> ItemId:
         return self.get_card(card).note().id
 
-    def get_card_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
+    def get_card_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(items)
 
-    def get_note_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
+    def get_note_ids(self, items: Sequence[ItemId]) -> Sequence[NoteId]:
         return cast(Sequence[NoteId], items)
 
     def toggle_state(self) -> CardState:
         return CardState(self.col)
 
-    def get_new_item(self, old_item: Item) -> NoteId:
+    def get_new_item(self, old_item: ItemId) -> NoteId:
         return super().note_ids_from_card_ids([old_item])[0]
 
-    def get_new_items(self, old_items: Sequence[Item]) -> Sequence[NoteId]:
+    def get_new_items(self, old_items: Sequence[ItemId]) -> Sequence[NoteId]:
         return super().note_ids_from_card_ids(old_items)
 
 
@@ -864,7 +864,7 @@ class DataModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
         self._state: ItemState = state
-        self._items: Sequence[Item] = []
+        self._items: Sequence[ItemId] = []
         self._rows: Dict[int, CellRow] = {}
         self._last_refresh = 0.0
         # serve stale content to avoid hitting the DB?
@@ -956,10 +956,10 @@ class DataModel(QAbstractTableModel):
 
     # Get items (card or note ids depending on state)
 
-    def get_item(self, index: QModelIndex) -> Item:
+    def get_item(self, index: QModelIndex) -> ItemId:
         return self._items[index.row()]
 
-    def get_items(self, indices: List[QModelIndex]) -> Sequence[Item]:
+    def get_items(self, indices: List[QModelIndex]) -> Sequence[ItemId]:
         return [self.get_item(index) for index in indices]
 
     def get_card_ids(self, indices: List[QModelIndex]) -> Sequence[CardId]:
@@ -970,13 +970,13 @@ class DataModel(QAbstractTableModel):
 
     # Get row numbers from items
 
-    def get_item_row(self, item: Item) -> Optional[int]:
+    def get_item_row(self, item: ItemId) -> Optional[int]:
         for row, i in enumerate(self._items):
             if i == item:
                 return row
         return None
 
-    def get_item_rows(self, items: Sequence[Item]) -> List[int]:
+    def get_item_rows(self, items: Sequence[ItemId]) -> List[int]:
         rows = []
         for row, i in enumerate(self._items):
             if i in items:
