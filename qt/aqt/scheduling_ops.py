@@ -54,7 +54,9 @@ def set_due_date_dialog(
     )
 
 
-def forget_cards(*, mw: aqt.AnkiQt, parent: QWidget, card_ids: Sequence[CardId]) -> None:
+def forget_cards(
+    *, mw: aqt.AnkiQt, parent: QWidget, card_ids: Sequence[CardId]
+) -> None:
     if not card_ids:
         return
 
