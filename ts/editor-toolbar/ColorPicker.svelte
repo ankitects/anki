@@ -8,10 +8,10 @@
 <style lang="scss">
     button {
         display: inline-block;
+        vertical-align: middle;
         width: 30px;
         height: 30px;
 
-        vertical-align: -webkit-baseline-middle;
         padding: 0;
     }
 
