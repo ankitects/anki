@@ -6,10 +6,9 @@
 //! in the source tree can be found. If not set (when building from cargo), the script
 //! will look in the parent folders instead.
 //! - RSLIB_FTL_ROOT should be set to the l10n.toml file inside the core translation repo.
-//! - EXTRA_FTL_ROOT should be set to the l10n.toml file inside the qt translation repo.
-//! - If NO_QT_TEMPLATES is set, EXTRA_FTL_ROOT can be pointed at a l10n.toml file in a separate
-//! location, to include files from there. In this case, the standard Qt templates will not
-//! be included from the source tree.
+//! - EXTRA_FTL_ROOT should normally be set to the l10n.toml file inside the qt translation
+//! repo. If it is pointed at a different location, the Qt translations will be excluded
+//! and the provided translations embedded instead.
 
 use std::path::Path;
 use std::{collections::HashMap, env};
@@ -21,14 +20,10 @@ pub type TranslationsByLang = HashMap<String, TranslationsByFile>;
 /// Read the contents of the FTL files into a TranslationMap structure.
 pub fn get_ftl_data() -> TranslationsByLang {
     let mut map = TranslationsByLang::default();
-    let include_qt = include_local_qt_templates();
 
     // English templates first
     let ftl_base = source_tree_root();
     add_folder(&mut map, &ftl_base.join("core"), "templates");
-    if include_qt {
-        add_folder(&mut map, &ftl_base.join("qt"), "templates");
-    }
 
     // Core translations provided?
     if let Some(path) = core_ftl_root() {
@@ -37,7 +32,11 @@ pub fn get_ftl_data() -> TranslationsByLang {
 
     // Extra templates/translations provided?
     if let Some(path) = extra_ftl_root() {
-        add_translation_root(&mut map, &path, include_qt);
+        let add_qt_templates = extra_ftl_is_desktop(&path);
+        if add_qt_templates {
+            add_folder(&mut map, &ftl_base.join("qt"), "templates");
+        }
+        add_translation_root(&mut map, &path, add_qt_templates);
     }
 
     map
@@ -77,12 +76,13 @@ fn add_translation_root(map: &mut TranslationsByLang, root: &Path, ignore_templa
     }
 }
 
-/// In a standard build, the ftl/qt folder is used as the source
-/// of truth for @extra_ftl, making it easier to add new strings.
-/// If the Qt templates are not desired, the NO_QT_TEMPLATES env
-/// var can be set to skip them.
-fn include_local_qt_templates() -> bool {
-    env::var("NO_QT_TEMPLATES").is_err()
+/// True if @extra_ftl points to the standard Qt translations,
+/// which have a desktop/ folder.
+fn extra_ftl_is_desktop(extra_ftl_root: &Path) -> bool {
+    extra_ftl_root
+        .file_name()
+        .map(|fname| fname == "desktop")
+        .unwrap_or_default()
 }
 
 fn source_tree_root() -> PathBuf {
