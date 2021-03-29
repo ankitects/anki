@@ -163,7 +163,7 @@ impl From<String> for Variable {
         let kind = match name.as_str() {
             "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
             | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"
-            | "hourStart" | "hourEnd" | "correct" => VariableKind::Int,
+            | "hourStart" | "hourEnd" | "correct" | "decks" => VariableKind::Int,
             "average-seconds" | "cards-per-minute" => VariableKind::Float,
             "val" | "found" | "expected" | "part" | "percent" | "day" | "number" | "up"
             | "down" | "seconds" | "megs" => VariableKind::Any,
@@ -171,6 +171,8 @@ impl From<String> for Variable {
                 let term = term.to_ascii_lowercase();
                 if term.ends_with("count") {
                     VariableKind::Int
+                } else if term.starts_with("num") {
+                    VariableKind::Any
                 } else {
                     VariableKind::String
                 }
