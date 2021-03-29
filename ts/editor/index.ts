@@ -111,8 +111,10 @@ export function setFields(fields: [string, string][]): void {
         .getPropertyValue("--text-fg");
 
     adjustFieldAmount(fields.length);
-    forEditorField(fields, (field, [name, fieldContent]) =>
-        field.initialize(name, color, fieldContent)
+    forEditorField(
+        fields,
+        (field: EditorField, [name, fieldContent]: [string, string]): void =>
+            field.initialize(name, color, fieldContent)
     );
 
     if (!getCurrentField()) {
@@ -122,7 +124,7 @@ export function setFields(fields: [string, string][]): void {
 }
 
 export function setBackgrounds(cols: ("dupe" | "")[]): void {
-    forEditorField(cols, (field, value) =>
+    forEditorField(cols, (field: EditorField, value: "dupe" | "") =>
         field.editingArea.classList.toggle("dupe", value === "dupe")
     );
     document
@@ -131,13 +133,19 @@ export function setBackgrounds(cols: ("dupe" | "")[]): void {
 }
 
 export function setFonts(fonts: [string, number, boolean][]): void {
-    forEditorField(fonts, (field, [fontFamily, fontSize, isRtl]) => {
-        field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
-    });
+    forEditorField(
+        fonts,
+        (
+            field: EditorField,
+            [fontFamily, fontSize, isRtl]: [string, number, boolean]
+        ) => {
+            field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
+        }
+    );
 }
 
 export function setSticky(stickies: boolean[]): void {
-    forEditorField(stickies, (field, isSticky) => {
+    forEditorField(stickies, (field: EditorField, isSticky: boolean) => {
         field.labelContainer.activateSticky(isSticky);
     });
 }
