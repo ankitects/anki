@@ -24,7 +24,7 @@ export class EditingArea extends HTMLDivElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
-        this.className = "field";
+        this.className = "field rounded";
 
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");

@@ -1,6 +1,4 @@
 <script lang="typescript">
-    import ButtonItem from "./ButtonItem.svelte";
-
     export let className: string;
     export let onChange: (event: ChangeEvent) => void;
 </script>
@@ -28,8 +26,6 @@
     }
 </style>
 
-<ButtonItem>
-    <button>
-        <span class={className}> <input type="color" on:change={onChange} /> </span>
-    </button>
-</ButtonItem>
+<button>
+    <span class={className}> <input type="color" on:change={onChange} /> </span>
+</button>
