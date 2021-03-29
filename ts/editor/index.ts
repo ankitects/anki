@@ -92,6 +92,10 @@ export function getEditorField(n: number): EditorField | null {
     return (fields[n] as EditorField) ?? null;
 }
 
+/// forEachEditorFieldAndProvidedValue:
+/// Values should be a list with the same length as the
+/// number of fields. Func will be called with each field and
+/// value in turn.
 export function forEditorField<T>(
     values: T[],
     func: (field: EditorField, value: T) => void
