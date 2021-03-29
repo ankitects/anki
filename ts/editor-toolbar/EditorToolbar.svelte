@@ -22,14 +22,11 @@
     } from "./format";
     import { forecolorButton, colorpickerButton } from "./color";
 
-    export let leftButtons = [
+    export let buttons = [
         [
             { component: LabelButton, label: "Fields..." },
             { component: LabelButton, label: "Cards..." },
         ],
-    ];
-
-    export let rightButtons = [
         [
             boldButton,
             italicButton,
@@ -53,20 +50,10 @@
 
 <ButtonBarOuter>
     <ButtonBar>
-        {#each leftButtons as leftGroup}
+        {#each buttons as group}
             <ButtonGroup>
-                {#each leftGroup as leftButton}
-                    <svelte:component this={leftButton.component} {...leftButton} />
-                {/each}
-            </ButtonGroup>
-        {/each}
-    </ButtonBar>
-
-    <ButtonBar>
-        {#each rightButtons as rightGroup}
-            <ButtonGroup>
-                {#each rightGroup as rightButton}
-                    <svelte:component this={rightButton.component} {...rightButton} />
+                {#each group as button}
+                    <svelte:component this={button.component} {...button} />
                 {/each}
             </ButtonGroup>
         {/each}

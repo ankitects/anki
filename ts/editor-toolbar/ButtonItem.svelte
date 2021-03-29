@@ -1,6 +1,7 @@
 <style lang="scss">
     li {
-        display: inline;
+        display: inline-block;
+        margin-bottom: 2px;
     }
 </style>
 
