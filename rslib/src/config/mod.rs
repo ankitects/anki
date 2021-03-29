@@ -278,6 +278,7 @@ pub enum SortKind {
     NoteMod,
     #[serde(rename = "noteFld")]
     NoteField,
+    NoteReps,
     #[serde(rename = "note")]
     Notetype,
     NoteTags,
