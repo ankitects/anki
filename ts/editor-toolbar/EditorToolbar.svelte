@@ -14,10 +14,11 @@
     import bracketsIcon from "./code-brackets.svg";
 
     import eraserIcon from "./eraser.svg";
-    import squareFillIcon from "./square-fill.svg";
     import paperclipIcon from "./paperclip.svg";
     import micIcon from "./mic.svg";
     import threeDotsIcon from "./three-dots.svg";
+
+    import { forecolorButton, colorpickerButton } from "./color";
 
     export let leftButtons = [
         { component: LabelButton, label: "Fields..." },
@@ -33,8 +34,9 @@
         { component: IconButton, icon: subscriptIcon },
 
         { component: IconButton, icon: eraserIcon },
-        { component: IconButton, icon: squareFillIcon },
-        { component: IconButton, icon: squareFillIcon },
+
+        forecolorButton,
+        colorpickerButton,
 
         { component: IconButton, icon: bracketsIcon },
         { component: IconButton, icon: paperclipIcon },

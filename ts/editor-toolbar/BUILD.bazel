@@ -3,6 +3,7 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 
 svelte_files = glob(["*.svelte"])
@@ -12,6 +13,12 @@ svelte_names = [f.replace(".svelte", "") for f in svelte_files]
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
+)
+
+sass_binary(
+    name = "color_css",
+    src = "color.scss",
+    visibility = ["//visibility:public"],
 )
 
 ts_library(
@@ -35,6 +42,7 @@ ts_library(
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
+        "//ts:image_module_support",
         "@npm//svelte",
     ],
 )
@@ -86,6 +94,7 @@ esbuild(
         "//ts:image_module_support",
         "bootstrap-icons",
         "mdi-icons",
+        ":color_css",
     ] + svelte_names,
 )
 
