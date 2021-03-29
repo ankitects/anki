@@ -93,8 +93,8 @@ class Table:
     def has_next(self) -> bool:
         return self.has_current() and self._current().row() < self.len() - 1
 
-    def is_card_state(self) -> bool:
-        return self._state.is_card_state()
+    def is_notes_mode(self) -> bool:
+        return self._state.is_notes_mode()
 
     # Get objects
 
@@ -193,15 +193,15 @@ class Table:
         self._model.search(SearchContext(search=txt, browser=self.browser))
         self._restore_selection(self._intersected_selection)
 
-    def toggle_state(self, is_card_state: bool, last_search: str) -> None:
-        if is_card_state == self.is_card_state():
+    def toggle_state(self, is_notes_mode: bool, last_search: str) -> None:
+        if is_notes_mode == self.is_notes_mode():
             return
         self._save_selection()
         self._state = self._model.toggle_state(
             SearchContext(search=last_search, browser=self.browser)
         )
         self.col.set_config_bool(
-            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, not self.is_card_state()
+            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, self.is_notes_mode()
         )
         self._set_sort_indicator()
         self._set_column_sizes()
@@ -327,14 +327,14 @@ class Table:
 
     def _on_context_menu(self, _point: QPoint) -> None:
         menu = QMenu()
-        if self.is_card_state():
-            main = self.browser.form.menu_Cards
-            other = self.browser.form.menu_Notes
-            other_name = tr.qt_accel_notes()
-        else:
+        if self.is_notes_mode():
             main = self.browser.form.menu_Notes
             other = self.browser.form.menu_Cards
             other_name = tr.qt_accel_cards()
+        else:
+            main = self.browser.form.menu_Cards
+            other = self.browser.form.menu_Notes
+            other_name = tr.qt_accel_notes()
         for action in main.actions():
             menu.addAction(action)
         menu.addSeparator()
@@ -529,9 +529,9 @@ class ItemState(ABC):
     def __init__(self, col: Collection) -> None:
         self.col = col
 
-    def is_card_state(self) -> bool:
-        """Return True if the state is a CardState."""
-        return isinstance(self, CardState)
+    def is_notes_mode(self) -> bool:
+        """Return True if the state is a NoteState."""
+        return isinstance(self, NoteState)
 
     # Stateless Helpers
 
@@ -901,7 +901,7 @@ class DataModel(QAbstractTableModel):
             return CellRow.generic(self.len_columns(), str(e))
 
         gui_hooks.browser_did_fetch_row(
-            item, not self._state.is_card_state(), row, self._state.active_columns
+            item, self._state.is_notes_mode(), row, self._state.active_columns
         )
         return row
 

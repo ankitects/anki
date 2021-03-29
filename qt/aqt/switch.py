@@ -9,7 +9,7 @@ from aqt.theme import theme_manager
 
 class Switch(QAbstractButton):
     """A horizontal slider to toggle between two states which can be denoted by short strings.
-    The left state is the default and corresponds to isChecked=True.
+    The left state is the default and corresponds to isChecked=False.
     """
 
     _margin: int = 2
@@ -23,7 +23,7 @@ class Switch(QAbstractButton):
     ) -> None:
         super().__init__(parent=parent)
         self.setCheckable(True)
-        super().setChecked(True)
+        super().setChecked(False)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self._left_label = left_label
         self._right_label = right_label
@@ -43,15 +43,15 @@ class Switch(QAbstractButton):
 
     @property
     def start_position(self) -> int:
-        return self._right_position if self.isChecked() else self._left_position
-
-    @property
-    def end_position(self) -> int:
         return self._left_position if self.isChecked() else self._right_position
 
     @property
+    def end_position(self) -> int:
+        return self._right_position if self.isChecked() else self._left_position
+
+    @property
     def label(self) -> str:
-        return self._left_label if self.isChecked() else self._right_label
+        return self._right_label if self.isChecked() else self._left_label
 
     def sizeHint(self) -> QSize:
         return QSize(
