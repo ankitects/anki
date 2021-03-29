@@ -1,6 +1,6 @@
 <style lang="scss">
     ul {
-        padding-left: 0;
+        padding-inline-start: 0;
         margin-bottom: 2px;
     }
 </style>
