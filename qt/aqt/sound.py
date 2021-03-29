@@ -494,7 +494,11 @@ def encode_mp3(mw: aqt.AnkiQt, src_wav: str, on_done: Callable[[str], None]) -> 
     dst_mp3 = src_wav.replace(".wav", "%d.mp3" % time.time())
 
     def _on_done(fut: Future) -> None:
-        fut.result()
+        if exc := fut.exception():
+            print(exc)
+            showWarning(tr.editing_couldnt_record_audio_have_you_installed())
+            return
+
         on_done(dst_mp3)
 
     mw.taskman.run_in_background(lambda: _encode_mp3(src_wav, dst_mp3), _on_done)
