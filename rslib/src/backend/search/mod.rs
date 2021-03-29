@@ -24,21 +24,22 @@ impl SearchService for Backend {
         Ok(write_nodes(&node.into_node_list()).into())
     }
 
-    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+    fn search_cards(&self, input: pb::SearchIn) -> Result<pb::SearchOut> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchCardsOut {
-                card_ids: cids.into_iter().map(|v| v.0).collect(),
+            let cids = col.search::<CardId>(&input.search, order)?;
+            Ok(pb::SearchOut {
+                ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
-    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+    fn search_notes(&self, input: pb::SearchIn) -> Result<pb::SearchOut> {
         self.with_col(|col| {
-            let nids = col.search_notes(&input.search)?;
-            Ok(pb::SearchNotesOut {
-                note_ids: nids.into_iter().map(|v| v.0).collect(),
+            let order = input.order.unwrap_or_default().value.into();
+            let nids = col.search::<NoteId>(&input.search, order)?;
+            Ok(pb::SearchOut {
+                ids: nids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
@@ -88,15 +89,17 @@ impl SearchService for Backend {
         })
     }
 
-    fn browser_row_for_card(&self, input: pb::CardId) -> Result<pb::BrowserRow> {
-        self.with_col(|col| col.browser_row_for_card(input.cid.into()).map(Into::into))
+    fn browser_row_for_id(&self, input: pb::Int64) -> Result<pb::BrowserRow> {
+        self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
     }
 }
 
 impl From<SortKindProto> for SortKind {
     fn from(kind: SortKindProto) -> Self {
         match kind {
+            SortKindProto::NoteCards => SortKind::NoteCards,
             SortKindProto::NoteCreation => SortKind::NoteCreation,
+            SortKindProto::NoteEase => SortKind::NoteEase,
             SortKindProto::NoteMod => SortKind::NoteMod,
             SortKindProto::NoteField => SortKind::NoteField,
             SortKindProto::NoteTags => SortKind::NoteTags,
