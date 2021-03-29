@@ -37,6 +37,7 @@ from aqt.scheduling_ops import (
     unsuspend_cards,
 )
 from aqt.sidebar import SidebarTreeView
+from aqt.switch import Switch
 from aqt.table import Table
 from aqt.tag_ops import add_tags, clear_unused_tags, remove_tags_for_notes
 from aqt.utils import (
@@ -374,10 +375,11 @@ class Browser(QMainWindow):
 
     def setup_table(self) -> None:
         self.table = Table(self)
-        self.form.radio_cards.setChecked(self.table.is_card_state())
-        self.form.radio_notes.setChecked(not self.table.is_card_state())
         self.table.set_view(self.form.tableView)
-        qconnect(self.form.radio_cards.toggled, self.on_table_state_changed)
+        switch = Switch(11, tr.browsing_card_initial(), tr.browsing_note_initial())
+        switch.setChecked(self.table.is_card_state())
+        qconnect(switch.toggled, self.on_table_state_changed)
+        self.form.gridLayout.addWidget(switch, 0, 0)
 
     def setupEditor(self) -> None:
         def add_preview_button(leftbuttons: List[str], editor: Editor) -> None:
@@ -430,10 +432,10 @@ class Browser(QMainWindow):
         self._update_flags_menu()
         gui_hooks.browser_did_change_row(self)
 
-    @ensure_editor_saved_on_trigger
-    def on_table_state_changed(self) -> None:
+    @ensure_editor_saved
+    def on_table_state_changed(self, checked: bool) -> None:
         self.mw.progress.start()
-        self.table.toggle_state(self.form.radio_cards.isChecked(), self._lastSearchTxt)
+        self.table.toggle_state(checked, self._lastSearchTxt)
         self.mw.progress.finish()
 
     # Sidebar

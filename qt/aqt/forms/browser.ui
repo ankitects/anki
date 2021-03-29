@@ -91,7 +91,7 @@
           <property name="verticalSpacing">
            <number>0</number>
           </property>
-          <item row="0" column="0">
+          <item row="0" column="1">
            <widget class="QComboBox" name="searchEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -104,30 +104,6 @@
             </property>
             <property name="insertPolicy">
              <enum>QComboBox::NoInsert</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="view_state" stretch="0,1">
-          <property name="bottomMargin">
-           <number>5</number>
-          </property>
-          <item>
-           <widget class="QRadioButton" name="radio_cards">
-            <property name="text">
-             <string>qt_accel_cards</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radio_notes">
-            <property name="text">
-             <string>qt_accel_notes</string>
             </property>
            </widget>
           </item>
