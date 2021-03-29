@@ -1345,7 +1345,7 @@ message SetDeckIn {
 message Config {
   message Bool {
     enum Key {
-      BROWSER_CARD_STATE = 0;
+      BROWSER_TABLE_SHOW_NOTES_MODE = 0;
       BROWSER_SORT_BACKWARDS = 1;
       BROWSER_NOTE_SORT_BACKWARDS = 2;
       PREVIEW_BOTH_SIDES = 3;

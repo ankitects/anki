@@ -60,9 +60,9 @@ class Table:
         self.browser = browser
         self.col: Collection = browser.col
         self._state: ItemState = (
-            CardState(self.col)
-            if self.col.get_config_bool(Config.Bool.BROWSER_CARD_STATE)
-            else NoteState(self.col)
+            NoteState(self.col)
+            if self.col.get_config_bool(Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE)
+            else CardState(self.col)
         )
         self._model = DataModel(self.col, self._state)
         self._view: Optional[QTableView] = None
@@ -201,7 +201,9 @@ class Table:
         self._state = self._model.toggle_state(
             SearchContext(search=last_search, browser=self.browser)
         )
-        self.col.set_config_bool(Config.Bool.BROWSER_CARD_STATE, self.is_card_state())
+        self.col.set_config_bool(
+            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, not self.is_card_state()
+        )
         self._set_sort_indicator()
         self._set_column_sizes()
         self._restore_selection(self._toggled_selection)

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import html
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import aqt
 import aqt.forms

@@ -9,7 +9,7 @@ use strum::IntoStaticStr;
 #[derive(Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum BoolKey {
-    BrowserCardState,
+    BrowserTableShowNotesMode,
     BrowserNoteSortBackwards,
     CardCountsSeparateInactive,
     CollapseCardState,
@@ -62,8 +62,7 @@ impl Collection {
             | BoolKey::FutureDueShowBacklog
             | BoolKey::ShowRemainingDueCountsInStudy
             | BoolKey::CardCountsSeparateInactive
-            | BoolKey::NormalizeNoteText
-            | BoolKey::BrowserCardState => self.get_config_optional(key).unwrap_or(true),
+            | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false
             other => self.get_config_default(other),

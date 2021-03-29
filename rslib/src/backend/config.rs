@@ -15,7 +15,7 @@ use serde_json::Value;
 impl From<BoolKeyProto> for BoolKey {
     fn from(k: BoolKeyProto) -> Self {
         match k {
-            BoolKeyProto::BrowserCardState => BoolKey::BrowserCardState,
+            BoolKeyProto::BrowserTableShowNotesMode => BoolKey::BrowserTableShowNotesMode,
             BoolKeyProto::BrowserSortBackwards => BoolKey::BrowserSortBackwards,
             BoolKeyProto::BrowserNoteSortBackwards => BoolKey::BrowserNoteSortBackwards,
             BoolKeyProto::PreviewBothSides => BoolKey::PreviewBothSides,
