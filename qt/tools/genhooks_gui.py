@@ -386,7 +386,7 @@ hooks = [
     ),
     Hook(
         name="browser_will_search",
-        args=["context: aqt.browser.SearchContext"],
+        args=["context: aqt.table.SearchContext"],
         doc="""Allows you to modify the search text, or perform your own search.
          
          You can modify context.search to change the text that is sent to the
@@ -401,12 +401,12 @@ hooks = [
     ),
     Hook(
         name="browser_did_search",
-        args=["context: aqt.browser.SearchContext"],
+        args=["context: aqt.table.SearchContext"],
         doc="""Allows you to modify the list of returned card ids from a search.""",
     ),
     Hook(
         name="browser_did_fetch_row",
-        args=["card_id: int", "row: aqt.browser.CellRow", "columns: Sequence[str]"],
+        args=["card_id: int", "row: aqt.table.CellRow", "columns: Sequence[str]"],
         doc="""Allows you to add or modify content to a row in the browser.
         
         You can mutate the row object to change what is displayed. Any columns the

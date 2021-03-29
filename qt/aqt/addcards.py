@@ -38,6 +38,7 @@ class AddCards(QDialog):
         QDialog.__init__(self, None, Qt.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
+        self.col = mw.col
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(tr.actions_add())
@@ -59,7 +60,7 @@ class AddCards(QDialog):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
 
     def setup_choosers(self) -> None:
-        defaults = self.mw.col.defaults_for_adding(
+        defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
         self.notetype_chooser = NotetypeChooser(
@@ -112,7 +113,7 @@ class AddCards(QDialog):
 
     def on_notetype_change(self, notetype_id: NotetypeId) -> None:
         # need to adjust current deck?
-        if deck_id := self.mw.col.default_deck_for_notetype(notetype_id):
+        if deck_id := self.col.default_deck_for_notetype(notetype_id):
             self.deck_chooser.selected_deck_id = deck_id
 
         # only used for detecting changed sticky fields on close
@@ -151,8 +152,8 @@ class AddCards(QDialog):
         self.setAndFocusNote(note)
 
     def _new_note(self) -> Note:
-        return self.mw.col.new_note(
-            self.mw.col.models.get(self.notetype_chooser.selected_notetype_id)
+        return self.col.new_note(
+            self.col.models.get(self.notetype_chooser.selected_notetype_id)
         )
 
     def addHistory(self, note: Note) -> None:
@@ -163,8 +164,8 @@ class AddCards(QDialog):
     def onHistory(self) -> None:
         m = QMenu(self)
         for nid in self.history:
-            if self.mw.col.findNotes(SearchNode(nid=nid)):
-                note = self.mw.col.get_note(nid)
+            if self.col.find_notes(self.col.build_search_string(SearchNode(nid=nid))):
+                note = self.col.get_note(nid)
                 fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:

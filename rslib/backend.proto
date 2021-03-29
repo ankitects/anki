@@ -237,12 +237,12 @@ service TagsService {
 
 service SearchService {
   rpc BuildSearchString(SearchNode) returns (String);
-  rpc SearchCards(SearchCardsIn) returns (SearchCardsOut);
-  rpc SearchNotes(SearchNotesIn) returns (SearchNotesOut);
+  rpc SearchCards(SearchIn) returns (SearchOut);
+  rpc SearchNotes(SearchIn) returns (SearchOut);
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
-  rpc BrowserRowForCard(CardId) returns (BrowserRow);
+  rpc BrowserRowForId(Int64) returns (BrowserRow);
 }
 
 service StatsService {
@@ -795,31 +795,33 @@ message OpenCollectionIn {
   string log_path = 4;
 }
 
-message SearchCardsIn {
+message SearchIn {
   string search = 1;
   SortOrder order = 2;
 }
 
-message SearchCardsOut {
-  repeated int64 card_ids = 1;
+message SearchOut {
+  repeated int64 ids = 1;
 }
 
 message SortOrder {
   message Builtin {
     enum Kind {
-      NOTE_CREATION = 0;
-      NOTE_MOD = 1;
-      NOTE_FIELD = 2;
-      NOTE_TAGS = 3;
-      NOTETYPE = 4;
-      CARD_MOD = 5;
-      CARD_REPS = 6;
-      CARD_DUE = 7;
-      CARD_EASE = 8;
-      CARD_LAPSES = 9;
-      CARD_INTERVAL = 10;
-      CARD_DECK = 11;
-      CARD_TEMPLATE = 12;
+      NOTE_CARDS = 0;
+      NOTE_CREATION = 1;
+      NOTE_EASE = 2;
+      NOTE_MOD = 3;
+      NOTE_FIELD = 4;
+      NOTE_TAGS = 5;
+      NOTETYPE = 6;
+      CARD_MOD = 7;
+      CARD_REPS = 8;
+      CARD_DUE = 9;
+      CARD_EASE = 10;
+      CARD_LAPSES = 11;
+      CARD_INTERVAL = 12;
+      CARD_DECK = 13;
+      CARD_TEMPLATE = 14;
     }
     Kind kind = 1;
     bool reverse = 2;
@@ -830,14 +832,6 @@ message SortOrder {
     string custom = 3;
     Builtin builtin = 4;
   }
-}
-
-message SearchNotesIn {
-  string search = 1;
-}
-
-message SearchNotesOut {
-  repeated int64 note_ids = 2;
 }
 
 message SearchNode {
@@ -1351,22 +1345,24 @@ message SetDeckIn {
 message Config {
   message Bool {
     enum Key {
-      BROWSER_SORT_BACKWARDS = 0;
-      PREVIEW_BOTH_SIDES = 1;
-      COLLAPSE_TAGS = 2;
-      COLLAPSE_NOTETYPES = 3;
-      COLLAPSE_DECKS = 4;
-      COLLAPSE_SAVED_SEARCHES = 5;
-      COLLAPSE_TODAY = 6;
-      COLLAPSE_CARD_STATE = 7;
-      COLLAPSE_FLAGS = 8;
-      SCHED_2021 = 9;
-      ADDING_DEFAULTS_TO_CURRENT_DECK = 10;
-      HIDE_AUDIO_PLAY_BUTTONS = 11;
-      INTERRUPT_AUDIO_WHEN_ANSWERING = 12;
-      PASTE_IMAGES_AS_PNG = 13;
-      PASTE_STRIPS_FORMATTING = 14;
-      NORMALIZE_NOTE_TEXT = 15;
+      BROWSER_CARD_STATE = 0;
+      BROWSER_SORT_BACKWARDS = 1;
+      BROWSER_NOTE_SORT_BACKWARDS = 2;
+      PREVIEW_BOTH_SIDES = 3;
+      COLLAPSE_TAGS = 4;
+      COLLAPSE_NOTETYPES = 5;
+      COLLAPSE_DECKS = 6;
+      COLLAPSE_SAVED_SEARCHES = 7;
+      COLLAPSE_TODAY = 8;
+      COLLAPSE_CARD_STATE = 9;
+      COLLAPSE_FLAGS = 10;
+      SCHED_2021 = 11;
+      ADDING_DEFAULTS_TO_CURRENT_DECK = 12;
+      HIDE_AUDIO_PLAY_BUTTONS = 13;
+      INTERRUPT_AUDIO_WHEN_ANSWERING = 14;
+      PASTE_IMAGES_AS_PNG = 15;
+      PASTE_STRIPS_FORMATTING = 16;
+      NORMALIZE_NOTE_TEXT = 17;
     }
     Key key = 1;
   }

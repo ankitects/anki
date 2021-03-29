@@ -7,6 +7,7 @@ browsing-all-fields = All Fields
 browsing-answer = Answer
 browsing-any-cards-mapped-to-nothing-will = Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?
 browsing-any-flag = Any Flag
+browsing-average-ease = Average Ease
 browsing-browser-appearance = Browser Appearance
 browsing-browser-options = Browser Options
 browsing-buried = Buried
@@ -100,6 +101,7 @@ browsing-toggle-suspend = Toggle Suspend
 browsing-treat-input-as-regular-expression = Treat input as regular expression
 browsing-update-saved-search = Update with Current Search
 browsing-whole-collection = Whole Collection
+browsing-window-title-notes = Browse ({ $selected } of { $total } notes selected)
 browsing-you-must-have-at-least-one = You must have at least one column.
 browsing-group =
     { $count ->
