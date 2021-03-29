@@ -725,7 +725,7 @@ class NoteState(ItemState):
     def _load_columns(self) -> None:
         self._columns = [
             ("note", tr.browsing_note()),
-            ("noteCards", tr.qt_accel_cards().replace("&", "")),
+            ("noteCards", tr.editing_cards()),
             ("noteCrt", tr.browsing_created()),
             ("noteEase", tr.browsing_average_ease()),
             ("noteFld", tr.browsing_sort_field()),
