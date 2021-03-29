@@ -1,12 +1,9 @@
-load("//ts:vendor.bzl", "copy_bootstrap_css", "copy_bootstrap_icons")
+load("//ts:vendor.bzl", "copy_bootstrap_css")
 
 copy_bootstrap_css(name = "bootstrap")
 
-copy_bootstrap_icons(name = "bootstrap-icons")
-
 files = [
     "bootstrap",
-    "bootstrap-icons",
 ]
 
 directories = []

@@ -117,15 +117,11 @@ def copy_bootstrap_css(name = "bootstrap-css", visibility = ["//visibility:publi
         visibility = visibility,
     )
 
-def copy_bootstrap_icons(name = "bootstrap-icons", visibility = ["//visibility:public"]):
+def copy_bootstrap_icons(name = "bootstrap-icons", icons = [], visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
         pkg = _pkg_from_name(name),
-        include = [
-            "font/bootstrap-icons.css",
-            "font/fonts/bootstrap-icons.woff",
-            "font/fonts/bootstrap-icons.woff2",
-        ],
-        strip_prefix = "font/",
+        include = ["icons/{}".format(icon) for icon in icons],
+        strip_prefix = "icons/",
         visibility = visibility,
     )

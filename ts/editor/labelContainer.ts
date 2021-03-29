@@ -1,4 +1,5 @@
 import { bridgeCommand } from "./lib";
+import pinIcon from "./pin-angle.svg";
 
 function removeHoverIcon(evt: Event): void {
     const icon = evt.currentTarget as HTMLElement;
@@ -23,7 +24,8 @@ export class LabelContainer extends HTMLDivElement {
         this.appendChild(this.label);
 
         this.sticky = document.createElement("span");
-        this.sticky.className = "bi me-1 bi-pin-angle icon";
+        this.sticky.className = "icon pin-icon me-1";
+        this.sticky.innerHTML = pinIcon;
         this.sticky.hidden = true;
         this.appendChild(this.sticky);
 
