@@ -330,9 +330,9 @@ class Browser(QMainWindow):
         selected = self.table.len_selection()
         cur = self.table.len()
         tr_title = (
-            tr.browsing_window_title
-            if self.table.is_card_state()
-            else tr.browsing_window_title_notes
+            tr.browsing_window_title_notes
+            if self.table.is_notes_mode()
+            else tr.browsing_window_title
         )
         self.setWindowTitle(
             without_unicode_isolation(tr_title(total=cur, selected=selected))
@@ -377,7 +377,7 @@ class Browser(QMainWindow):
         self.table = Table(self)
         self.table.set_view(self.form.tableView)
         switch = Switch(11, tr.browsing_card_initial(), tr.browsing_note_initial())
-        switch.setChecked(self.table.is_card_state())
+        switch.setChecked(self.table.is_notes_mode())
         qconnect(switch.toggled, self.on_table_state_changed)
         self.form.gridLayout.addWidget(switch, 0, 0)
 
