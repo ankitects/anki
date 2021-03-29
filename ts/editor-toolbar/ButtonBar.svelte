@@ -5,4 +5,6 @@
     }
 </style>
 
-<ul><slot/></ul>
+<ul>
+    <slot />
+</ul>

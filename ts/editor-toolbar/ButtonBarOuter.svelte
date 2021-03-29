@@ -14,4 +14,6 @@
     }
 </style>
 
-<div><slot /></div>
+<div>
+    <slot />
+</div>
