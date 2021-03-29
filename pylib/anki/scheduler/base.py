@@ -138,13 +138,13 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Resetting/rescheduling
     ##########################################################################
 
-    def schedule_cards_as_new(self, card_ids: List[CardId]) -> OpChanges:
+    def schedule_cards_as_new(self, card_ids: Sequence[CardId]) -> OpChanges:
         "Put cards at the end of the new queue."
         return self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
 
     def set_due_date(
         self,
-        card_ids: List[CardId],
+        card_ids: Sequence[CardId],
         days: str,
         config_key: Optional[Config.String.Key.V] = None,
     ) -> OpChanges:
