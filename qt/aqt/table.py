@@ -546,6 +546,8 @@ class ItemState(ABC):
 
     # Columns and sorting
 
+    # abstractproperty is deprecated but used due to mypy limitations
+    # (https://github.com/python/mypy/issues/1362)
     @abstractproperty
     def columns(self) -> List[Tuple[str, str]]:
         """Return all for the state available columns."""
