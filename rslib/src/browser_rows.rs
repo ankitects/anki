@@ -429,6 +429,7 @@ impl RowContext for NoteRowContext<'_> {
             "noteEase" => self.note_ease_str(),
             "noteFld" => self.note_field_str(),
             "noteMod" => self.note.mtime.date_string(),
+            "noteReps" => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),
             "noteTags" => self.note.tags.join(" "),
             _ => "".to_string(),
         })
