@@ -1,6 +1,6 @@
 <script lang="typescript">
     import ButtonItem from "./ButtonItem.svelte";
-    import IconButtonInner from "./IconButtonInner.svelte";
+    import InnerButton from "./InnerButton.svelte";
 
     export let className = "";
     export let icon = "";
@@ -8,7 +8,7 @@
 </script>
 
 <ButtonItem>
-    <IconButtonInner {className} active={false} {onClick}>
+    <InnerButton {className} {onClick}>
         {@html icon}
-    </IconButtonInner>
+    </InnerButton>
 </ButtonItem>
