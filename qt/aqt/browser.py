@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import html
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, Sequence
 
 import aqt
 import aqt.forms
@@ -533,16 +533,16 @@ class Browser(QMainWindow):
     # Menu helpers
     ######################################################################
 
-    def selected_cards(self) -> List[CardId]:
+    def selected_cards(self) -> Sequence[CardId]:
         return self.table.get_selected_card_ids()
 
-    def selected_notes(self) -> List[NoteId]:
+    def selected_notes(self) -> Sequence[NoteId]:
         return self.table.get_selected_note_ids()
 
-    def selectedNotesAsCards(self) -> List[CardId]:
+    def selectedNotesAsCards(self) -> Sequence[CardId]:
         return self.table.get_card_ids_from_selected_note_ids()
 
-    def oneModelNotes(self) -> List[NoteId]:
+    def oneModelNotes(self) -> Sequence[NoteId]:
         sf = self.selected_notes()
         if not sf:
             return []
@@ -742,7 +742,7 @@ where id in %s"""
     def _on_export_notes(self) -> None:
         cids = self.selectedNotesAsCards()
         if cids:
-            ExportDialog(self.mw, cids=cids)
+            ExportDialog(self.mw, cids=list(cids))
 
     # Flags & Marking
     ######################################################################
@@ -1027,7 +1027,7 @@ where id in %s"""
 
 
 class ChangeModel(QDialog):
-    def __init__(self, browser: Browser, nids: List[NoteId]) -> None:
+    def __init__(self, browser: Browser, nids: Sequence[NoteId]) -> None:
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids
@@ -1198,7 +1198,7 @@ class ChangeModel(QDialog):
         b.mw.progress.start()
         b.begin_reset()
         mm = b.mw.col.models
-        mm.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
+        mm.change(self.oldModel, list(self.nids), self.targetModel, fmap, cmap)
         b.search()
         b.end_reset()
         b.mw.progress.finish()

@@ -40,7 +40,7 @@ from aqt.utils import (
 )
 
 Item = Union[CardId, NoteId]
-ItemList = Union[List[CardId], List[NoteId]]
+ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 
 
 @dataclass
@@ -118,13 +118,13 @@ class Table:
 
     # Get ids
 
-    def get_selected_card_ids(self) -> List[CardId]:
+    def get_selected_card_ids(self) -> Sequence[CardId]:
         return self._model.get_card_ids(self._selected())
 
-    def get_selected_note_ids(self) -> List[NoteId]:
+    def get_selected_note_ids(self) -> Sequence[NoteId]:
         return self._model.get_note_ids(self._selected())
 
-    def get_card_ids_from_selected_note_ids(self) -> List[CardId]:
+    def get_card_ids_from_selected_note_ids(self) -> Sequence[CardId]:
         return self._state.card_ids_from_note_ids(self.get_selected_note_ids())
 
     # Selecting
@@ -531,12 +531,12 @@ class ItemState(ABC):
 
     # Stateless Helpers
 
-    def note_ids_from_card_ids(self, items: Sequence[Item]) -> List[NoteId]:
+    def note_ids_from_card_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
         return self.col.db.list(
             f"select distinct nid from cards where id in {ids2str(items)}"
         )
 
-    def card_ids_from_note_ids(self, items: Sequence[Item]) -> List[CardId]:
+    def card_ids_from_note_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
     # Columns and sorting
@@ -590,11 +590,11 @@ class ItemState(ABC):
         """Return the appropriate item id for a card id."""
 
     @abstractmethod
-    def get_card_ids(self, items: List[Item]) -> List[CardId]:
+    def get_card_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
         """Return the card ids for the given item ids."""
 
     @abstractmethod
-    def get_note_ids(self, items: List[Item]) -> List[NoteId]:
+    def get_note_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
         """Return the note ids for the given item ids."""
 
     # Toggle
@@ -694,10 +694,10 @@ class CardState(ItemState):
     def get_item_from_card_id(self, card: CardId) -> Item:
         return card
 
-    def get_card_ids(self, items: List[Item]) -> List[CardId]:
-        return list(map(CardId, items))
+    def get_card_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
+        return cast(Sequence[CardId], items)
 
-    def get_note_ids(self, items: List[Item]) -> List[NoteId]:
+    def get_note_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
         return super().note_ids_from_card_ids(items)
 
     def toggle_state(self) -> NoteState:
@@ -706,7 +706,7 @@ class CardState(ItemState):
     def get_new_item(self, old_item: Item) -> CardId:
         return super().card_ids_from_note_ids([old_item])[0]
 
-    def get_new_items(self, old_items: Sequence[Item]) -> List[CardId]:
+    def get_new_items(self, old_items: Sequence[Item]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(old_items)
 
 
@@ -782,11 +782,11 @@ class NoteState(ItemState):
     def get_item_from_card_id(self, card: CardId) -> Item:
         return self.get_card(card).note().id
 
-    def get_card_ids(self, items: List[Item]) -> List[CardId]:
+    def get_card_ids(self, items: Sequence[Item]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(items)
 
-    def get_note_ids(self, items: List[Item]) -> List[NoteId]:
-        return list(map(NoteId, items))
+    def get_note_ids(self, items: Sequence[Item]) -> Sequence[NoteId]:
+        return cast(Sequence[NoteId], items)
 
     def toggle_state(self) -> CardState:
         return CardState(self.col)
@@ -794,7 +794,7 @@ class NoteState(ItemState):
     def get_new_item(self, old_item: Item) -> NoteId:
         return super().note_ids_from_card_ids([old_item])[0]
 
-    def get_new_items(self, old_items: Sequence[Item]) -> List[NoteId]:
+    def get_new_items(self, old_items: Sequence[Item]) -> Sequence[NoteId]:
         return super().note_ids_from_card_ids(old_items)
 
 
@@ -959,13 +959,13 @@ class DataModel(QAbstractTableModel):
     def get_item(self, index: QModelIndex) -> Item:
         return self._items[index.row()]
 
-    def get_items(self, indices: List[QModelIndex]) -> List[Item]:
+    def get_items(self, indices: List[QModelIndex]) -> Sequence[Item]:
         return [self.get_item(index) for index in indices]
 
-    def get_card_ids(self, indices: List[QModelIndex]) -> List[CardId]:
+    def get_card_ids(self, indices: List[QModelIndex]) -> Sequence[CardId]:
         return self._state.get_card_ids(self.get_items(indices))
 
-    def get_note_ids(self, indices: List[QModelIndex]) -> List[NoteId]:
+    def get_note_ids(self, indices: List[QModelIndex]) -> Sequence[NoteId]:
         return self._state.get_note_ids(self.get_items(indices))
 
     # Get row numbers from items
