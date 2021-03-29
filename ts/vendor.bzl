@@ -4,8 +4,11 @@ Helpers to copy runtime dependencies from node_modules.
 
 load("//ts:copy.bzl", "copy_select_files")
 
+def _npm_base_from_name(name):
+    return "external/npm/node_modules/{}/".format(name)
+
 def _vendor_js_lib_impl(ctx):
-    base = ctx.attr.base or "external/npm/node_modules/{}/".format(ctx.attr.name)
+    base = ctx.attr.base or _npm_base_from_name(ctx.attr.name)
     return copy_select_files(
         ctx = ctx,
         files = ctx.attr.pkg.files,
@@ -27,7 +30,8 @@ vendor_js_lib = rule(
 )
 
 def pkg_from_name(name):
-    return "@npm//{0}:{0}__files".format(name)
+    tail = name.split("/")[-1]
+    return "@npm//{0}:{1}__files".format(name, tail)
 
 #
 # These could be defined directly in BUILD files, but defining them as
@@ -124,5 +128,16 @@ def copy_bootstrap_icons(name = "bootstrap-icons", icons = [], visibility = ["//
         pkg = pkg_from_name(name),
         include = ["icons/{}".format(icon) for icon in icons],
         strip_prefix = "icons/",
+        visibility = visibility,
+    )
+
+    
+def copy_fontawesome_icons(name = "fontawesome-icons", icons = [], visibility = ["//visibility:public"]):
+    vendor_js_lib(
+        name = name,
+        pkg = _pkg_from_name("@fortawesome/fontawesome-free"),
+        base = _npm_base_from_name("@fortawesome/fontawesome-free"),
+        include = ["svgs/{}".format(icon) for icon in icons],
+        strip_prefix = "svgs/solid/",
         visibility = visibility,
     )

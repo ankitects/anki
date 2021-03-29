@@ -1,20 +1,23 @@
 <script lang="typescript">
     import ButtonItem from "./ButtonItem.svelte";
+
+    export let label: string;
 </script>
+
 <style lang="scss">
     button {
         padding: 3px 10px;
-        /* fit RightButton */
         vertical-align: -.425em;
-    }
+        margin-right: 3px;
 
-    button:focus {
-        0 0 0 0.05rem rgba(255, 255, 255, 0.5);
+        &:focus {
+            box-shadow: 0 0 0 .05rem rgba(255, 255, 255, 0.5);
+        }
     }
 </style>
 
 <ButtonItem>
     <button type="button" class="btn btn-secondary" on:click>
-        <slot />
+        {label}
     </button>
 </ButtonItem>

@@ -3,6 +3,7 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:vendor.bzl", "copy_bootstrap_icons")
 
 svelte_files = glob(["*.svelte"])
 
@@ -38,6 +39,15 @@ ts_library(
     ],
 )
 
+copy_bootstrap_icons(
+    name = "bootstrap-icons",
+    icons = [
+        "type-bold.svg",
+        "type-italic.svg",
+        "type-underline.svg",
+    ],
+)
+
 esbuild(
     name = "editor-toolbar",
     srcs = [
@@ -46,6 +56,7 @@ esbuild(
     args = [
         "--global-name=anki",
         "--inject:ts/protobuf-shim.js",
+        "--loader:.svg=text",
     ],
     entry_point = "index.ts",
     external = [
@@ -56,9 +67,10 @@ esbuild(
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "//ts/lib:fluent_proto",
         ":index",
         "//ts/sass:core_css",
+        "//ts:image_module_support",
+        "bootstrap-icons",
     ] + svelte_names,
 )
 

@@ -228,7 +228,7 @@ class Editor:
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
-            _html % (bgcol, topbuts, tr.editing_show_duplicates()),
+            _html % (bgcol, tr.editing_show_duplicates()),
             css=[
                 "css/editor.css",
                 "css/editor-toolbar.css",
