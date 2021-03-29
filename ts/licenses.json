@@ -7,14 +7,12 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
-    "@fortawesome/fontawesome-free@5.15.3": {
-        "licenses": "(CC-BY-4.0 AND OFL-1.1 AND MIT)",
-        "repository": "https://github.com/FortAwesome/Font-Awesome",
-        "publisher": "Dave Gandy",
-        "email": "dave@fontawesome.com",
-        "url": "http://twitter.com/davegandy",
-        "path": "node_modules/@fortawesome/fontawesome-free",
-        "licenseFile": "node_modules/@fortawesome/fontawesome-free/LICENSE.txt"
+    "@mdi/svg@5.9.55": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/Templarian/MaterialDesign-SVG",
+        "publisher": "Austin Andrews",
+        "path": "node_modules/@mdi/svg",
+        "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
     "@protobufjs/aspromise@1.1.2": {
         "licenses": "BSD-3-Clause",

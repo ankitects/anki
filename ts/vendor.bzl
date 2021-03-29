@@ -131,13 +131,13 @@ def copy_bootstrap_icons(name = "bootstrap-icons", icons = [], visibility = ["//
         visibility = visibility,
     )
 
-    
-def copy_fontawesome_icons(name = "fontawesome-icons", icons = [], visibility = ["//visibility:public"]):
+def copy_mdi_icons(name = "mdi-icons", icons = [], visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name("@fortawesome/fontawesome-free"),
-        base = _npm_base_from_name("@fortawesome/fontawesome-free"),
-        include = ["svgs/{}".format(icon) for icon in icons],
-        strip_prefix = "svgs/solid/",
+        pkg = _pkg_from_name("@mdi/svg"),
+        base = _npm_base_from_name("@mdi/svg"),
+        include = ["svg/{}".format(icon) for icon in icons],
+        strip_prefix = "svg/",
         visibility = visibility,
     )
+
