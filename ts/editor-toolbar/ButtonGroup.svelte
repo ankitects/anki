@@ -4,6 +4,7 @@
 
 <style lang="scss">
     ul {
+        display: inline-block;
         padding-inline-start: 0;
 
         margin-left: 0.25rem;
