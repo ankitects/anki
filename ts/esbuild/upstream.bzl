@@ -66,7 +66,6 @@ def _esbuild_impl(ctx):
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
     args.add_joined(["--log-level", "info"], join_with = "=")
-    args.add_joined(["--loader", ".svg=text"], join_with = ":")
     args.add_joined(["--metafile", metafile.path], join_with = "=")
     args.add_all(ctx.attr.define, format_each = "--define:%s")
     args.add_all(ctx.attr.external, format_each = "--external:%s")
