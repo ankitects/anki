@@ -892,7 +892,7 @@ class DataModel(QAbstractTableModel):
         self._rows[item] = self._fetch_row_from_backend(item)
         return self._rows[item]
 
-    def _fetch_row_from_backend(self, item: int) -> CellRow:
+    def _fetch_row_from_backend(self, item: ItemId) -> CellRow:
         try:
             row = CellRow(*self.col.browser_row_for_id(item))
         except NotFoundError:
@@ -900,8 +900,9 @@ class DataModel(QAbstractTableModel):
         except Exception as e:
             return CellRow.generic(self.len_columns(), str(e))
 
-        # fixme: hook needs state
-        gui_hooks.browser_did_fetch_row(item, row, self._state.active_columns)
+        gui_hooks.browser_did_fetch_row(
+            item, not self._state.is_card_state(), row, self._state.active_columns
+        )
         return row
 
     # Reset
