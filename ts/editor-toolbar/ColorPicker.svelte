@@ -6,11 +6,19 @@
 </script>
 
 <style lang="scss">
-    span {
+    button {
         display: inline-block;
         width: 28px;
         height: 28px;
+
         vertical-align: -webkit-baseline-middle;
+        padding: 0;
+    }
+
+    span {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
     }
 
     input {
@@ -21,5 +29,7 @@
 </style>
 
 <ButtonItem>
-    <span class={className}> <input type="color" on:change={onChange} /> </span>
+    <button>
+        <span class={className}> <input type="color" on:change={onChange} /> </span>
+    </button>
 </ButtonItem>

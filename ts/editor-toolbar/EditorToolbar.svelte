@@ -5,19 +5,20 @@
     import LabelButton from "./LabelButton.svelte";
     import IconButton from "./IconButton.svelte";
 
-    import boldIcon from "./type-bold.svg";
-    import italicIcon from "./type-italic.svg";
-    import underlineIcon from "./type-underline.svg";
-
-    import superscriptIcon from "./format-superscript.svg";
-    import subscriptIcon from "./format-subscript.svg";
     import bracketsIcon from "./code-brackets.svg";
 
-    import eraserIcon from "./eraser.svg";
     import paperclipIcon from "./paperclip.svg";
     import micIcon from "./mic.svg";
     import threeDotsIcon from "./three-dots.svg";
 
+    import {
+        boldButton,
+        italicButton,
+        underlineButton,
+        superscriptButton,
+        subscriptButton,
+        eraserButton,
+    } from "./format";
     import { forecolorButton, colorpickerButton } from "./color";
 
     export let leftButtons = [
@@ -26,14 +27,12 @@
     ];
 
     export let rightButtons = [
-        { component: IconButton, icon: boldIcon },
-        { component: IconButton, icon: italicIcon },
-        { component: IconButton, icon: underlineIcon },
-
-        { component: IconButton, icon: superscriptIcon },
-        { component: IconButton, icon: subscriptIcon },
-
-        { component: IconButton, icon: eraserIcon },
+        boldButton,
+        italicButton,
+        underlineButton,
+        superscriptButton,
+        subscriptButton,
+        eraserButton,
 
         forecolorButton,
         colorpickerButton,
