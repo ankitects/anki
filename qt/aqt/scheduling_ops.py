@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 import aqt
 from anki.cards import CardId
