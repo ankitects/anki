@@ -688,7 +688,7 @@ def mungeQA(col: Collection, txt: str) -> str:
 
 def openFolder(path: str) -> None:
     if isWin:
-        subprocess.Popen(["explorer", f"file://{path}"])
+        subprocess.run(["explorer", f"file://{path}"], check=False)
     else:
         with noBundledLibs():
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
