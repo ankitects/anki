@@ -802,6 +802,8 @@ class Cell:
 
 
 class CellRow:
+    is_deleted: bool = False
+
     def __init__(
         self,
         cells: Generator[Tuple[str, bool], None, None],
@@ -833,7 +835,9 @@ class CellRow:
 
     @staticmethod
     def deleted(length: int) -> CellRow:
-        return CellRow.generic(length, tr.browsing_row_deleted())
+        row = CellRow.generic(length, tr.browsing_row_deleted())
+        row.is_deleted = True
+        return row
 
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str, str]]:
@@ -1104,6 +1108,8 @@ class DataModel(QAbstractTableModel):
             return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if self.get_row(index).is_deleted:
+            return Qt.ItemFlags(Qt.NoItemFlags)
         return cast(Qt.ItemFlags, Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
 
