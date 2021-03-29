@@ -432,7 +432,7 @@ class Table:
         if rows:
             if len(rows) < self.SELECTION_LIMIT:
                 return rows
-            if current in rows:
+            if current and current in rows:
                 return [current]
             return rows[0:1]
         return [current if current else 0]
@@ -454,9 +454,10 @@ class Table:
         selected_rows = self._model.get_item_rows(
             self._state.get_new_items(self._selected_items)
         )
-        current_row = self._current_item and self._model.get_item_row(
-            self._state.get_new_item(self._current_item)
-        )
+        current_row = None
+        if self._current_item:
+            if new_current := self._state.get_new_items([self._current_item]):
+                current_row = self._model.get_item_row(new_current[0])
         return selected_rows, current_row
 
     # Move
@@ -608,14 +609,8 @@ class ItemState(ABC):
         """Return an instance of the other state."""
 
     @abstractmethod
-    def get_new_item(self, old_item: ItemId) -> ItemId:
-        """Given an id from the other state, return the corresponding id for
-        this state."""
-
-    @abstractmethod
     def get_new_items(self, old_items: Sequence[ItemId]) -> ItemList:
-        """Given a list of ids from the other state, return the corresponding
-        ids for this state."""
+        """Given a list of ids from the other state, return the corresponding ids for this state."""
 
 
 class CardState(ItemState):
@@ -707,9 +702,6 @@ class CardState(ItemState):
     def toggle_state(self) -> NoteState:
         return NoteState(self.col)
 
-    def get_new_item(self, old_item: ItemId) -> CardId:
-        return super().card_ids_from_note_ids([old_item])[0]
-
     def get_new_items(self, old_items: Sequence[ItemId]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(old_items)
 
@@ -794,9 +786,6 @@ class NoteState(ItemState):
 
     def toggle_state(self) -> CardState:
         return CardState(self.col)
-
-    def get_new_item(self, old_item: ItemId) -> NoteId:
-        return super().note_ids_from_card_ids([old_item])[0]
 
     def get_new_items(self, old_items: Sequence[ItemId]) -> Sequence[NoteId]:
         return super().note_ids_from_card_ids(old_items)
