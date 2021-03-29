@@ -26,7 +26,6 @@
 </script>
 
 <script lang="typescript">
-    import ButtonItem from "./ButtonItem.svelte";
     import InnerButton from "./InnerButton.svelte";
 
     export let className = "";
@@ -50,8 +49,6 @@
     }
 </script>
 
-<ButtonItem>
-    <InnerButton {className} {active} {onClick}>
-        {@html icon}
-    </InnerButton>
-</ButtonItem>
+<InnerButton {className} {active} {onClick}>
+    {@html icon}
+</InnerButton>

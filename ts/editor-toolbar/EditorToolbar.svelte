@@ -1,6 +1,4 @@
 <script lang="typescript">
-    import ButtonBarOuter from "./ButtonBarOuter.svelte";
-    import ButtonBar from "./ButtonBar.svelte";
     import ButtonGroup from "./ButtonGroup.svelte";
 
     import LabelButton from "./LabelButton.svelte";
@@ -48,14 +46,21 @@
     console.log(nightMode);
 </script>
 
-<ButtonBarOuter>
-    <ButtonBar>
-        {#each buttons as group}
-            <ButtonGroup>
-                {#each group as button}
-                    <svelte:component this={button.component} {...button} />
-                {/each}
-            </ButtonGroup>
-        {/each}
-    </ButtonBar>
-</ButtonBarOuter>
+<style lang="scss">
+    div {
+        display: flex;
+        flex-wrap: wrap;
+
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 5;
+        padding: 2px;
+
+        background: var(--bg-color);
+    }
+</style>
+
+<div>
+    <ButtonGroup {buttons} />
+</div>

@@ -1,6 +1,4 @@
 <script lang="typescript">
-    import ButtonItem from "./ButtonItem.svelte";
-
     export let label: string;
 </script>
 
@@ -20,6 +18,4 @@
     }
 </style>
 
-<ButtonItem>
-    <button type="button" class="btn btn-secondary" on:click> {label} </button>
-</ButtonItem>
+<button type="button" class="btn btn-secondary" on:click> {label} </button>
