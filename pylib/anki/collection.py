@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union
+from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
 
 import anki._backend.backend_pb2 as _pb
 
@@ -495,26 +495,30 @@ class Collection:
         query: str,
         order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
-    ) -> List[CardId]:
+    ) -> Sequence[CardId]:
         """Return card ids matching the provided search.
         To programmatically construct a search string, see .build_search_string().
         To define a sort order, see _build_sort_mode().
         """
         mode = _build_sort_mode(order, reverse)
-        return list(map(CardId, self._backend.search_cards(search=query, order=mode)))
+        return cast(
+            Sequence[CardId], self._backend.search_cards(search=query, order=mode)
+        )
 
     def find_notes(
         self,
         query: str,
         order: Union[bool, str, BuiltinSort.Kind.V] = False,
         reverse: bool = False,
-    ) -> List[NoteId]:
+    ) -> Sequence[NoteId]:
         """Return note ids matching the provided search.
         To programmatically construct a search string, see .build_search_string().
         To define a sort order, see _build_sort_mode().
         """
         mode = _build_sort_mode(order, reverse)
-        return list(map(NoteId, self._backend.search_notes(search=query, order=mode)))
+        return cast(
+            Sequence[NoteId], self._backend.search_notes(search=query, order=mode)
+        )
 
     def find_and_replace(
         self,
