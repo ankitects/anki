@@ -1,17 +1,19 @@
 <script lang="typescript">
-    export let className: string;
+    export let className: string = '';
     export let onClick: (event: ClickEvent) => void;
-    export let active: boolean;
+    export let active = false;
+    export let disabled = false;
 </script>
 
 <style lang="scss">
     button {
         display: inline-block;
+
         width: 30px;
         height: 30px;
 
+        background-color: white;
         vertical-align: -webkit-baseline-middle;
-        padding: 2px;
 
         & > :global(svg),
         & > :global(img) {
@@ -27,9 +29,27 @@
         &:active, &.active {
             box-shadow: inset 0 0 10px 3px rgb(0 0 0 / 30%);
         }
+
+        &[disabled] {
+            opacity: 0.4;
+
+            &:hover {
+                background-color: white;
+            }
+
+            &:active, &.active {
+                box-shadow: none;
+            }
+        }
     }
 </style>
 
-<button class={className} class:active on:click={onClick} on:mousedown|preventDefault>
+<button
+    class="p-1 {className}"
+    class:active
+    {disabled}
+    on:click={onClick}
+    on:mousedown|preventDefault
+>
     <slot />
 </button>
