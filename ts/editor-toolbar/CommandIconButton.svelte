@@ -10,18 +10,26 @@
         );
     }
 
-    export function updateButtons() {
+    function updateButtons(callback: (key: string) => boolean): void {
         commandMap.update(
             (map: Map<string, boolean>): Map<string, boolean> => {
                 const newMap = new Map<string, boolean>();
 
                 for (const key of map.keys()) {
-                    newMap.set(key, document.queryCommandState(key));
+                    newMap.set(key, callback(key));
                 }
 
                 return newMap;
             }
         );
+    }
+
+    export function updateButtonActive() {
+        updateButtons((key: string): boolean => document.queryCommandState(key));
+    }
+
+    export function clearButtonActive() {
+        updateButtons((): boolean => false);
     }
 </script>
 
