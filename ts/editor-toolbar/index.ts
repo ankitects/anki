@@ -15,7 +15,13 @@ import {
 
 import { forecolorButton, colorpickerButton } from "./color";
 
-import { clozeButton, attachmentButton, recordButton, moreButton } from "./extra";
+import {
+    attachmentButton,
+    recordButton,
+    clozeButton,
+    mathjaxButton,
+    htmlButton,
+} from "./extra";
 
 const defaultButtons = [
     [
@@ -31,7 +37,7 @@ const defaultButtons = [
         eraserButton,
     ],
     [forecolorButton, colorpickerButton],
-    [clozeButton, attachmentButton, recordButton, moreButton],
+    [attachmentButton, recordButton, clozeButton, mathjaxButton, htmlButton],
 ];
 
 class EditorToolbar extends HTMLElement {

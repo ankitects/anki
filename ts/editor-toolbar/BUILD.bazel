@@ -57,7 +57,6 @@ copy_bootstrap_icons(
         "square-fill.svg",
         "paperclip.svg",
         "mic.svg",
-        "three-dots.svg",
     ],
 )
 
@@ -66,7 +65,9 @@ copy_mdi_icons(
     icons = [
         "format-superscript.svg",
         "format-subscript.svg",
+        "function-variant.svg",
         "code-brackets.svg",
+        "xml.svg",
     ],
 )
 
