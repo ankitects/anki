@@ -171,7 +171,7 @@ impl Card {
         (self.queue as i8) < 0
     }
 
-    /// Returns true of the card has a due date in terms of days.
+    /// Returns true if the card has a due date in terms of days.
     fn is_due_in_days(&self) -> bool {
         matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
             || (self.ctype == CardType::Review && self.is_undue_queue())
