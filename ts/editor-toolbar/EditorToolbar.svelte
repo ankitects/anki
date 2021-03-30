@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import DropdownItem from "./DropdownItem.svelte";
     import type { Readable } from "svelte/store";
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
@@ -15,7 +16,7 @@
 </script>
 
 <style lang="scss">
-    div {
+    nav {
         position: sticky;
         top: 0;
         left: 0;
@@ -37,6 +38,15 @@
     }
 </style>
 
-<div>
+<ul class="dropdown-menu" id="dropdownMenuButton123" aria-labelledby="dropdownMenuButton123">
+    <DropdownItem>
+        <svelte:fragment slot="start">Action</svelte:fragment>
+        <svelte:fragment slot="end">Shortcut</svelte:fragment>
+    </DropdownItem>
+    <DropdownItem>Action 1</DropdownItem>
+    <DropdownItem>Action 2</DropdownItem>
+</ul>
+
+<nav>
     <ButtonGroup {buttons} />
-</div>
+</nav>
