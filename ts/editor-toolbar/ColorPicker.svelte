@@ -7,22 +7,28 @@
     button {
         display: inline-block;
         vertical-align: middle;
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
 
         padding: 0;
+
+        &:hover {
+            background-color: #eee;
+        }
     }
 
     span {
         display: inline-block;
         width: 100%;
         height: 100%;
+        cursor: pointer;
     }
 
     input {
         opacity: 0;
         width: 100%;
         height: 100%;
+        cursor: pointer;
     }
 </style>
 
