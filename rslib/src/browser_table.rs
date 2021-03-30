@@ -79,13 +79,13 @@ pub struct Font {
 }
 
 trait RowContext {
-    fn get_cell_text(&mut self, column: &Column) -> Result<String>;
+    fn get_cell_text(&mut self, column: Column) -> Result<String>;
     fn get_row_color(&self) -> Color;
     fn get_row_font(&self) -> Result<Font>;
     fn note(&self) -> &Note;
     fn notetype(&self) -> &Notetype;
 
-    fn get_cell(&mut self, column: &Column) -> Result<Cell> {
+    fn get_cell(&mut self, column: Column) -> Result<Cell> {
         Ok(Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
@@ -103,7 +103,7 @@ trait RowContext {
         html_to_text_line(&self.note().fields()[index]).into()
     }
 
-    fn get_is_rtl(&self, column: &Column) -> bool {
+    fn get_is_rtl(&self, column: Column) -> bool {
         match column {
             Column::NoteField => {
                 let index = self.notetype().config.sort_field_idx as usize;
@@ -117,7 +117,7 @@ trait RowContext {
         Ok(Row {
             cells: columns
                 .iter()
-                .map(|column| self.get_cell(column))
+                .map(|&column| self.get_cell(column))
                 .collect::<Result<_>>()?,
             color: self.get_row_color(),
             font: self.get_row_font()?,
@@ -389,7 +389,7 @@ impl<'a> CardRowContext<'a> {
 }
 
 impl RowContext for CardRowContext<'_> {
-    fn get_cell_text(&mut self, column: &Column) -> Result<String> {
+    fn get_cell_text(&mut self, column: Column) -> Result<String> {
         Ok(match column {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
@@ -516,7 +516,7 @@ impl<'a> NoteRowContext<'a> {
 }
 
 impl RowContext for NoteRowContext<'_> {
-    fn get_cell_text(&mut self, column: &Column) -> Result<String> {
+    fn get_cell_text(&mut self, column: Column) -> Result<String> {
         Ok(match column {
             Column::NoteCards => self.cards.len().to_string(),
             Column::NoteCreation => self.note_creation_str(),
