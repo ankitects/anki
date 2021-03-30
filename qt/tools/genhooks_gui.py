@@ -406,7 +406,12 @@ hooks = [
     ),
     Hook(
         name="browser_did_fetch_row",
-        args=["card_id: int", "row: aqt.table.CellRow", "columns: Sequence[str]"],
+        args=[
+            "card_or_note_id: aqt.table.ItemId",
+            "is_note: bool",
+            "row: aqt.table.CellRow",
+            "columns: Sequence[str]",
+        ],
         doc="""Allows you to add or modify content to a row in the browser.
         
         You can mutate the row object to change what is displayed. Any columns the

@@ -48,8 +48,7 @@ class SearchContext:
     search: str
     browser: aqt.browser.Browser
     order: Union[bool, str] = True
-    # if set, provided card ids will be used instead of the regular search
-    # fixme: legacy support for card_ids?
+    # if set, provided ids will be used instead of the regular search
     ids: Optional[Sequence[ItemId]] = None
 
 
@@ -94,8 +93,8 @@ class Table:
     def has_next(self) -> bool:
         return self.has_current() and self._current().row() < self.len() - 1
 
-    def is_card_state(self) -> bool:
-        return self._state.is_card_state()
+    def is_notes_mode(self) -> bool:
+        return self._state.is_notes_mode()
 
     # Get objects
 
@@ -194,15 +193,15 @@ class Table:
         self._model.search(SearchContext(search=txt, browser=self.browser))
         self._restore_selection(self._intersected_selection)
 
-    def toggle_state(self, is_card_state: bool, last_search: str) -> None:
-        if is_card_state == self.is_card_state():
+    def toggle_state(self, is_notes_mode: bool, last_search: str) -> None:
+        if is_notes_mode == self.is_notes_mode():
             return
         self._save_selection()
         self._state = self._model.toggle_state(
             SearchContext(search=last_search, browser=self.browser)
         )
         self.col.set_config_bool(
-            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, not self.is_card_state()
+            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, self.is_notes_mode()
         )
         self._set_sort_indicator()
         self._set_column_sizes()
@@ -328,14 +327,14 @@ class Table:
 
     def _on_context_menu(self, _point: QPoint) -> None:
         menu = QMenu()
-        if self.is_card_state():
-            main = self.browser.form.menu_Cards
-            other = self.browser.form.menu_Notes
-            other_name = tr.qt_accel_notes()
-        else:
+        if self.is_notes_mode():
             main = self.browser.form.menu_Notes
             other = self.browser.form.menu_Cards
             other_name = tr.qt_accel_cards()
+        else:
+            main = self.browser.form.menu_Cards
+            other = self.browser.form.menu_Notes
+            other_name = tr.qt_accel_notes()
         for action in main.actions():
             menu.addAction(action)
         menu.addSeparator()
@@ -417,7 +416,8 @@ class Table:
             current = current or rows[0]
             self._select_rows(rows)
             self._set_current(current)
-            self._scroll_to_row(current)
+            # editor may pop up and hide the row later on
+            QTimer.singleShot(100, lambda: self._scroll_to_row(current))
         if self.len_selection() == 0:
             # no row change will fire
             self.browser.onRowChanged(QItemSelection(), QItemSelection())
@@ -431,7 +431,7 @@ class Table:
         if rows:
             if len(rows) < self.SELECTION_LIMIT:
                 return rows
-            if current in rows:
+            if current and current in rows:
                 return [current]
             return rows[0:1]
         return [current if current else 0]
@@ -453,17 +453,19 @@ class Table:
         selected_rows = self._model.get_item_rows(
             self._state.get_new_items(self._selected_items)
         )
-        current_row = self._current_item and self._model.get_item_row(
-            self._state.get_new_item(self._current_item)
-        )
+        current_row = None
+        if self._current_item:
+            if new_current := self._state.get_new_items([self._current_item]):
+                current_row = self._model.get_item_row(new_current[0])
         return selected_rows, current_row
 
     # Move
 
     def _scroll_to_row(self, row: int) -> None:
         """Scroll vertically to row."""
-        position = self._view.rowViewportPosition(row)
-        visible = 0 <= position < self._view.viewport().height()
+        top_border = self._view.rowViewportPosition(row)
+        bottom_border = top_border + self._view.rowHeight(0)
+        visible = top_border >= 0 and bottom_border < self._view.viewport().height()
         if not visible:
             horizontal = self._view.horizontalScrollBar().value()
             self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtCenter)
@@ -527,9 +529,9 @@ class ItemState(ABC):
     def __init__(self, col: Collection) -> None:
         self.col = col
 
-    def is_card_state(self) -> bool:
-        """Return True if the state is a CardState."""
-        return isinstance(self, CardState)
+    def is_notes_mode(self) -> bool:
+        """Return True if the state is a NoteState."""
+        return isinstance(self, NoteState)
 
     # Stateless Helpers
 
@@ -543,6 +545,8 @@ class ItemState(ABC):
 
     # Columns and sorting
 
+    # abstractproperty is deprecated but used due to mypy limitations
+    # (https://github.com/python/mypy/issues/1362)
     @abstractproperty
     def columns(self) -> List[Tuple[str, str]]:
         """Return all for the state available columns."""
@@ -606,14 +610,8 @@ class ItemState(ABC):
         """Return an instance of the other state."""
 
     @abstractmethod
-    def get_new_item(self, old_item: ItemId) -> ItemId:
-        """Given an id from the other state, return the corresponding id for
-        this state."""
-
-    @abstractmethod
     def get_new_items(self, old_items: Sequence[ItemId]) -> ItemList:
-        """Given a list of ids from the other state, return the corresponding
-        ids for this state."""
+        """Given a list of ids from the other state, return the corresponding ids for this state."""
 
 
 class CardState(ItemState):
@@ -705,9 +703,6 @@ class CardState(ItemState):
     def toggle_state(self) -> NoteState:
         return NoteState(self.col)
 
-    def get_new_item(self, old_item: ItemId) -> CardId:
-        return super().card_ids_from_note_ids([old_item])[0]
-
     def get_new_items(self, old_items: Sequence[ItemId]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(old_items)
 
@@ -725,11 +720,13 @@ class NoteState(ItemState):
     def _load_columns(self) -> None:
         self._columns = [
             ("note", tr.browsing_note()),
-            ("noteCards", tr.qt_accel_cards().replace("&", "")),
+            ("noteCards", tr.editing_cards()),
             ("noteCrt", tr.browsing_created()),
             ("noteEase", tr.browsing_average_ease()),
             ("noteFld", tr.browsing_sort_field()),
+            ("noteLapses", tr.scheduling_lapses()),
             ("noteMod", tr.search_note_modified()),
+            ("noteReps", tr.scheduling_reviews()),
             ("noteTags", tr.editing_tags()),
         ]
         self._columns.sort(key=itemgetter(1))
@@ -793,9 +790,6 @@ class NoteState(ItemState):
     def toggle_state(self) -> CardState:
         return CardState(self.col)
 
-    def get_new_item(self, old_item: ItemId) -> NoteId:
-        return super().note_ids_from_card_ids([old_item])[0]
-
     def get_new_items(self, old_items: Sequence[ItemId]) -> Sequence[NoteId]:
         return super().note_ids_from_card_ids(old_items)
 
@@ -811,6 +805,8 @@ class Cell:
 
 
 class CellRow:
+    is_deleted: bool = False
+
     def __init__(
         self,
         cells: Generator[Tuple[str, bool], None, None],
@@ -842,7 +838,9 @@ class CellRow:
 
     @staticmethod
     def deleted(length: int) -> CellRow:
-        return CellRow.generic(length, tr.browsing_row_deleted())
+        row = CellRow.generic(length, tr.browsing_row_deleted())
+        row.is_deleted = True
+        return row
 
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str, str]]:
@@ -896,7 +894,7 @@ class DataModel(QAbstractTableModel):
         self._rows[item] = self._fetch_row_from_backend(item)
         return self._rows[item]
 
-    def _fetch_row_from_backend(self, item: int) -> CellRow:
+    def _fetch_row_from_backend(self, item: ItemId) -> CellRow:
         try:
             row = CellRow(*self.col.browser_row_for_id(item))
         except NotFoundError:
@@ -904,8 +902,9 @@ class DataModel(QAbstractTableModel):
         except Exception as e:
             return CellRow.generic(self.len_columns(), str(e))
 
-        # fixme: hook needs state
-        gui_hooks.browser_did_fetch_row(item, row, self._state.active_columns)
+        gui_hooks.browser_did_fetch_row(
+            item, self._state.is_notes_mode(), row, self._state.active_columns
+        )
         return row
 
     # Reset
@@ -1113,6 +1112,8 @@ class DataModel(QAbstractTableModel):
             return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if self.get_row(index).is_deleted:
+            return Qt.ItemFlags(Qt.NoItemFlags)
         return cast(Qt.ItemFlags, Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
 
