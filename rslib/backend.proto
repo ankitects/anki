@@ -811,6 +811,7 @@ message SortOrder {
     enum Kind {
       NOTE_CARDS = 0;
       NOTE_CREATION = 1;
+      NOTE_DUE = 17;
       NOTE_EASE = 2;
       NOTE_FIELD = 3;
       NOTE_LAPSES = 4;
