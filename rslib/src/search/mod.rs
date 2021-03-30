@@ -93,6 +93,7 @@ impl SortKind {
             | SortKind::NoteDue
             | SortKind::NoteEase
             | SortKind::NoteField
+            | SortKind::NoteInterval
             | SortKind::NoteLapses
             | SortKind::NoteMod
             | SortKind::NoteReps
@@ -256,6 +257,7 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
         SortKind::NoteCards
         | SortKind::NoteDue
         | SortKind::NoteEase
+        | SortKind::NoteInterval
         | SortKind::NoteLapses
         | SortKind::NoteReps => "(select pos from sort_order where nid = n.id) asc".into(),
         SortKind::NoteCreation => "n.id asc".into(),
@@ -275,6 +277,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
         NoteCards => include_str!("note_cards_order.sql"),
         NoteDue => include_str!("note_due_order.sql"),
         NoteEase => include_str!("note_ease_order.sql"),
+        NoteInterval => include_str!("note_interval_order.sql"),
         NoteLapses => include_str!("note_lapses_order.sql"),
         NoteReps => include_str!("note_reps_order.sql"),
         Notetype => include_str!("notetype_order.sql"),

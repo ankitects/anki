@@ -27,6 +27,7 @@ impl From<String> for browser_table::Column {
             "noteDue" => browser_table::Column::NoteDue,
             "noteEase" => browser_table::Column::NoteEase,
             "noteFld" => browser_table::Column::NoteField,
+            "noteIvl" => browser_table::Column::NoteInterval,
             "noteLapses" => browser_table::Column::NoteLapses,
             "noteMod" => browser_table::Column::NoteMod,
             "noteReps" => browser_table::Column::NoteReps,
