@@ -34,9 +34,12 @@
 </script>
 
 <script lang="typescript">
-    import InnerButton from "./InnerButton.svelte";
+    import SquareButton from "./SquareButton.svelte";
 
+    export let id = "";
     export let className = "";
+    export let props: Record<string, string> = {};
+
     export let icon = "";
     export let command: string;
     export let activatable = true;
@@ -57,6 +60,6 @@
     }
 </script>
 
-<InnerButton {className} {active} {onClick}>
+<SquareButton {id} {className} {props} {active} {onClick}>
     {@html icon}
-</InnerButton>
+</SquareButton>

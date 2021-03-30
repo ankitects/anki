@@ -5,7 +5,7 @@
     import { disabledKey, nightModeKey } from "./contextKeys";
 
     import ButtonGroup from "./ButtonGroup.svelte";
-    import type { Buttons } from "./ButtonGroup.svelte";
+    import type { Buttons } from "./types";
 
     export let buttons: Buttons = [];
     export let nightMode: boolean;
@@ -25,7 +25,7 @@
         background: var(--bg-color);
         border-bottom: 1px solid var(--border);
 
-        /* Remove most outer marigns */
+        /* Remove outermost marigns */
         & > :global(ul) {
             & > :global(li:nth-child(1)) {
                 margin-left: 0;
