@@ -1,10 +1,6 @@
-<script lang="typescript" context="module">
-    export type Buttons =
-        | { component: SvelteComponent; [...arg: string]: unknown }
-        | Buttons[];
-</script>
-
 <script lang="typescript">
+    import type { Buttons } from "./types";
+
     export let buttons: Buttons;
 </script>
 

@@ -6,7 +6,7 @@ import { setupI18n, ModuleName } from "anki/i18n";
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 import LabelButton from "./LabelButton.svelte";
-import DropdownIconButton from "./DropdownIconButton.svelte";
+import DropdownMenu from "./DropdownMenu.svelte";
 
 // @ts-ignore
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
@@ -46,8 +46,6 @@ const defaultButtons = [
     ],
     [forecolorButton, colorpickerButton],
     [attachmentButton, recordButton, clozeButton, mathjaxButton, htmlButton],
-    [ { component: DropdownIconButton }],
-
 ];
 
 class EditorToolbar extends HTMLElement {
@@ -57,16 +55,18 @@ class EditorToolbar extends HTMLElement {
     connectedCallback(): void {
         this.disabled = writable(false);
 
-        setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(() => {
-            this.component = new EditorToolbarSvelte({
-                target: this,
-                props: {
-                    buttons: defaultButtons,
-                    nightMode: checkNightMode(),
-                    disabled: this.disabled,
-                },
-            });
-        })
+        setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(
+            () => {
+                this.component = new EditorToolbarSvelte({
+                    target: this,
+                    props: {
+                        buttons: defaultButtons,
+                        nightMode: checkNightMode(),
+                        disabled: this.disabled,
+                    },
+                });
+            }
+        );
     }
 
     enableButtons(): void {

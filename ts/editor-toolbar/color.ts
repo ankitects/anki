@@ -20,12 +20,12 @@ function wrapWithForecolor(color: string): void {
 export const forecolorButton = {
     component: IconButton,
     icon: squareFillIcon,
-    className: "forecolor p-1",
+    className: "forecolor",
     onClick: () => wrapWithForecolor(getForecolor()),
 };
 
 export const colorpickerButton = {
     component: ColorPicker,
-    className: "rainbow p-1",
+    className: "rainbow",
     onChange: ({ currentTarget }) => setForegroundColor(currentTarget.value),
 };
