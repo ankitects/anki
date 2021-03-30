@@ -82,7 +82,7 @@ _html = """
 }
 </style>
 <div>
-    <anki-editor-toolbar></anki-editor-toolbar>
+    <anki-editor-toolbar id="editorToolbar"></anki-editor-toolbar>
     <div id="fields">
     </div>
     <div id="dupes" class="is-inactive">
@@ -1113,6 +1113,7 @@ class Editor:
         dupes=showDupes,
         paste=onPaste,
         cutOrCopy=onCutOrCopy,
+        htmlEdit=onHtmlEdit,
     )
 
 

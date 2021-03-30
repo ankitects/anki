@@ -3,7 +3,7 @@
 
     export const commandMap = writable(new Map<string, boolean>());
 
-    function updateButton(key: string): void {
+    function initializeButton(key: string): void {
         commandMap.update(
             (map: Map<string, boolean>): Map<string, boolean> =>
                 new Map([...map, [key, document.queryCommandState(key)]])
@@ -24,11 +24,11 @@
         );
     }
 
-    export function updateButtonActive() {
+    export function updateActiveButtons() {
         updateButtons((key: string): boolean => document.queryCommandState(key));
     }
 
-    export function clearButtonActive() {
+    export function clearActiveButtons() {
         updateButtons((): boolean => false);
     }
 </script>
@@ -44,7 +44,7 @@
     let active = false;
 
     if (activatable) {
-        updateButton(command);
+        initializeButton(command);
 
         commandMap.subscribe((map: Record<string, boolean>): void => {
             active = map.get(command);

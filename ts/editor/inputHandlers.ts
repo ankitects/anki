@@ -4,7 +4,6 @@
 import { EditingArea } from "./editingArea";
 import { caretToEnd, nodeIsElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
-import { updateButtonState } from "./toolbar";
 
 function inListItem(currentField: EditingArea): boolean {
     const anchor = currentField.getSelection()!.anchorNode!;
@@ -22,7 +21,8 @@ function inListItem(currentField: EditingArea): boolean {
 export function onInput(event: Event): void {
     // make sure IME changes get saved
     triggerChangeTimer(event.currentTarget as EditingArea);
-    updateButtonState();
+    // @ts-ignore
+    editorToolbar.updateActiveButtons();
 }
 
 export function onKey(evt: KeyboardEvent): void {
@@ -69,7 +69,8 @@ globalThis.addEventListener("keydown", (evt: KeyboardEvent) => {
                 const newFocusTarget = evt.target;
                 if (newFocusTarget instanceof EditingArea) {
                     caretToEnd(newFocusTarget);
-                    updateButtonState();
+                    // @ts-ignore
+                    editorToolbar.updateActiveButtons();
                 }
             },
             { once: true }

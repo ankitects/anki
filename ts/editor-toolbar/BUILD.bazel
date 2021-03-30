@@ -77,7 +77,7 @@ esbuild(
         "//ts:protobuf-shim.js",
     ],
     args = [
-        "--global-name=anki",
+        "--global-name=editorToolbar",
         "--inject:ts/protobuf-shim.js",
         "--loader:.svg=text",
     ],
