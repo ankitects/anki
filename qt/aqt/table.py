@@ -618,7 +618,7 @@ class CardState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
         self._load_columns()
-        self._load_active_columns()
+        self._active_columns = self.col.load_browser_card_columns()
         self._sort_column = self.col.get_config("sortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_SORT_BACKWARDS
@@ -644,11 +644,6 @@ class CardState(ItemState):
         ]
         self._columns.sort(key=itemgetter(1))
 
-    def _load_active_columns(self) -> None:
-        self._active_columns = self.col.get_config(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"]
-        )
-
     @property
     def columns(self) -> List[Tuple[str, str]]:
         return self._columns
@@ -662,7 +657,7 @@ class CardState(ItemState):
             self._active_columns.remove(column)
         else:
             self._active_columns.append(column)
-        self.col.set_config("activeCols", self._active_columns)
+        self.col.set_browser_card_columns(self._active_columns)
 
     @property
     def sort_column(self) -> str:
@@ -711,7 +706,7 @@ class NoteState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
         self._load_columns()
-        self._load_active_columns()
+        self._active_columns = self.col.load_browser_note_columns()
         self._sort_column = self.col.get_config("noteSortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
@@ -731,11 +726,6 @@ class NoteState(ItemState):
         ]
         self._columns.sort(key=itemgetter(1))
 
-    def _load_active_columns(self) -> None:
-        self._active_columns = self.col.get_config(
-            "activeNoteCols", ["noteFld", "note", "noteTags", "noteMod"]
-        )
-
     @property
     def columns(self) -> List[Tuple[str, str]]:
         return self._columns
@@ -749,7 +739,7 @@ class NoteState(ItemState):
             self._active_columns.remove(column)
         else:
             self._active_columns.append(column)
-        self.col.set_config("activeNoteCols", self._active_columns)
+        self.col.set_browser_note_columns(self._active_columns)
 
     @property
     def sort_column(self) -> str:

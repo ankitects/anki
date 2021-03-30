@@ -4,6 +4,7 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
@@ -20,7 +21,30 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-const CARD_RENDER_COLUMNS: [&str; 2] = ["question", "answer"];
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy)]
+#[repr(u8)]
+pub enum Column {
+    Custom = 0,
+    Question = 1,
+    Answer = 2,
+    CardDeck = 3,
+    CardDue = 4,
+    CardEase = 5,
+    CardLapses = 6,
+    CardInterval = 7,
+    CardMod = 8,
+    CardReps = 9,
+    CardTemplate = 10,
+    NoteCards = 11,
+    NoteCreation = 12,
+    NoteEase = 13,
+    NoteField = 14,
+    NoteLapses = 15,
+    NoteMod = 16,
+    NoteReps = 17,
+    NoteTags = 18,
+    Notetype = 19,
+}
 
 #[derive(Debug, PartialEq)]
 pub struct Row {
@@ -53,13 +77,13 @@ pub struct Font {
 }
 
 trait RowContext {
-    fn get_cell_text(&mut self, column: &str) -> Result<String>;
+    fn get_cell_text(&mut self, column: &Column) -> Result<String>;
     fn get_row_color(&self) -> Color;
     fn get_row_font(&self) -> Result<Font>;
     fn note(&self) -> &Note;
     fn notetype(&self) -> &Notetype;
 
-    fn get_cell(&mut self, column: &str) -> Result<Cell> {
+    fn get_cell(&mut self, column: &Column) -> Result<Cell> {
         Ok(Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
@@ -77,9 +101,9 @@ trait RowContext {
         html_to_text_line(&self.note().fields()[index]).into()
     }
 
-    fn get_is_rtl(&self, column: &str) -> bool {
+    fn get_is_rtl(&self, column: &Column) -> bool {
         match column {
-            "noteFld" => {
+            Column::NoteField => {
                 let index = self.notetype().config.sort_field_idx as usize;
                 self.notetype().fields[index].config.rtl
             }
@@ -87,7 +111,7 @@ trait RowContext {
         }
     }
 
-    fn browser_row_for_id(&mut self, columns: &[String]) -> Result<Row> {
+    fn browser_row_for_id(&mut self, columns: &[Column]) -> Result<Row> {
         Ok(Row {
             cells: columns
                 .iter()
@@ -125,20 +149,27 @@ struct NoteRowContext<'a> {
     tr: &'a I18n,
 }
 
-fn card_render_required(columns: &[String]) -> bool {
+fn card_render_required(columns: &[Column]) -> bool {
     columns
         .iter()
-        .any(|c| CARD_RENDER_COLUMNS.contains(&c.as_str()))
+        .any(|c| matches!(c, Column::Question | Column::Answer))
 }
 
 impl Collection {
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
         if self.get_bool(BoolKey::BrowserTableShowNotesMode) {
-            let columns = self.get_desktop_browser_note_columns();
+            let columns =
+                self.get_desktop_browser_note_columns()
+                    .ok_or(AnkiError::InvalidInput {
+                        info: "Note columns not set.".into(),
+                    })?;
             NoteRowContext::new(self, id)?.browser_row_for_id(&columns)
         } else {
-            // this is inefficient; we may want to use an enum in the future
-            let columns = self.get_desktop_browser_card_columns();
+            let columns =
+                self.get_desktop_browser_card_columns()
+                    .ok_or(AnkiError::InvalidInput {
+                        info: "Card columns not set.".into(),
+                    })?;
             CardRowContext::new(self, id, card_render_required(&columns))?
                 .browser_row_for_id(&columns)
         }
@@ -329,23 +360,23 @@ impl<'a> CardRowContext<'a> {
 }
 
 impl RowContext for CardRowContext<'_> {
-    fn get_cell_text(&mut self, column: &str) -> Result<String> {
+    fn get_cell_text(&mut self, column: &Column) -> Result<String> {
         Ok(match column {
-            "answer" => self.answer_str(),
-            "cardDue" => self.card_due_str(),
-            "cardEase" => self.card_ease_str(),
-            "cardIvl" => self.card_interval_str(),
-            "cardLapses" => self.card.lapses.to_string(),
-            "cardMod" => self.card.mtime.date_string(),
-            "cardReps" => self.card.reps.to_string(),
-            "deck" => self.deck_str()?,
-            "note" => self.notetype.name.to_owned(),
-            "noteCrt" => self.note_creation_str(),
-            "noteFld" => self.note_field_str(),
-            "noteMod" => self.note.mtime.date_string(),
-            "noteTags" => self.note.tags.join(" "),
-            "question" => self.question_str(),
-            "template" => self.template_str()?,
+            Column::Question => self.question_str(),
+            Column::Answer => self.answer_str(),
+            Column::CardDeck => self.deck_str()?,
+            Column::CardDue => self.card_due_str(),
+            Column::CardEase => self.card_ease_str(),
+            Column::CardInterval => self.card_interval_str(),
+            Column::CardLapses => self.card.lapses.to_string(),
+            Column::CardMod => self.card.mtime.date_string(),
+            Column::CardReps => self.card.reps.to_string(),
+            Column::CardTemplate => self.template_str()?,
+            Column::NoteCreation => self.note_creation_str(),
+            Column::NoteField => self.note_field_str(),
+            Column::NoteMod => self.note.mtime.date_string(),
+            Column::NoteTags => self.note.tags.join(" "),
+            Column::Notetype => self.notetype.name.to_owned(),
             _ => "".to_string(),
         })
     }
@@ -421,17 +452,17 @@ impl<'a> NoteRowContext<'a> {
 }
 
 impl RowContext for NoteRowContext<'_> {
-    fn get_cell_text(&mut self, column: &str) -> Result<String> {
+    fn get_cell_text(&mut self, column: &Column) -> Result<String> {
         Ok(match column {
-            "note" => self.notetype.name.to_owned(),
-            "noteCards" => self.cards.len().to_string(),
-            "noteCrt" => self.note_creation_str(),
-            "noteEase" => self.note_ease_str(),
-            "noteFld" => self.note_field_str(),
-            "noteLapses" => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),
-            "noteMod" => self.note.mtime.date_string(),
-            "noteReps" => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),
-            "noteTags" => self.note.tags.join(" "),
+            Column::NoteCards => self.cards.len().to_string(),
+            Column::NoteCreation => self.note_creation_str(),
+            Column::NoteEase => self.note_ease_str(),
+            Column::NoteField => self.note_field_str(),
+            Column::NoteLapses => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),
+            Column::NoteMod => self.note.mtime.date_string(),
+            Column::NoteReps => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),
+            Column::NoteTags => self.note.tags.join(" "),
+            Column::Notetype => self.notetype.name.to_owned(),
             _ => "".to_string(),
         })
     }

@@ -243,6 +243,8 @@ service SearchService {
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
   rpc BrowserRowForId(Int64) returns (BrowserRow);
+  rpc SetDesktopBrowserCardColumns(StringList) returns (Empty);
+  rpc SetDesktopBrowserNoteColumns(StringList) returns (Empty);
 }
 
 service StatsService {
