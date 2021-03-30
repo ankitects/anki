@@ -408,7 +408,7 @@ class Browser(QMainWindow):
 
     @ensure_editor_saved
     def onRowChanged(
-        self, current: Optional[QItemSelection], previous: Optional[QItemSelection]
+        self, _current: Optional[QItemSelection], _previous: Optional[QItemSelection]
     ) -> None:
         """Update current note and hide/show editor. """
         if self._closeEventHasCleanedUp:
@@ -428,7 +428,7 @@ class Browser(QMainWindow):
             self.editor.card = card
         else:
             self.editor.set_note(None)
-            self._renderPreview()
+        self._renderPreview()
         self._update_flags_menu()
         gui_hooks.browser_did_change_row(self)
 
