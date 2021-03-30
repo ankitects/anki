@@ -13,7 +13,7 @@
         margin: 0 3px;
 
         &:focus {
-            box-shadow: 0 0 0 0.05rem rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 12px 4px rgb(255 255 255 / 0.5);
         }
     }
 </style>

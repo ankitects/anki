@@ -27,7 +27,13 @@
 
         &:active,
         &.active {
-            box-shadow: inset 0 0 10px 3px rgb(0 0 0 / 30%);
+            box-shadow: inset 0 0 12px 4px rgb(0 0 0 / 30%);
+            border-color: #aaa;
+        }
+
+        &.active:active {
+            box-shadow: none;
+            border-color: var(--border);
         }
 
         &[disabled] {

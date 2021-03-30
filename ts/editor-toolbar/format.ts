@@ -1,5 +1,5 @@
 // @ts-ignore
-import CommandIconButton, { updateButtons } from "./CommandIconButton.svelte";
+import CommandIconButton, { updateButtonActive } from "./CommandIconButton.svelte";
 import boldIcon from "./type-bold.svg";
 import italicIcon from "./type-italic.svg";
 import underlineIcon from "./type-underline.svg";
@@ -45,4 +45,4 @@ export const eraserButton = {
 };
 
 // TODO
-setInterval(updateButtons, 2000);
+setInterval(updateButtonActive, 2000);
