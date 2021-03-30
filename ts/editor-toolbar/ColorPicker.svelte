@@ -15,6 +15,10 @@
         &:hover {
             background-color: #eee;
         }
+
+        &:active {
+            box-shadow: inset 0 0 10px 3px rgb(0 0 0 / 30%);
+        }
     }
 
     span {
