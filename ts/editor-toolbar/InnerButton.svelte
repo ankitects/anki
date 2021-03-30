@@ -1,8 +1,14 @@
 <script lang="typescript">
+    import { getContext } from "svelte";
+    import type { Readable } from "svelte/store";
+    import { disabledKey } from "./contextKeys";
+
     export let className: string = "";
     export let onClick: (event: ClickEvent) => void;
     export let active = false;
-    export let disabled = false;
+
+    const disabledStore = getContext(disabledKey)
+    $: disabled = $disabledStore;
 </script>
 
 <style lang="scss">
@@ -16,6 +22,7 @@
 
         & > :global(svg),
         & > :global(img) {
+            fill: currentColor;
             vertical-align: unset;
             width: 100%;
             height: 100%;
@@ -38,6 +45,7 @@
 
         &[disabled] {
             opacity: 0.4;
+            cursor: not-allowed;
 
             &:hover {
                 background-color: white;

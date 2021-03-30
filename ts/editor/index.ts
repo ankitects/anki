@@ -5,7 +5,6 @@ import { filterHTML } from "html-filter";
 
 import { caretToEnd } from "./helpers";
 import { saveField } from "./changeTimer";
-import { updateButtonState, disableButtons } from "./toolbar";
 
 import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
@@ -13,7 +12,6 @@ import { EditingArea } from "./editingArea";
 import { Editable } from "./editable";
 
 export { setNoteId, getNoteId } from "./noteId";
-export { preventButtonFocus, toggleEditorButton, setFGButton } from "./toolbar";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
 
@@ -43,7 +41,8 @@ export function focusField(n: number): void {
     if (field) {
         field.editingArea.focusEditable();
         caretToEnd(field.editingArea);
-        updateButtonState();
+        // @ts-ignore
+        editorToolbar.updateActiveButtons();
     }
 }
 
@@ -123,7 +122,8 @@ export function setFields(fields: [string, string][]): void {
 
     if (!getCurrentField()) {
         // when initial focus of the window is not on editor (e.g. browser)
-        disableButtons();
+        // @ts-ignore
+        document.getElementById("editorToolbar").disableButtons();
     }
 }
 
@@ -158,6 +158,7 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
-        updateButtonState();
+        // @ts-ignore
+        editorToolbar.updateActiveButtons();
     }
 }

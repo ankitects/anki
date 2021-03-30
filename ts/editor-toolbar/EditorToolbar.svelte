@@ -1,11 +1,17 @@
 <script lang="typescript">
+    import type { Readable } from "svelte/store";
+    import { setContext } from "svelte";
+    import { disabledKey, nightModeKey } from "./contextKeys";
+
     import ButtonGroup from "./ButtonGroup.svelte";
     import type { Buttons } from "./ButtonGroup.svelte";
 
     export let buttons: Buttons = [];
     export let nightMode: boolean;
+    export let disabled: Readable<boolean> = false;
 
-    console.log(nightMode);
+    setContext(disabledKey, disabled);
+    setContext(nightModeKey, nightMode);
 </script>
 
 <style lang="scss">

@@ -1,8 +1,15 @@
 import type { SvelteComponent } from "svelte";
+
 import { checkNightMode } from "anki/nightmode";
+import { setupI18n, ModuleName } from "anki/i18n";
+
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 import LabelButton from "./LabelButton.svelte";
+
+// @ts-ignore
+export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
+import { Writable, writable } from "svelte/store";
 
 import {
     boldButton,
@@ -42,17 +49,29 @@ const defaultButtons = [
 
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponent;
+    disabled?: Writable<boolean>;
 
     connectedCallback(): void {
-        const nightMode = checkNightMode();
+        this.disabled = writable(false);
 
-        this.component = new EditorToolbarSvelte({
-            target: this,
-            props: {
-                nightMode,
-                buttons: defaultButtons,
-            },
-        });
+        setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(() => {
+            this.component = new EditorToolbarSvelte({
+                target: this,
+                props: {
+                    buttons: defaultButtons,
+                    nightMode: checkNightMode(),
+                    disabled: this.disabled,
+                },
+            });
+        })
+    }
+
+    enableButtons(): void {
+        this.disabled?.set(false);
+    }
+
+    disableButtons(): void {
+        this.disabled?.set(true);
     }
 }
 
