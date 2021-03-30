@@ -10,14 +10,10 @@
 
 <style lang="scss">
     div {
-        display: flex;
-        flex-wrap: wrap;
-
         position: sticky;
         top: 0;
         left: 0;
-        z-index: 5;
-        padding: 2px;
+        z-index: 10;
 
         background: var(--bg-color);
         border-bottom: 1px solid var(--border);
