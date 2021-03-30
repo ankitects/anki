@@ -32,6 +32,6 @@
     }
 </style>
 
-<button>
+<button tabindex="-1">
     <span class={className}> <input type="color" on:change={onChange} /> </span>
 </button>

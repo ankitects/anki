@@ -18,4 +18,4 @@
     }
 </style>
 
-<button type="button" class="btn btn-secondary" on:click> {label} </button>
+<button class="btn btn-secondary" tabindex="-1" on:click> {label} </button>
