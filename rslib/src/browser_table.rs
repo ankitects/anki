@@ -466,17 +466,18 @@ impl<'a> NoteRowContext<'a> {
         })
     }
 
+    /// Returns the average ease of the non-new cards or a hint if there aren't any.
     fn note_ease_str(&self) -> String {
-        let cards = self
+        let eases: Vec<u16> = self
             .cards
             .iter()
             .filter(|c| c.ctype != CardType::New)
-            .collect::<Vec<&Card>>();
-        if cards.is_empty() {
+            .map(|c| c.ease_factor)
+            .collect();
+        if eases.is_empty() {
             self.tr.browsing_new().into()
         } else {
-            let ease = cards.iter().map(|c| c.ease_factor).sum::<u16>() / cards.len() as u16;
-            format!("{}%", ease / 10)
+            format!("{}%", eases.iter().sum::<u16>() / eases.len() as u16 / 10)
         }
     }
 
