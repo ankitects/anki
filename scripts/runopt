@@ -2,4 +2,4 @@
 
 set -e
 
-BUILDARGS="-c opt --@rules_rust//worker:use_worker=False" $(dirname $0)/../run $*
+BUILDARGS="--config opt" $(dirname $0)/../run $*

@@ -8,5 +8,5 @@ test -e WORKSPACE || (
 )
 
 rm -rf bazel-dist
-bazel build -c opt --@rules_rust//worker:use_worker=False dist
+bazel build --config opt dist
 tar xvf bazel-bin/dist.tar

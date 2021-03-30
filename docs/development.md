@@ -149,11 +149,11 @@ build --disk_cache=~/bazel/ankidisk --repository_cache=~/bazel/ankirepo
 ```
 
 If you're frequently modifying the Rust parts of Anki, you can place the
-following in your user.bazelrc file to enable incremental compilation:
+following in your user.bazelrc file to enable incremental compilation
+when using ./run.
 
 ```
-build --@rules_rust//worker:use_worker=True
-build:windows --worker_quit_after_build
+build --@rules_rust//worker:cache_root=/path/to/folder/to/store/temp/files
 ```
 
 The worker support is experimental, so you may need to remove it in future
