@@ -155,6 +155,41 @@ fn card_render_required(columns: &[Column]) -> bool {
         .any(|c| matches!(c, Column::Question | Column::Answer))
 }
 
+impl Card {
+    fn is_new_type_or_queue(&self) -> bool {
+        self.queue == CardQueue::New || self.ctype == CardType::New
+    }
+
+    fn is_filtered_deck(&self) -> bool {
+        self.original_deck_id != DeckId(0)
+    }
+
+    /// Returns true if the card can not be due as it's buried or suspended.
+    fn is_undue_queue(&self) -> bool {
+        (self.queue as i8) < 0
+    }
+
+    /// Returns true of the card has a due date in terms of days.
+    fn is_due_in_days(&self) -> bool {
+        matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
+            || (self.ctype == CardType::Review && self.is_undue_queue())
+    }
+
+    /// Returns the card's due date as a timestamp if it has one.
+    fn due_time(&self, timing: &SchedTimingToday) -> Option<TimestampSecs> {
+        if self.queue == CardQueue::Learn {
+            Some(TimestampSecs(self.due as i64))
+        } else if self.is_due_in_days() {
+            Some(
+                TimestampSecs::now()
+                    .adding_secs(((self.due - timing.days_elapsed as i32) * 86400) as i64),
+            )
+        } else {
+            None
+        }
+    }
+}
+
 impl Collection {
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
         if self.get_bool(BoolKey::BrowserTableShowNotesMode) {
@@ -297,25 +332,16 @@ impl<'a> CardRowContext<'a> {
     }
 
     fn card_due_str(&mut self) -> String {
-        let due = if self.card.original_deck_id != DeckId(0) {
+        let due = if self.card.is_filtered_deck() {
             self.tr.browsing_filtered()
-        } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
+        } else if self.card.is_new_type_or_queue() {
             self.tr.statistics_due_for_new_card(self.card.due)
+        } else if let Some(time) = self.card.due_time(&self.timing) {
+            time.date_string().into()
         } else {
-            let date = if self.card.queue == CardQueue::Learn {
-                TimestampSecs(self.card.due as i64)
-            } else if self.card.queue == CardQueue::DayLearn
-                || self.card.queue == CardQueue::Review
-                || (self.card.ctype == CardType::Review && (self.card.queue as i8) < 0)
-            {
-                TimestampSecs::now()
-                    .adding_secs(((self.card.due - self.timing.days_elapsed as i32) * 86400) as i64)
-            } else {
-                return "".into();
-            };
-            date.date_string().into()
+            return "".into();
         };
-        if (self.card.queue as i8) < 0 {
+        if self.card.is_undue_queue() {
             format!("({})", due)
         } else {
             due.into()
