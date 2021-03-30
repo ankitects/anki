@@ -40,6 +40,7 @@ pub enum Column {
     NoteDue,
     NoteEase,
     NoteField,
+    NoteInterval,
     NoteLapses,
     NoteMod,
     NoteReps,
@@ -492,6 +493,26 @@ impl<'a> NoteRowContext<'a> {
             .map(|time| time.date_string())
             .unwrap_or_else(|| "".into())
     }
+
+    /// Returns the average interval of the review and relearn cards or the empty string if there
+    /// aren't any.
+    fn note_interval_str(&self) -> String {
+        let intervals: Vec<u32> = self
+            .cards
+            .iter()
+            .filter(|c| matches!(c.ctype, CardType::Review | CardType::Relearn))
+            .map(|c| c.interval)
+            .collect();
+        if intervals.is_empty() {
+            "".into()
+        } else {
+            time_span(
+                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
+                self.tr,
+                false,
+            )
+        }
+    }
 }
 
 impl RowContext for NoteRowContext<'_> {
@@ -502,6 +523,7 @@ impl RowContext for NoteRowContext<'_> {
             Column::NoteDue => self.note_due_str(),
             Column::NoteEase => self.note_ease_str(),
             Column::NoteField => self.note_field_str(),
+            Column::NoteInterval => self.note_interval_str(),
             Column::NoteLapses => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),
             Column::NoteMod => self.note.mtime.date_string(),
             Column::NoteReps => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),

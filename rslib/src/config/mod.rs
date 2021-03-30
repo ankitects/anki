@@ -273,6 +273,8 @@ pub enum SortKind {
     NoteCreation,
     NoteDue,
     NoteEase,
+    #[serde(rename = "noteIvl")]
+    NoteInterval,
     NoteLapses,
     NoteMod,
     #[serde(rename = "noteFld")]

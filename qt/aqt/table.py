@@ -720,6 +720,7 @@ class NoteState(ItemState):
             ("noteDue", tr.statistics_due_date()),
             ("noteEase", tr.browsing_average_ease()),
             ("noteFld", tr.browsing_sort_field()),
+            ("noteIvl", tr.browsing_average_interval()),
             ("noteLapses", tr.scheduling_lapses()),
             ("noteMod", tr.search_note_modified()),
             ("noteReps", tr.scheduling_reviews()),
