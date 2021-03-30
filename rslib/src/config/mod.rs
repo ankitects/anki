@@ -9,7 +9,7 @@ mod string;
 pub(crate) mod undo;
 
 pub use self::{bool::BoolKey, string::StringKey};
-use crate::browser_rows;
+use crate::browser_table;
 use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_derive::Deserialize;
@@ -139,24 +139,24 @@ impl Collection {
         self.get_config_default(ConfigKey::BrowserNoteSortKind)
     }
 
-    pub(crate) fn get_desktop_browser_card_columns(&self) -> Option<Vec<browser_rows::Column>> {
+    pub(crate) fn get_desktop_browser_card_columns(&self) -> Option<Vec<browser_table::Column>> {
         self.get_config_optional(ConfigKey::DesktopBrowserCardColumns)
     }
 
     pub(crate) fn set_desktop_browser_card_columns(
         &mut self,
-        columns: Vec<browser_rows::Column>,
+        columns: Vec<browser_table::Column>,
     ) -> Result<()> {
         self.set_config(ConfigKey::DesktopBrowserCardColumns, &columns)
     }
 
-    pub(crate) fn get_desktop_browser_note_columns(&self) -> Option<Vec<browser_rows::Column>> {
+    pub(crate) fn get_desktop_browser_note_columns(&self) -> Option<Vec<browser_table::Column>> {
         self.get_config_optional(ConfigKey::DesktopBrowserNoteColumns)
     }
 
     pub(crate) fn set_desktop_browser_note_columns(
         &mut self,
-        columns: Vec<browser_rows::Column>,
+        columns: Vec<browser_table::Column>,
     ) -> Result<()> {
         self.set_config(ConfigKey::DesktopBrowserNoteColumns, &columns)
     }
