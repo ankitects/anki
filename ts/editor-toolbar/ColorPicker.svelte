@@ -37,6 +37,6 @@
     }
 </style>
 
-<button tabindex="-1">
+<button tabindex="-1" on:mousedown|preventDefault> 
     <span class={className}> <input type="color" on:change={onChange} /> </span>
 </button>
