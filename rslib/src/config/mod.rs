@@ -9,6 +9,7 @@ mod string;
 pub(crate) mod undo;
 
 pub use self::{bool::BoolKey, string::StringKey};
+use crate::browser_table;
 use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_derive::Deserialize;
@@ -65,9 +66,7 @@ pub(crate) enum ConfigKey {
     #[strum(to_string = "schedVer")]
     SchedulerVersion,
 
-    #[strum(to_string = "activeCols")]
     DesktopBrowserCardColumns,
-    #[strum(to_string = "activeNoteCols")]
     DesktopBrowserNoteColumns,
 }
 
@@ -140,28 +139,26 @@ impl Collection {
         self.get_config_default(ConfigKey::BrowserNoteSortKind)
     }
 
-    pub(crate) fn get_desktop_browser_card_columns(&self) -> Vec<String> {
+    pub(crate) fn get_desktop_browser_card_columns(&self) -> Option<Vec<browser_table::Column>> {
         self.get_config_optional(ConfigKey::DesktopBrowserCardColumns)
-            .unwrap_or_else(|| {
-                vec![
-                    "noteFld".to_string(),
-                    "template".to_string(),
-                    "cardDue".to_string(),
-                    "deck".to_string(),
-                ]
-            })
     }
 
-    pub(crate) fn get_desktop_browser_note_columns(&self) -> Vec<String> {
+    pub(crate) fn set_desktop_browser_card_columns(
+        &mut self,
+        columns: Vec<browser_table::Column>,
+    ) -> Result<()> {
+        self.set_config(ConfigKey::DesktopBrowserCardColumns, &columns)
+    }
+
+    pub(crate) fn get_desktop_browser_note_columns(&self) -> Option<Vec<browser_table::Column>> {
         self.get_config_optional(ConfigKey::DesktopBrowserNoteColumns)
-            .unwrap_or_else(|| {
-                vec![
-                    "noteFld".to_string(),
-                    "note".to_string(),
-                    "noteTags".to_string(),
-                    "noteMod".to_string(),
-                ]
-            })
+    }
+
+    pub(crate) fn set_desktop_browser_note_columns(
+        &mut self,
+        columns: Vec<browser_table::Column>,
+    ) -> Result<()> {
+        self.set_config(ConfigKey::DesktopBrowserNoteColumns, &columns)
     }
 
     pub(crate) fn get_creation_utc_offset(&self) -> Option<i32> {

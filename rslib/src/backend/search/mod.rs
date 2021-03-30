@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod browser_row;
+mod browser_table;
 mod search_node;
 
 use std::convert::TryInto;
@@ -91,6 +91,16 @@ impl SearchService for Backend {
 
     fn browser_row_for_id(&self, input: pb::Int64) -> Result<pb::BrowserRow> {
         self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
+    }
+
+    fn set_desktop_browser_card_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
+        self.with_col(|col| col.set_desktop_browser_card_columns(input.into()))?;
+        Ok(().into())
+    }
+
+    fn set_desktop_browser_note_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
+        self.with_col(|col| col.set_desktop_browser_note_columns(input.into()))?;
+        Ok(().into())
     }
 }
 
