@@ -48,6 +48,7 @@
 <button
     class="p-1 {className}"
     class:active
+    tabindex="-1"
     {disabled}
     on:click={onClick}
     on:mousedown|preventDefault>
