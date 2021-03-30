@@ -7,10 +7,10 @@
         display: inline-block;
         vertical-align: middle;
         width: auto;
-        height: 30px;
+        height: 26px;
 
-        padding: 3px 10px;
-        margin-right: 3px;
+        padding: 0 10px;
+        margin: 0 3px;
 
         &:focus {
             box-shadow: 0 0 0 0.05rem rgba(255, 255, 255, 0.5);

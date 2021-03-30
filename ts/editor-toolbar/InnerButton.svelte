@@ -9,8 +9,8 @@
     button {
         display: inline-block;
         vertical-align: middle;
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
 
         background-color: white;
 
