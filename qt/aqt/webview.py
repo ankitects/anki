@@ -608,7 +608,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
             mw.progress.timer(1000, mw.reset, False)
             return
 
-        self.setFixedHeight(qvar)
+        self.setFixedHeight(int(qvar))
 
     def set_bridge_command(self, func: Callable[[str], Any], context: Any) -> None:
         """Set a handler for pycmd() messages received from Javascript.
