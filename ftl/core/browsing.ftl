@@ -12,6 +12,8 @@ browsing-browser-appearance = Browser Appearance
 browsing-browser-options = Browser Options
 browsing-buried = Buried
 browsing-card = Card
+# Exactly one character representing 'Cards'; should differ from browsing-note-initial.
+browsing-card-initial = C
 browsing-card-list = Card List
 browsing-card-state = Card State
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
@@ -63,6 +65,8 @@ browsing-new = (new)
 browsing-new-note-type = New note type:
 browsing-no-flag = No Flag
 browsing-note = Note
+# Exactly one character representing 'Notes'; should differ from browsing-card-initial.
+browsing-note-initial = N
 browsing-notes-tagged = Notes tagged.
 browsing-nothing = Nothing
 browsing-only-new-cards-can-be-repositioned = Only new cards can be repositioned.

@@ -91,10 +91,12 @@ impl SortKind {
             SortKind::NoteCards
             | SortKind::NoteCreation
             | SortKind::NoteEase
-            | SortKind::NoteMod
             | SortKind::NoteField
-            | SortKind::Notetype
-            | SortKind::NoteTags => RequiredTable::Notes,
+            | SortKind::NoteLapses
+            | SortKind::NoteMod
+            | SortKind::NoteReps
+            | SortKind::NoteTags
+            | SortKind::Notetype => RequiredTable::Notes,
             SortKind::CardTemplate => RequiredTable::CardsAndNotes,
             SortKind::CardMod
             | SortKind::CardReps
@@ -250,11 +252,12 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
 
 fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     match kind {
-        SortKind::NoteCards => "(select pos from sort_order where nid = n.id) asc".into(),
+        SortKind::NoteCards | SortKind::NoteEase | SortKind::NoteLapses | SortKind::NoteReps => {
+            "(select pos from sort_order where nid = n.id) asc".into()
+        }
         SortKind::NoteCreation => "n.id asc".into(),
-        SortKind::NoteEase => "(select pos from sort_order where nid = n.id) asc".into(),
-        SortKind::NoteMod => "n.mod asc".into(),
         SortKind::NoteField => "n.sfld collate nocase asc".into(),
+        SortKind::NoteMod => "n.mod asc".into(),
         SortKind::NoteTags => "n.tags asc".into(),
         SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
         _ => "".into(),
@@ -265,10 +268,12 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
     use SortKind::*;
     let sql = match kind {
         CardDeck => include_str!("deck_order.sql"),
-        Notetype => include_str!("notetype_order.sql"),
         CardTemplate => include_str!("template_order.sql"),
         NoteCards => include_str!("note_cards_order.sql"),
         NoteEase => include_str!("note_ease_order.sql"),
+        NoteLapses => include_str!("note_lapses_order.sql"),
+        NoteReps => include_str!("note_reps_order.sql"),
+        Notetype => include_str!("notetype_order.sql"),
         _ => return Ok(()),
     };
 
