@@ -24,26 +24,27 @@ use crate::{
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy)]
 #[repr(u8)]
 pub enum Column {
-    Custom = 0,
-    Question = 1,
-    Answer = 2,
-    CardDeck = 3,
-    CardDue = 4,
-    CardEase = 5,
-    CardLapses = 6,
-    CardInterval = 7,
-    CardMod = 8,
-    CardReps = 9,
-    CardTemplate = 10,
-    NoteCards = 11,
-    NoteCreation = 12,
-    NoteEase = 13,
-    NoteField = 14,
-    NoteLapses = 15,
-    NoteMod = 16,
-    NoteReps = 17,
-    NoteTags = 18,
-    Notetype = 19,
+    Custom,
+    Question,
+    Answer,
+    CardDeck,
+    CardDue,
+    CardEase,
+    CardLapses,
+    CardInterval,
+    CardMod,
+    CardReps,
+    CardTemplate,
+    NoteCards,
+    NoteCreation,
+    NoteDue,
+    NoteEase,
+    NoteField,
+    NoteLapses,
+    NoteMod,
+    NoteReps,
+    NoteTags,
+    Notetype,
 }
 
 #[derive(Debug, PartialEq)]
@@ -147,6 +148,7 @@ struct NoteRowContext<'a> {
     notetype: Arc<Notetype>,
     cards: Vec<Card>,
     tr: &'a I18n,
+    timing: SchedTimingToday,
 }
 
 fn card_render_required(columns: &[Column]) -> bool {
@@ -453,12 +455,14 @@ impl<'a> NoteRowContext<'a> {
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
         let cards = col.storage.all_cards_of_note(note.id)?;
+        let timing = col.timing_today()?;
 
         Ok(NoteRowContext {
             note,
             notetype,
             cards,
             tr: &col.tr,
+            timing,
         })
     }
 
@@ -475,6 +479,18 @@ impl<'a> NoteRowContext<'a> {
             format!("{}%", ease / 10)
         }
     }
+
+    /// Returns the due date of the next due card that is not in a filtered deck, new, suspended or
+    /// buried or the empty string if there is no such card.
+    fn note_due_str(&self) -> String {
+        self.cards
+            .iter()
+            .filter(|c| !(c.is_filtered_deck() || c.is_new_type_or_queue() || c.is_undue_queue()))
+            .filter_map(|c| c.due_time(&self.timing))
+            .min()
+            .map(|time| time.date_string())
+            .unwrap_or_else(|| "".into())
+    }
 }
 
 impl RowContext for NoteRowContext<'_> {
@@ -482,6 +498,7 @@ impl RowContext for NoteRowContext<'_> {
         Ok(match column {
             Column::NoteCards => self.cards.len().to_string(),
             Column::NoteCreation => self.note_creation_str(),
+            Column::NoteDue => self.note_due_str(),
             Column::NoteEase => self.note_ease_str(),
             Column::NoteField => self.note_field_str(),
             Column::NoteLapses => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),

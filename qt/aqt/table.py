@@ -717,6 +717,7 @@ class NoteState(ItemState):
             ("note", tr.browsing_note()),
             ("noteCards", tr.editing_cards()),
             ("noteCrt", tr.browsing_created()),
+            ("noteDue", tr.statistics_due_date()),
             ("noteEase", tr.browsing_average_ease()),
             ("noteFld", tr.browsing_sort_field()),
             ("noteLapses", tr.scheduling_lapses()),

@@ -24,6 +24,7 @@ impl From<String> for browser_table::Column {
             "template" => browser_table::Column::CardTemplate,
             "noteCards" => browser_table::Column::NoteCards,
             "noteCrt" => browser_table::Column::NoteCreation,
+            "noteDue" => browser_table::Column::NoteDue,
             "noteEase" => browser_table::Column::NoteEase,
             "noteFld" => browser_table::Column::NoteField,
             "noteLapses" => browser_table::Column::NoteLapses,

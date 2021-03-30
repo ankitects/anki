@@ -90,6 +90,7 @@ impl SortKind {
         match self {
             SortKind::NoteCards
             | SortKind::NoteCreation
+            | SortKind::NoteDue
             | SortKind::NoteEase
             | SortKind::NoteField
             | SortKind::NoteLapses
@@ -252,9 +253,11 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
 
 fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     match kind {
-        SortKind::NoteCards | SortKind::NoteEase | SortKind::NoteLapses | SortKind::NoteReps => {
-            "(select pos from sort_order where nid = n.id) asc".into()
-        }
+        SortKind::NoteCards
+        | SortKind::NoteDue
+        | SortKind::NoteEase
+        | SortKind::NoteLapses
+        | SortKind::NoteReps => "(select pos from sort_order where nid = n.id) asc".into(),
         SortKind::NoteCreation => "n.id asc".into(),
         SortKind::NoteField => "n.sfld collate nocase asc".into(),
         SortKind::NoteMod => "n.mod asc".into(),
@@ -270,6 +273,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
         CardDeck => include_str!("deck_order.sql"),
         CardTemplate => include_str!("template_order.sql"),
         NoteCards => include_str!("note_cards_order.sql"),
+        NoteDue => include_str!("note_due_order.sql"),
         NoteEase => include_str!("note_ease_order.sql"),
         NoteLapses => include_str!("note_lapses_order.sql"),
         NoteReps => include_str!("note_reps_order.sql"),
