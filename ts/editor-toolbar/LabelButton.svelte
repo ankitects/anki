@@ -1,6 +1,5 @@
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import type { Readable } from "svelte/store";
     import { disabledKey } from "./contextKeys";
 
     export let id = "";
@@ -18,7 +17,6 @@
     }
 
     const dispatch = createEventDispatcher();
-
     onMount(() => dispatch("mount", { button: buttonRef }));
 
     const disabledStore = getContext(disabledKey);

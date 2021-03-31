@@ -14,7 +14,8 @@
         padding-inline-start: 0;
         margin-bottom: 0;
 
-        & :global(button) {
+        & :global(button),
+        & :global(select) {
             margin-left: -1px;
         }
     }
@@ -26,7 +27,8 @@
         &:nth-child(1) {
             margin-left: 0.25rem;
 
-            & > :global(button) {
+            & > :global(button),
+            & > :global(select) {
                 border-top-left-radius: 0.25rem;
                 border-bottom-left-radius: 0.25rem;
             }
@@ -35,7 +37,8 @@
         &:nth-last-child(1) {
             margin-right: 0.25rem;
 
-            & > :global(button) {
+            & > :global(button),
+            & > :global(select) {
                 border-top-right-radius: 0.25rem;
                 border-bottom-right-radius: 0.25rem;
             }

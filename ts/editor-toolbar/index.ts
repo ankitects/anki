@@ -7,6 +7,7 @@ import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 import DropdownMenu from "./DropdownMenu.svelte";
 import WithDropdownMenu from "./WithDropdownMenu.svelte";
+import SelectButton from "./SelectButton.svelte";
 
 // @ts-ignore
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
@@ -58,6 +59,7 @@ const defaultButtons = [
         clozeButton,
         { component: WithDropdownMenu, menuId: "mathjaxMenu", button: mathjaxButton },
         htmlButton,
+        { component: SelectButton, options: [{ label: "Test" }, { label: "Test2" }] },
     ],
 ];
 
