@@ -32,15 +32,22 @@
 
 <style lang="scss">
     select {
-        height: 30px;
+        height: var(--toolbar-size);
         width: auto;
 
-        font-size: smaller;
+        font-size: calc(var(--toolbar-size) / 2.3);
+        user-select: none;
+        box-shadow: none;
         border-radius: 0;
+
+        &:focus {
+            outline: none;
+        }
     }
 </style>
 
 <select
+    tabindex="-1"
     bind:this={buttonRef}
     {disabled}
     {id}

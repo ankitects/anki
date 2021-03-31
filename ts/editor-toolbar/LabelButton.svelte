@@ -13,7 +13,7 @@
     let buttonRef: HTMLButtonElement;
 
     function extendClassName(className: string): string {
-        return `${className} btn btn-secondary`;
+        return `btn btn-secondary ${className}`;
     }
 
     const dispatch = createEventDispatcher();
@@ -28,15 +28,17 @@
         display: inline-block;
         vertical-align: middle;
         width: auto;
-        height: calc(28px + 2px);
+        height: var(--toolbar-size);
 
-        padding: 0 10px;
+        font-size: calc(var(--toolbar-size) / 2.3);
+        padding: 0 calc(var(--toolbar-size) / 3);
 
         border-radius: 0;
         border-color: var(--faint-border);
 
         &:focus {
-            box-shadow: 0 0 12px 4px rgb(255 255 255 / 0.5);
+            box-shadow: 0 0 calc(var(--toolbar-size) / 2.5)
+                calc(var(--toolbar-size) / 7.5) rgb(255 255 255 / 0.5);
         }
 
         &[disabled] {
@@ -49,12 +51,12 @@
 </style>
 
 <button
+    tabindex="-1"
     bind:this={buttonRef}
     {disabled}
     {id}
     class={extendClassName(className)}
     {...props}
-    tabindex="-1"
     on:click={onClick}
     on:mousedown|preventDefault>
     {label}
