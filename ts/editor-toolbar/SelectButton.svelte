@@ -43,6 +43,10 @@
         box-shadow: none;
         border-radius: 0;
 
+        &:hover {
+            background-color: #eee;
+        }
+
         &:focus {
             outline: none;
         }
