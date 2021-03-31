@@ -91,7 +91,7 @@ class Switch(QAbstractButton):
         )
 
     def _paint_knob(self, painter: QPainter) -> None:
-        painter.setBrush(QBrush(theme_manager.qcolor(colors.HIGHLIGHT_BG)))
+        painter.setBrush(QBrush(theme_manager.qcolor(colors.LINK)))
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
