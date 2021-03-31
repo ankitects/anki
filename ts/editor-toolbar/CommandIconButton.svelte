@@ -39,6 +39,7 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
+    export let title: string;
 
     export let icon = "";
     export let command: string;
@@ -60,6 +61,6 @@
     }
 </script>
 
-<SquareButton {id} {className} {props} {active} {onClick} on:mount>
+<SquareButton {id} {className} {props} {title} {active} {onClick} on:mount>
     {@html icon}
 </SquareButton>

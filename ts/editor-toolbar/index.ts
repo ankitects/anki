@@ -1,8 +1,7 @@
 import type { SvelteComponent } from "svelte";
 
 import { checkNightMode } from "anki/nightmode";
-import { setupI18n, ModuleName, i18n } from "anki/i18n";
-import * as tr from "anki/i18n";
+import { setupI18n, ModuleName } from "anki/i18n";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
@@ -27,8 +26,6 @@ class EditorToolbar extends HTMLElement {
         this.disabled = writable(false);
 
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
-            console.log(i18n, tr);
-
             this.component = new EditorToolbarSvelte({
                 target: this,
                 props: {

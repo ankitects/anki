@@ -4,11 +4,12 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
+    export let title: string;
 
     export let icon = "";
     export let onClick: (event: ClickEvent) => void;
 </script>
 
-<SquareButton {id} {className} {props} {onClick} on:mount>
+<SquareButton {id} {className} {props} {title} {onClick} on:mount>
     {@html icon}
 </SquareButton>

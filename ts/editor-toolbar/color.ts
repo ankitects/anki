@@ -1,5 +1,9 @@
 import IconButton from "./IconButton.svelte";
 import ColorPicker from "./ColorPicker.svelte";
+
+import { lazyProperties } from "anki/lazy";
+import * as tr from "anki/i18n";
+
 import squareFillIcon from "./square-fill.svg";
 import "./color.css";
 
@@ -24,10 +28,18 @@ const forecolorButton = {
     onClick: () => wrapWithForecolor(getForecolor()),
 };
 
+lazyProperties(forecolorButton, {
+    title: tr.editingSetForegroundColourF7,
+});
+
 const colorpickerButton = {
     component: ColorPicker,
     className: "rainbow",
     onChange: ({ currentTarget }) => setForegroundColor(currentTarget.value),
 };
+
+lazyProperties(colorpickerButton, {
+    title: tr.editingChangeColourF8,
+});
 
 export const colorButtons = [forecolorButton, colorpickerButton];
