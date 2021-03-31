@@ -193,6 +193,14 @@ impl Card {
     }
 }
 
+impl Note {
+    fn is_marked(&self) -> bool {
+        self.tags
+            .iter()
+            .any(|tag| tag.eq_ignore_ascii_case("marked"))
+    }
+}
+
 impl Collection {
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
         if self.get_bool(BoolKey::BrowserTableShowNotesMode) {
@@ -417,12 +425,7 @@ impl RowContext for CardRowContext<'_> {
             3 => Color::FlagGreen,
             4 => Color::FlagBlue,
             _ => {
-                if self
-                    .note
-                    .tags
-                    .iter()
-                    .any(|tag| tag.eq_ignore_ascii_case("marked"))
-                {
+                if self.note.is_marked() {
                     Color::Marked
                 } else if self.card.queue == CardQueue::Suspended {
                     Color::Suspended
@@ -534,12 +537,7 @@ impl RowContext for NoteRowContext<'_> {
     }
 
     fn get_row_color(&self) -> Color {
-        if self
-            .note
-            .tags
-            .iter()
-            .any(|tag| tag.eq_ignore_ascii_case("marked"))
-        {
+        if self.note.is_marked() {
             Color::Marked
         } else {
             Color::Default
