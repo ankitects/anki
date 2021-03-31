@@ -1,6 +1,6 @@
 import CommandIconButton from "./CommandIconButton.svelte";
 
-import { lazyProperties } from "anki/lazy";
+import { withLazyProperties } from "anki/lazy";
 import * as tr from "anki/i18n";
 
 import boldIcon from "./type-bold.svg";
@@ -10,66 +10,72 @@ import superscriptIcon from "./format-superscript.svg";
 import subscriptIcon from "./format-subscript.svg";
 import eraserIcon from "./eraser.svg";
 
-const boldButton = {
-    component: CommandIconButton,
-    icon: boldIcon,
-    command: "bold",
-};
+const boldButton = withLazyProperties(
+    {
+        component: CommandIconButton,
+        icon: boldIcon,
+        command: "bold",
+    },
+    {
+        title: tr.editingBoldTextCtrlandb,
+    }
+);
 
-lazyProperties(boldButton, {
-    title: tr.editingBoldTextCtrlandb,
-});
+const italicButton = withLazyProperties(
+    {
+        component: CommandIconButton,
+        icon: italicIcon,
+        command: "italic",
+    },
+    {
+        title: tr.editingItalicTextCtrlandi,
+    }
+);
 
-const italicButton = {
-    component: CommandIconButton,
-    icon: italicIcon,
-    command: "italic",
-};
+const underlineButton = withLazyProperties(
+    {
+        component: CommandIconButton,
+        icon: underlineIcon,
+        command: "underline",
+    },
+    {
+        title: tr.editingUnderlineTextCtrlandu,
+    }
+);
 
-lazyProperties(italicButton, {
-    title: tr.editingItalicTextCtrlandi,
-});
+const superscriptButton = withLazyProperties(
+    {
+        component: CommandIconButton,
+        icon: superscriptIcon,
+        command: "superscript",
+    },
+    {
+        title: tr.editingSuperscriptCtrlandand,
+    }
+);
 
-const underlineButton = {
-    component: CommandIconButton,
-    icon: underlineIcon,
-    command: "underline",
-};
+const subscriptButton = withLazyProperties(
+    {
+        component: CommandIconButton,
+        icon: subscriptIcon,
+        command: "subscript",
+    },
+    {
+        title: tr.editingSubscriptCtrland,
+    }
+);
 
-lazyProperties(underlineButton, {
-    title: tr.editingUnderlineTextCtrlandu,
-});
-
-const superscriptButton = {
-    component: CommandIconButton,
-    icon: superscriptIcon,
-    command: "superscript",
-};
-
-lazyProperties(superscriptButton, {
-    title: tr.editingSuperscriptCtrlandand,
-});
-
-const subscriptButton = {
-    component: CommandIconButton,
-    icon: subscriptIcon,
-    command: "subscript",
-};
-
-lazyProperties(subscriptButton, {
-    title: tr.editingSubscriptCtrland,
-});
-
-const removeFormatButton = {
-    component: CommandIconButton,
-    icon: eraserIcon,
-    command: "removeFormat",
-    activatable: false,
-};
-
-lazyProperties(removeFormatButton, {
-    title: tr.editingRemoveFormattingCtrlandr,
-});
+const removeFormatButton = withLazyProperties(
+    {
+        component: CommandIconButton,
+        icon: eraserIcon,
+        command: "removeFormat",
+        activatable: false,
+    },
+    {
+        title: tr.editingRemoveFormattingCtrlandr,
+    }
+);
 
 export const formatButtons = [
     boldButton,

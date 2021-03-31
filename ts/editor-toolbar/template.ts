@@ -4,7 +4,7 @@ import DropdownItem from "./DropdownItem.svelte";
 import WithDropdownMenu from "./WithDropdownMenu.svelte";
 
 import { bridgeCommand } from "anki/bridgecommand";
-import { lazyProperties } from "anki/lazy";
+import { withLazyProperties } from "anki/lazy";
 import * as tr from "anki/i18n";
 
 import paperclipIcon from "./paperclip.svg";
@@ -29,31 +29,34 @@ function onHtmlEdit(): void {
     bridgeCommand("htmlEdit");
 }
 
-const attachmentButton = {
-    component: IconButton,
-    icon: paperclipIcon,
-    onClick: onAttachment,
-};
+const attachmentButton = withLazyProperties(
+    {
+        component: IconButton,
+        icon: paperclipIcon,
+        onClick: onAttachment,
+    },
+    {
+        title: tr.editingAttachPicturesaudiovideoF3,
+    }
+);
 
-lazyProperties(attachmentButton, {
-    title: tr.editingAttachPicturesaudiovideoF3,
-});
+const recordButton = withLazyProperties(
+    { component: IconButton, icon: micIcon, onClick: onRecord },
+    {
+        title: tr.editingRecordAudioF5,
+    }
+);
 
-const recordButton = { component: IconButton, icon: micIcon, onClick: onRecord };
-
-lazyProperties(recordButton, {
-    title: tr.editingRecordAudioF5,
-});
-
-const clozeButton = {
-    component: IconButton,
-    icon: bracketsIcon,
-    onClick: onCloze,
-};
-
-lazyProperties(clozeButton, {
-    title: tr.editingClozeDeletionCtrlandshiftandc,
-});
+const clozeButton = withLazyProperties(
+    {
+        component: IconButton,
+        icon: bracketsIcon,
+        onClick: onCloze,
+    },
+    {
+        title: tr.editingClozeDeletionCtrlandshiftandc,
+    }
+);
 
 const mathjaxButton = {
     component: IconButton,
@@ -66,7 +69,21 @@ const mathjaxMenu = {
     component: DropdownMenu,
     id: mathjaxMenuId,
     menuItems: [
-        { component: DropdownItem, label: "Foo", onClick: () => console.log("foo") },
+        withLazyProperties(
+            { component: DropdownItem, onClick: () => bridgeCommand("mathjaxInline") },
+            { label: tr.editingMathjaxInline }
+        ),
+        withLazyProperties(
+            { component: DropdownItem, onClick: () => bridgeCommand("mathjaxBlock") },
+            { label: tr.editingMathjaxBlock }
+        ),
+        withLazyProperties(
+            {
+                component: DropdownItem,
+                onClick: () => bridgeCommand("mathjaxChemistry"),
+            },
+            { label: tr.editingMathjaxChemistry }
+        ),
     ],
 };
 
@@ -76,15 +93,16 @@ const mathjaxButtonWithMenu = {
     menuId: mathjaxMenuId,
 };
 
-const htmlButton = {
-    component: IconButton,
-    icon: xmlIcon,
-    onClick: onHtmlEdit,
-};
-
-lazyProperties(htmlButton, {
-    title: tr.editingHtmlEditor,
-});
+const htmlButton = withLazyProperties(
+    {
+        component: IconButton,
+        icon: xmlIcon,
+        onClick: onHtmlEdit,
+    },
+    {
+        title: tr.editingHtmlEditor,
+    }
+);
 
 export const templateButtons = [
     attachmentButton,
