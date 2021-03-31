@@ -218,6 +218,8 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
+    <addaction name="action_toggle_mode"/>
+    <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
@@ -601,6 +603,14 @@
   <action name="action_forget">
    <property name="text">
     <string>qt_accel_forget</string>
+   </property>
+  </action>
+  <action name="action_toggle_mode">
+   <property name="text">
+    <string>browsing_toggle_cards_notes_mode</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+M</string>
    </property>
   </action>
  </widget>

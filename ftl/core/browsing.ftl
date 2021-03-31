@@ -101,6 +101,7 @@ browsing-suspended = Suspended
 browsing-tag-duplicates = Tag Duplicates
 browsing-tag-rename-warning-empty = You can't rename a tag that has no notes.
 browsing-target-field = Target field:
+browsing-toggle-cards-notes-mode = Toggle Cards/Notes Mode
 browsing-toggle-mark = Toggle Mark
 browsing-toggle-suspend = Toggle Suspend
 browsing-treat-input-as-regular-expression = Treat input as regular expression
