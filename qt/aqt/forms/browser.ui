@@ -467,6 +467,9 @@
    </property>
   </action>
   <action name="actionToggle_Suspend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>browsing_toggle_suspend</string>
    </property>
@@ -561,6 +564,9 @@
    </property>
   </action>
   <action name="actionToggle_Mark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>browsing_toggle_mark</string>
    </property>
