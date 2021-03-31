@@ -1,4 +1,4 @@
-export function lazyLoaded(
+export function lazyProperties(
     object: Record<string, unknown>,
     properties: Record<string, () => unknown>
 ): void {

@@ -7,39 +7,48 @@ import superscriptIcon from "./format-superscript.svg";
 import subscriptIcon from "./format-subscript.svg";
 import eraserIcon from "./eraser.svg";
 
-export const boldButton = {
+const boldButton = {
     component: CommandIconButton,
     icon: boldIcon,
     command: "bold",
 };
 
-export const italicButton = {
+const italicButton = {
     component: CommandIconButton,
     icon: italicIcon,
     command: "italic",
 };
 
-export const underlineButton = {
+const underlineButton = {
     component: CommandIconButton,
     icon: underlineIcon,
     command: "underline",
 };
 
-export const superscriptButton = {
+const superscriptButton = {
     component: CommandIconButton,
     icon: superscriptIcon,
     command: "superscript",
 };
 
-export const subscriptButton = {
+const subscriptButton = {
     component: CommandIconButton,
     icon: subscriptIcon,
     command: "subscript",
 };
 
-export const eraserButton = {
+const eraserButton = {
     component: CommandIconButton,
     icon: eraserIcon,
     command: "removeFormat",
     highlightable: false,
 };
+
+export const formatButtons = [
+    boldButton,
+    italicButton,
+    underlineButton,
+    superscriptButton,
+    subscriptButton,
+    eraserButton,
+];

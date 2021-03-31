@@ -17,15 +17,17 @@ function wrapWithForecolor(color: string): void {
     document.execCommand("forecolor", false, color);
 }
 
-export const forecolorButton = {
+const forecolorButton = {
     component: IconButton,
     icon: squareFillIcon,
     className: "forecolor",
     onClick: () => wrapWithForecolor(getForecolor()),
 };
 
-export const colorpickerButton = {
+const colorpickerButton = {
     component: ColorPicker,
     className: "rainbow",
     onChange: ({ currentTarget }) => setForegroundColor(currentTarget.value),
 };
+
+export const colorButtons = [forecolorButton, colorpickerButton];
