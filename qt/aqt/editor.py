@@ -1114,6 +1114,9 @@ class Editor:
         paste=onPaste,
         cutOrCopy=onCutOrCopy,
         htmlEdit=onHtmlEdit,
+        mathjaxInline=insertMathjaxInline,
+        mathjaxBlock=insertMathjaxBlock,
+        mathjaxChemistry=insertMathjaxChemistry,
     )
 
 
