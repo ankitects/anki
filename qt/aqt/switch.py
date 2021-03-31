@@ -108,7 +108,8 @@ class Switch(QAbstractButton):
             animation.setDuration(100)
             animation.setStartValue(self.start_position)
             animation.setEndValue(self.end_position)
-            animation.start()
+            # make triggered events execute first so the animation runs smoothly afterwards
+            QTimer.singleShot(50, animation.start)
 
     def enterEvent(self, event: QEvent) -> None:
         self.setCursor(Qt.PointingHandCursor)
