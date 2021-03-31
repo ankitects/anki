@@ -2,6 +2,7 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
+    export let title: string;
 
     export let onChange: (event: ChangeEvent) => void;
 </script>
@@ -41,6 +42,12 @@
     }
 </style>
 
-<button tabindex="-1" {id} class={className} {...props} on:mousedown|preventDefault>
+<button
+    tabindex="-1"
+    {id}
+    class={className}
+    {...props}
+    {title}
+    on:mousedown|preventDefault>
     <span> <input type="color" on:change={onChange} /> </span>
 </button>

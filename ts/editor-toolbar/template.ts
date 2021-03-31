@@ -1,7 +1,11 @@
-import { bridgeCommand } from "anki/bridgecommand";
-
 import IconButton from "./IconButton.svelte";
 import DropdownMenu from "./DropdownMenu.svelte";
+import DropdownItem from "./DropdownItem.svelte";
+import WithDropdownMenu from "./WithDropdownMenu.svelte";
+
+import { bridgeCommand } from "anki/bridgecommand";
+import { lazyProperties } from "anki/lazy";
+import * as tr from "anki/i18n";
 
 import paperclipIcon from "./paperclip.svg";
 import micIcon from "./mic.svg";
@@ -31,7 +35,15 @@ const attachmentButton = {
     onClick: onAttachment,
 };
 
+lazyProperties(attachmentButton, {
+    title: tr.editingAttachPicturesaudiovideoF3,
+});
+
 const recordButton = { component: IconButton, icon: micIcon, onClick: onRecord };
+
+lazyProperties(recordButton, {
+    title: tr.editingRecordAudioF5,
+});
 
 const clozeButton = {
     component: IconButton,
@@ -39,15 +51,29 @@ const clozeButton = {
     onClick: onCloze,
 };
 
+lazyProperties(clozeButton, {
+    title: tr.editingClozeDeletionCtrlandshiftandc,
+});
+
 const mathjaxButton = {
     component: IconButton,
     icon: functionIcon,
 };
 
+const mathjaxMenuId = "mathjaxMenu";
+
 const mathjaxMenu = {
     component: DropdownMenu,
-    id: "mathjaxMenu",
-    menuItems: [{ label: "Foo", onClick: () => console.log("foo") }],
+    id: mathjaxMenuId,
+    menuItems: [
+        { component: DropdownItem, label: "Foo", onClick: () => console.log("foo") },
+    ],
+};
+
+const mathjaxButtonWithMenu = {
+    component: WithDropdownMenu,
+    button: mathjaxButton,
+    menuId: mathjaxMenuId,
 };
 
 const htmlButton = {
@@ -56,11 +82,15 @@ const htmlButton = {
     onClick: onHtmlEdit,
 };
 
+lazyProperties(htmlButton, {
+    title: tr.editingHtmlEditor,
+});
+
 export const templateButtons = [
     attachmentButton,
     recordButton,
     clozeButton,
-    mathjaxButton,
+    mathjaxButtonWithMenu,
     htmlButton,
 ];
 

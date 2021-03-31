@@ -6,6 +6,7 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
+    export let title: string;
 
     export let onClick: (event: ClickEvent) => void;
     export let active = false;
@@ -85,6 +86,7 @@
     {id}
     class={className}
     {...props}
+    {title}
     class:active
     tabindex="-1"
     {disabled}
