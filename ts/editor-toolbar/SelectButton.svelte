@@ -32,6 +32,9 @@
 
 <style lang="scss">
     select {
+        display: inline-block;
+        vertical-align: middle;
+
         height: var(--toolbar-size);
         width: auto;
 
