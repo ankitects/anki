@@ -1,6 +1,7 @@
 import { bridgeCommand } from "anki/bridgecommand";
 
 import IconButton from "./IconButton.svelte";
+import DropdownMenu from "./DropdownMenu.svelte";
 
 import paperclipIcon from "./paperclip.svg";
 import micIcon from "./mic.svg";
@@ -24,27 +25,43 @@ function onHtmlEdit(): void {
     bridgeCommand("htmlEdit");
 }
 
-export const attachmentButton = {
+const attachmentButton = {
     component: IconButton,
     icon: paperclipIcon,
     onClick: onAttachment,
 };
 
-export const recordButton = { component: IconButton, icon: micIcon, onClick: onRecord };
+const recordButton = { component: IconButton, icon: micIcon, onClick: onRecord };
 
-export const clozeButton = {
+const clozeButton = {
     component: IconButton,
     icon: bracketsIcon,
     onClick: onCloze,
 };
 
-export const mathjaxButton = {
+const mathjaxButton = {
     component: IconButton,
     icon: functionIcon,
 };
 
-export const htmlButton = {
+const mathjaxMenu = {
+    component: DropdownMenu,
+    id: "mathjaxMenu",
+    menuItems: [{ label: "Foo", onClick: () => console.log("foo") }],
+};
+
+const htmlButton = {
     component: IconButton,
     icon: xmlIcon,
     onClick: onHtmlEdit,
 };
+
+export const templateButtons = [
+    attachmentButton,
+    recordButton,
+    clozeButton,
+    mathjaxButton,
+    htmlButton,
+];
+
+export const templateMenus = [mathjaxMenu];
