@@ -32,7 +32,8 @@
 
         &:active,
         &.active {
-            box-shadow: inset 0 0 12px 4px rgb(0 0 0 / 30%);
+            box-shadow: inset 0 0 calc(var(--toolbar-size) / 2.5)
+                calc(var(--toolbar-size) / 7.5) rgb(0 0 0 / 30%);
             border-color: #aaa;
         }
 
@@ -61,8 +62,8 @@
         vertical-align: middle;
 
         /* constrain icon */
-        width: 28px;
-        height: 28px;
+        width: calc(var(--toolbar-size) - 2px);
+        height: calc(var(--toolbar-size) - 2px);
 
         & > :global(svg),
         & > :global(img) {

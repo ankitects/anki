@@ -16,7 +16,8 @@
         }
 
         &:active {
-            box-shadow: inset 0 0 12px 4px rgb(0 0 0 / 30%);
+            box-shadow: inset 0 0 calc(var(--toolbar-size) / 2.5)
+                calc(var(--toolbar-size) / 7.5) rgb(0 0 0 / 30%);
             border-color: #aaa;
         }
     }
@@ -33,8 +34,8 @@
     input {
         display: inline-block;
         opacity: 0;
-        width: 28px;
-        height: calc(28px - 4px);
+        width: calc(var(--toolbar-size) - 6px);
+        height: calc(var(--toolbar-size) - 6px);
 
         cursor: pointer;
     }

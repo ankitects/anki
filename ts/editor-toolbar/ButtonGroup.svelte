@@ -22,25 +22,26 @@
 
     li {
         display: inline-block;
-        margin-bottom: 2px;
+        margin-bottom: calc(var(--toolbar-size) / 15);
 
         &:nth-child(1) {
-            margin-left: 0.25rem;
+            margin-left: calc(var(--toolbar-size) / 7.5);
 
             & > :global(button),
             & > :global(select) {
-                border-top-left-radius: 0.25rem;
-                border-bottom-left-radius: 0.25rem;
+                /* default 0.25rem */
+                border-top-left-radius: calc(var(--toolbar-size) / 7.5);
+                border-bottom-left-radius: calc(var(--toolbar-size) / 7.5);
             }
         }
 
         &:nth-last-child(1) {
-            margin-right: 0.25rem;
+            margin-right: calc(var(--toolbar-size) / 7.5);
 
             & > :global(button),
             & > :global(select) {
-                border-top-right-radius: 0.25rem;
-                border-bottom-right-radius: 0.25rem;
+                border-top-right-radius: calc(var(--toolbar-size) / 7.5);
+                border-bottom-right-radius: calc(var(--toolbar-size) / 7.5);
             }
         }
     }

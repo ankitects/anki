@@ -17,6 +17,10 @@
 </script>
 
 <style lang="scss">
+    .base {
+        --toolbar-size: 30px;
+    }
+
     nav {
         position: sticky;
         top: 0;
@@ -39,12 +43,14 @@
     }
 </style>
 
-<div>
-    {#each menus as menu}
-        <svelte:component this={menu.component} {...menu} />
-    {/each}
-</div>
+<div class="base">
+    <div>
+        {#each menus as menu}
+            <svelte:component this={menu.component} {...menu} />
+        {/each}
+    </div>
 
-<nav>
-    <ButtonGroup {buttons} />
-</nav>
+    <nav>
+        <ButtonGroup {buttons} />
+    </nav>
+</div>
