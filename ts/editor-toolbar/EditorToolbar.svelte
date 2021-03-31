@@ -1,5 +1,4 @@
 <script lang="typescript">
-    import DropdownItem from "./DropdownItem.svelte";
     import type { Readable } from "svelte/store";
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
@@ -8,11 +7,13 @@
     import type { Buttons } from "./types";
 
     export let buttons: Buttons = [];
+    export let menus: SvelteComponent[];
+
     export let nightMode: boolean;
     export let disabled: Readable<boolean> = false;
 
-    setContext(disabledKey, disabled);
     setContext(nightModeKey, nightMode);
+    setContext(disabledKey, disabled);
 </script>
 
 <style lang="scss">
@@ -38,14 +39,11 @@
     }
 </style>
 
-<ul class="dropdown-menu" id="dropdownMenuButton123" aria-labelledby="dropdownMenuButton123">
-    <DropdownItem>
-        <svelte:fragment slot="start">Action</svelte:fragment>
-        <svelte:fragment slot="end">Shortcut</svelte:fragment>
-    </DropdownItem>
-    <DropdownItem>Action 1</DropdownItem>
-    <DropdownItem>Action 2</DropdownItem>
-</ul>
+<div>
+    {#each menus as menu}
+        <svelte:component this={menu.component} {...menu} />
+    {/each}
+</div>
 
 <nav>
     <ButtonGroup {buttons} />

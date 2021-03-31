@@ -9,6 +9,6 @@
     export let onClick: (event: ClickEvent) => void;
 </script>
 
-<SquareButton {id} {className} {props} {onClick}>
+<SquareButton {id} {className} {props} {onClick} on:mount>
     {@html icon}
 </SquareButton>
