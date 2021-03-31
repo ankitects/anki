@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import { getContext } from "svelte";
+    import { getContext, onMount, createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
     import { disabledKey } from "./contextKeys";
 
@@ -10,8 +10,13 @@
     export let onClick: (event: ClickEvent) => void;
     export let active = false;
 
+    let buttonRef: HTMLButtonElement;
+
     const disabledStore = getContext(disabledKey);
     $: disabled = $disabledStore;
+
+    const dispatch = createEventDispatcher();
+    onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
 <style lang="scss">
@@ -75,6 +80,7 @@
 </style>
 
 <button
+    bind:this={buttonRef}
     {id}
     class={className}
     {...props}

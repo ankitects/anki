@@ -5,12 +5,14 @@ import { setupI18n, ModuleName } from "anki/i18n";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
-import LabelButton from "./LabelButton.svelte";
 import DropdownMenu from "./DropdownMenu.svelte";
+import WithDropdownMenu from "./WithDropdownMenu.svelte";
 
 // @ts-ignore
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
 import { Writable, writable } from "svelte/store";
+
+import { fieldsButton, cardsButton } from "./notetype";
 
 import {
     boldButton,
@@ -31,11 +33,16 @@ import {
     htmlButton,
 } from "./extra";
 
+const defaultMenus = [
+    {
+        component: DropdownMenu,
+        id: "mathjaxMenu",
+        menuItems: [{ label: "Foo", onClick: () => console.log("foo") }],
+    },
+];
+
 const defaultButtons = [
-    [
-        { component: LabelButton, label: "Fields..." },
-        { component: LabelButton, label: "Cards..." },
-    ],
+    [fieldsButton, cardsButton],
     [
         boldButton,
         italicButton,
@@ -45,7 +52,13 @@ const defaultButtons = [
         eraserButton,
     ],
     [forecolorButton, colorpickerButton],
-    [attachmentButton, recordButton, clozeButton, mathjaxButton, htmlButton],
+    [
+        attachmentButton,
+        recordButton,
+        clozeButton,
+        { component: WithDropdownMenu, menuId: "mathjaxMenu", button: mathjaxButton },
+        htmlButton,
+    ],
 ];
 
 class EditorToolbar extends HTMLElement {
@@ -60,6 +73,7 @@ class EditorToolbar extends HTMLElement {
                 this.component = new EditorToolbarSvelte({
                     target: this,
                     props: {
+                        menus: defaultMenus,
                         buttons: defaultButtons,
                         nightMode: checkNightMode(),
                         disabled: this.disabled,

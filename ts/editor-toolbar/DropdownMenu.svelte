@@ -1,40 +1,26 @@
 <script lang="typescript">
-    import { onMount } from "svelte";
-
-    import type { ButtonDefinition } from "./types";
-
-    export let button: ButtonDefinition;
-    export let menuId: string;
-
-    function extend({ className, props, ...rest }: ButtonDefinition): ButtonDefinition {
-        return {
-            className: `${className} dropdown-toggle`,
-            props: {
-                "data-bs-toggle": "dropdown",
-                "aria-expanded": "false",
-                ...props,
-            },
-            ...rest,
-        };
+    interface DropdownItem {
+        label: string;
+        endLabel: string;
+        onClick: (event: ClickEvent) => void;
     }
 
-    function createDropdown({ detail }: CustomEvent): void {
-        const button: HTMLButtonElement = detail.button;
-
-        /* Prevent focus on menu activation */
-        const noop = () => {};
-        Object.defineProperty(button, "focus", { value: noop });
-
-        /* Set custom menu without using .dropdown
-         * Rendering the menu here would cause the menu to
-         * be displayed outside of the visible area
-         */
-        const dropdown = new bootstrap.Dropdown(button);
-        dropdown._menu = button.getRootNode().getElementById(menuId);
-    }
+    export let id: string;
+    export let menuItems: DropdownItem[];
 </script>
 
-<svelte:component
-    this={button.component}
-    {...extend(button)}
-    on:mount={createDropdown} />
+<ul class="dropdown-menu" {id}>
+    {#each menuItems as menuItem}
+        <li>
+            <button
+                class="dropdown-item"
+                on:click={menuItem.onClick}
+                on:mousedown|preventDefault>
+                <span class="float-start">{menuItem.label}</span>
+                {#if menuItem.endLabel}
+                    <span class="float-end">{menuItem.endLabel}</span>
+                {/if}
+            </button>
+        </li>
+    {/each}
+</ul>

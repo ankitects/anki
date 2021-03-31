@@ -20,8 +20,8 @@ function onCloze(): void {
     bridgeCommand("cloze");
 }
 
-function onMore(): void {
-    bridgeCommand("more");
+function onHtmlEdit(): void {
+    bridgeCommand("htmlEdit");
 }
 
 export const attachmentButton = {
@@ -41,11 +41,10 @@ export const clozeButton = {
 export const mathjaxButton = {
     component: IconButton,
     icon: functionIcon,
-    onClick: onMore,
 };
 
 export const htmlButton = {
     component: IconButton,
     icon: xmlIcon,
-    onClick: onMore,
+    onClick: onHtmlEdit,
 };

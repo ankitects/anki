@@ -60,6 +60,6 @@
     }
 </script>
 
-<SquareButton {id} {className} {props} {active} {onClick}>
+<SquareButton {id} {className} {props} {active} {onClick} on:mount>
     {@html icon}
 </SquareButton>

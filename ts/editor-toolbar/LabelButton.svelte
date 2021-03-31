@@ -9,6 +9,7 @@
 
     export let label: string;
     export let onClick: (event: ClickEvent) => void;
+    export let disables = true;
 
     let buttonRef: HTMLButtonElement;
 
@@ -21,7 +22,7 @@
     onMount(() => dispatch("mount", { button: buttonRef }));
 
     const disabledStore = getContext(disabledKey);
-    $: disabled = $disabledStore;
+    $: disabled = disables && $disabledStore;
 </script>
 
 <style lang="scss">
