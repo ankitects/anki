@@ -7,6 +7,7 @@
     export let props: Record<string, string> = {};
 
     export let label: string;
+    export let title: string;
     export let onClick: (event: ClickEvent) => void;
     export let disables = true;
 
@@ -58,6 +59,7 @@
     class={extendClassName(className)}
     {...props}
     on:click={onClick}
-    on:mousedown|preventDefault>
+    on:mousedown|preventDefault
+    {title}>
     {label}
 </button>
