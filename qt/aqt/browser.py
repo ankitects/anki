@@ -167,9 +167,7 @@ class Browser(QMainWindow):
             lambda: self.remove_tags_from_selected_notes(),
         )
         qconnect(f.actionClear_Unused_Tags.triggered, self.clear_unused_tags)
-        qconnect(
-            f.actionToggle_Mark.triggered, lambda: self.toggle_mark_of_selected_notes()
-        )
+        qconnect(f.actionToggle_Mark.triggered, self.toggle_mark_of_selected_notes)
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
         qconnect(f.actionFindDuplicates.triggered, self.onFindDupes)
         qconnect(f.actionFindReplace.triggered, self.onFindReplace)
@@ -429,8 +427,13 @@ class Browser(QMainWindow):
         else:
             self.editor.set_note(None)
         self._renderPreview()
-        self._update_flags_menu()
+        self._update_context_actions()
         gui_hooks.browser_did_change_row(self)
+
+    def _update_context_actions(self) -> None:
+        self._update_flags_menu()
+        self._update_toggle_mark_action()
+        self._update_toggle_suspend_action()
 
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
@@ -725,15 +728,14 @@ where id in %s"""
     # Suspending
     ######################################################################
 
-    def current_card_is_suspended(self) -> bool:
-        return bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
+    def _update_toggle_suspend_action(self) -> None:
+        is_suspended = bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
+        self.form.actionToggle_Suspend.setChecked(is_suspended)
 
-    @ensure_editor_saved_on_trigger
-    def suspend_selected_cards(self) -> None:
-        want_suspend = not self.current_card_is_suspended()
+    @ensure_editor_saved
+    def suspend_selected_cards(self, checked: bool) -> None:
         cids = self.selected_cards()
-
-        if want_suspend:
+        if checked:
             suspend_cards(mw=self.mw, card_ids=cids)
         else:
             unsuspend_cards(mw=self.mw, card_ids=cids)
@@ -776,12 +778,15 @@ where id in %s"""
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
 
-    def toggle_mark_of_selected_notes(self) -> None:
-        have_mark = bool(self.card and self.card.note().has_tag(MARKED_TAG))
-        if have_mark:
-            self.remove_tags_from_selected_notes(tags=MARKED_TAG)
-        else:
+    def toggle_mark_of_selected_notes(self, checked: bool) -> None:
+        if checked:
             self.add_tags_to_selected_notes(tags=MARKED_TAG)
+        else:
+            self.remove_tags_from_selected_notes(tags=MARKED_TAG)
+
+    def _update_toggle_mark_action(self) -> None:
+        is_marked = bool(self.card and self.card.note().has_tag(MARKED_TAG))
+        self.form.actionToggle_Mark.setChecked(is_marked)
 
     # Scheduling
     ######################################################################
