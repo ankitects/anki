@@ -1,2 +1,2 @@
-export let nightModeKey = Symbol("nightMode");
-export let disabledKey = Symbol("disabled");
+export const nightModeKey = Symbol("nightMode");
+export const disabledKey = Symbol("disabled");

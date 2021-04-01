@@ -50,13 +50,13 @@
     if (activatable) {
         initializeButton(command);
 
-        commandMap.subscribe((map: Record<string, boolean>): void => {
+        commandMap.subscribe((map: Map<string, boolean>): void => {
             active = map.get(command);
             return () => map.delete(command);
         });
     }
 
-    function onClick(event: ClickEvent): void {
+    function onClick(): void {
         document.execCommand(command);
     }
 </script>

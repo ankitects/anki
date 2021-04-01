@@ -8,7 +8,7 @@
 
     export let label: string;
     export let title: string;
-    export let onClick: (event: ClickEvent) => void;
+    export let onClick: (event: MouseEvent) => void;
     export let disables = true;
 
     let buttonRef: HTMLButtonElement;

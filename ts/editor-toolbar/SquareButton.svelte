@@ -8,7 +8,7 @@
     export let props: Record<string, string> = {};
     export let title: string;
 
-    export let onClick: (event: ClickEvent) => void;
+    export let onClick: (event: MouseEvent) => void;
     export let active = false;
 
     let buttonRef: HTMLButtonElement;

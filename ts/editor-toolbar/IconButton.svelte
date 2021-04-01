@@ -7,7 +7,7 @@
     export let title: string;
 
     export let icon = "";
-    export let onClick: (event: ClickEvent) => void;
+    export let onClick: (event: MouseEvent) => void;
 </script>
 
 <SquareButton {id} {className} {props} {title} {onClick} on:mount>

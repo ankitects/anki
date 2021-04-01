@@ -4,7 +4,7 @@
     export let props: Record<string, string> = {};
     export let title: string;
 
-    export let onChange: (event: ChangeEvent) => void;
+    export let onChange: (event: Event) => void;
 </script>
 
 <style lang="scss">
