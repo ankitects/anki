@@ -10,7 +10,7 @@ use crate::{
     storage::SqliteStorage,
     undo::UndoManager,
 };
-use crate::{err::Result, scheduler::queue::CardQueues};
+use crate::{error::Result, scheduler::queue::CardQueues};
 use crate::{i18n::I18n, ops::StateChanges};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 

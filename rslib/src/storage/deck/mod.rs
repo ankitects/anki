@@ -8,7 +8,7 @@ use crate::{
     config::SchedulerVersion,
     decks::immediate_parent_name,
     decks::{Deck, DeckCommon, DeckId, DeckKindProto, DeckSchema11, DueCounts},
-    err::{AnkiError, DbErrorKind, Result},
+    error::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
     timestamp::TimestampMillis,
 };

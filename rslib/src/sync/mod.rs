@@ -10,7 +10,7 @@ use crate::{
     card::{Card, CardQueue, CardType},
     deckconf::DeckConfSchema11,
     decks::DeckSchema11,
-    err::SyncErrorKind,
+    error::SyncErrorKind,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
     prelude::*,

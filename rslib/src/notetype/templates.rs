@@ -4,7 +4,7 @@
 use crate::{
     backend_proto::{CardTemplate as CardTemplateProto, CardTemplateConfig, OptionalUInt32},
     decks::DeckId,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     template::ParsedTemplate,
     timestamp::TimestampSecs,
     types::Usn,

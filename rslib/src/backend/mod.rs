@@ -49,7 +49,7 @@ use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     collection::Collection,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     i18n::I18n,
 };
 use once_cell::sync::OnceCell;

@@ -9,7 +9,7 @@ pub(super) const SCHEMA_STARTING_VERSION: u8 = 11;
 pub(super) const SCHEMA_MAX_VERSION: u8 = 18;
 
 use super::SqliteStorage;
-use crate::err::Result;
+use crate::error::Result;
 
 impl SqliteStorage {
     pub(super) fn upgrade_to_latest_schema(&self, ver: u8, server: bool) -> Result<()> {

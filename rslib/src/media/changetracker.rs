@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::error::{AnkiError, Result};
 use crate::log::{debug, Logger};
 use crate::media::database::{MediaDatabaseContext, MediaEntry};
 use crate::media::files::{
@@ -244,7 +244,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::err::Result;
+    use crate::error::Result;
     use crate::media::changetracker::ChangeTracker;
     use crate::media::database::MediaEntry;
     use crate::media::files::sha1_of_data;

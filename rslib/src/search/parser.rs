@@ -3,7 +3,7 @@
 
 use crate::{
     decks::DeckId,
-    err::{ParseError, Result, SearchErrorKind as FailKind},
+    error::{ParseError, Result, SearchErrorKind as FailKind},
     notetype::NotetypeId,
 };
 use lazy_static::lazy_static;
@@ -696,7 +696,7 @@ fn is_parser_escape(txt: &str) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::err::SearchErrorKind;
+    use crate::error::SearchErrorKind;
 
     use super::*;
 
@@ -858,7 +858,7 @@ mod test {
 
     #[test]
     fn errors() {
-        use crate::err::AnkiError;
+        use crate::error::AnkiError;
         use FailKind::*;
 
         fn assert_err_kind(input: &str, kind: FailKind) {

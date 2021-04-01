@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::SqliteStorage;
-use crate::err::Result;
+use crate::error::Result;
 use crate::{
     backend_proto as pb,
     prelude::*,

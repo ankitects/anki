@@ -17,7 +17,7 @@ use crate::{
     collection::Collection,
     deckconf::DeckConfId,
     define_newtype,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     prelude::*,
     text::normalize_to_nfc,
     timestamp::TimestampSecs,
@@ -693,7 +693,7 @@ mod test {
     use crate::decks::reparented_name;
     use crate::{
         collection::{open_test_collection, Collection},
-        err::Result,
+        error::Result,
         search::SortMode,
     };
 

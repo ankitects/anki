@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::error::{AnkiError, Result};
 use crate::log::{debug, Logger};
 use lazy_static::lazy_static;
 use regex::Regex;

@@ -3,7 +3,7 @@
 
 pub(crate) mod undo;
 
-use crate::err::{AnkiError, Result};
+use crate::error::{AnkiError, Result};
 use crate::notes::NoteId;
 use crate::{
     collection::Collection, config::SchedulerVersion, prelude::*, timestamp::TimestampSecs,

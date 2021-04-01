@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::SqliteStorage;
-use crate::{config::ConfigEntry, err::Result, timestamp::TimestampSecs, types::Usn};
+use crate::{config::ConfigEntry, error::Result, timestamp::TimestampSecs, types::Usn};
 use rusqlite::{params, NO_PARAMS};
 use serde::de::DeserializeOwned;
 use serde_json::Value;

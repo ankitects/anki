@@ -8,7 +8,7 @@ use crate::{
     config::{BoolKey, SchedulerVersion},
     deckconf::{DeckConf, DeckConfId},
     decks::DeckId,
-    err::Result,
+    error::Result,
     timestamp::TimestampSecs,
 };
 use serde_tuple::Serialize_tuple;
@@ -338,7 +338,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconf::DeckConfId, err::Result};
+    use crate::{collection::open_test_collection, deckconf::DeckConfId, error::Result};
 
     #[test]
     fn wellformed() -> Result<()> {

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{collection::Collection, config::SchedulerVersion, err::Result, prelude::*};
+use crate::{collection::Collection, config::SchedulerVersion, error::Result, prelude::*};
 
 pub mod answering;
 pub mod bury_and_suspend;

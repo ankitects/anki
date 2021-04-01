@@ -6,7 +6,7 @@ use super::{
     Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckOut, SyncMeta, UnchunkedChanges,
 };
 use crate::prelude::*;
-use crate::{err::SyncErrorKind, notes::guid, version::sync_client_version};
+use crate::{error::SyncErrorKind, notes::guid, version::sync_client_version};
 use async_trait::async_trait;
 use bytes::Bytes;
 use flate2::write::GzEncoder;
@@ -349,7 +349,7 @@ fn sync_endpoint(host_number: u32) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{err::SyncErrorKind, sync::SanityCheckDueCounts};
+    use crate::{error::SyncErrorKind, sync::SanityCheckDueCounts};
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {

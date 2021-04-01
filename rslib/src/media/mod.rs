@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
+use crate::error::Result;
 use crate::media::database::{open_or_create, MediaDatabaseContext, MediaEntry};
 use crate::media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data};
 use crate::media::sync::{MediaSyncProgress, MediaSyncer};

@@ -3,7 +3,7 @@
 
 use crate::{
     backend_proto as pb,
-    err::{AnkiError, NetworkErrorKind, SyncErrorKind},
+    error::{AnkiError, NetworkErrorKind, SyncErrorKind},
     prelude::*,
 };
 

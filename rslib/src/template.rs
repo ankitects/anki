@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result, TemplateError};
+use crate::error::{AnkiError, Result, TemplateError};
 use crate::i18n::I18n;
 use crate::{cloze::add_cloze_numbers_in_string, template_filters::apply_filters};
 use lazy_static::lazy_static;
@@ -793,7 +793,7 @@ fn find_fields_with_filter<'a>(
 #[cfg(test)]
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::err::TemplateError;
+    use crate::error::TemplateError;
     use crate::{
         i18n::I18n,
         template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},

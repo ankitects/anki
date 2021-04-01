@@ -5,7 +5,7 @@ use super::{CardTemplate, Notetype, NotetypeKind};
 use crate::{
     card::{Card, CardId},
     collection::Collection,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     i18n::I18n,
     notes::{Note, NoteId},
     template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},

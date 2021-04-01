@@ -29,7 +29,7 @@ pub trait Service {
     }
     buf.push_str(
         r#"
-            _ => Err(crate::err::AnkiError::invalid_input("invalid command")),
+            _ => Err(crate::error::AnkiError::invalid_input("invalid command")),
         }
     }
 "#,
@@ -58,7 +58,7 @@ impl prost_build::ServiceGenerator for CustomGenerator {
             "pub mod {name}_service {{
                 use super::*;
                 use prost::Message;
-                use crate::err::Result;
+                use crate::error::Result;
                 ",
             name = service.name.replace("Service", "").to_ascii_lowercase()
         )

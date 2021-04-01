@@ -26,7 +26,7 @@ use crate::{
     collection::Collection,
     decks::DeckId,
     define_newtype,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     notes::Note,
     prelude::*,
     template::{FieldRequirements, ParsedTemplate},

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use itertools::Itertools;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::err::{AnkiError, Result};
+use crate::error::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::{
     card::{Card, CardId, CardQueue, CardType},

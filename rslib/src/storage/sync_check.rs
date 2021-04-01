@@ -3,7 +3,7 @@
 
 use super::*;
 use crate::{
-    err::SyncErrorKind,
+    error::SyncErrorKind,
     prelude::*,
     sync::{SanityCheckCounts, SanityCheckDueCounts},
 };

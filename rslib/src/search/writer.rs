@@ -187,7 +187,7 @@ pub(crate) fn normalize_search(input: &str) -> Result<String> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::err::Result;
+    use crate::error::Result;
     use crate::search::parse_search as parse;
 
     #[test]
