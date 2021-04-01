@@ -7,34 +7,41 @@ import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 // @ts-ignore
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
-import { Writable, writable } from "svelte/store";
+import { writable } from "svelte/store";
 
 import { notetypeButtons } from "./notetype";
 import { formatButtons } from "./format";
 import { colorButtons } from "./color";
 import { templateButtons, templateMenus } from "./template";
 
-const defaultMenus = [...templateMenus];
-
 const defaultButtons = [notetypeButtons, formatButtons, colorButtons, templateButtons];
+const defaultMenus = [...templateMenus];
 
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponent;
-    disabled?: Writable<boolean>;
+
+    buttons = defaultButtons;
+    menus = defaultMenus;
+    disabled? = writable(false);
 
     connectedCallback(): void {
-        this.disabled = writable(false);
-
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
             this.component = new EditorToolbarSvelte({
                 target: this,
                 props: {
-                    menus: defaultMenus,
-                    buttons: defaultButtons,
-                    nightMode: checkNightMode(),
+                    buttons: this.buttons,
+                    menus: this.menus,
                     disabled: this.disabled,
+                    nightMode: checkNightMode(),
                 },
             });
+        });
+    }
+
+    update(): void {
+        this.component?.$set({
+            button: this.buttons,
+            menus: this.menus,
         });
     }
 
