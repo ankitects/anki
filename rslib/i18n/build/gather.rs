@@ -59,6 +59,10 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
             entry
         );
         map_entry.entry(module).or_default().push_str(&text);
+        // when building under Bazel changes to the .ftl files will automatically
+        // be picked up, but when building under Cargo we need to declare the files
+        // that should trigger a rebuild
+        println!("cargo:rerun-if-changed={}", entry.path().to_str().unwrap());
     }
 }
 
