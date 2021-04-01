@@ -1,6 +1,4 @@
 <script lang="typescript">
-    import { onMount } from "svelte";
-
     import type { ButtonDefinition } from "./types";
 
     export let button: ButtonDefinition;

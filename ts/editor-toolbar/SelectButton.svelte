@@ -1,6 +1,5 @@
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import type { Readable } from "svelte/store";
     import { disabledKey } from "./contextKeys";
     import SelectOption from "./SelectOption.svelte";
 
@@ -19,7 +18,7 @@
         return `form-select ${classes}`;
     }
 
-    export let disables;
+    export let disables = true;
     export let options: Option[];
 
     let buttonRef: HTMLSelectElement;

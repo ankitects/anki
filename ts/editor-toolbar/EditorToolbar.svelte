@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import type { SvelteComponent } from "svelte";
     import type { Readable } from "svelte/store";
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
