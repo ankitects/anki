@@ -67,13 +67,13 @@ class FilteredDeckConfigDialog(QDialog):
         self.close()
 
     def _initial_dialog_setup(self) -> None:
-        import anki.consts as cs
-
         self.form = aqt.forms.filtered_deck.Ui_Dialog()
         self.form.setupUi(self)
 
-        self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
-        self.form.order_2.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
+        order_labels = self.col.sched.filtered_deck_order_labels()
+
+        self.form.order.addItems(order_labels)
+        self.form.order_2.addItems(order_labels)
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 

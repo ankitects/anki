@@ -4,7 +4,7 @@
 use super::Backend;
 use crate::{
     backend_proto::{self as pb},
-    decks::{Deck, DeckId, DeckSchema11},
+    decks::{Deck, DeckId, DeckSchema11, FilteredSearchOrder},
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };
@@ -152,6 +152,10 @@ impl DecksService for Backend {
         self.with_col(|col| col.add_or_update_filtered_deck(input.into()))
             .map(|out| out.map(i64::from))
             .map(Into::into)
+    }
+
+    fn filtered_deck_order_labels(&self, _input: pb::Empty) -> Result<pb::StringList> {
+        Ok(FilteredSearchOrder::labels(&self.tr).into())
     }
 }
 

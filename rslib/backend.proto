@@ -150,6 +150,7 @@ service DecksService {
   rpc RenameDeck(RenameDeckIn) returns (OpChanges);
   rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
   rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithId);
+  rpc FilteredDeckOrderLabels(Empty) returns (StringList);
 }
 
 service NotesService {
