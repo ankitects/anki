@@ -211,9 +211,10 @@ fn write_order(sql: &mut String, items: SearchItems, kind: SortKind, reverse: bo
         SearchItems::Notes => note_order_from_sortkind(kind),
     };
     if order.is_empty() {
-        return Err(AnkiError::InvalidInput {
-            info: format!("Can't sort {:?} by {:?}.", items, kind),
-        });
+        return Err(AnkiError::invalid_input(format!(
+            "Can't sort {:?} by {:?}.",
+            items, kind
+        )));
     }
     if reverse {
         sql.push_str(

@@ -204,18 +204,14 @@ impl Note {
 impl Collection {
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
         if self.get_bool(BoolKey::BrowserTableShowNotesMode) {
-            let columns =
-                self.get_desktop_browser_note_columns()
-                    .ok_or(AnkiError::InvalidInput {
-                        info: "Note columns not set.".into(),
-                    })?;
+            let columns = self
+                .get_desktop_browser_note_columns()
+                .ok_or(AnkiError::invalid_input("Note columns not set."))?;
             NoteRowContext::new(self, id)?.browser_row_for_id(&columns)
         } else {
-            let columns =
-                self.get_desktop_browser_card_columns()
-                    .ok_or(AnkiError::InvalidInput {
-                        info: "Card columns not set.".into(),
-                    })?;
+            let columns = self
+                .get_desktop_browser_card_columns()
+                .ok_or(AnkiError::invalid_input("Card columns not set."))?;
             CardRowContext::new(self, id, card_render_required(&columns))?
                 .browser_row_for_id(&columns)
         }
