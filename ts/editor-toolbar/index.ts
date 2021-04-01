@@ -64,4 +64,5 @@ export { default as SelectButton } from "./SelectButton.svelte";
 
 export { default as DropdownMenu } from "./DropdownMenu.svelte";
 export { default as DropdownItem } from "./DropdownItem.svelte";
+export { default as ButtonDropdown } from "./DropdownMenu.svelte";
 export { default as WithDropdownMenu } from "./WithDropdownMenu.svelte";
