@@ -568,9 +568,8 @@ message BackendError {
     string proto_error = 10;
     Empty not_found_error = 11;
     Empty exists = 12;
-    Empty deck_is_filtered = 13;
-    Empty filtered_deck_empty = 14;
-    Empty search_error = 15;
+    Empty filtered_deck_error = 13;
+    Empty search_error = 14;
   }
 }
 

@@ -50,18 +50,14 @@ class ExistsError(Exception):
 
 
 class DeckRenameError(Exception):
-    """Legacy error, use DeckIsFilteredError instead."""
+    """Legacy error, use FilteredDeckError instead."""
 
     def __init__(self, description: str, *args: object) -> None:
         super().__init__(description, *args)
         self.description = description
 
 
-class DeckIsFilteredError(StringError, DeckRenameError):
-    pass
-
-
-class FilteredDeckEmpty(StringError):
+class FilteredDeckError(StringError, DeckRenameError):
     pass
 
 
@@ -95,10 +91,8 @@ def backend_exception_to_pylib(err: _pb.BackendError) -> Exception:
         return NotFoundError()
     elif val == "exists":
         return ExistsError()
-    elif val == "deck_is_filtered":
-        return DeckIsFilteredError(err.localized)
-    elif val == "filtered_deck_empty":
-        return FilteredDeckEmpty(err.localized)
+    elif val == "filtered_deck_error":
+        return FilteredDeckError(err.localized)
     elif val == "proto_error":
         return StringError(err.localized)
     elif val == "search_error":
