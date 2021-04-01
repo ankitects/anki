@@ -19,7 +19,7 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
 #[derive(Debug, PartialEq)]
 pub enum AnkiError {
-    InvalidInput { info: String },
+    InvalidInput(String),
     TemplateError { info: String },
     TemplateSaveError { ordinal: usize },
     IoError { info: String },
@@ -49,7 +49,7 @@ impl Display for AnkiError {
 // error helpers
 impl AnkiError {
     pub(crate) fn invalid_input<S: Into<String>>(s: S) -> AnkiError {
-        AnkiError::InvalidInput { info: s.into() }
+        AnkiError::InvalidInput(s.into())
     }
 
     pub fn localized_description(&self, tr: &I18n) -> String {
@@ -65,7 +65,7 @@ impl AnkiError {
                 .into(),
             AnkiError::DbError(err) => err.localized_description(tr),
             AnkiError::SearchError(kind) => kind.localized_description(&tr),
-            AnkiError::InvalidInput { info } => {
+            AnkiError::InvalidInput(info) => {
                 if info.is_empty() {
                     tr.errors_invalid_input_empty().into()
                 } else {
