@@ -21,7 +21,7 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 pub enum AnkiError {
     InvalidInput(String),
     TemplateError(String),
-    TemplateSaveError { ordinal: usize },
+    TemplateSaveError(TemplateSaveError),
     IoError(String),
     DbError(DbError),
     NetworkError(NetworkError),
@@ -60,8 +60,8 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError { ordinal } => tr
-                .card_templates_invalid_template_number(ordinal + 1)
+            AnkiError::TemplateSaveError(err) => tr
+                .card_templates_invalid_template_number(err.ordinal + 1, &err.notetype)
                 .into(),
             AnkiError::DbError(err) => err.localized_description(tr),
             AnkiError::SearchError(kind) => kind.localized_description(&tr),
@@ -128,4 +128,10 @@ impl From<regex::Error> for AnkiError {
     fn from(err: regex::Error) -> Self {
         AnkiError::InvalidRegex(err.to_string())
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct TemplateSaveError {
+    pub notetype: String,
+    pub ordinal: usize,
 }
