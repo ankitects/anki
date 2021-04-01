@@ -206,12 +206,12 @@ impl Collection {
         if self.get_bool(BoolKey::BrowserTableShowNotesMode) {
             let columns = self
                 .get_desktop_browser_note_columns()
-                .ok_or(AnkiError::invalid_input("Note columns not set."))?;
+                .ok_or_else(|| AnkiError::invalid_input("Note columns not set."))?;
             NoteRowContext::new(self, id)?.browser_row_for_id(&columns)
         } else {
             let columns = self
                 .get_desktop_browser_card_columns()
-                .ok_or(AnkiError::invalid_input("Card columns not set."))?;
+                .ok_or_else(|| AnkiError::invalid_input("Card columns not set."))?;
             CardRowContext::new(self, id, card_render_required(&columns))?
                 .browser_row_for_id(&columns)
         }
