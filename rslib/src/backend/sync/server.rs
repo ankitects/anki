@@ -24,12 +24,13 @@ impl Backend {
         F: FnOnce(&mut LocalServer) -> Result<T>,
     {
         let mut state_guard = self.state.lock().unwrap();
-        let out = func(state_guard.sync.http_sync_server.as_mut().ok_or_else(|| {
-            AnkiError::SyncError {
-                kind: SyncErrorKind::SyncNotStarted,
-                info: Default::default(),
-            }
-        })?);
+        let out = func(
+            state_guard
+                .sync
+                .http_sync_server
+                .as_mut()
+                .ok_or_else(|| AnkiError::sync_error("", SyncErrorKind::SyncNotStarted))?,
+        );
         if out.is_err() {
             self.abort_and_restore_collection(Some(state_guard))
         }
@@ -81,10 +82,7 @@ impl Backend {
             .sync
             .http_sync_server
             .take()
-            .ok_or_else(|| AnkiError::SyncError {
-                kind: SyncErrorKind::SyncNotStarted,
-                info: String::new(),
-            })
+            .ok_or_else(|| AnkiError::sync_error("", SyncErrorKind::SyncNotStarted))
     }
 
     fn start(&self, input: StartIn) -> Result<Graves> {

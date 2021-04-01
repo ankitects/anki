@@ -16,10 +16,12 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::Backen
         AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),
         AnkiError::IoError { .. } => V::IoError(pb::Empty {}),
         AnkiError::DbError { .. } => V::DbError(pb::Empty {}),
-        AnkiError::NetworkError { kind, .. } => {
-            V::NetworkError(pb::NetworkError { kind: kind.into() })
-        }
-        AnkiError::SyncError { kind, .. } => V::SyncError(pb::SyncError { kind: kind.into() }),
+        AnkiError::NetworkError(err) => V::NetworkError(pb::NetworkError {
+            kind: err.kind.into(),
+        }),
+        AnkiError::SyncError(err) => V::SyncError(pb::SyncError {
+            kind: err.kind.into(),
+        }),
         AnkiError::Interrupted => V::Interrupted(pb::Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),

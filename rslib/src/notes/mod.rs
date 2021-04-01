@@ -570,8 +570,8 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 mod test {
     use super::{anki_base91, field_checksum};
     use crate::{
-        collection::open_test_collection, config::BoolKey, decks::DeckId, error::Result, prelude::*,
-        search::SortMode,
+        collection::open_test_collection, config::BoolKey, decks::DeckId, error::Result,
+        prelude::*, search::SortMode,
     };
 
     #[test]

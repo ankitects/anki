@@ -281,10 +281,7 @@ impl HttpSyncClient {
         resp.error_for_status_ref()?;
         let text = resp.text().await?;
         if text != "OK" {
-            Err(AnkiError::SyncError {
-                info: text,
-                kind: SyncErrorKind::Other,
-            })
+            Err(AnkiError::sync_error(text, SyncErrorKind::Other))
         } else {
             Ok(())
         }
@@ -349,7 +346,10 @@ fn sync_endpoint(host_number: u32) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{error::SyncErrorKind, sync::SanityCheckDueCounts};
+    use crate::{
+        error::{SyncError, SyncErrorKind},
+        sync::SanityCheckDueCounts,
+    };
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
@@ -357,10 +357,10 @@ mod test {
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
-            Err(AnkiError::SyncError {
+            Err(AnkiError::SyncError(SyncError {
                 kind: SyncErrorKind::AuthFailed,
                 ..
-            })
+            }))
         ));
 
         assert!(syncer.login(&username, &password).await.is_ok());
@@ -370,10 +370,10 @@ mod test {
         // aborting before a start is a conflict
         assert!(matches!(
             syncer.abort().await,
-            Err(AnkiError::SyncError {
+            Err(AnkiError::SyncError(SyncError {
                 kind: SyncErrorKind::Conflict,
                 ..
-            })
+            }))
         ));
 
         let _graves = syncer.start(Usn(1), true, None).await?;
