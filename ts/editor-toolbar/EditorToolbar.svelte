@@ -11,16 +11,13 @@
 
     export let nightMode: boolean;
     export let disabled: Readable<boolean> = false;
+    export let size: number = 30;
 
     setContext(nightModeKey, nightMode);
     setContext(disabledKey, disabled);
 </script>
 
 <style lang="scss">
-    .base {
-        --toolbar-size: 30px;
-    }
-
     nav {
         position: sticky;
         top: 0;
@@ -43,7 +40,7 @@
     }
 </style>
 
-<div class="base">
+<div style={`--toolbar-size: ${size}px`}>
     <div>
         {#each menus as menu}
             <svelte:component this={menu.component} {...menu} />
