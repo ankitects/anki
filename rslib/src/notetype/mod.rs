@@ -26,7 +26,7 @@ use crate::{
     collection::Collection,
     decks::DeckId,
     define_newtype,
-    error::{AnkiError, Result},
+    error::{AnkiError, Result, TemplateSaveError},
     notes::Note,
     prelude::*,
     template::{FieldRequirements, ParsedTemplate},
@@ -250,7 +250,10 @@ impl Notetype {
                 }
             });
         if let Some(idx) = invalid_card_idx {
-            return Err(AnkiError::TemplateSaveError { ordinal: idx });
+            return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: idx,
+            }));
         }
         let reqs = self.updated_requirements(&parsed_templates);
 
