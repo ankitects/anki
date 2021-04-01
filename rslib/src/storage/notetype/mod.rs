@@ -393,10 +393,7 @@ and ord in ",
                 },
             )?
             .next()
-            .ok_or_else(|| AnkiError::DbError {
-                info: "col table empty".to_string(),
-                kind: DbErrorKind::MissingEntity,
-            })??;
+            .ok_or_else(|| AnkiError::db_error("col table empty", DbErrorKind::MissingEntity))??;
         Ok(notetypes)
     }
 

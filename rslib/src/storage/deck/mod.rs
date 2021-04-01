@@ -27,9 +27,11 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         common,
-        kind: kind.kind.ok_or_else(|| AnkiError::DbError {
-            kind: DbErrorKind::MissingEntity,
-            info: format!("invalid deck kind: {}", id),
+        kind: kind.kind.ok_or_else(|| {
+            AnkiError::db_error(
+                format!("invalid deck kind: {}", id),
+                DbErrorKind::MissingEntity,
+            )
         })?,
     })
 }
@@ -382,10 +384,7 @@ impl SqliteStorage {
                 Ok(v)
             })?
             .next()
-            .ok_or_else(|| AnkiError::DbError {
-                info: "col table empty".to_string(),
-                kind: DbErrorKind::MissingEntity,
-            })??;
+            .ok_or_else(|| AnkiError::db_error("col table empty", DbErrorKind::MissingEntity))??;
         Ok(decks)
     }
 

@@ -6,7 +6,7 @@ mod network;
 mod search;
 
 pub use {
-    db::DbErrorKind,
+    db::{DbError, DbErrorKind},
     network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind},
     search::{ParseError, SearchErrorKind},
 };
@@ -23,7 +23,7 @@ pub enum AnkiError {
     TemplateError { info: String },
     TemplateSaveError { ordinal: usize },
     IoError { info: String },
-    DbError { info: String, kind: DbErrorKind },
+    DbError(DbError),
     NetworkError(NetworkError),
     SyncError(SyncError),
     JsonError { info: String },
@@ -52,10 +52,6 @@ impl AnkiError {
         AnkiError::InvalidInput { info: s.into() }
     }
 
-    pub(crate) fn server_message<S: Into<String>>(msg: S) -> AnkiError {
-        AnkiError::sync_error(msg, SyncErrorKind::ServerMessage)
-    }
-
     pub fn localized_description(&self, tr: &I18n) -> String {
         match self {
             AnkiError::SyncError(err) => err.localized_description(tr),
@@ -67,11 +63,7 @@ impl AnkiError {
             AnkiError::TemplateSaveError { ordinal } => tr
                 .card_templates_invalid_template_number(ordinal + 1)
                 .into(),
-            AnkiError::DbError { info, kind } => match kind {
-                DbErrorKind::Corrupt => info.clone(),
-                DbErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
-                _ => format!("{:?}", self),
-            },
+            AnkiError::DbError(err) => err.localized_description(tr),
             AnkiError::SearchError(kind) => kind.localized_description(&tr),
             AnkiError::InvalidInput { info } => {
                 if info.is_empty() {

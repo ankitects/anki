@@ -4,7 +4,7 @@
 use crate::{
     collection::Collection,
     config::SchedulerVersion,
-    error::{AnkiError, DbErrorKind, Result},
+    error::{AnkiError, DbError, DbErrorKind, Result},
     i18n::I18n,
     notetype::{
         all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, Notetype, NotetypeId,
@@ -90,10 +90,10 @@ impl Collection {
         debug!(self.log, "quick check");
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
-            return Err(AnkiError::DbError {
-                info: self.tr.database_check_corrupt().into(),
-                kind: DbErrorKind::Corrupt,
-            });
+            return Err(AnkiError::db_error(
+                self.tr.database_check_corrupt(),
+                DbErrorKind::Corrupt,
+            ));
         }
 
         progress_fn(DatabaseCheckProgress::Optimize, false);
@@ -289,10 +289,10 @@ impl Collection {
         match self.storage.get_note(nid) {
             Ok(note) => Ok(note.unwrap()),
             Err(err) => match err {
-                AnkiError::DbError {
+                AnkiError::DbError(DbError {
                     kind: DbErrorKind::Utf8,
                     ..
-                } => {
+                }) => {
                     // fix note then fetch again
                     self.storage.fix_invalid_utf8_in_note(nid)?;
                     out.invalid_utf8 += 1;

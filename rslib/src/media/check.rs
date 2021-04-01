@@ -360,12 +360,9 @@ where
                 self.fire_progress_cb()?;
             }
             let mut note = self.ctx.storage.get_note(nid)?.unwrap();
-            let nt = notetypes
-                .get(&note.notetype_id)
-                .ok_or_else(|| AnkiError::DbError {
-                    info: "missing note type".to_string(),
-                    kind: DbErrorKind::MissingEntity,
-                })?;
+            let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
+                AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
+            })?;
             if fix_and_extract_media_refs(
                 &mut note,
                 &mut referenced_files,

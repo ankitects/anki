@@ -47,6 +47,10 @@ impl AnkiError {
             kind,
         })
     }
+
+    pub(crate) fn server_message<S: Into<String>>(msg: S) -> AnkiError {
+        AnkiError::sync_error(msg, SyncErrorKind::ServerMessage)
+    }
 }
 
 impl From<reqwest::Error> for AnkiError {
