@@ -3,7 +3,7 @@
 
 use super::{ids_to_string, SqliteStorage};
 use crate::{
-    err::{AnkiError, DbErrorKind, Result},
+    error::{AnkiError, DbErrorKind, Result},
     notes::NoteId,
     notetype::{
         AlreadyGeneratedCardInfo, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig,

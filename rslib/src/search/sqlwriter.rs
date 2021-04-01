@@ -9,7 +9,7 @@ use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
     decks::human_deck_name_to_native,
-    err::Result,
+    error::Result,
     notes::field_checksum,
     notetype::NotetypeId,
     prelude::*,

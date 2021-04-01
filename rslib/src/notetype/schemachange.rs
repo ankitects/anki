@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{CardGenContext, Notetype};
-use crate::{collection::Collection, err::Result};
+use crate::{collection::Collection, error::Result};
 
 /// True if any ordinals added, removed or reordered.
 fn ords_changed(ords: &[Option<u32>], previous_len: usize) -> bool {
@@ -137,7 +137,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::{ords_changed, TemplateOrdChanges};
-    use crate::{collection::open_test_collection, decks::DeckId, err::Result, search::SortMode};
+    use crate::{collection::open_test_collection, decks::DeckId, error::Result, search::SortMode};
 
     #[test]
     fn ord_changes() {

@@ -6,7 +6,7 @@ use crate::{
     card::{Card, CardId, CardQueue},
     collection::Collection,
     config::SchedulerVersion,
-    err::Result,
+    error::Result,
     prelude::*,
     search::SortMode,
 };

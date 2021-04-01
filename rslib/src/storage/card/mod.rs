@@ -7,7 +7,7 @@ use crate::{
     card::{Card, CardId, CardQueue, CardType},
     deckconf::DeckConfId,
     decks::{Deck, DeckId, DeckKind},
-    err::Result,
+    error::Result,
     notes::NoteId,
     scheduler::{
         congrats::CongratsInfo,

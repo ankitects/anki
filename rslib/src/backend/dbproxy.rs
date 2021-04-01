@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::storage::SqliteStorage;
-use crate::{collection::Collection, err::Result};
+use crate::{collection::Collection, error::Result};
 use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
 use rusqlite::OptionalExtension;
 use serde_derive::{Deserialize, Serialize};

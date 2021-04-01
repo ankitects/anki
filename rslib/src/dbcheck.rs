@@ -4,7 +4,7 @@
 use crate::{
     collection::Collection,
     config::SchedulerVersion,
-    err::{AnkiError, DbErrorKind, Result},
+    error::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
     notetype::{
         all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, Notetype, NotetypeId,

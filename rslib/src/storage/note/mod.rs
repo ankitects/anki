@@ -4,7 +4,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    err::Result,
+    error::Result,
     notes::{Note, NoteId, NoteTags},
     notetype::NotetypeId,
     tags::{join_tags, split_tags},

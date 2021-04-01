@@ -6,7 +6,7 @@ use tokio::runtime::Runtime;
 
 use crate::backend::{Backend, BackendState};
 use crate::{
-    err::SyncErrorKind,
+    error::SyncErrorKind,
     prelude::*,
     sync::{
         http::{

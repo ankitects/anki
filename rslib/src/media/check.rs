@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::collection::Collection;
-use crate::err::{AnkiError, DbErrorKind, Result};
+use crate::error::{AnkiError, DbErrorKind, Result};
 use crate::latex::extract_latex_expanding_clozes;
 use crate::log::debug;
 use crate::media::database::MediaDatabaseContext;
@@ -511,7 +511,7 @@ pub(crate) mod test {
 
     use super::normalize_and_maybe_rename_files;
     use crate::collection::{open_collection, Collection};
-    use crate::err::Result;
+    use crate::error::Result;
     use crate::i18n::I18n;
     use crate::log;
     use crate::media::check::{MediaCheckOutput, MediaChecker};

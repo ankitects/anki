@@ -5,7 +5,7 @@ use super::SqliteStorage;
 use crate::{
     card::CardId,
     decks::DeckId,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     notes::NoteId,
     sync::Graves,
     types::Usn,

@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::config::schema11::schema11_config_as_string;
-use crate::err::Result;
-use crate::err::{AnkiError, DbErrorKind};
+use crate::error::Result;
+use crate::error::{AnkiError, DbErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{i18n::I18n, scheduler::timing::v1_creation_date, text::without_combining};
 use regex::Regex;

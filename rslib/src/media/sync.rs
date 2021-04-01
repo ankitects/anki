@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result, SyncErrorKind};
+use crate::error::{AnkiError, Result, SyncErrorKind};
 use crate::media::changetracker::ChangeTracker;
 use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
@@ -808,7 +808,7 @@ fn zip_files<'a>(
 
 #[cfg(test)]
 mod test {
-    use crate::err::Result;
+    use crate::error::Result;
     use crate::media::sync::{
         determine_required_change, LocalState, MediaSyncProgress, RequiredChange,
     };

@@ -4,7 +4,7 @@
 use super::SqliteStorage;
 use crate::{
     deckconf::{DeckConf, DeckConfId, DeckConfSchema11, DeckConfigInner},
-    err::Result,
+    error::Result,
     i18n::I18n,
 };
 use prost::Message;

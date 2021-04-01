@@ -6,7 +6,7 @@ use crate::{
     collection::Collection,
     config::StringKey,
     deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
-    err::Result,
+    error::Result,
     prelude::*,
 };
 use lazy_static::lazy_static;

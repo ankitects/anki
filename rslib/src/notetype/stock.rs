@@ -4,7 +4,7 @@
 use super::NotetypeKind;
 use crate::{
     config::{ConfigEntry, ConfigKey},
-    err::Result,
+    error::Result,
     i18n::I18n,
     notetype::Notetype,
     storage::SqliteStorage,

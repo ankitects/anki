@@ -9,7 +9,7 @@ use crate::{
     },
     collection::Collection,
     config::BoolKey,
-    err::Result,
+    error::Result,
     prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
 };

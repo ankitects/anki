@@ -18,7 +18,7 @@ use crate::{
     card::CardType,
     collection::Collection,
     config::{BoolKey, SortKind},
-    err::Result,
+    error::Result,
     notes::NoteId,
     prelude::AnkiError,
     search::parser::parse,

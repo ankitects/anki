@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
+use crate::error::Result;
 use rusqlite::{params, Connection, OptionalExtension, Row, Statement, NO_PARAMS};
 use std::collections::HashMap;
 use std::path::Path;
@@ -251,7 +251,7 @@ fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
 
 #[cfg(test)]
 mod test {
-    use crate::err::Result;
+    use crate::error::Result;
     use crate::media::database::MediaEntry;
     use crate::media::files::sha1_of_data;
     use crate::media::MediaManager;

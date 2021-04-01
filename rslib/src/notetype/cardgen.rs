@@ -8,7 +8,7 @@ use crate::{
     collection::Collection,
     deckconf::{DeckConf, DeckConfId},
     decks::DeckId,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     notes::{Note, NoteId},
     notetype::NotetypeKind,
     template::ParsedTemplate,

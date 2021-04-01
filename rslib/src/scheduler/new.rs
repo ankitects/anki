@@ -5,7 +5,7 @@ use crate::{
     card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
     decks::DeckId,
-    err::Result,
+    error::Result,
     notes::NoteId,
     prelude::*,
     search::SortMode,

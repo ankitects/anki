@@ -3,7 +3,7 @@
 
 use crate::{
     collection::Collection,
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
     notes::{NoteId, TransformNoteOutput},
     prelude::*,
     text::normalize_to_nfc,

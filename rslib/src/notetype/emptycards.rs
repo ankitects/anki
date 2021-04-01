@@ -4,7 +4,7 @@
 use super::{
     cardgen::group_generated_cards_by_note, CardGenContext, Notetype, NotetypeId, NotetypeKind,
 };
-use crate::{card::CardId, collection::Collection, err::Result, notes::NoteId};
+use crate::{card::CardId, collection::Collection, error::Result, notes::NoteId};
 use std::collections::HashSet;
 use std::fmt::Write;
 

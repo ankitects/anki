@@ -3,7 +3,7 @@
 
 use crate::{
     backend_proto::{NoteField as NoteFieldProto, NoteFieldConfig, OptionalUInt32},
-    err::{AnkiError, Result},
+    error::{AnkiError, Result},
 };
 
 #[derive(Debug, PartialEq)]
