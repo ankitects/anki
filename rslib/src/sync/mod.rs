@@ -682,9 +682,7 @@ impl Collection {
         // overwrite existing collection atomically
         out_file
             .persist(&col_path)
-            .map_err(|e| AnkiError::IoError {
-                info: format!("download save failed: {}", e),
-            })?;
+            .map_err(|e| AnkiError::IoError(format!("download save failed: {}", e)))?;
         Ok(())
     }
 
