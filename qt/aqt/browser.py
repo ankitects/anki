@@ -39,7 +39,7 @@ from aqt.scheduling_ops import (
 from aqt.sidebar import SidebarTreeView
 from aqt.switch import Switch
 from aqt.table import Table
-from aqt.tag_ops import add_tags, clear_unused_tags, remove_tags_for_notes
+from aqt.tag_ops import add_tags_to_notes, clear_unused_tags, remove_tags_from_notes
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -682,7 +682,7 @@ where id in %s"""
         "Shows prompt if tags not provided."
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
-        add_tags(
+        add_tags_to_notes(
             mw=self.mw,
             note_ids=self.selected_notes(),
             space_separated_tags=tags,
@@ -698,7 +698,7 @@ where id in %s"""
             tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
         ):
             return
-        remove_tags_for_notes(
+        remove_tags_from_notes(
             mw=self.mw,
             note_ids=self.selected_notes(),
             space_separated_tags=tags,
