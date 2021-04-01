@@ -20,14 +20,14 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 #[derive(Debug, PartialEq)]
 pub enum AnkiError {
     InvalidInput(String),
-    TemplateError { info: String },
+    TemplateError(String),
     TemplateSaveError { ordinal: usize },
     IoError(String),
     DbError(DbError),
     NetworkError(NetworkError),
     SyncError(SyncError),
-    JsonError { info: String },
-    ProtoError { info: String },
+    JsonError(String),
+    ProtoError(String),
     ParseNumError,
     Interrupted,
     CollectionNotOpen,
@@ -56,7 +56,7 @@ impl AnkiError {
         match self {
             AnkiError::SyncError(err) => err.localized_description(tr),
             AnkiError::NetworkError(err) => err.localized_description(tr),
-            AnkiError::TemplateError { info } => {
+            AnkiError::TemplateError(info) => {
                 // already localized
                 info.into()
             }
@@ -102,25 +102,19 @@ impl From<io::Error> for AnkiError {
 
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
-        AnkiError::JsonError {
-            info: err.to_string(),
-        }
+        AnkiError::JsonError(err.to_string())
     }
 }
 
 impl From<prost::EncodeError> for AnkiError {
     fn from(err: prost::EncodeError) -> Self {
-        AnkiError::ProtoError {
-            info: err.to_string(),
-        }
+        AnkiError::ProtoError(err.to_string())
     }
 }
 
 impl From<prost::DecodeError> for AnkiError {
     fn from(err: prost::DecodeError) -> Self {
-        AnkiError::ProtoError {
-            info: err.to_string(),
-        }
+        AnkiError::ProtoError(err.to_string())
     }
 }
 
