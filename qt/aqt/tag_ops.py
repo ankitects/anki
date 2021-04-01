@@ -12,7 +12,7 @@ from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.utils import showInfo, tooltip, tr
 
 
-def add_tags(
+def add_tags_to_notes(
     *,
     mw: AnkiQt,
     note_ids: Sequence[NoteId],
@@ -24,7 +24,7 @@ def add_tags(
     )
 
 
-def remove_tags_for_notes(
+def remove_tags_from_notes(
     *,
     mw: AnkiQt,
     note_ids: Sequence[NoteId],
@@ -66,7 +66,7 @@ def rename_tag(
     )
 
 
-def remove_tags_for_all_notes(
+def remove_tags_from_all_notes(
     *, mw: AnkiQt, parent: QWidget, space_separated_tags: str
 ) -> None:
     mw.perform_op(

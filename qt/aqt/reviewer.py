@@ -30,7 +30,7 @@ from aqt.scheduling_ops import (
     suspend_note,
 )
 from aqt.sound import av_player, play_clicked_audio, record_audio
-from aqt.tag_ops import add_tags, remove_tags_for_notes
+from aqt.tag_ops import add_tags_to_notes, remove_tags_from_notes
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
@@ -841,11 +841,13 @@ time = %(time)d;
     def toggle_mark_on_current_note(self) -> None:
         note = self.card.note()
         if note.has_tag(MARKED_TAG):
-            remove_tags_for_notes(
+            remove_tags_from_notes(
                 mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
             )
         else:
-            add_tags(mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG)
+            add_tags_to_notes(
+                mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
+            )
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:

@@ -18,7 +18,7 @@ from aqt.clayout import CardLayout
 from aqt.deck_ops import remove_decks, rename_deck, reparent_decks
 from aqt.models import Models
 from aqt.qt import *
-from aqt.tag_ops import remove_tags_for_all_notes, rename_tag, reparent_tags
+from aqt.tag_ops import remove_tags_from_all_notes, rename_tag, reparent_tags
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import KeyboardModifiersPressed, askUser, getOnlyText, showWarning, tr
 
@@ -1175,7 +1175,7 @@ class SidebarTreeView(QTreeView):
         tags = self.mw.col.tags.join(self._selected_tags())
         item.name = "..."
 
-        remove_tags_for_all_notes(
+        remove_tags_from_all_notes(
             mw=self.mw, parent=self.browser, space_separated_tags=tags
         )
 
