@@ -1,6 +1,10 @@
 <script lang="typescript">
     import type { Buttons } from "./types";
 
+    export let id = "";
+    export let className = "";
+    export let props: Record<string, string> = {};
+
     export let buttons: Buttons;
 </script>
 
@@ -47,7 +51,7 @@
     }
 </style>
 
-<ul>
+<ul {id} class={className} {...props}>
     {#each buttons as button}
         <li>
             {#if Array.isArray(button)}
