@@ -9,15 +9,6 @@
     "description": "Adds String based inflections for Rust. Snake, kebab, camel, sentence, class, title and table cases as well as ordinalize, deordinalize, demodulize, foreign key, and pluralize/singularize are supported as both traits and pure functions acting on String types."
   },
   {
-    "name": "addr2line",
-    "version": "0.14.1",
-    "authors": "Nick Fitzgerald <fitzgen@gmail.com>|Philip Craig <philipjcraig@gmail.com>|Jon Gjengset <jon@thesquareplanet.com>|Noah Bergbauer <noah.bergbauer@tum.de>",
-    "repository": "https://github.com/gimli-rs/addr2line",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A cross-platform symbolication library written in Rust, using `gimli`"
-  },
-  {
     "name": "adler",
     "version": "1.0.2",
     "authors": "Jonas Schievink <jonasschievink@gmail.com>",
@@ -196,15 +187,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Automatic cfg for Rust compiler features"
-  },
-  {
-    "name": "backtrace",
-    "version": "0.3.56",
-    "authors": "The Rust Project Developers",
-    "repository": "https://github.com/rust-lang/backtrace-rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A library to acquire a stack trace (backtrace) at runtime in a Rust program."
   },
   {
     "name": "base64",
@@ -495,24 +477,6 @@
     "description": "A logging implementation for `log` which is configured via an environment variable."
   },
   {
-    "name": "failure",
-    "version": "0.1.8",
-    "authors": "Without Boats <boats@mozilla.com>",
-    "repository": "https://github.com/rust-lang-nursery/failure",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Experimental error handling abstraction."
-  },
-  {
-    "name": "failure_derive",
-    "version": "0.1.8",
-    "authors": "Without Boats <woboats@gmail.com>",
-    "repository": "https://github.com/rust-lang-nursery/failure",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "derives for the failure crate"
-  },
-  {
     "name": "fallible-iterator",
     "version": "0.2.0",
     "authors": "Steven Fackler <sfackler@gmail.com>",
@@ -781,15 +745,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Define your own PhantomData"
-  },
-  {
-    "name": "gimli",
-    "version": "0.23.0",
-    "authors": "Nick Fitzgerald <fitzgen@gmail.com>|Philip Craig <philipjcraig@gmail.com>",
-    "repository": "https://github.com/gimli-rs/gimli",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A library for reading and writing the DWARF debugging format."
   },
   {
     "name": "h2",
@@ -1359,15 +1314,6 @@
     "description": "Internal implementation details for ::num_enum (Procedural macros to make inter-operation between primitives and enums easier)"
   },
   {
-    "name": "object",
-    "version": "0.23.0",
-    "authors": "Nick Fitzgerald <fitzgen@gmail.com>|Philip Craig <philipjcraig@gmail.com>",
-    "repository": "https://github.com/gimli-rs/object",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A unified interface for reading and writing object file formats."
-  },
-  {
     "name": "once_cell",
     "version": "1.7.2",
     "authors": "Aleksey Kladov <aleksey.kladov@gmail.com>",
@@ -1926,15 +1872,6 @@
     "description": "Rust implementation of the Argon2 password hashing function."
   },
   {
-    "name": "rustc-demangle",
-    "version": "0.1.18",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
-    "repository": "https://github.com/alexcrichton/rustc-demangle",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Rust compiler symbol demangling."
-  },
-  {
     "name": "rustc-hash",
     "version": "1.1.0",
     "authors": "The Rust Project Developers",
@@ -2257,15 +2194,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Parser for Rust source code"
-  },
-  {
-    "name": "synstructure",
-    "version": "0.12.4",
-    "authors": "Nika Layzell <nika@thelayzells.com>",
-    "repository": "https://github.com/mystor/synstructure",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Helper methods and macros for custom derives"
   },
   {
     "name": "take_mut",

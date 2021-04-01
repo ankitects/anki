@@ -12,70 +12,38 @@ pub use {
 };
 
 use crate::i18n::I18n;
-pub use failure::{Error, Fail};
-use std::io;
+use std::{fmt::Display, io};
 use tempfile::PathPersistError;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
-#[derive(Debug, Fail, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum AnkiError {
-    #[fail(display = "invalid input: {}", info)]
     InvalidInput { info: String },
-
-    #[fail(display = "invalid card template: {}", info)]
     TemplateError { info: String },
-
-    #[fail(display = "unable to save template {}", ordinal)]
     TemplateSaveError { ordinal: usize },
-
-    #[fail(display = "I/O error: {}", info)]
     IoError { info: String },
-
-    #[fail(display = "DB error: {}", info)]
     DbError { info: String, kind: DbErrorKind },
-
-    #[fail(display = "Network error: {:?}", _0)]
     NetworkError(NetworkError),
-
-    #[fail(display = "Sync error: {:?}", _0)]
     SyncError(SyncError),
-
-    #[fail(display = "JSON encode/decode error: {}", info)]
     JsonError { info: String },
-
-    #[fail(display = "Protobuf encode/decode error: {}", info)]
     ProtoError { info: String },
-
-    #[fail(display = "Unable to parse number")]
     ParseNumError,
-
-    #[fail(display = "The user interrupted the operation.")]
     Interrupted,
-
-    #[fail(display = "Operation requires an open collection.")]
     CollectionNotOpen,
-
-    #[fail(display = "Close the existing collection first.")]
     CollectionAlreadyOpen,
-
-    #[fail(display = "A requested item was not found.")]
     NotFound,
-
-    #[fail(display = "The provided item already exists.")]
     Existing,
-
-    #[fail(display = "Unable to place item in/under a filtered deck.")]
     DeckIsFiltered,
-
-    #[fail(display = "Invalid search.")]
     SearchError(SearchErrorKind),
-
-    #[fail(display = "Provided search(es) did not match any cards.")]
     FilteredDeckEmpty,
-
-    #[fail(display = "Invalid regex provided.")]
     InvalidRegex(String),
+}
+
+impl Display for AnkiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 // error helpers
