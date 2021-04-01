@@ -3,7 +3,7 @@
 
 pub(crate) mod undo;
 
-use crate::error::{AnkiError, Result};
+use crate::error::{AnkiError, FilteredDeckError, Result};
 use crate::notes::NoteId;
 use crate::{
     collection::Collection, config::SchedulerVersion, prelude::*, timestamp::TimestampSecs,
@@ -234,7 +234,7 @@ impl Collection {
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<()>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         if deck.is_filtered() {
-            return Err(AnkiError::DeckIsFiltered);
+            return Err(FilteredDeckError::CanNotMoveCardsInto.into());
         }
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.scheduler_version();

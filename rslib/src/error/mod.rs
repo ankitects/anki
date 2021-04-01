@@ -2,11 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod db;
+mod filtered;
 mod network;
 mod search;
 
 pub use {
     db::{DbError, DbErrorKind},
+    filtered::FilteredDeckError,
     network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind},
     search::{ParseError, SearchErrorKind},
 };
@@ -34,9 +36,8 @@ pub enum AnkiError {
     CollectionAlreadyOpen,
     NotFound,
     Existing,
-    DeckIsFiltered,
+    FilteredDeckError(FilteredDeckError),
     SearchError(SearchErrorKind),
-    FilteredDeckEmpty,
     InvalidRegex(String),
 }
 
@@ -73,8 +74,7 @@ impl AnkiError {
                 }
             }
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
-            AnkiError::DeckIsFiltered => tr.errors_filtered_parent_deck().into(),
-            AnkiError::FilteredDeckEmpty => tr.decks_filtered_deck_search_empty().into(),
+            AnkiError::FilteredDeckError(err) => err.localized_description(tr),
             _ => format!("{:?}", self),
         }
     }

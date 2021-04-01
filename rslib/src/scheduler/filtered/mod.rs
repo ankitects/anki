@@ -8,6 +8,7 @@ use std::convert::{TryFrom, TryInto};
 use crate::{
     config::ConfigKey,
     decks::{human_deck_name_to_native, FilteredDeck, FilteredSearchTerm},
+    error::FilteredDeckError,
     search::writer::{deck_search, normalize_search},
 };
 use crate::{
@@ -176,7 +177,7 @@ impl Collection {
 
         // if it failed to match any cards, we revert the changes
         if count == 0 {
-            Err(AnkiError::FilteredDeckEmpty)
+            Err(FilteredDeckError::SearchReturnedNoCards.into())
         } else {
             // update current deck and return id
             self.set_config(ConfigKey::CurrentDeckId, &deck.id)?;

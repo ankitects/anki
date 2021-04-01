@@ -12,14 +12,17 @@ pub use crate::backend_proto::{
     filtered_deck::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
     Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto, FilteredDeck, NormalDeck,
 };
-use crate::{backend_proto as pb, markdown::render_markdown, text::sanitize_html_no_images};
 use crate::{
+    backend_proto as pb,
     collection::Collection,
     deckconf::DeckConfId,
     define_newtype,
+    error::FilteredDeckError,
     error::{AnkiError, Result},
+    markdown::render_markdown,
     prelude::*,
     text::normalize_to_nfc,
+    text::sanitize_html_no_images,
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -421,7 +424,7 @@ impl Collection {
         let child_split: Vec<_> = deck.name.split('\x1f').collect();
         if let Some(parent_deck) = self.first_existing_parent(&deck.name, 0)? {
             if parent_deck.is_filtered() {
-                return Err(AnkiError::DeckIsFiltered);
+                return Err(FilteredDeckError::MustBeLeafNode.into());
             }
             let parent_count = parent_deck.name.matches('\x1f').count() + 1;
             let need_create = parent_count != child_split.len() - 1;
@@ -654,7 +657,7 @@ impl Collection {
         if let Some(target) = new_parent {
             if let Some(target) = self.storage.get_deck(target)? {
                 if target.is_filtered() {
-                    return Err(AnkiError::DeckIsFiltered);
+                    return Err(FilteredDeckError::MustBeLeafNode.into());
                 }
                 target_deck = target;
                 target_name = Some(target_deck.name.as_str());

@@ -29,11 +29,10 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::Backen
         AnkiError::ProtoError(info) => V::ProtoError(info),
         AnkiError::NotFound => V::NotFoundError(pb::Empty {}),
         AnkiError::Existing => V::Exists(pb::Empty {}),
-        AnkiError::DeckIsFiltered => V::DeckIsFiltered(pb::Empty {}),
+        AnkiError::FilteredDeckError(_) => V::FilteredDeckError(pb::Empty {}),
         AnkiError::SearchError(_) => V::SearchError(pb::Empty {}),
         AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
         AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
-        AnkiError::FilteredDeckEmpty => V::FilteredDeckEmpty(pb::Empty {}),
         AnkiError::InvalidRegex(_) => V::InvalidInput(pb::Empty {}),
     };
 
