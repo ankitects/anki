@@ -259,7 +259,7 @@ fn template_error_to_anki_error(err: TemplateError, q_side: bool, tr: &I18n) -> 
         header, details, TEMPLATE_ERROR_LINK, more_info
     );
 
-    AnkiError::TemplateError { info }
+    AnkiError::TemplateError(info)
 }
 
 fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
