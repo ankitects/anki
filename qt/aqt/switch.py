@@ -9,7 +9,9 @@ from aqt.theme import theme_manager
 
 class Switch(QAbstractButton):
     """A horizontal slider to toggle between two states which can be denoted by short strings.
-    The left state is the default and corresponds to isChecked=False.
+
+    The left state is the default and corresponds to isChecked()=False.
+    The suppoorted slots are toggle(), for an animated transition, and setChecked().
     """
 
     _margin: int = 2
@@ -91,7 +93,7 @@ class Switch(QAbstractButton):
         )
 
     def _paint_knob(self, painter: QPainter) -> None:
-        painter.setBrush(QBrush(theme_manager.qcolor(colors.HIGHLIGHT_BG)))
+        painter.setBrush(QBrush(theme_manager.qcolor(colors.LINK)))
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
@@ -104,12 +106,20 @@ class Switch(QAbstractButton):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
         if event.button() == Qt.LeftButton:
-            animation = QPropertyAnimation(self, b"position", self)
-            animation.setDuration(100)
-            animation.setStartValue(self.start_position)
-            animation.setEndValue(self.end_position)
-            animation.start()
+            self._animate_toggle()
 
     def enterEvent(self, event: QEvent) -> None:
         self.setCursor(Qt.PointingHandCursor)
         super().enterEvent(event)
+
+    def toggle(self) -> None:
+        super().toggle()
+        self._animate_toggle()
+
+    def _animate_toggle(self) -> None:
+        animation = QPropertyAnimation(self, b"position", self)
+        animation.setDuration(100)
+        animation.setStartValue(self.start_position)
+        animation.setEndValue(self.end_position)
+        # make triggered events execute first so the animation runs smoothly afterwards
+        QTimer.singleShot(50, animation.start)
