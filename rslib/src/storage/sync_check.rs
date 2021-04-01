@@ -39,10 +39,10 @@ impl SqliteStorage {
             "notetypes",
         ] {
             if self.table_has_usn(table)? {
-                return Err(AnkiError::SyncError {
-                    info: format!("table had usn=-1: {}", table),
-                    kind: SyncErrorKind::Other,
-                });
+                return Err(AnkiError::sync_error(
+                    format!("table had usn=-1: {}", table),
+                    SyncErrorKind::Other,
+                ));
             }
         }
 

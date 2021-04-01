@@ -402,10 +402,7 @@ where
                 Ok(())
             } else {
                 self.ctx.transact(|ctx| ctx.force_resync())?;
-                Err(AnkiError::SyncError {
-                    info: "".into(),
-                    kind: SyncErrorKind::ResyncRequired,
-                })
+                Err(AnkiError::sync_error("", SyncErrorKind::ResyncRequired))
             }
         } else {
             Err(AnkiError::server_message(resp.err))
@@ -608,7 +605,7 @@ fn extract_into_media_folder(
 
         let real_name = fmap
             .get(name)
-            .ok_or_else(|| AnkiError::sync_misc("malformed zip"))?;
+            .ok_or_else(|| AnkiError::sync_error("malformed zip", SyncErrorKind::Other))?;
 
         let mut data = Vec::with_capacity(file.size() as usize);
         file.read_to_end(&mut data)?;

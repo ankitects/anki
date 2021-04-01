@@ -10,6 +10,7 @@ use crate::{
     card::{Card, CardQueue, CardType},
     deckconf::DeckConfSchema11,
     decks::DeckSchema11,
+    error::SyncError,
     error::SyncErrorKind,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
@@ -339,10 +340,10 @@ where
                         self.col.storage.rollback_trx()?;
                         let _ = self.remote.abort().await;
 
-                        if let AnkiError::SyncError {
-                            kind: SyncErrorKind::DatabaseCheckRequired,
+                        if let AnkiError::SyncError(SyncError {
                             info,
-                        } = &e
+                            kind: SyncErrorKind::DatabaseCheckRequired,
+                        }) = &e
                         {
                             debug!(self.col.log, "sanity check failed:\n{}", info);
                         }
@@ -359,10 +360,10 @@ where
         debug!(self.col.log, "remote {:?}", &remote);
         if !remote.should_continue {
             debug!(self.col.log, "server says abort"; "message"=>&remote.server_message);
-            return Err(AnkiError::SyncError {
-                info: remote.server_message,
-                kind: SyncErrorKind::ServerMessage,
-            });
+            return Err(AnkiError::sync_error(
+                remote.server_message,
+                SyncErrorKind::ServerMessage,
+            ));
         }
 
         let local = self.col.sync_meta()?;
@@ -370,11 +371,7 @@ where
         let delta = remote.current_time.0 - local.current_time.0;
         if delta.abs() > 300 {
             debug!(self.col.log, "clock off"; "delta"=>delta);
-            return Err(AnkiError::SyncError {
-                // fixme: need to rethink error handling; defer translation and pass in time difference
-                info: "".into(),
-                kind: SyncErrorKind::ClockIncorrect,
-            });
+            return Err(AnkiError::sync_error("", SyncErrorKind::ClockIncorrect));
         }
 
         Ok(local.compared_to_remote(remote))
@@ -551,10 +548,10 @@ where
         let out: SanityCheckOut = self.remote.sanity_check(local_counts).await?;
         debug!(self.col.log, "got server reply");
         if out.status != SanityCheckStatus::Ok {
-            Err(AnkiError::SyncError {
-                info: format!("local {:?}\nremote {:?}", out.client, out.server),
-                kind: SyncErrorKind::DatabaseCheckRequired,
-            })
+            Err(AnkiError::sync_error(
+                format!("local {:?}\nremote {:?}", out.client, out.server),
+                SyncErrorKind::DatabaseCheckRequired,
+            ))
         } else {
             Ok(())
         }
@@ -852,10 +849,10 @@ impl Collection {
                     if (existing_nt.fields.len() != nt.fields.len())
                         || (existing_nt.templates.len() != nt.templates.len())
                     {
-                        return Err(AnkiError::SyncError {
-                            info: "notetype schema changed".into(),
-                            kind: SyncErrorKind::ResyncRequired,
-                        });
+                        return Err(AnkiError::sync_error(
+                            "notetype schema changed",
+                            SyncErrorKind::ResyncRequired,
+                        ));
                     }
                     true
                 } else {
