@@ -1,14 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod db;
 mod search;
 
-pub use search::{ParseError, SearchErrorKind};
+pub use {
+    db::DbErrorKind,
+    search::{ParseError, SearchErrorKind},
+};
 
 use crate::i18n::I18n;
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
-use std::{io, str::Utf8Error};
+use std::io;
 use tempfile::PathPersistError;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
@@ -71,6 +75,9 @@ pub enum AnkiError {
 
     #[fail(display = "Provided search(es) did not match any cards.")]
     FilteredDeckEmpty,
+
+    #[fail(display = "Invalid regex provided.")]
+    InvalidRegex(String),
 }
 
 // error helpers
@@ -165,43 +172,6 @@ impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
         AnkiError::IoError {
             info: format!("{:?}", err),
-        }
-    }
-}
-
-impl From<rusqlite::Error> for AnkiError {
-    fn from(err: rusqlite::Error) -> Self {
-        if let rusqlite::Error::SqliteFailure(error, Some(reason)) = &err {
-            if error.code == rusqlite::ErrorCode::DatabaseBusy {
-                return AnkiError::DbError {
-                    info: "".to_string(),
-                    kind: DbErrorKind::Locked,
-                };
-            }
-            if reason.contains("regex parse error") {
-                return AnkiError::SearchError(SearchErrorKind::Regex(reason.to_owned()));
-            }
-        }
-        AnkiError::DbError {
-            info: format!("{:?}", err),
-            kind: DbErrorKind::Other,
-        }
-    }
-}
-
-impl From<rusqlite::types::FromSqlError> for AnkiError {
-    fn from(err: rusqlite::types::FromSqlError) -> Self {
-        if let rusqlite::types::FromSqlError::Other(ref err) = err {
-            if let Some(_err) = err.downcast_ref::<Utf8Error>() {
-                return AnkiError::DbError {
-                    info: "".to_string(),
-                    kind: DbErrorKind::Utf8,
-                };
-            }
-        }
-        AnkiError::DbError {
-            info: format!("{:?}", err),
-            kind: DbErrorKind::Other,
         }
     }
 }
@@ -338,17 +308,6 @@ impl From<prost::DecodeError> for AnkiError {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub enum DbErrorKind {
-    FileTooNew,
-    FileTooOld,
-    MissingEntity,
-    Corrupt,
-    Locked,
-    Utf8,
-    Other,
-}
-
 impl From<PathPersistError> for AnkiError {
     fn from(e: PathPersistError) -> Self {
         AnkiError::IoError {
@@ -358,9 +317,7 @@ impl From<PathPersistError> for AnkiError {
 }
 
 impl From<regex::Error> for AnkiError {
-    fn from(_err: regex::Error) -> Self {
-        AnkiError::InvalidInput {
-            info: "invalid regex".into(),
-        }
+    fn from(err: regex::Error) -> Self {
+        AnkiError::InvalidRegex(err.to_string())
     }
 }
