@@ -105,6 +105,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     ) -> OpChangesWithId:
         return self.col._backend.add_or_update_filtered_deck(deck)
 
+    def filtered_deck_order_labels(self) -> Sequence[str]:
+        return self.col._backend.filtered_deck_order_labels()
+
     # Suspending & burying
     ##########################################################################
 

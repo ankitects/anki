@@ -581,11 +581,11 @@ class DeckManager:
     def nameMap(self) -> Dict[str, DeckDict]:
         return {d["name"]: d for d in self.all()}
 
-    # Dynamic decks
+    # Filtered decks
     ##########################################################################
 
     def new_filtered(self, name: str) -> DeckId:
-        "Return a new dynamic deck and set it as the current deck."
+        "For new code, prefer col.sched.get_or_create_filtered_deck()."
         did = self.id(name, type=DEFAULT_DECK_CONF_ID)
         self.select(did)
         return did

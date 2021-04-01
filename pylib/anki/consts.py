@@ -124,18 +124,3 @@ def newCardSchedulingLabels(
         1: tr.scheduling_show_new_cards_after_reviews(),
         2: tr.scheduling_show_new_cards_before_reviews(),
     }
-
-
-def dynOrderLabels(col: Optional[anki.collection.Collection]) -> Dict[int, Any]:
-    tr = _tr(col)
-    return {
-        0: tr.decks_oldest_seen_first(),
-        1: tr.decks_random(),
-        2: tr.decks_increasing_intervals(),
-        3: tr.decks_decreasing_intervals(),
-        4: tr.decks_most_lapses(),
-        5: tr.decks_order_added(),
-        6: tr.decks_order_due(),
-        7: tr.decks_latest_added_first(),
-        8: tr.decks_relative_overdueness(),
-    }

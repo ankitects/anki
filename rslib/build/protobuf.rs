@@ -89,6 +89,10 @@ pub fn write_backend_proto_rs() {
     config
         .out_dir(&out_dir)
         .service_generator(service_generator())
+        .type_attribute(
+            "FilteredDeck.SearchTerm.Order",
+            "#[derive(strum::EnumIter)]",
+        )
         .compile_protos(&[&backend_proto], &[&proto_dir, &out_dir])
         .unwrap();
 }
