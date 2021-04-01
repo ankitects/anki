@@ -107,7 +107,7 @@ impl Deck {
         if let DeckKind::Filtered(filtered) = &self.kind {
             Ok(filtered)
         } else {
-            Err(AnkiError::invalid_input("deck not filtered"))
+            Err(FilteredDeckError::FilteredDeckRequired.into())
         }
     }
 
@@ -116,7 +116,7 @@ impl Deck {
         if let DeckKind::Filtered(filtered) = &mut self.kind {
             Ok(filtered)
         } else {
-            Err(AnkiError::invalid_input("deck not filtered"))
+            Err(FilteredDeckError::FilteredDeckRequired.into())
         }
     }
 

@@ -10,6 +10,7 @@ pub enum FilteredDeckError {
     MustBeLeafNode,
     CanNotMoveCardsInto,
     SearchReturnedNoCards,
+    FilteredDeckRequired,
 }
 
 impl FilteredDeckError {
@@ -20,6 +21,7 @@ impl FilteredDeckError {
                 tr.browsing_cards_cant_be_manually_moved_into()
             }
             FilteredDeckError::SearchReturnedNoCards => tr.decks_filtered_deck_search_empty(),
+            FilteredDeckError::FilteredDeckRequired => tr.errors_filtered_deck_required(),
         }
         .into()
     }
