@@ -22,7 +22,7 @@ pub enum AnkiError {
     InvalidInput(String),
     TemplateError { info: String },
     TemplateSaveError { ordinal: usize },
-    IoError { info: String },
+    IoError(String),
     DbError(DbError),
     NetworkError(NetworkError),
     SyncError(SyncError),
@@ -96,9 +96,7 @@ pub enum TemplateError {
 
 impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
-        AnkiError::IoError {
-            info: format!("{:?}", err),
-        }
+        AnkiError::IoError(format!("{:?}", err))
     }
 }
 
@@ -128,9 +126,7 @@ impl From<prost::DecodeError> for AnkiError {
 
 impl From<PathPersistError> for AnkiError {
     fn from(e: PathPersistError) -> Self {
-        AnkiError::IoError {
-            info: e.to_string(),
-        }
+        AnkiError::IoError(e.to_string())
     }
 }
 
