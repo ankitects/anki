@@ -24,26 +24,28 @@ use crate::{
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy)]
 #[repr(u8)]
 pub enum Column {
-    Custom = 0,
-    Question = 1,
-    Answer = 2,
-    CardDeck = 3,
-    CardDue = 4,
-    CardEase = 5,
-    CardLapses = 6,
-    CardInterval = 7,
-    CardMod = 8,
-    CardReps = 9,
-    CardTemplate = 10,
-    NoteCards = 11,
-    NoteCreation = 12,
-    NoteEase = 13,
-    NoteField = 14,
-    NoteLapses = 15,
-    NoteMod = 16,
-    NoteReps = 17,
-    NoteTags = 18,
-    Notetype = 19,
+    Custom,
+    Question,
+    Answer,
+    CardDeck,
+    CardDue,
+    CardEase,
+    CardLapses,
+    CardInterval,
+    CardMod,
+    CardReps,
+    CardTemplate,
+    NoteCards,
+    NoteCreation,
+    NoteDue,
+    NoteEase,
+    NoteField,
+    NoteInterval,
+    NoteLapses,
+    NoteMod,
+    NoteReps,
+    NoteTags,
+    Notetype,
 }
 
 #[derive(Debug, PartialEq)]
@@ -77,13 +79,13 @@ pub struct Font {
 }
 
 trait RowContext {
-    fn get_cell_text(&mut self, column: &Column) -> Result<String>;
+    fn get_cell_text(&mut self, column: Column) -> Result<String>;
     fn get_row_color(&self) -> Color;
     fn get_row_font(&self) -> Result<Font>;
     fn note(&self) -> &Note;
     fn notetype(&self) -> &Notetype;
 
-    fn get_cell(&mut self, column: &Column) -> Result<Cell> {
+    fn get_cell(&mut self, column: Column) -> Result<Cell> {
         Ok(Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
@@ -101,7 +103,7 @@ trait RowContext {
         html_to_text_line(&self.note().fields()[index]).into()
     }
 
-    fn get_is_rtl(&self, column: &Column) -> bool {
+    fn get_is_rtl(&self, column: Column) -> bool {
         match column {
             Column::NoteField => {
                 let index = self.notetype().config.sort_field_idx as usize;
@@ -115,7 +117,7 @@ trait RowContext {
         Ok(Row {
             cells: columns
                 .iter()
-                .map(|column| self.get_cell(column))
+                .map(|&column| self.get_cell(column))
                 .collect::<Result<_>>()?,
             color: self.get_row_color(),
             font: self.get_row_font()?,
@@ -147,12 +149,56 @@ struct NoteRowContext<'a> {
     notetype: Arc<Notetype>,
     cards: Vec<Card>,
     tr: &'a I18n,
+    timing: SchedTimingToday,
 }
 
 fn card_render_required(columns: &[Column]) -> bool {
     columns
         .iter()
         .any(|c| matches!(c, Column::Question | Column::Answer))
+}
+
+impl Card {
+    fn is_new_type_or_queue(&self) -> bool {
+        self.queue == CardQueue::New || self.ctype == CardType::New
+    }
+
+    fn is_filtered_deck(&self) -> bool {
+        self.original_deck_id != DeckId(0)
+    }
+
+    /// Returns true if the card can not be due as it's buried or suspended.
+    fn is_undue_queue(&self) -> bool {
+        (self.queue as i8) < 0
+    }
+
+    /// Returns true if the card has a due date in terms of days.
+    fn is_due_in_days(&self) -> bool {
+        matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
+            || (self.ctype == CardType::Review && self.is_undue_queue())
+    }
+
+    /// Returns the card's due date as a timestamp if it has one.
+    fn due_time(&self, timing: &SchedTimingToday) -> Option<TimestampSecs> {
+        if self.queue == CardQueue::Learn {
+            Some(TimestampSecs(self.due as i64))
+        } else if self.is_due_in_days() {
+            Some(
+                TimestampSecs::now()
+                    .adding_secs(((self.due - timing.days_elapsed as i32) * 86400) as i64),
+            )
+        } else {
+            None
+        }
+    }
+}
+
+impl Note {
+    fn is_marked(&self) -> bool {
+        self.tags
+            .iter()
+            .any(|tag| tag.eq_ignore_ascii_case("marked"))
+    }
 }
 
 impl Collection {
@@ -297,25 +343,16 @@ impl<'a> CardRowContext<'a> {
     }
 
     fn card_due_str(&mut self) -> String {
-        let due = if self.card.original_deck_id != DeckId(0) {
+        let due = if self.card.is_filtered_deck() {
             self.tr.browsing_filtered()
-        } else if self.card.queue == CardQueue::New || self.card.ctype == CardType::New {
+        } else if self.card.is_new_type_or_queue() {
             self.tr.statistics_due_for_new_card(self.card.due)
+        } else if let Some(time) = self.card.due_time(&self.timing) {
+            time.date_string().into()
         } else {
-            let date = if self.card.queue == CardQueue::Learn {
-                TimestampSecs(self.card.due as i64)
-            } else if self.card.queue == CardQueue::DayLearn
-                || self.card.queue == CardQueue::Review
-                || (self.card.ctype == CardType::Review && (self.card.queue as i8) < 0)
-            {
-                TimestampSecs::now()
-                    .adding_secs(((self.card.due - self.timing.days_elapsed as i32) * 86400) as i64)
-            } else {
-                return "".into();
-            };
-            date.date_string().into()
+            return "".into();
         };
-        if (self.card.queue as i8) < 0 {
+        if self.card.is_undue_queue() {
             format!("({})", due)
         } else {
             due.into()
@@ -360,7 +397,7 @@ impl<'a> CardRowContext<'a> {
 }
 
 impl RowContext for CardRowContext<'_> {
-    fn get_cell_text(&mut self, column: &Column) -> Result<String> {
+    fn get_cell_text(&mut self, column: Column) -> Result<String> {
         Ok(match column {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
@@ -388,12 +425,7 @@ impl RowContext for CardRowContext<'_> {
             3 => Color::FlagGreen,
             4 => Color::FlagBlue,
             _ => {
-                if self
-                    .note
-                    .tags
-                    .iter()
-                    .any(|tag| tag.eq_ignore_ascii_case("marked"))
-                {
+                if self.note.is_marked() {
                     Color::Marked
                 } else if self.card.queue == CardQueue::Suspended {
                     Color::Suspended
@@ -427,37 +459,74 @@ impl<'a> NoteRowContext<'a> {
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
         let cards = col.storage.all_cards_of_note(note.id)?;
+        let timing = col.timing_today()?;
 
         Ok(NoteRowContext {
             note,
             notetype,
             cards,
             tr: &col.tr,
+            timing,
         })
     }
 
+    /// Returns the average ease of the non-new cards or a hint if there aren't any.
     fn note_ease_str(&self) -> String {
-        let cards = self
+        let eases: Vec<u16> = self
             .cards
             .iter()
             .filter(|c| c.ctype != CardType::New)
-            .collect::<Vec<&Card>>();
-        if cards.is_empty() {
+            .map(|c| c.ease_factor)
+            .collect();
+        if eases.is_empty() {
             self.tr.browsing_new().into()
         } else {
-            let ease = cards.iter().map(|c| c.ease_factor).sum::<u16>() / cards.len() as u16;
-            format!("{}%", ease / 10)
+            format!("{}%", eases.iter().sum::<u16>() / eases.len() as u16 / 10)
+        }
+    }
+
+    /// Returns the due date of the next due card that is not in a filtered deck, new, suspended or
+    /// buried or the empty string if there is no such card.
+    fn note_due_str(&self) -> String {
+        self.cards
+            .iter()
+            .filter(|c| !(c.is_filtered_deck() || c.is_new_type_or_queue() || c.is_undue_queue()))
+            .filter_map(|c| c.due_time(&self.timing))
+            .min()
+            .map(|time| time.date_string())
+            .unwrap_or_else(|| "".into())
+    }
+
+    /// Returns the average interval of the review and relearn cards or the empty string if there
+    /// aren't any.
+    fn note_interval_str(&self) -> String {
+        let intervals: Vec<u32> = self
+            .cards
+            .iter()
+            .filter(|c| matches!(c.ctype, CardType::Review | CardType::Relearn))
+            .map(|c| c.interval)
+            .collect();
+        if intervals.is_empty() {
+            "".into()
+        } else {
+            time_span(
+                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
+                self.tr,
+                false,
+            )
         }
     }
 }
 
 impl RowContext for NoteRowContext<'_> {
-    fn get_cell_text(&mut self, column: &Column) -> Result<String> {
+    fn get_cell_text(&mut self, column: Column) -> Result<String> {
         Ok(match column {
             Column::NoteCards => self.cards.len().to_string(),
             Column::NoteCreation => self.note_creation_str(),
+            Column::NoteDue => self.note_due_str(),
             Column::NoteEase => self.note_ease_str(),
             Column::NoteField => self.note_field_str(),
+            Column::NoteInterval => self.note_interval_str(),
             Column::NoteLapses => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),
             Column::NoteMod => self.note.mtime.date_string(),
             Column::NoteReps => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),
@@ -468,12 +537,7 @@ impl RowContext for NoteRowContext<'_> {
     }
 
     fn get_row_color(&self) -> Color {
-        if self
-            .note
-            .tags
-            .iter()
-            .any(|tag| tag.eq_ignore_ascii_case("marked"))
-        {
+        if self.note.is_marked() {
             Color::Marked
         } else {
             Color::Default
