@@ -6,11 +6,14 @@
     import ButtonGroup from "./ButtonGroup.svelte";
     import type { Buttons } from "./types";
 
-    export let buttons: Buttons = [];
-    export let menus: SvelteComponent[];
+    export let buttons: Readable<Buttons>;
+    export let menus: Readable<SvelteComponent[]>;
+    export let disabled: Readable<boolean>;
+
+    $: _buttons = $buttons;
+    $: _menus = $menus;
 
     export let nightMode: boolean;
-    export let disabled: Readable<boolean> = false;
     export let size: number = 30;
 
     setContext(nightModeKey, nightMode);
@@ -42,12 +45,12 @@
 
 <div style={`--toolbar-size: ${size}px`}>
     <div>
-        {#each menus as menu}
+        {#each _menus as menu}
             <svelte:component this={menu.component} {...menu} />
         {/each}
     </div>
 
     <nav>
-        <ButtonGroup {buttons} />
+        <ButtonGroup buttons={_buttons} />
     </nav>
 </div>

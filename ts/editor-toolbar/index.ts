@@ -20,8 +20,8 @@ const defaultMenus = [...templateMenus];
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponent;
 
-    buttons = defaultButtons;
-    menus = defaultMenus;
+    buttons = writable(defaultButtons);
+    menus = writable(defaultMenus);
     disabled? = writable(false);
 
     connectedCallback(): void {
@@ -38,19 +38,12 @@ class EditorToolbar extends HTMLElement {
         });
     }
 
-    update(): void {
-        this.component?.$set({
-            button: this.buttons,
-            menus: this.menus,
-        });
-    }
-
     enableButtons(): void {
-        this.disabled?.set(false);
+        this.disabled!.set(false);
     }
 
     disableButtons(): void {
-        this.disabled?.set(true);
+        this.disabled!.set(true);
     }
 }
 

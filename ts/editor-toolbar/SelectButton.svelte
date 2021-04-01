@@ -27,8 +27,8 @@
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
 
-    const disabledStore = getContext(disabledKey);
-    $: disabled = disables && $disabledStore;
+    const disabled = getContext(disabledKey);
+    $: _disabled = disables && $disabled;
 </script>
 
 <style lang="scss">
@@ -57,7 +57,7 @@
 <select
     tabindex="-1"
     bind:this={buttonRef}
-    {disabled}
+    disabled={_disabled}
     {id}
     class={extendClassName(className)}
     {...props}

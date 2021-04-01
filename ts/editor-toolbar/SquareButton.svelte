@@ -13,8 +13,8 @@
 
     let buttonRef: HTMLButtonElement;
 
-    const disabledStore = getContext(disabledKey);
-    $: disabled = $disabledStore;
+    const disabled = getContext(disabledKey);
+    $: _disabled = $disabled;
 
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
@@ -89,7 +89,7 @@
     {title}
     class:active
     tabindex="-1"
-    {disabled}
+    disabled={_disabled}
     on:click={onClick}
     on:mousedown|preventDefault>
     <span class="p-1"><slot /></span>
