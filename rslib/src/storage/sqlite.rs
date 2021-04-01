@@ -153,10 +153,7 @@ impl SqliteStorage {
             _ => None,
         };
         if let Some(kind) = err {
-            return Err(AnkiError::DbError {
-                info: "".to_string(),
-                kind,
-            });
+            return Err(AnkiError::db_error("", kind));
         }
 
         let upgrade = ver != SCHEMA_MAX_VERSION;
