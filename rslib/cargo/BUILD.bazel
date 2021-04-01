@@ -94,15 +94,6 @@ alias(
 )
 
 alias(
-    name = "failure",
-    actual = "@raze__failure__0_1_8//:failure",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "flate2",
     actual = "@raze__flate2__1_0_20//:flate2",
     tags = [
