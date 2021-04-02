@@ -153,28 +153,30 @@ export function renderButtons(
     const xGroup = scaleBand()
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-    svg.select<SVGGElement>(".x-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisBottom(xGroup)
-                .tickFormat(((d: GroupKind) => {
-                    let kind: string;
-                    switch (d) {
-                        case "learning":
-                            kind = tr.statisticsCountsLearningCards();
-                            break;
-                        case "young":
-                            kind = tr.statisticsCountsYoungCards();
-                            break;
-                        case "mature":
-                        default:
-                            kind = tr.statisticsCountsMatureCards();
-                            break;
-                    }
-                    return `${kind} \u200e(${totalCorrect(d).percent}%)`;
-                }) as any)
-                .tickSizeOuter(0)
+    svg.select<SVGGElement>(".x-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisBottom(xGroup)
+                    .tickFormat(((d: GroupKind) => {
+                        let kind: string;
+                        switch (d) {
+                            case "learning":
+                                kind = tr.statisticsCountsLearningCards();
+                                break;
+                            case "young":
+                                kind = tr.statisticsCountsYoungCards();
+                                break;
+                            case "mature":
+                            default:
+                                kind = tr.statisticsCountsMatureCards();
+                                break;
+                        }
+                        return `${kind} \u200e(${totalCorrect(d).percent}%)`;
+                    }) as any)
+                    .tickSizeOuter(0)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
@@ -189,13 +191,15 @@ export function renderButtons(
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax]);
-    svg.select<SVGGElement>(".y-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
+    svg.select<SVGGElement>(".y-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     // x bars
 

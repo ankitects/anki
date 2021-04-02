@@ -190,6 +190,7 @@ export function renderCalendar(
         .attr("text-anchor", "end")
         .attr("font-size", "small")
         .attr("font-family", "monospace")
+        .attr("direction", "ltr")
         .style("user-select", "none")
         .on("click", null)
         .filter((d: number) =>
