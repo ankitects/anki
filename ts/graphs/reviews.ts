@@ -167,9 +167,11 @@ export function renderReviews(
     }
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-    svg.select<SVGGElement>(".x-ticks").call((selection) =>
-        selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0))
-    );
+    svg.select<SVGGElement>(".x-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0))
+        )
+        .attr("direction", "ltr");
 
     // y scale
 
@@ -190,14 +192,16 @@ export function renderReviews(
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
         .nice();
-    svg.select<SVGGElement>(".y-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
-                .tickFormat(yTickFormat as any)
+    svg.select<SVGGElement>(".y-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+                    .tickFormat(yTickFormat as any)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     // x bars
 
@@ -307,14 +311,16 @@ export function renderReviews(
     const yAreaScale = y.copy().domain([0, yCumMax]).nice();
 
     if (yCumMax) {
-        svg.select<SVGGElement>(".y2-ticks").call((selection) =>
-            selection.transition(trans).call(
-                axisRight(yAreaScale)
-                    .ticks(bounds.height / 50)
-                    .tickFormat(yTickFormat as any)
-                    .tickSizeOuter(0)
+        svg.select<SVGGElement>(".y2-ticks")
+            .call((selection) =>
+                selection.transition(trans).call(
+                    axisRight(yAreaScale)
+                        .ticks(bounds.height / 50)
+                        .tickFormat(yTickFormat as any)
+                        .tickSizeOuter(0)
+                )
             )
-        );
+            .attr("direction", "ltr");
 
         svg.select("path.cumulative-overlay")
             .datum(areaData as any)
