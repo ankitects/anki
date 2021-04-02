@@ -58,14 +58,16 @@ export function histogramGraph(
     const binValue = data.binValue ?? ((bin: any): number => bin.length as number);
 
     const x = data.scale.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-    svg.select<SVGGElement>(".x-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisBottom(x)
-                .ticks(7)
-                .tickSizeOuter(0)
-                .tickFormat((data.xTickFormat ?? null) as any)
+    svg.select<SVGGElement>(".x-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisBottom(x)
+                    .ticks(7)
+                    .tickSizeOuter(0)
+                    .tickFormat((data.xTickFormat ?? null) as any)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     // y scale
 
@@ -74,13 +76,15 @@ export function histogramGraph(
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
         .nice();
-    svg.select<SVGGElement>(".y-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
+    svg.select<SVGGElement>(".y-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     // x bars
 
@@ -126,13 +130,15 @@ export function histogramGraph(
     const yAreaScale = y.copy().domain([0, data.total]).nice();
 
     if (data.showArea && data.bins.length && areaData.slice(-1)[0]) {
-        svg.select<SVGGElement>(".y2-ticks").call((selection) =>
-            selection.transition(trans).call(
-                axisRight(yAreaScale)
-                    .ticks(bounds.height / 50)
-                    .tickSizeOuter(0)
+        svg.select<SVGGElement>(".y2-ticks")
+            .call((selection) =>
+                selection.transition(trans).call(
+                    axisRight(yAreaScale)
+                        .ticks(bounds.height / 50)
+                        .tickSizeOuter(0)
+                )
             )
-        );
+            .attr("direction", "ltr");
 
         svg.select("path.area")
             .datum(areaData as any)

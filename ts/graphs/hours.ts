@@ -101,7 +101,8 @@ export function renderHours(
         )
         .selectAll(".tick")
         .selectAll("text")
-        .classed(oddTickClass, (d: any): boolean => d % 2 != 0);
+        .classed(oddTickClass, (d: any): boolean => d % 2 != 0)
+        .attr("direction", "ltr");
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
     const colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
@@ -115,13 +116,15 @@ export function renderHours(
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
         .nice();
-    svg.select<SVGGElement>(".y-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisLeft(y)
-                .ticks(bounds.height / 50)
-                .tickSizeOuter(0)
+    svg.select<SVGGElement>(".y-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisLeft(y)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     const yArea = y.copy().domain([0, 1]);
 
@@ -157,14 +160,16 @@ export function renderHours(
                 )
         );
 
-    svg.select<SVGGElement>(".y2-ticks").call((selection) =>
-        selection.transition(trans).call(
-            axisRight(yArea)
-                .ticks(bounds.height / 50)
-                .tickFormat((n: any) => `${Math.round(n * 100)}%`)
-                .tickSizeOuter(0)
+    svg.select<SVGGElement>(".y2-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisRight(yArea)
+                    .ticks(bounds.height / 50)
+                    .tickFormat((n: any) => `${Math.round(n * 100)}%`)
+                    .tickSizeOuter(0)
+            )
         )
-    );
+        .attr("direction", "ltr");
 
     svg.select("path.cumulative-overlay")
         .datum(data)
