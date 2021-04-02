@@ -100,7 +100,12 @@ impl Collection {
     fn build_filtered_deck(&mut self, ctx: DeckFilterContext) -> Result<usize> {
         let start = -100_000;
         let mut position = start;
-        for term in &ctx.config.search_terms {
+        let limit = if ctx.scheduler == SchedulerVersion::V1 {
+            1
+        } else {
+            2
+        };
+        for term in ctx.config.search_terms.iter().take(limit) {
             position = self.move_cards_matching_term(&ctx, term, position)?;
         }
 
