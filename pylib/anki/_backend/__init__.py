@@ -3,24 +3,39 @@
 
 from __future__ import annotations
 
-import os
 import sys
 import traceback
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from weakref import ref
 
+from markdown import markdown
+
 import anki.buildinfo
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
-from anki.errors import backend_exception_to_pylib
 from anki.utils import from_json_bytes, to_json_bytes
 
+from ..errors import (
+    BackendIOError,
+    DBError,
+    ExistsError,
+    FilteredDeckError,
+    Interrupted,
+    InvalidInput,
+    LocalizedError,
+    NetworkError,
+    NotFoundError,
+    SearchError,
+    SyncError,
+    SyncErrorKind,
+    TemplateError,
+    UndoEmpty,
+)
 from . import backend_pb2 as pb
 from . import rsbridge
 from .fluent import GeneratedTranslations, LegacyTranslationEnum
 
-# pylint: disable=c-extension-no-member
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
 
 
@@ -147,3 +162,57 @@ class Translations(GeneratedTranslations):
         return self.backend().translate(
             module_index=module, message_index=message, **args
         )
+
+
+def backend_exception_to_pylib(err: pb.BackendError) -> Exception:
+    kind = pb.BackendError
+    val = err.kind
+    if val == kind.INTERRUPTED:
+        return Interrupted()
+
+    elif val == kind.NETWORK_ERROR:
+        return NetworkError(err.localized)
+
+    elif val == kind.SYNC_AUTH_ERROR:
+        return SyncError(err.localized, SyncErrorKind.AUTH)
+
+    elif val == kind.SYNC_OTHER_ERROR:
+        return SyncError(err.localized, SyncErrorKind.OTHER)
+
+    elif val == kind.IO_ERROR:
+        return BackendIOError(err.localized)
+
+    elif val == kind.DB_ERROR:
+        return DBError(err.localized)
+
+    elif val == kind.TEMPLATE_PARSE:
+        return TemplateError(err.localized)
+
+    elif val == kind.INVALID_INPUT:
+        return InvalidInput(err.localized)
+
+    elif val == kind.JSON_ERROR:
+        return LocalizedError(err.localized)
+
+    elif val == kind.NOT_FOUND_ERROR:
+        return NotFoundError()
+
+    elif val == kind.EXISTS:
+        return ExistsError()
+
+    elif val == kind.FILTERED_DECK_ERROR:
+        return FilteredDeckError(err.localized)
+
+    elif val == kind.PROTO_ERROR:
+        return LocalizedError(err.localized)
+
+    elif val == kind.SEARCH_ERROR:
+        return SearchError(markdown(err.localized))
+
+    elif val == kind.UNDO_EMPTY:
+        return UndoEmpty()
+
+    else:
+        # sadly we can't do exhaustiveness checking on protobuf enums
+        # assert_exhaustive(val)
+        return LocalizedError(err.localized)

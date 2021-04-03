@@ -3,41 +3,48 @@
 
 from __future__ import annotations
 
-from markdown import markdown
-
-import anki._backend.backend_pb2 as _pb
-
-from anki.types import assert_exhaustive
+from enum import Enum
 
 
-class StringError(Exception):
+class LocalizedError(Exception):
+    "An error with a localized description."
+
+    def __init__(self, localized: str) -> None:
+        self._localized = localized
+        super().__init__()
+
     def __str__(self) -> str:
-        return self.args[0]  # pylint: disable=unsubscriptable-object
+        return self._localized
 
 
 class Interrupted(Exception):
     pass
 
 
-class NetworkError(StringError):
+class NetworkError(LocalizedError):
     pass
 
 
-class SyncError(StringError):
-    # pylint: disable=no-member
-    def is_auth_error(self) -> bool:
-        return self.args[1] == _pb.SyncError.SyncErrorKind.AUTH_FAILED
+class SyncErrorKind(Enum):
+    AUTH = 1
+    OTHER = 2
 
 
-class IOError(StringError):
+class SyncError(LocalizedError):
+    def __init__(self, localized: str, kind: SyncErrorKind):
+        self.kind = kind
+        super().__init__(localized)
+
+
+class BackendIOError(LocalizedError):
     pass
 
 
-class DBError(StringError):
+class DBError(LocalizedError):
     pass
 
 
-class TemplateError(StringError):
+class TemplateError(LocalizedError):
     pass
 
 
@@ -53,67 +60,22 @@ class UndoEmpty(Exception):
     pass
 
 
-class DeckRenameError(Exception):
-    """Legacy error, use FilteredDeckError instead."""
-
-    def __init__(self, description: str, *args: object) -> None:
-        super().__init__(description, *args)
-        self.description = description
-
-
-class FilteredDeckError(StringError, DeckRenameError):
+class FilteredDeckError(LocalizedError):
     pass
 
 
-class InvalidInput(StringError):
+class InvalidInput(LocalizedError):
     pass
 
 
-class SearchError(StringError):
+class SearchError(LocalizedError):
     pass
 
 
-def backend_exception_to_pylib(err: _pb.BackendError) -> Exception:
-    val = err.WhichOneof("value")
-    if val == "interrupted":
-        return Interrupted()
-    elif val == "network_error":
-        return NetworkError(err.localized, err.network_error.kind)
-    elif val == "sync_error":
-        return SyncError(err.localized, err.sync_error.kind)
-    elif val == "io_error":
-        return IOError(err.localized)
-    elif val == "db_error":
-        return DBError(err.localized)
-    elif val == "template_parse":
-        return TemplateError(err.localized)
-    elif val == "invalid_input":
-        return InvalidInput(err.localized)
-    elif val == "json_error":
-        return StringError(err.localized)
-    elif val == "not_found_error":
-        return NotFoundError()
-    elif val == "exists":
-        return ExistsError()
-    elif val == "filtered_deck_error":
-        return FilteredDeckError(err.localized)
-    elif val == "proto_error":
-        return StringError(err.localized)
-    elif val == "search_error":
-        return SearchError(markdown(err.localized))
-    elif val == "undo_empty":
-        return UndoEmpty()
-    else:
-        assert_exhaustive(val)
-        return StringError(err.localized)
+class AbortSchemaModification(Exception):
+    pass
 
 
-# FIXME: this is only used with "abortSchemaMod", but currently some
-# add-ons depend on it
-class AnkiError(Exception):
-    def __init__(self, type: str) -> None:
-        super().__init__()
-        self.type = type
-
-    def __str__(self) -> str:
-        return self.type
+# legacy
+DeckRenameError = FilteredDeckError
+AnkiError = AbortSchemaModification

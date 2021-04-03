@@ -40,7 +40,7 @@ from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckId, DeckManager
-from anki.errors import AnkiError, DBError
+from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, NotetypeDict, NotetypeId
@@ -290,7 +290,7 @@ class Collection:
         "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
             if check and not hooks.schema_will_change(proceed=True):
-                raise AnkiError("abortSchemaMod")
+                raise AbortSchemaModification()
         self.db.execute("update col set scm=?", intTime(1000))
         self.save()
 

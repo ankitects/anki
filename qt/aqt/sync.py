@@ -9,7 +9,7 @@ from concurrent.futures import Future
 from typing import Callable, Tuple
 
 import aqt
-from anki.errors import Interrupted, SyncError
+from anki.errors import Interrupted, SyncError, SyncErrorKind
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus
 from anki.utils import platDesc
@@ -62,7 +62,7 @@ def get_sync_status(
 
 def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
     if isinstance(err, SyncError):
-        if err.is_auth_error():
+        if err.kind is SyncErrorKind.AUTH:
             mw.pm.clear_sync_auth()
     elif isinstance(err, Interrupted):
         # no message to show
@@ -247,7 +247,7 @@ def sync_login(
         try:
             auth = fut.result()
         except SyncError as e:
-            if e.is_auth_error():
+            if e.kind is SyncErrorKind.AUTH:
                 showWarning(str(e))
                 sync_login(mw, on_success, username, password)
             else:

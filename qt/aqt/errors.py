@@ -71,7 +71,7 @@ class ErrorHandler(QObject):
         error = html.escape(self.pool)
         self.pool = ""
         self.mw.progress.clear()
-        if "abortSchemaMod" in error:
+        if "AbortSchemaModification" in error:
             return
         if "DeprecationWarning" in error:
             return
