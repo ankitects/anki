@@ -12,7 +12,7 @@ mod config;
 mod dbproxy;
 mod deckconfig;
 mod decks;
-mod err;
+mod error;
 mod generic;
 mod i18n;
 mod media;
@@ -61,7 +61,7 @@ use std::{
 };
 use tokio::runtime::{self, Runtime};
 
-use self::err::anki_error_to_proto_error;
+use self::error::anki_error_to_proto_error;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
