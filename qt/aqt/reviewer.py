@@ -18,19 +18,19 @@ from anki.collection import Config, OpChanges
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
-from aqt.card_ops import set_card_flag
-from aqt.note_ops import remove_notes
-from aqt.profiles import VideoDriver
-from aqt.qt import *
-from aqt.scheduling_ops import (
+from aqt.operations.card import set_card_flag
+from aqt.operations.note import remove_notes
+from aqt.operations.scheduling import (
     bury_cards,
     bury_note,
     set_due_date_dialog,
     suspend_cards,
     suspend_note,
 )
+from aqt.operations.tag import add_tags_to_notes, remove_tags_from_notes
+from aqt.profiles import VideoDriver
+from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
-from aqt.tag_ops import add_tags_to_notes, remove_tags_from_notes
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr

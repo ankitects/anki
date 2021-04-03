@@ -13,8 +13,8 @@ from anki.models import NotetypeId
 from anki.notes import DuplicateOrEmptyResult, Note, NoteId
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
-from aqt.note_ops import add_note
 from aqt.notetypechooser import NotetypeChooser
+from aqt.operations.note import add_note
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
