@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import aqt
 from anki.collection import OpChanges
 from aqt import gui_hooks
-from aqt.scheduling_ops import empty_filtered_deck, rebuild_filtered_deck
+from aqt.operations.scheduling import empty_filtered_deck, rebuild_filtered_deck
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr

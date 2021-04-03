@@ -7,7 +7,7 @@ import aqt
 from anki.collection import OpChangesWithId
 from anki.decks import DeckId
 from aqt import gui_hooks
-from aqt.deck_ops import add_deck_dialog
+from aqt.operations.deck import add_deck_dialog
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,

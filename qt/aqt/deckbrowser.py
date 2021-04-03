@@ -12,7 +12,12 @@ from anki.collection import OpChanges
 from anki.decks import DeckId, DeckTreeNode
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
-from aqt.deck_ops import add_deck_dialog, remove_decks, rename_deck, reparent_decks
+from aqt.operations.deck import (
+    add_deck_dialog,
+    remove_decks,
+    rename_deck,
+    reparent_decks,
+)
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar

@@ -30,7 +30,7 @@ from anki.httpclient import HttpClient
 from anki.notes import DuplicateOrEmptyResult, Note
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
-from aqt.note_ops import update_note
+from aqt.operations.note import update_note
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager

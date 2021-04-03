@@ -20,27 +20,31 @@ from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
-from aqt.card_ops import set_card_deck, set_card_flag
-from aqt.collection_ops import undo
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.find_and_replace import FindAndReplaceDialog
 from aqt.main import ResetReason
-from aqt.note_ops import remove_notes
-from aqt.previewer import BrowserPreviewer as PreviewDialog
-from aqt.previewer import Previewer
-from aqt.qt import *
-from aqt.scheduling_ops import (
+from aqt.operations.card import set_card_deck, set_card_flag
+from aqt.operations.collection import undo
+from aqt.operations.note import remove_notes
+from aqt.operations.scheduling import (
     forget_cards,
     reposition_new_cards_dialog,
     set_due_date_dialog,
     suspend_cards,
     unsuspend_cards,
 )
+from aqt.operations.tag import (
+    add_tags_to_notes,
+    clear_unused_tags,
+    remove_tags_from_notes,
+)
+from aqt.previewer import BrowserPreviewer as PreviewDialog
+from aqt.previewer import Previewer
+from aqt.qt import *
 from aqt.sidebar import SidebarTreeView
 from aqt.switch import Switch
 from aqt.table import Table
-from aqt.tag_ops import add_tags_to_notes, clear_unused_tags, remove_tags_from_notes
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,

@@ -56,12 +56,12 @@ from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
-from aqt.collection_ops import undo
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
+from aqt.operations.collection import undo
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
