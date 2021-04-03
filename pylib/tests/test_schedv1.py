@@ -270,7 +270,7 @@ def test_learn_day():
     # if we fail it, it should be back in the correct queue
     col.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_LRN
-    col.undo()
+    col.undo_legacy()
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 2)

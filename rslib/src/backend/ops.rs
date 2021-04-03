@@ -3,7 +3,12 @@
 
 use pb::op_changes::Kind;
 
-use crate::{backend_proto as pb, ops::OpChanges, prelude::*, undo::UndoStatus};
+use crate::{
+    backend_proto as pb,
+    ops::OpChanges,
+    prelude::*,
+    undo::{UndoOutput, UndoStatus},
+};
 
 impl From<Op> for Kind {
     fn from(o: Op) -> Self {
@@ -59,6 +64,17 @@ impl From<OpOutput<i64>> for pb::OpChangesWithId {
         pb::OpChangesWithId {
             id: out.output,
             changes: Some(out.changes.into()),
+        }
+    }
+}
+
+impl OpOutput<UndoOutput> {
+    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::OpChangesAfterUndo {
+        pb::OpChangesAfterUndo {
+            changes: Some(self.changes.into()),
+            operation: self.output.undone_op.describe(tr),
+            reverted_to_timestamp: self.output.reverted_to.0,
+            new_status: Some(self.output.new_undo_status.into_protobuf(tr)),
         }
     }
 }

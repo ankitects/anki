@@ -274,8 +274,8 @@ service CollectionService {
   rpc CloseCollection(CloseCollectionIn) returns (Empty);
   rpc CheckDatabase(Empty) returns (CheckDatabaseOut);
   rpc GetUndoStatus(Empty) returns (UndoStatus);
-  rpc Undo(Empty) returns (UndoStatus);
-  rpc Redo(Empty) returns (UndoStatus);
+  rpc Undo(Empty) returns (OpChangesAfterUndo);
+  rpc Redo(Empty) returns (OpChangesAfterUndo);
   rpc LatestProgress(Empty) returns (Progress);
   rpc SetWantsAbort(Empty) returns (Empty);
 }
@@ -571,6 +571,7 @@ message BackendError {
     Empty exists = 12;
     Empty filtered_deck_error = 13;
     Empty search_error = 14;
+    Empty undo_empty = 15;
   }
 }
 
@@ -1520,6 +1521,13 @@ message OpChanges {
 message UndoStatus {
   string undo = 1;
   string redo = 2;
+}
+
+message OpChangesAfterUndo {
+  OpChanges changes = 1;
+  string operation = 2;
+  int64 reverted_to_timestamp = 3;
+  UndoStatus new_status = 4;
 }
 
 message DefaultsForAddingIn {

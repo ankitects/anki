@@ -39,6 +39,12 @@ pub struct UndoStatus {
     pub redo: Option<Op>,
 }
 
+pub struct UndoOutput {
+    pub undone_op: Op,
+    pub reverted_to: TimestampSecs,
+    pub new_undo_status: UndoStatus,
+}
+
 #[derive(Debug, Default)]
 pub(crate) struct UndoManager {
     // undo steps are added to the front of a double-ended queue, so we can
@@ -140,37 +146,18 @@ impl Collection {
         self.state.undo.can_redo()
     }
 
-    pub fn undo(&mut self) -> Result<OpOutput<()>> {
+    pub fn undo(&mut self) -> Result<OpOutput<UndoOutput>> {
         if let Some(step) = self.state.undo.undo_steps.pop_front() {
-            let changes = step.changes;
-            self.state.undo.mode = UndoMode::Undoing;
-            let res = self.transact(step.kind, |col| {
-                for change in changes.into_iter().rev() {
-                    change.undo(col)?;
-                }
-                Ok(())
-            });
-            self.state.undo.mode = UndoMode::NormalOp;
-            res
+            self.undo_inner(step, UndoMode::Undoing)
         } else {
-            Err(AnkiError::invalid_input("no undo available"))
+            Err(AnkiError::UndoEmpty)
         }
     }
-
-    pub fn redo(&mut self) -> Result<OpOutput<()>> {
+    pub fn redo(&mut self) -> Result<OpOutput<UndoOutput>> {
         if let Some(step) = self.state.undo.redo_steps.pop() {
-            let changes = step.changes;
-            self.state.undo.mode = UndoMode::Redoing;
-            let res = self.transact(step.kind, |col| {
-                for change in changes.into_iter().rev() {
-                    change.undo(col)?;
-                }
-                Ok(())
-            });
-            self.state.undo.mode = UndoMode::NormalOp;
-            res
+            self.undo_inner(step, UndoMode::Redoing)
         } else {
-            Err(AnkiError::invalid_input("no redo available"))
+            Err(AnkiError::UndoEmpty)
         }
     }
 
@@ -230,6 +217,27 @@ impl Collection {
     /// when an operation was passed to transact().
     pub(crate) fn op_changes(&self) -> OpChanges {
         self.state.undo.op_changes()
+    }
+}
+
+impl Collection {
+    fn undo_inner(&mut self, step: UndoableOp, mode: UndoMode) -> Result<OpOutput<UndoOutput>> {
+        let undone_op = step.kind;
+        let reverted_to = step.timestamp;
+        let changes = step.changes;
+        self.state.undo.mode = mode;
+        let res = self.transact(step.kind, |col| {
+            for change in changes.into_iter().rev() {
+                change.undo(col)?;
+            }
+            Ok(UndoOutput {
+                undone_op,
+                reverted_to,
+                new_undo_status: col.undo_status(),
+            })
+        });
+        self.state.undo.mode = UndoMode::NormalOp;
+        res
     }
 }
 

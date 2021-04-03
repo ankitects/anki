@@ -39,6 +39,7 @@ pub enum AnkiError {
     FilteredDeckError(FilteredDeckError),
     SearchError(SearchErrorKind),
     InvalidRegex(String),
+    UndoEmpty,
 }
 
 impl Display for AnkiError {
