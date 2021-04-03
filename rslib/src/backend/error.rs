@@ -3,72 +3,49 @@
 
 use crate::{
     backend_proto as pb,
-    error::{AnkiError, NetworkErrorKind, SyncErrorKind},
+    error::{AnkiError, SyncErrorKind},
     prelude::*,
 };
 
-/// Convert an Anki error to a protobuf error.
-pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::BackendError {
-    use pb::backend_error::Value as V;
-    let localized = err.localized_description(tr);
-    let value = match err {
-        AnkiError::InvalidInput { .. } => V::InvalidInput(pb::Empty {}),
-        AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),
-        AnkiError::IoError { .. } => V::IoError(pb::Empty {}),
-        AnkiError::DbError { .. } => V::DbError(pb::Empty {}),
-        AnkiError::NetworkError(err) => V::NetworkError(pb::NetworkError {
-            kind: err.kind.into(),
-        }),
-        AnkiError::SyncError(err) => V::SyncError(pb::SyncError {
-            kind: err.kind.into(),
-        }),
-        AnkiError::Interrupted => V::Interrupted(pb::Empty {}),
-        AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::JsonError(info) => V::JsonError(info),
-        AnkiError::ProtoError(info) => V::ProtoError(info),
-        AnkiError::NotFound => V::NotFoundError(pb::Empty {}),
-        AnkiError::Existing => V::Exists(pb::Empty {}),
-        AnkiError::FilteredDeckError(_) => V::FilteredDeckError(pb::Empty {}),
-        AnkiError::SearchError(_) => V::SearchError(pb::Empty {}),
-        AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
-        AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
-        AnkiError::InvalidRegex(_) => V::InvalidInput(pb::Empty {}),
-        AnkiError::UndoEmpty => V::UndoEmpty(pb::Empty {}),
-    };
+use pb::backend_error::Kind;
 
-    pb::BackendError {
-        value: Some(value),
-        localized,
+impl AnkiError {
+    pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
+        let localized = self.localized_description(tr);
+        let kind = match self {
+            AnkiError::InvalidInput(_) => Kind::InvalidInput,
+            AnkiError::TemplateError(_) => Kind::TemplateParse,
+            AnkiError::IoError(_) => Kind::IoError,
+            AnkiError::DbError(_) => Kind::DbError,
+            AnkiError::NetworkError(_) => Kind::NetworkError,
+            AnkiError::SyncError(err) => err.kind.into(),
+            AnkiError::Interrupted => Kind::Interrupted,
+            AnkiError::CollectionNotOpen => Kind::InvalidInput,
+            AnkiError::CollectionAlreadyOpen => Kind::InvalidInput,
+            AnkiError::JsonError(_) => Kind::JsonError,
+            AnkiError::ProtoError(_) => Kind::ProtoError,
+            AnkiError::NotFound => Kind::NotFoundError,
+            AnkiError::Existing => Kind::Exists,
+            AnkiError::FilteredDeckError(_) => Kind::FilteredDeckError,
+            AnkiError::SearchError(_) => Kind::SearchError,
+            AnkiError::TemplateSaveError(_) => Kind::TemplateParse,
+            AnkiError::ParseNumError => Kind::InvalidInput,
+            AnkiError::InvalidRegex(_) => Kind::InvalidInput,
+            AnkiError::UndoEmpty => Kind::UndoEmpty,
+        };
+
+        pb::BackendError {
+            kind: kind as i32,
+            localized,
+        }
     }
 }
 
-impl std::convert::From<NetworkErrorKind> for i32 {
-    fn from(e: NetworkErrorKind) -> Self {
-        use pb::network_error::NetworkErrorKind as V;
-        (match e {
-            NetworkErrorKind::Offline => V::Offline,
-            NetworkErrorKind::Timeout => V::Timeout,
-            NetworkErrorKind::ProxyAuth => V::ProxyAuth,
-            NetworkErrorKind::Other => V::Other,
-        }) as i32
-    }
-}
-
-impl std::convert::From<SyncErrorKind> for i32 {
-    fn from(e: SyncErrorKind) -> Self {
-        use pb::sync_error::SyncErrorKind as V;
-        (match e {
-            SyncErrorKind::Conflict => V::Conflict,
-            SyncErrorKind::ServerError => V::ServerError,
-            SyncErrorKind::ClientTooOld => V::ClientTooOld,
-            SyncErrorKind::AuthFailed => V::AuthFailed,
-            SyncErrorKind::ServerMessage => V::ServerMessage,
-            SyncErrorKind::ResyncRequired => V::ResyncRequired,
-            SyncErrorKind::DatabaseCheckRequired => V::DatabaseCheckRequired,
-            SyncErrorKind::Other => V::Other,
-            SyncErrorKind::ClockIncorrect => V::ClockIncorrect,
-            SyncErrorKind::SyncNotStarted => V::SyncNotStarted,
-        }) as i32
+impl From<SyncErrorKind> for Kind {
+    fn from(err: SyncErrorKind) -> Self {
+        match err {
+            SyncErrorKind::AuthFailed => Kind::SyncAuthError,
+            _ => Kind::SyncOtherError,
+        }
     }
 }

@@ -9,7 +9,8 @@ ignored-classes=
   AnswerCardIn,
   UnburyCardsInCurrentDeckIn,
   BuryOrSuspendCardsIn,
-  NoteIsDuplicateOrEmptyOut
+  NoteIsDuplicateOrEmptyOut,
+  BackendError
 
 [REPORTS]
 output-format=colorized
