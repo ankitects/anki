@@ -322,6 +322,7 @@ class AnkiWebView(QWebEngineView):
         self._domDone = True
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
+        self.show()
 
     def _setHtml(self, html: str) -> None:
         from aqt import mw
