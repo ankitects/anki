@@ -78,7 +78,7 @@ esbuild(
     ],
     args = [
         "--global-name=editorToolbar",
-        "--inject:ts/protobuf-shim.js",
+        "--inject:$(location //ts:protobuf-shim.js)",
         "--loader:.svg=text",
     ],
     entry_point = "index.ts",
