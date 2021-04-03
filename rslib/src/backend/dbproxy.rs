@@ -122,7 +122,7 @@ fn is_dql(sql: &str) -> bool {
         .take(10)
         .map(|c| c.to_ascii_lowercase())
         .collect();
-    head.starts_with("select ")
+    head.starts_with("select")
 }
 
 pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DbResult> {
