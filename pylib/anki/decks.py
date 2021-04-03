@@ -30,6 +30,9 @@ defaultDynamicDeck = 1
 DeckDict = Dict[str, Any]
 DeckConfigDict = Dict[str, Any]
 
+# currently only supports read-only access
+Deck = _pb.Deck
+
 DeckId = NewType("DeckId", int)
 DeckConfId = NewType("DeckConfId", int)
 

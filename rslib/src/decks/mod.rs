@@ -153,6 +153,12 @@ impl Deck {
             String::new()
         }
     }
+
+    // Mutate name to human representation for sharing.
+    pub fn with_human_name(mut self) -> Self {
+        self.name = self.human_name();
+        self
+    }
 }
 
 fn invalid_char_for_deck_component(c: char) -> bool {

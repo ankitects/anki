@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
-from anki.decks import DeckId, DeckTreeNode
+from anki.decks import Deck, DeckId, DeckTreeNode
 from anki.models import NotetypeId
 from anki.notes import Note
 from anki.tags import TagTreeNode
@@ -1148,22 +1148,26 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
-        deck = self.mw.col.decks.get(DeckId(item.id))
         if not new_name:
             return
         new_name = item.name_prefix + new_name
-        if new_name == deck["name"]:
-            return
+        deck_id = DeckId(item.id)
 
-        rename_deck(
-            mw=self.mw,
-            deck_id=DeckId(item.id),
-            new_name=new_name,
-            after_rename=lambda: self.refresh(
-                lambda other: other.item_type == SidebarItemType.DECK
-                and other.id == item.id
-            ),
-        )
+        def after_fetch(deck: Deck) -> None:
+            if new_name == deck.name:
+                return
+
+            rename_deck(
+                mw=self.mw,
+                deck_id=deck_id,
+                new_name=new_name,
+                after_rename=lambda: self.refresh(
+                    lambda other: other.item_type == SidebarItemType.DECK
+                    and other.id == item.id
+                ),
+            )
+
+        self.mw.query_op(lambda: self.mw.col.get_deck(deck_id), success=after_fetch)
 
     def delete_decks(self, _item: SidebarItem) -> None:
         remove_decks(mw=self.mw, parent=self.browser, deck_ids=self._selected_decks())

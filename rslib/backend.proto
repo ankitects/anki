@@ -142,6 +142,7 @@ service DecksService {
   rpc DeckTreeLegacy(Empty) returns (Json);
   rpc GetAllDecksLegacy(Empty) returns (Json);
   rpc GetDeckIdByName(String) returns (DeckId);
+  rpc GetDeck(DeckId) returns (Deck);
   rpc GetDeckLegacy(DeckId) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
