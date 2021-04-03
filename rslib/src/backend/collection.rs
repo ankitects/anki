@@ -88,17 +88,11 @@ impl CollectionService for Backend {
         self.with_col(|col| Ok(col.undo_status().into_protobuf(&col.tr)))
     }
 
-    fn undo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
-        self.with_col(|col| {
-            col.undo()?;
-            Ok(col.undo_status().into_protobuf(&col.tr))
-        })
+    fn undo(&self, _input: pb::Empty) -> Result<pb::OpChangesAfterUndo> {
+        self.with_col(|col| col.undo().map(|out| out.into_protobuf(&col.tr)))
     }
 
-    fn redo(&self, _input: pb::Empty) -> Result<pb::UndoStatus> {
-        self.with_col(|col| {
-            col.redo()?;
-            Ok(col.undo_status().into_protobuf(&col.tr))
-        })
+    fn redo(&self, _input: pb::Empty) -> Result<pb::OpChangesAfterUndo> {
+        self.with_col(|col| col.redo().map(|out| out.into_protobuf(&col.tr)))
     }
 }

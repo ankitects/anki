@@ -18,6 +18,7 @@ UndoStatus = _pb.UndoStatus
 OpChanges = _pb.OpChanges
 OpChangesWithCount = _pb.OpChangesWithCount
 OpChangesWithId = _pb.OpChangesWithId
+OpChangesAfterUndo = _pb.OpChangesAfterUndo
 DefaultsForAdding = _pb.DeckAndNotetype
 BrowserRow = _pb.BrowserRow
 
@@ -66,22 +67,17 @@ SearchJoiner = Literal["AND", "OR"]
 
 
 @dataclass
-class ReviewUndo:
+class LegacyReviewUndo:
     card: Card
     was_leech: bool
 
 
 @dataclass
-class Checkpoint:
+class LegacyCheckpoint:
     name: str
 
 
-@dataclass
-class BackendUndo:
-    name: str
-
-
-UndoResult = Union[None, BackendUndo, Checkpoint, ReviewUndo]
+LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
 class Collection:
@@ -835,7 +831,7 @@ table.review-log {{ {revlog_style} }}
 
         if isinstance(self._undo, _ReviewsUndo):
             return UndoStatus(undo=self.tr.scheduling_review())
-        elif isinstance(self._undo, Checkpoint):
+        elif isinstance(self._undo, LegacyCheckpoint):
             return UndoStatus(undo=self._undo.name)
         else:
             assert_exhaustive(self._undo)
@@ -848,19 +844,18 @@ table.review-log {{ {revlog_style} }}
         is run."""
         self._undo = None
 
-    def undo(self) -> UndoResult:
-        """Returns ReviewUndo if undoing a v1/v2 scheduler review.
-        Returns None if the undo queue was empty."""
-        # backend?
-        status = self._backend.get_undo_status()
-        if status.undo:
-            self._backend.undo()
-            self.clear_python_undo()
-            return BackendUndo(name=status.undo)
+    def undo(self) -> OpChangesAfterUndo:
+        """Returns result of backend undo operation, or throws UndoEmpty.
+        If UndoEmpty is received, caller should try undo_legacy()."""
+        out = self._backend.undo()
+        self.clear_python_undo()
+        return out
 
+    def undo_legacy(self) -> LegacyUndoResult:
+        "Returns None if the legacy undo queue is empty."
         if isinstance(self._undo, _ReviewsUndo):
             return self._undo_review()
-        elif isinstance(self._undo, Checkpoint):
+        elif isinstance(self._undo, LegacyCheckpoint):
             return self._undo_checkpoint()
         elif self._undo is None:
             return None
@@ -896,15 +891,15 @@ table.review-log {{ {revlog_style} }}
             self._undo = _ReviewsUndo()
 
         was_leech = card.note().has_tag("leech")
-        entry = ReviewUndo(card=copy.copy(card), was_leech=was_leech)
+        entry = LegacyReviewUndo(card=copy.copy(card), was_leech=was_leech)
         self._undo.entries.append(entry)
 
     def _have_outstanding_checkpoint(self) -> bool:
         self._check_backend_undo_status()
-        return isinstance(self._undo, Checkpoint)
+        return isinstance(self._undo, LegacyCheckpoint)
 
-    def _undo_checkpoint(self) -> Checkpoint:
-        assert isinstance(self._undo, Checkpoint)
+    def _undo_checkpoint(self) -> LegacyCheckpoint:
+        assert isinstance(self._undo, LegacyCheckpoint)
         self.rollback()
         undo = self._undo
         self.clear_python_undo()
@@ -914,13 +909,13 @@ table.review-log {{ {revlog_style} }}
         "Call via .save(). If name not provided, clear any existing checkpoint."
         self._last_checkpoint_at = time.time()
         if name:
-            self._undo = Checkpoint(name=name)
+            self._undo = LegacyCheckpoint(name=name)
         else:
             # saving disables old checkpoint, but not review undo
             if not isinstance(self._undo, _ReviewsUndo):
                 self.clear_python_undo()
 
-    def _undo_review(self) -> ReviewUndo:
+    def _undo_review(self) -> LegacyReviewUndo:
         "Undo a v1/v2 review."
         assert isinstance(self._undo, _ReviewsUndo)
         entry = self._undo.entries.pop()
@@ -1101,10 +1096,10 @@ _Collection = Collection
 
 @dataclass
 class _ReviewsUndo:
-    entries: List[ReviewUndo] = field(default_factory=list)
+    entries: List[LegacyReviewUndo] = field(default_factory=list)
 
 
-_UndoInfo = Union[_ReviewsUndo, Checkpoint, None]
+_UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
 
 
 def _build_sort_mode(

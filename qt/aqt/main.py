@@ -41,25 +41,22 @@ import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki.collection import (
-    BackendUndo,
-    Checkpoint,
     Collection,
     Config,
     OpChanges,
+    OpChangesAfterUndo,
     OpChangesWithCount,
     OpChangesWithId,
-    ReviewUndo,
-    UndoResult,
     UndoStatus,
 )
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.types import assert_exhaustive
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.collection_ops import undo
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
@@ -104,7 +101,13 @@ class HasChangesProperty(Protocol):
 # either need to be added here, or cast at call time
 ResultWithChanges = TypeVar(
     "ResultWithChanges",
-    bound=Union[OpChanges, OpChangesWithCount, OpChangesWithId, HasChangesProperty],
+    bound=Union[
+        OpChanges,
+        OpChangesWithCount,
+        OpChangesWithId,
+        OpChangesAfterUndo,
+        HasChangesProperty,
+    ],
 )
 
 T = TypeVar("T")
@@ -1208,66 +1211,15 @@ title="%s" %s>%s</button>""" % (
     # Undo & autosave
     ##########################################################################
 
-    def undo(self, on_done: Optional[Callable[[UndoResult], None]]) -> None:
-        def on_done_outer(fut: Future) -> None:
-            result = fut.result()
-            reviewing = self.state == "review"
-            just_refresh_reviewer = False
+    def undo(self) -> None:
+        "Call collection_ops.py:undo() directly instead."
+        undo(mw=self, parent=self)
 
-            if result is None:
-                # should not happen
-                showInfo("nothing to undo")
-                self.update_undo_actions()
-                return
-
-            elif isinstance(result, ReviewUndo):
-                name = tr.scheduling_review()
-
-                if reviewing:
-                    # push the undone card to the top of the queue
-                    cid = result.card.id
-                    card = self.col.getCard(cid)
-                    self.reviewer.cardQueue.append(card)
-
-                    gui_hooks.review_did_undo(cid)
-
-                    just_refresh_reviewer = True
-
-            elif isinstance(result, BackendUndo):
-                name = result.name
-
-                if reviewing and self.col.sched.version == 3:
-                    # new scheduler will have taken care of updating queue
-                    just_refresh_reviewer = True
-
-            elif isinstance(result, Checkpoint):
-                name = result.name
-
-            else:
-                assert_exhaustive(result)
-                assert False
-
-            if just_refresh_reviewer:
-                self.reviewer.nextCard()
-            else:
-                # full queue+gui reset required
-                self.reset()
-
-            tooltip(tr.undo_action_undone(action=name))
-            gui_hooks.state_did_revert(name)
-            self.update_undo_actions()
-            if on_done:
-                on_done(result)
-
-        # fixme: perform_op? -> needs to save
-        # fixme: parent
-        self.taskman.with_progress(self.col.undo, on_done_outer)
-
-    def update_undo_actions(self) -> None:
+    def update_undo_actions(self, status: Optional[UndoStatus] = None) -> None:
         """Update menu text and enable/disable menu item as appropriate.
         Plural as this may handle redo in the future too."""
         if self.col:
-            status = self.col.undo_status()
+            status = status or self.col.undo_status()
             undo_action = status.undo or None
         else:
             undo_action = None

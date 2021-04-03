@@ -34,6 +34,7 @@ pub(super) fn anki_error_to_proto_error(err: AnkiError, tr: &I18n) -> pb::Backen
         AnkiError::TemplateSaveError { .. } => V::TemplateParse(pb::Empty {}),
         AnkiError::ParseNumError => V::InvalidInput(pb::Empty {}),
         AnkiError::InvalidRegex(_) => V::InvalidInput(pb::Empty {}),
+        AnkiError::UndoEmpty => V::UndoEmpty(pb::Empty {}),
     };
 
     pb::BackendError {

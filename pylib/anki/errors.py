@@ -7,7 +7,7 @@ from markdown import markdown
 
 import anki._backend.backend_pb2 as _pb
 
-# fixme: notfounderror etc need to be in rsbackend.py
+from anki.types import assert_exhaustive
 
 
 class StringError(Exception):
@@ -46,6 +46,10 @@ class NotFoundError(Exception):
 
 
 class ExistsError(Exception):
+    pass
+
+
+class UndoEmpty(Exception):
     pass
 
 
@@ -97,8 +101,10 @@ def backend_exception_to_pylib(err: _pb.BackendError) -> Exception:
         return StringError(err.localized)
     elif val == "search_error":
         return SearchError(markdown(err.localized))
+    elif val == "undo_empty":
+        return UndoEmpty()
     else:
-        print("unhandled error type:", val)
+        assert_exhaustive(val)
         return StringError(err.localized)
 
 

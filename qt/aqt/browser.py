@@ -21,6 +21,7 @@ from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.card_ops import set_card_deck, set_card_flag
+from aqt.collection_ops import undo
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.find_and_replace import FindAndReplaceDialog
@@ -861,11 +862,7 @@ where id in %s"""
     ######################################################################
 
     def undo(self) -> None:
-        # need to make sure we don't hang the UI by redrawing the card list
-        # during the long-running op. mw.undo will take care of the progress
-        # dialog
-        self.setUpdatesEnabled(False)
-        self.mw.undo(lambda _: self.setUpdatesEnabled(True))
+        undo(mw=self.mw, parent=self)
 
     def onUndoState(self, on: bool) -> None:
         self.form.actionUndo.setEnabled(on)
