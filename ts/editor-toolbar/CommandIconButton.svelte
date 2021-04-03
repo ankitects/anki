@@ -1,9 +1,9 @@
 <script lang="typescript" context="module">
     import { writable } from "svelte/store";
 
-    export const commandMap = writable(new Map<string, boolean>());
+    const commandMap = writable(new Map<string, boolean>());
 
-    function initializeButton(key: string): void {
+    function updateButton(key: string): void {
         commandMap.update(
             (map: Map<string, boolean>): Map<string, boolean> =>
                 new Map([...map, [key, document.queryCommandState(key)]])
@@ -48,7 +48,7 @@
     let active = false;
 
     if (activatable) {
-        initializeButton(command);
+        updateButton(command);
 
         commandMap.subscribe((map: Map<string, boolean>): void => {
             active = map.get(command);
@@ -58,6 +58,7 @@
 
     function onClick(): void {
         document.execCommand(command);
+        updateButton(command);
     }
 </script>
 
