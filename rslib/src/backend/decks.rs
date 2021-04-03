@@ -78,6 +78,17 @@ impl DecksService for Backend {
         })
     }
 
+    fn get_deck(&self, input: pb::DeckId) -> Result<pb::Deck> {
+        self.with_col(|col| {
+            Ok(col
+                .storage
+                .get_deck(input.into())?
+                .ok_or(AnkiError::NotFound)?
+                .with_human_name()
+                .into())
+        })
+    }
+
     fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
         self.with_col(|col| {
             let deck: DeckSchema11 = col

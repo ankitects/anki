@@ -9,7 +9,7 @@ from typing import Any
 
 import aqt
 from anki.collection import OpChanges
-from anki.decks import DeckId, DeckTreeNode
+from anki.decks import Deck, DeckId, DeckTreeNode
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.operations.deck import (
@@ -270,13 +270,14 @@ class DeckBrowser:
         self.mw.onExport(did=did)
 
     def _rename(self, did: DeckId) -> None:
-        deck = self.mw.col.decks.get(did)
-        current_name = deck["name"]
-        new_name = getOnlyText(tr.decks_new_deck_name(), default=current_name)
-        if not new_name or new_name == current_name:
-            return
+        def prompt(deck: Deck) -> None:
+            new_name = getOnlyText(tr.decks_new_deck_name(), default=deck.name)
+            if not new_name or new_name == deck.name:
+                return
+            else:
+                rename_deck(mw=self.mw, deck_id=did, new_name=new_name)
 
-        rename_deck(mw=self.mw, deck_id=did, new_name=new_name)
+        self.mw.query_op(lambda: self.mw.col.get_deck(did), success=prompt)
 
     def _options(self, did: DeckId) -> None:
         # select the deck first, because the dyn deck conf assumes the deck
