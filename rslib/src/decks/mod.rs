@@ -513,11 +513,13 @@ impl Collection {
         };
         self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
-            // if deleting the default deck, ensure there's a new one, and avoid the grave
-            let mut deck = deck.to_owned();
-            deck.name = self.tr.deck_config_default_name().into();
-            deck.set_modified(usn);
-            self.add_or_update_single_deck_with_existing_id(&mut deck, usn)?;
+            // if the default deck is included, just ensure it's reset to the default
+            // name, as we've already removed its cards
+            let mut modified_default = deck.clone();
+            modified_default.name = self.tr.deck_config_default_name().into();
+            self.prepare_deck_for_update(&mut modified_default, usn)?;
+            modified_default.set_modified(usn);
+            self.update_single_deck_undoable(&mut modified_default, deck.clone())?;
         } else {
             self.remove_deck_and_add_grave_undoable(deck.clone(), usn)?;
         }
