@@ -11,8 +11,8 @@ use crate::{
 };
 
 pub use crate::backend_proto::{
-    deck_config_inner::{LeechAction, NewCardOrder, ReviewCardOrder, ReviewMix},
-    DeckConfigInner,
+    deck_config::config::{LeechAction, NewCardOrder, ReviewCardOrder, ReviewMix},
+    deck_config::Config as DeckConfigInner,
 };
 pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
 /// Old deck config and cards table store 250% as 2500.

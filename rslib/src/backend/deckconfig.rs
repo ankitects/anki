@@ -38,6 +38,10 @@ impl DeckConfigService for Backend {
         .map(Into::into)
     }
 
+    fn get_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::DeckConfig> {
+        self.with_col(|col| Ok(col.get_deck_config(input.into(), true)?.unwrap().into()))
+    }
+
     fn get_deck_config_legacy(&self, input: pb::DeckConfigId) -> Result<pb::Json> {
         self.with_col(|col| {
             let conf = col.get_deck_config(input.into(), true)?.unwrap();
@@ -56,5 +60,17 @@ impl DeckConfigService for Backend {
     fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::Empty> {
         self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config(input.into())))
             .map(Into::into)
+    }
+}
+
+impl From<DeckConf> for pb::DeckConfig {
+    fn from(c: DeckConf) -> Self {
+        pb::DeckConfig {
+            id: c.id.0,
+            name: c.name,
+            mtime_secs: c.mtime_secs.0,
+            usn: c.usn.0,
+            config: Some(c.inner),
+        }
     }
 }

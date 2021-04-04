@@ -32,12 +32,13 @@ DeckConfigDict = Dict[str, Any]
 
 # currently only supports read-only access
 Deck = _pb.Deck
+DeckConfig = _pb.DeckConfig
 
 DeckId = NewType("DeckId", int)
-DeckConfId = NewType("DeckConfId", int)
+DeckConfigId = NewType("DeckConfigId", int)
 
 DEFAULT_DECK_ID = DeckId(1)
-DEFAULT_DECK_CONF_ID = DeckConfId(1)
+DEFAULT_DECK_CONF_ID = DeckConfigId(1)
 
 
 class DecksDictProxy:
@@ -128,7 +129,7 @@ class DeckManager:
         self,
         name: str,
         create: bool = True,
-        type: DeckConfId = DeckConfId(0),
+        type: DeckConfigId = DeckConfigId(0),
     ) -> Optional[DeckId]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
@@ -323,7 +324,7 @@ class DeckManager:
         deck = self.get(did, default=False)
         assert deck
         if "conf" in deck:
-            dcid = DeckConfId(int(deck["conf"]))  # may be a string
+            dcid = DeckConfigId(int(deck["conf"]))  # may be a string
             conf = self.get_config(dcid)
             if not conf:
                 # fall back on default
@@ -333,7 +334,7 @@ class DeckManager:
         # dynamic decks have embedded conf
         return deck
 
-    def get_config(self, conf_id: DeckConfId) -> Optional[DeckConfigDict]:
+    def get_config(self, conf_id: DeckConfigId) -> Optional[DeckConfigDict]:
         try:
             return from_json_bytes(self.col._backend.get_deck_config_legacy(conf_id))
         except NotFoundError:
@@ -358,10 +359,10 @@ class DeckManager:
 
     def add_config_returning_id(
         self, name: str, clone_from: Optional[DeckConfigDict] = None
-    ) -> DeckConfId:
+    ) -> DeckConfigId:
         return self.add_config(name, clone_from)["id"]
 
-    def remove_config(self, id: DeckConfId) -> None:
+    def remove_config(self, id: DeckConfigId) -> None:
         "Remove a configuration and update all decks using it."
         self.col.modSchema(check=True)
         for g in self.all():
@@ -373,7 +374,7 @@ class DeckManager:
                 self.save(g)
         self.col._backend.remove_deck_config(id)
 
-    def setConf(self, grp: DeckConfigDict, id: DeckConfId) -> None:
+    def setConf(self, grp: DeckConfigDict, id: DeckConfigId) -> None:
         grp["conf"] = id
         self.save(grp)
 
