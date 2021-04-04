@@ -11,9 +11,15 @@ mod stock;
 mod templates;
 
 pub use crate::backend_proto::{
-    card_requirement::Kind as CardRequirementKind, notetype_config::Kind as NotetypeKind,
-    CardRequirement, CardTemplateConfig, NoteFieldConfig, Notetype as NotetypeProto,
-    NotetypeConfig,
+    notetype::{
+        config::card_requirement::Kind as CardRequirementKind,
+        config::CardRequirement,
+        config::Kind as NotetypeKind,
+        template::Config as CardTemplateConfig,
+        Config as NotetypeConfig, Template as CardTemplateProto,
+        {field::Config as NoteFieldConfig, Field as NoteFieldProto},
+    },
+    Notetype as NotetypeProto,
 };
 pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;

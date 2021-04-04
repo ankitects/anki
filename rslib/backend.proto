@@ -356,55 +356,6 @@ message DeckConfigInner {
   bytes other = 255;
 }
 
-message NoteFieldConfig {
-  bool sticky = 1;
-  bool rtl = 2;
-  string font_name = 3;
-  uint32 font_size = 4;
-
-  bytes other = 255;
-}
-
-message CardTemplateConfig {
-  string q_format = 1;
-  string a_format = 2;
-  string q_format_browser = 3;
-  string a_format_browser = 4;
-  int64 target_deck_id = 5;
-  string browser_font_name = 6;
-  uint32 browser_font_size = 7;
-
-  bytes other = 255;
-}
-
-message NotetypeConfig {
-  enum Kind {
-    KIND_NORMAL = 0;
-    KIND_CLOZE = 1;
-  }
-  Kind kind = 1;
-  uint32 sort_field_idx = 2;
-  string css = 3;
-  int64 target_deck_id = 4;  // moved into config var
-  string latex_pre = 5;
-  string latex_post = 6;
-  bool latex_svg = 7;
-  repeated CardRequirement reqs = 8;
-
-  bytes other = 255;
-}
-
-message CardRequirement {
-  enum Kind {
-    KIND_NONE = 0;
-    KIND_ANY = 1;
-    KIND_ALL = 2;
-  }
-  uint32 card_ord = 1;
-  Kind kind = 2;
-  repeated uint32 field_ords = 3;
-}
-
 // Containers for passing around database objects
 ///////////////////////////////////////////////////////////
 
@@ -484,27 +435,73 @@ message Deck {
 }
 
 message Notetype {
+  message Config {
+    enum Kind {
+      KIND_NORMAL = 0;
+      KIND_CLOZE = 1;
+    }
+    message CardRequirement {
+      enum Kind {
+        KIND_NONE = 0;
+        KIND_ANY = 1;
+        KIND_ALL = 2;
+      }
+      uint32 card_ord = 1;
+      Kind kind = 2;
+      repeated uint32 field_ords = 3;
+    }
+
+    Kind kind = 1;
+    uint32 sort_field_idx = 2;
+    string css = 3;
+    int64 target_deck_id = 4;  // moved into config var
+    string latex_pre = 5;
+    string latex_post = 6;
+    bool latex_svg = 7;
+    repeated CardRequirement reqs = 8;
+
+    bytes other = 255;
+  }
+  message Field {
+    message Config {
+      bool sticky = 1;
+      bool rtl = 2;
+      string font_name = 3;
+      uint32 font_size = 4;
+
+      bytes other = 255;
+    }
+    OptionalUInt32 ord = 1;
+    string name = 2;
+    Config config = 5;
+  }
+  message Template {
+    message Config {
+      string q_format = 1;
+      string a_format = 2;
+      string q_format_browser = 3;
+      string a_format_browser = 4;
+      int64 target_deck_id = 5;
+      string browser_font_name = 6;
+      uint32 browser_font_size = 7;
+
+      bytes other = 255;
+    }
+
+    OptionalUInt32 ord = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    Config config = 5;
+  }
+
   int64 id = 1;
   string name = 2;
   uint32 mtime_secs = 3;
   sint32 usn = 4;
-  NotetypeConfig config = 7;
-  repeated NoteField fields = 8;
-  repeated CardTemplate templates = 9;
-}
-
-message NoteField {
-  OptionalUInt32 ord = 1;
-  string name = 2;
-  NoteFieldConfig config = 5;
-}
-
-message CardTemplate {
-  OptionalUInt32 ord = 1;
-  string name = 2;
-  uint32 mtime_secs = 3;
-  sint32 usn = 4;
-  CardTemplateConfig config = 5;
+  Config config = 7;
+  repeated Field fields = 8;
+  repeated Template templates = 9;
 }
 
 message Note {
