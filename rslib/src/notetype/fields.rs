@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::{NoteFieldConfig, NoteFieldProto};
 use crate::{
-    backend_proto::{NoteField as NoteFieldProto, NoteFieldConfig, OptionalUInt32},
+    backend_proto::OptionalUInt32,
     error::{AnkiError, Result},
 };
 

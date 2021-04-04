@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::{CardTemplateConfig, CardTemplateProto};
 use crate::{
-    backend_proto::{CardTemplate as CardTemplateProto, CardTemplateConfig, OptionalUInt32},
+    backend_proto::OptionalUInt32,
     decks::DeckId,
     error::{AnkiError, Result},
     template::ParsedTemplate,
