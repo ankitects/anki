@@ -34,6 +34,15 @@ impl NotetypesService for Backend {
             .map(Into::into)
     }
 
+    fn get_notetype(&self, input: pb::NotetypeId) -> Result<pb::Notetype> {
+        self.with_col(|col| {
+            col.storage
+                .get_notetype(input.into())?
+                .ok_or(AnkiError::NotFound)
+                .map(Into::into)
+        })
+    }
+
     fn get_notetype_legacy(&self, input: pb::NotetypeId) -> Result<pb::Json> {
         self.with_col(|col| {
             let schema11: NotetypeSchema11 = col
