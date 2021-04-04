@@ -7,7 +7,7 @@ use crate::{
     card::CardQueue,
     config::SchedulerVersion,
     decks::immediate_parent_name,
-    decks::{Deck, DeckCommon, DeckId, DeckKindProto, DeckSchema11, DueCounts},
+    decks::{Deck, DeckCommon, DeckId, DeckKindContainer, DeckSchema11, DueCounts},
     error::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
     timestamp::TimestampMillis,
@@ -19,7 +19,7 @@ use unicase::UniCase;
 
 fn row_to_deck(row: &Row) -> Result<Deck> {
     let common = DeckCommon::decode(row.get_raw(4).as_blob()?)?;
-    let kind = DeckKindProto::decode(row.get_raw(5).as_blob()?)?;
+    let kind = DeckKindContainer::decode(row.get_raw(5).as_blob()?)?;
     let id = row.get(0)?;
     Ok(Deck {
         id,
@@ -117,7 +117,7 @@ impl SqliteStorage {
         let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;
-        let kind_enum = DeckKindProto {
+        let kind_enum = DeckKindContainer {
             kind: Some(deck.kind.clone()),
         };
         let mut kind = vec![];
@@ -151,7 +151,7 @@ impl SqliteStorage {
             .prepare_cached(include_str!("add_or_update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;
-        let kind_enum = DeckKindProto {
+        let kind_enum = DeckKindContainer {
             kind: Some(deck.kind.clone()),
         };
         let mut kind = vec![];

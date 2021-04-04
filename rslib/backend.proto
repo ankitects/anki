@@ -356,68 +356,6 @@ message DeckConfigInner {
   bytes other = 255;
 }
 
-message DeckCommon {
-  bool study_collapsed = 1;
-  bool browser_collapsed = 2;
-
-  uint32 last_day_studied = 3;
-  int32 new_studied = 4;
-  int32 review_studied = 5;
-  int32 milliseconds_studied = 7;
-
-  // previously set in the v1 scheduler,
-  // but not currently used for anything
-  int32 learning_studied = 6;
-
-  reserved 8 to 13;
-
-  bytes other = 255;
-}
-
-message DeckKind {
-  oneof kind {
-    NormalDeck normal = 1;
-    FilteredDeck filtered = 2;
-  }
-}
-
-message NormalDeck {
-  int64 config_id = 1;
-  uint32 extend_new = 2;
-  uint32 extend_review = 3;
-  string description = 4;
-  bool markdown_description = 5;
-
-  reserved 6 to 11;
-}
-
-message FilteredDeck {
-  message SearchTerm {
-    enum Order {
-      OLDEST_REVIEWED_FIRST = 0;
-      RANDOM = 1;
-      INTERVALS_ASCENDING = 2;
-      INTERVALS_DESCENDING = 3;
-      LAPSES = 4;
-      ADDED = 5;
-      DUE = 6;
-      REVERSE_ADDED = 7;
-      DUE_PRIORITY = 8;
-    }
-
-    string search = 1;
-    uint32 limit = 2;
-    Order order = 3;
-  }
-
-  bool reschedule = 1;
-  repeated SearchTerm search_terms = 2;
-  // v1 scheduler only
-  repeated float delays = 3;
-  // v2 scheduler only
-  uint32 preview_delay = 4;
-}
-
 message NoteFieldConfig {
   bool sticky = 1;
   bool rtl = 2;
@@ -471,14 +409,77 @@ message CardRequirement {
 ///////////////////////////////////////////////////////////
 
 message Deck {
+  message Common {
+    bool study_collapsed = 1;
+    bool browser_collapsed = 2;
+
+    uint32 last_day_studied = 3;
+    int32 new_studied = 4;
+    int32 review_studied = 5;
+    int32 milliseconds_studied = 7;
+
+    // previously set in the v1 scheduler,
+    // but not currently used for anything
+    int32 learning_studied = 6;
+
+    reserved 8 to 13;
+
+    bytes other = 255;
+  }
+  message Normal {
+    int64 config_id = 1;
+    uint32 extend_new = 2;
+    uint32 extend_review = 3;
+    string description = 4;
+    bool markdown_description = 5;
+
+    reserved 6 to 11;
+  }
+  message Filtered {
+    message SearchTerm {
+      enum Order {
+        OLDEST_REVIEWED_FIRST = 0;
+        RANDOM = 1;
+        INTERVALS_ASCENDING = 2;
+        INTERVALS_DESCENDING = 3;
+        LAPSES = 4;
+        ADDED = 5;
+        DUE = 6;
+        REVERSE_ADDED = 7;
+        DUE_PRIORITY = 8;
+      }
+
+      string search = 1;
+      uint32 limit = 2;
+      Order order = 3;
+    }
+
+    bool reschedule = 1;
+    repeated SearchTerm search_terms = 2;
+    // v1 scheduler only
+    repeated float delays = 3;
+    // v2 scheduler only
+    uint32 preview_delay = 4;
+  }
+  // a container to store the deck specifics in the DB
+  // as a tagged enum
+  message KindContainer {
+    oneof kind {
+      Normal normal = 1;
+      Filtered filtered = 2;
+    }
+  }
+
   int64 id = 1;
   string name = 2;
   int64 mtime_secs = 3;
   int32 usn = 4;
-  DeckCommon common = 5;
+  Common common = 5;
+  // the specifics are inlined here when sending data to clients,
+  // as otherwise an extra level of indirection would be required
   oneof kind {
-    NormalDeck normal = 6;
-    FilteredDeck filtered = 7;
+    Normal normal = 6;
+    Filtered filtered = 7;
   }
 }
 
@@ -1524,7 +1525,7 @@ message RenameDeckIn {
 message FilteredDeckForUpdate {
   int64 id = 1;
   string name = 2;
-  FilteredDeck config = 3;
+  Deck.Filtered config = 3;
 }
 
 message SetFlagIn {

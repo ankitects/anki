@@ -43,7 +43,7 @@ from anki.decks import Deck, DeckId, DeckManager
 from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager, NotetypeDict, NotetypeId, Notetype
+from anki.models import ModelManager, Notetype, NotetypeDict, NotetypeId
 from anki.notes import Note, NoteId
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
