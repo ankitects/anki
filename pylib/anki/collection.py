@@ -43,7 +43,7 @@ from anki.decks import Deck, DeckId, DeckManager
 from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager, NotetypeDict, NotetypeId
+from anki.models import ModelManager, NotetypeDict, NotetypeId, Notetype
 from anki.notes import Note, NoteId
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
@@ -334,6 +334,10 @@ class Collection:
     def get_deck(self, id: DeckId) -> Deck:
         "Get a new-style deck object. Currently read-only."
         return self._backend.get_deck(id)
+
+    def get_notetype(self, id: NotetypeId) -> Notetype:
+        """Get a new-style notetype object. This is not cached; avoid calling frequently."""
+        return self._backend.get_notetype(id)
 
     getCard = get_card
     getNote = get_note
