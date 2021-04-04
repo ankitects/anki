@@ -3,11 +3,7 @@
 
 use strum::IntoEnumIterator;
 
-pub use crate::backend_proto::{
-    deck_kind::Kind as DeckKind, Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto,
-    FilteredDeck, NormalDeck,
-};
-use crate::decks::{FilteredSearchOrder, FilteredSearchTerm};
+use super::{DeckCommon, DeckKind, FilteredDeck, FilteredSearchOrder, FilteredSearchTerm};
 use crate::prelude::*;
 
 impl Deck {

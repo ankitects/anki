@@ -20,7 +20,7 @@ from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_b
 # public exports
 DeckTreeNode = _pb.DeckTreeNode
 DeckNameId = _pb.DeckNameId
-FilteredDeckConfig = _pb.FilteredDeck
+FilteredDeckConfig = _pb.Deck.Filtered
 
 # legacy code may pass this in as the type argument to .id()
 defaultDeck = 0
