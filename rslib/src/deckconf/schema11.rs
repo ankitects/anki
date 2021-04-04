@@ -2,8 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{DeckConf, DeckConfId, INITIAL_EASE_FACTOR_THOUSANDS};
-use crate::backend_proto::deck_config_inner::NewCardOrder;
-use crate::backend_proto::DeckConfigInner;
+use super::{DeckConfigInner, NewCardOrder};
 use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::{Deserialize, Serialize};

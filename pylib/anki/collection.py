@@ -39,7 +39,7 @@ from anki.cards import Card, CardId
 from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
-from anki.decks import Deck, DeckId, DeckManager
+from anki.decks import Deck, DeckConfig, DeckConfigId, DeckId, DeckManager
 from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
@@ -334,6 +334,10 @@ class Collection:
     def get_deck(self, id: DeckId) -> Deck:
         "Get a new-style deck object. Currently read-only."
         return self._backend.get_deck(id)
+
+    def get_deck_config(self, id: DeckConfigId) -> DeckConfig:
+        "Get a new-style deck config object. Currently read-only."
+        return self._backend.get_deck_config(id)
 
     def get_notetype(self, id: NotetypeId) -> Notetype:
         """Get a new-style notetype object. This is not cached; avoid calling frequently."""
