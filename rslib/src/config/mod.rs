@@ -72,7 +72,7 @@ pub(crate) enum ConfigKey {
 
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
 #[repr(u8)]
-pub(crate) enum SchedulerVersion {
+pub enum SchedulerVersion {
     V1 = 1,
     V2 = 2,
 }
@@ -166,6 +166,7 @@ impl Collection {
     }
 
     pub(crate) fn set_creation_utc_offset(&mut self, mins: Option<i32>) -> Result<()> {
+        self.state.scheduler_info = None;
         if let Some(mins) = mins {
             self.set_config(ConfigKey::CreationOffset, &mins)
         } else {
@@ -178,6 +179,7 @@ impl Collection {
     }
 
     pub(crate) fn set_configured_utc_offset(&mut self, mins: i32) -> Result<()> {
+        self.state.scheduler_info = None;
         self.set_config(ConfigKey::LocalOffset, &mins)
     }
 
@@ -187,6 +189,7 @@ impl Collection {
     }
 
     pub(crate) fn set_v2_rollover(&mut self, hour: u32) -> Result<()> {
+        self.state.scheduler_info = None;
         self.set_config(ConfigKey::Rollover, &hour)
     }
 
@@ -213,6 +216,7 @@ impl Collection {
 
     /// Caution: this only updates the config setting.
     pub(crate) fn set_scheduler_version_config_key(&mut self, ver: SchedulerVersion) -> Result<()> {
+        self.state.scheduler_info = None;
         self.set_config(ConfigKey::SchedulerVersion, &ver)
     }
 

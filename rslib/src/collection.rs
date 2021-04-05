@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::log::Logger;
 use crate::types::Usn;
 use crate::{
     decks::{Deck, DeckId},
@@ -12,6 +11,7 @@ use crate::{
 };
 use crate::{error::Result, scheduler::queue::CardQueues};
 use crate::{i18n::I18n, ops::StateChanges};
+use crate::{log::Logger, scheduler::SchedulerInfo};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -64,6 +64,7 @@ pub struct CollectionState {
     pub(crate) undo: UndoManager,
     pub(crate) notetype_cache: HashMap<NotetypeId, Arc<Notetype>>,
     pub(crate) deck_cache: HashMap<DeckId, Arc<Deck>>,
+    pub(crate) scheduler_info: Option<SchedulerInfo>,
     pub(crate) card_queues: Option<CardQueues>,
     /// True if legacy Python code has executed SQL that has modified the
     /// database, requiring modification time to be bumped.

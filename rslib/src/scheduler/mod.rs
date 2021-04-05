@@ -23,9 +23,29 @@ use timing::{
     SchedTimingToday,
 };
 
+#[derive(Debug, Clone, Copy)]
+pub struct SchedulerInfo {
+    pub version: SchedulerVersion,
+    pub timing: SchedTimingToday,
+}
+
 impl Collection {
+    pub fn scheduler_info(&mut self) -> Result<SchedulerInfo> {
+        let now = TimestampSecs::now();
+        if let Some(info) = self.state.scheduler_info {
+            if now < info.timing.next_day_at {
+                return Ok(info);
+            }
+        }
+        let version = self.scheduler_version();
+        let timing = self.timing_for_timestamp(now)?;
+        let info = SchedulerInfo { version, timing };
+        self.state.scheduler_info = Some(info);
+        Ok(info)
+    }
+
     pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
-        self.timing_for_timestamp(TimestampSecs::now())
+        self.scheduler_info().map(|info| info.timing)
     }
 
     pub fn current_due_day(&mut self, delta: i32) -> Result<u32> {
@@ -102,14 +122,15 @@ impl Collection {
 
     pub(crate) fn set_rollover_for_current_scheduler(&mut self, hour: u8) -> Result<()> {
         match self.scheduler_version() {
-            SchedulerVersion::V1 => {
-                self.storage
-                    .set_creation_stamp(TimestampSecs(v1_creation_date_adjusted_to_hour(
-                        self.storage.creation_stamp()?.0,
-                        hour,
-                    )))
-            }
+            SchedulerVersion::V1 => self.set_creation_stamp(TimestampSecs(
+                v1_creation_date_adjusted_to_hour(self.storage.creation_stamp()?.0, hour),
+            )),
             SchedulerVersion::V2 => self.set_v2_rollover(hour as u32),
         }
+    }
+
+    pub(crate) fn set_creation_stamp(&mut self, stamp: TimestampSecs) -> Result<()> {
+        self.state.scheduler_info = None;
+        self.storage.set_creation_stamp(stamp)
     }
 }
