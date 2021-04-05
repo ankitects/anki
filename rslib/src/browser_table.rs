@@ -125,14 +125,13 @@ trait RowContext {
     }
 }
 
-struct CardRowContext<'a> {
-    col: &'a Collection,
+struct CardRowContext {
     card: Card,
     note: Note,
     notetype: Arc<Notetype>,
-    deck: Option<Deck>,
-    original_deck: Option<Option<Deck>>,
-    tr: &'a I18n,
+    deck: Arc<Deck>,
+    original_deck: Option<Arc<Deck>>,
+    tr: I18n,
     timing: SchedTimingToday,
     render_context: Option<RenderContext>,
 }
@@ -144,11 +143,11 @@ struct RenderContext {
     answer_nodes: Vec<RenderedNode>,
 }
 
-struct NoteRowContext<'a> {
+struct NoteRowContext {
     note: Note,
     notetype: Arc<Notetype>,
     cards: Vec<Card>,
-    tr: &'a I18n,
+    tr: I18n,
     timing: SchedTimingToday,
 }
 
@@ -260,8 +259,8 @@ impl RenderContext {
     }
 }
 
-impl<'a> CardRowContext<'a> {
-    fn new(col: &'a mut Collection, id: i64, with_card_render: bool) -> Result<Self> {
+impl CardRowContext {
+    fn new(col: &mut Collection, id: i64, with_card_render: bool) -> Result<Self> {
         let card = col
             .storage
             .get_card(CardId(id))?
@@ -270,6 +269,15 @@ impl<'a> CardRowContext<'a> {
         let notetype = col
             .get_notetype(note.notetype_id)?
             .ok_or(AnkiError::NotFound)?;
+        let deck = col.get_deck(card.deck_id)?.ok_or(AnkiError::NotFound)?;
+        let original_deck = if card.original_deck_id.0 != 0 {
+            Some(
+                col.get_deck(card.original_deck_id)?
+                    .ok_or(AnkiError::NotFound)?,
+            )
+        } else {
+            None
+        };
         let timing = col.timing_today()?;
         let render_context = if with_card_render {
             Some(RenderContext::new(col, &card, &note, &notetype)?)
@@ -278,13 +286,12 @@ impl<'a> CardRowContext<'a> {
         };
 
         Ok(CardRowContext {
-            col,
             card,
             note,
             notetype,
-            deck: None,
-            original_deck: None,
-            tr: &col.tr,
+            deck,
+            original_deck,
+            tr: col.tr.clone(),
             timing,
             render_context,
         })
@@ -292,25 +299,6 @@ impl<'a> CardRowContext<'a> {
 
     fn template(&self) -> Result<&CardTemplate> {
         self.notetype.get_template(self.card.template_idx)
-    }
-
-    fn deck(&mut self) -> Result<&Deck> {
-        if self.deck.is_none() {
-            self.deck = Some(
-                self.col
-                    .storage
-                    .get_deck(self.card.deck_id)?
-                    .ok_or(AnkiError::NotFound)?,
-            );
-        }
-        Ok(self.deck.as_ref().unwrap())
-    }
-
-    fn original_deck(&mut self) -> Result<&Option<Deck>> {
-        if self.original_deck.is_none() {
-            self.original_deck = Some(self.col.storage.get_deck(self.card.original_deck_id)?);
-        }
-        Ok(self.original_deck.as_ref().unwrap())
     }
 
     fn answer_str(&self) -> String {
@@ -366,17 +354,17 @@ impl<'a> CardRowContext<'a> {
         match self.card.ctype {
             CardType::New => self.tr.browsing_new().into(),
             CardType::Learn => self.tr.browsing_learning().into(),
-            _ => time_span((self.card.interval * 86400) as f32, self.tr, false),
+            _ => time_span((self.card.interval * 86400) as f32, &self.tr, false),
         }
     }
 
-    fn deck_str(&mut self) -> Result<String> {
-        let deck_name = self.deck()?.human_name();
-        Ok(if let Some(original_deck) = self.original_deck()? {
+    fn deck_str(&mut self) -> String {
+        let deck_name = self.deck.human_name();
+        if let Some(original_deck) = &self.original_deck {
             format!("{} ({})", &deck_name, &original_deck.human_name())
         } else {
             deck_name
-        })
+        }
     }
 
     fn template_str(&self) -> Result<String> {
@@ -392,12 +380,12 @@ impl<'a> CardRowContext<'a> {
     }
 }
 
-impl RowContext for CardRowContext<'_> {
+impl RowContext for CardRowContext {
     fn get_cell_text(&mut self, column: Column) -> Result<String> {
         Ok(match column {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
-            Column::CardDeck => self.deck_str()?,
+            Column::CardDeck => self.deck_str(),
             Column::CardDue => self.card_due_str(),
             Column::CardEase => self.card_ease_str(),
             Column::CardInterval => self.card_interval_str(),
@@ -448,8 +436,8 @@ impl RowContext for CardRowContext<'_> {
     }
 }
 
-impl<'a> NoteRowContext<'a> {
-    fn new(col: &'a mut Collection, id: i64) -> Result<Self> {
+impl NoteRowContext {
+    fn new(col: &mut Collection, id: i64) -> Result<Self> {
         let note = col.get_note_maybe_with_fields(NoteId(id), false)?;
         let notetype = col
             .get_notetype(note.notetype_id)?
@@ -461,7 +449,7 @@ impl<'a> NoteRowContext<'a> {
             note,
             notetype,
             cards,
-            tr: &col.tr,
+            tr: col.tr.clone(),
             timing,
         })
     }
@@ -507,14 +495,14 @@ impl<'a> NoteRowContext<'a> {
         } else {
             time_span(
                 (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
-                self.tr,
+                &self.tr,
                 false,
             )
         }
     }
 }
 
-impl RowContext for NoteRowContext<'_> {
+impl RowContext for NoteRowContext {
     fn get_cell_text(&mut self, column: Column) -> Result<String> {
         Ok(match column {
             Column::NoteCards => self.cards.len().to_string(),
