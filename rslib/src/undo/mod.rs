@@ -247,7 +247,7 @@ mod test {
     use crate::{collection::open_test_collection, prelude::*};
 
     #[test]
-    fn undo() {
+    fn undo() -> Result<()> {
         let mut col = open_test_collection();
 
         let mut card = Card {
@@ -324,10 +324,7 @@ mod test {
                 card.interval = 5;
                 Ok(())
             })
-            .unwrap();
-            Ok(())
-        })
-        .unwrap();
+        })?;
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
         assert_eq!(col.can_undo(), Some(Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
@@ -336,5 +333,24 @@ mod test {
         col.transact_no_undo(|_col| Ok(())).unwrap();
         assert_eq!(col.can_undo(), None);
         assert_eq!(col.can_redo(), None);
+
+        // if an object is mutated multiple times in one operation,
+        // the changes should be undone in the correct order
+        col.transact(Op::UpdateCard, |col| {
+            col.get_and_update_card(cid, |card| {
+                card.interval = 10;
+                Ok(())
+            })?;
+            col.get_and_update_card(cid, |card| {
+                card.interval = 15;
+                Ok(())
+            })
+        })?;
+
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 15);
+        col.undo()?;
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
+
+        Ok(())
     }
 }
