@@ -9,8 +9,8 @@ from typing import Optional
 class OpMeta:
     """Metadata associated with an operation.
 
-    The `handled_by` field can be used by screens to ignore change
+    The `handler` field can be used by screens to ignore change
     events they initiated themselves, if they have already made
     the required changes."""
 
-    handled_by: Optional[object] = None
+    handler: Optional[object] = None

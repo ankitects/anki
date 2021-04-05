@@ -1513,6 +1513,11 @@ message OpChanges {
   bool tag = 5;
   bool notetype = 6;
   bool preference = 7;
+
+  bool browser_table = 8;
+  bool browser_sidebar = 9;
+  bool editor = 10;
+  bool study_queues = 11;
 }
 
 message UndoStatus {

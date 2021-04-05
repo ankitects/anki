@@ -420,11 +420,8 @@ class SidebarTreeView(QTreeView):
     # Refreshing
     ###########################
 
-    def op_executed(self, op: OpChanges, meta: OpMeta, focused: bool) -> None:
-        if meta.handled_by is self:
-            return
-
-        if op.tag or op.notetype or op.deck:
+    def op_executed(self, changes: OpChanges, meta: OpMeta, focused: bool) -> None:
+        if changes.browser_sidebar and not meta.handler is self:
             self._refresh_needed = True
         if focused:
             self.refresh_if_needed()
@@ -984,7 +981,7 @@ class SidebarTreeView(QTreeView):
                     deck_id=DeckId(node.deck_id),
                     collapsed=not expanded,
                     scope=DeckCollapseScope.BROWSER,
-                    handled_by=self,
+                    handler=self,
                 )
 
             for node in nodes:

@@ -133,7 +133,7 @@ class Browser(QMainWindow):
         self.table.op_executed(changes, meta, focused)
         self.sidebar.op_executed(changes, meta, focused)
         if changes.note or changes.notetype:
-            if meta.handled_by is not self.editor:
+            if meta.handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
                 note = self.editor.note
