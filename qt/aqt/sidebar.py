@@ -22,7 +22,12 @@ from aqt.operations.deck import (
     reparent_decks,
     set_deck_collapsed,
 )
-from aqt.operations.tag import remove_tags_from_all_notes, rename_tag, reparent_tags
+from aqt.operations.tag import (
+    remove_tags_from_all_notes,
+    rename_tag,
+    reparent_tags,
+    set_tag_collapsed,
+)
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import KeyboardModifiersPressed, askUser, getOnlyText, showWarning, tr
@@ -922,20 +927,19 @@ class SidebarTreeView(QTreeView):
         def render(
             root: SidebarItem, nodes: Iterable[TagTreeNode], head: str = ""
         ) -> None:
+            def toggle_expand(node: TagTreeNode) -> Callable[[bool], None]:
+                full_name = head + node.name
+                return lambda expanded: set_tag_collapsed(
+                    mw=self.mw, tag=full_name, collapsed=not expanded
+                )
+
             for node in nodes:
-
-                def toggle_expand() -> Callable[[bool], None]:
-                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
-                    return lambda expanded: self.mw.col.tags.set_expanded(
-                        full_name, expanded
-                    )
-
                 item = SidebarItem(
                     name=node.name,
                     icon=icon,
                     search_node=SearchNode(tag=head + node.name),
-                    on_expanded=toggle_expand(),
-                    expanded=node.expanded,
+                    on_expanded=toggle_expand(node),
+                    expanded=not node.collapsed,
                     item_type=SidebarItemType.TAG,
                     name_prefix=head,
                 )

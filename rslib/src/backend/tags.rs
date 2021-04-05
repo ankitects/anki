@@ -27,12 +27,10 @@ impl TagsService for Backend {
         self.with_col(|col| col.remove_tags(tags.val.as_str()).map(Into::into))
     }
 
-    fn set_tag_expanded(&self, input: pb::SetTagExpandedIn) -> Result<pb::Empty> {
+    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            col.transact_no_undo(|col| {
-                col.set_tag_expanded(&input.name, input.expanded)?;
-                Ok(().into())
-            })
+            col.set_tag_collapsed(&input.name, input.collapsed)
+                .map(Into::into)
         })
     }
 

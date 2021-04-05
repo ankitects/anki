@@ -30,6 +30,10 @@ impl Tag {
             expanded: false,
         }
     }
+
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.usn = usn;
+    }
 }
 
 pub(crate) fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
@@ -54,18 +58,4 @@ fn immediate_parent_name_unicase(tag_name: UniCase<&str>) -> Option<UniCase<&str
 
 fn immediate_parent_name_str(tag_name: &str) -> Option<&str> {
     tag_name.rsplitn(2, "::").nth(1)
-}
-
-impl Collection {
-    pub(crate) fn set_tag_expanded(&self, name: &str, expanded: bool) -> Result<()> {
-        let mut name = name;
-        let tag;
-        if self.storage.get_tag(name)?.is_none() {
-            // tag is missing, register it
-            tag = Tag::new(name.to_string(), self.usn()?);
-            self.storage.register_tag(&tag)?;
-            name = &tag.name;
-        }
-        self.storage.set_tag_collapsed(name, !expanded)
-    }
 }

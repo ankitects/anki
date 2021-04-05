@@ -15,6 +15,29 @@ impl Collection {
 
         Ok(tree)
     }
+
+    pub fn set_tag_collapsed(&mut self, tag: &str, collapsed: bool) -> Result<OpOutput<()>> {
+        self.transact(Op::ExpandCollapse, |col| {
+            col.set_tag_collapsed_inner(tag, collapsed, col.usn()?)
+        })
+    }
+}
+
+impl Collection {
+    fn set_tag_collapsed_inner(&mut self, name: &str, collapsed: bool, usn: Usn) -> Result<()> {
+        self.register_tag_string(name.into(), usn)?;
+        if let Some(mut tag) = self.storage.get_tag(name)? {
+            let original = tag.clone();
+            tag.expanded = !collapsed;
+            self.update_tag_inner(&mut tag, original, usn)?;
+        }
+        Ok(())
+    }
+
+    fn update_tag_inner(&mut self, tag: &mut Tag, original: Tag, usn: Usn) -> Result<()> {
+        tag.set_modified(usn);
+        self.update_tag_undoable(&tag, original)
+    }
 }
 
 /// Append any missing parents. Caller must sort afterwards.
@@ -58,7 +81,7 @@ fn add_child_nodes(tags: &mut Peekable<impl Iterator<Item = Tag>>, parent: &mut 
                     name: (*split_name.last().unwrap()).into(),
                     children: vec![],
                     level: parent.level + 1,
-                    expanded: tag.expanded,
+                    collapsed: !tag.expanded,
                 });
                 tags.next();
             }
@@ -105,8 +128,7 @@ mod test {
             name: name.into(),
             level,
             children,
-
-            ..Default::default()
+            collapsed: level != 0,
         }
     }
 
