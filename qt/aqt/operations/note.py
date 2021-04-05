@@ -22,10 +22,10 @@ def add_note(
     mw.perform_op(lambda: mw.col.add_note(note, target_deck_id), success=success)
 
 
-def update_note(*, mw: AnkiQt, note: Note, handled_by: Optional[object]) -> None:
+def update_note(*, mw: AnkiQt, note: Note, handler: Optional[object]) -> None:
     mw.perform_op(
         lambda: mw.col.update_note(note),
-        meta=OpMeta(handled_by=handled_by),
+        meta=OpMeta(handler=handler),
     )
 
 

@@ -77,11 +77,11 @@ def set_deck_collapsed(
     deck_id: DeckId,
     collapsed: bool,
     scope: DeckCollapseScope.V,
-    handled_by: Optional[object] = None,
+    handler: Optional[object] = None,
 ) -> None:
     mw.perform_op(
         lambda: mw.col.decks.set_collapsed(
             deck_id=deck_id, collapsed=collapsed, scope=scope
         ),
-        meta=OpMeta(handled_by=handled_by),
+        meta=OpMeta(handler=handler),
     )

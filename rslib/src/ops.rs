@@ -105,3 +105,36 @@ impl<T> OpOutput<T> {
         }
     }
 }
+
+impl OpChanges {
+    // These routines should return true even if the GUI may have
+    // special handling for an action, since we need to do the right
+    // thing when undoing, and if multiple windows of the same type are
+    // open. For example, while toggling the expand/collapse state
+    // in the sidebar will not normally trigger a full sidebar refresh,
+    // requires_browser_sidebar_redraw() should still return true.
+
+    pub fn requires_browser_table_redraw(&self) -> bool {
+        let c = &self.changes;
+        c.card
+            || c.notetype
+            || (c.note && self.op != Op::AddNote)
+            || (c.deck && self.op != Op::ExpandCollapse)
+    }
+
+    pub fn requires_browser_sidebar_redraw(&self) -> bool {
+        let c = &self.changes;
+        c.tag || c.deck || c.notetype
+    }
+
+    pub fn requires_editor_redraw(&self) -> bool {
+        let c = &self.changes;
+        c.note || c.notetype
+    }
+
+    pub fn requires_study_queue_rebuild(&self) -> bool {
+        let c = &self.changes;
+        !matches!(self.op, Op::AnswerCard | Op::ExpandCollapse)
+            && (c.card || c.deck || c.preference)
+    }
+}

@@ -32,21 +32,17 @@ class EditCurrent(QDialog):
         self.show()
 
     def on_operation_did_execute(self, changes: OpChanges, meta: OpMeta) -> None:
-        if not (changes.note or changes.notetype):
-            return
-        if meta.handled_by is self.editor:
-            return
+        if changes.editor and meta.handler is not self.editor:
+            # reload note
+            note = self.editor.note
+            try:
+                note.load()
+            except NotFoundError:
+                # note's been deleted
+                self.cleanup_and_close()
+                return
 
-        # reload note
-        note = self.editor.note
-        try:
-            note.load()
-        except NotFoundError:
-            # note's been deleted
-            self.cleanup_and_close()
-            return
-
-        self.editor.set_note(note)
+            self.editor.set_note(note)
 
     def cleanup_and_close(self) -> None:
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)

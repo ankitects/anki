@@ -180,9 +180,8 @@ class Table:
     def redraw_cells(self) -> None:
         self._model.redraw_cells()
 
-    def op_executed(self, op: OpChanges, meta: OpMeta, focused: bool) -> None:
-        print("op executed")
-        if op.card or op.note or op.deck or op.notetype:
+    def op_executed(self, changes: OpChanges, meta: OpMeta, focused: bool) -> None:
+        if changes.browser_table:
             self._model.empty_cache()
         if focused:
             self.redraw_cells()
