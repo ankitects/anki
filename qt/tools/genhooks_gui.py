@@ -26,6 +26,7 @@ from anki.hooks import runFilter, runHook
 from anki.models import NotetypeDict
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
+import aqt.operations
 """
 
 # Hook list
@@ -458,9 +459,7 @@ hooks = [
     ),
     Hook(
         name="operation_did_execute",
-        args=[
-            "changes: anki.collection.OpChanges",
-        ],
+        args=["changes: anki.collection.OpChanges", "meta: aqt.operations.OpMeta"],
         doc="""Called after an operation completes.
         Changes can be inspected to determine whether the UI needs updating.
         

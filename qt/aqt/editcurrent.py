@@ -5,6 +5,7 @@ import aqt.editor
 from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
+from aqt.operations import OpMeta
 from aqt.qt import *
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 
@@ -30,10 +31,10 @@ class EditCurrent(QDialog):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
 
-    def on_operation_did_execute(self, changes: OpChanges) -> None:
+    def on_operation_did_execute(self, changes: OpChanges, meta: OpMeta) -> None:
         if not (changes.note or changes.notetype):
             return
-        if self.editor.is_updating_note():
+        if meta.handled_by is self.editor:
             return
 
         # reload note
