@@ -10,7 +10,7 @@ pub struct SchedTimingToday {
     /// The number of days that have passed since the collection was created.
     pub days_elapsed: u32,
     /// Timestamp of the next day rollover.
-    pub next_day_at: i64,
+    pub next_day_at: TimestampSecs,
 }
 
 /// Timing information for the current day.
@@ -34,11 +34,11 @@ pub fn sched_timing_today_v2_new(
     // rollover
     let rollover_today_datetime = today.and_hms(rollover_hour as u32, 0, 0);
     let rollover_passed = rollover_today_datetime <= now_datetime;
-    let next_day_at = if rollover_passed {
+    let next_day_at = TimestampSecs(if rollover_passed {
         (rollover_today_datetime + Duration::days(1)).timestamp()
     } else {
         rollover_today_datetime.timestamp()
-    };
+    });
 
     // day count
     let days_elapsed = days_elapsed(created_date, today, rollover_passed);
@@ -119,7 +119,7 @@ fn v1_creation_date_adjusted_to_hour_inner(crt: i64, hour: u8, offset: FixedOffs
 
 fn sched_timing_today_v1(crt: TimestampSecs, now: TimestampSecs) -> SchedTimingToday {
     let days_elapsed = (now.0 - crt.0) / 86_400;
-    let next_day_at = crt.0 + (days_elapsed + 1) * 86_400;
+    let next_day_at = TimestampSecs(crt.0 + (days_elapsed + 1) * 86_400);
     SchedTimingToday {
         now,
         days_elapsed: days_elapsed as u32,
@@ -140,13 +140,14 @@ fn sched_timing_today_v2_legacy(
         .timestamp();
     let days_elapsed = (now.0 - crt_at_rollover) / 86_400;
 
-    let mut next_day_at = now
-        .datetime(current_utc_offset)
-        .date()
-        .and_hms(rollover as u32, 0, 0)
-        .timestamp();
-    if next_day_at < now.0 {
-        next_day_at += 86_400;
+    let mut next_day_at = TimestampSecs(
+        now.datetime(current_utc_offset)
+            .date()
+            .and_hms(rollover as u32, 0, 0)
+            .timestamp(),
+    );
+    if next_day_at < now {
+        next_day_at = next_day_at.adding_secs(86_400);
     }
 
     SchedTimingToday {
@@ -321,7 +322,7 @@ mod test {
             *now.offset(),
             rollhour as u8,
         );
-        assert_eq!(today.next_day_at, next_day_at.timestamp());
+        assert_eq!(today.next_day_at.0, next_day_at.timestamp());
 
         // after the rollover, the next day should be the next day
         let now = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
@@ -333,7 +334,7 @@ mod test {
             *now.offset(),
             rollhour as u8,
         );
-        assert_eq!(today.next_day_at, next_day_at.timestamp());
+        assert_eq!(today.next_day_at.0, next_day_at.timestamp());
 
         // after the rollover, the next day should be the next day
         let now = Local.ymd(2019, 1, 3).and_hms(rollhour + 3, 0, 0);
@@ -345,7 +346,7 @@ mod test {
             *now.offset(),
             rollhour as u8,
         );
-        assert_eq!(today.next_day_at, next_day_at.timestamp());
+        assert_eq!(today.next_day_at.0, next_day_at.timestamp());
     }
 
     #[test]
@@ -357,7 +358,7 @@ mod test {
             SchedTimingToday {
                 now,
                 days_elapsed: 107,
-                next_day_at: 1584558000
+                next_day_at: TimestampSecs(1584558000)
             }
         );
 
@@ -366,7 +367,7 @@ mod test {
             SchedTimingToday {
                 now,
                 days_elapsed: 589,
-                next_day_at: 1584540000
+                next_day_at: TimestampSecs(1584540000)
             }
         );
 
@@ -375,7 +376,7 @@ mod test {
             SchedTimingToday {
                 now,
                 days_elapsed: 700,
-                next_day_at: 1584554400
+                next_day_at: TimestampSecs(1584554400)
             }
         );
     }

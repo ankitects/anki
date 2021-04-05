@@ -133,11 +133,11 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn studied_today(&self, day_cutoff: i64) -> Result<StudiedToday> {
-        let start = (day_cutoff - 86_400) * 1_000;
+    pub(crate) fn studied_today(&self, day_cutoff: TimestampSecs) -> Result<StudiedToday> {
+        let start = day_cutoff.adding_secs(-86_400).as_millis();
         self.db
             .prepare_cached(include_str!("studied_today.sql"))?
-            .query_map(&[start, RevlogReviewKind::Manual as i64], |row| {
+            .query_map(&[start.0, RevlogReviewKind::Manual as i64], |row| {
                 Ok(StudiedToday {
                     cards: row.get(0)?,
                     seconds: row.get(1)?,

@@ -22,11 +22,13 @@ impl Collection {
 
     fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::GraphsOut> {
         let timing = self.timing_today()?;
-        let revlog_start = TimestampSecs(if days > 0 {
-            timing.next_day_at - (((days as i64) + 1) * 86_400)
+        let revlog_start = if days > 0 {
+            timing
+                .next_day_at
+                .adding_secs(-(((days as i64) + 1) * 86_400))
         } else {
-            0
-        });
+            TimestampSecs(0)
+        };
 
         let offset = self.local_utc_offset_for_user()?;
         let local_offset_secs = offset.local_minus_utc() as i64;
@@ -45,7 +47,7 @@ impl Collection {
             cards: cards.into_iter().map(Into::into).collect(),
             revlog,
             days_elapsed: timing.days_elapsed,
-            next_day_at_secs: timing.next_day_at as u32,
+            next_day_at_secs: timing.next_day_at.0 as u32,
             scheduler_version: self.scheduler_version() as u32,
             local_offset_secs: local_offset_secs as i32,
         })
