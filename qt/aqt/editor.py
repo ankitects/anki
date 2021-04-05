@@ -100,8 +100,8 @@ class Editor:
     redrawing.
 
     The editor will cause that hook to be fired when it saves changes. To avoid
-    an unwanted refresh, the parent widget should call editor.is_updating_note(),
-    and avoid re-setting the note if it returns true.
+    an unwanted refresh, the parent widget should check if meta.handled_by
+    corresponds to this editor instance, and ignore the change if it does.
     """
 
     def __init__(
@@ -113,7 +113,6 @@ class Editor:
         self.note: Optional[Note] = None
         self.addMode = addMode
         self.currentField: Optional[int] = None
-        self._is_updating_note = False
         # current card, for card layout
         self.card: Optional[Card] = None
         self.setupOuter()
@@ -559,14 +558,7 @@ class Editor:
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
-        self._is_updating_note = True
-        update_note(mw=self.mw, note=self.note, after_hooks=self._after_updating_note)
-
-    def _after_updating_note(self) -> None:
-        self._is_updating_note = False
-
-    def is_updating_note(self) -> bool:
-        return self._is_updating_note
+        update_note(mw=self.mw, note=self.note, handled_by=self)
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [

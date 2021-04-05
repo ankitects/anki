@@ -61,6 +61,7 @@ from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
+from aqt.operations import OpMeta
 from aqt.operations.collection import undo
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
@@ -772,6 +773,7 @@ class AnkiQt(QMainWindow):
         success: PerformOpOptionalSuccessCallback = None,
         failure: PerformOpOptionalFailureCallback = None,
         after_hooks: Optional[Callable[[], None]] = None,
+        meta: OpMeta = OpMeta(),
     ) -> None:
         """Run the provided operation on a background thread.
 
@@ -825,7 +827,7 @@ class AnkiQt(QMainWindow):
                 status = self.col.undo_status()
                 self._update_undo_actions_for_status_and_save(status)
                 # fire change hooks
-                self._fire_change_hooks_after_op_performed(result, after_hooks)
+                self._fire_change_hooks_after_op_performed(result, after_hooks, meta)
 
         self.taskman.with_progress(op, wrapped_done)
 
@@ -841,7 +843,10 @@ class AnkiQt(QMainWindow):
         assert self._background_op_count >= 0
 
     def _fire_change_hooks_after_op_performed(
-        self, result: ResultWithChanges, after_hooks: Optional[Callable[[], None]]
+        self,
+        result: ResultWithChanges,
+        after_hooks: Optional[Callable[[], None]],
+        meta: OpMeta,
     ) -> None:
         if isinstance(result, OpChanges):
             changes = result
@@ -851,7 +856,7 @@ class AnkiQt(QMainWindow):
         # fire new hook
         print("op changes:")
         print(changes)
-        gui_hooks.operation_did_execute(changes)
+        gui_hooks.operation_did_execute(changes, meta)
         # fire legacy hook so old code notices changes
         if self.col.op_made_changes(changes):
             gui_hooks.state_did_reset()
@@ -865,9 +870,9 @@ class AnkiQt(QMainWindow):
         for field in op.DESCRIPTOR.fields:
             if field.name != "kind":
                 setattr(op, field.name, True)
-        gui_hooks.operation_did_execute(op)
+        gui_hooks.operation_did_execute(op, None)
 
-    def on_operation_did_execute(self, changes: OpChanges) -> None:
+    def on_operation_did_execute(self, changes: OpChanges, meta: OpMeta) -> None:
         "Notify current screen of changes."
         focused = current_top_level_widget() == self
         if self.state == "review":

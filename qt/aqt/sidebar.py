@@ -16,6 +16,7 @@ from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
 from aqt.models import Models
+from aqt.operations import OpMeta
 from aqt.operations.deck import (
     remove_decks,
     rename_deck,
@@ -419,7 +420,10 @@ class SidebarTreeView(QTreeView):
     # Refreshing
     ###########################
 
-    def op_executed(self, op: OpChanges, focused: bool) -> None:
+    def op_executed(self, op: OpChanges, meta: OpMeta, focused: bool) -> None:
+        if meta.handled_by is self:
+            return
+
         if op.tag or op.notetype or op.deck:
             self._refresh_needed = True
         if focused:
@@ -980,6 +984,7 @@ class SidebarTreeView(QTreeView):
                     deck_id=DeckId(node.deck_id),
                     collapsed=not expanded,
                     scope=DeckCollapseScope.BROWSER,
+                    handled_by=self,
                 )
 
             for node in nodes:
