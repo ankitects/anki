@@ -182,7 +182,7 @@ class Table:
 
     def op_executed(self, changes: OpChanges, meta: OpMeta, focused: bool) -> None:
         if changes.browser_table:
-            self._model.empty_cache()
+            self._model.mark_cache_stale()
         if focused:
             self.redraw_cells()
 
@@ -858,9 +858,9 @@ class DataModel(QAbstractTableModel):
         self._state: ItemState = state
         self._items: Sequence[ItemId] = []
         self._rows: Dict[int, CellRow] = {}
-        self._last_refresh = 0.0
         # serve stale content to avoid hitting the DB?
         self._block_updates = False
+        self._stale_cutoff = 0.0
 
     # Row Object Interface
     ######################################################################
@@ -873,7 +873,7 @@ class DataModel(QAbstractTableModel):
     def get_row(self, index: QModelIndex) -> CellRow:
         item = self.get_item(index)
         if row := self._rows.get(item):
-            if not self._block_updates and row.is_stale(self._last_refresh):
+            if not self._block_updates and row.is_stale(self._stale_cutoff):
                 # need to refresh
                 self._rows[item] = self._fetch_row_from_backend(item)
                 return self._rows[item]
@@ -901,8 +901,8 @@ class DataModel(QAbstractTableModel):
 
     # Reset
 
-    def empty_cache(self) -> None:
-        self._rows = {}
+    def mark_cache_stale(self) -> None:
+        self._stale_cutoff = time.time()
 
     def reset(self) -> None:
         self.begin_reset()
@@ -910,7 +910,7 @@ class DataModel(QAbstractTableModel):
 
     def begin_reset(self) -> None:
         self.beginResetModel()
-        self.empty_cache()
+        self.mark_cache_stale()
 
     def end_reset(self) -> None:
         self.endResetModel()
@@ -930,7 +930,6 @@ class DataModel(QAbstractTableModel):
             return
         top_left = self.index(0, 0)
         bottom_right = self.index(self.len_rows() - 1, self.len_columns() - 1)
-        self._last_refresh = time.time()
         self.dataChanged.emit(top_left, bottom_right)  # type: ignore
 
     # Item Interface
@@ -1014,6 +1013,7 @@ class DataModel(QAbstractTableModel):
                 context.ids = self._state.find_items(context.search, context.order)
             gui_hooks.browser_did_search(context)
             self._items = context.ids
+            self._rows = {}
         finally:
             self.end_reset()
 
