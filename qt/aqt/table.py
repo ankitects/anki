@@ -149,10 +149,11 @@ class Table:
     def select_single_card(self, card_id: CardId) -> None:
         """Try to set the selection to the item corresponding to the given card."""
         self.clear_selection()
-        try:
-            self._view.selectRow(self._model.get_card_row(card_id))
-        except ValueError:
-            pass
+        if self.is_notes_mode():
+            self._view.selectRow(0)
+        else:
+            if (row := self._model.get_card_row(card_id)) is not None:
+                self._view.selectRow(row)
 
     # Reset
 
