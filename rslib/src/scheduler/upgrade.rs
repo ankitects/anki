@@ -116,7 +116,6 @@ impl Collection {
             // nothing to do
             return Ok(());
         }
-
         self.storage.upgrade_revlog_to_v2()?;
         self.upgrade_cards_to_v2()?;
         self.set_scheduler_version_config_key(SchedulerVersion::V2)?;

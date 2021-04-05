@@ -829,7 +829,7 @@ impl Collection {
         self.merge_deck_config(remote.decks_and_config.config)?;
         self.merge_tags(remote.tags, latest_usn)?;
         if let Some(crt) = remote.creation_stamp {
-            self.storage.set_creation_stamp(crt)?;
+            self.set_creation_stamp(crt)?;
         }
         if let Some(config) = remote.config {
             self.storage

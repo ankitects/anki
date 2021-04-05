@@ -180,7 +180,7 @@ mod test {
         // move creation time back and it should succeed
         let mut stamp = col.storage.creation_stamp().unwrap();
         stamp.0 -= 86_400;
-        col.storage.set_creation_stamp(stamp).unwrap();
+        col.set_creation_stamp(stamp).unwrap();
         let timing = col.timing_today().unwrap();
         col.unbury_if_day_rolled_over(timing).unwrap();
         assert_count(&mut col, 0);
