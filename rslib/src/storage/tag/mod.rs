@@ -93,11 +93,10 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn set_tag_collapsed(&self, tag: &str, collapsed: bool) -> Result<()> {
+    pub(crate) fn update_tag(&self, tag: &Tag) -> Result<()> {
         self.db
-            .prepare_cached("update tags set collapsed = ? where tag = ?")?
-            .execute(params![collapsed, tag])?;
-
+            .prepare_cached(include_str!("update.sql"))?
+            .execute(params![&tag.name, tag.usn, !tag.expanded])?;
         Ok(())
     }
 

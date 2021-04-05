@@ -611,7 +611,7 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckId(1))?;
 
-        col.set_tag_expanded("one", true)?;
+        col.set_tag_collapsed("one", false)?;
 
         col.check_database(progress_fn)?;
 

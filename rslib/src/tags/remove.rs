@@ -108,7 +108,7 @@ mod test {
         note.tags.push("two".into());
         col.add_note(&mut note, DeckId(1))?;
 
-        col.set_tag_expanded("one", true)?;
+        col.set_tag_collapsed("one", false)?;
         col.clear_unused_tags()?;
         assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
         assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);

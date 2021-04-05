@@ -232,7 +232,7 @@ service TagsService {
   rpc ClearUnusedTags(Empty) returns (OpChangesWithCount);
   rpc AllTags(Empty) returns (StringList);
   rpc RemoveTags(String) returns (OpChangesWithCount);
-  rpc SetTagExpanded(SetTagExpandedIn) returns (Empty);
+  rpc SetTagCollapsed(SetTagCollapsedIn) returns (OpChanges);
   rpc TagTree(Empty) returns (TagTreeNode);
   rpc ReparentTags(ReparentTagsIn) returns (OpChangesWithCount);
   rpc RenameTags(RenameTagsIn) returns (OpChangesWithCount);
@@ -913,9 +913,9 @@ message AddOrUpdateDeckConfigLegacyIn {
   bool preserve_usn_and_mtime = 2;
 }
 
-message SetTagExpandedIn {
+message SetTagCollapsedIn {
   string name = 1;
-  bool expanded = 2;
+  bool collapsed = 2;
 }
 
 message SetDeckCollapsedIn {
@@ -937,7 +937,7 @@ message TagTreeNode {
   string name = 1;
   repeated TagTreeNode children = 2;
   uint32 level = 3;
-  bool expanded = 4;
+  bool collapsed = 4;
 }
 
 message ReparentTagsIn {

@@ -8,6 +8,7 @@ use crate::prelude::*;
 pub(crate) enum UndoableTagChange {
     Added(Box<Tag>),
     Removed(Box<Tag>),
+    Updated(Box<Tag>),
 }
 
 impl Collection {
@@ -15,8 +16,22 @@ impl Collection {
         match change {
             UndoableTagChange::Added(tag) => self.remove_single_tag_undoable(*tag),
             UndoableTagChange::Removed(tag) => self.register_tag_undoable(&tag),
+            UndoableTagChange::Updated(tag) => {
+                let current = self
+                    .storage
+                    .get_tag(&tag.name)?
+                    .ok_or_else(|| AnkiError::invalid_input("tag disappeared"))?;
+                self.update_tag_undoable(&tag, current)
+            }
         }
     }
+
+    /// Updates an existing tag, saving an undo entry. Caller must update usn.
+    pub(super) fn update_tag_undoable(&mut self, tag: &Tag, original: Tag) -> Result<()> {
+        self.save_undo(UndoableTagChange::Updated(Box::new(original)));
+        self.storage.update_tag(tag)
+    }
+
     /// Adds an already-validated tag to the tag list, saving an undo entry.
     /// Caller is responsible for setting usn.
     pub(super) fn register_tag_undoable(&mut self, tag: &Tag) -> Result<()> {

@@ -18,7 +18,7 @@ from typing import Collection, List, Match, Optional, Sequence
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 import anki.collection
-from anki.collection import OpChangesWithCount
+from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
 from anki.notes import NoteId
 from anki.utils import ids2str
@@ -63,9 +63,9 @@ class TagManager:
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
-    def set_expanded(self, tag: str, expanded: bool) -> None:
+    def set_collapsed(self, tag: str, collapsed: bool) -> OpChanges:
         "Set browser expansion state for tag, registering the tag if missing."
-        self.col._backend.set_tag_expanded(name=tag, expanded=expanded)
+        return self.col._backend.set_tag_collapsed(name=tag, collapsed=collapsed)
 
     # Bulk addition/removal from specific notes
     #############################################################

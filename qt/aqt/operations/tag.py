@@ -86,3 +86,7 @@ def reparent_tags(
             tr.browsing_notes_updated(count=out.count), parent=parent
         ),
     )
+
+
+def set_tag_collapsed(*, mw: AnkiQt, tag: str, collapsed: bool) -> None:
+    mw.perform_op(lambda: mw.col.tags.set_collapsed(tag=tag, collapsed=collapsed))
