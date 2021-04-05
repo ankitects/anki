@@ -207,6 +207,10 @@ pub(crate) fn human_deck_name_to_native(name: &str) -> String {
     out.trim_end_matches('\x1f').into()
 }
 
+pub(crate) fn native_deck_name_to_human(name: &str) -> String {
+    name.replace('\x1f', "::")
+}
+
 impl Collection {
     pub(crate) fn get_deck(&mut self, did: DeckId) -> Result<Option<Arc<Deck>>> {
         if let Some(deck) = self.state.deck_cache.get(&did) {
@@ -218,28 +222,6 @@ impl Collection {
             Ok(Some(deck))
         } else {
             Ok(None)
-        }
-    }
-}
-
-impl From<Deck> for DeckProto {
-    fn from(d: Deck) -> Self {
-        DeckProto {
-            id: d.id.0,
-            name: d.name,
-            mtime_secs: d.mtime_secs.0,
-            usn: d.usn.0,
-            common: Some(d.common),
-            kind: Some(d.kind.into()),
-        }
-    }
-}
-
-impl From<DeckKind> for pb::deck::Kind {
-    fn from(k: DeckKind) -> Self {
-        match k {
-            DeckKind::Normal(n) => pb::deck::Kind::Normal(n),
-            DeckKind::Filtered(f) => pb::deck::Kind::Filtered(f),
         }
     }
 }

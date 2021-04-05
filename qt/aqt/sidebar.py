@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
 from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
-from anki.decks import Deck, DeckId, DeckTreeNode
+from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
 from anki.models import NotetypeId
 from anki.notes import Note
 from anki.tags import TagTreeNode
@@ -16,7 +16,12 @@ from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
 from aqt.models import Models
-from aqt.operations.deck import remove_decks, rename_deck, reparent_decks
+from aqt.operations.deck import (
+    remove_decks,
+    rename_deck,
+    reparent_decks,
+    set_deck_collapsed,
+)
 from aqt.operations.tag import remove_tags_from_all_notes, rename_tag, reparent_tags
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
@@ -965,17 +970,20 @@ class SidebarTreeView(QTreeView):
         def render(
             root: SidebarItem, nodes: Iterable[DeckTreeNode], head: str = ""
         ) -> None:
+            def toggle_expand(node: DeckTreeNode) -> Callable[[bool], None]:
+                return lambda expanded: set_deck_collapsed(
+                    mw=self.mw,
+                    deck_id=DeckId(node.deck_id),
+                    collapsed=not expanded,
+                    scope=DeckCollapseScope.BROWSER,
+                )
+
             for node in nodes:
-
-                def toggle_expand() -> Callable[[bool], None]:
-                    did = DeckId(node.deck_id)  # pylint: disable=cell-var-from-loop
-                    return lambda _: self.mw.col.decks.collapseBrowser(did)
-
                 item = SidebarItem(
                     name=node.name,
                     icon=icon,
                     search_node=SearchNode(deck=head + node.name),
-                    on_expanded=toggle_expand(),
+                    on_expanded=toggle_expand(node),
                     expanded=not node.collapsed,
                     item_type=SidebarItemType.DECK,
                     id=node.deck_id,

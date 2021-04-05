@@ -332,8 +332,12 @@ class Collection:
         )
 
     def get_deck(self, id: DeckId) -> Deck:
-        "Get a new-style deck object. Currently read-only."
+        "Get a new-style deck object."
         return self._backend.get_deck(id)
+
+    def update_deck(self, deck: Deck) -> OpChanges:
+        "Save updates to an existing deck."
+        return self._backend.update_deck(deck)
 
     def get_deck_config(self, id: DeckConfigId) -> DeckConfig:
         "Get a new-style deck config object. Currently read-only."

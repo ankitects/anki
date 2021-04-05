@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Callable, Sequence
 
-from anki.decks import DeckId
+from anki.decks import DeckCollapseScope, DeckId
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
 from aqt.utils import getOnlyText, tooltip, tr
@@ -67,4 +67,14 @@ def add_deck(
     mw.perform_op(
         lambda: mw.col.decks.add_normal_deck_with_name(name),
         success=success,
+    )
+
+
+def set_deck_collapsed(
+    *, mw: AnkiQt, deck_id: DeckId, collapsed: bool, scope: DeckCollapseScope.V
+) -> None:
+    mw.perform_op(
+        lambda: mw.col.decks.set_collapsed(
+            deck_id=deck_id, collapsed=collapsed, scope=scope
+        )
     )

@@ -12,6 +12,7 @@ pub enum Op {
     Bury,
     ClearUnusedTags,
     EmptyFilteredDeck,
+    ExpandCollapse,
     FindAndReplace,
     RebuildFilteredDeck,
     RemoveDeck,
@@ -66,6 +67,7 @@ impl Op {
             Op::BuildFilteredDeck => tr.undo_build_filtered_deck(),
             Op::RebuildFilteredDeck => tr.undo_build_filtered_deck(),
             Op::EmptyFilteredDeck => tr.studying_empty(),
+            Op::ExpandCollapse => tr.undo_expand_collapse(),
         }
         .into()
     }

@@ -21,6 +21,7 @@ from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_b
 DeckTreeNode = _pb.DeckTreeNode
 DeckNameId = _pb.DeckNameId
 FilteredDeckConfig = _pb.Deck.Filtered
+DeckCollapseScope = _pb.SetDeckCollapsedIn.Scope
 
 # legacy code may pass this in as the type argument to .id()
 defaultDeck = 0
@@ -223,6 +224,13 @@ class DeckManager:
                 skip_empty_default=not force_default, include_filtered=dyn
             )
         ]
+
+    def set_collapsed(
+        self, deck_id: DeckId, collapsed: bool, scope: DeckCollapseScope.V
+    ) -> OpChanges:
+        return self.col._backend.set_deck_collapsed(
+            deck_id=deck_id, collapsed=collapsed, scope=scope
+        )
 
     def collapse(self, did: DeckId) -> None:
         deck = self.get(did)

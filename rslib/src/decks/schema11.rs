@@ -3,8 +3,8 @@
 
 use super::DeckId;
 use super::{
-    human_deck_name_to_native, Deck, DeckCommon, DeckKind, FilteredDeck, FilteredSearchTerm,
-    NormalDeck,
+    human_deck_name_to_native, native_deck_name_to_human, Deck, DeckCommon, DeckKind, FilteredDeck,
+    FilteredSearchTerm, NormalDeck,
 };
 use crate::{
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
@@ -363,7 +363,7 @@ impl From<Deck> for DeckCommonSchema11 {
         DeckCommonSchema11 {
             id: deck.id,
             mtime: deck.mtime_secs,
-            name: deck.name.replace("\x1f", "::"),
+            name: native_deck_name_to_human(&deck.name),
             usn: deck.usn,
             today: (&deck).into(),
             study_collapsed: deck.common.study_collapsed,
