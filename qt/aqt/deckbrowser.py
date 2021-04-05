@@ -9,7 +9,7 @@ from typing import Any
 
 import aqt
 from anki.collection import OpChanges
-from anki.decks import Deck, DeckId, DeckTreeNode
+from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.operations.deck import (
@@ -17,6 +17,7 @@ from aqt.operations.deck import (
     remove_decks,
     rename_deck,
     reparent_decks,
+    set_deck_collapsed,
 )
 from aqt.qt import *
 from aqt.sound import av_player
@@ -286,11 +287,16 @@ class DeckBrowser:
         self.mw.onDeckConf()
 
     def _collapse(self, did: DeckId) -> None:
-        self.mw.col.decks.collapse(did)
         node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
         if node:
             node.collapsed = not node.collapsed
-        self._renderPage(reuse=True)
+            set_deck_collapsed(
+                mw=self.mw,
+                deck_id=did,
+                collapsed=node.collapsed,
+                scope=DeckCollapseScope.REVIEWER,
+            )
+            self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:
         reparent_decks(mw=self.mw, parent=self.mw, deck_ids=[source], new_parent=target)

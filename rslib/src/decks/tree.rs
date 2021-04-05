@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{Deck, DeckKind, DueCounts};
+pub use crate::backend_proto::set_deck_collapsed_in::Scope as DeckCollapseScope;
 use crate::{
     backend_proto::DeckTreeNode,
     collection::Collection,
@@ -9,7 +10,9 @@ use crate::{
     deckconf::{DeckConf, DeckConfId},
     decks::DeckId,
     error::Result,
+    ops::OpOutput,
     timestamp::TimestampSecs,
+    undo::Op,
 };
 use serde_tuple::Serialize_tuple;
 use std::{
@@ -310,6 +313,26 @@ impl Collection {
         let target = self.get_current_deck_id();
         let tree = self.deck_tree(Some(TimestampSecs::now()), Some(target))?;
         Ok(get_subnode(tree, target))
+    }
+
+    pub fn set_deck_collapsed(
+        &mut self,
+        did: DeckId,
+        collapsed: bool,
+        scope: DeckCollapseScope,
+    ) -> Result<OpOutput<()>> {
+        self.transact(Op::ExpandCollapse, |col| {
+            if let Some(mut deck) = col.storage.get_deck(did)? {
+                let original = deck.clone();
+                let c = &mut deck.common;
+                match scope {
+                    DeckCollapseScope::Reviewer => c.study_collapsed = collapsed,
+                    DeckCollapseScope::Browser => c.browser_collapsed = collapsed,
+                };
+                col.update_deck_inner(&mut deck, original, col.usn()?)?;
+            }
+            Ok(())
+        })
     }
 
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {

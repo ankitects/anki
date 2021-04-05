@@ -143,6 +143,8 @@ service DecksService {
   rpc GetAllDecksLegacy(Empty) returns (Json);
   rpc GetDeckIdByName(String) returns (DeckId);
   rpc GetDeck(DeckId) returns (Deck);
+  rpc UpdateDeck(Deck) returns (OpChanges);
+  rpc SetDeckCollapsed(SetDeckCollapsedIn) returns (OpChanges);
   rpc GetDeckLegacy(DeckId) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);
   rpc NewDeckLegacy(Bool) returns (Json);
@@ -914,6 +916,17 @@ message AddOrUpdateDeckConfigLegacyIn {
 message SetTagExpandedIn {
   string name = 1;
   bool expanded = 2;
+}
+
+message SetDeckCollapsedIn {
+  enum Scope {
+    REVIEWER = 0;
+    BROWSER = 1;
+  }
+
+  int64 deck_id = 1;
+  bool collapsed = 2;
+  Scope scope = 3;
 }
 
 message GetChangedTagsOut {

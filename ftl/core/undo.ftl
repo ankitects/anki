@@ -23,3 +23,4 @@ undo-update-deck = Update Deck
 undo-forget-card = Forget Card
 undo-set-flag = Set Flag
 undo-build-filtered-deck = Build Deck
+undo-expand-collapse = Expand/Collapse

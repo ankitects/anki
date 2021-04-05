@@ -36,6 +36,9 @@ from . import backend_pb2 as pb
 from . import rsbridge
 from .fluent import GeneratedTranslations, LegacyTranslationEnum
 
+# the following comment is required to suppress a warning that only shows up
+# when there are other pylint failures
+# pylint: disable=c-extension-no-member
 assert rsbridge.buildhash() == anki.buildinfo.buildhash
 
 

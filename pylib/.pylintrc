@@ -10,7 +10,8 @@ ignored-classes=
   UnburyCardsInCurrentDeckIn,
   BuryOrSuspendCardsIn,
   NoteIsDuplicateOrEmptyOut,
-  BackendError
+  BackendError,
+  SetDeckCollapsedIn,
 
 [REPORTS]
 output-format=colorized

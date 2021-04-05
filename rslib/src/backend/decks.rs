@@ -1,10 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::convert::TryFrom;
+
 use super::Backend;
 use crate::{
     backend_proto::{self as pb},
-    decks::{Deck, DeckId, DeckSchema11, FilteredSearchOrder},
+    decks::{
+        human_deck_name_to_native, native_deck_name_to_human, Deck, DeckId, DeckSchema11,
+        FilteredSearchOrder,
+    },
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };
@@ -89,6 +94,13 @@ impl DecksService for Backend {
         })
     }
 
+    fn update_deck(&self, input: pb::Deck) -> Result<pb::OpChanges> {
+        self.with_col(|col| {
+            let mut deck = Deck::try_from(input)?;
+            col.update_deck(&mut deck).map(Into::into)
+        })
+    }
+
     fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
         self.with_col(|col| {
             let deck: DeckSchema11 = col
@@ -168,6 +180,13 @@ impl DecksService for Backend {
     fn filtered_deck_order_labels(&self, _input: pb::Empty) -> Result<pb::StringList> {
         Ok(FilteredSearchOrder::labels(&self.tr).into())
     }
+
+    fn set_deck_collapsed(&self, input: pb::SetDeckCollapsedIn) -> Result<pb::OpChanges> {
+        self.with_col(|col| {
+            col.set_deck_collapsed(input.deck_id.into(), input.collapsed, input.scope())
+        })
+        .map(Into::into)
+    }
 }
 
 impl From<pb::DeckId> for DeckId {
@@ -208,8 +227,54 @@ impl From<pb::FilteredDeckForUpdate> for FilteredDeckForUpdate {
     }
 }
 
-// before we can switch to returning protobuf, we need to make sure we're converting the
-// deck separators
+impl From<Deck> for pb::Deck {
+    fn from(d: Deck) -> Self {
+        pb::Deck {
+            id: d.id.0,
+            name: native_deck_name_to_human(&d.name),
+            mtime_secs: d.mtime_secs.0,
+            usn: d.usn.0,
+            common: Some(d.common),
+            kind: Some(d.kind.into()),
+        }
+    }
+}
+
+impl TryFrom<pb::Deck> for Deck {
+    type Error = AnkiError;
+
+    fn try_from(d: pb::Deck) -> Result<Self, Self::Error> {
+        Ok(Deck {
+            id: DeckId(d.id),
+            name: human_deck_name_to_native(&d.name),
+            mtime_secs: TimestampSecs(d.mtime_secs),
+            usn: Usn(d.usn),
+            common: d.common.unwrap_or_default(),
+            kind: d
+                .kind
+                .ok_or_else(|| AnkiError::invalid_input("missing kind"))?
+                .into(),
+        })
+    }
+}
+
+impl From<DeckKind> for pb::deck::Kind {
+    fn from(k: DeckKind) -> Self {
+        match k {
+            DeckKind::Normal(n) => pb::deck::Kind::Normal(n),
+            DeckKind::Filtered(f) => pb::deck::Kind::Filtered(f),
+        }
+    }
+}
+
+impl From<pb::deck::Kind> for DeckKind {
+    fn from(kind: pb::deck::Kind) -> Self {
+        match kind {
+            pb::deck::Kind::Normal(normal) => DeckKind::Normal(normal),
+            pb::deck::Kind::Filtered(filtered) => DeckKind::Filtered(filtered),
+        }
+    }
+}
 
 // fn new_deck(&self, input: pb::Bool) -> Result<pb::Deck> {
 //     let deck = if input.val {
@@ -218,29 +283,4 @@ impl From<pb::FilteredDeckForUpdate> for FilteredDeckForUpdate {
 //         Deck::new_normal()
 //     };
 //     Ok(deck.into())
-// }
-
-// impl From<pb::Deck> for Deck {
-//     fn from(deck: pb::Deck) -> Self {
-//         Self {
-//             id: deck.id.into(),
-//             name: deck.name,
-//             mtime_secs: deck.mtime_secs.into(),
-//             usn: deck.usn.into(),
-//             common: deck.common.unwrap_or_default(),
-//             kind: deck
-//                 .kind
-//                 .map(Into::into)
-//                 .unwrap_or_else(|| DeckKind::Normal(NormalDeck::default())),
-//         }
-//     }
-// }
-
-// impl From<pb::deck::Kind> for DeckKind {
-//     fn from(kind: pb::deck::Kind) -> Self {
-//         match kind {
-//             pb::deck::Kind::Normal(normal) => DeckKind::Normal(normal),
-//             pb::deck::Kind::Filtered(filtered) => DeckKind::Filtered(filtered),
-//         }
-//     }
 // }
