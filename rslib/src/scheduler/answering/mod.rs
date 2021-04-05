@@ -93,7 +93,7 @@ impl CardStateUpdater {
     }
 
     fn secs_until_rollover(&self) -> u32 {
-        (self.timing.next_day_at - self.now.0).max(0) as u32
+        self.timing.next_day_at.elapsed_secs_since(self.now) as u32
     }
 
     fn into_card(self) -> Card {
@@ -197,7 +197,7 @@ impl Collection {
         let collapse_time = self.learn_ahead_secs();
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
-        let secs_until_rollover = (timing.next_day_at - now.0).max(0) as u32;
+        let secs_until_rollover = timing.next_day_at.elapsed_secs_since(now).max(0) as u32;
 
         Ok(vec![
             answer_button_time_collapsible(

@@ -210,8 +210,8 @@ impl SqlWriter<'_> {
 
     fn write_rated(&mut self, op: &str, days: i64, ease: &RatingKind) -> Result<()> {
         let today_cutoff = self.col.timing_today()?.next_day_at;
-        let target_cutoff_ms = (today_cutoff + 86_400 * days) * 1_000;
-        let day_before_cutoff_ms = (today_cutoff + 86_400 * (days - 1)) * 1_000;
+        let target_cutoff_ms = today_cutoff.adding_secs(86_400 * days).as_millis();
+        let day_before_cutoff_ms = today_cutoff.adding_secs(86_400 * (days - 1)).as_millis();
 
         write!(self.sql, "c.id in (select cid from revlog where id").unwrap();
 
@@ -224,13 +224,13 @@ impl SqlWriter<'_> {
                 self.sql,
                 " between {} and {}",
                 day_before_cutoff_ms,
-                target_cutoff_ms - 1
+                target_cutoff_ms.0 - 1
             ),
             "!=" => write!(
                 self.sql,
                 " not between {} and {}",
                 day_before_cutoff_ms,
-                target_cutoff_ms - 1
+                target_cutoff_ms.0 - 1
             ),
             _ => unreachable!("unexpected op"),
         }
@@ -479,14 +479,14 @@ impl SqlWriter<'_> {
 
     fn write_added(&mut self, days: u32) -> Result<()> {
         let timing = self.col.timing_today()?;
-        let cutoff = (timing.next_day_at - (86_400 * (days as i64))) * 1_000;
+        let cutoff = (timing.next_day_at.0 - (86_400 * (days as i64))) * 1_000;
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
     }
 
     fn write_edited(&mut self, days: u32) -> Result<()> {
         let timing = self.col.timing_today()?;
-        let cutoff = timing.next_day_at - (86_400 * (days as i64));
+        let cutoff = timing.next_day_at.0 - (86_400 * (days as i64));
         write!(self.sql, "n.mod > {}", cutoff).unwrap();
         Ok(())
     }
@@ -646,7 +646,7 @@ mod test {
         let timing = ctx.timing_today().unwrap();
         assert_eq!(
             s(ctx, "added:3").0,
-            format!("(c.id > {})", (timing.next_day_at - (86_400 * 3)) * 1_000)
+            format!("(c.id > {})", (timing.next_day_at.0 - (86_400 * 3)) * 1_000)
         );
         assert_eq!(s(ctx, "added:0").0, s(ctx, "added:1").0,);
 
@@ -730,14 +730,14 @@ mod test {
             s(ctx, "rated:2").0,
             format!(
                 "(c.id in (select cid from revlog where id >= {} and ease > 0))",
-                (timing.next_day_at - (86_400 * 2)) * 1_000
+                (timing.next_day_at.0 - (86_400 * 2)) * 1_000
             )
         );
         assert_eq!(
             s(ctx, "rated:400:1").0,
             format!(
                 "(c.id in (select cid from revlog where id >= {} and ease = 1))",
-                (timing.next_day_at - (86_400 * 400)) * 1_000
+                (timing.next_day_at.0 - (86_400 * 400)) * 1_000
             )
         );
         assert_eq!(s(ctx, "rated:0").0, s(ctx, "rated:1").0);
@@ -747,7 +747,7 @@ mod test {
             s(ctx, "resched:400").0,
             format!(
                 "(c.id in (select cid from revlog where id >= {} and ease = 0))",
-                (timing.next_day_at - (86_400 * 400)) * 1_000
+                (timing.next_day_at.0 - (86_400 * 400)) * 1_000
             )
         );
 

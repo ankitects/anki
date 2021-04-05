@@ -19,8 +19,16 @@ impl TimestampSecs {
         Self(0)
     }
 
+    pub fn elapsed_secs_since(self, other: TimestampSecs) -> i64 {
+        self.0 - other.0
+    }
+
     pub fn elapsed_secs(self) -> u64 {
         (Self::now().0 - self.0).max(0) as u64
+    }
+
+    pub fn as_millis(self) -> TimestampMillis {
+        TimestampMillis(self.0 * 1000)
     }
 
     /// YYYY-mm-dd

@@ -169,7 +169,7 @@ impl super::SqliteStorage {
     pub(crate) fn for_each_due_card_in_deck<F>(
         &self,
         day_cutoff: u32,
-        learn_cutoff: i64,
+        learn_cutoff: TimestampSecs,
         deck: DeckId,
         mut func: F,
     ) -> Result<()>

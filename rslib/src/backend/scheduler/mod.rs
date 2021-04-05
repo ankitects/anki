@@ -180,7 +180,7 @@ impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayOu
     fn from(t: crate::scheduler::timing::SchedTimingToday) -> pb::SchedTimingTodayOut {
         pb::SchedTimingTodayOut {
             days_elapsed: t.days_elapsed,
-            next_day_at: t.next_day_at,
+            next_day_at: t.next_day_at.0,
         }
     }
 }

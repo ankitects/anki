@@ -66,7 +66,7 @@ impl CardQueues {
         timing: SchedTimingToday,
     ) -> Option<LearningQueueEntry> {
         // not due today?
-        if !card.is_intraday_learning() || card.due >= timing.next_day_at as i32 {
+        if !card.is_intraday_learning() || card.due >= timing.next_day_at.0 as i32 {
             return None;
         }
 
