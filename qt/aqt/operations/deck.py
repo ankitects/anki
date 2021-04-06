@@ -8,7 +8,6 @@ from typing import Callable, Optional, Sequence
 from anki.decks import DeckCollapseScope, DeckId
 from aqt import AnkiQt, QWidget
 from aqt.main import PerformOpOptionalSuccessCallback
-from aqt.operations import OpMeta
 from aqt.utils import getOnlyText, tooltip, tr
 
 
@@ -83,5 +82,5 @@ def set_deck_collapsed(
         lambda: mw.col.decks.set_collapsed(
             deck_id=deck_id, collapsed=collapsed, scope=scope
         ),
-        meta=OpMeta(handler=handler),
+        handler=handler,
     )

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Sequence
+from typing import Callable, Optional, Sequence
 
 from anki.collection import OpChangesWithCount
 from anki.notes import NoteId
@@ -18,9 +18,12 @@ def add_tags_to_notes(
     note_ids: Sequence[NoteId],
     space_separated_tags: str,
     success: PerformOpOptionalSuccessCallback = None,
+    handler: Optional[object] = None,
 ) -> None:
     mw.perform_op(
-        lambda: mw.col.tags.bulk_add(note_ids, space_separated_tags), success=success
+        lambda: mw.col.tags.bulk_add(note_ids, space_separated_tags),
+        success=success,
+        handler=handler,
     )
 
 
@@ -30,9 +33,12 @@ def remove_tags_from_notes(
     note_ids: Sequence[NoteId],
     space_separated_tags: str,
     success: PerformOpOptionalSuccessCallback = None,
+    handler: Optional[object] = None,
 ) -> None:
     mw.perform_op(
-        lambda: mw.col.tags.bulk_remove(note_ids, space_separated_tags), success=success
+        lambda: mw.col.tags.bulk_remove(note_ids, space_separated_tags),
+        success=success,
+        handler=handler,
     )
 
 

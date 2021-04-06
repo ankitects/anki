@@ -459,7 +459,7 @@ hooks = [
     ),
     Hook(
         name="operation_did_execute",
-        args=["changes: anki.collection.OpChanges", "meta: aqt.operations.OpMeta"],
+        args=["changes: anki.collection.OpChanges", "handler: Optional[object]"],
         doc="""Called after an operation completes.
         Changes can be inspected to determine whether the UI needs updating.
         

@@ -16,7 +16,6 @@ from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
 from aqt.models import Models
-from aqt.operations import OpMeta
 from aqt.operations.deck import (
     remove_decks,
     rename_deck,
@@ -420,8 +419,10 @@ class SidebarTreeView(QTreeView):
     # Refreshing
     ###########################
 
-    def op_executed(self, changes: OpChanges, meta: OpMeta, focused: bool) -> None:
-        if changes.browser_sidebar and not meta.handler is self:
+    def op_executed(
+        self, changes: OpChanges, handler: Optional[object], focused: bool
+    ) -> None:
+        if changes.browser_sidebar and not handler is self:
             self._refresh_needed = True
         if focused:
             self.refresh_if_needed()

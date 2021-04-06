@@ -100,7 +100,7 @@ class Editor:
     redrawing.
 
     The editor will cause that hook to be fired when it saves changes. To avoid
-    an unwanted refresh, the parent widget should check if meta.handler
+    an unwanted refresh, the parent widget should check if handler
     corresponds to this editor instance, and ignore the change if it does.
     """
 

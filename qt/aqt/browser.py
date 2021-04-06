@@ -24,7 +24,6 @@ from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.find_and_replace import FindAndReplaceDialog
 from aqt.main import ResetReason
-from aqt.operations import OpMeta
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import undo
 from aqt.operations.note import remove_notes
@@ -128,12 +127,14 @@ class Browser(QMainWindow):
         gui_hooks.browser_will_show(self)
         self.show()
 
-    def on_operation_did_execute(self, changes: OpChanges, meta: OpMeta) -> None:
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: Optional[object]
+    ) -> None:
         focused = current_top_level_widget() == self
-        self.table.op_executed(changes, meta, focused)
-        self.sidebar.op_executed(changes, meta, focused)
+        self.table.op_executed(changes, handler, focused)
+        self.sidebar.op_executed(changes, handler, focused)
         if changes.note or changes.notetype:
-            if meta.handler is not self.editor:
+            if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
                 note = self.editor.note
