@@ -551,7 +551,7 @@ class ItemState(ABC):
         try:
             return self._columns[key]
         except KeyError:
-            self._columns[key] = Column()
+            self._columns[key] = Column(key)
             return self._columns[key]
 
     # Columns and sorting
@@ -771,7 +771,7 @@ class NoteState(ItemState):
 
 @dataclass
 class Column:
-    key: str = None
+    key: str
     label: str = field(default_factory=tr.browsing_addon)
     is_sortable: bool = False
     sorts_reversed: bool = False
