@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use pb::op_changes::Kind;
-
 use crate::{
     backend_proto as pb,
     ops::OpChanges,
@@ -10,21 +8,9 @@ use crate::{
     undo::{UndoOutput, UndoStatus},
 };
 
-impl From<Op> for Kind {
-    fn from(o: Op) -> Self {
-        match o {
-            Op::SetFlag => Kind::SetCardFlag,
-            Op::UpdateTag => Kind::UpdateNoteTags,
-            Op::UpdateNote => Kind::UpdateNote,
-            _ => Kind::Other,
-        }
-    }
-}
-
 impl From<OpChanges> for pb::OpChanges {
     fn from(c: OpChanges) -> Self {
         pb::OpChanges {
-            kind: Kind::from(c.op) as i32,
             card: c.changes.card,
             note: c.changes.note,
             deck: c.changes.deck,

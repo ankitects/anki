@@ -14,7 +14,7 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card, CardId
-from anki.collection import Config, OpChanges
+from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
@@ -38,7 +38,6 @@ from aqt.webview import AnkiWebView
 
 
 class RefreshNeeded(Enum):
-    NO = auto()
     NOTE_TEXT = auto()
     QUEUES = auto()
 
@@ -71,7 +70,7 @@ class Reviewer:
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
-        self._refresh_needed = RefreshNeeded.NO
+        self._refresh_needed: Optional[RefreshNeeded] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
@@ -102,29 +101,25 @@ class Reviewer:
             self.mw.col.reset()
             self.nextCard()
             self.mw.fade_in_webview()
-            self._refresh_needed = RefreshNeeded.NO
+            self._refresh_needed = None
         elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
             self._redraw_current_card()
             self.mw.fade_in_webview()
-            self._refresh_needed = RefreshNeeded.NO
+            self._refresh_needed = None
 
-    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
-        if changes.note and changes.kind == OpChanges.UPDATE_NOTE_TAGS:
-            self.card.load()
-            self._update_mark_icon()
-        elif changes.card and changes.kind == OpChanges.SET_CARD_FLAG:
-            # fixme: v3 mtime check
-            self.card.load()
-            self._update_flag_icon()
-        elif self.mw.col.op_affects_study_queue(changes):
-            self._refresh_needed = RefreshNeeded.QUEUES
-        elif changes.note or changes.notetype or changes.tag:
-            self._refresh_needed = RefreshNeeded.NOTE_TEXT
+    def op_executed(
+        self, changes: OpChanges, handler: Optional[object], focused: bool
+    ) -> bool:
+        if handler is not self:
+            if changes.study_queues:
+                self._refresh_needed = RefreshNeeded.QUEUES
+            elif changes.editor:
+                self._refresh_needed = RefreshNeeded.NOTE_TEXT
 
-        if focused and self._refresh_needed is not RefreshNeeded.NO:
+        if focused and self._refresh_needed:
             self.refresh_if_needed()
 
-        return self._refresh_needed is not RefreshNeeded.NO
+        return bool(self._refresh_needed)
 
     def _redraw_current_card(self) -> None:
         self.card.load()
@@ -830,23 +825,45 @@ time = %(time)d;
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.current_deck_id()))
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
+        def redraw_flag(out: OpChanges) -> None:
+            self.card.load()
+            self._update_flag_icon()
+
         # need to toggle off?
         if self.card.user_flag() == desired_flag:
             flag = 0
         else:
             flag = desired_flag
 
-        set_card_flag(mw=self.mw, card_ids=[self.card.id], flag=flag)
+        set_card_flag(
+            mw=self.mw,
+            card_ids=[self.card.id],
+            flag=flag,
+            handler=self,
+            success=redraw_flag,
+        )
 
     def toggle_mark_on_current_note(self) -> None:
+        def redraw_mark(out: OpChangesWithCount) -> None:
+            self.card.load()
+            self._update_mark_icon()
+
         note = self.card.note()
         if note.has_tag(MARKED_TAG):
             remove_tags_from_notes(
-                mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
+                mw=self.mw,
+                note_ids=[note.id],
+                space_separated_tags=MARKED_TAG,
+                handler=self,
+                success=redraw_mark,
             )
         else:
             add_tags_to_notes(
-                mw=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
+                mw=self.mw,
+                note_ids=[note.id],
+                space_separated_tags=MARKED_TAG,
+                handler=self,
+                success=redraw_mark,
             )
 
     def on_set_due(self) -> None:

@@ -9,7 +9,6 @@ from anki.decks import DeckId
 from anki.notes import Note, NoteId
 from aqt import AnkiQt
 from aqt.main import PerformOpOptionalSuccessCallback
-from aqt.operations import OpMeta
 
 
 def add_note(
@@ -25,7 +24,7 @@ def add_note(
 def update_note(*, mw: AnkiQt, note: Note, handler: Optional[object]) -> None:
     mw.perform_op(
         lambda: mw.col.update_note(note),
-        meta=OpMeta(handler=handler),
+        handler=handler,
     )
 
 

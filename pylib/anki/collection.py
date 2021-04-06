@@ -879,11 +879,6 @@ table.review-log {{ {revlog_style} }}
             assert_exhaustive(self._undo)
             assert False
 
-    def op_affects_study_queue(self, changes: OpChanges) -> bool:
-        if changes.kind == changes.SET_CARD_FLAG:
-            return False
-        return changes.card or changes.deck or changes.preference
-
     def op_made_changes(self, changes: OpChanges) -> bool:
         for field in changes.DESCRIPTOR.fields:
             if field.name != "kind":

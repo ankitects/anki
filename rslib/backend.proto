@@ -1498,26 +1498,17 @@ message GetQueuedCardsOut {
 }
 
 message OpChanges {
-  // this is not an exhaustive list; we can add more cases as we need them
-  enum Kind {
-    OTHER = 0;
-    UPDATE_NOTE_TAGS = 1;
-    SET_CARD_FLAG = 2;
-    UPDATE_NOTE = 3;
-  }
+  bool card = 1;
+  bool note = 2;
+  bool deck = 3;
+  bool tag = 4;
+  bool notetype = 5;
+  bool preference = 6;
 
-  Kind kind = 1;
-  bool card = 2;
-  bool note = 3;
-  bool deck = 4;
-  bool tag = 5;
-  bool notetype = 6;
-  bool preference = 7;
-
-  bool browser_table = 8;
-  bool browser_sidebar = 9;
-  bool editor = 10;
-  bool study_queues = 11;
+  bool browser_table = 7;
+  bool browser_sidebar = 8;
+  bool editor = 9;
+  bool study_queues = 10;
 }
 
 message UndoStatus {

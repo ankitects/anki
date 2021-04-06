@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 import aqt
 from anki.collection import OpChanges
@@ -76,8 +76,10 @@ class DeckBrowser:
         if self._refresh_needed:
             self.refresh()
 
-    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
-        if self.mw.col.op_affects_study_queue(changes):
+    def op_executed(
+        self, changes: OpChanges, handler: Optional[object], focused: bool
+    ) -> bool:
+        if changes.study_queues:
             self._refresh_needed = True
 
         if focused:
