@@ -89,6 +89,14 @@ impl SearchService for Backend {
         })
     }
 
+    fn all_browser_card_columns(&self, _input: pb::Empty) -> Result<pb::BrowserColumns> {
+        self.with_col(|col| Ok(col.all_browser_card_columns()))
+    }
+
+    fn all_browser_note_columns(&self, _input: pb::Empty) -> Result<pb::BrowserColumns> {
+        self.with_col(|col| Ok(col.all_browser_note_columns()))
+    }
+
     fn browser_row_for_id(&self, input: pb::Int64) -> Result<pb::BrowserRow> {
         self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
     }
