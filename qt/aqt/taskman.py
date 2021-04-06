@@ -4,7 +4,7 @@
 """
 Helper for running tasks on background threads.
 
-See mw.query_op() and mw.perform_op() for slightly higher-level routines.
+See mw.query_op() and CollectionOp() for higher-level routines.
 """
 
 from __future__ import annotations
