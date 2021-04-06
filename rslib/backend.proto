@@ -154,6 +154,8 @@ service DecksService {
   rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
   rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithId);
   rpc FilteredDeckOrderLabels(Empty) returns (StringList);
+  rpc SetCurrentDeck(DeckId) returns (OpChanges);
+  rpc GetCurrentDeck(Empty) returns (Deck);
 }
 
 service NotesService {
@@ -1504,7 +1506,7 @@ message OpChanges {
   bool deck = 3;
   bool tag = 4;
   bool notetype = 5;
-  bool preference = 6;
+  bool config = 6;
 
   bool browser_table = 7;
   bool browser_sidebar = 8;

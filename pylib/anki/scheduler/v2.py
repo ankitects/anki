@@ -48,7 +48,16 @@ class Scheduler(SchedulerBaseWithLegacy):
         self.reps = 0
         self._haveQueues = False
         self._lrnCutoff = 0
-        self._updateCutoff()
+        self._active_decks: List[DeckId] = []
+        self._current_deck_id = DeckId(1)
+
+    @property
+    def active_decks(self) -> List[DeckId]:
+        "Caller must make sure to make a copy."
+        return self._active_decks
+
+    def _update_active_decks(self) -> None:
+        self._active_decks = self.col.decks.deck_and_child_ids(self._current_deck_id)
 
     # Daily cutoff
     ##########################################################################
@@ -65,8 +74,8 @@ class Scheduler(SchedulerBaseWithLegacy):
     ##########################################################################
 
     def reset(self) -> None:
-        self.col.decks.update_active()
-        self._updateCutoff()
+        self._current_deck_id = self.col.decks.selected()
+        self._update_active_decks()
         self._reset_counts()
         self._resetLrn()
         self._resetRev()
@@ -74,10 +83,8 @@ class Scheduler(SchedulerBaseWithLegacy):
         self._haveQueues = True
 
     def _reset_counts(self) -> None:
-        tree = self.deck_due_tree(self.col.decks.selected())
-        node = self.col.decks.find_deck_in_tree(
-            tree, DeckId(int(self.col.conf["curDeck"]))
-        )
+        tree = self.deck_due_tree(self._current_deck_id)
+        node = self.col.decks.find_deck_in_tree(tree, self._current_deck_id)
         if not node:
             # current deck points to a missing deck
             self.newCount = 0

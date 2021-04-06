@@ -22,7 +22,7 @@ impl Collection {
             .unwrap_or_else(|| default.to_string())
     }
 
-    pub(crate) fn set_string(&mut self, key: StringKey, val: &str) -> Result<()> {
+    pub(crate) fn set_string(&mut self, key: StringKey, val: &str) -> Result<bool> {
         self.set_config(key, &val)
     }
 }

@@ -85,8 +85,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # fixme: only used by totalRevForCurrentDeck and old deck stats;
     # schedv2 defines separate version
     def _deckLimit(self) -> str:
-        self.col.decks.update_active()
-        return ids2str(self.col.decks.active())
+        return ids2str(
+            self.col.decks.deck_and_child_ids(self.col.decks.get_current_id())
+        )
 
     # Filtered deck handling
     ##########################################################################
