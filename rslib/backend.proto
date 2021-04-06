@@ -248,6 +248,8 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
+  rpc AllBrowserCardColumns(Empty) returns (BrowserColumns);
+  rpc AllBrowserNoteColumns(Empty) returns (BrowserColumns);
   rpc BrowserRowForId(Int64) returns (BrowserRow);
   rpc SetDesktopBrowserCardColumns(StringList) returns (Empty);
   rpc SetDesktopBrowserNoteColumns(StringList) returns (Empty);
@@ -1050,6 +1052,19 @@ message FindAndReplaceIn {
   bool regex = 4;
   bool match_case = 5;
   string field_name = 6;
+}
+
+message BrowserColumns {
+  repeated BrowserColumn columns = 1;
+}
+
+message BrowserColumn {
+  string key = 1;
+  string label = 2;
+  bool is_sortable = 3;
+  bool sorts_reversed = 4;
+  bool uses_cell_font = 5;
+  bool aligns_centered = 6;
 }
 
 message BrowserRow {
