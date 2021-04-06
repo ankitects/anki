@@ -119,12 +119,14 @@ class Overview:
         return self.mw.col.decks.current()["dyn"]
 
     def rebuild_current_filtered_deck(self) -> None:
-        if self._current_deck_is_filtered():
-            rebuild_filtered_deck(mw=self.mw, deck_id=self.mw.col.decks.selected())
+        rebuild_filtered_deck(
+            parent=self.mw, deck_id=self.mw.col.decks.selected()
+        ).run_in_background()
 
     def empty_current_filtered_deck(self) -> None:
-        if self._current_deck_is_filtered():
-            empty_filtered_deck(mw=self.mw, deck_id=self.mw.col.decks.selected())
+        empty_filtered_deck(
+            parent=self.mw, deck_id=self.mw.col.decks.selected()
+        ).run_in_background()
 
     def onCustomStudyKey(self) -> None:
         if not self._current_deck_is_filtered():

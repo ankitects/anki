@@ -732,9 +732,9 @@ where id in %s"""
     def suspend_selected_cards(self, checked: bool) -> None:
         cids = self.selected_cards()
         if checked:
-            suspend_cards(mw=self.mw, card_ids=cids)
+            suspend_cards(parent=self, card_ids=cids).run_in_background()
         else:
-            unsuspend_cards(mw=self.mw, card_ids=cids)
+            unsuspend_cards(parent=self.mw, card_ids=cids).run_in_background()
 
     # Exporting
     ######################################################################
@@ -796,25 +796,23 @@ where id in %s"""
             return
 
         reposition_new_cards_dialog(
-            mw=self.mw, parent=self, card_ids=self.selected_cards()
-        )
+            parent=self, card_ids=self.selected_cards()
+        ).run_in_background()
 
     @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
         set_due_date_dialog(
-            mw=self.mw,
             parent=self,
             card_ids=self.selected_cards(),
             config_key=Config.String.SET_DUE_BROWSER,
-        )
+        ).run_in_background()
 
     @ensure_editor_saved_on_trigger
     def forget_cards(self) -> None:
         forget_cards(
-            mw=self.mw,
             parent=self,
             card_ids=self.selected_cards(),
-        )
+        ).run_in_background()
 
     # Edit: selection
     ######################################################################
