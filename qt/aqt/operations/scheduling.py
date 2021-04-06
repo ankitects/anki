@@ -28,6 +28,7 @@ def set_due_date_dialog(
     card_ids: Sequence[CardId],
     config_key: Optional[Config.String.Key.V],
 ) -> Optional[CollectionOp[OpChanges]]:
+    assert aqt.mw
     if not card_ids:
         return None
 
@@ -76,7 +77,9 @@ def reposition_new_cards_dialog(
 ) -> Optional[CollectionOp[OpChangesWithCount]]:
     from aqt import mw
 
+    assert mw
     assert mw.col.db
+
     row = mw.col.db.first(
         f"select min(due), max(due) from cards where type={CARD_TYPE_NEW} and odid=0"
     )

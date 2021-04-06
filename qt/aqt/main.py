@@ -52,11 +52,6 @@ from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
-from aqt.operations import (
-    CollectionOpFailureCallback,
-    CollectionOpSuccessCallback,
-    ResultWithChanges,
-)
 from aqt.operations.collection import undo
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
@@ -95,9 +90,6 @@ MainWindowState = Literal[
 
 
 T = TypeVar("T")
-
-PerformOpOptionalSuccessCallback = Optional[CollectionOpSuccessCallback]
-PerformOpOptionalFailureCallback = Optional[CollectionOpFailureCallback]
 
 
 class AnkiQt(QMainWindow):
@@ -710,10 +702,9 @@ class AnkiQt(QMainWindow):
     ) -> None:
         """Run an operation that queries the DB on a background thread.
 
-        Similar interface to perform_op(), but intended to be used for operations
-        that do not change collection state. Undo status will not be changed,
-        and `operation_did_execute` will not fire. No progress window will
-        be shown either.
+        Intended to be used for operations that do not change collection
+        state. Undo status will not be changed, and `operation_did_execute`
+        will not fire. No progress window will be shown either.
 
         `operations_will|did_execute` will still fire, so the UI can defer
         updates during a background task.
@@ -743,66 +734,6 @@ class AnkiQt(QMainWindow):
     # Resetting state
     ##########################################################################
 
-    def perform_op(
-        self,
-        op: Callable[[], ResultWithChanges],
-        *,
-        success: PerformOpOptionalSuccessCallback = None,
-        failure: PerformOpOptionalFailureCallback = None,
-        handler: Optional[object] = None,
-    ) -> None:
-        """Run the provided operation on a background thread.
-
-        op() should either return OpChanges, or an object with a 'changes'
-        property. The changes will be passed to `operation_did_execute` so that
-        the UI can decide whether it needs to update itself.
-
-        - Shows progress popup for the duration of the op.
-        - Ensures the browser doesn't try to redraw during the operation, which can lead
-        to a frozen UI
-        - Updates undo state at the end of the operation
-        - Commits changes
-        - Fires the `operation_(will|did)_reset` hooks
-        - Fires the legacy `state_did_reset` hook
-
-        Be careful not to call any UI routines in `op`, as that may crash Qt.
-        This includes things select .selectedCards() in the browse screen.
-
-        success() will be called with the return value of op().
-
-        If op() throws an exception, it will be shown in a popup, or
-        passed to failure() if it is provided.
-        """
-
-        self._increase_background_ops()
-
-        def wrapped_done(future: Future) -> None:
-            self._decrease_background_ops()
-            # did something go wrong?
-            if exception := future.exception():
-                if isinstance(exception, Exception):
-                    if failure:
-                        failure(exception)
-                    else:
-                        showWarning(str(exception))
-                    return
-                else:
-                    # BaseException like SystemExit; rethrow it
-                    future.result()
-
-            result = future.result()
-            try:
-                if success:
-                    success(result)
-            finally:
-                # update undo status
-                status = self.col.undo_status()
-                self._update_undo_actions_for_status_and_save(status)
-                # fire change hooks
-                self._fire_change_hooks_after_op_performed(result, handler)
-
-        self.taskman.with_progress(op, wrapped_done)
-
     def _increase_background_ops(self) -> None:
         if not self._background_op_count:
             gui_hooks.backend_will_block()
@@ -813,24 +744,6 @@ class AnkiQt(QMainWindow):
         if not self._background_op_count:
             gui_hooks.backend_did_block()
         assert self._background_op_count >= 0
-
-    def _fire_change_hooks_after_op_performed(
-        self,
-        result: ResultWithChanges,
-        handler: Optional[object],
-    ) -> None:
-        if isinstance(result, OpChanges):
-            changes = result
-        else:
-            changes = result.changes
-
-        # fire new hook
-        print("op changes:")
-        print(changes)
-        gui_hooks.operation_did_execute(changes, handler)
-        # fire legacy hook so old code notices changes
-        if self.col.op_made_changes(changes):
-            gui_hooks.state_did_reset()
 
     def _synthesize_op_did_execute_from_reset(self) -> None:
         """Fire the `operation_did_execute` hook with everything marked as changed,
@@ -879,7 +792,7 @@ class AnkiQt(QMainWindow):
     def reset(self, unused_arg: bool = False) -> None:
         """Legacy method of telling UI to refresh after changes made to DB.
 
-        New code should use mw.perform_op() instead."""
+        New code should use CollectionOp() instead."""
         if self.col:
             # fire new `operation_did_execute` hook first. If the overview
             # or review screen are currently open, they will rebuild the study

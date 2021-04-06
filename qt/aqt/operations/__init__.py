@@ -36,9 +36,6 @@ ResultWithChanges = TypeVar(
     ],
 )
 
-CollectionOpSuccessCallback = Callable[[ResultWithChanges], Any]
-CollectionOpFailureCallback = Optional[Callable[[Exception], Any]]
-
 
 class CollectionOp(Generic[ResultWithChanges]):
     """Helper to perform a mutating DB operation on a background thread, and update UI.
@@ -65,7 +62,7 @@ class CollectionOp(Generic[ResultWithChanges]):
     """
 
     _success: Optional[Callable[[ResultWithChanges], Any]] = None
-    _failure: Optional[CollectionOpFailureCallback] = None
+    _failure: Optional[Optional[Callable[[Exception], Any]]] = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
@@ -78,19 +75,25 @@ class CollectionOp(Generic[ResultWithChanges]):
         return self
 
     def failure(
-        self, failure: Optional[CollectionOpFailureCallback]
+        self, failure: Optional[Optional[Callable[[Exception], Any]]]
     ) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
         return self
 
     def run_in_background(self, *, initiator: Optional[object] = None) -> None:
-        aqt.mw._increase_background_ops()
+        from aqt import mw
+
+        assert mw
+
+        mw._increase_background_ops()
 
         def wrapped_op() -> ResultWithChanges:
-            return self._op(aqt.mw.col)
+            assert mw
+            return self._op(mw.col)
 
         def wrapped_done(future: Future) -> None:
-            aqt.mw._decrease_background_ops()
+            assert mw
+            mw._decrease_background_ops()
             # did something go wrong?
             if exception := future.exception():
                 if isinstance(exception, Exception):
@@ -109,18 +112,22 @@ class CollectionOp(Generic[ResultWithChanges]):
                     self._success(result)
             finally:
                 # update undo status
-                status = aqt.mw.col.undo_status()
-                aqt.mw._update_undo_actions_for_status_and_save(status)
+                status = mw.col.undo_status()
+                mw._update_undo_actions_for_status_and_save(status)
                 # fire change hooks
                 self._fire_change_hooks_after_op_performed(result, initiator)
 
-        aqt.mw.taskman.with_progress(wrapped_op, wrapped_done)
+        mw.taskman.with_progress(wrapped_op, wrapped_done)
 
     def _fire_change_hooks_after_op_performed(
         self,
         result: ResultWithChanges,
         handler: Optional[object],
     ) -> None:
+        from aqt import mw
+
+        assert mw
+
         if isinstance(result, OpChanges):
             changes = result
         else:
@@ -131,5 +138,5 @@ class CollectionOp(Generic[ResultWithChanges]):
         print(changes)
         aqt.gui_hooks.operation_did_execute(changes, handler)
         # fire legacy hook so old code notices changes
-        if aqt.mw.col.op_made_changes(changes):
+        if mw.col.op_made_changes(changes):
             aqt.gui_hooks.state_did_reset()

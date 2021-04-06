@@ -90,3 +90,29 @@ def set_tag_collapsed(
     return CollectionOp(
         parent, lambda col: col.tags.set_collapsed(tag=tag, collapsed=collapsed)
     )
+
+
+def find_and_replace_tag(
+    *,
+    parent: QWidget,
+    note_ids: Sequence[int],
+    search: str,
+    replacement: str,
+    regex: bool,
+    match_case: bool,
+) -> CollectionOp[OpChangesWithCount]:
+    return CollectionOp(
+        parent,
+        lambda col: col.tags.find_and_replace(
+            note_ids=note_ids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            match_case=match_case,
+        ),
+    ).success(
+        lambda out: tooltip(
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
+            parent=parent,
+        ),
+    )

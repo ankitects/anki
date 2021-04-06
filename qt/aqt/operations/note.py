@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Optional, Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
@@ -33,4 +33,32 @@ def remove_notes(
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.remove_notes(note_ids)).success(
         lambda out: tooltip(tr.browsing_cards_deleted(count=out.count)),
+    )
+
+
+def find_and_replace(
+    *,
+    parent: QWidget,
+    note_ids: Sequence[NoteId],
+    search: str,
+    replacement: str,
+    regex: bool,
+    field_name: Optional[str],
+    match_case: bool,
+) -> CollectionOp[OpChangesWithCount]:
+    return CollectionOp(
+        parent,
+        lambda col: col.find_and_replace(
+            note_ids=note_ids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            field_name=field_name,
+            match_case=match_case,
+        ),
+    ).success(
+        lambda out: tooltip(
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
+            parent=parent,
+        )
     )

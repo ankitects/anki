@@ -451,7 +451,7 @@ hooks = [
     Hook(
         name="state_did_reset",
         legacy_hook="reset",
-        doc="""Legacy 'reset' hook. Called by mw.reset() and mw.perform_op() to redraw the UI.
+        doc="""Legacy 'reset' hook. Called by mw.reset() and CollectionOp() to redraw the UI.
         
         New code should use `operation_did_execute` instead.
         """,
@@ -476,7 +476,7 @@ hooks = [
     ),
     Hook(
         name="backend_will_block",
-        doc="""Called before one or more operations are executed with mw.perform_op().
+        doc="""Called before one or more DB tasks are run in the background.
         
         Subscribers can use this to set a flag to avoid DB queries until the operation
         completes, as doing so will freeze the UI until the long-running operation
@@ -485,7 +485,7 @@ hooks = [
     ),
     Hook(
         name="backend_did_block",
-        doc="""Called after one or more operations are executed with mw.perform_op().
+        doc="""Called after one or more DB tasks finish running in the background.
         Called regardless of the success of individual operations, and only called when
         there are no outstanding ops.
         """,

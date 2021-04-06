@@ -31,6 +31,9 @@ def undo(*, parent: QWidget) -> None:
 def _legacy_undo(*, parent: QWidget) -> None:
     from aqt import mw
 
+    assert mw
+    assert mw.col
+
     reviewing = mw.state == "review"
     just_refresh_reviewer = False
 

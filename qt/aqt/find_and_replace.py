@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from typing import List, Sequence
 
 import aqt
 from anki.notes import NoteId
 from aqt import AnkiQt, QWidget
+from aqt.operations.note import find_and_replace
+from aqt.operations.tag import find_and_replace_tag
 from aqt.qt import QDialog, Qt
 from aqt.utils import (
     HelpPage,
@@ -22,61 +24,8 @@ from aqt.utils import (
     save_combo_index_for_session,
     save_is_checked,
     saveGeom,
-    tooltip,
     tr,
 )
-
-
-def find_and_replace(
-    *,
-    mw: AnkiQt,
-    parent: QWidget,
-    note_ids: Sequence[NoteId],
-    search: str,
-    replacement: str,
-    regex: bool,
-    field_name: Optional[str],
-    match_case: bool,
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.find_and_replace(
-            note_ids=note_ids,
-            search=search,
-            replacement=replacement,
-            regex=regex,
-            field_name=field_name,
-            match_case=match_case,
-        ),
-        success=lambda out: tooltip(
-            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
-            parent=parent,
-        ),
-    )
-
-
-def find_and_replace_tag(
-    *,
-    mw: AnkiQt,
-    parent: QWidget,
-    note_ids: Sequence[int],
-    search: str,
-    replacement: str,
-    regex: bool,
-    match_case: bool,
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.tags.find_and_replace(
-            note_ids=note_ids,
-            search=search,
-            replacement=replacement,
-            regex=regex,
-            match_case=match_case,
-        ),
-        success=lambda out: tooltip(
-            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
-            parent=parent,
-        ),
-    )
 
 
 class FindAndReplaceDialog(QDialog):
@@ -146,10 +95,9 @@ class FindAndReplaceDialog(QDialog):
         save_is_checked(self.form.re, self.COMBO_NAME + "Regex")
         save_is_checked(self.form.ignoreCase, self.COMBO_NAME + "ignoreCase")
 
+        # tags?
         if self.form.field.currentIndex() == 1:
-            # tags
             find_and_replace_tag(
-                mw=self.mw,
                 parent=self.parentWidget(),
                 note_ids=self.note_ids,
                 search=search,
@@ -157,23 +105,22 @@ class FindAndReplaceDialog(QDialog):
                 regex=regex,
                 match_case=match_case,
             )
-            return
-
-        if self.form.field.currentIndex() == 0:
-            field = None
         else:
-            field = self.field_names[self.form.field.currentIndex() - 2]
+            # fields
+            if self.form.field.currentIndex() == 0:
+                field = None
+            else:
+                field = self.field_names[self.form.field.currentIndex() - 2]
 
-        find_and_replace(
-            mw=self.mw,
-            parent=self.parentWidget(),
-            note_ids=self.note_ids,
-            search=search,
-            replacement=replace,
-            regex=regex,
-            field_name=field,
-            match_case=match_case,
-        )
+            find_and_replace(
+                parent=self.parentWidget(),
+                note_ids=self.note_ids,
+                search=search,
+                replacement=replace,
+                regex=regex,
+                field_name=field,
+                match_case=match_case,
+            )
 
         super().accept()
 
