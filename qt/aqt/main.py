@@ -61,6 +61,11 @@ from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
+from aqt.operations import (
+    CollectionOpFailureCallback,
+    CollectionOpSuccessCallback,
+    ResultWithChanges,
+)
 from aqt.operations.collection import undo
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
@@ -91,35 +96,17 @@ from aqt.utils import (
     tr,
 )
 
-
-class HasChangesProperty(Protocol):
-    changes: OpChanges
-
-
-# either an OpChanges object, or an object with .changes on it. This bound
-# doesn't actually work for protobuf objects, so new protobuf objects will
-# either need to be added here, or cast at call time
-ResultWithChanges = TypeVar(
-    "ResultWithChanges",
-    bound=Union[
-        OpChanges,
-        OpChangesWithCount,
-        OpChangesWithId,
-        OpChangesAfterUndo,
-        HasChangesProperty,
-    ],
-)
-
-T = TypeVar("T")
-
-PerformOpOptionalSuccessCallback = Optional[Callable[[ResultWithChanges], Any]]
-PerformOpOptionalFailureCallback = Optional[Callable[[Exception], Any]]
-
 install_pylib_legacy()
 
 MainWindowState = Literal[
     "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
 ]
+
+
+T = TypeVar("T")
+
+PerformOpOptionalSuccessCallback = Optional[CollectionOpSuccessCallback]
+PerformOpOptionalFailureCallback = Optional[CollectionOpFailureCallback]
 
 
 class AnkiQt(QMainWindow):

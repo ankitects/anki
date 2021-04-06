@@ -851,20 +851,14 @@ time = %(time)d;
         note = self.card.note()
         if note.has_tag(MARKED_TAG):
             remove_tags_from_notes(
-                mw=self.mw,
-                note_ids=[note.id],
-                space_separated_tags=MARKED_TAG,
-                handler=self,
-                success=redraw_mark,
-            )
+                parent=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
+            ).success(redraw_mark).run(handler=self)
         else:
             add_tags_to_notes(
-                mw=self.mw,
+                parent=self.mw,
                 note_ids=[note.id],
                 space_separated_tags=MARKED_TAG,
-                handler=self,
-                success=redraw_mark,
-            )
+            ).success(redraw_mark).run(handler=self)
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:

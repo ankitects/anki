@@ -26,7 +26,6 @@ from anki.hooks import runFilter, runHook
 from anki.models import NotetypeDict
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
-import aqt.operations
 """
 
 # Hook list
