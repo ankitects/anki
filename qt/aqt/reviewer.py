@@ -835,13 +835,9 @@ time = %(time)d;
         else:
             flag = desired_flag
 
-        set_card_flag(
-            mw=self.mw,
-            card_ids=[self.card.id],
-            flag=flag,
-            handler=self,
-            success=redraw_flag,
-        )
+        set_card_flag(parent=self.mw, card_ids=[self.card.id], flag=flag).success(
+            redraw_flag
+        ).run_in_background(initiator=self)
 
     def toggle_mark_on_current_note(self) -> None:
         def redraw_mark(out: OpChangesWithCount) -> None:
@@ -852,13 +848,13 @@ time = %(time)d;
         if note.has_tag(MARKED_TAG):
             remove_tags_from_notes(
                 parent=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
-            ).success(redraw_mark).run(handler=self)
+            ).success(redraw_mark).run_in_background(initiator=self)
         else:
             add_tags_to_notes(
                 parent=self.mw,
                 note_ids=[note.id],
                 space_separated_tags=MARKED_TAG,
-            ).success(redraw_mark).run(handler=self)
+            ).success(redraw_mark).run_in_background(initiator=self)
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:

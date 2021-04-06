@@ -21,7 +21,6 @@ from typing import (
     List,
     Literal,
     Optional,
-    Protocol,
     Sequence,
     TextIO,
     Tuple,
@@ -40,15 +39,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import (
-    Collection,
-    Config,
-    OpChanges,
-    OpChangesAfterUndo,
-    OpChangesWithCount,
-    OpChangesWithId,
-    UndoStatus,
-)
+from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
@@ -1198,7 +1189,7 @@ title="%s" %s>%s</button>""" % (
 
     def undo(self) -> None:
         "Call collection_ops.py:undo() directly instead."
-        undo(mw=self, parent=self)
+        undo(parent=self)
 
     def update_undo_actions(self, status: Optional[UndoStatus] = None) -> None:
         """Update menu text and enable/disable menu item as appropriate.

@@ -3,28 +3,25 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Sequence
 
 from anki.cards import CardId
+from anki.collection import OpChanges
 from anki.decks import DeckId
-from aqt import AnkiQt
-from aqt.main import PerformOpOptionalSuccessCallback
+from aqt.operations import CollectionOp
+from aqt.qt import QWidget
 
 
-def set_card_deck(*, mw: AnkiQt, card_ids: Sequence[CardId], deck_id: DeckId) -> None:
-    mw.perform_op(lambda: mw.col.set_deck(card_ids, deck_id))
+def set_card_deck(
+    *, parent: QWidget, card_ids: Sequence[CardId], deck_id: DeckId
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.set_deck(card_ids, deck_id))
 
 
 def set_card_flag(
     *,
-    mw: AnkiQt,
+    parent: QWidget,
     card_ids: Sequence[CardId],
     flag: int,
-    handler: Optional[object] = None,
-    success: PerformOpOptionalSuccessCallback = None,
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.set_user_flag_for_cards(flag, card_ids),
-        handler=handler,
-        success=success,
-    )
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.set_user_flag_for_cards(flag, card_ids))

@@ -77,11 +77,13 @@ class CollectionOp(Generic[ResultWithChanges]):
         self._success = success
         return self
 
-    def failure(self, failure: Optional[CollectionOpFailureCallback]) -> CollectionOp[ResultWithChanges]:
+    def failure(
+        self, failure: Optional[CollectionOpFailureCallback]
+    ) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
         return self
 
-    def run(self, *, handler: Optional[object] = None) -> None:
+    def run_in_background(self, *, initiator: Optional[object] = None) -> None:
         aqt.mw._increase_background_ops()
 
         def wrapped_op() -> ResultWithChanges:
@@ -110,7 +112,7 @@ class CollectionOp(Generic[ResultWithChanges]):
                 status = aqt.mw.col.undo_status()
                 aqt.mw._update_undo_actions_for_status_and_save(status)
                 # fire change hooks
-                self._fire_change_hooks_after_op_performed(result, handler)
+                self._fire_change_hooks_after_op_performed(result, initiator)
 
         aqt.mw.taskman.with_progress(wrapped_op, wrapped_done)
 

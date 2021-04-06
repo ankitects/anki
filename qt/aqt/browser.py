@@ -677,7 +677,7 @@ where id in %s"""
             return
         did = self.col.decks.id(ret.name)
 
-        set_card_deck(mw=self.mw, card_ids=cids, deck_id=did)
+        set_card_deck(parent=self, card_ids=cids, deck_id=did).run_in_background()
 
     # legacy
 
@@ -696,7 +696,7 @@ where id in %s"""
             return
         add_tags_to_notes(
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
-        ).run(handler=self)
+        ).run_in_background(initiator=self)
 
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
@@ -708,7 +708,7 @@ where id in %s"""
 
         remove_tags_from_notes(
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
-        ).run(handler=self)
+        ).run_in_background(initiator=self)
 
     def _prompt_for_tags(self, prompt: str) -> Optional[str]:
         (tags, ok) = getTag(self, self.col, prompt)
@@ -719,7 +719,7 @@ where id in %s"""
 
     @ensure_editor_saved_on_trigger
     def clear_unused_tags(self) -> None:
-        clear_unused_tags(parent=self).run()
+        clear_unused_tags(parent=self).run_in_background()
 
     addTags = add_tags_to_selected_notes
     deleteTags = remove_tags_from_selected_notes
@@ -760,7 +760,9 @@ where id in %s"""
         if flag == self.card.user_flag():
             flag = 0
 
-        set_card_flag(mw=self.mw, card_ids=self.selected_cards(), flag=flag)
+        set_card_flag(
+            parent=self, card_ids=self.selected_cards(), flag=flag
+        ).run_in_background()
 
     def _update_flags_menu(self) -> None:
         flag = self.card and self.card.user_flag()
@@ -859,7 +861,7 @@ where id in %s"""
     ######################################################################
 
     def undo(self) -> None:
-        undo(mw=self.mw, parent=self)
+        undo(parent=self)
 
     def onUndoState(self, on: bool) -> None:
         self.form.actionUndo.setEnabled(on)

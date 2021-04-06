@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from anki.collection import OpChangesWithCount
+from anki.collection import OpChanges, OpChangesWithCount
 from anki.notes import NoteId
-from aqt import AnkiQt, QWidget
+from aqt import QWidget
 from aqt.operations import CollectionOp
 from aqt.utils import showInfo, tooltip, tr
 
@@ -17,7 +17,7 @@ def add_tags_to_notes(
     parent: QWidget,
     note_ids: Sequence[NoteId],
     space_separated_tags: str,
-) -> CollectionOp:
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.tags.bulk_add(note_ids, space_separated_tags)
     ).success(
@@ -30,7 +30,7 @@ def remove_tags_from_notes(
     parent: QWidget,
     note_ids: Sequence[NoteId],
     space_separated_tags: str,
-) -> CollectionOp:
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.tags.bulk_remove(note_ids, space_separated_tags)
     ).success(
@@ -38,7 +38,7 @@ def remove_tags_from_notes(
     )
 
 
-def clear_unused_tags(*, parent: QWidget) -> CollectionOp:
+def clear_unused_tags(*, parent: QWidget) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.tags.clear_unused_tags()).success(
         lambda out: tooltip(
             tr.browsing_removed_unused_tags_count(count=out.count), parent=parent
@@ -51,7 +51,7 @@ def rename_tag(
     parent: QWidget,
     current_name: str,
     new_name: str,
-) -> CollectionOp:
+) -> CollectionOp[OpChangesWithCount]:
     def success(out: OpChangesWithCount) -> None:
         if out.count:
             tooltip(tr.browsing_notes_updated(count=out.count), parent=parent)
@@ -66,7 +66,7 @@ def rename_tag(
 
 def remove_tags_from_all_notes(
     *, parent: QWidget, space_separated_tags: str
-) -> CollectionOp:
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.tags.remove(space_separated_tags=space_separated_tags)
     ).success(
@@ -76,7 +76,7 @@ def remove_tags_from_all_notes(
 
 def reparent_tags(
     *, parent: QWidget, tags: Sequence[str], new_parent: str
-) -> CollectionOp:
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.tags.reparent(tags=tags, new_parent=new_parent)
     ).success(
@@ -84,7 +84,9 @@ def reparent_tags(
     )
 
 
-def set_tag_collapsed(*, parent: QWidget, tag: str, collapsed: bool) -> CollectionOp:
+def set_tag_collapsed(
+    *, parent: QWidget, tag: str, collapsed: bool
+) -> CollectionOp[OpChanges]:
     return CollectionOp(
         parent, lambda col: col.tags.set_collapsed(tag=tag, collapsed=collapsed)
     )
