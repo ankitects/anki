@@ -382,7 +382,7 @@ class Browser(QMainWindow):
         self.table.set_view(self.form.tableView)
         switch = Switch(11, tr.browsing_card_initial(), tr.browsing_note_initial())
         switch.setChecked(self.table.is_notes_mode())
-        switch.setToolTip(tr.browsing_toggle_cards_notes_mode())
+        switch.setToolTip(tr.browsing_toggle_showing_cards_notes())
         qconnect(self.form.action_toggle_mode.triggered, switch.toggle)
         qconnect(switch.toggled, self.on_table_state_changed)
         self.form.gridLayout.addWidget(switch, 0, 0)
