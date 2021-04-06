@@ -172,6 +172,18 @@ class SidebarItem:
         )
         return self._search_matches_self or self._search_matches_child
 
+    def has_same_id(self, other: SidebarItem) -> bool:
+        "True if `other` is same type, with same id/name."
+        if other.item_type == self.item_type:
+            if self.item_type == SidebarItemType.TAG:
+                return self.full_name == other.full_name
+            elif self.item_type == SidebarItemType.SAVED_SEARCH:
+                return self.name == other.name
+            else:
+                return other.id == self.id
+
+        return False
+
 
 class SidebarModel(QAbstractItemModel):
     def __init__(self, sidebar: SidebarTreeView, root: SidebarItem) -> None:
@@ -432,12 +444,15 @@ class SidebarTreeView(QTreeView):
             self.refresh()
             self._refresh_needed = False
 
-    def refresh(
-        self, is_current: Optional[Callable[[SidebarItem], bool]] = None
-    ) -> None:
+    def refresh(self) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return
+
+        if self.model() and (idx := self.currentIndex()):
+            current_item = self.model().item_for_index(idx)
+        else:
+            current_item = None
 
         def on_done(root: SidebarItem) -> None:
             # user may have closed browser
@@ -454,8 +469,8 @@ class SidebarTreeView(QTreeView):
                 self.search_for(self.current_search)
             else:
                 self._expand_where_necessary(model)
-            if is_current:
-                self.restore_current(is_current)
+            if current_item:
+                self.restore_current(current_item)
 
             self.setUpdatesEnabled(True)
 
@@ -464,8 +479,8 @@ class SidebarTreeView(QTreeView):
 
         self.mw.query_op(self._root_tree, success=on_done)
 
-    def restore_current(self, is_current: Callable[[SidebarItem], bool]) -> None:
-        if current := self.find_item(is_current):
+    def restore_current(self, current: SidebarItem) -> None:
+        if current := self.find_item(current.has_same_id):
             index = self.model().index_for_item(current)
             self.selectionModel().setCurrentIndex(
                 index, QItemSelectionModel.SelectCurrent
@@ -1165,21 +1180,21 @@ class SidebarTreeView(QTreeView):
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         if not new_name:
             return
-        new_name = item.name_prefix + new_name
+
+        # update UI immediately, to avoid redraw
+        item.name = new_name
+
+        full_name = item.name_prefix + new_name
         deck_id = DeckId(item.id)
 
         def after_fetch(deck: Deck) -> None:
-            if new_name == deck.name:
+            if full_name == deck.name:
                 return
 
             rename_deck(
                 mw=self.mw,
                 deck_id=deck_id,
-                new_name=new_name,
-                after_rename=lambda: self.refresh(
-                    lambda other: other.item_type == SidebarItemType.DECK
-                    and other.id == item.id
-                ),
+                new_name=full_name,
             )
 
         self.mw.query_op(lambda: self.mw.col.get_deck(deck_id), success=after_fetch)
@@ -1208,16 +1223,13 @@ class SidebarTreeView(QTreeView):
         new_name = item.name_prefix + new_name
 
         item.name = new_name_base
+        item.full_name = new_name
 
         rename_tag(
             mw=self.mw,
             parent=self.browser,
             current_name=old_name,
             new_name=new_name,
-            after_rename=lambda: self.refresh(
-                lambda item: item.item_type == SidebarItemType.TAG
-                and item.full_name == new_name
-            ),
         )
 
     # Saved searches
@@ -1250,10 +1262,7 @@ class SidebarTreeView(QTreeView):
             return
         conf[name] = search
         self._set_saved_searches(conf)
-        self.refresh(
-            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
-            and item.name == name
-        )
+        self.refresh()
 
     def remove_saved_searches(self, _item: SidebarItem) -> None:
         selected = self._selected_saved_searches()
@@ -1277,10 +1286,8 @@ class SidebarTreeView(QTreeView):
         conf[new_name] = filt
         del conf[old_name]
         self._set_saved_searches(conf)
-        self.refresh(
-            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
-            and item.name == new_name
-        )
+        item.name = new_name
+        self.refresh()
 
     def save_current_search(self) -> None:
         if (search := self._get_current_search()) is None:

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence
+from typing import Optional, Sequence
 
 from anki.collection import OpChangesWithCount
 from anki.notes import NoteId
@@ -57,7 +57,6 @@ def rename_tag(
     parent: QWidget,
     current_name: str,
     new_name: str,
-    after_rename: Callable[[], None],
 ) -> None:
     def success(out: OpChangesWithCount) -> None:
         if out.count:
@@ -68,7 +67,6 @@ def rename_tag(
     mw.perform_op(
         lambda: mw.col.tags.rename(old=current_name, new=new_name),
         success=success,
-        after_hooks=after_rename,
     )
 
 
