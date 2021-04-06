@@ -310,7 +310,9 @@ class FilteredDeckConfigDialog(QDialog):
 
         gui_hooks.filtered_deck_dialog_will_add_or_update_deck(self, self.deck)
 
-        add_or_update_filtered_deck(mw=self.mw, deck=self.deck, success=success)
+        add_or_update_filtered_deck(parent=self, deck=self.deck).success(
+            success
+        ).run_in_background()
 
     # Step load/save
     ########################################################

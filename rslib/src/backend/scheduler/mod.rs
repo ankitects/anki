@@ -87,10 +87,18 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn bury_or_suspend_cards(&self, input: pb::BuryOrSuspendCardsIn) -> Result<pb::OpChanges> {
+    fn bury_or_suspend_cards(
+        &self,
+        input: pb::BuryOrSuspendCardsIn,
+    ) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             let mode = input.mode();
-            let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
+            let cids = if input.card_ids.is_empty() {
+                col.storage
+                    .card_ids_of_notes(&input.note_ids.into_newtype(NoteId))?
+            } else {
+                input.card_ids.into_newtype(CardId)
+            };
             col.bury_or_suspend_cards(&cids, mode).map(Into::into)
         })
     }
@@ -105,7 +113,7 @@ impl SchedulingService for Backend {
 
     fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
+            let cids = input.card_ids.into_newtype(CardId);
             let log = input.log;
             col.reschedule_cards_as_new(&cids, log).map(Into::into)
         })
@@ -114,12 +122,12 @@ impl SchedulingService for Backend {
     fn set_due_date(&self, input: pb::SetDueDateIn) -> Result<pb::OpChanges> {
         let config = input.config_key.map(Into::into);
         let days = input.days;
-        let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
+        let cids = input.card_ids.into_newtype(CardId);
         self.with_col(|col| col.set_due_date(&cids, &days, config).map(Into::into))
     }
 
     fn sort_cards(&self, input: pb::SortCardsIn) -> Result<pb::OpChangesWithCount> {
-        let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
+        let cids = input.card_ids.into_newtype(CardId);
         let (start, step, random, shift) = (
             input.starting_from,
             input.step_size,

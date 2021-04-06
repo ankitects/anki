@@ -120,7 +120,7 @@ service SchedulingService {
   rpc CongratsInfo(Empty) returns (CongratsInfoOut);
   rpc RestoreBuriedAndSuspendedCards(CardIds) returns (OpChanges);
   rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
-  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChanges);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChangesWithCount);
   rpc EmptyFilteredDeck(DeckId) returns (OpChanges);
   rpc RebuildFilteredDeck(DeckId) returns (OpChangesWithCount);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (OpChanges);
@@ -1314,7 +1314,8 @@ message BuryOrSuspendCardsIn {
     BURY_USER = 2;
   }
   repeated int64 card_ids = 1;
-  Mode mode = 2;
+  repeated int64 note_ids = 2;
+  Mode mode = 3;
 }
 
 message ScheduleCardsAsNewIn {

@@ -89,7 +89,8 @@ impl Collection {
 
     /// Bury/suspend cards in search table, and clear it.
     /// Marks the cards as modified.
-    fn bury_or_suspend_searched_cards(&mut self, mode: BuryOrSuspendMode) -> Result<()> {
+    fn bury_or_suspend_searched_cards(&mut self, mode: BuryOrSuspendMode) -> Result<usize> {
+        let mut count = 0;
         let usn = self.usn()?;
         let sched = self.scheduler_version();
 
@@ -113,18 +114,21 @@ impl Collection {
                     card.remove_from_learning();
                 }
                 card.queue = desired_queue;
+                count += 1;
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
 
-        self.storage.clear_searched_cards_table()
+        self.storage.clear_searched_cards_table()?;
+
+        Ok(count)
     }
 
     pub fn bury_or_suspend_cards(
         &mut self,
         cids: &[CardId],
         mode: BuryOrSuspendMode,
-    ) -> Result<OpOutput<()>> {
+    ) -> Result<OpOutput<usize>> {
         let op = match mode {
             BuryOrSuspendMode::Suspend => Op::Suspend,
             BuryOrSuspendMode::BurySched | BuryOrSuspendMode::BuryUser => Op::Bury,
@@ -141,7 +145,7 @@ impl Collection {
         nid: NoteId,
         include_new: bool,
         include_reviews: bool,
-    ) -> Result<()> {
+    ) -> Result<usize> {
         self.storage
             .search_siblings_for_bury(cid, nid, include_new, include_reviews)?;
         self.bury_or_suspend_searched_cards(BuryOrSuspendMode::BurySched)

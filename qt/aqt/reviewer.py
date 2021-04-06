@@ -22,7 +22,7 @@ from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
     bury_cards,
-    bury_note,
+    bury_notes,
     set_due_date_dialog,
     suspend_cards,
     suspend_note,
@@ -861,39 +861,34 @@ time = %(time)d;
             return
 
         set_due_date_dialog(
-            mw=self.mw,
             parent=self.mw,
             card_ids=[self.card.id],
             config_key=Config.String.SET_DUE_REVIEWER,
-        )
+        ).run_in_background()
 
     def suspend_current_note(self) -> None:
         suspend_note(
-            mw=self.mw,
-            note_id=self.card.nid,
-            success=lambda _: tooltip(tr.studying_note_suspended()),
-        )
+            parent=self.mw,
+            note_ids=[self.card.nid],
+        ).success(lambda _: tooltip(tr.studying_note_suspended())).run_in_background()
 
     def suspend_current_card(self) -> None:
         suspend_cards(
-            mw=self.mw,
+            parent=self.mw,
             card_ids=[self.card.id],
-            success=lambda _: tooltip(tr.studying_card_suspended()),
-        )
+        ).success(lambda _: tooltip(tr.studying_card_suspended())).run_in_background()
 
     def bury_current_note(self) -> None:
-        bury_note(
-            mw=self.mw,
-            note_id=self.card.nid,
-            success=lambda _: tooltip(tr.studying_note_buried()),
-        )
+        bury_notes(
+            parent=self.mw,
+            note_ids=[self.card.nid],
+        ).success(lambda _: tooltip(tr.studying_note_buried())).run_in_background()
 
     def bury_current_card(self) -> None:
         bury_cards(
-            mw=self.mw,
+            parent=self.mw,
             card_ids=[self.card.id],
-            success=lambda _: tooltip(tr.studying_card_buried()),
-        )
+        ).success(lambda _: tooltip(tr.studying_card_buried())).run_in_background()
 
     def delete_current_note(self) -> None:
         # need to check state because the shortcut is global to the main

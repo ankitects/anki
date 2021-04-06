@@ -33,7 +33,7 @@ mod test {
         let queued = col.next_card()?.unwrap();
         let nid = note.id;
         let cid = queued.card.id;
-        let sibling_cid = col.storage.all_card_ids_of_note(nid)?[1];
+        let sibling_cid = col.storage.all_card_ids_of_note_in_order(nid)?[1];
 
         let assert_initial_state = |col: &mut Collection| -> Result<()> {
             let first = col.storage.get_card(cid)?.unwrap();
