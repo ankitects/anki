@@ -36,8 +36,6 @@ ResultWithChanges = TypeVar(
     ],
 )
 
-T = TypeVar("T")
-
 CollectionOpSuccessCallback = Callable[[ResultWithChanges], Any]
 CollectionOpFailureCallback = Optional[Callable[[Exception], Any]]
 
@@ -66,18 +64,20 @@ class CollectionOp(Generic[ResultWithChanges]):
     passed to `failure` if it is provided.
     """
 
-    _success: Optional[CollectionOpSuccessCallback] = None
+    _success: Optional[Callable[[ResultWithChanges], Any]] = None
     _failure: Optional[CollectionOpFailureCallback] = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
         self._op = op
 
-    def success(self, success: Optional[CollectionOpSuccessCallback]) -> CollectionOp:
+    def success(
+        self, success: Optional[Callable[[ResultWithChanges], Any]]
+    ) -> CollectionOp[ResultWithChanges]:
         self._success = success
         return self
 
-    def failure(self, failure: Optional[CollectionOpFailureCallback]) -> CollectionOp:
+    def failure(self, failure: Optional[CollectionOpFailureCallback]) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
         return self
 
