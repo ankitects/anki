@@ -652,7 +652,7 @@ class SidebarTreeView(QTreeView):
         else:
             new_parent = target.full_name
 
-        reparent_tags(mw=self.mw, parent=self.browser, tags=tags, new_parent=new_parent)
+        reparent_tags(parent=self.browser, tags=tags, new_parent=new_parent).run()
 
         return True
 
@@ -947,8 +947,8 @@ class SidebarTreeView(QTreeView):
             def toggle_expand(node: TagTreeNode) -> Callable[[bool], None]:
                 full_name = head + node.name
                 return lambda expanded: set_tag_collapsed(
-                    mw=self.mw, tag=full_name, collapsed=not expanded
-                )
+                    parent=self, tag=full_name, collapsed=not expanded
+                ).run()
 
             for node in nodes:
                 item = SidebarItem(
@@ -1209,9 +1209,7 @@ class SidebarTreeView(QTreeView):
         tags = self.mw.col.tags.join(self._selected_tags())
         item.name = "..."
 
-        remove_tags_from_all_notes(
-            mw=self.mw, parent=self.browser, space_separated_tags=tags
-        )
+        remove_tags_from_all_notes(parent=self.browser, space_separated_tags=tags).run()
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
         if not new_name or new_name == item.name:
@@ -1226,11 +1224,10 @@ class SidebarTreeView(QTreeView):
         item.full_name = new_name
 
         rename_tag(
-            mw=self.mw,
             parent=self.browser,
             current_name=old_name,
             new_name=new_name,
-        )
+        ).run()
 
     # Saved searches
     ####################################

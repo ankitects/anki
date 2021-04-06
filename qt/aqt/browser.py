@@ -695,13 +695,8 @@ where id in %s"""
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
         add_tags_to_notes(
-            mw=self.mw,
-            note_ids=self.selected_notes(),
-            space_separated_tags=tags,
-            success=lambda out: tooltip(
-                tr.browsing_notes_updated(count=out.count), parent=self
-            ),
-        )
+            parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
+        ).run(handler=self)
 
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
@@ -710,14 +705,10 @@ where id in %s"""
             tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
         ):
             return
+
         remove_tags_from_notes(
-            mw=self.mw,
-            note_ids=self.selected_notes(),
-            space_separated_tags=tags,
-            success=lambda out: tooltip(
-                tr.browsing_notes_updated(count=out.count), parent=self
-            ),
-        )
+            parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
+        ).run(handler=self)
 
     def _prompt_for_tags(self, prompt: str) -> Optional[str]:
         (tags, ok) = getTag(self, self.col, prompt)
@@ -728,7 +719,7 @@ where id in %s"""
 
     @ensure_editor_saved_on_trigger
     def clear_unused_tags(self) -> None:
-        clear_unused_tags(mw=self.mw, parent=self)
+        clear_unused_tags(parent=self).run()
 
     addTags = add_tags_to_selected_notes
     deleteTags = remove_tags_from_selected_notes
