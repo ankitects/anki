@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence
+from typing import Optional, Sequence
 
 from anki.decks import DeckCollapseScope, DeckId
 from aqt import AnkiQt, QWidget
@@ -41,10 +41,9 @@ def rename_deck(
     mw: AnkiQt,
     deck_id: DeckId,
     new_name: str,
-    after_rename: Callable[[], None] = None,
 ) -> None:
     mw.perform_op(
-        lambda: mw.col.decks.rename(deck_id, new_name), after_hooks=after_rename
+        lambda: mw.col.decks.rename(deck_id, new_name),
     )
 
 
