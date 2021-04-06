@@ -63,7 +63,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::OpChanges> {
+    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             if !input.note_ids.is_empty() {
                 col.remove_notes(
