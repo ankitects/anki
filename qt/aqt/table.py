@@ -149,11 +149,8 @@ class Table:
     def select_single_card(self, card_id: CardId) -> None:
         """Try to set the selection to the item corresponding to the given card."""
         self.clear_selection()
-        if self.is_notes_mode():
-            self._view.selectRow(0)
-        else:
-            if (row := self._model.get_card_row(card_id)) is not None:
-                self._view.selectRow(row)
+        if (row := self._model.get_card_row(card_id)) is not None:
+            self._view.selectRow(row)
 
     # Reset
 
@@ -772,7 +769,7 @@ class NoteState(ItemState):
         return self.col.find_notes(search, order)
 
     def get_item_from_card_id(self, card: CardId) -> ItemId:
-        return self.get_card(card).note().id
+        return self.col.get_card(card).note().id
 
     def get_card_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(items)
