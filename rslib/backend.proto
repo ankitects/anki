@@ -163,7 +163,7 @@ service NotesService {
   rpc DefaultDeckForNotetype(NotetypeId) returns (DeckId);
   rpc UpdateNote(UpdateNoteIn) returns (OpChanges);
   rpc GetNote(NoteId) returns (Note);
-  rpc RemoveNotes(RemoveNotesIn) returns (OpChanges);
+  rpc RemoveNotes(RemoveNotesIn) returns (OpChangesWithCount);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
   rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChanges);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);

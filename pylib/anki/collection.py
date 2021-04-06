@@ -385,7 +385,7 @@ class Collection:
         note.id = NoteId(out.note_id)
         return out.changes
 
-    def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChanges:
+    def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 

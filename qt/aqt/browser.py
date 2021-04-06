@@ -642,11 +642,7 @@ where id in %s"""
         self.focusTo = self.editor.currentField
         self.table.to_next_row()
 
-        remove_notes(
-            mw=self.mw,
-            note_ids=nids,
-            success=lambda _: tooltip(tr.browsing_note_deleted(count=len(nids))),
-        )
+        remove_notes(parent=self, note_ids=nids).run_in_background()
 
     # legacy
 

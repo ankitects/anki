@@ -901,14 +901,7 @@ time = %(time)d;
         if self.mw.state != "review" or not self.card:
             return
 
-        # fixme: pass this back from the backend method instead
-        cnt = len(self.card.note().cards())
-
-        remove_notes(
-            mw=self.mw,
-            note_ids=[self.card.nid],
-            success=lambda _: tooltip(tr.studying_note_and_its_card_deleted(count=cnt)),
-        )
+        remove_notes(parent=self.mw, note_ids=[self.card.nid]).run_in_background()
 
     def onRecordVoice(self) -> None:
         def after_record(path: str) -> None:
