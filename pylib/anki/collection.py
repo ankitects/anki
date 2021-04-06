@@ -696,6 +696,16 @@ class Collection:
     # Browser Table
     ##########################################################################
 
+    def all_browser_card_columns(
+        self,
+    ) -> Generator[Tuple[str, str, bool, bool, bool, bool], None, None]:
+        return (_column_data(c) for c in self._backend.all_browser_card_columns())
+
+    def all_browser_note_columns(
+        self,
+    ) -> Generator[Tuple[str, str, bool, bool, bool, bool], None, None]:
+        return (_column_data(c) for c in self._backend.all_browser_note_columns())
+
     def browser_row_for_id(
         self, id_: int
     ) -> Tuple[Generator[Tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
@@ -1131,3 +1141,14 @@ def _build_sort_mode(
             return _pb.SortOrder(none=_pb.Empty())
     else:
         return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse))
+
+
+def _column_data(column: _pb.BrowserColumn) -> Tuple[str, str, bool, bool, bool, bool]:
+    return (
+        column.key,
+        column.label,
+        column.is_sortable,
+        column.sorts_reversed,
+        column.uses_cell_font,
+        column.aligns_centered,
+    )

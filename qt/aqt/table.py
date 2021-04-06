@@ -5,8 +5,7 @@ from __future__ import annotations
 
 import time
 from abc import ABC, abstractmethod, abstractproperty
-from dataclasses import dataclass
-from operator import itemgetter
+from dataclasses import dataclass, field
 from typing import (
     Any,
     Callable,
@@ -346,13 +345,13 @@ class Table:
     def _on_header_context(self, pos: QPoint) -> None:
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
-        for column, name in self._state.columns:
-            a = m.addAction(name)
+        for key, column in self._state.columns.items():
+            a = m.addAction(column.label)
             a.setCheckable(True)
-            a.setChecked(self._model.active_column_index(column) is not None)
+            a.setChecked(self._model.active_column_index(key) is not None)
             qconnect(
                 a.toggled,
-                lambda checked, column=column: self._on_column_toggled(checked, column),
+                lambda checked, key=key: self._on_column_toggled(checked, key),
             )
         gui_hooks.browser_header_will_show_context_menu(self.browser, m)
         m.exec_(gpos)
@@ -371,16 +370,18 @@ class Table:
         if checked:
             self._scroll_to_column(self._model.len_columns() - 1)
 
-    def _on_sort_column_changed(self, index: int, order: int) -> None:
+    def _on_sort_column_changed(self, section: int, order: int) -> None:
         order = bool(order)
-        sort_column = self._model.active_column(index)
-        if sort_column in ("question", "answer"):
+        column = self._model.column_at_section(section)
+        if column.is_sortable:
+            sort_key = column.key
+        else:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
-            sort_column = self._state.sort_column
-        if self._state.sort_column != sort_column:
-            self._state.sort_column = sort_column
+            sort_key = self._state.sort_column
+        if self._state.sort_column != sort_key:
+            self._state.sort_column = sort_key
             # default to descending for non-text fields
-            if sort_column == "noteFld":
+            if column.sorts_reversed:
                 order = not order
             self._state.sort_backwards = order
             self.browser.search()
@@ -519,7 +520,7 @@ class Table:
 
 
 class ItemState(ABC):
-    _columns: List[Tuple[str, str]]
+    _columns: Dict[str, Column]
     _active_columns: List[str]
     _sort_column: str
     _sort_backwards: bool
@@ -541,12 +542,24 @@ class ItemState(ABC):
     def card_ids_from_note_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
+    def column_at(self, index: int) -> Column:
+        """Returns the column object corresponding to the active column at index or the default
+        column object if no data is associated with the active column.
+        """
+
+        key = self._active_columns[index]
+        try:
+            return self._columns[key]
+        except KeyError:
+            self._columns[key] = Column()
+            return self._columns[key]
+
     # Columns and sorting
 
     # abstractproperty is deprecated but used due to mypy limitations
     # (https://github.com/python/mypy/issues/1362)
     @abstractproperty
-    def columns(self) -> List[Tuple[str, str]]:
+    def columns(self) -> Dict[str, Column]:
         """Return all for the state available columns."""
 
     @abstractproperty
@@ -615,35 +628,17 @@ class ItemState(ABC):
 class CardState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._load_columns()
+        self._columns = dict(
+            ((c[0], Column(*c)) for c in self.col.all_browser_card_columns())
+        )
         self._active_columns = self.col.load_browser_card_columns()
         self._sort_column = self.col.get_config("sortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_SORT_BACKWARDS
         )
 
-    def _load_columns(self) -> None:
-        self._columns = [
-            ("question", tr.browsing_question()),
-            ("answer", tr.browsing_answer()),
-            ("template", tr.browsing_card()),
-            ("deck", tr.decks_deck()),
-            ("noteFld", tr.browsing_sort_field()),
-            ("noteCrt", tr.browsing_created()),
-            ("noteMod", tr.search_note_modified()),
-            ("cardMod", tr.search_card_modified()),
-            ("cardDue", tr.statistics_due_date()),
-            ("cardIvl", tr.browsing_interval()),
-            ("cardEase", tr.browsing_ease()),
-            ("cardReps", tr.scheduling_reviews()),
-            ("cardLapses", tr.scheduling_lapses()),
-            ("noteTags", tr.editing_tags()),
-            ("note", tr.browsing_note()),
-        ]
-        self._columns.sort(key=itemgetter(1))
-
     @property
-    def columns(self) -> List[Tuple[str, str]]:
+    def columns(self) -> Dict[str, Column]:
         return self._columns
 
     @property
@@ -703,31 +698,17 @@ class CardState(ItemState):
 class NoteState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._load_columns()
+        self._columns = dict(
+            ((c[0], Column(*c)) for c in self.col.all_browser_note_columns())
+        )
         self._active_columns = self.col.load_browser_note_columns()
         self._sort_column = self.col.get_config("noteSortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
         )
 
-    def _load_columns(self) -> None:
-        self._columns = [
-            ("note", tr.browsing_note()),
-            ("noteCards", tr.editing_cards()),
-            ("noteCrt", tr.browsing_created()),
-            ("noteDue", tr.statistics_due_date()),
-            ("noteEase", tr.browsing_average_ease()),
-            ("noteFld", tr.browsing_sort_field()),
-            ("noteIvl", tr.browsing_average_interval()),
-            ("noteLapses", tr.scheduling_lapses()),
-            ("noteMod", tr.search_note_modified()),
-            ("noteReps", tr.scheduling_reviews()),
-            ("noteTags", tr.editing_tags()),
-        ]
-        self._columns.sort(key=itemgetter(1))
-
     @property
-    def columns(self) -> List[Tuple[str, str]]:
+    def columns(self) -> Dict[str, Column]:
         return self._columns
 
     @property
@@ -786,6 +767,16 @@ class NoteState(ItemState):
 
 # Data model
 ##########################################################################
+
+
+@dataclass
+class Column:
+    key: str = None
+    label: str = field(default_factory=tr.browsing_addon)
+    is_sortable: bool = False
+    sorts_reversed: bool = False
+    uses_cell_font: bool = False
+    aligns_centered: bool = True
 
 
 @dataclass
@@ -1022,8 +1013,11 @@ class DataModel(QAbstractTableModel):
 
     # Columns
 
-    def active_column(self, index: int) -> str:
-        return self._state.active_columns[index]
+    def column_at(self, index: QModelIndex) -> Column:
+        return self._state.column_at(index.column())
+
+    def column_at_section(self, section: int) -> Column:
+        return self._state.column_at(section)
 
     def active_column_index(self, column: str) -> Optional[int]:
         return (
@@ -1054,11 +1048,7 @@ class DataModel(QAbstractTableModel):
         if not index.isValid():
             return QVariant()
         if role == Qt.FontRole:
-            if self.active_column(index.column()) not in (
-                "question",
-                "answer",
-                "noteFld",
-            ):
+            if not self.column_at(index).uses_cell_font:
                 return QVariant()
             qfont = QFont()
             row = self.get_row(index)
@@ -1067,15 +1057,7 @@ class DataModel(QAbstractTableModel):
             return qfont
         if role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
-            if self.active_column(index.column()) not in (
-                "question",
-                "answer",
-                "template",
-                "deck",
-                "noteFld",
-                "note",
-                "noteTags",
-            ):
+            if self.column_at(index).aligns_centered:
                 align |= Qt.AlignHCenter
             return align
         if role in (Qt.DisplayRole, Qt.ToolTipRole):
@@ -1085,21 +1067,9 @@ class DataModel(QAbstractTableModel):
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = 0
     ) -> Optional[str]:
-        if orientation == Qt.Vertical:
-            return None
-        elif role == Qt.DisplayRole and section < self.len_columns():
-            column = self.active_column(section)
-            txt = None
-            for stype, name in self._state.columns:
-                if column == stype:
-                    txt = name
-                    break
-            # give the user a hint an invalid column was added by an add-on
-            if not txt:
-                txt = tr.browsing_addon()
-            return txt
-        else:
-            return None
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.column_at_section(section).label
+        return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if self.get_row(index).is_deleted:
