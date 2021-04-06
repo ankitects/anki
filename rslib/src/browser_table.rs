@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use itertools::Itertools;
 use serde_repr::{Deserialize_repr, Serialize_repr};
+use strum::{Display, EnumString};
 
 use crate::error::{AnkiError, Result};
 use crate::i18n::I18n;
@@ -21,9 +22,11 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy, Display, EnumString)]
+#[strum(serialize_all = "camelCase")]
 #[repr(u8)]
 pub enum Column {
+    #[strum(serialize = "")]
     Custom,
     Question,
     Answer,
@@ -31,21 +34,33 @@ pub enum Column {
     CardDue,
     CardEase,
     CardLapses,
+    #[strum(serialize = "cardIvl")]
     CardInterval,
     CardMod,
     CardReps,
+    #[strum(serialize = "template")]
     CardTemplate,
     NoteCards,
+    #[strum(serialize = "noteCrt")]
     NoteCreation,
     NoteDue,
     NoteEase,
+    #[strum(serialize = "noteFld")]
     NoteField,
+    #[strum(serialize = "noteIvl")]
     NoteInterval,
     NoteLapses,
     NoteMod,
     NoteReps,
     NoteTags,
+    #[strum(serialize = "note")]
     Notetype,
+}
+
+impl Default for Column {
+    fn default() -> Self {
+        Column::Custom
+    }
 }
 
 #[derive(Debug, PartialEq)]
