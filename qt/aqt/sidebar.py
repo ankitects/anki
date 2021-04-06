@@ -631,8 +631,8 @@ class SidebarTreeView(QTreeView):
         new_parent = DeckId(target.id)
 
         reparent_decks(
-            mw=self.mw, parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
-        )
+            parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
+        ).run_in_background()
 
         return True
 
@@ -652,7 +652,9 @@ class SidebarTreeView(QTreeView):
         else:
             new_parent = target.full_name
 
-        reparent_tags(parent=self.browser, tags=tags, new_parent=new_parent).run()
+        reparent_tags(
+            parent=self.browser, tags=tags, new_parent=new_parent
+        ).run_in_background()
 
         return True
 
@@ -948,7 +950,7 @@ class SidebarTreeView(QTreeView):
                 full_name = head + node.name
                 return lambda expanded: set_tag_collapsed(
                     parent=self, tag=full_name, collapsed=not expanded
-                ).run()
+                ).run_in_background()
 
             for node in nodes:
                 item = SidebarItem(
@@ -993,11 +995,12 @@ class SidebarTreeView(QTreeView):
         ) -> None:
             def toggle_expand(node: DeckTreeNode) -> Callable[[bool], None]:
                 return lambda expanded: set_deck_collapsed(
-                    mw=self.mw,
+                    parent=self,
                     deck_id=DeckId(node.deck_id),
                     collapsed=not expanded,
                     scope=DeckCollapseScope.BROWSER,
-                    handler=self,
+                ).run_in_background(
+                    initiator=self,
                 )
 
             for node in nodes:
@@ -1192,15 +1195,15 @@ class SidebarTreeView(QTreeView):
                 return
 
             rename_deck(
-                mw=self.mw,
+                parent=self,
                 deck_id=deck_id,
                 new_name=full_name,
-            )
+            ).run_in_background()
 
         self.mw.query_op(lambda: self.mw.col.get_deck(deck_id), success=after_fetch)
 
     def delete_decks(self, _item: SidebarItem) -> None:
-        remove_decks(mw=self.mw, parent=self.browser, deck_ids=self._selected_decks())
+        remove_decks(parent=self, deck_ids=self._selected_decks()).run_in_background()
 
     # Tags
     ###########################
@@ -1209,7 +1212,9 @@ class SidebarTreeView(QTreeView):
         tags = self.mw.col.tags.join(self._selected_tags())
         item.name = "..."
 
-        remove_tags_from_all_notes(parent=self.browser, space_separated_tags=tags).run()
+        remove_tags_from_all_notes(
+            parent=self.browser, space_separated_tags=tags
+        ).run_in_background()
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
         if not new_name or new_name == item.name:
@@ -1227,7 +1232,7 @@ class SidebarTreeView(QTreeView):
             parent=self.browser,
             current_name=old_name,
             new_name=new_name,
-        ).run()
+        ).run_in_background()
 
     # Saved searches
     ####################################

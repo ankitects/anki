@@ -278,7 +278,9 @@ class DeckBrowser:
             if not new_name or new_name == deck.name:
                 return
             else:
-                rename_deck(mw=self.mw, deck_id=did, new_name=new_name)
+                rename_deck(
+                    parent=self.mw, deck_id=did, new_name=new_name
+                ).run_in_background()
 
         self.mw.query_op(lambda: self.mw.col.get_deck(did), success=prompt)
 
@@ -293,18 +295,20 @@ class DeckBrowser:
         if node:
             node.collapsed = not node.collapsed
             set_deck_collapsed(
-                mw=self.mw,
+                parent=self.mw,
                 deck_id=did,
                 collapsed=node.collapsed,
                 scope=DeckCollapseScope.REVIEWER,
-            )
+            ).run_in_background()
             self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:
-        reparent_decks(mw=self.mw, parent=self.mw, deck_ids=[source], new_parent=target)
+        reparent_decks(
+            parent=self.mw, deck_ids=[source], new_parent=target
+        ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
-        remove_decks(mw=self.mw, parent=self.mw, deck_ids=[did])
+        remove_decks(parent=self.mw, deck_ids=[did]).run_in_background()
 
     # Top buttons
     ######################################################################
@@ -335,7 +339,8 @@ class DeckBrowser:
         openLink(f"{aqt.appShared}decks/")
 
     def _on_create(self) -> None:
-        add_deck_dialog(mw=self.mw, parent=self.mw)
+        if op := add_deck_dialog(parent=self.mw):
+            op.run_in_background()
 
     ######################################################################
 

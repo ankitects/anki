@@ -5,81 +5,74 @@ from __future__ import annotations
 
 from typing import Optional, Sequence
 
+from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.decks import DeckCollapseScope, DeckId
-from aqt import AnkiQt, QWidget
-from aqt.main import PerformOpOptionalSuccessCallback
+from aqt import QWidget
+from aqt.operations import CollectionOp
 from aqt.utils import getOnlyText, tooltip, tr
 
 
 def remove_decks(
     *,
-    mw: AnkiQt,
     parent: QWidget,
     deck_ids: Sequence[DeckId],
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.decks.remove(deck_ids),
-        success=lambda out: tooltip(
-            tr.browsing_cards_deleted(count=out.count), parent=parent
-        ),
+) -> CollectionOp[OpChangesWithCount]:
+    return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
+        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count), parent=parent)
     )
 
 
 def reparent_decks(
-    *, mw: AnkiQt, parent: QWidget, deck_ids: Sequence[DeckId], new_parent: DeckId
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.decks.reparent(deck_ids=deck_ids, new_parent=new_parent),
-        success=lambda out: tooltip(
+    *, parent: QWidget, deck_ids: Sequence[DeckId], new_parent: DeckId
+) -> CollectionOp[OpChangesWithCount]:
+    return CollectionOp(
+        parent, lambda col: col.decks.reparent(deck_ids=deck_ids, new_parent=new_parent)
+    ).success(
+        lambda out: tooltip(
             tr.browsing_reparented_decks(count=out.count), parent=parent
-        ),
+        )
     )
 
 
 def rename_deck(
     *,
-    mw: AnkiQt,
+    parent: QWidget,
     deck_id: DeckId,
     new_name: str,
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.decks.rename(deck_id, new_name),
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(
+        parent,
+        lambda col: col.decks.rename(deck_id, new_name),
     )
 
 
 def add_deck_dialog(
     *,
-    mw: AnkiQt,
     parent: QWidget,
     default_text: str = "",
-    success: PerformOpOptionalSuccessCallback = None,
-) -> None:
+) -> Optional[CollectionOp[OpChangesWithId]]:
     if name := getOnlyText(
         tr.decks_new_deck_name(), default=default_text, parent=parent
     ).strip():
-        add_deck(mw=mw, name=name, success=success)
+        return add_deck(parent=parent, name=name)
+    else:
+        return None
 
 
-def add_deck(
-    *, mw: AnkiQt, name: str, success: PerformOpOptionalSuccessCallback = None
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.decks.add_normal_deck_with_name(name),
-        success=success,
-    )
+def add_deck(*, parent: QWidget, name: str) -> CollectionOp[OpChangesWithId]:
+    return CollectionOp(parent, lambda col: col.decks.add_normal_deck_with_name(name))
 
 
 def set_deck_collapsed(
     *,
-    mw: AnkiQt,
+    parent: QWidget,
     deck_id: DeckId,
     collapsed: bool,
     scope: DeckCollapseScope.V,
-    handler: Optional[object] = None,
-) -> None:
-    mw.perform_op(
-        lambda: mw.col.decks.set_collapsed(
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(
+        parent,
+        lambda col: col.decks.set_collapsed(
             deck_id=deck_id, collapsed=collapsed, scope=scope
         ),
-        handler=handler,
     )
