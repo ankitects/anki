@@ -76,3 +76,7 @@ def set_deck_collapsed(
             deck_id=deck_id, collapsed=collapsed, scope=scope
         ),
     )
+
+
+def set_current_deck(*, parent: QWidget, deck_id: DeckId) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.decks.set_current(deck_id))

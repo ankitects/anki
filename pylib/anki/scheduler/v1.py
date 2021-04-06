@@ -33,7 +33,7 @@ class Scheduler(V2):
     def __init__(  # pylint: disable=super-init-not-called
         self, col: anki.collection.Collection
     ) -> None:
-        self.col = col.weakref()
+        super().__init__(col)
         self.queueLimit = 50
         self.reportLimit = 1000
         self.dynReportLimit = 99999
@@ -42,7 +42,6 @@ class Scheduler(V2):
         self.revCount = 0
         self.newCount = 0
         self._haveQueues = False
-        self._updateCutoff()
 
     def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()

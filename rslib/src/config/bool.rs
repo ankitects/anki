@@ -69,7 +69,7 @@ impl Collection {
         }
     }
 
-    pub(crate) fn set_bool(&mut self, key: BoolKey, value: bool) -> Result<()> {
+    pub(crate) fn set_bool(&mut self, key: BoolKey, value: bool) -> Result<bool> {
         self.set_config(key, &value)
     }
 }

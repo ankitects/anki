@@ -30,6 +30,7 @@ impl Collection {
 
     pub(crate) fn set_current_notetype_id(&mut self, ntid: NotetypeId) -> Result<()> {
         self.set_config(ConfigKey::CurrentNotetypeId, &ntid)
+            .map(|_| ())
     }
 
     pub(crate) fn clear_aux_config_for_notetype(&self, ntid: NotetypeId) -> Result<()> {
@@ -43,7 +44,7 @@ impl Collection {
 
     pub(crate) fn set_last_deck_for_notetype(&mut self, id: NotetypeId, did: DeckId) -> Result<()> {
         let key = NotetypeConfigKey::LastDeckAddedTo.for_notetype(id);
-        self.set_config(key.as_str(), &did)
+        self.set_config(key.as_str(), &did).map(|_| ())
     }
 }
 

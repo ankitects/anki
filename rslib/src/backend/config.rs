@@ -67,7 +67,7 @@ impl ConfigService for Backend {
             col.transact_no_undo(|col| {
                 // ensure it's a well-formed object
                 let val: Value = serde_json::from_slice(&input.value_json)?;
-                col.set_config(input.key.as_str(), &val)
+                col.set_config(input.key.as_str(), &val).map(|_| ())
             })
         })
         .map(Into::into)
@@ -98,7 +98,7 @@ impl ConfigService for Backend {
         self.with_col(|col| {
             col.transact_no_undo(|col| col.set_bool(input.key().into(), input.value))
         })
-        .map(Into::into)
+        .map(|_| ().into())
     }
 
     fn get_config_string(&self, input: pb::config::String) -> Result<pb::String> {
@@ -113,7 +113,7 @@ impl ConfigService for Backend {
         self.with_col(|col| {
             col.transact_no_undo(|col| col.set_string(input.key().into(), &input.value))
         })
-        .map(Into::into)
+        .map(|_| ().into())
     }
 
     fn get_preferences(&self, _input: pb::Empty) -> Result<pb::Preferences> {

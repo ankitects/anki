@@ -21,16 +21,19 @@ impl Collection {
                     .get_config_entry(&entry.key)?
                     .ok_or_else(|| AnkiError::invalid_input("config disappeared"))?;
                 self.update_config_entry_undoable(entry, current)
+                    .map(|_| ())
             }
             UndoableConfigChange::Removed(entry) => self.add_config_entry_undoable(entry),
         }
     }
 
-    pub(super) fn set_config_undoable(&mut self, entry: Box<ConfigEntry>) -> Result<()> {
+    /// True if added, or value changed.
+    pub(super) fn set_config_undoable(&mut self, entry: Box<ConfigEntry>) -> Result<bool> {
         if let Some(original) = self.storage.get_config_entry(&entry.key)? {
             self.update_config_entry_undoable(entry, original)
         } else {
-            self.add_config_entry_undoable(entry)
+            self.add_config_entry_undoable(entry)?;
+            Ok(true)
         }
     }
 
@@ -49,16 +52,19 @@ impl Collection {
         Ok(())
     }
 
+    /// True if new value differed.
     fn update_config_entry_undoable(
         &mut self,
         entry: Box<ConfigEntry>,
         original: Box<ConfigEntry>,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         if entry.value != original.value {
             self.save_undo(UndoableConfigChange::Updated(original));
             self.storage.set_config_entry(&entry)?;
+            Ok(true)
+        } else {
+            Ok(false)
         }
-        Ok(())
     }
 }
 

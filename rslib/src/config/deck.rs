@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::ConfigKey;
 use crate::prelude::*;
 
 use strum::IntoStaticStr;
@@ -20,11 +19,6 @@ impl DeckConfigKey {
 }
 
 impl Collection {
-    pub(crate) fn get_current_deck_id(&self) -> DeckId {
-        self.get_config_optional(ConfigKey::CurrentDeckId)
-            .unwrap_or(DeckId(1))
-    }
-
     pub(crate) fn clear_aux_config_for_deck(&self, ntid: DeckId) -> Result<()> {
         self.remove_config_prefix(&build_aux_deck_key(ntid, ""))
     }
@@ -38,7 +32,7 @@ impl Collection {
         &mut self,
         did: DeckId,
         ntid: NotetypeId,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         let key = DeckConfigKey::LastNotetype.for_deck(did);
         self.set_config(key.as_str(), &ntid)
     }

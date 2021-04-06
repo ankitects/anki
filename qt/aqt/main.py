@@ -53,6 +53,7 @@ from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
 from aqt.operations.collection import undo
+from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -1425,8 +1426,11 @@ title="%s" %s>%s</button>""" % (
 
         ret = StudyDeck(self, dyn=True, current=self.col.decks.current()["name"])
         if ret.name:
-            self.col.decks.select(self.col.decks.id(ret.name))
-            self.moveToState("overview")
+            # fixme: this is silly, it should be returning an ID
+            deck_id = self.col.decks.id(ret.name)
+            set_current_deck(parent=self, deck_id=deck_id).success(
+                lambda out: self.moveToState("overview")
+            ).run_in_background()
 
     def onEmptyCards(self) -> None:
         show_empty_cards(self)

@@ -17,6 +17,7 @@ from aqt.operations.deck import (
     remove_decks,
     rename_deck,
     reparent_decks,
+    set_current_deck,
     set_deck_collapsed,
 )
 from aqt.qt import *
@@ -79,7 +80,7 @@ class DeckBrowser:
     def op_executed(
         self, changes: OpChanges, handler: Optional[object], focused: bool
     ) -> bool:
-        if changes.study_queues:
+        if changes.study_queues and handler is not self:
             self._refresh_needed = True
 
         if focused:
@@ -96,7 +97,7 @@ class DeckBrowser:
         else:
             cmd = url
         if cmd == "open":
-            self._selDeck(arg)
+            self.set_current_deck(DeckId(int(arg)))
         elif cmd == "opts":
             self._showOptions(arg)
         elif cmd == "shared":
@@ -119,9 +120,10 @@ class DeckBrowser:
             self.refresh()
         return False
 
-    def _selDeck(self, did: str) -> None:
-        self.mw.col.decks.select(DeckId(int(did)))
-        self.mw.onOverview()
+    def set_current_deck(self, deck_id: DeckId) -> None:
+        set_current_deck(parent=self.mw, deck_id=deck_id).success(
+            lambda _: self.mw.onOverview()
+        ).run_in_background(initiator=self)
 
     # HTML generation
     ##########################################################################
