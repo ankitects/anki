@@ -30,6 +30,7 @@ pub enum Column {
     Custom,
     Question,
     Answer,
+    #[strum(serialize = "deck")]
     CardDeck,
     CardDue,
     CardEase,
