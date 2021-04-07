@@ -1,3 +1,17 @@
+<script context="module" lang="typescript">
+    import { writable } from "svelte/store";
+
+    const disabled = writable(false);
+
+    export function enableButtons(): void {
+        disabled.set(false);
+    }
+
+    export function disableButtons(): void {
+        disabled.set(true);
+    }
+</script>
+
 <script lang="typescript">
     import type { SvelteComponent } from "svelte";
     import type { Readable } from "svelte/store";
@@ -9,7 +23,6 @@
 
     export let buttons: Readable<Buttons>;
     export let menus: Readable<SvelteComponent[]>;
-    export let disabled: Readable<boolean>;
 
     $: _buttons = $buttons;
     $: _menus = $menus;

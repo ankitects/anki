@@ -41,7 +41,7 @@ export function focusField(n: number): void {
     if (field) {
         field.editingArea.focusEditable();
         caretToEnd(field.editingArea);
-        // @ts-ignore
+        // @ts-expect-error
         editorToolbar.updateActiveButtons();
     }
 }
@@ -122,8 +122,8 @@ export function setFields(fields: [string, string][]): void {
 
     if (!getCurrentField()) {
         // when initial focus of the window is not on editor (e.g. browser)
-        // @ts-ignore
-        document.getElementById("editorToolbar").disableButtons();
+        // @ts-expect-error
+        editorToolbar.disableButtons();
     }
 }
 
@@ -158,7 +158,7 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
-        // @ts-ignore
+        // @ts-expect-error
         editorToolbar.updateActiveButtons();
     }
 }
