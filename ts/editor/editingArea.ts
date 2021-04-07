@@ -59,7 +59,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("paste", onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
-        // @ts-ignore
+        // @ts-expect-error
         this.addEventListener("mouseup", editorToolbar.updateActiveButtons);
 
         const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
@@ -75,7 +75,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("paste", onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
-        // @ts-ignore
+        // @ts-expect-error
         this.removeEventListener("mouseup", editorToolbar.updateActiveButtons);
     }
 

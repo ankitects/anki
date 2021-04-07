@@ -11,8 +11,9 @@ import { formatButtons } from "./format";
 import { colorButtons } from "./color";
 import { templateButtons, templateMenus } from "./template";
 
-// @ts-ignore
+// @ts-expect-error
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
+export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 
 const defaultButtons = [notetypeButtons, formatButtons, colorButtons, templateButtons];
 const defaultMenus = [...templateMenus];
@@ -22,7 +23,6 @@ class EditorToolbar extends HTMLElement {
 
     buttons = writable(defaultButtons);
     menus = writable(defaultMenus);
-    disabled? = writable(false);
 
     connectedCallback(): void {
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
@@ -31,19 +31,10 @@ class EditorToolbar extends HTMLElement {
                 props: {
                     buttons: this.buttons,
                     menus: this.menus,
-                    disabled: this.disabled,
                     nightMode: checkNightMode(),
                 },
             });
         });
-    }
-
-    enableButtons(): void {
-        this.disabled!.set(false);
-    }
-
-    disableButtons(): void {
-        this.disabled!.set(true);
     }
 }
 

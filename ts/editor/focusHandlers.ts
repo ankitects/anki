@@ -10,8 +10,8 @@ export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focusEditable();
     bridgeCommand(`focus:${currentField.ord}`);
-    // @ts-ignore
-    document.getElementById("editorToolbar").enableButtons();
+    // @ts-expect-error
+    editorToolbar.enableButtons();
 }
 
 export function onBlur(evt: FocusEvent): void {
@@ -19,6 +19,6 @@ export function onBlur(evt: FocusEvent): void {
     const currentFieldUnchanged = previousFocus === document.activeElement;
 
     saveField(previousFocus, currentFieldUnchanged ? "key" : "blur");
-    // @ts-ignore
-    document.getElementById("editorToolbar").disableButtons();
+    // @ts-expect-error
+    editorToolbar.disableButtons();
 }
