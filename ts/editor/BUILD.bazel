@@ -36,6 +36,8 @@ esbuild(
     name = "editor",
     args = [
         "--loader:.svg=text",
+        "--resolve-extensions=.mjs,.js",
+        "--log-level=warning",
     ],
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],

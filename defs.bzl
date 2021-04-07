@@ -9,6 +9,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
+load("//ts/esbuild:esbuild_repo.bzl", "esbuild_dependencies")
 
 anki_version = "2.1.44"
 
@@ -52,3 +53,5 @@ def setup_deps():
     )
 
     sass_repositories()
+
+    esbuild_dependencies()
