@@ -5,6 +5,7 @@ esbuild rule
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
 load(":helpers.bzl", "filter_files", "generate_path_mapping", "resolve_js_input", "write_jsconfig_file")
+load(":toolchain.bzl", "TOOLCHAIN")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
@@ -128,7 +129,7 @@ def _esbuild_impl(ctx):
     ctx.actions.run(
         inputs = inputs,
         outputs = outputs,
-        executable = ctx.executable.tool,
+        executable = ctx.toolchains[TOOLCHAIN].binary,
         arguments = [args],
         progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", entry_point.short_path),
         execution_requirements = execution_requirements,
@@ -268,19 +269,15 @@ edge16, node10, default esnext)
 See https://esbuild.github.io/api/#target for more details
             """,
         ),
-        "tool": attr.label(
-            allow_single_file = True,
-            mandatory = True,
-            executable = True,
-            cfg = "exec",
-            doc = "An executable for the esbuild binary",
-        ),
     },
     implementation = _esbuild_impl,
     doc = """Runs the esbuild bundler under Bazel
 
 For further information about esbuild, see https://esbuild.github.io/
     """,
+    toolchains = [
+        TOOLCHAIN,
+    ],
 )
 
 def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
