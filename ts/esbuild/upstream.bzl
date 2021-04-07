@@ -1,11 +1,4 @@
 """
-NOTE: this file was forked from the following repo (Apache2)
-https://github.com/bazelbuild/rules_nodejs/blob/c47b770a122e9614516df2e3fdca6fe0bf6e3420/packages/esbuild/esbuild.bzl
-
-Local changes not in upstream:
-https://github.com/bazelbuild/rules_nodejs/pull/2545
-https://github.com/bazelbuild/rules_nodejs/pull/2564
-
 esbuild rule
 """
 
@@ -35,6 +28,9 @@ def _esbuild_impl(ctx):
         elif hasattr(dep, "files"):
             deps_depsets.append(dep.files)
 
+        if DefaultInfo in dep:
+            deps_depsets.append(dep[DefaultInfo].data_runfiles.files)
+
         if NpmPackageInfo in dep:
             deps_depsets.append(dep[NpmPackageInfo].sources)
             npm_workspaces.append(dep[NpmPackageInfo].workspace)
@@ -61,7 +57,12 @@ def _esbuild_impl(ctx):
     args = ctx.actions.args()
 
     args.add("--bundle", entry_point.path)
-    args.add("--sourcemap")
+
+    if len(ctx.attr.sourcemap) > 0:
+        args.add_joined(["--sourcemap", ctx.attr.sourcemap], join_with = "=")
+    else:
+        args.add("--sourcemap")
+
     args.add("--preserve-symlinks")
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
@@ -70,8 +71,8 @@ def _esbuild_impl(ctx):
     args.add_all(ctx.attr.define, format_each = "--define:%s")
     args.add_all(ctx.attr.external, format_each = "--external:%s")
 
-    # disable the error limit and show all errors
-    args.add_joined(["--error-limit", "0"], join_with = "=")
+    # disable the log limit and show all logs
+    args.add_joined(["--log-limit", "0"], join_with = "=")
 
     if ctx.attr.minify:
         args.add("--minify")
@@ -94,8 +95,14 @@ def _esbuild_impl(ctx):
         args.add_joined(["--outdir", js_out.path], join_with = "=")
     else:
         js_out = ctx.outputs.output
+        outputs.append(js_out)
+
         js_out_map = ctx.outputs.output_map
-        outputs.extend([js_out, js_out_map])
+        if ctx.attr.sourcemap != "inline":
+            if js_out_map == None:
+                fail("output_map must be specified if sourcemap is not set to 'inline'")
+            outputs.append(js_out_map)
+
         if ctx.outputs.output_css:
             outputs.append(ctx.outputs.output_css)
 
@@ -110,15 +117,23 @@ def _esbuild_impl(ctx):
 
     args.add_all([ctx.expand_location(arg) for arg in ctx.attr.args])
 
+    env = {}
+    if ctx.attr.max_threads > 0:
+        env["GOMAXPROCS"] = str(ctx.attr.max_threads)
+
+    execution_requirements = {}
+    if "no-remote-exec" in ctx.attr.tags:
+        execution_requirements = {"no-remote-exec": "1"}
+
     ctx.actions.run(
         inputs = inputs,
         outputs = outputs,
         executable = ctx.executable.tool,
         arguments = [args],
         progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", entry_point.short_path),
-        execution_requirements = {
-            "no-remote-exec": "1",
-        },
+        execution_requirements = execution_requirements,
+        mnemonic = "esbuild",
+        env = env,
     )
 
     return [
@@ -144,6 +159,7 @@ esbuild(
     ],
 )
 ```
+
 See https://esbuild.github.io/api/#define for more details
             """,
         ),
@@ -160,6 +176,7 @@ See https://esbuild.github.io/api/#define for more details
         "external": attr.string_list(
             default = [],
             doc = """A list of module names that are treated as external and not included in the resulting bundle
+
 See https://esbuild.github.io/api/#external for more details
             """,
         ),
@@ -168,6 +185,7 @@ See https://esbuild.github.io/api/#external for more details
             mandatory = False,
             doc = """The output format of the bundle, defaults to iife when platform is browser
 and cjs when platform is node. If performing code splitting, defaults to esm.
+
 See https://esbuild.github.io/api/#format for more details
         """,
         ),
@@ -175,11 +193,20 @@ See https://esbuild.github.io/api/#format for more details
             doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
     If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
         ),
+        "max_threads": attr.int(
+            mandatory = False,
+            doc = """Sets the `GOMAXPROCS` variable to limit the number of threads that esbuild can run with.
+This can be useful if running many esbuild rule invocations in parallel, which has the potential to cause slowdown.
+For general use, leave this attribute unset.
+            """,
+        ),
         "minify": attr.bool(
             default = False,
             doc = """Minifies the bundle with the built in minification.
 Removes whitespace, shortens identifieres and uses equivalent but shorter syntax.
+
 Sets all --minify-* flags
+
 See https://esbuild.github.io/api/#minify for more details
             """,
         ),
@@ -190,6 +217,7 @@ See https://esbuild.github.io/api/#minify for more details
         "output_dir": attr.bool(
             default = False,
             doc = """If true, esbuild produces an output directory containing all the output files from code splitting
+
 See https://esbuild.github.io/api/#splitting for more details
             """,
         ),
@@ -205,13 +233,23 @@ See https://esbuild.github.io/api/#splitting for more details
             default = "browser",
             values = ["node", "browser", "neutral", ""],
             doc = """The platform to bundle for.
+
 See https://esbuild.github.io/api/#platform for more details
+            """,
+        ),
+        "sourcemap": attr.string(
+            values = ["external", "inline", "both", ""],
+            mandatory = False,
+            doc = """Defines where sourcemaps are output and how they are included in the bundle. By default, a separate `.js.map` file is generated and referenced by the bundle. If 'external', a separate `.js.map` file is generated but not referenced by the bundle. If 'inline', a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If 'both', a sourcemap is inlined and a `.js.map` file is created.
+
+See https://esbuild.github.io/api/#sourcemap for more details
             """,
         ),
         "sources_content": attr.bool(
             mandatory = False,
             default = False,
             doc = """If False, omits the `sourcesContent` field from generated source maps
+
 See https://esbuild.github.io/api/#sources-content for more details
             """,
         ),
@@ -219,12 +257,14 @@ See https://esbuild.github.io/api/#sources-content for more details
             allow_files = True,
             default = [],
             doc = """Non-entry point JavaScript source files from the workspace.
+
 You must not repeat file(s) passed to entry_point""",
         ),
         "target": attr.string(
             default = "es2015",
             doc = """Environment target (e.g. es2017, chrome58, firefox57, safari11, 
 edge16, node10, default esnext)
+
 See https://esbuild.github.io/api/#target for more details
             """,
         ),
@@ -238,17 +278,20 @@ See https://esbuild.github.io/api/#target for more details
     },
     implementation = _esbuild_impl,
     doc = """Runs the esbuild bundler under Bazel
+
 For further information about esbuild, see https://esbuild.github.io/
     """,
 )
 
 def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
     """esbuild helper macro around the `esbuild_bundle` rule
+
     For a full list of attributes, see the `esbuild_bundle` rule
+
     Args:
         name: The name used for this rule and output files
         output_dir: If `True`, produce a code split bundle in an output directory
-        output_css: If `True`, declare a .css file will be outputted, which is the
+        output_css: If `True`, declare name.css as an output, which is the
                     case when your code imports a css file.
         **kwargs: All other args from `esbuild_bundle`
     """
@@ -260,10 +303,19 @@ def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
             **kwargs
         )
     else:
+        output = "%s.js" % name
+        if "output" in kwargs:
+            output = kwargs.pop("output")
+
+        output_map = None
+        sourcemap = kwargs.get("sourcemap", None)
+        if sourcemap != "inline":
+            output_map = "%s.map" % output
+
         esbuild(
             name = name,
-            output = "%s.js" % name,
-            output_map = "%s.js.map" % name,
+            output = output,
+            output_map = output_map,
             output_css = None if not output_css else "%s.css" % name,
             **kwargs
         )
