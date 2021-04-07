@@ -87,8 +87,8 @@ def register_repos():
 
     http_archive(
         name = "build_bazel_rules_nodejs",
-        sha256 = "55a25a762fcf9c9b88ab54436581e671bc9f4f523cb5a1bd32459ebec7be68a8",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.2.2/rules_nodejs-3.2.2.tar.gz"],
+        sha256 = "1af6e031b007c7a1e7d14654da837c33cbd22e325ccfd06747421e5fd6a115ea",
+        urls = ["https://github.com/ankitects/rules_nodejs/releases/download/anki-2021-04-07/release.tar.gz"],
     )
 
     # sass
