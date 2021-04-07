@@ -40,3 +40,4 @@ errors-unable-open-collection =
     Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.
     
     Debug info:
+errors-windows-tts-runtime-error = The TTS service failed. Please ensure Windows updates are installed, try restarting your computer, and try using a different voice.
