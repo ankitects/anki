@@ -3,6 +3,7 @@ window.MathJax = {
         displayMath: [["\\[", "\\]"]],
         processRefs: false,
         processEnvironments: false,
+        processEscapes: false,
         packages: {
             "[+]": ["noerrors", "mhchem"],
         },
