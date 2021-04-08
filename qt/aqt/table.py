@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import time
 from abc import ABC, abstractmethod, abstractproperty
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -22,6 +22,7 @@ from typing import (
 import aqt
 import aqt.forms
 from anki.cards import Card, CardId
+from anki.collection import BrowserColumns as Columns
 from anki.collection import BrowserRow, Collection, Config, OpChanges
 from anki.consts import *
 from anki.errors import NotFoundError
@@ -39,6 +40,7 @@ from aqt.utils import (
     tr,
 )
 
+Column = Columns.Column
 ItemId = Union[CardId, NoteId]
 ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 
@@ -551,7 +553,7 @@ class ItemState(ABC):
         try:
             return self._columns[key]
         except KeyError:
-            self._columns[key] = Column(key)
+            self._columns[key] = addon_column_fillin(key)
             return self._columns[key]
 
     # Columns and sorting
@@ -628,9 +630,7 @@ class ItemState(ABC):
 class CardState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._columns = dict(
-            ((c[0], Column(*c)) for c in self.col.all_browser_card_columns())
-        )
+        self._columns = dict(((c.key, c) for c in self.col.all_browser_card_columns()))
         self._active_columns = self.col.load_browser_card_columns()
         self._sort_column = self.col.get_config("sortType")
         self._sort_backwards = self.col.get_config_bool(
@@ -698,9 +698,7 @@ class CardState(ItemState):
 class NoteState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._columns = dict(
-            ((c[0], Column(*c)) for c in self.col.all_browser_note_columns())
-        )
+        self._columns = dict(((c.key, c) for c in self.col.all_browser_note_columns()))
         self._active_columns = self.col.load_browser_note_columns()
         self._sort_column = self.col.get_config("noteSortType")
         self._sort_backwards = self.col.get_config_bool(
@@ -767,16 +765,6 @@ class NoteState(ItemState):
 
 # Data model
 ##########################################################################
-
-
-@dataclass
-class Column:
-    key: str
-    label: str = field(default_factory=tr.browsing_addon)
-    is_sortable: bool = False
-    sorts_reversed: bool = False
-    uses_cell_font: bool = False
-    aligns_centered: bool = True
 
 
 @dataclass
@@ -1097,3 +1085,17 @@ class StatusDelegate(QItemDelegate):
             painter.fillRect(option.rect, brush)
             painter.restore()
         return QItemDelegate.paint(self, painter, option, index)
+
+
+def addon_column_fillin(key: str) -> Column:
+    """Return a column with generic fields and a label indicating to the user that this column was
+    added by an add-on.
+    """
+    return Column(
+        key=key,
+        label=tr.browsing_addon(),
+        is_sortable=False,
+        sorts_reversed=False,
+        uses_cell_font=False,
+        aligns_centered=True,
+    )
