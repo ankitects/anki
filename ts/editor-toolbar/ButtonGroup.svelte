@@ -6,12 +6,12 @@
     export let props: Record<string, string> = {};
 
     export let buttons: Buttons;
-    export let wraps: boolean;
 </script>
 
 <style lang="scss">
     ul {
         display: flex;
+        flex-wrap: var(--toolbar-wrap);
         overflow-y: auto;
 
         padding-inline-start: 0;
@@ -21,10 +21,6 @@
         & :global(select) {
             margin-left: -1px;
         }
-    }
-
-    .wraps {
-        flex-flow: wrap;
     }
 
     li {
@@ -54,11 +50,11 @@
     }
 </style>
 
-<ul {id} class={className} {...props} class:wraps>
+<ul {id} class={className} {...props}>
     {#each buttons as button}
         <li>
             {#if Array.isArray(button)}
-                <svelte:self buttons={button} {wraps} />
+                <svelte:self buttons={button} />
             {:else}
                 <svelte:component this={button.component} {...button} />
             {/if}
