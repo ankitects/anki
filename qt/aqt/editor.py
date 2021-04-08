@@ -1351,3 +1351,13 @@ gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 gui_hooks.editor_will_munge_html.append(munge_html)
 gui_hooks.editor_will_munge_html.append(remove_null_bytes)
 gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
+
+
+def set_cloze_button(editor: Editor) -> None:
+    if editor.note.model()["type"] == MODEL_CLOZE:
+        editor.web.eval('document.getElementById("editorToolbar").showButton("template", "cloze"); ')
+    else:
+        editor.web.eval('document.getElementById("editorToolbar").hideButton("template", "cloze"); ')
+
+
+gui_hooks.editor_did_load_note.append(set_cloze_button)
