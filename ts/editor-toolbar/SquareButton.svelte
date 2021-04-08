@@ -5,7 +5,6 @@
 
     export let id = "";
     export let className = "";
-    export let props: Record<string, string> = {};
     export let tooltip: string;
 
     export let onClick: (event: MouseEvent) => void;
@@ -85,11 +84,11 @@
     bind:this={buttonRef}
     {id}
     class={className}
-    {...props}
     title={tooltip}
     class:active
     tabindex="-1"
     disabled={_disabled}
+    {...$$restProps}
     on:click={onClick}
     on:mousedown|preventDefault>
     <span class="p-1"><slot /></span>

@@ -4,7 +4,6 @@
 
     export let id = "";
     export let className = "";
-    export let props: Record<string, string> = {};
 
     export let label: string;
     export let tooltip: string;
@@ -57,9 +56,9 @@
     disabled={_disabled}
     {id}
     class={extendClassName(className)}
-    {...props}
+    title={tooltip}
+    {...$$restProps}
     on:click={onClick}
-    on:mousedown|preventDefault
-    title={tooltip}>
+    on:mousedown|preventDefault>
     {label}
 </button>

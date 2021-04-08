@@ -1,7 +1,6 @@
 <script lang="typescript">
     export let id = "";
     export let className = "";
-    export let props: Record<string, string> = {};
     export let tooltip: string;
 
     export let onClick: (event: MouseEvent) => void;
@@ -12,8 +11,8 @@
 <button
     {id}
     class={`dropdown-item ${className}`}
-    {...props}
     title={tooltip}
+    {...$$restProps}
     on:click={onClick}
     on:mousedown|preventDefault>
     <span class="float-start">{label}</span>

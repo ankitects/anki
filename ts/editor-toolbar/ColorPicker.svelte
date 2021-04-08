@@ -1,7 +1,6 @@
 <script lang="typescript">
     export let id = "";
     export let className = "";
-    export let props: Record<string, string> = {};
     export let tooltip: string;
 
     export let onChange: (event: Event) => void;
@@ -46,8 +45,8 @@
     tabindex="-1"
     {id}
     class={className}
-    {...props}
     title={tooltip}
+    {...$$restProps}
     on:mousedown|preventDefault>
     <span> <input type="color" on:change={onChange} /> </span>
 </button>
