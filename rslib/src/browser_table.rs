@@ -395,6 +395,12 @@ impl RowContext {
     }
 
     fn deck_str(&mut self) -> String {
+        if self.notes_mode {
+            let decks = self.cards.iter().map(|c| c.deck_id).unique().count();
+            if decks > 1 {
+                return format!("({})", decks);
+            }
+        }
         let deck_name = self.deck.human_name();
         if let Some(original_deck) = &self.original_deck {
             format!("{} ({})", &deck_name, &original_deck.human_name())
