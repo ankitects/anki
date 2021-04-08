@@ -27,11 +27,16 @@
     $: _menus = $menus;
 
     export let nightMode: boolean;
-    export let size: number = 30;
-    export let wraps: boolean = true;
 
     setContext(nightModeKey, nightMode);
     setContext(disabledKey, disabled);
+
+    export let size: number = 30;
+    export let wraps: boolean = true;
+
+    $: style = `--toolbar-size: ${size}px; --toolbar-wrap: ${
+        wraps ? "wrap" : "nowrap"
+    }`;
 </script>
 
 <style lang="scss">
@@ -57,14 +62,12 @@
     }
 </style>
 
-<div style={`--toolbar-size: ${size}px; --toolbar-wrap: ${wraps ? 'wrap' : 'nowrap'}`}>
-    <div>
-        {#each _menus as menu}
-            <svelte:component this={menu.component} {...menu} />
-        {/each}
-    </div>
-
-    <nav>
-        <ButtonGroup buttons={_buttons} />
-    </nav>
+<div {style}>
+    {#each _menus as menu}
+        <svelte:component this={menu.component} {...menu} />
+    {/each}
 </div>
+
+<nav {style}>
+    <ButtonGroup buttons={_buttons} />
+</nav>
