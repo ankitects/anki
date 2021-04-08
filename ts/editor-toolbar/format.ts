@@ -1,5 +1,7 @@
 import CommandIconButton from "./CommandIconButton.svelte";
 import type { CommandIconButtonProps } from "./CommandIconButton";
+import ButtonGroup from "./ButtonGroup.svelte";
+import type { ButtonGroupProps } from "./ButtonGroup";
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
@@ -74,11 +76,18 @@ const removeFormatButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     }
 );
 
-export const formatButtons = [
-    boldButton,
-    italicButton,
-    underlineButton,
-    superscriptButton,
-    subscriptButton,
-    removeFormatButton,
-];
+const buttonGroup = dynamicComponent(ButtonGroup);
+export const formatGroup = buttonGroup<ButtonGroupProps>(
+    {
+        id: "color",
+        buttons: [
+            boldButton,
+            italicButton,
+            underlineButton,
+            superscriptButton,
+            subscriptButton,
+            removeFormatButton,
+        ],
+    },
+    {}
+);

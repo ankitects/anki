@@ -2,6 +2,8 @@ import IconButton from "./IconButton.svelte";
 import type { IconButtonProps } from "./IconButton";
 import ColorPicker from "./ColorPicker.svelte";
 import type { ColorPickerProps } from "./ColorPicker";
+import ButtonGroup from "./ButtonGroup.svelte";
+import type { ButtonGroupProps } from "./ButtonGroup";
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
@@ -47,4 +49,11 @@ const colorpickerButton = colorPicker<ColorPickerProps, "tooltip">(
     }
 );
 
-export const colorButtons = [forecolorButton, colorpickerButton];
+const buttonGroup = dynamicComponent(ButtonGroup);
+export const colorGroup = buttonGroup<ButtonGroupProps>(
+    {
+        id: "color",
+        buttons: [forecolorButton, colorpickerButton],
+    },
+    {}
+);

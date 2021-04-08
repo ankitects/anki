@@ -6,6 +6,8 @@ import DropdownItem from "./DropdownItem.svelte";
 import type { DropdownItemProps } from "./DropdownItem";
 import WithDropdownMenu from "./WithDropdownMenu.svelte";
 import type { WithDropdownMenuProps } from "./WithDropdownMenu";
+import ButtonGroup from "./ButtonGroup.svelte";
+import type { ButtonGroupProps } from "./ButtonGroup";
 
 import { bridgeCommand } from "anki/bridgecommand";
 import { dynamicComponent } from "sveltelib/dynamicComponent";
@@ -126,12 +128,19 @@ const htmlButton = iconButton<IconButtonProps, "tooltip">(
     }
 );
 
-export const templateButtons = [
-    attachmentButton,
-    recordButton,
-    clozeButton,
-    mathjaxButtonWithMenu,
-    htmlButton,
-];
+const buttonGroup = dynamicComponent(ButtonGroup);
+export const templateGroup = buttonGroup<ButtonGroupProps>(
+    {
+        id: "template",
+        buttons: [
+            attachmentButton,
+            recordButton,
+            clozeButton,
+            mathjaxButtonWithMenu,
+            htmlButton,
+        ],
+    },
+    {}
+);
 
 export const templateMenus = [mathjaxMenu];
