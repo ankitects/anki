@@ -29,6 +29,7 @@
 
     export let nightMode: boolean;
     export let size: number = 30;
+    export let wraps: boolean = true;
 
     setContext(nightModeKey, nightMode);
     setContext(disabledKey, disabled);
@@ -65,6 +66,6 @@
     </div>
 
     <nav>
-        <ButtonGroup buttons={_buttons} />
+        <ButtonGroup buttons={_buttons} {wraps} />
     </nav>
 </div>

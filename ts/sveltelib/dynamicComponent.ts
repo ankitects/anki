@@ -6,12 +6,16 @@ export interface DynamicSvelteComponent<
     component: T;
 }
 
-export const dynamicComponent = <Comp extends typeof SvelteComponentDev>(component: Comp) => <
+export const dynamicComponent = <Comp extends typeof SvelteComponentDev>(
+    component: Comp
+) => <
     Props extends NonNullable<ConstructorParameters<Comp>[0]["props"]>,
     Lazy extends string = never
 >(
     props: Omit<Props, Lazy>,
-    lazyProps: { [Property in keyof Pick<Props, Lazy>]: () => Pick<Props, Lazy>[Property] }
+    lazyProps: {
+        [Property in keyof Pick<Props, Lazy>]: () => Pick<Props, Lazy>[Property];
+    }
 ): DynamicSvelteComponent<Comp> & Props => {
     const dynamicComponent = { component, ...props };
 
