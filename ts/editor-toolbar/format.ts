@@ -79,7 +79,7 @@ const removeFormatButton = commandIconButton<CommandIconButtonProps, "tooltip">(
 const buttonGroup = dynamicComponent(ButtonGroup);
 export const formatGroup = buttonGroup<ButtonGroupProps>(
     {
-        id: "color",
+        id: "format",
         buttons: [
             boldButton,
             italicButton,

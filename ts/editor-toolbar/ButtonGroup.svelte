@@ -1,10 +1,20 @@
 <script lang="typescript">
     import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
+    interface Hidden {
+        hidden: boolean;
+    }
+
     export let id;
     export let className = "";
+    export let buttons: DynamicSvelteComponent<Hidden>[];
 
-    export let buttons: DynamicSvelteComponent[];
+    function filterHidden({
+        hidden,
+        ...props
+    }: DynamicSvelteComponent & Hidden): DynamicSvelteComponent {
+        return props;
+    }
 </script>
 
 <style lang="scss">
@@ -51,8 +61,10 @@
 
 <ul {id} class={className} {...$$restProps}>
     {#each buttons as button}
-        <li>
-            <svelte:component this={button.component} {...button} />
-        </li>
+        {#if !button.hidden}
+            <li>
+                <svelte:component this={button.component} {...filterHidden(button)} />
+            </li>
+        {/if}
     {/each}
 </ul>

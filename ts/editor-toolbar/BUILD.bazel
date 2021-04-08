@@ -28,6 +28,7 @@ ts_library(
         "EditorToolbar",
         "lib",
         "//ts/lib",
+        "//ts/sveltelib",
         "@npm//svelte",
         "@npm//svelte2tsx",
     ],
@@ -40,9 +41,9 @@ ts_library(
         exclude = ["index.ts"],
     ),
     deps = [
-        "//ts/sveltelib",
         "//ts/lib",
         "//ts/lib:backend_proto",
+        "//ts/sveltelib",
         "//ts:image_module_support",
         "@npm//svelte",
     ],

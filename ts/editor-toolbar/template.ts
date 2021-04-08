@@ -60,6 +60,7 @@ const recordButton = iconButton(
 
 const clozeButton = iconButton<IconButtonProps, "tooltip">(
     {
+        id: "cloze",
         icon: bracketsIcon,
         onClick: onCloze,
     },
