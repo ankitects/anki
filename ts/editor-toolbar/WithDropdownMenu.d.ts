@@ -1,6 +1,6 @@
-import type { ButtonDefinition } from "./types";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 export interface WithDropdownMenuProps {
-    button: ButtonDefinition;
+    button: DynamicSvelteComponent;
     menuId: string;
 }

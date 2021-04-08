@@ -1,10 +1,10 @@
 <script lang="typescript">
-    import type { ButtonDefinition } from "./types";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-    export let button: ButtonDefinition;
+    export let button: DynamicSvelteComponent;
     export let menuId: string;
 
-    function extend({ className, props, ...rest }: ButtonDefinition): ButtonDefinition {
+    function extend({ className, props, ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
         return {
             className: `${className} dropdown-toggle`,
             props: {
