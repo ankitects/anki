@@ -1,9 +1,10 @@
 import type { SvelteComponent } from "svelte";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import type ButtonGroup from "./ButtonGroup.svelte";
+import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
 
+import { dynamicComponent } from "sveltelib/dynamicComponent";
 import { writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
@@ -16,24 +17,10 @@ import { formatGroup } from "./format";
 import { colorGroup } from "./color";
 import { templateGroup, templateMenus } from "./template";
 
-// @ts-expect-error
-export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
-export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
-
-const defaultButtons = [notetypeGroup, formatGroup, colorGroup, templateGroup];
-const defaultMenus = [...templateMenus];
+import { Identifiable, search, add, insert } from "./identifiable";
 
 interface Hideable {
     hidden?: boolean;
-}
-
-function searchByIdOrIndex<T extends { id?: string }>(
-    values: T[],
-    idOrIndex: string | number
-): T | undefined {
-    return typeof idOrIndex === "string"
-        ? values.find((value) => value.id === idOrIndex)
-        : values[idOrIndex];
 }
 
 function showComponent(component: Hideable) {
@@ -47,6 +34,9 @@ function hideComponent(component: Hideable) {
 function toggleComponent(component: Hideable) {
     component.hidden = !component.hidden;
 }
+
+const defaultButtons = [notetypeGroup, formatGroup, colorGroup, templateGroup];
+const defaultMenus = [...templateMenus];
 
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponent;
@@ -76,7 +66,7 @@ class EditorToolbar extends HTMLElement {
                 buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
                     ButtonGroupProps)[]
             ) => {
-                const foundGroup = searchByIdOrIndex(buttonGroups, group);
+                const foundGroup = search(buttonGroups, group);
 
                 if (foundGroup) {
                     update(
@@ -103,6 +93,32 @@ class EditorToolbar extends HTMLElement {
         this.updateButtonGroup<Hideable>(toggleComponent, group);
     }
 
+    insertButtonGroup(newGroup: ButtonGroupProps, group: string | number = 0) {
+        const buttonGroup = dynamicComponent(ButtonGroup);
+        this.buttons.update(
+            (
+                buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
+                    ButtonGroupProps)[]
+            ) => {
+                const newButtonGroup = buttonGroup<ButtonGroupProps>(newGroup, {});
+                return insert(buttonGroups, newButtonGroup, group);
+            }
+        );
+    }
+
+    addButtonGroup(newGroup: ButtonGroupProps, group: string | number = -1) {
+        const buttonGroup = dynamicComponent(ButtonGroup);
+        this.buttons.update(
+            (
+                buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
+                    ButtonGroupProps)[]
+            ) => {
+                const newButtonGroup = buttonGroup<ButtonGroupProps>(newGroup, {});
+                return add(buttonGroups, newButtonGroup, group);
+            }
+        );
+    }
+
     updateButton<T>(
         update: (component: DynamicSvelteComponent & T) => void,
         group: string | number,
@@ -113,8 +129,8 @@ class EditorToolbar extends HTMLElement {
                 foundGroup: DynamicSvelteComponent<typeof ButtonGroup> &
                     ButtonGroupProps
             ) => {
-                const foundButton = searchByIdOrIndex(
-                    foundGroup.buttons as (DynamicSvelteComponent & { id?: string })[],
+                const foundButton = search(
+                    foundGroup.buttons as (DynamicSvelteComponent & Identifiable)[],
                     button
                 );
 
@@ -137,9 +153,52 @@ class EditorToolbar extends HTMLElement {
     toggleButton(group: string | number, button: string | number): void {
         this.updateButton<Hideable>(toggleComponent, group, button);
     }
+
+    insertButton(
+        newButton: DynamicSvelteComponent & Identifiable,
+        group: string | number,
+        button: string | number = 0
+    ) {
+        this.updateButtonGroup(
+            (
+                component: DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps
+            ) => {
+                component.buttons = insert(
+                    component.buttons as (DynamicSvelteComponent & Identifiable)[],
+                    newButton,
+                    button
+                );
+            },
+            group
+        );
+    }
+
+    addButton(
+        newButton: DynamicSvelteComponent & Identifiable,
+        group: string | number,
+        button: string | number = -1
+    ) {
+        this.updateButtonGroup(
+            (
+                component: DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps
+            ) => {
+                component.buttons = add(
+                    component.buttons as (DynamicSvelteComponent & Identifiable)[],
+                    newButton,
+                    button
+                );
+            },
+            group
+        );
+    }
 }
 
 customElements.define("anki-editor-toolbar", EditorToolbar);
+
+/* Exports for editor
+ * @ts-expect-error */
+export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
+export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 
 /* Exports for add-ons */
 export { default as LabelButton } from "./LabelButton.svelte";
