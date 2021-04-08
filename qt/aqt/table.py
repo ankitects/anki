@@ -1045,7 +1045,7 @@ class DataModel(QAbstractTableModel):
             return qfont
         if role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
-            if self.column_at(index).aligns_centered:
+            if self.column_at(index).alignment == Columns.ALIGNMENT_CENTER:
                 align |= Qt.AlignHCenter
             return align
         if role in (Qt.DisplayRole, Qt.ToolTipRole):
@@ -1097,5 +1097,5 @@ def addon_column_fillin(key: str) -> Column:
         is_sortable=False,
         sorts_reversed=False,
         uses_cell_font=False,
-        aligns_centered=True,
+        alignment=Columns.ALIGNMENT_CENTER,
     )

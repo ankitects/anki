@@ -62,7 +62,7 @@ impl browser_table::Column {
             is_sortable: self.is_sortable(),
             sorts_reversed: self == browser_table::Column::NoteField,
             uses_cell_font: self.uses_cell_font(),
-            aligns_centered: self.aligns_centered(),
+            alignment: self.alignment() as i32,
         }
     }
 
@@ -74,17 +74,17 @@ impl browser_table::Column {
         matches!(self, Self::Question | Self::Answer | Self::NoteField)
     }
 
-    fn aligns_centered(self) -> bool {
-        !matches!(
-            self,
+    fn alignment(self) -> pb::browser_columns::Alignment {
+        match self {
             Self::Question
-                | Self::Answer
-                | Self::CardTemplate
-                | Self::CardDeck
-                | Self::NoteField
-                | Self::Notetype
-                | Self::NoteTags
-        )
+            | Self::Answer
+            | Self::CardTemplate
+            | Self::CardDeck
+            | Self::NoteField
+            | Self::Notetype
+            | Self::NoteTags => pb::browser_columns::Alignment::Start,
+            _ => pb::browser_columns::Alignment::Center,
+        }
     }
 
     fn localized_label(self, i18n: &I18n) -> String {
