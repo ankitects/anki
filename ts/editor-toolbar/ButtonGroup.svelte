@@ -13,7 +13,7 @@
         display: flex;
         /* flex-flow: nowrap for a scrollable toolbar */
         flex-flow: wrap;
-        overflow: scroll;
+        overflow-y: auto;
 
         padding-inline-start: 0;
         margin-bottom: 0;
