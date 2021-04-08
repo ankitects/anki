@@ -4,12 +4,12 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
-    export let title: string;
+    export let tooltip: string;
 
     export let icon = "";
     export let onClick: (event: MouseEvent) => void;
 </script>
 
-<SquareButton {id} {className} {props} {title} {onClick} on:mount>
+<SquareButton {id} {className} {props} {tooltip} {onClick} on:mount>
     {@html icon}
 </SquareButton>

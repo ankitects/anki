@@ -1,7 +1,7 @@
 export interface CommandIconButtonProps {
     id?: string;
     className?: string;
-    title: string;
+    tooltip: string;
     icon: string;
     command: string;
     activatable?: boolean;

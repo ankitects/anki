@@ -6,7 +6,7 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
-    export let title: string;
+    export let tooltip: string;
 
     export let onClick: (event: MouseEvent) => void;
     export let active = false;
@@ -86,7 +86,7 @@
     {id}
     class={className}
     {...props}
-    {title}
+    title={tooltip}
     class:active
     tabindex="-1"
     disabled={_disabled}

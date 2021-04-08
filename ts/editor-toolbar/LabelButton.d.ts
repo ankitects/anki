@@ -3,7 +3,7 @@ export interface LabelButtonProps {
     className?: string;
 
     label: string;
-    title: string;
+    tooltip: string;
     onClick: (event: MouseEvent) => void;
     disables?: boolean;
 }

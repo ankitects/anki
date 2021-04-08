@@ -7,7 +7,7 @@
     export let props: Record<string, string> = {};
 
     export let label: string;
-    export let title: string;
+    export let tooltip: string;
     export let onClick: (event: MouseEvent) => void;
     export let disables = true;
 
@@ -60,6 +60,6 @@
     {...props}
     on:click={onClick}
     on:mousedown|preventDefault
-    {title}>
+    title={tooltip}>
     {label}
 </button>

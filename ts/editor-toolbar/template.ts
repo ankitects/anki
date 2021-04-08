@@ -39,34 +39,34 @@ const withDropdownMenu = dynamicComponent(WithDropdownMenu);
 const dropdownMenu = dynamicComponent(DropdownMenu);
 const dropdownItem = dynamicComponent(DropdownItem);
 
-const attachmentButton = iconButton<IconButtonProps, "title">(
+const attachmentButton = iconButton<IconButtonProps, "tooltip">(
     {
         icon: paperclipIcon,
         onClick: onAttachment,
     },
     {
-        title: tr.editingAttachPicturesaudiovideoF3,
+        tooltip: tr.editingAttachPicturesaudiovideoF3,
     }
 );
 
 const recordButton = iconButton(
     { icon: micIcon, onClick: onRecord },
     {
-        title: tr.editingRecordAudioF5,
+        tooltip: tr.editingRecordAudioF5,
     }
 );
 
-const clozeButton = iconButton<IconButtonProps, "title">(
+const clozeButton = iconButton<IconButtonProps, "tooltip">(
     {
         icon: bracketsIcon,
         onClick: onCloze,
     },
     {
-        title: tr.editingClozeDeletionCtrlandshiftandc,
+        tooltip: tr.editingClozeDeletionCtrlandshiftandc,
     }
 );
 
-const mathjaxButton = iconButton<Omit<IconButtonProps, "onClick" | "title">>(
+const mathjaxButton = iconButton<Omit<IconButtonProps, "onClick" | "tooltip">>(
     {
         icon: functionIcon,
     },
@@ -82,7 +82,7 @@ const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
             dropdownItem<DropdownItemProps, "label">(
                 {
                     onClick: () => bridgeCommand("mathjaxInline"),
-                    title: "test",
+                    tooltip: "test",
                     endLabel: "test",
                 },
                 { label: tr.editingMathjaxInline }
@@ -90,7 +90,7 @@ const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
             dropdownItem<DropdownItemProps, "label">(
                 {
                     onClick: () => bridgeCommand("mathjaxBlock"),
-                    title: "test",
+                    tooltip: "test",
                     endLabel: "test",
                 },
                 { label: tr.editingMathjaxBlock }
@@ -98,7 +98,7 @@ const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
             dropdownItem<DropdownItemProps, "label">(
                 {
                     onClick: () => bridgeCommand("mathjaxChemistry"),
-                    title: "test",
+                    tooltip: "test",
                     endLabel: "test",
                 },
                 { label: tr.editingMathjaxChemistry }
@@ -116,13 +116,13 @@ const mathjaxButtonWithMenu = withDropdownMenu<WithDropdownMenuProps>(
     {}
 );
 
-const htmlButton = iconButton<IconButtonProps, "title">(
+const htmlButton = iconButton<IconButtonProps, "tooltip">(
     {
         icon: xmlIcon,
         onClick: onHtmlEdit,
     },
     {
-        title: tr.editingHtmlEditor,
+        tooltip: tr.editingHtmlEditor,
     }
 );
 

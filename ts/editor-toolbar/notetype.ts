@@ -6,25 +6,25 @@ import { bridgeCommand } from "anki/bridgecommand";
 import * as tr from "anki/i18n";
 
 const labelButton = dynamicComponent(LabelButton);
-const fieldsButton = labelButton<LabelButtonProps, "label" | "title">(
+const fieldsButton = labelButton<LabelButtonProps, "label" | "tooltip">(
     {
         onClick: () => bridgeCommand("fields"),
         disables: false,
     },
     {
         label: () => `${tr.editingFields()}...`,
-        title: tr.editingCustomizeFields,
+        tooltip: tr.editingCustomizeFields,
     }
 );
 
-const cardsButton = labelButton<LabelButtonProps, "label" | "title">(
+const cardsButton = labelButton<LabelButtonProps, "label" | "tooltip">(
     {
         onClick: () => bridgeCommand("cards"),
         disables: false,
     },
     {
         label: () => `${tr.editingCards()}...`,
-        title: tr.editingCustomizeCardTemplatesCtrlandl,
+        tooltip: tr.editingCustomizeCardTemplatesCtrlandl,
     }
 );
 

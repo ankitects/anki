@@ -13,64 +13,64 @@ import eraserIcon from "./eraser.svg";
 
 const commandIconButton = dynamicComponent(CommandIconButton);
 
-const boldButton = commandIconButton<CommandIconButtonProps, "title">(
+const boldButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     {
         icon: boldIcon,
         command: "bold",
     },
     {
-        title: tr.editingBoldTextCtrlandb,
+        tooltip: tr.editingBoldTextCtrlandb,
     }
 );
 
-const italicButton = commandIconButton<CommandIconButtonProps, "title">(
+const italicButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     {
         icon: italicIcon,
         command: "italic",
     },
     {
-        title: tr.editingItalicTextCtrlandi,
+        tooltip: tr.editingItalicTextCtrlandi,
     }
 );
 
-const underlineButton = commandIconButton<CommandIconButtonProps, "title">(
+const underlineButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     {
         icon: underlineIcon,
         command: "underline",
     },
     {
-        title: tr.editingUnderlineTextCtrlandu,
+        tooltip: tr.editingUnderlineTextCtrlandu,
     }
 );
 
-const superscriptButton = commandIconButton<CommandIconButtonProps, "title">(
+const superscriptButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     {
         icon: superscriptIcon,
         command: "superscript",
     },
     {
-        title: tr.editingSuperscriptCtrlandand,
+        tooltip: tr.editingSuperscriptCtrlandand,
     }
 );
 
-const subscriptButton = commandIconButton<CommandIconButtonProps, "title">(
+const subscriptButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     {
         icon: subscriptIcon,
         command: "subscript",
     },
     {
-        title: tr.editingSubscriptCtrland,
+        tooltip: tr.editingSubscriptCtrland,
     }
 );
 
-const removeFormatButton = commandIconButton<CommandIconButtonProps, "title">(
+const removeFormatButton = commandIconButton<CommandIconButtonProps, "tooltip">(
     {
         icon: eraserIcon,
         command: "removeFormat",
         activatable: false,
     },
     {
-        title: tr.editingRemoveFormattingCtrlandr,
+        tooltip: tr.editingRemoveFormattingCtrlandr,
     }
 );
 

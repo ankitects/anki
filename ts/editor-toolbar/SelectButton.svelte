@@ -12,7 +12,7 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
-    export let title: string;
+    export let tooltip: string;
 
     function extendClassName(classes: string) {
         return `form-select ${classes}`;
@@ -60,7 +60,7 @@
     {id}
     class={extendClassName(className)}
     {...props}
-    {title}>
+    title={tooltip}>
     {#each options as option}
         <SelectOption {...option} />
     {/each}
