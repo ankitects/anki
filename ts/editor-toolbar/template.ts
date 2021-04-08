@@ -15,9 +15,10 @@ import * as tr from "anki/i18n";
 
 import paperclipIcon from "./paperclip.svg";
 import micIcon from "./mic.svg";
-import bracketsIcon from "./code-brackets.svg";
 import functionIcon from "./function-variant.svg";
 import xmlIcon from "./xml.svg";
+
+import { clozeButton } from "./cloze";
 
 function onAttachment(): void {
     bridgeCommand("attach");
@@ -25,10 +26,6 @@ function onAttachment(): void {
 
 function onRecord(): void {
     bridgeCommand("record");
-}
-
-function onCloze(): void {
-    bridgeCommand("cloze");
 }
 
 function onHtmlEdit(): void {
@@ -58,17 +55,6 @@ const recordButton = iconButton(
     }
 );
 
-const clozeButton = iconButton<IconButtonProps, "tooltip">(
-    {
-        id: "cloze",
-        icon: bracketsIcon,
-        onClick: onCloze,
-    },
-    {
-        tooltip: tr.editingClozeDeletionCtrlandshiftandc,
-    }
-);
-
 const mathjaxButton = iconButton<Omit<IconButtonProps, "onClick" | "tooltip">>(
     {
         icon: functionIcon,
@@ -84,7 +70,8 @@ const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
         menuItems: [
             dropdownItem<DropdownItemProps, "label">(
                 {
-                    onClick: () => bridgeCommand("mathjaxInline"),
+                    // @ts-expect-error
+                    onClick: () => wrap("\\(", "\\)"),
                     tooltip: "test",
                     endLabel: "test",
                 },
@@ -92,7 +79,8 @@ const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
             ),
             dropdownItem<DropdownItemProps, "label">(
                 {
-                    onClick: () => bridgeCommand("mathjaxBlock"),
+                    // @ts-expect-error
+                    onClick: () => wrap("\\[", "\\]"),
                     tooltip: "test",
                     endLabel: "test",
                 },
@@ -100,7 +88,8 @@ const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
             ),
             dropdownItem<DropdownItemProps, "label">(
                 {
-                    onClick: () => bridgeCommand("mathjaxChemistry"),
+                    // @ts-expect-error
+                    onClick: () => wrap("\\(\\ce{", "}\\)"),
                     tooltip: "test",
                     endLabel: "test",
                 },
