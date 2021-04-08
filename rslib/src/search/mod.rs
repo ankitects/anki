@@ -92,21 +92,21 @@ impl SortKind {
             | SortKind::NoteCreation
             | SortKind::NoteDue
             | SortKind::NoteEase
-            | SortKind::NoteField
+            | SortKind::SortField
             | SortKind::NoteInterval
             | SortKind::NoteLapses
             | SortKind::NoteMod
             | SortKind::NoteReps
-            | SortKind::NoteTags
+            | SortKind::Tags
             | SortKind::Notetype => RequiredTable::Notes,
-            SortKind::CardTemplate => RequiredTable::CardsAndNotes,
+            SortKind::Cards => RequiredTable::CardsAndNotes,
             SortKind::CardMod
-            | SortKind::CardReps
-            | SortKind::CardDue
-            | SortKind::CardEase
-            | SortKind::CardLapses
-            | SortKind::CardInterval
-            | SortKind::CardDeck => RequiredTable::Cards,
+            | SortKind::Reps
+            | SortKind::Due
+            | SortKind::Ease
+            | SortKind::Lapses
+            | SortKind::Interval
+            | SortKind::Deck => RequiredTable::Cards,
         }
     }
 }
@@ -233,17 +233,17 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     match kind {
         SortKind::NoteCreation => "n.id asc, c.ord asc".into(),
         SortKind::NoteMod => "n.mod asc, c.ord asc".into(),
-        SortKind::NoteField => "n.sfld collate nocase asc, c.ord asc".into(),
+        SortKind::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
         SortKind::CardMod => "c.mod asc".into(),
-        SortKind::CardReps => "c.reps asc".into(),
-        SortKind::CardDue => "c.type asc, c.due asc".into(),
-        SortKind::CardEase => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
-        SortKind::CardLapses => "c.lapses asc".into(),
-        SortKind::CardInterval => "c.ivl asc".into(),
-        SortKind::NoteTags => "n.tags asc".into(),
-        SortKind::CardDeck => "(select pos from sort_order where did = c.did) asc".into(),
+        SortKind::Reps => "c.reps asc".into(),
+        SortKind::Due => "c.type asc, c.due asc".into(),
+        SortKind::Ease => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
+        SortKind::Lapses => "c.lapses asc".into(),
+        SortKind::Interval => "c.ivl asc".into(),
+        SortKind::Tags => "n.tags asc".into(),
+        SortKind::Deck => "(select pos from sort_order where did = c.did) asc".into(),
         SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
-        SortKind::CardTemplate => concat!(
+        SortKind::Cards => concat!(
             "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
             // need to fall back on ord 0 for cloze cards
             "(select pos from sort_order where ntid = n.mid and ord = 0)) asc"
@@ -255,7 +255,7 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
 
 fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     match kind {
-        SortKind::CardDeck
+        SortKind::Deck
         | SortKind::CardMod
         | SortKind::NoteCards
         | SortKind::NoteDue
@@ -264,9 +264,9 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
         | SortKind::NoteLapses
         | SortKind::NoteReps => "(select pos from sort_order where nid = n.id) asc".into(),
         SortKind::NoteCreation => "n.id asc".into(),
-        SortKind::NoteField => "n.sfld collate nocase asc".into(),
+        SortKind::SortField => "n.sfld collate nocase asc".into(),
         SortKind::NoteMod => "n.mod asc".into(),
-        SortKind::NoteTags => "n.tags asc".into(),
+        SortKind::Tags => "n.tags asc".into(),
         SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
         _ => "".into(),
     }
@@ -276,7 +276,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind, items: SearchItems) -> Res
     use SortKind::*;
     let notes_mode = items == SearchItems::Notes;
     let sql = match kind {
-        CardDeck => {
+        Deck => {
             if notes_mode {
                 include_str!("note_decks_order.sql")
             } else {
@@ -284,7 +284,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind, items: SearchItems) -> Res
             }
         }
         CardMod if notes_mode => include_str!("card_mod_order.sql"),
-        CardTemplate => include_str!("template_order.sql"),
+        Cards => include_str!("template_order.sql"),
         NoteCards => include_str!("note_cards_order.sql"),
         NoteDue => include_str!("note_due_order.sql"),
         NoteEase => include_str!("note_ease_order.sql"),

@@ -282,22 +282,26 @@ pub enum SortKind {
     NoteLapses,
     NoteMod,
     #[serde(rename = "noteFld")]
-    NoteField,
+    SortField,
     NoteReps,
     #[serde(rename = "note")]
     Notetype,
-    NoteTags,
+    #[serde(rename = "noteTags")]
+    Tags,
     CardMod,
-    CardReps,
-    CardDue,
-    CardEase,
-    CardLapses,
+    #[serde(rename = "cardReps")]
+    Reps,
+    #[serde(rename = "cardDue")]
+    Due,
+    #[serde(rename = "cardEase")]
+    Ease,
+    #[serde(rename = "cardLapses")]
+    Lapses,
     #[serde(rename = "cardIvl")]
-    CardInterval,
-    #[serde(rename = "deck")]
-    CardDeck,
+    Interval,
+    Deck,
     #[serde(rename = "template")]
-    CardTemplate,
+    Cards,
 }
 
 impl Default for SortKind {
@@ -338,7 +342,7 @@ mod test {
     fn defaults() {
         let col = open_test_collection();
         assert_eq!(col.get_current_deck_id(), DeckId(1));
-        assert_eq!(col.get_browser_sort_kind(), SortKind::NoteField);
+        assert_eq!(col.get_browser_sort_kind(), SortKind::SortField);
     }
 
     #[test]

@@ -30,30 +30,33 @@ pub enum Column {
     Custom,
     Question,
     Answer,
-    #[strum(serialize = "deck")]
-    CardDeck,
-    CardDue,
-    CardEase,
-    CardLapses,
+    Deck,
+    #[strum(serialize = "cardDue")]
+    Due,
+    #[strum(serialize = "cardEase")]
+    Ease,
+    #[strum(serialize = "cardLapses")]
+    Lapses,
     #[strum(serialize = "cardIvl")]
-    CardInterval,
+    Interval,
     CardMod,
-    CardReps,
+    #[strum(serialize = "cardReps")]
+    Reps,
     #[strum(serialize = "template")]
-    CardTemplate,
+    Cards,
     NoteCards,
     #[strum(serialize = "noteCrt")]
     NoteCreation,
     NoteDue,
     NoteEase,
     #[strum(serialize = "noteFld")]
-    NoteField,
+    SortField,
     #[strum(serialize = "noteIvl")]
     NoteInterval,
     NoteLapses,
     NoteMod,
     NoteReps,
-    NoteTags,
+    Tags,
     #[strum(serialize = "note")]
     Notetype,
 }
@@ -291,22 +294,22 @@ impl RowContext {
         Ok(match column {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
-            Column::CardDeck => self.deck_str(),
-            Column::CardDue | Column::NoteDue => self.due_str(),
-            Column::CardEase | Column::NoteEase => self.ease_str(),
-            Column::CardInterval | Column::NoteInterval => self.interval_str(),
-            Column::CardLapses | Column::NoteLapses => {
+            Column::Deck => self.deck_str(),
+            Column::Due | Column::NoteDue => self.due_str(),
+            Column::Ease | Column::NoteEase => self.ease_str(),
+            Column::Interval | Column::NoteInterval => self.interval_str(),
+            Column::Lapses | Column::NoteLapses => {
                 self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string()
             }
             Column::CardMod => self.card_mod_str(),
-            Column::CardReps | Column::NoteReps => {
+            Column::Reps | Column::NoteReps => {
                 self.cards.iter().map(|c| c.reps).sum::<u32>().to_string()
             }
-            Column::CardTemplate | Column::NoteCards => self.cards_str()?,
+            Column::Cards | Column::NoteCards => self.cards_str()?,
             Column::NoteCreation => self.note_creation_str(),
-            Column::NoteField => self.note_field_str(),
+            Column::SortField => self.note_field_str(),
             Column::NoteMod => self.note.mtime.date_string(),
-            Column::NoteTags => self.note.tags.join(" "),
+            Column::Tags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
             Column::Custom => "".to_string(),
         })
@@ -323,7 +326,7 @@ impl RowContext {
 
     fn get_is_rtl(&self, column: Column) -> bool {
         match column {
-            Column::NoteField => {
+            Column::SortField => {
                 let index = self.notetype.config.sort_field_idx as usize;
                 self.notetype.fields[index].config.rtl
             }
