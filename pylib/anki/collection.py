@@ -1143,7 +1143,9 @@ def _build_sort_mode(
         return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse))
 
 
-def _column_data(column: _pb.BrowserColumn) -> Tuple[str, str, bool, bool, bool, bool]:
+def _column_data(
+    column: _pb.BrowserColumns.Column,
+) -> Tuple[str, str, bool, bool, bool, bool]:
     return (
         column.key,
         column.label,
