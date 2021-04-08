@@ -1055,6 +1055,11 @@ message FindAndReplaceIn {
 }
 
 message BrowserColumns {
+  enum Sorting {
+    SORTING_NONE = 0;
+    SORTING_NORMAL = 1;
+    SORTING_REVERSED = 2;
+  }
   enum Alignment {
     ALIGNMENT_START = 0;
     ALIGNMENT_CENTER = 1;
@@ -1062,8 +1067,7 @@ message BrowserColumns {
   message Column {
     string key = 1;
     string label = 2;
-    bool is_sortable = 3;
-    bool sorts_reversed = 4;
+    Sorting sorting = 3;
     bool uses_cell_font = 5;
     Alignment alignment = 6;
   }
