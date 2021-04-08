@@ -1,11 +1,11 @@
 <script lang="typescript">
-    import type { Buttons } from "./types";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-    export let id = "";
+    export let id;
     export let className = "";
     export let props: Record<string, string> = {};
 
-    export let buttons: Buttons;
+    export let buttons: DynamicSvelteComponent[];
 </script>
 
 <style lang="scss">
@@ -53,11 +53,7 @@
 <ul {id} class={className} {...props}>
     {#each buttons as button}
         <li>
-            {#if Array.isArray(button)}
-                <svelte:self buttons={button} />
-            {:else}
-                <svelte:component this={button.component} {...button} />
-            {/if}
+            <svelte:component this={button.component} {...button} />
         </li>
     {/each}
 </ul>

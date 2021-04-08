@@ -13,16 +13,15 @@
 </script>
 
 <script lang="typescript">
-    import type { SvelteComponent } from "svelte";
     import type { Readable } from "svelte/store";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
 
     import ButtonGroup from "./ButtonGroup.svelte";
-    import type { Buttons } from "./types";
 
-    export let buttons: Readable<Buttons>;
-    export let menus: Readable<SvelteComponent[]>;
+    export let buttons: Readable<DynamicSvelteComponent[]>;
+    export let menus: Readable<DynamicSvelteComponent[]>;
 
     $: _buttons = $buttons;
     $: _menus = $menus;
