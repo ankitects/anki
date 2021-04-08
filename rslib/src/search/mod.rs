@@ -145,7 +145,7 @@ impl Collection {
             SortMode::NoOrder => (),
             SortMode::FromConfig => unreachable!(),
             SortMode::Builtin { kind, reverse } => {
-                prepare_sort(self, kind)?;
+                prepare_sort(self, kind, items)?;
                 sql.push_str(" order by ");
                 write_order(sql, items, kind, reverse)?;
             }
@@ -255,7 +255,8 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
 
 fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     match kind {
-        SortKind::NoteCards
+        SortKind::CardDeck
+        | SortKind::NoteCards
         | SortKind::NoteDue
         | SortKind::NoteEase
         | SortKind::NoteInterval
@@ -270,10 +271,17 @@ fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     }
 }
 
-fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
+fn prepare_sort(col: &mut Collection, kind: SortKind, items: SearchItems) -> Result<()> {
     use SortKind::*;
+    let notes_mode = items == SearchItems::Notes;
     let sql = match kind {
-        CardDeck => include_str!("deck_order.sql"),
+        CardDeck => {
+            if notes_mode {
+                include_str!("note_decks_order.sql")
+            } else {
+                include_str!("deck_order.sql")
+            }
+        }
         CardTemplate => include_str!("template_order.sql"),
         NoteCards => include_str!("note_cards_order.sql"),
         NoteDue => include_str!("note_due_order.sql"),
