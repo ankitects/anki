@@ -24,26 +24,26 @@ function wrapWithForecolor(color: string): void {
 }
 
 const iconButton = dynamicComponent(IconButton);
-const forecolorButton = iconButton<IconButtonProps, "title">(
+const forecolorButton = iconButton<IconButtonProps, "tooltip">(
     {
         icon: squareFillIcon,
         className: "forecolor",
         onClick: () => wrapWithForecolor(getForecolor()),
     },
     {
-        title: tr.editingSetForegroundColourF7,
+        tooltip: tr.editingSetForegroundColourF7,
     }
 );
 
 const colorPicker = dynamicComponent(ColorPicker);
-const colorpickerButton = colorPicker<ColorPickerProps, "title">(
+const colorpickerButton = colorPicker<ColorPickerProps, "tooltip">(
     {
         className: "rainbow",
         onChange: ({ currentTarget }) =>
             setForegroundColor((currentTarget as HTMLInputElement).value),
     },
     {
-        title: tr.editingChangeColourF8,
+        tooltip: tr.editingChangeColourF8,
     }
 );
 

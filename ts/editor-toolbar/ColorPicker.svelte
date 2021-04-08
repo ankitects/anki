@@ -2,7 +2,7 @@
     export let id = "";
     export let className = "";
     export let props: Record<string, string> = {};
-    export let title: string;
+    export let tooltip: string;
 
     export let onChange: (event: Event) => void;
 </script>
@@ -47,7 +47,7 @@
     {id}
     class={className}
     {...props}
-    {title}
+    title={tooltip}
     on:mousedown|preventDefault>
     <span> <input type="color" on:change={onChange} /> </span>
 </button>

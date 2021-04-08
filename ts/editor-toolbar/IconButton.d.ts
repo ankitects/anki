@@ -1,7 +1,7 @@
 export interface IconButtonProps {
     id?: string;
     className?: string;
-    title: string;
+    tooltip: string;
     icon: string;
     onClick: (event: MouseEvent) => void;
 }
