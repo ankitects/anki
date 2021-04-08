@@ -1,12 +1,13 @@
 import LabelButton from "./LabelButton.svelte";
+import type { LabelButtonProps } from "./LabelButton";
 
+import { dynamicComponent } from "sveltelib/dynamicComponent";
 import { bridgeCommand } from "anki/bridgecommand";
-import { withLazyProperties } from "anki/lazy";
 import * as tr from "anki/i18n";
 
-const fieldsButton = withLazyProperties(
+const labelButton = dynamicComponent(LabelButton);
+const fieldsButton = labelButton<LabelButtonProps, "label" | "title">(
     {
-        component: LabelButton,
         onClick: () => bridgeCommand("fields"),
         disables: false,
     },
@@ -16,9 +17,8 @@ const fieldsButton = withLazyProperties(
     }
 );
 
-const cardsButton = withLazyProperties(
+const cardsButton = labelButton<LabelButtonProps, "label" | "title">(
     {
-        component: LabelButton,
         onClick: () => bridgeCommand("cards"),
         disables: false,
     },

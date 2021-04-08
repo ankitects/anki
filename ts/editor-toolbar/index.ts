@@ -26,6 +26,7 @@ class EditorToolbar extends HTMLElement {
 
     connectedCallback(): void {
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
+            console.log(this.buttons);
             this.component = new EditorToolbarSvelte({
                 target: this,
                 props: {

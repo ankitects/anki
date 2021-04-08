@@ -40,6 +40,7 @@ ts_library(
         exclude = ["index.ts"],
     ),
     deps = [
+        "//ts/sveltelib",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts:image_module_support",

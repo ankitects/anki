@@ -1,10 +1,14 @@
 import IconButton from "./IconButton.svelte";
+import type { IconButtonProps } from "./IconButton";
 import DropdownMenu from "./DropdownMenu.svelte";
+import type { DropdownMenuProps } from "./DropdownMenu";
 import DropdownItem from "./DropdownItem.svelte";
+import type { DropdownItemProps } from "./DropdownItem";
 import WithDropdownMenu from "./WithDropdownMenu.svelte";
+import type { WithDropdownMenuProps } from "./WithDropdownMenu";
 
 import { bridgeCommand } from "anki/bridgecommand";
-import { withLazyProperties } from "anki/lazy";
+import { dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import paperclipIcon from "./paperclip.svg";
@@ -29,9 +33,14 @@ function onHtmlEdit(): void {
     bridgeCommand("htmlEdit");
 }
 
-const attachmentButton = withLazyProperties(
+const iconButton = dynamicComponent(IconButton);
+
+const withDropdownMenu = dynamicComponent(WithDropdownMenu);
+const dropdownMenu = dynamicComponent(DropdownMenu);
+const dropdownItem = dynamicComponent(DropdownItem);
+
+const attachmentButton = iconButton<IconButtonProps, "title">(
     {
-        component: IconButton,
         icon: paperclipIcon,
         onClick: onAttachment,
     },
@@ -40,16 +49,15 @@ const attachmentButton = withLazyProperties(
     }
 );
 
-const recordButton = withLazyProperties(
-    { component: IconButton, icon: micIcon, onClick: onRecord },
+const recordButton = iconButton(
+    { icon: micIcon, onClick: onRecord },
     {
         title: tr.editingRecordAudioF5,
     }
 );
 
-const clozeButton = withLazyProperties(
+const clozeButton = iconButton<IconButtonProps, "title">(
     {
-        component: IconButton,
         icon: bracketsIcon,
         onClick: onCloze,
     },
@@ -58,44 +66,58 @@ const clozeButton = withLazyProperties(
     }
 );
 
-const mathjaxButton = {
-    component: IconButton,
-    icon: functionIcon,
-};
+const mathjaxButton = iconButton<Omit<IconButtonProps, "onClick" | "title">>(
+    {
+        icon: functionIcon,
+    },
+    {}
+);
 
 const mathjaxMenuId = "mathjaxMenu";
 
-const mathjaxMenu = {
-    component: DropdownMenu,
-    id: mathjaxMenuId,
-    menuItems: [
-        withLazyProperties(
-            { component: DropdownItem, onClick: () => bridgeCommand("mathjaxInline") },
-            { label: tr.editingMathjaxInline }
-        ),
-        withLazyProperties(
-            { component: DropdownItem, onClick: () => bridgeCommand("mathjaxBlock") },
-            { label: tr.editingMathjaxBlock }
-        ),
-        withLazyProperties(
-            {
-                component: DropdownItem,
-                onClick: () => bridgeCommand("mathjaxChemistry"),
-            },
-            { label: tr.editingMathjaxChemistry }
-        ),
-    ],
-};
-
-const mathjaxButtonWithMenu = {
-    component: WithDropdownMenu,
-    button: mathjaxButton,
-    menuId: mathjaxMenuId,
-};
-
-const htmlButton = withLazyProperties(
+const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
     {
-        component: IconButton,
+        id: mathjaxMenuId,
+        menuItems: [
+            dropdownItem<DropdownItemProps, "label">(
+                {
+                    onClick: () => bridgeCommand("mathjaxInline"),
+                    title: "test",
+                    endLabel: "test",
+                },
+                { label: tr.editingMathjaxInline }
+            ),
+            dropdownItem<DropdownItemProps, "label">(
+                {
+                    onClick: () => bridgeCommand("mathjaxBlock"),
+                    title: "test",
+                    endLabel: "test",
+                },
+                { label: tr.editingMathjaxBlock }
+            ),
+            dropdownItem<DropdownItemProps, "label">(
+                {
+                    onClick: () => bridgeCommand("mathjaxChemistry"),
+                    title: "test",
+                    endLabel: "test",
+                },
+                { label: tr.editingMathjaxChemistry }
+            ),
+        ],
+    },
+    {}
+);
+
+const mathjaxButtonWithMenu = withDropdownMenu<WithDropdownMenuProps>(
+    {
+        button: mathjaxButton,
+        menuId: mathjaxMenuId,
+    },
+    {}
+);
+
+const htmlButton = iconButton<IconButtonProps, "title">(
+    {
         icon: xmlIcon,
         onClick: onHtmlEdit,
     },

@@ -1,7 +1,9 @@
 import IconButton from "./IconButton.svelte";
+import type { IconButtonProps } from "./IconButton";
 import ColorPicker from "./ColorPicker.svelte";
+import type { ColorPickerProps } from "./ColorPicker";
 
-import { withLazyProperties } from "anki/lazy";
+import { dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import squareFillIcon from "./square-fill.svg";
@@ -21,9 +23,9 @@ function wrapWithForecolor(color: string): void {
     document.execCommand("forecolor", false, color);
 }
 
-const forecolorButton = withLazyProperties(
+const iconButton = dynamicComponent(IconButton);
+const forecolorButton = iconButton<IconButtonProps, "title">(
     {
-        component: IconButton,
         icon: squareFillIcon,
         className: "forecolor",
         onClick: () => wrapWithForecolor(getForecolor()),
@@ -33,11 +35,12 @@ const forecolorButton = withLazyProperties(
     }
 );
 
-const colorpickerButton = withLazyProperties(
+const colorPicker = dynamicComponent(ColorPicker);
+const colorpickerButton = colorPicker<ColorPickerProps, "title">(
     {
-        component: ColorPicker,
         className: "rainbow",
-        onChange: ({ currentTarget }) => setForegroundColor(currentTarget.value),
+        onChange: ({ currentTarget }) =>
+            setForegroundColor((currentTarget as HTMLInputElement).value),
     },
     {
         title: tr.editingChangeColourF8,
