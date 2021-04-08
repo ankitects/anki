@@ -36,11 +36,11 @@ function searchByIdOrIndex<T extends { id?: string }>(
         : values[idOrIndex];
 }
 
-function hideComponent(component: Hideable) {
+function showComponent(component: Hideable) {
     component.hidden = false;
 }
 
-function showComponent(component: Hideable) {
+function hideComponent(component: Hideable) {
     component.hidden = true;
 }
 
