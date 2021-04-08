@@ -248,8 +248,7 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
-  rpc AllBrowserCardColumns(Empty) returns (BrowserColumns);
-  rpc AllBrowserNoteColumns(Empty) returns (BrowserColumns);
+  rpc AllBrowserColumns(Empty) returns (BrowserColumns);
   rpc BrowserRowForId(Int64) returns (BrowserRow);
   rpc SetDesktopBrowserCardColumns(StringList) returns (Empty);
   rpc SetDesktopBrowserNoteColumns(StringList) returns (Empty);
@@ -1067,7 +1066,8 @@ message BrowserColumns {
   message Column {
     string key = 1;
     string label = 2;
-    Sorting sorting = 3;
+    string notes_label = 3;
+    Sorting sorting = 4;
     bool uses_cell_font = 5;
     Alignment alignment = 6;
   }

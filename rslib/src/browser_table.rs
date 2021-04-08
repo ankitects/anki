@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use itertools::Itertools;
 use serde_repr::{Deserialize_repr, Serialize_repr};
-use strum::{Display, EnumString};
+use strum::{Display, EnumIter, EnumString};
 
 use crate::error::{AnkiError, Result};
 use crate::i18n::I18n;
@@ -22,14 +22,18 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy, Display, EnumString)]
+#[derive(
+    Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy, Display, EnumString, EnumIter,
+)]
 #[strum(serialize_all = "camelCase")]
 #[repr(u8)]
 pub enum Column {
     #[strum(serialize = "")]
     Custom,
-    Question,
     Answer,
+    CardMod,
+    #[strum(serialize = "template")]
+    Cards,
     Deck,
     #[strum(serialize = "cardDue")]
     Due,
@@ -39,26 +43,17 @@ pub enum Column {
     Lapses,
     #[strum(serialize = "cardIvl")]
     Interval,
-    CardMod,
-    #[strum(serialize = "cardReps")]
-    Reps,
-    #[strum(serialize = "template")]
-    Cards,
-    NoteCards,
     #[strum(serialize = "noteCrt")]
     NoteCreation,
-    NoteDue,
-    NoteEase,
-    #[strum(serialize = "noteFld")]
-    SortField,
-    #[strum(serialize = "noteIvl")]
-    NoteInterval,
-    NoteLapses,
     NoteMod,
-    NoteReps,
-    Tags,
     #[strum(serialize = "note")]
     Notetype,
+    Question,
+    #[strum(serialize = "cardReps")]
+    Reps,
+    #[strum(serialize = "noteFld")]
+    SortField,
+    Tags,
 }
 
 impl Default for Column {
@@ -295,17 +290,13 @@ impl RowContext {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
             Column::Deck => self.deck_str(),
-            Column::Due | Column::NoteDue => self.due_str(),
-            Column::Ease | Column::NoteEase => self.ease_str(),
-            Column::Interval | Column::NoteInterval => self.interval_str(),
-            Column::Lapses | Column::NoteLapses => {
-                self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string()
-            }
+            Column::Due => self.due_str(),
+            Column::Ease => self.ease_str(),
+            Column::Interval => self.interval_str(),
+            Column::Lapses => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),
             Column::CardMod => self.card_mod_str(),
-            Column::Reps | Column::NoteReps => {
-                self.cards.iter().map(|c| c.reps).sum::<u32>().to_string()
-            }
-            Column::Cards | Column::NoteCards => self.cards_str()?,
+            Column::Reps => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),
+            Column::Cards => self.cards_str()?,
             Column::NoteCreation => self.note_creation_str(),
             Column::SortField => self.note_field_str(),
             Column::NoteMod => self.note.mtime.date_string(),

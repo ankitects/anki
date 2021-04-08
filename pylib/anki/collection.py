@@ -697,11 +697,8 @@ class Collection:
     # Browser Table
     ##########################################################################
 
-    def all_browser_card_columns(self) -> Sequence[BrowserColumns.Column]:
-        return self._backend.all_browser_card_columns()
-
-    def all_browser_note_columns(self) -> Sequence[BrowserColumns.Column]:
-        return self._backend.all_browser_note_columns()
+    def all_browser_columns(self) -> Sequence[BrowserColumns.Column]:
+        return self._backend.all_browser_columns()
 
     def browser_row_for_id(
         self, id_: int

@@ -347,8 +347,8 @@ class Table:
     def _on_header_context(self, pos: QPoint) -> None:
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
-        for key, column in self._state.columns.items():
-            a = m.addAction(column.label)
+        for key, column in self._model.columns.items():
+            a = m.addAction(self._state.column_label(column))
             a.setCheckable(True)
             a.setChecked(self._model.active_column_index(key) is not None)
             qconnect(
@@ -522,7 +522,6 @@ class Table:
 
 
 class ItemState(ABC):
-    _columns: Dict[str, Column]
     _active_columns: List[str]
     _sort_column: str
     _sort_backwards: bool
@@ -544,26 +543,16 @@ class ItemState(ABC):
     def card_ids_from_note_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
-    def column_at(self, index: int) -> Column:
-        """Returns the column object corresponding to the active column at index or the default
-        column object if no data is associated with the active column.
-        """
+    def column_key_at(self, index: int) -> str:
+        return self._active_columns[index]
 
-        key = self._active_columns[index]
-        try:
-            return self._columns[key]
-        except KeyError:
-            self._columns[key] = addon_column_fillin(key)
-            return self._columns[key]
+    def column_label(self, column: Column) -> str:
+        return column.notes_label if self.is_notes_mode() else column.label
 
     # Columns and sorting
 
     # abstractproperty is deprecated but used due to mypy limitations
     # (https://github.com/python/mypy/issues/1362)
-    @abstractproperty
-    def columns(self) -> Dict[str, Column]:
-        """Return all for the state available columns."""
-
     @abstractproperty
     def active_columns(self) -> List[str]:
         """Return the saved or default columns for the state."""
@@ -630,16 +619,11 @@ class ItemState(ABC):
 class CardState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._columns = dict(((c.key, c) for c in self.col.all_browser_card_columns()))
         self._active_columns = self.col.load_browser_card_columns()
         self._sort_column = self.col.get_config("sortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_SORT_BACKWARDS
         )
-
-    @property
-    def columns(self) -> Dict[str, Column]:
-        return self._columns
 
     @property
     def active_columns(self) -> List[str]:
@@ -698,16 +682,11 @@ class CardState(ItemState):
 class NoteState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._columns = dict(((c.key, c) for c in self.col.all_browser_note_columns()))
         self._active_columns = self.col.load_browser_note_columns()
         self._sort_column = self.col.get_config("noteSortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
         )
-
-    @property
-    def columns(self) -> Dict[str, Column]:
-        return self._columns
 
     @property
     def active_columns(self) -> List[str]:
@@ -832,6 +811,9 @@ class DataModel(QAbstractTableModel):
     def __init__(self, col: Collection, state: ItemState) -> None:
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
+        self.columns: Dict[str, Column] = dict(
+            ((c.key, c) for c in self.col.all_browser_columns())
+        )
         self._state: ItemState = state
         self._items: Sequence[ItemId] = []
         self._rows: Dict[int, CellRow] = {}
@@ -1002,10 +984,18 @@ class DataModel(QAbstractTableModel):
     # Columns
 
     def column_at(self, index: QModelIndex) -> Column:
-        return self._state.column_at(index.column())
+        return self.column_at_section(index.column())
 
     def column_at_section(self, section: int) -> Column:
-        return self._state.column_at(section)
+        """Returns the column object corresponding to the active column at index or the default
+        column object if no data is associated with the active column.
+        """
+        key = self._state.column_key_at(section)
+        try:
+            return self.columns[key]
+        except KeyError:
+            self.columns[key] = addon_column_fillin(key)
+            return self.columns[key]
 
     def active_column_index(self, column: str) -> Optional[int]:
         return (
@@ -1056,7 +1046,7 @@ class DataModel(QAbstractTableModel):
         self, section: int, orientation: Qt.Orientation, role: int = 0
     ) -> Optional[str]:
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self.column_at_section(section).label
+            return self._state.column_label(self.column_at_section(section))
         return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
@@ -1094,6 +1084,7 @@ def addon_column_fillin(key: str) -> Column:
     return Column(
         key=key,
         label=tr.browsing_addon(),
+        notes_label=tr.browsing_addon(),
         sorting=Columns.SORTING_NONE,
         uses_cell_font=False,
         alignment=Columns.ALIGNMENT_CENTER,
