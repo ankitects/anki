@@ -1,4 +1,9 @@
 import type { SvelteComponent } from "svelte";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+
+import type ButtonGroup from "./ButtonGroup.svelte";
+import type { ButtonGroupProps } from "./ButtonGroup";
+
 import { writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
@@ -18,6 +23,31 @@ export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 const defaultButtons = [notetypeGroup, formatGroup, colorGroup, templateGroup];
 const defaultMenus = [...templateMenus];
 
+interface Hideable {
+    hidden?: boolean;
+}
+
+function searchByIdOrIndex<T extends { id?: string }>(
+    values: T[],
+    idOrIndex: string | number
+): T | undefined {
+    return typeof idOrIndex === "string"
+        ? values.find((value) => value.id === idOrIndex)
+        : values[idOrIndex];
+}
+
+function hideComponent(component: Hideable) {
+    component.hidden = false;
+}
+
+function showComponent(component: Hideable) {
+    component.hidden = true;
+}
+
+function toggleComponent(component: Hideable) {
+    component.hidden = !component.hidden;
+}
+
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponent;
 
@@ -35,6 +65,77 @@ class EditorToolbar extends HTMLElement {
                 },
             });
         });
+    }
+
+    updateButtonGroup<T>(
+        update: (component: DynamicSvelteComponent<typeof ButtonGroup> & T) => void,
+        group: string | number
+    ): void {
+        this.buttons.update(
+            (
+                buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
+                    ButtonGroupProps)[]
+            ) => {
+                const foundGroup = searchByIdOrIndex(buttonGroups, group);
+
+                if (foundGroup) {
+                    update(
+                        foundGroup as DynamicSvelteComponent<typeof ButtonGroup> &
+                            ButtonGroupProps &
+                            T
+                    );
+                }
+
+                return buttonGroups;
+            }
+        );
+    }
+
+    showButtonGroup(group: string | number): void {
+        this.updateButtonGroup<Hideable>(showComponent, group);
+    }
+
+    hideButtonGroup(group: string | number): void {
+        this.updateButtonGroup<Hideable>(hideComponent, group);
+    }
+
+    toggleButtonGroup(group: string | number): void {
+        this.updateButtonGroup<Hideable>(toggleComponent, group);
+    }
+
+    updateButton<T>(
+        update: (component: DynamicSvelteComponent & T) => void,
+        group: string | number,
+        button: string | number
+    ): void {
+        this.updateButtonGroup(
+            (
+                foundGroup: DynamicSvelteComponent<typeof ButtonGroup> &
+                    ButtonGroupProps
+            ) => {
+                const foundButton = searchByIdOrIndex(
+                    foundGroup.buttons as (DynamicSvelteComponent & { id?: string })[],
+                    button
+                );
+
+                if (foundButton) {
+                    update(foundButton as DynamicSvelteComponent & T);
+                }
+            },
+            group
+        );
+    }
+
+    showButton(group: string | number, button: string | number): void {
+        this.updateButton<Hideable>(showComponent, group, button);
+    }
+
+    hideButton(group: string | number, button: string | number): void {
+        this.updateButton<Hideable>(hideComponent, group, button);
+    }
+
+    toggleButton(group: string | number, button: string | number): void {
+        this.updateButton<Hideable>(toggleComponent, group, button);
     }
 }
 
