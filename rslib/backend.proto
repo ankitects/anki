@@ -1055,13 +1055,17 @@ message FindAndReplaceIn {
 }
 
 message BrowserColumns {
+  enum Alignment {
+    ALIGNMENT_START = 0;
+    ALIGNMENT_CENTER = 1;
+  }
   message Column {
     string key = 1;
     string label = 2;
     bool is_sortable = 3;
     bool sorts_reversed = 4;
     bool uses_cell_font = 5;
-    bool aligns_centered = 6;
+    Alignment alignment = 6;
   }
   repeated Column columns = 1;
 }
