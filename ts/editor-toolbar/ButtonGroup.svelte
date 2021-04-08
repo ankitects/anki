@@ -3,7 +3,6 @@
 
     export let id;
     export let className = "";
-    export let props: Record<string, string> = {};
 
     export let buttons: DynamicSvelteComponent[];
 </script>
@@ -50,7 +49,7 @@
     }
 </style>
 
-<ul {id} class={className} {...props}>
+<ul {id} class={className} {...$$restProps}>
     {#each buttons as button}
         <li>
             <svelte:component this={button.component} {...button} />

@@ -4,14 +4,14 @@
     export let button: DynamicSvelteComponent;
     export let menuId: string;
 
-    function extend({ className, props, ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
+    function extend({
+        className,
+        ...rest
+    }: DynamicSvelteComponent): DynamicSvelteComponent {
         return {
             className: `${className} dropdown-toggle`,
-            props: {
-                "data-bs-toggle": "dropdown",
-                "aria-expanded": "false",
-                ...props,
-            },
+            "data-bs-toggle": "dropdown",
+            "aria-expanded": "false",
             ...rest,
         };
     }

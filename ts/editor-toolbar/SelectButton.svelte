@@ -11,7 +11,6 @@
 
     export let id = "";
     export let className = "";
-    export let props: Record<string, string> = {};
     export let tooltip: string;
 
     function extendClassName(classes: string) {
@@ -59,8 +58,8 @@
     disabled={_disabled}
     {id}
     class={extendClassName(className)}
-    {...props}
-    title={tooltip}>
+    title={tooltip}
+    {...$$restProps}>
     {#each options as option}
         <SelectOption {...option} />
     {/each}

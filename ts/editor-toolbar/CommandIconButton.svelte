@@ -38,7 +38,6 @@
 
     export let id = "";
     export let className = "";
-    export let props: Record<string, string> = {};
     export let tooltip: string;
 
     export let icon;
@@ -62,6 +61,6 @@
     }
 </script>
 
-<SquareButton {id} {className} {props} {tooltip} {active} {onClick} on:mount>
+<SquareButton {id} {className} {tooltip} {active} {onClick} {...$$restProps} on:mount>
     {@html icon}
 </SquareButton>
