@@ -6,16 +6,16 @@ import EditorToolbarSvelte from "./EditorToolbar.svelte";
 import { checkNightMode } from "anki/nightmode";
 import { setupI18n, ModuleName } from "anki/i18n";
 
-import { notetypeButtons } from "./notetype";
-import { formatButtons } from "./format";
-import { colorButtons } from "./color";
-import { templateButtons, templateMenus } from "./template";
+import { notetypeGroup } from "./notetype";
+import { formatGroup } from "./format";
+import { colorGroup } from "./color";
+import { templateGroup, templateMenus } from "./template";
 
 // @ts-expect-error
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
 export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 
-const defaultButtons = [notetypeButtons, formatButtons, colorButtons, templateButtons];
+const defaultButtons = [notetypeGroup, formatGroup, colorGroup, templateGroup];
 const defaultMenus = [...templateMenus];
 
 class EditorToolbar extends HTMLElement {

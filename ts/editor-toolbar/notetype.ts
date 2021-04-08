@@ -1,5 +1,7 @@
 import LabelButton from "./LabelButton.svelte";
 import type { LabelButtonProps } from "./LabelButton";
+import ButtonGroup from "./ButtonGroup.svelte";
+import type { ButtonGroupProps } from "./ButtonGroup";
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
 import { bridgeCommand } from "anki/bridgecommand";
@@ -28,4 +30,11 @@ const cardsButton = labelButton<LabelButtonProps, "label" | "tooltip">(
     }
 );
 
-export const notetypeButtons = [fieldsButton, cardsButton];
+const buttonGroup = dynamicComponent(ButtonGroup);
+export const notetypeGroup = buttonGroup<ButtonGroupProps>(
+    {
+        id: "notetype",
+        buttons: [fieldsButton, cardsButton],
+    },
+    {}
+);

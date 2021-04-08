@@ -58,7 +58,7 @@
     }
 </style>
 
-<div style={`--toolbar-size: ${size}px; --toolbar-wrap: ${wraps ? "wrap" : "nowrap"}`}>
+<div style={`--toolbar-size: ${size}px; --toolbar-wrap: ${wraps ? 'wrap' : 'nowrap'}`}>
     <div>
         {#each _menus as menu}
             <svelte:component this={menu.component} {...menu} />
