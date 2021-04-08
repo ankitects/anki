@@ -41,7 +41,7 @@
     export let props: Record<string, string> = {};
     export let title: string;
 
-    export let icon = "";
+    export let icon;
     export let command: string;
     export let activatable = true;
 

@@ -1,6 +1,7 @@
 import CommandIconButton from "./CommandIconButton.svelte";
+import type { CommandIconButtonProps } from "./CommandIconButton";
 
-import { withLazyProperties } from "anki/lazy";
+import { dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import boldIcon from "./type-bold.svg";
@@ -10,9 +11,10 @@ import superscriptIcon from "./format-superscript.svg";
 import subscriptIcon from "./format-subscript.svg";
 import eraserIcon from "./eraser.svg";
 
-const boldButton = withLazyProperties(
+const commandIconButton = dynamicComponent(CommandIconButton);
+
+const boldButton = commandIconButton<CommandIconButtonProps, "title">(
     {
-        component: CommandIconButton,
         icon: boldIcon,
         command: "bold",
     },
@@ -21,9 +23,8 @@ const boldButton = withLazyProperties(
     }
 );
 
-const italicButton = withLazyProperties(
+const italicButton = commandIconButton<CommandIconButtonProps, "title">(
     {
-        component: CommandIconButton,
         icon: italicIcon,
         command: "italic",
     },
@@ -32,9 +33,8 @@ const italicButton = withLazyProperties(
     }
 );
 
-const underlineButton = withLazyProperties(
+const underlineButton = commandIconButton<CommandIconButtonProps, "title">(
     {
-        component: CommandIconButton,
         icon: underlineIcon,
         command: "underline",
     },
@@ -43,9 +43,8 @@ const underlineButton = withLazyProperties(
     }
 );
 
-const superscriptButton = withLazyProperties(
+const superscriptButton = commandIconButton<CommandIconButtonProps, "title">(
     {
-        component: CommandIconButton,
         icon: superscriptIcon,
         command: "superscript",
     },
@@ -54,9 +53,8 @@ const superscriptButton = withLazyProperties(
     }
 );
 
-const subscriptButton = withLazyProperties(
+const subscriptButton = commandIconButton<CommandIconButtonProps, "title">(
     {
-        component: CommandIconButton,
         icon: subscriptIcon,
         command: "subscript",
     },
@@ -65,9 +63,8 @@ const subscriptButton = withLazyProperties(
     }
 );
 
-const removeFormatButton = withLazyProperties(
+const removeFormatButton = commandIconButton<CommandIconButtonProps, "title">(
     {
-        component: CommandIconButton,
         icon: eraserIcon,
         command: "removeFormat",
         activatable: false,
