@@ -8,34 +8,34 @@ use crate::{backend_proto as pb, browser_table, collection::Collection, i18n::I1
 const CARD_COLUMNS: [browser_table::Column; 15] = [
     browser_table::Column::Question,
     browser_table::Column::Answer,
-    browser_table::Column::CardDeck,
-    browser_table::Column::CardDue,
-    browser_table::Column::CardEase,
-    browser_table::Column::CardLapses,
-    browser_table::Column::CardInterval,
+    browser_table::Column::Deck,
+    browser_table::Column::Due,
+    browser_table::Column::Ease,
+    browser_table::Column::Lapses,
+    browser_table::Column::Interval,
     browser_table::Column::CardMod,
-    browser_table::Column::CardReps,
-    browser_table::Column::CardTemplate,
+    browser_table::Column::Reps,
+    browser_table::Column::Cards,
     browser_table::Column::NoteCreation,
-    browser_table::Column::NoteField,
+    browser_table::Column::SortField,
     browser_table::Column::NoteMod,
-    browser_table::Column::NoteTags,
+    browser_table::Column::Tags,
     browser_table::Column::Notetype,
 ];
 
 const NOTE_COLUMNS: [browser_table::Column; 13] = [
-    browser_table::Column::CardDeck,
+    browser_table::Column::Deck,
     browser_table::Column::CardMod,
     browser_table::Column::NoteCards,
     browser_table::Column::NoteCreation,
     browser_table::Column::NoteDue,
     browser_table::Column::NoteEase,
-    browser_table::Column::NoteField,
+    browser_table::Column::SortField,
     browser_table::Column::NoteInterval,
     browser_table::Column::NoteLapses,
     browser_table::Column::NoteMod,
     browser_table::Column::NoteReps,
-    browser_table::Column::NoteTags,
+    browser_table::Column::Tags,
     browser_table::Column::Notetype,
 ];
 
@@ -70,24 +70,24 @@ impl browser_table::Column {
     fn sorting(self) -> pb::browser_columns::Sorting {
         match self {
             Self::Question | Self::Answer | Self::Custom => pb::browser_columns::Sorting::None,
-            Self::NoteField => pb::browser_columns::Sorting::Reversed,
+            Self::SortField => pb::browser_columns::Sorting::Reversed,
             _ => pb::browser_columns::Sorting::Normal,
         }
     }
 
     fn uses_cell_font(self) -> bool {
-        matches!(self, Self::Question | Self::Answer | Self::NoteField)
+        matches!(self, Self::Question | Self::Answer | Self::SortField)
     }
 
     fn alignment(self) -> pb::browser_columns::Alignment {
         match self {
             Self::Question
             | Self::Answer
-            | Self::CardTemplate
-            | Self::CardDeck
-            | Self::NoteField
+            | Self::Cards
+            | Self::Deck
+            | Self::SortField
             | Self::Notetype
-            | Self::NoteTags => pb::browser_columns::Alignment::Start,
+            | Self::Tags => pb::browser_columns::Alignment::Start,
             _ => pb::browser_columns::Alignment::Center,
         }
     }
@@ -97,24 +97,24 @@ impl browser_table::Column {
             Self::Custom => i18n.browsing_addon(),
             Self::Question => i18n.browsing_question(),
             Self::Answer => i18n.browsing_answer(),
-            Self::CardDeck => i18n.decks_deck(),
-            Self::CardDue => i18n.statistics_due_date(),
-            Self::CardEase => i18n.browsing_ease(),
-            Self::CardInterval => i18n.browsing_interval(),
-            Self::CardLapses => i18n.scheduling_lapses(),
+            Self::Deck => i18n.decks_deck(),
+            Self::Due => i18n.statistics_due_date(),
+            Self::Ease => i18n.browsing_ease(),
+            Self::Interval => i18n.browsing_interval(),
+            Self::Lapses => i18n.scheduling_lapses(),
             Self::CardMod => i18n.search_card_modified(),
-            Self::CardReps => i18n.scheduling_reviews(),
-            Self::CardTemplate => i18n.browsing_card(),
+            Self::Reps => i18n.scheduling_reviews(),
+            Self::Cards => i18n.browsing_card(),
             Self::NoteCards => i18n.editing_cards(),
             Self::NoteCreation => i18n.browsing_created(),
             Self::NoteDue => i18n.statistics_due_date(),
             Self::NoteEase => i18n.browsing_average_ease(),
-            Self::NoteField => i18n.browsing_sort_field(),
+            Self::SortField => i18n.browsing_sort_field(),
             Self::NoteInterval => i18n.browsing_average_interval(),
             Self::NoteMod => i18n.search_note_modified(),
             Self::NoteLapses => i18n.scheduling_lapses(),
             Self::NoteReps => i18n.scheduling_reviews(),
-            Self::NoteTags => i18n.editing_tags(),
+            Self::Tags => i18n.editing_tags(),
             Self::Notetype => i18n.browsing_note(),
         }
         .into()

@@ -124,12 +124,8 @@ def test_findCards():
     col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, True)
     col.flush()
     assert col.findCards("", order=True)[0] in latestCardIds
-    assert (
-        col.find_cards("", order=BuiltinSort.CARD_DUE, reverse=False)[0] == firstCardId
-    )
-    assert (
-        col.find_cards("", order=BuiltinSort.CARD_DUE, reverse=True)[0] != firstCardId
-    )
+    assert col.find_cards("", order=BuiltinSort.DUE, reverse=False)[0] == firstCardId
+    assert col.find_cards("", order=BuiltinSort.DUE, reverse=True)[0] != firstCardId
     # model
     assert len(col.findCards("note:basic")) == 3
     assert len(col.findCards("-note:basic")) == 2

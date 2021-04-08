@@ -522,7 +522,7 @@ class Collection:
         order="c.ivl asc, c.due desc".
 
         If order is a BuiltinSort.Kind value, sort using that builtin sort, eg
-        col.find_cards("", order=BuiltinSort.Kind.CARD_DUE)
+        col.find_cards("", order=BuiltinSort.Kind.DUE)
 
         The reverse argument only applies when a BuiltinSort.Kind is provided;
         otherwise the collection config defines whether reverse is set or not.
