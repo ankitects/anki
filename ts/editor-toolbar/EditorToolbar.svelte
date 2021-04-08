@@ -58,7 +58,7 @@
     }
 </style>
 
-<div style={`--toolbar-size: ${size}px`}>
+<div style={`--toolbar-size: ${size}px; --toolbar-wrap: ${wraps ? "wrap" : "nowrap"}`}>
     <div>
         {#each _menus as menu}
             <svelte:component this={menu.component} {...menu} />
@@ -66,6 +66,6 @@
     </div>
 
     <nav>
-        <ButtonGroup buttons={_buttons} {wraps} />
+        <ButtonGroup buttons={_buttons} />
     </nav>
 </div>
