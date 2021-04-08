@@ -59,15 +59,18 @@ impl browser_table::Column {
         pb::browser_columns::Column {
             key: self.to_string(),
             label: self.localized_label(i18n),
-            is_sortable: self.is_sortable(),
-            sorts_reversed: self == browser_table::Column::NoteField,
+            sorting: self.sorting() as i32,
             uses_cell_font: self.uses_cell_font(),
             alignment: self.alignment() as i32,
         }
     }
 
-    fn is_sortable(self) -> bool {
-        !matches!(self, Self::Question | Self::Answer | Self::Custom)
+    fn sorting(self) -> pb::browser_columns::Sorting {
+        match self {
+            Self::Question | Self::Answer | Self::Custom => pb::browser_columns::Sorting::None,
+            Self::NoteField => pb::browser_columns::Sorting::Reversed,
+            _ => pb::browser_columns::Sorting::Normal,
+        }
     }
 
     fn uses_cell_font(self) -> bool {

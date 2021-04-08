@@ -375,15 +375,15 @@ class Table:
     def _on_sort_column_changed(self, section: int, order: int) -> None:
         order = bool(order)
         column = self._model.column_at_section(section)
-        if column.is_sortable:
-            sort_key = column.key
-        else:
+        if column.sorting == Columns.SORTING_NONE:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
             sort_key = self._state.sort_column
+        else:
+            sort_key = column.key
         if self._state.sort_column != sort_key:
             self._state.sort_column = sort_key
             # default to descending for non-text fields
-            if column.sorts_reversed:
+            if column.sorting == Columns.SORTING_REVERSED:
                 order = not order
             self._state.sort_backwards = order
             self.browser.search()
@@ -1094,8 +1094,7 @@ def addon_column_fillin(key: str) -> Column:
     return Column(
         key=key,
         label=tr.browsing_addon(),
-        is_sortable=False,
-        sorts_reversed=False,
+        sorting=Columns.SORTING_NONE,
         uses_cell_font=False,
         alignment=Columns.ALIGNMENT_CENTER,
     )
