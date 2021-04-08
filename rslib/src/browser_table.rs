@@ -292,24 +292,22 @@ impl RowContext {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
             Column::CardDeck => self.deck_str(),
-            Column::CardDue => self.card_due_str(),
-            Column::CardEase => self.card_ease_str(),
-            Column::CardInterval => self.card_interval_str(),
-            Column::CardLapses => self.cards[0].lapses.to_string(),
+            Column::CardDue | Column::NoteDue => self.due_str(),
+            Column::CardEase | Column::NoteEase => self.ease_str(),
+            Column::CardInterval | Column::NoteInterval => self.interval_str(),
+            Column::CardLapses | Column::NoteLapses => {
+                self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string()
+            }
             Column::CardMod => self.card_mod_str(),
-            Column::CardReps => self.cards[0].reps.to_string(),
-            Column::CardTemplate => self.template_str()?,
+            Column::CardReps | Column::NoteReps => {
+                self.cards.iter().map(|c| c.reps).sum::<u32>().to_string()
+            }
+            Column::CardTemplate | Column::NoteCards => self.cards_str()?,
             Column::NoteCreation => self.note_creation_str(),
             Column::NoteField => self.note_field_str(),
             Column::NoteMod => self.note.mtime.date_string(),
             Column::NoteTags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
-            Column::NoteCards => self.cards.len().to_string(),
-            Column::NoteDue => self.note_due_str(),
-            Column::NoteEase => self.note_ease_str(),
-            Column::NoteInterval => self.note_interval_str(),
-            Column::NoteLapses => self.cards.iter().map(|c| c.lapses).sum::<u32>().to_string(),
-            Column::NoteReps => self.cards.iter().map(|c| c.reps).sum::<u32>().to_string(),
             Column::Custom => "".to_string(),
         })
     }
@@ -362,6 +360,14 @@ impl RowContext {
         .to_string()
     }
 
+    fn due_str(&mut self) -> String {
+        if self.notes_mode {
+            self.note_due_str()
+        } else {
+            self.card_due_str()
+        }
+    }
+
     fn card_due_str(&mut self) -> String {
         let due = if self.cards[0].is_filtered_deck() {
             self.tr.browsing_filtered()
@@ -379,18 +385,56 @@ impl RowContext {
         }
     }
 
-    fn card_ease_str(&self) -> String {
-        match self.cards[0].ctype {
-            CardType::New => self.tr.browsing_new().into(),
-            _ => format!("{}%", self.cards[0].ease_factor / 10),
+    /// Returns the due date of the next due card that is not in a filtered deck, new, suspended or
+    /// buried or the empty string if there is no such card.
+    fn note_due_str(&self) -> String {
+        self.cards
+            .iter()
+            .filter(|c| !(c.is_filtered_deck() || c.is_new_type_or_queue() || c.is_undue_queue()))
+            .filter_map(|c| c.due_time(&self.timing))
+            .min()
+            .map(|time| time.date_string())
+            .unwrap_or_else(|| "".into())
+    }
+
+    /// Returns the average ease of the non-new cards or a hint if there aren't any.
+    fn ease_str(&self) -> String {
+        let eases: Vec<u16> = self
+            .cards
+            .iter()
+            .filter(|c| c.ctype != CardType::New)
+            .map(|c| c.ease_factor)
+            .collect();
+        if eases.is_empty() {
+            self.tr.browsing_new().into()
+        } else {
+            format!("{}%", eases.iter().sum::<u16>() / eases.len() as u16 / 10)
         }
     }
 
-    fn card_interval_str(&self) -> String {
-        match self.cards[0].ctype {
-            CardType::New => self.tr.browsing_new().into(),
-            CardType::Learn => self.tr.browsing_learning().into(),
-            _ => time_span((self.cards[0].interval * 86400) as f32, &self.tr, false),
+    /// Returns the average interval of the review and relearn cards if there are any.
+    fn interval_str(&self) -> String {
+        if !self.notes_mode {
+            match self.cards[0].ctype {
+                CardType::New => return self.tr.browsing_new().into(),
+                CardType::Learn => return self.tr.browsing_learning().into(),
+                CardType::Review | CardType::Relearn => (),
+            }
+        }
+        let intervals: Vec<u32> = self
+            .cards
+            .iter()
+            .filter(|c| matches!(c.ctype, CardType::Review | CardType::Relearn))
+            .map(|c| c.interval)
+            .collect();
+        if intervals.is_empty() {
+            "".into()
+        } else {
+            time_span(
+                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
+                &self.tr,
+                false,
+            )
         }
     }
 
@@ -418,63 +462,20 @@ impl RowContext {
         }
     }
 
-    fn template_str(&self) -> Result<String> {
-        let name = &self.template()?.name;
-        Ok(match self.notetype.config.kind() {
-            NotetypeKind::Normal => name.to_owned(),
-            NotetypeKind::Cloze => format!("{} {}", name, self.cards[0].template_idx + 1),
+    fn cards_str(&self) -> Result<String> {
+        Ok(if self.notes_mode {
+            self.cards.len().to_string()
+        } else {
+            let name = &self.template()?.name;
+            match self.notetype.config.kind() {
+                NotetypeKind::Normal => name.to_owned(),
+                NotetypeKind::Cloze => format!("{} {}", name, self.cards[0].template_idx + 1),
+            }
         })
     }
 
     fn question_str(&self) -> String {
         html_to_text_line(&self.render_context.as_ref().unwrap().question).to_string()
-    }
-
-    /// Returns the average ease of the non-new cards or a hint if there aren't any.
-    fn note_ease_str(&self) -> String {
-        let eases: Vec<u16> = self
-            .cards
-            .iter()
-            .filter(|c| c.ctype != CardType::New)
-            .map(|c| c.ease_factor)
-            .collect();
-        if eases.is_empty() {
-            self.tr.browsing_new().into()
-        } else {
-            format!("{}%", eases.iter().sum::<u16>() / eases.len() as u16 / 10)
-        }
-    }
-
-    /// Returns the due date of the next due card that is not in a filtered deck, new, suspended or
-    /// buried or the empty string if there is no such card.
-    fn note_due_str(&self) -> String {
-        self.cards
-            .iter()
-            .filter(|c| !(c.is_filtered_deck() || c.is_new_type_or_queue() || c.is_undue_queue()))
-            .filter_map(|c| c.due_time(&self.timing))
-            .min()
-            .map(|time| time.date_string())
-            .unwrap_or_else(|| "".into())
-    }
-
-    /// Returns the average interval of the review and relearn cards or the empty string if there
-    /// aren't any.
-    fn note_interval_str(&self) -> String {
-        let intervals: Vec<u32> = self
-            .cards
-            .iter()
-            .filter(|c| matches!(c.ctype, CardType::Review | CardType::Relearn))
-            .map(|c| c.interval)
-            .collect();
-        if intervals.is_empty() {
-            "".into()
-        } else {
-            time_span(
-                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
-                &self.tr,
-                false,
-            )
-        }
     }
 
     fn get_row_font(&self) -> Result<Font> {
