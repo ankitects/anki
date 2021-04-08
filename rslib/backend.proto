@@ -1055,16 +1055,15 @@ message FindAndReplaceIn {
 }
 
 message BrowserColumns {
-  repeated BrowserColumn columns = 1;
-}
-
-message BrowserColumn {
-  string key = 1;
-  string label = 2;
-  bool is_sortable = 3;
-  bool sorts_reversed = 4;
-  bool uses_cell_font = 5;
-  bool aligns_centered = 6;
+  message Column {
+    string key = 1;
+    string label = 2;
+    bool is_sortable = 3;
+    bool sorts_reversed = 4;
+    bool uses_cell_font = 5;
+    bool aligns_centered = 6;
+  }
+  repeated Column columns = 1;
 }
 
 message BrowserRow {

@@ -47,7 +47,7 @@ impl Collection {
     }
 
     fn to_pb_columns(&self, columns: &[browser_table::Column]) -> pb::BrowserColumns {
-        let mut columns: Vec<pb::BrowserColumn> =
+        let mut columns: Vec<pb::browser_columns::Column> =
             columns.iter().map(|c| c.to_pb_column(&self.tr)).collect();
         columns.sort_by(|c1, c2| c1.label.cmp(&c2.label));
         pb::BrowserColumns { columns }
@@ -55,8 +55,8 @@ impl Collection {
 }
 
 impl browser_table::Column {
-    fn to_pb_column(self, i18n: &I18n) -> pb::BrowserColumn {
-        pb::BrowserColumn {
+    fn to_pb_column(self, i18n: &I18n) -> pb::browser_columns::Column {
+        pb::browser_columns::Column {
             key: self.to_string(),
             label: self.localized_label(i18n),
             is_sortable: self.is_sortable(),
