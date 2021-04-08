@@ -23,8 +23,9 @@ const CARD_COLUMNS: [browser_table::Column; 15] = [
     browser_table::Column::Notetype,
 ];
 
-const NOTE_COLUMNS: [browser_table::Column; 12] = [
+const NOTE_COLUMNS: [browser_table::Column; 13] = [
     browser_table::Column::CardDeck,
+    browser_table::Column::CardMod,
     browser_table::Column::NoteCards,
     browser_table::Column::NoteCreation,
     browser_table::Column::NoteDue,
