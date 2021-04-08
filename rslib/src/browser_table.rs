@@ -296,7 +296,7 @@ impl RowContext {
             Column::CardEase => self.card_ease_str(),
             Column::CardInterval => self.card_interval_str(),
             Column::CardLapses => self.cards[0].lapses.to_string(),
-            Column::CardMod => self.cards[0].mtime.date_string(),
+            Column::CardMod => self.card_mod_str(),
             Column::CardReps => self.cards[0].reps.to_string(),
             Column::CardTemplate => self.template_str()?,
             Column::NoteCreation => self.note_creation_str(),
@@ -392,6 +392,15 @@ impl RowContext {
             CardType::Learn => self.tr.browsing_learning().into(),
             _ => time_span((self.cards[0].interval * 86400) as f32, &self.tr, false),
         }
+    }
+
+    fn card_mod_str(&self) -> String {
+        self.cards
+            .iter()
+            .map(|c| c.mtime)
+            .max()
+            .unwrap()
+            .date_string()
     }
 
     fn deck_str(&mut self) -> String {

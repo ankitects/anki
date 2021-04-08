@@ -256,6 +256,7 @@ fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
 fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
     match kind {
         SortKind::CardDeck
+        | SortKind::CardMod
         | SortKind::NoteCards
         | SortKind::NoteDue
         | SortKind::NoteEase
@@ -282,6 +283,7 @@ fn prepare_sort(col: &mut Collection, kind: SortKind, items: SearchItems) -> Res
                 include_str!("deck_order.sql")
             }
         }
+        CardMod if notes_mode => include_str!("card_mod_order.sql"),
         CardTemplate => include_str!("template_order.sql"),
         NoteCards => include_str!("note_cards_order.sql"),
         NoteDue => include_str!("note_due_order.sql"),
