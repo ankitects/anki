@@ -7,34 +7,26 @@ import { dynamicComponent } from "sveltelib/dynamicComponent";
 import { bridgeCommand } from "anki/bridgecommand";
 import * as tr from "anki/i18n";
 
-const labelButton = dynamicComponent(LabelButton);
-const fieldsButton = labelButton<LabelButtonProps, "label" | "tooltip">(
-    {
+const labelButton = dynamicComponent<typeof LabelButton, LabelButtonProps>(LabelButton);
+const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
+
+export function getNotetypeGroup() {
+    const fieldsButton = labelButton({
         onClick: () => bridgeCommand("fields"),
         disables: false,
-    },
-    {
-        label: () => `${tr.editingFields()}...`,
-        tooltip: tr.editingCustomizeFields,
-    }
-);
+        label: `${tr.editingFields()}...`,
+        tooltip: tr.editingCustomizeFields(),
+    });
 
-const cardsButton = labelButton<LabelButtonProps, "label" | "tooltip">(
-    {
+    const cardsButton = labelButton({
         onClick: () => bridgeCommand("cards"),
         disables: false,
-    },
-    {
-        label: () => `${tr.editingCards()}...`,
-        tooltip: tr.editingCustomizeCardTemplatesCtrlandl,
-    }
-);
+        label: `${tr.editingCards()}...`,
+        tooltip: tr.editingCustomizeCardTemplatesCtrlandl(),
+    });
 
-const buttonGroup = dynamicComponent(ButtonGroup);
-export const notetypeGroup = buttonGroup<ButtonGroupProps>(
-    {
+    return buttonGroup({
         id: "notetype",
         buttons: [fieldsButton, cardsButton],
-    },
-    {}
-);
+    });
+}

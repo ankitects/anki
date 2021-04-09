@@ -13,72 +13,51 @@ import superscriptIcon from "./format-superscript.svg";
 import subscriptIcon from "./format-subscript.svg";
 import eraserIcon from "./eraser.svg";
 
-const commandIconButton = dynamicComponent(CommandIconButton);
+const commandIconButton = dynamicComponent<
+    typeof CommandIconButton,
+    CommandIconButtonProps
+>(CommandIconButton);
+const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-const boldButton = commandIconButton<CommandIconButtonProps, "tooltip">(
-    {
+export function getFormatGroup() {
+    const boldButton = commandIconButton({
         icon: boldIcon,
         command: "bold",
-    },
-    {
-        tooltip: tr.editingBoldTextCtrlandb,
-    }
-);
+        tooltip: tr.editingBoldTextCtrlandb(),
+    });
 
-const italicButton = commandIconButton<CommandIconButtonProps, "tooltip">(
-    {
+    const italicButton = commandIconButton({
         icon: italicIcon,
         command: "italic",
-    },
-    {
-        tooltip: tr.editingItalicTextCtrlandi,
-    }
-);
+        tooltip: tr.editingItalicTextCtrlandi(),
+    });
 
-const underlineButton = commandIconButton<CommandIconButtonProps, "tooltip">(
-    {
+    const underlineButton = commandIconButton({
         icon: underlineIcon,
         command: "underline",
-    },
-    {
-        tooltip: tr.editingUnderlineTextCtrlandu,
-    }
-);
+        tooltip: tr.editingUnderlineTextCtrlandu(),
+    });
 
-const superscriptButton = commandIconButton<CommandIconButtonProps, "tooltip">(
-    {
+    const superscriptButton = commandIconButton({
         icon: superscriptIcon,
         command: "superscript",
-    },
-    {
-        tooltip: tr.editingSuperscriptCtrlandand,
-    }
-);
+        tooltip: tr.editingSuperscriptCtrlandand(),
+    });
 
-const subscriptButton = commandIconButton<CommandIconButtonProps, "tooltip">(
-    {
+    const subscriptButton = commandIconButton({
         icon: subscriptIcon,
         command: "subscript",
-    },
-    {
-        tooltip: tr.editingSubscriptCtrland,
-    }
-);
+        tooltip: tr.editingSubscriptCtrland(),
+    });
 
-const removeFormatButton = commandIconButton<CommandIconButtonProps, "tooltip">(
-    {
+    const removeFormatButton = commandIconButton({
         icon: eraserIcon,
         command: "removeFormat",
         activatable: false,
-    },
-    {
-        tooltip: tr.editingRemoveFormattingCtrlandr,
-    }
-);
+        tooltip: tr.editingRemoveFormattingCtrlandr(),
+    });
 
-const buttonGroup = dynamicComponent(ButtonGroup);
-export const formatGroup = buttonGroup<ButtonGroupProps>(
-    {
+    return buttonGroup({
         id: "format",
         buttons: [
             boldButton,
@@ -88,6 +67,5 @@ export const formatGroup = buttonGroup<ButtonGroupProps>(
             subscriptButton,
             removeFormatButton,
         ],
-    },
-    {}
-);
+    });
+}

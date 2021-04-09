@@ -18,7 +18,7 @@ import micIcon from "./mic.svg";
 import functionIcon from "./function-variant.svg";
 import xmlIcon from "./xml.svg";
 
-import { clozeButton } from "./cloze";
+import { getClozeButton } from "./cloze";
 
 function onAttachment(): void {
     bridgeCommand("attach");
@@ -32,105 +32,89 @@ function onHtmlEdit(): void {
     bridgeCommand("htmlEdit");
 }
 
-const iconButton = dynamicComponent(IconButton);
-
-const withDropdownMenu = dynamicComponent(WithDropdownMenu);
-const dropdownMenu = dynamicComponent(DropdownMenu);
-const dropdownItem = dynamicComponent(DropdownItem);
-
-const attachmentButton = iconButton<IconButtonProps, "tooltip">(
-    {
-        icon: paperclipIcon,
-        onClick: onAttachment,
-    },
-    {
-        tooltip: tr.editingAttachPicturesaudiovideoF3,
-    }
-);
-
-const recordButton = iconButton(
-    { icon: micIcon, onClick: onRecord },
-    {
-        tooltip: tr.editingRecordAudioF5,
-    }
-);
-
-const mathjaxButton = iconButton<Omit<IconButtonProps, "onClick" | "tooltip">>(
-    {
-        icon: functionIcon,
-    },
-    {}
-);
-
 const mathjaxMenuId = "mathjaxMenu";
 
-const mathjaxMenu = dropdownMenu<DropdownMenuProps>(
-    {
-        id: mathjaxMenuId,
-        menuItems: [
-            dropdownItem<DropdownItemProps, "label">(
-                {
-                    // @ts-expect-error
-                    onClick: () => wrap("\\(", "\\)"),
-                    tooltip: "test",
-                    endLabel: "test",
-                },
-                { label: tr.editingMathjaxInline }
-            ),
-            dropdownItem<DropdownItemProps, "label">(
-                {
-                    // @ts-expect-error
-                    onClick: () => wrap("\\[", "\\]"),
-                    tooltip: "test",
-                    endLabel: "test",
-                },
-                { label: tr.editingMathjaxBlock }
-            ),
-            dropdownItem<DropdownItemProps, "label">(
-                {
-                    // @ts-expect-error
-                    onClick: () => wrap("\\(\\ce{", "}\\)"),
-                    tooltip: "test",
-                    endLabel: "test",
-                },
-                { label: tr.editingMathjaxChemistry }
-            ),
-        ],
-    },
-    {}
+const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
+const withDropdownMenu = dynamicComponent<
+    typeof WithDropdownMenu,
+    WithDropdownMenuProps
+>(WithDropdownMenu);
+const dropdownMenu = dynamicComponent<typeof DropdownMenu, DropdownMenuProps>(
+    DropdownMenu
 );
+const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
+    DropdownItem
+);
+const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-const mathjaxButtonWithMenu = withDropdownMenu<WithDropdownMenuProps>(
-    {
+export function getTemplateGroup() {
+    const attachmentButton = iconButton({
+        icon: paperclipIcon,
+        onClick: onAttachment,
+        tooltip: tr.editingAttachPicturesaudiovideoF3(),
+    });
+
+    const recordButton = iconButton({
+        icon: micIcon,
+        onClick: onRecord,
+        tooltip: tr.editingRecordAudioF5(),
+    });
+
+    const mathjaxButton = iconButton({
+        icon: functionIcon,
+        foo: 5,
+    });
+
+    const mathjaxButtonWithMenu = withDropdownMenu({
         button: mathjaxButton,
         menuId: mathjaxMenuId,
-    },
-    {}
-);
+    });
 
-const htmlButton = iconButton<IconButtonProps, "tooltip">(
-    {
+    const htmlButton = iconButton({
         icon: xmlIcon,
         onClick: onHtmlEdit,
-    },
-    {
         tooltip: tr.editingHtmlEditor,
-    }
-);
+    });
 
-const buttonGroup = dynamicComponent(ButtonGroup);
-export const templateGroup = buttonGroup<ButtonGroupProps>(
-    {
+    return buttonGroup({
         id: "template",
         buttons: [
             attachmentButton,
             recordButton,
-            clozeButton,
+            getClozeButton(),
             mathjaxButtonWithMenu,
             htmlButton,
         ],
-    },
-    {}
-);
+    });
+}
 
-export const templateMenus = [mathjaxMenu];
+export function getTemplateMenus() {
+    const mathjaxMenu = dropdownMenu({
+        id: mathjaxMenuId,
+        menuItems: [
+            dropdownItem({
+                // @ts-expect-error
+                onClick: () => wrap("\\(", "\\)"),
+                tooltip: "test",
+                endLabel: "test",
+                label: tr.editingMathjaxInline(),
+            }),
+            dropdownItem({
+                // @ts-expect-error
+                onClick: () => wrap("\\[", "\\]"),
+                tooltip: "test",
+                endLabel: "test",
+                label: tr.editingMathjaxBlock(),
+            }),
+            dropdownItem({
+                // @ts-expect-error
+                onClick: () => wrap("\\(\\ce{", "}\\)"),
+                tooltip: "test",
+                endLabel: "test",
+                label: tr.editingMathjaxChemistry(),
+            }),
+        ],
+    });
+
+    return [mathjaxMenu];
+}

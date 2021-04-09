@@ -33,14 +33,13 @@ function onCloze(event: MouseEvent): void {
     wrap(`{{c${highestCloze}::`, "}}");
 }
 
-const iconButton = dynamicComponent(IconButton);
-export const clozeButton = iconButton<IconButtonProps, "tooltip">(
-    {
+const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
+
+export function getClozeButton() {
+    return iconButton({
         id: "cloze",
         icon: bracketsIcon,
         onClick: onCloze,
-    },
-    {
-        tooltip: tr.editingClozeDeletionCtrlandshiftandc,
-    }
-);
+        tooltip: tr.editingClozeDeletionCtrlandshiftandc(),
+    });
+}
