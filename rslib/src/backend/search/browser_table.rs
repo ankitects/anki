@@ -3,23 +3,10 @@
 
 use std::str::FromStr;
 
-use strum::IntoEnumIterator;
-
-use crate::{backend_proto as pb, browser_table, collection::Collection, i18n::I18n};
-
-impl Collection {
-    pub(crate) fn all_browser_columns(&self) -> pb::BrowserColumns {
-        let mut columns: Vec<pb::browser_columns::Column> = browser_table::Column::iter()
-            .filter(|&c| c != browser_table::Column::Custom)
-            .map(|c| c.to_pb_column(&self.tr))
-            .collect();
-        columns.sort_by(|c1, c2| c1.label.cmp(&c2.label));
-        pb::BrowserColumns { columns }
-    }
-}
+use crate::{backend_proto as pb, browser_table, i18n::I18n};
 
 impl browser_table::Column {
-    fn to_pb_column(self, i18n: &I18n) -> pb::browser_columns::Column {
+    pub fn to_pb_column(self, i18n: &I18n) -> pb::browser_columns::Column {
         pb::browser_columns::Column {
             key: self.to_string(),
             label: self.localized_label(i18n),
@@ -28,65 +15,6 @@ impl browser_table::Column {
             uses_cell_font: self.uses_cell_font(),
             alignment: self.alignment() as i32,
         }
-    }
-
-    fn sorting(self) -> pb::browser_columns::Sorting {
-        match self {
-            Self::Question | Self::Answer | Self::Custom => pb::browser_columns::Sorting::None,
-            Self::SortField => pb::browser_columns::Sorting::Reversed,
-            _ => pb::browser_columns::Sorting::Normal,
-        }
-    }
-
-    fn uses_cell_font(self) -> bool {
-        matches!(self, Self::Question | Self::Answer | Self::SortField)
-    }
-
-    fn alignment(self) -> pb::browser_columns::Alignment {
-        match self {
-            Self::Question
-            | Self::Answer
-            | Self::Cards
-            | Self::Deck
-            | Self::SortField
-            | Self::Notetype
-            | Self::Tags => pb::browser_columns::Alignment::Start,
-            _ => pb::browser_columns::Alignment::Center,
-        }
-    }
-
-    fn localized_label(self, i18n: &I18n) -> String {
-        match self {
-            Self::Answer => i18n.browsing_answer(),
-            Self::CardMod => i18n.search_card_modified(),
-            Self::Cards => i18n.browsing_card(),
-            Self::Deck => i18n.decks_deck(),
-            Self::Due => i18n.statistics_due_date(),
-            Self::Custom => i18n.browsing_addon(),
-            Self::Ease => i18n.browsing_ease(),
-            Self::Interval => i18n.browsing_interval(),
-            Self::Lapses => i18n.scheduling_lapses(),
-            Self::NoteCreation => i18n.browsing_created(),
-            Self::NoteMod => i18n.search_note_modified(),
-            Self::Notetype => i18n.browsing_note(),
-            Self::Question => i18n.browsing_question(),
-            Self::Reps => i18n.scheduling_reviews(),
-            Self::SortField => i18n.browsing_sort_field(),
-            Self::Tags => i18n.editing_tags(),
-        }
-        .into()
-    }
-
-    fn localized_notes_label(self, i18n: &I18n) -> String {
-        match self {
-            Self::CardMod => i18n.search_card_modified(),
-            Self::Cards => i18n.editing_cards(),
-            Self::Ease => i18n.browsing_average_ease(),
-            Self::Interval => i18n.browsing_average_interval(),
-            Self::Reps => i18n.scheduling_reviews(),
-            _ => return self.localized_label(i18n),
-        }
-        .into()
     }
 }
 
