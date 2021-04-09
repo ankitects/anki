@@ -153,7 +153,7 @@ following in your user.bazelrc file to enable incremental compilation
 when using ./run.
 
 ```
-build --@rules_rust//worker:cache_root=/path/to/folder/to/store/temp/files
+build --@rules_rust//:experimental_incremental_base=/home/myuser/bazel/incremental
 ```
 
 The worker support is experimental, so you may need to remove it in future
