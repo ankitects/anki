@@ -350,7 +350,7 @@ impl RowContext {
         })
     }
 
-    fn browser_row(&mut self, columns: &[Column]) -> Result<Row> {
+    fn browser_row(&self, columns: &[Column]) -> Result<Row> {
         Ok(Row {
             cells: columns
                 .iter()
@@ -361,14 +361,14 @@ impl RowContext {
         })
     }
 
-    fn get_cell(&mut self, column: Column) -> Result<Cell> {
+    fn get_cell(&self, column: Column) -> Result<Cell> {
         Ok(Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
         })
     }
 
-    fn get_cell_text(&mut self, column: Column) -> Result<String> {
+    fn get_cell_text(&self, column: Column) -> Result<String> {
         Ok(match column {
             Column::Question => self.question_str(),
             Column::Answer => self.answer_str(),
@@ -437,7 +437,7 @@ impl RowContext {
         .to_string()
     }
 
-    fn due_str(&mut self) -> String {
+    fn due_str(&self) -> String {
         if self.notes_mode {
             self.note_due_str()
         } else {
@@ -445,7 +445,7 @@ impl RowContext {
         }
     }
 
-    fn card_due_str(&mut self) -> String {
+    fn card_due_str(&self) -> String {
         let due = if self.cards[0].is_filtered_deck() {
             self.tr.browsing_filtered()
         } else if self.cards[0].is_new_type_or_queue() {
@@ -524,7 +524,7 @@ impl RowContext {
             .date_string()
     }
 
-    fn deck_str(&mut self) -> String {
+    fn deck_str(&self) -> String {
         if self.notes_mode {
             let decks = self.cards.iter().map(|c| c.deck_id).unique().count();
             if decks > 1 {
