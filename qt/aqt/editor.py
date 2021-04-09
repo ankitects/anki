@@ -135,96 +135,6 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
-        lefttopbtns: List[str] = [
-            self._addButton(
-                None,
-                "fields",
-                tr.editing_customize_fields(),
-                f"{tr.editing_fields()}...",
-                disables=False,
-                rightside=False,
-            ),
-            self._addButton(
-                None,
-                "cards",
-                tr.editing_customize_card_templates_ctrlandl(),
-                f"{tr.editing_cards()}...",
-                disables=False,
-                rightside=False,
-            ),
-        ]
-
-        gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
-
-        righttopbtns: List[str] = [
-            self._addButton(
-                "text_bold", "bold", tr.editing_bold_text_ctrlandb(), id="bold"
-            ),
-            self._addButton(
-                "text_italic",
-                "italic",
-                tr.editing_italic_text_ctrlandi(),
-                id="italic",
-            ),
-            self._addButton(
-                "text_under",
-                "underline",
-                tr.editing_underline_text_ctrlandu(),
-                id="underline",
-            ),
-            self._addButton(
-                "text_super",
-                "super",
-                tr.editing_superscript_ctrlandand(),
-                id="superscript",
-            ),
-            self._addButton(
-                "text_sub", "sub", tr.editing_subscript_ctrland(), id="subscript"
-            ),
-            self._addButton(
-                "text_clear", "clear", tr.editing_remove_formatting_ctrlandr()
-            ),
-            self._addButton(
-                None,
-                "colour",
-                tr.editing_set_foreground_colour_f7(),
-                """
-<span id="forecolor" class="topbut rounded" style="background: #000"></span>
-""",
-            ),
-            self._addButton(
-                None,
-                "changeCol",
-                tr.editing_change_colour_f8(),
-                """
-<span class="topbut rounded rainbow"></span>
-""",
-            ),
-            self._addButton(
-                "text_cloze", "cloze", tr.editing_cloze_deletion_ctrlandshiftandc()
-            ),
-            self._addButton(
-                "paperclip", "attach", tr.editing_attach_picturesaudiovideo_f3()
-            ),
-            self._addButton("media-record", "record", tr.editing_record_audio_f5()),
-            self._addButton("more", "more"),
-        ]
-
-        gui_hooks.editor_did_init_buttons(righttopbtns, self)
-        # legacy filter
-        righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
-
-        topbuts = """
-            <div id="topbutsleft" class="topbuts">
-                %(leftbts)s
-            </div>
-            <div id="topbutsright" class="topbuts">
-                %(rightbts)s
-            </div>
-        """ % dict(
-            leftbts="".join(lefttopbtns),
-            rightbts="".join(righttopbtns),
-        )
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
@@ -242,7 +152,45 @@ class Editor:
             context=self,
             default_css=False,
         )
-        self.web.eval("preventButtonFocus();")
+
+        lefttopbtns: List[str] = []
+        gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
+
+        lefttopbtns_defs = [
+            f"$editorToolbar.addButton({{ component: editorToolbar.RawButton, html: `{button}` }}, 'notetype');"
+            for button in lefttopbtns
+        ]
+        lefttopbtns_js = "\n".join(lefttopbtns_defs)
+
+        righttopbtns: List[str] = []
+        gui_hooks.editor_did_init_buttons(righttopbtns, self)
+        # legacy filter
+        righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
+
+        righttopbtns_defs = "\n".join(
+            [
+                f"{{ component: editorToolbar.RawButton, html: `{button}` }},"
+                for button in righttopbtns
+            ]
+        )
+        righttopbtns_js = (
+            f"""
+$editorToolbar.addButtonGroup({{
+  id: "addons",
+  buttons: [ {righttopbtns_defs} ]
+}});
+"""
+            if righttopbtns_defs
+            else ""
+        )
+
+        self.web.eval(
+            f"""
+$editorToolbar = document.getElementById("editorToolbar");
+{lefttopbtns_js}
+{righttopbtns_js}
+"""
+        )
 
     # Top buttons
     ######################################################################
@@ -354,6 +302,7 @@ class Editor:
                         type="button"
                         title="{tip}"
                         onclick="pycmd('{cmd}');{togglesc}return false;"
+                        onmousedown="window.event.preventDefault();"
                 >
                     {imgelm}
                     {labelelm}
@@ -802,7 +751,8 @@ class Editor:
             self._wrapWithColour(self.fcolour)
 
     def _updateForegroundButton(self) -> None:
-        self.web.eval(f"setFGButton('{self.fcolour}')")
+        # self.web.eval(f"setFGButton('{self.fcolour}')")
+        pass
 
     def onColourChanged(self) -> None:
         self._updateForegroundButton()
@@ -1355,9 +1305,13 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.model()["type"] == MODEL_CLOZE:
-        editor.web.eval('document.getElementById("editorToolbar").showButton("template", "cloze"); ')
+        editor.web.eval(
+            'document.getElementById("editorToolbar").showButton("template", "cloze"); '
+        )
     else:
-        editor.web.eval('document.getElementById("editorToolbar").hideButton("template", "cloze"); ')
+        editor.web.eval(
+            'document.getElementById("editorToolbar").hideButton("template", "cloze"); '
+        )
 
 
 gui_hooks.editor_did_load_note.append(set_cloze_button)
