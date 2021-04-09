@@ -172,6 +172,7 @@ export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.sve
 export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 
 /* Exports for add-ons */
+export { default as RawButton } from "./RawButton.svelte";
 export { default as LabelButton } from "./LabelButton.svelte";
 export { default as IconButton } from "./IconButton.svelte";
 export { default as CommandIconButton } from "./CommandIconButton.svelte";

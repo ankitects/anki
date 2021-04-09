@@ -1,4 +1,5 @@
 <script context="module" lang="typescript">
+    import "./legacy.css";
     import { writable } from "svelte/store";
 
     const disabled = writable(false);

@@ -21,6 +21,12 @@ sass_binary(
     visibility = ["//visibility:public"],
 )
 
+sass_binary(
+    name = "legacy_css",
+    src = "legacy.scss",
+    visibility = ["//visibility:public"],
+)
+
 ts_library(
     name = "index",
     srcs = ["index.ts"],
@@ -98,6 +104,7 @@ esbuild(
         "bootstrap-icons",
         "mdi-icons",
         ":color_css",
+        ":legacy_css",
     ] + svelte_names,
 )
 
