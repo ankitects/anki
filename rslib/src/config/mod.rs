@@ -9,10 +9,9 @@ mod string;
 pub(crate) mod undo;
 
 pub use self::{bool::BoolKey, string::StringKey};
-use crate::browser_table;
+use crate::browser_table::Column;
 use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
-use serde_derive::Deserialize;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
@@ -48,9 +47,9 @@ pub(crate) enum ConfigKey {
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
     #[strum(to_string = "sortType")]
-    BrowserSortKind,
+    BrowserSortColumn,
     #[strum(to_string = "noteSortType")]
-    BrowserNoteSortKind,
+    BrowserNoteSortColumn,
     #[strum(to_string = "curDeck")]
     CurrentDeckId,
     #[strum(to_string = "curModel")]
@@ -131,33 +130,29 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
-        self.get_config_default(ConfigKey::BrowserSortKind)
+    pub(crate) fn get_browser_sort_column(&self) -> Column {
+        self.get_config_optional(ConfigKey::BrowserSortColumn)
+            .unwrap_or(Column::NoteCreation)
     }
 
-    pub(crate) fn get_browser_note_sort_kind(&self) -> SortKind {
-        self.get_config_default(ConfigKey::BrowserNoteSortKind)
+    pub(crate) fn get_browser_note_sort_column(&self) -> Column {
+        self.get_config_optional(ConfigKey::BrowserNoteSortColumn)
+            .unwrap_or(Column::NoteCreation)
     }
 
-    pub(crate) fn get_desktop_browser_card_columns(&self) -> Option<Vec<browser_table::Column>> {
+    pub(crate) fn get_desktop_browser_card_columns(&self) -> Option<Vec<Column>> {
         self.get_config_optional(ConfigKey::DesktopBrowserCardColumns)
     }
 
-    pub(crate) fn set_desktop_browser_card_columns(
-        &mut self,
-        columns: Vec<browser_table::Column>,
-    ) -> Result<()> {
+    pub(crate) fn set_desktop_browser_card_columns(&mut self, columns: Vec<Column>) -> Result<()> {
         self.set_config(ConfigKey::DesktopBrowserCardColumns, &columns)
     }
 
-    pub(crate) fn get_desktop_browser_note_columns(&self) -> Option<Vec<browser_table::Column>> {
+    pub(crate) fn get_desktop_browser_note_columns(&self) -> Option<Vec<Column>> {
         self.get_config_optional(ConfigKey::DesktopBrowserNoteColumns)
     }
 
-    pub(crate) fn set_desktop_browser_note_columns(
-        &mut self,
-        columns: Vec<browser_table::Column>,
-    ) -> Result<()> {
+    pub(crate) fn set_desktop_browser_note_columns(&mut self, columns: Vec<Column>) -> Result<()> {
         self.set_config(ConfigKey::DesktopBrowserNoteColumns, &columns)
     }
 
@@ -269,47 +264,6 @@ impl Collection {
     }
 }
 
-#[derive(Deserialize, PartialEq, Debug, Clone, Copy)]
-#[serde(rename_all = "camelCase")]
-pub enum SortKind {
-    NoteCards,
-    #[serde(rename = "noteCrt")]
-    NoteCreation,
-    NoteDue,
-    NoteEase,
-    #[serde(rename = "noteIvl")]
-    NoteInterval,
-    NoteLapses,
-    NoteMod,
-    #[serde(rename = "noteFld")]
-    SortField,
-    NoteReps,
-    #[serde(rename = "note")]
-    Notetype,
-    #[serde(rename = "noteTags")]
-    Tags,
-    CardMod,
-    #[serde(rename = "cardReps")]
-    Reps,
-    #[serde(rename = "cardDue")]
-    Due,
-    #[serde(rename = "cardEase")]
-    Ease,
-    #[serde(rename = "cardLapses")]
-    Lapses,
-    #[serde(rename = "cardIvl")]
-    Interval,
-    Deck,
-    #[serde(rename = "template")]
-    Cards,
-}
-
-impl Default for SortKind {
-    fn default() -> Self {
-        Self::NoteCreation
-    }
-}
-
 // 2021 scheduler moves this into deck config
 pub(crate) enum NewReviewMix {
     Mix = 0,
@@ -334,7 +288,7 @@ pub(crate) enum Weekday {
 
 #[cfg(test)]
 mod test {
-    use super::SortKind;
+    use super::*;
     use crate::collection::open_test_collection;
     use crate::decks::DeckId;
 
@@ -342,7 +296,7 @@ mod test {
     fn defaults() {
         let col = open_test_collection();
         assert_eq!(col.get_current_deck_id(), DeckId(1));
-        assert_eq!(col.get_browser_sort_kind(), SortKind::SortField);
+        assert_eq!(col.get_browser_sort_column(), Column::SortField);
     }
 
     #[test]
