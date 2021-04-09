@@ -1,5 +1,5 @@
 <script lang="typescript">
-    export let id = "";
+    export let id: string;
     export let className = "";
     export let tooltip: string;
 
@@ -46,7 +46,6 @@
     {id}
     class={className}
     title={tooltip}
-    {...$$restProps}
     on:mousedown|preventDefault>
     <span> <input type="color" on:change={onChange} /> </span>
 </button>

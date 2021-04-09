@@ -1,7 +1,7 @@
 <script lang="typescript">
     import type { ToolbarItem } from "./types";
 
-    export let id;
+    export let id: string;
     export let className = "";
     export let buttons: ToolbarItem[];
 
@@ -52,7 +52,7 @@
     }
 </style>
 
-<ul {id} class={className} {...$$restProps}>
+<ul {id} class={className}>
     {#each buttons as button}
         {#if !button.hidden}
             <li>

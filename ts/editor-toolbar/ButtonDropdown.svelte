@@ -2,7 +2,7 @@
     import type { ToolbarItem } from "./types";
     import ButtonGroup from "./ButtonGroup.svelte";
 
-    export let id = "";
+    export let id: string;
     export let className = "";
 
     function extendClassName(className: string): string {
@@ -12,4 +12,4 @@
     export let buttons: ToolbarItem[];
 </script>
 
-<ButtonGroup {id} className={extendClassName(className)} {buttons} {...$$restProps} />
+<ButtonGroup {id} className={extendClassName(className)} {buttons} />

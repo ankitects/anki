@@ -9,7 +9,7 @@
         selected: boolean;
     }
 
-    export let id = "";
+    export let id: string;
     export let className = "";
     export let tooltip: string;
 
@@ -58,8 +58,7 @@
     disabled={_disabled}
     {id}
     class={extendClassName(className)}
-    title={tooltip}
-    {...$$restProps}>
+    title={tooltip}>
     {#each options as option}
         <SelectOption {...option} />
     {/each}

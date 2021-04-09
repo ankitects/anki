@@ -1,6 +1,9 @@
 <script lang="typescript">
     import type { ToolbarItem } from "./types";
 
+    /* Bootstrap dropdown are normally declared alongside the associated button
+     * However we cannot do that, as the menus cannot be declared in sticky-positioned elements
+     */
     export let button: ToolbarItem;
     export let menuId: string;
 
@@ -9,9 +12,7 @@
         ...rest
     }: DynamicSvelteComponent): DynamicSvelteComponent {
         return {
-            className: `${className} dropdown-toggle`,
-            "data-bs-toggle": "dropdown",
-            "aria-expanded": "false",
+            dropdownToggle: true,
             ...rest,
         };
     }
