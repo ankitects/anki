@@ -246,13 +246,12 @@ impl Collection {
 
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
         let notes_mode = self.get_bool(BoolKey::BrowserTableShowNotesMode);
-        let columns = if notes_mode {
-            self.get_desktop_browser_note_columns()
-                .ok_or_else(|| AnkiError::invalid_input("Note columns not set."))?
-        } else {
-            self.get_desktop_browser_card_columns()
-                .ok_or_else(|| AnkiError::invalid_input("Card columns not set."))?
-        };
+        let columns = Arc::clone(
+            self.state
+                .active_browser_columns
+                .as_ref()
+                .ok_or_else(|| AnkiError::invalid_input("Active browser columns not set."))?,
+        );
         RowContext::new(self, id, notes_mode, card_render_required(&columns))?.browser_row(&columns)
     }
 
