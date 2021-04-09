@@ -717,24 +717,24 @@ class Collection:
         columns = self.get_config(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
-        self._backend.set_desktop_browser_card_columns(columns)
+        self._backend.set_active_browser_columns(columns)
         return columns
 
     def set_browser_card_columns(self, columns: List[str]) -> None:
         self.set_config("activeCols", columns)
-        self._backend.set_desktop_browser_card_columns(columns)
+        self._backend.set_active_browser_columns(columns)
 
     def load_browser_note_columns(self) -> List[str]:
         """Return the stored note column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
             "activeNoteCols", ["noteFld", "note", "noteCards", "noteTags"]
         )
-        self._backend.set_desktop_browser_note_columns(columns)
+        self._backend.set_active_browser_columns(columns)
         return columns
 
     def set_browser_note_columns(self, columns: List[str]) -> None:
         self.set_config("activeNoteCols", columns)
-        self._backend.set_desktop_browser_note_columns(columns)
+        self._backend.set_active_browser_columns(columns)
 
     # Config
     ##########################################################################

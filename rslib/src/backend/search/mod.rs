@@ -4,8 +4,7 @@
 mod browser_table;
 mod search_node;
 
-use std::convert::TryInto;
-use std::str::FromStr;
+use std::{convert::TryInto, str::FromStr, sync::Arc};
 
 use super::Backend;
 use crate::{
@@ -92,18 +91,16 @@ impl SearchService for Backend {
         self.with_col(|col| Ok(col.all_browser_columns()))
     }
 
+    fn set_active_browser_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
+        self.with_col(|col| {
+            col.state.active_browser_columns = Some(Arc::new(input.into()));
+            Ok(())
+        })
+        .map(Into::into)
+    }
+
     fn browser_row_for_id(&self, input: pb::Int64) -> Result<pb::BrowserRow> {
         self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
-    }
-
-    fn set_desktop_browser_card_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
-        self.with_col(|col| col.set_desktop_browser_card_columns(input.into()))?;
-        Ok(().into())
-    }
-
-    fn set_desktop_browser_note_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
-        self.with_col(|col| col.set_desktop_browser_note_columns(input.into()))?;
-        Ok(().into())
     }
 }
 
