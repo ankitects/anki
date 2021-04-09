@@ -5,13 +5,12 @@ mod browser_table;
 mod search_node;
 
 use std::convert::TryInto;
+use std::str::FromStr;
 
 use super::Backend;
 use crate::{
     backend_proto as pb,
-    backend_proto::{
-        sort_order::builtin::SortColumn as SortColumnProto, sort_order::Value as SortOrderProto,
-    },
+    backend_proto::sort_order::Value as SortOrderProto,
     browser_table::Column,
     prelude::*,
     search::{concatenate_searches, replace_search_node, write_nodes, Node, SortMode},
@@ -108,26 +107,6 @@ impl SearchService for Backend {
     }
 }
 
-impl From<SortColumnProto> for Column {
-    fn from(kind: SortColumnProto) -> Self {
-        match kind {
-            SortColumnProto::CardMod => Column::CardMod,
-            SortColumnProto::Cards => Column::Cards,
-            SortColumnProto::Deck => Column::Deck,
-            SortColumnProto::Due => Column::Due,
-            SortColumnProto::Ease => Column::Ease,
-            SortColumnProto::Lapses => Column::Lapses,
-            SortColumnProto::Interval => Column::Interval,
-            SortColumnProto::NoteCreation => Column::NoteCreation,
-            SortColumnProto::NoteMod => Column::NoteMod,
-            SortColumnProto::Notetype => Column::Notetype,
-            SortColumnProto::Reps => Column::Reps,
-            SortColumnProto::SortField => Column::SortField,
-            SortColumnProto::Tags => Column::Tags,
-        }
-    }
-}
-
 impl From<Option<SortOrderProto>> for SortMode {
     fn from(order: Option<SortOrderProto>) -> Self {
         use pb::sort_order::Value as V;
@@ -136,7 +115,7 @@ impl From<Option<SortOrderProto>> for SortMode {
             V::Custom(s) => SortMode::Custom(s),
             V::FromConfig(_) => SortMode::FromConfig,
             V::Builtin(b) => SortMode::Builtin {
-                column: b.column().into(),
+                column: Column::from_str(&b.column).unwrap_or_default(),
                 reverse: b.reverse,
             },
         }
