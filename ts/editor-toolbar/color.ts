@@ -25,35 +25,27 @@ function wrapWithForecolor(color: string): void {
     document.execCommand("forecolor", false, color);
 }
 
-const iconButton = dynamicComponent(IconButton);
-const forecolorButton = iconButton<IconButtonProps, "tooltip">(
-    {
+const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
+const colorPicker = dynamicComponent<typeof ColorPicker, ColorPickerProps>(ColorPicker);
+const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
+
+export function getColorGroup() {
+    const forecolorButton = iconButton({
         icon: squareFillIcon,
         className: "forecolor",
         onClick: () => wrapWithForecolor(getForecolor()),
-    },
-    {
-        tooltip: tr.editingSetForegroundColourF7,
-    }
-);
+        tooltip: tr.editingSetForegroundColourF7(),
+    });
 
-const colorPicker = dynamicComponent(ColorPicker);
-const colorpickerButton = colorPicker<ColorPickerProps, "tooltip">(
-    {
+    const colorpickerButton = colorPicker({
         className: "rainbow",
         onChange: ({ currentTarget }) =>
             setForegroundColor((currentTarget as HTMLInputElement).value),
-    },
-    {
-        tooltip: tr.editingChangeColourF8,
-    }
-);
+        tooltip: tr.editingChangeColourF8(),
+    });
 
-const buttonGroup = dynamicComponent(ButtonGroup);
-export const colorGroup = buttonGroup<ButtonGroupProps>(
-    {
+    return buttonGroup({
         id: "color",
         buttons: [forecolorButton, colorpickerButton],
-    },
-    {}
-);
+    });
+}

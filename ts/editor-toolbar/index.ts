@@ -5,17 +5,17 @@ import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
-import { writable } from "svelte/store";
+import { Writable, writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 import { checkNightMode } from "anki/nightmode";
 import { setupI18n, ModuleName } from "anki/i18n";
 
-import { notetypeGroup } from "./notetype";
-import { formatGroup } from "./format";
-import { colorGroup } from "./color";
-import { templateGroup, templateMenus } from "./template";
+import { getNotetypeGroup } from "./notetype";
+import { getFormatGroup } from "./format";
+import { getColorGroup } from "./color";
+import { getTemplateGroup, getTemplateMenus } from "./template";
 
 import { Identifiable, search, add, insert } from "./identifiable";
 
@@ -35,17 +35,26 @@ function toggleComponent(component: Hideable) {
     component.hidden = !component.hidden;
 }
 
-const defaultButtons = [notetypeGroup, formatGroup, colorGroup, templateGroup];
-const defaultMenus = [...templateMenus];
+const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponent;
 
-    buttons = writable(defaultButtons);
-    menus = writable(defaultMenus);
+    buttons?: Writable<
+        (DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps)[]
+    >;
+    menus?: Writable<DynamicSvelteComponent[]>;
 
     connectedCallback(): void {
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
+            this.buttons = writable([
+                getNotetypeGroup(),
+                getFormatGroup(),
+                getColorGroup(),
+                getTemplateGroup(),
+            ]);
+            this.menus = writable([...getTemplateMenus()]);
+
             this.component = new EditorToolbarSvelte({
                 target: this,
                 props: {
@@ -58,27 +67,24 @@ class EditorToolbar extends HTMLElement {
     }
 
     updateButtonGroup<T>(
-        update: (component: DynamicSvelteComponent<typeof ButtonGroup> & T) => void,
+        update: (
+            component: DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps & T
+        ) => void,
         group: string | number
     ): void {
-        this.buttons.update(
-            (
-                buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
-                    ButtonGroupProps)[]
-            ) => {
-                const foundGroup = search(buttonGroups, group);
+        this.buttons?.update((buttonGroups) => {
+            const foundGroup = search(buttonGroups, group);
 
-                if (foundGroup) {
-                    update(
-                        foundGroup as DynamicSvelteComponent<typeof ButtonGroup> &
-                            ButtonGroupProps &
-                            T
-                    );
-                }
-
-                return buttonGroups;
+            if (foundGroup) {
+                update(
+                    foundGroup as DynamicSvelteComponent<typeof ButtonGroup> &
+                        ButtonGroupProps &
+                        T
+                );
             }
-        );
+
+            return buttonGroups;
+        });
     }
 
     showButtonGroup(group: string | number): void {
@@ -94,29 +100,17 @@ class EditorToolbar extends HTMLElement {
     }
 
     insertButtonGroup(newGroup: ButtonGroupProps, group: string | number = 0) {
-        const buttonGroup = dynamicComponent(ButtonGroup);
-        this.buttons.update(
-            (
-                buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
-                    ButtonGroupProps)[]
-            ) => {
-                const newButtonGroup = buttonGroup<ButtonGroupProps>(newGroup, {});
-                return insert(buttonGroups, newButtonGroup, group);
-            }
-        );
+        this.buttons?.update((buttonGroups) => {
+            const newButtonGroup = buttonGroup(newGroup);
+            return insert(buttonGroups, newButtonGroup, group);
+        });
     }
 
     addButtonGroup(newGroup: ButtonGroupProps, group: string | number = -1) {
-        const buttonGroup = dynamicComponent(ButtonGroup);
-        this.buttons.update(
-            (
-                buttonGroups: (DynamicSvelteComponent<typeof ButtonGroup> &
-                    ButtonGroupProps)[]
-            ) => {
-                const newButtonGroup = buttonGroup<ButtonGroupProps>(newGroup, {});
-                return add(buttonGroups, newButtonGroup, group);
-            }
-        );
+        this.buttons?.update((buttonGroups) => {
+            const newButtonGroup = buttonGroup(newGroup);
+            return add(buttonGroups, newButtonGroup, group);
+        });
     }
 
     updateButton<T>(
@@ -124,22 +118,16 @@ class EditorToolbar extends HTMLElement {
         group: string | number,
         button: string | number
     ): void {
-        this.updateButtonGroup(
-            (
-                foundGroup: DynamicSvelteComponent<typeof ButtonGroup> &
-                    ButtonGroupProps
-            ) => {
-                const foundButton = search(
-                    foundGroup.buttons as (DynamicSvelteComponent & Identifiable)[],
-                    button
-                );
+        this.updateButtonGroup((foundGroup) => {
+            const foundButton = search(
+                foundGroup.buttons as (DynamicSvelteComponent & Identifiable)[],
+                button
+            );
 
-                if (foundButton) {
-                    update(foundButton as DynamicSvelteComponent & T);
-                }
-            },
-            group
-        );
+            if (foundButton) {
+                update(foundButton as DynamicSvelteComponent & T);
+            }
+        }, group);
     }
 
     showButton(group: string | number, button: string | number): void {
@@ -159,18 +147,13 @@ class EditorToolbar extends HTMLElement {
         group: string | number,
         button: string | number = 0
     ) {
-        this.updateButtonGroup(
-            (
-                component: DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps
-            ) => {
-                component.buttons = insert(
-                    component.buttons as (DynamicSvelteComponent & Identifiable)[],
-                    newButton,
-                    button
-                );
-            },
-            group
-        );
+        this.updateButtonGroup((component) => {
+            component.buttons = insert(
+                component.buttons as (DynamicSvelteComponent & Identifiable)[],
+                newButton,
+                button
+            );
+        }, group);
     }
 
     addButton(
@@ -178,18 +161,13 @@ class EditorToolbar extends HTMLElement {
         group: string | number,
         button: string | number = -1
     ) {
-        this.updateButtonGroup(
-            (
-                component: DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps
-            ) => {
-                component.buttons = add(
-                    component.buttons as (DynamicSvelteComponent & Identifiable)[],
-                    newButton,
-                    button
-                );
-            },
-            group
-        );
+        this.updateButtonGroup((component) => {
+            component.buttons = add(
+                component.buttons as (DynamicSvelteComponent & Identifiable)[],
+                newButton,
+                button
+            );
+        }, group);
     }
 }
 
