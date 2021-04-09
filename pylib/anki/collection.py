@@ -12,7 +12,6 @@ SearchNode = _pb.SearchNode
 Progress = _pb.Progress
 EmptyCardsReport = _pb.EmptyCardsReport
 GraphPreferences = _pb.GraphPreferences
-BuiltinSort = _pb.SortOrder.Builtin.SortColumn
 Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
 OpChanges = _pb.OpChanges
@@ -41,7 +40,7 @@ from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import Deck, DeckConfig, DeckConfigId, DeckId, DeckManager
-from anki.errors import AbortSchemaModification, DBError
+from anki.errors import AbortSchemaModification, DBError, InvalidInput
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, Notetype, NotetypeDict, NotetypeId
@@ -506,7 +505,7 @@ class Collection:
     def find_cards(
         self,
         query: str,
-        order: Union[bool, str, BuiltinSort.V] = False,
+        order: Union[bool, str, BrowserColumns.Column] = False,
         reverse: bool = False,
     ) -> Sequence[CardId]:
         """Return card ids matching the provided search.
@@ -521,10 +520,12 @@ class Collection:
         desc and vice versa when reverse is set in the collection config, eg
         order="c.ivl asc, c.due desc".
 
-        If order is a BuiltinSort value, sort using that builtin sort, eg
-        col.find_cards("", order=BuiltinSort.DUE)
+        If order is a BrowserColumns.Column that supports sorting, sort using that
+        column. All available columns are available through col.all_browser_columns()
+        or browser.table._model.columns and support sorting unless column.sorting
+        is set to BrowserColumns.SORTING_NONE.
 
-        The reverse argument only applies when a BuiltinSort.V is provided;
+        The reverse argument only applies when a BrowserColumns.Column is provided;
         otherwise the collection config defines whether reverse is set or not.
         """
         mode = _build_sort_mode(order, reverse)
@@ -535,7 +536,7 @@ class Collection:
     def find_notes(
         self,
         query: str,
-        order: Union[bool, str, BuiltinSort.V] = False,
+        order: Union[bool, str, BrowserColumns.Column] = False,
         reverse: bool = False,
     ) -> Sequence[NoteId]:
         """Return note ids matching the provided search.
@@ -1123,15 +1124,17 @@ _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
 
 
 def _build_sort_mode(
-    order: Union[bool, str, BuiltinSort.V],
+    order: Union[bool, str, BrowserColumns.Column],
     reverse: bool,
 ) -> _pb.SortOrder:
     if isinstance(order, str):
         return _pb.SortOrder(custom=order)
-    elif isinstance(order, bool):
+    if isinstance(order, bool):
         if order is True:
             return _pb.SortOrder(from_config=_pb.Empty())
-        else:
-            return _pb.SortOrder(none=_pb.Empty())
-    else:
-        return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(column=order, reverse=reverse))
+        return _pb.SortOrder(none=_pb.Empty())
+    if order.sorting != BrowserColumns.SORTING_NONE:
+        return _pb.SortOrder(
+            builtin=_pb.SortOrder.Builtin(column=order.key, reverse=reverse)
+        )
+    raise InvalidInput(f"{order} is not a valid sort order.")

@@ -796,22 +796,7 @@ message SearchOut {
 
 message SortOrder {
   message Builtin {
-    enum SortColumn {
-      CARD_MOD = 0;
-      CARDS = 1;
-      DECK = 2;
-      DUE = 3;
-      EASE = 4;
-      LAPSES = 5;
-      INTERVAL = 6;
-      NOTE_CREATION = 7;
-      NOTE_MOD = 8;
-      NOTETYPE = 9;
-      REPS = 10;
-      SORT_FIELD = 11;
-      TAGS = 12;
-    }
-    SortColumn column = 1;
+    string column = 1;
     bool reverse = 2;
   }
   oneof value {
