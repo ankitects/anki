@@ -796,28 +796,22 @@ message SearchOut {
 
 message SortOrder {
   message Builtin {
-    enum Kind {
-      NOTE_CARDS = 0;
-      NOTE_CREATION = 1;
-      NOTE_DUE = 2;
-      NOTE_EASE = 3;
-      SORT_FIELD = 4;
-      NOTE_INTERVAL = 5;
-      NOTE_LAPSES = 6;
-      NOTE_MOD = 7;
-      NOTE_REPS = 8;
-      TAGS = 9;
-      NOTETYPE = 10;
-      CARD_MOD = 11;
-      REPS = 12;
-      DUE = 13;
-      EASE = 14;
-      LAPSES = 15;
-      INTERVAL = 16;
-      DECK = 17;
-      CARDS = 18;
+    enum SortColumn {
+      CARD_MOD = 0;
+      CARDS = 1;
+      DECK = 2;
+      DUE = 3;
+      EASE = 4;
+      LAPSES = 5;
+      INTERVAL = 6;
+      NOTE_CREATION = 7;
+      NOTE_MOD = 8;
+      NOTETYPE = 9;
+      REPS = 10;
+      SORT_FIELD = 11;
+      TAGS = 12;
     }
-    Kind kind = 1;
+    SortColumn column = 1;
     bool reverse = 2;
   }
   oneof value {

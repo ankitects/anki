@@ -10,9 +10,9 @@ use super::Backend;
 use crate::{
     backend_proto as pb,
     backend_proto::{
-        sort_order::builtin::Kind as SortKindProto, sort_order::Value as SortOrderProto,
+        sort_order::builtin::SortColumn as SortColumnProto, sort_order::Value as SortOrderProto,
     },
-    config::SortKind,
+    browser_table::Column,
     prelude::*,
     search::{concatenate_searches, replace_search_node, write_nodes, Node, SortMode},
 };
@@ -108,28 +108,22 @@ impl SearchService for Backend {
     }
 }
 
-impl From<SortKindProto> for SortKind {
-    fn from(kind: SortKindProto) -> Self {
+impl From<SortColumnProto> for Column {
+    fn from(kind: SortColumnProto) -> Self {
         match kind {
-            SortKindProto::NoteCards => SortKind::NoteCards,
-            SortKindProto::NoteCreation => SortKind::NoteCreation,
-            SortKindProto::NoteDue => SortKind::NoteDue,
-            SortKindProto::NoteEase => SortKind::NoteEase,
-            SortKindProto::NoteInterval => SortKind::NoteInterval,
-            SortKindProto::NoteLapses => SortKind::NoteLapses,
-            SortKindProto::NoteMod => SortKind::NoteMod,
-            SortKindProto::SortField => SortKind::SortField,
-            SortKindProto::NoteReps => SortKind::NoteReps,
-            SortKindProto::Tags => SortKind::Tags,
-            SortKindProto::Notetype => SortKind::Notetype,
-            SortKindProto::CardMod => SortKind::CardMod,
-            SortKindProto::Reps => SortKind::Reps,
-            SortKindProto::Due => SortKind::Due,
-            SortKindProto::Ease => SortKind::Ease,
-            SortKindProto::Lapses => SortKind::Lapses,
-            SortKindProto::Interval => SortKind::Interval,
-            SortKindProto::Deck => SortKind::Deck,
-            SortKindProto::Cards => SortKind::Cards,
+            SortColumnProto::CardMod => Column::CardMod,
+            SortColumnProto::Cards => Column::Cards,
+            SortColumnProto::Deck => Column::Deck,
+            SortColumnProto::Due => Column::Due,
+            SortColumnProto::Ease => Column::Ease,
+            SortColumnProto::Lapses => Column::Lapses,
+            SortColumnProto::Interval => Column::Interval,
+            SortColumnProto::NoteCreation => Column::NoteCreation,
+            SortColumnProto::NoteMod => Column::NoteMod,
+            SortColumnProto::Notetype => Column::Notetype,
+            SortColumnProto::Reps => Column::Reps,
+            SortColumnProto::SortField => Column::SortField,
+            SortColumnProto::Tags => Column::Tags,
         }
     }
 }
@@ -142,7 +136,7 @@ impl From<Option<SortOrderProto>> for SortMode {
             V::Custom(s) => SortMode::Custom(s),
             V::FromConfig(_) => SortMode::FromConfig,
             V::Builtin(b) => SortMode::Builtin {
-                kind: b.kind().into(),
+                column: b.column().into(),
                 reverse: b.reverse,
             },
         }

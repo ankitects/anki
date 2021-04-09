@@ -12,7 +12,7 @@ SearchNode = _pb.SearchNode
 Progress = _pb.Progress
 EmptyCardsReport = _pb.EmptyCardsReport
 GraphPreferences = _pb.GraphPreferences
-BuiltinSort = _pb.SortOrder.Builtin
+BuiltinSort = _pb.SortOrder.Builtin.SortColumn
 Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
 OpChanges = _pb.OpChanges
@@ -506,7 +506,7 @@ class Collection:
     def find_cards(
         self,
         query: str,
-        order: Union[bool, str, BuiltinSort.Kind.V] = False,
+        order: Union[bool, str, BuiltinSort.V] = False,
         reverse: bool = False,
     ) -> Sequence[CardId]:
         """Return card ids matching the provided search.
@@ -521,10 +521,10 @@ class Collection:
         desc and vice versa when reverse is set in the collection config, eg
         order="c.ivl asc, c.due desc".
 
-        If order is a BuiltinSort.Kind value, sort using that builtin sort, eg
-        col.find_cards("", order=BuiltinSort.Kind.DUE)
+        If order is a BuiltinSort value, sort using that builtin sort, eg
+        col.find_cards("", order=BuiltinSort.DUE)
 
-        The reverse argument only applies when a BuiltinSort.Kind is provided;
+        The reverse argument only applies when a BuiltinSort.V is provided;
         otherwise the collection config defines whether reverse is set or not.
         """
         mode = _build_sort_mode(order, reverse)
@@ -535,7 +535,7 @@ class Collection:
     def find_notes(
         self,
         query: str,
-        order: Union[bool, str, BuiltinSort.Kind.V] = False,
+        order: Union[bool, str, BuiltinSort.V] = False,
         reverse: bool = False,
     ) -> Sequence[NoteId]:
         """Return note ids matching the provided search.
@@ -1123,7 +1123,7 @@ _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
 
 
 def _build_sort_mode(
-    order: Union[bool, str, BuiltinSort.Kind.V],
+    order: Union[bool, str, BuiltinSort.V],
     reverse: bool,
 ) -> _pb.SortOrder:
     if isinstance(order, str):
@@ -1134,4 +1134,4 @@ def _build_sort_mode(
         else:
             return _pb.SortOrder(none=_pb.Empty())
     else:
-        return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(kind=order, reverse=reverse))
+        return _pb.SortOrder(builtin=_pb.SortOrder.Builtin(column=order, reverse=reverse))

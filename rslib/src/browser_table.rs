@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, EnumString};
 
 use crate::error::{AnkiError, Result};
@@ -22,37 +22,47 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-#[derive(
-    Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy, Display, EnumString, EnumIter,
-)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
+#[serde(rename_all = "camelCase")]
 #[strum(serialize_all = "camelCase")]
-#[repr(u8)]
 pub enum Column {
+    #[serde(rename = "")]
     #[strum(serialize = "")]
     Custom,
     Answer,
     CardMod,
+    #[serde(rename = "template")]
     #[strum(serialize = "template")]
     Cards,
     Deck,
+    #[serde(rename = "cardDue")]
     #[strum(serialize = "cardDue")]
     Due,
+    #[serde(rename = "cardEase")]
     #[strum(serialize = "cardEase")]
     Ease,
+    #[serde(rename = "cardLapses")]
     #[strum(serialize = "cardLapses")]
     Lapses,
+    #[serde(rename = "cardIvl")]
     #[strum(serialize = "cardIvl")]
     Interval,
+    #[serde(rename = "noteCrt")]
     #[strum(serialize = "noteCrt")]
     NoteCreation,
     NoteMod,
+    #[serde(rename = "note")]
     #[strum(serialize = "note")]
     Notetype,
     Question,
+    #[serde(rename = "cardReps")]
     #[strum(serialize = "cardReps")]
     Reps,
+    #[serde(rename = "noteFld")]
     #[strum(serialize = "noteFld")]
     SortField,
+    #[serde(rename = "noteTags")]
+    #[strum(serialize = "noteTags")]
     Tags,
 }
 
