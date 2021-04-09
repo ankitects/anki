@@ -3,17 +3,26 @@
     import type { Readable } from "svelte/store";
     import { disabledKey } from "./contextKeys";
 
-    export let id = "";
+    export let id: string;
     export let className = "";
     export let tooltip: string;
 
     export let onClick: (event: MouseEvent) => void;
     export let active = false;
+    export let disables = true;
+    export let dropdownToggle = false;
+
+    $: extraProps = dropdownToggle
+        ? {
+              "data-bs-toggle": "dropdown",
+              "aria-expanded": "false",
+          }
+        : {};
 
     let buttonRef: HTMLButtonElement;
 
     const disabled = getContext(disabledKey);
-    $: _disabled = $disabled;
+    $: _disabled = disables && $disabled;
 
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
@@ -74,8 +83,7 @@
         }
     }
 
-    /* for DropdownMenu */
-    :global(.dropdown-toggle)::after {
+    .dropdown-toggle::after {
         margin-right: 0.25rem;
     }
 </style>
@@ -84,11 +92,12 @@
     bind:this={buttonRef}
     {id}
     class={className}
-    title={tooltip}
     class:active
+    class:dropdown-toggle={dropdownToggle}
     tabindex="-1"
+    title={tooltip}
     disabled={_disabled}
-    {...$$restProps}
+    {...extraProps}
     on:click={onClick}
     on:mousedown|preventDefault>
     <span class="p-1"><slot /></span>

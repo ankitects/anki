@@ -36,13 +36,15 @@
 <script lang="typescript">
     import SquareButton from "./SquareButton.svelte";
 
-    export let id = "";
+    export let id;
     export let className = "";
     export let tooltip: string;
 
     export let icon;
     export let command: string;
     export let activatable = true;
+    export let disables = true;
+    export let dropdownToggle = false;
 
     let active = false;
 
@@ -61,6 +63,14 @@
     }
 </script>
 
-<SquareButton {id} {className} {tooltip} {active} {onClick} {...$$restProps} on:mount>
+<SquareButton
+    {id}
+    {className}
+    {tooltip}
+    {active}
+    {disables}
+    {dropdownToggle}
+    {onClick}
+    on:mount>
     {@html icon}
 </SquareButton>

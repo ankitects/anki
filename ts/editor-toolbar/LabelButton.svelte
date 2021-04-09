@@ -2,13 +2,21 @@
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey } from "./contextKeys";
 
-    export let id = "";
+    export let id: string;
     export let className = "";
 
     export let label: string;
     export let tooltip: string;
     export let onClick: (event: MouseEvent) => void;
     export let disables = true;
+    export let dropdownToggle = false;
+
+    $: extraProps = dropdownToggle
+        ? {
+              "data-bs-toggle": "dropdown",
+              "aria-expanded": "false",
+          }
+        : {};
 
     let buttonRef: HTMLButtonElement;
 
@@ -51,13 +59,14 @@
 </style>
 
 <button
-    tabindex="-1"
     bind:this={buttonRef}
-    disabled={_disabled}
     {id}
     class={extendClassName(className)}
+    class:dropdown-toggle={dropdownToggle}
+    tabindex="-1"
+    disabled={_disabled}
     title={tooltip}
-    {...$$restProps}
+    {...extraProps}
     on:click={onClick}
     on:mousedown|preventDefault>
     {label}

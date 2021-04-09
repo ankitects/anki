@@ -1,5 +1,5 @@
 <script lang="typescript">
-    export let id = "";
+    export let id: string;
     export let className = "";
     export let tooltip: string;
 
@@ -12,7 +12,6 @@
     {id}
     class={`dropdown-item ${className}`}
     title={tooltip}
-    {...$$restProps}
     on:click={onClick}
     on:mousedown|preventDefault>
     <span class="float-start">{label}</span>
