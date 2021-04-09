@@ -1,18 +1,11 @@
 <script lang="typescript">
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
-
-    interface Hidden {
-        hidden: boolean;
-    }
+    import type { ToolbarItem } from "./types";
 
     export let id;
     export let className = "";
-    export let buttons: DynamicSvelteComponent<Hidden>[];
+    export let buttons: ToolbarItem[];
 
-    function filterHidden({
-        hidden,
-        ...props
-    }: DynamicSvelteComponent & Hidden): DynamicSvelteComponent {
+    function filterHidden({ hidden, ...props }) {
         return props;
     }
 </script>

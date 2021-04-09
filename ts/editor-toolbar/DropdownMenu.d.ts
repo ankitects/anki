@@ -1,6 +1,6 @@
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { ToolbarItem } from "./types";
 
 export interface DropdownMenuProps {
     id: string;
-    menuItems: DynamicSvelteComponent[];
+    menuItems: ToolbarItem[];
 }
