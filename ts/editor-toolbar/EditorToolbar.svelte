@@ -14,14 +14,14 @@
 
 <script lang="typescript">
     import type { Readable } from "svelte/store";
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+    import type { ToolbarItem } from "./types";
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
 
     import ButtonGroup from "./ButtonGroup.svelte";
 
-    export let buttons: Readable<DynamicSvelteComponent[]>;
-    export let menus: Readable<DynamicSvelteComponent[]>;
+    export let buttons: Readable<ToolbarItem[]>;
+    export let menus: Readable<ToolbarItem[]>;
 
     $: _buttons = $buttons;
     $: _menus = $menus;

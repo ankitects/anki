@@ -1,7 +1,7 @@
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { ToolbarItem } from "./types";
 
 export interface ButtonGroupProps {
     id: string;
     className?: string;
-    buttons: DynamicSvelteComponent[];
+    buttons: ToolbarItem[];
 }

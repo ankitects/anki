@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+    import type { ToolbarItem } from "./types";
     import ButtonGroup from "./ButtonGroup.svelte";
 
     export let id = "";
@@ -9,7 +9,7 @@
         return `dropdown-menu bg-transparent border-0 ${className}`;
     }
 
-    export let buttons: DynamicSvelteComponent[];
+    export let buttons: ToolbarItem[];
 </script>
 
 <ButtonGroup {id} className={extendClassName(className)} {buttons} {...$$restProps} />

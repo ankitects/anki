@@ -1,5 +1,5 @@
-import type { SvelteComponent } from "svelte";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { SvelteComponentDev } from "svelte/internal";
+import type { ToolbarItem } from "./types";
 
 import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
@@ -38,12 +38,10 @@ function toggleComponent(component: Hideable) {
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
 class EditorToolbar extends HTMLElement {
-    component?: SvelteComponent;
+    component?: SvelteComponentDev;
 
-    buttons?: Writable<
-        (DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps)[]
-    >;
-    menus?: Writable<DynamicSvelteComponent[]>;
+    buttons?: Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]>;
+    menus?: Writable<ToolbarItem[]>;
 
     connectedCallback(): void {
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
@@ -68,7 +66,7 @@ class EditorToolbar extends HTMLElement {
 
     updateButtonGroup<T>(
         update: (
-            component: DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps & T
+            component: ToolbarItem<typeof ButtonGroup> & ButtonGroupProps & T
         ) => void,
         group: string | number
     ): void {
@@ -77,9 +75,7 @@ class EditorToolbar extends HTMLElement {
 
             if (foundGroup) {
                 update(
-                    foundGroup as DynamicSvelteComponent<typeof ButtonGroup> &
-                        ButtonGroupProps &
-                        T
+                    foundGroup as ToolbarItem<typeof ButtonGroup> & ButtonGroupProps & T
                 );
             }
 
@@ -113,43 +109,40 @@ class EditorToolbar extends HTMLElement {
         });
     }
 
-    updateButton<T>(
-        update: (component: DynamicSvelteComponent & T) => void,
+    updateButton(
+        update: (component: ToolbarItem) => void,
         group: string | number,
         button: string | number
     ): void {
         this.updateButtonGroup((foundGroup) => {
-            const foundButton = search(
-                foundGroup.buttons as (DynamicSvelteComponent & Identifiable)[],
-                button
-            );
+            const foundButton = search(foundGroup.buttons, button);
 
             if (foundButton) {
-                update(foundButton as DynamicSvelteComponent & T);
+                update(foundButton);
             }
         }, group);
     }
 
     showButton(group: string | number, button: string | number): void {
-        this.updateButton<Hideable>(showComponent, group, button);
+        this.updateButton(showComponent, group, button);
     }
 
     hideButton(group: string | number, button: string | number): void {
-        this.updateButton<Hideable>(hideComponent, group, button);
+        this.updateButton(hideComponent, group, button);
     }
 
     toggleButton(group: string | number, button: string | number): void {
-        this.updateButton<Hideable>(toggleComponent, group, button);
+        this.updateButton(toggleComponent, group, button);
     }
 
     insertButton(
-        newButton: DynamicSvelteComponent & Identifiable,
+        newButton: ToolbarItem & Identifiable,
         group: string | number,
         button: string | number = 0
     ) {
         this.updateButtonGroup((component) => {
             component.buttons = insert(
-                component.buttons as (DynamicSvelteComponent & Identifiable)[],
+                component.buttons as (ToolbarItem & Identifiable)[],
                 newButton,
                 button
             );
@@ -157,13 +150,13 @@ class EditorToolbar extends HTMLElement {
     }
 
     addButton(
-        newButton: DynamicSvelteComponent & Identifiable,
+        newButton: ToolbarItem & Identifiable,
         group: string | number,
         button: string | number = -1
     ) {
         this.updateButtonGroup((component) => {
             component.buttons = add(
-                component.buttons as (DynamicSvelteComponent & Identifiable)[],
+                component.buttons as (ToolbarItem & Identifiable)[],
                 newButton,
                 button
             );

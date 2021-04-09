@@ -1,7 +1,7 @@
 <script lang="typescript">
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+    import type { ToolbarItem } from "./types";
 
-    export let button: DynamicSvelteComponent;
+    export let button: ToolbarItem;
     export let menuId: string;
 
     function extend({
