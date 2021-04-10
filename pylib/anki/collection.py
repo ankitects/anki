@@ -528,7 +528,7 @@ class Collection:
         The reverse argument only applies when a BrowserColumns.Column is provided;
         otherwise the collection config defines whether reverse is set or not.
         """
-        mode = _build_sort_mode(order, reverse)
+        mode = self._build_sort_mode(order, reverse, False)
         return cast(
             Sequence[CardId], self._backend.search_cards(search=query, order=mode)
         )
@@ -544,10 +544,37 @@ class Collection:
         To programmatically construct a search string, see .build_search_string().
         The order parameter is documented in .find_cards().
         """
-        mode = _build_sort_mode(order, reverse)
+        mode = self._build_sort_mode(order, reverse, True)
         return cast(
             Sequence[NoteId], self._backend.search_notes(search=query, order=mode)
         )
+
+    def _build_sort_mode(
+        self,
+        order: Union[bool, str, BrowserColumns.Column],
+        reverse: bool,
+        finding_notes: bool,
+    ) -> _pb.SortOrder:
+        if isinstance(order, str):
+            return _pb.SortOrder(custom=order)
+        if isinstance(order, bool):
+            if order is False:
+                return _pb.SortOrder(none=_pb.Empty())
+            # order=True: set args to sort column and reverse from config
+            sort_key = "noteSortType" if finding_notes else "sortType"
+            order = self.get_browser_column(self.get_config(sort_key))
+            reverse_key = (
+                Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
+                if finding_notes
+                else Config.Bool.BROWSER_SORT_BACKWARDS
+            )
+            reverse = self.get_config_bool(reverse_key)
+        if isinstance(order, BrowserColumns.Column):
+            if order.sorting != BrowserColumns.SORTING_NONE:
+                return _pb.SortOrder(
+                    builtin=_pb.SortOrder.Builtin(column=order.key, reverse=reverse)
+                )
+        raise InvalidInput(f"{order} is not a valid sort order.")
 
     def find_and_replace(
         self,
@@ -700,6 +727,12 @@ class Collection:
 
     def all_browser_columns(self) -> Sequence[BrowserColumns.Column]:
         return self._backend.all_browser_columns()
+
+    def get_browser_column(self, key: str) -> Optional[BrowserColumns.Column]:
+        for column in self._backend.all_browser_columns():
+            if column.key == key:
+                return column
+        return None
 
     def browser_row_for_id(
         self, id_: int
@@ -1121,20 +1154,3 @@ class _ReviewsUndo:
 
 
 _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
-
-
-def _build_sort_mode(
-    order: Union[bool, str, BrowserColumns.Column],
-    reverse: bool,
-) -> _pb.SortOrder:
-    if isinstance(order, str):
-        return _pb.SortOrder(custom=order)
-    if isinstance(order, bool):
-        if order is True:
-            return _pb.SortOrder(from_config=_pb.Empty())
-        return _pb.SortOrder(none=_pb.Empty())
-    if order.sorting != BrowserColumns.SORTING_NONE:
-        return _pb.SortOrder(
-            builtin=_pb.SortOrder.Builtin(column=order.key, reverse=reverse)
-        )
-    raise InvalidInput(f"{order} is not a valid sort order.")
