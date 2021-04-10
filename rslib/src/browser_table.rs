@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
 use crate::error::{AnkiError, Result};
@@ -23,7 +23,7 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
+#[derive(Deserialize, Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
 #[serde(rename_all = "camelCase")]
 #[strum(serialize_all = "camelCase")]
 pub enum Column {
