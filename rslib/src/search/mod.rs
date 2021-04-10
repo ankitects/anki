@@ -20,7 +20,7 @@ use crate::{
 use sqlwriter::{RequiredTable, SqlWriter};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum SearchItems {
+pub enum ReturnItemType {
     Cards,
     Notes,
 }
@@ -33,27 +33,27 @@ pub enum SortMode {
     Custom(String),
 }
 
-pub trait AsSearchItems {
-    fn as_search_items() -> SearchItems;
+pub trait AsReturnItemType {
+    fn as_return_item_type() -> ReturnItemType;
 }
 
-impl AsSearchItems for CardId {
-    fn as_search_items() -> SearchItems {
-        SearchItems::Cards
+impl AsReturnItemType for CardId {
+    fn as_return_item_type() -> ReturnItemType {
+        ReturnItemType::Cards
     }
 }
 
-impl AsSearchItems for NoteId {
-    fn as_search_items() -> SearchItems {
-        SearchItems::Notes
+impl AsReturnItemType for NoteId {
+    fn as_return_item_type() -> ReturnItemType {
+        ReturnItemType::Notes
     }
 }
 
-impl SearchItems {
+impl ReturnItemType {
     fn required_table(&self) -> RequiredTable {
         match self {
-            SearchItems::Cards => RequiredTable::Cards,
-            SearchItems::Notes => RequiredTable::Notes,
+            ReturnItemType::Cards => RequiredTable::Cards,
+            ReturnItemType::Notes => RequiredTable::Notes,
         }
     }
 }
@@ -96,15 +96,15 @@ impl Column {
 impl Collection {
     pub fn search<T>(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<T>>
     where
-        T: FromSql + AsSearchItems,
+        T: FromSql + AsReturnItemType,
     {
-        let items = T::as_search_items();
+        let item_type = T::as_return_item_type();
         let top_node = Node::Group(parse(search)?);
-        self.resolve_config_sort(items, &mut mode);
-        let writer = SqlWriter::new(self, items);
+        self.resolve_config_sort(item_type, &mut mode);
+        let writer = SqlWriter::new(self, item_type);
 
         let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-        self.add_order(&mut sql, items, mode)?;
+        self.add_order(&mut sql, item_type, mode)?;
 
         let mut stmt = self.storage.db.prepare(&sql)?;
         let ids: Vec<_> = stmt
@@ -122,14 +122,19 @@ impl Collection {
         self.search(search, SortMode::NoOrder)
     }
 
-    fn add_order(&mut self, sql: &mut String, items: SearchItems, mode: SortMode) -> Result<()> {
+    fn add_order(
+        &mut self,
+        sql: &mut String,
+        item_type: ReturnItemType,
+        mode: SortMode,
+    ) -> Result<()> {
         match mode {
             SortMode::NoOrder => (),
             SortMode::FromConfig => unreachable!(),
             SortMode::Builtin { column, reverse } => {
-                prepare_sort(self, column, items)?;
+                prepare_sort(self, column, item_type)?;
                 sql.push_str(" order by ");
-                write_order(sql, items, column, reverse)?;
+                write_order(sql, item_type, column, reverse)?;
             }
             SortMode::Custom(order_clause) => {
                 sql.push_str(" order by ");
@@ -148,11 +153,11 @@ impl Collection {
         mode: SortMode,
     ) -> Result<usize> {
         let top_node = Node::Group(parse(search)?);
-        let writer = SqlWriter::new(self, SearchItems::Cards);
+        let writer = SqlWriter::new(self, ReturnItemType::Cards);
         let want_order = mode != SortMode::NoOrder;
 
         let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-        self.add_order(&mut sql, SearchItems::Cards, mode)?;
+        self.add_order(&mut sql, ReturnItemType::Cards, mode)?;
 
         if want_order {
             self.storage
@@ -170,14 +175,14 @@ impl Collection {
     }
 
     /// If the sort mode is based on a config setting, look it up.
-    fn resolve_config_sort(&self, items: SearchItems, mode: &mut SortMode) {
+    fn resolve_config_sort(&self, item_type: ReturnItemType, mode: &mut SortMode) {
         if mode == &SortMode::FromConfig {
-            *mode = match items {
-                SearchItems::Cards => SortMode::Builtin {
+            *mode = match item_type {
+                ReturnItemType::Cards => SortMode::Builtin {
                     column: self.get_browser_sort_column(),
                     reverse: self.get_bool(BoolKey::BrowserSortBackwards),
                 },
-                SearchItems::Notes => SortMode::Builtin {
+                ReturnItemType::Notes => SortMode::Builtin {
                     column: self.get_browser_note_sort_column(),
                     reverse: self.get_bool(BoolKey::BrowserNoteSortBackwards),
                 },
@@ -187,15 +192,20 @@ impl Collection {
 }
 
 /// Add the order clause to the sql.
-fn write_order(sql: &mut String, items: SearchItems, column: Column, reverse: bool) -> Result<()> {
-    let order = match items {
-        SearchItems::Cards => card_order_from_sort_column(column),
-        SearchItems::Notes => note_order_from_sort_column(column),
+fn write_order(
+    sql: &mut String,
+    item_type: ReturnItemType,
+    column: Column,
+    reverse: bool,
+) -> Result<()> {
+    let order = match item_type {
+        ReturnItemType::Cards => card_order_from_sort_column(column),
+        ReturnItemType::Notes => note_order_from_sort_column(column),
     };
     if order.is_empty() {
         return Err(AnkiError::invalid_input(format!(
             "Can't sort {:?} by {:?}.",
-            items, column
+            item_type, column
         )));
     }
     if reverse {
@@ -254,15 +264,15 @@ fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
     }
 }
 
-fn prepare_sort(col: &mut Collection, column: Column, items: SearchItems) -> Result<()> {
-    let sql = match items {
-        SearchItems::Cards => match column {
+fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType) -> Result<()> {
+    let sql = match item_type {
+        ReturnItemType::Cards => match column {
             Column::Cards => include_str!("template_order.sql"),
             Column::Deck => include_str!("deck_order.sql"),
             Column::Notetype => include_str!("notetype_order.sql"),
             _ => return Ok(()),
         },
-        SearchItems::Notes => match column {
+        ReturnItemType::Notes => match column {
             Column::Cards => include_str!("note_cards_order.sql"),
             Column::CardMod => include_str!("card_mod_order.sql"),
             Column::Deck => include_str!("note_decks_order.sql"),
