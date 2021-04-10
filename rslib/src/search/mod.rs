@@ -14,8 +14,8 @@ use rusqlite::types::FromSql;
 use std::borrow::Cow;
 
 use crate::{
-    browser_table::Column, card::CardId, card::CardType, collection::Collection, config::BoolKey,
-    error::Result, notes::NoteId, prelude::AnkiError, search::parser::parse,
+    browser_table::Column, card::CardId, card::CardType, collection::Collection, error::Result,
+    notes::NoteId, prelude::AnkiError, search::parser::parse,
 };
 use sqlwriter::{RequiredTable, SqlWriter};
 
@@ -28,7 +28,6 @@ pub enum ReturnItemType {
 #[derive(Debug, PartialEq, Clone)]
 pub enum SortMode {
     NoOrder,
-    FromConfig,
     Builtin { column: Column, reverse: bool },
     Custom(String),
 }
@@ -62,7 +61,6 @@ impl SortMode {
     fn required_table(&self) -> RequiredTable {
         match self {
             SortMode::NoOrder => RequiredTable::CardsOrNotes,
-            SortMode::FromConfig => unreachable!(),
             SortMode::Builtin { column, .. } => column.required_table(),
             SortMode::Custom(ref text) => {
                 if text.contains("n.") {
@@ -94,13 +92,12 @@ impl Column {
 }
 
 impl Collection {
-    pub fn search<T>(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<T>>
+    pub fn search<T>(&mut self, search: &str, mode: SortMode) -> Result<Vec<T>>
     where
         T: FromSql + AsReturnItemType,
     {
         let item_type = T::as_return_item_type();
         let top_node = Node::Group(parse(search)?);
-        self.resolve_config_sort(item_type, &mut mode);
         let writer = SqlWriter::new(self, item_type);
 
         let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
@@ -130,7 +127,6 @@ impl Collection {
     ) -> Result<()> {
         match mode {
             SortMode::NoOrder => (),
-            SortMode::FromConfig => unreachable!(),
             SortMode::Builtin { column, reverse } => {
                 prepare_sort(self, column, item_type)?;
                 sql.push_str(" order by ");
@@ -172,22 +168,6 @@ impl Collection {
             .prepare(&sql)?
             .execute(&args)
             .map_err(Into::into)
-    }
-
-    /// If the sort mode is based on a config setting, look it up.
-    fn resolve_config_sort(&self, item_type: ReturnItemType, mode: &mut SortMode) {
-        if mode == &SortMode::FromConfig {
-            *mode = match item_type {
-                ReturnItemType::Cards => SortMode::Builtin {
-                    column: self.get_browser_sort_column(),
-                    reverse: self.get_bool(BoolKey::BrowserSortBackwards),
-                },
-                ReturnItemType::Notes => SortMode::Builtin {
-                    column: self.get_browser_note_sort_column(),
-                    reverse: self.get_bool(BoolKey::BrowserNoteSortBackwards),
-                },
-            }
-        }
     }
 }
 

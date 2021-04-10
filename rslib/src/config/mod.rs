@@ -9,7 +9,6 @@ mod string;
 pub(crate) mod undo;
 
 pub use self::{bool::BoolKey, string::StringKey};
-use crate::browser_table::Column;
 use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -46,10 +45,6 @@ pub(crate) enum ConfigKey {
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
-    #[strum(to_string = "sortType")]
-    BrowserSortColumn,
-    #[strum(to_string = "noteSortType")]
-    BrowserNoteSortColumn,
     #[strum(to_string = "curDeck")]
     CurrentDeckId,
     #[strum(to_string = "curModel")]
@@ -125,16 +120,6 @@ impl Collection {
             self.storage.remove_config(&key)?;
         }
         Ok(())
-    }
-
-    pub(crate) fn get_browser_sort_column(&self) -> Column {
-        self.get_config_optional(ConfigKey::BrowserSortColumn)
-            .unwrap_or(Column::NoteCreation)
-    }
-
-    pub(crate) fn get_browser_note_sort_column(&self) -> Column {
-        self.get_config_optional(ConfigKey::BrowserNoteSortColumn)
-            .unwrap_or(Column::NoteCreation)
     }
 
     pub(crate) fn get_creation_utc_offset(&self) -> Option<i32> {
@@ -269,7 +254,6 @@ pub(crate) enum Weekday {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::collection::open_test_collection;
     use crate::decks::DeckId;
 
@@ -277,7 +261,6 @@ mod test {
     fn defaults() {
         let col = open_test_collection();
         assert_eq!(col.get_current_deck_id(), DeckId(1));
-        assert_eq!(col.get_browser_sort_column(), Column::SortField);
     }
 
     #[test]

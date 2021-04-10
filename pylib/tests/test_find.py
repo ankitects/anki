@@ -124,13 +124,12 @@ def test_findCards():
     col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, True)
     col.flush()
     assert col.findCards("", order=True)[0] in latestCardIds
-    sort_columns = dict(((c.key, c) for c in col.all_browser_columns()))
     assert (
-        col.find_cards("", order=sort_columns["cardDue"], reverse=False)[0]
+        col.find_cards("", order=col.get_browser_column("cardDue"), reverse=False)[0]
         == firstCardId
     )
     assert (
-        col.find_cards("", order=sort_columns["cardDue"], reverse=True)[0]
+        col.find_cards("", order=col.get_browser_column("cardDue"), reverse=True)[0]
         != firstCardId
     )
     # model

@@ -799,10 +799,9 @@ message SortOrder {
     bool reverse = 2;
   }
   oneof value {
-    Empty from_config = 1;
-    Empty none = 2;
-    string custom = 3;
-    Builtin builtin = 4;
+    Empty none = 1;
+    string custom = 2;
+    Builtin builtin = 3;
   }
 }
 

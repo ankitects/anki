@@ -107,10 +107,9 @@ impl SearchService for Backend {
 impl From<Option<SortOrderProto>> for SortMode {
     fn from(order: Option<SortOrderProto>) -> Self {
         use pb::sort_order::Value as V;
-        match order.unwrap_or(V::FromConfig(pb::Empty {})) {
+        match order.unwrap_or(V::None(pb::Empty {})) {
             V::None(_) => SortMode::NoOrder,
             V::Custom(s) => SortMode::Custom(s),
-            V::FromConfig(_) => SortMode::FromConfig,
             V::Builtin(b) => SortMode::Builtin {
                 column: Column::from_str(&b.column).unwrap_or_default(),
                 reverse: b.reverse,
