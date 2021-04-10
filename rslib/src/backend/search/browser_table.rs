@@ -27,37 +27,3 @@ impl From<pb::StringList> for Vec<browser_table::Column> {
             .collect()
     }
 }
-
-impl From<browser_table::Row> for pb::BrowserRow {
-    fn from(row: browser_table::Row) -> Self {
-        pb::BrowserRow {
-            cells: row.cells.into_iter().map(Into::into).collect(),
-            color: row.color.into(),
-            font_name: row.font.name,
-            font_size: row.font.size,
-        }
-    }
-}
-
-impl From<browser_table::Cell> for pb::browser_row::Cell {
-    fn from(cell: browser_table::Cell) -> Self {
-        pb::browser_row::Cell {
-            text: cell.text,
-            is_rtl: cell.is_rtl,
-        }
-    }
-}
-
-impl From<browser_table::Color> for i32 {
-    fn from(color: browser_table::Color) -> Self {
-        match color {
-            browser_table::Color::Default => pb::browser_row::Color::Default as i32,
-            browser_table::Color::Marked => pb::browser_row::Color::Marked as i32,
-            browser_table::Color::Suspended => pb::browser_row::Color::Suspended as i32,
-            browser_table::Color::FlagRed => pb::browser_row::Color::FlagRed as i32,
-            browser_table::Color::FlagOrange => pb::browser_row::Color::FlagOrange as i32,
-            browser_table::Color::FlagGreen => pb::browser_row::Color::FlagGreen as i32,
-            browser_table::Color::FlagBlue => pb::browser_row::Color::FlagBlue as i32,
-        }
-    }
-}
