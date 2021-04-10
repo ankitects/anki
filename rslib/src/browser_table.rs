@@ -172,7 +172,7 @@ impl Note {
 }
 
 impl Column {
-    pub fn localized_label(self, i18n: &I18n) -> String {
+    pub fn cards_mode_label(self, i18n: &I18n) -> String {
         match self {
             Self::Answer => i18n.browsing_answer(),
             Self::CardMod => i18n.search_card_modified(),
@@ -194,14 +194,14 @@ impl Column {
         .into()
     }
 
-    pub fn localized_notes_label(self, i18n: &I18n) -> String {
+    pub fn notes_mode_label(self, i18n: &I18n) -> String {
         match self {
             Self::CardMod => i18n.search_card_modified(),
             Self::Cards => i18n.editing_cards(),
             Self::Ease => i18n.browsing_average_ease(),
             Self::Interval => i18n.browsing_average_interval(),
             Self::Reps => i18n.scheduling_reviews(),
-            _ => return self.localized_label(i18n),
+            _ => return self.cards_mode_label(i18n),
         }
         .into()
     }
@@ -240,7 +240,7 @@ impl Collection {
             .filter(|&c| c != Column::Custom)
             .map(|c| c.to_pb_column(&self.tr))
             .collect();
-        columns.sort_by(|c1, c2| c1.label.cmp(&c2.label));
+        columns.sort_by(|c1, c2| c1.cards_mode_label.cmp(&c2.cards_mode_label));
         pb::BrowserColumns { columns }
     }
 

@@ -9,8 +9,8 @@ impl browser_table::Column {
     pub fn to_pb_column(self, i18n: &I18n) -> pb::browser_columns::Column {
         pb::browser_columns::Column {
             key: self.to_string(),
-            label: self.localized_label(i18n),
-            notes_label: self.localized_notes_label(i18n),
+            cards_mode_label: self.cards_mode_label(i18n),
+            notes_mode_label: self.notes_mode_label(i18n),
             sorting: self.sorting() as i32,
             uses_cell_font: self.uses_cell_font(),
             alignment: self.alignment() as i32,

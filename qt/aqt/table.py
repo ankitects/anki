@@ -547,7 +547,9 @@ class ItemState(ABC):
         return self._active_columns[index]
 
     def column_label(self, column: Column) -> str:
-        return column.notes_label if self.is_notes_mode() else column.label
+        return (
+            column.notes_mode_label if self.is_notes_mode() else column.cards_mode_label
+        )
 
     # Columns and sorting
 
@@ -1083,8 +1085,8 @@ def addon_column_fillin(key: str) -> Column:
     """
     return Column(
         key=key,
-        label=tr.browsing_addon(),
-        notes_label=tr.browsing_addon(),
+        cards_mode_label=tr.browsing_addon(),
+        notes_mode_label=tr.browsing_addon(),
         sorting=Columns.SORTING_NONE,
         uses_cell_font=False,
         alignment=Columns.ALIGNMENT_CENTER,
