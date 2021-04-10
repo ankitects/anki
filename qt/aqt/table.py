@@ -49,7 +49,8 @@ ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 class SearchContext:
     search: str
     browser: aqt.browser.Browser
-    order: Union[bool, str] = True
+    order: Union[bool, str, Column] = True
+    reverse: bool = False
     # if set, provided ids will be used instead of the regular search
     ids: Optional[Sequence[ItemId]] = None
 
@@ -592,7 +593,9 @@ class ItemState(ABC):
     # Get ids
 
     @abstractmethod
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
+    def find_items(
+        self, search: str, order: Union[bool, str, Column], reverse: bool
+    ) -> Sequence[ItemId]:
         """Return the item ids fitting the given search and order."""
 
     @abstractmethod
@@ -662,8 +665,10 @@ class CardState(ItemState):
     def get_note(self, item: ItemId) -> Note:
         return self.get_card(item).note()
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
-        return self.col.find_cards(search, order)
+    def find_items(
+        self, search: str, order: Union[bool, str, Column], reverse: bool
+    ) -> Sequence[ItemId]:
+        return self.col.find_cards(search, order, reverse)
 
     def get_item_from_card_id(self, card: CardId) -> ItemId:
         return card
@@ -725,8 +730,10 @@ class NoteState(ItemState):
     def get_note(self, item: ItemId) -> Note:
         return self.col.get_note(NoteId(item))
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
-        return self.col.find_notes(search, order)
+    def find_items(
+        self, search: str, order: Union[bool, str, Column], reverse: bool
+    ) -> Sequence[ItemId]:
+        return self.col.find_notes(search, order, reverse)
 
     def get_item_from_card_id(self, card: CardId) -> ItemId:
         return self.col.get_card(card).note().id
@@ -969,9 +976,14 @@ class DataModel(QAbstractTableModel):
     def search(self, context: SearchContext) -> None:
         self.begin_reset()
         try:
+            if context.order is True:
+                context.order = self.columns[self._state.sort_column]
+                context.reverse = self._state.sort_backwards
             gui_hooks.browser_will_search(context)
             if context.ids is None:
-                context.ids = self._state.find_items(context.search, context.order)
+                context.ids = self._state.find_items(
+                    context.search, context.order, context.reverse
+                )
             gui_hooks.browser_did_search(context)
             self._items = context.ids
             self._rows = {}
