@@ -73,36 +73,6 @@ impl Default for Column {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub struct Row {
-    pub cells: Vec<Cell>,
-    pub color: Color,
-    pub font: Font,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Cell {
-    pub text: String,
-    pub is_rtl: bool,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Color {
-    Default,
-    Marked,
-    Suspended,
-    FlagRed,
-    FlagOrange,
-    FlagGreen,
-    FlagBlue,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Font {
-    pub name: String,
-    pub size: u32,
-}
-
 struct RowContext {
     notes_mode: bool,
     cards: Vec<Card>,
@@ -244,7 +214,7 @@ impl Collection {
         pb::BrowserColumns { columns }
     }
 
-    pub fn browser_row_for_id(&mut self, id: i64) -> Result<Row> {
+    pub fn browser_row_for_id(&mut self, id: i64) -> Result<pb::BrowserRow> {
         let notes_mode = self.get_bool(BoolKey::BrowserTableShowNotesMode);
         let columns = Arc::clone(
             self.state
@@ -349,19 +319,20 @@ impl RowContext {
         })
     }
 
-    fn browser_row(&self, columns: &[Column]) -> Result<Row> {
-        Ok(Row {
+    fn browser_row(&self, columns: &[Column]) -> Result<pb::BrowserRow> {
+        Ok(pb::BrowserRow {
             cells: columns
                 .iter()
                 .map(|&column| self.get_cell(column))
                 .collect::<Result<_>>()?,
-            color: self.get_row_color(),
-            font: self.get_row_font()?,
+            color: self.get_row_color() as i32,
+            font_name: self.get_row_font_name()?,
+            font_size: self.get_row_font_size()?,
         })
     }
 
-    fn get_cell(&self, column: Column) -> Result<Cell> {
-        Ok(Cell {
+    fn get_cell(&self, column: Column) -> Result<pb::browser_row::Cell> {
+        Ok(pb::browser_row::Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
         })
@@ -554,14 +525,16 @@ impl RowContext {
         html_to_text_line(&self.render_context.as_ref().unwrap().question).to_string()
     }
 
-    fn get_row_font(&self) -> Result<Font> {
-        Ok(Font {
-            name: self.template()?.config.browser_font_name.to_owned(),
-            size: self.template()?.config.browser_font_size,
-        })
+    fn get_row_font_name(&self) -> Result<String> {
+        Ok(self.template()?.config.browser_font_name.to_owned())
     }
 
-    fn get_row_color(&self) -> Color {
+    fn get_row_font_size(&self) -> Result<u32> {
+        Ok(self.template()?.config.browser_font_size)
+    }
+
+    fn get_row_color(&self) -> pb::browser_row::Color {
+        use pb::browser_row::Color;
         if self.notes_mode {
             if self.note.is_marked() {
                 Color::Marked
