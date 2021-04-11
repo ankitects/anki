@@ -18,6 +18,7 @@ def test_basic():
     assert col.decks.id("new deck") == parentId
     # we start with the default col selected
     assert col.decks.selected() == 1
+    col.reset()
     assert col.decks.active() == [1]
     # we can select a different col
     col.decks.select(parentId)

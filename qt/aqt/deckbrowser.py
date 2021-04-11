@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 import aqt
 from anki.collection import OpChanges
@@ -17,6 +17,7 @@ from aqt.operations.deck import (
     remove_decks,
     rename_deck,
     reparent_decks,
+    set_current_deck,
     set_deck_collapsed,
 )
 from aqt.qt import *
@@ -76,8 +77,10 @@ class DeckBrowser:
         if self._refresh_needed:
             self.refresh()
 
-    def op_executed(self, changes: OpChanges, focused: bool) -> bool:
-        if self.mw.col.op_affects_study_queue(changes):
+    def op_executed(
+        self, changes: OpChanges, handler: Optional[object], focused: bool
+    ) -> bool:
+        if changes.study_queues and handler is not self:
             self._refresh_needed = True
 
         if focused:
@@ -94,7 +97,7 @@ class DeckBrowser:
         else:
             cmd = url
         if cmd == "open":
-            self._selDeck(arg)
+            self.set_current_deck(DeckId(int(arg)))
         elif cmd == "opts":
             self._showOptions(arg)
         elif cmd == "shared":
@@ -117,9 +120,10 @@ class DeckBrowser:
             self.refresh()
         return False
 
-    def _selDeck(self, did: str) -> None:
-        self.mw.col.decks.select(DeckId(int(did)))
-        self.mw.onOverview()
+    def set_current_deck(self, deck_id: DeckId) -> None:
+        set_current_deck(parent=self.mw, deck_id=deck_id).success(
+            lambda _: self.mw.onOverview()
+        ).run_in_background(initiator=self)
 
     # HTML generation
     ##########################################################################
@@ -276,7 +280,9 @@ class DeckBrowser:
             if not new_name or new_name == deck.name:
                 return
             else:
-                rename_deck(mw=self.mw, deck_id=did, new_name=new_name)
+                rename_deck(
+                    parent=self.mw, deck_id=did, new_name=new_name
+                ).run_in_background()
 
         self.mw.query_op(lambda: self.mw.col.get_deck(did), success=prompt)
 
@@ -291,18 +297,20 @@ class DeckBrowser:
         if node:
             node.collapsed = not node.collapsed
             set_deck_collapsed(
-                mw=self.mw,
+                parent=self.mw,
                 deck_id=did,
                 collapsed=node.collapsed,
                 scope=DeckCollapseScope.REVIEWER,
-            )
+            ).run_in_background()
             self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:
-        reparent_decks(mw=self.mw, parent=self.mw, deck_ids=[source], new_parent=target)
+        reparent_decks(
+            parent=self.mw, deck_ids=[source], new_parent=target
+        ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
-        remove_decks(mw=self.mw, parent=self.mw, deck_ids=[did])
+        remove_decks(parent=self.mw, deck_ids=[did]).run_in_background()
 
     # Top buttons
     ######################################################################
@@ -333,7 +341,8 @@ class DeckBrowser:
         openLink(f"{aqt.appShared}decks/")
 
     def _on_create(self) -> None:
-        add_deck_dialog(mw=self.mw, parent=self.mw)
+        if op := add_deck_dialog(parent=self.mw):
+            op.run_in_background()
 
     ######################################################################
 

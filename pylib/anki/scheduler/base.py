@@ -16,7 +16,7 @@ from typing import List, Optional, Sequence
 from anki.cards import CardId
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
-from anki.notes import Note
+from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
 CongratsInfo = _pb.CongratsInfoOut
@@ -85,8 +85,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # fixme: only used by totalRevForCurrentDeck and old deck stats;
     # schedv2 defines separate version
     def _deckLimit(self) -> str:
-        self.col.decks.update_active()
-        return ids2str(self.col.decks.active())
+        return ids2str(
+            self.col.decks.deck_and_child_ids(self.col.decks.get_current_id())
+        )
 
     # Filtered deck handling
     ##########################################################################
@@ -123,20 +124,31 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     ) -> None:
         self.col._backend.unbury_cards_in_current_deck(mode)
 
-    def suspend_cards(self, ids: Sequence[CardId]) -> OpChanges:
+    def suspend_cards(self, ids: Sequence[CardId]) -> OpChangesWithCount:
         return self.col._backend.bury_or_suspend_cards(
-            card_ids=ids, mode=BuryOrSuspend.SUSPEND
+            card_ids=ids, note_ids=[], mode=BuryOrSuspend.SUSPEND
         )
 
-    def bury_cards(self, ids: Sequence[CardId], manual: bool = True) -> OpChanges:
+    def suspend_notes(self, ids: Sequence[NoteId]) -> OpChangesWithCount:
+        return self.col._backend.bury_or_suspend_cards(
+            card_ids=[], note_ids=ids, mode=BuryOrSuspend.SUSPEND
+        )
+
+    def bury_cards(
+        self, ids: Sequence[CardId], manual: bool = True
+    ) -> OpChangesWithCount:
         if manual:
             mode = BuryOrSuspend.BURY_USER
         else:
             mode = BuryOrSuspend.BURY_SCHED
-        return self.col._backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
+        return self.col._backend.bury_or_suspend_cards(
+            card_ids=ids, note_ids=[], mode=mode
+        )
 
-    def bury_note(self, note: Note) -> None:
-        self.bury_cards(note.card_ids())
+    def bury_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:
+        return self.col._backend.bury_or_suspend_cards(
+            card_ids=[], note_ids=note_ids, mode=BuryOrSuspend.BURY_USER
+        )
 
     # Resetting/rescheduling
     ##########################################################################

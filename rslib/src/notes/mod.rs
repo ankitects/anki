@@ -402,19 +402,21 @@ impl Collection {
     }
 
     /// Remove provided notes, and any cards that use them.
-    pub(crate) fn remove_notes(&mut self, nids: &[NoteId]) -> Result<OpOutput<()>> {
+    pub(crate) fn remove_notes(&mut self, nids: &[NoteId]) -> Result<OpOutput<usize>> {
         let usn = self.usn()?;
         self.transact(Op::RemoveNote, |col| {
+            let mut card_count = 0;
             for nid in nids {
                 let nid = *nid;
                 if let Some(_existing_note) = col.storage.get_note(nid)? {
                     for card in col.storage.all_cards_of_note(nid)? {
+                        card_count += 1;
                         col.remove_card_and_add_grave_undoable(card, usn)?;
                     }
                     col.remove_note_only_undoable(nid, usn)?;
                 }
             }
-            Ok(())
+            Ok(card_count)
         })
     }
 

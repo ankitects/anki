@@ -63,7 +63,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::OpChanges> {
+    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             if !input.note_ids.is_empty() {
                 col.remove_notes(
@@ -131,7 +131,7 @@ impl NotesService for Backend {
     fn cards_of_note(&self, input: pb::NoteId) -> Result<pb::CardIds> {
         self.with_col(|col| {
             col.storage
-                .all_card_ids_of_note(NoteId(input.nid))
+                .all_card_ids_of_note_in_order(NoteId(input.nid))
                 .map(|v| pb::CardIds {
                     cids: v.into_iter().map(Into::into).collect(),
                 })

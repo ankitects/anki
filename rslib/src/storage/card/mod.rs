@@ -308,11 +308,24 @@ impl super::SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn all_card_ids_of_note(&self, nid: NoteId) -> Result<Vec<CardId>> {
+    pub(crate) fn all_card_ids_of_note_in_order(&self, nid: NoteId) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached("select id from cards where nid = ? order by ord")?
             .query_and_then(&[nid], |r| Ok(CardId(r.get(0)?)))?
             .collect()
+    }
+
+    pub(crate) fn card_ids_of_notes(&self, nids: &[NoteId]) -> Result<Vec<CardId>> {
+        let mut stmt = self
+            .db
+            .prepare_cached("select id from cards where nid = ?")?;
+        let mut cids = vec![];
+        for nid in nids {
+            for cid in stmt.query_map(&[nid], |row| row.get(0))? {
+                cids.push(cid?);
+            }
+        }
+        Ok(cids)
     }
 
     /// Place matching card ids into the search table.

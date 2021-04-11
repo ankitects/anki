@@ -120,7 +120,7 @@ service SchedulingService {
   rpc CongratsInfo(Empty) returns (CongratsInfoOut);
   rpc RestoreBuriedAndSuspendedCards(CardIds) returns (OpChanges);
   rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
-  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChanges);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChangesWithCount);
   rpc EmptyFilteredDeck(DeckId) returns (OpChanges);
   rpc RebuildFilteredDeck(DeckId) returns (OpChangesWithCount);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewIn) returns (OpChanges);
@@ -154,6 +154,8 @@ service DecksService {
   rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
   rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithId);
   rpc FilteredDeckOrderLabels(Empty) returns (StringList);
+  rpc SetCurrentDeck(DeckId) returns (OpChanges);
+  rpc GetCurrentDeck(Empty) returns (Deck);
 }
 
 service NotesService {
@@ -163,7 +165,7 @@ service NotesService {
   rpc DefaultDeckForNotetype(NotetypeId) returns (DeckId);
   rpc UpdateNote(UpdateNoteIn) returns (OpChanges);
   rpc GetNote(NoteId) returns (Note);
-  rpc RemoveNotes(RemoveNotesIn) returns (OpChanges);
+  rpc RemoveNotes(RemoveNotesIn) returns (OpChangesWithCount);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
   rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChanges);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
@@ -1313,7 +1315,8 @@ message BuryOrSuspendCardsIn {
     BURY_USER = 2;
   }
   repeated int64 card_ids = 1;
-  Mode mode = 2;
+  repeated int64 note_ids = 2;
+  Mode mode = 3;
 }
 
 message ScheduleCardsAsNewIn {
@@ -1497,26 +1500,17 @@ message GetQueuedCardsOut {
 }
 
 message OpChanges {
-  // this is not an exhaustive list; we can add more cases as we need them
-  enum Kind {
-    OTHER = 0;
-    UPDATE_NOTE_TAGS = 1;
-    SET_CARD_FLAG = 2;
-    UPDATE_NOTE = 3;
-  }
+  bool card = 1;
+  bool note = 2;
+  bool deck = 3;
+  bool tag = 4;
+  bool notetype = 5;
+  bool config = 6;
 
-  Kind kind = 1;
-  bool card = 2;
-  bool note = 3;
-  bool deck = 4;
-  bool tag = 5;
-  bool notetype = 6;
-  bool preference = 7;
-
-  bool browser_table = 8;
-  bool browser_sidebar = 9;
-  bool editor = 10;
-  bool study_queues = 11;
+  bool browser_table = 7;
+  bool browser_sidebar = 8;
+  bool editor = 9;
+  bool study_queues = 10;
 }
 
 message UndoStatus {

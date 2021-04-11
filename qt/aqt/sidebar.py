@@ -16,7 +16,6 @@ from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.clayout import CardLayout
 from aqt.models import Models
-from aqt.operations import OpMeta
 from aqt.operations.deck import (
     remove_decks,
     rename_deck,
@@ -172,6 +171,18 @@ class SidebarItem:
             [child.search(lowered_text) for child in self.children]
         )
         return self._search_matches_self or self._search_matches_child
+
+    def has_same_id(self, other: SidebarItem) -> bool:
+        "True if `other` is same type, with same id/name."
+        if other.item_type == self.item_type:
+            if self.item_type == SidebarItemType.TAG:
+                return self.full_name == other.full_name
+            elif self.item_type == SidebarItemType.SAVED_SEARCH:
+                return self.name == other.name
+            else:
+                return other.id == self.id
+
+        return False
 
 
 class SidebarModel(QAbstractItemModel):
@@ -420,8 +431,10 @@ class SidebarTreeView(QTreeView):
     # Refreshing
     ###########################
 
-    def op_executed(self, changes: OpChanges, meta: OpMeta, focused: bool) -> None:
-        if changes.browser_sidebar and not meta.handler is self:
+    def op_executed(
+        self, changes: OpChanges, handler: Optional[object], focused: bool
+    ) -> None:
+        if changes.browser_sidebar and not handler is self:
             self._refresh_needed = True
         if focused:
             self.refresh_if_needed()
@@ -431,12 +444,15 @@ class SidebarTreeView(QTreeView):
             self.refresh()
             self._refresh_needed = False
 
-    def refresh(
-        self, is_current: Optional[Callable[[SidebarItem], bool]] = None
-    ) -> None:
+    def refresh(self) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return
+
+        if self.model() and (idx := self.currentIndex()):
+            current_item = self.model().item_for_index(idx)
+        else:
+            current_item = None
 
         def on_done(root: SidebarItem) -> None:
             # user may have closed browser
@@ -453,8 +469,8 @@ class SidebarTreeView(QTreeView):
                 self.search_for(self.current_search)
             else:
                 self._expand_where_necessary(model)
-            if is_current:
-                self.restore_current(is_current)
+            if current_item:
+                self.restore_current(current_item)
 
             self.setUpdatesEnabled(True)
 
@@ -463,8 +479,8 @@ class SidebarTreeView(QTreeView):
 
         self.mw.query_op(self._root_tree, success=on_done)
 
-    def restore_current(self, is_current: Callable[[SidebarItem], bool]) -> None:
-        if current := self.find_item(is_current):
+    def restore_current(self, current: SidebarItem) -> None:
+        if current := self.find_item(current.has_same_id):
             index = self.model().index_for_item(current)
             self.selectionModel().setCurrentIndex(
                 index, QItemSelectionModel.SelectCurrent
@@ -615,8 +631,8 @@ class SidebarTreeView(QTreeView):
         new_parent = DeckId(target.id)
 
         reparent_decks(
-            mw=self.mw, parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
-        )
+            parent=self.browser, deck_ids=deck_ids, new_parent=new_parent
+        ).run_in_background()
 
         return True
 
@@ -636,7 +652,9 @@ class SidebarTreeView(QTreeView):
         else:
             new_parent = target.full_name
 
-        reparent_tags(mw=self.mw, parent=self.browser, tags=tags, new_parent=new_parent)
+        reparent_tags(
+            parent=self.browser, tags=tags, new_parent=new_parent
+        ).run_in_background()
 
         return True
 
@@ -931,8 +949,8 @@ class SidebarTreeView(QTreeView):
             def toggle_expand(node: TagTreeNode) -> Callable[[bool], None]:
                 full_name = head + node.name
                 return lambda expanded: set_tag_collapsed(
-                    mw=self.mw, tag=full_name, collapsed=not expanded
-                )
+                    parent=self, tag=full_name, collapsed=not expanded
+                ).run_in_background()
 
             for node in nodes:
                 item = SidebarItem(
@@ -977,11 +995,12 @@ class SidebarTreeView(QTreeView):
         ) -> None:
             def toggle_expand(node: DeckTreeNode) -> Callable[[bool], None]:
                 return lambda expanded: set_deck_collapsed(
-                    mw=self.mw,
+                    parent=self,
                     deck_id=DeckId(node.deck_id),
                     collapsed=not expanded,
                     scope=DeckCollapseScope.BROWSER,
-                    handler=self,
+                ).run_in_background(
+                    initiator=self,
                 )
 
             for node in nodes:
@@ -1164,27 +1183,27 @@ class SidebarTreeView(QTreeView):
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
         if not new_name:
             return
-        new_name = item.name_prefix + new_name
+
+        # update UI immediately, to avoid redraw
+        item.name = new_name
+
+        full_name = item.name_prefix + new_name
         deck_id = DeckId(item.id)
 
         def after_fetch(deck: Deck) -> None:
-            if new_name == deck.name:
+            if full_name == deck.name:
                 return
 
             rename_deck(
-                mw=self.mw,
+                parent=self,
                 deck_id=deck_id,
-                new_name=new_name,
-                after_rename=lambda: self.refresh(
-                    lambda other: other.item_type == SidebarItemType.DECK
-                    and other.id == item.id
-                ),
-            )
+                new_name=full_name,
+            ).run_in_background()
 
         self.mw.query_op(lambda: self.mw.col.get_deck(deck_id), success=after_fetch)
 
     def delete_decks(self, _item: SidebarItem) -> None:
-        remove_decks(mw=self.mw, parent=self.browser, deck_ids=self._selected_decks())
+        remove_decks(parent=self, deck_ids=self._selected_decks()).run_in_background()
 
     # Tags
     ###########################
@@ -1194,8 +1213,8 @@ class SidebarTreeView(QTreeView):
         item.name = "..."
 
         remove_tags_from_all_notes(
-            mw=self.mw, parent=self.browser, space_separated_tags=tags
-        )
+            parent=self.browser, space_separated_tags=tags
+        ).run_in_background()
 
     def rename_tag(self, item: SidebarItem, new_name: str) -> None:
         if not new_name or new_name == item.name:
@@ -1207,17 +1226,13 @@ class SidebarTreeView(QTreeView):
         new_name = item.name_prefix + new_name
 
         item.name = new_name_base
+        item.full_name = new_name
 
         rename_tag(
-            mw=self.mw,
             parent=self.browser,
             current_name=old_name,
             new_name=new_name,
-            after_rename=lambda: self.refresh(
-                lambda item: item.item_type == SidebarItemType.TAG
-                and item.full_name == new_name
-            ),
-        )
+        ).run_in_background()
 
     # Saved searches
     ####################################
@@ -1249,10 +1264,7 @@ class SidebarTreeView(QTreeView):
             return
         conf[name] = search
         self._set_saved_searches(conf)
-        self.refresh(
-            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
-            and item.name == name
-        )
+        self.refresh()
 
     def remove_saved_searches(self, _item: SidebarItem) -> None:
         selected = self._selected_saved_searches()
@@ -1276,10 +1288,8 @@ class SidebarTreeView(QTreeView):
         conf[new_name] = filt
         del conf[old_name]
         self._set_saved_searches(conf)
-        self.refresh(
-            lambda item: item.item_type == SidebarItemType.SAVED_SEARCH
-            and item.name == new_name
-        )
+        item.name = new_name
+        self.refresh()
 
     def save_current_search(self) -> None:
         if (search := self._get_current_search()) is None:

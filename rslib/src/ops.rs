@@ -23,7 +23,7 @@ pub enum Op {
     RenameTag,
     ReparentTag,
     ScheduleAsNew,
-    SetDeck,
+    SetCardDeck,
     SetDueDate,
     SetFlag,
     SortCards,
@@ -34,6 +34,7 @@ pub enum Op {
     UpdateNote,
     UpdatePreferences,
     UpdateTag,
+    SetCurrentDeck,
 }
 
 impl Op {
@@ -55,7 +56,7 @@ impl Op {
             Op::UpdateNote => tr.undo_update_note(),
             Op::UpdatePreferences => tr.preferences_preferences(),
             Op::UpdateTag => tr.undo_update_tag(),
-            Op::SetDeck => tr.browsing_change_deck(),
+            Op::SetCardDeck => tr.browsing_change_deck(),
             Op::SetFlag => tr.undo_set_flag(),
             Op::FindAndReplace => tr.browsing_find_and_replace(),
             Op::ClearUnusedTags => tr.browsing_clear_unused_tags(),
@@ -68,6 +69,7 @@ impl Op {
             Op::RebuildFilteredDeck => tr.undo_build_filtered_deck(),
             Op::EmptyFilteredDeck => tr.studying_empty(),
             Op::ExpandCollapse => tr.undo_expand_collapse(),
+            Op::SetCurrentDeck => tr.browsing_change_deck(),
         }
         .into()
     }
@@ -80,7 +82,7 @@ pub struct StateChanges {
     pub deck: bool,
     pub tag: bool,
     pub notetype: bool,
-    pub preference: bool,
+    pub config: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -134,7 +136,12 @@ impl OpChanges {
 
     pub fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
-        !matches!(self.op, Op::AnswerCard | Op::ExpandCollapse)
-            && (c.card || c.deck || c.preference)
+        if self.op == Op::AnswerCard {
+            return false;
+        }
+
+        c.card
+            || (c.deck && self.op != Op::ExpandCollapse)
+            || (c.config && matches!(self.op, Op::SetCurrentDeck))
     }
 }

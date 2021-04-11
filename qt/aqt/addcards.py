@@ -208,9 +208,9 @@ class AddCards(QDialog):
             self._load_new_note(sticky_fields_from=note)
             gui_hooks.add_cards_did_add_note(note)
 
-        add_note(
-            mw=self.mw, note=note, target_deck_id=target_deck_id, success=on_success
-        )
+        add_note(parent=self, note=note, target_deck_id=target_deck_id).success(
+            on_success
+        ).run_in_background()
 
     def _note_can_be_added(self, note: Note) -> bool:
         result = note.duplicate_or_empty()

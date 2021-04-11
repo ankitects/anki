@@ -24,7 +24,6 @@ from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.find_and_replace import FindAndReplaceDialog
 from aqt.main import ResetReason
-from aqt.operations import OpMeta
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import undo
 from aqt.operations.note import remove_notes
@@ -128,12 +127,14 @@ class Browser(QMainWindow):
         gui_hooks.browser_will_show(self)
         self.show()
 
-    def on_operation_did_execute(self, changes: OpChanges, meta: OpMeta) -> None:
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: Optional[object]
+    ) -> None:
         focused = current_top_level_widget() == self
-        self.table.op_executed(changes, meta, focused)
-        self.sidebar.op_executed(changes, meta, focused)
+        self.table.op_executed(changes, handler, focused)
+        self.sidebar.op_executed(changes, handler, focused)
         if changes.note or changes.notetype:
-            if meta.handler is not self.editor:
+            if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
                 note = self.editor.note
@@ -641,11 +642,7 @@ where id in %s"""
         self.focusTo = self.editor.currentField
         self.table.to_next_row()
 
-        remove_notes(
-            mw=self.mw,
-            note_ids=nids,
-            success=lambda _: tooltip(tr.browsing_note_deleted(count=len(nids))),
-        )
+        remove_notes(parent=self, note_ids=nids).run_in_background()
 
     # legacy
 
@@ -676,7 +673,7 @@ where id in %s"""
             return
         did = self.col.decks.id(ret.name)
 
-        set_card_deck(mw=self.mw, card_ids=cids, deck_id=did)
+        set_card_deck(parent=self, card_ids=cids, deck_id=did).run_in_background()
 
     # legacy
 
@@ -694,13 +691,8 @@ where id in %s"""
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
         add_tags_to_notes(
-            mw=self.mw,
-            note_ids=self.selected_notes(),
-            space_separated_tags=tags,
-            success=lambda out: tooltip(
-                tr.browsing_notes_updated(count=out.count), parent=self
-            ),
-        )
+            parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
+        ).run_in_background(initiator=self)
 
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
@@ -709,14 +701,10 @@ where id in %s"""
             tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
         ):
             return
+
         remove_tags_from_notes(
-            mw=self.mw,
-            note_ids=self.selected_notes(),
-            space_separated_tags=tags,
-            success=lambda out: tooltip(
-                tr.browsing_notes_updated(count=out.count), parent=self
-            ),
-        )
+            parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
+        ).run_in_background(initiator=self)
 
     def _prompt_for_tags(self, prompt: str) -> Optional[str]:
         (tags, ok) = getTag(self, self.col, prompt)
@@ -727,7 +715,7 @@ where id in %s"""
 
     @ensure_editor_saved_on_trigger
     def clear_unused_tags(self) -> None:
-        clear_unused_tags(mw=self.mw, parent=self)
+        clear_unused_tags(parent=self).run_in_background()
 
     addTags = add_tags_to_selected_notes
     deleteTags = remove_tags_from_selected_notes
@@ -744,9 +732,9 @@ where id in %s"""
     def suspend_selected_cards(self, checked: bool) -> None:
         cids = self.selected_cards()
         if checked:
-            suspend_cards(mw=self.mw, card_ids=cids)
+            suspend_cards(parent=self, card_ids=cids).run_in_background()
         else:
-            unsuspend_cards(mw=self.mw, card_ids=cids)
+            unsuspend_cards(parent=self.mw, card_ids=cids).run_in_background()
 
     # Exporting
     ######################################################################
@@ -768,7 +756,9 @@ where id in %s"""
         if flag == self.card.user_flag():
             flag = 0
 
-        set_card_flag(mw=self.mw, card_ids=self.selected_cards(), flag=flag)
+        set_card_flag(
+            parent=self, card_ids=self.selected_cards(), flag=flag
+        ).run_in_background()
 
     def _update_flags_menu(self) -> None:
         flag = self.card and self.card.user_flag()
@@ -806,25 +796,23 @@ where id in %s"""
             return
 
         reposition_new_cards_dialog(
-            mw=self.mw, parent=self, card_ids=self.selected_cards()
-        )
+            parent=self, card_ids=self.selected_cards()
+        ).run_in_background()
 
     @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
         set_due_date_dialog(
-            mw=self.mw,
             parent=self,
             card_ids=self.selected_cards(),
             config_key=Config.String.SET_DUE_BROWSER,
-        )
+        ).run_in_background()
 
     @ensure_editor_saved_on_trigger
     def forget_cards(self) -> None:
         forget_cards(
-            mw=self.mw,
             parent=self,
             card_ids=self.selected_cards(),
-        )
+        ).run_in_background()
 
     # Edit: selection
     ######################################################################
@@ -867,7 +855,7 @@ where id in %s"""
     ######################################################################
 
     def undo(self) -> None:
-        undo(mw=self.mw, parent=self)
+        undo(parent=self)
 
     def onUndoState(self, on: bool) -> None:
         self.form.actionUndo.setEnabled(on)

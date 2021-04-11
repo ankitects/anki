@@ -29,7 +29,6 @@ from anki.errors import NotFoundError
 from anki.notes import Note, NoteId
 from anki.utils import ids2str, isWin
 from aqt import colors, gui_hooks
-from aqt.operations import OpMeta
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -180,7 +179,9 @@ class Table:
     def redraw_cells(self) -> None:
         self._model.redraw_cells()
 
-    def op_executed(self, changes: OpChanges, meta: OpMeta, focused: bool) -> None:
+    def op_executed(
+        self, changes: OpChanges, handler: Optional[object], focused: bool
+    ) -> None:
         if changes.browser_table:
             self._model.mark_cache_stale()
         if focused:

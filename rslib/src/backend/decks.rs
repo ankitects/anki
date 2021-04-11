@@ -187,6 +187,16 @@ impl DecksService for Backend {
         })
         .map(Into::into)
     }
+
+    fn set_current_deck(&self, input: pb::DeckId) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.set_current_deck(input.did.into()))
+            .map(Into::into)
+    }
+
+    fn get_current_deck(&self, _input: pb::Empty) -> Result<pb::Deck> {
+        self.with_col(|col| col.get_current_deck())
+            .map(|deck| (*deck).clone().into())
+    }
 }
 
 impl From<pb::DeckId> for DeckId {

@@ -94,7 +94,8 @@ impl Collection {
         self.get_config_optional(key).unwrap_or_default()
     }
 
-    pub(crate) fn set_config<'a, T: Serialize, K>(&mut self, key: K, val: &T) -> Result<()>
+    /// True if added, or new value is different.
+    pub(crate) fn set_config<'a, T: Serialize, K>(&mut self, key: K, val: &T) -> Result<bool>
     where
         K: Into<&'a str>,
     {
@@ -130,6 +131,7 @@ impl Collection {
         self.state.scheduler_info = None;
         if let Some(mins) = mins {
             self.set_config(ConfigKey::CreationOffset, &mins)
+                .map(|_| ())
         } else {
             self.remove_config(ConfigKey::CreationOffset)
         }
@@ -141,7 +143,7 @@ impl Collection {
 
     pub(crate) fn set_configured_utc_offset(&mut self, mins: i32) -> Result<()> {
         self.state.scheduler_info = None;
-        self.set_config(ConfigKey::LocalOffset, &mins)
+        self.set_config(ConfigKey::LocalOffset, &mins).map(|_| ())
     }
 
     pub(crate) fn get_v2_rollover(&self) -> Option<u8> {
@@ -151,7 +153,7 @@ impl Collection {
 
     pub(crate) fn set_v2_rollover(&mut self, hour: u32) -> Result<()> {
         self.state.scheduler_info = None;
-        self.set_config(ConfigKey::Rollover, &hour)
+        self.set_config(ConfigKey::Rollover, &hour).map(|_| ())
     }
 
     pub(crate) fn get_next_card_position(&self) -> u32 {
@@ -168,6 +170,7 @@ impl Collection {
 
     pub(crate) fn set_next_card_position(&mut self, pos: u32) -> Result<()> {
         self.set_config(ConfigKey::NextNewCardPosition, &pos)
+            .map(|_| ())
     }
 
     pub(crate) fn scheduler_version(&self) -> SchedulerVersion {
@@ -179,6 +182,7 @@ impl Collection {
     pub(crate) fn set_scheduler_version_config_key(&mut self, ver: SchedulerVersion) -> Result<()> {
         self.state.scheduler_info = None;
         self.set_config(ConfigKey::SchedulerVersion, &ver)
+            .map(|_| ())
     }
 
     pub(crate) fn learn_ahead_secs(&self) -> u32 {
@@ -188,6 +192,7 @@ impl Collection {
 
     pub(crate) fn set_learn_ahead_secs(&mut self, secs: u32) -> Result<()> {
         self.set_config(ConfigKey::LearnAheadSecs, &secs)
+            .map(|_| ())
     }
 
     pub(crate) fn get_new_review_mix(&self) -> NewReviewMix {
@@ -200,6 +205,7 @@ impl Collection {
 
     pub(crate) fn set_new_review_mix(&mut self, mix: NewReviewMix) -> Result<()> {
         self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
+            .map(|_| ())
     }
 
     pub(crate) fn get_first_day_of_week(&self) -> Weekday {
@@ -209,6 +215,7 @@ impl Collection {
 
     pub(crate) fn set_first_day_of_week(&mut self, weekday: Weekday) -> Result<()> {
         self.set_config(ConfigKey::FirstDayOfWeek, &weekday)
+            .map(|_| ())
     }
 
     pub(crate) fn get_answer_time_limit_secs(&self) -> u32 {
@@ -218,6 +225,7 @@ impl Collection {
 
     pub(crate) fn set_answer_time_limit_secs(&mut self, secs: u32) -> Result<()> {
         self.set_config(ConfigKey::AnswerTimeLimitSecs, &secs)
+            .map(|_| ())
     }
 
     pub(crate) fn get_last_unburied_day(&self) -> u32 {
@@ -227,6 +235,7 @@ impl Collection {
 
     pub(crate) fn set_last_unburied_day(&mut self, day: u32) -> Result<()> {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
+            .map(|_| ())
     }
 }
 
