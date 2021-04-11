@@ -35,6 +35,7 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     qtMenuShortcutWorkaround,
     restoreHeader,
+    saveHeader,
     showInfo,
     tr,
 )
@@ -74,6 +75,9 @@ class Table:
         self._view = view
         self._setup_view()
         self._setup_headers()
+
+    def cleanup(self) -> None:
+        self._save_header()
 
     # Public Methods
     ######################################################################
@@ -197,6 +201,7 @@ class Table:
     def toggle_state(self, is_notes_mode: bool, last_search: str) -> None:
         if is_notes_mode == self.is_notes_mode():
             return
+        self._save_header()
         self._save_selection()
         self._state = self._model.toggle_state(
             SearchContext(search=last_search, browser=self.browser)
@@ -204,8 +209,7 @@ class Table:
         self.col.set_config_bool(
             Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, self.is_notes_mode()
         )
-        self._set_sort_indicator()
-        self._set_column_sizes()
+        self._restore_header()
         self._restore_selection(self._toggled_selection)
 
     # Move cursor
@@ -272,6 +276,12 @@ class Table:
         # this must be set post-resize or it doesn't work
         hh.setCascadingSectionResizes(False)
 
+    def _save_header(self) -> None:
+        saveHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+
+    def _restore_header(self) -> None:
+        restoreHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+
     # Setup
 
     def _setup_view(self) -> None:
@@ -313,14 +323,14 @@ class Table:
         if not isWin:
             vh.hide()
             hh.show()
-        restoreHeader(hh, "editor")
         hh.setHighlightSections(False)
         hh.setMinimumSectionSize(50)
         hh.setSectionsMovable(True)
-        self._set_column_sizes()
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
-        qconnect(hh.customContextMenuRequested, self._on_header_context)
+        self._restore_header()
+        self._set_column_sizes()
         self._set_sort_indicator()
+        qconnect(hh.customContextMenuRequested, self._on_header_context)
         qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
         qconnect(hh.sectionMoved, self._on_column_moved)
 
@@ -524,6 +534,7 @@ class Table:
 
 
 class ItemState(ABC):
+    config_key_prefix: str
     _active_columns: List[str]
     _sort_column: str
     _sort_backwards: bool
@@ -625,6 +636,7 @@ class ItemState(ABC):
 class CardState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
+        self.config_key_prefix = "editor"
         self._active_columns = self.col.load_browser_card_columns()
         self._sort_column = self.col.get_config("sortType")
         self._sort_backwards = self.col.get_config_bool(
@@ -690,6 +702,7 @@ class CardState(ItemState):
 class NoteState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
+        self.config_key_prefix = "editorNotesMode"
         self._active_columns = self.col.load_browser_note_columns()
         self._sort_column = self.col.get_config("noteSortType")
         self._sort_backwards = self.col.get_config_bool(

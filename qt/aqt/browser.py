@@ -64,7 +64,6 @@ from aqt.utils import (
     save_combo_history,
     save_combo_index_for_session,
     saveGeom,
-    saveHeader,
     saveSplitter,
     saveState,
     shortcut,
@@ -228,10 +227,10 @@ class Browser(QMainWindow):
     def _closeWindow(self) -> None:
         self._cleanup_preview()
         self.editor.cleanup()
+        self.table.cleanup()
         saveSplitter(self.form.splitter, "editor3")
         saveGeom(self, "editor")
         saveState(self, "editor")
-        saveHeader(self.form.tableView.horizontalHeader(), "editor")
         self.teardownHooks()
         self.mw.maybeReset()
         aqt.dialogs.markClosed("Browser")
