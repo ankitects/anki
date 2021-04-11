@@ -68,3 +68,18 @@ macro_rules! define_newtype {
 }
 
 define_newtype!(Usn, i32);
+
+pub(crate) trait IntoNewtypeVec {
+    fn into_newtype<F, T>(self, func: F) -> Vec<T>
+    where
+        F: FnMut(i64) -> T;
+}
+
+impl IntoNewtypeVec for Vec<i64> {
+    fn into_newtype<F, T>(self, func: F) -> Vec<T>
+    where
+        F: FnMut(i64) -> T,
+    {
+        self.into_iter().map(func).collect()
+    }
+}

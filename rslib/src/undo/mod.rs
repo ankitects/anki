@@ -126,7 +126,7 @@ impl UndoManager {
                 UndoableChange::Tag(_) => changes.tag = true,
                 UndoableChange::Revlog(_) => {}
                 UndoableChange::Queue(_) => {}
-                UndoableChange::Config(_) => {} // fixme: preferences?
+                UndoableChange::Config(_) => changes.config = true,
             }
         }
 

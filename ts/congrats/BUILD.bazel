@@ -37,6 +37,8 @@ esbuild(
     args = [
         "--global-name=anki",
         "--inject:$(location //ts:protobuf-shim.js)",
+        "--resolve-extensions=.mjs,.js",
+        "--log-level=warning",
     ],
     entry_point = "index.ts",
     external = [

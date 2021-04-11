@@ -3,34 +3,37 @@
 
 from __future__ import annotations
 
-import aqt
-from anki.collection import LegacyCheckpoint, LegacyReviewUndo, OpChangesAfterUndo
+from anki.collection import LegacyCheckpoint, LegacyReviewUndo
 from anki.errors import UndoEmpty
 from anki.types import assert_exhaustive
 from aqt import gui_hooks
+from aqt.operations import CollectionOp
 from aqt.qt import QWidget
 from aqt.utils import showInfo, showWarning, tooltip, tr
 
 
-def undo(*, mw: aqt.AnkiQt, parent: QWidget) -> None:
+def undo(*, parent: QWidget) -> None:
     "Undo the last operation, and refresh the UI."
-
-    def on_success(out: OpChangesAfterUndo) -> None:
-        mw.update_undo_actions(out.new_status)
-        tooltip(tr.undo_action_undone(action=out.operation), parent=parent)
 
     def on_failure(exc: Exception) -> None:
         if isinstance(exc, UndoEmpty):
             # backend has no undo, but there may be a checkpoint
             # or v1/v2 review waiting
-            _legacy_undo(mw=mw, parent=parent)
+            _legacy_undo(parent=parent)
         else:
             showWarning(str(exc), parent=parent)
 
-    mw.perform_op(mw.col.undo, success=on_success, failure=on_failure)
+    CollectionOp(parent, lambda col: col.undo()).success(
+        lambda out: tooltip(tr.undo_action_undone(action=out.operation), parent=parent)
+    ).failure(on_failure).run_in_background()
 
 
-def _legacy_undo(*, mw: aqt.AnkiQt, parent: QWidget) -> None:
+def _legacy_undo(*, parent: QWidget) -> None:
+    from aqt import mw
+
+    assert mw
+    assert mw.col
+
     reviewing = mw.state == "review"
     just_refresh_reviewer = False
 

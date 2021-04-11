@@ -447,30 +447,31 @@ class DeckManager:
     # Deck selection
     #############################################################
 
-    def active(self) -> List[DeckId]:
-        "The currrently active dids."
-        return self.col.get_config("activeDecks", [1])
+    def get_current(self) -> Deck:
+        return self.col._backend.get_current_deck()
 
-    def selected(self) -> DeckId:
-        "The currently selected did."
-        return DeckId(int(self.col.conf["curDeck"]))
+    def set_current(self, deck: DeckId) -> OpChanges:
+        return self.col._backend.set_current_deck(deck)
+
+    def get_current_id(self) -> DeckId:
+        "The currently selected deck ID."
+        return DeckId(self.get_current().id)
+
+    # legacy
 
     def current(self) -> DeckDict:
         return self.get(self.selected())
 
     def select(self, did: DeckId) -> None:
-        "Select a new branch."
         # make sure arg is an int; legacy callers may be passing in a string
         did = DeckId(did)
-        current = self.selected()
-        active = self.deck_and_child_ids(did)
-        if current != did or active != self.active():
-            self.col.conf["curDeck"] = did
-            self.col.conf["activeDecks"] = active
+        self.set_current(did)
+        self.col.reset()
 
-    # don't use this, it will likely go away
-    def update_active(self) -> None:
-        self.select(self.current()["id"])
+    def active(self) -> List[DeckId]:
+        return self.col.sched.active_decks
+
+    selected = get_current_id
 
     # Parents/children
     #############################################################
@@ -518,7 +519,7 @@ class DeckManager:
         )
 
     def deck_and_child_ids(self, deck_id: DeckId) -> List[DeckId]:
-        parent_name = self.get_legacy(deck_id)["name"]
+        parent_name = self.col.get_deck(deck_id).name
         out = [deck_id]
         out.extend(self.child_ids(parent_name))
         return out

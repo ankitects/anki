@@ -28,15 +28,11 @@ build --incompatible_default_to_explicit_init_py
 
 build:ci --show_timestamps --isatty=0 --color=yes --show_progress_rate_limit=5
 
-# incrementally compile Anki crates in fastbuild mode, but not release mode.
-# The worker must be separately enabled; see docs/development.md
-build -c fastbuild --@rules_rust//worker:include_regex=anki.*|rsbridge
-build:opt -c opt --@rules_rust//worker:include_regex=no-crates-please
-build --worker_max_instances=Rustc=HOST_CPUS*0.5
+# disable incremental compilation in release mode
+build:opt -c opt --@rules_rust//:experimental_incremental_prefixes=
 
 # the TypeScript workers on Windows choke when deps are changed while they're
-# still running, so shut them down at the end of the build. Also fixes issues
-# with the optional Rust worker.
+# still running, so shut them down at the end of the build.
 build:windows --worker_quit_after_build
 
 try-import %workspace%/user.bazelrc

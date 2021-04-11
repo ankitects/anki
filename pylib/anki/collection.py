@@ -385,7 +385,7 @@ class Collection:
         note.id = NoteId(out.note_id)
         return out.changes
 
-    def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChanges:
+    def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
@@ -916,11 +916,6 @@ table.review-log {{ {revlog_style} }}
         else:
             assert_exhaustive(self._undo)
             assert False
-
-    def op_affects_study_queue(self, changes: OpChanges) -> bool:
-        if changes.kind == changes.SET_CARD_FLAG:
-            return False
-        return changes.card or changes.deck or changes.preference
 
     def op_made_changes(self, changes: OpChanges) -> bool:
         for field in changes.DESCRIPTOR.fields:

@@ -501,7 +501,7 @@ def test_misc():
     col.addNote(note)
     c = note.cards()[0]
     # burying
-    col.sched.bury_note(note)
+    col.sched.bury_notes([note.id])
     col.reset()
     assert not col.sched.getCard()
     col.sched.unbury_cards_in_current_deck()

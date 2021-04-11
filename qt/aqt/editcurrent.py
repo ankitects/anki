@@ -1,11 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Optional
 
 import aqt.editor
 from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
-from aqt.operations import OpMeta
 from aqt.qt import *
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 
@@ -31,8 +31,10 @@ class EditCurrent(QDialog):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
 
-    def on_operation_did_execute(self, changes: OpChanges, meta: OpMeta) -> None:
-        if changes.editor and meta.handler is not self.editor:
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: Optional[object]
+    ) -> None:
+        if changes.editor and handler is not self.editor:
             # reload note
             note = self.editor.note
             try:

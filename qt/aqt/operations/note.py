@@ -5,34 +5,60 @@ from __future__ import annotations
 
 from typing import Optional, Sequence
 
+from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
 from anki.notes import Note, NoteId
-from aqt import AnkiQt
-from aqt.main import PerformOpOptionalSuccessCallback
-from aqt.operations import OpMeta
+from aqt.operations import CollectionOp
+from aqt.qt import QWidget
+from aqt.utils import tooltip, tr
 
 
 def add_note(
     *,
-    mw: AnkiQt,
+    parent: QWidget,
     note: Note,
     target_deck_id: DeckId,
-    success: PerformOpOptionalSuccessCallback = None,
-) -> None:
-    mw.perform_op(lambda: mw.col.add_note(note, target_deck_id), success=success)
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.add_note(note, target_deck_id))
 
 
-def update_note(*, mw: AnkiQt, note: Note, handler: Optional[object]) -> None:
-    mw.perform_op(
-        lambda: mw.col.update_note(note),
-        meta=OpMeta(handler=handler),
-    )
+def update_note(*, parent: QWidget, note: Note) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.update_note(note))
 
 
 def remove_notes(
     *,
-    mw: AnkiQt,
+    parent: QWidget,
     note_ids: Sequence[NoteId],
-    success: PerformOpOptionalSuccessCallback = None,
-) -> None:
-    mw.perform_op(lambda: mw.col.remove_notes(note_ids), success=success)
+) -> CollectionOp[OpChangesWithCount]:
+    return CollectionOp(parent, lambda col: col.remove_notes(note_ids)).success(
+        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count)),
+    )
+
+
+def find_and_replace(
+    *,
+    parent: QWidget,
+    note_ids: Sequence[NoteId],
+    search: str,
+    replacement: str,
+    regex: bool,
+    field_name: Optional[str],
+    match_case: bool,
+) -> CollectionOp[OpChangesWithCount]:
+    return CollectionOp(
+        parent,
+        lambda col: col.find_and_replace(
+            note_ids=note_ids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            field_name=field_name,
+            match_case=match_case,
+        ),
+    ).success(
+        lambda out: tooltip(
+            tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
+            parent=parent,
+        )
+    )

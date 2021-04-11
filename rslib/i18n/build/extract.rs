@@ -163,7 +163,7 @@ impl From<String> for Variable {
         let kind = match name.as_str() {
             "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
             | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"
-            | "hourStart" | "hourEnd" | "correct" | "decks" => VariableKind::Int,
+            | "hourStart" | "hourEnd" | "correct" | "decks" | "changed" => VariableKind::Int,
             "average-seconds" | "cards-per-minute" => VariableKind::Float,
             "val" | "found" | "expected" | "part" | "percent" | "day" | "number" | "up"
             | "down" | "seconds" | "megs" => VariableKind::Any,
