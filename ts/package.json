@@ -33,7 +33,7 @@
         "espree": "^7.3.1",
         "estraverse": "^5.2.0",
         "glob": "^7.1.6",
-        "jest-cli": "^26.6.3",
+        "jest-cli": "^27.0.0-next.7",
         "jsdoc": "^3.6.6",
         "license-checker-rseidelsohn": "=1.1.2",
         "minimist": "^1.2.5",
