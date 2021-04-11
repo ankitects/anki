@@ -817,16 +817,27 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str,
 
 
 class DataModel(QAbstractTableModel):
+    """Data manager for the browser table.
+
+    _items -- The card or note ids currently hold and corresponding to the
+              table's rows.
+    _rows -- The cached data objects to render items to rows.
+    columns -- The data objects of all available columns, used to define the display
+               of active columns and list all toggleable columns to the user.
+    _block_updates -- If True, serve stale content to avoid hitting the DB.
+    _stale_cutoff -- A threshold to decide whether a cached row has gone stale.
+    """
+
     def __init__(self, col: Collection, state: ItemState) -> None:
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
         self.columns: Dict[str, Column] = dict(
             ((c.key, c) for c in self.col.all_browser_columns())
         )
+        gui_hooks.browser_did_fetch_columns(self.columns)
         self._state: ItemState = state
         self._items: Sequence[ItemId] = []
         self._rows: Dict[int, CellRow] = {}
-        # serve stale content to avoid hitting the DB?
         self._block_updates = False
         self._stale_cutoff = 0.0
 
