@@ -3,20 +3,10 @@
 
 @use 'vars';
 
-* {
-    box-sizing: border-box;
-}
+$body-color: var(--text-fg);
+$body-bg: var(--window-bg);
 
-body {
-    font-family: Helvetica, Arial;
-    color: var(--text-fg);
-    background: var(--window-bg);
-    margin: 1em;
-    transition: opacity 0.5s ease-out;
-    overscroll-behavior: none;
-}
+$link-hover-color: var(--link);
+$link-hover-decoration: none;
 
-a {
-    color: var(--link);
-    text-decoration: none;
-}
+@import 'ts/node_modules/bootstrap/scss/bootstrap-reboot';
