@@ -183,10 +183,10 @@ class Reviewer:
         if self.mw.pm.video_driver() == VideoDriver.Software:
             fade = "<script>qFade=0;</script>"
         return f"""
-<div id=_mark>&#x2605;</div>
-<div id=_flag>&#x2691;</div>
+<div id="_mark" hidden>&#x2605;</div>
+<div id="_flag" hidden>&#x2691;</div>
 {fade}
-<div id=qa></div>
+<div id="qa"></div>
 {extra}
 """
 
