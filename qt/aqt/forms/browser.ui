@@ -607,10 +607,10 @@
   </action>
   <action name="action_toggle_mode">
    <property name="text">
-    <string>browsing_toggle_cards_notes_mode</string>
+    <string>browsing_toggle_showing_cards_notes</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+M</string>
+    <string notr="true">Alt+T</string>
    </property>
   </action>
  </widget>

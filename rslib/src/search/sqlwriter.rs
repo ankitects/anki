@@ -3,7 +3,7 @@
 
 use super::{
     parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
-    SearchItems,
+    ReturnItemType,
 };
 use crate::{
     card::{CardQueue, CardType},
@@ -25,24 +25,24 @@ use std::{borrow::Cow, fmt::Write};
 pub(crate) struct SqlWriter<'a> {
     col: &'a mut Collection,
     sql: String,
-    items: SearchItems,
+    item_type: ReturnItemType,
     args: Vec<String>,
     normalize_note_text: bool,
     table: RequiredTable,
 }
 
 impl SqlWriter<'_> {
-    pub(crate) fn new(col: &mut Collection, items: SearchItems) -> SqlWriter<'_> {
+    pub(crate) fn new(col: &mut Collection, item_type: ReturnItemType) -> SqlWriter<'_> {
         let normalize_note_text = col.get_bool(BoolKey::NormalizeNoteText);
         let sql = String::new();
         let args = vec![];
         SqlWriter {
             col,
             sql,
-            items,
+            item_type,
             args,
             normalize_note_text,
-            table: items.required_table(),
+            table: item_type.required_table(),
         }
     }
 
@@ -61,9 +61,9 @@ impl SqlWriter<'_> {
         let sql = match self.table {
             RequiredTable::Cards => "select c.id from cards c where ",
             RequiredTable::Notes => "select n.id from notes n where ",
-            _ => match self.items {
-                SearchItems::Cards => "select c.id from cards c, notes n where c.nid=n.id and ",
-                SearchItems::Notes => {
+            _ => match self.item_type {
+                ReturnItemType::Cards => "select c.id from cards c, notes n where c.nid=n.id and ",
+                ReturnItemType::Notes => {
                     "select distinct n.id from cards c, notes n where c.nid=n.id and "
                 }
             },
@@ -588,7 +588,7 @@ mod test {
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
         let node = Node::Group(parse(search).unwrap());
-        let mut writer = SqlWriter::new(req, SearchItems::Cards);
+        let mut writer = SqlWriter::new(req, ReturnItemType::Cards);
         writer.table = RequiredTable::Notes.combine(node.required_table());
         writer.write_node_to_sql(&node).unwrap();
         (writer.sql, writer.args)

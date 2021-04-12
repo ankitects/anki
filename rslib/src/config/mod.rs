@@ -9,10 +9,8 @@ mod string;
 pub(crate) mod undo;
 
 pub use self::{bool::BoolKey, string::StringKey};
-use crate::browser_table;
 use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
-use serde_derive::Deserialize;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
@@ -47,10 +45,6 @@ pub(crate) enum ConfigKey {
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
-    #[strum(to_string = "sortType")]
-    BrowserSortKind,
-    #[strum(to_string = "noteSortType")]
-    BrowserNoteSortKind,
     #[strum(to_string = "curDeck")]
     CurrentDeckId,
     #[strum(to_string = "curModel")]
@@ -65,9 +59,6 @@ pub(crate) enum ConfigKey {
     NextNewCardPosition,
     #[strum(to_string = "schedVer")]
     SchedulerVersion,
-
-    DesktopBrowserCardColumns,
-    DesktopBrowserNoteColumns,
 }
 
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
@@ -130,38 +121,6 @@ impl Collection {
             self.storage.remove_config(&key)?;
         }
         Ok(())
-    }
-
-    pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
-        self.get_config_default(ConfigKey::BrowserSortKind)
-    }
-
-    pub(crate) fn get_browser_note_sort_kind(&self) -> SortKind {
-        self.get_config_default(ConfigKey::BrowserNoteSortKind)
-    }
-
-    pub(crate) fn get_desktop_browser_card_columns(&self) -> Option<Vec<browser_table::Column>> {
-        self.get_config_optional(ConfigKey::DesktopBrowserCardColumns)
-    }
-
-    pub(crate) fn set_desktop_browser_card_columns(
-        &mut self,
-        columns: Vec<browser_table::Column>,
-    ) -> Result<()> {
-        self.set_config(ConfigKey::DesktopBrowserCardColumns, &columns)
-            .map(|_| ())
-    }
-
-    pub(crate) fn get_desktop_browser_note_columns(&self) -> Option<Vec<browser_table::Column>> {
-        self.get_config_optional(ConfigKey::DesktopBrowserNoteColumns)
-    }
-
-    pub(crate) fn set_desktop_browser_note_columns(
-        &mut self,
-        columns: Vec<browser_table::Column>,
-    ) -> Result<()> {
-        self.set_config(ConfigKey::DesktopBrowserNoteColumns, &columns)
-            .map(|_| ())
     }
 
     pub(crate) fn get_creation_utc_offset(&self) -> Option<i32> {
@@ -280,43 +239,6 @@ impl Collection {
     }
 }
 
-#[derive(Deserialize, PartialEq, Debug, Clone, Copy)]
-#[serde(rename_all = "camelCase")]
-pub enum SortKind {
-    NoteCards,
-    #[serde(rename = "noteCrt")]
-    NoteCreation,
-    NoteDue,
-    NoteEase,
-    #[serde(rename = "noteIvl")]
-    NoteInterval,
-    NoteLapses,
-    NoteMod,
-    #[serde(rename = "noteFld")]
-    NoteField,
-    NoteReps,
-    #[serde(rename = "note")]
-    Notetype,
-    NoteTags,
-    CardMod,
-    CardReps,
-    CardDue,
-    CardEase,
-    CardLapses,
-    #[serde(rename = "cardIvl")]
-    CardInterval,
-    #[serde(rename = "deck")]
-    CardDeck,
-    #[serde(rename = "template")]
-    CardTemplate,
-}
-
-impl Default for SortKind {
-    fn default() -> Self {
-        Self::NoteCreation
-    }
-}
-
 // 2021 scheduler moves this into deck config
 pub(crate) enum NewReviewMix {
     Mix = 0,
@@ -341,7 +263,6 @@ pub(crate) enum Weekday {
 
 #[cfg(test)]
 mod test {
-    use super::SortKind;
     use crate::collection::open_test_collection;
     use crate::decks::DeckId;
 
@@ -349,7 +270,6 @@ mod test {
     fn defaults() {
         let col = open_test_collection();
         assert_eq!(col.get_current_deck_id(), DeckId(1));
-        assert_eq!(col.get_browser_sort_kind(), SortKind::NoteField);
     }
 
     #[test]

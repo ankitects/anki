@@ -4,15 +4,13 @@
 mod browser_table;
 mod search_node;
 
-use std::convert::TryInto;
+use std::{convert::TryInto, str::FromStr, sync::Arc};
 
 use super::Backend;
 use crate::{
     backend_proto as pb,
-    backend_proto::{
-        sort_order::builtin::Kind as SortKindProto, sort_order::Value as SortOrderProto,
-    },
-    config::SortKind,
+    backend_proto::sort_order::Value as SortOrderProto,
+    browser_table::Column,
     prelude::*,
     search::{concatenate_searches, replace_search_node, write_nodes, Node, SortMode},
 };
@@ -89,56 +87,31 @@ impl SearchService for Backend {
         })
     }
 
+    fn all_browser_columns(&self, _input: pb::Empty) -> Result<pb::BrowserColumns> {
+        self.with_col(|col| Ok(col.all_browser_columns()))
+    }
+
+    fn set_active_browser_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
+        self.with_col(|col| {
+            col.state.active_browser_columns = Some(Arc::new(input.into()));
+            Ok(())
+        })
+        .map(Into::into)
+    }
+
     fn browser_row_for_id(&self, input: pb::Int64) -> Result<pb::BrowserRow> {
         self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
-    }
-
-    fn set_desktop_browser_card_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
-        self.with_col(|col| col.set_desktop_browser_card_columns(input.into()))?;
-        Ok(().into())
-    }
-
-    fn set_desktop_browser_note_columns(&self, input: pb::StringList) -> Result<pb::Empty> {
-        self.with_col(|col| col.set_desktop_browser_note_columns(input.into()))?;
-        Ok(().into())
-    }
-}
-
-impl From<SortKindProto> for SortKind {
-    fn from(kind: SortKindProto) -> Self {
-        match kind {
-            SortKindProto::NoteCards => SortKind::NoteCards,
-            SortKindProto::NoteCreation => SortKind::NoteCreation,
-            SortKindProto::NoteDue => SortKind::NoteDue,
-            SortKindProto::NoteEase => SortKind::NoteEase,
-            SortKindProto::NoteInterval => SortKind::NoteInterval,
-            SortKindProto::NoteLapses => SortKind::NoteLapses,
-            SortKindProto::NoteMod => SortKind::NoteMod,
-            SortKindProto::NoteField => SortKind::NoteField,
-            SortKindProto::NoteReps => SortKind::NoteReps,
-            SortKindProto::NoteTags => SortKind::NoteTags,
-            SortKindProto::Notetype => SortKind::Notetype,
-            SortKindProto::CardMod => SortKind::CardMod,
-            SortKindProto::CardReps => SortKind::CardReps,
-            SortKindProto::CardDue => SortKind::CardDue,
-            SortKindProto::CardEase => SortKind::CardEase,
-            SortKindProto::CardLapses => SortKind::CardLapses,
-            SortKindProto::CardInterval => SortKind::CardInterval,
-            SortKindProto::CardDeck => SortKind::CardDeck,
-            SortKindProto::CardTemplate => SortKind::CardTemplate,
-        }
     }
 }
 
 impl From<Option<SortOrderProto>> for SortMode {
     fn from(order: Option<SortOrderProto>) -> Self {
         use pb::sort_order::Value as V;
-        match order.unwrap_or(V::FromConfig(pb::Empty {})) {
+        match order.unwrap_or(V::None(pb::Empty {})) {
             V::None(_) => SortMode::NoOrder,
             V::Custom(s) => SortMode::Custom(s),
-            V::FromConfig(_) => SortMode::FromConfig,
             V::Builtin(b) => SortMode::Builtin {
-                kind: b.kind().into(),
+                column: Column::from_str(&b.column).unwrap_or_default(),
                 reverse: b.reverse,
             },
         }
