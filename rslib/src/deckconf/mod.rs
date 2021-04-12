@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod schema11;
+mod update;
+
 use crate::{
     collection::Collection,
     define_newtype,
@@ -17,8 +20,6 @@ pub use crate::backend_proto::{
 pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
 /// Old deck config and cards table store 250% as 2500.
 pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
-
-mod schema11;
 
 define_newtype!(DeckConfId, i64);
 

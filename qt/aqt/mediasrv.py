@@ -274,10 +274,18 @@ def i18n_resources() -> bytes:
     return aqt.mw.col.i18n_resources(modules=args["modules"])
 
 
+def deck_config_for_update() -> bytes:
+    args = from_json_bytes(request.data)
+    return aqt.mw.col.decks.get_deck_config_for_update(
+        deck_id=args["deckId"]
+    ).SerializeToString()
+
+
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
     "setGraphPreferences": set_graph_preferences,
+    "deckConfigForUpdate": deck_config_for_update,
     # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,

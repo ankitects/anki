@@ -228,6 +228,8 @@ service DeckConfigService {
   rpc GetDeckConfigLegacy(DeckConfigId) returns (Json);
   rpc NewDeckConfigLegacy(Empty) returns (Json);
   rpc RemoveDeckConfig(DeckConfigId) returns (Empty);
+  rpc GetDeckConfigForUpdate(DeckId) returns (DeckConfigForUpdate);
+  rpc UpdateDeckConfig(UpdateDeckConfigIn) returns (OpChanges);
 }
 
 service TagsService {
@@ -891,6 +893,30 @@ message CloseCollectionIn {
 message AddOrUpdateDeckConfigLegacyIn {
   bytes config = 1;
   bool preserve_usn_and_mtime = 2;
+}
+
+message DeckConfigForUpdate {
+  message ConfigWithExtra {
+    DeckConfig config = 1;
+    uint32 use_count = 2;
+  }
+  message CurrentDeck {
+    string name = 1;
+    int64 config_id = 2;
+    uint32 parent_new_limit = 3;
+    uint32 parent_review_limit = 4;
+  }
+
+  repeated ConfigWithExtra all_config = 1;
+  CurrentDeck current_deck = 2;
+  DeckConfig defaults = 3;
+}
+
+message UpdateDeckConfigIn {
+  int64 target_deck_id = 2;
+  DeckConfig desired_config = 3;
+  repeated int64 removed_config_ids = 4;
+  bool apply_to_children = 5;
 }
 
 message SetTagCollapsedIn {
