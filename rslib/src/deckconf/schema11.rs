@@ -268,7 +268,7 @@ impl From<DeckConfSchema11> for DeckConf {
                 leech_threshold: c.lapse.leech_fails,
                 disable_autoplay: !c.autoplay,
                 cap_answer_time_to_secs: c.max_taken.max(0) as u32,
-                visible_timer_secs: c.timer as u32,
+                show_timer: c.timer != 0,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
@@ -313,7 +313,7 @@ impl From<DeckConf> for DeckConfSchema11 {
             usn: c.usn,
             max_taken: i.cap_answer_time_to_secs as i32,
             autoplay: !i.disable_autoplay,
-            timer: i.visible_timer_secs as u8,
+            timer: if i.show_timer { 1 } else { 0 },
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {

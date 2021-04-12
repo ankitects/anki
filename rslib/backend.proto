@@ -353,7 +353,7 @@ message DeckConfig {
 
     bool disable_autoplay = 23;
     uint32 cap_answer_time_to_secs = 24;
-    uint32 visible_timer_secs = 25;
+    bool show_timer = 25;
     bool skip_question_when_replaying_answer = 26;
 
     bool bury_new = 27;
