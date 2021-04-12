@@ -3,6 +3,7 @@
 
 @use 'ts/sass/core';
 @use 'ts/sass/card_counts';
+@use 'ts/sass/scrollbar';
 
 a.deck {
     color: var(--text-fg);
@@ -85,4 +86,8 @@ body {
     div {
         margin: 1em;
     }
+}
+
+.nightMode {
+    @include scrollbar.night-mode;
 }

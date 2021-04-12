@@ -3,6 +3,7 @@
 
 @use 'ts/sass/core';
 @use 'ts/sass/card_counts';
+@use 'ts/sass/scrollbar';
 
 .smallLink {
     font-size: 10px;
@@ -33,4 +34,8 @@ h3 {
 
 .dyn {
     text-align: center;
+}
+
+.nightMode {
+    @include scrollbar.night-mode;
 }

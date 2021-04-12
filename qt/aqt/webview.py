@@ -467,16 +467,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
 
         gui_hooks.webview_will_set_content(web_content, context)
 
-        csstxt = ""
-        if "css/webview.css" in web_content.css:
-            # we want our dynamic styling to override the defaults in
-            # css/webview.css, but come before user-provided stylesheets so that
-            # they can override us if necessary
-            web_content.css.remove("css/webview.css")
-            csstxt = self.bundledCSS("css/webview.css")
-            csstxt += f"<style>{self.standard_css()}</style>"
-
-        csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
+        csstxt = "\n".join(self.bundledCSS(fname) for fname in web_content.css)
         jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
 
         from aqt import mw
