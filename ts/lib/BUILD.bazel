@@ -2,6 +2,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:protobuf.bzl", "protobufjs_library")
+load("@npm//jest-cli:index.bzl", "jest_test")
 
 # Protobuf
 #############
@@ -44,7 +45,10 @@ genrule(
 
 ts_library(
     name = "lib",
-    srcs = glob(["**/*.ts"]) + [":i18n.ts"],
+    srcs = glob(
+        ["**/*.ts"],
+        exclude = ["*.test.ts"],
+    ) + [":i18n.ts"],
     data = [
         "backend_proto",
     ],
@@ -71,4 +75,32 @@ prettier_test(
 eslint_test(
     name = "eslint",
     srcs = glob(["*.ts"]),
+)
+
+ts_library(
+    name = "test_lib",
+    srcs = glob(["*.test.ts"]),
+    tsconfig = "//ts:tsconfig.json",
+    deps = [
+        ":lib",
+        "@npm//@types/jest",
+    ],
+)
+
+jest_test(
+    name = "test",
+    args = [
+        "--no-cache",
+        "--no-watchman",
+        "--ci",
+        "--colors",
+        "--config",
+        "$(location //ts:jest.config.js)",
+    ],
+    data = [
+        ":test_lib",
+        "//ts:jest.config.js",
+        "//ts:package.json",
+        "@npm//protobufjs",
+    ],
 )

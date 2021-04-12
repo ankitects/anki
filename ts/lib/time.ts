@@ -10,7 +10,7 @@ export const DAY = 24.0 * HOUR;
 export const MONTH = 30.0 * DAY;
 export const YEAR = 12.0 * MONTH;
 
-enum TimespanUnit {
+export enum TimespanUnit {
     Seconds,
     Minutes,
     Hours,
@@ -53,21 +53,39 @@ export function naturalUnit(secs: number): TimespanUnit {
     }
 }
 
-export function unitAmount(unit: TimespanUnit, secs: number): number {
+/// Number of seconds in a given unit.
+export function unitSeconds(unit: TimespanUnit): number {
     switch (unit) {
         case TimespanUnit.Seconds:
-            return secs;
+            return SECOND;
         case TimespanUnit.Minutes:
-            return secs / MINUTE;
+            return MINUTE;
         case TimespanUnit.Hours:
-            return secs / HOUR;
+            return HOUR;
         case TimespanUnit.Days:
-            return secs / DAY;
+            return DAY;
         case TimespanUnit.Months:
-            return secs / MONTH;
+            return MONTH;
         case TimespanUnit.Years:
-            return secs / YEAR;
+            return YEAR;
     }
+}
+
+export function unitAmount(unit: TimespanUnit, secs: number): number {
+    return secs / unitSeconds(unit);
+}
+
+/// Largest unit provided seconds can be divided by without a remainder.
+export function naturalWholeUnit(secs: number): TimespanUnit {
+    let unit = naturalUnit(secs);
+    while (unit != TimespanUnit.Seconds) {
+        const amount = Math.round(unitAmount(unit, secs));
+        if (Math.abs(secs - amount * unitSeconds(unit)) < Number.EPSILON) {
+            return unit;
+        }
+        unit -= 1;
+    }
+    return unit;
 }
 
 export function studiedToday(cards: number, secs: number): string {
