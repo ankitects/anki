@@ -1,6 +1,16 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use 'ts/sass/core';
+@use 'ts/sass/card_counts';
+
+body {
+    margin: 0;
+    padding: 0;
+    -webkit-user-select: none;
+    overflow: hidden;
+}
+
 #header {
     padding: 3px;
     font-weight: bold;
@@ -9,13 +19,6 @@
 
 .tdcenter {
     white-space: nowrap;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    -webkit-user-select: none;
-    overflow: hidden;
 }
 
 * {
