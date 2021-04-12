@@ -16,7 +16,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Sequence, Tuple, Optional, Union
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Optional, Union
 
 import anki
 import aqt
@@ -420,6 +420,18 @@ hooks = [
         
         Columns is a list of string values identifying what each column in the row
         represents.
+        """,
+    ),
+    Hook(
+        name="browser_did_fetch_columns",
+        args=["columns: Dict[str, aqt.table.Column]"],
+        doc="""Allows you to add custom columns to the browser.
+        
+        columns is a dictionary of data obejcts. You can add an entry with a custom
+        column to describe how it should be displayed in the browser or modify
+        existing entries.
+
+        Every column in the dictionary will be toggleable by the user.
         """,
     ),
     # Main window states

@@ -250,9 +250,9 @@ service SearchService {
   rpc JoinSearchNodes(JoinSearchNodesIn) returns (String);
   rpc ReplaceSearchNode(ReplaceSearchNodeIn) returns (String);
   rpc FindAndReplace(FindAndReplaceIn) returns (OpChangesWithCount);
+  rpc AllBrowserColumns(Empty) returns (BrowserColumns);
   rpc BrowserRowForId(Int64) returns (BrowserRow);
-  rpc SetDesktopBrowserCardColumns(StringList) returns (Empty);
-  rpc SetDesktopBrowserNoteColumns(StringList) returns (Empty);
+  rpc SetActiveBrowserColumns(StringList) returns (Empty);
 }
 
 service StatsService {
@@ -797,35 +797,13 @@ message SearchOut {
 
 message SortOrder {
   message Builtin {
-    enum Kind {
-      NOTE_CARDS = 0;
-      NOTE_CREATION = 1;
-      NOTE_DUE = 2;
-      NOTE_EASE = 3;
-      NOTE_FIELD = 4;
-      NOTE_INTERVAL = 5;
-      NOTE_LAPSES = 6;
-      NOTE_MOD = 7;
-      NOTE_REPS = 8;
-      NOTE_TAGS = 9;
-      NOTETYPE = 10;
-      CARD_MOD = 11;
-      CARD_REPS = 12;
-      CARD_DUE = 13;
-      CARD_EASE = 14;
-      CARD_LAPSES = 15;
-      CARD_INTERVAL = 16;
-      CARD_DECK = 17;
-      CARD_TEMPLATE = 18;
-    }
-    Kind kind = 1;
+    string column = 1;
     bool reverse = 2;
   }
   oneof value {
-    Empty from_config = 1;
-    Empty none = 2;
-    string custom = 3;
-    Builtin builtin = 4;
+    Empty none = 1;
+    string custom = 2;
+    Builtin builtin = 3;
   }
 }
 
@@ -1052,6 +1030,27 @@ message FindAndReplaceIn {
   bool regex = 4;
   bool match_case = 5;
   string field_name = 6;
+}
+
+message BrowserColumns {
+  enum Sorting {
+    SORTING_NONE = 0;
+    SORTING_NORMAL = 1;
+    SORTING_REVERSED = 2;
+  }
+  enum Alignment {
+    ALIGNMENT_START = 0;
+    ALIGNMENT_CENTER = 1;
+  }
+  message Column {
+    string key = 1;
+    string cards_mode_label = 2;
+    string notes_mode_label = 3;
+    Sorting sorting = 4;
+    bool uses_cell_font = 5;
+    Alignment alignment = 6;
+  }
+  repeated Column columns = 1;
 }
 
 message BrowserRow {

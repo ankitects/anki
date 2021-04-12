@@ -6,7 +6,6 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod, abstractproperty
 from dataclasses import dataclass
-from operator import itemgetter
 from typing import (
     Any,
     Callable,
@@ -23,6 +22,7 @@ from typing import (
 import aqt
 import aqt.forms
 from anki.cards import Card, CardId
+from anki.collection import BrowserColumns as Columns
 from anki.collection import BrowserRow, Collection, Config, OpChanges
 from anki.consts import *
 from anki.errors import NotFoundError
@@ -35,10 +35,12 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     qtMenuShortcutWorkaround,
     restoreHeader,
+    saveHeader,
     showInfo,
     tr,
 )
 
+Column = Columns.Column
 ItemId = Union[CardId, NoteId]
 ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 
@@ -47,7 +49,8 @@ ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 class SearchContext:
     search: str
     browser: aqt.browser.Browser
-    order: Union[bool, str] = True
+    order: Union[bool, str, Column] = True
+    reverse: bool = False
     # if set, provided ids will be used instead of the regular search
     ids: Optional[Sequence[ItemId]] = None
 
@@ -72,6 +75,9 @@ class Table:
         self._view = view
         self._setup_view()
         self._setup_headers()
+
+    def cleanup(self) -> None:
+        self._save_header()
 
     # Public Methods
     ######################################################################
@@ -148,11 +154,8 @@ class Table:
     def select_single_card(self, card_id: CardId) -> None:
         """Try to set the selection to the item corresponding to the given card."""
         self.clear_selection()
-        if self.is_notes_mode():
-            self._view.selectRow(0)
-        else:
-            if (row := self._model.get_card_row(card_id)) is not None:
-                self._view.selectRow(row)
+        if (row := self._model.get_card_row(card_id)) is not None:
+            self._view.selectRow(row)
 
     # Reset
 
@@ -198,6 +201,7 @@ class Table:
     def toggle_state(self, is_notes_mode: bool, last_search: str) -> None:
         if is_notes_mode == self.is_notes_mode():
             return
+        self._save_header()
         self._save_selection()
         self._state = self._model.toggle_state(
             SearchContext(search=last_search, browser=self.browser)
@@ -205,8 +209,7 @@ class Table:
         self.col.set_config_bool(
             Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, self.is_notes_mode()
         )
-        self._set_sort_indicator()
-        self._set_column_sizes()
+        self._restore_header()
         self._restore_selection(self._toggled_selection)
 
     # Move cursor
@@ -273,6 +276,12 @@ class Table:
         # this must be set post-resize or it doesn't work
         hh.setCascadingSectionResizes(False)
 
+    def _save_header(self) -> None:
+        saveHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+
+    def _restore_header(self) -> None:
+        restoreHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+
     # Setup
 
     def _setup_view(self) -> None:
@@ -314,14 +323,14 @@ class Table:
         if not isWin:
             vh.hide()
             hh.show()
-        restoreHeader(hh, "editor")
         hh.setHighlightSections(False)
         hh.setMinimumSectionSize(50)
         hh.setSectionsMovable(True)
-        self._set_column_sizes()
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
-        qconnect(hh.customContextMenuRequested, self._on_header_context)
+        self._restore_header()
+        self._set_column_sizes()
         self._set_sort_indicator()
+        qconnect(hh.customContextMenuRequested, self._on_header_context)
         qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
         qconnect(hh.sectionMoved, self._on_column_moved)
 
@@ -350,13 +359,13 @@ class Table:
     def _on_header_context(self, pos: QPoint) -> None:
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
-        for column, name in self._state.columns:
-            a = m.addAction(name)
+        for key, column in self._model.columns.items():
+            a = m.addAction(self._state.column_label(column))
             a.setCheckable(True)
-            a.setChecked(self._model.active_column_index(column) is not None)
+            a.setChecked(self._model.active_column_index(key) is not None)
             qconnect(
                 a.toggled,
-                lambda checked, column=column: self._on_column_toggled(checked, column),
+                lambda checked, key=key: self._on_column_toggled(checked, key),
             )
         gui_hooks.browser_header_will_show_context_menu(self.browser, m)
         m.exec_(gpos)
@@ -375,16 +384,18 @@ class Table:
         if checked:
             self._scroll_to_column(self._model.len_columns() - 1)
 
-    def _on_sort_column_changed(self, index: int, order: int) -> None:
+    def _on_sort_column_changed(self, section: int, order: int) -> None:
         order = bool(order)
-        sort_column = self._model.active_column(index)
-        if sort_column in ("question", "answer"):
+        column = self._model.column_at_section(section)
+        if column.sorting == Columns.SORTING_NONE:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
-            sort_column = self._state.sort_column
-        if self._state.sort_column != sort_column:
-            self._state.sort_column = sort_column
+            sort_key = self._state.sort_column
+        else:
+            sort_key = column.key
+        if self._state.sort_column != sort_key:
+            self._state.sort_column = sort_key
             # default to descending for non-text fields
-            if sort_column == "noteFld":
+            if column.sorting == Columns.SORTING_REVERSED:
                 order = not order
             self._state.sort_backwards = order
             self.browser.search()
@@ -523,7 +534,7 @@ class Table:
 
 
 class ItemState(ABC):
-    _columns: List[Tuple[str, str]]
+    config_key_prefix: str
     _active_columns: List[str]
     _sort_column: str
     _sort_backwards: bool
@@ -545,14 +556,18 @@ class ItemState(ABC):
     def card_ids_from_note_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
+    def column_key_at(self, index: int) -> str:
+        return self._active_columns[index]
+
+    def column_label(self, column: Column) -> str:
+        return (
+            column.notes_mode_label if self.is_notes_mode() else column.cards_mode_label
+        )
+
     # Columns and sorting
 
     # abstractproperty is deprecated but used due to mypy limitations
     # (https://github.com/python/mypy/issues/1362)
-    @abstractproperty
-    def columns(self) -> List[Tuple[str, str]]:
-        """Return all for the state available columns."""
-
     @abstractproperty
     def active_columns(self) -> List[str]:
         """Return the saved or default columns for the state."""
@@ -590,7 +605,9 @@ class ItemState(ABC):
     # Get ids
 
     @abstractmethod
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
+    def find_items(
+        self, search: str, order: Union[bool, str, Column], reverse: bool
+    ) -> Sequence[ItemId]:
         """Return the item ids fitting the given search and order."""
 
     @abstractmethod
@@ -619,36 +636,12 @@ class ItemState(ABC):
 class CardState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._load_columns()
+        self.config_key_prefix = "editor"
         self._active_columns = self.col.load_browser_card_columns()
         self._sort_column = self.col.get_config("sortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_SORT_BACKWARDS
         )
-
-    def _load_columns(self) -> None:
-        self._columns = [
-            ("question", tr.browsing_question()),
-            ("answer", tr.browsing_answer()),
-            ("template", tr.browsing_card()),
-            ("deck", tr.decks_deck()),
-            ("noteFld", tr.browsing_sort_field()),
-            ("noteCrt", tr.browsing_created()),
-            ("noteMod", tr.search_note_modified()),
-            ("cardMod", tr.search_card_modified()),
-            ("cardDue", tr.statistics_due_date()),
-            ("cardIvl", tr.browsing_interval()),
-            ("cardEase", tr.browsing_ease()),
-            ("cardReps", tr.scheduling_reviews()),
-            ("cardLapses", tr.scheduling_lapses()),
-            ("noteTags", tr.editing_tags()),
-            ("note", tr.browsing_note()),
-        ]
-        self._columns.sort(key=itemgetter(1))
-
-    @property
-    def columns(self) -> List[Tuple[str, str]]:
-        return self._columns
 
     @property
     def active_columns(self) -> List[str]:
@@ -685,8 +678,10 @@ class CardState(ItemState):
     def get_note(self, item: ItemId) -> Note:
         return self.get_card(item).note()
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
-        return self.col.find_cards(search, order)
+    def find_items(
+        self, search: str, order: Union[bool, str, Column], reverse: bool
+    ) -> Sequence[ItemId]:
+        return self.col.find_cards(search, order, reverse)
 
     def get_item_from_card_id(self, card: CardId) -> ItemId:
         return card
@@ -707,32 +702,12 @@ class CardState(ItemState):
 class NoteState(ItemState):
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self._load_columns()
+        self.config_key_prefix = "editorNotesMode"
         self._active_columns = self.col.load_browser_note_columns()
         self._sort_column = self.col.get_config("noteSortType")
         self._sort_backwards = self.col.get_config_bool(
             Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
         )
-
-    def _load_columns(self) -> None:
-        self._columns = [
-            ("note", tr.browsing_note()),
-            ("noteCards", tr.editing_cards()),
-            ("noteCrt", tr.browsing_created()),
-            ("noteDue", tr.statistics_due_date()),
-            ("noteEase", tr.browsing_average_ease()),
-            ("noteFld", tr.browsing_sort_field()),
-            ("noteIvl", tr.browsing_average_interval()),
-            ("noteLapses", tr.scheduling_lapses()),
-            ("noteMod", tr.search_note_modified()),
-            ("noteReps", tr.scheduling_reviews()),
-            ("noteTags", tr.editing_tags()),
-        ]
-        self._columns.sort(key=itemgetter(1))
-
-    @property
-    def columns(self) -> List[Tuple[str, str]]:
-        return self._columns
 
     @property
     def active_columns(self) -> List[str]:
@@ -769,11 +744,13 @@ class NoteState(ItemState):
     def get_note(self, item: ItemId) -> Note:
         return self.col.get_note(NoteId(item))
 
-    def find_items(self, search: str, order: Union[bool, str]) -> Sequence[ItemId]:
-        return self.col.find_notes(search, order)
+    def find_items(
+        self, search: str, order: Union[bool, str, Column], reverse: bool
+    ) -> Sequence[ItemId]:
+        return self.col.find_notes(search, order, reverse)
 
     def get_item_from_card_id(self, card: CardId) -> ItemId:
-        return self.get_card(card).note().id
+        return self.col.get_card(card).note().id
 
     def get_card_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
         return super().card_ids_from_note_ids(items)
@@ -854,13 +831,27 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str,
 
 
 class DataModel(QAbstractTableModel):
+    """Data manager for the browser table.
+
+    _items -- The card or note ids currently hold and corresponding to the
+              table's rows.
+    _rows -- The cached data objects to render items to rows.
+    columns -- The data objects of all available columns, used to define the display
+               of active columns and list all toggleable columns to the user.
+    _block_updates -- If True, serve stale content to avoid hitting the DB.
+    _stale_cutoff -- A threshold to decide whether a cached row has gone stale.
+    """
+
     def __init__(self, col: Collection, state: ItemState) -> None:
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
+        self.columns: Dict[str, Column] = dict(
+            ((c.key, c) for c in self.col.all_browser_columns())
+        )
+        gui_hooks.browser_did_fetch_columns(self.columns)
         self._state: ItemState = state
         self._items: Sequence[ItemId] = []
         self._rows: Dict[int, CellRow] = {}
-        # serve stale content to avoid hitting the DB?
         self._block_updates = False
         self._stale_cutoff = 0.0
 
@@ -1010,9 +1001,18 @@ class DataModel(QAbstractTableModel):
     def search(self, context: SearchContext) -> None:
         self.begin_reset()
         try:
+            if context.order is True:
+                try:
+                    context.order = self.columns[self._state.sort_column]
+                except KeyError:
+                    # invalid sort column in config
+                    context.order = self.columns["noteCrt"]
+                context.reverse = self._state.sort_backwards
             gui_hooks.browser_will_search(context)
             if context.ids is None:
-                context.ids = self._state.find_items(context.search, context.order)
+                context.ids = self._state.find_items(
+                    context.search, context.order, context.reverse
+                )
             gui_hooks.browser_did_search(context)
             self._items = context.ids
             self._rows = {}
@@ -1026,8 +1026,19 @@ class DataModel(QAbstractTableModel):
 
     # Columns
 
-    def active_column(self, index: int) -> str:
-        return self._state.active_columns[index]
+    def column_at(self, index: QModelIndex) -> Column:
+        return self.column_at_section(index.column())
+
+    def column_at_section(self, section: int) -> Column:
+        """Returns the column object corresponding to the active column at index or the default
+        column object if no data is associated with the active column.
+        """
+        key = self._state.column_key_at(section)
+        try:
+            return self.columns[key]
+        except KeyError:
+            self.columns[key] = addon_column_fillin(key)
+            return self.columns[key]
 
     def active_column_index(self, column: str) -> Optional[int]:
         return (
@@ -1058,11 +1069,7 @@ class DataModel(QAbstractTableModel):
         if not index.isValid():
             return QVariant()
         if role == Qt.FontRole:
-            if self.active_column(index.column()) not in (
-                "question",
-                "answer",
-                "noteFld",
-            ):
+            if not self.column_at(index).uses_cell_font:
                 return QVariant()
             qfont = QFont()
             row = self.get_row(index)
@@ -1071,15 +1078,7 @@ class DataModel(QAbstractTableModel):
             return qfont
         if role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
-            if self.active_column(index.column()) not in (
-                "question",
-                "answer",
-                "template",
-                "deck",
-                "noteFld",
-                "note",
-                "noteTags",
-            ):
+            if self.column_at(index).alignment == Columns.ALIGNMENT_CENTER:
                 align |= Qt.AlignHCenter
             return align
         if role in (Qt.DisplayRole, Qt.ToolTipRole):
@@ -1089,21 +1088,9 @@ class DataModel(QAbstractTableModel):
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = 0
     ) -> Optional[str]:
-        if orientation == Qt.Vertical:
-            return None
-        elif role == Qt.DisplayRole and section < self.len_columns():
-            column = self.active_column(section)
-            txt = None
-            for stype, name in self._state.columns:
-                if column == stype:
-                    txt = name
-                    break
-            # give the user a hint an invalid column was added by an add-on
-            if not txt:
-                txt = tr.browsing_addon()
-            return txt
-        else:
-            return None
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self._state.column_label(self.column_at_section(section))
+        return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if self.get_row(index).is_deleted:
@@ -1131,3 +1118,17 @@ class StatusDelegate(QItemDelegate):
             painter.fillRect(option.rect, brush)
             painter.restore()
         return QItemDelegate.paint(self, painter, option, index)
+
+
+def addon_column_fillin(key: str) -> Column:
+    """Return a column with generic fields and a label indicating to the user that this column was
+    added by an add-on.
+    """
+    return Column(
+        key=key,
+        cards_mode_label=tr.browsing_addon(),
+        notes_mode_label=tr.browsing_addon(),
+        sorting=Columns.SORTING_NONE,
+        uses_cell_font=False,
+        alignment=Columns.ALIGNMENT_CENTER,
+    )

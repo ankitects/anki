@@ -14,19 +14,13 @@ use rusqlite::types::FromSql;
 use std::borrow::Cow;
 
 use crate::{
-    card::CardId,
-    card::CardType,
-    collection::Collection,
-    config::{BoolKey, SortKind},
-    error::Result,
-    notes::NoteId,
-    prelude::AnkiError,
-    search::parser::parse,
+    browser_table::Column, card::CardId, card::CardType, collection::Collection, error::Result,
+    notes::NoteId, prelude::AnkiError, search::parser::parse,
 };
 use sqlwriter::{RequiredTable, SqlWriter};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum SearchItems {
+pub enum ReturnItemType {
     Cards,
     Notes,
 }
@@ -34,32 +28,31 @@ pub enum SearchItems {
 #[derive(Debug, PartialEq, Clone)]
 pub enum SortMode {
     NoOrder,
-    FromConfig,
-    Builtin { kind: SortKind, reverse: bool },
+    Builtin { column: Column, reverse: bool },
     Custom(String),
 }
 
-pub trait AsSearchItems {
-    fn as_search_items() -> SearchItems;
+pub trait AsReturnItemType {
+    fn as_return_item_type() -> ReturnItemType;
 }
 
-impl AsSearchItems for CardId {
-    fn as_search_items() -> SearchItems {
-        SearchItems::Cards
+impl AsReturnItemType for CardId {
+    fn as_return_item_type() -> ReturnItemType {
+        ReturnItemType::Cards
     }
 }
 
-impl AsSearchItems for NoteId {
-    fn as_search_items() -> SearchItems {
-        SearchItems::Notes
+impl AsReturnItemType for NoteId {
+    fn as_return_item_type() -> ReturnItemType {
+        ReturnItemType::Notes
     }
 }
 
-impl SearchItems {
+impl ReturnItemType {
     fn required_table(&self) -> RequiredTable {
         match self {
-            SearchItems::Cards => RequiredTable::Cards,
-            SearchItems::Notes => RequiredTable::Notes,
+            ReturnItemType::Cards => RequiredTable::Cards,
+            ReturnItemType::Notes => RequiredTable::Notes,
         }
     }
 }
@@ -68,8 +61,7 @@ impl SortMode {
     fn required_table(&self) -> RequiredTable {
         match self {
             SortMode::NoOrder => RequiredTable::CardsOrNotes,
-            SortMode::FromConfig => unreachable!(),
-            SortMode::Builtin { kind, .. } => kind.required_table(),
+            SortMode::Builtin { column, .. } => column.required_table(),
             SortMode::Custom(ref text) => {
                 if text.contains("n.") {
                     if text.contains("c.") {
@@ -85,44 +77,31 @@ impl SortMode {
     }
 }
 
-impl SortKind {
+impl Column {
     fn required_table(self) -> RequiredTable {
         match self {
-            SortKind::NoteCards
-            | SortKind::NoteCreation
-            | SortKind::NoteDue
-            | SortKind::NoteEase
-            | SortKind::NoteField
-            | SortKind::NoteInterval
-            | SortKind::NoteLapses
-            | SortKind::NoteMod
-            | SortKind::NoteReps
-            | SortKind::NoteTags
-            | SortKind::Notetype => RequiredTable::Notes,
-            SortKind::CardTemplate => RequiredTable::CardsAndNotes,
-            SortKind::CardMod
-            | SortKind::CardReps
-            | SortKind::CardDue
-            | SortKind::CardEase
-            | SortKind::CardLapses
-            | SortKind::CardInterval
-            | SortKind::CardDeck => RequiredTable::Cards,
+            Column::Cards
+            | Column::NoteCreation
+            | Column::NoteMod
+            | Column::Notetype
+            | Column::SortField
+            | Column::Tags => RequiredTable::Notes,
+            _ => RequiredTable::CardsOrNotes,
         }
     }
 }
 
 impl Collection {
-    pub fn search<T>(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<T>>
+    pub fn search<T>(&mut self, search: &str, mode: SortMode) -> Result<Vec<T>>
     where
-        T: FromSql + AsSearchItems,
+        T: FromSql + AsReturnItemType,
     {
-        let items = T::as_search_items();
+        let item_type = T::as_return_item_type();
         let top_node = Node::Group(parse(search)?);
-        self.resolve_config_sort(items, &mut mode);
-        let writer = SqlWriter::new(self, items);
+        let writer = SqlWriter::new(self, item_type);
 
         let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-        self.add_order(&mut sql, items, mode)?;
+        self.add_order(&mut sql, item_type, mode)?;
 
         let mut stmt = self.storage.db.prepare(&sql)?;
         let ids: Vec<_> = stmt
@@ -140,14 +119,18 @@ impl Collection {
         self.search(search, SortMode::NoOrder)
     }
 
-    fn add_order(&mut self, sql: &mut String, items: SearchItems, mode: SortMode) -> Result<()> {
+    fn add_order(
+        &mut self,
+        sql: &mut String,
+        item_type: ReturnItemType,
+        mode: SortMode,
+    ) -> Result<()> {
         match mode {
             SortMode::NoOrder => (),
-            SortMode::FromConfig => unreachable!(),
-            SortMode::Builtin { kind, reverse } => {
-                prepare_sort(self, kind)?;
+            SortMode::Builtin { column, reverse } => {
+                prepare_sort(self, column, item_type)?;
                 sql.push_str(" order by ");
-                write_order(sql, items, kind, reverse)?;
+                write_order(sql, item_type, column, reverse)?;
             }
             SortMode::Custom(order_clause) => {
                 sql.push_str(" order by ");
@@ -166,11 +149,11 @@ impl Collection {
         mode: SortMode,
     ) -> Result<usize> {
         let top_node = Node::Group(parse(search)?);
-        let writer = SqlWriter::new(self, SearchItems::Cards);
+        let writer = SqlWriter::new(self, ReturnItemType::Cards);
         let want_order = mode != SortMode::NoOrder;
 
         let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-        self.add_order(&mut sql, SearchItems::Cards, mode)?;
+        self.add_order(&mut sql, ReturnItemType::Cards, mode)?;
 
         if want_order {
             self.storage
@@ -186,34 +169,23 @@ impl Collection {
             .execute(&args)
             .map_err(Into::into)
     }
-
-    /// If the sort mode is based on a config setting, look it up.
-    fn resolve_config_sort(&self, items: SearchItems, mode: &mut SortMode) {
-        if mode == &SortMode::FromConfig {
-            *mode = match items {
-                SearchItems::Cards => SortMode::Builtin {
-                    kind: self.get_browser_sort_kind(),
-                    reverse: self.get_bool(BoolKey::BrowserSortBackwards),
-                },
-                SearchItems::Notes => SortMode::Builtin {
-                    kind: self.get_browser_note_sort_kind(),
-                    reverse: self.get_bool(BoolKey::BrowserNoteSortBackwards),
-                },
-            }
-        }
-    }
 }
 
 /// Add the order clause to the sql.
-fn write_order(sql: &mut String, items: SearchItems, kind: SortKind, reverse: bool) -> Result<()> {
-    let order = match items {
-        SearchItems::Cards => card_order_from_sortkind(kind),
-        SearchItems::Notes => note_order_from_sortkind(kind),
+fn write_order(
+    sql: &mut String,
+    item_type: ReturnItemType,
+    column: Column,
+    reverse: bool,
+) -> Result<()> {
+    let order = match item_type {
+        ReturnItemType::Cards => card_order_from_sort_column(column),
+        ReturnItemType::Notes => note_order_from_sort_column(column),
     };
     if order.is_empty() {
         return Err(AnkiError::invalid_input(format!(
             "Can't sort {:?} by {:?}.",
-            items, kind
+            item_type, column
         )));
     }
     if reverse {
@@ -229,60 +201,69 @@ fn write_order(sql: &mut String, items: SearchItems, kind: SortKind, reverse: bo
     Ok(())
 }
 
-fn card_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
-    match kind {
-        SortKind::NoteCreation => "n.id asc, c.ord asc".into(),
-        SortKind::NoteMod => "n.mod asc, c.ord asc".into(),
-        SortKind::NoteField => "n.sfld collate nocase asc, c.ord asc".into(),
-        SortKind::CardMod => "c.mod asc".into(),
-        SortKind::CardReps => "c.reps asc".into(),
-        SortKind::CardDue => "c.type asc, c.due asc".into(),
-        SortKind::CardEase => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
-        SortKind::CardLapses => "c.lapses asc".into(),
-        SortKind::CardInterval => "c.ivl asc".into(),
-        SortKind::NoteTags => "n.tags asc".into(),
-        SortKind::CardDeck => "(select pos from sort_order where did = c.did) asc".into(),
-        SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
-        SortKind::CardTemplate => concat!(
+fn card_order_from_sort_column(column: Column) -> Cow<'static, str> {
+    match column {
+        Column::CardMod => "c.mod asc".into(),
+        Column::Cards => concat!(
             "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
             // need to fall back on ord 0 for cloze cards
             "(select pos from sort_order where ntid = n.mid and ord = 0)) asc"
         )
         .into(),
-        _ => "".into(),
+        Column::Deck => "(select pos from sort_order where did = c.did) asc".into(),
+        Column::Due => "c.type asc, c.due asc".into(),
+        Column::Ease => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
+        Column::Interval => "c.ivl asc".into(),
+        Column::Lapses => "c.lapses asc".into(),
+        Column::NoteCreation => "n.id asc, c.ord asc".into(),
+        Column::NoteMod => "n.mod asc, c.ord asc".into(),
+        Column::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
+        Column::Reps => "c.reps asc".into(),
+        Column::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
+        Column::Tags => "n.tags asc".into(),
+        Column::Answer | Column::Custom | Column::Question => "".into(),
     }
 }
 
-fn note_order_from_sortkind(kind: SortKind) -> Cow<'static, str> {
-    match kind {
-        SortKind::NoteCards
-        | SortKind::NoteDue
-        | SortKind::NoteEase
-        | SortKind::NoteInterval
-        | SortKind::NoteLapses
-        | SortKind::NoteReps => "(select pos from sort_order where nid = n.id) asc".into(),
-        SortKind::NoteCreation => "n.id asc".into(),
-        SortKind::NoteField => "n.sfld collate nocase asc".into(),
-        SortKind::NoteMod => "n.mod asc".into(),
-        SortKind::NoteTags => "n.tags asc".into(),
-        SortKind::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
-        _ => "".into(),
+fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
+    match column {
+        Column::CardMod
+        | Column::Cards
+        | Column::Deck
+        | Column::Due
+        | Column::Ease
+        | Column::Interval
+        | Column::Lapses
+        | Column::Reps => "(select pos from sort_order where nid = n.id) asc".into(),
+        Column::NoteCreation => "n.id asc".into(),
+        Column::NoteMod => "n.mod asc".into(),
+        Column::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
+        Column::SortField => "n.sfld collate nocase asc".into(),
+        Column::Tags => "n.tags asc".into(),
+        Column::Answer | Column::Custom | Column::Question => "".into(),
     }
 }
 
-fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
-    use SortKind::*;
-    let sql = match kind {
-        CardDeck => include_str!("deck_order.sql"),
-        CardTemplate => include_str!("template_order.sql"),
-        NoteCards => include_str!("note_cards_order.sql"),
-        NoteDue => include_str!("note_due_order.sql"),
-        NoteEase => include_str!("note_ease_order.sql"),
-        NoteInterval => include_str!("note_interval_order.sql"),
-        NoteLapses => include_str!("note_lapses_order.sql"),
-        NoteReps => include_str!("note_reps_order.sql"),
-        Notetype => include_str!("notetype_order.sql"),
-        _ => return Ok(()),
+fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType) -> Result<()> {
+    let sql = match item_type {
+        ReturnItemType::Cards => match column {
+            Column::Cards => include_str!("template_order.sql"),
+            Column::Deck => include_str!("deck_order.sql"),
+            Column::Notetype => include_str!("notetype_order.sql"),
+            _ => return Ok(()),
+        },
+        ReturnItemType::Notes => match column {
+            Column::Cards => include_str!("note_cards_order.sql"),
+            Column::CardMod => include_str!("card_mod_order.sql"),
+            Column::Deck => include_str!("note_decks_order.sql"),
+            Column::Due => include_str!("note_due_order.sql"),
+            Column::Ease => include_str!("note_ease_order.sql"),
+            Column::Interval => include_str!("note_interval_order.sql"),
+            Column::Lapses => include_str!("note_lapses_order.sql"),
+            Column::Reps => include_str!("note_reps_order.sql"),
+            Column::Notetype => include_str!("notetype_order.sql"),
+            _ => return Ok(()),
+        },
     };
 
     col.storage.db.execute_batch(sql)?;

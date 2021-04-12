@@ -1,7 +1,7 @@
 # coding: utf-8
 import pytest
 
-from anki.collection import BuiltinSort, Config
+from anki.collection import Config
 from anki.consts import *
 from tests.shared import getEmptyCol, isNearCutoff
 
@@ -125,10 +125,12 @@ def test_findCards():
     col.flush()
     assert col.findCards("", order=True)[0] in latestCardIds
     assert (
-        col.find_cards("", order=BuiltinSort.CARD_DUE, reverse=False)[0] == firstCardId
+        col.find_cards("", order=col.get_browser_column("cardDue"), reverse=False)[0]
+        == firstCardId
     )
     assert (
-        col.find_cards("", order=BuiltinSort.CARD_DUE, reverse=True)[0] != firstCardId
+        col.find_cards("", order=col.get_browser_column("cardDue"), reverse=True)[0]
+        != firstCardId
     )
     # model
     assert len(col.findCards("note:basic")) == 3
