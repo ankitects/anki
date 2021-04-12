@@ -1,10 +1,4 @@
-/* night-mode-specific colours */
-$fusion-button-gradient-start: #555555;
-$fusion-button-gradient-end: #656565;
-$fusion-button-outline: #222222;
-$fusion-button-hover-bg: #656565;
-$fusion-button-border: #646464;
-$fusion-button-base-bg: #454545;
+@use 'fusion_vars';
 
 .isWin {
     button {
@@ -36,18 +30,18 @@ $fusion-button-base-bg: #454545;
         /* match the fusion button gradient */
         background: linear-gradient(
             0deg,
-            $fusion-button-gradient-start 0%,
-            $fusion-button-gradient-end 100%
+            fusion_vars.$button-gradient-start 0%,
+            fusion_vars.$button-gradient-end 100%
         );
 
         padding: 3px 10px;
-        border: 1px solid $fusion-button-border;
+        border: 1px solid fusion_vars.$button-border;
         border-radius: 2px;
-        box-shadow: 0 0 3px $fusion-button-outline;
+        box-shadow: 0 0 3px fusion_vars.$button-outline;
     }
 
     button:hover {
-        background: $fusion-button-hover-bg;
+        background: fusion_vars.$button-hover-bg;
     }
 }
 
