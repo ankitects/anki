@@ -9,9 +9,6 @@ var ankiPlatform = "desktop";
 var typeans;
 var _updatingQueue: Promise<void> = Promise.resolve();
 
-var qFade = 0;
-var aFade = 0;
-
 var onUpdateHook: Array<Callback>;
 var onShownHook: Array<Callback>;
 
@@ -31,32 +28,25 @@ function _queueAction(action: Callback): void {
 
 async function _updateQA(
     html: string,
-    fadeTime: number,
     onupdate: Callback,
     onshown: Callback
 ): Promise<void> {
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
-    const qa = $("#qa");
+    const qa = document.getElementById("qa")!;
     const renderError = (kind: string) => (error: Error): void => {
         const errorMessage = String(error).substring(0, 2000);
         const errorStack = String(error.stack).substring(0, 2000);
-
-        qa.html(
-            `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(
-                /\n/g,
-                "<br />"
-            )
-        );
+        qa.innerHTML = `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(/\n/g, "<br>");
     };
 
-    // fade out current text
-    await qa.fadeTo(fadeTime, 0).promise();
+    // hide current card
+    qa.style.opacity = "0";
 
-    // update text
+    // update card
     try {
-        qa.html(html);
+        qa.innerHTML = html;
     } catch (error) {
         renderError("HTML")(error);
     }
@@ -69,15 +59,15 @@ async function _updateQA(
             // clear MathJax buffers from previous typesets
             MathJax.typesetClear();
 
-            return MathJax.typesetPromise(qa.slice(0, 1));
+            return MathJax.typesetPromise([qa]);
         })
         .catch(renderError("MathJax"));
 
     // defer display for up to 100ms to allow images to load
     await Promise.race([allImagesLoaded(), new Promise((r) => setTimeout(r, 100))]);
 
-    // and reveal when processing is done
-    await qa.fadeTo(fadeTime, 1).promise();
+    // and reveal card when processing is done
+    qa.style.opacity = "1";
     await _runHook(onShownHook);
 }
 
@@ -85,7 +75,6 @@ function _showQuestion(q: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             q,
-            qFade,
             function () {
                 // return to top of window
                 window.scrollTo(0, 0);
@@ -107,7 +96,6 @@ function _showAnswer(a: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             a,
-            aFade,
             function () {
                 if (bodyclass) {
                     //  when previewing
