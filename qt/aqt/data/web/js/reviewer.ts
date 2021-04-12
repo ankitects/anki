@@ -162,13 +162,12 @@ function allImagesLoaded(): Promise<void[]> {
 }
 
 function imageLoaded(img: HTMLImageElement): Promise<void> {
-    if (img.complete) {
-        return;
-    }
-    return new Promise((resolve) => {
-        img.addEventListener("load", () => resolve());
-        img.addEventListener("error", () => resolve());
-    });
+    return img.complete
+        ? Promise.resolve()
+        : new Promise((resolve) => {
+              img.addEventListener("load", () => resolve());
+              img.addEventListener("error", () => resolve());
+          });
 }
 
 function scrollToAnswer(): void {
