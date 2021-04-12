@@ -590,7 +590,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         self._bridge_context = None
 
     def adjustHeightToFit(self) -> None:
-        self.evalWithCallback("$(document.body).height()", self._onHeight)
+        self.evalWithCallback("document.documentElement.scrollHeight", self._onHeight);
 
     def _onHeight(self, qvar: Optional[int]) -> None:
         from aqt import mw
