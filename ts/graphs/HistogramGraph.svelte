@@ -9,7 +9,6 @@
     import { defaultGraphBounds } from "./graph-helpers";
 
     export let data: HistogramData | null = null;
-    import * as tr from "anki/i18n";
 
     let bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;

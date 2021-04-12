@@ -158,7 +158,6 @@ async function writeJs(
         // warnings are an error
         if (result.warnings.length > 0) {
             console.log(`warnings during compile: ${result.warnings}`);
-            return;
         }
         // write out the css file
         const outputCss = result.css.code ?? "";

@@ -8,7 +8,6 @@
 
     import WithGraphData from "./WithGraphData.svelte";
 
-    import * as tr from "anki/i18n";
     export let nightMode: boolean;
     export let graphs: SvelteComponent[];
 
