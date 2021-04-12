@@ -61,7 +61,7 @@ impl Default for DeckConf {
                 leech_threshold: 8,
                 disable_autoplay: false,
                 cap_answer_time_to_secs: 60,
-                visible_timer_secs: 0,
+                show_timer: false,
                 skip_question_when_replaying_answer: false,
                 bury_new: false,
                 bury_reviews: false,
