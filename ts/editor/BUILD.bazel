@@ -6,14 +6,17 @@ load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
+    srcs = [
+        "editable.scss",
+        "editor.scss",
+    ],
     group = "base_css",
-    srcs = ["editor.scss", "editable.scss"],
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
         "//ts/sass:buttons_lib",
         "//ts/sass:scrollbar_lib",
     ],
-    visibility = ["//visibility:public"],
 )
 
 ts_library(
@@ -41,9 +44,9 @@ esbuild(
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
+        "base_css",
         ":bootstrap-icons",
         ":editor_ts",
-        "base_css",
     ],
 )
 

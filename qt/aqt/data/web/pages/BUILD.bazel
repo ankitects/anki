@@ -1,32 +1,24 @@
 load("//ts:copy.bzl", "copy_files_into_group")
 
-copy_files_into_group(
-    name = "graphs_page",
-    srcs = [
-        "graphs-base.css",
-        "graphs.css",
-        "graphs.html",
-        "graphs.js",
-    ],
-    package = "//ts/graphs",
-)
+_pages = [
+    "graphs",
+    "congrats",
+    "deckconfig",
+]
 
-copy_files_into_group(
-    name = "congrats_page",
+[copy_files_into_group(
+    name = name + "_page",
     srcs = [
-        "congrats-base.css",
-        "congrats.css",
-        "congrats.html",
-        "congrats.js",
+        name + "-base.css",
+        name + ".css",
+        name + ".html",
+        name + ".js",
     ],
-    package = "//ts/congrats",
-)
+    package = "//ts/" + name,
+) for name in _pages]
 
 filegroup(
     name = "pages",
-    srcs = [
-        "congrats_page",
-        "graphs_page",
-    ],
+    srcs = [name + "_page" for name in _pages],
     visibility = ["//qt:__subpackages__"],
 )

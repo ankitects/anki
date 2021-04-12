@@ -61,6 +61,14 @@ impl DeckConfigService for Backend {
         self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config(input.into())))
             .map(Into::into)
     }
+
+    fn get_deck_config_for_update(&self, input: pb::DeckId) -> Result<pb::DeckConfigForUpdate> {
+        self.with_col(|col| col.get_deck_config_for_update(input.into()))
+    }
+
+    fn update_deck_config(&self, _input: pb::UpdateDeckConfigIn) -> Result<pb::OpChanges> {
+        todo!();
+    }
 }
 
 impl From<DeckConf> for pb::DeckConfig {
