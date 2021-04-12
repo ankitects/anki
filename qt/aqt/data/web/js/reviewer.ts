@@ -6,7 +6,7 @@ declare var MathJax: any;
 type Callback = () => void | Promise<void>;
 
 var ankiPlatform = "desktop";
-var typeans;
+var typeans: HTMLElement | undefined;
 var _updatingQueue: Promise<void> = Promise.resolve();
 
 var onUpdateHook: Array<Callback>;
@@ -38,7 +38,10 @@ async function _updateQA(
     const renderError = (kind: string) => (error: Error): void => {
         const errorMessage = String(error).substring(0, 2000);
         const errorStack = String(error.stack).substring(0, 2000);
-        qa.innerHTML = `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(/\n/g, "<br>");
+        qa.innerHTML = `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(
+            /\n/g,
+            "<br>"
+        );
     };
 
     // hide current card
@@ -119,26 +122,26 @@ const _flagColours = {
 };
 
 function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
-    var elem = $("#_flag");
+    const elem = document.getElementById("_flag");
     if (flag === 0) {
-        elem.hide();
+        elem.setAttribute("hidden", "");
         return;
     }
-    elem.show();
-    elem.css("color", _flagColours[flag]);
+    elem.removeAttribute("hidden");
+    elem.style.color = _flagColours[flag];
 }
 
 function _drawMark(mark: boolean): void {
-    var elem = $("#_mark");
+    const elem = document.getElementById("_mark");
     if (!mark) {
-        elem.hide();
+        elem.setAttribute("hidden", "");
     } else {
-        elem.show();
+        elem.removeAttribute("hidden");
     }
 }
 
 function _typeAnsPress(): void {
-    if ((window.event as KeyboardEvent).keyCode === 13) {
+    if ((window.event as KeyboardEvent).code === "Enter") {
         pycmd("ans");
     }
 }
