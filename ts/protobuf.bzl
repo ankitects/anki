@@ -1,6 +1,6 @@
 # taken from example on
 # https://github.com/bazelbuild/rules_nodejs/commit/078243a217afe85a8c8f449838bb66ca87608aba
-# tweaked to use json-module instead of static-module, and disable strict long
+# tweaked to use json-module instead of static-module, and force number
 
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
@@ -78,6 +78,7 @@ def protobufjs_library(name, proto, **kwargs):
             "--target=static-module",
             "--wrap=default",
             #"--strict-long",  # Force usage of Long type with int64 fields
+            "--force-number",
             "--out=$@",
             "$(execpaths %s)" % proto_target,
         ],
@@ -94,6 +95,7 @@ def protobufjs_library(name, proto, **kwargs):
             "--target=json-module",
             "--wrap=default",
             #"--strict-long",  # Force usage of Long type with int64 fields
+            "--force-number",
             "--out=$@",
             "$(execpaths %s)" % proto_target,
         ],
