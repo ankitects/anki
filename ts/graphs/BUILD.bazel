@@ -3,10 +3,17 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
 svelte_files = glob(["*.svelte"])
 
 svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+sass_binary(
+    name = "main_css",
+    src = "graphs-main.scss",
+    visibility = ["//visibility:public"],
+)
 
 compile_svelte(
     name = "svelte",
@@ -67,7 +74,7 @@ esbuild(
         "//ts/lib",
         "//ts/lib:backend_proto",
         ":index",
-        "//ts/sass:core_css",
+        ":main_css",
     ] + svelte_names,
 )
 

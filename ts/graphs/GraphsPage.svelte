@@ -1,6 +1,4 @@
 <script lang="typescript">
-    import "../sass/core.css";
-
     import type { SvelteComponent } from "svelte/internal";
     import { writable } from "svelte/store";
 

@@ -4,6 +4,7 @@ copy_files_into_group(
     name = "graphs_page",
     srcs = [
         "graphs.css",
+        "graphs-main.css",
         "graphs.html",
         "graphs.js",
     ],
