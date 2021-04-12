@@ -1002,7 +1002,11 @@ class DataModel(QAbstractTableModel):
         self.begin_reset()
         try:
             if context.order is True:
-                context.order = self.columns[self._state.sort_column]
+                try:
+                    context.order = self.columns[self._state.sort_column]
+                except KeyError:
+                    # invalid sort column in config
+                    context.order = self.columns["noteCrt"]
                 context.reverse = self._state.sort_backwards
             gui_hooks.browser_will_search(context)
             if context.ids is None:
