@@ -23,9 +23,9 @@ $fusion-button-base-bg: #454545;
         font-size: 14px;
 
         -webkit-appearance: none;
-        border-radius: 3px;
         padding: 5px;
         border: 1px solid var(--border);
+        border-radius: 3px;
     }
 }
 
@@ -33,20 +33,17 @@ $fusion-button-base-bg: #454545;
     button {
         -webkit-appearance: none;
         color: var(--text-fg);
-
         /* match the fusion button gradient */
         background: linear-gradient(
             0deg,
             $fusion-button-gradient-start 0%,
             $fusion-button-gradient-end 100%
         );
-        box-shadow: 0 0 3px $fusion-button-outline;
-        border: 1px solid $fusion-button-border;
 
+        padding: 3px 10px;
+        border: 1px solid $fusion-button-border;
         border-radius: 2px;
-        padding: 10px;
-        padding-top: 3px;
-        padding-bottom: 3px;
+        box-shadow: 0 0 3px $fusion-button-outline;
     }
 
     button:hover {
@@ -56,16 +53,13 @@ $fusion-button-base-bg: #454545;
 
 /* imitate standard macOS dark mode buttons */
 .isMac.nightMode.macos-dark-mode button:not(.linkb) {
+    color: #e5e5e5;
     background: #656565;
-    box-shadow: 0 1px 2px #222222;
+
+    padding: 2px 15px;
+    border: 0;
     border-top-color: #848484;
     border-top-width: 0.5px;
-    border-bottom: 0;
-    border-left: 0;
-    border-right: 0;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 15px;
-    padding-right: 15px;
-    color: #e5e5e5;
+    box-shadow: 0 1px 2px #222222;
+
 }
