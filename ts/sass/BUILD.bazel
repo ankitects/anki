@@ -1,13 +1,4 @@
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary", "sass_library")
-
-sass_binary(
-    name = "core_css",
-    src = "core.scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":core_lib",
-    ],
-)
+load("@io_bazel_rules_sass//:defs.bzl", "sass_library")
 
 sass_library(
     name = "buttons_lib",
@@ -17,7 +8,6 @@ sass_library(
     ],
     visibility = ["//visibility:public"],
 )
-
 
 sass_library(
     name = "card_counts_lib",
