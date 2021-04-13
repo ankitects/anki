@@ -14,6 +14,12 @@ nonstandard_header = {
     "qt/aqt/winpaths.py",
 }
 
+ignored_folders = [
+    "bazel-",
+    "qt/forms",
+    "ts/node_modules",
+]
+
 if not os.path.exists("WORKSPACE"):
     print("run from workspace root")
     sys.exit(1)
@@ -21,22 +27,30 @@ if not os.path.exists("WORKSPACE"):
 found = False
 for dirpath, dirnames, fnames in os.walk("."):
     dir = Path(dirpath)
-    if "bazel-" in dirpath:
+
+    ignore = False
+    for folder in ignored_folders:
+        if folder in dirpath:
+            ignore = True
+            break
+    if ignore:
         continue
-    if "qt/forms" in dirpath:
-        continue
+
     for fname in fnames:
-        if fname.endswith(".py"):
-            path = dir / fname
-            with open(path) as f:
-                top = f.read(256)
-                if not top.strip():
-                    continue
-                if str(path) in nonstandard_header:
-                    continue
-                if "Ankitects Pty Ltd and contributors" not in top:
-                    print("missing standard copyright header:", path)
-                    found = True
+        for ext in ".py", ".ts":
+            if fname.endswith(ext):
+                path = dir / fname
+                with open(path) as f:
+                    top = f.read(256)
+                    if not top.strip():
+                        continue
+                    if str(path) in nonstandard_header:
+                        continue
+                    if fname.endswith(".d.ts"):
+                        continue
+                    if "Ankitects Pty Ltd and contributors" not in top:
+                        print("missing standard copyright header:", path)
+                        found = True
 
 if found:
     sys.exit(1)
