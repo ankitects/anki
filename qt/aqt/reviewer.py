@@ -716,9 +716,7 @@ time = %(time)d;
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
         buf += "</tr></table>"
-        script = """
-<script>$(function () { $("#defease").focus(); });</script>"""
-        return buf + script
+        return buf
 
     def _buttonTime(self, i: int) -> str:
         if not self.mw.col.conf["estTimes"]:
