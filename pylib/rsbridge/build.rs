@@ -1,3 +1,6 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 fn main() {
     // this build script simply exists so we can extend the link path
     // inside Bazel based on an env var, as we need to provide a custom
