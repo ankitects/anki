@@ -21,6 +21,9 @@ $BAZEL test $BUILDARGS ...
 echo "--- Building wheels"
 $BAZEL build dist
 
+echo "--- Running lints"
+python scripts/copyright_headers.py
+
 echo "--- Cleanup"
 # if tests succeed, back up node_modules folder
 mv ts/node_modules /state/
