@@ -1,3 +1,7 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+// languageServerHost taken from MIT sources - see below.
+
 const fs = require("fs");
 const worker = require("@bazel/worker");
 const svelte2tsx = require("svelte2tsx");

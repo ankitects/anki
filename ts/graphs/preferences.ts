@@ -1,3 +1,7 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+// languageServerHost taken from MIT sources - see below.
+
 import pb from "anki/backend_proto";
 import { getGraphPreferences, setGraphPreferences } from "./graph-helpers";
 import { Writable, writable, get } from "svelte/store";
