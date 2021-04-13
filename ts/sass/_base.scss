@@ -7,8 +7,8 @@ $font-weight-base: 500;
 $link-hover-color: var(--link);
 $link-hover-decoration: none;
 
-@import 'ts/node_modules/bootstrap/scss/bootstrap-reboot';
-@import 'ts/node_modules/bootstrap/scss/bootstrap-utilities';
+@import "ts/node_modules/bootstrap/scss/bootstrap-reboot";
+@import "ts/node_modules/bootstrap/scss/bootstrap-utilities";
 
 body {
     overscroll-behavior: none;
