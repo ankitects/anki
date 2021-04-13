@@ -18,12 +18,16 @@ from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
-from aqt.browser.dialogs import CardInfoDialog, ChangeModel, FindDupesDialog
+from aqt.browser.dialogs import (
+    CardInfoDialog,
+    ChangeModel,
+    FindAndReplaceDialog,
+    FindDupesDialog,
+)
 from aqt.browser.sidebar import SidebarTreeView
 from aqt.browser.table import Table
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
-from aqt.find_and_replace import FindAndReplaceDialog
 from aqt.main import ResetReason
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import undo
