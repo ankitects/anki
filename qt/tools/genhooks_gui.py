@@ -386,7 +386,7 @@ hooks = [
     ),
     Hook(
         name="browser_will_search",
-        args=["context: aqt.table.SearchContext"],
+        args=["context: aqt.browser.SearchContext"],
         doc="""Allows you to modify the search text, or perform your own search.
          
          You can modify context.search to change the text that is sent to the
@@ -401,15 +401,15 @@ hooks = [
     ),
     Hook(
         name="browser_did_search",
-        args=["context: aqt.table.SearchContext"],
+        args=["context: aqt.browser.SearchContext"],
         doc="""Allows you to modify the list of returned card ids from a search.""",
     ),
     Hook(
         name="browser_did_fetch_row",
         args=[
-            "card_or_note_id: aqt.table.ItemId",
+            "card_or_note_id: aqt.browser.ItemId",
             "is_note: bool",
-            "row: aqt.table.CellRow",
+            "row: aqt.browser.CellRow",
             "columns: Sequence[str]",
         ],
         doc="""Allows you to add or modify content to a row in the browser.
@@ -424,7 +424,7 @@ hooks = [
     ),
     Hook(
         name="browser_did_fetch_columns",
-        args=["columns: Dict[str, aqt.table.Column]"],
+        args=["columns: Dict[str, aqt.browser.Column]"],
         doc="""Allows you to add custom columns to the browser.
         
         columns is a dictionary of data obejcts. You can add an entry with a custom
