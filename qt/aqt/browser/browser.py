@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 import html
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 
 import aqt
 import aqt.forms
@@ -14,12 +13,13 @@ from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
-from anki.models import NotetypeDict
 from anki.notes import NoteId
 from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
+from aqt.browser.dialogs import CardInfoDialog, ChangeModel, FindDupesDialog
+from aqt.browser.table import Table
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.find_and_replace import FindAndReplaceDialog
@@ -44,11 +44,9 @@ from aqt.previewer import Previewer
 from aqt.qt import *
 from aqt.sidebar import SidebarTreeView
 from aqt.switch import Switch
-from aqt.table import Table
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
-    askUser,
     current_top_level_widget,
     disable_help_button,
     ensure_editor_saved,
@@ -73,16 +71,6 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView
-
-
-@dataclass
-class FindDupesDialog:
-    dialog: QDialog
-    browser: Browser
-
-
-# Browser window
-######################################################################
 
 
 class Browser(QMainWindow):
@@ -1018,208 +1006,3 @@ where id in %s"""
 
     def onCardList(self) -> None:
         self.form.tableView.setFocus()
-
-
-# Change model dialog
-######################################################################
-
-
-class ChangeModel(QDialog):
-    def __init__(self, browser: Browser, nids: Sequence[NoteId]) -> None:
-        QDialog.__init__(self, browser)
-        self.browser = browser
-        self.nids = nids
-        self.oldModel = browser.card.note().model()
-        self.form = aqt.forms.changemodel.Ui_Dialog()
-        self.form.setupUi(self)
-        disable_help_button(self)
-        self.setWindowModality(Qt.WindowModal)
-        self.setup()
-        restoreGeom(self, "changeModel")
-        gui_hooks.state_did_reset.append(self.onReset)
-        gui_hooks.current_note_type_did_change.append(self.on_note_type_change)
-        # ugh - these are set dynamically by rebuildTemplateMap()
-        self.tcombos: List[QComboBox] = []
-        self.fcombos: List[QComboBox] = []
-        self.exec_()
-
-    def on_note_type_change(self, notetype: NotetypeDict) -> None:
-        self.onReset()
-
-    def setup(self) -> None:
-        # maps
-        self.flayout = QHBoxLayout()
-        self.flayout.setContentsMargins(0, 0, 0, 0)
-        self.fwidg = None
-        self.form.fieldMap.setLayout(self.flayout)
-        self.tlayout = QHBoxLayout()
-        self.tlayout.setContentsMargins(0, 0, 0, 0)
-        self.twidg = None
-        self.form.templateMap.setLayout(self.tlayout)
-        if self.style().objectName() == "gtk+":
-            # gtk+ requires margins in inner layout
-            self.form.verticalLayout_2.setContentsMargins(0, 11, 0, 0)
-            self.form.verticalLayout_3.setContentsMargins(0, 11, 0, 0)
-        # model chooser
-        import aqt.modelchooser
-
-        self.oldModel = self.browser.col.models.get(
-            self.browser.col.db.scalar(
-                "select mid from notes where id = ?", self.nids[0]
-            )
-        )
-        self.form.oldModelLabel.setText(self.oldModel["name"])
-        self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.browser.mw, self.form.modelChooserWidget, label=False
-        )
-        self.modelChooser.models.setFocus()
-        qconnect(self.form.buttonBox.helpRequested, self.onHelp)
-        self.modelChanged(self.browser.mw.col.models.current())
-        self.pauseUpdate = False
-
-    def onReset(self) -> None:
-        self.modelChanged(self.browser.col.models.current())
-
-    def modelChanged(self, model: Dict[str, Any]) -> None:
-        self.targetModel = model
-        self.rebuildTemplateMap()
-        self.rebuildFieldMap()
-
-    def rebuildTemplateMap(
-        self, key: Optional[str] = None, attr: Optional[str] = None
-    ) -> None:
-        if not key:
-            key = "t"
-            attr = "tmpls"
-        map = getattr(self, key + "widg")
-        lay = getattr(self, key + "layout")
-        src = self.oldModel[attr]
-        dst = self.targetModel[attr]
-        if map:
-            lay.removeWidget(map)
-            map.deleteLater()
-            setattr(self, key + "MapWidget", None)
-        map = QWidget()
-        l = QGridLayout()
-        combos = []
-        targets = [x["name"] for x in dst] + [tr.browsing_nothing()]
-        indices = {}
-        for i, x in enumerate(src):
-            l.addWidget(QLabel(tr.browsing_change_to(val=x["name"])), i, 0)
-            cb = QComboBox()
-            cb.addItems(targets)
-            idx = min(i, len(targets) - 1)
-            cb.setCurrentIndex(idx)
-            indices[cb] = idx
-            qconnect(
-                cb.currentIndexChanged,
-                lambda i, cb=cb, key=key: self.onComboChanged(i, cb, key),
-            )
-            combos.append(cb)
-            l.addWidget(cb, i, 1)
-        map.setLayout(l)
-        lay.addWidget(map)
-        setattr(self, key + "widg", map)
-        setattr(self, key + "layout", lay)
-        setattr(self, key + "combos", combos)
-        setattr(self, key + "indices", indices)
-
-    def rebuildFieldMap(self) -> None:
-        return self.rebuildTemplateMap(key="f", attr="flds")
-
-    def onComboChanged(self, i: int, cb: QComboBox, key: str) -> None:
-        indices = getattr(self, key + "indices")
-        if self.pauseUpdate:
-            indices[cb] = i
-            return
-        combos = getattr(self, key + "combos")
-        if i == cb.count() - 1:
-            # set to 'nothing'
-            return
-        # find another combo with same index
-        for c in combos:
-            if c == cb:
-                continue
-            if c.currentIndex() == i:
-                self.pauseUpdate = True
-                c.setCurrentIndex(indices[cb])
-                self.pauseUpdate = False
-                break
-        indices[cb] = i
-
-    def getTemplateMap(
-        self,
-        old: Optional[List[Dict[str, Any]]] = None,
-        combos: Optional[List[QComboBox]] = None,
-        new: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[int, Optional[int]]:
-        if not old:
-            old = self.oldModel["tmpls"]
-            combos = self.tcombos
-            new = self.targetModel["tmpls"]
-        template_map: Dict[int, Optional[int]] = {}
-        for i, f in enumerate(old):
-            idx = combos[i].currentIndex()
-            if idx == len(new):
-                # ignore
-                template_map[f["ord"]] = None
-            else:
-                f2 = new[idx]
-                template_map[f["ord"]] = f2["ord"]
-        return template_map
-
-    def getFieldMap(self) -> Dict[int, Optional[int]]:
-        return self.getTemplateMap(
-            old=self.oldModel["flds"], combos=self.fcombos, new=self.targetModel["flds"]
-        )
-
-    def cleanup(self) -> None:
-        gui_hooks.state_did_reset.remove(self.onReset)
-        gui_hooks.current_note_type_did_change.remove(self.on_note_type_change)
-        self.modelChooser.cleanup()
-        saveGeom(self, "changeModel")
-
-    def reject(self) -> None:
-        self.cleanup()
-        return QDialog.reject(self)
-
-    def accept(self) -> None:
-        # check maps
-        fmap = self.getFieldMap()
-        cmap = self.getTemplateMap()
-        if any(True for c in list(cmap.values()) if c is None):
-            if not askUser(tr.browsing_any_cards_mapped_to_nothing_will()):
-                return
-        self.browser.mw.checkpoint(tr.browsing_change_note_type())
-        b = self.browser
-        b.mw.col.modSchema(check=True)
-        b.mw.progress.start()
-        b.begin_reset()
-        mm = b.mw.col.models
-        mm.change(self.oldModel, list(self.nids), self.targetModel, fmap, cmap)
-        b.search()
-        b.end_reset()
-        b.mw.progress.finish()
-        b.mw.reset()
-        self.cleanup()
-        QDialog.accept(self)
-
-    def onHelp(self) -> None:
-        openHelp(HelpPage.BROWSING_OTHER_MENU_ITEMS)
-
-
-# Card Info Dialog
-######################################################################
-
-
-class CardInfoDialog(QDialog):
-    silentlyClose = True
-
-    def __init__(self, browser: Browser) -> None:
-        super().__init__(browser)
-        self.browser = browser
-        disable_help_button(self)
-
-    def reject(self) -> None:
-        saveGeom(self, "revlog")
-        return QDialog.reject(self)
