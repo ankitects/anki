@@ -3,11 +3,15 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("//ts:compile_sass.bzl", "compile_sass")
 
-sass_binary(
-    name = "base_css",
-    src = "congrats-base.scss",
+compile_sass(
+    group = "base_css",
+    srcs = ["congrats-base.scss"],
+    deps = [
+        "//ts/sass:base_lib",
+        "//ts/sass:scrollbar_lib",
+    ],
     visibility = ["//visibility:public"],
 )
 

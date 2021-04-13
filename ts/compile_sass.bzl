@@ -13,6 +13,7 @@ def compile_sass(group, srcs, visibility, deps):
             src = scss_file,
             sourcemap = False,
             deps = deps,
+            visibility = visibility,
         )
 
     native.filegroup(
