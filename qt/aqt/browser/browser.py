@@ -24,6 +24,8 @@ from aqt.browser.dialogs import (
     FindAndReplaceDialog,
     FindDupesDialog,
 )
+from aqt.browser.previewer import BrowserPreviewer as PreviewDialog
+from aqt.browser.previewer import Previewer
 from aqt.browser.sidebar import SidebarTreeView
 from aqt.browser.table import Table
 from aqt.editor import Editor
@@ -44,8 +46,6 @@ from aqt.operations.tag import (
     clear_unused_tags,
     remove_tags_from_notes,
 )
-from aqt.previewer import BrowserPreviewer as PreviewDialog
-from aqt.previewer import Previewer
 from aqt.qt import *
 from aqt.switch import Switch
 from aqt.utils import (

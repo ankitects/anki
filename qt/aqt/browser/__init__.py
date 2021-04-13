@@ -8,6 +8,7 @@ import aqt
 
 from .browser import Browser
 from .dialogs import CardInfoDialog, ChangeModel, FindAndReplaceDialog, FindDupesDialog
+from .previewer import BrowserPreviewer, MultiCardPreviewer, Previewer
 from .sidebar import (
     SidebarItem,
     SidebarItemType,
@@ -39,3 +40,5 @@ sys.modules["aqt.find_and_replace"] = sys.modules["aqt.browser.dialogs"]
 aqt.find_and_replace = sys.modules["aqt.browser.dialogs"]  # type: ignore
 sys.modules["aqt.sidebar"] = sys.modules["aqt.browser.sidebar"]
 aqt.sidebar = sys.modules["aqt.browser.sidebar"]  # type: ignore
+sys.modules["aqt.previewer"] = sys.modules["aqt.browser.previewer"]
+aqt.previewer = sys.modules["aqt.browser.previewer"]  # type: ignore
