@@ -37,7 +37,7 @@ for dirpath, dirnames, fnames in os.walk("."):
         continue
 
     for fname in fnames:
-        for ext in ".py", ".ts", ".rs":
+        for ext in ".py", ".ts", ".rs", ".svelte":
             if fname.endswith(ext):
                 path = dir / fname
                 with open(path) as f:
