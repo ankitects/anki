@@ -168,7 +168,7 @@ class DeckBrowser:
         gui_hooks.deck_browser_did_render(self)
 
     def _scrollToOffset(self, offset: int) -> None:
-        self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
+        self.web.eval("window.scrollTo(0, %d, 'instant');" % offset)
 
     def _renderStats(self) -> str:
         return '<div id="studiedToday"><span>{}</span></div>'.format(
