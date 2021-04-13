@@ -1,3 +1,7 @@
+<!--
+Copyright: Ankitects Pty Ltd and contributors
+License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+-->
 <script lang="typescript">
     import type { TableDatum } from "./graph-helpers";
     import { i18n } from "anki/i18n";
