@@ -57,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         text-align: center;
         margin-bottom: 0.25em;
         margin-top: 1.5em;
+        font-weight: bold;
     }
 
     .subtitle {
