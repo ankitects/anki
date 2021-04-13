@@ -5,6 +5,16 @@ from __future__ import annotations
 
 from .browser import Browser
 from .dialogs import CardInfoDialog, ChangeModel, FindDupesDialog
+from .sidebar import (
+    SidebarItem,
+    SidebarItemType,
+    SidebarModel,
+    SidebarSearchBar,
+    SidebarStage,
+    SidebarTool,
+    SidebarToolbar,
+    SidebarTreeView,
+)
 from .table import (
     CardState,
     Cell,
