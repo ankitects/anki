@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
 import sys
@@ -9,9 +11,11 @@ release_mode = sys.argv[3] == "release"
 
 version_re = re.compile('anki_version = "(.*)"')
 
+
 def output(text: str) -> None:
     "Add text with a '\n' to stdout; avoiding a '\r' on Windows"
     sys.stdout.buffer.write(text.encode("utf8") + b"\n")
+
 
 # extract version number from defs.bzl
 for line in open(defs_file).readlines():
