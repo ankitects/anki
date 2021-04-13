@@ -19,6 +19,7 @@ from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.dialogs import CardInfoDialog, ChangeModel, FindDupesDialog
+from aqt.browser.sidebar import SidebarTreeView
 from aqt.browser.table import Table
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -42,7 +43,6 @@ from aqt.operations.tag import (
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
-from aqt.sidebar import SidebarTreeView
 from aqt.switch import Switch
 from aqt.utils import (
     HelpPage,
