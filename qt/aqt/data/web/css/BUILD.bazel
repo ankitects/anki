@@ -8,6 +8,12 @@ compile_sass(
         exclude = ["_*.scss"],
     ),
     group = "css_local",
+    deps = [
+        "//ts/sass:core_lib",
+        "//ts/sass:buttons_lib",
+        "//ts/sass:scrollbar_lib",
+        "//ts/sass:card_counts_lib",
+    ],
     visibility = ["//visibility:private"],
 )
 

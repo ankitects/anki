@@ -10,10 +10,36 @@ sass_binary(
 )
 
 sass_library(
+    name = "buttons_lib",
+    srcs = [
+        "_fusion_vars.scss",
+        "buttons.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+
+sass_library(
+    name = "card_counts_lib",
+    srcs = [
+        "card_counts.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+sass_library(
     name = "core_lib",
     srcs = [
         "_vars.scss",
         "core.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+sass_library(
+    name = "scrollbar_lib",
+    srcs = [
+        "scrollbar.scss",
     ],
     visibility = ["//visibility:public"],
 )
