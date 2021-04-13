@@ -26,8 +26,34 @@ function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
 }
 
+function setInnerHTML(element: Element, html: string): void {
+    for (const oldVideo of element.getElementsByTagName("video")) {
+        oldVideo.pause();
+
+        while (oldVideo.firstChild) {
+            oldVideo.removeChild(oldVideo.firstChild);
+        }
+
+        oldVideo.load();
+    }
+
+    element.innerHTML = html;
+
+    for (const oldScript of element.getElementsByTagName("script")) {
+        const newScript = document.createElement("script");
+
+        for (const attribute of oldScript.attributes) {
+            newScript.setAttribute(attribute.name, attribute.value);
+        }
+
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+    }
+}
+
 async function _updateQA(
     html: string,
+    _unusused: unknown,
     onupdate: Callback,
     onshown: Callback
 ): Promise<void> {
@@ -49,7 +75,7 @@ async function _updateQA(
 
     // update card
     try {
-        qa.innerHTML = html;
+        setInnerHTML(qa, html);
     } catch (error) {
         renderError("HTML")(error);
     }
@@ -78,6 +104,7 @@ function _showQuestion(q: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             q,
+            null,
             function () {
                 // return to top of window
                 window.scrollTo(0, 0);
@@ -99,6 +126,7 @@ function _showAnswer(a: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             a,
+            null,
             function () {
                 if (bodyclass) {
                     //  when previewing
