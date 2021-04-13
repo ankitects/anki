@@ -1,16 +1,36 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'ts/sass/core';
+@use 'ts/sass/vars';
 @use 'ts/sass/scrollbar';
+
+// reviewer does not use any buttons, but
+// it was included in the old webview.css
+@use 'ts/sass/buttons';
+
+// we keep the old behaviour for now to avoid breaking
+// add-ons/card templates
+* {
+  box-sizing: content-box;
+}
 
 hr {
     background-color: #ccc;
 }
 
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
 body {
+    font-family: Helvetica, Arial;
+    color: var(--text-fg);
+    background: var(--window-bg);
     margin: 20px;
     overflow-wrap: break-word;
+    transition: opacity 0.5s ease-out;
+    overscroll-behavior: none;
 }
 
 // explicit nightMode definition required
