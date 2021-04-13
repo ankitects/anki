@@ -1,6 +1,6 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("//ts:copy.bzl", "copy_files_into_group")
-load("compile_sass.bzl", "compile_sass")
+load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
     srcs = glob(
@@ -17,12 +17,6 @@ compile_sass(
     visibility = ["//visibility:private"],
 )
 
-copy_file(
-    name = "core_css",
-    src = "//ts/sass:core.css",
-    out = "core.css",
-)
-
 copy_files_into_group(
     name = "editor",
     srcs = [
@@ -35,7 +29,6 @@ copy_files_into_group(
 filegroup(
     name = "css",
     srcs = [
-        "core.css",
         "css_local",
         "editor",
     ],
