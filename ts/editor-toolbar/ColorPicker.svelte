@@ -24,22 +24,33 @@
 <style lang="scss">
     @use "ts/sass/button_mixins" as button;
 
+    @import "ts/node_modules/bootstrap/scss/functions";
+    @import "ts/node_modules/bootstrap/scss/variables";
+
     button {
         padding: 0;
-        background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
-            content-box linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
-            content-box linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
-            content-box white;
 
         width: calc(var(--toolbar-size) - 0px);
         height: calc(var(--toolbar-size) - 0px);
 
-        border-width: 5px;
+        padding: 4px;
         overflow: hidden;
     }
 
     .btn-light {
         @include button.light-hover-active;
+
+        background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
+            content-box linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
+            content-box linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
+            border-box $light;
+    }
+
+    .btn-secondary {
+        background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
+            content-box linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
+            content-box linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
+            border-box $secondary;
     }
 
     input {
