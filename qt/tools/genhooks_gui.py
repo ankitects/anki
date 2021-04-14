@@ -346,8 +346,8 @@ hooks = [
         name="browser_will_build_tree",
         args=[
             "handled: bool",
-            "tree: aqt.sidebar.SidebarItem",
-            "stage: aqt.sidebar.SidebarStage",
+            "tree: aqt.browser.SidebarItem",
+            "stage: aqt.browser.SidebarStage",
             "browser: aqt.browser.Browser",
         ],
         return_type="bool",
@@ -358,7 +358,7 @@ hooks = [
         'stage' is an enum describing the different construction stages of
         the sidebar tree at which you can interject your changes.
         The different values can be inspected by looking at
-        aqt.sidebar.SidebarStage.
+        aqt.browser.SidebarStage.
         
         If you want Anki to proceed with the construction of the tree stage
         in question after your have performed your changes or additions,
