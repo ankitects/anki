@@ -3,6 +3,17 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:compile_sass.bzl", "compile_sass")
+
+compile_sass(
+    group = "base_css",
+    srcs = ["graphs-base.scss"],
+    deps = [
+        "//ts/sass:base_lib",
+        "//ts/sass:scrollbar_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 svelte_files = glob(["*.svelte"])
 
@@ -67,7 +78,7 @@ esbuild(
         "//ts/lib",
         "//ts/lib:backend_proto",
         ":index",
-        "//ts/sass:core_css",
+        ":base_css",
     ] + svelte_names,
 )
 

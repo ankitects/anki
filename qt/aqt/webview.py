@@ -456,13 +456,15 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         js: Optional[List[str]] = None,
         head: str = "",
         context: Optional[Any] = None,
+        default_css: bool = True,
     ) -> None:
 
         web_content = WebContent(
             body=body,
             head=head,
             js=["js/webview.js"] + (["js/vendor/jquery.min.js"] if js is None else js),
-            css=["css/webview.css"] + ([] if css is None else css),
+            css=(["css/webview.css"] if default_css else [])
+            + ([] if css is None else css),
         )
 
         gui_hooks.webview_will_set_content(web_content, context)

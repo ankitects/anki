@@ -1,12 +1,29 @@
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary", "sass_library")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_library")
 
-sass_binary(
-    name = "core_css",
-    src = "core.scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":core_lib",
+sass_library(
+    name = "base_lib",
+    srcs = [
+        "_vars.scss",
+        "base.scss",
     ],
+    visibility = ["//visibility:public"],
+)
+
+sass_library(
+    name = "buttons_lib",
+    srcs = [
+        "_fusion_vars.scss",
+        "buttons.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+sass_library(
+    name = "card_counts_lib",
+    srcs = [
+        "card_counts.scss",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 sass_library(
@@ -18,8 +35,16 @@ sass_library(
     visibility = ["//visibility:public"],
 )
 
+sass_library(
+    name = "scrollbar_lib",
+    srcs = [
+        "scrollbar.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 # qt package extracts colours from source file
 exports_files(
-    ["_vars.scss"],
-    visibility = ["//qt:__subpackages__"],
+    ["_vars.scss"] + glob(["*.scss"], exclude = ["_*.scss"]),
+    visibility = ["//qt:__subpackages__", "//ts:__subpackages__"],
 )

@@ -3,17 +3,16 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:vendor.bzl", "copy_bootstrap_icons")
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("//ts:compile_sass.bzl", "compile_sass")
 
-sass_binary(
-    name = "editor_css",
-    src = "editor.scss",
-    visibility = ["//visibility:public"],
-)
-
-sass_binary(
-    name = "editable_css",
-    src = "editable.scss",
+compile_sass(
+    group = "base_css",
+    srcs = ["editor.scss", "editable.scss"],
+    deps = [
+        "//ts/sass:base_lib",
+        "//ts/sass:buttons_lib",
+        "//ts/sass:scrollbar_lib",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -42,8 +41,9 @@ esbuild(
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
-        "bootstrap-icons",
-        "editor_ts",
+        ":bootstrap-icons",
+        ":editor_ts",
+        "base_css",
     ],
 )
 
