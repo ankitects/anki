@@ -1,6 +1,10 @@
 @mixin light-hover-active {
-    &:hover, &:focus, &:active, &.active {
+    border-color: var(--faint-border) !important;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
         background-color: #e3e3e8;
-        border-color: #e3e3e8;
     }
 }
