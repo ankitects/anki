@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type pb from "anki/backend_proto";
+    import type { PreferenceStore } from "sveltelib/preferences";
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
@@ -17,11 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { HistogramData } from "./histogram-graph";
     import { gatherData, buildHistogram } from "./added";
     import type { GraphData } from "./added";
-    import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     import * as tr from "anki/i18n";
-    export let preferences: PreferenceStore;
+    export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];

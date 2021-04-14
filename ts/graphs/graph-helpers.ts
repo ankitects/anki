@@ -8,7 +8,7 @@
 
 import pb from "anki/backend_proto";
 import type { Selection } from "d3";
-import type { PreferencePayload } from "./preferences";
+import type { PreferencePayload } from "sveltelib/preferences";
 import { postRequest } from "anki/postrequest";
 
 export async function getGraphData(
@@ -26,13 +26,13 @@ export async function getGraphPreferences(): Promise<pb.BackendProto.GraphPrefer
     );
 }
 
-export async function setGraphPreferences(prefs: PreferencePayload): Promise<void> {
-    return (async (): Promise<void> => {
-        await postRequest(
-            "/_anki/setGraphPreferences",
-            pb.BackendProto.GraphPreferences.encode(prefs).finish()
-        );
-    })();
+export async function setGraphPreferences(
+    prefs: PreferencePayload<pb.BackendProto.GraphPreferences>
+): Promise<void> {
+    await postRequest(
+        "/_anki/setGraphPreferences",
+        pb.BackendProto.GraphPreferences.encode(prefs).finish()
+    );
 }
 
 // amount of data to fetch from backend

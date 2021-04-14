@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { timeSpan, MONTH } from "anki/time";
 
     import type pb from "anki/backend_proto";
+    import type { PreferenceStore } from "sveltelib/preferences";
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
@@ -21,11 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./intervals";
     import type { IntervalGraphData } from "./intervals";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
-    import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     import * as tr from "anki/i18n";
-    export let preferences: PreferenceStore;
+    export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
