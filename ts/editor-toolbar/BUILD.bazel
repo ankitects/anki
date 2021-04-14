@@ -3,7 +3,7 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 
 svelte_files = glob(["*.svelte"])
@@ -15,15 +15,13 @@ compile_svelte(
     srcs = svelte_files,
 )
 
-sass_binary(
-    name = "color_css",
-    src = "color.scss",
-    visibility = ["//visibility:public"],
-)
-
-sass_binary(
-    name = "legacy_css",
-    src = "legacy.scss",
+compile_sass(
+    group = "local_css",
+    srcs = [
+        "color.scss",
+        "legacy.scss",
+    ],
+    deps = [],
     visibility = ["//visibility:public"],
 )
 
@@ -87,6 +85,7 @@ esbuild(
     args = [
         "--global-name=editorToolbar",
         "--inject:$(location //ts:protobuf-shim.js)",
+        "--resolve-extensions=.mjs,.js",
         "--loader:.svg=text",
     ],
     entry_point = "index.ts",
@@ -98,13 +97,11 @@ esbuild(
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
-        ":index",
-        "//ts/sass:core_css",
         "//ts:image_module_support",
+        "index",
         "bootstrap-icons",
         "mdi-icons",
-        ":color_css",
-        ":legacy_css",
+        "local_css",
     ] + svelte_names,
 )
 
