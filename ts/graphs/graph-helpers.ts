@@ -6,34 +6,8 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-ignore: "off" */
 
-import pb from "anki/backend_proto";
+import type pb from "anki/backend_proto";
 import type { Selection } from "d3";
-import type { PreferencePayload } from "sveltelib/preferences";
-import { postRequest } from "anki/postrequest";
-
-export async function getGraphData(
-    search: string,
-    days: number
-): Promise<pb.BackendProto.GraphsOut> {
-    return pb.BackendProto.GraphsOut.decode(
-        await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
-    );
-}
-
-export async function getGraphPreferences(): Promise<pb.BackendProto.GraphPreferences> {
-    return pb.BackendProto.GraphPreferences.decode(
-        await postRequest("/_anki/graphPreferences", JSON.stringify({}))
-    );
-}
-
-export async function setGraphPreferences(
-    prefs: PreferencePayload<pb.BackendProto.GraphPreferences>
-): Promise<void> {
-    await postRequest(
-        "/_anki/setGraphPreferences",
-        pb.BackendProto.GraphPreferences.encode(prefs).finish()
-    );
-}
 
 // amount of data to fetch from backend
 export enum RevlogRange {
