@@ -49,6 +49,10 @@
                 border-bottom-right-radius: calc(var(--toolbar-size) / 7.5);
             }
         }
+
+        &:not(:nth-child(1)) {
+            margin-left: 1px;
+        }
     }
 </style>
 
