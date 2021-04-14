@@ -6,7 +6,7 @@
 
 @mixin night-mode {
     &::-webkit-scrollbar {
-        background: var(--window-bg);
+        background-color: var(--window-bg);
 
         &:horizontal {
             height: 12px;
@@ -28,5 +28,9 @@
         &:vertical {
             min-height: 50px;
         }
+    }
+
+    &::-webkit-scrollbar-corner {
+        background-color: var(--window-bg);
     }
 }
