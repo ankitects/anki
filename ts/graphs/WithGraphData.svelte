@@ -38,7 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ): Promise<void> {
         await postRequest(
             "/_anki/setGraphPreferences",
-            pb.BackendProto.GraphPreferences.encode(prefs).finish()
+            new TextDecoder().decode(
+                pb.BackendProto.GraphPreferences.encode(prefs).finish()
+            )
         );
     }
 
