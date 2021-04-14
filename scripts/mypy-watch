@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Run mypy as a daemon each time files change. Requires
+# fswatch to be installed, and not working on Windows.
+
+# run once at startup
+cmd='printf \\033c\\n; bazel run qt:dmypy'
+sh -c "$cmd"
+
+# then monitor for changes
+fswatch -r -o pylib qt | xargs -n1 -I{} sh -c "$cmd"

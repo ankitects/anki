@@ -8,6 +8,11 @@ pip_binary(name = "isort")
 
 pip_binary(name = "mypy")
 
+pip_binary(
+    name = "dmypy",
+    pkg = "mypy",
+)
+
 pip_binary(name = "pylint")
 
 pip_binary(

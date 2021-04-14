@@ -25,4 +25,5 @@ def pip_binary(name, pkg = None):
         deps = [
             requirement(pkg),
         ],
+        visibility = ["//visibility:public"],
     )

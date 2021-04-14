@@ -117,6 +117,13 @@ To run a single Python library test, eg test_bury:
 PYTEST=test_bury bazel run //pylib:pytest
 ```
 
+On Mac/Linux, after installing 'fswatch', you can run mypy on
+each file save automatically with:
+
+```
+./scripts/mypy-watch
+```
+
 ## Fixing formatting
 
 If the format tests fail, most can be fixed by running `format`
