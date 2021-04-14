@@ -35,8 +35,15 @@
 </script>
 
 <style lang="scss">
+    @use "ts/sass/button_mixins" as button;
+
     button {
         padding: 0;
+
+    }
+
+    .btn-light {
+        @include button.light-hover-active;
     }
 
     span {

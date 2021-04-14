@@ -22,6 +22,8 @@
 </script>
 
 <style lang="scss">
+    @use "ts/sass/button_mixins" as button;
+
     button {
         padding: 0;
         background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
@@ -36,8 +38,13 @@
         overflow: hidden;
     }
 
+    .btn-light {
+        @include button.light-hover-active;
+    }
+
     input {
         display: inline-block;
+        cursor: pointer;
         opacity: 0;
     }
 </style>
