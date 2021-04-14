@@ -32,27 +32,25 @@
 </script>
 
 <style lang="scss">
+    @use "ts/sass/button_mixins" as button;
+
     button {
         display: inline-block;
-        vertical-align: middle;
-        width: auto;
-        height: var(--toolbar-size);
+        padding: 0 calc(var(--toolbar-size) / 3);
 
         font-size: calc(var(--toolbar-size) / 2.3);
-        padding: 0 calc(var(--toolbar-size) / 3);
+        width: auto;
+        height: var(--toolbar-size);
 
         border-radius: 0;
         border-color: var(--faint-border);
 
-        &:focus {
+        &:hover {
             box-shadow: 0 0 calc(var(--toolbar-size) / 2.5)
                 calc(var(--toolbar-size) / 7.5) rgb(255 255 255 / 0.5);
         }
 
-        &[disabled] {
-            opacity: 0.4;
-            cursor: not-allowed;
-
+        @include button.disabled {
             border-color: var(--faint-border);
         }
     }
