@@ -29,6 +29,8 @@
 </script>
 
 <style lang="scss">
+    @use "ts/sass/button_mixins" as button;
+
     button {
         display: inline-block;
         padding: 0;
@@ -36,7 +38,8 @@
         background-color: white;
 
         &:hover {
-            background-color: #eee;
+            box-shadow: 0 0 calc(var(--toolbar-size) / 2.5)
+                calc(var(--toolbar-size) / 7.5) rgb(255 255 255 / 0.5);
         }
 
         &:active,
@@ -51,10 +54,7 @@
             border-color: var(--border);
         }
 
-        &[disabled] {
-            opacity: 0.4;
-            cursor: not-allowed;
-
+        @include button.disabled {
             &:hover {
                 background-color: white;
             }
