@@ -4,8 +4,7 @@
 var time: number; // set in python code
 
 let maxTime = 0;
-$(function () {
-    $("#ansbut").focus();
+document.addEventListener("DOMContentLoaded", () => {
     updateTime();
     setInterval(function () {
         time += 1;
@@ -13,35 +12,33 @@ $(function () {
     }, 1000);
 });
 
-let updateTime = function () {
-    let timeNode = $("#time");
-    if (!maxTime) {
-        timeNode.text("");
+function updateTime(): void {
+    const timeNode = document.getElementById("time");
+    if (maxTime === 0) {
+        timeNode.textContent = "";
         return;
     }
     time = Math.min(maxTime, time);
     const m = Math.floor(time / 60);
     const s = time % 60;
-    let sStr = s.toString();
-    if (s < 10) {
-        sStr = "0" + s;
-    }
-    if (maxTime === time) {
-        timeNode.html("<font color=red>" + m + ":" + sStr + "</font>");
-    } else {
-        timeNode.text(m + ":" + sStr);
-    }
-};
+    const sStr = String(s).padStart(2, "0");
+    const timeString = `${m}:${sStr}`;
 
-function showQuestion(txt, maxTime_) {
-    // much faster than jquery's .html()
-    $("#middle")[0].innerHTML = txt;
+    if (maxTime === time) {
+        timeNode.innerHTML = `<font color=red>${timeString}</font>`;
+    } else {
+        timeNode.textContent = timeString;
+    }
+}
+
+function showQuestion(txt: string, maxTime_: number): void {
+    showAnswer(txt);
     time = 0;
     maxTime = maxTime_;
 }
 
-function showAnswer(txt) {
-    $("#middle")[0].innerHTML = txt;
+function showAnswer(txt: string): void {
+    document.getElementById("middle").innerHTML = txt;
 }
 
 function selectedAnswerButton() {
