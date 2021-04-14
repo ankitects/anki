@@ -33,7 +33,7 @@ if subprocess.run(
         "bazel-bin/qt/runmypy.runfiles/net_ankiweb_anki/pylib/anki",
         "bazel-bin/qt/runmypy.runfiles/net_ankiweb_anki/qt/aqt",
     ],
-    env={"MYPYPATH":"bazel-bin/qt/runmypy.runfiles/pyqt5/"},
-    cwd=workspace
+    env={"MYPYPATH": "bazel-bin/qt/runmypy.runfiles/pyqt5/"},
+    cwd=workspace,
 ).returncode:
     sys.exit(1)
