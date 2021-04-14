@@ -1,6 +1,6 @@
 appdirs==1.4.4
     # via black
-astroid==2.5.1
+astroid==2.5.3
     # via pylint
 atomicwrites==1.4.0 ; sys_platform == "win32"
     # via
@@ -30,7 +30,7 @@ colorama==0.4.4 ; sys_platform == "win32"
     #   pytest
 compare-locales==8.1.0
     # via -r requirements.in
-decorator==4.4.2
+decorator==5.0.7
     # via -r requirements.in
 distro==1.5.0
     # via -r requirements.in
@@ -88,7 +88,7 @@ pip-tools==6.0.1
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest
-protobuf==3.15.6
+protobuf==3.15.8
     # via
     #   -r requirements.in
     #   mypy-protobuf
@@ -96,7 +96,7 @@ psutil==5.8.0 ; sys_platform == "win32"
     # via -r requirements.in
 py==1.10.0
     # via pytest
-pylint==2.7.2
+pylint==2.7.4
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
@@ -104,13 +104,13 @@ pyrsistent==0.17.3
     # via jsonschema
 pysocks==1.7.1
     # via requests
-pytest==6.2.2
+pytest==6.2.3
     # via -r requirements.in
 pytoml==0.1.21
     # via compare-locales
 pywin32==300 ; sys_platform == "win32"
     # via -r requirements.in
-regex==2021.3.17
+regex==2021.4.4
     # via black
 requests[socks]==2.25.1
     # via -r requirements.in
@@ -136,7 +136,7 @@ toml==0.10.2
     #   pytest
 tornado==6.1
     # via snakeviz
-typed-ast==1.4.2
+typed-ast==1.4.3
     # via
     #   black
     #   mypy
@@ -158,5 +158,5 @@ wrapt==1.12.1
 # The following packages are considered to be unsafe in a requirements file:
 pip==21.0.1
     # via pip-tools
-setuptools==54.2.0
+setuptools==56.0.0
     # via jsonschema
