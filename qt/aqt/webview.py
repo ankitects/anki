@@ -456,7 +456,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         js: Optional[List[str]] = None,
         head: str = "",
         context: Optional[Any] = None,
-        default_css=True,
+        default_css: bool = True,
     ) -> None:
 
         web_content = WebContent(
