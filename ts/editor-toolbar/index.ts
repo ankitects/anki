@@ -9,7 +9,6 @@ import { Writable, writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
-import { checkNightMode } from "anki/nightmode";
 import { setupI18n, ModuleName } from "anki/i18n";
 
 import "./bootstrap.css";
@@ -59,7 +58,8 @@ class EditorToolbar extends HTMLElement {
                 props: {
                     buttons: this.buttons,
                     menus: this.menus,
-                    nightMode: checkNightMode(),
+                    nightMode: document.documentElement.classList.contains("night-mode"),
+
                 },
             });
         });
