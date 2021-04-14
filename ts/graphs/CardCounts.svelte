@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let sourceData: pb.BackendProto.GraphsOut;
     import * as tr2 from "anki/i18n";
-    export let preferences: PreferenceStore;
+    export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
     const dispatch = createEventDispatcher<SearchEventMap>();
