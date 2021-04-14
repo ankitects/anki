@@ -134,7 +134,7 @@ def copy_bootstrap_icons(name = "bootstrap-icons", icons = [], visibility = ["//
 def copy_mdi_icons(name = "mdi-icons", icons = [], visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
-        pkg = _pkg_from_name("@mdi/svg"),
+        pkg = pkg_from_name("@mdi/svg"),
         base = _npm_base_from_name("@mdi/svg"),
         include = ["svg/{}".format(icon) for icon in icons],
         strip_prefix = "svg/",
