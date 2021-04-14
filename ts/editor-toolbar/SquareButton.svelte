@@ -1,6 +1,6 @@
 <script lang="typescript">
-    import { getContext, onMount, createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
+    import { getContext, onMount, createEventDispatcher } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
 
     export let id: string;
