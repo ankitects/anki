@@ -5,11 +5,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import type { Writable } from "svelte/store";
 
+    import pb from "anki/backend_proto";
+
     import useAsync from "sveltelib/async";
     import useAsyncReactive from "sveltelib/asyncReactive";
+    import { getPreferences } from "sveltelib/preferences";
 
-    import { getGraphData, daysToRevlogRange } from "./graph-helpers";
-    import { getPreferences } from "./preferences";
+    import {
+        getGraphData,
+        getGraphPreferences,
+        setGraphPreferences,
+        daysToRevlogRange,
+    } from "./graph-helpers";
 
     export let search: Writable<string>;
     export let days: Writable<number>;
@@ -24,7 +31,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         loading: prefsLoading,
         error: prefsError,
         value: prefsValue,
-    } = useAsync(() => getPreferences());
+    } = useAsync(() =>
+        getPreferences(
+            getGraphPreferences,
+            setGraphPreferences,
+            pb.BackendProto.GraphPreferences.toObject.bind(
+                pb.BackendProto.GraphPreferences
+            )
+        )
+    );
 
     $: revlogRange = daysToRevlogRange($days);
 

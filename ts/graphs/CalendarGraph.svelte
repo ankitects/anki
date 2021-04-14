@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type pb from "anki/backend_proto";
+    import type { PreferenceStore } from "sveltelib/preferences";
 
     import { createEventDispatcher } from "svelte";
 
@@ -15,11 +16,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { defaultGraphBounds, RevlogRange } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCalendar } from "./calendar";
-    import type { PreferenceStore } from "./preferences";
     import type { GraphData } from "./calendar";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let preferences: PreferenceStore | null = null;
+    export let sourceData: pb.BackendProto.GraphsOut;
+    export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
     export let revlogRange: RevlogRange;
     import * as tr from "anki/i18n";
     export let nightMode: boolean;
