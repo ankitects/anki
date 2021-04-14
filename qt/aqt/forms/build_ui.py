@@ -18,7 +18,12 @@ outdata = re.sub(
 
 
 outlines = []
-qt_bad_types = [".connect(", "setStandardButtons", "setTextInteractionFlags", "setAlignment"]
+qt_bad_types = [
+    ".connect(",
+    "setStandardButtons",
+    "setTextInteractionFlags",
+    "setAlignment",
+]
 for line in outdata.splitlines():
     for substr in qt_bad_types:
         if substr in line:

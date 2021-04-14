@@ -6,12 +6,13 @@
 Tool to extract core strings and keys from .ftl files.
 """
 
-import os
-import json
 import glob
+import json
+import os
+
 from fluent.syntax import parse
-from fluent.syntax.serializer import serialize_element
 from fluent.syntax.ast import Junk
+from fluent.syntax.serializer import serialize_element
 
 root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
 ftl_files = glob.glob(os.path.join(root, "ftl", "core", "*.ftl"), recursive=True)

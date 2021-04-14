@@ -5,14 +5,15 @@
 # and copy source files to the translation repos. Requires access to the
 # i18n repos to run.
 
-import subprocess
-from dataclasses import dataclass
-import re
 import os
+import re
+import subprocess
 import sys
-from typing import Optional, Tuple
-import requests
+from dataclasses import dataclass
 from hashlib import sha256
+from typing import Optional, Tuple
+
+import requests
 
 root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
 repos_bzl = os.path.join(root, "repos.bzl")

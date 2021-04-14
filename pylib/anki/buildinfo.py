@@ -18,6 +18,7 @@ def _build_info_path() -> str:
 
     raise Exception("missing buildinfo.txt")
 
+
 def _get_build_info() -> Dict[str, str]:
     info = {}
     with open(_build_info_path()) as file:
@@ -29,6 +30,7 @@ def _get_build_info() -> Dict[str, str]:
 
     return info
 
+
 _buildinfo = _get_build_info()
-buildhash=_buildinfo["STABLE_BUILDHASH"]
-version=_buildinfo["STABLE_VERSION"]
+buildhash = _buildinfo["STABLE_BUILDHASH"]
+version = _buildinfo["STABLE_VERSION"]

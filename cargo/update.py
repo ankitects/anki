@@ -21,12 +21,12 @@ COMMITS_SHALLOW_SINCE = {
     "96e1358555c49905de89170f2b1102a7d8b6c4c2": "1598411535 +1000",
 }
 
-import os
-import sys
-import subprocess
-import shutil
-import re
 import glob
+import os
+import re
+import shutil
+import subprocess
+import sys
 
 if os.getcwd() != os.path.abspath(os.path.dirname(__file__)):
     print("Run this from the cargo/ folder")

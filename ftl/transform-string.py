@@ -6,9 +6,10 @@
 Tool to apply transform to an ftl string and its translations.
 """
 
-import os
-import json
 import glob
+import json
+import os
+
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Junk
 
