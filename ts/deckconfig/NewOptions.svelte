@@ -78,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         max={5}
         defaultValue={defaults.initialEase}
         value={config.initialEase}
-        on:changed={(evt) => (config.easyMultiplier = evt.detail.value)} />
+        on:changed={(evt) => (config.initialEase = evt.detail.value)} />
 
     <CheckBox
         label="Bury New"
