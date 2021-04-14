@@ -149,11 +149,10 @@ class Toolbar:
 </a>"""
 
     def set_sync_active(self, active: bool) -> None:
-        if active:
-            meth = "addClass"
-        else:
-            meth = "removeClass"
-        self.web.eval(f"$('#sync-spinner').{meth}('spin')")
+        method = "add" if active else "remove"
+        self.web.eval(
+            f"document.getElementById('sync-spinner').classList.{method}('spin')"
+        )
 
     def set_sync_status(self, status: SyncStatus) -> None:
         self.web.eval(f"updateSyncColor({status.required})")
