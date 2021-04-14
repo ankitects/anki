@@ -27,7 +27,8 @@ from aqt.utils import aqt_data_folder
 
 
 def _getExportFolder() -> str:
-    data_folder = aqt_data_folder()
+    if not (data_folder := os.getenv("ANKI_DATA_FOLDER")):
+        data_folder = aqt_data_folder()
     webInSrcFolder = os.path.abspath(os.path.join(data_folder, "web"))
     if os.path.exists(webInSrcFolder):
         return webInSrcFolder
