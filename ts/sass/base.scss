@@ -1,0 +1,14 @@
+@use 'vars';
+
+$body-color: var(--text-fg);
+$body-bg: var(--window-bg);
+
+$link-hover-color: var(--link);
+$link-hover-decoration: none;
+
+@import "ts/node_modules/bootstrap/scss/bootstrap-reboot";
+@import "ts/node_modules/bootstrap/scss/bootstrap-utilities";
+
+body {
+    overscroll-behavior: none;
+}

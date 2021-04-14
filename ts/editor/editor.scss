@@ -1,9 +1,12 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-body {
-    color: var(--text-fg);
-    background-color: var(--bg-color);
+@use 'ts/sass/base';
+@use 'ts/sass/buttons';
+@use 'ts/sass/scrollbar';
+
+.nightMode {
+    @include scrollbar.night-mode;
 }
 
 #fields {

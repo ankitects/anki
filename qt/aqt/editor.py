@@ -232,15 +232,14 @@ class Editor:
         self.web.stdHtml(
             _html % (bgcol, topbuts, tr.editing_show_duplicates()),
             css=[
-                "css/vendor/bootstrap.min.css",
                 "css/editor.css",
             ],
             js=[
                 "js/vendor/jquery.min.js",
-                "js/vendor/bootstrap.bundle.min.js",
                 "js/editor.js",
             ],
             context=self,
+            default_css=False,
         )
         self.web.eval("preventButtonFocus();")
 

@@ -1,0 +1,6 @@
+@use 'ts/sass/base';
+@use 'ts/sass/scrollbar';
+
+.night-mode {
+    @include scrollbar.night-mode;
+}

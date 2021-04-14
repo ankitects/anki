@@ -3,11 +3,23 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:compile_sass.bzl", "compile_sass")
+
+compile_sass(
+    group = "base_css",
+    srcs = ["congrats-base.scss"],
+    deps = [
+        "//ts/sass:base_lib",
+        "//ts/sass:scrollbar_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 svelte(
     name = "CongratsPage",
     entry_point = "CongratsPage.svelte",
 )
+
 
 ts_library(
     name = "index",
@@ -16,6 +28,7 @@ ts_library(
         "CongratsPage",
         "lib",
         "//ts/lib",
+        "@npm//svelte",
         "@npm//svelte2tsx",
     ],
 )
@@ -47,11 +60,11 @@ esbuild(
     output_css = True,
     visibility = ["//visibility:public"],
     deps = [
-        "CongratsPage",
-        "index",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "//ts/sass:core_css",
+        "CongratsPage",
+        ":index",
+        ":base_css",
     ],
 )
 

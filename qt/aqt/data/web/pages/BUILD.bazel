@@ -3,6 +3,7 @@ load("//ts:copy.bzl", "copy_files_into_group")
 copy_files_into_group(
     name = "graphs_page",
     srcs = [
+        "graphs-base.css",
         "graphs.css",
         "graphs.html",
         "graphs.js",
@@ -13,6 +14,7 @@ copy_files_into_group(
 copy_files_into_group(
     name = "congrats_page",
     srcs = [
+        "congrats-base.css",
         "congrats.css",
         "congrats.html",
         "congrats.js",

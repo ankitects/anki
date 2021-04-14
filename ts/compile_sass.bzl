@@ -1,6 +1,6 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
-def compile_sass(group, srcs, visibility):
+def compile_sass(group, srcs, visibility, deps):
     css_files = []
     for scss_file in srcs:
         base = scss_file.replace(".scss", "")
@@ -12,7 +12,8 @@ def compile_sass(group, srcs, visibility):
             name = name,
             src = scss_file,
             sourcemap = False,
-            deps = ["//ts/sass:core_lib"],
+            deps = deps,
+            visibility = visibility,
         )
 
     native.filegroup(
