@@ -1,5 +1,6 @@
 <script lang="typescript">
     import type { ToolbarItem } from "./types";
+    import Dropdown from "bootstrap/js/dist/dropdown";
 
     /* Bootstrap dropdown are normally declared alongside the associated button
      * However we cannot do that, as the menus cannot be declared in sticky-positioned elements
@@ -28,7 +29,7 @@
          * Rendering the menu here would cause the menu to
          * be displayed outside of the visible area
          */
-        const dropdown = new bootstrap.Dropdown(button);
+        const dropdown = new Dropdown(button);
         const menu = button.getRootNode().getElementById(menuId);
 
         if (!menu) {

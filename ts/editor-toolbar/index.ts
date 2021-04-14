@@ -12,11 +12,12 @@ import EditorToolbarSvelte from "./EditorToolbar.svelte";
 import { checkNightMode } from "anki/nightmode";
 import { setupI18n, ModuleName } from "anki/i18n";
 
+import "./dropdown.css";
+
 import { getNotetypeGroup } from "./notetype";
 import { getFormatGroup } from "./format";
 import { getColorGroup } from "./color";
 import { getTemplateGroup, getTemplateMenus } from "./template";
-
 import { Identifiable, search, add, insert } from "./identifiable";
 
 interface Hideable {

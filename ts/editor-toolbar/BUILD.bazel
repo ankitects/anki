@@ -20,6 +20,7 @@ compile_sass(
     srcs = [
         "color.scss",
         "legacy.scss",
+        "dropdown.scss",
     ],
     deps = [],
     visibility = ["//visibility:public"],
@@ -50,6 +51,8 @@ ts_library(
         "//ts/sveltelib",
         "//ts:image_module_support",
         "@npm//svelte",
+        "@npm//bootstrap",
+        "@npm//@popperjs/core",
     ],
 )
 
