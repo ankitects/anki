@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey } from "./contextKeys";
+    import { disabledKey, nightModeKey } from "./contextKeys";
 
     export let id: string;
     export let className = "";
@@ -21,38 +21,26 @@
     let buttonRef: HTMLButtonElement;
 
     function extendClassName(className: string): string {
-        return `btn btn-secondary ${className}`;
+        return `btn ${className}`;
     }
-
-    const dispatch = createEventDispatcher();
-    onMount(() => dispatch("mount", { button: buttonRef }));
 
     const disabled = getContext(disabledKey);
     $: _disabled = disables && $disabled;
+
+    const nightMode = getContext(nightModeKey);
+
+    const dispatch = createEventDispatcher();
+    onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
 <style lang="scss">
     @use "ts/sass/button_mixins" as button;
 
     button {
-        display: inline-block;
         padding: 0 calc(var(--toolbar-size) / 3);
-
         font-size: calc(var(--toolbar-size) / 2.3);
         width: auto;
         height: var(--toolbar-size);
-
-        border-radius: 0;
-        border-color: var(--faint-border);
-
-        &:hover {
-            box-shadow: 0 0 calc(var(--toolbar-size) / 2.5)
-                calc(var(--toolbar-size) / 7.5) rgb(255 255 255 / 0.5);
-        }
-
-        @include button.disabled {
-            border-color: var(--faint-border);
-        }
     }
 </style>
 
@@ -61,6 +49,8 @@
     {id}
     class={extendClassName(className)}
     class:dropdown-toggle={dropdownToggle}
+    class:btn-light={!nightMode}
+    class:btn-secondary={nightMode}
     tabindex="-1"
     disabled={_disabled}
     title={tooltip}

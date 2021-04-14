@@ -1,5 +1,8 @@
 @import "ts/node_modules/bootstrap/scss/functions";
 @import "ts/node_modules/bootstrap/scss/variables";
 @import "ts/node_modules/bootstrap/scss/mixins";
+
+$btn-disabled-opacity: 0.4;
+
 @import "ts/node_modules/bootstrap/scss/buttons";
 @import "ts/node_modules/bootstrap/scss/dropdown";

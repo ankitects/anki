@@ -18,16 +18,16 @@
 
         padding-inline-start: 0;
         margin-bottom: 0;
-
-        & :global(button),
-        & :global(select) {
-            margin-left: -1px;
-        }
     }
 
     li {
         display: inline-block;
         margin-bottom: calc(var(--toolbar-size) / 15);
+
+        & > :global(button),
+        & > :global(select) {
+            border-radius: 0;
+        }
 
         &:nth-child(1) {
             margin-left: calc(var(--toolbar-size) / 7.5);
