@@ -38,7 +38,6 @@ export function getColorGroup() {
     });
 
     const colorpickerButton = colorPicker({
-        className: "rainbow",
         onChange: ({ currentTarget }) =>
             setForegroundColor((currentTarget as HTMLInputElement).value),
         tooltip: tr.editingChangeColourF8(),

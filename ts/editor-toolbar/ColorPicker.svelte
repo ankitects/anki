@@ -13,19 +13,32 @@
     }
 
     const nightMode = getContext(nightModeKey);
+
+    let input: HTMLInputElement;
+
+    function delegateToInput() {
+        input.click();
+    }
 </script>
 
 <style lang="scss">
     button {
         padding: 0;
+        background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
+            content-box linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
+            content-box linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
+            content-box white;
+
+        width: calc(var(--toolbar-size) - 0px);
+        height: calc(var(--toolbar-size) - 0px);
+
+        border-width: 5px;
+        overflow: hidden;
     }
 
     input {
         display: inline-block;
         opacity: 0;
-
-        width: calc(var(--toolbar-size) - 2px);
-        height: calc(var(--toolbar-size) - 7px);
     }
 </style>
 
@@ -36,6 +49,7 @@
     class:btn-light={!nightMode}
     class:btn-secondary={nightMode}
     title={tooltip}
+    on:click={delegateToInput}
     on:mousedown|preventDefault>
-    <span> <input type="color" on:change={onChange} /> </span>
+    <input bind:this={input} type="color" on:change={onChange} />
 </button>
