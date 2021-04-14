@@ -933,9 +933,7 @@ class SidebarTreeView(QTreeView):
 
     def _get_current_search(self) -> Optional[str]:
         try:
-            return self.col.build_search_string(
-                self.browser.form.searchEdit.lineEdit().text()
-            )
+            return self.col.build_search_string(self.browser.current_search())
         except Exception as e:
             showWarning(str(e))
             return None
