@@ -21,6 +21,8 @@
         display: flex;
         justify-content: space-between;
 
+        color: black;
+
         &.nightMode {
             color: white;
 
@@ -31,10 +33,6 @@
             &:active {
                 color: white;
             }
-        }
-
-        &:hover, &:focus {
-            color: white;
         }
 
         &:focus {

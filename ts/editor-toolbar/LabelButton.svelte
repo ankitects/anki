@@ -42,6 +42,10 @@
         width: auto;
         height: var(--toolbar-size);
     }
+
+    .btn-light {
+        @include button.light-hover-active;
+    }
 </style>
 
 <button
