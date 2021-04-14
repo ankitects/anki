@@ -130,6 +130,23 @@ py_binary(
 )
 
 py_binary(
+    name = "dmypy",
+    srcs = [
+        "dmypy.py",
+    ],
+    data = [
+        # ensure the binary's been built
+        "//pip:dmypy",
+    ],
+    imports = ["."],
+    tags = ["manual"],
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt:aqt_without_data",
+    ],
+)
+
+py_binary(
     name = "profile",
     srcs = ["tools/profile.py"],
     tags = ["manual"],

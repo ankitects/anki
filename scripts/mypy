@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Run mypy, keeping it around as a daemon for faster checks.
+# Does not work on Windows.
+
+bazel run qt:dmypy

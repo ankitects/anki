@@ -4,3 +4,4 @@ __pycache__
 anki.prof
 target
 user.bazelrc
+.dmypy.json
