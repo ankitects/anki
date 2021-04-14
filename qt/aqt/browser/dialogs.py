@@ -48,13 +48,13 @@ class ChangeModel(QDialog):
         self.form.setupUi(self)
         disable_help_button(self)
         self.setWindowModality(Qt.WindowModal)
+        # ugh - these are set dynamically by rebuildTemplateMap()
+        self.tcombos: List[QComboBox] = []
+        self.fcombos: List[QComboBox] = []
         self.setup()
         restoreGeom(self, "changeModel")
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.current_note_type_did_change.append(self.on_note_type_change)
-        # ugh - these are set dynamically by rebuildTemplateMap()
-        self.tcombos: List[QComboBox] = []
-        self.fcombos: List[QComboBox] = []
         self.exec_()
 
     def on_note_type_change(self, notetype: NotetypeDict) -> None:
