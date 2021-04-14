@@ -35,8 +35,6 @@
 </script>
 
 <style lang="scss">
-    @use "ts/sass/button_mixins" as button;
-
     button {
         padding: 0;
     }
