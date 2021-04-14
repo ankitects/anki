@@ -45,6 +45,6 @@ sass_library(
 
 # qt package extracts colours from source file
 exports_files(
-    ["_vars.scss"] + glob(["*.scss"], exclude = ["_*.scss"]),
-    visibility = ["//qt:__subpackages__", "//ts:__subpackages__"],
+    ["_vars.scss"],
+    visibility = ["//qt:__subpackages__"],
 )
