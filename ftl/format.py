@@ -6,17 +6,18 @@
 Parse and re-serialize ftl files to get them in a consistent form.
 """
 
-import os
-import json
-import glob
-import sys
 import difflib
+import glob
+import json
+import os
+import sys
 from typing import List
-from fluent.syntax import parse, serialize
-from fluent.syntax.ast import Junk
-from compare_locales.paths import File
+
 from compare_locales import parser
 from compare_locales.checks.fluent import ReferenceMessageVisitor
+from compare_locales.paths import File
+from fluent.syntax import parse, serialize
+from fluent.syntax.ast import Junk
 
 
 def check_missing_terms(path: str) -> bool:

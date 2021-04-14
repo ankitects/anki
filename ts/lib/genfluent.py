@@ -3,7 +3,6 @@
 
 import json
 import sys
-from typing import List
 from typing import List, Literal, TypedDict
 
 import stringcase
@@ -63,12 +62,13 @@ def arg_kind(arg: Variable) -> str:
 
 
 def map_args_to_real_names(args: List[Variable]) -> str:
-    return ("{" + ", ".join(
-        [f'"{arg["name"]}": args.{typescript_arg_name(arg)}' for arg in args]
+    return (
+        "{"
+        + ", ".join(
+            [f'"{arg["name"]}": args.{typescript_arg_name(arg)}' for arg in args]
+        )
+        + "}"
     )
-            + "}"
-            )
-
 
 
 def get_args(args: List[Variable]) -> str:
@@ -90,6 +90,7 @@ def typescript_arg_name(arg: Variable) -> str:
         return "new_"
     else:
         return name
+
 
 def module_names() -> str:
     buf = "export enum ModuleName {\n"

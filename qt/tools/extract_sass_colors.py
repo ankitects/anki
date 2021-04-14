@@ -32,10 +32,12 @@ for line in open(input_scss):
     colors.setdefault(var, []).append(val)
 
 with open(output_py, "w") as buf:
-    buf.write("""\
+    buf.write(
+        """\
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-""")
+"""
+    )
     buf.write("# this file is auto-generated from _vars.scss\n")
     for color, (day, night) in colors.items():
         color = color.replace("-", "_").upper()

@@ -6,15 +6,15 @@ import argparse
 import glob
 import logging
 import os
-import shutil
-import sys
 import re
+import shutil
 import subprocess
+import sys
+
+import pkginfo
 
 from pip._internal.commands import create_command
 from pip._vendor import pkg_resources
-
-import pkginfo
 
 
 def _create_nspkg_init(dirpath):

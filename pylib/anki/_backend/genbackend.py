@@ -7,9 +7,7 @@ import re
 import sys
 
 import google.protobuf.descriptor
-
 import pylib.anki._backend.backend_pb2 as pb
-
 import stringcase
 
 TYPE_DOUBLE = 1

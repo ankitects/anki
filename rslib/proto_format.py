@@ -1,7 +1,10 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sys, subprocess, os, difflib
+import difflib
+import os
+import subprocess
+import sys
 
 clang_format = sys.argv[1]
 workspace = os.environ.get("BUILD_WORKSPACE_DIRECTORY", "")
