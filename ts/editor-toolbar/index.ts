@@ -12,7 +12,7 @@ import EditorToolbarSvelte from "./EditorToolbar.svelte";
 import { checkNightMode } from "anki/nightmode";
 import { setupI18n, ModuleName } from "anki/i18n";
 
-import "./dropdown.css";
+import "./bootstrap.css";
 
 import { getNotetypeGroup } from "./notetype";
 import { getFormatGroup } from "./format";

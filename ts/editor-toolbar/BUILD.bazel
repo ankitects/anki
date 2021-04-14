@@ -20,7 +20,7 @@ compile_sass(
     srcs = [
         "color.scss",
         "legacy.scss",
-        "dropdown.scss",
+        "bootstrap.scss",
     ],
     deps = [],
     visibility = ["//visibility:public"],
