@@ -7,3 +7,9 @@ py_binary(
     stamp = 1,
     visibility = ["//visibility:public"],
 )
+
+py_binary(
+    name = "format",
+    srcs = ["format.py"],
+    tags = ["manual"],
+)
