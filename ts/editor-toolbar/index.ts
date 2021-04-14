@@ -58,8 +58,9 @@ class EditorToolbar extends HTMLElement {
                 props: {
                     buttons: this.buttons,
                     menus: this.menus,
-                    nightMode: document.documentElement.classList.contains("night-mode"),
-
+                    nightMode: document.documentElement.classList.contains(
+                        "night-mode"
+                    ),
                 },
             });
         });

@@ -1,5 +1,7 @@
 <script lang="typescript">
     import type { ToolbarItem } from "./types";
+    import { getContext } from "svelte";
+    import { nightModeKey } from "./contextKeys";
 
     export let id: string;
     export let className = "";
@@ -8,16 +10,28 @@
     function filterHidden({ hidden, ...props }) {
         return props;
     }
+
+    const nightMode = getContext(nightModeKey);
 </script>
 
 <style lang="scss">
     ul {
-        display: flex;
+        display: inline-flex;
+        justify-items: start;
+
         flex-wrap: var(--toolbar-wrap);
         overflow-y: auto;
 
         padding-inline-start: 0;
         margin-bottom: 0;
+    }
+
+    .border-group {
+        /* buttons' borders exactly overlap each other */
+        :global(button),
+        :global(select) {
+            margin-left: -2px;
+        }
     }
 
     li {
@@ -56,7 +70,7 @@
     }
 </style>
 
-<ul {id} class={className}>
+<ul {id} class={className} class:border-group={!nightMode}>
     {#each buttons as button}
         {#if !button.hidden}
             <li>

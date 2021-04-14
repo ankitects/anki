@@ -14,10 +14,10 @@
 
     const nightMode = getContext(nightModeKey);
 
-    let input: HTMLInputElement;
+    let inputRef: HTMLInputElement;
 
     function delegateToInput() {
-        input.click();
+        inputRef.click();
     }
 </script>
 
@@ -40,16 +40,22 @@
     .btn-light {
         @include button.light-hover-active;
 
-        background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
-            content-box linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
-            content-box linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
+        background: content-box
+                linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
+            content-box
+                linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
+            content-box
+                linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
             border-box $light;
     }
 
     .btn-secondary {
-        background: content-box linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
-            content-box linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
-            content-box linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
+        background: content-box
+                linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
+            content-box
+                linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
+            content-box
+                linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
             border-box $secondary;
     }
 
@@ -69,5 +75,5 @@
     title={tooltip}
     on:click={delegateToInput}
     on:mousedown|preventDefault>
-    <input bind:this={input} type="color" on:change={onChange} />
+    <input bind:this={inputRef} type="color" on:change={onChange} />
 </button>

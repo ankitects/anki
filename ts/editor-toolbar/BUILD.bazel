@@ -22,7 +22,9 @@ compile_sass(
         "legacy.scss",
         "bootstrap.scss",
     ],
-    deps = [],
+    deps = [
+        "//ts/sass:button_mixins_lib",
+    ],
     visibility = ["//visibility:public"],
 )
 

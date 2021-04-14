@@ -26,7 +26,8 @@
         &.nightMode {
             color: white;
 
-            &:hover, &:focus {
+            &:hover,
+            &:focus {
                 color: black;
             }
 

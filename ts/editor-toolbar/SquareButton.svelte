@@ -39,7 +39,6 @@
 
     button {
         padding: 0;
-
     }
 
     .btn-light {
