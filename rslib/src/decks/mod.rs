@@ -125,16 +125,6 @@ impl Deck {
         self.usn = usn;
     }
 
-    /// Return the studied counts if studied today.
-    /// May be negative if user has extended limits.
-    pub(crate) fn new_rev_counts(&self, today: u32) -> (i32, i32) {
-        if self.common.last_day_studied == today {
-            (self.common.new_studied, self.common.review_studied)
-        } else {
-            (0, 0)
-        }
-    }
-
     pub fn rendered_description(&self) -> String {
         if let DeckKind::Normal(normal) = &self.kind {
             if normal.markdown_description {
@@ -237,19 +227,6 @@ impl Collection {
         }
 
         Ok(())
-    }
-
-    pub(crate) fn counts_for_deck_today(
-        &mut self,
-        did: DeckId,
-    ) -> Result<pb::CountsForDeckTodayOut> {
-        let today = self.current_due_day(0)?;
-        let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
-        deck.reset_stats_if_day_changed(today);
-        Ok(pb::CountsForDeckTodayOut {
-            new: deck.common.new_studied,
-            review: deck.common.review_studied,
-        })
     }
 
     fn update_deck_stats_single<F>(
