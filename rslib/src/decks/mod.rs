@@ -20,17 +20,8 @@ pub use crate::backend_proto::{
     Deck as DeckProto,
 };
 use crate::{
-    backend_proto as pb,
-    collection::Collection,
-    deckconf::DeckConfId,
-    define_newtype,
-    error::FilteredDeckError,
-    error::{AnkiError, Result},
-    markdown::render_markdown,
-    prelude::*,
-    text::sanitize_html_no_images,
-    timestamp::TimestampSecs,
-    types::Usn,
+    backend_proto as pb, define_newtype, error::FilteredDeckError, markdown::render_markdown,
+    prelude::*, text::sanitize_html_no_images,
 };
 pub(crate) use counts::DueCounts;
 pub(crate) use name::{
@@ -173,9 +164,7 @@ impl Collection {
             Ok(None)
         }
     }
-}
 
-impl Collection {
     pub(crate) fn default_deck_is_empty(&self) -> Result<bool> {
         self.storage.deck_is_empty(DeckId(1))
     }
