@@ -1,5 +1,9 @@
 load("@npm//svelte-check:index.bzl", _svelte_check = "svelte_check_test")
 load("@build_bazel_rules_nodejs//:providers.bzl", "declaration_info", "run_node")
+load("@io_bazel_rules_sass//:defs.bzl", "SassInfo")
+
+def _get_sources(deps):
+    return depset([], transitive = [dep[SassInfo].transitive_sources for dep in deps])
 
 def _svelte(ctx):
     args = ctx.actions.args()
@@ -10,13 +14,17 @@ def _svelte(ctx):
     args.add(ctx.outputs.mjs.path)
     args.add(ctx.outputs.dts.path)
     args.add(ctx.outputs.css.path)
+    args.add(ctx.var["BINDIR"])
+    args.add(ctx.var["GENDIR"])
     args.add_all(ctx.files._shims)
+
+    deps = _get_sources(ctx.attr.deps).to_list()
 
     ctx.actions.run(
         execution_requirements = {"supports-workers": "1"},
         executable = ctx.executable._svelte_bin,
         outputs = [ctx.outputs.mjs, ctx.outputs.dts, ctx.outputs.css],
-        inputs = [ctx.file.entry_point] + ctx.files._shims,
+        inputs = [ctx.file.entry_point] + ctx.files._shims + deps,
         mnemonic = "Svelte",
         arguments = [args],
     )
@@ -29,6 +37,7 @@ svelte = rule(
     implementation = _svelte,
     attrs = {
         "entry_point": attr.label(allow_single_file = True),
+        "deps": attr.label_list(),
         "_svelte_bin": attr.label(
             default = Label("//ts/svelte:svelte_bin"),
             executable = True,
@@ -46,11 +55,12 @@ svelte = rule(
     },
 )
 
-def compile_svelte(name, srcs):
+def compile_svelte(name, srcs, deps = []):
     for src in srcs:
         svelte(
             name = src.replace(".svelte", ""),
             entry_point = src,
+            deps = deps,
         )
 
     native.filegroup(
@@ -74,5 +84,5 @@ def svelte_check(name = "svelte_check", srcs = []):
             "//ts/lib:backend_proto",
             "@npm//sass",
         ] + srcs,
-        link_workspace_root = True,
+        env = {"SASS_PATH": "$(rootpath //ts:tsconfig.json)/../.."},
     )
