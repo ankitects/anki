@@ -78,7 +78,8 @@ impl Collection {
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
         let average_secs;
         let total_secs;
-        if revlog.is_empty() {
+        let normal_answer_count = revlog.iter().filter(|r| r.button_chosen > 0).count();
+        if normal_answer_count == 0 {
             average_secs = 0.0;
             total_secs = 0.0;
         } else {
@@ -86,7 +87,7 @@ impl Collection {
                 .iter()
                 .map(|e| (e.taken_millis as f32) / 1000.0)
                 .sum();
-            average_secs = total_secs / (revlog.len() as f32);
+            average_secs = total_secs / normal_answer_count as f32;
         }
 
         let due = if card.original_due != 0 {
