@@ -3,7 +3,7 @@
 
 import { Readable, derived } from "svelte/store";
 
-interface AsyncReativeData<T, E> {
+interface AsyncReactiveData<T, E> {
     value: Readable<T | null>;
     error: Readable<E | null>;
     loading: Readable<boolean>;
@@ -12,7 +12,7 @@ interface AsyncReativeData<T, E> {
 function useAsyncReactive<T, E>(
     asyncFunction: () => Promise<T>,
     dependencies: [Readable<unknown>, ...Readable<unknown>[]]
-): AsyncReativeData<T, E> {
+): AsyncReactiveData<T, E> {
     const promise = derived(
         dependencies,
         (_, set: (value: Promise<T> | null) => void): void => set(asyncFunction()),
