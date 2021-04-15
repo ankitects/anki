@@ -93,13 +93,13 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/node@13.13.48": {
+    "@types/node@13.13.49": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
-    "bootstrap-icons@1.4.0": {
+    "bootstrap-icons@1.4.1": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
@@ -305,7 +305,7 @@
         "path": "node_modules/d3-scale-chromatic",
         "licenseFile": "node_modules/d3-scale-chromatic/LICENSE"
     },
-    "d3-scale@3.2.3": {
+    "d3-scale@3.2.4": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-scale",
         "publisher": "Mike Bostock",
@@ -337,7 +337,7 @@
         "path": "node_modules/d3-time-format",
         "licenseFile": "node_modules/d3-time-format/LICENSE"
     },
-    "d3-time@2.0.0": {
+    "d3-time@2.1.1": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-time",
         "publisher": "Mike Bostock",
@@ -369,7 +369,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@6.6.1": {
+    "d3@6.6.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
