@@ -45,9 +45,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0;
     }
 
-    .btn-light {
-        @include button.light-hover-active;
-    }
+    @include button.btn-day;
+    @include button.btn-night;
 
     span {
         display: inline-block;
@@ -77,8 +76,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class={extendClassName(className)}
     class:active
     class:dropdown-toggle={dropdownToggle}
-    class:btn-light={!nightMode}
-    class:btn-secondary={nightMode}
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
     tabindex="-1"
     title={tooltip}
     disabled={_disabled}
