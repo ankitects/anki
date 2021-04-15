@@ -11,9 +11,9 @@ compile_sass(
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/bootstrap:scss",
         "//ts/sass:base_lib",
         "//ts/sass:scrollbar_lib",
+        "//ts/sass/bootstrap",
     ],
 )
 

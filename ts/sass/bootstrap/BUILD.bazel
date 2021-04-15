@@ -15,7 +15,7 @@ vendor_js_lib(
 
 # wrap them in a library
 sass_library(
-    name = "scss",
+    name = "bootstrap",
     srcs = [
         ":sass-sources",
     ],

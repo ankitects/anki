@@ -1,14 +1,10 @@
 @use "ts/sass/scrollbar";
-@use "ts/sass/core";
 
-@import "ts/bootstrap/functions";
-@import "ts/bootstrap/variables";
-@import "ts/bootstrap/mixins";
-@import "ts/bootstrap/helpers";
-@import "ts/bootstrap/dropdown";
-@import "ts/bootstrap/forms";
-@import "ts/bootstrap/buttons";
-@import "ts/bootstrap/button-group";
+@import "ts/sass/base";
+@import "ts/sass/bootstrap/dropdown";
+@import "ts/sass/bootstrap/forms";
+@import "ts/sass/bootstrap/buttons";
+@import "ts/sass/bootstrap/button-group";
 
 .night-mode {
     @include scrollbar.night-mode;

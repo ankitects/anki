@@ -7,7 +7,7 @@ sass_library(
         "base.scss",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//ts/bootstrap:scss"],
+    deps = ["//ts/sass/bootstrap"],
 )
 
 sass_library(
