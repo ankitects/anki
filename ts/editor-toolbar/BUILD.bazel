@@ -23,7 +23,7 @@ compile_sass(
         "bootstrap.scss",
     ],
     deps = [
-        "//ts/bootstrap:scss",
+        "//ts/sass/bootstrap",
         "//ts/sass:button_mixins_lib",
     ],
     visibility = ["//visibility:public"],
