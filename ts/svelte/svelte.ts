@@ -146,9 +146,13 @@ async function writeJs(
     source: string,
     inputFilename: string,
     outputJsPath: string,
-    outputCssPath: string
+    outputCssPath: string,
+    binDir: string,
+    genDir: string
 ): Promise<void> {
-    const preprocessOptions = preprocess({});
+    const preprocessOptions = preprocess({
+        scss: { includePaths: [binDir, genDir] },
+    });
     preprocessOptions.filename = inputFilename;
 
     try {
@@ -179,13 +183,13 @@ async function writeJs(
 }
 
 async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, cssPath, ...tsLibs] = args;
+    const [sveltePath, mjsPath, dtsPath, cssPath, binDir, genDir, ...tsLibs] = args;
     const svelteSource = (await readFile(sveltePath)) as string;
 
     const mockTsPath = sveltePath + ".ts";
     await writeTs(svelteSource, sveltePath, mockTsPath);
     await writeDts(mockTsPath, dtsPath, tsLibs);
-    await writeJs(svelteSource, sveltePath, mjsPath, cssPath);
+    await writeJs(svelteSource, sveltePath, mjsPath, cssPath, binDir, genDir);
 
     return true;
 }
