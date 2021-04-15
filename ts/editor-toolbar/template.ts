@@ -91,28 +91,51 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 
 export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> &
     DropdownMenuProps)[] {
+    const mathjaxMenuItems = [
+        dropdownItem({
+            // @ts-expect-error
+            onClick: () => wrap("\\(", "\\)"),
+            label: tr.editingMathjaxInline(),
+            endLabel: "Ctrl+M, M",
+        }),
+        dropdownItem({
+            // @ts-expect-error
+            onClick: () => wrap("\\[", "\\]"),
+            label: tr.editingMathjaxBlock(),
+            endLabel: "Ctrl+M, E",
+        }),
+        dropdownItem({
+            // @ts-expect-error
+            onClick: () => wrap("\\(\\ce{", "}\\)"),
+            label: tr.editingMathjaxChemistry(),
+            endLabel: "Ctrl+M, C",
+        }),
+    ];
+
+    const latexMenuItems = [
+        dropdownItem({
+            // @ts-expect-error
+            onClick: () => wrap("[latex]", "[/latex]"),
+            label: tr.editingLatex(),
+            endLabel: "Ctrl+T, T",
+        }),
+        dropdownItem({
+            // @ts-expect-error
+            onClick: () => wrap("[$]", "[/$]"),
+            label: tr.editingLatexEquation(),
+            endLabel: "Ctrl+T, E",
+        }),
+        dropdownItem({
+            // @ts-expect-error
+            onClick: () => wrap("[$$]", "[/$$]"),
+            label: tr.editingLatexMathEnv(),
+            endLabel: "Ctrl+T, M",
+        }),
+    ];
+
     const mathjaxMenu = dropdownMenu({
         id: mathjaxMenuId,
-        menuItems: [
-            dropdownItem({
-                // @ts-expect-error
-                onClick: () => wrap("\\(", "\\)"),
-                endLabel: "Ctrl+M, M",
-                label: tr.editingMathjaxInline(),
-            }),
-            dropdownItem({
-                // @ts-expect-error
-                onClick: () => wrap("\\[", "\\]"),
-                endLabel: "Ctrl+M, E",
-                label: tr.editingMathjaxBlock(),
-            }),
-            dropdownItem({
-                // @ts-expect-error
-                onClick: () => wrap("\\(\\ce{", "}\\)"),
-                endLabel: "Ctrl+M, C",
-                label: tr.editingMathjaxChemistry(),
-            }),
-        ],
+        menuItems: [...mathjaxMenuItems, ...latexMenuItems],
     });
 
     return [mathjaxMenu];

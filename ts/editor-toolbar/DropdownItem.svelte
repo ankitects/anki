@@ -45,6 +45,10 @@
         font-size: calc(var(--toolbar-size) / 2.3);
         color: inherit;
     }
+
+    .monospace {
+        font-family: monospace;
+    }
 </style>
 
 <button
@@ -54,6 +58,6 @@
     title={tooltip}
     on:click={onClick}
     on:mousedown|preventDefault>
-    <span class:me-2={endLabel}>{label}</span>
-    {#if endLabel}<span>{endLabel}</span>{/if}
+    <span class:me-3={endLabel}>{label}</span>
+    {#if endLabel}<span class="monospace">{endLabel}</span>{/if}
 </button>
