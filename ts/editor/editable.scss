@@ -6,9 +6,6 @@ anki-editable {
     overflow: auto;
     padding: 6px;
 
-    /* Fit bootstraps .rounded */
-    border-radius: 0.25rem;
-
     &:empty::after {
         content: "\a";
         white-space: pre;
