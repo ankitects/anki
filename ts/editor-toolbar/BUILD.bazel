@@ -99,7 +99,7 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = True,
+    output_css = "editor-toolbar.css",
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
