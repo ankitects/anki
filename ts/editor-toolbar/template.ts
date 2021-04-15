@@ -95,22 +95,19 @@ export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu>
             dropdownItem({
                 // @ts-expect-error
                 onClick: () => wrap("\\(", "\\)"),
-                tooltip: "test",
-                endLabel: "test",
+                endLabel: "Ctrl+M, M",
                 label: tr.editingMathjaxInline(),
             }),
             dropdownItem({
                 // @ts-expect-error
                 onClick: () => wrap("\\[", "\\]"),
-                tooltip: "test",
-                endLabel: "test",
+                endLabel: "Ctrl+M, E",
                 label: tr.editingMathjaxBlock(),
             }),
             dropdownItem({
                 // @ts-expect-error
                 onClick: () => wrap("\\(\\ce{", "}\\)"),
-                tooltip: "test",
-                endLabel: "test",
+                endLabel: "Ctrl+M, C",
                 label: tr.editingMathjaxChemistry(),
             }),
         ],
