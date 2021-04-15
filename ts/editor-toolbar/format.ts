@@ -3,7 +3,7 @@ import type { CommandIconButtonProps } from "./CommandIconButton";
 import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
 
-import { dynamicComponent } from "sveltelib/dynamicComponent";
+import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import boldIcon from "./type-bold.svg";
@@ -19,7 +19,7 @@ const commandIconButton = dynamicComponent<
 >(CommandIconButton);
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getFormatGroup() {
+export function getFormatGroup(): DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps {
     const boldButton = commandIconButton({
         icon: boldIcon,
         command: "bold",

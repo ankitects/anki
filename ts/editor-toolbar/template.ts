@@ -10,7 +10,7 @@ import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
 
 import { bridgeCommand } from "anki/bridgecommand";
-import { dynamicComponent } from "sveltelib/dynamicComponent";
+import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import paperclipIcon from "./paperclip.svg";
@@ -47,7 +47,7 @@ const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
 );
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getTemplateGroup() {
+export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps {
     const attachmentButton = iconButton({
         icon: paperclipIcon,
         onClick: onAttachment,
@@ -88,7 +88,7 @@ export function getTemplateGroup() {
     });
 }
 
-export function getTemplateMenus() {
+export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> & DropdownMenuProps)[] {
     const mathjaxMenu = dropdownMenu({
         id: mathjaxMenuId,
         menuItems: [

@@ -23,15 +23,15 @@ interface Hideable {
     hidden?: boolean;
 }
 
-function showComponent(component: Hideable) {
+function showComponent(component: Hideable): void {
     component.hidden = false;
 }
 
-function hideComponent(component: Hideable) {
+function hideComponent(component: Hideable): void {
     component.hidden = true;
 }
 
-function toggleComponent(component: Hideable) {
+function toggleComponent(component: Hideable): void {
     component.hidden = !component.hidden;
 }
 
@@ -97,14 +97,14 @@ class EditorToolbar extends HTMLElement {
         this.updateButtonGroup<Hideable>(toggleComponent, group);
     }
 
-    insertButtonGroup(newGroup: ButtonGroupProps, group: string | number = 0) {
+    insertButtonGroup(newGroup: ButtonGroupProps, group: string | number = 0): void {
         this.buttons?.update((buttonGroups) => {
             const newButtonGroup = buttonGroup(newGroup);
             return insert(buttonGroups, newButtonGroup, group);
         });
     }
 
-    addButtonGroup(newGroup: ButtonGroupProps, group: string | number = -1) {
+    addButtonGroup(newGroup: ButtonGroupProps, group: string | number = -1): void {
         this.buttons?.update((buttonGroups) => {
             const newButtonGroup = buttonGroup(newGroup);
             return add(buttonGroups, newButtonGroup, group);
@@ -141,7 +141,7 @@ class EditorToolbar extends HTMLElement {
         newButton: ToolbarItem & Identifiable,
         group: string | number,
         button: string | number = 0
-    ) {
+    ): void {
         this.updateButtonGroup((component) => {
             component.buttons = insert(
                 component.buttons as (ToolbarItem & Identifiable)[],
@@ -155,7 +155,7 @@ class EditorToolbar extends HTMLElement {
         newButton: ToolbarItem & Identifiable,
         group: string | number,
         button: string | number = -1
-    ) {
+    ): void {
         this.updateButtonGroup((component) => {
             component.buttons = add(
                 component.buttons as (ToolbarItem & Identifiable)[],

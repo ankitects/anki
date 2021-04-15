@@ -5,7 +5,7 @@ import type { ColorPickerProps } from "./ColorPicker";
 import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
 
-import { dynamicComponent } from "sveltelib/dynamicComponent";
+import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import squareFillIcon from "./square-fill.svg";
@@ -29,7 +29,7 @@ const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButt
 const colorPicker = dynamicComponent<typeof ColorPicker, ColorPickerProps>(ColorPicker);
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getColorGroup() {
+export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps {
     const forecolorButton = iconButton({
         icon: squareFillIcon,
         className: "forecolor",
