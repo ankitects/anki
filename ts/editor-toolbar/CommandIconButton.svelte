@@ -51,7 +51,7 @@
     if (activatable) {
         updateButton(command);
 
-        commandMap.subscribe((map: Map<string, boolean>): () => void => {
+        commandMap.subscribe((map: Map<string, boolean>): (() => void) => {
             active = map.get(command);
             return () => map.delete(command);
         });

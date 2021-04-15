@@ -29,7 +29,8 @@ const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButt
 const colorPicker = dynamicComponent<typeof ColorPicker, ColorPickerProps>(ColorPicker);
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps {
+export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
+    ButtonGroupProps {
     const forecolorButton = iconButton({
         icon: squareFillIcon,
         className: "forecolor",

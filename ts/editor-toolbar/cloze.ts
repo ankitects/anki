@@ -35,7 +35,8 @@ function onCloze(event: MouseEvent): void {
 
 const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
 
-export function getClozeButton(): DynamicSvelteComponent<typeof IconButton> & IconButtonProps {
+export function getClozeButton(): DynamicSvelteComponent<typeof IconButton> &
+    IconButtonProps {
     return iconButton({
         id: "cloze",
         icon: bracketsIcon,
