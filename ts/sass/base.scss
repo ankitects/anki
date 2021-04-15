@@ -6,8 +6,8 @@ $body-bg: var(--window-bg);
 $link-hover-color: var(--link);
 $link-hover-decoration: none;
 
-@import "ts/bootstrap/bootstrap-reboot";
-@import "ts/bootstrap/bootstrap-utilities";
+@import "ts/sass/bootstrap/bootstrap-reboot";
+@import "ts/sass/bootstrap/bootstrap-utilities";
 
 body {
     overscroll-behavior: none;
