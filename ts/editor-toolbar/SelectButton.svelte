@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey } from "./contextKeys";
     import SelectOption from "./SelectOption.svelte";
@@ -25,7 +26,7 @@
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
 
-    const disabled = getContext(disabledKey);
+    const disabled = getContext<Readable<boolean>>(disabledKey);
     $: _disabled = disables && $disabled;
 </script>
 

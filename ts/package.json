@@ -11,6 +11,7 @@
         "@pyoner/svelte-types": "^3.4.4-2",
         "@sqltools/formatter": "^1.2.2",
         "@tsconfig/svelte": "^1.0.10",
+        "@types/bootstrap": "^5.0.12",
         "@types/d3": "^6.3.0",
         "@types/diff": "^5.0.0",
         "@types/jest": "^26.0.22",

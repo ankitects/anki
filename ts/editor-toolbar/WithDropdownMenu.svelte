@@ -1,5 +1,7 @@
 <script lang="typescript">
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
     import type { ToolbarItem } from "./types";
+
     import Dropdown from "bootstrap/js/dist/dropdown";
 
     /* Bootstrap dropdown are normally declared alongside the associated button
@@ -30,13 +32,13 @@
          * be displayed outside of the visible area
          */
         const dropdown = new Dropdown(button);
-        const menu = button.getRootNode().getElementById(menuId);
+        const menu = (button.getRootNode() as Document /* or shadow root */).getElementById(menuId);
 
         if (!menu) {
             console.log(`Could not find menu "${menuId}" for dropdown menu.`);
         }
 
-        dropdown._menu = menu;
+        (dropdown as any)._menu = menu;
     }
 </script>
 

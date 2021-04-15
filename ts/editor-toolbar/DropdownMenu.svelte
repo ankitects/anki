@@ -1,12 +1,12 @@
 <script lang="typescript">
-    import type { SvelteComponentDefinition } from "./types";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
     import { getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
 
     export let id: string;
-    export let menuItems: SvelteComponentDefinition[];
+    export let menuItems: DynamicSvelteComponent[];
 
-    const nightMode = getContext(nightModeKey);
+    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <style lang="scss">
