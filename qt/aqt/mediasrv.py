@@ -64,10 +64,11 @@ class MediaServer(threading.Thread):
                 logging.basicConfig()
             logging.getLogger("waitress").setLevel(logging.ERROR)
 
+            desired_host = os.getenv("ANKI_API_HOST", "127.0.0.1")
             desired_port = int(os.getenv("ANKI_API_PORT", "0"))
             self.server = create_server(
                 app,
-                host="127.0.0.1",
+                host=desired_host,
                 port=desired_port,
                 clear_untrusted_proxy_headers=True,
             )
