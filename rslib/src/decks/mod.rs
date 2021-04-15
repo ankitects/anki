@@ -9,6 +9,7 @@ mod name;
 mod remove;
 mod reparent;
 mod schema11;
+mod stats;
 mod tree;
 pub(crate) mod undo;
 
@@ -20,8 +21,8 @@ pub use crate::backend_proto::{
     Deck as DeckProto,
 };
 use crate::{
-    backend_proto as pb, define_newtype, error::FilteredDeckError, markdown::render_markdown,
-    prelude::*, text::sanitize_html_no_images,
+    define_newtype, error::FilteredDeckError, markdown::render_markdown, prelude::*,
+    text::sanitize_html_no_images,
 };
 pub(crate) use counts::DueCounts;
 pub(crate) use name::{
@@ -60,17 +61,6 @@ impl Deck {
                 // markdown_description = true,
                 ..Default::default()
             }),
-        }
-    }
-
-    fn reset_stats_if_day_changed(&mut self, today: u32) {
-        let c = &mut self.common;
-        if c.last_day_studied != today {
-            c.new_studied = 0;
-            c.learning_studied = 0;
-            c.review_studied = 0;
-            c.milliseconds_studied = 0;
-            c.last_day_studied = today;
         }
     }
 
@@ -176,74 +166,6 @@ impl Collection {
     pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
         let machine_name = human_deck_name_to_native(&human_name);
         self.storage.get_deck_id(&machine_name)
-    }
-
-    /// Apply input delta to deck, and its parents.
-    /// Caller should ensure transaction.
-    pub(crate) fn update_deck_stats(
-        &mut self,
-        today: u32,
-        usn: Usn,
-        input: pb::UpdateStatsIn,
-    ) -> Result<()> {
-        let did = input.deck_id.into();
-        let mutator = |c: &mut DeckCommon| {
-            c.new_studied += input.new_delta;
-            c.review_studied += input.review_delta;
-            c.milliseconds_studied += input.millisecond_delta;
-        };
-        if let Some(mut deck) = self.storage.get_deck(did)? {
-            self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
-            for mut deck in self.storage.parent_decks(&deck)? {
-                self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
-            }
-        }
-        Ok(())
-    }
-
-    /// Modify the deck's limits by adjusting the 'done today' count.
-    /// Positive values increase the limit, negative value decrease it.
-    /// Caller should ensure a transaction.
-    pub(crate) fn extend_limits(
-        &mut self,
-        today: u32,
-        usn: Usn,
-        did: DeckId,
-        new_delta: i32,
-        review_delta: i32,
-    ) -> Result<()> {
-        let mutator = |c: &mut DeckCommon| {
-            c.new_studied -= new_delta;
-            c.review_studied -= review_delta;
-        };
-        if let Some(mut deck) = self.storage.get_deck(did)? {
-            self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
-            for mut deck in self.storage.parent_decks(&deck)? {
-                self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
-            }
-            for mut deck in self.storage.child_decks(&deck)? {
-                self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
-            }
-        }
-
-        Ok(())
-    }
-
-    fn update_deck_stats_single<F>(
-        &mut self,
-        today: u32,
-        usn: Usn,
-        deck: &mut Deck,
-        mutator: F,
-    ) -> Result<()>
-    where
-        F: FnOnce(&mut DeckCommon),
-    {
-        let original = deck.clone();
-        deck.reset_stats_if_day_changed(today);
-        mutator(&mut deck.common);
-        deck.set_modified(usn);
-        self.update_single_deck_undoable(deck, original)
     }
 }
 
