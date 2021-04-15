@@ -319,25 +319,20 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@bazel/esbuild@=3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-3.2.2.tgz#9db84925c2ff5fd0e89d0a5ddc7064394c18831c"
-  integrity sha512-y3xIx01CXmEglqRG/S5SPYyc1+WyBPnAAvGeeJaNUzas/5N8KjTeAx6Mota3BhF4zbqYwXFQbvLkc+uUqEoMCg==
-
-"@bazel/typescript@=3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.2.2.tgz#b53ee35dee68952abd711a2d472485748c7521c1"
-  integrity sha512-fTPtX3kZAQ50fWJaBvHtHf4w0fqMCrOhK9A8c5GgbqRrIWF8GG/+Tbt4OPwsG0N3+JDYOsHATacJI0qkjIeG1g==
+"@bazel/typescript@=3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.4.0.tgz#031d989682ff8605ed8745f31448c2f76a1b653a"
+  integrity sha512-XlWrlQnsdQHTwsliUAf4mySHOgqRY2S57LKG2rKRjm+a015Lzlmxo6jRQaxjr68UmuhmlklRw0WfCFxdR81AvQ==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "2.27.2"
 
-"@bazel/worker@=3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-3.2.2.tgz#16bb809aaa59bf077836da5860bfbc478c66b835"
-  integrity sha512-fFEdePL4r2LWOzaIVOHOP89HUHZ/cEVZCb1d7SW55uaNEIo0l9iNOx+5thpAn0Woga51LBsMADuYNPk/hmSeIg==
+"@bazel/worker@=3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-3.4.0.tgz#cfa352c6457a5aaed0a80c6e6478444b163360b4"
+  integrity sha512-U5/fV92i/zPeOqTh1kCAvGwlNUhaohYdGMiSvJdC6MhZKrjNks9qmT712u+hvarhdLiDHzcIN6eE3Tz/qHRbjQ==
   dependencies:
     protobufjs "6.8.8"
 
