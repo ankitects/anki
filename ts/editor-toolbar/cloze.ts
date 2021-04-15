@@ -1,7 +1,7 @@
 import IconButton from "./IconButton.svelte";
 import type { IconButtonProps } from "./IconButton";
 
-import { dynamicComponent } from "sveltelib/dynamicComponent";
+import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
 import bracketsIcon from "./code-brackets.svg";
@@ -35,7 +35,7 @@ function onCloze(event: MouseEvent): void {
 
 const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
 
-export function getClozeButton() {
+export function getClozeButton(): DynamicSvelteComponent<typeof IconButton> & IconButtonProps {
     return iconButton({
         id: "cloze",
         icon: bracketsIcon,
