@@ -41,26 +41,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow: hidden;
     }
 
-    .btn-light {
-        @include button.light-hover-active;
-
-        background: content-box
-                linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
-            content-box
-                linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
-            content-box
-                linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
-            border-box $light;
+    @include button.btn-day($with-disabled: false) using ($base) {
+        @include button.rainbow($base);
     }
 
-    .btn-secondary {
-        background: content-box
-                linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
-            content-box
-                linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
-            content-box
-                linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
-            border-box $secondary;
+    @include button.btn-night($with-disabled: false) using ($base) {
+        @include button.rainbow($base);
     }
 
     input {
@@ -74,8 +60,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tabindex="-1"
     {id}
     class={extendClassName(className)}
-    class:btn-light={!nightMode}
-    class:btn-secondary={nightMode}
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
     title={tooltip}
     on:click={delegateToInput}
     on:mousedown|preventDefault>
