@@ -14,8 +14,8 @@
 </script>
 
 <style lang="scss">
-    @import "ts/node_modules/bootstrap/scss/functions";
-    @import "ts/node_modules/bootstrap/scss/variables";
+    @import "ts/bootstrap/functions";
+    @import "ts/bootstrap/variables";
 
     button {
         display: flex;
