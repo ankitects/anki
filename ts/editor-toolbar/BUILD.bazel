@@ -144,7 +144,7 @@ svelte_check(
     ]) + [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
-        "@npm//bootstrap",
+        "@npm//@types/bootstrap",
     ],
 )
 
