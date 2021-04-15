@@ -396,8 +396,14 @@ $editorToolbar.addButton({{
 """
             )
 
+        def add_preview_shortcut(cuts, editor: Editor) -> None:
+            cuts.append(("Ctrl+Shift+P", self.onTogglePreview, True))
+
+
         gui_hooks.editor_did_init.append(add_preview_button)
+        gui_hooks.editor_did_init_shortcuts.append(add_preview_shortcut)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
+        gui_hooks.editor_did_init_shortcuts.remove(add_preview_shortcut)
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
