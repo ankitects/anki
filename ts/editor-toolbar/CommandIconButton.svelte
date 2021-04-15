@@ -36,11 +36,11 @@
 <script lang="typescript">
     import SquareButton from "./SquareButton.svelte";
 
-    export let id;
+    export let id: string;
     export let className = "";
     export let tooltip: string;
 
-    export let icon;
+    export let icon: string;
     export let command: string;
     export let activatable = true;
     export let disables = true;

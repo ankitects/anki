@@ -4,6 +4,7 @@ export interface DynamicSvelteComponent<
     T extends typeof SvelteComponentDev = typeof SvelteComponentDev
 > {
     component: T;
+    [k: string]: unknown;
 }
 
 export const dynamicComponent = <

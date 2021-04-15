@@ -25,10 +25,10 @@
         return `btn ${className}`;
     }
 
-    const disabled = getContext(disabledKey);
+    const disabled = getContext<Readable<boolean>>(disabledKey);
     $: _disabled = disables && $disabled;
 
-    const nightMode = getContext(nightModeKey);
+    const nightMode = getContext<boolean>(nightModeKey);
 
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));

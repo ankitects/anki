@@ -7,8 +7,8 @@ load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
-    srcs = ["deckconfig-base.scss"],
     group = "base_css",
+    srcs = ["deckconfig-base.scss"],
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",

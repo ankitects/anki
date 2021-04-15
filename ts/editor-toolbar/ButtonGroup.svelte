@@ -7,7 +7,7 @@
     export let className = "";
     export let buttons: ToolbarItem[];
 
-    function filterHidden({ hidden, ...props }) {
+    function filterHidden({ hidden = false, ...props }) {
         return props;
     }
 

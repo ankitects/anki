@@ -23,6 +23,7 @@ compile_sass(
         "bootstrap.scss",
     ],
     deps = [
+        "//ts/bootstrap:scss",
         "//ts/sass:button_mixins_lib",
     ],
     visibility = ["//visibility:public"],
@@ -55,6 +56,7 @@ ts_library(
         "@npm//svelte",
         "@npm//bootstrap",
         "@npm//@popperjs/core",
+        "@npm//@types/bootstrap",
     ],
 )
 
