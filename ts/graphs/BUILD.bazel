@@ -6,13 +6,13 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
-    group = "base_css",
     srcs = ["graphs-base.scss"],
+    group = "base_css",
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
         "//ts/sass:scrollbar_lib",
     ],
-    visibility = ["//visibility:public"],
 )
 
 svelte_files = glob(["*.svelte"])
@@ -71,7 +71,7 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = True,
+    output_css = "graphs.css",
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sveltelib",

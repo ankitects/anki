@@ -1,8 +1,0 @@
-load(":toolchain.bzl", "define_default_toolchains", "esbuild_toolchain")
-
-toolchain_type(
-    name = "toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
-define_default_toolchains()

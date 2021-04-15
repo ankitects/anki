@@ -6,20 +6,19 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
-    group = "base_css",
     srcs = ["congrats-base.scss"],
+    group = "base_css",
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
         "//ts/sass:scrollbar_lib",
     ],
-    visibility = ["//visibility:public"],
 )
 
 svelte(
     name = "CongratsPage",
     entry_point = "CongratsPage.svelte",
 )
-
 
 ts_library(
     name = "index",
@@ -57,14 +56,14 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = True,
+    output_css = "congrats.css",
     visibility = ["//visibility:public"],
     deps = [
+        "CongratsPage",
+        ":base_css",
+        ":index",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "CongratsPage",
-        ":index",
-        ":base_css",
     ],
 )
 
