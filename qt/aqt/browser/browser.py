@@ -396,7 +396,7 @@ $editorToolbar.addButton({{
 """
             )
 
-        def add_preview_shortcut(cuts, editor: Editor) -> None:
+        def add_preview_shortcut(cuts: List[Tuple], editor: Editor) -> None:
             cuts.append(("Ctrl+Shift+P", self.onTogglePreview, True))
 
         gui_hooks.editor_did_init.append(add_preview_button)
