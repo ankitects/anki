@@ -85,10 +85,24 @@ def register_repos():
     #     ],
     # )
 
-    http_archive(
+    maybe(
+        http_archive,
         name = "build_bazel_rules_nodejs",
         sha256 = "1134ec9b7baee008f1d54f0483049a97e53a57cd3913ec9d6db625549c98395a",
         urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.4.0/rules_nodejs-3.4.0.tar.gz"],
+    )
+
+    # native.local_repository(
+    #     name = "esbuild_toolchain",
+    #     path = "../esbuild_toolchain",
+    # )
+
+    maybe(
+        http_archive,
+        name = "esbuild_toolchain",
+        sha256 = "ac530f935b10e2e45f009ef0a8a2e3f4c95172c2548932fb7ca0d37ad95b6e9e",
+        urls = ["https://github.com/ankitects/esbuild_toolchain/archive/refs/tags/anki-2021-04-15.tar.gz"],
+        strip_prefix = "esbuild_toolchain-anki-2021-04-15",
     )
 
     # sass

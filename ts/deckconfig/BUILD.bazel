@@ -75,7 +75,7 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = True,
+    output_css = "deckconfig.css",
     visibility = ["//visibility:public"],
     deps = [
         "index",
