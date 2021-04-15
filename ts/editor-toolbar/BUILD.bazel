@@ -13,6 +13,9 @@ svelte_names = [f.replace(".svelte", "") for f in svelte_files]
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
+    deps = [
+        "//ts/sass/bootstrap",
+    ],
 )
 
 compile_sass(
@@ -137,6 +140,6 @@ svelte_check(
     srcs = glob([
         "*.ts",
         "*.svelte",
-    ]),
+    ]) + ["//ts/sass/bootstrap"],
 )
 
