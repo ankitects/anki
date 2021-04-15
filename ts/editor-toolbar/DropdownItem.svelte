@@ -14,8 +14,8 @@
 </script>
 
 <style lang="scss">
-    @import "ts/bootstrap/functions";
-    @import "ts/bootstrap/variables";
+    @import "ts/sass/bootstrap/functions";
+    @import "ts/sass/bootstrap/variables";
 
     button {
         display: flex;

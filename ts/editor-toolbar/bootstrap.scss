@@ -1,8 +1,8 @@
-@import "ts/bootstrap/functions";
-@import "ts/bootstrap/variables";
-@import "ts/bootstrap/mixins";
+@import "ts/sass/bootstrap/functions";
+@import "ts/sass/bootstrap/variables";
+@import "ts/sass/bootstrap/mixins";
 
 $btn-disabled-opacity: 0.4;
 
-@import "ts/bootstrap/buttons";
-@import "ts/bootstrap/dropdown";
+@import "ts/sass/bootstrap/buttons";
+@import "ts/sass/bootstrap/dropdown";

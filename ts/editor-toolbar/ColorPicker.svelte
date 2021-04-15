@@ -24,8 +24,8 @@
 <style lang="scss">
     @use "ts/sass/button_mixins" as button;
 
-    @import "ts/bootstrap/functions";
-    @import "ts/bootstrap/variables";
+    @import "ts/sass/bootstrap/functions";
+    @import "ts/sass/bootstrap/variables";
 
     button {
         padding: 0;
