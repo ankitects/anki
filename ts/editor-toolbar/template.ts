@@ -47,7 +47,8 @@ const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
 );
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps {
+export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
+    ButtonGroupProps {
     const attachmentButton = iconButton({
         icon: paperclipIcon,
         onClick: onAttachment,
@@ -88,7 +89,8 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     });
 }
 
-export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> & DropdownMenuProps)[] {
+export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> &
+    DropdownMenuProps)[] {
     const mathjaxMenu = dropdownMenu({
         id: mathjaxMenuId,
         menuItems: [

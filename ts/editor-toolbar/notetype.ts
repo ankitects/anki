@@ -10,7 +10,8 @@ import * as tr from "anki/i18n";
 const labelButton = dynamicComponent<typeof LabelButton, LabelButtonProps>(LabelButton);
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> & ButtonGroupProps {
+export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
+    ButtonGroupProps {
     const fieldsButton = labelButton({
         onClick: () => bridgeCommand("fields"),
         disables: false,
