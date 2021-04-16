@@ -1,9 +1,17 @@
 load("@npm//svelte-check:index.bzl", _svelte_check = "svelte_check_test")
-load("@build_bazel_rules_nodejs//:providers.bzl", "declaration_info", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "declaration_info")
 load("@io_bazel_rules_sass//:defs.bzl", "SassInfo")
 
+def _get_dep_sources(dep):
+    if SassInfo in dep:
+        return dep[SassInfo].transitive_sources
+    elif DeclarationInfo in dep:
+        return dep[DeclarationInfo].transitive_declarations
+    else:
+        return []
+
 def _get_sources(deps):
-    return depset([], transitive = [dep[SassInfo].transitive_sources for dep in deps])
+    return depset([], transitive = [_get_dep_sources(dep) for dep in deps])
 
 def _svelte(ctx):
     args = ctx.actions.args()
