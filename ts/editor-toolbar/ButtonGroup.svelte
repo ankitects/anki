@@ -20,14 +20,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     ul {
-        display: inline-flex;
+        display: flex;
         justify-items: start;
 
         flex-wrap: var(--toolbar-wrap);
         overflow-y: auto;
 
         padding-inline-start: 0;
-        margin-bottom: 0;
+        margin: 0 0 calc(var(--toolbar-size) / 15);
     }
 
     .border-group {
@@ -40,7 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     li {
         display: inline-block;
-        margin-bottom: calc(var(--toolbar-size) / 15);
 
         > :global(button),
         > :global(select) {
