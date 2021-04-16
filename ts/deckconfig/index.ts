@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getDeckConfigInfo, stateFromUpdateData } from "./lib";
+import { getDeckConfigInfo, DeckConfigState } from "./lib";
 import { setupI18n, ModuleName } from "anki/i18n";
 import { checkNightMode } from "anki/nightmode";
 import DeckConfigPage from "./DeckConfigPage.svelte";
@@ -15,7 +15,7 @@ export async function deckConfig(
         modules: [ModuleName.SCHEDULING, ModuleName.ACTIONS, ModuleName.DECK_CONFIG],
     });
     const info = await getDeckConfigInfo(deckId);
-    const state = stateFromUpdateData(info);
+    const state = new DeckConfigState(info);
     new DeckConfigPage({
         target,
         props: { state },

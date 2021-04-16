@@ -4,16 +4,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "anki/i18n";
-    import type { DeckConfigId, ConfigWithCount } from "./lib";
+    import type { DeckConfigState, ConfigListEntry } from "./lib";
     import OptionsDropdown from "./OptionsDropdown.svelte";
 
-    export let allConfig: ConfigWithCount[];
-    export let selectedConfigId: DeckConfigId;
+    export let state: DeckConfigState;
+    let configList = state.configList;
 
-    function configLabel(config: ConfigWithCount): string {
-        const name = config.config.name;
-        const count = tr.deckConfigUsedByDecks({ decks: config.useCount });
-        return `${name} (${count})`;
+    function configLabel(entry: ConfigListEntry): string {
+        const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
+        return `${entry.name} (${count})`;
+    }
+
+    function myblur(this: HTMLSelectElement) {
+        state.setCurrentIndex(parseInt(this.value));
     }
 </script>
 
@@ -47,12 +50,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="outer">
     <div class="inner">
-        <select bind:value={selectedConfigId} class="form-select">
-            {#each allConfig as config}
-                <option value={config.config.id}>{configLabel(config)}</option>
+        <!-- svelte-ignore a11y-no-onchange -->
+        <select class="form-select" on:change={myblur}>
+            {#each $configList as entry}
+                <option value={entry.idx} selected={entry.current}>
+                    {configLabel(entry)}
+                </option>
             {/each}
         </select>
 
-        <OptionsDropdown />
+        <OptionsDropdown {state} />
     </div>
 </div>

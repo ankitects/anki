@@ -3,16 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type pb from "anki/backend_proto";
     import * as tr from "anki/i18n";
     import SpinBox from "./SpinBox.svelte";
     import SpinBoxFloat from "./SpinBoxFloat.svelte";
     import CheckBox from "./CheckBox.svelte";
     import StepsInput from "./StepsInput.svelte";
     import EnumSelector from "./EnumSelector.svelte";
+    import type { DeckConfigState } from "./lib";
 
-    export let config: pb.BackendProto.DeckConfig.Config;
-    export let defaults: pb.BackendProto.DeckConfig.Config;
+    export let state: DeckConfigState;
+    let config = state.currentConfig;
+    let defaults = state.defaults;
 
     const newOrderChoices = [
         tr.schedulingShowNewCardsInOrderAdded(),
@@ -21,15 +22,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let stepsExceedGraduatingInterval: boolean;
     $: {
-        const lastLearnStepInDays = config.learnSteps.length
-            ? config.learnSteps[config.learnSteps.length - 1] / 60 / 24
+        const lastLearnStepInDays = $config.learnSteps.length
+            ? $config.learnSteps[$config.learnSteps.length - 1] / 60 / 24
             : 0;
         stepsExceedGraduatingInterval =
-            lastLearnStepInDays > config.graduatingIntervalGood;
+            lastLearnStepInDays > $config.graduatingIntervalGood;
     }
 
-    let goodExceedsEasy: boolean;
-    $: goodExceedsEasy = config.graduatingIntervalGood > config.graduatingIntervalEasy;
+    $: goodExceedsEasy =
+        $config.graduatingIntervalGood > $config.graduatingIntervalEasy;
+
+    // fixme: change impl; support warning messages
+    $: newCardsGreaterThanParent = $config.newPerDay > state.currentDeck.parentNewLimit;
 </script>
 
 <div>
@@ -40,36 +44,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         subLabel="Learning steps, separated by spaces."
         warn={stepsExceedGraduatingInterval}
         defaultValue={defaults.learnSteps}
-        value={config.learnSteps}
-        on:changed={(evt) => (config.learnSteps = evt.detail.value)} />
+        value={$config.learnSteps}
+        on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
 
     <EnumSelector
         label={tr.schedulingOrder()}
         subLabel=""
         choices={newOrderChoices}
         defaultValue={defaults.newCardOrder}
-        bind:value={config.newCardOrder} />
+        bind:value={$config.newCardOrder} />
 
     <SpinBox
         label={tr.schedulingNewCardsday()}
         subLabel="The maximum number of new cards to introduce in a day."
         min={0}
+        warn={newCardsGreaterThanParent}
         defaultValue={defaults.newPerDay}
-        bind:value={config.newPerDay} />
+        bind:value={$config.newPerDay} />
 
     <SpinBox
         label={tr.schedulingGraduatingInterval()}
         subLabel="Days to wait after answering Good on the last learning step."
         warn={stepsExceedGraduatingInterval || goodExceedsEasy}
         defaultValue={defaults.graduatingIntervalGood}
-        bind:value={config.graduatingIntervalGood} />
+        bind:value={$config.graduatingIntervalGood} />
 
     <SpinBox
         label={tr.schedulingEasyInterval()}
         subLabel="Days to wait after answering Easy on the first learning step."
         warn={goodExceedsEasy}
         defaultValue={defaults.graduatingIntervalEasy}
-        bind:value={config.graduatingIntervalEasy} />
+        bind:value={$config.graduatingIntervalEasy} />
 
     <SpinBoxFloat
         label={tr.schedulingStartingEase()}
@@ -77,12 +82,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         min={1.31}
         max={5}
         defaultValue={defaults.initialEase}
-        value={config.initialEase}
-        on:changed={(evt) => (config.initialEase = evt.detail.value)} />
+        value={$config.initialEase}
+        on:changed={(evt) => ($config.initialEase = evt.detail.value)} />
 
     <CheckBox
         label="Bury New"
         subLabel={tr.schedulingBuryRelatedNewCardsUntilThe()}
         defaultValue={defaults.buryNew}
-        bind:value={config.buryNew} />
+        bind:value={$config.buryNew} />
 </div>
