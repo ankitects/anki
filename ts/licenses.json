@@ -439,23 +439,13 @@
         "path": "node_modules/jquery",
         "licenseFile": "node_modules/jquery/LICENSE.txt"
     },
-    "lodash.debounce@4.0.8": {
+    "lodash-es@4.17.21": {
         "licenses": "MIT",
         "repository": "https://github.com/lodash/lodash",
         "publisher": "John-David Dalton",
         "email": "john.david.dalton@gmail.com",
-        "url": "http://allyoucanleet.com/",
-        "path": "node_modules/lodash.debounce",
-        "licenseFile": "node_modules/lodash.debounce/LICENSE"
-    },
-    "lodash.throttle@4.1.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/lodash/lodash",
-        "publisher": "John-David Dalton",
-        "email": "john.david.dalton@gmail.com",
-        "url": "http://allyoucanleet.com/",
-        "path": "node_modules/lodash.throttle",
-        "licenseFile": "node_modules/lodash.throttle/LICENSE"
+        "path": "node_modules/lodash-es",
+        "licenseFile": "node_modules/lodash-es/LICENSE"
     },
     "long@4.0.0": {
         "licenses": "Apache-2.0",

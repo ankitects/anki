@@ -18,7 +18,6 @@
         "@types/jquery": "^3.5.0",
         "@types/jqueryui": "^1.12.13",
         "@types/lodash": "^4.14.162",
-        "@types/lodash.throttle": "^4.1.6",
         "@types/long": "^4.0.1",
         "@types/node": "^14.14.20",
         "@types/react": "^16.9.53",
@@ -64,8 +63,7 @@
         "intl-pluralrules": "^1.2.2",
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
-        "lodash.debounce": "^4.0.8",
-        "lodash.throttle": "^4.1.1",
+        "lodash-es": "^4.17.21",
         "mathjax": "^3.1.2",
         "protobufjs": "^6.10.2"
     },
