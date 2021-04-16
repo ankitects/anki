@@ -1,15 +1,21 @@
+@import "ts/sass/bootstrap/functions";
+@import "ts/sass/bootstrap/variables";
+
+$btn-base-color-day: white;
+
+@mixin btn-day-base {
+    color: var(--text-fg);
+    background-color: $btn-base-color-day;
+    border-color: var(--medium-border) !important;
+}
+
 @mixin btn-day($with-disabled: true) {
-    $base-color: white;
-
     .btn-day {
-        color: var(--text-fg);
-        background-color: $base-color;
-        border-color: var(--medium-border) !important;
-
-        @content ($base-color);
+        @include btn-day-base;
+        @content ($btn-base-color-day);
 
         &:hover {
-            background-color: darken($base-color, 8%);
+            background-color: darken($btn-base-color-day, 8%);
         }
 
         &:active,
@@ -23,48 +29,54 @@
 
         @if ($with-disabled) {
             &[disabled] {
-                background-color: $base-color !important;
+                background-color: $btn-base-color-day !important;
                 box-shadow: none !important;
             }
         }
     }
 }
 
+$btn-base-color-night: #666;
+
+@mixin btn-night-base {
+    color: var(--text-fg);
+    background-color: $btn-base-color-night;
+    border-color: $btn-base-color-night;
+}
+
 @mixin btn-night($with-disabled: true) {
-    $base-color: #666;
-
     .btn-night {
-        color: var(--text-fg);
-        background-color: $base-color;
-        border-color: $base-color;
-
-        @content ($base-color);
+        @include btn-night-base;
+        @content ($btn-base-color-night);
 
         &:hover {
-            background-color: lighten($base-color, 8%);
-            border-color: lighten($base-color, 8%);
+            background-color: lighten($btn-base-color-night, 8%);
+            border-color: lighten($btn-base-color-night, 8%);
         }
 
         &:active,
         &.active {
             @include impressed-shadow(0.35);
-            border-color: darken($base-color, 8%);
+            border-color: darken($btn-base-color-night, 8%);
         }
 
         &:active.active {
             box-shadow: none;
-            border-color: $base-color;
+            border-color: $btn-base-color-night;
         }
 
         @if ($with-disabled) {
             &[disabled] {
-                background-color: $base-color !important;
+                background-color: $btn-base-color-night !important;
                 box-shadow: none !important;
-                border-color: $base-color !important;
+                border-color: $btn-base-color-night !important;
             }
         }
     }
 }
+
+// should be similar to -webkit-focus-ring-color
+$focus-color: $blue;
 
 @mixin impressed-shadow($intensity) {
     box-shadow: inset 0 calc(var(--toolbar-size) / 15) calc(var(--toolbar-size) / 5)

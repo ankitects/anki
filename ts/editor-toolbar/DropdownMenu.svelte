@@ -14,21 +14,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style lang="scss">
-    @import "ts/sass/bootstrap/functions";
-    @import "ts/sass/bootstrap/variables";
+    @use 'ts/sass/button_mixins' as button;
 
     ul {
-        background-color: $light;
+        background-color: white;
+        border-color: var(--medium-border);
+    }
 
-        &.nightMode {
-            background-color: $secondary;
-        }
+    .night-mode {
+        background-color: var(--bg-color);
     }
 </style>
 
-<ul {id} class="dropdown-menu" class:nightMode>
+<ul {id} class="dropdown-menu" class:night-mode={nightMode}>
     {#each menuItems as menuItem}
-        <li class:nightMode>
+        <li>
             <svelte:component this={menuItem.component} {...menuItem} />
         </li>
     {/each}
