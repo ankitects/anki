@@ -39,32 +39,46 @@ function toggleComponent(component: Hideable): void {
 
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
+let buttonsResolve: (
+    value: Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]>
+) => void;
+let menusResolve: (value: Writable<ToolbarItem[]>) => void;
+
 class EditorToolbar extends HTMLElement {
     component?: SvelteComponentDev;
 
-    buttons?: Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]>;
-    menus?: Writable<ToolbarItem[]>;
+    buttonsPromise: Promise<
+        Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]>
+    > = new Promise((resolve) => {
+        buttonsResolve = resolve;
+    });
+    menusPromise: Promise<Writable<ToolbarItem[]>> = new Promise((resolve): void => {
+        menusResolve = resolve;
+    });
 
     connectedCallback(): void {
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
-            this.buttons = writable([
+            const buttons = writable([
                 getNotetypeGroup(),
                 getFormatGroup(),
                 getColorGroup(),
                 getTemplateGroup(),
             ]);
-            this.menus = writable([...getTemplateMenus()]);
+            const menus = writable([...getTemplateMenus()]);
 
             this.component = new EditorToolbarSvelte({
                 target: this,
                 props: {
-                    buttons: this.buttons,
-                    menus: this.menus,
+                    buttons,
+                    menus,
                     nightMode: document.documentElement.classList.contains(
                         "night-mode"
                     ),
                 },
             });
+
+            buttonsResolve(buttons);
+            menusResolve(menus);
         });
     }
 
@@ -74,16 +88,22 @@ class EditorToolbar extends HTMLElement {
         ) => void,
         group: string | number
     ): void {
-        this.buttons?.update((buttonGroups) => {
-            const foundGroup = search(buttonGroups, group);
+        this.buttonsPromise.then((buttons) => {
+            buttons.update((buttonGroups) => {
+                const foundGroup = search(buttonGroups, group);
 
-            if (foundGroup) {
-                update(
-                    foundGroup as ToolbarItem<typeof ButtonGroup> & ButtonGroupProps & T
-                );
-            }
+                if (foundGroup) {
+                    update(
+                        foundGroup as ToolbarItem<typeof ButtonGroup> &
+                            ButtonGroupProps &
+                            T
+                    );
+                }
 
-            return buttonGroups;
+                return buttonGroups;
+            });
+
+            return buttons;
         });
     }
 
@@ -100,16 +120,24 @@ class EditorToolbar extends HTMLElement {
     }
 
     insertButtonGroup(newGroup: ButtonGroupProps, group: string | number = 0): void {
-        this.buttons?.update((buttonGroups) => {
-            const newButtonGroup = buttonGroup(newGroup);
-            return insert(buttonGroups, newButtonGroup, group);
+        this.buttonsPromise.then((buttons) => {
+            buttons.update((buttonGroups) => {
+                const newButtonGroup = buttonGroup(newGroup);
+                return insert(buttonGroups, newButtonGroup, group);
+            });
+
+            return buttons;
         });
     }
 
     addButtonGroup(newGroup: ButtonGroupProps, group: string | number = -1): void {
-        this.buttons?.update((buttonGroups) => {
-            const newButtonGroup = buttonGroup(newGroup);
-            return add(buttonGroups, newButtonGroup, group);
+        this.buttonsPromise.then((buttons) => {
+            buttons.update((buttonGroups) => {
+                const newButtonGroup = buttonGroup(newGroup);
+                return add(buttonGroups, newButtonGroup, group);
+            });
+
+            return buttons;
         });
     }
 
