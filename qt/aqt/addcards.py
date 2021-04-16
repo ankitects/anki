@@ -3,7 +3,6 @@
 
 from typing import Callable, List, Optional
 
-import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 from anki.collection import OpChanges, SearchNode
@@ -13,6 +12,7 @@ from anki.models import NotetypeId
 from anki.notes import DuplicateOrEmptyResult, Note, NoteId
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
+from aqt.deckchooser import DeckChooser
 from aqt.notetypechooser import NotetypeChooser
 from aqt.operations.note import add_note
 from aqt.qt import *
@@ -70,7 +70,7 @@ class AddCards(QDialog):
             on_button_activated=self.show_notetype_selector,
             on_notetype_changed=self.on_notetype_change,
         )
-        self.deck_chooser = aqt.deckchooser.DeckChooser(
+        self.deck_chooser = DeckChooser(
             self.mw, self.form.deckArea, starting_deck_id=DeckId(defaults.deck_id)
         )
 
@@ -271,6 +271,11 @@ class AddCards(QDialog):
         self.ifCanClose(doClose)
 
     # legacy aliases
+
+    @property
+    def deckChooser(self) -> DeckChooser:
+        print("deckChooser is deprecated; use deck_chooser instead")
+        return self.deck_chooser
 
     addCards = add_current_note
     _addCards = _add_current_note
