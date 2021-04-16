@@ -82,12 +82,14 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
         icon: outdentIcon,
         command: "outdent",
         tooltip: tr.editingOutdent(),
+        activatable: false,
     });
 
     const indentButton = commandIconButton({
         icon: indentIcon,
         command: "indent",
         tooltip: tr.editingIndent(),
+        activatable: false,
     });
 
     const indentationGroup = buttonGroup({
