@@ -2,7 +2,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:protobuf.bzl", "protobufjs_library")
-load("@npm//jest-cli:index.bzl", "jest_test")
+load("//ts:jest.bzl", "jest_test")
 
 # Protobuf
 #############
@@ -77,34 +77,11 @@ eslint_test(
     srcs = glob(["*.ts"]),
 )
 
-ts_library(
-    name = "test_lib",
-    srcs = glob(["*.test.ts"]),
-    tsconfig = "//ts:tsconfig.json",
-    deps = [
-        ":lib",
-        "@npm//@types/jest",
-    ],
-)
-
 jest_test(
-    name = "test",
-    args = [
-        "--no-cache",
-        "--no-watchman",
-        "--ci",
-        "--colors",
-        "--config",
-        "$(location //ts:jest.config.js)",
-    ],
     data = [
-        ":test_lib",
-        "//ts:jest.config.js",
         "@npm//protobufjs",
     ],
-    target_compatible_with = select({
-        "@platforms//os:osx": [],
-        "@platforms//os:linux": [],
-        "//conditions:default": ["@platforms//os:linux"],
-    }),
+    deps = [
+        ":lib",
+    ],
 )
