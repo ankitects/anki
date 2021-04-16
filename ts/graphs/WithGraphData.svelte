@@ -4,15 +4,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Writable } from "svelte/store";
+    import type { PreferencePayload } from "sveltelib/preferences";
+
+    import pb from "anki/backend_proto";
+    import { postRequest } from "anki/postrequest";
 
     import useAsync from "sveltelib/async";
     import useAsyncReactive from "sveltelib/asyncReactive";
+    import { getPreferences } from "sveltelib/preferences";
 
-    import { getGraphData, daysToRevlogRange } from "./graph-helpers";
-    import { getPreferences } from "./preferences";
+    import { daysToRevlogRange } from "./graph-helpers";
 
     export let search: Writable<string>;
     export let days: Writable<number>;
+
+    async function getGraphData(
+        search: string,
+        days: number
+    ): Promise<pb.BackendProto.GraphsOut> {
+        return pb.BackendProto.GraphsOut.decode(
+            await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
+        );
+    }
+
+    async function getGraphPreferences(): Promise<pb.BackendProto.GraphPreferences> {
+        return pb.BackendProto.GraphPreferences.decode(
+            await postRequest("/_anki/graphPreferences", JSON.stringify({}))
+        );
+    }
+
+    async function setGraphPreferences(
+        prefs: PreferencePayload<pb.BackendProto.GraphPreferences>
+    ): Promise<void> {
+        await postRequest(
+            "/_anki/setGraphPreferences",
+            new TextDecoder().decode(
+                pb.BackendProto.GraphPreferences.encode(prefs).finish()
+            )
+        );
+    }
 
     const {
         loading: graphLoading,
@@ -24,7 +54,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         loading: prefsLoading,
         error: prefsError,
         value: prefsValue,
-    } = useAsync(() => getPreferences());
+    } = useAsync(() =>
+        getPreferences(
+            getGraphPreferences,
+            setGraphPreferences,
+            pb.BackendProto.GraphPreferences.toObject.bind(
+                pb.BackendProto.GraphPreferences
+            )
+        )
+    );
 
     $: revlogRange = daysToRevlogRange($days);
 

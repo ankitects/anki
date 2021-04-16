@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
     import type pb from "anki/backend_proto";
+    import type { PreferenceStore } from "sveltelib/preferences";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -13,11 +14,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
-    import type { PreferenceStore } from "./preferences";
 
     export let sourceData: pb.BackendProto.GraphsOut;
     import * as tr2 from "anki/i18n";
-    export let preferences: PreferenceStore;
+    export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
     const dispatch = createEventDispatcher<SearchEventMap>();
