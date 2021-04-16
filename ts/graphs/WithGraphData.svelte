@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Writable } from "svelte/store";
-    import type { PreferencePayload } from "sveltelib/preferences";
+    import type { PreferenceRaw, PreferencePayload } from "sveltelib/preferences";
 
     import pb from "anki/backend_proto";
     import { postRequest } from "anki/postrequest";
@@ -60,7 +60,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setGraphPreferences,
             pb.BackendProto.GraphPreferences.toObject.bind(
                 pb.BackendProto.GraphPreferences
-            )
+            ) as (
+                preferences: pb.BackendProto.GraphPreferences,
+                options: { defaults: boolean }
+            ) => PreferenceRaw<pb.BackendProto.GraphPreferences>
         )
     );
 
