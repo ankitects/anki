@@ -67,7 +67,9 @@ impl Collection {
 
         Ok(())
     }
+}
 
+impl Collection {
     fn update_deck_stats_single<F>(
         &mut self,
         today: u32,

@@ -93,7 +93,9 @@ impl Collection {
         deck.set_modified(usn);
         self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
     }
+}
 
+impl Collection {
     /// Add a single, normal deck with the provided name for a child deck.
     /// Caller must have done necessarily validation on name.
     fn add_parent_deck(&mut self, machine_name: &str, usn: Usn) -> Result<()> {
