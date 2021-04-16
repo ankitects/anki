@@ -67,6 +67,7 @@ ts_library(
 copy_bootstrap_icons(
     name = "bootstrap-icons",
     icons = [
+        # inline formatting
         "type-bold.svg",
         "type-italic.svg",
         "type-underline.svg",
@@ -74,6 +75,17 @@ copy_bootstrap_icons(
         "square-fill.svg",
         "paperclip.svg",
         "mic.svg",
+
+        # block formatting
+        "list-ul.svg",
+        "list-ol.svg",
+        "text-paragraph.svg",
+        "justify.svg",
+        "text-left.svg",
+        "text-right.svg",
+        "text-center.svg",
+        "text-indent-left.svg",
+        "text-indent-right.svg",
     ],
 )
 

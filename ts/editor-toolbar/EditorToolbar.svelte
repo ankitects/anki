@@ -77,5 +77,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <nav {style}>
-    <ButtonGroup buttons={_buttons} />
+    <ButtonGroup buttons={_buttons} className="mt-0" />
 </nav>

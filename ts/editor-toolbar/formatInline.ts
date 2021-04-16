@@ -21,7 +21,7 @@ const commandIconButton = dynamicComponent<
 >(CommandIconButton);
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
-export function getFormatGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
+export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
     const boldButton = commandIconButton({
         icon: boldIcon,
@@ -61,7 +61,7 @@ export function getFormatGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     });
 
     return buttonGroup({
-        id: "format",
+        id: "formatInline",
         buttons: [
             boldButton,
             italicButton,
