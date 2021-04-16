@@ -16,7 +16,8 @@ import { setupI18n, ModuleName } from "anki/i18n";
 import "./bootstrap.css";
 
 import { getNotetypeGroup } from "./notetype";
-import { getFormatGroup } from "./format";
+import { getFormatInlineGroup } from "./formatInline";
+import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
 import { getColorGroup } from "./color";
 import { getTemplateGroup, getTemplateMenus } from "./template";
 import { Identifiable, search, add, insert } from "./identifiable";
@@ -60,11 +61,12 @@ class EditorToolbar extends HTMLElement {
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
             const buttons = writable([
                 getNotetypeGroup(),
-                getFormatGroup(),
+                getFormatInlineGroup(),
+                getFormatBlockGroup(),
                 getColorGroup(),
                 getTemplateGroup(),
             ]);
-            const menus = writable([...getTemplateMenus()]);
+            const menus = writable([...getTemplateMenus(), ...getFormatBlockMenus()]);
 
             this.component = new EditorToolbarSvelte({
                 target: this,
