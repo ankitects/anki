@@ -20,17 +20,17 @@ compile_svelte(
 )
 
 compile_sass(
-    group = "local_css",
     srcs = [
+        "bootstrap.scss",
         "color.scss",
         "legacy.scss",
-        "bootstrap.scss",
     ],
+    group = "local_css",
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
-    visibility = ["//visibility:public"],
 )
 
 ts_library(
@@ -53,14 +53,14 @@ ts_library(
         exclude = ["index.ts"],
     ),
     deps = [
+        "//ts:image_module_support",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/sveltelib",
-        "//ts:image_module_support",
-        "@npm//svelte",
-        "@npm//bootstrap",
         "@npm//@popperjs/core",
         "@npm//@types/bootstrap",
+        "@npm//bootstrap",
+        "@npm//svelte",
     ],
 )
 
@@ -98,6 +98,7 @@ esbuild(
         "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--loader:.svg=text",
+        "--log-level=warning",
     ],
     entry_point = "index.ts",
     external = [
@@ -147,4 +148,3 @@ svelte_check(
         "@npm//@types/bootstrap",
     ],
 )
-
