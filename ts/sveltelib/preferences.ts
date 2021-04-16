@@ -1,13 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-// languageServerHost taken from MIT sources - see below.
 
 import { Writable, writable, get } from "svelte/store";
-
-// import pb from "anki/backend_proto";
-// export async function getGraphPreferences(): Promise<pb.BackendProto.GraphPreferences> {
-// export async function setGraphPreferences(prefs: PreferencePayload): Promise<void> {
-// pb.BackendProto.GraphPreferences.toObject(Preferences, {
 
 export interface CustomStore<T> extends Writable<T> {
     subscribe: (getter: (value: T) => void) => () => void;
