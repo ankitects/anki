@@ -23,15 +23,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     button {
         display: flex;
         justify-content: space-between;
+    }
+
+    .btn-day {
+        color: black;
 
         &:active {
             background-color: button.$focus-color;
             color: white;
         }
-    }
-
-    .btn-day {
-        color: black;
     }
 
     .btn-night {
@@ -40,6 +40,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:hover,
         &:focus {
             @include button.btn-night-base;
+        }
+
+        &:active {
+            background-color: button.$focus-color;
+            color: white;
         }
     }
 
