@@ -3,14 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type pb from "anki/backend_proto";
     import NewOptions from "./NewOptions.svelte";
     import ReviewOptions from "./ReviewOptions.svelte";
     import LapseOptions from "./LapseOptions.svelte";
     import GeneralOptions from "./GeneralOptions.svelte";
+    import type { DeckConfigState } from "./lib";
 
-    export let config: pb.BackendProto.DeckConfig.Config;
-    export let defaults: pb.BackendProto.DeckConfig.Config;
+    export let state: DeckConfigState;
 </script>
 
 <style lang="scss">
@@ -24,8 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 <div>
-    <NewOptions bind:config {defaults} />
-    <ReviewOptions bind:config {defaults} />
-    <LapseOptions bind:config {defaults} />
-    <GeneralOptions bind:config {defaults} />
+    <NewOptions {state} />
+    <ReviewOptions {state} />
+    <LapseOptions {state} />
+    <GeneralOptions {state} />
 </div>

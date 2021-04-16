@@ -5,10 +5,11 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
+load("@npm//jest-cli:index.bzl", "jest_test")
 
 compile_sass(
-    group = "base_css",
     srcs = ["deckconfig-base.scss"],
+    group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
@@ -24,6 +25,9 @@ svelte_names = [f.replace(".svelte", "") for f in svelte_files]
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
+    deps = [
+        "@npm//@types/bootstrap",
+    ],
 )
 
 copy_bootstrap_icons(
@@ -50,12 +54,16 @@ ts_library(
         "icons.ts",
         "lib.ts",
         "steps.ts",
+        "textInputModal.ts",
     ],
     module_name = "deckconfig",
     deps = [
+        "TextInputModal",
         "//ts:image_module_support",
         "//ts/lib",
         "//ts/lib:backend_proto",
+        "@npm//lodash-es",
+        "@npm//svelte",
     ],
 )
 
@@ -112,5 +120,40 @@ svelte_check(
     srcs = glob([
         "*.ts",
         "*.svelte",
-    ]),
+    ]) + [
+        "@npm//@types/bootstrap",
+    ],
+)
+
+ts_library(
+    name = "test_lib",
+    srcs = glob(["*.test.ts"]),
+    tsconfig = "//ts:tsconfig.json",
+    deps = [
+        ":lib",
+        "//ts/lib:backend_proto",
+        "@npm//@types/jest",
+    ],
+)
+
+jest_test(
+    name = "test",
+    args = [
+        "--no-cache",
+        "--no-watchman",
+        "--ci",
+        "--colors",
+        "--config",
+        "$(location //ts:jest.config.js)",
+    ],
+    data = [
+        ":test_lib",
+        "//ts:jest.config.js",
+        "@npm//protobufjs",
+    ],
+    target_compatible_with = select({
+        "@platforms//os:osx": [],
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//os:linux"],
+    }),
 )
