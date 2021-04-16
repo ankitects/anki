@@ -46,7 +46,9 @@ impl Collection {
         }
         Ok(card_count)
     }
+}
 
+impl Collection {
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckId) -> Result<usize> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.remove_cards_and_orphaned_notes(&cids)?;
