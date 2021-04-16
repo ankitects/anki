@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updateButton(command);
 
         commandMap.subscribe((map: Map<string, boolean>): (() => void) => {
-            active = map.get(command);
+            active = Boolean(map.get(command));
             return () => map.delete(command);
         });
     }
