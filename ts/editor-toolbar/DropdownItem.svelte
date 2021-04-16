@@ -18,30 +18,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style lang="scss">
-    @import "ts/sass/bootstrap/functions";
-    @import "ts/sass/bootstrap/variables";
+    @use 'ts/sass/button_mixins' as button;
 
     button {
         display: flex;
         justify-content: space-between;
 
-        color: black;
-
-        &.nightMode {
+        &:active {
+            background-color: button.$focus-color;
             color: white;
-
-            &:hover,
-            &:focus {
-                color: black;
-            }
-
-            &:active {
-                color: white;
-            }
         }
+    }
 
+    .btn-day {
+        color: black;
+    }
+
+    .btn-night {
+        color: white;
+
+        &:hover,
         &:focus {
-            box-shadow: none;
+            @include button.btn-night-base;
         }
     }
 
@@ -58,7 +56,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     {id}
     class={`btn dropdown-item ${className}`}
-    class:nightMode
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
     title={tooltip}
     on:click={onClick}
     on:mousedown|preventDefault>
