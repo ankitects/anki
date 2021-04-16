@@ -47,25 +47,25 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
     const justifyLeftButton = commandIconButton({
         icon: justifyLeftIcon,
         command: "justifyLeft",
-        tooltip: "Justify to the left",
+        tooltip: tr.editingAlignLeft(),
     });
 
     const justifyCenterButton = commandIconButton({
         icon: justifyCenterIcon,
         command: "justifyCenter",
-        tooltip: "Justify to the center",
-    });
-
-    const justifyFullButton = commandIconButton({
-        icon: justifyFullIcon,
-        command: "justifyFull",
-        tooltip: "Justify full",
+        tooltip: tr.editingCenter(),
     });
 
     const justifyRightButton = commandIconButton({
         icon: justifyRightIcon,
         command: "justifyRight",
-        tooltip: "Justify to the right",
+        tooltip: tr.editingAlignRight(),
+    });
+
+    const justifyFullButton = commandIconButton({
+        icon: justifyFullIcon,
+        command: "justifyFull",
+        tooltip: tr.editingJustify(),
     });
 
     const justifyGroup = buttonGroup({
@@ -73,26 +73,26 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
         buttons: [
             justifyLeftButton,
             justifyCenterButton,
-            justifyFullButton,
             justifyRightButton,
+            justifyFullButton,
         ],
-    });
-
-    const indentButton = commandIconButton({
-        icon: indentIcon,
-        command: "indent",
-        tooltip: "Indent selection",
     });
 
     const outdentButton = commandIconButton({
         icon: outdentIcon,
         command: "outdent",
-        tooltip: "Outdent selection",
+        tooltip: tr.editingOutdent(),
+    });
+
+    const indentButton = commandIconButton({
+        icon: indentIcon,
+        command: "indent",
+        tooltip: tr.editingIndent(),
     });
 
     const indentationGroup = buttonGroup({
         id: "indentation",
-        buttons: [indentButton, outdentButton],
+        buttons: [outdentButton, indentButton],
     });
 
     const formattingOptions = buttonDropdown({
@@ -110,18 +110,17 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
     const ulButton = commandIconButton({
         icon: ulIcon,
         command: "insertUnorderedList",
-        tooltip: "Insert unordered list",
+        tooltip: tr.editingUnorderedList(),
     });
 
     const olButton = commandIconButton({
         icon: olIcon,
         command: "insertOrderedList",
-        tooltip: "Insert ordered list",
+        tooltip: tr.editingOrderedList(),
     });
 
     const listFormattingButton = iconButton({
         icon: listOptionsIcon,
-        tooltip: "More list options",
     });
 
     const listFormatting = withDropdownMenu({
@@ -130,7 +129,7 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
     });
 
     return buttonGroup({
-        id: "formatInline",
+        id: "formatBlock",
         buttons: [ulButton, olButton, listFormatting],
     });
 }
