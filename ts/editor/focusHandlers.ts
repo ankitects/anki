@@ -5,13 +5,13 @@ import type { EditingArea } from "./editingArea";
 
 import { saveField } from "./changeTimer";
 import { bridgeCommand } from "./lib";
-import { enableButtons, disableButtons } from "./toolbar";
 
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focusEditable();
     bridgeCommand(`focus:${currentField.ord}`);
-    enableButtons();
+    // @ts-expect-error
+    editorToolbar.enableButtons();
 }
 
 export function onBlur(evt: FocusEvent): void {
@@ -19,5 +19,6 @@ export function onBlur(evt: FocusEvent): void {
     const currentFieldUnchanged = previousFocus === document.activeElement;
 
     saveField(previousFocus, currentFieldUnchanged ? "key" : "blur");
-    disableButtons();
+    // @ts-expect-error
+    editorToolbar.disableButtons();
 }

@@ -380,29 +380,30 @@ class Browser(QMainWindow):
         self.form.gridLayout.addWidget(switch, 0, 0)
 
     def setupEditor(self) -> None:
-        def add_preview_button(leftbuttons: List[str], editor: Editor) -> None:
-            preview_shortcut = "Ctrl+Shift+P"
-            leftbuttons.insert(
-                0,
-                editor.addButton(
-                    None,
-                    "preview",
-                    lambda _editor: self.onTogglePreview(),
-                    tr.browsing_preview_selected_card(
-                        val=shortcut(preview_shortcut),
-                    ),
-                    tr.actions_preview(),
-                    id="previewButton",
-                    keys=preview_shortcut,
-                    disables=False,
-                    rightside=False,
-                    toggleable=True,
-                ),
+        def add_preview_button(editor: Editor) -> None:
+            preview_shortcut = "Ctrl+Shift+P"  # TODO
+
+            editor._links["preview"] = lambda _editor: self.onTogglePreview()
+            editor.web.eval(
+                f"""
+$editorToolbar.addButton({{
+    component: editorToolbar.LabelButton,
+    label: `{tr.actions_preview()}`,
+    tooltip: `{tr.browsing_preview_selected_card(val=shortcut(preview_shortcut))}`,
+    onClick: () => bridgeCommand("preview"),
+    disables: false,
+}}, "notetype");
+"""
             )
 
-        gui_hooks.editor_did_init_left_buttons.append(add_preview_button)
+        def add_preview_shortcut(cuts: List[Tuple], editor: Editor) -> None:
+            cuts.append(("Ctrl+Shift+P", self.onTogglePreview, True))
+
+        gui_hooks.editor_did_init.append(add_preview_button)
+        gui_hooks.editor_did_init_shortcuts.append(add_preview_shortcut)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
-        gui_hooks.editor_did_init_left_buttons.remove(add_preview_button)
+        gui_hooks.editor_did_init_shortcuts.remove(add_preview_shortcut)
+        gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
     def onRowChanged(

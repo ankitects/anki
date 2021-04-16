@@ -11,6 +11,7 @@
         "@pyoner/svelte-types": "^3.4.4-2",
         "@sqltools/formatter": "^1.2.2",
         "@tsconfig/svelte": "^1.0.10",
+        "@types/bootstrap": "^5.0.12",
         "@types/d3": "^6.3.0",
         "@types/diff": "^5.0.0",
         "@types/jest": "^26.0.22",
@@ -54,6 +55,8 @@
     },
     "dependencies": {
         "@fluent/bundle": "^0.15.1",
+        "@mdi/svg": "^5.9.55",
+        "@popperjs/core": "^2.9.2",
         "bootstrap": "^5.0.0-beta2",
         "bootstrap-icons": "^1.4.0",
         "css-browser-selector": "^0.6.5",

@@ -7,6 +7,21 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
+    "@mdi/svg@5.9.55": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/Templarian/MaterialDesign-SVG",
+        "publisher": "Austin Andrews",
+        "path": "node_modules/@mdi/svg",
+        "licenseFile": "node_modules/@mdi/svg/LICENSE"
+    },
+    "@popperjs/core@2.9.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/popperjs/popper-core",
+        "publisher": "Federico Zivolo",
+        "email": "federico.zivolo@gmail.com",
+        "path": "node_modules/@popperjs/core",
+        "licenseFile": "node_modules/@popperjs/core/LICENSE.md"
+    },
     "@protobufjs/aspromise@1.1.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/dcodeIO/protobuf.js",
