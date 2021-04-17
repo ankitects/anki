@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-use crate::{collection::Collection, decks::DeckId, error::Result};
+use crate::{backend_proto as pb, prelude::*};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -9,6 +8,18 @@ pub(crate) struct DueCounts {
     pub new: u32,
     pub review: u32,
     pub learning: u32,
+}
+
+impl Deck {
+    /// Return the studied counts if studied today.
+    /// May be negative if user has extended limits.
+    pub(crate) fn new_rev_counts(&self, today: u32) -> (i32, i32) {
+        if self.common.last_day_studied == today {
+            (self.common.new_studied, self.common.review_studied)
+        } else {
+            (0, 0)
+        }
+    }
 }
 
 impl Collection {
@@ -25,5 +36,18 @@ impl Collection {
             learn_cutoff,
             limit_to,
         )
+    }
+
+    pub(crate) fn counts_for_deck_today(
+        &mut self,
+        did: DeckId,
+    ) -> Result<pb::CountsForDeckTodayOut> {
+        let today = self.current_due_day(0)?;
+        let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+        deck.reset_stats_if_day_changed(today);
+        Ok(pb::CountsForDeckTodayOut {
+            new: deck.common.new_studied,
+            review: deck.common.review_studied,
+        })
     }
 }
