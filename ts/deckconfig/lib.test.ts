@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-explicit-any: "off",
+ */
+
 import * as pb from "anki/backend_proto";
 import { DeckConfigState } from "./lib";
 import { get } from "svelte/store";
@@ -227,8 +231,5 @@ test("parent counts", () => {
         c.newPerDay = 123;
         return c;
     });
-    // fixme: we should do this automatically when currentConfig is updated, or the
-    // parent count will become stale
-    state.saveCurrentConfig();
     expect(get(state.parentLimits)).toStrictEqual({ newCards: 123, reviews: 200 });
 });
