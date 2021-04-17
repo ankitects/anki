@@ -23,7 +23,7 @@ impl Deck {
         filt.reschedule = true;
         Deck {
             id: DeckId(0),
-            name: NativeDeckName("".into()),
+            name: NativeDeckName::from_native_str(""),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
             common: DeckCommon {

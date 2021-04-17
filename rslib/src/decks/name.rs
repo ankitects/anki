@@ -5,9 +5,13 @@ use itertools::Itertools;
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct NativeDeckName(pub String);
+pub struct NativeDeckName(String);
 
 impl NativeDeckName {
+    pub fn from_native_str<N: Into<String>>(name: N) -> Self {
+        NativeDeckName(name.into())
+    }
+
     pub fn from_human_name(name: &str) -> Self {
         NativeDeckName(
             name.split("::")

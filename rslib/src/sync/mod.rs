@@ -1500,7 +1500,7 @@ mod test {
         })?;
 
         let mut deck = col2.storage.get_deck(deck.id)?.unwrap();
-        deck.name = NativeDeckName("newer".into());
+        deck.name = NativeDeckName::from_native_str("newer");
         col2.add_or_update_deck(&mut deck)?;
 
         let mut nt = col2.storage.get_notetype(nt.id)?.unwrap();

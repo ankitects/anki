@@ -147,7 +147,7 @@ impl Collection {
     }
 
     fn get_next_filtered_deck_name(&self) -> NativeDeckName {
-        NativeDeckName(format!(
+        NativeDeckName::from_native_str(format!(
             "Filtered Deck {}",
             TimestampSecs::now().time_string()
         ))

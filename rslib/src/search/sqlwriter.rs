@@ -346,11 +346,13 @@ impl SqlWriter<'_> {
                             .storage
                             .get_deck(current_did)?
                             .map(|d| d.name)
-                            .unwrap_or_else(|| NativeDeckName("Default".into()))
+                            .unwrap_or_else(|| NativeDeckName::from_native_str("Default"))
                             .as_str(),
                     )
                 } else {
-                    NativeDeckName::from_human_name(&to_re(deck)).0
+                    NativeDeckName::from_human_name(&to_re(deck))
+                        .as_str()
+                        .to_string()
                 };
 
                 // convert to a regex that includes child decks

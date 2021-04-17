@@ -46,7 +46,7 @@ impl Deck {
     pub fn new_normal() -> Deck {
         Deck {
             id: DeckId(0),
-            name: NativeDeckName("".into()),
+            name: NativeDeckName::from_native_str(""),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
             common: DeckCommon {
@@ -207,7 +207,7 @@ mod test {
 
         let _ = col.get_or_create_normal_deck("foo::bar::baz")?;
         let mut top_deck = col.get_or_create_normal_deck("foo")?;
-        top_deck.name = NativeDeckName("other".into());
+        top_deck.name = NativeDeckName::from_native_str("other");
         col.add_or_update_deck(&mut top_deck)?;
         assert_eq!(
             sorted_names(&col),
@@ -216,7 +216,7 @@ mod test {
 
         // should do the right thing in the middle of the tree as well
         let mut middle = col.get_or_create_normal_deck("other::bar")?;
-        middle.name = NativeDeckName("quux\x1ffoo".into());
+        middle.name = NativeDeckName::from_native_str("quux\x1ffoo");
         col.add_or_update_deck(&mut middle)?;
         assert_eq!(
             sorted_names(&col),
@@ -229,7 +229,7 @@ mod test {
         // quux::foo -> quux::foo::baz::four
         // means quux::foo::baz2 should be quux::foo::baz::four::baz2
         // and a new quux::foo should have been created
-        middle.name = NativeDeckName("quux\x1ffoo\x1fbaz\x1ffour".into());
+        middle.name = NativeDeckName::from_native_str("quux\x1ffoo\x1fbaz\x1ffour");
         col.add_or_update_deck(&mut middle)?;
         assert_eq!(
             sorted_names(&col),
@@ -246,7 +246,7 @@ mod test {
         );
 
         // should handle name conflicts
-        middle.name = NativeDeckName("other".into());
+        middle.name = NativeDeckName::from_native_str("other");
         col.add_or_update_deck(&mut middle)?;
         assert_eq!(middle.name.as_str(), "other+");
 
@@ -277,7 +277,7 @@ mod test {
         let mut col = open_test_collection();
 
         let mut default = col.get_or_create_normal_deck("default")?;
-        default.name = NativeDeckName("one\x1ftwo".into());
+        default.name = NativeDeckName::from_native_str("one\x1ftwo");
         col.add_or_update_deck(&mut default)?;
 
         // create a non-default deck confusingly named "default"
