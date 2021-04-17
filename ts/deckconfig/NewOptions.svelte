@@ -49,7 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <StepsInput
         label="Learning steps"
         subLabel="Learning steps, separated by spaces."
-        warnings={[stepsExceedGraduatingInterval]}
         defaultValue={defaults.learnSteps}
         value={$config.learnSteps}
         on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
@@ -72,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <SpinBox
         label={tr.schedulingGraduatingInterval()}
         subLabel="Days to wait after answering Good on the last learning step."
-        warnings={[stepsExceedGraduatingInterval, goodExceedsEasy]}
+        warnings={[stepsExceedGraduatingInterval]}
         defaultValue={defaults.graduatingIntervalGood}
         bind:value={$config.graduatingIntervalGood} />
 
