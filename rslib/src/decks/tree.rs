@@ -1,18 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{Deck, DeckKind, DueCounts};
+use super::DueCounts;
 pub use crate::backend_proto::set_deck_collapsed_in::Scope as DeckCollapseScope;
 use crate::{
-    backend_proto::DeckTreeNode,
-    collection::Collection,
-    config::{BoolKey, SchedulerVersion},
-    deckconf::{DeckConf, DeckConfId},
-    decks::DeckId,
-    error::Result,
-    ops::OpOutput,
-    timestamp::TimestampSecs,
-    undo::Op,
+    backend_proto::DeckTreeNode, config::SchedulerVersion, ops::OpOutput, prelude::*, undo::Op,
 };
 use serde_tuple::Serialize_tuple;
 use std::{

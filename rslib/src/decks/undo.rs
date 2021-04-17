@@ -30,6 +30,20 @@ impl Collection {
         }
     }
 
+    pub(crate) fn remove_deck_and_add_grave_undoable(
+        &mut self,
+        deck: Deck,
+        usn: Usn,
+    ) -> Result<()> {
+        self.state.deck_cache.clear();
+        self.add_deck_grave_undoable(deck.id, usn)?;
+        self.storage.remove_deck(deck.id)?;
+        self.save_undo(UndoableDeckChange::Removed(Box::new(deck)));
+        Ok(())
+    }
+}
+
+impl Collection {
     pub(super) fn add_deck_undoable(&mut self, deck: &mut Deck) -> Result<(), AnkiError> {
         self.storage.add_deck(deck)?;
         self.save_undo(UndoableDeckChange::Added(Box::new(deck.clone())));
@@ -57,18 +71,6 @@ impl Collection {
         self.state.deck_cache.clear();
         self.save_undo(UndoableDeckChange::Updated(Box::new(original)));
         self.storage.update_deck(deck)
-    }
-
-    pub(crate) fn remove_deck_and_add_grave_undoable(
-        &mut self,
-        deck: Deck,
-        usn: Usn,
-    ) -> Result<()> {
-        self.state.deck_cache.clear();
-        self.add_deck_grave_undoable(deck.id, usn)?;
-        self.storage.remove_deck(deck.id)?;
-        self.save_undo(UndoableDeckChange::Removed(Box::new(deck)));
-        Ok(())
     }
 
     fn restore_deleted_deck(&mut self, deck: Deck) -> Result<()> {
