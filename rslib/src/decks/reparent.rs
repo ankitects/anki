@@ -1,6 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use super::name::reparented_name;
 use crate::{error::FilteredDeckError, prelude::*};
 
 impl Collection {
@@ -28,14 +27,14 @@ impl Collection {
                     return Err(FilteredDeckError::MustBeLeafNode.into());
                 }
                 target_deck = target;
-                target_name = Some(target_deck.name.as_str());
+                target_name = Some(&target_deck.name);
             }
         }
 
         let mut count = 0;
         for deck in deck_ids {
             if let Some(mut deck) = self.storage.get_deck(*deck)? {
-                if let Some(new_name) = reparented_name(&deck.name, target_name) {
+                if let Some(new_name) = deck.name.reparented_name(target_name) {
                     count += 1;
                     let orig = deck.clone();
 

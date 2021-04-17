@@ -1,11 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::DeckId;
-use super::{
-    human_deck_name_to_native, native_deck_name_to_human, DeckCommon, FilteredDeck,
-    FilteredSearchTerm, NormalDeck,
-};
+use super::{DeckCommon, FilteredDeck, FilteredSearchTerm, NormalDeck};
 use crate::{
     prelude::*,
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
@@ -239,7 +235,7 @@ impl From<DeckSchema11> for Deck {
         match deck {
             DeckSchema11::Normal(d) => Deck {
                 id: d.common.id,
-                name: human_deck_name_to_native(&d.common.name),
+                name: NativeDeckName::from_human_name(&d.common.name),
                 mtime_secs: d.common.mtime,
                 usn: d.common.usn,
                 common: (&d.common).into(),
@@ -247,7 +243,7 @@ impl From<DeckSchema11> for Deck {
             },
             DeckSchema11::Filtered(d) => Deck {
                 id: d.common.id,
-                name: human_deck_name_to_native(&d.common.name),
+                name: NativeDeckName::from_human_name(&d.common.name),
                 mtime_secs: d.common.mtime,
                 usn: d.common.usn,
                 common: (&d.common).into(),
@@ -362,7 +358,7 @@ impl From<Deck> for DeckCommonSchema11 {
         DeckCommonSchema11 {
             id: deck.id,
             mtime: deck.mtime_secs,
-            name: native_deck_name_to_human(&deck.name),
+            name: deck.human_name(),
             usn: deck.usn,
             today: (&deck).into(),
             study_collapsed: deck.common.study_collapsed,

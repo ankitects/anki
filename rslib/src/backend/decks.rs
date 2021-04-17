@@ -6,10 +6,7 @@ use std::convert::TryFrom;
 use super::Backend;
 use crate::{
     backend_proto::{self as pb},
-    decks::{
-        human_deck_name_to_native, native_deck_name_to_human, Deck, DeckId, DeckSchema11,
-        FilteredSearchOrder,
-    },
+    decks::{DeckSchema11, FilteredSearchOrder},
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };
@@ -89,7 +86,6 @@ impl DecksService for Backend {
                 .storage
                 .get_deck(input.into())?
                 .ok_or(AnkiError::NotFound)?
-                .with_human_name()
                 .into())
         })
     }
@@ -241,7 +237,7 @@ impl From<Deck> for pb::Deck {
     fn from(d: Deck) -> Self {
         pb::Deck {
             id: d.id.0,
-            name: native_deck_name_to_human(&d.name),
+            name: d.name.human_name(),
             mtime_secs: d.mtime_secs.0,
             usn: d.usn.0,
             common: Some(d.common),
@@ -256,7 +252,7 @@ impl TryFrom<pb::Deck> for Deck {
     fn try_from(d: pb::Deck) -> Result<Self, Self::Error> {
         Ok(Deck {
             id: DeckId(d.id),
-            name: human_deck_name_to_native(&d.name),
+            name: NativeDeckName::from_human_name(&d.name),
             mtime_secs: TimestampSecs(d.mtime_secs),
             usn: Usn(d.usn),
             common: d.common.unwrap_or_default(),

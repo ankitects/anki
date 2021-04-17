@@ -37,7 +37,7 @@ impl Collection {
             // if the default deck is included, just ensure it's reset to the default
             // name, as we've already removed its cards
             let mut modified_default = deck.clone();
-            modified_default.name = self.tr.deck_config_default_name().into();
+            modified_default.name = NativeDeckName(self.tr.deck_config_default_name().into());
             self.prepare_deck_for_update(&mut modified_default, usn)?;
             modified_default.set_modified(usn);
             self.update_single_deck_undoable(&mut modified_default, deck.clone())?;

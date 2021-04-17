@@ -7,7 +7,7 @@ use std::convert::{TryFrom, TryInto};
 
 use crate::{
     config::ConfigKey,
-    decks::{human_deck_name_to_native, FilteredDeck, FilteredSearchTerm},
+    decks::{FilteredDeck, FilteredSearchTerm},
     error::FilteredDeckError,
     search::writer::{deck_search, normalize_search},
 };
@@ -146,8 +146,11 @@ impl Collection {
         Ok(position)
     }
 
-    fn get_next_filtered_deck_name(&self) -> String {
-        format!("Filtered Deck {}", TimestampSecs::now().time_string())
+    fn get_next_filtered_deck_name(&self) -> NativeDeckName {
+        NativeDeckName(format!(
+            "Filtered Deck {}",
+            TimestampSecs::now().time_string()
+        ))
     }
 
     fn add_or_update_filtered_deck_inner(
@@ -253,6 +256,6 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
 
 fn apply_update_to_filtered_deck(deck: &mut Deck, update: FilteredDeckForUpdate) {
     deck.id = update.id;
-    deck.name = human_deck_name_to_native(&update.human_name);
+    deck.name = NativeDeckName::from_human_name(&update.human_name);
     deck.kind = DeckKind::Filtered(update.config);
 }
