@@ -124,7 +124,7 @@ impl SqliteStorage {
         let mut kind = vec![];
         kind_enum.encode(&mut kind)?;
         let count = stmt.execute(params![
-            deck.name.as_str(),
+            deck.name.as_native_str(),
             deck.mtime_secs,
             deck.usn,
             common,
@@ -159,7 +159,7 @@ impl SqliteStorage {
         kind_enum.encode(&mut kind)?;
         stmt.execute(params![
             deck.id,
-            deck.name.as_str(),
+            deck.name.as_native_str(),
             deck.mtime_secs,
             deck.usn,
             common,
@@ -234,7 +234,7 @@ impl SqliteStorage {
                 .last()
                 .map(|d| &d.name)
                 .unwrap_or_else(|| &child.name)
-                .as_str(),
+                .as_native_str(),
         ) {
             if let Some(parent_did) = self.get_deck_id(parent_name)? {
                 let parent = self.get_deck(parent_did)?.unwrap();
@@ -329,7 +329,7 @@ impl SqliteStorage {
             "create temporary table active_decks (id integer primary key not null);"
         ))?;
 
-        let top = current.name.as_str();
+        let top = current.name.as_native_str();
         let prefix_start = &format!("{}\x1f", top);
         let prefix_end = &format!("{}\x20", top);
 
@@ -361,7 +361,7 @@ impl SqliteStorage {
                 deck.set_modified(usn);
             }
             loop {
-                let name = UniCase::new(deck.name.as_str().to_string());
+                let name = UniCase::new(deck.name.as_native_str().to_string());
                 if !names.contains(&name) {
                     names.insert(name);
                     break;

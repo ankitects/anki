@@ -105,7 +105,7 @@ impl Collection {
     /// Returns an error if a DB operation fails, or if the first existing parent is a filtered deck.
     fn match_or_create_parents(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
         let child_split: Vec<_> = deck.name.components().collect();
-        if let Some(parent_deck) = self.first_existing_parent(deck.name.as_str(), 0)? {
+        if let Some(parent_deck) = self.first_existing_parent(deck.name.as_native_str(), 0)? {
             if parent_deck.is_filtered() {
                 return Err(FilteredDeckError::MustBeLeafNode.into());
             }
@@ -130,7 +130,7 @@ impl Collection {
     }
 
     fn create_missing_parents(&mut self, name: &NativeDeckName, usn: Usn) -> Result<()> {
-        let mut machine_name = name.as_str();
+        let mut machine_name = name.as_native_str();
         while let Some(parent_name) = immediate_parent_name(machine_name) {
             if self.storage.get_deck_id(parent_name)?.is_none() {
                 self.add_parent_deck(parent_name, usn)?;

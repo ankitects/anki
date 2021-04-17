@@ -150,7 +150,7 @@ impl Collection {
 
     pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
         let name = NativeDeckName::from_human_name(human_name);
-        if let Some(did) = self.storage.get_deck_id(name.as_str())? {
+        if let Some(did) = self.storage.get_deck_id(name.as_native_str())? {
             self.storage.get_deck(did).map(|opt| opt.unwrap())
         } else {
             let mut deck = Deck::new_normal();
@@ -164,7 +164,7 @@ impl Collection {
     /// use the method in storage instead.
     pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
         self.storage
-            .get_deck_id(NativeDeckName::from_human_name(human_name).as_str())
+            .get_deck_id(NativeDeckName::from_human_name(human_name).as_native_str())
     }
 }
 
@@ -248,7 +248,7 @@ mod test {
         // should handle name conflicts
         middle.name = NativeDeckName::from_native_str("other");
         col.add_or_update_deck(&mut middle)?;
-        assert_eq!(middle.name.as_str(), "other+");
+        assert_eq!(middle.name.as_native_str(), "other+");
 
         // public function takes human name
         col.rename_deck(middle.id, "one::two")?;

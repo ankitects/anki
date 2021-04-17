@@ -39,7 +39,7 @@ pub(super) fn remaining_limits_capped_to_parents(
     today: u32,
 ) -> Vec<RemainingLimits> {
     let mut limits = get_remaining_limits(decks, config, today);
-    cap_limits_to_parents(decks.iter().map(|d| d.name.as_str()), &mut limits);
+    cap_limits_to_parents(decks.iter().map(|d| d.name.as_native_str()), &mut limits);
     limits
 }
 
