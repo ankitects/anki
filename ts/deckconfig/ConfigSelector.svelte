@@ -46,19 +46,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             padding-right: 0.5em;
         }
     }
+
+    .padding {
+        height: 2.5em;
+    }
 </style>
 
 <div class="outer">
     <div class="inner">
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" on:change={myblur}>
-            {#each $configList as entry}
-                <option value={entry.idx} selected={entry.current}>
-                    {configLabel(entry)}
-                </option>
-            {/each}
-        </select>
+        <div>
+            <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
-        <OptionsDropdown {state} />
+            <!-- svelte-ignore a11y-no-onchange -->
+            <select class="form-select" on:change={myblur}>
+                {#each $configList as entry}
+                    <option value={entry.idx} selected={entry.current}>
+                        {configLabel(entry)}
+                    </option>
+                {/each}
+            </select>
+
+            <OptionsDropdown {state} />
+        </div>
     </div>
+</div>
+
+<div class="padding">
+    <!-- make sure subsequent content doesn't flow under us -->
 </div>

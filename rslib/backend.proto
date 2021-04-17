@@ -903,8 +903,7 @@ message DeckConfigForUpdate {
   message CurrentDeck {
     string name = 1;
     int64 config_id = 2;
-    uint32 parent_new_limit = 3;
-    uint32 parent_review_limit = 4;
+    repeated int64 parent_config_ids = 3;
   }
 
   repeated ConfigWithExtra all_config = 1;

@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckConfigState;
     let config = state.currentConfig;
     let defaults = state.defaults;
+    let parentLimits = state.parentLimits;
 
     const newOrderChoices = [
         tr.schedulingShowNewCardsInOrderAdded(),
@@ -33,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $config.graduatingIntervalGood > $config.graduatingIntervalEasy;
 
     // fixme: change impl; support warning messages
-    $: newCardsGreaterThanParent = $config.newPerDay > state.currentDeck.parentNewLimit;
+    $: newCardsGreaterThanParent = $config.newPerDay > $parentLimits.newCards;
 </script>
 
 <div>

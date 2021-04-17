@@ -49,20 +49,14 @@ impl Collection {
     fn get_current_deck_for_update(&mut self, deck: DeckId) -> Result<CurrentDeck> {
         let deck = self.get_deck(deck)?.ok_or(AnkiError::NotFound)?;
 
-        let mut parent_new_limit = u32::MAX;
-        let mut parent_review_limit = u32::MAX;
-        for config_id in self.parent_config_ids(&deck)? {
-            if let Some(config) = self.storage.get_deck_config(config_id)? {
-                parent_new_limit = parent_new_limit.min(config.inner.new_per_day);
-                parent_review_limit = parent_review_limit.min(config.inner.reviews_per_day);
-            }
-        }
-
         Ok(CurrentDeck {
-            name: deck.name.clone(),
+            name: deck.human_name(),
             config_id: deck.normal()?.config_id,
-            parent_new_limit,
-            parent_review_limit,
+            parent_config_ids: self
+                .parent_config_ids(&deck)?
+                .into_iter()
+                .map(Into::into)
+                .collect(),
         })
     }
 
