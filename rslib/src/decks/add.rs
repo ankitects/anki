@@ -64,7 +64,7 @@ impl Collection {
         if name_changed {
             // after updating, we need to ensure all grandparents exist, which may not be the case
             // in the parent->child case
-            self.create_missing_parents(deck.name.as_str(), usn)?;
+            self.create_missing_parents(&deck.name, usn)?;
         }
         Ok(())
     }
@@ -117,7 +117,7 @@ impl Collection {
                 &child_split[parent_count..].join("\x1f")
             ));
             if need_create {
-                self.create_missing_parents(deck.name.as_str(), usn)?;
+                self.create_missing_parents(&deck.name, usn)?;
             }
             Ok(())
         } else if child_split.len() == 1 {
@@ -125,11 +125,12 @@ impl Collection {
             Ok(())
         } else {
             // no existing parents
-            self.create_missing_parents(deck.name.as_str(), usn)
+            self.create_missing_parents(&deck.name, usn)
         }
     }
 
-    fn create_missing_parents(&mut self, mut machine_name: &str, usn: Usn) -> Result<()> {
+    fn create_missing_parents(&mut self, name: &NativeDeckName, usn: Usn) -> Result<()> {
+        let mut machine_name = name.as_str();
         while let Some(parent_name) = immediate_parent_name(machine_name) {
             if self.storage.get_deck_id(parent_name)?.is_none() {
                 self.add_parent_deck(parent_name, usn)?;
