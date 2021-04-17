@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .form-select {
         display: inline-block;
-        width: 30em;
+        width: 70%;
     }
 
     .outer {
@@ -35,11 +35,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: var(--text-fg);
         background: var(--window-bg);
         padding: 0.5em;
+        display: flex;
+        justify-content: center;
     }
 
     .inner {
         display: flex;
-        justify-content: center;
+        flex-wrap: wrap;
+        width: 35em;
 
         & > :global(*) {
             padding-left: 0.5em;
@@ -48,26 +51,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .padding {
-        height: 2.5em;
+        height: 3em;
     }
 </style>
 
 <div class="outer">
     <div class="inner">
-        <div>
-            <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
+        <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
-            <!-- svelte-ignore a11y-no-onchange -->
-            <select class="form-select" on:change={myblur}>
-                {#each $configList as entry}
-                    <option value={entry.idx} selected={entry.current}>
-                        {configLabel(entry)}
-                    </option>
-                {/each}
-            </select>
+        <!-- svelte-ignore a11y-no-onchange -->
+        <select class="form-select" on:change={myblur}>
+            {#each $configList as entry}
+                <option value={entry.idx} selected={entry.current}>
+                    {configLabel(entry)}
+                </option>
+            {/each}
+        </select>
 
-            <OptionsDropdown {state} />
-        </div>
+        <OptionsDropdown {state} />
     </div>
 </div>
 

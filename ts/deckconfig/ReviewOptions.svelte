@@ -17,13 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div>
     <h2>Reviews</h2>
 
-    <SpinBox
-        label={tr.schedulingMaximumReviewsday()}
-        subLabel="The maximum number of reviews cards to show in a day."
-        min={0}
-        defaultValue={defaults.reviewsPerDay}
-        bind:value={$config.reviewsPerDay} />
-
     <SpinBoxFloat
         label={tr.schedulingEasyBonus()}
         subLabel="Extra multiplier applied when answering Easy on a review card."

@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import DailyLimits from "./DailyLimits.svelte";
     import NewOptions from "./NewOptions.svelte";
     import ReviewOptions from "./ReviewOptions.svelte";
     import LapseOptions from "./LapseOptions.svelte";
@@ -19,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 <div>
+    <DailyLimits {state} />
     <NewOptions {state} />
     <ReviewOptions {state} />
     <LapseOptions {state} />

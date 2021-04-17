@@ -14,17 +14,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckConfigState;
     let config = state.currentConfig;
     let defaults = state.defaults;
-    let parentLimits = state.parentLimits;
 
     const newOrderChoices = [
         tr.schedulingShowNewCardsInOrderAdded(),
         tr.schedulingShowNewCardsInRandomOrder(),
     ];
-
-    $: newCardsGreaterThanParent =
-        $config.newPerDay > $parentLimits.newCards
-            ? `Daily limit will be capped to parent limit of ${$parentLimits.newCards}`
-            : "";
 
     let stepsExceedGraduatingInterval: string;
     $: {
@@ -59,14 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         choices={newOrderChoices}
         defaultValue={defaults.newCardOrder}
         bind:value={$config.newCardOrder} />
-
-    <SpinBox
-        label={tr.schedulingNewCardsday()}
-        subLabel="The maximum number of new cards to introduce in a day."
-        min={0}
-        warnings={[newCardsGreaterThanParent]}
-        defaultValue={defaults.newPerDay}
-        bind:value={$config.newPerDay} />
 
     <SpinBox
         label={tr.schedulingGraduatingInterval()}
