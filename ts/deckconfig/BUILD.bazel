@@ -131,5 +131,6 @@ jest_test(
         ":lib",
         "//ts/lib:backend_proto",
         "@npm//protobufjs",
+        "@npm//svelte",
     ],
 )
