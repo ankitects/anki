@@ -80,28 +80,20 @@ export class DeckConfigState {
             return;
         });
 
-        // create a temporary subscription to force our setters to be set, so unit
-        // tests don't get stale results
+        // create a temporary subscription to force our setters to be set immediately,
+        // so unit tests don't get stale results
         get(this.configList);
         get(this.parentLimits);
+
+        // update our state when the current config is changed
+        this.currentConfig.subscribe((val) => this.onCurrentConfigChanged(val));
     }
 
     setCurrentIndex(index: number): void {
-        this.saveCurrentConfig();
         this.selectedIdx = index;
         this.updateCurrentConfig();
         // use counts have changed
         this.updateConfigList();
-    }
-
-    /// Persist any changes made to the current config into the list of configs.
-    saveCurrentConfig(): void {
-        const config = get(this.currentConfig);
-        if (!isEqual(config, this.configs[this.selectedIdx].config.config)) {
-            this.configs[this.selectedIdx].config.config = config;
-            this.configs[this.selectedIdx].config.mtimeSecs = 0;
-        }
-        this.parentLimitsSetter?.(this.getParentLimits());
     }
 
     getCurrentName(): string {
@@ -148,6 +140,14 @@ export class DeckConfigState {
         this.selectedIdx = Math.max(0, this.selectedIdx - 1);
         this.updateCurrentConfig();
         this.updateConfigList();
+    }
+
+    private onCurrentConfigChanged(config: ConfigInner): void {
+        if (!isEqual(config, this.configs[this.selectedIdx].config.config)) {
+            this.configs[this.selectedIdx].config.config = config;
+            this.configs[this.selectedIdx].config.mtimeSecs = 0;
+        }
+        this.parentLimitsSetter?.(this.getParentLimits());
     }
 
     private ensureNewNameUnique(name: string): string {
