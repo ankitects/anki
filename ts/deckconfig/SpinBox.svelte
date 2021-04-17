@@ -13,15 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let warnings: string[] = [];
     export let defaultValue: number = 0;
 
-    function blur() {
-        if (value > max) {
-            value = max;
-        } else if (value < min) {
-            value = min;
-        }
+    $: if (value > max) {
+        value = max;
+    } else if (value < min) {
+        value = min;
     }
 </script>
 
 <ConfigEntry {label} {subLabel} {warnings} bind:value {defaultValue}>
-    <input type="number" {min} {max} bind:value on:blur={blur} class="form-control" />
+    <input type="number" {min} {max} bind:value class="form-control" />
 </ConfigEntry>
