@@ -49,8 +49,8 @@ export class DeckConfigState {
 
     private configs: ConfigWithCount[];
     private selectedIdx: number;
-    private configListSetter?: (val: ConfigListEntry[]) => void;
-    private parentLimitsSetter?: (val: ParentLimits) => void;
+    private configListSetter!: (val: ConfigListEntry[]) => void;
+    private parentLimitsSetter!: (val: ParentLimits) => void;
     private removedConfigs: DeckConfigId[] = [];
 
     constructor(data: pb.BackendProto.DeckConfigForUpdate) {
@@ -79,6 +79,11 @@ export class DeckConfigState {
             this.parentLimitsSetter = set;
             return;
         });
+
+        // create a temporary subscription to force our setters to be set, so unit
+        // tests don't get stale results
+        get(this.configList);
+        get(this.parentLimits);
     }
 
     setCurrentIndex(index: number): void {
@@ -93,12 +98,10 @@ export class DeckConfigState {
     saveCurrentConfig(): void {
         const config = get(this.currentConfig);
         if (!isEqual(config, this.configs[this.selectedIdx].config.config)) {
-            console.log("save");
             this.configs[this.selectedIdx].config.config = config;
             this.configs[this.selectedIdx].config.mtimeSecs = 0;
-        } else {
-            console.log("no changes");
         }
+        this.parentLimitsSetter?.(this.getParentLimits());
     }
 
     getCurrentName(): string {
@@ -148,7 +151,8 @@ export class DeckConfigState {
     }
 
     private ensureNewNameUnique(name: string): string {
-        if (this.configs.find((e) => e.config.name === name) !== undefined) {
+        const idx = this.configs.findIndex((e) => e.config.name === name);
+        if (idx !== -1) {
             return name + (new Date().getTime() / 1000).toFixed(0);
         } else {
             return name;
