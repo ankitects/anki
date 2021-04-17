@@ -32,6 +32,7 @@ exports_files([
     "protobuf-shim.js",
     "jest.config.js",
     "package.json",
+    "protobuf-no-long.js",
 ])
 
 alias(
