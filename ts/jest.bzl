@@ -2,7 +2,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@esbuild_toolchain//:esbuild.bzl", esbuild = "esbuild_macro")
 load("@npm//jest-cli:index.bzl", _jest_test = "jest_test")
 
-def jest_test(deps, name = "jest"):
+def jest_test(deps, name = "jest", protobuf = False):
     "Build *.test.ts into a library, then test it with Jest."
 
     ts_sources = native.glob(["*.test.ts"])
@@ -19,6 +19,16 @@ def jest_test(deps, name = "jest"):
 
     # bundle each test file up with its dependencies for jest
     bundled_srcs = []
+    esbuild_extra_args = []
+    esbuild_extra_srcs = []
+    if protobuf:
+        esbuild_extra_args.append(
+            "--inject:$(location //ts:protobuf-no-long.js)",
+        )
+        esbuild_extra_srcs.append(
+            "//ts:protobuf-no-long.js",
+        )
+
     for ts_src in ts_sources:
         base = ts_src.replace(".test.ts", "")
         bundle_name = base + ".bundle.test"
@@ -31,9 +41,10 @@ def jest_test(deps, name = "jest"):
                 "--platform=node",
                 "--external:protobufjs",
                 "--keep-names",
-            ],
+            ] + esbuild_extra_args,
             entry_point = ts_src,
             output = bundle_name + ".js",
+            srcs = esbuild_extra_srcs,
             deps = [
                 name + "_lib",
             ] + deps,
