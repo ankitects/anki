@@ -62,9 +62,11 @@ export class DeckConfigState {
                 useCount: config.useCount!,
             };
         });
-        this.selectedIdx =
-            this.configs.findIndex((c) => c.config.id === this.currentDeck.configId) ??
-            0;
+        this.selectedIdx = Math.max(
+            0,
+            this.configs.findIndex((c) => c.config.id === this.currentDeck.configId)
+        );
+
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time
         this.configs[this.selectedIdx].useCount -= 1;
