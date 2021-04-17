@@ -10,6 +10,7 @@ use crate::{
     decks::{Deck, DeckCommon, DeckId, DeckKindContainer, DeckSchema11, DueCounts},
     error::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
+    prelude::*,
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -23,7 +24,7 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
     let id = row.get(0)?;
     Ok(Deck {
         id,
-        name: row.get(1)?,
+        name: NativeDeckName(row.get(1)?),
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         common,
@@ -123,7 +124,7 @@ impl SqliteStorage {
         let mut kind = vec![];
         kind_enum.encode(&mut kind)?;
         let count = stmt.execute(params![
-            deck.name,
+            deck.name.as_str(),
             deck.mtime_secs,
             deck.usn,
             common,
@@ -158,7 +159,7 @@ impl SqliteStorage {
         kind_enum.encode(&mut kind)?;
         stmt.execute(params![
             deck.id,
-            deck.name,
+            deck.name.as_str(),
             deck.mtime_secs,
             deck.usn,
             common,
@@ -228,9 +229,13 @@ impl SqliteStorage {
     /// Return the parents of `child`, with the most immediate parent coming first.
     pub(crate) fn parent_decks(&self, child: &Deck) -> Result<Vec<Deck>> {
         let mut decks: Vec<Deck> = vec![];
-        while let Some(parent_name) =
-            immediate_parent_name(decks.last().map(|d| &d.name).unwrap_or_else(|| &child.name))
-        {
+        while let Some(parent_name) = immediate_parent_name(
+            decks
+                .last()
+                .map(|d| &d.name)
+                .unwrap_or_else(|| &child.name)
+                .as_str(),
+        ) {
             if let Some(parent_did) = self.get_deck_id(parent_name)? {
                 let parent = self.get_deck(parent_did)?.unwrap();
                 decks.push(parent);
@@ -324,7 +329,7 @@ impl SqliteStorage {
             "create temporary table active_decks (id integer primary key not null);"
         ))?;
 
-        let top = &current.name;
+        let top = current.name.as_str();
         let prefix_start = &format!("{}\x1f", top);
         let prefix_end = &format!("{}\x20", top);
 
@@ -341,7 +346,7 @@ impl SqliteStorage {
         let mut deck = Deck::new_normal();
         deck.id.0 = 1;
         // fixme: separate key
-        deck.name = tr.deck_config_default_name().into();
+        deck.name = NativeDeckName(tr.deck_config_default_name().into());
         self.add_or_update_deck_with_existing_id(&deck)
     }
 
@@ -356,12 +361,12 @@ impl SqliteStorage {
                 deck.set_modified(usn);
             }
             loop {
-                let name = UniCase::new(deck.name.clone());
+                let name = UniCase::new(deck.name.0.clone());
                 if !names.contains(&name) {
                     names.insert(name);
                     break;
                 }
-                deck.name.push('_');
+                deck.name.add_suffix("_");
                 deck.set_modified(usn);
             }
             self.add_or_update_deck_with_existing_id(&deck)?;

@@ -8,7 +8,6 @@ use super::{
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
-    decks::human_deck_name_to_native,
     error::Result,
     notes::field_checksum,
     notetype::NotetypeId,
@@ -347,11 +346,11 @@ impl SqlWriter<'_> {
                             .storage
                             .get_deck(current_did)?
                             .map(|d| d.name)
-                            .unwrap_or_else(|| "Default".into())
+                            .unwrap_or_else(|| NativeDeckName("Default".into()))
                             .as_str(),
                     )
                 } else {
-                    human_deck_name_to_native(&to_re(deck))
+                    NativeDeckName::from_human_name(&to_re(deck)).0
                 };
 
                 // convert to a regex that includes child decks
