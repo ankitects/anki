@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let subLabel: string;
     export let value: number[];
     export let defaultValue: number[];
-    export let warn: boolean = false;
+    export let warnings: string[] = [];
 
     const dispatch = createEventDispatcher();
 
@@ -35,11 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<ConfigEntry {label} {subLabel} {value} {defaultValue} on:revert={revert}>
-    <input
-        type="text"
-        value={stringValue}
-        on:blur={update}
-        class:warn
-        class="form-control" />
+<ConfigEntry {label} {subLabel} {value} {defaultValue} {warnings} on:revert={revert}>
+    <input type="text" value={stringValue} on:blur={update} class="form-control" />
 </ConfigEntry>

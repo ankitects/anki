@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let value: number;
     export let min = 1;
     export let max = 9999;
-    export let warn = false;
+    export let warnings: string[] = [];
     export let defaultValue: number = 0;
 
     function blur() {
@@ -22,13 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ConfigEntry {label} {subLabel} bind:value {defaultValue}>
-    <input
-        type="number"
-        {min}
-        {max}
-        bind:value
-        on:blur={blur}
-        class:warn
-        class="form-control" />
+<ConfigEntry {label} {subLabel} {warnings} bind:value {defaultValue}>
+    <input type="number" {min} {max} bind:value on:blur={blur} class="form-control" />
 </ConfigEntry>

@@ -9,6 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let subLabel = "";
     export let value: any;
     export let defaultValue: any;
+    /// empty strings will be ignored
+    export let warnings: string[] = [];
 </script>
 
 <style lang="scss">
@@ -33,4 +35,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="inner">
         <slot />
     </div>
+
+    {#each warnings as warning}
+        {#if warning}
+            <div class="alert alert-warning">{warning}</div>
+        {/if}
+    {/each}
 </div>
