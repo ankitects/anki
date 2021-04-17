@@ -126,11 +126,9 @@ svelte_check(
 )
 
 jest_test(
-    data = [
-        "@npm//protobufjs",
-    ],
     deps = [
         ":lib",
         "//ts/lib:backend_proto",
+        "@npm//protobufjs",
     ],
 )

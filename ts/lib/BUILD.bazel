@@ -78,9 +78,6 @@ eslint_test(
 )
 
 jest_test(
-    data = [
-        "@npm//protobufjs",
-    ],
     deps = [
         ":lib",
     ],
