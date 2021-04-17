@@ -84,7 +84,7 @@ impl Collection {
     pub(crate) fn recover_missing_deck(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id = did;
-        deck.name = NativeDeckName(format!("recovered{}", did));
+        deck.name = NativeDeckName::from_native_str(format!("recovered{}", did));
         deck.set_modified(usn);
         self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
     }
@@ -95,7 +95,7 @@ impl Collection {
     /// Caller must have done necessarily validation on name.
     fn add_parent_deck(&mut self, machine_name: &str, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
-        deck.name = NativeDeckName(machine_name.into());
+        deck.name = NativeDeckName::from_native_str(machine_name);
         deck.set_modified(usn);
         self.add_deck_undoable(&mut deck)
     }
@@ -111,7 +111,7 @@ impl Collection {
             }
             let parent_count = parent_deck.name.components().count();
             let need_create = parent_count != child_split.len() - 1;
-            deck.name = NativeDeckName(format!(
+            deck.name = NativeDeckName::from_native_str(format!(
                 "{}\x1f{}",
                 parent_deck.name,
                 &child_split[parent_count..].join("\x1f")

@@ -24,7 +24,7 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
     let id = row.get(0)?;
     Ok(Deck {
         id,
-        name: NativeDeckName(row.get(1)?),
+        name: NativeDeckName::from_native_str(row.get_raw(1).as_str()?),
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         common,
@@ -346,7 +346,7 @@ impl SqliteStorage {
         let mut deck = Deck::new_normal();
         deck.id.0 = 1;
         // fixme: separate key
-        deck.name = NativeDeckName(tr.deck_config_default_name().into());
+        deck.name = NativeDeckName::from_native_str(tr.deck_config_default_name());
         self.add_or_update_deck_with_existing_id(&deck)
     }
 
@@ -361,7 +361,7 @@ impl SqliteStorage {
                 deck.set_modified(usn);
             }
             loop {
-                let name = UniCase::new(deck.name.0.clone());
+                let name = UniCase::new(deck.name.as_str().to_string());
                 if !names.contains(&name) {
                     names.insert(name);
                     break;
