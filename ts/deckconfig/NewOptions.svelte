@@ -21,20 +21,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.schedulingShowNewCardsInRandomOrder(),
     ];
 
-    let stepsExceedGraduatingInterval: boolean;
+    $: newCardsGreaterThanParent =
+        $config.newPerDay > $parentLimits.newCards
+            ? `Daily limit will be capped to parent limit of ${$parentLimits.newCards}`
+            : "";
+
+    let stepsExceedGraduatingInterval: string;
     $: {
         const lastLearnStepInDays = $config.learnSteps.length
             ? $config.learnSteps[$config.learnSteps.length - 1] / 60 / 24
             : 0;
         stepsExceedGraduatingInterval =
-            lastLearnStepInDays > $config.graduatingIntervalGood;
+            lastLearnStepInDays > $config.graduatingIntervalGood
+                ? "Your last learning step is greater than the graduating interval."
+                : "";
     }
 
     $: goodExceedsEasy =
-        $config.graduatingIntervalGood > $config.graduatingIntervalEasy;
-
-    // fixme: change impl; support warning messages
-    $: newCardsGreaterThanParent = $config.newPerDay > $parentLimits.newCards;
+        $config.graduatingIntervalGood > $config.graduatingIntervalEasy
+            ? "The Good interval should not be larger than the Easy interval."
+            : "";
 </script>
 
 <div>
@@ -43,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <StepsInput
         label="Learning steps"
         subLabel="Learning steps, separated by spaces."
-        warn={stepsExceedGraduatingInterval}
+        warnings={[stepsExceedGraduatingInterval]}
         defaultValue={defaults.learnSteps}
         value={$config.learnSteps}
         on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
@@ -59,21 +65,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         label={tr.schedulingNewCardsday()}
         subLabel="The maximum number of new cards to introduce in a day."
         min={0}
-        warn={newCardsGreaterThanParent}
+        warnings={[newCardsGreaterThanParent]}
         defaultValue={defaults.newPerDay}
         bind:value={$config.newPerDay} />
 
     <SpinBox
         label={tr.schedulingGraduatingInterval()}
         subLabel="Days to wait after answering Good on the last learning step."
-        warn={stepsExceedGraduatingInterval || goodExceedsEasy}
+        warnings={[stepsExceedGraduatingInterval, goodExceedsEasy]}
         defaultValue={defaults.graduatingIntervalGood}
         bind:value={$config.graduatingIntervalGood} />
 
     <SpinBox
         label={tr.schedulingEasyInterval()}
         subLabel="Days to wait after answering Easy on the first learning step."
-        warn={goodExceedsEasy}
+        warnings={[goodExceedsEasy]}
         defaultValue={defaults.graduatingIntervalEasy}
         bind:value={$config.graduatingIntervalEasy} />
 

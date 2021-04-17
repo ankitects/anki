@@ -16,10 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(h2) {
         margin-top: 1em;
     }
-
-    :global(.warn) {
-        background-color: var(--flag1-bg);
-    }
 </style>
 
 <div>
