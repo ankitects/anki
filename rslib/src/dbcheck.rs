@@ -430,7 +430,11 @@ mod test {
             }
         );
         assert_eq!(
-            col.storage.get_deck(DeckId(123))?.unwrap().name.as_str(),
+            col.storage
+                .get_deck(DeckId(123))?
+                .unwrap()
+                .name
+                .as_native_str(),
             "recovered123"
         );
 

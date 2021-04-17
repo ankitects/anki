@@ -347,11 +347,11 @@ impl SqlWriter<'_> {
                             .get_deck(current_did)?
                             .map(|d| d.name)
                             .unwrap_or_else(|| NativeDeckName::from_native_str("Default"))
-                            .as_str(),
+                            .as_native_str(),
                     )
                 } else {
                     NativeDeckName::from_human_name(&to_re(deck))
-                        .as_str()
+                        .as_native_str()
                         .to_string()
                 };
 

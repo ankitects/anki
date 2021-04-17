@@ -8,10 +8,7 @@ use std::borrow::Cow;
 pub struct NativeDeckName(String);
 
 impl NativeDeckName {
-    pub fn from_native_str<N: Into<String>>(name: N) -> Self {
-        NativeDeckName(name.into())
-    }
-
+    /// Create from a '::'-separated string
     pub fn from_human_name(name: &str) -> Self {
         NativeDeckName(
             name.split("::")
@@ -20,6 +17,7 @@ impl NativeDeckName {
         )
     }
 
+    /// Return a '::'-separated string.
     pub fn human_name(&self) -> String {
         self.0.replace('\x1f', "::")
     }
@@ -28,7 +26,13 @@ impl NativeDeckName {
         self.0 += suffix
     }
 
-    pub(crate) fn as_str(&self) -> &str {
+    /// Create from an '\x1f'-separated string
+    pub(crate) fn from_native_str<N: Into<String>>(name: N) -> Self {
+        NativeDeckName(name.into())
+    }
+
+    /// Return a reference to the inner '\x1f'-separated string.
+    pub(crate) fn as_native_str(&self) -> &str {
         &self.0
     }
 
@@ -58,7 +62,7 @@ impl NativeDeckName {
     /// Replace the old parent's name with the new parent's name in self's name, where the old
     /// parent's name is expected to be a prefix.
     fn reparent(&mut self, old_parent: &NativeDeckName, new_parent: &NativeDeckName) {
-        self.0 = std::iter::once(new_parent.as_str())
+        self.0 = std::iter::once(new_parent.as_native_str())
             .chain(self.components().skip(old_parent.components().count()))
             .join("\x1f")
     }
@@ -117,7 +121,7 @@ impl Collection {
 
     pub(crate) fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
         loop {
-            match self.storage.get_deck_id(deck.name.as_str())? {
+            match self.storage.get_deck_id(deck.name.as_native_str())? {
                 Some(did) if did == deck.id => break,
                 None => break,
                 _ => (),
