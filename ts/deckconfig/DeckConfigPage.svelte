@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
     import ConfigEditor from "./ConfigEditor.svelte";
-    import * as tr from "anki/i18n";
     import type { DeckConfigState } from "./lib";
 
     export let state: DeckConfigState;
@@ -32,8 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="outer">
     <div class="inner">
-        <div><b>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</b></div>
-
         <ConfigSelector {state} />
 
         <ConfigEditor {state} />

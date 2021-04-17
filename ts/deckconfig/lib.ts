@@ -26,6 +26,11 @@ export interface ConfigWithCount {
     useCount: number;
 }
 
+export interface ParentLimits {
+    newCards: number;
+    reviews: number;
+}
+
 /// Info for showing the top selector
 export interface ConfigListEntry {
     idx: number;
@@ -38,12 +43,14 @@ type ConfigInner = pb.BackendProto.DeckConfig.Config;
 export class DeckConfigState {
     readonly currentConfig: Writable<ConfigInner>;
     readonly configList: Readable<ConfigListEntry[]>;
+    readonly parentLimits: Readable<ParentLimits>;
     readonly currentDeck: pb.BackendProto.DeckConfigForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
 
     private configs: ConfigWithCount[];
     private selectedIdx: number;
     private configListSetter?: (val: ConfigListEntry[]) => void;
+    private parentLimitsSetter?: (val: ParentLimits) => void;
     private removedConfigs: DeckConfigId[] = [];
 
     constructor(data: pb.BackendProto.DeckConfigForUpdate) {
@@ -64,7 +71,11 @@ export class DeckConfigState {
         this.currentConfig = writable(this.getCurrentConfig());
         this.configList = readable(this.getConfigList(), (set) => {
             this.configListSetter = set;
-            return undefined;
+            return;
+        });
+        this.parentLimits = readable(this.getParentLimits(), (set) => {
+            this.parentLimitsSetter = set;
+            return;
         });
     }
 
@@ -144,6 +155,7 @@ export class DeckConfigState {
 
     private updateCurrentConfig(): void {
         this.currentConfig.set(this.getCurrentConfig());
+        this.parentLimitsSetter?.(this.getParentLimits());
     }
 
     private updateConfigList(): void {
@@ -169,5 +181,25 @@ export class DeckConfigState {
             a.name.localeCompare(b.name, tr.i18n.langs, { sensitivity: "base" })
         );
         return list;
+    }
+
+    private getParentLimits(): ParentLimits {
+        const parentConfigs = this.configs.filter((c) =>
+            this.currentDeck.parentConfigIds.includes(c.config.id)
+        );
+        const newCards = parentConfigs.reduce(
+            (previous, current) =>
+                Math.min(previous, current.config.config?.newPerDay ?? 0),
+            2 ** 31
+        );
+        const reviews = parentConfigs.reduce(
+            (previous, current) =>
+                Math.min(previous, current.config.config?.reviewsPerDay ?? 0),
+            2 ** 31
+        );
+        return {
+            newCards,
+            reviews,
+        };
     }
 }
