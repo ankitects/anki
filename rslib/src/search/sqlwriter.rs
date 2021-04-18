@@ -667,6 +667,16 @@ mod test {
         );
         assert_eq!(s(ctx, "added:0").0, s(ctx, "added:1").0,);
 
+        // introduced
+        assert_eq!(
+            s(ctx, "introduced:3").0,
+            format!(
+                "((select min(id) > {} from revlog where cid = c.id))",
+                (timing.next_day_at.0 - (86_400 * 3)) * 1_000
+            )
+        );
+        assert_eq!(s(ctx, "introduced:0").0, s(ctx, "introduced:1").0,);
+
         // deck
         assert_eq!(
             s(ctx, "deck:default"),
