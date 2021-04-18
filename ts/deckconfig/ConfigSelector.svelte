@@ -23,7 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .form-select {
         display: inline-block;
-        width: 70%;
+        grid-row: 2;
+        grid-column: 1 / 4;
     }
 
     .outer {
@@ -40,10 +41,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .inner {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
         width: 35em;
-
+        grid-template-columns: 1fr 1fr 1fr 1fr;
         & > :global(*) {
             padding-left: 0.5em;
             padding-right: 0.5em;
@@ -57,7 +57,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="outer">
     <div class="inner">
-        <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
+        <div style="grid-column: 1 / 4;">
+            {tr.actionsOptionsFor({ val: state.currentDeck.name })}
+        </div>
 
         <!-- svelte-ignore a11y-no-onchange -->
         <select class="form-select" on:change={blur}>
@@ -68,7 +70,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/each}
         </select>
 
-        <OptionsDropdown {state} />
+        <div style="grid-row: 2; align-items: right;">
+            <OptionsDropdown {state} />
+        </div>
     </div>
 </div>
 
