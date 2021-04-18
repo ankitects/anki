@@ -3,15 +3,12 @@
 
 use super::SqliteStorage;
 use crate::{
-    card::CardId,
     card::CardQueue,
     config::SchedulerVersion,
     decks::immediate_parent_name,
-    decks::{Deck, DeckCommon, DeckId, DeckKindContainer, DeckSchema11, DueCounts},
-    error::{AnkiError, DbErrorKind, Result},
-    i18n::I18n,
+    decks::{DeckCommon, DeckKindContainer, DeckSchema11, DueCounts},
+    error::DbErrorKind,
     prelude::*,
-    timestamp::TimestampMillis,
 };
 use prost::Message;
 use rusqlite::{named_params, params, Row, NO_PARAMS};
