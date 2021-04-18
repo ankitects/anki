@@ -83,6 +83,7 @@ fn write_search_node(node: &SearchNode) -> String {
         SingleField { field, text, is_re } => write_single_field(field, text, *is_re),
         AddedInDays(u) => format!("added:{}", u),
         EditedInDays(u) => format!("edited:{}", u),
+        IntroducedInDays(u) => format!("introduced:{}", u),
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{}", s)),
         DeckId(DeckIdType(i)) => format!("did:{}", i),
