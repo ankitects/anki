@@ -31,6 +31,7 @@ pub enum Op {
     UnburyUnsuspend,
     UpdateCard,
     UpdateDeck,
+    UpdateDeckConfig,
     UpdateNote,
     UpdatePreferences,
     UpdateTag,
@@ -70,6 +71,7 @@ impl Op {
             Op::EmptyFilteredDeck => tr.studying_empty(),
             Op::ExpandCollapse => tr.undo_expand_collapse(),
             Op::SetCurrentDeck => tr.browsing_change_deck(),
+            Op::UpdateDeckConfig => tr.undo_deck_config(),
         }
         .into()
     }

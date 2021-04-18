@@ -4,7 +4,7 @@
 use super::Backend;
 use crate::{
     backend_proto as pb,
-    deckconf::{DeckConf, DeckConfSchema11},
+    deckconf::{DeckConf, DeckConfSchema11, UpdateDeckConfigsIn},
     prelude::*,
 };
 pub(super) use pb::deckconfig_service::Service as DeckConfigService;
@@ -62,12 +62,13 @@ impl DeckConfigService for Backend {
             .map(Into::into)
     }
 
-    fn get_deck_config_for_update(&self, input: pb::DeckId) -> Result<pb::DeckConfigForUpdate> {
-        self.with_col(|col| col.get_deck_config_for_update(input.into()))
+    fn get_deck_configs_for_update(&self, input: pb::DeckId) -> Result<pb::DeckConfigsForUpdate> {
+        self.with_col(|col| col.get_deck_configs_for_update(input.into()))
     }
 
-    fn update_deck_config(&self, _input: pb::UpdateDeckConfigIn) -> Result<pb::OpChanges> {
-        todo!();
+    fn update_deck_configs(&self, input: pb::UpdateDeckConfigsIn) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.update_deck_configs(input.into()))
+            .map(Into::into)
     }
 }
 
@@ -79,6 +80,29 @@ impl From<DeckConf> for pb::DeckConfig {
             mtime_secs: c.mtime_secs.0,
             usn: c.usn.0,
             config: Some(c.inner),
+        }
+    }
+}
+
+impl From<pb::UpdateDeckConfigsIn> for UpdateDeckConfigsIn {
+    fn from(c: pb::UpdateDeckConfigsIn) -> Self {
+        UpdateDeckConfigsIn {
+            target_deck_id: c.target_deck_id.into(),
+            configs: c.configs.into_iter().map(Into::into).collect(),
+            removed_config_ids: c.removed_config_ids.into_iter().map(Into::into).collect(),
+            apply_to_children: c.apply_to_children,
+        }
+    }
+}
+
+impl From<pb::DeckConfig> for DeckConf {
+    fn from(c: pb::DeckConfig) -> Self {
+        DeckConf {
+            id: c.id.into(),
+            name: c.name,
+            mtime_secs: c.mtime_secs.into(),
+            usn: c.usn.into(),
+            inner: c.config.unwrap_or_default(),
         }
     }
 }

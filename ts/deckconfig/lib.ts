@@ -13,9 +13,9 @@ import * as tr from "anki/i18n";
 
 export async function getDeckConfigInfo(
     deckId: number
-): Promise<pb.BackendProto.DeckConfigForUpdate> {
-    return pb.BackendProto.DeckConfigForUpdate.decode(
-        await postRequest("/_anki/deckConfigForUpdate", JSON.stringify({ deckId }))
+): Promise<pb.BackendProto.DeckConfigsForUpdate> {
+    return pb.BackendProto.DeckConfigsForUpdate.decode(
+        await postRequest("/_anki/deckConfigsForUpdate", JSON.stringify({ deckId }))
     );
 }
 
@@ -44,7 +44,7 @@ export class DeckConfigState {
     readonly currentConfig: Writable<ConfigInner>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
-    readonly currentDeck: pb.BackendProto.DeckConfigForUpdate.CurrentDeck;
+    readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
 
     private configs: ConfigWithCount[];
@@ -52,9 +52,10 @@ export class DeckConfigState {
     private configListSetter!: (val: ConfigListEntry[]) => void;
     private parentLimitsSetter!: (val: ParentLimits) => void;
     private removedConfigs: DeckConfigId[] = [];
+    private schemaModified: boolean;
 
-    constructor(data: pb.BackendProto.DeckConfigForUpdate) {
-        this.currentDeck = data.currentDeck as pb.BackendProto.DeckConfigForUpdate.CurrentDeck;
+    constructor(data: pb.BackendProto.DeckConfigsForUpdate) {
+        this.currentDeck = data.currentDeck as pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
         this.defaults = data.defaults!.config! as ConfigInner;
         this.configs = data.allConfig.map((config) => {
             return {
@@ -79,6 +80,7 @@ export class DeckConfigState {
             this.parentLimitsSetter = set;
             return;
         });
+        this.schemaModified = data.schemaModified;
 
         // create a temporary subscription to force our setters to be set immediately,
         // so unit tests don't get stale results
@@ -126,6 +128,14 @@ export class DeckConfigState {
         this.updateConfigList();
     }
 
+    removalWilLForceFullSync(): boolean {
+        return !this.schemaModified && this.configs[this.selectedIdx].config.id !== 0;
+    }
+
+    defaultConfigSelected(): boolean {
+        return this.configs[this.selectedIdx].config.id === 1;
+    }
+
     /// Will throw if the default deck is selected.
     removeCurrentConfig(): void {
         const currentId = this.configs[this.selectedIdx].config.id;
@@ -135,6 +145,7 @@ export class DeckConfigState {
 
         if (currentId !== 0) {
             this.removedConfigs.push(currentId);
+            this.schemaModified = true;
         }
         this.configs.splice(this.selectedIdx, 1);
         this.selectedIdx = Math.max(0, this.selectedIdx - 1);

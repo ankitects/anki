@@ -297,6 +297,13 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn schema_modified(&self) -> Result<bool> {
+        self.db
+            .prepare_cached("select scm > ls from col")?
+            .query_row(NO_PARAMS, |r| r.get(0))
+            .map_err(Into::into)
+    }
+
     pub(crate) fn get_schema_mtime(&self) -> Result<TimestampMillis> {
         self.db
             .prepare_cached("select scm from col")?

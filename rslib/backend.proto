@@ -228,8 +228,8 @@ service DeckConfigService {
   rpc GetDeckConfigLegacy(DeckConfigId) returns (Json);
   rpc NewDeckConfigLegacy(Empty) returns (Json);
   rpc RemoveDeckConfig(DeckConfigId) returns (Empty);
-  rpc GetDeckConfigForUpdate(DeckId) returns (DeckConfigForUpdate);
-  rpc UpdateDeckConfig(UpdateDeckConfigIn) returns (OpChanges);
+  rpc GetDeckConfigsForUpdate(DeckId) returns (DeckConfigsForUpdate);
+  rpc UpdateDeckConfigs(UpdateDeckConfigsIn) returns (OpChanges);
 }
 
 service TagsService {
@@ -895,7 +895,7 @@ message AddOrUpdateDeckConfigLegacyIn {
   bool preserve_usn_and_mtime = 2;
 }
 
-message DeckConfigForUpdate {
+message DeckConfigsForUpdate {
   message ConfigWithExtra {
     DeckConfig config = 1;
     uint32 use_count = 2;
@@ -909,13 +909,16 @@ message DeckConfigForUpdate {
   repeated ConfigWithExtra all_config = 1;
   CurrentDeck current_deck = 2;
   DeckConfig defaults = 3;
+  bool schema_modified = 4;
 }
 
-message UpdateDeckConfigIn {
-  int64 target_deck_id = 2;
-  DeckConfig desired_config = 3;
-  repeated int64 removed_config_ids = 4;
-  bool apply_to_children = 5;
+message UpdateDeckConfigsIn {
+  int64 target_deck_id = 1;
+  /// Unchanged, non-selected configs can be omitted. Deck will
+  /// be set to whichever entry comes last.
+  repeated DeckConfig configs = 2;
+  repeated int64 removed_config_ids = 3;
+  bool apply_to_children = 4;
 }
 
 message SetTagCollapsedIn {

@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `${entry.name} (${count})`;
     }
 
-    function myblur(this: HTMLSelectElement) {
+    function blur(this: HTMLSelectElement) {
         state.setCurrentIndex(parseInt(this.value));
     }
 </script>
@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
         <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" on:change={myblur}>
+        <select class="form-select" on:change={blur}>
             {#each $configList as entry}
                 <option value={entry.idx} selected={entry.current}>
                     {configLabel(entry)}
