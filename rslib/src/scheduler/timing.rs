@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::prelude::*;
 use chrono::{Date, Duration, FixedOffset, Local, TimeZone, Timelike};
+
+use crate::prelude::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct SchedTimingToday {
@@ -192,8 +193,9 @@ pub(crate) fn sched_timing_today(
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use chrono::{FixedOffset, Local, TimeZone, Utc};
+
+    use super::*;
 
     // static timezone for tests
     const AEST_MINS_WEST: i32 = -600;

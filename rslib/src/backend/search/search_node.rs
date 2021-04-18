@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use itertools::Itertools;
 use std::convert::{TryFrom, TryInto};
+
+use itertools::Itertools;
 
 use crate::{
     backend_proto as pb,
@@ -18,9 +19,7 @@ impl TryFrom<pb::SearchNode> for Node {
     type Error = AnkiError;
 
     fn try_from(msg: pb::SearchNode) -> std::result::Result<Self, Self::Error> {
-        use pb::search_node::group::Joiner;
-        use pb::search_node::Filter;
-        use pb::search_node::Flag;
+        use pb::search_node::{group::Joiner, Filter, Flag};
         Ok(if let Some(filter) = msg.filter {
             match filter {
                 Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),

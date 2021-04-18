@@ -1,13 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::cloze::{cloze_filter, cloze_only_filter};
-use crate::template::RenderContext;
-use crate::text::strip_html;
+use std::borrow::Cow;
+
 use blake3::Hasher;
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
-use std::borrow::Cow;
+
+use crate::{
+    cloze::{cloze_filter, cloze_only_filter},
+    template::RenderContext,
+    text::strip_html,
+};
 
 // Filtering
 //----------------------------------------
@@ -197,12 +201,14 @@ fn tts_filter(filter_name: &str, text: &str) -> Cow<'static, str> {
 
 #[cfg(test)]
 mod test {
-    use crate::template::RenderContext;
-    use crate::template_filters::{
-        apply_filters, cloze_filter, furigana_filter, hint_filter, kana_filter, kanji_filter,
-        tts_filter, type_cloze_filter, type_filter,
+    use crate::{
+        template::RenderContext,
+        template_filters::{
+            apply_filters, cloze_filter, furigana_filter, hint_filter, kana_filter, kanji_filter,
+            tts_filter, type_cloze_filter, type_filter,
+        },
+        text::strip_html,
     };
-    use crate::text::strip_html;
 
     #[test]
     fn furigana() {

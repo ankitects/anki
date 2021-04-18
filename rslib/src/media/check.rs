@@ -1,23 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::collection::Collection;
-use crate::error::{AnkiError, DbErrorKind, Result};
-use crate::latex::extract_latex_expanding_clozes;
-use crate::log::debug;
-use crate::media::database::MediaDatabaseContext;
-use crate::media::files::{
-    data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder,
-    MEDIA_SYNC_FILESIZE_LIMIT,
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    fs, io,
+    path::Path,
 };
-use crate::notes::Note;
-use crate::text::{normalize_to_nfc, MediaRef};
-use crate::{media::MediaManager, text::extract_media_refs};
+
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::{HashMap, HashSet};
-use std::path::Path;
-use std::{borrow::Cow, fs, io};
+
+use crate::{
+    collection::Collection,
+    error::{AnkiError, DbErrorKind, Result},
+    latex::extract_latex_expanding_clozes,
+    log::debug,
+    media::{
+        database::MediaDatabaseContext,
+        files::{
+            data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder,
+            MEDIA_SYNC_FILESIZE_LIMIT,
+        },
+        MediaManager,
+    },
+    notes::Note,
+    text::{extract_media_refs, normalize_to_nfc, MediaRef},
+};
 
 lazy_static! {
     static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
@@ -506,17 +515,22 @@ pub(crate) mod test {
     pub(crate) const MEDIACHECK_ANKI2: &[u8] =
         include_bytes!("../../tests/support/mediacheck.anki2");
 
-    use super::normalize_and_maybe_rename_files;
-    use crate::collection::{open_collection, Collection};
-    use crate::error::Result;
-    use crate::i18n::I18n;
-    use crate::log;
-    use crate::media::check::{MediaCheckOutput, MediaChecker};
-    use crate::media::files::trash_folder;
-    use crate::media::MediaManager;
-    use std::path::Path;
-    use std::{collections::HashMap, fs, io};
+    use std::{collections::HashMap, fs, io, path::Path};
+
     use tempfile::{tempdir, TempDir};
+
+    use super::normalize_and_maybe_rename_files;
+    use crate::{
+        collection::{open_collection, Collection},
+        error::Result,
+        i18n::I18n,
+        log,
+        media::{
+            check::{MediaCheckOutput, MediaChecker},
+            files::trash_folder,
+            MediaManager,
+        },
+    };
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;

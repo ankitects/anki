@@ -3,6 +3,15 @@
 
 pub(crate) mod filtered;
 
+use std::{collections::HashSet, convert::TryFrom, result};
+
+use rusqlite::{
+    named_params, params,
+    types::{FromSql, FromSqlError, ValueRef},
+    OptionalExtension, Row, NO_PARAMS,
+};
+
+use super::ids_to_string;
 use crate::{
     card::{Card, CardId, CardQueue, CardType},
     deckconf::DeckConfId,
@@ -16,15 +25,6 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
-use rusqlite::params;
-use rusqlite::{
-    named_params,
-    types::{FromSql, FromSqlError, ValueRef},
-    OptionalExtension, Row, NO_PARAMS,
-};
-use std::{collections::HashSet, convert::TryFrom, result};
-
-use super::ids_to_string;
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
@@ -515,8 +515,9 @@ impl super::SqliteStorage {
 
 #[cfg(test)]
 mod test {
-    use crate::{card::Card, i18n::I18n, storage::SqliteStorage};
     use std::path::Path;
+
+    use crate::{card::Card, i18n::I18n, storage::SqliteStorage};
 
     #[test]
     fn add_card() {

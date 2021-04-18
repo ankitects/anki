@@ -4,6 +4,7 @@
 //! Adding tags to selected notes in the browse screen.
 
 use std::collections::HashSet;
+
 use unicase::UniCase;
 
 use super::{join_tags, split_tags};

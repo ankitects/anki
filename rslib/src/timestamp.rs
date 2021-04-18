@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::define_newtype;
+use std::{env, time};
+
 use chrono::prelude::*;
 use lazy_static::lazy_static;
-use std::env;
-use std::time;
+
+use crate::define_newtype;
 
 define_newtype!(TimestampSecs, i64);
 define_newtype!(TimestampMillis, i64);

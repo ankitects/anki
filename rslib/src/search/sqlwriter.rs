@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{borrow::Cow, fmt::Write};
+
 use super::{
     parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
     ReturnItemType,
@@ -19,7 +21,6 @@ use crate::{
     },
     timestamp::TimestampSecs,
 };
-use std::{borrow::Cow, fmt::Write};
 
 pub(crate) struct SqlWriter<'a> {
     col: &'a mut Collection,
@@ -575,16 +576,16 @@ impl SearchNode {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use std::{fs, path::PathBuf};
+
+    use tempfile::tempdir;
+
+    use super::{super::parser::parse, *};
     use crate::{
         collection::{open_collection, Collection},
         i18n::I18n,
         log,
     };
-    use std::{fs, path::PathBuf};
-    use tempfile::tempdir;
-
-    use super::super::parser::parse;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {

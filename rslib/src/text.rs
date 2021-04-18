@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{borrow::Cow, ptr};
+
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
-use std::borrow::Cow;
-use std::ptr;
 use unicase::eq as uni_eq;
 use unicode_normalization::{
     char::is_combining_mark, is_nfc, is_nfkd_quick, IsNormalized, UnicodeNormalization,
@@ -417,8 +417,9 @@ pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::borrow::Cow;
+
+    use super::*;
 
     #[test]
     fn stripping() {

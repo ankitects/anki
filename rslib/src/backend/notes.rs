@@ -4,12 +4,12 @@
 use std::collections::HashSet;
 
 use super::Backend;
+pub(super) use crate::backend_proto::notes_service::Service as NotesService;
 use crate::{
     backend_proto::{self as pb},
     cloze::add_cloze_numbers_in_string,
     prelude::*,
 };
-pub(super) use pb::notes_service::Service as NotesService;
 
 impl NotesService for Backend {
     fn new_note(&self, input: pb::NotetypeId) -> Result<pb::Note> {

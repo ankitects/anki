@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::timestamp::TimestampSecs;
 use serde::{Deserialize as DeTrait, Deserializer};
 pub(crate) use serde_aux::field_attributes::{
     deserialize_bool_from_anything, deserialize_number_from_string,
 };
 use serde_json::Value;
+
+use crate::timestamp::TimestampSecs;
 
 /// Note: if you wish to cover the case where a field is missing, make sure you also
 /// use the `serde(default)` flag.
@@ -68,8 +69,9 @@ impl FromI64 for TimestampSecs {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use serde::Deserialize;
+
+    use super::*;
 
     #[derive(Deserialize, Debug, PartialEq)]
     struct MaybeInvalid {

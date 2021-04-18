@@ -1,30 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{server::SyncServer, SYNC_VERSION_MAX};
-use super::{
-    Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckOut, SyncMeta, UnchunkedChanges,
-};
-use crate::prelude::*;
-use crate::{error::SyncErrorKind, notes::guid, version::sync_client_version};
+use std::{io::prelude::*, path::Path, time::Duration};
+
 use async_trait::async_trait;
 use bytes::Bytes;
-use flate2::write::GzEncoder;
-use flate2::Compression;
-use futures::Stream;
-use futures::StreamExt;
-use reqwest::Body;
-use reqwest::{multipart, Client, Response};
+use flate2::{write::GzEncoder, Compression};
+use futures::{Stream, StreamExt};
+use reqwest::{multipart, Body, Client, Response};
 use serde::de::DeserializeOwned;
-
-use super::http::{
-    ApplyChangesIn, ApplyChunkIn, ApplyGravesIn, HostKeyIn, HostKeyOut, MetaIn, SanityCheckIn,
-    StartIn, SyncRequest,
-};
-use std::io::prelude::*;
-use std::path::Path;
-use std::time::Duration;
 use tempfile::NamedTempFile;
+
+use super::{
+    http::{
+        ApplyChangesIn, ApplyChunkIn, ApplyGravesIn, HostKeyIn, HostKeyOut, MetaIn, SanityCheckIn,
+        StartIn, SyncRequest,
+    },
+    server::SyncServer,
+    Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckOut, SyncMeta, UnchunkedChanges,
+    SYNC_VERSION_MAX,
+};
+use crate::{error::SyncErrorKind, notes::guid, prelude::*, version::sync_client_version};
 
 // fixme: 100mb limit
 
@@ -288,12 +284,13 @@ impl HttpSyncClient {
     }
 }
 
+use std::pin::Pin;
+
 use futures::{
     ready,
     task::{Context, Poll},
 };
 use pin_project::pin_project;
-use std::pin::Pin;
 use tokio::io::AsyncRead;
 
 #[pin_project]
@@ -345,12 +342,13 @@ fn sync_endpoint(host_number: u32) -> String {
 
 #[cfg(test)]
 mod test {
+    use tokio::runtime::Runtime;
+
     use super::*;
     use crate::{
         error::{SyncError, SyncErrorKind},
         sync::SanityCheckDueCounts,
     };
-    use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
         let mut syncer = Box::new(HttpSyncClient::new(None, 0));

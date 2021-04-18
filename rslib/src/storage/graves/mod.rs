@@ -1,6 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::convert::TryFrom;
+
+use num_enum::TryFromPrimitive;
+use rusqlite::{params, NO_PARAMS};
+
 use super::SqliteStorage;
 use crate::{
     card::CardId,
@@ -10,9 +15,6 @@ use crate::{
     sync::Graves,
     types::Usn,
 };
-use num_enum::TryFromPrimitive;
-use rusqlite::{params, NO_PARAMS};
-use std::convert::TryFrom;
 
 #[derive(TryFromPrimitive)]
 #[repr(u8)]

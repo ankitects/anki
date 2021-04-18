@@ -1,20 +1,28 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::error::{AnkiError, Result, TemplateError};
-use crate::i18n::I18n;
-use crate::{cloze::add_cloze_numbers_in_string, template_filters::apply_filters};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    fmt::Write,
+    iter,
+};
+
 use lazy_static::lazy_static;
-use nom::branch::alt;
-use nom::bytes::complete::{tag, take_until};
 use nom::{
+    branch::alt,
+    bytes::complete::{tag, take_until},
     combinator::{map, rest, verify},
     sequence::delimited,
 };
 use regex::Regex;
-use std::collections::{HashMap, HashSet};
-use std::fmt::Write;
-use std::{borrow::Cow, iter};
+
+use crate::{
+    cloze::add_cloze_numbers_in_string,
+    error::{AnkiError, Result, TemplateError},
+    i18n::I18n,
+    template_filters::apply_filters,
+};
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
@@ -792,13 +800,14 @@ fn find_fields_with_filter<'a>(
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
+
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::error::TemplateError;
     use crate::{
+        error::TemplateError,
         i18n::I18n,
         template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
     };
-    use std::collections::HashMap;
 
     #[test]
     fn field_empty() {

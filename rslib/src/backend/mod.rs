@@ -26,6 +26,16 @@ mod stats;
 mod sync;
 mod tags;
 
+use std::{
+    result,
+    sync::{Arc, Mutex},
+};
+
+use once_cell::sync::OnceCell;
+use progress::AbortHandleSlot;
+use prost::Message;
+use tokio::runtime::{self, Runtime};
+
 use self::{
     card::CardsService,
     cardrendering::CardRenderingService,
@@ -44,7 +54,6 @@ use self::{
     sync::{SyncService, SyncState},
     tags::TagsService,
 };
-
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
@@ -52,14 +61,6 @@ use crate::{
     error::{AnkiError, Result},
     i18n::I18n,
 };
-use once_cell::sync::OnceCell;
-use progress::AbortHandleSlot;
-use prost::Message;
-use std::{
-    result,
-    sync::{Arc, Mutex},
-};
-use tokio::runtime::{self, Runtime};
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,

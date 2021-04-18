@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{fs, fs::OpenOptions, io};
+
 pub use slog::{debug, error, Logger};
 use slog::{slog_o, Drain};
 use slog_async::OverflowStrategy;
-use std::fs::OpenOptions;
-use std::{fs, io};
 
 const LOG_ROTATE_BYTES: u64 = 50 * 1024 * 1024;
 

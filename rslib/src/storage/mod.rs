@@ -16,10 +16,10 @@ mod sync_check;
 mod tag;
 mod upgrades;
 
+use std::fmt::Write;
+
 pub(crate) use sqlite::SqliteStorage;
 pub(crate) use sync::open_and_check_sqlite_file;
-
-use std::fmt::Write;
 
 // Write a list of IDs as '(x,y,...)' into the provided string.
 pub(crate) fn ids_to_string<T>(buf: &mut String, ids: &[T])

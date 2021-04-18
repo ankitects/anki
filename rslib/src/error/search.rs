@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::AnkiError;
+use std::num::ParseIntError;
 
 use anki_i18n::I18n;
 use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
-use std::num::ParseIntError;
+
+use super::AnkiError;
 
 #[derive(Debug, PartialEq)]
 pub enum ParseError<'a> {

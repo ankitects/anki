@@ -7,6 +7,7 @@ mod search_node;
 use std::{convert::TryInto, str::FromStr, sync::Arc};
 
 use super::Backend;
+pub(super) use crate::backend_proto::search_service::Service as SearchService;
 use crate::{
     backend_proto as pb,
     backend_proto::sort_order::Value as SortOrderProto,
@@ -14,7 +15,6 @@ use crate::{
     prelude::*,
     search::{concatenate_searches, replace_search_node, write_nodes, Node, SortMode},
 };
-pub(super) use pb::search_service::Service as SearchService;
 
 impl SearchService for Backend {
     fn build_search_string(&self, input: pb::SearchNode) -> Result<pb::String> {

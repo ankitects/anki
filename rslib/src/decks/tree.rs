@@ -1,17 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{
+    collections::{HashMap, HashSet},
+    iter::Peekable,
+};
+
+use serde_tuple::Serialize_tuple;
+use unicase::UniCase;
+
 use super::DueCounts;
 pub use crate::backend_proto::set_deck_collapsed_in::Scope as DeckCollapseScope;
 use crate::{
     backend_proto::DeckTreeNode, config::SchedulerVersion, ops::OpOutput, prelude::*, undo::Op,
 };
-use serde_tuple::Serialize_tuple;
-use std::{
-    collections::{HashMap, HashSet},
-    iter::Peekable,
-};
-use unicase::UniCase;
 
 fn deck_names_to_tree(names: Vec<(DeckId, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();

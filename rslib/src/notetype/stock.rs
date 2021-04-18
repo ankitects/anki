@@ -3,6 +3,7 @@
 
 use super::NotetypeKind;
 use crate::{
+    backend_proto::stock_notetype::Kind,
     config::{ConfigEntry, ConfigKey},
     error::Result,
     i18n::I18n,
@@ -10,8 +11,6 @@ use crate::{
     storage::SqliteStorage,
     timestamp::TimestampSecs,
 };
-
-use crate::backend_proto::stock_notetype::Kind;
 
 impl SqliteStorage {
     pub(crate) fn add_stock_notetypes(&self, tr: &I18n) -> Result<()> {

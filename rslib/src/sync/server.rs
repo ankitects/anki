@@ -3,6 +3,10 @@
 
 use std::{fs, path::Path};
 
+use async_trait::async_trait;
+use tempfile::NamedTempFile;
+
+use super::ChunkableIds;
 use crate::{
     prelude::*,
     storage::open_and_check_sqlite_file,
@@ -11,10 +15,6 @@ use crate::{
         UnchunkedChanges, Usn,
     },
 };
-use async_trait::async_trait;
-use tempfile::NamedTempFile;
-
-use super::ChunkableIds;
 #[async_trait(?Send)]
 pub trait SyncServer {
     async fn meta(&self) -> Result<SyncMeta>;

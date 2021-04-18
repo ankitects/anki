@@ -2,8 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{LearningQueueEntry, MainQueueEntry, MainQueueEntryKind};
-use crate::card::CardQueue;
-use crate::prelude::*;
+use crate::{card::CardQueue, prelude::*};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) enum QueueEntry {

@@ -1,16 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
+use serde_derive::{Deserialize, Serialize};
+use serde_json::Value;
+use serde_tuple::Serialize_tuple;
+
 use super::{DeckCommon, FilteredDeck, FilteredSearchTerm, NormalDeck};
 use crate::{
     prelude::*,
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
 };
-
-use serde_derive::{Deserialize, Serialize};
-use serde_json::Value;
-use serde_tuple::Serialize_tuple;
-use std::collections::HashMap;
 
 #[derive(Serialize, PartialEq, Debug, Clone)]
 #[serde(untagged)]
@@ -21,9 +22,10 @@ pub enum DeckSchema11 {
 
 // serde doesn't support integer/bool enum tags, so we manually pick the correct variant
 mod dynfix {
-    use super::{DeckSchema11, FilteredDeckSchema11, NormalDeckSchema11};
     use serde::de::{self, Deserialize, Deserializer};
     use serde_json::{Map, Value};
+
+    use super::{DeckSchema11, FilteredDeckSchema11, NormalDeckSchema11};
 
     impl<'de> Deserialize<'de> for DeckSchema11 {
         fn deserialize<D>(deserializer: D) -> Result<DeckSchema11, D::Error>

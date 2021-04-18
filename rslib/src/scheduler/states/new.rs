@@ -1,9 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::revlog::RevlogReviewKind;
-
 use super::interval_kind::IntervalKind;
+use crate::revlog::RevlogReviewKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct NewState {

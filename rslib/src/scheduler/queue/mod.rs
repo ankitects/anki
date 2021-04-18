@@ -13,17 +13,14 @@ use std::{
     collections::{BinaryHeap, VecDeque},
 };
 
-use crate::{backend_proto as pb, prelude::*, timestamp::TimestampSecs};
 pub(crate) use builder::{DueCard, NewCard};
-pub(crate) use {
-    entry::{QueueEntry, QueueEntryKind},
-    learning::LearningQueueEntry,
-    main::{MainQueueEntry, MainQueueEntryKind},
-};
+pub(crate) use entry::{QueueEntry, QueueEntryKind};
+pub(crate) use learning::LearningQueueEntry;
+pub(crate) use main::{MainQueueEntry, MainQueueEntryKind};
 
 use self::undo::QueueUpdate;
-
 use super::{states::NextCardStates, timing::SchedTimingToday};
+use crate::{backend_proto as pb, prelude::*, timestamp::TimestampSecs};
 
 #[derive(Debug)]
 pub(crate) struct CardQueues {

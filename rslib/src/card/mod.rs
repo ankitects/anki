@@ -3,18 +3,24 @@
 
 pub(crate) mod undo;
 
-use crate::error::{AnkiError, FilteredDeckError, Result};
-use crate::notes::NoteId;
-use crate::{
-    collection::Collection, config::SchedulerVersion, prelude::*, timestamp::TimestampSecs,
-    types::Usn,
-};
-use crate::{define_newtype, ops::StateChanges};
+use std::collections::HashSet;
 
-use crate::{deckconf::DeckConf, decks::DeckId};
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::collections::HashSet;
+
+use crate::{
+    collection::Collection,
+    config::SchedulerVersion,
+    deckconf::DeckConf,
+    decks::DeckId,
+    define_newtype,
+    error::{AnkiError, FilteredDeckError, Result},
+    notes::NoteId,
+    ops::StateChanges,
+    prelude::*,
+    timestamp::TimestampSecs,
+    types::Usn,
+};
 
 define_newtype!(CardId, i64);
 

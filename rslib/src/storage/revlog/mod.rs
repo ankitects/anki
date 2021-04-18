@@ -1,19 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::SqliteStorage;
-use crate::error::Result;
-use crate::{
-    backend_proto as pb,
-    prelude::*,
-    revlog::{RevlogEntry, RevlogReviewKind},
-};
+use std::convert::TryFrom;
+
 use rusqlite::{
     params,
     types::{FromSql, FromSqlError, ValueRef},
     Row, NO_PARAMS,
 };
-use std::convert::TryFrom;
+
+use super::SqliteStorage;
+use crate::{
+    backend_proto as pb,
+    error::Result,
+    prelude::*,
+    revlog::{RevlogEntry, RevlogReviewKind},
+};
 
 pub(crate) struct StudiedToday {
     pub cards: u32,

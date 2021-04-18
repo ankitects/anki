@@ -8,6 +8,8 @@ use std::sync::Arc;
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
 use slog::warn;
 
+use super::{progress::AbortHandleSlot, Backend};
+pub(super) use crate::backend_proto::sync_service::Service as SyncService;
 use crate::{
     backend_proto as pb,
     collection::open_collection,
@@ -18,9 +20,6 @@ use crate::{
         LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
     },
 };
-
-use super::{progress::AbortHandleSlot, Backend};
-pub(super) use pb::sync_service::Service as SyncService;
 
 #[derive(Default)]
 pub(super) struct SyncState {

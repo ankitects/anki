@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+pub(super) use crate::backend_proto::cardrendering_service::Service as CardRenderingService;
 use crate::{
     backend_proto as pb,
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
@@ -11,7 +12,6 @@ use crate::{
     template::RenderedNode,
     text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AvTag},
 };
-pub(super) use pb::cardrendering_service::Service as CardRenderingService;
 
 impl CardRenderingService for Backend {
     fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> Result<pb::ExtractAvTagsOut> {

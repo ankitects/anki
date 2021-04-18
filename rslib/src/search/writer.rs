@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::mem;
+
 use crate::{
     decks::DeckId as DeckIdType,
     notetype::NotetypeId as NotetypeIdType,
@@ -8,7 +10,6 @@ use crate::{
     search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
     text::escape_anki_wildcards,
 };
-use std::mem;
 
 #[derive(Debug, PartialEq)]
 pub enum BoolSeparator {
@@ -191,8 +192,7 @@ pub(crate) fn normalize_search(input: &str) -> Result<String> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::error::Result;
-    use crate::search::parse_search as parse;
+    use crate::{error::Result, search::parse_search as parse};
 
     #[test]
     fn normalizing() {

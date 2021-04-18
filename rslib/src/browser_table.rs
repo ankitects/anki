@@ -6,14 +6,14 @@ use std::sync::Arc;
 use itertools::Itertools;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
-use crate::error::{AnkiError, Result};
-use crate::i18n::I18n;
 use crate::{
     backend_proto as pb,
     card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
     config::BoolKey,
     decks::{Deck, DeckId},
+    error::{AnkiError, Result},
+    i18n::I18n,
     notes::{Note, NoteId},
     notetype::{CardTemplate, Notetype, NotetypeKind},
     scheduler::{timespan::time_span, timing::SchedTimingToday},

@@ -1,16 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use serde_json::Value;
+
 use super::Backend;
+pub(super) use crate::backend_proto::config_service::Service as ConfigService;
 use crate::{
     backend_proto as pb,
+    backend_proto::config::{bool::Key as BoolKeyProto, string::Key as StringKeyProto},
     config::{BoolKey, StringKey},
     prelude::*,
 };
-use pb::config::bool::Key as BoolKeyProto;
-use pb::config::string::Key as StringKeyProto;
-pub(super) use pb::config_service::Service as ConfigService;
-use serde_json::Value;
 
 impl From<BoolKeyProto> for BoolKey {
     fn from(k: BoolKeyProto) -> Self {

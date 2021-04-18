@@ -3,6 +3,8 @@
 
 use std::collections::HashSet;
 
+use rusqlite::{params, Row, NO_PARAMS};
+
 use crate::{
     error::Result,
     notes::{Note, NoteId, NoteTags},
@@ -10,7 +12,6 @@ use crate::{
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
-use rusqlite::{params, Row, NO_PARAMS};
 
 pub(crate) fn split_fields(fields: &str) -> Vec<String> {
     fields.split('\x1f').map(Into::into).collect()

@@ -3,14 +3,15 @@
 
 use std::collections::HashMap;
 
+use fluent::{FluentArgs, FluentValue};
+
 use super::Backend;
+pub(super) use crate::backend_proto::i18n_service::Service as I18nService;
 use crate::{
     backend_proto as pb,
     prelude::*,
     scheduler::timespan::{answer_button_time, time_span},
 };
-use fluent::{FluentArgs, FluentValue};
-pub(super) use pb::i18n_service::Service as I18nService;
 
 impl I18nService for Backend {
     fn translate_string(&self, input: pb::TranslateStringIn) -> Result<pb::String> {

@@ -5,13 +5,22 @@ pub mod http;
 mod http_client;
 mod server;
 
+use std::collections::HashMap;
+
+use http_client::HttpSyncClient;
+pub use http_client::{FullSyncProgressFn, Timeouts};
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use serde_tuple::Serialize_tuple;
+pub(crate) use server::{LocalServer, SyncServer};
+
 use crate::{
     backend_proto::{sync_status_out, SyncStatusOut},
     card::{Card, CardQueue, CardType},
     deckconf::DeckConfSchema11,
     decks::DeckSchema11,
-    error::SyncError,
-    error::SyncErrorKind,
+    error::{SyncError, SyncErrorKind},
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
     prelude::*,
@@ -20,15 +29,6 @@ use crate::{
     storage::open_and_check_sqlite_file,
     tags::{join_tags, split_tags, Tag},
 };
-pub use http_client::FullSyncProgressFn;
-use http_client::HttpSyncClient;
-pub use http_client::Timeouts;
-use itertools::Itertools;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use serde_tuple::Serialize_tuple;
-pub(crate) use server::{LocalServer, SyncServer};
-use std::collections::HashMap;
 
 pub static SYNC_VERSION_MIN: u8 = 7;
 pub static SYNC_VERSION_MAX: u8 = 10;
@@ -1195,16 +1195,14 @@ mod test {
 
     use async_trait::async_trait;
     use lazy_static::lazy_static;
-
-    use super::server::LocalServer;
-    use super::*;
-    use crate::log;
-    use crate::{
-        collection::open_collection, deckconf::DeckConf, decks::DeckKind, i18n::I18n,
-        notetype::all_stock_notetypes, search::SortMode,
-    };
     use tempfile::{tempdir, TempDir};
     use tokio::runtime::Runtime;
+
+    use super::{server::LocalServer, *};
+    use crate::{
+        collection::open_collection, deckconf::DeckConf, decks::DeckKind, i18n::I18n, log,
+        notetype::all_stock_notetypes, search::SortMode,
+    };
 
     fn norm_progress(_: NormalSyncProgress, _: bool) {}
 

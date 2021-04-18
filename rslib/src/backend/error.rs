@@ -3,11 +3,10 @@
 
 use crate::{
     backend_proto as pb,
+    backend_proto::backend_error::Kind,
     error::{AnkiError, SyncErrorKind},
     prelude::*,
 };
-
-use pb::backend_error::Kind;
 
 impl AnkiError {
     pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {

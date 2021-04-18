@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use lazy_static::lazy_static;
 use std::env;
+
+use lazy_static::lazy_static;
 
 fn buildinfo(key: &str) -> &'static str {
     let buildinfo = include_str!(env!("BUILDINFO"));

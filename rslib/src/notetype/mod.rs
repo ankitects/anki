@@ -10,24 +10,30 @@ mod schemachange;
 mod stock;
 mod templates;
 
-pub use crate::backend_proto::{
-    notetype::{
-        config::card_requirement::Kind as CardRequirementKind,
-        config::CardRequirement,
-        config::Kind as NotetypeKind,
-        template::Config as CardTemplateConfig,
-        Config as NotetypeConfig, Template as CardTemplateProto,
-        {field::Config as NoteFieldConfig, Field as NoteFieldProto},
-    },
-    Notetype as NotetypeProto,
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
 };
+
 pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;
 pub(crate) use render::RenderCardOutput;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NotetypeSchema11};
 pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
+use unicase::UniCase;
 
+pub use crate::backend_proto::{
+    notetype::{
+        config::{
+            card_requirement::Kind as CardRequirementKind, CardRequirement, Kind as NotetypeKind,
+        },
+        field::Config as NoteFieldConfig,
+        template::Config as CardTemplateConfig,
+        Config as NotetypeConfig, Field as NoteFieldProto, Template as CardTemplateProto,
+    },
+    Notetype as NotetypeProto,
+};
 use crate::{
     collection::Collection,
     decks::DeckId,
@@ -40,11 +46,6 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
-use unicase::UniCase;
 
 define_newtype!(NotetypeId, i64);
 

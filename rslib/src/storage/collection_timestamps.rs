@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use rusqlite::{params, NO_PARAMS};
+
 use super::SqliteStorage;
 use crate::{collection::timestamps::CollectionTimestamps, prelude::*};
-use rusqlite::{params, NO_PARAMS};
 
 impl SqliteStorage {
     pub(crate) fn get_collection_timestamps(&self) -> Result<CollectionTimestamps> {

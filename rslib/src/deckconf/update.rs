@@ -3,9 +3,11 @@
 
 use std::collections::{HashMap, HashSet};
 
-use pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck};
-
-use crate::{backend_proto as pb, prelude::*};
+use crate::{
+    backend_proto as pb,
+    backend_proto::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
+    prelude::*,
+};
 
 pub struct UpdateDeckConfigsIn {
     pub target_deck_id: DeckId,

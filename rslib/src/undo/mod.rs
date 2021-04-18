@@ -3,14 +3,15 @@
 
 mod changes;
 
-pub use crate::ops::Op;
+use std::collections::VecDeque;
+
 pub(crate) use changes::UndoableChange;
 
+pub use crate::ops::Op;
 use crate::{
     ops::{OpChanges, StateChanges},
     prelude::*,
 };
-use std::collections::VecDeque;
 
 const UNDO_LIMIT: usize = 30;
 
@@ -245,8 +246,7 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use crate::card::Card;
-    use crate::{collection::open_test_collection, prelude::*};
+    use crate::{card::Card, collection::open_test_collection, prelude::*};
 
     #[test]
     fn undo() -> Result<()> {

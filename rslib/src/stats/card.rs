@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use askama::Template;
+use chrono::prelude::*;
+
 use crate::{
     card::CardQueue,
     i18n::I18n,
@@ -8,8 +11,6 @@ use crate::{
     revlog::{RevlogEntry, RevlogReviewKind},
     scheduler::timespan::time_span,
 };
-use askama::Template;
-use chrono::prelude::*;
 
 struct CardStats {
     added: TimestampSecs,

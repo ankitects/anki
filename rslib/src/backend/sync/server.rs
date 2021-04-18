@@ -2,10 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{path::PathBuf, sync::MutexGuard};
+
 use tokio::runtime::Runtime;
 
-use crate::backend::{Backend, BackendState};
 use crate::{
+    backend::{Backend, BackendState},
     error::SyncErrorKind,
     prelude::*,
     sync::{

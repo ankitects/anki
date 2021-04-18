@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::SqliteStorage;
-use crate::{error::Result, tags::Tag, types::Usn};
+use std::collections::HashMap;
 
 use rusqlite::{params, Row, NO_PARAMS};
-use std::collections::HashMap;
+
+use super::SqliteStorage;
+use crate::{error::Result, tags::Tag, types::Usn};
 
 fn row_to_tag(row: &Row) -> Result<Tag> {
     Ok(Tag {

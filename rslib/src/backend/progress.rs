@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use futures::future::AbortHandle;
 use std::sync::{Arc, Mutex};
 
+use futures::future::AbortHandle;
+
+use super::Backend;
 use crate::{
     backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
@@ -11,8 +13,6 @@ use crate::{
     media::sync::MediaSyncProgress,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
-
-use super::Backend;
 
 pub(super) struct ThrottlingProgressHandler {
     pub state: Arc<Mutex<ProgressState>>,

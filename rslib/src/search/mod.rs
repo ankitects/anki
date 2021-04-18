@@ -5,19 +5,24 @@ mod parser;
 mod sqlwriter;
 pub(crate) mod writer;
 
+use std::borrow::Cow;
+
 pub use parser::{
     parse as parse_search, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
 };
+use rusqlite::types::FromSql;
+use sqlwriter::{RequiredTable, SqlWriter};
 pub use writer::{concatenate_searches, replace_search_node, write_nodes, BoolSeparator};
 
-use rusqlite::types::FromSql;
-use std::borrow::Cow;
-
 use crate::{
-    browser_table::Column, card::CardId, card::CardType, collection::Collection, error::Result,
-    notes::NoteId, prelude::AnkiError, search::parser::parse,
+    browser_table::Column,
+    card::{CardId, CardType},
+    collection::Collection,
+    error::Result,
+    notes::NoteId,
+    prelude::AnkiError,
+    search::parser::parse,
 };
-use sqlwriter::{RequiredTable, SqlWriter};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum ReturnItemType {

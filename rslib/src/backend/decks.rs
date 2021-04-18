@@ -4,13 +4,13 @@
 use std::convert::TryFrom;
 
 use super::Backend;
+pub(super) use crate::backend_proto::decks_service::Service as DecksService;
 use crate::{
     backend_proto::{self as pb},
     decks::{DeckSchema11, FilteredSearchOrder},
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };
-pub(super) use pb::decks_service::Service as DecksService;
 
 impl DecksService for Backend {
     fn add_deck_legacy(&self, input: pb::Json) -> Result<pb::OpChangesWithId> {

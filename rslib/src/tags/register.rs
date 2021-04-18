@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{borrow::Cow, collections::HashSet};
+
+use unicase::UniCase;
+
 use super::{immediate_parent_name_str, is_tag_separator, split_tags, Tag};
 use crate::{prelude::*, text::normalize_to_nfc, types::Usn};
-
-use std::{borrow::Cow, collections::HashSet};
-use unicase::UniCase;
 
 impl Collection {
     /// Given a list of tags, fix case, ordering and duplicates.

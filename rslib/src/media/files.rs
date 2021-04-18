@@ -1,16 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::error::{AnkiError, Result};
-use crate::log::{debug, Logger};
+use std::{
+    borrow::Cow,
+    fs, io,
+    io::Read,
+    path::{Path, PathBuf},
+    time,
+};
+
 use lazy_static::lazy_static;
 use regex::Regex;
 use sha1::Sha1;
-use std::borrow::Cow;
-use std::io::Read;
-use std::path::{Path, PathBuf};
-use std::{fs, io, time};
 use unicode_normalization::{is_nfc, UnicodeNormalization};
+
+use crate::{
+    error::{AnkiError, Result},
+    log::{debug, Logger},
+};
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
@@ -426,12 +433,14 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
 
 #[cfg(test)]
 mod test {
+    use std::borrow::Cow;
+
+    use tempfile::tempdir;
+
     use crate::media::files::{
         add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
         remove_files, sha1_of_data, truncate_filename, MAX_FILENAME_LENGTH,
     };
-    use std::borrow::Cow;
-    use tempfile::tempdir;
 
     #[test]
     fn normalize() {

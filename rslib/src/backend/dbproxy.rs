@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{prelude::*, storage::SqliteStorage};
 use rusqlite::{
     types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef},
     OptionalExtension,
 };
 use serde_derive::{Deserialize, Serialize};
+
+use crate::{prelude::*, storage::SqliteStorage};
 
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
