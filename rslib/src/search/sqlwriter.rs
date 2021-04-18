@@ -479,23 +479,25 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_added(&mut self, days: u32) -> Result<()> {
+    fn cutoff_in_secs_from_days(&mut self, days: u32) -> Result<i64> {
         let timing = self.col.timing_today()?;
-        let cutoff = (timing.next_day_at.0 - (86_400 * (days as i64))) * 1_000;
+        Ok(timing.next_day_at.0 - (86_400 * (days as i64)))
+    }
+
+    fn write_added(&mut self, days: u32) -> Result<()> {
+        let cutoff = self.cutoff_in_secs_from_days(days)? * 1_000;
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
     }
 
     fn write_edited(&mut self, days: u32) -> Result<()> {
-        let timing = self.col.timing_today()?;
-        let cutoff = timing.next_day_at.0 - (86_400 * (days as i64));
+        let cutoff = self.cutoff_in_secs_from_days(days)?;
         write!(self.sql, "n.mod > {}", cutoff).unwrap();
         Ok(())
     }
 
     fn write_introduced(&mut self, days: u32) -> Result<()> {
-        let timing = self.col.timing_today()?;
-        let cutoff = (timing.next_day_at.0 - (86_400 * (days as i64))) * 1_000;
+        let cutoff = self.cutoff_in_secs_from_days(days)? * 1_000;
         write!(
             self.sql,
             "(select min(id) > {} from revlog where cid = c.id)",
