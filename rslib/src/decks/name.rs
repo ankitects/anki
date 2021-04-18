@@ -40,6 +40,20 @@ impl NativeDeckName {
         self.0.split('\x1f')
     }
 
+    /// Normalize the name's components if necessary. True if mutation took place.
+    pub(crate) fn maybe_normalize(&mut self) -> bool {
+        let needs_normalization = self
+            .components()
+            .any(|comp| matches!(normalized_deck_name_component(comp), Cow::Owned(_)));
+        if needs_normalization {
+            self.0 = self
+                .components()
+                .map(normalized_deck_name_component)
+                .join("\x1f");
+        }
+        needs_normalization
+    }
+
     /// Determine name to rename a deck to, when `self` is dropped on `target`.
     /// `target` being unset represents a drop at the top or bottom of the deck list.
     /// The returned name should be used to replace `self`.
@@ -193,9 +207,24 @@ mod test {
         assert_eq!(native_name("foo"), "foo");
         assert_eq!(native_name("foo::bar"), "foo\x1fbar");
         assert_eq!(native_name("foo::::baz"), "foo\x1fblank\x1fbaz");
-        // normalize
+        // implicitly normalize
         assert_eq!(native_name("fo\x1fo::ba\nr"), "foo\x1fbar");
         assert_eq!(native_name("fo\u{a}o\x1fbar"), "foobar");
+    }
+
+    #[test]
+    fn normalize() {
+        fn normalize_res(name: &str) -> (bool, String) {
+            let mut name = NativeDeckName::from_native_str(name);
+            (name.maybe_normalize(), name.0)
+        }
+
+        assert_eq!(normalize_res("foo\x1fbar"), (false, "foo\x1fbar".into()));
+        assert_eq!(
+            normalize_res("fo\x1fo::ba\nr"),
+            (true, "fo\x1fo::bar".into())
+        );
+        assert_eq!(normalize_res("fo\u{a}obar"), (true, "foobar".into()));
     }
 
     #[test]
