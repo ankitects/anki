@@ -494,7 +494,7 @@ impl Collection {
         // fixme: currently the storage layer is taking care of removing the notes and cards,
         // but we need to do it in this layer in the future for undo handling
         self.transact_no_undo(|col| {
-            col.storage.set_schema_modified()?;
+            col.set_schema_modified()?;
             col.state.notetype_cache.remove(&ntid);
             col.clear_aux_config_for_notetype(ntid)?;
             col.storage.remove_notetype(ntid)?;

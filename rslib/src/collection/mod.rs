@@ -1,17 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub(crate) mod timestamps;
+mod transact;
+pub(crate) mod undo;
+
+use crate::i18n::I18n;
 use crate::types::Usn;
 use crate::{
     browser_table,
     decks::{Deck, DeckId},
     notetype::{Notetype, NotetypeId},
-    prelude::*,
     storage::SqliteStorage,
     undo::UndoManager,
 };
 use crate::{error::Result, scheduler::queue::CardQueues};
-use crate::{i18n::I18n, ops::StateChanges};
 use crate::{log::Logger, scheduler::SchedulerInfo};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
@@ -86,68 +89,6 @@ pub struct Collection {
 }
 
 impl Collection {
-    fn transact_inner<F, R>(&mut self, op: Option<Op>, func: F) -> Result<OpOutput<R>>
-    where
-        F: FnOnce(&mut Collection) -> Result<R>,
-    {
-        self.storage.begin_rust_trx()?;
-        self.begin_undoable_operation(op);
-
-        let mut res = func(self);
-
-        if res.is_ok() {
-            if let Err(e) = self.storage.set_modified() {
-                res = Err(e);
-            } else if let Err(e) = self.storage.commit_rust_trx() {
-                res = Err(e);
-            }
-        }
-
-        match res {
-            Ok(output) => {
-                let changes = if op.is_some() {
-                    let changes = self.op_changes();
-                    self.maybe_clear_study_queues_after_op(changes);
-                    self.maybe_coalesce_note_undo_entry(changes);
-                    changes
-                } else {
-                    self.clear_study_queues();
-                    // dummy value, not used by transact_no_undo(). only required
-                    // until we can migrate all the code to undoable ops
-                    OpChanges {
-                        op: Op::SetFlag,
-                        changes: StateChanges::default(),
-                    }
-                };
-                self.end_undoable_operation();
-                Ok(OpOutput { output, changes })
-            }
-            Err(err) => {
-                self.discard_undo_and_study_queues();
-                self.storage.rollback_rust_trx()?;
-                Err(err)
-            }
-        }
-    }
-
-    /// Execute the provided closure in a transaction, rolling back if
-    /// an error is returned. Records undo state, and returns changes.
-    pub(crate) fn transact<F, R>(&mut self, op: Op, func: F) -> Result<OpOutput<R>>
-    where
-        F: FnOnce(&mut Collection) -> Result<R>,
-    {
-        self.transact_inner(Some(op), func)
-    }
-
-    /// Execute the provided closure in a transaction, rolling back if
-    /// an error is returned.
-    pub(crate) fn transact_no_undo<F, R>(&mut self, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut Collection) -> Result<R>,
-    {
-        self.transact_inner(None, func).map(|out| out.output)
-    }
-
     pub(crate) fn close(self, downgrade: bool) -> Result<()> {
         self.storage.close(downgrade)
     }
@@ -169,8 +110,9 @@ impl Collection {
             col.storage.clear_deck_usns()?;
             col.storage.clear_notetype_usns()?;
             col.storage.increment_usn()?;
-            col.storage.set_schema_modified()?;
-            col.storage.set_last_sync(col.storage.get_schema_mtime()?)
+            col.set_schema_modified()?;
+            col.storage
+                .set_last_sync(col.storage.get_collection_timestamps()?.schema_change)
         })?;
         self.storage.optimize()
     }

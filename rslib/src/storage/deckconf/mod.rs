@@ -4,8 +4,7 @@
 use super::SqliteStorage;
 use crate::{
     deckconf::{DeckConf, DeckConfId, DeckConfSchema11, DeckConfigInner},
-    error::Result,
-    i18n::I18n,
+    prelude::*,
 };
 use prost::Message;
 use rusqlite::{params, Row, NO_PARAMS};
@@ -81,8 +80,12 @@ impl SqliteStorage {
         Ok(())
     }
 
-    /// Used for syncing.
-    pub(crate) fn add_or_update_deck_config(&self, conf: &DeckConf) -> Result<()> {
+    /// Used for syncing&undo; will keep provided ID. Shouldn't be used to add
+    /// new config normally, since it does not allocate an id.
+    pub(crate) fn add_or_update_deck_config_with_existing_id(&self, conf: &DeckConf) -> Result<()> {
+        if conf.id.0 == 0 {
+            return Err(AnkiError::invalid_input("deck with id 0"));
+        }
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
         self.db

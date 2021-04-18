@@ -4,7 +4,7 @@
 use crate::config::schema11::schema11_config_as_string;
 use crate::error::Result;
 use crate::error::{AnkiError, DbErrorKind};
-use crate::timestamp::{TimestampMillis, TimestampSecs};
+use crate::timestamp::TimestampMillis;
 use crate::{i18n::I18n, scheduler::timing::v1_creation_date, text::without_combining};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
@@ -251,81 +251,6 @@ impl SqliteStorage {
         self.db
             .prepare_cached("rollback to rust")?
             .execute(NO_PARAMS)?;
-        Ok(())
-    }
-
-    //////////////////////////////////////////
-
-    pub(crate) fn set_modified(&self) -> Result<()> {
-        self.set_modified_time(TimestampMillis::now())
-    }
-
-    pub(crate) fn set_modified_time(&self, stamp: TimestampMillis) -> Result<()> {
-        self.db
-            .prepare_cached("update col set mod=?")?
-            .execute(params![stamp])?;
-        Ok(())
-    }
-
-    pub(crate) fn get_modified_time(&self) -> Result<TimestampMillis> {
-        self.db
-            .prepare_cached("select mod from col")?
-            .query_and_then(NO_PARAMS, |r| r.get(0))?
-            .next()
-            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
-            .map_err(Into::into)
-    }
-
-    pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {
-        self.db
-            .prepare_cached("select crt from col")?
-            .query_row(NO_PARAMS, |row| row.get(0))
-            .map_err(Into::into)
-    }
-
-    pub(crate) fn set_creation_stamp(&self, stamp: TimestampSecs) -> Result<()> {
-        self.db
-            .prepare("update col set crt = ?")?
-            .execute(&[stamp])?;
-        Ok(())
-    }
-
-    pub(crate) fn set_schema_modified(&self) -> Result<()> {
-        self.db
-            .prepare_cached("update col set scm = ?")?
-            .execute(&[TimestampMillis::now()])?;
-        Ok(())
-    }
-
-    pub(crate) fn schema_modified(&self) -> Result<bool> {
-        self.db
-            .prepare_cached("select scm > ls from col")?
-            .query_row(NO_PARAMS, |r| r.get(0))
-            .map_err(Into::into)
-    }
-
-    pub(crate) fn get_schema_mtime(&self) -> Result<TimestampMillis> {
-        self.db
-            .prepare_cached("select scm from col")?
-            .query_and_then(NO_PARAMS, |r| r.get(0))?
-            .next()
-            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
-            .map_err(Into::into)
-    }
-
-    pub(crate) fn get_last_sync(&self) -> Result<TimestampMillis> {
-        self.db
-            .prepare_cached("select ls from col")?
-            .query_and_then(NO_PARAMS, |r| r.get(0))?
-            .next()
-            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
-            .map_err(Into::into)
-    }
-
-    pub(crate) fn set_last_sync(&self, stamp: TimestampMillis) -> Result<()> {
-        self.db
-            .prepare("update col set ls = ?")?
-            .execute(&[stamp])?;
         Ok(())
     }
 

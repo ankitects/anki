@@ -610,12 +610,10 @@ pub(crate) async fn get_remote_sync_meta(auth: SyncAuth) -> Result<SyncMeta> {
 
 impl Collection {
     pub fn get_local_sync_status(&mut self) -> Result<sync_status_out::Required> {
-        let last_sync = self.storage.get_last_sync()?;
-        let schema_mod = self.storage.get_schema_mtime()?;
-        let normal_mod = self.storage.get_modified_time()?;
-        let required = if schema_mod > last_sync {
+        let stamps = self.storage.get_collection_timestamps()?;
+        let required = if stamps.schema_changed_since_sync() {
             sync_status_out::Required::FullSync
-        } else if normal_mod > last_sync {
+        } else if stamps.collection_changed_since_sync() {
             sync_status_out::Required::NormalSync
         } else {
             sync_status_out::Required::NoChanges
@@ -687,9 +685,10 @@ impl Collection {
     }
 
     fn sync_meta(&self) -> Result<SyncMeta> {
+        let stamps = self.storage.get_collection_timestamps()?;
         Ok(SyncMeta {
-            modified: self.storage.get_modified_time()?,
-            schema: self.storage.get_schema_mtime()?,
+            modified: stamps.collection_change,
+            schema: stamps.schema_change,
             usn: self.storage.usn(true)?,
             current_time: TimestampSecs::now(),
             server_message: "".into(),
@@ -894,7 +893,8 @@ impl Collection {
             };
             if proceed {
                 let conf = conf.into();
-                self.storage.add_or_update_deck_config(&conf)?;
+                self.storage
+                    .add_or_update_deck_config_with_existing_id(&conf)?;
             }
         }
         Ok(())
