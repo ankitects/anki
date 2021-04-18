@@ -1,15 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use super::name::{immediate_parent_name, normalize_native_name};
+use super::name::immediate_parent_name;
 use crate::{error::FilteredDeckError, prelude::*};
-use std::borrow::Cow;
 
 impl Collection {
-    /// Normalize deck name and rename if not unique. Bumps mtime and usn if
+    /// Rename deck if not unique. Bumps mtime and usn if
     /// name was changed, but otherwise leaves it the same.
     pub(super) fn prepare_deck_for_update(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
-        if let Cow::Owned(name) = normalize_native_name(&deck.name) {
-            deck.name = name;
+        if deck.name.maybe_normalize() {
             deck.set_modified(usn);
         }
         self.ensure_deck_name_unique(deck, usn)
@@ -89,7 +87,7 @@ impl Collection {
     pub(crate) fn recover_missing_deck(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id = did;
-        deck.name = format!("recovered{}", did);
+        deck.name = NativeDeckName::from_native_str(format!("recovered{}", did));
         deck.set_modified(usn);
         self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
     }
@@ -100,7 +98,7 @@ impl Collection {
     /// Caller must have done necessarily validation on name.
     fn add_parent_deck(&mut self, machine_name: &str, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
-        deck.name = machine_name.into();
+        deck.name = NativeDeckName::from_native_str(machine_name);
         deck.set_modified(usn);
         self.add_deck_undoable(&mut deck)
     }
@@ -109,18 +107,18 @@ impl Collection {
     /// If they don't exist, create them.
     /// Returns an error if a DB operation fails, or if the first existing parent is a filtered deck.
     fn match_or_create_parents(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
-        let child_split: Vec<_> = deck.name.split('\x1f').collect();
-        if let Some(parent_deck) = self.first_existing_parent(&deck.name, 0)? {
+        let child_split: Vec<_> = deck.name.components().collect();
+        if let Some(parent_deck) = self.first_existing_parent(deck.name.as_native_str(), 0)? {
             if parent_deck.is_filtered() {
                 return Err(FilteredDeckError::MustBeLeafNode.into());
             }
-            let parent_count = parent_deck.name.matches('\x1f').count() + 1;
+            let parent_count = parent_deck.name.components().count();
             let need_create = parent_count != child_split.len() - 1;
-            deck.name = format!(
+            deck.name = NativeDeckName::from_native_str(format!(
                 "{}\x1f{}",
                 parent_deck.name,
                 &child_split[parent_count..].join("\x1f")
-            );
+            ));
             if need_create {
                 self.create_missing_parents(&deck.name, usn)?;
             }
@@ -134,7 +132,8 @@ impl Collection {
         }
     }
 
-    fn create_missing_parents(&mut self, mut machine_name: &str, usn: Usn) -> Result<()> {
+    fn create_missing_parents(&mut self, name: &NativeDeckName, usn: Usn) -> Result<()> {
+        let mut machine_name = name.as_native_str();
         while let Some(parent_name) = immediate_parent_name(machine_name) {
             if self.storage.get_deck_id(parent_name)?.is_none() {
                 self.add_parent_deck(parent_name, usn)?;

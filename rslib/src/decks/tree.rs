@@ -267,7 +267,7 @@ impl Collection {
         if let Some(now) = now {
             let limit = top_deck_id.and_then(|did| {
                 if let Some(deck) = decks_map.get(&did) {
-                    Some(deck.name.as_str())
+                    Some(deck.name.as_native_str())
                 } else {
                     None
                 }

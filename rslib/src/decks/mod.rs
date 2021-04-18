@@ -25,9 +25,8 @@ use crate::{
     text::sanitize_html_no_images,
 };
 pub(crate) use counts::DueCounts;
-pub(crate) use name::{
-    human_deck_name_to_native, immediate_parent_name, native_deck_name_to_human,
-};
+pub(crate) use name::immediate_parent_name;
+pub use name::NativeDeckName;
 pub use schema11::DeckSchema11;
 use std::sync::Arc;
 
@@ -36,7 +35,7 @@ define_newtype!(DeckId, i64);
 #[derive(Debug, Clone, PartialEq)]
 pub struct Deck {
     pub id: DeckId,
-    pub name: String,
+    pub name: NativeDeckName,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
     pub common: DeckCommon,
@@ -47,7 +46,7 @@ impl Deck {
     pub fn new_normal() -> Deck {
         Deck {
             id: DeckId(0),
-            name: "".into(),
+            name: NativeDeckName::from_native_str(""),
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
             common: DeckCommon {
@@ -150,12 +149,12 @@ impl Collection {
     }
 
     pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
-        let native_name = human_deck_name_to_native(human_name);
-        if let Some(did) = self.storage.get_deck_id(&native_name)? {
+        let name = NativeDeckName::from_human_name(human_name);
+        if let Some(did) = self.storage.get_deck_id(name.as_native_str())? {
             self.storage.get_deck(did).map(|opt| opt.unwrap())
         } else {
             let mut deck = Deck::new_normal();
-            deck.name = native_name;
+            deck.name = name;
             self.add_or_update_deck(&mut deck)?;
             Ok(deck)
         }
@@ -164,18 +163,14 @@ impl Collection {
     /// Get a deck based on its human name. If you have a machine name,
     /// use the method in storage instead.
     pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
-        let machine_name = human_deck_name_to_native(&human_name);
-        self.storage.get_deck_id(&machine_name)
+        self.storage
+            .get_deck_id(NativeDeckName::from_human_name(human_name).as_native_str())
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        collection::{open_test_collection, Collection},
-        error::Result,
-        search::SortMode,
-    };
+    use crate::{collection::open_test_collection, prelude::*, search::SortMode};
 
     fn sorted_names(col: &Collection) -> Vec<String> {
         col.storage
@@ -212,7 +207,7 @@ mod test {
 
         let _ = col.get_or_create_normal_deck("foo::bar::baz")?;
         let mut top_deck = col.get_or_create_normal_deck("foo")?;
-        top_deck.name = "other".into();
+        top_deck.name = NativeDeckName::from_native_str("other");
         col.add_or_update_deck(&mut top_deck)?;
         assert_eq!(
             sorted_names(&col),
@@ -221,7 +216,7 @@ mod test {
 
         // should do the right thing in the middle of the tree as well
         let mut middle = col.get_or_create_normal_deck("other::bar")?;
-        middle.name = "quux\x1ffoo".into();
+        middle.name = NativeDeckName::from_native_str("quux\x1ffoo");
         col.add_or_update_deck(&mut middle)?;
         assert_eq!(
             sorted_names(&col),
@@ -234,7 +229,7 @@ mod test {
         // quux::foo -> quux::foo::baz::four
         // means quux::foo::baz2 should be quux::foo::baz::four::baz2
         // and a new quux::foo should have been created
-        middle.name = "quux\x1ffoo\x1fbaz\x1ffour".into();
+        middle.name = NativeDeckName::from_native_str("quux\x1ffoo\x1fbaz\x1ffour");
         col.add_or_update_deck(&mut middle)?;
         assert_eq!(
             sorted_names(&col),
@@ -251,9 +246,9 @@ mod test {
         );
 
         // should handle name conflicts
-        middle.name = "other".into();
+        middle.name = NativeDeckName::from_native_str("other");
         col.add_or_update_deck(&mut middle)?;
-        assert_eq!(middle.name, "other+");
+        assert_eq!(middle.name.as_native_str(), "other+");
 
         // public function takes human name
         col.rename_deck(middle.id, "one::two")?;
@@ -282,7 +277,7 @@ mod test {
         let mut col = open_test_collection();
 
         let mut default = col.get_or_create_normal_deck("default")?;
-        default.name = "one\x1ftwo".into();
+        default.name = NativeDeckName::from_native_str("one\x1ftwo");
         col.add_or_update_deck(&mut default)?;
 
         // create a non-default deck confusingly named "default"
