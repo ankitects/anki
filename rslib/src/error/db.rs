@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::str::Utf8Error;
+
 use anki_i18n::I18n;
 use rusqlite::{types::FromSqlError, Error};
-use std::str::Utf8Error;
 
 use super::AnkiError;
 

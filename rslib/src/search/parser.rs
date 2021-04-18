@@ -1,11 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    decks::DeckId,
-    error::{ParseError, Result, SearchErrorKind as FailKind},
-    notetype::NotetypeId,
-};
 use lazy_static::lazy_static;
 use nom::{
     branch::alt,
@@ -17,6 +12,12 @@ use nom::{
     sequence::{preceded, separated_pair},
 };
 use regex::{Captures, Regex};
+
+use crate::{
+    decks::DeckId,
+    error::{ParseError, Result, SearchErrorKind as FailKind},
+    notetype::NotetypeId,
+};
 
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
@@ -696,9 +697,8 @@ fn is_parser_escape(txt: &str) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::error::SearchErrorKind;
-
     use super::*;
+    use crate::error::SearchErrorKind;
 
     #[test]
     fn parsing() -> Result<()> {
@@ -858,8 +858,9 @@ mod test {
 
     #[test]
     fn errors() {
-        use crate::error::AnkiError;
         use FailKind::*;
+
+        use crate::error::AnkiError;
 
         fn assert_err_kind(input: &str, kind: FailKind) {
             assert_eq!(parse(input), Err(AnkiError::SearchError(kind)));

@@ -1,8 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use crate::{prelude::*, text::normalize_to_nfc};
-use itertools::Itertools;
 use std::borrow::Cow;
+
+use itertools::Itertools;
+
+use crate::{prelude::*, text::normalize_to_nfc};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NativeDeckName(String);

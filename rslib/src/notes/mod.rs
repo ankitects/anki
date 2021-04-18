@@ -3,27 +3,28 @@
 
 pub(crate) mod undo;
 
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    convert::TryInto,
+};
+
+use itertools::Itertools;
+use num_integer::Integer;
+
 use crate::{
     backend_proto as pb,
+    backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState,
     decks::DeckId,
     define_newtype,
     error::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, Notetype, NotetypeId},
+    ops::StateChanges,
     prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
     timestamp::TimestampSecs,
     types::Usn,
-};
-use crate::{
-    backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState, ops::StateChanges,
-};
-use itertools::Itertools;
-use num_integer::Integer;
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    convert::TryInto,
 };
 
 define_newtype!(NoteId, i64);

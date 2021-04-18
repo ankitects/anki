@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::error::Result;
+use std::{collections::HashMap, path::Path};
+
 use rusqlite::{params, Connection, OptionalExtension, Row, Statement, NO_PARAMS};
-use std::collections::HashMap;
-use std::path::Path;
+
+use crate::error::Result;
 
 fn trace(s: &str) {
     println!("sql: {}", s)
@@ -251,11 +252,12 @@ fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
 
 #[cfg(test)]
 mod test {
-    use crate::error::Result;
-    use crate::media::database::MediaEntry;
-    use crate::media::files::sha1_of_data;
-    use crate::media::MediaManager;
     use tempfile::NamedTempFile;
+
+    use crate::{
+        error::Result,
+        media::{database::MediaEntry, files::sha1_of_data, MediaManager},
+    };
 
     #[test]
     fn database() -> Result<()> {

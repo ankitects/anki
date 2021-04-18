@@ -5,13 +5,12 @@ mod schema11;
 pub(crate) mod undo;
 mod update;
 
-pub use {
-    crate::backend_proto::{
-        deck_config::config::{LeechAction, NewCardOrder, ReviewCardOrder, ReviewMix},
-        deck_config::Config as DeckConfigInner,
-    },
-    schema11::{DeckConfSchema11, NewCardOrderSchema11},
-    update::UpdateDeckConfigsIn,
+pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
+pub use update::UpdateDeckConfigsIn;
+
+pub use crate::backend_proto::deck_config::{
+    config::{LeechAction, NewCardOrder, ReviewCardOrder, ReviewMix},
+    Config as DeckConfigInner,
 };
 
 /// Old deck config and cards table store 250% as 2500.

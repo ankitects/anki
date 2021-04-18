@@ -4,12 +4,12 @@
 use std::convert::{TryFrom, TryInto};
 
 use super::Backend;
-use crate::prelude::*;
+pub(super) use crate::backend_proto::cards_service::Service as CardsService;
 use crate::{
     backend_proto as pb,
     card::{CardQueue, CardType},
+    prelude::*,
 };
-pub(super) use pb::cards_service::Service as CardsService;
 
 impl CardsService for Backend {
     fn get_card(&self, input: pb::CardId) -> Result<pb::Card> {

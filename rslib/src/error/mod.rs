@@ -6,16 +6,15 @@ mod filtered;
 mod network;
 mod search;
 
-pub use {
-    db::{DbError, DbErrorKind},
-    filtered::FilteredDeckError,
-    network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind},
-    search::{ParseError, SearchErrorKind},
-};
+use std::{fmt::Display, io};
+
+pub use db::{DbError, DbErrorKind};
+pub use filtered::FilteredDeckError;
+pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
+pub use search::{ParseError, SearchErrorKind};
+use tempfile::PathPersistError;
 
 use crate::i18n::I18n;
-use std::{fmt::Display, io};
-use tempfile::PathPersistError;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 

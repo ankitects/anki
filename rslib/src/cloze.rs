@@ -1,14 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::latex::contains_latex;
-use crate::template::RenderContext;
-use crate::text::strip_html_preserving_entities;
+use std::{borrow::Cow, collections::HashSet};
+
 use lazy_static::lazy_static;
-use regex::Captures;
-use regex::Regex;
-use std::borrow::Cow;
-use std::collections::HashSet;
+use regex::{Captures, Regex};
+
+use crate::{latex::contains_latex, template::RenderContext, text::strip_html_preserving_entities};
 
 lazy_static! {
     static ref CLOZE: Regex = Regex::new(
@@ -182,9 +180,10 @@ pub(crate) fn cloze_only_filter<'a>(text: &'a str, context: &RenderContext) -> C
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashSet;
+
     use super::*;
     use crate::text::strip_html;
-    use std::collections::HashSet;
 
     #[test]
     fn cloze() {

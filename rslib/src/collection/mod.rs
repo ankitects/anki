@@ -5,18 +5,20 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use crate::i18n::I18n;
-use crate::types::Usn;
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
+
 use crate::{
     browser_table,
     decks::{Deck, DeckId},
+    error::Result,
+    i18n::I18n,
+    log::Logger,
     notetype::{Notetype, NotetypeId},
+    scheduler::{queue::CardQueues, SchedulerInfo},
     storage::SqliteStorage,
+    types::Usn,
     undo::UndoManager,
 };
-use crate::{error::Result, scheduler::queue::CardQueues};
-use crate::{log::Logger, scheduler::SchedulerInfo};
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
     path: P,

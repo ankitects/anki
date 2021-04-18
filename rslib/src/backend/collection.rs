@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use slog::error;
+
 use super::{progress::Progress, Backend};
+pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
     backend_proto as pb,
@@ -9,8 +12,6 @@ use crate::{
     log::{self, default_logger},
     prelude::*,
 };
-pub(super) use pb::collection_service::Service as CollectionService;
-use slog::error;
 
 impl CollectionService for Backend {
     fn latest_progress(&self, _input: pb::Empty) -> Result<pb::Progress> {

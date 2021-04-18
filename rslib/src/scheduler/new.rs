@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::{HashMap, HashSet};
+
+use rand::seq::SliceRandom;
+
 use crate::{
     card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
@@ -11,8 +15,6 @@ use crate::{
     search::SortMode,
     types::Usn,
 };
-use rand::seq::SliceRandom;
-use std::collections::{HashMap, HashSet};
 
 impl Card {
     fn schedule_as_new(&mut self, position: u32) {

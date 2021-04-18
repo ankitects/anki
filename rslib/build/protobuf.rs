@@ -1,8 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::path::PathBuf;
-use std::{env, fmt::Write};
+use std::{env, fmt::Write, path::PathBuf};
 
 struct CustomGenerator {}
 

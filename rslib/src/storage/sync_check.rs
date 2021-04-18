@@ -1,13 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use rusqlite::NO_PARAMS;
+
 use super::*;
 use crate::{
     error::SyncErrorKind,
     prelude::*,
     sync::{SanityCheckCounts, SanityCheckDueCounts},
 };
-use rusqlite::NO_PARAMS;
 
 impl SqliteStorage {
     fn table_has_usn(&self, table: &str) -> Result<bool> {

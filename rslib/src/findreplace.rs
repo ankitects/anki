@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::borrow::Cow;
+
+use regex::Regex;
+
 use crate::{
     collection::Collection,
     error::{AnkiError, Result},
@@ -8,8 +12,6 @@ use crate::{
     prelude::*,
     text::normalize_to_nfc,
 };
-use regex::Regex;
-use std::borrow::Cow;
 
 pub struct FindReplaceContext {
     nids: Vec<NoteId>,

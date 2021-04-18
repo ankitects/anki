@@ -3,8 +3,7 @@
 
 use crate::{
     backend_proto::{
-        preferences::scheduling::NewReviewMix as NewRevMixPB,
-        preferences::{Editing, Reviewing, Scheduling},
+        preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
         Preferences,
     },
     collection::Collection,

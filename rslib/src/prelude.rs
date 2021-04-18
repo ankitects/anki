@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub use slog::{debug, Logger};
+
 pub(crate) use crate::types::IntoNewtypeVec;
 pub use crate::{
     card::{Card, CardId},
@@ -17,4 +19,3 @@ pub use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
-pub use slog::{debug, Logger};

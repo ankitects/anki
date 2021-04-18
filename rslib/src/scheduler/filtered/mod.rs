@@ -6,13 +6,14 @@ mod card;
 use std::convert::{TryFrom, TryInto};
 
 use crate::{
-    config::ConfigKey,
+    config::{ConfigKey, SchedulerVersion},
     decks::{FilteredDeck, FilteredSearchTerm},
     error::FilteredDeckError,
-    search::writer::{deck_search, normalize_search},
-};
-use crate::{
-    config::SchedulerVersion, prelude::*, search::SortMode,
+    prelude::*,
+    search::{
+        writer::{deck_search, normalize_search},
+        SortMode,
+    },
     storage::card::filtered::order_and_limit_for_search,
 };
 

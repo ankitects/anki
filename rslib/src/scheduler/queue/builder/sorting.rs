@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{DueCard, NewCard, NewCardOrder, QueueBuilder, ReviewCardOrder};
-use fnv::FnvHasher;
 use std::{cmp::Ordering, hash::Hasher};
+
+use fnv::FnvHasher;
+
+use super::{DueCard, NewCard, NewCardOrder, QueueBuilder, ReviewCardOrder};
 
 impl QueueBuilder {
     pub(super) fn sort_new(&mut self) {

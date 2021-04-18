@@ -1,15 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
+use prost::Message;
+use rusqlite::{params, Row, NO_PARAMS};
+use serde_json::Value;
+
 use super::SqliteStorage;
 use crate::{
     deckconf::{DeckConf, DeckConfId, DeckConfSchema11, DeckConfigInner},
     prelude::*,
 };
-use prost::Message;
-use rusqlite::{params, Row, NO_PARAMS};
-use serde_json::Value;
-use std::collections::HashMap;
 
 fn row_to_deckconf(row: &Row) -> Result<DeckConf> {
     let config = DeckConfigInner::decode(row.get_raw(4).as_blob()?)?;

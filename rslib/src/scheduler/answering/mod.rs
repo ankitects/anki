@@ -9,14 +9,6 @@ mod review;
 mod revlog;
 mod undo;
 
-use crate::{
-    backend_proto,
-    card::CardQueue,
-    deckconf::{DeckConf, LeechAction},
-    decks::Deck,
-    prelude::*,
-};
-
 use revlog::RevlogEntryPartial;
 
 use super::{
@@ -25,6 +17,13 @@ use super::{
     },
     timespan::answer_button_time_collapsible,
     timing::SchedTimingToday,
+};
+use crate::{
+    backend_proto,
+    card::CardQueue,
+    deckconf::{DeckConf, LeechAction},
+    decks::Deck,
+    prelude::*,
 };
 
 #[derive(Copy, Clone)]

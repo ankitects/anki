@@ -1,6 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{collections::HashSet, sync::Arc};
+
+use itertools::Itertools;
+use slog::debug;
+
 use crate::{
     collection::Collection,
     config::SchedulerVersion,
@@ -13,9 +18,6 @@ use crate::{
     prelude::*,
     timestamp::{TimestampMillis, TimestampSecs},
 };
-use itertools::Itertools;
-use slog::debug;
-use std::{collections::HashSet, sync::Arc};
 
 #[derive(Debug, Default, PartialEq)]
 pub struct CheckDatabaseOutput {

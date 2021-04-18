@@ -1,11 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::revlog::RevlogReviewKind;
-
 use super::{
     IntervalKind, NextCardStates, PreviewState, ReschedulingFilterState, ReviewState, StateContext,
 };
+use crate::revlog::RevlogReviewKind;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FilteredState {

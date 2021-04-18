@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use strum::IntoStaticStr;
+
 use super::ConfigKey;
 use crate::prelude::*;
-
-use strum::IntoStaticStr;
 
 /// Notetype config packed into a collection config key. This may change
 /// frequently, and we want to avoid the potentially expensive notetype

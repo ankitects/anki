@@ -1,14 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::error::Result;
-use crate::media::database::{open_or_create, MediaDatabaseContext, MediaEntry};
-use crate::media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data};
-use crate::media::sync::{MediaSyncProgress, MediaSyncer};
+use std::{
+    borrow::Cow,
+    path::{Path, PathBuf},
+};
+
 use rusqlite::Connection;
 use slog::Logger;
-use std::borrow::Cow;
-use std::path::{Path, PathBuf};
+
+use crate::{
+    error::Result,
+    media::{
+        database::{open_or_create, MediaDatabaseContext, MediaEntry},
+        files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data},
+        sync::{MediaSyncProgress, MediaSyncer},
+    },
+};
 
 pub mod changetracker;
 pub mod check;

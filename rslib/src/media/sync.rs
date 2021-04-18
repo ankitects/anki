@@ -1,26 +1,36 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::error::{AnkiError, Result, SyncErrorKind};
-use crate::media::changetracker::ChangeTracker;
-use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
-use crate::media::files::{
-    add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, AddedFile,
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    io,
+    io::{Read, Write},
+    path::Path,
+    time,
 };
-use crate::media::MediaManager;
-use crate::{sync::Timeouts, version};
+
 use bytes::Bytes;
 use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
 use serde_tuple::Serialize_tuple;
 use slog::{debug, Logger};
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::io::{Read, Write};
-use std::path::Path;
-use std::{io, time};
 use time::Duration;
 use version::sync_client_version;
+
+use crate::{
+    error::{AnkiError, Result, SyncErrorKind},
+    media::{
+        changetracker::ChangeTracker,
+        database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry},
+        files::{
+            add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, AddedFile,
+        },
+        MediaManager,
+    },
+    sync::Timeouts,
+    version,
+};
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
@@ -805,13 +815,16 @@ fn zip_files<'a>(
 
 #[cfg(test)]
 mod test {
-    use crate::error::Result;
-    use crate::media::sync::{
-        determine_required_change, LocalState, MediaSyncProgress, RequiredChange,
-    };
-    use crate::media::MediaManager;
     use tempfile::tempdir;
     use tokio::runtime::Runtime;
+
+    use crate::{
+        error::Result,
+        media::{
+            sync::{determine_required_change, LocalState, MediaSyncProgress, RequiredChange},
+            MediaManager,
+        },
+    };
 
     async fn test_sync(hkey: &str) -> Result<()> {
         let dir = tempdir()?;

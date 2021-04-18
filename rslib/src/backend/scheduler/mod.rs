@@ -5,6 +5,7 @@ mod answering;
 mod states;
 
 use super::Backend;
+pub(super) use crate::backend_proto::scheduling_service::Service as SchedulingService;
 use crate::{
     backend_proto::{self as pb},
     prelude::*,
@@ -14,7 +15,6 @@ use crate::{
     },
     stats::studied_today,
 };
-pub(super) use pb::scheduling_service::Service as SchedulingService;
 
 impl SchedulingService for Backend {
     /// This behaves like _updateCutoff() in older code - it also unburies at the start of

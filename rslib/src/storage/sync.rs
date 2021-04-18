@@ -3,9 +3,10 @@
 
 use std::path::Path;
 
+use rusqlite::{params, types::FromSql, Connection, ToSql, NO_PARAMS};
+
 use super::*;
 use crate::prelude::*;
-use rusqlite::{params, types::FromSql, Connection, ToSql, NO_PARAMS};
 
 impl SqliteStorage {
     pub(crate) fn usn(&self, server: bool) -> Result<Usn> {

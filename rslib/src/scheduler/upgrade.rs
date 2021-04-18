@@ -3,14 +3,13 @@
 
 use std::collections::HashMap;
 
+use super::timing::local_minutes_west_for_stamp;
 use crate::{
     card::{CardQueue, CardType},
     config::SchedulerVersion,
     prelude::*,
     search::SortMode,
 };
-
-use super::timing::local_minutes_west_for_stamp;
 
 struct V1FilteredDeckInfo {
     /// True if the filtered deck had rescheduling enabled.

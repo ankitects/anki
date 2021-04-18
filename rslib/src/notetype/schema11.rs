@@ -1,6 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
+use serde_derive::{Deserialize, Serialize};
+use serde_json::Value;
+use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_tuple::Serialize_tuple;
+
+use super::{CardRequirementKind, NotetypeId};
 use crate::{
     decks::DeckId,
     notetype::{
@@ -11,13 +19,6 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
-use serde_derive::{Deserialize, Serialize};
-use serde_json::Value;
-use serde_repr::{Deserialize_repr, Serialize_repr};
-use serde_tuple::Serialize_tuple;
-use std::collections::HashMap;
-
-use super::{CardRequirementKind, NotetypeId};
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
 #[repr(u8)]

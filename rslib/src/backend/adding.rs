@@ -1,8 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::adding::DeckAndNotetype;
-use crate::backend_proto::DeckAndNotetype as DeckAndNotetypeProto;
+use crate::{adding::DeckAndNotetype, backend_proto::DeckAndNotetype as DeckAndNotetypeProto};
 
 impl From<DeckAndNotetype> for DeckAndNotetypeProto {
     fn from(s: DeckAndNotetype) -> Self {

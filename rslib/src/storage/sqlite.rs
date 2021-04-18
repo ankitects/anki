@@ -1,18 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::config::schema11::schema11_config_as_string;
-use crate::error::Result;
-use crate::error::{AnkiError, DbErrorKind};
-use crate::timestamp::TimestampMillis;
-use crate::{i18n::I18n, scheduler::timing::v1_creation_date, text::without_combining};
+use std::{borrow::Cow, cmp::Ordering, path::Path, sync::Arc};
+
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
-use std::cmp::Ordering;
-use std::{borrow::Cow, path::Path, sync::Arc};
 use unicase::UniCase;
 
 use super::upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION};
+use crate::{
+    config::schema11::schema11_config_as_string,
+    error::{AnkiError, DbErrorKind, Result},
+    i18n::I18n,
+    scheduler::timing::v1_creation_date,
+    text::without_combining,
+    timestamp::TimestampMillis,
+};
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))

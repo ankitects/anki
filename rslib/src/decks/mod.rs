@@ -13,22 +13,26 @@ mod stats;
 mod tree;
 pub(crate) mod undo;
 
+use std::sync::Arc;
+
+pub(crate) use counts::DueCounts;
+pub(crate) use name::immediate_parent_name;
+pub use name::NativeDeckName;
+pub use schema11::DeckSchema11;
+
 pub use crate::backend_proto::{
-    deck::filtered::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
-    deck::kind_container::Kind as DeckKind,
-    deck::KindContainer as DeckKindContainer,
-    deck::{Common as DeckCommon, Filtered as FilteredDeck, Normal as NormalDeck},
+    deck::{
+        filtered::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
+        kind_container::Kind as DeckKind,
+        Common as DeckCommon, Filtered as FilteredDeck, KindContainer as DeckKindContainer,
+        Normal as NormalDeck,
+    },
     Deck as DeckProto,
 };
 use crate::{
     define_newtype, error::FilteredDeckError, markdown::render_markdown, prelude::*,
     text::sanitize_html_no_images,
 };
-pub(crate) use counts::DueCounts;
-pub(crate) use name::immediate_parent_name;
-pub use name::NativeDeckName;
-pub use schema11::DeckSchema11;
-use std::sync::Arc;
 
 define_newtype!(DeckId, i64);
 

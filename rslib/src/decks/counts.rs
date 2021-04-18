@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use crate::{backend_proto as pb, prelude::*};
 use std::collections::HashMap;
+
+use crate::{backend_proto as pb, prelude::*};
 
 #[derive(Debug)]
 pub(crate) struct DueCounts {

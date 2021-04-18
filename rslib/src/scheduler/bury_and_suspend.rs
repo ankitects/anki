@@ -1,20 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::timing::SchedTimingToday;
 use crate::{
-    backend_proto as pb,
+    backend_proto::{
+        bury_or_suspend_cards_in::Mode as BuryOrSuspendMode,
+        unbury_cards_in_current_deck_in::Mode as UnburyDeckMode,
+    },
     card::{Card, CardId, CardQueue},
     collection::Collection,
     config::SchedulerVersion,
     error::Result,
     prelude::*,
     search::SortMode,
-};
-
-use super::timing::SchedTimingToday;
-use pb::{
-    bury_or_suspend_cards_in::Mode as BuryOrSuspendMode,
-    unbury_cards_in_current_deck_in::Mode as UnburyDeckMode,
 };
 
 impl Card {

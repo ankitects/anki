@@ -1,13 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::{CardStateUpdater, RevlogEntryPartial};
 use crate::{
     card::CardQueue,
     config::SchedulerVersion,
     scheduler::states::{CardState, IntervalKind, PreviewState},
 };
-
-use super::{CardStateUpdater, RevlogEntryPartial};
 
 impl CardStateUpdater {
     // fixme: check learning card moved into preview
@@ -41,12 +40,11 @@ impl CardStateUpdater {
 
 #[cfg(test)]
 mod test {
-    use crate::collection::open_test_collection;
-    use crate::prelude::*;
-
     use super::*;
     use crate::{
         card::CardType,
+        collection::open_test_collection,
+        prelude::*,
         scheduler::{
             answering::{CardAnswer, Rating},
             states::{CardState, FilteredState},

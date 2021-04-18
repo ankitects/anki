@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{borrow::Cow, collections::HashMap};
+
 use super::{CardTemplate, Notetype, NotetypeKind};
 use crate::{
     card::{Card, CardId},
@@ -10,7 +12,6 @@ use crate::{
     notes::{Note, NoteId},
     template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
 };
-use std::{borrow::Cow, collections::HashMap};
 
 pub struct RenderCardOutput {
     pub qnodes: Vec<RenderedNode>,

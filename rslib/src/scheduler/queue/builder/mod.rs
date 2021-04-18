@@ -11,13 +11,17 @@ use std::{
     collections::{BinaryHeap, HashSet, VecDeque},
 };
 
+use intersperser::Intersperser;
+use sized_chain::SizedChain;
+
 use super::{
     limits::{remaining_limits_capped_to_parents, RemainingLimits},
     CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind,
 };
-use crate::deckconf::{NewCardOrder, ReviewCardOrder, ReviewMix};
-use crate::prelude::*;
-use {intersperser::Intersperser, sized_chain::SizedChain};
+use crate::{
+    deckconf::{NewCardOrder, ReviewCardOrder, ReviewMix},
+    prelude::*,
+};
 
 /// Temporary holder for review cards that will be built into a queue.
 #[derive(Debug, Default, Clone)]

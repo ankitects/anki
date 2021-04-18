@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::cloze::expand_clozes_to_reveal_latex;
-use crate::media::files::sha1_of_data;
-use crate::text::strip_html;
+use std::borrow::Cow;
+
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
-use std::borrow::Cow;
+
+use crate::{cloze::expand_clozes_to_reveal_latex, media::files::sha1_of_data, text::strip_html};
 
 lazy_static! {
     static ref LATEX: Regex = Regex::new(

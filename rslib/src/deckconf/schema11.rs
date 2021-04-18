@@ -1,15 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{DeckConf, DeckConfId, INITIAL_EASE_FACTOR_THOUSANDS};
-use super::{DeckConfigInner, NewCardOrder};
-use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
+use std::collections::HashMap;
+
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
-use std::collections::HashMap;
+
+use super::{DeckConf, DeckConfId, DeckConfigInner, NewCardOrder, INITIAL_EASE_FACTOR_THOUSANDS};
+use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
