@@ -11,7 +11,7 @@ pub struct UpdateDeckConfigsIn {
     pub target_deck_id: DeckId,
     /// Deck will be set to last provided deck config.
     pub configs: Vec<DeckConf>,
-    pub removed_config_ids: Vec<DeckId>,
+    pub removed_config_ids: Vec<DeckConfId>,
     pub apply_to_children: bool,
 }
 
@@ -25,7 +25,10 @@ impl Collection {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
             defaults: Some(DeckConf::default().into()),
-            schema_modified: self.storage.schema_modified()?,
+            schema_modified: self
+                .storage
+                .get_collection_timestamps()?
+                .schema_changed_since_sync(),
         })
     }
 
@@ -96,6 +99,10 @@ impl Collection {
     fn update_deck_configs_inner(&mut self, input: UpdateDeckConfigsIn) -> Result<()> {
         if input.configs.is_empty() {
             return Err(AnkiError::invalid_input("config not provided"));
+        }
+
+        for dcid in &input.removed_config_ids {
+            self.remove_deck_config(*dcid)?;
         }
 
         todo!();

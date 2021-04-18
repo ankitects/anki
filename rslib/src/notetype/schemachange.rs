@@ -74,7 +74,7 @@ impl Collection {
             }
         }
 
-        self.storage.set_schema_modified()?;
+        self.set_schema_modified()?;
 
         let nids = self.search_notes(&format!("mid:{}", nt.id))?;
         let usn = self.usn()?;
@@ -115,7 +115,7 @@ impl Collection {
             return Ok(());
         }
 
-        self.storage.set_schema_modified()?;
+        self.set_schema_modified()?;
 
         let changes = TemplateOrdChanges::new(ords, previous_template_count as u32);
         if !changes.removed.is_empty() {

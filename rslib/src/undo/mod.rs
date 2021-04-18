@@ -127,6 +127,8 @@ impl UndoManager {
                 UndoableChange::Revlog(_) => {}
                 UndoableChange::Queue(_) => {}
                 UndoableChange::Config(_) => changes.config = true,
+                UndoableChange::DeckConfig(_) => changes.deck_config = true,
+                UndoableChange::Collection(_) => changes.collection = true,
             }
         }
 

@@ -127,7 +127,7 @@ impl Collection {
         }
 
         // force full sync
-        self.storage.set_schema_modified()
+        self.set_schema_modified()
     }
 
     fn upgrade_cards_to_v2(&mut self) -> Result<()> {

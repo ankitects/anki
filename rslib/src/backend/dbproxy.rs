@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::storage::SqliteStorage;
-use crate::{collection::Collection, error::Result};
-use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
-use rusqlite::OptionalExtension;
+use crate::{prelude::*, storage::SqliteStorage};
+use rusqlite::{
+    types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef},
+    OptionalExtension,
+};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
@@ -88,7 +89,7 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
         }
         DbRequest::Commit => {
             if col.state.modified_by_dbproxy {
-                col.storage.set_modified()?;
+                col.storage.set_modified_time(TimestampMillis::now())?;
                 col.state.modified_by_dbproxy = false;
             }
             col.storage.commit_trx()?;

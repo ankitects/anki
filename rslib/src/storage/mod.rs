@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 pub(crate) mod card;
+mod collection_timestamps;
 mod config;
 mod deck;
 mod deckconf;

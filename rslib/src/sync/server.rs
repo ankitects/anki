@@ -80,9 +80,10 @@ impl LocalServer {
 #[async_trait(?Send)]
 impl SyncServer for LocalServer {
     async fn meta(&self) -> Result<SyncMeta> {
+        let stamps = self.col.storage.get_collection_timestamps()?;
         Ok(SyncMeta {
-            modified: self.col.storage.get_modified_time()?,
-            schema: self.col.storage.get_schema_mtime()?,
+            modified: stamps.collection_change,
+            schema: stamps.schema_change,
             usn: self.col.storage.usn(true)?,
             current_time: TimestampSecs::now(),
             server_message: String::new(),

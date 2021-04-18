@@ -153,7 +153,7 @@ impl Collection {
     fn check_orphaned_cards(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let cnt = self.storage.delete_orphaned_cards()?;
         if cnt > 0 {
-            self.storage.set_schema_modified()?;
+            self.set_schema_modified()?;
             out.cards_missing_note = cnt;
         }
         Ok(())
@@ -186,7 +186,7 @@ impl Collection {
         }
 
         if wrong > 0 {
-            self.storage.set_schema_modified()?;
+            self.set_schema_modified()?;
             out.card_properties_invalid += wrong;
         }
 
@@ -275,7 +275,7 @@ impl Collection {
             || out.templates_missing > 0
             || out.notetypes_recovered > 0
         {
-            self.storage.set_schema_modified()?;
+            self.set_schema_modified()?;
         }
 
         Ok(())
@@ -365,10 +365,10 @@ impl Collection {
         Ok(Arc::new(basic))
     }
 
-    fn check_revlog(&self, out: &mut CheckDatabaseOutput) -> Result<()> {
+    fn check_revlog(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let cnt = self.storage.fix_revlog_properties()?;
         if cnt > 0 {
-            self.storage.set_schema_modified()?;
+            self.set_schema_modified()?;
             out.revlog_properties_invalid = cnt;
         }
 
