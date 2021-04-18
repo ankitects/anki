@@ -92,7 +92,7 @@ const exampleData = {
 
 function startingState(): DeckConfigState {
     return new DeckConfigState(
-        pb.BackendProto.DeckConfigForUpdate.fromObject(exampleData)
+        pb.BackendProto.DeckConfigsForUpdate.fromObject(exampleData)
     );
 }
 

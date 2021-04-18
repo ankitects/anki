@@ -4,6 +4,18 @@
 mod schema11;
 mod update;
 
+pub use {
+    crate::backend_proto::{
+        deck_config::config::{LeechAction, NewCardOrder, ReviewCardOrder, ReviewMix},
+        deck_config::Config as DeckConfigInner,
+    },
+    schema11::{DeckConfSchema11, NewCardOrderSchema11},
+    update::UpdateDeckConfigsIn,
+};
+
+/// Old deck config and cards table store 250% as 2500.
+pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
+
 use crate::{
     collection::Collection,
     define_newtype,
@@ -12,14 +24,6 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
-
-pub use crate::backend_proto::{
-    deck_config::config::{LeechAction, NewCardOrder, ReviewCardOrder, ReviewMix},
-    deck_config::Config as DeckConfigInner,
-};
-pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
-/// Old deck config and cards table store 250% as 2500.
-pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
 
 define_newtype!(DeckConfId, i64);
 

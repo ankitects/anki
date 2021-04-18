@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    // import * as tr from "anki/i18n";
+    import * as tr from "anki/i18n";
     import { textInputModal } from "./textInputModal";
     import type { DeckConfigState } from "./lib";
 
@@ -34,8 +34,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function removeConfig(): void {
+        // show pop-up after dropdown has gone away
         setTimeout(() => {
-            if (confirm("Are you sure?")) {
+            if (state.defaultConfigSelected()) {
+                alert(tr.schedulingTheDefaultConfigurationCantBeRemoved());
+                return;
+            }
+            // fixme: move tr.qt_misc schema mod msg into core
+            // fixme: include name of deck in msg
+            const msg = state.removalWilLForceFullSync()
+                ? "This will require a one-way sync. Are you sure?"
+                : "Are you sure?";
+            if (confirm(msg)) {
                 try {
                     state.removeCurrentConfig();
                 } catch (err) {

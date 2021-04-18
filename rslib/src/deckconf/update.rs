@@ -3,17 +3,36 @@
 
 use std::collections::{HashMap, HashSet};
 
-use pb::deck_config_for_update::{ConfigWithExtra, CurrentDeck};
+use pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck};
 
 use crate::{backend_proto as pb, prelude::*};
 
+pub struct UpdateDeckConfigsIn {
+    pub target_deck_id: DeckId,
+    /// Deck will be set to last provided deck config.
+    pub configs: Vec<DeckConf>,
+    pub removed_config_ids: Vec<DeckId>,
+    pub apply_to_children: bool,
+}
+
 impl Collection {
     /// Information required for the deck options screen.
-    pub fn get_deck_config_for_update(&mut self, deck: DeckId) -> Result<pb::DeckConfigForUpdate> {
-        Ok(pb::DeckConfigForUpdate {
+    pub fn get_deck_configs_for_update(
+        &mut self,
+        deck: DeckId,
+    ) -> Result<pb::DeckConfigsForUpdate> {
+        Ok(pb::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
             defaults: Some(DeckConf::default().into()),
+            schema_modified: self.storage.schema_modified()?,
+        })
+    }
+
+    /// Information required for the deck options screen.
+    pub fn update_deck_configs(&mut self, input: UpdateDeckConfigsIn) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateDeckConfig, |col| {
+            col.update_deck_configs_inner(input)
         })
     }
 }
@@ -72,5 +91,13 @@ impl Collection {
                     .map(|normal| DeckConfId(normal.config_id))
             })
             .collect())
+    }
+
+    fn update_deck_configs_inner(&mut self, input: UpdateDeckConfigsIn) -> Result<()> {
+        if input.configs.is_empty() {
+            return Err(AnkiError::invalid_input("config not provided"));
+        }
+
+        todo!();
     }
 }
