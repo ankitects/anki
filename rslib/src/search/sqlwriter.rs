@@ -128,6 +128,7 @@ impl SqlWriter<'_> {
             // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
+            SearchNode::IntroducedInDays(days) => self.write_introduced(*days)?,
             SearchNode::CardTemplate(template) => match template {
                 TemplateKind::Ordinal(_) => self.write_template(template),
                 TemplateKind::Name(name) => {
@@ -492,6 +493,18 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    fn write_introduced(&mut self, days: u32) -> Result<()> {
+        let timing = self.col.timing_today()?;
+        let cutoff = (timing.next_day_at.0 - (86_400 * (days as i64))) * 1_000;
+        write!(
+            self.sql,
+            "(select min(id) > {} from revlog where cid = c.id)",
+            cutoff
+        )
+        .unwrap();
+        Ok(())
+    }
+
     fn write_regex(&mut self, word: &str) {
         self.sql.push_str("n.flds regexp ?");
         self.args.push(format!(r"(?i){}", word));
@@ -546,6 +559,7 @@ impl SearchNode {
     fn required_table(&self) -> RequiredTable {
         match self {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
+            SearchNode::IntroducedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
             SearchNode::DeckId(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
