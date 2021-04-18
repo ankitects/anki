@@ -7,7 +7,7 @@ pub use crate::{
     collection::Collection,
     config::BoolKey,
     deckconf::{DeckConf, DeckConfId},
-    decks::{Deck, DeckId, DeckKind},
+    decks::{Deck, DeckId, DeckKind, NativeDeckName},
     error::{AnkiError, Result},
     i18n::I18n,
     notes::{Note, NoteId},
