@@ -479,25 +479,25 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn cutoff_in_secs_from_days(&mut self, days: u32) -> Result<i64> {
+    fn previous_day_cutoff(&mut self, days_back: u32) -> Result<TimestampSecs> {
         let timing = self.col.timing_today()?;
-        Ok(timing.next_day_at.0 - (86_400 * (days as i64)))
+        Ok(timing.next_day_at.adding_secs(-86_400 * days_back as i64))
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {
-        let cutoff = self.cutoff_in_secs_from_days(days)? * 1_000;
+        let cutoff = self.previous_day_cutoff(days)?.as_millis();
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
     }
 
     fn write_edited(&mut self, days: u32) -> Result<()> {
-        let cutoff = self.cutoff_in_secs_from_days(days)?;
+        let cutoff = self.previous_day_cutoff(days)?;
         write!(self.sql, "n.mod > {}", cutoff).unwrap();
         Ok(())
     }
 
     fn write_introduced(&mut self, days: u32) -> Result<()> {
-        let cutoff = self.cutoff_in_secs_from_days(days)? * 1_000;
+        let cutoff = self.previous_day_cutoff(days)?.as_millis();
         write!(
             self.sql,
             concat!(
