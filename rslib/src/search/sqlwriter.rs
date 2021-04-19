@@ -501,10 +501,10 @@ impl SqlWriter<'_> {
         write!(
             self.sql,
             concat!(
-                "(select min(id) > {} from revlog where cid = c.id)",
-                "and c.id in (select cid from revlog where id > {})"
+                "(select min(id) > {cutoff} from revlog where cid = c.id)",
+                "and c.id in (select cid from revlog where id > {cutoff})"
             ),
-            cutoff, cutoff,
+            cutoff = cutoff,
         )
         .unwrap();
         Ok(())
