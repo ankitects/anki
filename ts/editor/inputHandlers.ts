@@ -51,7 +51,7 @@ export function onKey(evt: KeyboardEvent): void {
     }
 
     // prefer <br> instead of <div></div>
-    if (evt.code === "Enter" && !getListItem(currentField)) {
+    if (evt.code === "Enter" && !getListItem(currentField) && !getParagraph(currentField)) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
     }
