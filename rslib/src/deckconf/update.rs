@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+//! Updating configs in bulk, from the deck config screen.
+
 use std::collections::{HashMap, HashSet};
 
 use crate::{
@@ -98,15 +100,42 @@ impl Collection {
             .collect())
     }
 
-    fn update_deck_configs_inner(&mut self, input: UpdateDeckConfigsIn) -> Result<()> {
+    fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsIn) -> Result<()> {
         if input.configs.is_empty() {
             return Err(AnkiError::invalid_input("config not provided"));
         }
 
+        // handle removals first
         for dcid in &input.removed_config_ids {
-            self.remove_deck_config(*dcid)?;
+            self.remove_deck_config_inner(*dcid)?;
         }
 
-        todo!();
+        // add/update provided configs
+        for conf in &mut input.configs {
+            self.add_or_update_deck_config(conf, false)?;
+        }
+
+        // point current deck to last config
+        let usn = self.usn()?;
+        let config_id = input.configs.last().unwrap().id;
+        let mut deck = self
+            .storage
+            .get_deck(input.target_deck_id)?
+            .ok_or(AnkiError::NotFound)?;
+        let original = deck.clone();
+        deck.normal_mut()?.config_id = config_id.0;
+        self.update_deck_inner(&mut deck, original, usn)?;
+
+        if input.apply_to_children {
+            for mut child_deck in self.storage.child_decks(&deck)? {
+                let child_original = child_deck.clone();
+                if let Ok(normal) = child_deck.normal_mut() {
+                    normal.config_id = config_id.0;
+                    self.update_deck_inner(&mut child_deck, child_original, usn)?;
+                }
+            }
+        }
+
+        Ok(())
     }
 }

@@ -1,7 +1,36 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+//! Adding and updating.
+
 use super::name::immediate_parent_name;
 use crate::{error::FilteredDeckError, prelude::*};
+
+impl Collection {
+    /// Add a new deck. The id must be 0, as it will be automatically assigned.
+    pub fn add_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
+        self.transact(Op::AddDeck, |col| col.add_deck_inner(deck, col.usn()?))
+    }
+
+    pub fn update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateDeck, |col| {
+            let existing_deck = col.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
+            col.update_deck_inner(deck, existing_deck, col.usn()?)
+        })
+    }
+
+    /// Add or update an existing deck modified by the user. May add parents,
+    /// or rename children as required. Prefer add_deck() or update_deck() to
+    /// be explicit about your intentions; this function mainly exists so we
+    /// can integrate with older Python code that behaved this way.
+    pub fn add_or_update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
+        if deck.id.0 == 0 {
+            self.add_deck(deck)
+        } else {
+            self.update_deck(deck)
+        }
+    }
+}
 
 impl Collection {
     /// Rename deck if not unique. Bumps mtime and usn if
@@ -13,39 +42,14 @@ impl Collection {
         self.ensure_deck_name_unique(deck, usn)
     }
 
-    /// Add or update an existing deck modified by the user. May add parents,
-    /// or rename children as required. Prefer add_deck() or update_deck() to
-    /// be explicit about your intentions; this function mainly exists so we
-    /// can integrate with older Python code that behaved this way.
-    pub(crate) fn add_or_update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
-        if deck.id.0 == 0 {
-            self.add_deck(deck)
-        } else {
-            self.update_deck(deck)
-        }
-    }
-
-    /// Add a new deck. The id must be 0, as it will be automatically assigned.
-    pub fn add_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
+    pub(crate) fn add_deck_inner(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
         if deck.id.0 != 0 {
             return Err(AnkiError::invalid_input("deck to add must have id 0"));
         }
-
-        self.transact(Op::AddDeck, |col| col.add_deck_inner(deck, col.usn()?))
-    }
-
-    pub(crate) fn add_deck_inner(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
         self.prepare_deck_for_update(deck, usn)?;
         deck.set_modified(usn);
         self.match_or_create_parents(deck, usn)?;
         self.add_deck_undoable(deck)
-    }
-
-    pub fn update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
-        self.transact(Op::UpdateDeck, |col| {
-            let existing_deck = col.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
-            col.update_deck_inner(deck, existing_deck, col.usn()?)
-        })
     }
 
     pub(crate) fn update_deck_inner(
@@ -91,9 +95,7 @@ impl Collection {
         deck.set_modified(usn);
         self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
     }
-}
 
-impl Collection {
     /// Add a single, normal deck with the provided name for a child deck.
     /// Caller must have done necessarily validation on name.
     fn add_parent_deck(&mut self, machine_name: &str, usn: Usn) -> Result<()> {

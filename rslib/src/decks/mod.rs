@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod add;
+mod addupdate;
 mod counts;
 mod current;
 mod filtered;
@@ -135,6 +135,20 @@ impl Deck {
 }
 
 impl Collection {
+    pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
+        let name = NativeDeckName::from_human_name(human_name);
+        if let Some(did) = self.storage.get_deck_id(name.as_native_str())? {
+            self.storage.get_deck(did).map(|opt| opt.unwrap())
+        } else {
+            let mut deck = Deck::new_normal();
+            deck.name = name;
+            self.add_or_update_deck(&mut deck)?;
+            Ok(deck)
+        }
+    }
+}
+
+impl Collection {
     pub(crate) fn get_deck(&mut self, did: DeckId) -> Result<Option<Arc<Deck>>> {
         if let Some(deck) = self.state.deck_cache.get(&did) {
             return Ok(Some(deck.clone()));
@@ -150,18 +164,6 @@ impl Collection {
 
     pub(crate) fn default_deck_is_empty(&self) -> Result<bool> {
         self.storage.deck_is_empty(DeckId(1))
-    }
-
-    pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
-        let name = NativeDeckName::from_human_name(human_name);
-        if let Some(did) = self.storage.get_deck_id(name.as_native_str())? {
-            self.storage.get_deck(did).map(|opt| opt.unwrap())
-        } else {
-            let mut deck = Deck::new_normal();
-            deck.name = name;
-            self.add_or_update_deck(&mut deck)?;
-            Ok(deck)
-        }
     }
 
     /// Get a deck based on its human name. If you have a machine name,

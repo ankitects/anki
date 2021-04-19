@@ -58,7 +58,7 @@ impl DeckConfigService for Backend {
     }
 
     fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config(input.into())))
+        self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config_inner(input.into())))
             .map(Into::into)
     }
 
