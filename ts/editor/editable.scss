@@ -16,6 +16,16 @@ anki-editable {
     }
 }
 
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+
+    &:empty::after {
+        content: "\a";
+        white-space: pre;
+    }
+}
+
 :host-context(.nightMode) * {
     @include scrollbar.night-mode;
 }
