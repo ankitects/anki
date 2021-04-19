@@ -5,18 +5,34 @@ import { EditingArea } from "./editingArea";
 import { caretToEnd, nodeIsElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
 
-function inListItem(currentField: EditingArea): boolean {
-    const anchor = currentField.getSelection()!.anchorNode!;
+const getAnchorParent = <T extends Element>(
+    predicate: (element: Element) => element is T
+) => (currentField: EditingArea): T | null => {
+    const anchor = currentField.getSelection()?.anchorNode;
 
-    let inList = false;
-    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
-    while (n) {
-        inList = inList || window.getComputedStyle(n).display == "list-item";
-        n = n.parentElement;
+    if (!anchor) {
+        return null;
     }
 
-    return inList;
-}
+    let anchorParent: T | null = null;
+    let element = nodeIsElement(anchor) ? anchor : anchor.parentElement;
+
+    while (element) {
+        anchorParent = anchorParent || (predicate(element) ? element : null);
+        element = element.parentElement;
+    }
+
+    return anchorParent;
+};
+
+const getListItem = getAnchorParent(
+    (element: Element): element is HTMLLIElement =>
+        window.getComputedStyle(element).display === "list-item"
+);
+
+const getParagraph = getAnchorParent(
+    (element: Element): element is HTMLParamElement => element.tagName === "P"
+);
 
 export function onInput(event: Event): void {
     // make sure IME changes get saved
@@ -35,7 +51,7 @@ export function onKey(evt: KeyboardEvent): void {
     }
 
     // prefer <br> instead of <div></div>
-    if (evt.code === "Enter" && !inListItem(currentField)) {
+    if (evt.code === "Enter" && !getListItem(currentField)) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
     }

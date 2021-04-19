@@ -58,6 +58,8 @@ class EditorToolbar extends HTMLElement {
     });
 
     connectedCallback(): void {
+        globalThis.$editorToolbar = this;
+
         setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
             const buttons = writable([
                 getNotetypeGroup(),

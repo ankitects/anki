@@ -184,13 +184,7 @@ $editorToolbar.addButtonGroup({{
             else ""
         )
 
-        self.web.eval(
-            f"""
-$editorToolbar = document.getElementById("editorToolbar");
-{lefttopbtns_js}
-{righttopbtns_js}
-"""
-        )
+        self.web.eval(f"{lefttopbtns_js} {righttopbtns_js}")
 
     # Top buttons
     ######################################################################
