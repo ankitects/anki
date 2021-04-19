@@ -3,6 +3,7 @@
 
 import type { Editable } from "./editable";
 
+import { updateActiveButtons } from "editor-toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
@@ -59,8 +60,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("paste", onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
-        // @ts-expect-error
-        this.addEventListener("mouseup", editorToolbar.updateActiveButtons);
+        this.addEventListener("mouseup", updateActiveButtons);
 
         const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
         baseStyleSheet.insertRule("anki-editable {}", 0);
@@ -75,8 +75,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("paste", onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
-        // @ts-expect-error
-        this.removeEventListener("mouseup", editorToolbar.updateActiveButtons);
+        this.removeEventListener("mouseup", updateActiveButtons);
     }
 
     initialize(color: string, content: string): void {

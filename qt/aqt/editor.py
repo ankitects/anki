@@ -141,13 +141,11 @@ class Editor:
             _html % (bgcol, tr.editing_show_duplicates()),
             css=[
                 "css/editor.css",
-                "css/editor-toolbar.css",
             ],
             js=[
                 "js/vendor/jquery.min.js",
                 "js/vendor/protobuf.min.js",
                 "js/editor.js",
-                "js/editor-toolbar.js",
             ],
             context=self,
             default_css=False,

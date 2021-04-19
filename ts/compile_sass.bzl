@@ -1,6 +1,6 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 
-def compile_sass(group, srcs, visibility, deps):
+def compile_sass(group, srcs, deps = [], visibility = ["//visibility:private"]):
     css_files = []
     for scss_file in srcs:
         base = scss_file.replace(".scss", "")

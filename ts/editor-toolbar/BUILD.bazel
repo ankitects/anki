@@ -17,6 +17,7 @@ compile_svelte(
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
+    visibility = ["//visibility:public"],
 )
 
 compile_sass(
@@ -26,42 +27,11 @@ compile_sass(
         "legacy.scss",
     ],
     group = "local_css",
-    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
-)
-
-ts_library(
-    name = "index",
-    srcs = ["index.ts"],
-    deps = [
-        "EditorToolbar",
-        "lib",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//svelte",
-        "@npm//svelte2tsx",
-    ],
-)
-
-ts_library(
-    name = "lib",
-    srcs = glob(
-        ["*.ts"],
-        exclude = ["index.ts"],
-    ),
-    deps = [
-        "//ts:image_module_support",
-        "//ts/lib",
-        "//ts/lib:backend_proto",
-        "//ts/sveltelib",
-        "@npm//@popperjs/core",
-        "@npm//@types/bootstrap",
-        "@npm//bootstrap",
-        "@npm//svelte",
-    ],
+    visibility = ["//visibility:public"],
 )
 
 copy_bootstrap_icons(
@@ -88,6 +58,7 @@ copy_bootstrap_icons(
         "text-indent-left.svg",
         "text-indent-right.svg",
     ],
+    visibility = ["//visibility:public"],
 )
 
 copy_mdi_icons(
@@ -99,35 +70,28 @@ copy_mdi_icons(
         "code-brackets.svg",
         "xml.svg",
     ],
+    visibility = ["//visibility:public"],
 )
 
-esbuild(
+ts_library(
     name = "editor-toolbar",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
-    args = [
-        "--global-name=editorToolbar",
-        "--inject:$(location //ts:protobuf-shim.js)",
-        "--resolve-extensions=.mjs,.js",
-        "--loader:.svg=text",
-        "--log-level=warning",
-    ],
-    entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
-    output_css = "editor-toolbar.css",
+    module_name = "editor-toolbar",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.test.ts"],
+    ),
+    tsconfig = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts:image_module_support",
-        "index",
-        "bootstrap-icons",
-        "mdi-icons",
-        "local_css",
-    ] + svelte_names,
+        "//ts/sveltelib",
+        "@npm//@popperjs/core",
+        "@npm//@types/bootstrap",
+        "@npm//bootstrap",
+        "@npm//svelte",
+    ],
 )
 
 # Tests

@@ -8,7 +8,8 @@
         "paths": {
             "anki/*": ["../bazel-bin/ts/lib/*"],
             "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"],
-            "html-filter/*": ["../bazel-bin/ts/html-filter/*"]
+            "html-filter/*": ["../bazel-bin/ts/html-filter/*"],
+            "editor-toolbar/*": ["../bazel-bin/ts/editor-toolbar/*"]
         },
         "importsNotUsedAsValues": "error",
         "outDir": "dist",

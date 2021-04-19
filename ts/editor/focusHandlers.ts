@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { enableButtons, disableButtons } from "editor-toolbar";
 import type { EditingArea } from "./editingArea";
 
 import { saveField } from "./changeTimer";
@@ -10,8 +11,7 @@ export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focusEditable();
     bridgeCommand(`focus:${currentField.ord}`);
-    // @ts-expect-error
-    editorToolbar.enableButtons();
+    enableButtons();
 }
 
 export function onBlur(evt: FocusEvent): void {
@@ -19,6 +19,5 @@ export function onBlur(evt: FocusEvent): void {
     const currentFieldUnchanged = previousFocus === document.activeElement;
 
     saveField(previousFocus, currentFieldUnchanged ? "key" : "blur");
-    // @ts-expect-error
-    editorToolbar.disableButtons();
+    disableButtons();
 }

@@ -8,7 +8,17 @@ load("//ts:compile_sass.bzl", "compile_sass")
 compile_sass(
     srcs = [
         "editable.scss",
-        "editor.scss",
+    ],
+    group = "editable_scss",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/sass:scrollbar_lib",
+    ],
+)
+
+compile_sass(
+    srcs = [
+        "fields.scss",
     ],
     group = "base_css",
     visibility = ["//visibility:public"],
@@ -26,6 +36,7 @@ ts_library(
     deps = [
         "//ts:image_module_support",
         "//ts/html-filter",
+        "//ts/editor-toolbar",
     ],
 )
 
@@ -36,17 +47,42 @@ copy_bootstrap_icons(
 
 esbuild(
     name = "editor",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
     args = [
         "--loader:.svg=text",
+        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
+    ],
+    output_css = "editor.css",
+    external = [
+        "protobufjs/light",
     ],
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
         "base_css",
-        ":bootstrap-icons",
-        ":editor_ts",
+        "bootstrap-icons",
+        "editor_ts",
+        "//ts/editor-toolbar:local_css",
+        "//ts/editor-toolbar:bootstrap-icons",
+        "//ts/editor-toolbar:mdi-icons",
+        "//ts/editor-toolbar:ButtonDropdown",
+        "//ts/editor-toolbar:ButtonGroup",
+        "//ts/editor-toolbar:IconButton",
+        "//ts/editor-toolbar:LabelButton",
+        "//ts/editor-toolbar:SelectButton",
+        "//ts/editor-toolbar:SelectOption",
+        "//ts/editor-toolbar:RawButton",
+        "//ts/editor-toolbar:EditorToolbar",
+        "//ts/editor-toolbar:CommandIconButton",
+        "//ts/editor-toolbar:WithDropdownMenu",
+        "//ts/editor-toolbar:DropdownItem",
+        "//ts/editor-toolbar:DropdownMenu",
+        "//ts/editor-toolbar:SquareButton",
+        "//ts/editor-toolbar:ColorPicker",
     ],
 )
 
