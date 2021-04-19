@@ -500,8 +500,11 @@ impl SqlWriter<'_> {
         let cutoff = self.cutoff_in_secs_from_days(days)? * 1_000;
         write!(
             self.sql,
-            "(select min(id) > {} from revlog where cid = c.id)",
-            cutoff
+            concat!(
+                "(select min(id) > {} from revlog where cid = c.id)",
+                "and c.id in (select cid from revlog where id > {})"
+            ),
+            cutoff, cutoff,
         )
         .unwrap();
         Ok(())
@@ -671,8 +674,11 @@ mod test {
         assert_eq!(
             s(ctx, "introduced:3").0,
             format!(
-                "((select min(id) > {} from revlog where cid = c.id))",
-                (timing.next_day_at.0 - (86_400 * 3)) * 1_000
+                concat!(
+                    "((select min(id) > {cutoff} from revlog where cid = c.id)",
+                    "and c.id in (select cid from revlog where id > {cutoff}))"
+                ),
+                cutoff = (timing.next_day_at.0 - (86_400 * 3)) * 1_000,
             )
         );
         assert_eq!(s(ctx, "introduced:0").0, s(ctx, "introduced:1").0,);
