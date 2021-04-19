@@ -61,7 +61,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
     });
 
     return buttonGroup({
-        id: "formatInline",
+        id: "inlineFormatting",
         buttons: [
             boldButton,
             italicButton,

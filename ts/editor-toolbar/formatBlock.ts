@@ -15,6 +15,7 @@ import type { IconButtonProps } from "./IconButton";
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
+import paragraphIcon from "./paragraph.svg";
 import ulIcon from "./list-ul.svg";
 import olIcon from "./list-ol.svg";
 import listOptionsIcon from "./text-paragraph.svg";
@@ -109,6 +110,12 @@ const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButt
 
 export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
+    const paragraphButton = commandIconButton({
+        icon: paragraphIcon,
+        command: "formatBlock",
+        tooltip: tr.editingUnorderedList(),
+    });
+
     const ulButton = commandIconButton({
         icon: ulIcon,
         command: "insertUnorderedList",
@@ -131,7 +138,12 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
     });
 
     return buttonGroup({
-        id: "formatBlock",
-        buttons: [ulButton, olButton, listFormatting],
+        id: "blockFormatting",
+        buttons: [
+            paragraphButton,
+            ulButton,
+            olButton,
+            listFormatting,
+        ],
     });
 }
