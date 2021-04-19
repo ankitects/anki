@@ -51,6 +51,7 @@ export class DeckConfigState {
     private selectedIdx: number;
     private configListSetter!: (val: ConfigListEntry[]) => void;
     private parentLimitsSetter!: (val: ParentLimits) => void;
+    private modifiedConfigs: Set<DeckConfigId> = new Set();
     private removedConfigs: DeckConfigId[] = [];
     private schemaModified: boolean;
 
@@ -107,8 +108,11 @@ export class DeckConfigState {
             return;
         }
         const uniqueName = this.ensureNewNameUnique(name);
-        this.configs[this.selectedIdx].config.name = uniqueName;
-        this.configs[this.selectedIdx].config.mtimeSecs = 0;
+        const config = this.configs[this.selectedIdx].config;
+        config.name = uniqueName;
+        if (config.id) {
+            this.modifiedConfigs.add(config.id);
+        }
         this.updateConfigList();
     }
 

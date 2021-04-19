@@ -76,6 +76,13 @@ impl Default for DeckConf {
     }
 }
 
+impl DeckConf {
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.mtime_secs = TimestampSecs::now();
+        self.usn = usn;
+    }
+}
+
 impl Collection {
     /// If fallback is true, guaranteed to return a deck config.
     pub fn get_deck_config(&self, dcid: DeckConfId, fallback: bool) -> Result<Option<DeckConf>> {
@@ -92,29 +99,64 @@ impl Collection {
             Ok(None)
         }
     }
+}
 
+impl Collection {
     pub(crate) fn add_or_update_deck_config(
-        &self,
-        conf: &mut DeckConf,
+        &mut self,
+        config: &mut DeckConf,
         preserve_usn_and_mtime: bool,
     ) -> Result<()> {
-        if !preserve_usn_and_mtime {
-            conf.mtime_secs = TimestampSecs::now();
-            conf.usn = self.usn()?;
-        }
-        let orig = self.storage.get_deck_config(conf.id)?;
-        if let Some(_orig) = orig {
-            self.storage.update_deck_conf(&conf)
+        let usn = if preserve_usn_and_mtime {
+            None
         } else {
-            if conf.id.0 == 0 {
-                conf.id.0 = TimestampMillis::now().0;
-            }
-            self.storage.add_deck_conf(conf)
+            Some(self.usn()?)
+        };
+
+        if config.id.0 == 0 {
+            self.add_deck_config_inner(config, usn)
+        } else {
+            let original = self
+                .storage
+                .get_deck_config(config.id)?
+                .ok_or(AnkiError::NotFound)?;
+            self.update_deck_config_inner(config, original, usn)
         }
     }
 
+    /// Assigns an id and adds to DB. If usn is provided, modification time and
+    /// usn will be updated.
+    pub(crate) fn add_deck_config_inner(
+        &mut self,
+        config: &mut DeckConf,
+        usn: Option<Usn>,
+    ) -> Result<()> {
+        if let Some(usn) = usn {
+            config.set_modified(usn);
+        }
+        config.id.0 = TimestampMillis::now().0;
+        self.add_deck_config_undoable(config)
+    }
+
+    /// Update an existing deck config. If usn is provided, modification time
+    /// and usn will be updated.
+    pub(crate) fn update_deck_config_inner(
+        &mut self,
+        config: &mut DeckConf,
+        original: DeckConf,
+        usn: Option<Usn>,
+    ) -> Result<()> {
+        if config == &original {
+            return Ok(());
+        }
+        if let Some(usn) = usn {
+            config.set_modified(usn);
+        }
+        self.update_deck_config_undoable(config, original)
+    }
+
     /// Remove a deck configuration. This will force a full sync.
-    pub(crate) fn remove_deck_config(&mut self, dcid: DeckConfId) -> Result<()> {
+    pub(crate) fn remove_deck_config_inner(&mut self, dcid: DeckConfId) -> Result<()> {
         if dcid.0 == 1 {
             return Err(AnkiError::invalid_input("can't delete default conf"));
         }

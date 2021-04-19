@@ -11,8 +11,6 @@ pub(crate) enum UndoableDeckConfigChange {
     Removed(Box<DeckConf>),
 }
 
-// fixme: schema mod
-
 impl Collection {
     pub(crate) fn undo_deck_config_change(
         &mut self,
@@ -20,12 +18,12 @@ impl Collection {
     ) -> Result<()> {
         match change {
             UndoableDeckConfigChange::Added(config) => self.remove_deck_config_undoable(*config),
-            UndoableDeckConfigChange::Updated(mut config) => {
+            UndoableDeckConfigChange::Updated(config) => {
                 let current = self
                     .storage
                     .get_deck_config(config.id)?
                     .ok_or_else(|| AnkiError::invalid_input("deck config disappeared"))?;
-                self.update_single_deck_config_undoable(&mut *config, current)
+                self.update_deck_config_undoable(&config, current)
             }
             UndoableDeckConfigChange::Removed(config) => self.restore_deleted_deck_config(*config),
         }
@@ -37,7 +35,6 @@ impl Collection {
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub(super) fn add_deck_config_undoable(
         &mut self,
         config: &mut DeckConf,
@@ -47,24 +44,13 @@ impl Collection {
         Ok(())
     }
 
-    pub(super) fn update_single_deck_config_undoable(
+    pub(super) fn update_deck_config_undoable(
         &mut self,
-        config: &mut DeckConf,
+        config: &DeckConf,
         original: DeckConf,
     ) -> Result<()> {
         self.save_undo(UndoableDeckConfigChange::Updated(Box::new(original)));
         self.storage.update_deck_conf(config)
-    }
-
-    #[allow(dead_code)]
-    fn add_or_update_deck_config_with_existing_id_undoable(
-        &mut self,
-        config: &mut DeckConf,
-    ) -> Result<(), AnkiError> {
-        self.storage
-            .add_or_update_deck_config_with_existing_id(config)?;
-        self.save_undo(UndoableDeckConfigChange::Added(Box::new(config.clone())));
-        Ok(())
     }
 
     fn restore_deleted_deck_config(&mut self, config: DeckConf) -> Result<()> {
