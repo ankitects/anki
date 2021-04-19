@@ -113,7 +113,11 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
     const paragraphButton = commandIconButton({
         icon: paragraphIcon,
         command: "formatBlock",
+        onClick: () => {
+            document.execCommand("formatBlock", false, "p");
+        },
         tooltip: tr.editingUnorderedList(),
+        activatable: false,
     });
 
     const ulButton = commandIconButton({
@@ -139,11 +143,6 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
 
     return buttonGroup({
         id: "blockFormatting",
-        buttons: [
-            paragraphButton,
-            ulButton,
-            olButton,
-            listFormatting,
-        ],
+        buttons: [paragraphButton, ulButton, olButton, listFormatting],
     });
 }
