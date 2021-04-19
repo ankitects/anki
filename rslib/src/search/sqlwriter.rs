@@ -129,6 +129,7 @@ impl SqlWriter<'_> {
             // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
+            SearchNode::IntroducedInDays(days) => self.write_introduced(*days)?,
             SearchNode::CardTemplate(template) => match template {
                 TemplateKind::Ordinal(_) => self.write_template(template),
                 TemplateKind::Name(name) => {
@@ -479,17 +480,34 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_added(&mut self, days: u32) -> Result<()> {
+    fn previous_day_cutoff(&mut self, days_back: u32) -> Result<TimestampSecs> {
         let timing = self.col.timing_today()?;
-        let cutoff = (timing.next_day_at.0 - (86_400 * (days as i64))) * 1_000;
+        Ok(timing.next_day_at.adding_secs(-86_400 * days_back as i64))
+    }
+
+    fn write_added(&mut self, days: u32) -> Result<()> {
+        let cutoff = self.previous_day_cutoff(days)?.as_millis();
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
     }
 
     fn write_edited(&mut self, days: u32) -> Result<()> {
-        let timing = self.col.timing_today()?;
-        let cutoff = timing.next_day_at.0 - (86_400 * (days as i64));
+        let cutoff = self.previous_day_cutoff(days)?;
         write!(self.sql, "n.mod > {}", cutoff).unwrap();
+        Ok(())
+    }
+
+    fn write_introduced(&mut self, days: u32) -> Result<()> {
+        let cutoff = self.previous_day_cutoff(days)?.as_millis();
+        write!(
+            self.sql,
+            concat!(
+                "(select min(id) > {cutoff} from revlog where cid = c.id)",
+                "and c.id in (select cid from revlog where id > {cutoff})"
+            ),
+            cutoff = cutoff,
+        )
+        .unwrap();
         Ok(())
     }
 
@@ -547,6 +565,7 @@ impl SearchNode {
     fn required_table(&self) -> RequiredTable {
         match self {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
+            SearchNode::IntroducedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
             SearchNode::DeckId(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
@@ -651,6 +670,19 @@ mod test {
             format!("(c.id > {})", (timing.next_day_at.0 - (86_400 * 3)) * 1_000)
         );
         assert_eq!(s(ctx, "added:0").0, s(ctx, "added:1").0,);
+
+        // introduced
+        assert_eq!(
+            s(ctx, "introduced:3").0,
+            format!(
+                concat!(
+                    "((select min(id) > {cutoff} from revlog where cid = c.id)",
+                    "and c.id in (select cid from revlog where id > {cutoff}))"
+                ),
+                cutoff = (timing.next_day_at.0 - (86_400 * 3)) * 1_000,
+            )
+        );
+        assert_eq!(s(ctx, "introduced:0").0, s(ctx, "introduced:1").0,);
 
         // deck
         assert_eq!(

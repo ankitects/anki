@@ -48,6 +48,7 @@ impl TryFrom<pb::SearchNode> for Node {
                     ease: rated.rating().into(),
                 }),
                 Filter::AddedInDays(u) => Node::Search(SearchNode::AddedInDays(u)),
+                Filter::IntroducedInDays(u) => Node::Search(SearchNode::IntroducedInDays(u)),
                 Filter::DueInDays(i) => Node::Search(SearchNode::Property {
                     operator: "<=".to_string(),
                     kind: PropertyKind::Due(i),

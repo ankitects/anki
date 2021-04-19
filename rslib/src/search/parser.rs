@@ -74,6 +74,7 @@ pub enum SearchNode {
     CardTemplate(TemplateKind),
     Deck(String),
     DeckId(DeckId),
+    IntroducedInDays(u32),
     NotetypeId(NotetypeId),
     Notetype(String),
     Rated {
@@ -334,6 +335,7 @@ fn search_node_for_text_with_argument<'a>(
         "prop" => parse_prop(val)?,
         "added" => parse_added(val)?,
         "edited" => parse_edited(val)?,
+        "introduced" => parse_introduced(val)?,
         "rated" => parse_rated(val)?,
         "is" => parse_state(val)?,
         "did" => parse_did(val)?,
@@ -526,6 +528,11 @@ fn parse_added(s: &str) -> ParseResult<SearchNode> {
 /// eg edited:1
 fn parse_edited(s: &str) -> ParseResult<SearchNode> {
     parse_u32(s, "edited:").map(|n| SearchNode::EditedInDays(n.max(1)))
+}
+
+/// eg introduced:1
+fn parse_introduced(s: &str) -> ParseResult<SearchNode> {
+    parse_u32(s, "introduced:").map(|n| SearchNode::IntroducedInDays(n.max(1)))
 }
 
 /// eg rated:3 or rated:10:2
