@@ -63,17 +63,19 @@ svelte = rule(
     },
 )
 
-def compile_svelte(name, srcs, deps = []):
+def compile_svelte(name, srcs, deps = [], visibility = ["//visibility:private"]):
     for src in srcs:
         svelte(
             name = src.replace(".svelte", ""),
             entry_point = src,
             deps = deps,
+            visibility = visibility,
         )
 
     native.filegroup(
         name = name,
         srcs = srcs,
+        visibility = visibility,
     )
 
 def svelte_check(name = "svelte_check", srcs = []):

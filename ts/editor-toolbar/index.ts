@@ -202,9 +202,10 @@ class EditorToolbar extends HTMLElement {
 
 customElements.define("anki-editor-toolbar", EditorToolbar);
 
-/* Exports for editor
- * @ts-expect-error */
+/* Exports for editor/
+/* @ts-expect-error */
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
+/* @ts-expect-error */
 export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 
 /* Exports for add-ons */
