@@ -870,7 +870,7 @@ where id in %s"""
     # Edit: finding dupes
     ######################################################################
 
-    @ensure_editor_saved
+    @ensure_editor_saved_on_trigger
     def onFindDupes(self) -> None:
         import anki.find
 
