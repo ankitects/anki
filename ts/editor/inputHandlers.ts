@@ -3,37 +3,8 @@
 
 import { updateActiveButtons } from "editor-toolbar";
 import { EditingArea } from "./editingArea";
-import { caretToEnd, nodeIsElement } from "./helpers";
+import { caretToEnd, nodeIsElement, getListItem, getParagraph } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
-
-const getAnchorParent = <T extends Element>(
-    predicate: (element: Element) => element is T
-) => (currentField: EditingArea): T | null => {
-    const anchor = currentField.getSelection()?.anchorNode;
-
-    if (!anchor) {
-        return null;
-    }
-
-    let anchorParent: T | null = null;
-    let element = nodeIsElement(anchor) ? anchor : anchor.parentElement;
-
-    while (element) {
-        anchorParent = anchorParent || (predicate(element) ? element : null);
-        element = element.parentElement;
-    }
-
-    return anchorParent;
-};
-
-const getListItem = getAnchorParent(
-    (element: Element): element is HTMLLIElement =>
-        window.getComputedStyle(element).display === "list-item"
-);
-
-const getParagraph = getAnchorParent(
-    (element: Element): element is HTMLParamElement => element.tagName === "P"
-);
 
 export function onInput(event: Event): void {
     // make sure IME changes get saved
@@ -53,8 +24,8 @@ export function onKey(evt: KeyboardEvent): void {
     // prefer <br> instead of <div></div>
     if (
         evt.code === "Enter" &&
-        !getListItem(currentField) &&
-        !getParagraph(currentField)
+        !getListItem(currentField.shadowRoot!) &&
+        !getParagraph(currentField.shadowRoot!)
     ) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");

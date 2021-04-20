@@ -44,7 +44,6 @@ ts_library(
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "//ts:image_module_support",
         "//ts/sveltelib",
         "@npm//@popperjs/core",
         "@npm//@types/bootstrap",
