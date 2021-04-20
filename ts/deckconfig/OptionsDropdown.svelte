@@ -54,6 +54,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }, 100);
     }
+
+    function save(applyToChildDecks: boolean): void {
+        state.save(applyToChildDecks);
+    }
 </script>
 
 <style>
@@ -63,7 +67,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 <div class="btn-group">
-    <button type="button" class="btn btn-primary">Save</button>
+    <button
+        type="button"
+        class="btn btn-primary"
+        on:click={() => save(false)}>Save</button>
     <button
         type="button"
         class="btn btn-primary dropdown-toggle dropdown-toggle-split"
@@ -82,6 +89,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <li>
             <hr class="dropdown-divider" />
         </li>
-        <li><a class="dropdown-item" href={'#'}>Apply to Child Decks</a></li>
+        <li>
+            <a class="dropdown-item" href={'#'} on:click={() => save(true)}>Save to All
+                Children</a>
+        </li>
     </ul>
 </div>

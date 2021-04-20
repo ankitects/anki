@@ -23,6 +23,7 @@ DeckNameId = _pb.DeckNameId
 FilteredDeckConfig = _pb.Deck.Filtered
 DeckCollapseScope = _pb.SetDeckCollapsedIn.Scope
 DeckConfigsForUpdate = _pb.DeckConfigsForUpdate
+UpdateDeckConfigs = _pb.UpdateDeckConfigsIn
 
 # legacy code may pass this in as the type argument to .id()
 defaultDeck = 0
@@ -327,6 +328,9 @@ class DeckManager:
 
     def get_deck_configs_for_update(self, deck_id: DeckId) -> DeckConfigsForUpdate:
         return self.col._backend.get_deck_configs_for_update(deck_id)
+
+    def update_deck_configs(self, input: UpdateDeckConfigs) -> OpChanges:
+        return self.col._backend.update_deck_configs(input=input)
 
     def all_config(self) -> List[DeckConfigDict]:
         "A list of all deck config."

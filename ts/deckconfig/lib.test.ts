@@ -92,6 +92,7 @@ const exampleData = {
 
 function startingState(): DeckConfigState {
     return new DeckConfigState(
+        123,
         pb.BackendProto.DeckConfigsForUpdate.fromObject(exampleData)
     );
 }
@@ -198,7 +199,8 @@ test("deck list", () => {
     expect(get(state.currentConfig).newPerDay).toBe(10);
 
     // only the pre-existing deck should be listed for removal
-    expect((state as any).removedConfigs).toStrictEqual([1618570764780]);
+    const out = state.dataForSaving(false);
+    expect(out.removedConfigIds).toStrictEqual([1618570764780]);
 });
 
 test("duplicate name", () => {
@@ -232,4 +234,45 @@ test("parent counts", () => {
         return c;
     });
     expect(get(state.parentLimits)).toStrictEqual({ newCards: 123, reviews: 200 });
+});
+
+test("saving", () => {
+    let state = startingState();
+    let out = state.dataForSaving(false);
+    expect(out.removedConfigIds).toStrictEqual([]);
+    expect(out.targetDeckId).toBe(123);
+    // in no-changes case, currently selected config should
+    // be returned
+    expect(out.configs.length).toBe(1);
+    expect(out.configs[0].name).toBe("another one");
+    expect(out.applyToChildren).toBe(false);
+
+    // rename, then change current deck
+    state.setCurrentName("zzz");
+    out = state.dataForSaving(true);
+    state.setCurrentIndex(0);
+
+    // renamed deck should be in changes, with current deck as last element
+    out = state.dataForSaving(true);
+    expect(out.configs.map((c) => c.name)).toStrictEqual(["zzz", "Default"]);
+    expect(out.applyToChildren).toBe(true);
+
+    // start again, adding new deck
+    state = startingState();
+    state.addConfig("hello");
+
+    // deleting it should not change removedConfigs
+    state.removeCurrentConfig();
+    out = state.dataForSaving(true);
+    expect(out.removedConfigIds).toStrictEqual([]);
+
+    // select the other non-default deck & remove
+    state.setCurrentIndex(1);
+    state.removeCurrentConfig();
+
+    // should be listed in removedConfigs, and modified should
+    // only contain Default, which is the new current deck
+    out = state.dataForSaving(true);
+    expect(out.removedConfigIds).toStrictEqual([1618570764780]);
+    expect(out.configs.map((c) => c.name)).toStrictEqual(["Default"]);
 });
