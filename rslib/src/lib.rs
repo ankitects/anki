@@ -12,7 +12,7 @@ pub mod cloze;
 pub mod collection;
 pub mod config;
 pub mod dbcheck;
-pub mod deckconf;
+pub mod deckconfig;
 pub mod decks;
 pub mod error;
 pub mod findreplace;

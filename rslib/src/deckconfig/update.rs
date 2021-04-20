@@ -14,7 +14,7 @@ use crate::{
 pub struct UpdateDeckConfigsIn {
     pub target_deck_id: DeckId,
     /// Deck will be set to last provided deck config.
-    pub configs: Vec<DeckConf>,
+    pub configs: Vec<DeckConfig>,
     pub removed_config_ids: Vec<DeckConfId>,
     pub apply_to_children: bool,
 }
@@ -28,7 +28,7 @@ impl Collection {
         Ok(pb::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
-            defaults: Some(DeckConf::default().into()),
+            defaults: Some(DeckConfig::default().into()),
             schema_modified: self
                 .storage
                 .get_collection_timestamps()?

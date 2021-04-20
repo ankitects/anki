@@ -19,7 +19,7 @@ use super::{
     CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind,
 };
 use crate::{
-    deckconf::{NewCardOrder, ReviewCardOrder, ReviewMix},
+    deckconfig::{NewCardOrder, ReviewCardOrder, ReviewMix},
     prelude::*,
 };
 

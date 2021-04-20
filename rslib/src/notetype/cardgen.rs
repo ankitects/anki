@@ -11,7 +11,7 @@ use crate::{
     card::{Card, CardId},
     cloze::add_cloze_numbers_in_string,
     collection::Collection,
-    deckconf::{DeckConf, DeckConfId},
+    deckconfig::{DeckConfId, DeckConfig},
     decks::DeckId,
     error::{AnkiError, Result},
     notes::{Note, NoteId},
@@ -56,7 +56,7 @@ pub(crate) struct CardGenContext<'a> {
 #[derive(Default)]
 pub(crate) struct CardGenCache {
     next_position: Option<u32>,
-    deck_configs: HashMap<DeckId, DeckConf>,
+    deck_configs: HashMap<DeckId, DeckConfig>,
 }
 
 impl CardGenContext<'_> {
@@ -318,8 +318,8 @@ impl Collection {
         let next_pos = cache.next_position.unwrap();
 
         match cache.deck_configs.get(&did).unwrap().inner.new_card_order() {
-            crate::deckconf::NewCardOrder::Random => Ok(random_position(next_pos)),
-            crate::deckconf::NewCardOrder::Due => Ok(next_pos),
+            crate::deckconfig::NewCardOrder::Random => Ok(random_position(next_pos)),
+            crate::deckconfig::NewCardOrder::Due => Ok(next_pos),
         }
     }
 

@@ -18,7 +18,7 @@ pub(crate) use server::{LocalServer, SyncServer};
 use crate::{
     backend_proto::{sync_status_out, SyncStatusOut},
     card::{Card, CardQueue, CardType},
-    deckconf::DeckConfSchema11,
+    deckconfig::DeckConfSchema11,
     decks::DeckSchema11,
     error::{SyncError, SyncErrorKind},
     notes::Note,
@@ -1200,7 +1200,7 @@ mod test {
 
     use super::{server::LocalServer, *};
     use crate::{
-        collection::open_collection, deckconf::DeckConf, decks::DeckKind, i18n::I18n, log,
+        collection::open_collection, deckconfig::DeckConfig, decks::DeckKind, i18n::I18n, log,
         notetype::all_stock_notetypes, search::SortMode,
     };
 
@@ -1374,7 +1374,7 @@ mod test {
         let mut deck = col1.get_or_create_normal_deck("new deck")?;
 
         // give it a new option group
-        let mut dconf = DeckConf {
+        let mut dconf = DeckConfig {
             name: "new dconf".into(),
             ..Default::default()
         };

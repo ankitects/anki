@@ -28,7 +28,7 @@ use crate::{
 define_newtype!(DeckConfId, i64);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct DeckConf {
+pub struct DeckConfig {
     pub id: DeckConfId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
@@ -36,9 +36,9 @@ pub struct DeckConf {
     pub inner: DeckConfigInner,
 }
 
-impl Default for DeckConf {
+impl Default for DeckConfig {
     fn default() -> Self {
-        DeckConf {
+        DeckConfig {
             id: DeckConfId(0),
             name: "".to_string(),
             mtime_secs: Default::default(),
@@ -76,7 +76,7 @@ impl Default for DeckConf {
     }
 }
 
-impl DeckConf {
+impl DeckConfig {
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;
@@ -85,7 +85,7 @@ impl DeckConf {
 
 impl Collection {
     /// If fallback is true, guaranteed to return a deck config.
-    pub fn get_deck_config(&self, dcid: DeckConfId, fallback: bool) -> Result<Option<DeckConf>> {
+    pub fn get_deck_config(&self, dcid: DeckConfId, fallback: bool) -> Result<Option<DeckConfig>> {
         if let Some(conf) = self.storage.get_deck_config(dcid)? {
             return Ok(Some(conf));
         }
@@ -94,7 +94,7 @@ impl Collection {
                 return Ok(Some(conf));
             }
             // if even the default deck config is missing, just return the defaults
-            Ok(Some(DeckConf::default()))
+            Ok(Some(DeckConfig::default()))
         } else {
             Ok(None)
         }
@@ -104,7 +104,7 @@ impl Collection {
 impl Collection {
     pub(crate) fn add_or_update_deck_config(
         &mut self,
-        config: &mut DeckConf,
+        config: &mut DeckConfig,
         preserve_usn_and_mtime: bool,
     ) -> Result<()> {
         let usn = if preserve_usn_and_mtime {
@@ -128,7 +128,7 @@ impl Collection {
     /// usn will be updated.
     pub(crate) fn add_deck_config_inner(
         &mut self,
-        config: &mut DeckConf,
+        config: &mut DeckConfig,
         usn: Option<Usn>,
     ) -> Result<()> {
         if let Some(usn) = usn {
@@ -142,8 +142,8 @@ impl Collection {
     /// and usn will be updated.
     pub(crate) fn update_deck_config_inner(
         &mut self,
-        config: &mut DeckConf,
-        original: DeckConf,
+        config: &mut DeckConfig,
+        original: DeckConfig,
         usn: Option<Usn>,
     ) -> Result<()> {
         if config == &original {

@@ -3,7 +3,7 @@
 
 use crate::{
     card::undo::UndoableCardChange, collection::undo::UndoableCollectionChange,
-    config::undo::UndoableConfigChange, deckconf::undo::UndoableDeckConfigChange,
+    config::undo::UndoableConfigChange, deckconfig::undo::UndoableDeckConfigChange,
     decks::undo::UndoableDeckChange, notes::undo::UndoableNoteChange, prelude::*,
     revlog::undo::UndoableRevlogChange, scheduler::queue::undo::UndoableQueueChange,
     tags::undo::UndoableTagChange,
