@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import IconButton from "./IconButton.svelte";
-import type { IconButtonProps } from "./IconButton";
-import ColorPicker from "./ColorPicker.svelte";
-import type { ColorPickerProps } from "./ColorPicker";
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
+import IconButton from "editor-toolbar/IconButton.svelte";
+import type { IconButtonProps } from "editor-toolbar/IconButton";
+import ColorPicker from "editor-toolbar/ColorPicker.svelte";
+import type { ColorPickerProps } from "editor-toolbar/ColorPicker";
+import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";

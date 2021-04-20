@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import IconButton from "./IconButton.svelte";
-import type { IconButtonProps } from "./IconButton";
+import IconButton from "editor-toolbar/IconButton.svelte";
+import type { IconButtonProps } from "editor-toolbar/IconButton";
 
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";

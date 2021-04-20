@@ -4,7 +4,6 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
-load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 
 svelte_files = glob(["*.svelte"])
 
@@ -23,52 +22,12 @@ compile_svelte(
 compile_sass(
     srcs = [
         "bootstrap.scss",
-        "color.scss",
         "legacy.scss",
     ],
     group = "local_css",
     deps = [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-copy_bootstrap_icons(
-    name = "bootstrap-icons",
-    icons = [
-        # inline formatting
-        "type-bold.svg",
-        "type-italic.svg",
-        "type-underline.svg",
-        "eraser.svg",
-        "square-fill.svg",
-        "paperclip.svg",
-        "mic.svg",
-
-        # block formatting
-        "paragraph.svg",
-        "list-ul.svg",
-        "list-ol.svg",
-        "text-paragraph.svg",
-        "justify.svg",
-        "text-left.svg",
-        "text-right.svg",
-        "text-center.svg",
-        "text-indent-left.svg",
-        "text-indent-right.svg",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-copy_mdi_icons(
-    name = "mdi-icons",
-    icons = [
-        "format-superscript.svg",
-        "format-subscript.svg",
-        "function-variant.svg",
-        "code-brackets.svg",
-        "xml.svg",
     ],
     visibility = ["//visibility:public"],
 )

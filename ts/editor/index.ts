@@ -3,6 +3,8 @@
 
 import { filterHTML } from "html-filter";
 import { updateActiveButtons, disableButtons } from "editor-toolbar";
+import { setupI18n, ModuleName } from "anki/i18n";
+
 import "./fields.css";
 
 import { caretToEnd } from "./helpers";
@@ -16,6 +18,8 @@ import { Editable } from "./editable";
 export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
+
+export * from "./addons";
 
 declare global {
     interface Selection {
@@ -162,3 +166,33 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
         updateActiveButtons();
     }
 }
+
+////////// EDITOR TOOLBAR
+
+import { getNotetypeGroup } from "./notetype";
+import { getFormatInlineGroup } from "./formatInline";
+import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
+import { getColorGroup } from "./color";
+import { getTemplateGroup, getTemplateMenus } from "./template";
+
+const i18n = setupI18n({ modules: [ModuleName.EDITING] });
+
+document.addEventListener("DOMContentLoaded", () => {
+    i18n.then(() => {
+        $editorToolbar.buttonsPromise.then((buttons) => {
+            buttons.update(() => [
+                getNotetypeGroup(),
+                getFormatInlineGroup(),
+                getFormatBlockGroup(),
+                getColorGroup(),
+                getTemplateGroup(),
+            ]);
+            return buttons;
+        });
+
+        $editorToolbar.menusPromise.then((menus) => {
+            menus.update(() => [...getFormatBlockMenus(), ...getTemplateMenus()]);
+            return menus;
+        });
+    });
+});

@@ -2,7 +2,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_bootstrap_icons")
+load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
@@ -19,6 +19,7 @@ compile_sass(
 compile_sass(
     srcs = [
         "fields.scss",
+        "color.scss",
     ],
     group = "base_css",
     visibility = ["//visibility:public"],
@@ -35,14 +36,53 @@ ts_library(
     tsconfig = "//ts:tsconfig.json",
     deps = [
         "//ts:image_module_support",
+        "//ts/lib",
+        "//ts/sveltelib",
         "//ts/html-filter",
         "//ts/editor-toolbar",
+        "@npm//svelte",
     ],
 )
 
 copy_bootstrap_icons(
     name = "bootstrap-icons",
-    icons = ["pin-angle.svg"],
+    icons = [
+        "pin-angle.svg",
+
+        # inline formatting
+        "type-bold.svg",
+        "type-italic.svg",
+        "type-underline.svg",
+        "eraser.svg",
+        "square-fill.svg",
+        "paperclip.svg",
+        "mic.svg",
+
+        # block formatting
+        "paragraph.svg",
+        "list-ul.svg",
+        "list-ol.svg",
+        "text-paragraph.svg",
+        "justify.svg",
+        "text-left.svg",
+        "text-right.svg",
+        "text-center.svg",
+        "text-indent-left.svg",
+        "text-indent-right.svg",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+copy_mdi_icons(
+    name = "mdi-icons",
+    icons = [
+        "format-superscript.svg",
+        "format-subscript.svg",
+        "function-variant.svg",
+        "code-brackets.svg",
+        "xml.svg",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 esbuild(
@@ -65,10 +105,9 @@ esbuild(
     deps = [
         "base_css",
         "bootstrap-icons",
+        "mdi-icons",
         "editor_ts",
         "//ts/editor-toolbar:local_css",
-        "//ts/editor-toolbar:bootstrap-icons",
-        "//ts/editor-toolbar:mdi-icons",
         "//ts/editor-toolbar:ButtonDropdown",
         "//ts/editor-toolbar:ButtonGroup",
         "//ts/editor-toolbar:IconButton",
