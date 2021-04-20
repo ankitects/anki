@@ -17,7 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style>
-    :global(.btn-dropdown-menu) {
+    :global(ul.btn-dropdown-menu) {
+        display: none;
         background-color: var(--window-bg);
         border-color: var(--medium-border);
     }
