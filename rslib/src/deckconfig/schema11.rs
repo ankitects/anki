@@ -9,7 +9,7 @@ use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
 
-use super::{DeckConf, DeckConfId, DeckConfigInner, NewCardOrder, INITIAL_EASE_FACTOR_THOUSANDS};
+use super::{DeckConfId, DeckConfig, DeckConfigInner, NewCardOrder, INITIAL_EASE_FACTOR_THOUSANDS};
 use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -214,8 +214,8 @@ impl Default for DeckConfSchema11 {
 
 // schema11 -> schema15
 
-impl From<DeckConfSchema11> for DeckConf {
-    fn from(mut c: DeckConfSchema11) -> DeckConf {
+impl From<DeckConfSchema11> for DeckConfig {
+    fn from(mut c: DeckConfSchema11) -> DeckConfig {
         // merge any json stored in new/rev/lapse into top level
         if !c.new.other.is_empty() {
             if let Ok(val) = serde_json::to_value(c.new.other) {
@@ -238,7 +238,7 @@ impl From<DeckConfSchema11> for DeckConf {
             serde_json::to_vec(&c.other).unwrap_or_default()
         };
 
-        DeckConf {
+        DeckConfig {
             id: c.id,
             name: c.name,
             mtime_secs: c.mtime,
@@ -280,8 +280,8 @@ impl From<DeckConfSchema11> for DeckConf {
 }
 
 // latest schema -> schema 11
-impl From<DeckConf> for DeckConfSchema11 {
-    fn from(c: DeckConf) -> DeckConfSchema11 {
+impl From<DeckConfig> for DeckConfSchema11 {
+    fn from(c: DeckConfig) -> DeckConfSchema11 {
         // split extra json up
         let mut top_other: HashMap<String, Value>;
         let mut new_other = Default::default();

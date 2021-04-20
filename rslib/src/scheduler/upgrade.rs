@@ -63,7 +63,7 @@ impl Card {
 fn get_filter_info_for_card(
     card: &Card,
     decks: &HashMap<DeckId, Deck>,
-    configs: &HashMap<DeckConfId, DeckConf>,
+    configs: &HashMap<DeckConfId, DeckConfig>,
 ) -> Option<V1FilteredDeckInfo> {
     if card.original_deck_id.0 == 0 {
         None

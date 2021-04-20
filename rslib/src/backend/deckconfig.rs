@@ -5,7 +5,7 @@ use super::Backend;
 pub(super) use crate::backend_proto::deckconfig_service::Service as DeckConfigService;
 use crate::{
     backend_proto as pb,
-    deckconf::{DeckConf, DeckConfSchema11, UpdateDeckConfigsIn},
+    deckconfig::{DeckConfSchema11, DeckConfig, UpdateDeckConfigsIn},
     prelude::*,
 };
 
@@ -15,7 +15,7 @@ impl DeckConfigService for Backend {
         input: pb::AddOrUpdateDeckConfigLegacyIn,
     ) -> Result<pb::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
-        let mut conf: DeckConf = conf.into();
+        let mut conf: DeckConfig = conf.into();
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
@@ -72,8 +72,8 @@ impl DeckConfigService for Backend {
     }
 }
 
-impl From<DeckConf> for pb::DeckConfig {
-    fn from(c: DeckConf) -> Self {
+impl From<DeckConfig> for pb::DeckConfig {
+    fn from(c: DeckConfig) -> Self {
         pb::DeckConfig {
             id: c.id.0,
             name: c.name,
@@ -95,9 +95,9 @@ impl From<pb::UpdateDeckConfigsIn> for UpdateDeckConfigsIn {
     }
 }
 
-impl From<pb::DeckConfig> for DeckConf {
+impl From<pb::DeckConfig> for DeckConfig {
     fn from(c: pb::DeckConfig) -> Self {
-        DeckConf {
+        DeckConfig {
             id: c.id.into(),
             name: c.name,
             mtime_secs: c.mtime_secs.into(),

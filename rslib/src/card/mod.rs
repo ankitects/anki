@@ -11,7 +11,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use crate::{
     collection::Collection,
     config::SchedulerVersion,
-    deckconf::DeckConf,
+    deckconfig::DeckConfig,
     decks::DeckId,
     define_newtype,
     error::{AnkiError, FilteredDeckError, Result},
@@ -278,13 +278,13 @@ impl Collection {
 
     /// Get deck config for the given card. If missing, return default values.
     #[allow(dead_code)]
-    pub(crate) fn deck_config_for_card(&mut self, card: &Card) -> Result<DeckConf> {
+    pub(crate) fn deck_config_for_card(&mut self, card: &Card) -> Result<DeckConfig> {
         if let Some(deck) = self.get_deck(card.original_or_current_deck_id())? {
             if let Some(conf_id) = deck.config_id() {
                 return Ok(self.get_deck_config(conf_id, true)?.unwrap());
             }
         }
 
-        Ok(DeckConf::default())
+        Ok(DeckConfig::default())
     }
 }

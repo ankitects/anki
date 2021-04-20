@@ -5,7 +5,7 @@ pub(crate) mod card;
 mod collection_timestamps;
 mod config;
 mod deck;
-mod deckconf;
+mod deckconfig;
 mod graves;
 mod note;
 mod notetype;

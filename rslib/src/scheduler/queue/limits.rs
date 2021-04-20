@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 
 use super::{Deck, DeckKind};
-use crate::deckconf::{DeckConf, DeckConfId};
+use crate::deckconfig::{DeckConfId, DeckConfig};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct RemainingLimits {
@@ -13,7 +13,7 @@ pub(crate) struct RemainingLimits {
 }
 
 impl RemainingLimits {
-    pub(crate) fn new(deck: &Deck, config: Option<&DeckConf>, today: u32) -> Self {
+    pub(crate) fn new(deck: &Deck, config: Option<&DeckConfig>, today: u32) -> Self {
         if let Some(config) = config {
             let (new_today, rev_today) = deck.new_rev_counts(today);
             RemainingLimits {
@@ -36,7 +36,7 @@ impl RemainingLimits {
 
 pub(super) fn remaining_limits_capped_to_parents(
     decks: &[Deck],
-    config: &HashMap<DeckConfId, DeckConf>,
+    config: &HashMap<DeckConfId, DeckConfig>,
     today: u32,
 ) -> Vec<RemainingLimits> {
     let mut limits = get_remaining_limits(decks, config, today);
@@ -48,7 +48,7 @@ pub(super) fn remaining_limits_capped_to_parents(
 /// the provided deck order.
 fn get_remaining_limits(
     decks: &[Deck],
-    config: &HashMap<DeckConfId, DeckConf>,
+    config: &HashMap<DeckConfId, DeckConfig>,
     today: u32,
 ) -> Vec<RemainingLimits> {
     decks

@@ -6,9 +6,9 @@ use crate::prelude::*;
 #[derive(Debug)]
 
 pub(crate) enum UndoableDeckConfigChange {
-    Added(Box<DeckConf>),
-    Updated(Box<DeckConf>),
-    Removed(Box<DeckConf>),
+    Added(Box<DeckConfig>),
+    Updated(Box<DeckConfig>),
+    Removed(Box<DeckConfig>),
 }
 
 impl Collection {
@@ -29,7 +29,7 @@ impl Collection {
         }
     }
 
-    pub(crate) fn remove_deck_config_undoable(&mut self, config: DeckConf) -> Result<()> {
+    pub(crate) fn remove_deck_config_undoable(&mut self, config: DeckConfig) -> Result<()> {
         self.storage.remove_deck_conf(config.id)?;
         self.save_undo(UndoableDeckConfigChange::Removed(Box::new(config)));
         Ok(())
@@ -37,7 +37,7 @@ impl Collection {
 
     pub(super) fn add_deck_config_undoable(
         &mut self,
-        config: &mut DeckConf,
+        config: &mut DeckConfig,
     ) -> Result<(), AnkiError> {
         self.storage.add_deck_conf(config)?;
         self.save_undo(UndoableDeckConfigChange::Added(Box::new(config.clone())));
@@ -46,14 +46,14 @@ impl Collection {
 
     pub(super) fn update_deck_config_undoable(
         &mut self,
-        config: &DeckConf,
-        original: DeckConf,
+        config: &DeckConfig,
+        original: DeckConfig,
     ) -> Result<()> {
         self.save_undo(UndoableDeckConfigChange::Updated(Box::new(original)));
         self.storage.update_deck_conf(config)
     }
 
-    fn restore_deleted_deck_config(&mut self, config: DeckConf) -> Result<()> {
+    fn restore_deleted_deck_config(&mut self, config: DeckConfig) -> Result<()> {
         self.storage
             .add_or_update_deck_config_with_existing_id(&config)?;
         self.save_undo(UndoableDeckConfigChange::Added(Box::new(config)));

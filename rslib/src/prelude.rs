@@ -8,7 +8,7 @@ pub use crate::{
     card::{Card, CardId},
     collection::Collection,
     config::BoolKey,
-    deckconf::{DeckConf, DeckConfId},
+    deckconfig::{DeckConfId, DeckConfig},
     decks::{Deck, DeckId, DeckKind, NativeDeckName},
     error::{AnkiError, Result},
     i18n::I18n,

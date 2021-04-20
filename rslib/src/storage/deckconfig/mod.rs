@@ -9,13 +9,13 @@ use serde_json::Value;
 
 use super::SqliteStorage;
 use crate::{
-    deckconf::{DeckConf, DeckConfId, DeckConfSchema11, DeckConfigInner},
+    deckconfig::{DeckConfId, DeckConfSchema11, DeckConfig, DeckConfigInner},
     prelude::*,
 };
 
-fn row_to_deckconf(row: &Row) -> Result<DeckConf> {
+fn row_to_deckconf(row: &Row) -> Result<DeckConfig> {
     let config = DeckConfigInner::decode(row.get_raw(4).as_blob()?)?;
-    Ok(DeckConf {
+    Ok(DeckConfig {
         id: row.get(0)?,
         name: row.get(1)?,
         mtime_secs: row.get(2)?,
@@ -25,14 +25,14 @@ fn row_to_deckconf(row: &Row) -> Result<DeckConf> {
 }
 
 impl SqliteStorage {
-    pub(crate) fn all_deck_config(&self) -> Result<Vec<DeckConf>> {
+    pub(crate) fn all_deck_config(&self) -> Result<Vec<DeckConfig>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
             .query_and_then(NO_PARAMS, row_to_deckconf)?
             .collect()
     }
 
-    pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfId, DeckConf>> {
+    pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfId, DeckConfig>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
             .query_and_then(NO_PARAMS, row_to_deckconf)?
@@ -40,7 +40,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_deck_config(&self, dcid: DeckConfId) -> Result<Option<DeckConf>> {
+    pub(crate) fn get_deck_config(&self, dcid: DeckConfId) -> Result<Option<DeckConfig>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?
             .query_and_then(params![dcid], row_to_deckconf)?
@@ -48,7 +48,7 @@ impl SqliteStorage {
             .transpose()
     }
 
-    pub(crate) fn add_deck_conf(&self, conf: &mut DeckConf) -> Result<()> {
+    pub(crate) fn add_deck_conf(&self, conf: &mut DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
         self.db
@@ -67,7 +67,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn update_deck_conf(&self, conf: &DeckConf) -> Result<()> {
+    pub(crate) fn update_deck_conf(&self, conf: &DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
         self.db
@@ -84,7 +84,10 @@ impl SqliteStorage {
 
     /// Used for syncing&undo; will keep provided ID. Shouldn't be used to add
     /// new config normally, since it does not allocate an id.
-    pub(crate) fn add_or_update_deck_config_with_existing_id(&self, conf: &DeckConf) -> Result<()> {
+    pub(crate) fn add_or_update_deck_config_with_existing_id(
+        &self,
+        conf: &DeckConfig,
+    ) -> Result<()> {
         if conf.id.0 == 0 {
             return Err(AnkiError::invalid_input("deck with id 0"));
         }
@@ -119,7 +122,7 @@ impl SqliteStorage {
     // Creating/upgrading/downgrading
 
     pub(super) fn add_default_deck_config(&self, tr: &I18n) -> Result<()> {
-        let mut conf = DeckConf::default();
+        let mut conf = DeckConfig::default();
         conf.id.0 = 1;
         conf.name = tr.deck_config_default_name().into();
         self.add_deck_conf(&mut conf)
@@ -180,7 +183,7 @@ impl SqliteStorage {
 
     pub(super) fn upgrade_deck_conf_to_schema15(&self) -> Result<()> {
         for conf in self.all_deck_config_schema14()? {
-            let mut conf: DeckConf = conf.into();
+            let mut conf: DeckConfig = conf.into();
             // schema 15 stored starting ease of 2.5 as 250
             conf.inner.initial_ease *= 100.0;
             self.update_deck_conf(&conf)?;

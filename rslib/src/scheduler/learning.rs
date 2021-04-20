@@ -3,7 +3,7 @@
 
 use crate::{
     card::{Card, CardQueue, CardType},
-    deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
+    deckconfig::INITIAL_EASE_FACTOR_THOUSANDS,
 };
 
 impl Card {

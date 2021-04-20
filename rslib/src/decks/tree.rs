@@ -94,7 +94,7 @@ fn apply_limits(
     node: &mut DeckTreeNode,
     today: u32,
     decks: &HashMap<DeckId, Deck>,
-    dconf: &HashMap<DeckConfId, DeckConf>,
+    dconf: &HashMap<DeckConfId, DeckConfig>,
     parent_limits: (u32, u32),
 ) {
     let (mut remaining_new, mut remaining_rev) =
@@ -128,7 +128,7 @@ fn apply_limits_v2_old(
     node: &mut DeckTreeNode,
     today: u32,
     decks: &HashMap<DeckId, Deck>,
-    dconf: &HashMap<DeckConfId, DeckConf>,
+    dconf: &HashMap<DeckConfId, DeckConfig>,
     parent_limits: (u32, u32),
 ) -> u32 {
     let original_rev_count = node.review_count;
@@ -161,7 +161,7 @@ fn remaining_counts_for_deck(
     did: DeckId,
     today: u32,
     decks: &HashMap<DeckId, Deck>,
-    dconf: &HashMap<DeckConfId, DeckConf>,
+    dconf: &HashMap<DeckConfId, DeckConfig>,
 ) -> (u32, u32) {
     if let Some(deck) = decks.get(&did) {
         match &deck.kind {
@@ -355,7 +355,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconf::DeckConfId, error::Result};
+    use crate::{collection::open_test_collection, deckconfig::DeckConfId, error::Result};
 
     #[test]
     fn wellformed() -> Result<()> {

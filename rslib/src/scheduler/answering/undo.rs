@@ -6,7 +6,7 @@ mod test {
     use crate::{
         card::{CardQueue, CardType},
         collection::open_test_collection,
-        deckconf::LeechAction,
+        deckconfig::LeechAction,
         prelude::*,
         scheduler::answering::{CardAnswer, Rating},
     };

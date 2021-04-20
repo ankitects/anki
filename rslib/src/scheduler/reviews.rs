@@ -9,7 +9,7 @@ use crate::{
     card::{Card, CardId, CardQueue, CardType},
     collection::Collection,
     config::StringKey,
-    deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
+    deckconfig::INITIAL_EASE_FACTOR_THOUSANDS,
     error::Result,
     prelude::*,
 };

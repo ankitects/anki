@@ -21,7 +21,7 @@ use super::{
 use crate::{
     backend_proto,
     card::CardQueue,
-    deckconf::{DeckConf, LeechAction},
+    deckconfig::{DeckConfig, LeechAction},
     decks::Deck,
     prelude::*,
 };
@@ -50,7 +50,7 @@ pub struct CardAnswer {
 struct CardStateUpdater {
     card: Card,
     deck: Deck,
-    config: DeckConf,
+    config: DeckConfig,
     timing: SchedTimingToday,
     now: TimestampSecs,
     fuzz_seed: Option<u64>,
@@ -275,7 +275,7 @@ impl Collection {
         self.update_queues_after_answering_card(&card, timing)
     }
 
-    fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConf) -> Result<()> {
+    fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {
         if config.inner.bury_new || config.inner.bury_reviews {
             self.bury_siblings(
                 card.id,
@@ -356,7 +356,7 @@ impl Collection {
         &self,
         config_id: Option<DeckConfId>,
         home_deck_id: DeckId,
-    ) -> Result<DeckConf> {
+    ) -> Result<DeckConfig> {
         let config_id = if let Some(config_id) = config_id {
             config_id
         } else {

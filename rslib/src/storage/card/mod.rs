@@ -14,7 +14,7 @@ use rusqlite::{
 use super::ids_to_string;
 use crate::{
     card::{Card, CardId, CardQueue, CardType},
-    deckconf::DeckConfId,
+    deckconfig::DeckConfId,
     decks::{Deck, DeckId, DeckKind},
     error::Result,
     notes::NoteId,
