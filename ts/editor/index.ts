@@ -14,6 +14,7 @@ import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
 import { EditingArea } from "./editingArea";
 import { Editable } from "./editable";
+import { initToolbar } from "./toolbar";
 
 export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
@@ -167,32 +168,6 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
     }
 }
 
-////////// EDITOR TOOLBAR
-
-import { getNotetypeGroup } from "./notetype";
-import { getFormatInlineGroup } from "./formatInline";
-import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
-import { getColorGroup } from "./color";
-import { getTemplateGroup, getTemplateMenus } from "./template";
-
 const i18n = setupI18n({ modules: [ModuleName.EDITING] });
 
-document.addEventListener("DOMContentLoaded", () => {
-    i18n.then(() => {
-        $editorToolbar.buttonsPromise.then((buttons) => {
-            buttons.update(() => [
-                getNotetypeGroup(),
-                getFormatInlineGroup(),
-                getFormatBlockGroup(),
-                getColorGroup(),
-                getTemplateGroup(),
-            ]);
-            return buttons;
-        });
-
-        $editorToolbar.menusPromise.then((menus) => {
-            menus.update(() => [...getFormatBlockMenus(), ...getTemplateMenus()]);
-            return menus;
-        });
-    });
-});
+initToolbar(i18n);
