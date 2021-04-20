@@ -15,6 +15,8 @@ import { bridgeCommand } from "anki/bridgecommand";
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
 
+import { wrap } from "./wrap";
+
 import paperclipIcon from "./paperclip.svg";
 import micIcon from "./mic.svg";
 import functionIcon from "./function-variant.svg";
@@ -95,19 +97,16 @@ export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu>
     DropdownMenuProps)[] {
     const mathjaxMenuItems = [
         dropdownItem({
-            // @ts-expect-error
             onClick: () => wrap("\\(", "\\)"),
             label: tr.editingMathjaxInline(),
             endLabel: "Ctrl+M, M",
         }),
         dropdownItem({
-            // @ts-expect-error
             onClick: () => wrap("\\[", "\\]"),
             label: tr.editingMathjaxBlock(),
             endLabel: "Ctrl+M, E",
         }),
         dropdownItem({
-            // @ts-expect-error
             onClick: () => wrap("\\(\\ce{", "}\\)"),
             label: tr.editingMathjaxChemistry(),
             endLabel: "Ctrl+M, C",
@@ -116,19 +115,16 @@ export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu>
 
     const latexMenuItems = [
         dropdownItem({
-            // @ts-expect-error
             onClick: () => wrap("[latex]", "[/latex]"),
             label: tr.editingLatex(),
             endLabel: "Ctrl+T, T",
         }),
         dropdownItem({
-            // @ts-expect-error
             onClick: () => wrap("[$]", "[/$]"),
             label: tr.editingLatexEquation(),
             endLabel: "Ctrl+T, E",
         }),
         dropdownItem({
-            // @ts-expect-error
             onClick: () => wrap("[$$]", "[/$$]"),
             label: tr.editingLatexMathEnv(),
             endLabel: "Ctrl+T, M",

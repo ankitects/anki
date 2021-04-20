@@ -9,17 +9,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     type ActiveMap = Map<string, boolean>;
 
     const updateMap = new Map() as UpdateMap;
-    const activeMap = writable(new Map() as ActiveMap);
+    const activeMap = new Map() as ActiveMap;
+    const activeStore = writable(activeMap);
 
     function updateButton(key: string, event: MouseEvent): void {
-        activeMap.update(
+        activeStore.update(
             (map: ActiveMap): ActiveMap =>
                 new Map([...map, [key, updateMap.get(key)(event)]])
         );
     }
 
     function updateButtons(callback: (key: string) => boolean): void {
-        activeMap.update(
+        activeStore.update(
             (map: ActiveMap): ActiveMap => {
                 const newMap = new Map() as ActiveMap;
 
@@ -50,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let icon: string;
 
     export let command: string;
-    export let onClick = () => {
+    export let onClick = (_event: MouseEvent) => {
         document.execCommand(command);
     };
 
@@ -59,19 +60,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updateButton(command, event);
     }
 
-    export let activatable = true;
     export let onUpdate = (_event: Event) => document.queryCommandState(command);
 
     updateMap.set(command, onUpdate);
 
     let active = false;
 
-    if (activatable) {
-        activeMap.subscribe((map: ActiveMap): (() => void) => {
-            active = Boolean(map.get(command));
-            return () => map.delete(command);
-        });
-    }
+    activeStore.subscribe((map: ActiveMap): (() => void) => {
+        active = Boolean(map.get(command));
+        return () => map.delete(command);
+    });
+    activeMap.set(command, active);
 
     export let disables = true;
     export let dropdownToggle = false;

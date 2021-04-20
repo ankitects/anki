@@ -5,6 +5,12 @@ export interface CommandIconButtonProps {
     className?: string;
     tooltip: string;
     icon: string;
+
     command: string;
-    activatable?: boolean;
+    onClick: (event: MouseEvent) => void;
+
+    onUpdate: (event: Event) => boolean;
+
+    disables?: boolean;
+    dropdownToggle?: boolean;
 }

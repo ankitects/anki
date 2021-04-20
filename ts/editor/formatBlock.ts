@@ -12,8 +12,12 @@ import type { CommandIconButtonProps } from "editor-toolbar/CommandIconButton";
 import IconButton from "editor-toolbar/IconButton.svelte";
 import type { IconButtonProps } from "editor-toolbar/IconButton";
 
+import type { EditingArea } from "./editingArea";
+
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
+
+import { getListItem, getParagraph } from "./helpers";
 
 import paragraphIcon from "./paragraph.svg";
 import ulIcon from "./list-ul.svg";
@@ -33,6 +37,8 @@ const commandIconButton = dynamicComponent<
     CommandIconButtonProps
 >(CommandIconButton);
 
+const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
+
 const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 const buttonDropdown = dynamicComponent<typeof ButtonDropdown, ButtonDropdownProps>(
     ButtonDropdown
@@ -42,6 +48,25 @@ const withDropdownMenu = dynamicComponent<
     typeof WithDropdownMenu,
     WithDropdownMenuProps
 >(WithDropdownMenu);
+
+const outdentListItem = () => {
+    const currentField = document.activeElement as EditingArea;
+    if (getListItem(currentField.shadowRoot!)) {
+        document.execCommand("outdent");
+    }
+};
+
+const indentListItem = () => {
+    const currentField = document.activeElement as EditingArea;
+    if (getListItem(currentField.shadowRoot!)) {
+        document.execCommand("indent");
+    }
+};
+
+const checkForParagraph = (): boolean => {
+    const currentField = document.activeElement as EditingArea;
+    return Boolean(getParagraph(currentField.shadowRoot!));
+};
 
 export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDropdown> &
     ButtonDropdownProps)[] {
@@ -79,18 +104,16 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
         ],
     });
 
-    const outdentButton = commandIconButton({
+    const outdentButton = iconButton({
         icon: outdentIcon,
-        command: "outdent",
+        onClick: outdentListItem,
         tooltip: tr.editingOutdent(),
-        activatable: false,
     });
 
-    const indentButton = commandIconButton({
+    const indentButton = iconButton({
         icon: indentIcon,
-        command: "indent",
+        onClick: indentListItem,
         tooltip: tr.editingIndent(),
-        activatable: false,
     });
 
     const indentationGroup = buttonGroup({
@@ -106,8 +129,6 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
     return [formattingOptions];
 }
 
-const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
-
 export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
     const paragraphButton = commandIconButton({
@@ -116,8 +137,8 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
         onClick: () => {
             document.execCommand("formatBlock", false, "p");
         },
+        onUpdate: checkForParagraph,
         tooltip: tr.editingUnorderedList(),
-        activatable: false,
     });
 
     const ulButton = commandIconButton({
