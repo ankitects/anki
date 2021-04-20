@@ -1,15 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import IconButton from "./IconButton.svelte";
-import type { IconButtonProps } from "./IconButton";
-import DropdownMenu from "./DropdownMenu.svelte";
-import type { DropdownMenuProps } from "./DropdownMenu";
-import DropdownItem from "./DropdownItem.svelte";
-import type { DropdownItemProps } from "./DropdownItem";
-import WithDropdownMenu from "./WithDropdownMenu.svelte";
-import type { WithDropdownMenuProps } from "./WithDropdownMenu";
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
+import IconButton from "editor-toolbar/IconButton.svelte";
+import type { IconButtonProps } from "editor-toolbar/IconButton";
+import DropdownMenu from "editor-toolbar/DropdownMenu.svelte";
+import type { DropdownMenuProps } from "editor-toolbar/DropdownMenu";
+import DropdownItem from "editor-toolbar/DropdownItem.svelte";
+import type { DropdownItemProps } from "editor-toolbar/DropdownItem";
+import WithDropdownMenu from "editor-toolbar/WithDropdownMenu.svelte";
+import type { WithDropdownMenuProps } from "editor-toolbar/WithDropdownMenu";
+import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 
 import { bridgeCommand } from "anki/bridgecommand";
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";

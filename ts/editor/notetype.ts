@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import LabelButton from "./LabelButton.svelte";
-import type { LabelButtonProps } from "./LabelButton";
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
+import LabelButton from "editor-toolbar/LabelButton.svelte";
+import type { LabelButtonProps } from "editor-toolbar/LabelButton";
+import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import { bridgeCommand } from "anki/bridgecommand";

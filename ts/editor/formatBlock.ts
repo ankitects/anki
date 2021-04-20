@@ -1,16 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
-import ButtonDropdown from "./ButtonDropdown.svelte";
-import type { ButtonDropdownProps } from "./ButtonDropdown";
-import WithDropdownMenu from "./WithDropdownMenu.svelte";
-import type { WithDropdownMenuProps } from "./WithDropdownMenu";
+import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
+import ButtonDropdown from "editor-toolbar/ButtonDropdown.svelte";
+import type { ButtonDropdownProps } from "editor-toolbar/ButtonDropdown";
+import WithDropdownMenu from "editor-toolbar/WithDropdownMenu.svelte";
+import type { WithDropdownMenuProps } from "editor-toolbar/WithDropdownMenu";
 
-import CommandIconButton from "./CommandIconButton.svelte";
-import type { CommandIconButtonProps } from "./CommandIconButton";
-import IconButton from "./IconButton.svelte";
-import type { IconButtonProps } from "./IconButton";
+import CommandIconButton from "editor-toolbar/CommandIconButton.svelte";
+import type { CommandIconButtonProps } from "editor-toolbar/CommandIconButton";
+import IconButton from "editor-toolbar/IconButton.svelte";
+import type { IconButtonProps } from "editor-toolbar/IconButton";
 
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";

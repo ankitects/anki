@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import CommandIconButton from "./CommandIconButton.svelte";
-import type { CommandIconButtonProps } from "./CommandIconButton";
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
+import CommandIconButton from "editor-toolbar/CommandIconButton.svelte";
+import type { CommandIconButtonProps } from "editor-toolbar/CommandIconButton";
+import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 
 import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
