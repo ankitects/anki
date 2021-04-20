@@ -3,7 +3,7 @@
 
 import { updateActiveButtons } from "editor-toolbar";
 import { EditingArea } from "./editingArea";
-import { caretToEnd, nodeIsElement, getListItem, getParagraph } from "./helpers";
+import { caretToEnd, nodeIsElement, getBlockElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
 
 export function onInput(event: Event): void {
@@ -24,8 +24,7 @@ export function onKey(evt: KeyboardEvent): void {
     // prefer <br> instead of <div></div>
     if (
         evt.code === "Enter" &&
-        !getListItem(currentField.shadowRoot!) &&
-        !getParagraph(currentField.shadowRoot!)
+        !getBlockElement(currentField.shadowRoot!) !== evt.shiftKey
     ) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
