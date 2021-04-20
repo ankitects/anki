@@ -1,3 +1,5 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { default as RawButton } from "editor-toolbar/RawButton.svelte";
 import { default as LabelButton } from "editor-toolbar/LabelButton.svelte";
 import { default as IconButton } from "editor-toolbar/IconButton.svelte";
