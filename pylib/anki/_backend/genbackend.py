@@ -37,7 +37,7 @@ LABEL_REPEATED = 3
 SKIP_UNROLL_INPUT = {"TranslateString", "SetPreferences", "UpdateDeckConfigs"}
 SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
-SKIP_DECODE = {"Graphs", "GetGraphPreferences"}
+SKIP_DECODE = {"Graphs", "GetGraphPreferences", "EditorData", "GetEditorPreferences"}
 
 
 def python_type(field):

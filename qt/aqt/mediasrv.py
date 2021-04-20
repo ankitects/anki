@@ -20,7 +20,7 @@ from waitress.server import create_server
 
 import aqt
 from anki import hooks
-from anki.collection import GraphPreferences, OpChanges
+from anki.collection import EditorPreferences, GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.utils import devMode, from_json_bytes
 from aqt.operations.deck import update_deck_configs
@@ -254,6 +254,21 @@ def _redirectWebExports(path: str) -> Tuple[str, str]:
     return aqt.mw.col.media.dir(), path
 
 
+def editor_data() -> bytes:
+    args = from_json_bytes(request.data)
+    return aqt.mw.col.editor_data()
+
+
+def editor_preferences() -> bytes:
+    return aqt.mw.col.get_editor_preferences()
+
+
+def set_editor_preferences() -> None:
+    prefs = EditorPreferences()
+    prefs.ParseFromString(request.data)
+    aqt.mw.col.set_editor_preferences(prefs)
+
+
 def graph_data() -> bytes:
     args = from_json_bytes(request.data)
     return aqt.mw.col.graph_data(search=args["search"], days=args["days"])
@@ -306,12 +321,14 @@ def update_deck_configs_request() -> bytes:
 
 
 post_handlers = {
+    "editorData": editor_data,
+    "editorPreferences": editor_preferences,
+    "setEditorPreferences": set_editor_preferences,
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
     "setGraphPreferences": set_graph_preferences,
     "deckConfigsForUpdate": deck_configs_for_update,
     "updateDeckConfigs": update_deck_configs_request,
-    # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,
 }
