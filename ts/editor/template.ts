@@ -1,18 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import IconButton from "editor-toolbar/IconButton.svelte";
-import type { IconButtonProps } from "editor-toolbar/IconButton";
-import DropdownMenu from "editor-toolbar/DropdownMenu.svelte";
+import type DropdownMenu from "editor-toolbar/DropdownMenu.svelte";
 import type { DropdownMenuProps } from "editor-toolbar/DropdownMenu";
-import DropdownItem from "editor-toolbar/DropdownItem.svelte";
-import type { DropdownItemProps } from "editor-toolbar/DropdownItem";
-import WithDropdownMenu from "editor-toolbar/WithDropdownMenu.svelte";
-import type { WithDropdownMenuProps } from "editor-toolbar/WithDropdownMenu";
-import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import { bridgeCommand } from "anki/bridgecommand";
-import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
+import {
+    iconButton,
+    withDropdownMenu,
+    dropdownMenu,
+    dropdownItem,
+    buttonGroup,
+} from "editor-toolbar/dynamicComponents";
 import * as tr from "anki/i18n";
 
 import { wrap } from "./wrap";
@@ -37,19 +38,6 @@ function onHtmlEdit(): void {
 }
 
 const mathjaxMenuId = "mathjaxMenu";
-
-const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
-const withDropdownMenu = dynamicComponent<
-    typeof WithDropdownMenu,
-    WithDropdownMenuProps
->(WithDropdownMenu);
-const dropdownMenu = dynamicComponent<typeof DropdownMenu, DropdownMenuProps>(
-    DropdownMenu
-);
-const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
-    DropdownItem
-);
-const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
 
 export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {

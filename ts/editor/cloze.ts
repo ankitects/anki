@@ -1,18 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import IconButton from "editor-toolbar/IconButton.svelte";
+import type IconButton from "editor-toolbar/IconButton.svelte";
 import type { IconButtonProps } from "editor-toolbar/IconButton";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
+import { iconButton } from "editor-toolbar/dynamicComponents";
 
 import bracketsIcon from "./code-brackets.svg";
+
+import { forEditorField } from ".";
 
 const clozePattern = /\{\{c(\d+)::/gu;
 function getCurrentHighestCloze(increment: boolean): number {
     let highest = 0;
 
-    // @ts-expect-error
     forEditorField([], (field) => {
         const matches = field.editingArea.editable.fieldHTML.matchAll(clozePattern);
         highest = Math.max(
@@ -34,8 +36,6 @@ function onCloze(event: MouseEvent): void {
     // @ts-expect-error
     wrap(`{{c${highestCloze}::`, "}}");
 }
-
-const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
 
 export function getClozeButton(): DynamicSvelteComponent<typeof IconButton> &
     IconButtonProps {
