@@ -711,18 +711,19 @@ $editorToolbar = document.getElementById("editorToolbar");
             else:
                 showInfo(tr.editing_to_make_a_cloze_deletion_on())
                 return
-        # find the highest existing cloze
-        highest = 0
-        for name, val in list(self.note.items()):
-            m = re.findall(r"\{\{c(\d+)::", val)
-            if m:
-                highest = max(highest, sorted([int(x) for x in m])[-1])
-        # reuse last?
+        used_nums = set()
+        for _, val in list(self.note.items()):
+            matches = re.findall(r"\{\{c(\d+)::", val)
+            matches = map(int, matches)
+            used_nums.update(matches)
+
         if not KeyboardModifiersPressed().alt:
-            highest += 1
-        # must start at 1
-        highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
+            # new cloze is smallest unused number
+            num = min(set(range(1, len(used_nums) + 2)).difference(used_nums))
+        else:
+            # new cloze is largest used number
+            num = max(used_nums, default=1)
+        self.web.eval("wrap('{{c%d::', '}}');" % num)
 
     # Foreground colour
     ######################################################################
