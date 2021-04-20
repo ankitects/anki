@@ -59,6 +59,9 @@ impl Collection {
         usn: Usn,
     ) -> Result<()> {
         self.prepare_deck_for_update(deck, usn)?;
+        if deck == &original {
+            return Ok(());
+        }
         deck.set_modified(usn);
         let name_changed = original.name != deck.name;
         if name_changed {
