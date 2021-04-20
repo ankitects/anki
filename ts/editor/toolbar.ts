@@ -1,3 +1,5 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { ToolbarItem } from "editor-toolbar/types";
 import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
