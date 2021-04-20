@@ -1,9 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-export async function postRequest(path: string, body: string): Promise<Uint8Array> {
+export async function postRequest(
+    path: string,
+    body: string | Uint8Array
+): Promise<Uint8Array> {
+    const headers = {};
+    if (body instanceof Uint8Array) {
+        headers["Content-type"] = "application/octet-stream";
+    }
     const resp = await fetch(path, {
         method: "POST",
+        headers,
         body,
     });
     if (!resp.ok) {
