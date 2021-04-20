@@ -19,6 +19,14 @@ export async function getDeckConfigInfo(
     );
 }
 
+export async function saveDeckConfig(
+    input: pb.BackendProto.UpdateDeckConfigsIn
+): Promise<void> {
+    const data: Uint8Array = pb.BackendProto.UpdateDeckConfigsIn.encode(input).finish();
+    await postRequest("/_anki/updateDeckConfigs", data);
+    return;
+}
+
 export type DeckConfigId = number;
 
 export interface ConfigWithCount {
@@ -47,6 +55,7 @@ export class DeckConfigState {
     readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
 
+    private targetDeckId: number;
     private configs: ConfigWithCount[];
     private selectedIdx: number;
     private configListSetter!: (val: ConfigListEntry[]) => void;
@@ -55,7 +64,8 @@ export class DeckConfigState {
     private removedConfigs: DeckConfigId[] = [];
     private schemaModified: boolean;
 
-    constructor(data: pb.BackendProto.DeckConfigsForUpdate) {
+    constructor(targetDeckId: number, data: pb.BackendProto.DeckConfigsForUpdate) {
+        this.targetDeckId = targetDeckId;
         this.currentDeck = data.currentDeck as pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
         this.defaults = data.defaults!.config! as ConfigInner;
         this.configs = data.allConfig.map((config) => {
@@ -117,7 +127,6 @@ export class DeckConfigState {
     }
 
     /// Adds a new config, making it current.
-    /// not already a new config.
     addConfig(name: string): void {
         const uniqueName = this.ensureNewNameUnique(name);
         const config = pb.BackendProto.DeckConfig.create({
@@ -144,9 +153,8 @@ export class DeckConfigState {
     removeCurrentConfig(): void {
         const currentId = this.configs[this.selectedIdx].config.id;
         if (currentId === 1) {
-            throw "can't remove default config";
+            throw Error("can't remove default config");
         }
-
         if (currentId !== 0) {
             this.removedConfigs.push(currentId);
             this.schemaModified = true;
@@ -155,6 +163,32 @@ export class DeckConfigState {
         this.selectedIdx = Math.max(0, this.selectedIdx - 1);
         this.updateCurrentConfig();
         this.updateConfigList();
+    }
+
+    dataForSaving(applyToChildren: boolean): pb.BackendProto.UpdateDeckConfigsIn {
+        const modifiedConfigsExcludingCurrent = this.configs
+            .map((c) => c.config)
+            .filter((c, idx) => {
+                return (
+                    idx !== this.selectedIdx &&
+                    (c.id === 0 || this.modifiedConfigs.has(c.id))
+                );
+            });
+        const configs = [
+            ...modifiedConfigsExcludingCurrent,
+            // current must come last, even if unmodified
+            this.configs[this.selectedIdx].config,
+        ];
+        return pb.BackendProto.UpdateDeckConfigsIn.create({
+            targetDeckId: this.targetDeckId,
+            removedConfigIds: this.removedConfigs,
+            configs,
+            applyToChildren,
+        });
+    }
+
+    async save(applyToChildren: boolean): Promise<void> {
+        await saveDeckConfig(this.dataForSaving(applyToChildren));
     }
 
     private onCurrentConfigChanged(config: ConfigInner): void {

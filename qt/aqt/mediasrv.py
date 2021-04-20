@@ -20,8 +20,10 @@ from waitress.server import create_server
 
 import aqt
 from anki import hooks
-from anki.collection import GraphPreferences
+from anki.collection import GraphPreferences, OpChanges
+from anki.decks import UpdateDeckConfigs
 from anki.utils import devMode, from_json_bytes
+from aqt.operations.deck import update_deck_configs
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
 
@@ -283,11 +285,32 @@ def deck_configs_for_update() -> bytes:
     ).SerializeToString()
 
 
+def update_deck_configs_request() -> bytes:
+    # the regular change tracking machinery expects to be started on the main
+    # thread and uses a callback on success, so we need to run this op on
+    # main, and return immediately from the web request
+
+    input = UpdateDeckConfigs()
+    input.ParseFromString(request.data)
+
+    def on_success(changes: OpChanges) -> None:
+        print("done", changes)
+
+    def handle_on_main() -> None:
+        update_deck_configs(parent=aqt.mw, input=input).success(
+            on_success
+        ).run_in_background()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
     "setGraphPreferences": set_graph_preferences,
     "deckConfigsForUpdate": deck_configs_for_update,
+    "updateDeckConfigs": update_deck_configs_request,
     # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,

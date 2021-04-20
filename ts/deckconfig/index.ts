@@ -15,7 +15,7 @@ export async function deckConfig(
         modules: [ModuleName.SCHEDULING, ModuleName.ACTIONS, ModuleName.DECK_CONFIG],
     });
     const info = await getDeckConfigInfo(deckId);
-    const state = new DeckConfigState(info);
+    const state = new DeckConfigState(deckId, info);
     new DeckConfigPage({
         target,
         props: { state },
