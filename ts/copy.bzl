@@ -54,9 +54,9 @@ def copy_select_files(ctx, files, include, exclude, base, unwanted_prefix):
 
     return copy_files(ctx, wanted)
 
-def copy_files_into_group(name, package, srcs):
+def copy_files_into_group(name, package, srcs, dev_srcs = []):
     outs = []
-    for src in srcs:
+    for src in srcs + dev_srcs:
         copy_file(
             name = src + "_copy",
             src = package + ":" + src,
@@ -65,6 +65,9 @@ def copy_files_into_group(name, package, srcs):
 
     native.filegroup(
         name = name,
-        srcs = srcs,
+        srcs = srcs + select({
+            "//:release": [],
+            "//conditions:default": dev_srcs,
+        }),
         visibility = ["//qt:__subpackages__"],
     )
