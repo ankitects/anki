@@ -63,6 +63,18 @@ const indentListItem = () => {
     }
 };
 
+const toggleParagraph = (): void => {
+    const currentField = document.activeElement as EditingArea;
+    const paragraph = getParagraph(currentField.shadowRoot!);
+
+    if (!paragraph) {
+        document.execCommand("formatBlock", false, "p");
+    } else {
+        paragraph.insertAdjacentElement("beforeend", document.createElement("br"));
+        paragraph.replaceWith(...paragraph.childNodes);
+    }
+};
+
 const checkForParagraph = (): boolean => {
     const currentField = document.activeElement as EditingArea;
     return Boolean(getParagraph(currentField.shadowRoot!));
@@ -134,11 +146,9 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
     const paragraphButton = commandIconButton({
         icon: paragraphIcon,
         command: "formatBlock",
-        onClick: () => {
-            document.execCommand("formatBlock", false, "p");
-        },
+        onClick: toggleParagraph,
         onUpdate: checkForParagraph,
-        tooltip: tr.editingUnorderedList(),
+        tooltip: tr.editingParagraph(),
     });
 
     const ulButton = commandIconButton({
