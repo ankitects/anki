@@ -12,6 +12,7 @@ mod config;
 mod dbproxy;
 mod deckconfig;
 mod decks;
+mod editor;
 mod error;
 mod generic;
 mod i18n;
@@ -43,6 +44,7 @@ use self::{
     config::ConfigService,
     deckconfig::DeckConfigService,
     decks::DecksService,
+    editor::EditorService,
     i18n::I18nService,
     media::MediaService,
     notes::NotesService,
@@ -119,6 +121,7 @@ impl Backend {
             .and_then(|service| match service {
                 pb::ServiceIndex::Scheduling => SchedulingService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
+                pb::ServiceIndex::Editor => EditorService::run_method(self, method, input),
                 pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
                 pb::ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
                 pb::ServiceIndex::Config => ConfigService::run_method(self, method, input),

@@ -11,6 +11,7 @@ import anki._backend.backend_pb2 as _pb
 SearchNode = _pb.SearchNode
 Progress = _pb.Progress
 EmptyCardsReport = _pb.EmptyCardsReport
+EditorPreferences = _pb.EditorPreferences
 GraphPreferences = _pb.GraphPreferences
 Preferences = _pb.Preferences
 UndoStatus = _pb.UndoStatus
@@ -828,6 +829,15 @@ table.review-log {{ {revlog_style} }}
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
+
+    def editor_data(self) -> bytes:
+        return self._backend.editor_data()
+
+    def get_editor_preferences(self) -> bytes:
+        return self._backend.get_editor_preferences()
+
+    def set_editor_preferences(self, prefs: EditorPreferences) -> None:
+        self._backend.set_editor_preferences(input=prefs)
 
     def graph_data(self, search: str, days: int) -> bytes:
         return self._backend.graphs(search=search, days=days)

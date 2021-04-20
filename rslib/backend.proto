@@ -108,6 +108,7 @@ enum ServiceIndex {
   SERVICE_INDEX_I18N = 12;
   SERVICE_INDEX_COLLECTION = 13;
   SERVICE_INDEX_CARDS = 14;
+  SERVICE_INDEX_EDITOR = 15;
 }
 
 service SchedulingService {
@@ -230,6 +231,12 @@ service DeckConfigService {
   rpc RemoveDeckConfig(DeckConfigId) returns (Empty);
   rpc GetDeckConfigsForUpdate(DeckId) returns (DeckConfigsForUpdate);
   rpc UpdateDeckConfigs(UpdateDeckConfigsIn) returns (OpChanges);
+}
+
+service EditorService {
+  rpc EditorData(EditorIn) returns (EditorOut);
+  rpc GetEditorPreferences(Empty) returns (EditorPreferences);
+  rpc SetEditorPreferences(EditorPreferences) returns (Empty);
 }
 
 service TagsService {
@@ -1266,6 +1273,15 @@ message ExtendLimitsIn {
 message CountsForDeckTodayOut {
   int32 new = 1;
   int32 review = 2;
+}
+
+message EditorIn {
+}
+
+message EditorOut {
+}
+
+message EditorPreferences {
 }
 
 message GraphsIn {
