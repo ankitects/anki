@@ -10,6 +10,7 @@ import { iconButton } from "editor-toolbar/dynamicComponents";
 import bracketsIcon from "./code-brackets.svg";
 
 import { forEditorField } from ".";
+import { wrap } from "./wrap";
 
 const clozePattern = /\{\{c(\d+)::/gu;
 function getCurrentHighestCloze(increment: boolean): number {
@@ -32,8 +33,6 @@ function getCurrentHighestCloze(increment: boolean): number {
 
 function onCloze(event: MouseEvent): void {
     const highestCloze = getCurrentHighestCloze(!event.altKey);
-
-    // @ts-expect-error
     wrap(`{{c${highestCloze}::`, "}}");
 }
 
