@@ -9,6 +9,7 @@ pub(crate) use changes::UndoableChange;
 
 pub use crate::ops::Op;
 use crate::{
+    collection::undo::UndoableCollectionChange,
     ops::{OpChanges, StateChanges},
     prelude::*,
 };
@@ -20,6 +21,18 @@ pub(crate) struct UndoableOp {
     pub kind: Op,
     pub timestamp: TimestampSecs,
     pub changes: Vec<UndoableChange>,
+}
+
+impl UndoableOp {
+    /// True if changes empty, or only the collection mtime has changed.
+    fn has_changes(&self) -> bool {
+        !matches!(
+            &self.changes[..],
+            &[] | &[UndoableChange::Collection(
+                UndoableCollectionChange::Modified(_)
+            )]
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -82,7 +95,7 @@ impl UndoManager {
 
     fn end_step(&mut self) {
         if let Some(step) = self.current_step.take() {
-            if !step.changes.is_empty() {
+            if step.has_changes() {
                 if self.mode == UndoMode::Undoing {
                     self.redo_steps.push(step);
                 } else {
