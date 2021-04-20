@@ -1,21 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
-import ButtonDropdown from "editor-toolbar/ButtonDropdown.svelte";
+import type ButtonDropdown from "editor-toolbar/ButtonDropdown.svelte";
 import type { ButtonDropdownProps } from "editor-toolbar/ButtonDropdown";
-import WithDropdownMenu from "editor-toolbar/WithDropdownMenu.svelte";
-import type { WithDropdownMenuProps } from "editor-toolbar/WithDropdownMenu";
-
-import CommandIconButton from "editor-toolbar/CommandIconButton.svelte";
-import type { CommandIconButtonProps } from "editor-toolbar/CommandIconButton";
-import IconButton from "editor-toolbar/IconButton.svelte";
-import type { IconButtonProps } from "editor-toolbar/IconButton";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import type { EditingArea } from "./editingArea";
 
-import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
+import {
+    commandIconButton,
+    iconButton,
+    buttonGroup,
+    buttonDropdown,
+    withDropdownMenu,
+} from "editor-toolbar/dynamicComponents";
 
 import { getListItem, getParagraph } from "./helpers";
 
@@ -31,23 +31,6 @@ import justifyCenterIcon from "./text-center.svg";
 
 import indentIcon from "./text-indent-left.svg";
 import outdentIcon from "./text-indent-right.svg";
-
-const commandIconButton = dynamicComponent<
-    typeof CommandIconButton,
-    CommandIconButtonProps
->(CommandIconButton);
-
-const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
-
-const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
-const buttonDropdown = dynamicComponent<typeof ButtonDropdown, ButtonDropdownProps>(
-    ButtonDropdown
-);
-
-const withDropdownMenu = dynamicComponent<
-    typeof WithDropdownMenu,
-    WithDropdownMenuProps
->(WithDropdownMenu);
 
 const outdentListItem = () => {
     const currentField = document.activeElement as EditingArea;
