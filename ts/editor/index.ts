@@ -10,6 +10,7 @@ import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
 import { EditingArea } from "./editingArea";
 import { Editable } from "./editable";
+import { preferences, data } from "./preferences";
 
 export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
@@ -162,3 +163,5 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
         editorToolbar.updateActiveButtons();
     }
 }
+
+preferences.then((prefs) => data.then((editorData) => console.log(prefs, editorData)));

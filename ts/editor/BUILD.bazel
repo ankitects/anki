@@ -26,6 +26,9 @@ ts_library(
     deps = [
         "//ts:image_module_support",
         "//ts/html-filter",
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "//ts/sveltelib",
     ],
 )
 
@@ -36,17 +39,26 @@ copy_bootstrap_icons(
 
 esbuild(
     name = "editor",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
     args = [
         "--loader:.svg=text",
+        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
     entry_point = "index_wrapper.ts",
+    external = [
+        "protobufjs/light",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "base_css",
         ":bootstrap-icons",
         ":editor_ts",
+        "//ts/lib",
+        "//ts/sveltelib",
     ],
 )
 
