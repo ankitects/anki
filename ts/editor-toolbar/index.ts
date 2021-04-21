@@ -11,15 +11,8 @@ import { Writable, writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
-import { setupI18n, ModuleName } from "anki/i18n";
-
 import "./bootstrap.css";
 
-import { getNotetypeGroup } from "./notetype";
-import { getFormatInlineGroup } from "./formatInline";
-import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
-import { getColorGroup } from "./color";
-import { getTemplateGroup, getTemplateMenus } from "./template";
 import { Identifiable, search, add, insert } from "./identifiable";
 
 interface Hideable {
@@ -45,7 +38,7 @@ let buttonsResolve: (
 ) => void;
 let menusResolve: (value: Writable<ToolbarItem[]>) => void;
 
-class EditorToolbar extends HTMLElement {
+export class EditorToolbar extends HTMLElement {
     component?: SvelteComponentDev;
 
     buttonsPromise: Promise<
@@ -58,30 +51,22 @@ class EditorToolbar extends HTMLElement {
     });
 
     connectedCallback(): void {
-        setupI18n({ modules: [ModuleName.EDITING] }).then(() => {
-            const buttons = writable([
-                getNotetypeGroup(),
-                getFormatInlineGroup(),
-                getFormatBlockGroup(),
-                getColorGroup(),
-                getTemplateGroup(),
-            ]);
-            const menus = writable([...getTemplateMenus(), ...getFormatBlockMenus()]);
+        globalThis.$editorToolbar = this;
 
-            this.component = new EditorToolbarSvelte({
-                target: this,
-                props: {
-                    buttons,
-                    menus,
-                    nightMode: document.documentElement.classList.contains(
-                        "night-mode"
-                    ),
-                },
-            });
+        const buttons = writable([]);
+        const menus = writable([]);
 
-            buttonsResolve(buttons);
-            menusResolve(menus);
+        this.component = new EditorToolbarSvelte({
+            target: this,
+            props: {
+                buttons,
+                menus,
+                nightMode: document.documentElement.classList.contains("night-mode"),
+            },
         });
+
+        buttonsResolve(buttons);
+        menusResolve(menus);
     }
 
     updateButtonGroup<T>(
@@ -200,19 +185,8 @@ class EditorToolbar extends HTMLElement {
 
 customElements.define("anki-editor-toolbar", EditorToolbar);
 
-/* Exports for editor
- * @ts-expect-error */
+/* Exports for editor */
+// @ts-expect-error
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
+// @ts-expect-error
 export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
-
-/* Exports for add-ons */
-export { default as RawButton } from "./RawButton.svelte";
-export { default as LabelButton } from "./LabelButton.svelte";
-export { default as IconButton } from "./IconButton.svelte";
-export { default as CommandIconButton } from "./CommandIconButton.svelte";
-export { default as SelectButton } from "./SelectButton.svelte";
-
-export { default as DropdownMenu } from "./DropdownMenu.svelte";
-export { default as DropdownItem } from "./DropdownItem.svelte";
-export { default as ButtonDropdown } from "./DropdownMenu.svelte";
-export { default as WithDropdownMenu } from "./WithDropdownMenu.svelte";

@@ -1,19 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
-import ButtonDropdown from "./ButtonDropdown.svelte";
-import type { ButtonDropdownProps } from "./ButtonDropdown";
-import WithDropdownMenu from "./WithDropdownMenu.svelte";
-import type { WithDropdownMenuProps } from "./WithDropdownMenu";
+import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
+import type ButtonDropdown from "editor-toolbar/ButtonDropdown.svelte";
+import type { ButtonDropdownProps } from "editor-toolbar/ButtonDropdown";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import CommandIconButton from "./CommandIconButton.svelte";
-import type { CommandIconButtonProps } from "./CommandIconButton";
-import IconButton from "./IconButton.svelte";
-import type { IconButtonProps } from "./IconButton";
+import type { EditingArea } from "./editingArea";
 
-import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
+import {
+    commandIconButton,
+    iconButton,
+    buttonGroup,
+    buttonDropdown,
+    withDropdownMenu,
+} from "editor-toolbar/dynamicComponents";
+
+import { getListItem } from "./helpers";
 
 import ulIcon from "./list-ul.svg";
 import olIcon from "./list-ol.svg";
@@ -27,20 +31,19 @@ import justifyCenterIcon from "./text-center.svg";
 import indentIcon from "./text-indent-left.svg";
 import outdentIcon from "./text-indent-right.svg";
 
-const commandIconButton = dynamicComponent<
-    typeof CommandIconButton,
-    CommandIconButtonProps
->(CommandIconButton);
+const outdentListItem = () => {
+    const currentField = document.activeElement as EditingArea;
+    if (getListItem(currentField.shadowRoot!)) {
+        document.execCommand("outdent");
+    }
+};
 
-const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
-const buttonDropdown = dynamicComponent<typeof ButtonDropdown, ButtonDropdownProps>(
-    ButtonDropdown
-);
-
-const withDropdownMenu = dynamicComponent<
-    typeof WithDropdownMenu,
-    WithDropdownMenuProps
->(WithDropdownMenu);
+const indentListItem = () => {
+    const currentField = document.activeElement as EditingArea;
+    if (getListItem(currentField.shadowRoot!)) {
+        document.execCommand("indent");
+    }
+};
 
 export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDropdown> &
     ButtonDropdownProps)[] {
@@ -78,18 +81,16 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
         ],
     });
 
-    const outdentButton = commandIconButton({
+    const outdentButton = iconButton({
         icon: outdentIcon,
-        command: "outdent",
+        onClick: outdentListItem,
         tooltip: tr.editingOutdent(),
-        activatable: false,
     });
 
-    const indentButton = commandIconButton({
+    const indentButton = iconButton({
         icon: indentIcon,
-        command: "indent",
+        onClick: indentListItem,
         tooltip: tr.editingIndent(),
-        activatable: false,
     });
 
     const indentationGroup = buttonGroup({
@@ -104,8 +105,6 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
 
     return [formattingOptions];
 }
-
-const iconButton = dynamicComponent<typeof IconButton, IconButtonProps>(IconButton);
 
 export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
@@ -131,7 +130,7 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
     });
 
     return buttonGroup({
-        id: "formatBlock",
+        id: "blockFormatting",
         buttons: [ulButton, olButton, listFormatting],
     });
 }

@@ -5,19 +5,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript" context="module">
     import { writable } from "svelte/store";
 
-    const commandMap = writable(new Map<string, boolean>());
+    type UpdateMap = Map<string, (event: Event) => boolean>;
+    type ActiveMap = Map<string, boolean>;
 
-    function updateButton(key: string): void {
-        commandMap.update(
-            (map: Map<string, boolean>): Map<string, boolean> =>
-                new Map([...map, [key, document.queryCommandState(key)]])
+    const updateMap = new Map() as UpdateMap;
+    const activeMap = new Map() as ActiveMap;
+    const activeStore = writable(activeMap);
+
+    function updateButton(key: string, event: MouseEvent): void {
+        activeStore.update(
+            (map: ActiveMap): ActiveMap =>
+                new Map([...map, [key, updateMap.get(key)(event)]])
         );
     }
 
     function updateButtons(callback: (key: string) => boolean): void {
-        commandMap.update(
-            (map: Map<string, boolean>): Map<string, boolean> => {
-                const newMap = new Map<string, boolean>();
+        activeStore.update(
+            (map: ActiveMap): ActiveMap => {
+                const newMap = new Map() as ActiveMap;
 
                 for (const key of map.keys()) {
                     newMap.set(key, callback(key));
@@ -28,8 +33,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    export function updateActiveButtons() {
-        updateButtons((key: string): boolean => document.queryCommandState(key));
+    export function updateActiveButtons(event: Event) {
+        updateButtons((key: string): boolean => updateMap.get(key)(event));
     }
 
     export function clearActiveButtons() {
@@ -43,28 +48,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string;
     export let className = "";
     export let tooltip: string;
-
     export let icon: string;
+
     export let command: string;
-    export let activatable = true;
-    export let disables = true;
-    export let dropdownToggle = false;
+    export let onClick = (_event: MouseEvent) => {
+        document.execCommand(command);
+    };
+
+    function onClickWrapped(event: MouseEvent): void {
+        onClick(event);
+        updateButton(command, event);
+    }
+
+    export let onUpdate = (_event: Event) => document.queryCommandState(command);
+
+    updateMap.set(command, onUpdate);
 
     let active = false;
 
-    if (activatable) {
-        updateButton(command);
+    activeStore.subscribe((map: ActiveMap): (() => void) => {
+        active = Boolean(map.get(command));
+        return () => map.delete(command);
+    });
+    activeMap.set(command, active);
 
-        commandMap.subscribe((map: Map<string, boolean>): (() => void) => {
-            active = Boolean(map.get(command));
-            return () => map.delete(command);
-        });
-    }
-
-    function onClick(): void {
-        document.execCommand(command);
-        updateButton(command);
-    }
+    export let disables = true;
+    export let dropdownToggle = false;
 </script>
 
 <SquareButton
@@ -74,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {active}
     {disables}
     {dropdownToggle}
-    {onClick}
+    onClick={onClickWrapped}
     on:mount>
     {@html icon}
 </SquareButton>
