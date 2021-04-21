@@ -1281,7 +1281,9 @@ message EditorIn {
 message EditorOut {
 }
 
+
 message EditorPreferences {
+  repeated uint32 favorite_colors = 1;
 }
 
 message GraphsIn {

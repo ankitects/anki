@@ -40,6 +40,7 @@ impl ConfigEntry {
 #[strum(serialize_all = "camelCase")]
 pub(crate) enum ConfigKey {
     CreationOffset,
+    FavoriteColors,
     FirstDayOfWeek,
     LocalOffset,
     Rollover,
@@ -206,6 +207,16 @@ impl Collection {
 
     pub(crate) fn set_new_review_mix(&mut self, mix: NewReviewMix) -> Result<()> {
         self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
+            .map(|_| ())
+    }
+
+    pub(crate) fn get_favorite_colors(&self) -> [u32; 8] {
+        self.get_config_optional(ConfigKey::FavoriteColors)
+            .unwrap_or([0xffffffff; 8])
+    }
+
+    pub(crate) fn set_favorite_colors(&mut self, colors: [u32; 8]) -> Result<()> {
+        self.set_config(ConfigKey::FavoriteColors, &colors)
             .map(|_| ())
     }
 
