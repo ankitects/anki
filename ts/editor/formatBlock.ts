@@ -17,9 +17,8 @@ import {
     withDropdownMenu,
 } from "editor-toolbar/dynamicComponents";
 
-import { getListItem, getParagraph } from "./helpers";
+import { getListItem } from "./helpers";
 
-import paragraphIcon from "./paragraph.svg";
 import ulIcon from "./list-ul.svg";
 import olIcon from "./list-ol.svg";
 import listOptionsIcon from "./text-paragraph.svg";
@@ -44,23 +43,6 @@ const indentListItem = () => {
     if (getListItem(currentField.shadowRoot!)) {
         document.execCommand("indent");
     }
-};
-
-const toggleParagraph = (): void => {
-    const currentField = document.activeElement as EditingArea;
-    const paragraph = getParagraph(currentField.shadowRoot!);
-
-    if (!paragraph) {
-        document.execCommand("formatBlock", false, "p");
-    } else {
-        paragraph.insertAdjacentElement("beforeend", document.createElement("br"));
-        paragraph.replaceWith(...paragraph.childNodes);
-    }
-};
-
-const checkForParagraph = (): boolean => {
-    const currentField = document.activeElement as EditingArea;
-    return Boolean(getParagraph(currentField.shadowRoot!));
 };
 
 export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDropdown> &
@@ -126,14 +108,6 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
 
 export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const paragraphButton = commandIconButton({
-        icon: paragraphIcon,
-        command: "formatBlock",
-        onClick: toggleParagraph,
-        onUpdate: checkForParagraph,
-        tooltip: tr.editingParagraph(),
-    });
-
     const ulButton = commandIconButton({
         icon: ulIcon,
         command: "insertUnorderedList",
@@ -157,6 +131,6 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
 
     return buttonGroup({
         id: "blockFormatting",
-        buttons: [paragraphButton, ulButton, olButton, listFormatting],
+        buttons: [ulButton, olButton, listFormatting],
     });
 }
