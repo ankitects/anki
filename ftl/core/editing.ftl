@@ -29,7 +29,6 @@ editing-mathjax-inline = MathJax inline
 editing-media = Media
 editing-ordered-list = Ordered list
 editing-outdent = Decrease indent
-editing-paragraph = Paragraph
 editing-paste = Paste
 editing-record-audio-f5 = Record audio (F5)
 editing-remove-formatting-ctrlandr = Remove formatting (Ctrl+R)
