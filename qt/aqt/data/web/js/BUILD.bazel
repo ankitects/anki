@@ -37,20 +37,11 @@ copy_files_into_group(
     package = "//ts/editor",
 )
 
-copy_files_into_group(
-    name = "editor-toolbar",
-    srcs = [
-        "editor-toolbar.js",
-    ],
-    package = "//ts/editor-toolbar",
-)
-
 filegroup(
     name = "js",
     srcs = [
         "aqt_es5",
         "editor",
-        "editor-toolbar",
         "mathjax.js",
         "//qt/aqt/data/web/js/vendor",
     ],

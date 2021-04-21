@@ -4,11 +4,16 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
-load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 
 svelte_files = glob(["*.svelte"])
 
 svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+filegroup(
+    name = "svelte_components",
+    srcs = svelte_names,
+    visibility = ["//visibility:public"],
+)
 
 compile_svelte(
     name = "svelte",
@@ -17,43 +22,32 @@ compile_svelte(
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
+    visibility = ["//visibility:public"],
 )
 
 compile_sass(
     srcs = [
         "bootstrap.scss",
-        "color.scss",
         "legacy.scss",
     ],
     group = "local_css",
-    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
+    visibility = ["//visibility:public"],
 )
 
 ts_library(
-    name = "index",
-    srcs = ["index.ts"],
-    deps = [
-        "EditorToolbar",
-        "lib",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//svelte",
-        "@npm//svelte2tsx",
-    ],
-)
-
-ts_library(
-    name = "lib",
+    name = "editor-toolbar",
+    module_name = "editor-toolbar",
     srcs = glob(
         ["*.ts"],
-        exclude = ["index.ts"],
+        exclude = ["*.test.ts"],
     ),
+    tsconfig = "//ts:tsconfig.json",
+    visibility = ["//visibility:public"],
     deps = [
-        "//ts:image_module_support",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/sveltelib",
@@ -62,71 +56,6 @@ ts_library(
         "@npm//bootstrap",
         "@npm//svelte",
     ],
-)
-
-copy_bootstrap_icons(
-    name = "bootstrap-icons",
-    icons = [
-        # inline formatting
-        "type-bold.svg",
-        "type-italic.svg",
-        "type-underline.svg",
-        "eraser.svg",
-        "square-fill.svg",
-        "paperclip.svg",
-        "mic.svg",
-
-        # block formatting
-        "list-ul.svg",
-        "list-ol.svg",
-        "text-paragraph.svg",
-        "justify.svg",
-        "text-left.svg",
-        "text-right.svg",
-        "text-center.svg",
-        "text-indent-left.svg",
-        "text-indent-right.svg",
-    ],
-)
-
-copy_mdi_icons(
-    name = "mdi-icons",
-    icons = [
-        "format-superscript.svg",
-        "format-subscript.svg",
-        "function-variant.svg",
-        "code-brackets.svg",
-        "xml.svg",
-    ],
-)
-
-esbuild(
-    name = "editor-toolbar",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
-    args = [
-        "--global-name=editorToolbar",
-        "--inject:$(location //ts:protobuf-shim.js)",
-        "--resolve-extensions=.mjs,.js",
-        "--loader:.svg=text",
-        "--log-level=warning",
-    ],
-    entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
-    output_css = "editor-toolbar.css",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/lib",
-        "//ts/lib:backend_proto",
-        "//ts:image_module_support",
-        "index",
-        "bootstrap-icons",
-        "mdi-icons",
-        "local_css",
-    ] + svelte_names,
 )
 
 # Tests

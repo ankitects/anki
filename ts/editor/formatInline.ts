@@ -1,12 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import CommandIconButton from "./CommandIconButton.svelte";
-import type { CommandIconButtonProps } from "./CommandIconButton";
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
+import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
+import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import { DynamicSvelteComponent, dynamicComponent } from "sveltelib/dynamicComponent";
 import * as tr from "anki/i18n";
+import {
+    commandIconButton,
+    iconButton,
+    buttonGroup,
+} from "editor-toolbar/dynamicComponents";
 
 import boldIcon from "./type-bold.svg";
 import italicIcon from "./type-italic.svg";
@@ -15,53 +18,48 @@ import superscriptIcon from "./format-superscript.svg";
 import subscriptIcon from "./format-subscript.svg";
 import eraserIcon from "./eraser.svg";
 
-const commandIconButton = dynamicComponent<
-    typeof CommandIconButton,
-    CommandIconButtonProps
->(CommandIconButton);
-const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
-
 export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
     const boldButton = commandIconButton({
         icon: boldIcon,
-        command: "bold",
         tooltip: tr.editingBoldTextCtrlandb(),
+        command: "bold",
     });
 
     const italicButton = commandIconButton({
         icon: italicIcon,
-        command: "italic",
         tooltip: tr.editingItalicTextCtrlandi(),
+        command: "italic",
     });
 
     const underlineButton = commandIconButton({
         icon: underlineIcon,
-        command: "underline",
         tooltip: tr.editingUnderlineTextCtrlandu(),
+        command: "underline",
     });
 
     const superscriptButton = commandIconButton({
         icon: superscriptIcon,
-        command: "superscript",
         tooltip: tr.editingSuperscriptCtrlandand(),
+        command: "superscript",
     });
 
     const subscriptButton = commandIconButton({
         icon: subscriptIcon,
-        command: "subscript",
         tooltip: tr.editingSubscriptCtrland(),
+        command: "subscript",
     });
 
-    const removeFormatButton = commandIconButton({
+    const removeFormatButton = iconButton({
         icon: eraserIcon,
-        command: "removeFormat",
-        activatable: false,
         tooltip: tr.editingRemoveFormattingCtrlandr(),
+        onClick: () => {
+            document.execCommand("removeFormat");
+        },
     });
 
     return buttonGroup({
-        id: "formatInline",
+        id: "inlineFormatting",
         buttons: [
             boldButton,
             italicButton,

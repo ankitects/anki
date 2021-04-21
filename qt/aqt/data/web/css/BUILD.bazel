@@ -26,20 +26,11 @@ copy_files_into_group(
     package = "//ts/editor",
 )
 
-copy_files_into_group(
-    name = "editor-toolbar",
-    srcs = [
-        "editor-toolbar.css",
-    ],
-    package = "//ts/editor-toolbar",
-)
-
 filegroup(
     name = "css",
     srcs = [
         "css_local",
         "editor",
-        "editor-toolbar",
     ],
     visibility = ["//qt:__subpackages__"],
 )

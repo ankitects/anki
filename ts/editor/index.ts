@@ -2,6 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { filterHTML } from "html-filter";
+import { updateActiveButtons, disableButtons } from "editor-toolbar";
+import { setupI18n, ModuleName } from "anki/i18n";
+
+import "./fields.css";
 
 import { caretToEnd } from "./helpers";
 import { saveField } from "./changeTimer";
@@ -10,10 +14,13 @@ import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
 import { EditingArea } from "./editingArea";
 import { Editable } from "./editable";
+import { initToolbar } from "./toolbar";
 
 export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
+
+export * from "./addons";
 
 declare global {
     interface Selection {
@@ -24,6 +31,7 @@ declare global {
     }
 }
 
+import "editor-toolbar";
 customElements.define("anki-editable", Editable);
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
@@ -41,8 +49,7 @@ export function focusField(n: number): void {
     if (field) {
         field.editingArea.focusEditable();
         caretToEnd(field.editingArea);
-        // @ts-expect-error
-        editorToolbar.updateActiveButtons();
+        updateActiveButtons();
     }
 }
 
@@ -122,8 +129,7 @@ export function setFields(fields: [string, string][]): void {
 
     if (!getCurrentField()) {
         // when initial focus of the window is not on editor (e.g. browser)
-        // @ts-expect-error
-        editorToolbar.disableButtons();
+        disableButtons();
     }
 }
 
@@ -158,7 +164,10 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
-        // @ts-expect-error
-        editorToolbar.updateActiveButtons();
+        updateActiveButtons();
     }
 }
+
+const i18n = setupI18n({ modules: [ModuleName.EDITING] });
+
+initToolbar(i18n);

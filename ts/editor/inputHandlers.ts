@@ -1,28 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { updateActiveButtons } from "editor-toolbar";
 import { EditingArea } from "./editingArea";
-import { caretToEnd, nodeIsElement } from "./helpers";
+import { caretToEnd, nodeIsElement, getBlockElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
-
-function inListItem(currentField: EditingArea): boolean {
-    const anchor = currentField.getSelection()!.anchorNode!;
-
-    let inList = false;
-    let n = nodeIsElement(anchor) ? anchor : anchor.parentElement;
-    while (n) {
-        inList = inList || window.getComputedStyle(n).display == "list-item";
-        n = n.parentElement;
-    }
-
-    return inList;
-}
 
 export function onInput(event: Event): void {
     // make sure IME changes get saved
     triggerChangeTimer(event.currentTarget as EditingArea);
-    // @ts-ignore
-    editorToolbar.updateActiveButtons();
+    updateActiveButtons();
 }
 
 export function onKey(evt: KeyboardEvent): void {
@@ -35,7 +22,10 @@ export function onKey(evt: KeyboardEvent): void {
     }
 
     // prefer <br> instead of <div></div>
-    if (evt.code === "Enter" && !inListItem(currentField)) {
+    if (
+        evt.code === "Enter" &&
+        !getBlockElement(currentField.shadowRoot!) !== evt.shiftKey
+    ) {
         evt.preventDefault();
         document.execCommand("insertLineBreak");
     }
@@ -69,8 +59,7 @@ globalThis.addEventListener("keydown", (evt: KeyboardEvent) => {
                 const newFocusTarget = evt.target;
                 if (newFocusTarget instanceof EditingArea) {
                     caretToEnd(newFocusTarget);
-                    // @ts-ignore
-                    editorToolbar.updateActiveButtons();
+                    updateActiveButtons();
                 }
             },
             { once: true }

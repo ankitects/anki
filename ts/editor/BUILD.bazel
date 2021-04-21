@@ -2,13 +2,24 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_bootstrap_icons")
+load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 compile_sass(
     srcs = [
         "editable.scss",
-        "editor.scss",
+    ],
+    group = "editable_scss",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/sass:scrollbar_lib",
+    ],
+)
+
+compile_sass(
+    srcs = [
+        "fields.scss",
+        "color.scss",
     ],
     group = "base_css",
     visibility = ["//visibility:public"],
@@ -25,28 +36,78 @@ ts_library(
     tsconfig = "//ts:tsconfig.json",
     deps = [
         "//ts:image_module_support",
+        "//ts/lib",
+        "//ts/sveltelib",
         "//ts/html-filter",
+        "//ts/editor-toolbar",
+        "@npm//svelte",
     ],
 )
 
 copy_bootstrap_icons(
     name = "bootstrap-icons",
-    icons = ["pin-angle.svg"],
+    icons = [
+        "pin-angle.svg",
+
+        # inline formatting
+        "type-bold.svg",
+        "type-italic.svg",
+        "type-underline.svg",
+        "eraser.svg",
+        "square-fill.svg",
+        "paperclip.svg",
+        "mic.svg",
+
+        # block formatting
+        "list-ul.svg",
+        "list-ol.svg",
+        "text-paragraph.svg",
+        "justify.svg",
+        "text-left.svg",
+        "text-right.svg",
+        "text-center.svg",
+        "text-indent-left.svg",
+        "text-indent-right.svg",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+copy_mdi_icons(
+    name = "mdi-icons",
+    icons = [
+        "format-superscript.svg",
+        "format-subscript.svg",
+        "function-variant.svg",
+        "code-brackets.svg",
+        "xml.svg",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 esbuild(
     name = "editor",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
     args = [
         "--loader:.svg=text",
+        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
+    ],
+    output_css = "editor.css",
+    external = [
+        "protobufjs/light",
     ],
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
         "base_css",
-        ":bootstrap-icons",
-        ":editor_ts",
+        "bootstrap-icons",
+        "mdi-icons",
+        "editor_ts",
+        "//ts/editor-toolbar:local_css",
+        "//ts/editor-toolbar:svelte_components",
     ],
 )
 
