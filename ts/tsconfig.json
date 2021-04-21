@@ -3,14 +3,7 @@
     "compilerOptions": {
         "target": "es6",
         "module": "es6",
-        "lib": [
-            "es2017",
-            "es2020.string",
-            "es2019.array",
-            "es2018.promise",
-            "dom",
-            "dom.iterable"
-        ],
+        "lib": ["es2017", "es2019.array", "es2018.promise", "dom", "dom.iterable"],
         "baseUrl": ".",
         "paths": {
             "anki/*": ["../bazel-bin/ts/lib/*"],

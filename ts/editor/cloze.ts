@@ -17,11 +17,15 @@ function getCurrentHighestCloze(increment: boolean): number {
     let highest = 0;
 
     forEditorField([], (field) => {
-        const matches = field.editingArea.editable.fieldHTML.matchAll(clozePattern);
-        highest = Math.max(
-            highest,
-            ...[...matches].map((match: RegExpMatchArray): number => Number(match[1]))
-        );
+        const fieldHTML = field.editingArea.editable.fieldHTML;
+        const matches: number[] = [];
+        let match: RegExpMatchArray | null = null;
+
+        while ((match = clozePattern.exec(fieldHTML))) {
+            matches.push(Number(match[1]));
+        }
+
+        highest = Math.max(highest, ...matches);
     });
 
     if (increment) {
