@@ -105,7 +105,7 @@ const isParagraph = (element: Element): element is HTMLParamElement =>
 const isBlockElement = (
     element: Element
 ): element is HTMLLIElement & HTMLParamElement =>
-    isListItem(element) || isBlockElement(element);
+    isListItem(element) || isParagraph(element);
 
 export const getListItem = getAnchorParent(isListItem);
 export const getParagraph = getAnchorParent(isParagraph);
