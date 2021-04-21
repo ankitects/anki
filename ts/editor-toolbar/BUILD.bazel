@@ -9,6 +9,12 @@ svelte_files = glob(["*.svelte"])
 
 svelte_names = [f.replace(".svelte", "") for f in svelte_files]
 
+filegroup(
+    name = "svelte_components",
+    srcs = svelte_names,
+    visibility = ["//visibility:public"],
+)
+
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
