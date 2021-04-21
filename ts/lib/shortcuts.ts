@@ -58,7 +58,7 @@ function innerShortcut(
     }
 }
 
-export function shortcut(
+export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     shortcutString: string
 ): () => void {
