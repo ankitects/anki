@@ -801,6 +801,18 @@ class Collection:
     def set_config_string(self, key: Config.String.Key.V, value: str) -> None:
         self._backend.set_config_string(key=key, value=value)
 
+    # Editor
+    ##########################################################################
+
+    def editor_data(self) -> bytes:
+        return self._backend.editor_data()
+
+    def get_editor_preferences(self) -> bytes:
+        return self._backend.get_editor_preferences()
+
+    def set_editor_preferences(self, prefs: EditorPreferences) -> None:
+        self._backend.set_editor_preferences(input=prefs)
+
     # Stats
     ##########################################################################
 
@@ -829,15 +841,6 @@ table.review-log {{ {revlog_style} }}
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
-
-    def editor_data(self) -> bytes:
-        return self._backend.editor_data()
-
-    def get_editor_preferences(self) -> bytes:
-        return self._backend.get_editor_preferences()
-
-    def set_editor_preferences(self, prefs: EditorPreferences) -> None:
-        self._backend.set_editor_preferences(input=prefs)
 
     def graph_data(self, search: str, days: int) -> bytes:
         return self._backend.graphs(search=search, days=days)
