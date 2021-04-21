@@ -6,29 +6,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
     import type { ToolbarItem } from "./types";
 
-    export let button: ToolbarItem;
-    /* export let event: string; */
+    import { onDestroy } from "svelte";
+    import { registerShortcut } from "anki/shortcuts";
 
-    function extend({
-        className,
-        ...rest
-    }: DynamicSvelteComponent): DynamicSvelteComponent {
+    export let button: ToolbarItem;
+    export let shortcut: string;
+
+    function extend({ ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
         return {
             ...rest,
         };
     }
 
+    let deregister;
+
     function createShortcut({ detail }: CustomEvent): void {
         const button: HTMLButtonElement = detail.button;
-
-        document.addEventListener("click", () => {
-            const event = new MouseEvent("click");
-
-            if (code === "KeyP") {
-                button.dispatchEvent(event);
-            }
-        });
+        deregister = registerShortcut(() => button.click(), shortcut);
     }
+
+    onDestroy(() => deregister());
 </script>
 
 <svelte:component

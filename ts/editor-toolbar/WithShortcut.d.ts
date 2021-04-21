@@ -4,4 +4,5 @@ import type { ToolbarItem } from "./types";
 
 export interface WithShortcutProps {
     button: ToolbarItem;
+    shortcut: string;
 }
