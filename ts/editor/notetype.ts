@@ -9,7 +9,7 @@ import * as tr from "anki/i18n";
 import {
     labelButton,
     buttonGroup,
-    withShortcuts,
+    withShortcut,
 } from "editor-toolbar/dynamicComponents";
 
 export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
@@ -21,8 +21,8 @@ export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         tooltip: tr.editingCustomizeFields(),
     });
 
-    const cardsButton = withShortcuts({
-        shortcuts: ["Control+KeyL"],
+    const cardsButton = withShortcut({
+        shortcut: "Control+KeyL",
         button: labelButton({
             onClick: () => bridgeCommand("cards"),
             disables: false,

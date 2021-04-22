@@ -7,13 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ToolbarItem } from "./types";
 
     import { onDestroy } from "svelte";
-    import { registerShortcut, getPlatformString } from "anki/shortcuts";
+    import { Modifier, registerShortcut, getPlatformString } from "anki/shortcuts";
 
     export let button: ToolbarItem;
-    export let shortcuts: string[];
+    export let shortcut: string;
+    export let optionalModifiers: Modifier[];
 
     function extend({ ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
-        const shortcutLabel = getPlatformString(shortcuts[0]);
+        const shortcutLabel = getPlatformString(shortcut);
 
         return {
             shortcutLabel,
@@ -21,19 +22,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    let deregisters: (() => void)[];
+    let deregister: () => void;
 
     function createShortcut({ detail }: CustomEvent): void {
         const mounted: HTMLButtonElement = detail.button;
-        deregisters = shortcuts.map((shortcut: string): (() => void) =>
-            registerShortcut((event) => {
-                mounted.dispatchEvent(new MouseEvent("click"));
+        deregister = registerShortcut(
+            (event: KeyboardEvent) => {
+                mounted.dispatchEvent(new KeyboardEvent("click", event));
                 event.preventDefault();
-            }, shortcut)
+            },
+            shortcut,
+            optionalModifiers
         );
     }
 
-    onDestroy(() => deregisters.forEach((dereg: () => void): void => dereg()));
+    onDestroy(() => deregister());
 </script>
 
 <svelte:component
