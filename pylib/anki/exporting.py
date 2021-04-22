@@ -65,7 +65,7 @@ class Exporter:
         text = text.replace("\t", " " * 8)
         text = re.sub("(?i)<style>.*?</style>", "", text)
         text = re.sub(r"\[\[type:[^]]+\]\]", "", text)
-        if '"' in text:
+        if '"' in text or "'" in text:
             text = '"' + text.replace('"', '""') + '"'
         return text
 
