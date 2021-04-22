@@ -117,20 +117,26 @@ export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu>
     ];
 
     const latexMenuItems = [
-        dropdownItem({
-            onClick: () => wrap("[latex]", "[/latex]"),
-            label: tr.editingLatex(),
-            endLabel: "Ctrl+T, T",
+        withShortcuts({
+            shortcuts: ["Control+KeyT, KeyT"],
+            button: dropdownItem({
+                onClick: () => wrap("[latex]", "[/latex]"),
+                label: tr.editingLatex(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("[$]", "[/$]"),
-            label: tr.editingLatexEquation(),
-            endLabel: "Ctrl+T, E",
+        withShortcuts({
+            shortcuts: ["Control+KeyT, KeyE"],
+            button: dropdownItem({
+                onClick: () => wrap("[$]", "[/$]"),
+                label: tr.editingLatexEquation(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("[$$]", "[/$$]"),
-            label: tr.editingLatexMathEnv(),
-            endLabel: "Ctrl+T, M",
+        withShortcuts({
+            shortcuts: ["Control+KeyT, KeyM"],
+            button: dropdownItem({
+                onClick: () => wrap("[$$]", "[/$$]"),
+                label: tr.editingLatexMathEnv(),
+            }),
         }),
     ];
 

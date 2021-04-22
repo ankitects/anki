@@ -86,7 +86,7 @@ function check(event: KeyboardEvent, modifiersAndKey: string[]): boolean {
     );
 }
 
-const shortcutTimeoutMs = 350;
+const shortcutTimeoutMs = 400;
 
 function innerShortcut(
     lastEvent: KeyboardEvent,
