@@ -1,7 +1,69 @@
+import * as tr from "./i18n";
+
 const modifiers = ["Control", "Alt", "Shift", "Meta"];
 
+// how modifiers are mapped
 const platformModifiers =
-    navigator.platform === "MacIntel" ? ["Meta", "Alt", "Shift", "Control"] : modifiers;
+    navigator.platform === "MacIntel"
+        ? ["Meta", "Alt", "Shift", "Control"]
+        : ["Control", "Alt", "Shift", "OS"];
+
+function splitKeyCombinationString(keyCombinationString: string): string[][] {
+    return keyCombinationString.split(", ").map((segment) => segment.split("+"));
+}
+
+function modifiersToPlatformString(modifiers: string[]): string {
+    const displayModifiers =
+        navigator.platform === "MacIntel"
+            ? ["^", "⌥", "⇧", "⌘"]
+            : [`${tr.keyboardCtrl()}+`, "Alt+", `${tr.keyboardShift()}+`, "Win+"];
+
+    let result = "";
+
+    for (const modifier of modifiers) {
+        result += displayModifiers[platformModifiers.indexOf(modifier)];
+    }
+
+    return result;
+}
+
+const alphabeticPrefix = "Key";
+const numericPrefix = "Digit";
+const keyToCharacterMap = {
+    Backslash: "\\",
+    Backquote: "`",
+    BracketLeft: "[",
+    BrackerRight: "]",
+    Quote: "'",
+    Semicolon: ";",
+    Minus: "-",
+    Equal: "=",
+    Comma: ",",
+    Period: ".",
+    Slash: "/",
+};
+
+function keyToPlatformString(key: string): string {
+    return key.startsWith(alphabeticPrefix)
+        ? key.slice(alphabeticPrefix.length)
+        : key.startsWith(numericPrefix)
+        ? key.slice(numericPrefix.length)
+        : Object.prototype.hasOwnProperty.call(keyToCharacterMap, key)
+        ? keyToCharacterMap[key]
+        : key;
+}
+
+function toPlatformString(modifiersAndKey: string[]) {
+    return `${modifiersToPlatformString(
+        modifiersAndKey.slice(0, -1)
+    )}${keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1])}`;
+}
+
+export function getPlatformString(keyCombinationString: string): string {
+    return splitKeyCombinationString(keyCombinationString)
+        .map(toPlatformString)
+        .join(", ");
+}
 
 function checkKey(event: KeyboardEvent, key: string): boolean {
     return event.code === key;
@@ -24,32 +86,28 @@ function check(event: KeyboardEvent, modifiersAndKey: string[]): boolean {
     );
 }
 
-function normalizeShortcutString(shortcutString: string): string[][] {
-    return shortcutString.split(", ").map((segment) => segment.split("+"));
-}
-
 const shortcutTimeoutMs = 350;
 
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
-    ...shortcuts: string[][]
+    ...keyCombination: string[][]
 ): void {
-    if (shortcuts.length === 0) {
+    if (keyCombination.length === 0) {
         callback(lastEvent);
     } else {
-        const [nextShortcut, ...restShortcuts] = shortcuts;
+        const [nextKey, ...restKeys] = keyCombination;
 
         let ivl: number;
 
         const handler = (event: KeyboardEvent): void => {
-            if (check(event, nextShortcut)) {
-                innerShortcut(event, callback, ...restShortcuts);
-                clearInterval(ivl);
+            if (check(event, nextKey)) {
+                innerShortcut(event, callback, ...restKeys);
+                clearTimeout(ivl);
             }
         };
 
-        ivl = setInterval(
+        ivl = setTimeout(
             (): void => document.removeEventListener("keydown", handler),
             shortcutTimeoutMs
         );
@@ -60,14 +118,14 @@ function innerShortcut(
 
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
-    shortcutString: string
+    keyCombinationString: string
 ): () => void {
-    const shortcuts = normalizeShortcutString(shortcutString);
-    const [firstShortcut, ...restShortcuts] = shortcuts;
+    const keyCombination = splitKeyCombinationString(keyCombinationString);
+    const [firstKey, ...restKeys] = keyCombination;
 
     const handler = (event: KeyboardEvent): void => {
-        if (check(event, firstShortcut)) {
-            innerShortcut(event, callback, ...restShortcuts);
+        if (check(event, firstKey)) {
+            innerShortcut(event, callback, ...restKeys);
         }
     };
 
