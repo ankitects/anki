@@ -12,3 +12,8 @@
 .night-mode {
     @include scrollbar.night-mode;
 }
+
+// the unprefixed version wasn't added until Chrome 81
+.form-select {
+    -webkit-appearance: none;
+}
