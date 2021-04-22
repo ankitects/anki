@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerShortcut } from "anki/shortcuts";
 
     export let button: ToolbarItem;
-    export let shortcut: string;
+    export let shortcuts: string[];
 
     function extend({ ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
         return {
@@ -18,17 +18,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    let deregister;
+    let deregister: (() => void)[];
 
     function createShortcut({ detail }: CustomEvent): void {
         const mounted: HTMLButtonElement = detail.button;
-        deregister = registerShortcut((event) => {
-            mounted.dispatchEvent(new MouseEvent("click"));
-            event.preventDefault();
-        }, shortcut);
+        deregisters = shortcuts.map((shortcut: string): (() => void) =>
+            registerShortcut((event) => {
+                mounted.dispatchEvent(new MouseEvent("click"));
+                event.preventDefault();
+            }, shortcut)
+        );
     }
 
-    onDestroy(() => deregister());
+    onDestroy(() => deregisters.map((dereg) => dereg()));
 </script>
 
 <svelte:component
