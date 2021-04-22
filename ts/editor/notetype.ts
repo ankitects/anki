@@ -6,7 +6,11 @@ import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import { bridgeCommand } from "anki/bridgecommand";
 import * as tr from "anki/i18n";
-import { labelButton, buttonGroup } from "editor-toolbar/dynamicComponents";
+import {
+    labelButton,
+    buttonGroup,
+    withShortcuts,
+} from "editor-toolbar/dynamicComponents";
 
 export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
@@ -17,11 +21,14 @@ export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         tooltip: tr.editingCustomizeFields(),
     });
 
-    const cardsButton = labelButton({
-        onClick: () => bridgeCommand("cards"),
-        disables: false,
-        label: `${tr.editingCards()}...`,
-        tooltip: tr.editingCustomizeCardTemplates(),
+    const cardsButton = withShortcuts({
+        shortcuts: ["Control+KeyL"],
+        button: labelButton({
+            onClick: () => bridgeCommand("cards"),
+            disables: false,
+            label: `${tr.editingCards()}...`,
+            tooltip: tr.editingCustomizeCardTemplates(),
+        }),
     });
 
     return buttonGroup({

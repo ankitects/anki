@@ -12,18 +12,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let button: ToolbarItem;
     export let shortcuts: string[];
 
-    function extend({
-        tooltip,
-        ...rest
-    }: DynamicSvelteComponent): DynamicSvelteComponent {
-        const platformShortcut = getPlatformString(shortcuts[0]);
-
-        if (tooltip) {
-            tooltip = `${tooltip} (${platformShortcut})`;
-        }
+    function extend({ ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
+        const shortcutLabel = getPlatformString(shortcuts[0]);
 
         return {
-            tooltip,
+            shortcutLabel,
             ...rest,
         };
     }
@@ -32,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function createShortcut({ detail }: CustomEvent): void {
         const mounted: HTMLButtonElement = detail.button;
+        console.log(mounted);
         deregisters = shortcuts.map((shortcut: string): (() => void) =>
             registerShortcut((event) => {
                 mounted.dispatchEvent(new MouseEvent("click"));
