@@ -13,6 +13,7 @@ import {
     dropdownMenu,
     dropdownItem,
     buttonGroup,
+    withShortcut,
 } from "editor-toolbar/dynamicComponents";
 import * as tr from "anki/i18n";
 
@@ -41,21 +42,26 @@ const mathjaxMenuId = "mathjaxMenu";
 
 export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const attachmentButton = iconButton({
-        icon: paperclipIcon,
-        onClick: onAttachment,
-        tooltip: tr.editingAttachPicturesaudiovideoF3(),
+    const attachmentButton = withShortcut({
+        shortcut: "F3",
+        button: iconButton({
+            icon: paperclipIcon,
+            onClick: onAttachment,
+            tooltip: tr.editingAttachPicturesaudiovideo(),
+        }),
     });
 
-    const recordButton = iconButton({
-        icon: micIcon,
-        onClick: onRecord,
-        tooltip: tr.editingRecordAudioF5(),
+    const recordButton = withShortcut({
+        shortcut: "F5",
+        button: iconButton({
+            icon: micIcon,
+            onClick: onRecord,
+            tooltip: tr.editingRecordAudio(),
+        }),
     });
 
     const mathjaxButton = iconButton({
         icon: functionIcon,
-        foo: 5,
     });
 
     const mathjaxButtonWithMenu = withDropdownMenu({
@@ -63,10 +69,13 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         menuId: mathjaxMenuId,
     });
 
-    const htmlButton = iconButton({
-        icon: xmlIcon,
-        onClick: onHtmlEdit,
-        tooltip: tr.editingHtmlEditor,
+    const htmlButton = withShortcut({
+        shortcut: "Control+Shift+KeyX",
+        button: iconButton({
+            icon: xmlIcon,
+            onClick: onHtmlEdit,
+            tooltip: tr.editingHtmlEditor(),
+        }),
     });
 
     return buttonGroup({
@@ -84,38 +93,50 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> &
     DropdownMenuProps)[] {
     const mathjaxMenuItems = [
-        dropdownItem({
-            onClick: () => wrap("\\(", "\\)"),
-            label: tr.editingMathjaxInline(),
-            endLabel: "Ctrl+M, M",
+        withShortcut({
+            shortcut: "Control+KeyM, KeyM",
+            button: dropdownItem({
+                onClick: () => wrap("\\(", "\\)"),
+                label: tr.editingMathjaxInline(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("\\[", "\\]"),
-            label: tr.editingMathjaxBlock(),
-            endLabel: "Ctrl+M, E",
+        withShortcut({
+            shortcut: "Control+KeyM, KeyE",
+            button: dropdownItem({
+                onClick: () => wrap("\\[", "\\]"),
+                label: tr.editingMathjaxBlock(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("\\(\\ce{", "}\\)"),
-            label: tr.editingMathjaxChemistry(),
-            endLabel: "Ctrl+M, C",
+        withShortcut({
+            shortcut: "Control+KeyM, KeyC",
+            button: dropdownItem({
+                onClick: () => wrap("\\(\\ce{", "}\\)"),
+                label: tr.editingMathjaxChemistry(),
+            }),
         }),
     ];
 
     const latexMenuItems = [
-        dropdownItem({
-            onClick: () => wrap("[latex]", "[/latex]"),
-            label: tr.editingLatex(),
-            endLabel: "Ctrl+T, T",
+        withShortcut({
+            shortcut: "Control+KeyT, KeyT",
+            button: dropdownItem({
+                onClick: () => wrap("[latex]", "[/latex]"),
+                label: tr.editingLatex(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("[$]", "[/$]"),
-            label: tr.editingLatexEquation(),
-            endLabel: "Ctrl+T, E",
+        withShortcut({
+            shortcut: "Control+KeyT, KeyE",
+            button: dropdownItem({
+                onClick: () => wrap("[$]", "[/$]"),
+                label: tr.editingLatexEquation(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("[$$]", "[/$$]"),
-            label: tr.editingLatexMathEnv(),
-            endLabel: "Ctrl+T, M",
+        withShortcut({
+            shortcut: "Control+KeyT, KeyM",
+            button: dropdownItem({
+                onClick: () => wrap("[$$]", "[/$$]"),
+                label: tr.editingLatexMathEnv(),
+            }),
         }),
     ];
 

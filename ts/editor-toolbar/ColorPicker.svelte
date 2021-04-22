@@ -3,12 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { getContext } from "svelte";
+    import { onMount, createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
+    import { mergeTooltipAndShortcut } from "./helpers";
 
     export let id: string;
     export let className = "";
-    export let tooltip: string;
+    export let tooltip: string | undefined;
+    export let shortcutLabel: string | undefined;
+
+    $: title = mergeTooltipAndShortcut(tooltip, shortcutLabel);
 
     export let onChange: (event: Event) => void;
 
@@ -18,11 +22,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const nightMode = getContext(nightModeKey);
 
+    let buttonRef: HTMLButtonElement;
     let inputRef: HTMLInputElement;
 
     function delegateToInput() {
         inputRef.click();
     }
+
+    const dispatch = createEventDispatcher();
+    onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
 <style lang="scss">
@@ -57,13 +65,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 <button
+    bind:this={buttonRef}
     tabindex="-1"
     {id}
     class={extendClassName(className)}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
-    title={tooltip}
+    {title}
     on:click={delegateToInput}
     on:mousedown|preventDefault>
-    <input bind:this={inputRef} type="color" on:change={onChange} />
+    <input tabindex="-1" bind:this={inputRef} type="color" on:change={onChange} />
 </button>

@@ -6,12 +6,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
+    import { mergeTooltipAndShortcut } from "./helpers";
 
     export let id: string;
     export let className = "";
-
+    export let tooltip: string | undefined;
+    export let shortcutLabel: string | undefined;
     export let label: string;
-    export let tooltip: string;
+
+    $: title = mergeTooltipAndShortcut(tooltip, shortcutLabel);
+
     export let onClick: (event: MouseEvent) => void;
     export let disables = true;
     export let dropdownToggle = false;
@@ -61,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-night={nightMode}
     tabindex="-1"
     disabled={_disabled}
-    title={tooltip}
+    {title}
     {...extraProps}
     on:click={onClick}
     on:mousedown|preventDefault>
