@@ -9,6 +9,6 @@ $link-hover-decoration: none;
 @import "ts/sass/bootstrap/bootstrap-reboot";
 @import "ts/sass/bootstrap/bootstrap-utilities";
 
-body {
+body, html {
     overscroll-behavior: none;
 }
