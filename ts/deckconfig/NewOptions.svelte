@@ -78,7 +78,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:changed={(evt) => ($config.initialEase = evt.detail.value)} />
 
     <CheckBox
-        label="Bury New"
         subLabel={tr.schedulingBuryRelatedNewCardsUntilThe()}
         defaultValue={defaults.buryNew}
         bind:value={$config.buryNew} />

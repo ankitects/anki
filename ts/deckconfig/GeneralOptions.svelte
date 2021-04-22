@@ -25,19 +25,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bind:value={$config.capAnswerTimeToSecs} />
 
     <CheckBox
-        label="Answer timer"
         subLabel={tr.schedulingShowAnswerTimer()}
         defaultValue={defaults.showTimer}
         bind:value={$config.showTimer} />
 
     <CheckBox
-        label="Autoplay"
         subLabel="Don't play audio automatically"
         defaultValue={defaults.disableAutoplay}
         bind:value={$config.disableAutoplay} />
 
     <CheckBox
-        label="Question Audio"
         subLabel={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
         defaultValue={defaults.skipQuestionWhenReplayingAnswer}
         bind:value={$config.skipQuestionWhenReplayingAnswer} />

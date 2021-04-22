@@ -53,7 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:changed={(evt) => ($config.hardMultiplier = evt.detail.value)} />
 
     <CheckBox
-        label="Bury Reviews"
         subLabel={tr.schedulingBuryRelatedReviewsUntilTheNext()}
         defaultValue={defaults.buryReviews}
         bind:value={$config.buryReviews} />
