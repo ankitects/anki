@@ -45,6 +45,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: grid;
         grid-column-gap: 0.5em;
         grid-template-columns: 10fr 16px;
+
+        :global(input) {
+            text-align: end;
+        }
     }
 </style>
 
