@@ -9,6 +9,7 @@ import {
     commandIconButton,
     iconButton,
     buttonGroup,
+    withShortcut,
 } from "editor-toolbar/dynamicComponents";
 
 import boldIcon from "./type-bold.svg";
@@ -20,22 +21,31 @@ import eraserIcon from "./eraser.svg";
 
 export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const boldButton = commandIconButton({
-        icon: boldIcon,
-        tooltip: tr.editingBoldTextCtrlandb(),
-        command: "bold",
+    const boldButton = withShortcut({
+        shortcut: "Control+KeyB",
+        button: commandIconButton({
+            icon: boldIcon,
+            tooltip: tr.editingBoldTextCtrlandb(),
+            command: "bold",
+        }),
     });
 
-    const italicButton = commandIconButton({
-        icon: italicIcon,
-        tooltip: tr.editingItalicTextCtrlandi(),
-        command: "italic",
+    const italicButton = withShortcut({
+        shortcut: "Control+KeyI",
+        button: commandIconButton({
+            icon: italicIcon,
+            tooltip: tr.editingItalicTextCtrlandi(),
+            command: "italic",
+        }),
     });
 
-    const underlineButton = commandIconButton({
-        icon: underlineIcon,
-        tooltip: tr.editingUnderlineTextCtrlandu(),
-        command: "underline",
+    const underlineButton = withShortcut({
+        shortcut: "Control+KeyU",
+        button: commandIconButton({
+            icon: underlineIcon,
+            tooltip: tr.editingUnderlineTextCtrlandu(),
+            command: "underline",
+        }),
     });
 
     const superscriptButton = commandIconButton({
@@ -50,12 +60,15 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         command: "subscript",
     });
 
-    const removeFormatButton = iconButton({
-        icon: eraserIcon,
-        tooltip: tr.editingRemoveFormattingCtrlandr(),
-        onClick: () => {
-            document.execCommand("removeFormat");
-        },
+    const removeFormatButton = withShortcut({
+        shortcut: "Control+KeyR",
+        button: iconButton({
+            icon: eraserIcon,
+            tooltip: tr.editingRemoveFormattingCtrlandr(),
+            onClick: () => {
+                document.execCommand("removeFormat");
+            },
+        }),
     });
 
     return buttonGroup({

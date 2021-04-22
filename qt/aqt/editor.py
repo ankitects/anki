@@ -312,12 +312,8 @@ $editorToolbar.addButtonGroup({{
         # if a third element is provided, enable shortcut even when no field selected
         cuts: List[Tuple] = [
             ("Ctrl+L", self.onCardLayout, True),
-            ("Ctrl+B", self.toggleBold),
-            ("Ctrl+I", self.toggleItalic),
-            ("Ctrl+U", self.toggleUnderline),
             ("Ctrl++", self.toggleSuper),
             ("Ctrl+=", self.toggleSub),
-            ("Ctrl+R", self.removeFormat),
             ("F7", self.onForeground),
             ("F8", self.onChangeCol),
             ("Ctrl+Shift+C", self.onCloze),
