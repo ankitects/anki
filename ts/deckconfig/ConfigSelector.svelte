@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: var(--text-fg);
         background: var(--window-bg);
         padding-bottom: 0.5em;
+        padding-top: 0.5em;
     }
 
     .selector-grid {
