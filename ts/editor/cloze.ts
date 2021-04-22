@@ -43,9 +43,9 @@ function onCloze(event: MouseEvent): void {
 export function getClozeButton(): DynamicSvelteComponent<typeof WithShortcuts> &
     WithShortcutsProps {
     return withShortcuts({
+        id: "cloze",
         shortcuts: ["Control+Shift+KeyC", "Control+Alt+Shift+KeyC"],
         button: iconButton({
-            id: "cloze",
             icon: bracketsIcon,
             onClick: onCloze,
             tooltip: tr.editingClozeDeletionCtrlandshiftandc(),
