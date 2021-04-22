@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type IconButton from "editor-toolbar/IconButton.svelte";
-import type { IconButtonProps } from "editor-toolbar/IconButton";
+import type WithShortcuts from "editor-toolbar/WithShortcuts.svelte";
+import type { WithShortcutsProps } from "editor-toolbar/WithShortcuts";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import * as tr from "anki/i18n";
-import { iconButton } from "editor-toolbar/dynamicComponents";
+import { iconButton, withShortcuts } from "editor-toolbar/dynamicComponents";
 
 import bracketsIcon from "./code-brackets.svg";
 
@@ -40,12 +40,15 @@ function onCloze(event: MouseEvent): void {
     wrap(`{{c${highestCloze}::`, "}}");
 }
 
-export function getClozeButton(): DynamicSvelteComponent<typeof IconButton> &
-    IconButtonProps {
-    return iconButton({
-        id: "cloze",
-        icon: bracketsIcon,
-        onClick: onCloze,
-        tooltip: tr.editingClozeDeletionCtrlandshiftandc(),
+export function getClozeButton(): DynamicSvelteComponent<typeof WithShortcuts> &
+    WithShortcutsProps {
+    return withShortcuts({
+        shortcuts: ["Control+Shift+KeyC", "Control+Alt+Shift+KeyC"],
+        button: iconButton({
+            id: "cloze",
+            icon: bracketsIcon,
+            onClick: onCloze,
+            tooltip: tr.editingClozeDeletionCtrlandshiftandc(),
+        }),
     });
 }

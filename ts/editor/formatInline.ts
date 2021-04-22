@@ -9,7 +9,7 @@ import {
     commandIconButton,
     iconButton,
     buttonGroup,
-    withShortcut,
+    withShortcuts,
 } from "editor-toolbar/dynamicComponents";
 
 import boldIcon from "./type-bold.svg";
@@ -21,8 +21,8 @@ import eraserIcon from "./eraser.svg";
 
 export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const boldButton = withShortcut({
-        shortcut: "Control+KeyB",
+    const boldButton = withShortcuts({
+        shortcuts: ["Control+KeyB"],
         button: commandIconButton({
             icon: boldIcon,
             tooltip: tr.editingBoldTextCtrlandb(),
@@ -30,8 +30,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const italicButton = withShortcut({
-        shortcut: "Control+KeyI",
+    const italicButton = withShortcuts({
+        shortcuts: ["Control+KeyI"],
         button: commandIconButton({
             icon: italicIcon,
             tooltip: tr.editingItalicTextCtrlandi(),
@@ -39,8 +39,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const underlineButton = withShortcut({
-        shortcut: "Control+KeyU",
+    const underlineButton = withShortcuts({
+        shortcuts: ["Control+KeyU"],
         button: commandIconButton({
             icon: underlineIcon,
             tooltip: tr.editingUnderlineTextCtrlandu(),
@@ -48,20 +48,26 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const superscriptButton = commandIconButton({
-        icon: superscriptIcon,
-        tooltip: tr.editingSuperscriptCtrlandand(),
-        command: "superscript",
+    const superscriptButton = withShortcuts({
+        shortcuts: ["Control+Shift+Equal"],
+        button: commandIconButton({
+            icon: superscriptIcon,
+            tooltip: tr.editingSuperscriptCtrlandand(),
+            command: "superscript",
+        }),
     });
 
-    const subscriptButton = commandIconButton({
-        icon: subscriptIcon,
-        tooltip: tr.editingSubscriptCtrland(),
-        command: "subscript",
+    const subscriptButton = withShortcuts({
+        shortcuts: ["Control+Equal"],
+        button: commandIconButton({
+            icon: subscriptIcon,
+            tooltip: tr.editingSubscriptCtrland(),
+            command: "subscript",
+        }),
     });
 
-    const removeFormatButton = withShortcut({
-        shortcut: "Control+KeyR",
+    const removeFormatButton = withShortcuts({
+        shortcuts: ["Control+KeyR"],
         button: iconButton({
             icon: eraserIcon,
             tooltip: tr.editingRemoveFormattingCtrlandr(),

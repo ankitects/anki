@@ -4,7 +4,12 @@ import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import { iconButton, colorPicker, buttonGroup } from "editor-toolbar/dynamicComponents";
+import {
+    iconButton,
+    colorPicker,
+    buttonGroup,
+    withShortcuts,
+} from "editor-toolbar/dynamicComponents";
 import * as tr from "anki/i18n";
 
 import squareFillIcon from "./square-fill.svg";
@@ -26,17 +31,23 @@ function wrapWithForecolor(color: string): void {
 
 export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const forecolorButton = iconButton({
-        icon: squareFillIcon,
-        className: "forecolor",
-        onClick: () => wrapWithForecolor(getForecolor()),
-        tooltip: tr.editingSetForegroundColourF7(),
+    const forecolorButton = withShortcuts({
+        shortcuts: ["F7"],
+        button: iconButton({
+            icon: squareFillIcon,
+            className: "forecolor",
+            onClick: () => wrapWithForecolor(getForecolor()),
+            tooltip: tr.editingSetForegroundColourF7(),
+        }),
     });
 
-    const colorpickerButton = colorPicker({
-        onChange: ({ currentTarget }) =>
-            setForegroundColor((currentTarget as HTMLInputElement).value),
-        tooltip: tr.editingChangeColourF8(),
+    const colorpickerButton = withShortcuts({
+        shortcuts: ["F8"],
+        button: colorPicker({
+            onChange: ({ currentTarget }) =>
+                setForegroundColor((currentTarget as HTMLInputElement).value),
+            tooltip: tr.editingChangeColourF8(),
+        }),
     });
 
     return buttonGroup({

@@ -13,6 +13,7 @@ import {
     dropdownMenu,
     dropdownItem,
     buttonGroup,
+    withShortcuts,
 } from "editor-toolbar/dynamicComponents";
 import * as tr from "anki/i18n";
 
@@ -41,21 +42,26 @@ const mathjaxMenuId = "mathjaxMenu";
 
 export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const attachmentButton = iconButton({
-        icon: paperclipIcon,
-        onClick: onAttachment,
-        tooltip: tr.editingAttachPicturesaudiovideoF3(),
+    const attachmentButton = withShortcuts({
+        shortcuts: ["F3"],
+        button: iconButton({
+            icon: paperclipIcon,
+            onClick: onAttachment,
+            tooltip: tr.editingAttachPicturesaudiovideoF3(),
+        }),
     });
 
-    const recordButton = iconButton({
-        icon: micIcon,
-        onClick: onRecord,
-        tooltip: tr.editingRecordAudioF5(),
+    const recordButton = withShortcuts({
+        shortcuts: ["F5"],
+        button: iconButton({
+            icon: micIcon,
+            onClick: onRecord,
+            tooltip: tr.editingRecordAudioF5(),
+        }),
     });
 
     const mathjaxButton = iconButton({
         icon: functionIcon,
-        foo: 5,
     });
 
     const mathjaxButtonWithMenu = withDropdownMenu({
@@ -63,10 +69,13 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         menuId: mathjaxMenuId,
     });
 
-    const htmlButton = iconButton({
-        icon: xmlIcon,
-        onClick: onHtmlEdit,
-        tooltip: tr.editingHtmlEditor,
+    const htmlButton = withShortcuts({
+        shortcuts: ["Control+Shift+KeyX"],
+        button: iconButton({
+            icon: xmlIcon,
+            onClick: onHtmlEdit,
+            tooltip: tr.editingHtmlEditor(),
+        }),
     });
 
     return buttonGroup({
