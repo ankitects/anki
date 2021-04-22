@@ -23,11 +23,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style>
+    .img-div {
+        display: flex;
+    }
     :global(svg) {
-        vertical-align: text-bottom;
+        align-self: center;
     }
 </style>
 
 {#if modified}
-    <span on:click={revert}>{@html revertIcon}</span>
+    <div class="img-div" on:click={revert}>
+        {@html revertIcon}
+    </div>
 {/if}

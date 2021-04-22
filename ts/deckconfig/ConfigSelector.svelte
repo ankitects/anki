@@ -21,52 +21,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style lang="scss">
-    .form-select {
-        grid-column: 1 / 5;
-    }
-
-    .fixed-bar {
-        position: fixed;
+    .sticky-bar {
+        position: sticky;
         z-index: 1;
         top: 0;
-        left: 0;
-        width: 100%;
         color: var(--text-fg);
         background: var(--window-bg);
-        display: flex;
-        justify-content: center;
+        padding-bottom: 0.5em;
     }
 
-    .grid {
+    .selector-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 6fr 1fr;
         grid-column-gap: 0.5em;
-    }
-
-    .padding {
-        height: 3em;
+        padding-right: 0.5em;
     }
 </style>
 
-<div class="fixed-bar">
-    <div class="width-limited">
-        <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
+<div class="sticky-bar">
+    <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
-        <div class="grid">
-            <!-- svelte-ignore a11y-no-onchange -->
-            <select class="form-select" on:change={blur}>
-                {#each $configList as entry}
-                    <option value={entry.idx} selected={entry.current}>
-                        {configLabel(entry)}
-                    </option>
-                {/each}
-            </select>
+    <div class="selector-grid">
+        <!-- svelte-ignore a11y-no-onchange -->
+        <select class="form-select" on:change={blur}>
+            {#each $configList as entry}
+                <option value={entry.idx} selected={entry.current}>
+                    {configLabel(entry)}
+                </option>
+            {/each}
+        </select>
 
-            <OptionsDropdown {state} />
-        </div>
+        <OptionsDropdown {state} />
     </div>
-</div>
-
-<div class="padding">
-    <!-- make sure subsequent content doesn't flow under us -->
 </div>

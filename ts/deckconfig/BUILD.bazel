@@ -34,6 +34,7 @@ copy_bootstrap_icons(
     name = "bootstrap-icons",
     icons = [
         "arrow-counterclockwise.svg",
+        "info-circle.svg",
     ],
 )
 
@@ -44,6 +45,7 @@ ts_library(
         "DeckConfigPage",
         "lib",
         "//ts/lib",
+        "@npm//@popperjs",
         "@npm//svelte2tsx",
     ],
 )
