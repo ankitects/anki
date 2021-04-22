@@ -6,7 +6,7 @@ import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import { bridgeCommand } from "anki/bridgecommand";
+import { bridgeCommand } from "lib/bridgecommand";
 import {
     iconButton,
     withDropdownMenu,
@@ -15,7 +15,7 @@ import {
     buttonGroup,
     withShortcut,
 } from "editor-toolbar/dynamicComponents";
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 
 import { wrap } from "./wrap";
 

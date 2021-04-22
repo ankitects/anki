@@ -6,8 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import type { PreferenceRaw, PreferencePayload } from "sveltelib/preferences";
 
-    import pb from "anki/backend_proto";
-    import { postRequest } from "anki/postrequest";
+    import pb from "lib/backend_proto";
+    import { postRequest } from "lib/postrequest";
 
     import useAsync from "sveltelib/async";
     import useAsyncReactive from "sveltelib/asyncReactive";

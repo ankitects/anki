@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getDeckConfigInfo, DeckConfigState } from "./lib";
-import { setupI18n, ModuleName } from "anki/i18n";
-import { checkNightMode } from "anki/nightmode";
+import { setupI18n, ModuleName } from "lib/i18n";
+import { checkNightMode } from "lib/nightmode";
 import DeckConfigPage from "./DeckConfigPage.svelte";
 
 export async function deckConfig(

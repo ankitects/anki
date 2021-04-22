@@ -6,9 +6,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import pb from "anki/backend_proto";
+import pb from "lib/backend_proto";
 
-import { timeSpan, dayLabel } from "anki/time";
+import { timeSpan, dayLabel } from "lib/time";
 import {
     interpolateGreens,
     interpolateReds,
@@ -34,7 +34,7 @@ import type { Bin } from "d3";
 import type { TableDatum } from "./graph-helpers";
 import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import { showTooltip, hideTooltip } from "./tooltip";
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 
 interface Reviews {
     learn: number;
