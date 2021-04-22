@@ -48,7 +48,7 @@ export function getClozeButton(): DynamicSvelteComponent<typeof WithShortcuts> &
         button: iconButton({
             icon: bracketsIcon,
             onClick: onCloze,
-            tooltip: tr.editingClozeDeletionCtrlandshiftandc(),
+            tooltip: tr.editingClozeDeletion(),
         }),
     });
 }

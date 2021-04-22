@@ -21,7 +21,7 @@ export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         onClick: () => bridgeCommand("cards"),
         disables: false,
         label: `${tr.editingCards()}...`,
-        tooltip: tr.editingCustomizeCardTemplatesCtrlandl(),
+        tooltip: tr.editingCustomizeCardTemplates(),
     });
 
     return buttonGroup({
