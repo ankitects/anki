@@ -4,7 +4,7 @@
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
 @typescript-eslint/no-explicit-any: "off",
-@typescript-eslint/ban-ts-ignore: "off" */
+@typescript-eslint/ban-ts-comment: "off" */
 
 import type pb from "anki/backend_proto";
 import type { Selection } from "d3";
