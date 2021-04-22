@@ -100,7 +100,7 @@ function compile(tsPath: string, tsLibs: string[]) {
     return createdFiles[parsedCommandLine.fileNames[0].replace(".ts", ".d.ts")];
 }
 
-function writeFile(file, data) {
+function writeFile(file, data): Promise<void> {
     return new Promise((resolve, reject) => {
         fs.writeFile(file, data, (err) => {
             if (err) {
@@ -129,7 +129,7 @@ async function writeDts(tsPath, dtsPath, tsLibs) {
     await writeFile(dtsPath, dtsSource);
 }
 
-function writeTs(svelteSource, sveltePath, tsPath) {
+function writeTs(svelteSource, sveltePath, tsPath): void {
     let tsSource = svelte2tsx(svelteSource, {
         filename: sveltePath,
         strictMode: true,
@@ -187,7 +187,7 @@ async function compileSvelte(args) {
     const svelteSource = (await readFile(sveltePath)) as string;
 
     const mockTsPath = sveltePath + ".ts";
-    await writeTs(svelteSource, sveltePath, mockTsPath);
+    writeTs(svelteSource, sveltePath, mockTsPath);
     await writeDts(mockTsPath, dtsPath, tsLibs);
     await writeJs(svelteSource, sveltePath, mjsPath, cssPath, binDir, genDir);
 

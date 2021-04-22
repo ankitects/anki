@@ -41,7 +41,7 @@ const filterStyling = (predicate: (property: string, value: string) => boolean) 
     element: HTMLElement
 ): void => {
     for (const property of [...element.style]) {
-        const value = element.style.getPropertyValue(name);
+        const value = element.style.getPropertyValue(property);
 
         if (!predicate(property, value)) {
             element.style.removeProperty(property);
