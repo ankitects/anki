@@ -12,19 +12,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let defaultValue: any;
     /// empty strings will be ignored
     export let warnings: string[] = [];
+    export let wholeLine = false;
 </script>
 
 <style lang="scss">
     .outer {
         margin-top: 1em;
-
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 2fr 1fr;
         grid-column-gap: 0.5em;
     }
 
     .full-grid-width {
-        grid-row-start: 2;
         grid-column: 1 / 3;
     }
 
@@ -43,24 +42,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .input-grid {
-        // width: 90vw;
         display: grid;
         grid-column-gap: 0.5em;
-        grid-template-columns: 10fr 1fr;
+        grid-template-columns: 10fr 16px;
     }
 </style>
 
 <div class="outer">
-    <div class="table">
-        <span class="vcenter">
-            {label}
-            {#if subLabel}
-                <HelpPopup html={subLabel} />
-            {/if}
-        </span>
-    </div>
+    {#if label}
+        <div class="table">
+            <span class="vcenter">
+                {label}
+                {#if subLabel}
+                    <HelpPopup html={subLabel} />
+                {/if}
+            </span>
+        </div>
+    {/if}
 
-    <div class="input-grid">
+    <div class="input-grid" class:full-grid-width={wholeLine}>
         <slot />
         <RevertIcon bind:value {defaultValue} on:revert />
     </div>

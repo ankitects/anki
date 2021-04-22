@@ -12,7 +12,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let ref: HTMLAnchorElement;
 
     onMount(() => {
-        new Tooltip(ref, { placement: "bottom", html: true, offset: [0, 20] });
+        new Tooltip(ref, {
+            placement: "bottom",
+            html: true,
+            offset: [0, 20],
+        });
     });
 </script>
 

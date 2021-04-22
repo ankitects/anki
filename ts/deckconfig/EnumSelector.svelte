@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let defaultValue: number;
 </script>
 
-<ConfigEntry {label} {subLabel} bind:value {defaultValue}>
+<ConfigEntry {label} {subLabel} wholeLine={true} bind:value {defaultValue}>
     <select bind:value class="form-select">
         {#each choices as choice, idx}
             <option value={idx}>{choice}</option>
