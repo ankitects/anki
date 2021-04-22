@@ -21,16 +21,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style>
-    :global(svg) {
+    span :global(svg) {
         vertical-align: text-bottom;
+        opacity: 0.3;
     }
 </style>
 
-<span
-    href={'#'}
-    bind:this={ref}
-    data-toggle="tooltip"
-    data-placement="bottom"
-    title={html}>
+<span bind:this={ref} title={html}>
     {@html infoCircle}
 </span>

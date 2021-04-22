@@ -22,12 +22,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style>
+<style lang="scss">
     .img-div {
         display: flex;
-    }
-    :global(svg) {
-        align-self: center;
+
+        :global(svg) {
+            align-self: center;
+            opacity: 0.3;
+        }
     }
 </style>
 

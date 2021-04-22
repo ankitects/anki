@@ -17,10 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .outer {
-        margin-top: 1em;
         display: grid;
         grid-template-columns: 2fr 1fr;
         grid-column-gap: 0.5em;
+        grid-row-gap: 0.5em;
     }
 
     .full-grid-width {
