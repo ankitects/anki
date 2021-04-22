@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type WithShortcuts from "editor-toolbar/WithShortcuts.svelte";
-import type { WithShortcutsProps } from "editor-toolbar/WithShortcuts";
+import type WithShortcut from "editor-toolbar/WithShortcut.svelte";
+import type { WithShortcutProps } from "editor-toolbar/WithShortcut";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import * as tr from "anki/i18n";
-import { iconButton, withShortcuts } from "editor-toolbar/dynamicComponents";
+import { iconButton, withShortcut } from "editor-toolbar/dynamicComponents";
 
 import bracketsIcon from "./code-brackets.svg";
 
@@ -35,16 +35,17 @@ function getCurrentHighestCloze(increment: boolean): number {
     return Math.max(1, highest);
 }
 
-function onCloze(event: MouseEvent): void {
-    const highestCloze = getCurrentHighestCloze(!event.altKey);
+function onCloze(event: KeyboardEvent | MouseEvent): void {
+    const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
     wrap(`{{c${highestCloze}::`, "}}");
 }
 
-export function getClozeButton(): DynamicSvelteComponent<typeof WithShortcuts> &
-    WithShortcutsProps {
-    return withShortcuts({
+export function getClozeButton(): DynamicSvelteComponent<typeof WithShortcut> &
+    WithShortcutProps {
+    return withShortcut({
         id: "cloze",
-        shortcuts: ["Control+Shift+KeyC", "Control+Alt+Shift+KeyC"],
+        shortcut: "Control+Shift+KeyC",
+        optionalModifiers: ["Alt"],
         button: iconButton({
             icon: bracketsIcon,
             onClick: onCloze,

@@ -13,7 +13,7 @@ import {
     dropdownMenu,
     dropdownItem,
     buttonGroup,
-    withShortcuts,
+    withShortcut,
 } from "editor-toolbar/dynamicComponents";
 import * as tr from "anki/i18n";
 
@@ -42,8 +42,8 @@ const mathjaxMenuId = "mathjaxMenu";
 
 export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const attachmentButton = withShortcuts({
-        shortcuts: ["F3"],
+    const attachmentButton = withShortcut({
+        shortcut: "F3",
         button: iconButton({
             icon: paperclipIcon,
             onClick: onAttachment,
@@ -51,8 +51,8 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         }),
     });
 
-    const recordButton = withShortcuts({
-        shortcuts: ["F5"],
+    const recordButton = withShortcut({
+        shortcut: "F5",
         button: iconButton({
             icon: micIcon,
             onClick: onRecord,
@@ -69,8 +69,8 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         menuId: mathjaxMenuId,
     });
 
-    const htmlButton = withShortcuts({
-        shortcuts: ["Control+Shift+KeyX"],
+    const htmlButton = withShortcut({
+        shortcut: "Control+Shift+KeyX",
         button: iconButton({
             icon: xmlIcon,
             onClick: onHtmlEdit,
@@ -93,22 +93,22 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> &
     DropdownMenuProps)[] {
     const mathjaxMenuItems = [
-        withShortcuts({
-            shortcuts: ["Control+KeyM, KeyM"],
+        withShortcut({
+            shortcut: "Control+KeyM, KeyM",
             button: dropdownItem({
                 onClick: () => wrap("\\(", "\\)"),
                 label: tr.editingMathjaxInline(),
             }),
         }),
-        withShortcuts({
-            shortcuts: ["Control+KeyM, KeyE"],
+        withShortcut({
+            shortcut: "Control+KeyM, KeyE",
             button: dropdownItem({
                 onClick: () => wrap("\\[", "\\]"),
                 label: tr.editingMathjaxBlock(),
             }),
         }),
-        withShortcuts({
-            shortcuts: ["Control+KeyM, KeyC"],
+        withShortcut({
+            shortcut: "Control+KeyM, KeyC",
             button: dropdownItem({
                 onClick: () => wrap("\\(\\ce{", "}\\)"),
                 label: tr.editingMathjaxChemistry(),
@@ -117,22 +117,22 @@ export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu>
     ];
 
     const latexMenuItems = [
-        withShortcuts({
-            shortcuts: ["Control+KeyT, KeyT"],
+        withShortcut({
+            shortcut: "Control+KeyT, KeyT",
             button: dropdownItem({
                 onClick: () => wrap("[latex]", "[/latex]"),
                 label: tr.editingLatex(),
             }),
         }),
-        withShortcuts({
-            shortcuts: ["Control+KeyT, KeyE"],
+        withShortcut({
+            shortcut: "Control+KeyT, KeyE",
             button: dropdownItem({
                 onClick: () => wrap("[$]", "[/$]"),
                 label: tr.editingLatexEquation(),
             }),
         }),
-        withShortcuts({
-            shortcuts: ["Control+KeyT, KeyM"],
+        withShortcut({
+            shortcut: "Control+KeyT, KeyM",
             button: dropdownItem({
                 onClick: () => wrap("[$$]", "[/$$]"),
                 label: tr.editingLatexMathEnv(),

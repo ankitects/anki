@@ -9,7 +9,7 @@ import {
     commandIconButton,
     iconButton,
     buttonGroup,
-    withShortcuts,
+    withShortcut,
 } from "editor-toolbar/dynamicComponents";
 
 import boldIcon from "./type-bold.svg";
@@ -21,8 +21,8 @@ import eraserIcon from "./eraser.svg";
 
 export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const boldButton = withShortcuts({
-        shortcuts: ["Control+KeyB"],
+    const boldButton = withShortcut({
+        shortcut: "Control+KeyB",
         button: commandIconButton({
             icon: boldIcon,
             tooltip: tr.editingBoldText(),
@@ -30,8 +30,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const italicButton = withShortcuts({
-        shortcuts: ["Control+KeyI"],
+    const italicButton = withShortcut({
+        shortcut: "Control+KeyI",
         button: commandIconButton({
             icon: italicIcon,
             tooltip: tr.editingItalicText(),
@@ -39,8 +39,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const underlineButton = withShortcuts({
-        shortcuts: ["Control+KeyU"],
+    const underlineButton = withShortcut({
+        shortcut: "Control+KeyU",
         button: commandIconButton({
             icon: underlineIcon,
             tooltip: tr.editingUnderlineText(),
@@ -48,8 +48,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const superscriptButton = withShortcuts({
-        shortcuts: ["Control+Shift+Equal"],
+    const superscriptButton = withShortcut({
+        shortcut: "Control+Shift+Equal",
         button: commandIconButton({
             icon: superscriptIcon,
             tooltip: tr.editingSuperscript(),
@@ -57,8 +57,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const subscriptButton = withShortcuts({
-        shortcuts: ["Control+Equal"],
+    const subscriptButton = withShortcut({
+        shortcut: "Control+Equal",
         button: commandIconButton({
             icon: subscriptIcon,
             tooltip: tr.editingSubscript(),
@@ -66,8 +66,8 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         }),
     });
 
-    const removeFormatButton = withShortcuts({
-        shortcuts: ["Control+KeyR"],
+    const removeFormatButton = withShortcut({
+        shortcut: "Control+KeyR",
         button: iconButton({
             icon: eraserIcon,
             tooltip: tr.editingRemoveFormatting(),

@@ -20,8 +20,8 @@ import type { DropdownItemProps } from "./DropdownItem";
 import WithDropdownMenu from "./WithDropdownMenu.svelte";
 import type { WithDropdownMenuProps } from "./WithDropdownMenu";
 
-import WithShortcuts from "./WithShortcuts.svelte";
-import type { WithShortcutsProps } from "./WithShortcuts";
+import WithShortcut from "./WithShortcut.svelte";
+import type { WithShortcutProps } from "./WithShortcut";
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
 
@@ -59,6 +59,6 @@ export const withDropdownMenu = dynamicComponent<
     WithDropdownMenuProps
 >(WithDropdownMenu);
 
-export const withShortcuts = dynamicComponent<typeof WithShortcuts, WithShortcutsProps>(
-    WithShortcuts
+export const withShortcut = dynamicComponent<typeof WithShortcut, WithShortcutProps>(
+    WithShortcut
 );

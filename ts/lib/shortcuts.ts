@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import * as tr from "./i18n";
 
-type Modifier = "Control" | "Alt" | "Shift" | "Meta";
+export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
 
 const modifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
 

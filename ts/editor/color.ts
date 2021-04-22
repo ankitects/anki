@@ -8,7 +8,7 @@ import {
     iconButton,
     colorPicker,
     buttonGroup,
-    withShortcuts,
+    withShortcut,
 } from "editor-toolbar/dynamicComponents";
 import * as tr from "anki/i18n";
 
@@ -31,8 +31,8 @@ function wrapWithForecolor(color: string): void {
 
 export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     ButtonGroupProps {
-    const forecolorButton = withShortcuts({
-        shortcuts: ["F7"],
+    const forecolorButton = withShortcut({
+        shortcut: "F7",
         button: iconButton({
             icon: squareFillIcon,
             className: "forecolor",
@@ -41,8 +41,8 @@ export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         }),
     });
 
-    const colorpickerButton = withShortcuts({
-        shortcuts: ["F8"],
+    const colorpickerButton = withShortcut({
+        shortcut: "F8",
         button: colorPicker({
             onChange: ({ currentTarget }) =>
                 setForegroundColor((currentTarget as HTMLInputElement).value),
