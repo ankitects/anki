@@ -86,8 +86,6 @@ pub struct StateChanges {
     pub notetype: bool,
     pub config: bool,
     pub deck_config: bool,
-    /// covers schema change (and last_sync in the future), but not mtime
-    pub collection: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -148,5 +146,6 @@ impl OpChanges {
         c.card
             || (c.deck && self.op != Op::ExpandCollapse)
             || (c.config && matches!(self.op, Op::SetCurrentDeck))
+            || c.deck_config
     }
 }

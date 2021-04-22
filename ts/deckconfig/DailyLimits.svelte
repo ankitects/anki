@@ -17,10 +17,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? `Daily limit will be capped to parent limit of ${$parentLimits.newCards}.`
             : "";
 
-    $: reviewsGreaterThanParent =
-        $config.reviewsPerDay > $parentLimits.reviews
-            ? `Daily limit will be capped to parent limit of ${$parentLimits.reviews}.`
-            : "";
+    // with the v2 scheduler, this no longer applies
+    // $: reviewsGreaterThanParent =
+    //     $config.reviewsPerDay > $parentLimits.reviews
+    //         ? `Daily limit will be capped to parent limit of ${$parentLimits.reviews}.`
+    //         : "";
 
     $: reviewsTooLow =
         $config.newPerDay * 10 > $config.reviewsPerDay
@@ -47,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         label={tr.schedulingMaximumReviewsday()}
         subLabel="The maximum number of reviews cards to show in a day."
         min={0}
-        warnings={[reviewsTooLow, reviewsGreaterThanParent]}
+        warnings={[reviewsTooLow]}
         defaultValue={defaults.reviewsPerDay}
         bind:value={$config.reviewsPerDay} />
 </div>
