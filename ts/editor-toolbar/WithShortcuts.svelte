@@ -7,13 +7,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ToolbarItem } from "./types";
 
     import { onDestroy } from "svelte";
-    import { registerShortcut } from "anki/shortcuts";
+    import { registerShortcut, getPlatformString } from "anki/shortcuts";
 
     export let button: ToolbarItem;
     export let shortcuts: string[];
 
-    function extend({ ...rest }: DynamicSvelteComponent): DynamicSvelteComponent {
+    function extend({
+        tooltip,
+        ...rest
+    }: DynamicSvelteComponent): DynamicSvelteComponent {
+        const platformShortcut = getPlatformString(shortcuts[0]);
+
+        if (tooltip) {
+            tooltip = `${tooltip} (${platformShortcut})`;
+        }
+
         return {
+            tooltip,
             ...rest,
         };
     }
