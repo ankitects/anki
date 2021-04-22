@@ -5,6 +5,7 @@ sass_library(
     srcs = [
         "_vars.scss",
         "base.scss",
+        "bootstrap-dark.scss",
     ],
     visibility = ["//visibility:public"],
     deps = ["//ts/sass/bootstrap"],

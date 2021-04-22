@@ -31,13 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal.hide();
     }
 
-    function onKeyUp(evt: KeyboardEvent): void {
-        if (evt.code === "Enter") {
-            evt.stopPropagation();
-            onOkClicked();
-        }
-    }
-
     onMount(() => {
         const container = document.getElementById("modal")!;
         container.addEventListener("shown.bs.modal", onShown);
@@ -54,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="modal fade" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog" on:keyup={onKeyUp}>
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">{title}</h5>
@@ -65,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     aria-label="Close" />
             </div>
             <div class="modal-body">
-                <form>
+                <form on:submit|preventDefault={onOkClicked}>
                     <div class="mb-3">
                         <label
                             for="prompt-input"

@@ -16,9 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             evt.getModifierState(primaryModifierForPlatform())
         ) {
             state.save(false);
-        } else {
-            console.log(evt.getModifierState(primaryModifierForPlatform()));
-            console.log(primaryModifierForPlatform());
         }
     }
 </script>

@@ -1,4 +1,5 @@
 @use "ts/sass/scrollbar";
+@use "ts/sass/bootstrap-dark";
 
 @import "ts/sass/base";
 @import "ts/sass/bootstrap/dropdown";
@@ -12,6 +13,7 @@
 
 .night-mode {
     @include scrollbar.night-mode;
+    @include bootstrap-dark.night-mode;
 }
 
 // the unprefixed version wasn't added until Chrome 81
