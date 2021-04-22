@@ -21,11 +21,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    let deregister: (() => void)[];
+    let deregisters: (() => void)[];
 
     function createShortcut({ detail }: CustomEvent): void {
         const mounted: HTMLButtonElement = detail.button;
-        console.log(mounted);
         deregisters = shortcuts.map((shortcut: string): (() => void) =>
             registerShortcut((event) => {
                 mounted.dispatchEvent(new MouseEvent("click"));
@@ -34,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    onDestroy(() => deregisters.map((dereg) => dereg()));
+    onDestroy(() => deregisters.forEach((dereg: () => void): void => dereg()));
 </script>
 
 <svelte:component
