@@ -10,15 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckConfigState;
 </script>
 
-<style>
-    .outer {
-        display: flex;
-        justify-content: center;
-    }
-
-    :global(.width-limited) {
-        width: 40em;
-        padding: 0.5em;
+<style lang="scss">
+    .editor {
+        // without this, the initial viewport can be wrong
+        overflow-x: hidden;
     }
 </style>
 
@@ -28,8 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ConfigSelector {state} />
 
-<div class="outer">
-    <div class="width-limited">
-        <ConfigEditor {state} />
-    </div>
+<div class="editor">
+    <ConfigEditor {state} />
 </div>

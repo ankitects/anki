@@ -8,6 +8,7 @@
 @import "ts/sass/bootstrap/modal";
 @import "ts/sass/bootstrap/close";
 @import "ts/sass/bootstrap/alert";
+@import "ts/sass/bootstrap/tooltip";
 
 .night-mode {
     @include scrollbar.night-mode;
@@ -16,4 +17,17 @@
 // the unprefixed version wasn't added until Chrome 81
 .form-select {
     -webkit-appearance: none;
+}
+
+body {
+    width: min(100vw, 40em);
+    margin: 0 auto;
+}
+
+html {
+    overflow-x: hidden;
+}
+
+#main {
+    padding: 0.5em;
 }

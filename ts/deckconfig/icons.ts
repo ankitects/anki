@@ -4,4 +4,6 @@
 // Import icons from bootstrap
 
 import revertIcon from "./arrow-counterclockwise.svg";
-export { revertIcon };
+import infoCircle from "./info-circle.svg";
+
+export { revertIcon, infoCircle };
