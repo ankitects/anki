@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type pb from "anki/backend_proto";
+    import type pb from "lib/backend_proto";
     import type { PreferenceStore } from "sveltelib/preferences";
 
     import { createEventDispatcher } from "svelte";
@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let sourceData: pb.BackendProto.GraphsOut;
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
     export let revlogRange: RevlogRange;
-    import * as tr from "anki/i18n";
+    import * as tr from "lib/i18n";
     export let nightMode: boolean;
 
     let { calendarFirstDayOfWeek } = preferences;

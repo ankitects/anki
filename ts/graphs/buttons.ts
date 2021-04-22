@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import pb from "anki/backend_proto";
+import pb from "lib/backend_proto";
 
 import {
     interpolateRdYlGn,
@@ -26,7 +26,7 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 
 type ButtonCounts = [number, number, number, number];
 

@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import pb from "anki/backend_proto";
+import pb from "lib/backend_proto";
 import {
     interpolateBlues,
     select,
@@ -29,8 +29,8 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { i18n } from "anki/i18n";
-import * as tr from "anki/i18n";
+import { i18n } from "lib/i18n";
+import * as tr from "lib/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

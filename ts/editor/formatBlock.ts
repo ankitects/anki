@@ -8,7 +8,7 @@ import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import type { EditingArea } from "./editingArea";
 
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 import {
     commandIconButton,
     iconButton,

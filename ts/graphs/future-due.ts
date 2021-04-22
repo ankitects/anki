@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type pb from "anki/backend_proto";
+import type pb from "lib/backend_proto";
 import {
     extent,
     histogram,
@@ -17,13 +17,13 @@ import {
     interpolateGreens,
 } from "d3";
 import type { Bin } from "d3";
-import { CardQueue } from "anki/cards";
+import { CardQueue } from "lib/cards";
 import type { HistogramData } from "./histogram-graph";
-import { dayLabel } from "anki/time";
+import { dayLabel } from "lib/time";
 
 import { GraphRange } from "./graph-helpers";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
