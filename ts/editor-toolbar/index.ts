@@ -186,7 +186,7 @@ export class EditorToolbar extends HTMLElement {
 customElements.define("anki-editor-toolbar", EditorToolbar);
 
 /* Exports for editor */
-// @ts-expect-error
+// @ts-expect-error insufficient typing of svelte modules
 export { updateActiveButtons, clearActiveButtons } from "./CommandIconButton.svelte";
-// @ts-expect-error
+// @ts-expect-error insufficient typing of svelte modules
 export { enableButtons, disableButtons } from "./EditorToolbar.svelte";

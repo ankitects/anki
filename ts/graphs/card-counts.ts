@@ -140,14 +140,6 @@ export function gatherData(
     };
 }
 
-interface Reviews {
-    mature: number;
-    young: number;
-    learn: number;
-    relearn: number;
-    early: number;
-}
-
 export interface SummedDatum {
     label: string;
     // count of this particular item
