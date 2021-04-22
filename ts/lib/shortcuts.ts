@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import * as tr from "./i18n";
 
-const modifiers = ["Control", "Alt", "Shift", "Meta"];
+type Modifier = "Control" | "Alt" | "Shift" | "Meta";
+
+const modifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
 
 // how modifiers are mapped
 const platformModifiers =
@@ -71,20 +73,29 @@ function checkKey(event: KeyboardEvent, key: string): boolean {
     return event.code === key;
 }
 
-function checkModifiers(event: KeyboardEvent, activeModifiers: string[]): boolean {
+function checkModifiers(
+    event: KeyboardEvent,
+    optionalModifiers: Modifier[],
+    activeModifiers: string[]
+): boolean {
     return modifiers.reduce(
         (matches: boolean, modifier: string, currentIndex: number): boolean =>
             matches &&
-            event.getModifierState(platformModifiers[currentIndex]) ===
-                activeModifiers.includes(modifier),
+            (optionalModifiers.includes(modifier as Modifier) ||
+                event.getModifierState(platformModifiers[currentIndex]) ===
+                    activeModifiers.includes(modifier)),
         true
     );
 }
 
-function check(event: KeyboardEvent, modifiersAndKey: string[]): boolean {
+function check(
+    event: KeyboardEvent,
+    optionalModifiers: Modifier[],
+    modifiersAndKey: string[]
+): boolean {
     return (
         checkKey(event, modifiersAndKey[modifiersAndKey.length - 1]) &&
-        checkModifiers(event, modifiersAndKey.slice(0, -1))
+        checkModifiers(event, optionalModifiers, modifiersAndKey.slice(0, -1))
     );
 }
 
@@ -93,6 +104,7 @@ const shortcutTimeoutMs = 400;
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
+    optionalModifiers: Modifier[],
     ...keyCombination: string[][]
 ): void {
     let interval: number;
@@ -103,8 +115,8 @@ function innerShortcut(
         const [nextKey, ...restKeys] = keyCombination;
 
         const handler = (event: KeyboardEvent): void => {
-            if (check(event, nextKey)) {
-                innerShortcut(event, callback, ...restKeys);
+            if (check(event, optionalModifiers, nextKey)) {
+                innerShortcut(event, callback, optionalModifiers, ...restKeys);
                 clearTimeout(interval);
             }
         };
@@ -120,14 +132,15 @@ function innerShortcut(
 
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
-    keyCombinationString: string
+    keyCombinationString: string,
+    optionalModifiers: Modifier[] = []
 ): () => void {
     const keyCombination = splitKeyCombinationString(keyCombinationString);
     const [firstKey, ...restKeys] = keyCombination;
 
     const handler = (event: KeyboardEvent): void => {
-        if (check(event, firstKey)) {
-            innerShortcut(event, callback, ...restKeys);
+        if (check(event, optionalModifiers, firstKey)) {
+            innerShortcut(event, callback, optionalModifiers, ...restKeys);
         }
     };
 
