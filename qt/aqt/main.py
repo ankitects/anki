@@ -1172,7 +1172,12 @@ title="%s" %s>%s</button>""" % (
         if deck["dyn"]:
             aqt.dialogs.open("FilteredDeckConfigDialog", self, deck_id=deck["id"])
         else:
-            aqt.deckconf.DeckConf(self, deck)
+            if os.getenv("NEW_DECKCONF"):
+                from aqt.deckoptions import DeckOptionsDialog
+
+                DeckOptionsDialog(self)
+            else:
+                aqt.deckconf.DeckConf(self, deck)
 
     def onOverview(self) -> None:
         self.col.reset()

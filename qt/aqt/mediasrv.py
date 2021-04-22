@@ -23,6 +23,7 @@ from anki import hooks
 from anki.collection import GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.utils import devMode, from_json_bytes
+from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
@@ -294,7 +295,8 @@ def update_deck_configs_request() -> bytes:
     input.ParseFromString(request.data)
 
     def on_success(changes: OpChanges) -> None:
-        print("done", changes)
+        if isinstance(window := aqt.mw.app.activeWindow(), DeckOptionsDialog):
+            window.reject()
 
     def handle_on_main() -> None:
         update_deck_configs(parent=aqt.mw, input=input).success(

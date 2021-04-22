@@ -13,7 +13,9 @@
         <div id="main"></div>
 
         <script>
-            anki.deckConfig(document.getElementById("main"), 1);
+            if (window.location.hash.startsWith("#test")) {
+                anki.deckConfig(document.getElementById("main"), 1);
+            }
         </script>
     </body>
 </html>
