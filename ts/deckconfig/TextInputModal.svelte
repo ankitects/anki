@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onKeyUp(evt: KeyboardEvent): void {
         if (evt.code === "Enter") {
+            evt.stopPropagation();
             onOkClicked();
         }
     }

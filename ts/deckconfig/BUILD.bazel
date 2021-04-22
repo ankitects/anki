@@ -26,6 +26,7 @@ compile_svelte(
     name = "svelte",
     srcs = svelte_files,
     deps = [
+        "//ts/sveltelib",
         "@npm//@types/bootstrap",
     ],
 )
@@ -94,6 +95,7 @@ esbuild(
         ":bootstrap-icons",
         "@npm//bootstrap",
         ":base_css",
+        "//ts/sveltelib",
     ] + svelte_names,
 )
 
