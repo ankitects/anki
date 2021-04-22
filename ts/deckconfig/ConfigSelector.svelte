@@ -22,12 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .form-select {
-        display: inline-block;
-        grid-row: 2;
-        grid-column: 1 / 4;
+        grid-column: 1 / 5;
     }
 
-    .outer {
+    .fixed-bar {
         position: fixed;
         z-index: 1;
         top: 0;
@@ -35,19 +33,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         color: var(--text-fg);
         background: var(--window-bg);
-        padding: 0.5em;
         display: flex;
         justify-content: center;
     }
 
-    .inner {
+    .grid {
         display: grid;
-        width: 35em;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        & > :global(*) {
-            padding-left: 0.5em;
-            padding-right: 0.5em;
-        }
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-column-gap: 0.5em;
     }
 
     .padding {
@@ -55,22 +48,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<div class="outer">
-    <div class="inner">
-        <div style="grid-column: 1 / 4;">
-            {tr.actionsOptionsFor({ val: state.currentDeck.name })}
-        </div>
+<div class="fixed-bar">
+    <div class="width-limited">
+        <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" on:change={blur}>
-            {#each $configList as entry}
-                <option value={entry.idx} selected={entry.current}>
-                    {configLabel(entry)}
-                </option>
-            {/each}
-        </select>
+        <div class="grid">
+            <!-- svelte-ignore a11y-no-onchange -->
+            <select class="form-select" on:change={blur}>
+                {#each $configList as entry}
+                    <option value={entry.idx} selected={entry.current}>
+                        {configLabel(entry)}
+                    </option>
+                {/each}
+            </select>
 
-        <div style="grid-row: 2; align-items: right;">
             <OptionsDropdown {state} />
         </div>
     </div>

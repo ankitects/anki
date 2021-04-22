@@ -16,7 +16,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: center;
     }
 
-    .inner {
+    :global(.width-limited) {
+        width: 40em;
         padding: 0.5em;
     }
 </style>
@@ -28,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ConfigSelector {state} />
 
 <div class="outer">
-    <div class="inner">
+    <div class="width-limited">
         <ConfigEditor {state} />
     </div>
 </div>

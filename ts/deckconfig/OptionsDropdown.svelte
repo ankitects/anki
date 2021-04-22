@@ -73,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => save(false)}>Save</button>
     <button
         type="button"
-        class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+        class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
         data-bs-toggle="dropdown"
         aria-expanded="false">
         <span class="visually-hidden">Toggle Dropdown</span>
