@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string;
     export let className = "";
     export let tooltip: string;
+    export let shortcutLabel: string | undefined;
     export let icon: string;
 
     export let onClick: (event: MouseEvent) => void;
@@ -16,6 +17,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let dropdownToggle = false;
 </script>
 
-<SquareButton {id} {className} {tooltip} {onClick} {disables} {dropdownToggle} on:mount>
+<SquareButton
+    {id}
+    {className}
+    {tooltip}
+    {shortcutLabel}
+    {onClick}
+    {disables}
+    {dropdownToggle}
+    on:mount>
     {@html icon}
 </SquareButton>

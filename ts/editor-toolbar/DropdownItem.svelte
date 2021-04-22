@@ -9,10 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string;
     export let className = "";
     export let tooltip: string;
+    export let label: string;
+    export let shortcutLabel: string | undefined;
 
     export let onClick: (event: MouseEvent) => void;
-    export let label: string;
-    export let endLabel: string;
 
     const nightMode = getContext(nightModeKey);
 </script>
@@ -66,6 +66,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     title={tooltip}
     on:click={onClick}
     on:mousedown|preventDefault>
-    <span class:me-3={endLabel}>{label}</span>
-    {#if endLabel}<span class="monospace">{endLabel}</span>{/if}
+    <span class:me-3={shortcutLabel}>{label}</span>
+    {#if shortcutLabel}<span class="monospace">{shortcutLabel}</span>{/if}
 </button>

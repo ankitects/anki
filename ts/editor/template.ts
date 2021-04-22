@@ -47,7 +47,7 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         button: iconButton({
             icon: paperclipIcon,
             onClick: onAttachment,
-            tooltip: tr.editingAttachPicturesaudiovideoF3(),
+            tooltip: tr.editingAttachPicturesaudiovideo(),
         }),
     });
 
@@ -56,7 +56,7 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         button: iconButton({
             icon: micIcon,
             onClick: onRecord,
-            tooltip: tr.editingRecordAudioF5(),
+            tooltip: tr.editingRecordAudio(),
         }),
     });
 
@@ -93,20 +93,26 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> &
     DropdownMenuProps)[] {
     const mathjaxMenuItems = [
-        dropdownItem({
-            onClick: () => wrap("\\(", "\\)"),
-            label: tr.editingMathjaxInline(),
-            endLabel: "Ctrl+M, M",
+        withShortcuts({
+            shortcuts: ["Control+KeyM, KeyM"],
+            button: dropdownItem({
+                onClick: () => wrap("\\(", "\\)"),
+                label: tr.editingMathjaxInline(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("\\[", "\\]"),
-            label: tr.editingMathjaxBlock(),
-            endLabel: "Ctrl+M, E",
+        withShortcuts({
+            shortcuts: ["Control+KeyM, KeyE"],
+            button: dropdownItem({
+                onClick: () => wrap("\\[", "\\]"),
+                label: tr.editingMathjaxBlock(),
+            }),
         }),
-        dropdownItem({
-            onClick: () => wrap("\\(\\ce{", "}\\)"),
-            label: tr.editingMathjaxChemistry(),
-            endLabel: "Ctrl+M, C",
+        withShortcuts({
+            shortcuts: ["Control+KeyM, KeyC"],
+            button: dropdownItem({
+                onClick: () => wrap("\\(\\ce{", "}\\)"),
+                label: tr.editingMathjaxChemistry(),
+            }),
         }),
     ];
 

@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string;
     export let className = "";
     export let tooltip: string;
+    export let shortcutLabel: string | undefined;
     export let icon: string;
 
     export let command: string;
@@ -80,6 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     {className}
     {tooltip}
+    {shortcutLabel}
     {active}
     {disables}
     {dropdownToggle}
