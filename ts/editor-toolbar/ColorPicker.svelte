@@ -74,5 +74,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {title}
     on:click={delegateToInput}
     on:mousedown|preventDefault>
-    <input bind:this={inputRef} type="color" on:change={onChange} />
+    <input tabindex="-1" bind:this={inputRef} type="color" on:change={onChange} />
 </button>

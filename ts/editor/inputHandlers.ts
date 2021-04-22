@@ -5,6 +5,7 @@ import { updateActiveButtons } from "editor-toolbar";
 import { EditingArea } from "./editingArea";
 import { caretToEnd, nodeIsElement, getBlockElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
+import { registerShortcut } from "anki/shortcuts";
 
 export function onInput(event: Event): void {
     // make sure IME changes get saved
@@ -51,21 +52,22 @@ export function onKey(evt: KeyboardEvent): void {
     triggerChangeTimer(currentField);
 }
 
-globalThis.addEventListener("keydown", (evt: KeyboardEvent) => {
-    if (evt.code === "Tab") {
-        globalThis.addEventListener(
-            "focusin",
-            (evt: FocusEvent) => {
-                const newFocusTarget = evt.target;
-                if (newFocusTarget instanceof EditingArea) {
-                    caretToEnd(newFocusTarget);
-                    updateActiveButtons();
-                }
-            },
-            { once: true }
-        );
+function updateFocus(evt: FocusEvent) {
+    const newFocusTarget = evt.target;
+    if (newFocusTarget instanceof EditingArea) {
+        caretToEnd(newFocusTarget);
+        updateActiveButtons();
     }
-});
+}
+
+registerShortcut(
+    () => document.addEventListener("focusin", updateFocus, { once: true }),
+    "Tab"
+);
+registerShortcut(
+    () => document.addEventListener("focusin", updateFocus, { once: true }),
+    "Shift+Tab"
+);
 
 export function onKeyUp(evt: KeyboardEvent): void {
     const currentField = evt.currentTarget as EditingArea;
