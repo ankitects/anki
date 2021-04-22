@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sqlFormatter from "@sqltools/formatter";
-import * as Diff from "diff";
+import { createPatch } from "diff";
 import process from "process";
 import path from "path";
 import fs from "fs";
@@ -38,7 +38,7 @@ for (const path of process.argv.slice(2)) {
                 errorFound = true;
                 console.log("SQL formatting issues found:");
             }
-            console.log(Diff.createPatch(path, orig, formatted));
+            console.log(createPatch(path, orig, formatted));
         }
     }
 }
