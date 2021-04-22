@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<div class="btn-group">
+<div class="btn-group" dir="ltr">
     <button
         type="button"
         class="btn btn-primary"
