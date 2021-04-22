@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { getContext } from "svelte";
+    import { onMount, createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
 
     export let id: string;
@@ -14,7 +14,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let onClick: (event: MouseEvent) => void;
 
+    let buttonRef: HTMLButtonElement;
+
     const nightMode = getContext(nightModeKey);
+
+    const dispatch = createEventDispatcher();
+    onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
 <style lang="scss">
@@ -60,6 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     {id}
+    bind:this={buttonRef}
     class={`btn dropdown-item ${className}`}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
