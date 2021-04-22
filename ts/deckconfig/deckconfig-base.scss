@@ -22,6 +22,8 @@
 body {
     width: min(100vw, 40em);
     margin: 0 auto;
+    // leave some space for rounded screens
+    margin-bottom: 2em;
 }
 
 html {
