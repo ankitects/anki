@@ -43,6 +43,7 @@ editing-unordered-list = Unordered list
 editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will not work until you switch the type at the top to Cloze.
 
 ### deprecated, do not use
+
 editing-bold-text-ctrlandb = Bold text (Ctrl+B)
 editing-italic-text-ctrlandi = Italic text (Ctrl+I)
 editing-underline-text-ctrlandu = Underline text (Ctrl+U)

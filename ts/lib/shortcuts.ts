@@ -53,7 +53,7 @@ function keyToPlatformString(key: string): string {
         : key;
 }
 
-function toPlatformString(modifiersAndKey: string[]) {
+function toPlatformString(modifiersAndKey: string[]): string {
     return `${modifiersToPlatformString(
         modifiersAndKey.slice(0, -1)
     )}${keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1])}`;
@@ -93,21 +93,21 @@ function innerShortcut(
     callback: (event: KeyboardEvent) => void,
     ...keyCombination: string[][]
 ): void {
+    let interval: number;
+
     if (keyCombination.length === 0) {
         callback(lastEvent);
     } else {
         const [nextKey, ...restKeys] = keyCombination;
 
-        let ivl: number;
-
         const handler = (event: KeyboardEvent): void => {
             if (check(event, nextKey)) {
                 innerShortcut(event, callback, ...restKeys);
-                clearTimeout(ivl);
+                clearTimeout(interval);
             }
         };
 
-        ivl = setTimeout(
+        interval = setTimeout(
             (): void => document.removeEventListener("keydown", handler),
             shortcutTimeoutMs
         );
