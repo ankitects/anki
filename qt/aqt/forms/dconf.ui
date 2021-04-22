@@ -643,48 +643,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
-      <attribute name="title">
-       <string>scheduling_description</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <property name="spacing">
-        <number>12</number>
-       </property>
-       <property name="leftMargin">
-        <number>12</number>
-       </property>
-       <property name="topMargin">
-        <number>12</number>
-       </property>
-       <property name="rightMargin">
-        <number>12</number>
-       </property>
-       <property name="bottomMargin">
-        <number>12</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label_22">
-         <property name="text">
-          <string>scheduling_description_to_show_on_overview_screen</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="enable_markdown">
-         <property name="toolTip">
-          <string>deck_config_description_markdown_hint</string>
-         </property>
-         <property name="text">
-          <string>deck_config_description_markdown</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="desc"/>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>
@@ -725,7 +683,6 @@
   <tabstop>showTimer</tabstop>
   <tabstop>autoplaySounds</tabstop>
   <tabstop>replayQuestion</tabstop>
-  <tabstop>desc</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>

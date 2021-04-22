@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Optional, Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
-from anki.decks import DeckCollapseScope, DeckId, UpdateDeckConfigs
+from anki.decks import Deck, DeckCollapseScope, DeckId, UpdateDeckConfigs
 from aqt import QWidget
 from aqt.operations import CollectionOp
 from aqt.utils import getOnlyText, tooltip, tr
@@ -86,3 +86,7 @@ def update_deck_configs(
     *, parent: QWidget, input: UpdateDeckConfigs
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.decks.update_deck_configs(input))
+
+
+def update_deck(*, parent: QWidget, deck: Deck) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.update_deck(deck))

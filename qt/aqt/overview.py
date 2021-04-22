@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import aqt
 from anki.collection import OpChanges
 from aqt import gui_hooks
+from aqt.deckdescription import DeckDescriptionDialog
 from aqt.operations.scheduling import empty_filtered_deck, rebuild_filtered_deck
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
@@ -102,6 +103,8 @@ class Overview:
             self.onStudyMore()
         elif url == "unbury":
             self.onUnbury()
+        elif url == "description":
+            self.edit_description()
         elif url.lower().startswith("http"):
             openLink(url)
         return False
@@ -242,6 +245,9 @@ class Overview:
 </center>
 """
 
+    def edit_description(self) -> None:
+        DeckDescriptionDialog(self.mw)
+
     # Bottom area
     ######################################################################
 
@@ -257,6 +263,7 @@ class Overview:
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.haveBuried():
             links.append(["U", "unbury", tr.studying_unbury()])
+        links.append(["", "description", tr.scheduling_description()])
         buf = ""
         for b in links:
             if b[0]:
