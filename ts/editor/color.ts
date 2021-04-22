@@ -37,7 +37,7 @@ export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
             icon: squareFillIcon,
             className: "forecolor",
             onClick: () => wrapWithForecolor(getForecolor()),
-            tooltip: tr.editingSetForegroundColourF7(),
+            tooltip: tr.editingSetForegroundColor(),
         }),
     });
 
@@ -46,7 +46,7 @@ export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
         button: colorPicker({
             onChange: ({ currentTarget }) =>
                 setForegroundColor((currentTarget as HTMLInputElement).value),
-            tooltip: tr.editingChangeColourF8(),
+            tooltip: tr.editingChangeColor(),
         }),
     });
 

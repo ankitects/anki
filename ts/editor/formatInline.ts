@@ -25,7 +25,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         shortcuts: ["Control+KeyB"],
         button: commandIconButton({
             icon: boldIcon,
-            tooltip: tr.editingBoldTextCtrlandb(),
+            tooltip: tr.editingBoldText(),
             command: "bold",
         }),
     });
@@ -34,7 +34,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         shortcuts: ["Control+KeyI"],
         button: commandIconButton({
             icon: italicIcon,
-            tooltip: tr.editingItalicTextCtrlandi(),
+            tooltip: tr.editingItalicText(),
             command: "italic",
         }),
     });
@@ -43,7 +43,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         shortcuts: ["Control+KeyU"],
         button: commandIconButton({
             icon: underlineIcon,
-            tooltip: tr.editingUnderlineTextCtrlandu(),
+            tooltip: tr.editingUnderlineText(),
             command: "underline",
         }),
     });
@@ -52,7 +52,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         shortcuts: ["Control+Shift+Equal"],
         button: commandIconButton({
             icon: superscriptIcon,
-            tooltip: tr.editingSuperscriptCtrlandand(),
+            tooltip: tr.editingSuperscript(),
             command: "superscript",
         }),
     });
@@ -61,7 +61,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         shortcuts: ["Control+Equal"],
         button: commandIconButton({
             icon: subscriptIcon,
-            tooltip: tr.editingSubscriptCtrland(),
+            tooltip: tr.editingSubscript(),
             command: "subscript",
         }),
     });
@@ -70,7 +70,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
         shortcuts: ["Control+KeyR"],
         button: iconButton({
             icon: eraserIcon,
-            tooltip: tr.editingRemoveFormattingCtrlandr(),
+            tooltip: tr.editingRemoveFormatting(),
             onClick: () => {
                 document.execCommand("removeFormat");
             },
