@@ -5,9 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
     import type { ToolbarItem } from "./types";
+    import type { Modifier } from "anki/shortcuts";
 
     import { onDestroy } from "svelte";
-    import { Modifier, registerShortcut, getPlatformString } from "anki/shortcuts";
+    import { registerShortcut, getPlatformString } from "anki/shortcuts";
 
     export let button: ToolbarItem;
     export let shortcut: string;
