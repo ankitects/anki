@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import ButtonGroup from "./ButtonGroup.svelte";
 
-    export let buttons: Readable<IterableToolbarItem>[];
+    export let buttons: Readable<IterableToolbarItem[]>;
     export let menus: Readable<ToolbarItem[]>;
 
     $: _buttons = $buttons;
