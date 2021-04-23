@@ -1,6 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { SvelteComponentDev } from "svelte/internal";
 import type { ToolbarItem, IterableToolbarItem } from "./types";
 import type { Identifier } from "./identifiable";
 
@@ -17,16 +16,16 @@ let buttonsResolve: (value: Writable<IterableToolbarItem[]>) => void;
 let menusResolve: (value: Writable<ToolbarItem[]>) => void;
 
 export class EditorToolbar extends HTMLElement {
-    component?: SvelteComponentDev;
-
-    buttonsPromise: Promise<Writable<IterableToolbarItem[]>> = new Promise(
+    private buttonsPromise: Promise<Writable<IterableToolbarItem[]>> = new Promise(
         (resolve) => {
             buttonsResolve = resolve;
         }
     );
-    menusPromise: Promise<Writable<ToolbarItem[]>> = new Promise((resolve): void => {
-        menusResolve = resolve;
-    });
+    private menusPromise: Promise<Writable<ToolbarItem[]>> = new Promise(
+        (resolve): void => {
+            menusResolve = resolve;
+        }
+    );
 
     connectedCallback(): void {
         globalThis.$editorToolbar = this;
@@ -34,7 +33,7 @@ export class EditorToolbar extends HTMLElement {
         const buttons = writable([]);
         const menus = writable([]);
 
-        this.component = new EditorToolbarSvelte({
+        new EditorToolbarSvelte({
             target: this,
             props: {
                 buttons,
@@ -59,7 +58,7 @@ export class EditorToolbar extends HTMLElement {
                     (items: IterableToolbarItem[]): IterableToolbarItem[] =>
                         updateRecursive(
                             update,
-                            { component: EditorToolbarSvelte, items },
+                            ({ items } as unknown) as ToolbarItem,
                             ...identifiers
                         ).items as IterableToolbarItem[]
                 );
@@ -98,6 +97,36 @@ export class EditorToolbar extends HTMLElement {
         this.updateButton(
             (component: ToolbarItem) =>
                 add(component as IterableToolbarItem, newButton, lastIdentifier),
+            ...initIdentifiers
+        );
+    }
+
+    updateMenu(
+        update: (component: ToolbarItem) => ToolbarItem,
+        ...identifiers: Identifier[]
+    ): void {
+        this.menusPromise.then(
+            (menus: Writable<ToolbarItem[]>): Writable<ToolbarItem[]> => {
+                menus.update(
+                    (items: ToolbarItem[]): ToolbarItem[] =>
+                        updateRecursive(
+                            update,
+                            ({ items } as unknown) as ToolbarItem,
+                            ...identifiers
+                        ).items as ToolbarItem[]
+                );
+
+                return menus;
+            }
+        );
+    }
+
+    addMenu(newMenu: ToolbarItem, ...identifiers: Identifier[]): void {
+        const initIdentifiers = identifiers.slice(0, -1);
+        const lastIdentifier = identifiers[identifiers.length - 1];
+        this.updateMenu(
+            (component: ToolbarItem) =>
+                add(component as IterableToolbarItem, newMenu, lastIdentifier),
             ...initIdentifiers
         );
     }
