@@ -11,9 +11,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckConfigState;
 
+    let registerCleanup: () => void;
     onMount(() => {
-        onDestroy(registerShortcut(() => state.save(false), "Control+Enter"));
+        registerCleanup = registerShortcut(() => state.save(false), "Control+Enter");
     });
+    onDestroy(() => registerCleanup?.());
 </script>
 
 <style lang="scss">
