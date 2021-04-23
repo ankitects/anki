@@ -6,18 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ConfigSelector from "./ConfigSelector.svelte";
     import ConfigEditor from "./ConfigEditor.svelte";
     import type { DeckConfigState } from "./lib";
-    import { primaryModifierForPlatform } from "sveltelib/shortcuts";
+    import { onMount, onDestroy } from "svelte";
+    import { registerShortcut } from "lib/shortcuts";
 
     export let state: DeckConfigState;
 
-    function onKeyDown(evt: KeyboardEvent): void {
-        if (
-            evt.code === "Enter" &&
-            evt.getModifierState(primaryModifierForPlatform())
-        ) {
-            state.save(false);
-        }
-    }
+    onMount(() => {
+        onDestroy(registerShortcut(() => state.save(false), "Control+Enter"));
+    });
 </script>
 
 <style lang="scss">
@@ -27,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<div on:keydown={onKeyDown}>
+<div>
     <div id="modal">
         <!-- filled in later-->
     </div>
