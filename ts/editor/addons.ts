@@ -9,10 +9,12 @@ import {
     iconButton,
     commandIconButton,
     selectButton,
+
     dropdownMenu,
     dropdownItem,
     buttonDropdown,
     withDropdownMenu,
+    withLabel,
 } from "editor-toolbar/dynamicComponents";
 
 export const editorToolbar: Record<
@@ -30,4 +32,5 @@ export const editorToolbar: Record<
     dropdownItem,
     buttonDropdown,
     withDropdownMenu,
+    withLabel,
 };

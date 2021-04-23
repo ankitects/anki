@@ -6,4 +6,5 @@ export interface ButtonGroupProps {
     id: string;
     className?: string;
     items: ToolbarItem[];
+    fullWidth?: boolean;
 }

@@ -3,20 +3,25 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
     import type { ToolbarItem } from "./types";
-    import type { Modifier } from "lib/shortcuts";
 
-    import { onDestroy } from "svelte";
-    import { registerShortcut, getPlatformString } from "lib/shortcuts";
+    export let id: string;
+    export let className = "";
 
-    export let button: ToolbarItem;
     export let label: string;
+    export let button: ToolbarItem;
 </script>
+
+<style lang="scss">
+    label {
+        display: flex;
+        padding: 0 calc(var(--toolbar-size) / 10);
+    }
+</style>
 
 <!-- svelte-ignore a11y-label-has-associated-control -->
 
-<label>
-    {label}
+<label {id} class={className}>
+    <span class="me-1">{label}</span>
     <svelte:component this={button.component} {...button} />
 </label>
