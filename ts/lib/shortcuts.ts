@@ -6,21 +6,26 @@ export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
 
 const modifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
 
+function isApplePlatform(): boolean {
+    return (
+        window.navigator.platform.startsWith("Mac") ||
+        window.navigator.platform.startsWith("iP")
+    );
+}
+
 // how modifiers are mapped
-const platformModifiers =
-    navigator.platform === "MacIntel"
-        ? ["Meta", "Alt", "Shift", "Control"]
-        : ["Control", "Alt", "Shift", "OS"];
+const platformModifiers = isApplePlatform()
+    ? ["Meta", "Alt", "Shift", "Control"]
+    : ["Control", "Alt", "Shift", "OS"];
 
 function splitKeyCombinationString(keyCombinationString: string): string[][] {
     return keyCombinationString.split(", ").map((segment) => segment.split("+"));
 }
 
 function modifiersToPlatformString(modifiers: string[]): string {
-    const displayModifiers =
-        navigator.platform === "MacIntel"
-            ? ["^", "⌥", "⇧", "⌘"]
-            : [`${tr.keyboardCtrl()}+`, "Alt+", `${tr.keyboardShift()}+`, "Win+"];
+    const displayModifiers = isApplePlatform()
+        ? ["^", "⌥", "⇧", "⌘"]
+        : [`${tr.keyboardCtrl()}+`, "Alt+", `${tr.keyboardShift()}+`, "Win+"];
 
     let result = "";
 
