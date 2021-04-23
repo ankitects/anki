@@ -19,16 +19,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="typescript">
     import type { Readable } from "svelte/store";
-    import type { ToolbarItem } from "./types";
+    import type { ToolbarItem, IterableToolbarItem } from "./types";
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
 
     import ButtonGroup from "./ButtonGroup.svelte";
     import type { ButtonGroupProps } from "./ButtonGroup";
 
-    export let buttons: Readable<
-        (ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]
-    >;
+    export let buttons: Readable<IterableToolbarItem>[];
     export let menus: Readable<ToolbarItem[]>;
 
     $: _buttons = $buttons;
@@ -77,5 +75,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <nav {style}>
-    <ButtonGroup buttons={_buttons} className="mt-0" />
+    <ButtonGroup items={_buttons} className="mt-0" />
 </nav>

@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
-import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { IterableToolbarItem } from "editor-toolbar/types";
 
 import { bridgeCommand } from "lib/bridgecommand";
 import * as tr from "lib/i18n";
@@ -12,8 +10,7 @@ import {
     withShortcut,
 } from "editor-toolbar/dynamicComponents";
 
-export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
-    ButtonGroupProps {
+export function getNotetypeGroup(): IterableToolbarItem {
     const fieldsButton = labelButton({
         onClick: () => bridgeCommand("fields"),
         disables: false,
@@ -33,6 +30,6 @@ export function getNotetypeGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 
     return buttonGroup({
         id: "notetype",
-        buttons: [fieldsButton, cardsButton],
+        items: [fieldsButton, cardsButton],
     });
 }

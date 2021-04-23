@@ -175,7 +175,7 @@ class Editor:
             f"""
 $editorToolbar.addButtonGroup({{
   id: "addons",
-  buttons: [ {righttopbtns_defs} ]
+  items: [ {righttopbtns_defs} ]
 }});
 """
             if righttopbtns_defs

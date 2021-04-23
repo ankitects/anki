@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `dropdown-menu btn-dropdown-menu py-1 mb-0 ${className}`;
     }
 
-    export let buttons: ToolbarItem[];
+    export let items: ToolbarItem[];
 </script>
 
 <style>
@@ -24,4 +24,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<ButtonGroup {id} className={extendClassName(className)} {buttons} />
+<ButtonGroup {id} className={extendClassName(className)} {items} />

@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let id: string | undefined = undefined;
     export let className = "";
-    export let buttons: ToolbarItem[];
+    export let items: ToolbarItem[];
 
     function filterHidden({ hidden = false, ...props }) {
         return props;
@@ -73,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 <ul {id} class={className} class:border-overlap-group={!nightMode}>
-    {#each buttons as button}
+    {#each items as button}
         {#if !button.hidden}
             <li class:gap-item={nightMode}>
                 <svelte:component this={button.component} {...filterHidden(button)} />
