@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import RawButton from "./RawButton.svelte";
 import LabelButton from "./LabelButton.svelte";
 import type { LabelButtonProps } from "./LabelButton";
 import IconButton from "./IconButton.svelte";
@@ -8,6 +9,8 @@ import CommandIconButton from "./CommandIconButton.svelte";
 import type { CommandIconButtonProps } from "./CommandIconButton";
 import ColorPicker from "./ColorPicker.svelte";
 import type { ColorPickerProps } from "./ColorPicker";
+import SelectButton from "./SelectButton.svelte";
+import type { SelectButtonProps } from "./SelectButton";
 import ButtonGroup from "./ButtonGroup.svelte";
 import type { ButtonGroupProps } from "./ButtonGroup";
 
@@ -25,6 +28,9 @@ import type { WithShortcutProps } from "./WithShortcut";
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
 
+export const rawButton = dynamicComponent<typeof RawButton, { html: string }>(
+    RawButton
+);
 export const labelButton = dynamicComponent<typeof LabelButton, LabelButtonProps>(
     LabelButton
 );
@@ -37,6 +43,9 @@ export const commandIconButton = dynamicComponent<
 >(CommandIconButton);
 export const colorPicker = dynamicComponent<typeof ColorPicker, ColorPickerProps>(
     ColorPicker
+);
+export const selectButton = dynamicComponent<typeof SelectButton, SelectButtonProps>(
+    SelectButton
 );
 
 export const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(
