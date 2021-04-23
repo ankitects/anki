@@ -8,11 +8,19 @@ function normalize<T extends Identifiable>(
     values: T[],
     idOrIndex: string | number
 ): number {
+    let normalizedIndex: number;
+
     if (typeof idOrIndex === "string") {
-        return values.findIndex((value) => value.id === idOrIndex);
-    } else {
-        return idOrIndex >= values.length ? -1 : idOrIndex;
+        normalizedIndex = values.findIndex((value) => value.id === idOrIndex);
     }
+    else if (idOrIndex < 0) {
+        normalizedIndex = values.length + idOrIndex;
+    }
+    else {
+        normalizedIndex = idOrIndex;
+    }
+
+    return normalizedIndex >= values.length ? -1 : normalizedIndex;
 }
 
 export function search<T extends Identifiable>(
