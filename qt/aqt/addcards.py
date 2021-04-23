@@ -13,6 +13,7 @@ from anki.notes import DuplicateOrEmptyResult, Note, NoteId
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
+from aqt.editor import Editor
 from aqt.notetypechooser import NotetypeChooser
 from aqt.operations.note import add_note
 from aqt.qt import *
@@ -57,7 +58,39 @@ class AddCards(QDialog):
         self.show()
 
     def setupEditor(self) -> None:
+        def add_choosers(editor: Editor) -> None:
+            editor._links[
+                "choosenotetype"
+            ] = lambda _editor: self.show_notetype_selector()
+            editor._links[
+                "choosedeck"
+            ] = lambda _editor: self.deck_chooser.choose_deck()
+
+            editor.web.eval(
+                f"""
+const notetypeChooser = editorToolbar.labelButton({{
+    label: `Choose note type`,
+    onClick: () => bridgeCommand("choosenotetype"),
+    disables: false,
+}});
+
+const deckChooser = editorToolbar.labelButton({{
+    label: `Choose deck`,
+    onClick: () => bridgeCommand("choosedeck"),
+    disables: false,
+}});
+
+$editorToolbar.insertButton(editorToolbar.buttonGroup({{
+    id: "choosers",
+    fullWidth: true,
+    items: [notetypeChooser, deckChooser],
+}}), 0);
+"""
+            )
+
+        gui_hooks.editor_did_init.append(add_choosers)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
+        gui_hooks.editor_did_init.remove(add_choosers)
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(

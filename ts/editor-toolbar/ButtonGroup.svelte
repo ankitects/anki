@@ -28,12 +28,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         padding-inline-start: 0;
         margin: 0 0 calc(var(--toolbar-size) / 10);
-    }
 
-    .border-overlap-group {
-        :global(button),
-        :global(select) {
-            margin-left: -1px;
+        &.border-overlap-group {
+            :global(button),
+            :global(select) {
+                margin-left: -1px;
+            }
         }
     }
 
