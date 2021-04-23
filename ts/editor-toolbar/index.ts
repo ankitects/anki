@@ -1,51 +1,28 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { SvelteComponentDev } from "svelte/internal";
-import type { ToolbarItem } from "./types";
+import type { ToolbarItem, IterableToolbarItem } from "./types";
 
-import ButtonGroup from "./ButtonGroup.svelte";
-import type { ButtonGroupProps } from "./ButtonGroup";
-
-import { dynamicComponent } from "sveltelib/dynamicComponent";
 import { Writable, writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 import "./bootstrap.css";
 
-import { Identifiable, search, add, insert } from "./identifiable";
+import { search, add, insert } from "./identifiable";
+import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
-interface Hideable {
-    hidden?: boolean;
-}
-
-function showComponent(component: Hideable): void {
-    component.hidden = false;
-}
-
-function hideComponent(component: Hideable): void {
-    component.hidden = true;
-}
-
-function toggleComponent(component: Hideable): void {
-    component.hidden = !component.hidden;
-}
-
-const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(ButtonGroup);
-
-let buttonsResolve: (
-    value: Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]>
-) => void;
+let buttonsResolve: (value: Writable<IterableToolbarItem[]>) => void;
 let menusResolve: (value: Writable<ToolbarItem[]>) => void;
 
 export class EditorToolbar extends HTMLElement {
     component?: SvelteComponentDev;
 
-    buttonsPromise: Promise<
-        Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]>
-    > = new Promise((resolve) => {
-        buttonsResolve = resolve;
-    });
+    buttonsPromise: Promise<Writable<IterableToolbarItem[]>> = new Promise(
+        (resolve) => {
+            buttonsResolve = resolve;
+        }
+    );
     menusPromise: Promise<Writable<ToolbarItem[]>> = new Promise((resolve): void => {
         menusResolve = resolve;
     });
@@ -69,10 +46,8 @@ export class EditorToolbar extends HTMLElement {
         menusResolve(menus);
     }
 
-    updateButtonGroup<T>(
-        update: (
-            component: ToolbarItem<typeof ButtonGroup> & ButtonGroupProps & T
-        ) => void,
+    updateButtonGroup(
+        update: (component: IterableToolbarItem) => void,
         group: string | number
     ): void {
         this.buttonsPromise.then((buttons) => {
@@ -80,11 +55,7 @@ export class EditorToolbar extends HTMLElement {
                 const foundGroup = search(buttonGroups, group);
 
                 if (foundGroup) {
-                    update(
-                        foundGroup as ToolbarItem<typeof ButtonGroup> &
-                            ButtonGroupProps &
-                            T
-                    );
+                    update(foundGroup as IterableToolbarItem);
                 }
 
                 return buttonGroups;
@@ -95,33 +66,31 @@ export class EditorToolbar extends HTMLElement {
     }
 
     showButtonGroup(group: string | number): void {
-        this.updateButtonGroup<Hideable>(showComponent, group);
+        this.updateButtonGroup(showComponent, group);
     }
 
     hideButtonGroup(group: string | number): void {
-        this.updateButtonGroup<Hideable>(hideComponent, group);
+        this.updateButtonGroup(hideComponent, group);
     }
 
     toggleButtonGroup(group: string | number): void {
-        this.updateButtonGroup<Hideable>(toggleComponent, group);
+        this.updateButtonGroup(toggleComponent, group);
     }
 
-    insertButtonGroup(newGroup: ButtonGroupProps, group: string | number = 0): void {
+    insertButtonGroup(newGroup: IterableToolbarItem, group: string | number = 0): void {
         this.buttonsPromise.then((buttons) => {
             buttons.update((buttonGroups) => {
-                const newButtonGroup = buttonGroup(newGroup);
-                return insert(buttonGroups, newButtonGroup, group);
+                return insert(buttonGroups, newGroup, group);
             });
 
             return buttons;
         });
     }
 
-    addButtonGroup(newGroup: ButtonGroupProps, group: string | number = -1): void {
+    addButtonGroup(newGroup: IterableToolbarItem, group: string | number = -1): void {
         this.buttonsPromise.then((buttons) => {
             buttons.update((buttonGroups) => {
-                const newButtonGroup = buttonGroup(newGroup);
-                return add(buttonGroups, newButtonGroup, group);
+                return add(buttonGroups, newGroup, group);
             });
 
             return buttons;
@@ -155,30 +124,22 @@ export class EditorToolbar extends HTMLElement {
     }
 
     insertButton(
-        newButton: ToolbarItem & Identifiable,
+        newButton: ToolbarItem,
         group: string | number,
         button: string | number = 0
     ): void {
-        this.updateButtonGroup((component) => {
-            component.items = insert(
-                component.items as (ToolbarItem & Identifiable)[],
-                newButton,
-                button
-            );
+        this.updateButtonGroup((component: IterableToolbarItem) => {
+            component.items = insert(component.items, newButton, button);
         }, group);
     }
 
     addButton(
-        newButton: ToolbarItem & Identifiable,
+        newButton: ToolbarItem,
         group: string | number,
         button: string | number = -1
     ): void {
-        this.updateButtonGroup((component) => {
-            component.items = add(
-                component.items as (ToolbarItem & Identifiable)[],
-                newButton,
-                button
-            );
+        this.updateButtonGroup((component: IterableToolbarItem) => {
+            component.items = add(component.items, newButton, button);
         }, group);
     }
 }

@@ -173,10 +173,10 @@ class Editor:
         )
         righttopbtns_js = (
             f"""
-$editorToolbar.addButtonGroup({{
+$editorToolbar.addButtonGroup(editorToolbar.buttonGroup({{
   id: "addons",
   items: [ {righttopbtns_defs} ]
-}});
+}}));
 """
             if righttopbtns_defs
             else ""
