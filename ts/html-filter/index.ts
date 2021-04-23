@@ -41,16 +41,21 @@ export function filterHTML(html: string, internal: boolean, extended: boolean): 
     const template = document.createElement("template");
     template.innerHTML = html;
 
-    const mode = internal
-        ? FilterMode.Internal
-        : extended
-        ? FilterMode.Extended
-        : FilterMode.Basic;
-
+    const mode = getFilterMode(internal, extended);
     const content = template.content;
     const filter = filterNode(filters[mode]);
 
     filter(content);
 
     return outputHTMLProcessors[mode](template.innerHTML);
+}
+
+function getFilterMode(internal: boolean, extended: boolean): FilterMode {
+    if (internal) {
+        return FilterMode.Internal;
+    } else if (extended) {
+        return FilterMode.Extended;
+    } else {
+        return FilterMode.Basic;
+    }
 }
