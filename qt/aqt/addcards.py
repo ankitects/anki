@@ -13,7 +13,6 @@ from anki.notes import DuplicateOrEmptyResult, Note, NoteId
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
-from aqt.editor import Editor
 from aqt.notetypechooser import NotetypeChooser
 from aqt.operations.note import add_note
 from aqt.qt import *
