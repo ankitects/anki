@@ -24,7 +24,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { disabledKey, nightModeKey } from "./contextKeys";
 
     import ButtonGroup from "./ButtonGroup.svelte";
-    import type { ButtonGroupProps } from "./ButtonGroup";
 
     export let buttons: Readable<IterableToolbarItem>[];
     export let menus: Readable<ToolbarItem[]>;

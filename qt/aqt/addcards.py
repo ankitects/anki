@@ -68,21 +68,31 @@ class AddCards(QDialog):
 
             editor.web.eval(
                 f"""
-const notetypeChooser = editorToolbar.labelButton({{
-    label: `Choose note type`,
-    onClick: () => bridgeCommand("choosenotetype"),
-    disables: false,
+const notetypeChooser = editorToolbar.withLabel({{
+    label: `{tr.notetypes_type()}`,
+    className: "flex-grow-1",
+    button: editorToolbar.labelButton({{
+        label: `Choose note type`,
+        className: "flex-grow-1",
+        onClick: () => bridgeCommand("choosenotetype"),
+        disables: false,
+    }})
 }});
 
-const deckChooser = editorToolbar.labelButton({{
-    label: `Choose deck`,
-    onClick: () => bridgeCommand("choosedeck"),
-    disables: false,
+const deckChooser = editorToolbar.withLabel({{
+    label: `{tr.decks_deck()}`,
+    className: "flex-grow-1",
+    button: editorToolbar.labelButton({{
+        label: `Choose deck`,
+        className: "flex-grow-1",
+        onClick: () => bridgeCommand("choosedeck"),
+        disables: false,
+    }})
 }});
 
 $editorToolbar.insertButton(editorToolbar.buttonGroup({{
     id: "choosers",
-    fullWidth: true,
+    className: "flex-basis-100",
     items: [notetypeChooser, deckChooser],
 }}), 0);
 """

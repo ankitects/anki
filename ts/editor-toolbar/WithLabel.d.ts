@@ -3,6 +3,9 @@
 import type { ToolbarItem } from "./types";
 
 export interface WithLabelProps {
+    id?: string;
+    className?: string;
+
     button: ToolbarItem;
     label: string;
 }
