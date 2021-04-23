@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { SvelteComponentDev } from "svelte/internal";
 import type { ToolbarItem, IterableToolbarItem } from "./types";
+import type { Identifier } from "./identifiable";
 
 import { Writable, writable } from "svelte/store";
 
@@ -9,7 +10,7 @@ import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
 import "./bootstrap.css";
 
-import { search, add, insert } from "./identifiable";
+import { add, insert, updateRecursive } from "./identifiable";
 import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
 let buttonsResolve: (value: Writable<IterableToolbarItem[]>) => void;
@@ -46,101 +47,59 @@ export class EditorToolbar extends HTMLElement {
         menusResolve(menus);
     }
 
-    updateButtonGroup(
-        update: (component: IterableToolbarItem) => void,
-        group: string | number
-    ): void {
-        this.buttonsPromise.then((buttons) => {
-            buttons.update((buttonGroups) => {
-                const foundGroup = search(buttonGroups, group);
-
-                if (foundGroup) {
-                    update(foundGroup as IterableToolbarItem);
-                }
-
-                return buttonGroups;
-            });
-
-            return buttons;
-        });
-    }
-
-    showButtonGroup(group: string | number): void {
-        this.updateButtonGroup(showComponent, group);
-    }
-
-    hideButtonGroup(group: string | number): void {
-        this.updateButtonGroup(hideComponent, group);
-    }
-
-    toggleButtonGroup(group: string | number): void {
-        this.updateButtonGroup(toggleComponent, group);
-    }
-
-    insertButtonGroup(newGroup: IterableToolbarItem, group: string | number = 0): void {
-        this.buttonsPromise.then((buttons) => {
-            buttons.update((buttonGroups) => {
-                return insert(buttonGroups, newGroup, group);
-            });
-
-            return buttons;
-        });
-    }
-
-    addButtonGroup(newGroup: IterableToolbarItem, group: string | number = -1): void {
-        this.buttonsPromise.then((buttons) => {
-            buttons.update((buttonGroups) => {
-                return add(buttonGroups, newGroup, group);
-            });
-
-            return buttons;
-        });
-    }
-
     updateButton(
-        update: (component: ToolbarItem) => void,
-        group: string | number,
-        button: string | number
+        update: (component: ToolbarItem) => ToolbarItem,
+        ...identifiers: Identifier[]
     ): void {
-        this.updateButtonGroup((foundGroup) => {
-            const foundButton = search(foundGroup.items, button);
+        this.buttonsPromise.then(
+            (
+                buttons: Writable<IterableToolbarItem[]>
+            ): Writable<IterableToolbarItem[]> => {
+                buttons.update(
+                    (items: IterableToolbarItem[]): IterableToolbarItem[] =>
+                        updateRecursive(
+                            update,
+                            { component: EditorToolbarSvelte, items },
+                            ...identifiers
+                        ).items as IterableToolbarItem[]
+                );
 
-            if (foundButton) {
-                update(foundButton);
+                return buttons;
             }
-        }, group);
+        );
     }
 
-    showButton(group: string | number, button: string | number): void {
-        this.updateButton(showComponent, group, button);
+    showButton(...identifiers: Identifier[]): void {
+        this.updateButton(showComponent, ...identifiers);
     }
 
-    hideButton(group: string | number, button: string | number): void {
-        this.updateButton(hideComponent, group, button);
+    hideButton(...identifiers: Identifier[]): void {
+        this.updateButton(hideComponent, ...identifiers);
     }
 
-    toggleButton(group: string | number, button: string | number): void {
-        this.updateButton(toggleComponent, group, button);
+    toggleButton(...identifiers: Identifier[]): void {
+        this.updateButton(toggleComponent, ...identifiers);
     }
 
-    insertButton(
-        newButton: ToolbarItem,
-        group: string | number,
-        button: string | number = 0
-    ): void {
-        this.updateButtonGroup((component: IterableToolbarItem) => {
-            component.items = insert(component.items, newButton, button);
-        }, group);
+    insertButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void {
+        const initIdentifiers = identifiers.slice(0, -1);
+        const lastIdentifier = identifiers[identifiers.length - 1];
+        this.updateButton(
+            (component: ToolbarItem) =>
+                insert(component as IterableToolbarItem, newButton, lastIdentifier),
+
+            ...initIdentifiers
+        );
     }
 
-    addButton(
-        newButton: ToolbarItem,
-        group: string | number,
-        button: string | number = -1
-    ): void {
-        this.updateButtonGroup((component: IterableToolbarItem) => {
-            component.items = add(component.items, newButton, button);
-        }, group);
+    addButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void {
+        const initIdentifiers = identifiers.slice(0, -1);
+        const lastIdentifier = identifiers[identifiers.length - 1];
+        this.updateButton(
+            (component: ToolbarItem) =>
+                add(component as IterableToolbarItem, newButton, lastIdentifier),
+            ...initIdentifiers
+        );
     }
 }
 

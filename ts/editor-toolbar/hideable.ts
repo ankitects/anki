@@ -4,14 +4,17 @@ interface Hideable {
     hidden?: boolean;
 }
 
-export function showComponent(component: Hideable): void {
+export function showComponent<T extends Hideable>(component: T): T {
     component.hidden = false;
+    return component;
 }
 
-export function hideComponent(component: Hideable): void {
+export function hideComponent<T extends Hideable>(component: T): T {
     component.hidden = true;
+    return component;
 }
 
-export function toggleComponent(component: Hideable): void {
+export function toggleComponent<T extends Hideable>(component: T): T {
     component.hidden = !component.hidden;
+    return component;
 }
