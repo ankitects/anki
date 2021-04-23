@@ -4,7 +4,7 @@ import type WithShortcut from "editor-toolbar/WithShortcut.svelte";
 import type { WithShortcutProps } from "editor-toolbar/WithShortcut";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 import { iconButton, withShortcut } from "editor-toolbar/dynamicComponents";
 
 import bracketsIcon from "./code-brackets.svg";

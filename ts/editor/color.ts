@@ -10,7 +10,7 @@ import {
     buttonGroup,
     withShortcut,
 } from "editor-toolbar/dynamicComponents";
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 
 import squareFillIcon from "./square-fill.svg";
 import "./color.css";

@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
 
-    import type pb from "anki/backend_proto";
+    import type pb from "lib/backend_proto";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphData } from "./future-due";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    import * as tr from "anki/i18n";
+    import * as tr from "lib/i18n";
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     const dispatch = createEventDispatcher<SearchEventMap>();

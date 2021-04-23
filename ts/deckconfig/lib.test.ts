@@ -5,7 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import * as pb from "anki/backend_proto";
+import * as pb from "lib/backend_proto";
 import { DeckConfigState } from "./lib";
 import { get } from "svelte/store";
 

@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
-    import type pb from "anki/backend_proto";
+    import type pb from "lib/backend_proto";
     import type { PreferenceStore } from "sveltelib/preferences";
 
     import Graph from "./Graph.svelte";
@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphData, TableDatum } from "./card-counts";
 
     export let sourceData: pb.BackendProto.GraphsOut;
-    import * as tr2 from "anki/i18n";
+    import * as tr2 from "lib/i18n";
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;

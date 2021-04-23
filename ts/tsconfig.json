@@ -6,7 +6,7 @@
         "lib": ["es2017", "es2019.array", "es2018.promise", "dom", "dom.iterable"],
         "baseUrl": ".",
         "paths": {
-            "anki/*": ["../bazel-bin/ts/lib/*"],
+            "lib/*": ["../bazel-bin/ts/lib/*"],
             "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"],
             "html-filter/*": ["../bazel-bin/ts/html-filter/*"],
             "editor-toolbar/*": ["../bazel-bin/ts/editor-toolbar/*"]

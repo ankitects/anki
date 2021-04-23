@@ -4,8 +4,8 @@ import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import { bridgeCommand } from "anki/bridgecommand";
-import * as tr from "anki/i18n";
+import { bridgeCommand } from "lib/bridgecommand";
+import * as tr from "lib/i18n";
 import {
     labelButton,
     buttonGroup,
