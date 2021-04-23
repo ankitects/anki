@@ -5,11 +5,11 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import pb from "anki/backend_proto";
-import { postRequest } from "anki/postrequest";
+import pb from "lib/backend_proto";
+import { postRequest } from "lib/postrequest";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 
 export async function getDeckConfigInfo(
     deckId: number

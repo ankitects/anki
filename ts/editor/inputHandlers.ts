@@ -5,7 +5,7 @@ import { updateActiveButtons } from "editor-toolbar";
 import { EditingArea } from "./editingArea";
 import { caretToEnd, nodeIsElement, getBlockElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
-import { registerShortcut } from "anki/shortcuts";
+import { registerShortcut } from "lib/shortcuts";
 
 export function onInput(event: Event): void {
     // make sure IME changes get saved

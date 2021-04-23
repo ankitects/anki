@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type pb from "anki/backend_proto";
+    import type pb from "lib/backend_proto";
     import { buildNextLearnMsg } from "./lib";
-    import { bridgeLink } from "anki/bridgecommand";
+    import { bridgeLink } from "lib/bridgecommand";
 
     export let info: pb.BackendProto.CongratsInfoOut;
-    import * as tr from "anki/i18n";
+    import * as tr from "lib/i18n";
 
     const congrats = tr.schedulingCongratulationsFinished();
     const nextLearnMsg = buildNextLearnMsg(info);

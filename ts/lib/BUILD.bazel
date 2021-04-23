@@ -52,7 +52,7 @@ ts_library(
     data = [
         "backend_proto",
     ],
-    module_name = "anki",
+    module_name = "lib",
     tsconfig = "//:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [

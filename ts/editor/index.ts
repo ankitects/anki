@@ -3,7 +3,7 @@
 
 import { filterHTML } from "html-filter";
 import { updateActiveButtons, disableButtons } from "editor-toolbar";
-import { setupI18n, ModuleName } from "anki/i18n";
+import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
 

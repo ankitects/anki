@@ -4,7 +4,7 @@ import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
 import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-import * as tr from "anki/i18n";
+import * as tr from "lib/i18n";
 import {
     commandIconButton,
     iconButton,
