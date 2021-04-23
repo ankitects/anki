@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow-y: auto;
 
         padding-inline-start: 0;
-        margin: 0 0 calc(var(--toolbar-size) / 10);
+        margin: 0 calc(var(--toolbar-size) / 8) calc(var(--toolbar-size) / 8) 0;
 
         &.border-overlap-group {
             :global(button),
@@ -35,10 +35,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 margin-left: -1px;
             }
         }
+
+        &.gap-group {
+            :global(button),
+            :global(select) {
+                margin-left: 1px;
+            }
+        }
     }
 
     li {
-        display: inline-block;
+        display: contents;
 
         > :global(button),
         > :global(select) {
@@ -65,17 +72,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 border-bottom-right-radius: calc(var(--toolbar-size) / 7.5);
             }
         }
-
-        &.gap-item:not(:nth-child(1)) {
-            margin-left: 1px;
-        }
     }
 </style>
 
-<ul {id} class={className} class:border-overlap-group={!nightMode}>
+<ul
+    {id}
+    class={className}
+    class:border-overlap-group={!nightMode}
+    class:gap-group={nightMode}>
     {#each items as button}
         {#if !button.hidden}
-            <li class:gap-item={nightMode}>
+            <li>
                 <svelte:component this={button.component} {...filterHidden(button)} />
             </li>
         {/if}
