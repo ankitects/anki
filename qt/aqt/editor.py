@@ -155,7 +155,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.addButton({{ component: editorToolbar.RawButton, html: `{button}` }}, 'notetype');"
+            f"$editorToolbar.addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype');"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -167,7 +167,7 @@ class Editor:
 
         righttopbtns_defs = "\n".join(
             [
-                f"{{ component: editorToolbar.RawButton, html: `{button}` }},"
+                f"editorToolbar.rawButton({{ html: `{button}` }}),"
                 for button in righttopbtns
             ]
         )
@@ -1277,13 +1277,9 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.model()["type"] == MODEL_CLOZE:
-        editor.web.eval(
-            'document.getElementById("editorToolbar").showButton("template", "cloze"); '
-        )
+        editor.web.eval('$editorToolbar.showButton("template", "cloze"); ')
     else:
-        editor.web.eval(
-            'document.getElementById("editorToolbar").hideButton("template", "cloze"); '
-        )
+        editor.web.eval('$editorToolbar.hideButton("template", "cloze"); ')
 
 
 gui_hooks.editor_did_load_note.append(set_cloze_button)
