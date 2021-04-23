@@ -4,6 +4,10 @@ export function mergeTooltipAndShortcut(
     tooltip: string | undefined,
     shortcutLabel: string | undefined
 ): string | undefined {
+    if (!tooltip && !shortcutLabel) {
+        return undefined;
+    }
+
     let buf = tooltip ?? "";
     if (shortcutLabel) {
         buf = `${buf} (${shortcutLabel})`;
