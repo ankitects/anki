@@ -58,49 +58,7 @@ class AddCards(QDialog):
         self.show()
 
     def setupEditor(self) -> None:
-        def add_choosers(editor: Editor) -> None:
-            editor._links[
-                "choosenotetype"
-            ] = lambda _editor: self.show_notetype_selector()
-            editor._links[
-                "choosedeck"
-            ] = lambda _editor: self.deck_chooser.choose_deck()
-
-            editor.web.eval(
-                f"""
-const notetypeChooser = editorToolbar.withLabel({{
-    label: `{tr.notetypes_type()}`,
-    className: "flex-grow-1",
-    button: editorToolbar.labelButton({{
-        label: `Choose note type`,
-        className: "flex-grow-1",
-        onClick: () => bridgeCommand("choosenotetype"),
-        disables: false,
-    }})
-}});
-
-const deckChooser = editorToolbar.withLabel({{
-    label: `{tr.decks_deck()}`,
-    className: "flex-grow-1",
-    button: editorToolbar.labelButton({{
-        label: `Choose deck`,
-        className: "flex-grow-1",
-        onClick: () => bridgeCommand("choosedeck"),
-        disables: false,
-    }})
-}});
-
-$editorToolbar.insertButton(editorToolbar.buttonGroup({{
-    id: "choosers",
-    className: "flex-basis-100",
-    items: [notetypeChooser, deckChooser],
-}}), 0);
-"""
-            )
-
-        gui_hooks.editor_did_init.append(add_choosers)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
-        gui_hooks.editor_did_init.remove(add_choosers)
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(
