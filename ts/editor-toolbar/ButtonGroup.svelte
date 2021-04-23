@@ -26,8 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-wrap: var(--toolbar-wrap);
         overflow-y: auto;
 
-        padding-inline-start: 0;
-        margin: 0 calc(var(--toolbar-size) / 8) calc(var(--toolbar-size) / 8) 0;
+        padding: calc(var(--toolbar-size) / 10);
+        margin: 0;
 
         &.border-overlap-group {
             :global(button),
@@ -53,19 +53,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &:nth-child(1) {
-            margin-left: calc(var(--toolbar-size) / 7.5);
-
             > :global(button),
             > :global(select) {
-                /* default 0.25rem */
                 border-top-left-radius: calc(var(--toolbar-size) / 7.5);
                 border-bottom-left-radius: calc(var(--toolbar-size) / 7.5);
             }
         }
 
         &:nth-last-child(1) {
-            margin-right: calc(var(--toolbar-size) / 7.5);
-
             > :global(button),
             > :global(select) {
                 border-top-right-radius: calc(var(--toolbar-size) / 7.5);

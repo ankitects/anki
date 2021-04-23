@@ -54,17 +54,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         background: var(--bg-color);
         border-bottom: 1px solid var(--border);
-
-        /* Remove outermost marigns */
-        & > :global(ul) {
-            & > :global(li:nth-child(1)) {
-                margin-left: 0;
-            }
-
-            & > :global(li:nth-last-child(1)) {
-                margin-right: 0;
-            }
-        }
     }
 </style>
 
@@ -75,5 +64,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <nav {style}>
-    <ButtonGroup items={_buttons} className="mt-0" />
+    <ButtonGroup items={_buttons} className="p-0 mb-1" />
 </nav>
