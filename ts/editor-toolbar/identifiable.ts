@@ -39,11 +39,8 @@ export function insert<T extends Identifiable>(
     const index = normalize(iterable, idOrIndex);
 
     if (index >= 0) {
-        iterable.items = [
-            ...iterable.items.slice(0, index),
-            value,
-            ...iterable.items.slice(index),
-        ];
+        iterable.items = iterable.items.slice();
+        iterable.items.splice(index, 0, value);
     }
 
     return iterable;
@@ -57,11 +54,8 @@ export function add<T extends Identifiable>(
     const index = normalize(iterable, idOrIndex);
 
     if (index >= 0) {
-        iterable.items = [
-            ...iterable.items.slice(0, index + 1),
-            value,
-            ...iterable.items.slice(index + 1),
-        ];
+        iterable.items = iterable.items.slice();
+        iterable.items.splice(index + 1, 0, value);
     }
 
     return iterable;
