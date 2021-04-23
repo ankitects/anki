@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { ToolbarItem } from "editor-toolbar/types";
-import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
-import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
+import type { ToolbarItem, IterableToolbarItem } from "editor-toolbar/types";
 import type { Writable } from "svelte/store";
 
 import { getNotetypeGroup } from "./notetype";
@@ -16,10 +14,8 @@ export function initToolbar(i18n: Promise<void>): void {
         i18n.then(() => {
             globalThis.$editorToolbar.buttonsPromise.then(
                 (
-                    buttons: Writable<
-                        (ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]
-                    >
-                ): Writable<(ToolbarItem<typeof ButtonGroup> & ButtonGroupProps)[]> => {
+                    buttons: Writable<IterableToolbarItem[]>
+                ): Writable<IterableToolbarItem[]> => {
                     buttons.update(() => [
                         getNotetypeGroup(),
                         getFormatInlineGroup(),

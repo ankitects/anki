@@ -12,11 +12,9 @@ function normalize<T extends Identifiable>(
 
     if (typeof idOrIndex === "string") {
         normalizedIndex = values.findIndex((value) => value.id === idOrIndex);
-    }
-    else if (idOrIndex < 0) {
+    } else if (idOrIndex < 0) {
         normalizedIndex = values.length + idOrIndex;
-    }
-    else {
+    } else {
         normalizedIndex = idOrIndex;
     }
 

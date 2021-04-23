@@ -5,5 +5,5 @@ import type { ToolbarItem } from "./types";
 export interface ButtonDropdownProps {
     id: string;
     className?: string;
-    buttons: ToolbarItem[];
+    items: ToolbarItem[];
 }

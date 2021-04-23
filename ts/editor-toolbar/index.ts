@@ -134,7 +134,7 @@ export class EditorToolbar extends HTMLElement {
         button: string | number
     ): void {
         this.updateButtonGroup((foundGroup) => {
-            const foundButton = search(foundGroup.buttons, button);
+            const foundButton = search(foundGroup.items, button);
 
             if (foundButton) {
                 update(foundButton);
@@ -160,8 +160,8 @@ export class EditorToolbar extends HTMLElement {
         button: string | number = 0
     ): void {
         this.updateButtonGroup((component) => {
-            component.buttons = insert(
-                component.buttons as (ToolbarItem & Identifiable)[],
+            component.items = insert(
+                component.items as (ToolbarItem & Identifiable)[],
                 newButton,
                 button
             );
@@ -174,8 +174,8 @@ export class EditorToolbar extends HTMLElement {
         button: string | number = -1
     ): void {
         this.updateButtonGroup((component) => {
-            component.buttons = add(
-                component.buttons as (ToolbarItem & Identifiable)[],
+            component.items = add(
+                component.items as (ToolbarItem & Identifiable)[],
                 newButton,
                 button
             );

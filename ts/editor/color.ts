@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
-import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { IterableToolbarItem } from "editor-toolbar/types";
 
 import {
     iconButton,
@@ -29,8 +27,7 @@ function wrapWithForecolor(color: string): void {
     document.execCommand("forecolor", false, color);
 }
 
-export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
-    ButtonGroupProps {
+export function getColorGroup(): IterableToolbarItem {
     const forecolorButton = withShortcut({
         shortcut: "F7",
         button: iconButton({
@@ -52,6 +49,6 @@ export function getColorGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 
     return buttonGroup({
         id: "color",
-        buttons: [forecolorButton, colorpickerButton],
+        items: [forecolorButton, colorpickerButton],
     });
 }

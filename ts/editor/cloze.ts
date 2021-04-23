@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type WithShortcut from "editor-toolbar/WithShortcut.svelte";
-import type { WithShortcutProps } from "editor-toolbar/WithShortcut";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { ToolbarItem } from "editor-toolbar/types";
 
 import * as tr from "lib/i18n";
 import { iconButton, withShortcut } from "editor-toolbar/dynamicComponents";
@@ -40,8 +38,7 @@ function onCloze(event: KeyboardEvent | MouseEvent): void {
     wrap(`{{c${highestCloze}::`, "}}");
 }
 
-export function getClozeButton(): DynamicSvelteComponent<typeof WithShortcut> &
-    WithShortcutProps {
+export function getClozeButton(): ToolbarItem {
     return withShortcut({
         id: "cloze",
         shortcut: "Control+Shift+KeyC",
