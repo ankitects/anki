@@ -69,15 +69,7 @@ export function gatherData(
         reviewCount.set(day, count + 1);
     }
 
-    const timeFunction =
-        firstDayOfWeek === Weekday.MONDAY
-            ? timeMonday
-            : firstDayOfWeek === Weekday.FRIDAY
-            ? timeFriday
-            : firstDayOfWeek === Weekday.SATURDAY
-            ? timeSaturday
-            : timeSunday;
-
+    const timeFunction = timeFunctionForDay(firstDayOfWeek);
     const weekdayLabels: number[] = [];
     for (let i = 0; i < 7; i++) {
         weekdayLabels.push((firstDayOfWeek + i) % 7);
@@ -223,4 +215,17 @@ export function renderCalendar(
         .transition()
         .duration(800)
         .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : blues(d.count)!));
+}
+
+function timeFunctionForDay(firstDayOfWeek: WeekdayType): CountableTimeInterval {
+    switch (firstDayOfWeek) {
+        case Weekday.MONDAY:
+            return timeMonday;
+        case Weekday.FRIDAY:
+            return timeFriday;
+        case Weekday.SATURDAY:
+            return timeSaturday;
+        default:
+            return timeSunday;
+    }
 }

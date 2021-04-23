@@ -8,14 +8,11 @@ function normalize<T extends Identifiable>(
     values: T[],
     idOrIndex: string | number
 ): number {
-    const normalizedIndex =
-        typeof idOrIndex === "string"
-            ? values.findIndex((value) => value.id === idOrIndex)
-            : idOrIndex >= 0
-            ? idOrIndex
-            : values.length + idOrIndex;
-
-    return normalizedIndex >= values.length ? -1 : normalizedIndex;
+    if (typeof idOrIndex === "string") {
+        return values.findIndex((value) => value.id === idOrIndex);
+    } else {
+        return idOrIndex >= values.length ? -1 : idOrIndex;
+    }
 }
 
 export function search<T extends Identifiable>(

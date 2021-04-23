@@ -53,13 +53,15 @@ const keyToCharacterMap = {
 };
 
 function keyToPlatformString(key: string): string {
-    return key.startsWith(alphabeticPrefix)
-        ? key.slice(alphabeticPrefix.length)
-        : key.startsWith(numericPrefix)
-        ? key.slice(numericPrefix.length)
-        : Object.prototype.hasOwnProperty.call(keyToCharacterMap, key)
-        ? keyToCharacterMap[key]
-        : key;
+    if (key.startsWith(alphabeticPrefix)) {
+        return key.slice(alphabeticPrefix.length);
+    } else if (key.startsWith(numericPrefix)) {
+        return key.slice(numericPrefix.length);
+    } else if (Object.prototype.hasOwnProperty.call(keyToCharacterMap, key)) {
+        return keyToCharacterMap[key];
+    } else {
+        return key;
+    }
 }
 
 function toPlatformString(modifiersAndKey: string[]): string {
