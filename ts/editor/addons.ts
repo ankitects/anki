@@ -3,6 +3,7 @@
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 import {
+    buttonGroup,
     rawButton,
     labelButton,
     iconButton,
@@ -18,6 +19,7 @@ export const editorToolbar: Record<
     string,
     (props: Record<string, unknown>) => DynamicSvelteComponent
 > = {
+    buttonGroup,
     rawButton,
     labelButton,
     iconButton,
