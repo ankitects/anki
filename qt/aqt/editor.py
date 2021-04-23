@@ -155,7 +155,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype');"
+            f"$editorToolbar.addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype', -1);"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -173,10 +173,10 @@ class Editor:
         )
         righttopbtns_js = (
             f"""
-$editorToolbar.addButtonGroup(editorToolbar.buttonGroup({{
+$editorToolbar.addButton(editorToolbar.buttonGroup({{
   id: "addons",
   items: [ {righttopbtns_defs} ]
-}}));
+}}), -1);
 """
             if righttopbtns_defs
             else ""

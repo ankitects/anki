@@ -391,7 +391,7 @@ $editorToolbar.addButton(editorToolbar.labelButton({{
     tooltip: `{tr.browsing_preview_selected_card(val=shortcut(preview_shortcut))}`,
     onClick: () => bridgeCommand("preview"),
     disables: false,
-}}), "notetype");
+}}), "notetype", -1);
 """
             )
 
