@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ReviewOptions from "./ReviewOptions.svelte";
     import LapseOptions from "./LapseOptions.svelte";
     import GeneralOptions from "./GeneralOptions.svelte";
+    import Addons from "./Addons.svelte";
     import type { DeckConfigState } from "./lib";
 
     export let state: DeckConfigState;
@@ -29,4 +30,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ReviewOptions {state} />
     <LapseOptions {state} />
     <GeneralOptions {state} />
+    <Addons {state} />
 </div>

@@ -9,14 +9,14 @@ import DeckConfigPage from "./DeckConfigPage.svelte";
 export async function deckConfig(
     target: HTMLDivElement,
     deckId: number
-): Promise<void> {
+): Promise<DeckConfigPage> {
     checkNightMode();
     await setupI18n({
         modules: [ModuleName.SCHEDULING, ModuleName.ACTIONS, ModuleName.DECK_CONFIG],
     });
     const info = await getDeckConfigInfo(deckId);
     const state = new DeckConfigState(deckId, info);
-    new DeckConfigPage({
+    return new DeckConfigPage({
         target,
         props: { state },
     });

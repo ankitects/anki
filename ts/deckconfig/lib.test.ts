@@ -33,6 +33,8 @@ const exampleData = {
                     leechAction: "LEECH_ACTION_TAG_ONLY",
                     leechThreshold: 8,
                     capAnswerTimeToSecs: 60,
+                    other:
+                        "eyJuZXciOnsic2VwYXJhdGUiOnRydWV9LCJyZXYiOnsiZnV6eiI6MC4wNSwibWluU3BhY2UiOjF9fQ==",
                 },
             },
             useCount: 1,
@@ -275,4 +277,55 @@ test("saving", () => {
     out = state.dataForSaving(true);
     expect(out.removedConfigIds).toStrictEqual([1618570764780]);
     expect(out.configs.map((c) => c.name)).toStrictEqual(["Default"]);
+});
+
+test("aux data", () => {
+    const state = startingState();
+    expect(get(state.currentAuxData)).toStrictEqual({});
+    state.currentAuxData.update((val) => {
+        return { ...val, hello: "world" };
+    });
+
+    // check default
+    state.setCurrentIndex(0);
+    expect(get(state.currentAuxData)).toStrictEqual({
+        new: {
+            separate: true,
+        },
+        rev: {
+            fuzz: 0.05,
+            minSpace: 1,
+        },
+    });
+    state.currentAuxData.update((val) => {
+        return { ...val, defaultAddition: true };
+    });
+
+    // ensure changes serialize
+    const out = state.dataForSaving(true);
+    expect(out.configs.length).toBe(2);
+    const json = out.configs.map(
+        (c) =>
+            JSON.parse(new TextDecoder().decode((c.config as any).other)) as Record<
+                string,
+                unknown
+            >
+    );
+    expect(json).toStrictEqual([
+        // other deck comes first
+        {
+            hello: "world",
+        },
+        // default is selected, so comes last
+        {
+            defaultAddition: true,
+            new: {
+                separate: true,
+            },
+            rev: {
+                fuzz: 0.05,
+                minSpace: 1,
+            },
+        },
+    ]);
 });

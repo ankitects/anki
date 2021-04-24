@@ -10,6 +10,7 @@ import { postRequest } from "lib/postrequest";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
 import * as tr from "lib/i18n";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 export async function getDeckConfigInfo(
     deckId: number
@@ -50,10 +51,12 @@ export interface ConfigListEntry {
 type ConfigInner = pb.BackendProto.DeckConfig.Config;
 export class DeckConfigState {
     readonly currentConfig: Writable<ConfigInner>;
+    readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
     readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
+    readonly addonComponents: Writable<DynamicSvelteComponent[]>;
 
     private targetDeckId: number;
     private configs: ConfigWithCount[];
@@ -69,8 +72,9 @@ export class DeckConfigState {
         this.currentDeck = data.currentDeck as pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
         this.defaults = data.defaults!.config! as ConfigInner;
         this.configs = data.allConfig.map((config) => {
+            const configInner = config.config as pb.BackendProto.DeckConfig;
             return {
-                config: config.config as pb.BackendProto.DeckConfig,
+                config: configInner,
                 useCount: config.useCount!,
             };
         });
@@ -83,6 +87,7 @@ export class DeckConfigState {
         // selected one at display time
         this.configs[this.selectedIdx].useCount -= 1;
         this.currentConfig = writable(this.getCurrentConfig());
+        this.currentAuxData = writable(this.getCurrentAuxData());
         this.configList = readable(this.getConfigList(), (set) => {
             this.configListSetter = set;
             return;
@@ -92,6 +97,7 @@ export class DeckConfigState {
             return;
         });
         this.schemaModified = data.schemaModified;
+        this.addonComponents = writable([]);
 
         // create a temporary subscription to force our setters to be set immediately,
         // so unit tests don't get stale results
@@ -100,6 +106,7 @@ export class DeckConfigState {
 
         // update our state when the current config is changed
         this.currentConfig.subscribe((val) => this.onCurrentConfigChanged(val));
+        this.currentAuxData.subscribe((val) => this.onCurrentAuxDataChanged(val));
     }
 
     setCurrentIndex(index: number): void {
@@ -192,11 +199,25 @@ export class DeckConfigState {
     }
 
     private onCurrentConfigChanged(config: ConfigInner): void {
-        if (!isEqual(config, this.configs[this.selectedIdx].config.config)) {
-            this.configs[this.selectedIdx].config.config = config;
-            this.configs[this.selectedIdx].config.mtimeSecs = 0;
+        const configOuter = this.configs[this.selectedIdx].config;
+        if (!isEqual(config, configOuter.config)) {
+            configOuter.config = config;
+            if (configOuter.id) {
+                this.modifiedConfigs.add(configOuter.id);
+            }
         }
         this.parentLimitsSetter?.(this.getParentLimits());
+    }
+
+    private onCurrentAuxDataChanged(data: Record<string, unknown>): void {
+        const current = this.getCurrentAuxData();
+        if (!isEqual(current, data)) {
+            this.currentConfig.update((config) => {
+                const asBytes = new TextEncoder().encode(JSON.stringify(data));
+                config.other = asBytes;
+                return config;
+            });
+        }
     }
 
     private ensureNewNameUnique(name: string): string {
@@ -210,6 +231,7 @@ export class DeckConfigState {
 
     private updateCurrentConfig(): void {
         this.currentConfig.set(this.getCurrentConfig());
+        this.currentAuxData.set(this.getCurrentAuxData());
         this.parentLimitsSetter?.(this.getParentLimits());
     }
 
@@ -220,6 +242,12 @@ export class DeckConfigState {
     /// Returns a copy of the currently selected config.
     private getCurrentConfig(): ConfigInner {
         return cloneDeep(this.configs[this.selectedIdx].config.config as ConfigInner);
+    }
+
+    /// Extra data associated with current config (for add-ons)
+    private getCurrentAuxData(): Record<string, unknown> {
+        const conf = this.configs[this.selectedIdx].config.config as ConfigInner;
+        return bytesToObject(conf.other);
     }
 
     private getConfigList(): ConfigListEntry[] {
@@ -257,4 +285,25 @@ export class DeckConfigState {
             reviews,
         };
     }
+}
+
+function bytesToObject(bytes: Uint8Array): Record<string, unknown> {
+    if (!bytes.length) {
+        return {} as Record<string, unknown>;
+    }
+
+    let obj: Record<string, unknown>;
+    try {
+        obj = JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
+    } catch (err) {
+        console.log(`invalid json in deck config`);
+        return {} as Record<string, unknown>;
+    }
+
+    if (obj.constructor !== Object) {
+        console.log(`invalid object in deck config`);
+        return {} as Record<string, unknown>;
+    }
+
+    return obj;
 }
