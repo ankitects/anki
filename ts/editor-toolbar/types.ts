@@ -3,8 +3,15 @@
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 import type { SvelteComponentDev } from "svelte/internal";
 
-interface ToolbarItem<T extends typeof SvelteComponentDev = typeof SvelteComponentDev>
-    extends DynamicSvelteComponent<T> {
+export interface ToolbarItem<
+    T extends typeof SvelteComponentDev = typeof SvelteComponentDev
+> extends DynamicSvelteComponent<T> {
     id?: string;
     hidden?: boolean;
+}
+
+export interface IterableToolbarItem<
+    T extends typeof SvelteComponentDev = typeof SvelteComponentDev
+> extends ToolbarItem<T> {
+    items: ToolbarItem[];
 }
