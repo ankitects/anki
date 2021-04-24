@@ -1,10 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type DropdownMenu from "editor-toolbar/DropdownMenu.svelte";
-import type { DropdownMenuProps } from "editor-toolbar/DropdownMenu";
-import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
-import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { IterableToolbarItem } from "editor-toolbar/types";
 
 import { bridgeCommand } from "lib/bridgecommand";
 import {
@@ -40,8 +36,7 @@ function onHtmlEdit(): void {
 
 const mathjaxMenuId = "mathjaxMenu";
 
-export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
-    ButtonGroupProps {
+export function getTemplateGroup(): IterableToolbarItem {
     const attachmentButton = withShortcut({
         shortcut: "F3",
         button: iconButton({
@@ -80,7 +75,7 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
 
     return buttonGroup({
         id: "template",
-        buttons: [
+        items: [
             attachmentButton,
             recordButton,
             getClozeButton(),
@@ -90,8 +85,7 @@ export function getTemplateGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
     });
 }
 
-export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu> &
-    DropdownMenuProps)[] {
+export function getTemplateMenus(): IterableToolbarItem[] {
     const mathjaxMenuItems = [
         withShortcut({
             shortcut: "Control+KeyM, KeyM",
@@ -142,7 +136,7 @@ export function getTemplateMenus(): (DynamicSvelteComponent<typeof DropdownMenu>
 
     const mathjaxMenu = dropdownMenu({
         id: mathjaxMenuId,
-        menuItems: [...mathjaxMenuItems, ...latexMenuItems],
+        items: [...mathjaxMenuItems, ...latexMenuItems],
     });
 
     return [mathjaxMenu];

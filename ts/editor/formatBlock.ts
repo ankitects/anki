@@ -1,11 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
-import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
-import type ButtonDropdown from "editor-toolbar/ButtonDropdown.svelte";
-import type { ButtonDropdownProps } from "editor-toolbar/ButtonDropdown";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
-
+import type { IterableToolbarItem } from "editor-toolbar/types";
 import type { EditingArea } from "./editingArea";
 
 import * as tr from "lib/i18n";
@@ -45,8 +40,7 @@ const indentListItem = () => {
     }
 };
 
-export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDropdown> &
-    ButtonDropdownProps)[] {
+export function getFormatBlockMenus(): IterableToolbarItem[] {
     const justifyLeftButton = commandIconButton({
         icon: justifyLeftIcon,
         command: "justifyLeft",
@@ -73,7 +67,7 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
 
     const justifyGroup = buttonGroup({
         id: "justify",
-        buttons: [
+        items: [
             justifyLeftButton,
             justifyCenterButton,
             justifyRightButton,
@@ -95,19 +89,18 @@ export function getFormatBlockMenus(): (DynamicSvelteComponent<typeof ButtonDrop
 
     const indentationGroup = buttonGroup({
         id: "indentation",
-        buttons: [outdentButton, indentButton],
+        items: [outdentButton, indentButton],
     });
 
     const formattingOptions = buttonDropdown({
         id: "listFormatting",
-        buttons: [justifyGroup, indentationGroup],
+        items: [justifyGroup, indentationGroup],
     });
 
     return [formattingOptions];
 }
 
-export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
-    ButtonGroupProps {
+export function getFormatBlockGroup(): IterableToolbarItem {
     const ulButton = commandIconButton({
         icon: ulIcon,
         command: "insertUnorderedList",
@@ -131,6 +124,6 @@ export function getFormatBlockGroup(): DynamicSvelteComponent<typeof ButtonGroup
 
     return buttonGroup({
         id: "blockFormatting",
-        buttons: [ulButton, olButton, listFormatting],
+        items: [ulButton, olButton, listFormatting],
     });
 }

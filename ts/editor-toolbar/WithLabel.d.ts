@@ -2,8 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { ToolbarItem } from "./types";
 
-export interface ButtonDropdownProps {
-    id: string;
+export interface WithLabelProps {
+    id?: string;
     className?: string;
-    items: ToolbarItem[];
+
+    button: ToolbarItem;
+    label: string;
 }

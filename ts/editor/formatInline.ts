@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type ButtonGroup from "editor-toolbar/ButtonGroup.svelte";
-import type { ButtonGroupProps } from "editor-toolbar/ButtonGroup";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { IterableToolbarItem } from "editor-toolbar/types";
 
 import * as tr from "lib/i18n";
 import {
@@ -19,8 +17,7 @@ import superscriptIcon from "./format-superscript.svg";
 import subscriptIcon from "./format-subscript.svg";
 import eraserIcon from "./eraser.svg";
 
-export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGroup> &
-    ButtonGroupProps {
+export function getFormatInlineGroup(): IterableToolbarItem {
     const boldButton = withShortcut({
         shortcut: "Control+KeyB",
         button: commandIconButton({
@@ -79,7 +76,7 @@ export function getFormatInlineGroup(): DynamicSvelteComponent<typeof ButtonGrou
 
     return buttonGroup({
         id: "inlineFormatting",
-        buttons: [
+        items: [
             boldButton,
             italicButton,
             underlineButton,

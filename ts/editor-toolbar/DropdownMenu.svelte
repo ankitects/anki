@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+    import type { ToolbarItem } from "./types";
     import { getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
 
     export let id: string;
-    export let menuItems: DynamicSvelteComponent[];
+    export let items: ToolbarItem[];
 
     const nightMode = getContext<boolean>(nightModeKey);
 </script>
@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 <ul {id} class="dropdown-menu" class:night-mode={nightMode}>
-    {#each menuItems as menuItem}
+    {#each items as menuItem}
         <li>
             <svelte:component this={menuItem.component} {...menuItem} />
         </li>

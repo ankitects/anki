@@ -4,15 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Readable } from "svelte/store";
+    import type { Option } from "./SelectButton";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey } from "./contextKeys";
     import SelectOption from "./SelectOption.svelte";
-
-    interface Option {
-        label: string;
-        value: string;
-        selected: boolean;
-    }
 
     export let id: string;
     export let className = "";

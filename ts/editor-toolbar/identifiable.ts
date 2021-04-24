@@ -4,43 +4,89 @@ export interface Identifiable {
     id?: string;
 }
 
-function normalize<T extends Identifiable>(
-    values: T[],
-    idOrIndex: string | number
-): number {
-    if (typeof idOrIndex === "string") {
-        return values.findIndex((value) => value.id === idOrIndex);
-    } else {
-        return idOrIndex >= values.length ? -1 : idOrIndex;
-    }
+interface IterableIdentifiable<T extends Identifiable> extends Identifiable {
+    items: T[];
 }
 
-export function search<T extends Identifiable>(
-    values: T[],
-    idOrIndex: string | number
-): T | null {
-    const index = normalize(values, idOrIndex);
+export type Identifier = string | number;
+
+function normalize<T extends Identifiable>(
+    iterable: IterableIdentifiable<T>,
+    idOrIndex: Identifier
+): number {
+    let normalizedIndex: number;
+
+    if (typeof idOrIndex === "string") {
+        normalizedIndex = iterable.items.findIndex((value) => value.id === idOrIndex);
+    } else if (idOrIndex < 0) {
+        normalizedIndex = iterable.items.length + idOrIndex;
+    } else {
+        normalizedIndex = idOrIndex;
+    }
+
+    return normalizedIndex >= iterable.items.length ? -1 : normalizedIndex;
+}
+
+function search<T extends Identifiable>(values: T[], index: number): T | null {
     return index >= 0 ? values[index] : null;
 }
 
 export function insert<T extends Identifiable>(
-    values: T[],
+    iterable: IterableIdentifiable<T> & T,
     value: T,
-    idOrIndex: string | number
-): T[] {
-    const index = normalize(values, idOrIndex);
-    return index >= 0
-        ? [...values.slice(0, index), value, ...values.slice(index)]
-        : values;
+    idOrIndex: Identifier
+): IterableIdentifiable<T> & T {
+    const index = normalize(iterable, idOrIndex);
+
+    if (index >= 0) {
+        iterable.items = iterable.items.slice();
+        iterable.items.splice(index, 0, value);
+    }
+
+    return iterable;
 }
 
 export function add<T extends Identifiable>(
-    values: T[],
+    iterable: IterableIdentifiable<T> & T,
     value: T,
-    idOrIndex: string | number
-): T[] {
-    const index = normalize(values, idOrIndex);
-    return index >= 0
-        ? [...values.slice(0, index + 1), value, ...values.slice(index + 1)]
-        : values;
+    idOrIndex: Identifier
+): IterableIdentifiable<T> & T {
+    const index = normalize(iterable, idOrIndex);
+
+    if (index >= 0) {
+        iterable.items = iterable.items.slice();
+        iterable.items.splice(index + 1, 0, value);
+    }
+
+    return iterable;
+}
+
+function isRecursive<T>(component: Identifiable): component is IterableIdentifiable<T> {
+    return Boolean(Object.prototype.hasOwnProperty.call(component, "items"));
+}
+
+export function updateRecursive<T extends Identifiable>(
+    update: (component: T) => T,
+    component: T,
+    ...identifiers: Identifier[]
+): T {
+    if (identifiers.length === 0) {
+        return update(component);
+    } else if (isRecursive<T>(component)) {
+        const [identifier, ...restIdentifiers] = identifiers;
+        const normalizedIndex = normalize(component, identifier);
+        const foundComponent = search(component.items, normalizedIndex);
+
+        if (foundComponent) {
+            component.items[normalizedIndex] = updateRecursive(
+                update,
+                foundComponent as T,
+                ...restIdentifiers
+            );
+        }
+
+        return component;
+    }
+
+    return component;
 }
