@@ -8,8 +8,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckConfigState } from "./lib";
     import { onMount, onDestroy } from "svelte";
     import { registerShortcut } from "lib/shortcuts";
+    import type { Writable } from "svelte/store";
+    import HtmlAddon from "./HtmlAddon.svelte";
 
     export let state: DeckConfigState;
+    let addons = state.addonComponents;
+
+    export function auxData(): Writable<Record<string, unknown>> {
+        return state.currentAuxData;
+    }
+
+    export function addHtmlAddon(html: string, mounted: () => void): void {
+        $addons = [
+            ...$addons,
+            {
+                component: HtmlAddon,
+                html,
+                mounted,
+            },
+        ];
+    }
 
     let registerCleanup: () => void;
     onMount(() => {

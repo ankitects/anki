@@ -65,6 +65,7 @@ ts_library(
         "//ts:image_module_support",
         "//ts/lib",
         "//ts/lib:backend_proto",
+        "//ts/sveltelib",
         "@npm//lodash-es",
         "@npm//svelte",
     ],

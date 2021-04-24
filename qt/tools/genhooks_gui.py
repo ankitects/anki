@@ -218,8 +218,8 @@ hooks = [
                 content.stats += "\n<div>my html</div>"
         """,
     ),
-    # Deck options
-    ###################
+    # Deck options (legacy screen)
+    ###############################
     Hook(
         name="deck_conf_did_setup_ui_form",
         args=["deck_conf: aqt.deckconf.DeckConf"],
@@ -286,6 +286,15 @@ hooks = [
             "new_name: str",
         ],
         doc="Called before config group is renamed",
+    ),
+    # Deck options (new screen)
+    ############################
+    Hook(
+        name="deck_options_did_load",
+        args=[
+            "deck_options: aqt.deckoptions.DeckOptionsDialog",
+        ],
+        doc="Can be used to inject extra options into the config screen",
     ),
     # Filtered deck options
     ###################
