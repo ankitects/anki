@@ -3,7 +3,7 @@
 import type { ToolbarItem, IterableToolbarItem } from "./types";
 import type { Identifier } from "./identifiable";
 
-import { Writable, writable } from "svelte/store";
+import { writable } from "svelte/store";
 
 import EditorToolbarSvelte from "./EditorToolbar.svelte";
 
@@ -12,78 +12,73 @@ import "./bootstrap.css";
 import { add, insert, updateRecursive } from "./identifiable";
 import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
-let buttonsResolve: (value: Writable<IterableToolbarItem[]>) => void;
-let menusResolve: (value: Writable<ToolbarItem[]>) => void;
-
-export class EditorToolbar extends HTMLElement {
-    private buttonsPromise: Promise<Writable<IterableToolbarItem[]>> = new Promise(
-        (resolve) => {
-            buttonsResolve = resolve;
-        }
-    );
-    private menusPromise: Promise<Writable<ToolbarItem[]>> = new Promise(
-        (resolve): void => {
-            menusResolve = resolve;
-        }
-    );
-
-    connectedCallback(): void {
-        globalThis.$editorToolbar = this;
-
-        const buttons = writable([]);
-        const menus = writable([]);
-
-        new EditorToolbarSvelte({
-            target: this,
-            props: {
-                buttons,
-                menus,
-                nightMode: document.documentElement.classList.contains("night-mode"),
-            },
-        });
-
-        buttonsResolve(buttons);
-        menusResolve(menus);
-    }
-
+export interface EditorToolbarAPI {
+    // Button API
     updateButton(
         update: (component: ToolbarItem) => ToolbarItem,
         ...identifiers: Identifier[]
-    ): void {
-        this.buttonsPromise.then(
-            (
-                buttons: Writable<IterableToolbarItem[]>
-            ): Writable<IterableToolbarItem[]> => {
-                buttons.update(
-                    (items: IterableToolbarItem[]): IterableToolbarItem[] =>
-                        updateRecursive(
-                            update,
-                            ({ items } as unknown) as ToolbarItem,
-                            ...identifiers
-                        ).items as IterableToolbarItem[]
-                );
+    ): void;
+    showButton(...identifiers: Identifier[]): void;
+    hideButton(...identifiers: Identifier[]): void;
+    toggleButton(...identifiers: Identifier[]): void;
+    insertButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void;
+    addButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void;
 
-                return buttons;
-            }
+    // Menu API
+    updateMenu(
+        update: (component: ToolbarItem) => ToolbarItem,
+        ...identifiers: Identifier[]
+    ): void;
+    addMenu(newMenu: ToolbarItem, ...identifiers: Identifier[]): void;
+}
+
+export function editorToolbar(
+    target: HTMLElement,
+    initialButtons: IterableToolbarItem[] = [],
+    initialMenus: ToolbarItem[] = []
+): EditorToolbarAPI {
+    const buttons = writable(initialButtons);
+    const menus = writable(initialMenus);
+
+    new EditorToolbarSvelte({
+        target,
+        props: {
+            buttons,
+            menus,
+            nightMode: document.documentElement.classList.contains("night-mode"),
+        },
+    });
+
+    function updateButton(
+        update: (component: ToolbarItem) => ToolbarItem,
+        ...identifiers: Identifier[]
+    ): void {
+        buttons.update(
+            (items: IterableToolbarItem[]): IterableToolbarItem[] =>
+                updateRecursive(
+                    update,
+                    ({ items } as unknown) as ToolbarItem,
+                    ...identifiers
+                ).items as IterableToolbarItem[]
         );
     }
 
-    showButton(...identifiers: Identifier[]): void {
-        this.updateButton(showComponent, ...identifiers);
+    function showButton(...identifiers: Identifier[]): void {
+        updateButton(showComponent, ...identifiers);
     }
 
-    hideButton(...identifiers: Identifier[]): void {
-        this.updateButton(hideComponent, ...identifiers);
+    function hideButton(...identifiers: Identifier[]): void {
+        updateButton(hideComponent, ...identifiers);
     }
 
-    toggleButton(...identifiers: Identifier[]): void {
-        this.updateButton(toggleComponent, ...identifiers);
+    function toggleButton(...identifiers: Identifier[]): void {
+        updateButton(toggleComponent, ...identifiers);
     }
 
-    insertButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void {
+    function insertButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void {
         const initIdentifiers = identifiers.slice(0, -1);
         const lastIdentifier = identifiers[identifiers.length - 1];
-        this.updateButton(
+        updateButton(
             (component: ToolbarItem) =>
                 insert(component as IterableToolbarItem, newButton, lastIdentifier),
 
@@ -91,48 +86,51 @@ export class EditorToolbar extends HTMLElement {
         );
     }
 
-    addButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void {
+    function addButton(newButton: ToolbarItem, ...identifiers: Identifier[]): void {
         const initIdentifiers = identifiers.slice(0, -1);
         const lastIdentifier = identifiers[identifiers.length - 1];
-        this.updateButton(
+        updateButton(
             (component: ToolbarItem) =>
                 add(component as IterableToolbarItem, newButton, lastIdentifier),
             ...initIdentifiers
         );
     }
 
-    updateMenu(
+    function updateMenu(
         update: (component: ToolbarItem) => ToolbarItem,
         ...identifiers: Identifier[]
     ): void {
-        this.menusPromise.then(
-            (menus: Writable<ToolbarItem[]>): Writable<ToolbarItem[]> => {
-                menus.update(
-                    (items: ToolbarItem[]): ToolbarItem[] =>
-                        updateRecursive(
-                            update,
-                            ({ items } as unknown) as ToolbarItem,
-                            ...identifiers
-                        ).items as ToolbarItem[]
-                );
-
-                return menus;
-            }
+        menus.update(
+            (items: ToolbarItem[]): ToolbarItem[] =>
+                updateRecursive(
+                    update,
+                    ({ items } as unknown) as ToolbarItem,
+                    ...identifiers
+                ).items as ToolbarItem[]
         );
     }
 
-    addMenu(newMenu: ToolbarItem, ...identifiers: Identifier[]): void {
+    function addMenu(newMenu: ToolbarItem, ...identifiers: Identifier[]): void {
         const initIdentifiers = identifiers.slice(0, -1);
         const lastIdentifier = identifiers[identifiers.length - 1];
-        this.updateMenu(
+        updateMenu(
             (component: ToolbarItem) =>
                 add(component as IterableToolbarItem, newMenu, lastIdentifier),
             ...initIdentifiers
         );
     }
-}
 
-customElements.define("anki-editor-toolbar", EditorToolbar);
+    return {
+        updateButton,
+        showButton,
+        hideButton,
+        toggleButton,
+        insertButton,
+        addButton,
+        updateMenu,
+        addMenu,
+    };
+}
 
 /* Exports for editor */
 // @ts-expect-error insufficient typing of svelte modules
