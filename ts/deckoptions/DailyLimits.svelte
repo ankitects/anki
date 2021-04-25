@@ -38,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBox
         label={tr.schedulingNewCardsday()}
-        subLabel="The maximum number of new cards to introduce in a day."
+        tooltip="The maximum number of new cards to introduce in a day."
         min={0}
         warnings={[newCardsGreaterThanParent]}
         defaultValue={defaults.newPerDay}
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBox
         label={tr.schedulingMaximumReviewsday()}
-        subLabel="The maximum number of reviews cards to show in a day."
+        tooltip="The maximum number of reviews cards to show in a day."
         min={0}
         warnings={[reviewsTooLow]}
         defaultValue={defaults.reviewsPerDay}

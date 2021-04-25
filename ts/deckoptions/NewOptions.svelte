@@ -42,35 +42,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <StepsInput
         label="Learning steps"
-        subLabel="Learning steps, separated by spaces."
+        tooltip="Learning steps, separated by spaces."
         defaultValue={defaults.learnSteps}
         value={$config.learnSteps}
         on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
 
     <EnumSelector
         label={tr.schedulingOrder()}
-        subLabel=""
+        tooltip=""
         choices={newOrderChoices}
         defaultValue={defaults.newCardOrder}
         bind:value={$config.newCardOrder} />
 
     <SpinBox
         label={tr.schedulingGraduatingInterval()}
-        subLabel="Days to wait after answering Good on the last learning step."
+        tooltip="Days to wait after answering Good on the last learning step."
         warnings={[stepsExceedGraduatingInterval]}
         defaultValue={defaults.graduatingIntervalGood}
         bind:value={$config.graduatingIntervalGood} />
 
     <SpinBox
         label={tr.schedulingEasyInterval()}
-        subLabel="Days to wait after answering Easy on the first learning step."
+        tooltip="Days to wait after answering Easy on the first learning step."
         warnings={[goodExceedsEasy]}
         defaultValue={defaults.graduatingIntervalEasy}
         bind:value={$config.graduatingIntervalEasy} />
 
     <SpinBoxFloat
         label={tr.schedulingStartingEase()}
-        subLabel="The default multiplier when a review is answered Good."
+        tooltip="The default multiplier when a review is answered Good."
         min={1.31}
         max={5}
         defaultValue={defaults.initialEase}
@@ -78,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:changed={(evt) => ($config.initialEase = evt.detail.value)} />
 
     <CheckBox
-        subLabel={tr.schedulingBuryRelatedNewCardsUntilThe()}
+        label={tr.schedulingBuryRelatedNewCardsUntilThe()}
         defaultValue={defaults.buryNew}
         bind:value={$config.buryNew} />
 </div>

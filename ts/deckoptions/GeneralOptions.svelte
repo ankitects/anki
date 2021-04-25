@@ -18,24 +18,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBox
         label={tr.schedulingIgnoreAnswerTimesLongerThan()}
-        subLabel="The maximum number of seconds to record for a single review."
+        tooltip="The maximum number of seconds to record for a single review."
         min={30}
         max={600}
         defaultValue={defaults.capAnswerTimeToSecs}
         bind:value={$config.capAnswerTimeToSecs} />
 
     <CheckBox
-        subLabel={tr.schedulingShowAnswerTimer()}
+        label={tr.schedulingShowAnswerTimer()}
         defaultValue={defaults.showTimer}
         bind:value={$config.showTimer} />
 
     <CheckBox
-        subLabel="Don't play audio automatically"
+        label="Don't play audio automatically"
         defaultValue={defaults.disableAutoplay}
         bind:value={$config.disableAutoplay} />
 
     <CheckBox
-        subLabel={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
+        label={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
         defaultValue={defaults.skipQuestionWhenReplayingAnswer}
         bind:value={$config.skipQuestionWhenReplayingAnswer} />
 </div>

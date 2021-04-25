@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBoxFloat
         label={tr.schedulingEasyBonus()}
-        subLabel="Extra multiplier applied when answering Easy on a review card."
+        tooltip="Extra multiplier applied when answering Easy on a review card."
         min={1}
         max={3}
         defaultValue={defaults.easyMultiplier}
@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBoxFloat
         label={tr.schedulingIntervalModifier()}
-        subLabel="Multiplier applied to all reviews."
+        tooltip="Multiplier applied to all reviews."
         min={0.5}
         max={2}
         defaultValue={defaults.intervalMultiplier}
@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBox
         label={tr.schedulingMaximumInterval()}
-        subLabel="The longest number of days a review card will wait."
+        tooltip="The longest number of days a review card will wait."
         min={1}
         max={365 * 100}
         defaultValue={defaults.maximumReviewInterval}
@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SpinBoxFloat
         label={tr.schedulingHardInterval()}
-        subLabel="Multiplier applied to review interval when Hard is pressed."
+        tooltip="Multiplier applied to review interval when Hard is pressed."
         min={0.5}
         max={1.3}
         defaultValue={defaults.hardMultiplier}
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:changed={(evt) => ($config.hardMultiplier = evt.detail.value)} />
 
     <CheckBox
-        subLabel={tr.schedulingBuryRelatedReviewsUntilTheNext()}
+        label={tr.schedulingBuryRelatedReviewsUntilTheNext()}
         defaultValue={defaults.buryReviews}
         bind:value={$config.buryReviews} />
 </div>
