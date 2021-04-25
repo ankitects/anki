@@ -6,14 +6,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ConfigSelector from "./ConfigSelector.svelte";
     import ConfigEditor from "./ConfigEditor.svelte";
     import type { DeckOptionsState } from "./lib";
-    import { onMount, onDestroy } from "svelte";
+    import { onMount, onDestroy, setContext } from "svelte";
     import { registerShortcut } from "lib/shortcuts";
     import type { Writable } from "svelte/store";
     import HtmlAddon from "./HtmlAddon.svelte";
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponents";
+    import { nightModeKey } from "sveltelib/contextKeys";
 
     export let state: DeckOptionsState;
     let addons = state.addonComponents;
+
+    export let nightMode: boolean;
+    setContext(nightModeKey, nightMode);
 
     export function auxData(): Writable<Record<string, unknown>> {
         return state.currentAuxData;

@@ -97,6 +97,7 @@ esbuild(
         "@npm//bootstrap",
         ":base_css",
         "//ts/sveltelib",
+        "//ts/sveltelib:svelte_components",
     ] + svelte_names,
 )
 

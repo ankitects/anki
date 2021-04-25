@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .night-mode {
-        background-color: var(--bg-color);
+        background-color: var(--window-bg);
     }
 </style>
 

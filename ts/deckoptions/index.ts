@@ -14,7 +14,7 @@ export async function deckOptions(
     target: HTMLDivElement,
     deckId: number
 ): Promise<DeckOptionsPage> {
-    checkNightMode();
+    const nightMode = checkNightMode();
     await setupI18n({
         modules: [ModuleName.SCHEDULING, ModuleName.ACTIONS, ModuleName.DECK_CONFIG],
     });
@@ -22,7 +22,7 @@ export async function deckOptions(
     const state = new DeckOptionsState(deckId, info);
     return new DeckOptionsPage({
         target,
-        props: { state },
+        props: { state, nightMode },
     });
 }
 

@@ -76,11 +76,6 @@ audio = (
 )
 
 _html = """
-<style>
-:root {
-    --bg-color: %s;
-}
-</style>
 <div>
     <div id="editorToolbar"></div>
     <div id="fields">
@@ -135,10 +130,9 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
-        bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
-            _html % (bgcol, tr.editing_show_duplicates()),
+            _html % tr.editing_show_duplicates(),
             css=[
                 "css/editor.css",
             ],

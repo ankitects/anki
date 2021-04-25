@@ -15,19 +15,6 @@
         }
     }
 
-    .dropdown-menu {
-        background-color: var(--frame-bg);
-
-        .dropdown-item {
-            color: var(--text-fg);
-
-            &:hover,
-            &:active {
-                background-color: var(--window-bg);
-            }
-        }
-    }
-
     .modal-content {
         background-color: var(--window-bg);
         color: var(--text-fg);

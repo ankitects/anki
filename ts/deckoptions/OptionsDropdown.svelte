@@ -6,6 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import { textInputModal } from "./textInputModal";
     import type { DeckOptionsState } from "./lib";
+    import {
+        dropdownMenu,
+        dropdownItem,
+        dropdownDivider,
+    } from "sveltelib/dynamicComponents";
 
     export let state: DeckOptionsState;
 
@@ -58,6 +63,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function save(applyToChildDecks: boolean): void {
         state.save(applyToChildDecks);
     }
+
+    const dropdown = dropdownMenu({
+        items: [
+            dropdownItem({
+                label: "Add Config",
+                onClick: addConfig,
+            }),
+            dropdownItem({
+                label: "Rename Config",
+                onClick: renameConfig,
+            }),
+            dropdownItem({
+                label: "Remove Config",
+                onClick: removeConfig,
+            }),
+            dropdownDivider({}),
+            dropdownItem({
+                label: "Save to All Children",
+                onClick: () => save(true),
+            }),
+        ],
+    });
 </script>
 
 <style>
@@ -78,20 +105,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         aria-expanded="false">
         <span class="visually-hidden">Toggle Dropdown</span>
     </button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href={'#'} on:click={addConfig}>Add Config</a></li>
-        <li>
-            <a class="dropdown-item" href={'#'} on:click={renameConfig}>Rename Config</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href={'#'} on:click={removeConfig}>Remove Config</a>
-        </li>
-        <li>
-            <hr class="dropdown-divider" />
-        </li>
-        <li>
-            <a class="dropdown-item" href={'#'} on:click={() => save(true)}>Save to All
-                Children</a>
-        </li>
-    </ul>
+
+    <svelte:component this={dropdown.component} {...dropdown} />
 </div>
