@@ -71,6 +71,7 @@ from aqt.utils import (
     shortcut,
     showInfo,
     showWarning,
+    skip_if_selection_is_empty,
     tooltip,
     tr,
 )
@@ -573,11 +574,10 @@ where id in %s"""
     # Misc menu options
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def onChangeModel(self) -> None:
-        nids = self.oneModelNotes()
-        if nids:
-            ChangeModel(self, nids)
+        ChangeModel(self, self.oneModelNotes())
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()
@@ -619,6 +619,7 @@ where id in %s"""
     # Card deletion
     ######################################################################
 
+    @skip_if_selection_is_empty
     def delete_selected_notes(self) -> None:
         # ensure deletion is not accidentally triggered when the user is focused
         # in the editing screen or search bar
@@ -626,11 +627,7 @@ where id in %s"""
         if focus != self.form.tableView:
             return
 
-        # nothing selected?
         nids = self.table.get_selected_note_ids()
-        if not nids:
-            return
-
         # select the next card if there is one
         self.focusTo = self.editor.currentField
         self.table.to_next_row()
@@ -644,14 +641,12 @@ where id in %s"""
     # Deck change
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
 
         cids = self.table.get_selected_card_ids()
-        if not cids:
-            return
-
         did = self.mw.col.db.scalar("select did from cards where id = ?", cids[0])
         current = self.mw.col.decks.get(did)["name"]
         ret = StudyDeck(
@@ -675,6 +670,7 @@ where id in %s"""
     # Tags
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def add_tags_to_selected_notes(
         self,
@@ -687,6 +683,7 @@ where id in %s"""
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
         ).run_in_background(initiator=self)
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
@@ -721,6 +718,7 @@ where id in %s"""
         is_suspended = bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
         self.form.actionToggle_Suspend.setChecked(is_suspended)
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved
     def suspend_selected_cards(self, checked: bool) -> None:
         cids = self.selected_cards()
@@ -732,14 +730,15 @@ where id in %s"""
     # Exporting
     ######################################################################
 
+    @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
         cids = self.selectedNotesAsCards()
-        if cids:
-            ExportDialog(self.mw, cids=list(cids))
+        ExportDialog(self.mw, cids=list(cids))
 
     # Flags & Marking
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved
     def set_flag_of_selected_cards(self, flag: int) -> None:
         if not self.card:
@@ -782,6 +781,7 @@ where id in %s"""
     # Scheduling
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def reposition(self) -> None:
         if self.card and self.card.queue != QUEUE_TYPE_NEW:
@@ -793,6 +793,7 @@ where id in %s"""
         ):
             op.run_in_background()
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
         if op := set_due_date_dialog(
@@ -802,6 +803,7 @@ where id in %s"""
         ):
             op.run_in_background()
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def forget_cards(self) -> None:
         forget_cards(
@@ -812,6 +814,7 @@ where id in %s"""
     # Edit: selection
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def selectNotes(self) -> None:
         nids = self.selected_notes()
@@ -860,13 +863,10 @@ where id in %s"""
     # Edit: replacing
     ######################################################################
 
+    @skip_if_selection_is_empty
     @ensure_editor_saved_on_trigger
     def onFindReplace(self) -> None:
-        nids = self.selected_notes()
-        if not nids:
-            return
-
-        FindAndReplaceDialog(self, mw=self.mw, note_ids=nids)
+        FindAndReplaceDialog(self, mw=self.mw, note_ids=self.selected_notes())
 
     # Edit: finding dupes
     ######################################################################
