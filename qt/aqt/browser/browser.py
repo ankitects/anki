@@ -788,17 +788,19 @@ where id in %s"""
             showInfo(tr.browsing_only_new_cards_can_be_repositioned(), parent=self)
             return
 
-        reposition_new_cards_dialog(
+        if op := reposition_new_cards_dialog(
             parent=self, card_ids=self.selected_cards()
-        ).run_in_background()
+        ):
+            op.run_in_background()
 
     @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
-        set_due_date_dialog(
+        if op := set_due_date_dialog(
             parent=self,
             card_ids=self.selected_cards(),
             config_key=Config.String.SET_DUE_BROWSER,
-        ).run_in_background()
+        ):
+            op.run_in_background()
 
     @ensure_editor_saved_on_trigger
     def forget_cards(self) -> None:
