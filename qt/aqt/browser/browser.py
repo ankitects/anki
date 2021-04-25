@@ -161,11 +161,8 @@ class Browser(QMainWindow):
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
-        qconnect(f.actionAdd_Tags.triggered, lambda: self.add_tags_to_selected_notes())
-        qconnect(
-            f.actionRemove_Tags.triggered,
-            lambda: self.remove_tags_from_selected_notes(),
-        )
+        qconnect(f.actionAdd_Tags.triggered, self.add_tags_to_selected_notes)
+        qconnect(f.actionRemove_Tags.triggered, self.remove_tags_from_selected_notes)
         qconnect(f.actionClear_Unused_Tags.triggered, self.clear_unused_tags)
         qconnect(f.actionToggle_Mark.triggered, self.toggle_mark_of_selected_notes)
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
@@ -190,7 +187,7 @@ class Browser(QMainWindow):
         qconnect(
             f.actionBlue_Flag.triggered, lambda: self.set_flag_of_selected_cards(4)
         )
-        qconnect(f.actionExport.triggered, lambda: self._on_export_notes())
+        qconnect(f.actionExport.triggered, self._on_export_notes)
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
         qconnect(f.actionNextCard.triggered, self.onNextCard)
