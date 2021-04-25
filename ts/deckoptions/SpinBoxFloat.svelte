@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { NumberValueEvent } from "./events";
 
     export let label: string;
-    export let subLabel: string;
+    export let tooltip: string;
     export let value: number;
     export let defaultValue: number;
     export let min = 1;
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ConfigEntry {label} {subLabel} {value} {defaultValue} on:revert={revert}>
+<ConfigEntry {label} {tooltip} {value} {defaultValue} on:revert={revert}>
     <input
         type="number"
         {min}

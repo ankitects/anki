@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HelpPopup from "./HelpPopup.svelte";
 
     export let label: string;
-    export let subLabel = "";
+    export let tooltip = "";
     export let value: any;
     export let defaultValue: any;
     /// empty strings will be ignored
@@ -58,8 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="table">
             <span class="vcenter">
                 {label}
-                {#if subLabel}
-                    <HelpPopup html={subLabel} />
+                {#if tooltip}
+                    <HelpPopup html={tooltip} />
                 {/if}
             </span>
         </div>
