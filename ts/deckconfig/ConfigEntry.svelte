@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import RevertIcon from "./RevertIcon.svelte";
+    import RevertButton from "./RevertButton.svelte";
     import HelpPopup from "./HelpPopup.svelte";
 
     export let label: string;
@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <div class="input-grid" class:full-grid-width={wholeLine}>
         <slot />
-        <RevertIcon bind:value {defaultValue} on:revert />
+        <RevertButton bind:value {defaultValue} on:revert />
     </div>
 
     <div class="full-grid-width">
