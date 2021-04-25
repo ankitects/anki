@@ -294,7 +294,12 @@ hooks = [
         args=[
             "deck_options: aqt.deckoptions.DeckOptionsDialog",
         ],
-        doc="Can be used to inject extra options into the config screen",
+        doc="""Can be used to inject extra options into the config screen.
+        
+        See the example add-ons at:
+        https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_svelte
+        https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_raw_html
+        """,
     ),
     # Filtered deck options
     ###################
