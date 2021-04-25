@@ -1,5 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import { dynamicComponent } from "sveltelib/dynamicComponents";
+
 import RawButton from "./RawButton.svelte";
 import LabelButton from "./LabelButton.svelte";
 import type { LabelButtonProps } from "./LabelButton";
@@ -16,10 +18,6 @@ import type { ButtonGroupProps } from "./ButtonGroup";
 
 import ButtonDropdown from "./ButtonDropdown.svelte";
 import type { ButtonDropdownProps } from "./ButtonDropdown";
-import DropdownMenu from "./DropdownMenu.svelte";
-import type { DropdownMenuProps } from "./DropdownMenu";
-import DropdownItem from "./DropdownItem.svelte";
-import type { DropdownItemProps } from "./DropdownItem";
 import WithDropdownMenu from "./WithDropdownMenu.svelte";
 import type { WithDropdownMenuProps } from "./WithDropdownMenu";
 
@@ -28,8 +26,6 @@ import type { WithShortcutProps } from "./WithShortcut";
 
 import WithLabel from "./WithLabel.svelte";
 import type { WithLabelProps } from "./WithLabel";
-
-import { dynamicComponent } from "sveltelib/dynamicComponent";
 
 export const rawButton = dynamicComponent<typeof RawButton, { html: string }>(
     RawButton
@@ -58,13 +54,6 @@ export const buttonDropdown = dynamicComponent<
     typeof ButtonDropdown,
     ButtonDropdownProps
 >(ButtonDropdown);
-
-export const dropdownMenu = dynamicComponent<typeof DropdownMenu, DropdownMenuProps>(
-    DropdownMenu
-);
-export const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
-    DropdownItem
-);
 
 export const withDropdownMenu = dynamicComponent<
     typeof WithDropdownMenu,

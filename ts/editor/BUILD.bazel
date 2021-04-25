@@ -108,6 +108,7 @@ esbuild(
         "editor_ts",
         "//ts/editor-toolbar:local_css",
         "//ts/editor-toolbar:svelte_components",
+        "//ts/sveltelib:svelte_components",
     ],
 )
 

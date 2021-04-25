@@ -10,7 +10,7 @@ import { postRequest } from "lib/postrequest";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
 import * as tr from "lib/i18n";
-import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+import type { DynamicSvelteComponent } from "sveltelib/dynamicComponents";
 
 export async function getDeckOptionsInfo(
     deckId: number

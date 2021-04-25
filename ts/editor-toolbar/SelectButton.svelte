@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import type { Option } from "./SelectButton";
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey } from "./contextKeys";
+    import { disabledKey } from "sveltelib/contextKeys";
     import SelectOption from "./SelectOption.svelte";
 
     export let id: string;

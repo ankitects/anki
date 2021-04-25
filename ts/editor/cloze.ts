@@ -1,6 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { ToolbarItem } from "editor-toolbar/types";
+import type { ToolbarItem } from "sveltelib/types";
 
 import * as tr from "lib/i18n";
 import { iconButton, withShortcut } from "editor-toolbar/dynamicComponents";

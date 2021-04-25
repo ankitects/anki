@@ -1,6 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { IterableToolbarItem } from "editor-toolbar/types";
+import type { IterableToolbarItem } from "sveltelib/types";
 
 import { bridgeCommand } from "lib/bridgecommand";
 import * as tr from "lib/i18n";

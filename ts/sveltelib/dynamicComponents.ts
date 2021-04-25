@@ -17,3 +17,21 @@ export const dynamicComponent = <
 ) => <Props = DefaultProps>(props: Props): DynamicSvelteComponent<Comp> & Props => {
     return { component, ...props };
 };
+
+import DropdownMenu from "./DropdownMenu.svelte";
+import type { DropdownMenuProps } from "./DropdownMenu";
+
+import DropdownItem from "./DropdownItem.svelte";
+import type { DropdownItemProps } from "./DropdownItem";
+
+import DropdownDivider from "./DropdownDivider.svelte";
+
+export const dropdownMenu = dynamicComponent<typeof DropdownMenu, DropdownMenuProps>(
+    DropdownMenu
+);
+export const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
+    DropdownItem
+);
+export const dropdownDivider = dynamicComponent<typeof DropdownDivider, {}>(
+    DropdownDivider
+);

@@ -1,18 +1,44 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 
 # Anki Library
 ################
 
+svelte_files = glob(["*.svelte"])
+
+svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+filegroup(
+    name = "svelte_components",
+    srcs = svelte_names,
+    visibility = ["//visibility:public"],
+)
+
+compile_svelte(
+    name = "svelte",
+    srcs = svelte_files,
+    deps = [
+        "//ts/sass:button_mixins_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 ts_library(
     name = "sveltelib",
-    srcs = glob(["**/*.ts"]),
-    data = [],
     module_name = "sveltelib",
-    tsconfig = "//:tsconfig.json",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.test.ts"],
+    ),
+    tsconfig = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
+        "//ts/lib",
+        "@npm//@popperjs/core",
+        "@npm//@types/bootstrap",
+        "@npm//bootstrap",
         "@npm//svelte",
         "@npm//tslib",
     ],

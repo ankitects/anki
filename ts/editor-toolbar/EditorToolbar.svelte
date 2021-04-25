@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ToolbarItem, IterableToolbarItem } from "./types";
 
     import { setContext } from "svelte";
-    import { disabledKey, nightModeKey } from "./contextKeys";
+    import { disabledKey, nightModeKey } from "sveltelib/contextKeys";
     import { add, insert, updateRecursive } from "./identifiable";
     import { showComponent, hideComponent, toggleComponent } from "./hideable";
 

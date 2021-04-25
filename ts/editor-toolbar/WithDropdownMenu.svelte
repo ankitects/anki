@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
-    import type { ToolbarItem } from "./types";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponents";
+    import type { ToolbarItem } from "sveltelib/types";
 
     import Dropdown from "bootstrap/js/dist/dropdown";
 

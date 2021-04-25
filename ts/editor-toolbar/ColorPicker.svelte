@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "./contextKeys";
+    import { nightModeKey } from "sveltelib/contextKeys";
     import { mergeTooltipAndShortcut } from "./helpers";
 
     export let id: string;
