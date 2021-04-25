@@ -27,13 +27,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : 0;
         stepsExceedGraduatingInterval =
             lastLearnStepInDays > $config.graduatingIntervalGood
-                ? "Your last learning step is greater than the graduating interval."
+                ? tr.deckConfigLearningStepAboveGraduatingInterval()
                 : "";
     }
 
     $: goodExceedsEasy =
         $config.graduatingIntervalGood > $config.graduatingIntervalEasy
-            ? "The Good interval should not be larger than the Easy interval."
+            ? tr.deckConfigGoodAboveEasy()
             : "";
 </script>
 
