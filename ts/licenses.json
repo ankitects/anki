@@ -102,6 +102,18 @@
         "path": "node_modules/@protobufjs/utf8",
         "licenseFile": "node_modules/@protobufjs/utf8/LICENSE"
     },
+    "@types/lodash-es@4.17.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/@types/lodash-es",
+        "licenseFile": "node_modules/@types/lodash-es/LICENSE"
+    },
+    "@types/lodash@4.14.168": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/@types/lodash",
+        "licenseFile": "node_modules/@types/lodash/LICENSE"
+    },
     "@types/long@4.0.1": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
