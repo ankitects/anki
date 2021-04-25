@@ -1009,6 +1009,19 @@ def ensure_editor_saved_on_trigger(func: Callable) -> Callable:
     return pyqtSlot()(ensure_editor_saved(func))  # type: ignore
 
 
+def skip_if_selection_is_empty(func: Callable) -> Callable:
+    """Make the wrapped method a no-op and show a hint if the table selection is empty."""
+
+    @wraps(func)
+    def decorated(self: Any, *args: Any, **kwargs: Any) -> None:
+        if self.table.len_selection() > 0:
+            func(self, *args, **kwargs)
+        else:
+            tooltip(tr.browsing_no_selection())
+
+    return decorated
+
+
 class KeyboardModifiersPressed:
     "Util for type-safe checks of currently-pressed modifier keys."
 
