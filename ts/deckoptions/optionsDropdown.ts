@@ -2,6 +2,7 @@ import * as tr from "lib/i18n";
 import { textInputModal } from "./textInputModal";
 import type { DeckOptionsState } from "./lib";
 import {
+    DynamicSvelteComponent,
     labelButton,
     buttonGroup,
     dropdownMenu,
@@ -9,7 +10,7 @@ import {
     dropdownDivider,
 } from "sveltelib/dynamicComponents";
 
-export function getOptionsDropdown(state: DeckOptionsState) {
+export function getOptionsDropdown(state: DeckOptionsState): DynamicSvelteComponent {
     function addConfig(): void {
         textInputModal({
             title: "Add Config",

@@ -58,6 +58,7 @@ ts_library(
         "lib.ts",
         "steps.ts",
         "textInputModal.ts",
+        "optionsDropdown.ts",
     ],
     module_name = "deckoptions",
     deps = [

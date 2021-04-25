@@ -42,6 +42,6 @@ export const dropdownMenu = dynamicComponent<typeof DropdownMenu, DropdownMenuPr
 export const dropdownItem = dynamicComponent<typeof DropdownItem, DropdownItemProps>(
     DropdownItem
 );
-export const dropdownDivider = dynamicComponent<typeof DropdownDivider, {}>(
+export const dropdownDivider = dynamicComponent<typeof DropdownDivider, Record<string, never>>(
     DropdownDivider
 );
