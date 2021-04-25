@@ -31,7 +31,6 @@ declare global {
     }
 }
 
-import "editor-toolbar";
 customElements.define("anki-editable", Editable);
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
@@ -170,4 +169,4 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
 
 const i18n = setupI18n({ modules: [ModuleName.EDITING] });
 
-initToolbar(i18n);
+export const $editorToolbar = initToolbar(i18n);

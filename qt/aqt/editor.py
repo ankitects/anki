@@ -82,7 +82,7 @@ _html = """
 }
 </style>
 <div>
-    <anki-editor-toolbar id="editorToolbar"></anki-editor-toolbar>
+    <div id="editorToolbar"></div>
     <div id="fields">
     </div>
     <div id="dupes" class="is-inactive">
@@ -155,7 +155,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype', -1);"
+            f"$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype', -1));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -173,10 +173,10 @@ class Editor:
         )
         righttopbtns_js = (
             f"""
-$editorToolbar.addButton(editorToolbar.buttonGroup({{
+$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.buttonGroup({{
   id: "addons",
   items: [ {righttopbtns_defs} ]
-}}), -1);
+}}), -1));
 """
             if righttopbtns_defs
             else ""
@@ -1277,9 +1277,13 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.model()["type"] == MODEL_CLOZE:
-        editor.web.eval('$editorToolbar.showButton("template", "cloze"); ')
+        editor.web.eval(
+            '$editorToolbar.then(({ showButton }) => showButton("template", "cloze")); '
+        )
     else:
-        editor.web.eval('$editorToolbar.hideButton("template", "cloze"); ')
+        editor.web.eval(
+            '$editorToolbar.then(({ hideButton }) => hideButton("template", "cloze")); '
+        )
 
 
 gui_hooks.editor_did_load_note.append(set_cloze_button)

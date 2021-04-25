@@ -387,12 +387,12 @@ class Browser(QMainWindow):
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
             editor.web.eval(
                 f"""
-$editorToolbar.addButton(editorToolbar.labelButton({{
+$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.labelButton({{
     label: `{tr.actions_preview()}`,
     tooltip: `{tr.browsing_preview_selected_card(val=shortcut(preview_shortcut))}`,
     onClick: () => bridgeCommand("preview"),
     disables: false,
-}}), "notetype", -1);
+}}), "notetype", -1));
 """
             )
 
