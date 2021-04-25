@@ -4,11 +4,10 @@ import type { IterableToolbarItem } from "sveltelib/types";
 
 import { bridgeCommand } from "lib/bridgecommand";
 import * as tr from "lib/i18n";
-import {
-    labelButton,
-    buttonGroup,
-    withShortcut,
-} from "editor-toolbar/dynamicComponents";
+
+import { buttonGroup, labelButton } from "sveltelib/dynamicComponents";
+
+import { withShortcut } from "editor-toolbar/dynamicComponents";
 
 export function getNotetypeGroup(): IterableToolbarItem {
     const fieldsButton = labelButton({

@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { add, insert, updateRecursive } from "./identifiable";
     import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
-    import ButtonGroup from "./ButtonGroup.svelte";
+    import ButtonGroup from "sveltelib/ButtonGroup.svelte";
 
     export let buttons: IterableToolbarItem[];
     export let menus: ToolbarItem[];

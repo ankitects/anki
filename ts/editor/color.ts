@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { IterableToolbarItem } from "sveltelib/types";
 
+import { buttonGroup } from "sveltelib/dynamicComponents";
 import {
     iconButton,
     colorPicker,
-    buttonGroup,
     withShortcut,
 } from "editor-toolbar/dynamicComponents";
 import * as tr from "lib/i18n";

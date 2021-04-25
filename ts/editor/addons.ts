@@ -2,12 +2,15 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponents";
 
-import { dropdownMenu, dropdownItem } from "sveltelib/dynamicComponents";
+import {
+    dropdownMenu,
+    dropdownItem,
+    labelButton,
+    buttonGroup,
+} from "sveltelib/dynamicComponents";
 
 import {
-    buttonGroup,
     rawButton,
-    labelButton,
     iconButton,
     commandIconButton,
     selectButton,

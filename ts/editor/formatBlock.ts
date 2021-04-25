@@ -4,10 +4,10 @@ import type { IterableToolbarItem } from "sveltelib/types";
 import type { EditingArea } from "./editingArea";
 
 import * as tr from "lib/i18n";
+import { buttonGroup } from "sveltelib/dynamicComponents";
 import {
     commandIconButton,
     iconButton,
-    buttonGroup,
     buttonDropdown,
     withDropdownMenu,
 } from "editor-toolbar/dynamicComponents";

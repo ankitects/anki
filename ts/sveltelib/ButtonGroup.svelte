@@ -10,6 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined;
     export let className = "";
     export let items: ToolbarItem[];
+    export let size: number;
+
+    $: sizeString = size ? `--toolbar-size: ${size}px;` : undefined;
 
     function filterHidden({ hidden = false, ...props }) {
         return props;
@@ -22,39 +25,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     div {
         display: flex;
         justify-items: start;
-
         flex-wrap: var(--toolbar-wrap);
-        overflow-y: auto;
 
         padding: calc(var(--toolbar-size) / 10);
         margin: 0;
 
+        /* :is() would be better suited here */
         > :global(button),
         > :global(select) {
-            border-radius: 0;
+            border-radius: calc(var(--toolbar-size) / 7.5);
 
-            &:nth-child(1) {
-                border-top-left-radius: calc(var(--toolbar-size) / 7.5);
-                border-bottom-left-radius: calc(var(--toolbar-size) / 7.5);
+            &:not(:nth-of-type(1)) {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
             }
 
-            &:nth-last-child(1) {
-                border-top-right-radius: calc(var(--toolbar-size) / 7.5);
-                border-bottom-right-radius: calc(var(--toolbar-size) / 7.5);
+            &:not(:nth-last-of-type(1)) {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
             }
         }
 
         &.border-overlap-group {
-            :global(button),
-            :global(select) {
-                margin-left: -1px;
+            > :global(button),
+            > :global(select) {
+                margin-left: -1px !important;
             }
         }
 
         &.gap-group {
-            :global(button),
-            :global(select) {
-                margin-left: 1px;
+            > :global(button),
+            > :global(select) {
+                margin-left: 1px !important;
             }
         }
     }
@@ -64,7 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class={`btn-group ${className}`}
     class:border-overlap-group={!nightMode}
-    class:gap-group={nightMode}>
+    class:gap-group={nightMode}
+    style={sizeString}
+    dir="ltr">
     {#each items as button}
         {#if !button.hidden}
             <svelte:component this={button.component} {...filterHidden(button)} />

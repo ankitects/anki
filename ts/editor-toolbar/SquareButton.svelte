@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import { getContext, onMount, createEventDispatcher } from "svelte";
     import { disabledKey, nightModeKey } from "sveltelib/contextKeys";
-    import { mergeTooltipAndShortcut } from "./helpers";
+    import { mergeTooltipAndShortcut } from "sveltelib/helpers";
 
     export let id: string;
     export let className = "";

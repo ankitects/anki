@@ -1,19 +1,15 @@
-<!--
-Copyright: Ankitects Pty Ltd and contributors
-License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
--->
-<script lang="ts">
-    import * as tr from "lib/i18n";
-    import { textInputModal } from "./textInputModal";
-    import type { DeckOptionsState } from "./lib";
-    import {
-        dropdownMenu,
-        dropdownItem,
-        dropdownDivider,
-    } from "sveltelib/dynamicComponents";
+import * as tr from "lib/i18n";
+import { textInputModal } from "./textInputModal";
+import type { DeckOptionsState } from "./lib";
+import {
+    labelButton,
+    buttonGroup,
+    dropdownMenu,
+    dropdownItem,
+    dropdownDivider,
+} from "sveltelib/dynamicComponents";
 
-    export let state: DeckOptionsState;
-
+export function getOptionsDropdown(state: DeckOptionsState) {
     function addConfig(): void {
         textInputModal({
             title: "Add Config",
@@ -64,47 +60,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state.save(applyToChildDecks);
     }
 
-    const dropdown = dropdownMenu({
+    return buttonGroup({
+        id: "optionsDropdown",
+        size: 35,
         items: [
-            dropdownItem({
-                label: "Add Config",
-                onClick: addConfig,
+            labelButton({
+                label: "Save",
+                className: "btn-primary",
+                onClick: () => save(false),
             }),
-            dropdownItem({
-                label: "Rename Config",
-                onClick: renameConfig,
+            labelButton({
+                dropdownToggle: true,
             }),
-            dropdownItem({
-                label: "Remove Config",
-                onClick: removeConfig,
-            }),
-            dropdownDivider({}),
-            dropdownItem({
-                label: "Save to All Children",
-                onClick: () => save(true),
+            dropdownMenu({
+                items: [
+                    dropdownItem({
+                        label: "Add Config",
+                        onClick: addConfig,
+                    }),
+                    dropdownItem({
+                        label: "Rename Config",
+                        onClick: renameConfig,
+                    }),
+                    dropdownItem({
+                        label: "Remove Config",
+                        onClick: removeConfig,
+                    }),
+                    dropdownDivider({}),
+                    dropdownItem({
+                        label: "Save to All Children",
+                        onClick: () => save(true),
+                    }),
+                ],
             }),
         ],
     });
-</script>
-
-<style>
-    :global(svg) {
-        vertical-align: text-bottom;
-    }
-</style>
-
-<div class="btn-group" dir="ltr">
-    <button
-        type="button"
-        class="btn btn-primary"
-        on:click={() => save(false)}>Save</button>
-    <button
-        type="button"
-        class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
-        data-bs-toggle="dropdown"
-        aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-    </button>
-
-    <svelte:component this={dropdown.component} {...dropdown} />
-</div>
+}

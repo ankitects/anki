@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { ToolbarItem } from "sveltelib/types";
-    import ButtonGroup from "./ButtonGroup.svelte";
+    import ButtonGroup from "sveltelib/ButtonGroup.svelte";
 
     export let id: string;
     export let className = "";

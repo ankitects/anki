@@ -18,13 +18,23 @@ export const dynamicComponent = <
     return { component, ...props };
 };
 
+import ButtonGroup from "./ButtonGroup.svelte";
+import type { ButtonGroupProps } from "./ButtonGroup";
+import LabelButton from "./LabelButton.svelte";
+import type { LabelButtonProps } from "./LabelButton";
+
 import DropdownMenu from "./DropdownMenu.svelte";
 import type { DropdownMenuProps } from "./DropdownMenu";
-
 import DropdownItem from "./DropdownItem.svelte";
 import type { DropdownItemProps } from "./DropdownItem";
-
 import DropdownDivider from "./DropdownDivider.svelte";
+
+export const buttonGroup = dynamicComponent<typeof ButtonGroup, ButtonGroupProps>(
+    ButtonGroup
+);
+export const labelButton = dynamicComponent<typeof LabelButton, LabelButtonProps>(
+    LabelButton
+);
 
 export const dropdownMenu = dynamicComponent<typeof DropdownMenu, DropdownMenuProps>(
     DropdownMenu

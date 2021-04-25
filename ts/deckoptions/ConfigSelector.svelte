@@ -5,10 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import type { DeckOptionsState, ConfigListEntry } from "./lib";
-    import OptionsDropdown from "./OptionsDropdown.svelte";
+    import { getOptionsDropdown } from "./optionsDropdown";
 
     export let state: DeckOptionsState;
     let configList = state.configList;
+    $: optionsDropdown = getOptionsDropdown(state);
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
@@ -52,6 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/each}
         </select>
 
-        <OptionsDropdown {state} />
+        <svelte:component this={optionsDropdown.component} {...optionsDropdown} />
     </div>
 </div>

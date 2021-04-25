@@ -4,12 +4,11 @@ import type { IterableToolbarItem } from "sveltelib/types";
 
 import { bridgeCommand } from "lib/bridgecommand";
 
-import { dropdownMenu, dropdownItem } from "sveltelib/dynamicComponents";
+import { dropdownMenu, dropdownItem, buttonGroup } from "sveltelib/dynamicComponents";
 
 import {
     iconButton,
     withDropdownMenu,
-    buttonGroup,
     withShortcut,
 } from "editor-toolbar/dynamicComponents";
 import * as tr from "lib/i18n";

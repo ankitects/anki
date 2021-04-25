@@ -5,14 +5,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey, nightModeKey } from "sveltelib/contextKeys";
+    import { disabledKey, nightModeKey } from "./contextKeys";
     import { mergeTooltipAndShortcut } from "./helpers";
 
     export let id: string;
     export let className = "";
     export let tooltip: string | undefined;
     export let shortcutLabel: string | undefined;
-    export let label: string;
+    export let label: string = "";
 
     $: title = mergeTooltipAndShortcut(tooltip, shortcutLabel);
 

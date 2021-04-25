@@ -3,10 +3,10 @@
 import type { IterableToolbarItem } from "sveltelib/types";
 
 import * as tr from "lib/i18n";
+import { buttonGroup } from "sveltelib/dynamicComponents";
 import {
     commandIconButton,
     iconButton,
-    buttonGroup,
     withShortcut,
 } from "editor-toolbar/dynamicComponents";
 
