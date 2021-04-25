@@ -17,13 +17,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style>
-    :global(ul.btn-dropdown-menu) {
+    :global(.dropdown-menu.btn-dropdown-menu) {
         display: none;
         background-color: var(--window-bg);
         border-color: var(--medium-border);
     }
 
-    :global(ul.btn-dropdown-menu.show) {
+    :global(.dropdown-menu.btn-dropdown-menu.show) {
         display: flex;
     }
 </style>
