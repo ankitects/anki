@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { slide } from "svelte/transition";
     import RevertButton from "./RevertButton.svelte";
     import HelpPopup from "./HelpPopup.svelte";
 
@@ -72,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="full-grid-width">
         {#each warnings as warning}
             {#if warning}
-                <div class="alert alert-warning">{warning}</div>
+                <div class="alert alert-warning" in:slide out:slide>{warning}</div>
             {/if}
         {/each}
     </div>
