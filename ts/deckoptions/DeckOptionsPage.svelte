@@ -10,12 +10,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerShortcut } from "lib/shortcuts";
     import type { Writable } from "svelte/store";
     import HtmlAddon from "./HtmlAddon.svelte";
+    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
     export let state: DeckOptionsState;
     let addons = state.addonComponents;
 
     export function auxData(): Writable<Record<string, unknown>> {
         return state.currentAuxData;
+    }
+
+    export function addSvelteAddon(component: DynamicSvelteComponent): void {
+        $addons = [...$addons, component];
     }
 
     export function addHtmlAddon(html: string, mounted: () => void): void {

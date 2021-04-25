@@ -5,6 +5,10 @@ import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { checkNightMode } from "lib/nightmode";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
+import SpinBox from "./SpinBox.svelte";
+import SpinBoxFloat from "./SpinBoxFloat.svelte";
+import EnumSelector from "./EnumSelector.svelte";
+import CheckBox from "./CheckBox.svelte";
 
 export async function deckOptions(
     target: HTMLDivElement,
@@ -21,3 +25,10 @@ export async function deckOptions(
         props: { state },
     });
 }
+
+export const deckConfigComponents = {
+    SpinBox,
+    SpinBoxFloat,
+    EnumSelector,
+    CheckBox,
+};
