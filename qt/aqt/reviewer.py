@@ -859,11 +859,12 @@ time = %(time)d;
         if self.mw.state != "review" or not self.card:
             return
 
-        set_due_date_dialog(
+        if op := set_due_date_dialog(
             parent=self.mw,
             card_ids=[self.card.id],
             config_key=Config.String.SET_DUE_REVIEWER,
-        ).run_in_background()
+        ):
+            op.run_in_background()
 
     def suspend_current_note(self) -> None:
         suspend_note(
