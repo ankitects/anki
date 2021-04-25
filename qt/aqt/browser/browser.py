@@ -72,6 +72,7 @@ from aqt.utils import (
     showInfo,
     showWarning,
     skip_if_selection_is_empty,
+    skip_if_selection_is_empty_on_trigger,
     tooltip,
     tr,
 )
@@ -160,11 +161,8 @@ class Browser(QMainWindow):
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
-        qconnect(f.actionAdd_Tags.triggered, lambda: self.add_tags_to_selected_notes())
-        qconnect(
-            f.actionRemove_Tags.triggered,
-            lambda: self.remove_tags_from_selected_notes(),
-        )
+        qconnect(f.actionAdd_Tags.triggered, self.add_tags_to_selected_notes)
+        qconnect(f.actionRemove_Tags.triggered, self.remove_tags_from_selected_notes)
         qconnect(f.actionClear_Unused_Tags.triggered, self.clear_unused_tags)
         qconnect(f.actionToggle_Mark.triggered, self.toggle_mark_of_selected_notes)
         qconnect(f.actionChangeModel.triggered, self.onChangeModel)
@@ -189,7 +187,7 @@ class Browser(QMainWindow):
         qconnect(
             f.actionBlue_Flag.triggered, lambda: self.set_flag_of_selected_cards(4)
         )
-        qconnect(f.actionExport.triggered, lambda: self._on_export_notes())
+        qconnect(f.actionExport.triggered, self._on_export_notes)
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
         qconnect(f.actionNextCard.triggered, self.onNextCard)
@@ -574,7 +572,7 @@ where id in %s"""
     # Misc menu options
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def onChangeModel(self) -> None:
         ChangeModel(self, self.oneModelNotes())
@@ -619,7 +617,7 @@ where id in %s"""
     # Card deletion
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     def delete_selected_notes(self) -> None:
         # ensure deletion is not accidentally triggered when the user is focused
         # in the editing screen or search bar
@@ -641,7 +639,7 @@ where id in %s"""
     # Deck change
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
@@ -670,7 +668,7 @@ where id in %s"""
     # Tags
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def add_tags_to_selected_notes(
         self,
@@ -683,7 +681,7 @@ where id in %s"""
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
         ).run_in_background(initiator=self)
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
@@ -730,7 +728,7 @@ where id in %s"""
     # Exporting
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     def _on_export_notes(self) -> None:
         cids = self.selectedNotesAsCards()
         ExportDialog(self.mw, cids=list(cids))
@@ -781,7 +779,7 @@ where id in %s"""
     # Scheduling
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def reposition(self) -> None:
         if self.card and self.card.queue != QUEUE_TYPE_NEW:
@@ -793,7 +791,7 @@ where id in %s"""
         ):
             op.run_in_background()
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def set_due_date(self) -> None:
         if op := set_due_date_dialog(
@@ -803,7 +801,7 @@ where id in %s"""
         ):
             op.run_in_background()
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def forget_cards(self) -> None:
         forget_cards(
@@ -814,7 +812,7 @@ where id in %s"""
     # Edit: selection
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def selectNotes(self) -> None:
         nids = self.selected_notes()
@@ -863,7 +861,7 @@ where id in %s"""
     # Edit: replacing
     ######################################################################
 
-    @skip_if_selection_is_empty
+    @skip_if_selection_is_empty_on_trigger
     @ensure_editor_saved_on_trigger
     def onFindReplace(self) -> None:
         FindAndReplaceDialog(self, mw=self.mw, note_ids=self.selected_notes())

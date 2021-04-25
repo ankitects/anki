@@ -1022,6 +1022,12 @@ def skip_if_selection_is_empty(func: Callable) -> Callable:
     return decorated
 
 
+def skip_if_selection_is_empty_on_trigger(func: Callable) -> Callable:
+    """Like skip_if_selection_is_empty(), but tells Qt this function takes no args."""
+
+    return pyqtSlot()(skip_if_selection_is_empty(func))  # type: ignore
+
+
 class KeyboardModifiersPressed:
     "Util for type-safe checks of currently-pressed modifier keys."
 
