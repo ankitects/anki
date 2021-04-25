@@ -8,3 +8,4 @@ deck-config-used-by-decks =
 deck-config-default-name = Default
 deck-config-description-markdown = Enable markdown+clean HTML
 deck-config-description-markdown-hint = Will appear as text on Anki 2.1.40 and below.
+deck-config-title = Deck Options

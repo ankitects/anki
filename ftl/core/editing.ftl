@@ -42,7 +42,7 @@ editing-underline-text = Underline text
 editing-unordered-list = Unordered list
 editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will not work until you switch the type at the top to Cloze.
 
-## deprecated, do not use
+## You don't need to translate these strings, as they will be replaced with different ones soon.
 
 editing-bold-text-ctrlandb = Bold text (Ctrl+B)
 editing-italic-text-ctrlandi = Italic text (Ctrl+I)
