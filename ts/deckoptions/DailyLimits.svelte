@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: newCardsGreaterThanParent =
         $config.newPerDay > $parentLimits.newCards
-            ? `Daily limit will be capped to parent limit of ${$parentLimits.newCards}.`
+            ? tr.deckConfigDailyLimitWillBeCapped({ cards: $parentLimits.newCards })
             : "";
 
     // with the v2 scheduler, this no longer applies
@@ -24,12 +24,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     //         : "";
 
     $: reviewsTooLow =
-        $config.newPerDay * 10 > $config.reviewsPerDay
-            ? `If adding ${
-                  $config.newPerDay
-              } new cards each day, your review limit should be at least ${
-                  $config.newPerDay * 10
-              }`
+        Math.min(9999, $config.newPerDay * 10) > $config.reviewsPerDay
+            ? tr.deckConfigReviewsTooLow({
+                  cards: $config.newPerDay,
+                  expected: Math.min(9999, $config.newPerDay * 10),
+              })
             : "";
 </script>
 
