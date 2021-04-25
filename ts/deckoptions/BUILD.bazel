@@ -8,7 +8,7 @@ load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:jest.bzl", "jest_test")
 
 compile_sass(
-    srcs = ["deckconfig-base.scss"],
+    srcs = ["deckoptions-base.scss"],
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
@@ -43,7 +43,7 @@ ts_library(
     name = "index",
     srcs = ["index.ts"],
     deps = [
-        "DeckConfigPage",
+        "DeckOptionsPage",
         "lib",
         "//ts/lib",
         "@npm//@popperjs",
@@ -59,7 +59,7 @@ ts_library(
         "steps.ts",
         "textInputModal.ts",
     ],
-    module_name = "deckconfig",
+    module_name = "deckoptions",
     deps = [
         "TextInputModal",
         "//ts:image_module_support",
@@ -72,7 +72,7 @@ ts_library(
 )
 
 esbuild(
-    name = "deckconfig",
+    name = "deckoptions",
     srcs = [
         "//ts:protobuf-shim.js",
     ],
@@ -87,7 +87,7 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = "deckconfig.css",
+    output_css = "deckoptions.css",
     visibility = ["//visibility:public"],
     deps = [
         "index",
@@ -100,7 +100,7 @@ esbuild(
     ] + svelte_names,
 )
 
-exports_files(["deckconfig.html"])
+exports_files(["deckoptions.html"])
 
 # Tests
 ################

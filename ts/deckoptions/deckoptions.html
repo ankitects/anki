@@ -3,18 +3,18 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" id="viewport" content="width=device-width" />
-        <link href="deckconfig-base.css" rel="stylesheet" />
-        <link href="deckconfig.css" rel="stylesheet" />
+        <link href="deckoptions-base.css" rel="stylesheet" />
+        <link href="deckoptions.css" rel="stylesheet" />
         <script src="../js/vendor/protobuf.min.js"></script>
         <script src="../js/vendor/bootstrap.bundle.min.js"></script>
-        <script src="deckconfig.js"></script>
+        <script src="deckoptions.js"></script>
     </head>
     <body>
         <div id="main"></div>
 
         <script>
             if (window.location.hash.startsWith("#test")) {
-                anki.deckConfig(document.getElementById("main"), 1);
+                anki.deckOptions(document.getElementById("main"), 1);
             }
         </script>
     </body>

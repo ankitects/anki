@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import SpinBox from "./SpinBox.svelte";
-    import type { DeckConfigState } from "./lib";
+    import type { DeckOptionsState } from "./lib";
 
-    export let state: DeckConfigState;
+    export let state: DeckOptionsState;
     let config = state.currentConfig;
     let defaults = state.defaults;
     let parentLimits = state.parentLimits;

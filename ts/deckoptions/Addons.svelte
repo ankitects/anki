@@ -4,9 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     // import * as tr from "lib/i18n";
-    import type { DeckConfigState } from "./lib";
+    import type { DeckOptionsState } from "./lib";
 
-    export let state: DeckConfigState;
+    export let state: DeckOptionsState;
     let components = state.addonComponents;
 </script>
 

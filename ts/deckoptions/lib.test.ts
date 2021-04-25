@@ -6,7 +6,7 @@
  */
 
 import * as pb from "lib/backend_proto";
-import { DeckConfigState } from "./lib";
+import { DeckOptionsState } from "./lib";
 import { get } from "svelte/store";
 
 const exampleData = {
@@ -92,8 +92,8 @@ const exampleData = {
     },
 };
 
-function startingState(): DeckConfigState {
-    return new DeckConfigState(
+function startingState(): DeckOptionsState {
+    return new DeckOptionsState(
         123,
         pb.BackendProto.DeckConfigsForUpdate.fromObject(exampleData)
     );

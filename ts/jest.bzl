@@ -48,7 +48,7 @@ def jest_test(deps, name = "jest", protobuf = False):
             deps = [
                 name + "_lib",
             ] + deps,
-            # the code shaking saves close to a second off the deckconfig/lib.test.ts test
+            # the code shaking saves close to a second off the deckoptions/lib.test.ts test
             minify = True,
         )
 

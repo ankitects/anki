@@ -8,9 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxFloat from "./SpinBoxFloat.svelte";
     import StepsInput from "./StepsInput.svelte";
     import EnumSelector from "./EnumSelector.svelte";
-    import type { DeckConfigState } from "./lib";
+    import type { DeckOptionsState } from "./lib";
 
-    export let state: DeckConfigState;
+    export let state: DeckOptionsState;
     let config = state.currentConfig;
     let defaults = state.defaults;
 
