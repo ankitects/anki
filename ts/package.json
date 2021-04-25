@@ -56,6 +56,7 @@
         "@fluent/bundle": "^0.15.1",
         "@mdi/svg": "^5.9.55",
         "@popperjs/core": "^2.9.2",
+        "@types/lodash-es": "^4.17.4",
         "bootstrap": "^5.0.0-beta2",
         "bootstrap-icons": "^1.4.0",
         "css-browser-selector": "^0.6.5",

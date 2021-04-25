@@ -127,6 +127,7 @@ svelte_check(
         "*.svelte",
     ]) + [
         "@npm//@types/bootstrap",
+        "@npm//@types/lodash-es",
     ],
 )
 
