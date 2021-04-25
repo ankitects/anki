@@ -48,6 +48,7 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
+from aqt.deckoptions import DeckOptionsDialog
 from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
@@ -1172,12 +1173,10 @@ title="%s" %s>%s</button>""" % (
         if deck["dyn"]:
             aqt.dialogs.open("FilteredDeckConfigDialog", self, deck_id=deck["id"])
         else:
-            if os.getenv("NEW_DECKCONF"):
-                from aqt.deckoptions import DeckOptionsDialog
-
-                DeckOptionsDialog(self)
-            else:
+            if KeyboardModifiersPressed().shift:
                 aqt.deckconf.DeckConf(self, deck)
+            else:
+                DeckOptionsDialog(self)
 
     def onOverview(self) -> None:
         self.col.reset()
