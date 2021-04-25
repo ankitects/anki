@@ -32,7 +32,7 @@ class DeckOptionsDialog(QDialog):
 
         self.web = AnkiWebView(title=self.TITLE)
         self.web.setVisible(False)
-        self.web.load_ts_page("deckconfig")
+        self.web.load_ts_page("deckoptions")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
@@ -40,7 +40,7 @@ class DeckOptionsDialog(QDialog):
 
         deck_id = self.mw.col.decks.get_current_id()
         self.web.eval(
-            f"""const $deckOptions = anki.deckConfig(
+            f"""const $deckOptions = anki.deckOptions(
             document.getElementById('main'), {deck_id});"""
         )
         gui_hooks.deck_options_did_load(self)

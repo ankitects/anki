@@ -1,22 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getDeckConfigInfo, DeckConfigState } from "./lib";
+import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { checkNightMode } from "lib/nightmode";
-import DeckConfigPage from "./DeckConfigPage.svelte";
+import DeckOptionsPage from "./DeckOptionsPage.svelte";
 
-export async function deckConfig(
+export async function deckOptions(
     target: HTMLDivElement,
     deckId: number
-): Promise<DeckConfigPage> {
+): Promise<DeckOptionsPage> {
     checkNightMode();
     await setupI18n({
         modules: [ModuleName.SCHEDULING, ModuleName.ACTIONS, ModuleName.DECK_CONFIG],
     });
-    const info = await getDeckConfigInfo(deckId);
-    const state = new DeckConfigState(deckId, info);
-    return new DeckConfigPage({
+    const info = await getDeckOptionsInfo(deckId);
+    const state = new DeckOptionsState(deckId, info);
+    return new DeckOptionsPage({
         target,
         props: { state },
     });

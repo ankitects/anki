@@ -12,7 +12,7 @@ import { isEqual, cloneDeep } from "lodash-es";
 import * as tr from "lib/i18n";
 import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
-export async function getDeckConfigInfo(
+export async function getDeckOptionsInfo(
     deckId: number
 ): Promise<pb.BackendProto.DeckConfigsForUpdate> {
     return pb.BackendProto.DeckConfigsForUpdate.decode(
@@ -20,7 +20,7 @@ export async function getDeckConfigInfo(
     );
 }
 
-export async function saveDeckConfig(
+export async function saveDeckOptions(
     input: pb.BackendProto.UpdateDeckConfigsIn
 ): Promise<void> {
     const data: Uint8Array = pb.BackendProto.UpdateDeckConfigsIn.encode(input).finish();
@@ -28,7 +28,7 @@ export async function saveDeckConfig(
     return;
 }
 
-export type DeckConfigId = number;
+export type DeckOptionsId = number;
 
 export interface ConfigWithCount {
     config: pb.BackendProto.DeckConfig;
@@ -49,7 +49,7 @@ export interface ConfigListEntry {
 }
 
 type ConfigInner = pb.BackendProto.DeckConfig.Config;
-export class DeckConfigState {
+export class DeckOptionsState {
     readonly currentConfig: Writable<ConfigInner>;
     readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
@@ -63,8 +63,8 @@ export class DeckConfigState {
     private selectedIdx: number;
     private configListSetter!: (val: ConfigListEntry[]) => void;
     private parentLimitsSetter!: (val: ParentLimits) => void;
-    private modifiedConfigs: Set<DeckConfigId> = new Set();
-    private removedConfigs: DeckConfigId[] = [];
+    private modifiedConfigs: Set<DeckOptionsId> = new Set();
+    private removedConfigs: DeckOptionsId[] = [];
     private schemaModified: boolean;
 
     constructor(targetDeckId: number, data: pb.BackendProto.DeckConfigsForUpdate) {
@@ -195,7 +195,7 @@ export class DeckConfigState {
     }
 
     async save(applyToChildren: boolean): Promise<void> {
-        await saveDeckConfig(this.dataForSaving(applyToChildren));
+        await saveDeckOptions(this.dataForSaving(applyToChildren));
     }
 
     private onCurrentConfigChanged(config: ConfigInner): void {

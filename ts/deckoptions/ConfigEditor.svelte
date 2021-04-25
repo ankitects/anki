@@ -9,9 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LapseOptions from "./LapseOptions.svelte";
     import GeneralOptions from "./GeneralOptions.svelte";
     import Addons from "./Addons.svelte";
-    import type { DeckConfigState } from "./lib";
+    import type { DeckOptionsState } from "./lib";
 
-    export let state: DeckConfigState;
+    export let state: DeckOptionsState;
 </script>
 
 <style lang="scss">
