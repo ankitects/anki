@@ -65,6 +65,7 @@ browsing-nd-names = { $num }: { $name }
 browsing-new = (new)
 browsing-new-note-type = New note type:
 browsing-no-flag = No Flag
+browsing-no-selection = No cards or notes selected.
 browsing-note = Note
 # Exactly one character representing 'Notes'; should differ from browsing-card-initial.
 browsing-note-initial = N
