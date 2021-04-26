@@ -10,9 +10,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let id: string;
     export let className = "";
+    export let theme = "anki";
+    export let label = "";
+
     export let tooltip: string | undefined;
     export let shortcutLabel: string | undefined;
-    export let label: string = "";
 
     $: title = mergeTooltipAndShortcut(tooltip, shortcutLabel);
 
@@ -29,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let buttonRef: HTMLButtonElement;
 
-    function extendClassName(className: string): string {
-        return `btn ${className}`;
+    function extendClassName(className: string, theme): string {
+        return `btn ${theme !== "anki" ? `btn-${theme}` : ""}${className}`;
     }
 
     const disabled = getContext<Readable<boolean>>(disabledKey);
@@ -59,10 +61,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class={extendClassName(className)}
+    class={extendClassName(className, theme)}
     class:dropdown-toggle={dropdownToggle}
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
+    class:btn-day={theme === "anki" && !nightMode}
+    class:btn-night={theme === "anki" && nightMode}
     tabindex="-1"
     disabled={_disabled}
     {title}

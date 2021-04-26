@@ -67,7 +67,7 @@ export function getOptionsDropdown(state: DeckOptionsState): DynamicSvelteCompon
         items: [
             labelButton({
                 label: "Save",
-                className: "btn-primary",
+                theme: "primary",
                 onClick: () => save(false),
             }),
             labelButton({
