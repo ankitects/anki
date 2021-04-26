@@ -5,7 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import DailyLimits from "./DailyLimits.svelte";
     import NewOptions from "./NewOptions.svelte";
-    import ReviewOptions from "./ReviewOptions.svelte";
+    import BuryingOptions from "./BuryingOptions.svelte";
+    import AdvancedOptions from "./AdvancedOptions.svelte";
     import LapseOptions from "./LapseOptions.svelte";
     import GeneralOptions from "./GeneralOptions.svelte";
     import Addons from "./Addons.svelte";
@@ -27,8 +28,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div>
     <DailyLimits {state} />
     <NewOptions {state} />
-    <ReviewOptions {state} />
     <LapseOptions {state} />
+    <BuryingOptions {state} />
     <GeneralOptions {state} />
     <Addons {state} />
+    <AdvancedOptions {state} />
 </div>

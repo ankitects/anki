@@ -13,29 +13,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<div>
-    <h2>General</h2>
+<h2>{tr.deckConfigTimerTitle()}</h2>
 
-    <SpinBox
-        label={tr.schedulingIgnoreAnswerTimesLongerThan()}
-        tooltip="The maximum number of seconds to record for a single review."
-        min={30}
-        max={600}
-        defaultValue={defaults.capAnswerTimeToSecs}
-        bind:value={$config.capAnswerTimeToSecs} />
+<SpinBox
+    label={tr.deckConfigMaximumAnswerSecs()}
+    tooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
+    min={30}
+    max={600}
+    defaultValue={defaults.capAnswerTimeToSecs}
+    bind:value={$config.capAnswerTimeToSecs} />
 
-    <CheckBox
-        label={tr.schedulingShowAnswerTimer()}
-        defaultValue={defaults.showTimer}
-        bind:value={$config.showTimer} />
+<CheckBox
+    id="showAnswerTimer"
+    label={tr.schedulingShowAnswerTimer()}
+    tooltip={tr.deckConfigShowAnswerTimerTooltip()}
+    defaultValue={defaults.showTimer}
+    bind:value={$config.showTimer} />
 
-    <CheckBox
-        label="Don't play audio automatically"
-        defaultValue={defaults.disableAutoplay}
-        bind:value={$config.disableAutoplay} />
+<h2>{tr.deckConfigAudioTitle()}</h2>
 
-    <CheckBox
-        label={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
-        defaultValue={defaults.skipQuestionWhenReplayingAnswer}
-        bind:value={$config.skipQuestionWhenReplayingAnswer} />
-</div>
+<CheckBox
+    label={tr.deckConfigDisableAutoplay()}
+    defaultValue={defaults.disableAutoplay}
+    bind:value={$config.disableAutoplay} />
+
+<CheckBox
+    label={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
+    tooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
+    defaultValue={defaults.skipQuestionWhenReplayingAnswer}
+    bind:value={$config.skipQuestionWhenReplayingAnswer} />

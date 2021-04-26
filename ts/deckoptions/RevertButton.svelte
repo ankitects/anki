@@ -3,9 +3,23 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "lib/i18n";
     import { revertIcon } from "./icons";
     import { createEventDispatcher } from "svelte";
     import { isEqual, cloneDeep } from "lodash-es";
+    // import { onMount } from "svelte";
+    // import Tooltip from "bootstrap/js/dist/tooltip";
+
+    let ref: HTMLDivElement;
+
+    // fixme: figure out why this breaks halfway down the page
+    // onMount(() => {
+    //     new Tooltip(ref, {
+    //         placement: "bottom",
+    //         html: true,
+    //         offset: [0, 20],
+    //     });
+    // });
 
     export let value: any;
     export let defaultValue: any;
@@ -35,7 +49,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </style>
 
 {#if modified}
-    <div class="img-div" on:click={revert}>
+    <div
+        class="img-div"
+        on:click={revert}
+        bind:this={ref}
+        title={tr.deckConfigRevertButtonTooltip()}>
         {@html revertIcon}
     </div>
 {/if}

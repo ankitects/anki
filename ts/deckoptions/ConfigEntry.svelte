@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /// empty strings will be ignored
     export let warnings: string[] = [];
     export let wholeLine = false;
+    export let id: string | undefined = undefined;
 </script>
 
 <style lang="scss">
@@ -53,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<div class="outer">
+<div {id} class="outer">
     {#if label}
         <div class="table">
             <span class="vcenter">
