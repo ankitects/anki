@@ -13,13 +13,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let warnings: string[] = [];
     export let defaultValue: number = 0;
 
-    $: if (value > max) {
-        value = max;
-    } else if (value < min) {
-        value = min;
+    function checkMinMax() {
+        if (value > max) {
+            value = max;
+        } else if (value < min) {
+            value = min;
+        }
     }
 </script>
 
 <ConfigEntry {label} {tooltip} {warnings} bind:value {defaultValue}>
-    <input type="number" {min} {max} bind:value class="form-control" />
+    <input
+        type="number"
+        {min}
+        {max}
+        bind:value
+        class="form-control"
+        on:blur={checkMinMax} />
 </ConfigEntry>
