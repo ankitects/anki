@@ -10,8 +10,6 @@ import CommandIconButton from "./CommandIconButton.svelte";
 import type { CommandIconButtonProps } from "./CommandIconButton";
 import ColorPicker from "./ColorPicker.svelte";
 import type { ColorPickerProps } from "./ColorPicker";
-import SelectButton from "./SelectButton.svelte";
-import type { SelectButtonProps } from "./SelectButton";
 
 import ButtonDropdown from "./ButtonDropdown.svelte";
 import type { ButtonDropdownProps } from "./ButtonDropdown";
@@ -36,9 +34,6 @@ export const commandIconButton = dynamicComponent<
 >(CommandIconButton);
 export const colorPicker = dynamicComponent<typeof ColorPicker, ColorPickerProps>(
     ColorPicker
-);
-export const selectButton = dynamicComponent<typeof SelectButton, SelectButtonProps>(
-    SelectButton
 );
 
 export const buttonDropdown = dynamicComponent<

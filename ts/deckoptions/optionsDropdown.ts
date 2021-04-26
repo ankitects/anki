@@ -1,6 +1,6 @@
 import * as tr from "lib/i18n";
 import { textInputModal } from "./textInputModal";
-import type { DeckOptionsState } from "./lib";
+import type { DeckOptionsState, ConfigListEntry } from "./lib";
 import {
     DynamicSvelteComponent,
     labelButton,
@@ -8,9 +8,18 @@ import {
     dropdownMenu,
     dropdownItem,
     dropdownDivider,
+    selectButton,
 } from "sveltelib/dynamicComponents";
 
-export function getOptionsDropdown(state: DeckOptionsState): DynamicSvelteComponent {
+function configLabel(entry: ConfigListEntry): string {
+    const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
+    return `${entry.name} (${count})`;
+}
+
+export function getOptionsDropdown(
+    state: DeckOptionsState,
+    configList: ConfigListEntry[]
+): DynamicSvelteComponent {
     function addConfig(): void {
         textInputModal({
             title: "Add Config",
@@ -61,36 +70,62 @@ export function getOptionsDropdown(state: DeckOptionsState): DynamicSvelteCompon
         state.save(applyToChildDecks);
     }
 
+    function blur(this: HTMLSelectElement) {
+        state.setCurrentIndex(parseInt(this.value));
+    }
+
+    const options = configList.map((entry) => ({
+        value: entry.idx,
+        selected: entry.current,
+        label: configLabel(entry),
+    }));
+
     return buttonGroup({
-        id: "optionsDropdown",
+        id: "configSelector",
+        className: "justify-content-between",
         size: 35,
         items: [
-            labelButton({
-                label: "Save",
-                theme: "primary",
-                onClick: () => save(false),
-            }),
-            labelButton({
-                dropdownToggle: true,
-            }),
-            dropdownMenu({
+            buttonGroup({
+                className: "flex-basis-75",
                 items: [
-                    dropdownItem({
-                        label: "Add Config",
-                        onClick: addConfig,
+                    selectButton({
+                        options,
+                        className: "flex-basis-100",
+                        onChange: blur,
                     }),
-                    dropdownItem({
-                        label: "Rename Config",
-                        onClick: renameConfig,
+                ],
+            }),
+            buttonGroup({
+                id: "optionsDropdown",
+                items: [
+                    labelButton({
+                        label: "Save",
+                        theme: "primary",
+                        onClick: () => save(false),
                     }),
-                    dropdownItem({
-                        label: "Remove Config",
-                        onClick: removeConfig,
+                    labelButton({
+                        dropdownToggle: true,
                     }),
-                    dropdownDivider({}),
-                    dropdownItem({
-                        label: "Save to All Children",
-                        onClick: () => save(true),
+                    dropdownMenu({
+                        items: [
+                            dropdownItem({
+                                label: "Add Config",
+                                onClick: addConfig,
+                            }),
+                            dropdownItem({
+                                label: "Rename Config",
+                                onClick: renameConfig,
+                            }),
+                            dropdownItem({
+                                label: "Remove Config",
+                                onClick: removeConfig,
+                            }),
+                            dropdownDivider({}),
+                            dropdownItem({
+                                label: "Save to All Children",
+                                onClick: () => save(true),
+                            }),
+                        ],
                     }),
                 ],
             }),

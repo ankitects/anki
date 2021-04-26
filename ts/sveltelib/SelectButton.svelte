@@ -6,12 +6,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import type { Option } from "./SelectButton";
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey } from "sveltelib/contextKeys";
+    import { disabledKey } from "./contextKeys";
     import SelectOption from "./SelectOption.svelte";
 
     export let id: string;
     export let className = "";
     export let tooltip: string;
+    export let onChange: (event: ChangeEvent) => void;
 
     function extendClassName(classes: string) {
         return `form-select ${classes}`;
@@ -52,13 +53,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
+<!-- svelte-ignore a11y-no-onchange -->
+
 <select
     tabindex="-1"
     bind:this={buttonRef}
     disabled={_disabled}
     {id}
     class={extendClassName(className)}
-    title={tooltip}>
+    title={tooltip}
+    on:change={onChange}>
     {#each options as option}
         <SelectOption {...option} />
     {/each}

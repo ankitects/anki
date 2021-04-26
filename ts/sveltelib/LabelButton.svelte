@@ -63,8 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class={extendClassName(className, theme)}
     class:dropdown-toggle={dropdownToggle}
-    class:btn-day={theme === "anki" && !nightMode}
-    class:btn-night={theme === "anki" && nightMode}
+    class:btn-day={theme === 'anki' && !nightMode}
+    class:btn-night={theme === 'anki' && nightMode}
     tabindex="-1"
     disabled={_disabled}
     {title}

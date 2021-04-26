@@ -7,13 +7,13 @@ import {
     dropdownItem,
     labelButton,
     buttonGroup,
+    selectButton,
 } from "sveltelib/dynamicComponents";
 
 import {
     rawButton,
     iconButton,
     commandIconButton,
-    selectButton,
     buttonDropdown,
     withDropdownMenu,
     withLabel,

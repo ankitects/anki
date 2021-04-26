@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     {id}
-    class={`btn-group ${className}`}
+    class={className}
     class:border-overlap-group={!nightMode}
     class:gap-group={nightMode}
     style={sizeString}

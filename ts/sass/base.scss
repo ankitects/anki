@@ -13,3 +13,12 @@ body,
 html {
     overscroll-behavior: none;
 }
+
+/* Bootstrap "extensions" */
+.flex-basis-100 {
+    flex-basis: 100%;
+}
+
+.flex-basis-75 {
+    flex-basis: 75%;
+}
