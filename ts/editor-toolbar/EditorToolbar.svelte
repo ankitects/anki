@@ -26,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { add, insert, updateRecursive } from "./identifiable";
     import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
+    import StickyBar from "sveltelib/StickyBar.svelte";
     import ButtonGroup from "sveltelib/ButtonGroup.svelte";
 
     export let buttons: IterableToolbarItem[];
@@ -114,24 +115,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style lang="scss">
-    nav {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 10;
-
-        background: var(--window-bg);
-        border-bottom: 1px solid var(--border);
-    }
-</style>
-
 <div {style}>
     {#each menus as menu}
         <svelte:component this={menu.component} {...menu} />
     {/each}
-</div>
 
-<nav {style}>
-    <ButtonGroup items={buttons} className="p-0 mb-1" />
-</nav>
+    <StickyBar>
+        <ButtonGroup items={buttons} className="p-0 mb-1" />
+    </StickyBar>
+</div>
