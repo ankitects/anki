@@ -54,8 +54,8 @@ from aqt.utils import (
     current_top_level_widget,
     disable_help_button,
     ensure_editor_saved,
-    ensure_editor_saved_on_trigger,
     getTag,
+    no_arg_trigger,
     openHelp,
     qtMenuShortcutWorkaround,
     restore_combo_history,
@@ -72,7 +72,6 @@ from aqt.utils import (
     showInfo,
     showWarning,
     skip_if_selection_is_empty,
-    skip_if_selection_is_empty_on_trigger,
     tooltip,
     tr,
 )
@@ -572,8 +571,9 @@ where id in %s"""
     # Misc menu options
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def onChangeModel(self) -> None:
         ChangeModel(self, self.oneModelNotes())
 
@@ -617,7 +617,8 @@ where id in %s"""
     # Card deletion
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
     def delete_selected_notes(self) -> None:
         # ensure deletion is not accidentally triggered when the user is focused
         # in the editing screen or search bar
@@ -639,8 +640,9 @@ where id in %s"""
     # Deck change
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
 
@@ -668,8 +670,9 @@ where id in %s"""
     # Tags
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def add_tags_to_selected_notes(
         self,
         tags: Optional[str] = None,
@@ -681,8 +684,9 @@ where id in %s"""
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
         ).run_in_background(initiator=self)
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
         "Shows prompt if tags not provided."
         if not (
@@ -701,7 +705,8 @@ where id in %s"""
         else:
             return tags
 
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @ensure_editor_saved
     def clear_unused_tags(self) -> None:
         clear_unused_tags(parent=self).run_in_background()
 
@@ -728,7 +733,8 @@ where id in %s"""
     # Exporting
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
         cids = self.selectedNotesAsCards()
         ExportDialog(self.mw, cids=list(cids))
@@ -779,8 +785,9 @@ where id in %s"""
     # Scheduling
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def reposition(self) -> None:
         if self.card and self.card.queue != QUEUE_TYPE_NEW:
             showInfo(tr.browsing_only_new_cards_can_be_repositioned(), parent=self)
@@ -791,8 +798,9 @@ where id in %s"""
         ):
             op.run_in_background()
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def set_due_date(self) -> None:
         if op := set_due_date_dialog(
             parent=self,
@@ -801,8 +809,9 @@ where id in %s"""
         ):
             op.run_in_background()
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def forget_cards(self) -> None:
         forget_cards(
             parent=self,
@@ -812,8 +821,9 @@ where id in %s"""
     # Edit: selection
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def selectNotes(self) -> None:
         nids = self.selected_notes()
         # clear the selection so we don't waste energy preserving it
@@ -861,15 +871,17 @@ where id in %s"""
     # Edit: replacing
     ######################################################################
 
-    @skip_if_selection_is_empty_on_trigger
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
     def onFindReplace(self) -> None:
         FindAndReplaceDialog(self, mw=self.mw, note_ids=self.selected_notes())
 
     # Edit: finding dupes
     ######################################################################
 
-    @ensure_editor_saved_on_trigger
+    @no_arg_trigger
+    @ensure_editor_saved
     def onFindDupes(self) -> None:
         import anki.find
 
