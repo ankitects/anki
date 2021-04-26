@@ -18,8 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
+    import type { ToolbarItem, IterableToolbarItem } from "sveltelib/types";
     import type { Identifier } from "./identifiable";
-    import type { ToolbarItem, IterableToolbarItem } from "./types";
 
     import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "sveltelib/contextKeys";
