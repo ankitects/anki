@@ -1000,15 +1000,6 @@ def ensure_editor_saved(func: Callable) -> Callable:
     return decorated
 
 
-def ensure_editor_saved_on_trigger(func: Callable) -> Callable:
-    """Like ensure_editor_saved(), but tells Qt this function takes no args.
-
-    This ensures PyQt doesn't attempt to pass a `toggled` arg
-    into functions connected to a `triggered` signal.
-    """
-    return pyqtSlot()(ensure_editor_saved(func))  # type: ignore
-
-
 def skip_if_selection_is_empty(func: Callable) -> Callable:
     """Make the wrapped method a no-op and show a hint if the table selection is empty."""
 
@@ -1022,10 +1013,14 @@ def skip_if_selection_is_empty(func: Callable) -> Callable:
     return decorated
 
 
-def skip_if_selection_is_empty_on_trigger(func: Callable) -> Callable:
-    """Like skip_if_selection_is_empty(), but tells Qt this function takes no args."""
+def no_arg_trigger(func: Callable) -> Callable:
+    """Tells Qt this function takes no args.
 
-    return pyqtSlot()(skip_if_selection_is_empty(func))  # type: ignore
+    This ensures PyQt doesn't attempt to pass a `toggled` arg
+    into functions connected to a `triggered` signal.
+    """
+
+    return pyqtSlot()(func)  # type: ignore
 
 
 class KeyboardModifiersPressed:
