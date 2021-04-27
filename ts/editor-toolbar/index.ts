@@ -7,13 +7,22 @@ export { default as EditorToolbar } from "./EditorToolbar.svelte";
 
 import "./bootstrap.css";
 
-export function editorToolbar(
-    target: HTMLElement,
-    buttons: IterableToolbarItem[] = [],
-    menus: ToolbarItem[] = []
-): EditorToolbar {
+interface EditorToolbarArgs {
+    target: HTMLElement;
+    anchor?: HTMLElement;
+    buttons?: IterableToolbarItem[];
+    menus?: ToolbarItem[];
+}
+
+export function editorToolbar({
+    target,
+    anchor = undefined,
+    buttons = [],
+    menus = [],
+}: EditorToolbarArgs): EditorToolbar {
     return new EditorToolbar({
         target,
+        anchor,
         props: {
             buttons,
             menus,

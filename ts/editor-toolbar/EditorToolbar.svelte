@@ -121,17 +121,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left: 0;
         z-index: 10;
 
-        background: var(--bg-color);
+        background-color: var(--window-bg);
         border-bottom: 1px solid var(--border);
     }
 </style>
 
-<div {style}>
+<nav {style}>
     {#each menus as menu}
         <svelte:component this={menu.component} {...menu} />
     {/each}
-</div>
 
-<nav {style}>
     <ButtonGroup items={buttons} className="p-0 mb-1" />
 </nav>
