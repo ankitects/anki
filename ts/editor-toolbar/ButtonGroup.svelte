@@ -25,9 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return { order: index };
     }
 
-    setContext(buttonGroupKey, Object.assign(api, {
-        registerButton,
-    }))
+    setContext(
+        buttonGroupKey,
+        Object.assign(api, {
+            registerButton,
+        })
+    );
 </script>
 
 <style lang="scss">

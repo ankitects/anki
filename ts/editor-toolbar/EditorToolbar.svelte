@@ -18,17 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import type { Identifier } from "./identifiable";
-    import type { ToolbarItem, IterableToolbarItem } from "./types";
-
-    import { setContext, onMount } from "svelte";
+    import { setContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
-    import { add, insert, updateRecursive } from "./identifiable";
-    import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
+    import WithTheming from "./WithTheming.svelte";
+    import StickyBar from "./StickyBar.svelte";
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
-
-    let api = {};
 
     export let nightMode: boolean;
 
@@ -43,18 +38,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }`;
 </script>
 
-<style lang="scss">
-    nav {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 10;
-
-        background-color: var(--window-bg);
-        border-bottom: 1px solid var(--border);
-    }
-</style>
-
-<nav {style} class="pb-1">
-    <NoteTypeButtons />
-</nav>
+<WithTheming {style}>
+    <StickyBar>
+        <NoteTypeButtons />
+    </StickyBar>
+</WithTheming>
