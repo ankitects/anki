@@ -2,11 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { editorToolbar, EditorToolbar } from "editor-toolbar";
 
-import { getNotetypeGroup } from "./notetype";
-import { getFormatInlineGroup } from "./formatInline";
-import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
-import { getColorGroup } from "./color";
-import { getTemplateGroup, getTemplateMenus } from "./template";
+// import { getNotetypeGroup } from "./notetype";
+// import { getFormatInlineGroup } from "./formatInline";
+// import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
+// import { getColorGroup } from "./color";
+// import { getTemplateGroup, getTemplateMenus } from "./template";
 
 export function initToolbar(i18n: Promise<void>) {
     let toolbarResolve: (value: EditorToolbar) => void;
@@ -20,14 +20,14 @@ export function initToolbar(i18n: Promise<void>) {
             const anchor = document.getElementById("fields")!;
 
             const buttons = [
-                getNotetypeGroup(),
-                getFormatInlineGroup(),
-                getFormatBlockGroup(),
-                getColorGroup(),
-                getTemplateGroup(),
+                // getNotetypeGroup(),
+                // getFormatInlineGroup(),
+                // getFormatBlockGroup(),
+                // getColorGroup(),
+                // getTemplateGroup(),
             ];
 
-            const menus = [...getFormatBlockMenus(), ...getTemplateMenus()];
+            const menus = [/*...getFormatBlockMenus(), ...getTemplateMenus()*/];
 
             toolbarResolve(editorToolbar({ target, anchor, buttons, menus }));
         });

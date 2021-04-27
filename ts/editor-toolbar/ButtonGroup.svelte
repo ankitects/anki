@@ -3,19 +3,31 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { ToolbarItem } from "./types";
-    import { getContext } from "svelte";
-    import { nightModeKey } from "./contextKeys";
+    import { setContext, getContext } from "svelte";
+    import { nightModeKey, buttonGroupKey } from "./contextKeys";
 
     export let id: string | undefined = undefined;
-    export let className = "";
-    export let items: ToolbarItem[];
+    let className = "";
 
-    function filterHidden({ hidden = false, ...props }) {
-        return props;
+    export { className as class };
+    const nightMode = getContext(nightModeKey);
+
+    export let api = {};
+
+    let index = 0;
+
+    interface ButtonRegistration {
+        order: number;
     }
 
-    const nightMode = getContext(nightModeKey);
+    function registerButton(): ButtonRegistration {
+        index++;
+        return { order: index };
+    }
+
+    setContext(buttonGroupKey, Object.assign(api, {
+        registerButton,
+    }))
 </script>
 
 <style lang="scss">
@@ -65,9 +77,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:border-overlap-group={!nightMode}
     class:gap-group={nightMode}
     div="ltr">
-    {#each items as button}
-        {#if !button.hidden}
-            <svelte:component this={button.component} {...filterHidden(button)} />
-        {/if}
-    {/each}
+    <slot />
 </div>

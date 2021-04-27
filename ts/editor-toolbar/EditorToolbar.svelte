@@ -21,15 +21,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Identifier } from "./identifiable";
     import type { ToolbarItem, IterableToolbarItem } from "./types";
 
-    import { setContext } from "svelte";
+    import { setContext, onMount } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
     import { add, insert, updateRecursive } from "./identifiable";
     import { showComponent, hideComponent, toggleComponent } from "./hideable";
 
-    import ButtonGroup from "./ButtonGroup.svelte";
+    import NoteTypeButtons from "./NoteTypeButtons.svelte";
 
-    export let buttons: IterableToolbarItem[];
-    export let menus: ToolbarItem[];
+    let api = {};
+
     export let nightMode: boolean;
 
     setContext(nightModeKey, nightMode);
@@ -41,77 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: style = `--toolbar-size: ${size}px; --toolbar-wrap: ${
         wraps ? "wrap" : "nowrap"
     }`;
-
-    export function updateButton(
-        update: (component: ToolbarItem) => ToolbarItem,
-        ...identifiers: Identifier[]
-    ): void {
-        buttons = updateRecursive(
-            update,
-            ({ items: buttons } as unknown) as ToolbarItem,
-            ...identifiers
-        ).items as IterableToolbarItem[];
-    }
-
-    export function showButton(...identifiers: Identifier[]): void {
-        updateButton(showComponent, ...identifiers);
-    }
-
-    export function hideButton(...identifiers: Identifier[]): void {
-        updateButton(hideComponent, ...identifiers);
-    }
-
-    export function toggleButton(...identifiers: Identifier[]): void {
-        updateButton(toggleComponent, ...identifiers);
-    }
-
-    export function insertButton(
-        newButton: ToolbarItem,
-        ...identifiers: Identifier[]
-    ): void {
-        const initIdentifiers = identifiers.slice(0, -1);
-        const lastIdentifier = identifiers[identifiers.length - 1];
-        updateButton(
-            (component: ToolbarItem) =>
-                insert(component as IterableToolbarItem, newButton, lastIdentifier),
-
-            ...initIdentifiers
-        );
-    }
-
-    export function addButton(
-        newButton: ToolbarItem,
-        ...identifiers: Identifier[]
-    ): void {
-        const initIdentifiers = identifiers.slice(0, -1);
-        const lastIdentifier = identifiers[identifiers.length - 1];
-        updateButton(
-            (component: ToolbarItem) =>
-                add(component as IterableToolbarItem, newButton, lastIdentifier),
-            ...initIdentifiers
-        );
-    }
-
-    export function updateMenu(
-        update: (component: ToolbarItem) => ToolbarItem,
-        ...identifiers: Identifier[]
-    ): void {
-        menus = updateRecursive(
-            update,
-            ({ items: menus } as unknown) as ToolbarItem,
-            ...identifiers
-        ).items as ToolbarItem[];
-    }
-
-    export function addMenu(newMenu: ToolbarItem, ...identifiers: Identifier[]): void {
-        const initIdentifiers = identifiers.slice(0, -1);
-        const lastIdentifier = identifiers[identifiers.length - 1];
-        updateMenu(
-            (component: ToolbarItem) =>
-                add(component as IterableToolbarItem, newMenu, lastIdentifier),
-            ...initIdentifiers
-        );
-    }
 </script>
 
 <style lang="scss">
@@ -126,10 +55,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<nav {style}>
-    {#each menus as menu}
-        <svelte:component this={menu.component} {...menu} />
-    {/each}
-
-    <ButtonGroup items={buttons} className="p-0 mb-1" />
+<nav {style} class="pb-1">
+    <NoteTypeButtons />
 </nav>
