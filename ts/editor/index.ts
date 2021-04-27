@@ -20,7 +20,7 @@ export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
 
-export * from "./addons";
+// export * from "./addons";
 
 declare global {
     interface Selection {

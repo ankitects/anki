@@ -4,19 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Readable } from "svelte/store";
+    import ButtonGroupButton from "./ButtonGroupButton.svelte";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
-    import { mergeTooltipAndShortcut } from "./helpers";
 
-    export let id: string;
+    export let id: string | undefined;
     export let className = "";
+
     export let tooltip: string | undefined;
-    export let shortcutLabel: string | undefined;
-    export let label: string;
-
-    $: title = mergeTooltipAndShortcut(tooltip, shortcutLabel);
-
-    export let onClick: (event: MouseEvent) => void;
     export let disables = true;
     export let dropdownToggle = false;
 
@@ -56,18 +51,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @include button.btn-night;
 </style>
 
-<button
-    bind:this={buttonRef}
-    {id}
-    class={extendClassName(className)}
-    class:dropdown-toggle={dropdownToggle}
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
-    tabindex="-1"
-    disabled={_disabled}
-    {title}
-    {...extraProps}
-    on:click={onClick}
-    on:mousedown|preventDefault>
-    {label}
-</button>
+<ButtonGroupButton let:order={order}>
+    <button
+        bind:this={buttonRef}
+        {id}
+        class={extendClassName(className)}
+        class:dropdown-toggle={dropdownToggle}
+        class:btn-day={!nightMode}
+        class:btn-night={nightMode}
+        style={`order: ${order};`}
+        tabindex="-1"
+        disabled={_disabled}
+        title={tooltip}
+        {...extraProps}
+        on:click
+        on:mousedown|preventDefault>
+        <slot />
+    </button>
+</ButtonGroupButton>
