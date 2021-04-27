@@ -51,7 +51,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__instant__0_1_9//:instant",
-        "@raze__lock_api__0_4_2//:lock_api",
+        "@raze__lock_api__0_4_3//:lock_api",
         "@raze__parking_lot_core__0_8_3//:parking_lot_core",
     ],
 )

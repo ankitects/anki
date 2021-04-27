@@ -51,7 +51,7 @@ rust_library(
     version = "1.0.9",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__proc_macro2__1_0_26//:proc_macro2",
     ],
 )
 

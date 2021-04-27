@@ -60,7 +60,7 @@ rust_library(
         "@raze__bitflags__1_2_1//:bitflags",
         "@raze__core_foundation__0_9_1//:core_foundation",
         "@raze__core_foundation_sys__0_8_2//:core_foundation_sys",
-        "@raze__libc__0_2_91//:libc",
+        "@raze__libc__0_2_94//:libc",
         "@raze__security_framework_sys__2_2_0//:security_framework_sys",
     ],
 )

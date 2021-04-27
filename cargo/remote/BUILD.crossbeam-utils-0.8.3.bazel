@@ -42,7 +42,6 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
-        "default",
         "lazy_static",
         "std",
     ],
@@ -69,7 +68,6 @@ rust_library(
     name = "crossbeam_utils",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
         "lazy_static",
         "std",
     ],

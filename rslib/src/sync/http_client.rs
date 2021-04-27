@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{io::prelude::*, path::Path, time::Duration};
+use std::{io::prelude::*, mem::MaybeUninit, path::Path, time::Duration};
 
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -131,7 +131,10 @@ impl SyncServer for HttpSyncClient {
                 total_bytes,
             },
         };
-        let wrap2 = async_compression::stream::GzipEncoder::new(wrap1);
+        let wrap2 =
+            tokio_util::io::ReaderStream::new(async_compression::tokio::bufread::GzipEncoder::new(
+                tokio_util::io::StreamReader::new(wrap1),
+            ));
         let body = Body::wrap_stream(wrap2);
         self.upload_inner(body).await?;
 
@@ -291,7 +294,7 @@ use futures::{
     task::{Context, Poll},
 };
 use pin_project::pin_project;
-use tokio::io::AsyncRead;
+use tokio::io::{AsyncRead, ReadBuf};
 
 #[pin_project]
 struct ProgressWrapper<S, P> {
@@ -309,18 +312,21 @@ where
     type Item = std::result::Result<Bytes, std::io::Error>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let mut buf = vec![0; 16 * 1024];
+        let mut buf = [MaybeUninit::<u8>::uninit(); 8192];
+        let mut buf = ReadBuf::uninit(&mut buf);
         let this = self.project();
-        match ready!(this.reader.poll_read(cx, &mut buf)) {
-            Ok(0) => {
-                (this.progress_fn)(*this.progress, false);
-                Poll::Ready(None)
-            }
-            Ok(size) => {
-                buf.resize(size, 0);
-                this.progress.transferred_bytes += size;
-                (this.progress_fn)(*this.progress, true);
-                Poll::Ready(Some(Ok(Bytes::from(buf))))
+        let res = ready!(this.reader.poll_read(cx, &mut buf));
+        match res {
+            Ok(()) => {
+                let filled = buf.filled().to_vec();
+                Poll::Ready(if filled.is_empty() {
+                    (this.progress_fn)(*this.progress, false);
+                    None
+                } else {
+                    this.progress.transferred_bytes += filled.len();
+                    (this.progress_fn)(*this.progress, true);
+                    Some(Ok(Bytes::from(filled)))
+                })
             }
             Err(e) => Poll::Ready(Some(Err(e))),
         }
@@ -438,7 +444,7 @@ mod test {
         let pass = std::env::var("TEST_SYNC_PASS").unwrap();
         env_logger::init();
 
-        let mut rt = Runtime::new().unwrap();
+        let rt = Runtime::new().unwrap();
         rt.block_on(http_client_inner(user, pass))
     }
 }

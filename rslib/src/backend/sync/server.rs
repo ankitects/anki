@@ -54,7 +54,7 @@ impl Backend {
             });
         }
         let server = self.col_into_server()?;
-        let mut rt = Runtime::new().unwrap();
+        let rt = Runtime::new().unwrap();
         let meta = rt.block_on(server.meta())?;
         self.server_into_col(server);
 
@@ -94,7 +94,7 @@ impl Backend {
         drop(state_guard);
 
         self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.start(
                 input.client_usn,
                 input.local_is_newer,
@@ -105,35 +105,35 @@ impl Backend {
 
     fn apply_graves(&self, input: ApplyGravesIn) -> Result<()> {
         self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.apply_graves(input.chunk))
         })
     }
 
     fn apply_changes(&self, input: ApplyChangesIn) -> Result<UnchunkedChanges> {
         self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.apply_changes(input.changes))
         })
     }
 
     fn chunk(&self) -> Result<Chunk> {
         self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.chunk())
         })
     }
 
     fn apply_chunk(&self, input: ApplyChunkIn) -> Result<()> {
         self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.apply_chunk(input.chunk))
         })
     }
 
     fn sanity_check(&self, input: SanityCheckIn) -> Result<SanityCheckOut> {
         self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.sanity_check(input.client))
         })
         .map(|out| {
@@ -147,7 +147,7 @@ impl Backend {
 
     fn finish(&self) -> Result<TimestampMillis> {
         let out = self.with_sync_server(|server| {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.block_on(server.finish())
         });
         self.server_into_col(self.take_server(None)?);
@@ -161,7 +161,7 @@ impl Backend {
 
     fn abort_and_restore_collection(&self, state_guard: Option<MutexGuard<BackendState>>) {
         if let Ok(mut server) = self.take_server(state_guard) {
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             // attempt to roll back
             if let Err(abort_err) = rt.block_on(server.abort()) {
                 println!("abort failed: {:?}", abort_err);
@@ -176,7 +176,7 @@ impl Backend {
         // spool input into a file
         let server = Box::new(self.col_into_server()?);
         // then process upload
-        let mut rt = Runtime::new().unwrap();
+        let rt = Runtime::new().unwrap();
         rt.block_on(server.full_upload(&input, true))
     }
 
@@ -184,7 +184,7 @@ impl Backend {
     /// for cleaning up the returned file.
     fn download(&self) -> Result<Vec<u8>> {
         let server = Box::new(self.col_into_server()?);
-        let mut rt = Runtime::new().unwrap();
+        let rt = Runtime::new().unwrap();
         let file = rt.block_on(server.full_download(None))?;
         let path = file.into_temp_path().keep()?;
         Ok(path.to_str().expect("path was not in utf8").into())

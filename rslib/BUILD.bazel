@@ -98,7 +98,6 @@ rust_library(
         "//rslib/cargo:pulldown_cmark",
         "//rslib/cargo:rand",
         "//rslib/cargo:regex",
-        "//rslib/cargo:reqwest",
         "//rslib/cargo:rusqlite",
         "//rslib/cargo:scopeguard",
         "//rslib/cargo:serde",
@@ -113,13 +112,20 @@ rust_library(
         "//rslib/cargo:strum",
         "//rslib/cargo:tempfile",
         "//rslib/cargo:tokio",
+        "//rslib/cargo:tokio_util",
         "//rslib/cargo:unic_langid",
         "//rslib/cargo:unicase",
         "//rslib/cargo:unicode_normalization",
         "//rslib/cargo:utime",
         "//rslib/cargo:zip",
         "//rslib/i18n:anki_i18n",
-    ],
+    ] + select({
+        # rustls on Linux
+        "//platforms:linux_x86_64": ["@reqwest_rustls//:reqwest"],
+        "//platforms:linux_arm64": ["@reqwest_rustls//:reqwest"],
+        # native tls on other platforms
+        "//conditions:default": ["//rslib/cargo:reqwest"],
+    }),
 )
 
 # Tests

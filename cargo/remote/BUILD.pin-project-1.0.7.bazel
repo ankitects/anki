@@ -1,0 +1,100 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+])
+
+# Generated Targets
+
+# Unsupported target "enum-default" with type "example" omitted
+
+# Unsupported target "enum-default-expanded" with type "example" omitted
+
+# Unsupported target "not_unpin" with type "example" omitted
+
+# Unsupported target "not_unpin-expanded" with type "example" omitted
+
+# Unsupported target "pinned_drop" with type "example" omitted
+
+# Unsupported target "pinned_drop-expanded" with type "example" omitted
+
+# Unsupported target "project_replace" with type "example" omitted
+
+# Unsupported target "project_replace-expanded" with type "example" omitted
+
+# Unsupported target "struct-default" with type "example" omitted
+
+# Unsupported target "struct-default-expanded" with type "example" omitted
+
+# Unsupported target "unsafe_unpin" with type "example" omitted
+
+# Unsupported target "unsafe_unpin-expanded" with type "example" omitted
+
+rust_library(
+    name = "pin_project",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    proc_macro_deps = [
+        "@raze__pin_project_internal__1_0_7//:pin_project_internal",
+    ],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "1.0.7",
+    # buildifier: leave-alone
+    deps = [
+    ],
+)
+
+# Unsupported target "cfg" with type "test" omitted
+
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "drop_order" with type "test" omitted
+
+# Unsupported target "expandtest" with type "test" omitted
+
+# Unsupported target "lint" with type "test" omitted
+
+# Unsupported target "pin_project" with type "test" omitted
+
+# Unsupported target "pinned_drop" with type "test" omitted
+
+# Unsupported target "proper_unpin" with type "test" omitted
+
+# Unsupported target "repr_packed" with type "test" omitted
+
+# Unsupported target "unsafe_unpin" with type "test" omitted

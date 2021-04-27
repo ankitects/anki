@@ -53,6 +53,6 @@ rust_library(
     deps = [
         "@raze__futf__0_1_4//:futf",
         "@raze__mac__0_1_1//:mac",
-        "@raze__utf_8__0_7_5//:utf_8",
+        "@raze__utf_8__0_7_6//:utf_8",
     ],
 )

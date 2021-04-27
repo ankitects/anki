@@ -52,7 +52,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__form_urlencoded__1_0_1//:form_urlencoded",
-        "@raze__idna__0_2_2//:idna",
+        "@raze__idna__0_2_3//:idna",
         "@raze__matches__0_1_8//:matches",
         "@raze__percent_encoding__2_1_0//:percent_encoding",
     ],

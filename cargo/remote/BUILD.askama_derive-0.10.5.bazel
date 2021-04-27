@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__askama_shared__0_11_1//:askama_shared",
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
-        "@raze__syn__1_0_65//:syn",
+        "@raze__proc_macro2__1_0_26//:proc_macro2",
+        "@raze__syn__1_0_70//:syn",
     ],
 )

@@ -1221,7 +1221,7 @@ mod test {
         } else {
             Box::new(LocalTestContext {})
         };
-        let mut rt = Runtime::new().unwrap();
+        let rt = Runtime::new().unwrap();
         rt.block_on(upload_download(&ctx))?;
         rt.block_on(regular_sync(&ctx))
     }
@@ -1555,7 +1555,7 @@ mod test {
     // Helper to reproduce issues with a copy of the client and server collections.
     // #[test]
     // fn repro_test() {
-    //     let mut rt = Runtime::new().unwrap();
+    //     let rt = Runtime::new().unwrap();
     //     rt.block_on(repro_test_inner()).unwrap();
     // }
 
