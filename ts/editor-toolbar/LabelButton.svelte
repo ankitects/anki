@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Readable } from "svelte/store";
-    import ButtonGroupButton from "./ButtonGroupButton.svelte";
+    import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
 
@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @include button.btn-night;
 </style>
 
-<ButtonGroupButton let:order={order}>
+<ButtonGroupItem let:order>
     <button
         bind:this={buttonRef}
         {id}
@@ -68,4 +68,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mousedown|preventDefault>
         <slot />
     </button>
-</ButtonGroupButton>
+</ButtonGroupItem>

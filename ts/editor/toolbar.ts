@@ -27,7 +27,9 @@ export function initToolbar(i18n: Promise<void>) {
                 // getTemplateGroup(),
             ];
 
-            const menus = [/*...getFormatBlockMenus(), ...getTemplateMenus()*/];
+            const menus = [
+                /*...getFormatBlockMenus(), ...getTemplateMenus()*/
+            ];
 
             toolbarResolve(editorToolbar({ target, anchor, buttons, menus }));
         });

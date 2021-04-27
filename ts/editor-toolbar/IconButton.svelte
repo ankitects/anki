@@ -3,28 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import SquareButton from "./SquareButton.svelte";
 
     export let id: string;
-    export let className = "";
+    let className = "";
+    export { className as class };
+
     export let tooltip: string | undefined;
-    export let shortcutLabel: string | undefined;
-    export let icon: string;
-
-    export let onClick: (event: MouseEvent) => void;
-
     export let disables = true;
     export let dropdownToggle = false;
 </script>
 
-<SquareButton
-    {id}
-    {className}
-    {tooltip}
-    {shortcutLabel}
-    {onClick}
-    {disables}
-    {dropdownToggle}
-    on:mount>
-    {@html icon}
+<SquareButton {id} {className} {tooltip} {disables} {dropdownToggle} on:click on:mount>
+    <slot />
 </SquareButton>
