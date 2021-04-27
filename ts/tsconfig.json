@@ -8,8 +8,8 @@
         "paths": {
             "lib/*": ["../bazel-bin/ts/lib/*"],
             "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"],
-            "html-filter/*": ["../bazel-bin/ts/html-filter/*"],
-            "editor-toolbar/*": ["../bazel-bin/ts/editor-toolbar/*"]
+            "components/*": ["../bazel-bin/ts/components/*"],
+            "html-filter/*": ["../bazel-bin/ts/html-filter/*"]
         },
         "importsNotUsedAsValues": "error",
         "outDir": "dist",

@@ -3,7 +3,6 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:compile_sass.bzl", "compile_sass")
 
 svelte_files = glob(["*.svelte"])
 
@@ -25,22 +24,9 @@ compile_svelte(
     visibility = ["//visibility:public"],
 )
 
-compile_sass(
-    srcs = [
-        "bootstrap.scss",
-        "legacy.scss",
-    ],
-    group = "local_css",
-    deps = [
-        "//ts/sass:button_mixins_lib",
-        "//ts/sass/bootstrap",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 ts_library(
-    name = "editor-toolbar",
-    module_name = "editor-toolbar",
+    name = "components",
+    module_name = "components",
     srcs = glob(
         ["*.ts"],
         exclude = ["*.test.ts"],

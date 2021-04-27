@@ -1,14 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { editorToolbar, EditorToolbar } from "editor-toolbar";
 
-// import { getNotetypeGroup } from "./notetype";
-// import { getFormatInlineGroup } from "./formatInline";
-// import { getFormatBlockGroup, getFormatBlockMenus } from "./formatBlock";
-// import { getColorGroup } from "./color";
-// import { getTemplateGroup, getTemplateMenus } from "./template";
+import EditorToolbar from "./EditorToolbar.svelte";
+import "./bootstrap.css";
 
-export function initToolbar(i18n: Promise<void>) {
+export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
     let toolbarResolve: (value: EditorToolbar) => void;
     const toolbarPromise = new Promise<EditorToolbar>((resolve) => {
         toolbarResolve = resolve;
@@ -19,21 +15,28 @@ export function initToolbar(i18n: Promise<void>) {
             const target = document.body;
             const anchor = document.getElementById("fields")!;
 
-            const buttons = [
-                // getNotetypeGroup(),
-                // getFormatInlineGroup(),
-                // getFormatBlockGroup(),
-                // getColorGroup(),
-                // getTemplateGroup(),
-            ];
-
-            const menus = [
-                /*...getFormatBlockMenus(), ...getTemplateMenus()*/
-            ];
-
-            toolbarResolve(editorToolbar({ target, anchor, buttons, menus }));
+            toolbarResolve(
+                new EditorToolbar({
+                    target,
+                    anchor,
+                    props: {
+                        nightMode: document.documentElement.classList.contains(
+                            "night-mode"
+                        ),
+                    },
+                })
+            );
         });
     });
 
     return toolbarPromise;
 }
+
+/* Exports for editor */
+// @ts-expect-error insufficient typing of svelte modules
+export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
+// @ts-expect-error insufficient typing of svelte modules
+export {
+    updateActiveButtons,
+    clearActiveButtons,
+} from "components/CommandIconButton.svelte";

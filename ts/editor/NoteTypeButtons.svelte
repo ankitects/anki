@@ -6,9 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "lib/bridgecommand";
     import * as tr from "lib/i18n";
 
-    import ButtonGroup from "./ButtonGroup.svelte";
-    import LabelButton from "./LabelButton.svelte";
-    import WithShortcut from "./WithShortcut.svelte";
+    import ButtonGroup from "components/ButtonGroup.svelte";
+    import LabelButton from "components/LabelButton.svelte";
+    import WithShortcut from "components/WithShortcut.svelte";
 
     export let api = {};
 </script>
