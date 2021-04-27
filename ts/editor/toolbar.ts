@@ -16,7 +16,8 @@ export function initToolbar(i18n: Promise<void>) {
 
     document.addEventListener("DOMContentLoaded", () => {
         i18n.then(() => {
-            const target = document.getElementById("editorToolbar")!;
+            const target = document.body;
+            const anchor = document.getElementById("fields")!;
 
             const buttons = [
                 getNotetypeGroup(),
@@ -28,7 +29,7 @@ export function initToolbar(i18n: Promise<void>) {
 
             const menus = [...getFormatBlockMenus(), ...getTemplateMenus()];
 
-            toolbarResolve(editorToolbar(target, buttons, menus));
+            toolbarResolve(editorToolbar({ target, anchor, buttons, menus }));
         });
     });
 

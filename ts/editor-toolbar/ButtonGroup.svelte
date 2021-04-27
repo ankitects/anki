@@ -19,15 +19,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style lang="scss">
-    ul {
+    div {
         display: flex;
         justify-items: start;
 
         flex-wrap: var(--toolbar-wrap);
-        overflow-y: auto;
 
         padding: calc(var(--toolbar-size) / 10);
         margin: 0;
+
+        > :global(button),
+        > :global(select) {
+            border-radius: calc(var(--toolbar-size) / 7.5);
+
+            &:not(:nth-of-type(1)) {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+
+            &:not(:nth-last-of-type(1)) {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+        }
 
         &.border-overlap-group {
             :global(button),
@@ -43,43 +57,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
     }
-
-    li {
-        display: contents;
-
-        > :global(button),
-        > :global(select) {
-            border-radius: 0;
-        }
-
-        &:nth-child(1) {
-            > :global(button),
-            > :global(select) {
-                border-top-left-radius: calc(var(--toolbar-size) / 7.5);
-                border-bottom-left-radius: calc(var(--toolbar-size) / 7.5);
-            }
-        }
-
-        &:nth-last-child(1) {
-            > :global(button),
-            > :global(select) {
-                border-top-right-radius: calc(var(--toolbar-size) / 7.5);
-                border-bottom-right-radius: calc(var(--toolbar-size) / 7.5);
-            }
-        }
-    }
 </style>
 
-<ul
+<div
     {id}
     class={className}
     class:border-overlap-group={!nightMode}
-    class:gap-group={nightMode}>
+    class:gap-group={nightMode}
+    div="ltr">
     {#each items as button}
         {#if !button.hidden}
-            <li>
-                <svelte:component this={button.component} {...filterHidden(button)} />
-            </li>
+            <svelte:component this={button.component} {...filterHidden(button)} />
         {/if}
     {/each}
-</ul>
+</div>
