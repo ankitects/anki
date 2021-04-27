@@ -3,7 +3,7 @@
 
 import type { Editable } from "./editable";
 
-import { updateActiveButtons } from "editor-toolbar";
+import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";

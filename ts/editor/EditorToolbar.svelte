@@ -19,10 +19,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="typescript">
     import { setContext } from "svelte";
-    import { disabledKey, nightModeKey } from "./contextKeys";
+    import { disabledKey, nightModeKey } from "components/contextKeys";
 
-    import WithTheming from "./WithTheming.svelte";
-    import StickyBar from "./StickyBar.svelte";
+    import WithTheming from "components/WithTheming.svelte";
+    import StickyBar from "components/StickyBar.svelte";
+
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
 
     export let nightMode: boolean;

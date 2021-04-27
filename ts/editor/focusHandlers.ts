@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { enableButtons, disableButtons } from "editor-toolbar";
+import { enableButtons, disableButtons } from "./toolbar";
 import type { EditingArea } from "./editingArea";
 
 import { saveField } from "./changeTimer";

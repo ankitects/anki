@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { filterHTML } from "html-filter";
-import { updateActiveButtons, disableButtons } from "editor-toolbar";
+import { updateActiveButtons, disableButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
@@ -169,4 +169,6 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
 
 const i18n = setupI18n({ modules: [ModuleName.EDITING, ModuleName.KEYBOARD] });
 
-export const $editorToolbar = initToolbar(i18n);
+import type EditorToolbar from "./EditorToolbar.svelte";
+
+export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);
