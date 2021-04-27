@@ -2929,4 +2929,4 @@ def raze_fetch_remote_crates():
         commit = "7591444614de02b658ddab125efba7b2bb4e2335",
         build_file = Label("//cargo:BUILD.reqwest.rustls.bazel"),
         init_submodules = True,
-    )        
+    )

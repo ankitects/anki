@@ -22,15 +22,15 @@ env_logger = "0.8.1"
 [dependencies]
 # pinned as any changes could invalidate sqlite indexes
 unicase = "=2.6.0"
-# transitive dependency; 0.1.7 is currently broken on Windows (perhaps
-# only in Bazel)
+
+# transitive dependency; 0.1.7 is broken on Windows
+# https://github.com/bazelbuild/rules_rust/issues/710
 proc-macro-nested = "=0.1.6"
-# slog-term 2.7+ depends on term 0.7.0, which is currently broken on Windows,
-# as cargo-raze doesn't seem to be included the rustversion crate.
+# slog-term 2.7+ depends on term 0.7.0, which is currently broken on Windows
+# https://github.com/google/cargo-raze/issues/416
 slog-term = "=2.6.0"
 
 anki_i18n = { path = "i18n" }
-
 
 askama = "0.10.1"
 async-compression = { version = "0.3.5", features = ["tokio", "gzip"] }
