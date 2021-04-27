@@ -116,7 +116,7 @@ rust_library(
         ":nom_build_script",
         "@raze__bitvec__0_19_5//:bitvec",
         "@raze__funty__1_1_0//:funty",
-        "@raze__lexical_core__0_7_5//:lexical_core",
+        "@raze__lexical_core__0_7_6//:lexical_core",
         "@raze__memchr__2_3_4//:memchr",
     ],
 )

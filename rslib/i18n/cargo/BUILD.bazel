@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "fluent_bundle",
-    actual = "@raze__fluent_bundle__0_15_0//:fluent_bundle",
+    actual = "@raze__fluent_bundle__0_15_1//:fluent_bundle",
     tags = [
         "cargo-raze",
         "manual",

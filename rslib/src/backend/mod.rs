@@ -171,9 +171,8 @@ impl Backend {
     fn runtime_handle(&self) -> runtime::Handle {
         self.runtime
             .get_or_init(|| {
-                runtime::Builder::new()
-                    .threaded_scheduler()
-                    .core_threads(1)
+                runtime::Builder::new_multi_thread()
+                    .worker_threads(1)
                     .enable_all()
                     .build()
                     .unwrap()

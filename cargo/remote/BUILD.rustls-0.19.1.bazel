@@ -1,0 +1,80 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (ISC OR MIT)"
+])
+
+# Generated Targets
+
+# Unsupported target "benchmarks" with type "bench" omitted
+
+# Unsupported target "bench" with type "example" omitted
+
+# Unsupported target "bogo_shim" with type "example" omitted
+
+# Unsupported target "limitedclient" with type "example" omitted
+
+# Unsupported target "simple_0rtt_client" with type "example" omitted
+
+# Unsupported target "simpleclient" with type "example" omitted
+
+# Unsupported target "trytls_shim" with type "example" omitted
+
+rust_library(
+    name = "rustls",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "dangerous_configuration",
+        "default",
+        "log",
+        "logging",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.19.1",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__base64__0_13_0//:base64",
+        "@raze__log__0_4_14//:log",
+        "@raze__ring__0_16_20//:ring",
+        "@raze__sct__0_6_1//:sct",
+        "@raze__webpki__0_21_4//:webpki",
+    ],
+)
+
+# Unsupported target "api" with type "test" omitted
+
+# Unsupported target "benchmarks" with type "test" omitted

@@ -58,7 +58,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__html5ever__0_25_1//:html5ever",
-        "@raze__markup5ever__0_10_0//:markup5ever",
+        "@raze__markup5ever__0_10_1//:markup5ever",
         "@raze__tendril__0_4_2//:tendril",
         "@raze__xml5ever__0_16_1//:xml5ever",
     ],

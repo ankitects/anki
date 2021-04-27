@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "async_compression",
-    actual = "@raze__async_compression__0_3_7//:async_compression",
+    actual = "@raze__async_compression__0_3_8//:async_compression",
     tags = [
         "cargo-raze",
         "manual",
@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "async_trait",
-    actual = "@raze__async_trait__0_1_48//:async_trait",
+    actual = "@raze__async_trait__0_1_50//:async_trait",
     tags = [
         "cargo-raze",
         "manual",
@@ -59,7 +59,7 @@ alias(
 
 alias(
     name = "bytes",
-    actual = "@raze__bytes__0_5_6//:bytes",
+    actual = "@raze__bytes__1_0_1//:bytes",
     tags = [
         "cargo-raze",
         "manual",
@@ -113,7 +113,7 @@ alias(
 
 alias(
     name = "fluent_bundle",
-    actual = "@raze__fluent_bundle__0_15_0//:fluent_bundle",
+    actual = "@raze__fluent_bundle__0_15_1//:fluent_bundle",
     tags = [
         "cargo-raze",
         "manual",
@@ -131,7 +131,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_13//:futures",
+    actual = "@raze__futures__0_3_14//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -221,7 +221,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_6//:pin_project",
+    actual = "@raze__pin_project__1_0_7//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -275,7 +275,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_4_5//:regex",
+    actual = "@raze__regex__1_4_6//:regex",
     tags = [
         "cargo-raze",
         "manual",
@@ -284,7 +284,7 @@ alias(
 
 alias(
     name = "reqwest",
-    actual = "@raze__reqwest__0_10_8//:reqwest",
+    actual = "@raze__reqwest__0_11_3//:reqwest",
     tags = [
         "cargo-raze",
         "manual",
@@ -428,7 +428,16 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__0_2_25//:tokio",
+    actual = "@raze__tokio__1_5_0//:tokio",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "tokio_util",
+    actual = "@raze__tokio_util__0_6_6//:tokio_util",
     tags = [
         "cargo-raze",
         "manual",
@@ -473,7 +482,7 @@ alias(
 
 alias(
     name = "zip",
-    actual = "@raze__zip__0_5_6//:zip",
+    actual = "@raze__zip__0_5_12//:zip",
     tags = [
         "cargo-raze",
         "manual",

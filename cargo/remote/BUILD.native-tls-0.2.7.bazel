@@ -119,7 +119,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
             "@raze__lazy_static__1_4_0//:lazy_static",
-            "@raze__libc__0_2_91//:libc",
+            "@raze__libc__0_2_94//:libc",
             "@raze__security_framework__2_2_0//:security_framework",
             "@raze__security_framework_sys__2_2_0//:security_framework_sys",
             "@raze__tempfile__3_2_0//:tempfile",

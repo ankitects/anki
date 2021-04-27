@@ -33,9 +33,9 @@ anki_i18n = { path = "i18n" }
 
 
 askama = "0.10.1"
-async-compression = { version = "0.3.5", features = ["stream", "gzip"] }
+async-compression = { version = "0.3.5", features = ["tokio", "gzip"] }
 blake3 = "0.3.5"
-bytes = "0.5.5"
+bytes = "1"
 chrono = "0.4.13"
 coarsetime = "0.1.16"
 flate2 = "1.0.16"
@@ -55,12 +55,15 @@ pin-project = "1"
 prost = "0.7"
 rand = "0.7.3"
 regex = "1.3.9"
-reqwest = { git = "https://github.com/ankitects/reqwest.git", tag = "anki-2020-11-03", default-features = false, features = [
+reqwest = { git = "https://github.com/ankitects/reqwest.git", rev = "7591444614de02b658ddab125efba7b2bb4e2335", default-features = false, features = [
     "json",
     "socks",
     "stream",
-    "rustls-tls",
+    "multipart",
+    # the Bazel build scripts separate these out by platform
     "native-tls",
+    "rustls-tls",
+    "rustls-tls-webpki-roots",
 ] }
 rusqlite = { version = "0.24.1", features = ["trace", "functions", "collation", "bundled"] }
 scopeguard = "1.1.0"
@@ -75,7 +78,7 @@ slog = { version = "2.5.2", features = ["max_level_trace", "release_max_level_de
 slog-async = "2.5.0"
 slog-envlogger = "2.2.0"
 tempfile = "3.1.0"
-tokio = { version = "0.2.21", features = ["fs", "rt-threaded"] }
+tokio = { version = "1", features = ["fs", "rt-multi-thread"] }
 unic-langid = { version = "0.9", features = ["macros"] }
 unicode-normalization = "0.1.13"
 utime = "0.3.1"
@@ -85,3 +88,4 @@ ammonia = "3.1.0"
 pulldown-cmark = "0.8.0"
 fnv = "1.0.7"
 strum = { version = "0.20.0", features = ["derive"] }
+tokio-util = { version = "0.6.6", features = ["io"] }

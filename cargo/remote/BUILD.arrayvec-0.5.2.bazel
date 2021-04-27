@@ -39,8 +39,6 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "array-sizes-33-128",
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",

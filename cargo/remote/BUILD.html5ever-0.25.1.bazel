@@ -56,9 +56,9 @@ cargo_build_script(
     version = "0.25.1",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__proc_macro2__1_0_26//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_65//:syn",
+        "@raze__syn__1_0_70//:syn",
     ],
 )
 
@@ -96,6 +96,6 @@ rust_library(
         ":html5ever_build_script",
         "@raze__log__0_4_14//:log",
         "@raze__mac__0_1_1//:mac",
-        "@raze__markup5ever__0_10_0//:markup5ever",
+        "@raze__markup5ever__0_10_1//:markup5ever",
     ],
 )

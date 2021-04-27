@@ -121,7 +121,7 @@ rust_library(
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__indoc__0_3_6//:indoc",
         "@raze__inventory__0_1_10//:inventory",
-        "@raze__libc__0_2_91//:libc",
+        "@raze__libc__0_2_94//:libc",
         "@raze__parking_lot__0_11_1//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",

@@ -60,10 +60,10 @@ rust_library(
         "@raze__nom__6_1_2//:nom",
         "@raze__num_traits__0_2_14//:num_traits",
         "@raze__percent_encoding__2_1_0//:percent_encoding",
-        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__proc_macro2__1_0_26//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
         "@raze__serde__1_0_125//:serde",
-        "@raze__syn__1_0_65//:syn",
+        "@raze__syn__1_0_70//:syn",
         "@raze__toml__0_5_8//:toml",
     ],
 )

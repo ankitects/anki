@@ -13,12 +13,12 @@
 # will remove the debug warning, and speed up the git clone.
 
 COMMITS_SHALLOW_SINCE = {
-    # reqwest
-    "eab12efe22f370f386d99c7d90e7a964e85dd071": "1604362745 +1000",
+    # reqwest - must also update crates.bzl reference below
+    "7591444614de02b658ddab125efba7b2bb4e2335": "1619519742 +1000",
     # hyper-timeout
-    "f9ef687120d88744c1da50a222e19208b4553503": "1604362633 +1000",
+    "0cb6f7d14c62819e37cd221736f8b0555e823712": "1619519657 +1000",
     # tokio-io-timeout
-    "96e1358555c49905de89170f2b1102a7d8b6c4c2": "1598411535 +1000",
+    "1ee0892217e9a76bba4bb369ec5fab8854935a3c": "1619517354 +1000",
 }
 
 import glob
@@ -76,21 +76,33 @@ def update_crates_bzl():
 
             # use our custom reqwest build file
             if match := reqwest_build_prefix.search(line):
-                line = line.replace(match.group(0), ":BUILD.reqwest")
+                line = line.replace(match.group(0), ":BUILD.reqwest.native")
 
             output_lines.append(line)
 
     with open("crates.bzl", "w") as file:
         for line in output_lines:
             file.write(line)
-
+        
+        # add rustls version
+        file.write("\n".join(" "*4 + l for l in """
+maybe(
+    new_git_repository,
+    name = "reqwest_rustls",
+    remote = "https://github.com/ankitects/reqwest.git",
+    shallow_since = "1619519742 +1000",
+    commit = "7591444614de02b658ddab125efba7b2bb4e2335",
+    build_file = Label("//cargo:BUILD.reqwest.rustls.bazel"),
+    init_submodules = True,
+)
+""".splitlines()))
 
 def generated_reqwest_build_file():
     return glob.glob("remote/*reqwest-*")[0]
 
 
 def update_reqwest_deps():
-    "Update version numbers in our custom build file."
+    "Update version numbers in our custom reqwest build files."
     dep_with_version = re.compile(r"@raze__(.+?)__([\d_]+)//")
 
     version_map = {}
@@ -99,17 +111,18 @@ def update_reqwest_deps():
             if match := dep_with_version.search(line):
                 version_map[match.group(1)] = match.group(2)
 
-    with open("BUILD.reqwest.bazel", "r+", encoding="utf8") as file:
+    for path in "BUILD.reqwest.native.bazel", "BUILD.reqwest.rustls.bazel":
+        with open(path, "r+", encoding="utf8") as file:
 
-        def repl(m):
-            name = m.group(1)
-            current_version = m.group(2)
-            new_version = version_map.get(name)
-            return m.group(0).replace(current_version, new_version)
+            def repl(m):
+                name = m.group(1)
+                current_version = m.group(2)
+                new_version = version_map.get(name)
+                return m.group(0).replace(current_version, new_version)
 
-        data = dep_with_version.sub(repl, file.read())
-        file.seek(0)
-        file.write(data)
+            data = dep_with_version.sub(repl, file.read())
+            file.seek(0)
+            file.write(data)
 
 
 def stage_commit():

@@ -49,7 +49,7 @@ rust_library(
     version = "0.15.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__fluent_bundle__0_15_0//:fluent_bundle",
+        "@raze__fluent_bundle__0_15_1//:fluent_bundle",
         "@raze__unic_langid__0_9_0//:unic_langid",
     ],
 )

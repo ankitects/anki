@@ -65,7 +65,7 @@ cargo_build_script(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__vcpkg__0_2_11//:vcpkg",
+            "@raze__vcpkg__0_2_12//:vcpkg",
         ],
         "//conditions:default": [],
     }),
@@ -93,7 +93,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":openssl_sys_build_script",
-        "@raze__libc__0_2_91//:libc",
+        "@raze__libc__0_2_94//:libc",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (

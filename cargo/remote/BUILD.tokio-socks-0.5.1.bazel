@@ -1,0 +1,71 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated Targets
+
+# Unsupported target "chainproxy" with type "example" omitted
+
+# Unsupported target "socket" with type "example" omitted
+
+# Unsupported target "tor" with type "example" omitted
+
+rust_library(
+    name = "tokio_socks",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.5.1",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__either__1_6_1//:either",
+        "@raze__futures_util__0_3_14//:futures_util",
+        "@raze__thiserror__1_0_24//:thiserror",
+        "@raze__tokio__1_5_0//:tokio",
+    ],
+)
+
+# Unsupported target "common" with type "test" omitted
+
+# Unsupported target "long_username_password_auth" with type "test" omitted
+
+# Unsupported target "no_auth" with type "test" omitted
+
+# Unsupported target "username_auth" with type "test" omitted

@@ -1,0 +1,85 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated Targets
+
+# Unsupported target "read_entry" with type "bench" omitted
+
+# Unsupported target "extract" with type "example" omitted
+
+# Unsupported target "extract_lorem" with type "example" omitted
+
+# Unsupported target "file_info" with type "example" omitted
+
+# Unsupported target "stdin_info" with type "example" omitted
+
+# Unsupported target "write_dir" with type "example" omitted
+
+# Unsupported target "write_sample" with type "example" omitted
+
+rust_library(
+    name = "zip",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "deflate",
+        "flate2",
+        "time",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.5.12",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__byteorder__1_4_3//:byteorder",
+        "@raze__crc32fast__1_2_1//:crc32fast",
+        "@raze__flate2__1_0_20//:flate2",
+        "@raze__thiserror__1_0_24//:thiserror",
+        "@raze__time__0_1_43//:time",
+    ],
+)
+
+# Unsupported target "end_to_end" with type "test" omitted
+
+# Unsupported target "invalid_date" with type "test" omitted
+
+# Unsupported target "zip64_large" with type "test" omitted
+
+# Unsupported target "zip_comment_garbage" with type "test" omitted
+
+# Unsupported target "zip_crypto" with type "test" omitted

@@ -51,6 +51,6 @@ rust_library(
     deps = [
         "@raze__pyo3_macros_backend__0_13_2//:pyo3_macros_backend",
         "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_65//:syn",
+        "@raze__syn__1_0_70//:syn",
     ],
 )
