@@ -197,6 +197,16 @@ mod test {
             col.add_note(&mut note, DeckId(1))?;
         }
 
+        // pretend we're in sync
+        let stamps = col.storage.get_collection_timestamps()?;
+        col.storage.set_last_sync(stamps.schema_change)?;
+
+        let full_sync_required = |col: &mut Collection| -> bool {
+            col.storage
+                .get_collection_timestamps()
+                .unwrap()
+                .schema_changed_since_sync()
+        };
         let reset_card1_pos = |col: &mut Collection| {
             let mut card = col.storage.get_card(card1_id).unwrap().unwrap();
             // set it out of bounds, so we can be sure it has changed
@@ -256,6 +266,7 @@ mod test {
 
         // removing the config will assign the selected config (default in this case),
         // and as default has normal sort order, that will reset the order again
+        assert!(!full_sync_required(&mut col));
         reset_card1_pos(&mut col);
         input.configs.remove(1);
         input.removed_config_ids.push(DeckConfigId(allocated_id));
@@ -263,6 +274,8 @@ mod test {
         let current_id = col.get_deck(DeckId(1))?.unwrap().normal()?.config_id;
         assert_eq!(current_id, 1);
         assert_eq!(card1_pos(&mut col), 1);
+        // should have forced a full sync
+        assert!(full_sync_required(&mut col));
 
         Ok(())
     }
