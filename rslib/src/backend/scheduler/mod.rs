@@ -147,7 +147,7 @@ impl SchedulingService for Backend {
 
     fn sort_deck(&self, input: pb::SortDeckIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
-            col.sort_deck(input.deck_id.into(), input.randomize)
+            col.sort_deck_legacy(input.deck_id.into(), input.randomize)
                 .map(Into::into)
         })
     }

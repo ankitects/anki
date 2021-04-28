@@ -1,9 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-//! Updating configs in bulk, from the deck config screen.
+//! Updating configs in bulk, from the deck options screen.
 
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    iter,
+};
 
 use crate::{
     backend_proto as pb,
@@ -104,34 +107,70 @@ impl Collection {
         if input.configs.is_empty() {
             return Err(AnkiError::invalid_input("config not provided"));
         }
+        let configs_before_update = self.storage.get_deck_config_map()?;
+        let mut configs_after_update = configs_before_update.clone();
 
         // handle removals first
         for dcid in &input.removed_config_ids {
             self.remove_deck_config_inner(*dcid)?;
+            configs_after_update.remove(dcid);
         }
 
         // add/update provided configs
         for conf in &mut input.configs {
             self.add_or_update_deck_config(conf, false)?;
+            configs_after_update.insert(conf.id, conf.clone());
         }
 
-        // point current deck to last config
-        let usn = self.usn()?;
-        let config_id = input.configs.last().unwrap().id;
-        let mut deck = self
-            .storage
-            .get_deck(input.target_deck_id)?
-            .ok_or(AnkiError::NotFound)?;
-        let original = deck.clone();
-        deck.normal_mut()?.config_id = config_id.0;
-        self.update_deck_inner(&mut deck, original, usn)?;
+        // get selected deck and possibly children
+        let selected_deck_ids: HashSet<_> = if input.apply_to_children {
+            let deck = self
+                .storage
+                .get_deck(input.target_deck_id)?
+                .ok_or(AnkiError::NotFound)?;
+            self.storage
+                .child_decks(&deck)?
+                .iter()
+                .chain(iter::once(&deck))
+                .map(|d| d.id)
+                .collect()
+        } else {
+            [input.target_deck_id].iter().cloned().collect()
+        };
 
-        if input.apply_to_children {
-            for mut child_deck in self.storage.child_decks(&deck)? {
-                let child_original = child_deck.clone();
-                if let Ok(normal) = child_deck.normal_mut() {
-                    normal.config_id = config_id.0;
-                    self.update_deck_inner(&mut child_deck, child_original, usn)?;
+        // loop through all normal decks
+        let usn = self.usn()?;
+        let selected_config = input.configs.last().unwrap();
+        for deck in self.storage.get_all_decks()? {
+            if let Ok(normal) = deck.normal() {
+                let deck_id = deck.id;
+
+                // previous order
+                let previous_config_id = DeckConfId(normal.config_id);
+                let previous_order = configs_before_update
+                    .get(&previous_config_id)
+                    .map(|c| c.inner.new_card_order())
+                    .unwrap_or_default();
+
+                // if a selected (sub)deck, or its old config was removed, update deck to point to new config
+                let current_config_id = if selected_deck_ids.contains(&deck.id)
+                    || !configs_after_update.contains_key(&previous_config_id)
+                {
+                    let mut updated = deck.clone();
+                    updated.normal_mut()?.config_id = selected_config.id.0;
+                    self.update_deck_inner(&mut updated, deck, usn)?;
+                    selected_config.id
+                } else {
+                    previous_config_id
+                };
+
+                // if new order differs, deck needs re-sorting
+                let current_order = configs_after_update
+                    .get(&current_config_id)
+                    .map(|c| c.inner.new_card_order())
+                    .unwrap_or_default();
+                if previous_order != current_order {
+                    self.sort_deck(deck_id, current_order, usn)?;
                 }
             }
         }
