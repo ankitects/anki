@@ -80,31 +80,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </WithState>
     </WithShortcut>
 
-    <!--<WithShortcut shortcut="Control+KeyU">
-        <CommandIconButton tooltip={tr.editingUnderlineText()} command="underline">
-            {@html underlineIcon}
-        </CommandIconButton>
+    <WithShortcut shortcut="Control+Shift+Equal" let:createShortcut let:shortcutLabel>
+        <WithState
+            key="superscript"
+            update={() => document.queryCommandState('superscript')}
+            let:state={active}
+            let:updateState>
+            <IconButton
+                tooltip={tr.editingSuperscript()}
+                {active}
+                on:click={(event) => {
+                    document.execCommand('superscript');
+                    updateState(event);
+                }}
+                on:mount={createShortcut}>
+                {@html superscriptIcon}
+            </IconButton>
+        </WithState>
     </WithShortcut>
 
-    <WithShortcut shortcut="Control+Shift+Equal">
-        <CommandIconButton tooltip={tr.editingSuperscript()} command="superscript">
-            {@html superscriptIcon}
-        </CommandIconButton>
+    <WithShortcut shortcut="Control+Equal" let:createShortcut let:shortcutLabel>
+        <WithState
+            key="subscript"
+            update={() => document.queryCommandState('subscript')}
+            let:state={active}
+            let:updateState>
+            <IconButton
+                tooltip={tr.editingSubscript()}
+                {active}
+                on:click={(event) => {
+                    document.execCommand('subscript');
+                    updateState(event);
+                }}
+                on:mount={createShortcut}>
+                {@html subscriptIcon}
+            </IconButton>
+        </WithState>
     </WithShortcut>
 
-    <WithShortcut shortcut="Control+Equal">
-        <CommandIconButton tooltip={tr.editingSubscript()} command="subscript">
-            {@html subscriptIcon}
-        </CommandIconButton>
-    </WithShortcut>
-
-    <WithShortcut shortcut="Control+KeyR">
+    <WithShortcut shortcut="Control+KeyR" let:createShortcut let:shortcutLabel>
         <IconButton
-            tooltip={tr.editingSubscript()}
-            on:click={() => {
+            tooltip={tr.editingRemoveFormatting()}
+            on:click={(event) => {
                 document.execCommand('removeFormat');
-            }}>
+            }}
+            on:mount={createShortcut}>
             {@html eraserIcon}
         </IconButton>
-    </WithShortcut> -->
+    </WithShortcut>
 </ButtonGroup>
