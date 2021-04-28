@@ -6,14 +6,10 @@ use std::collections::{HashMap, HashSet};
 use rand::seq::SliceRandom;
 
 use crate::{
-    card::{Card, CardId, CardQueue, CardType},
-    collection::Collection,
-    decks::DeckId,
-    error::Result,
-    notes::NoteId,
+    card::{CardQueue, CardType},
+    deckconfig::NewCardOrder,
     prelude::*,
     search::SortMode,
-    types::Usn,
 };
 
 impl Card {
@@ -168,16 +164,30 @@ impl Collection {
         Ok(count)
     }
 
-    /// This creates a transaction - we probably want to split it out
-    /// in the future if calling it as part of a deck options update.
-    pub fn sort_deck(&mut self, deck: DeckId, random: bool) -> Result<OpOutput<usize>> {
+    /// This is handled by update_deck_configs() now; this function has been kept around
+    /// for now to support the old deck config screen.
+    pub fn sort_deck_legacy(&mut self, deck: DeckId, random: bool) -> Result<OpOutput<usize>> {
+        self.transact(Op::SortCards, |col| {
+            col.sort_deck(
+                deck,
+                if random {
+                    NewCardOrder::Random
+                } else {
+                    NewCardOrder::Due
+                },
+                col.usn()?,
+            )
+        })
+    }
+
+    pub(crate) fn sort_deck(
+        &mut self,
+        deck: DeckId,
+        order: NewCardOrder,
+        usn: Usn,
+    ) -> Result<usize> {
         let cids = self.search_cards(&format!("did:{} is:new", deck), SortMode::NoOrder)?;
-        let order = if random {
-            NewCardSortOrder::Random
-        } else {
-            NewCardSortOrder::NoteId
-        };
-        self.sort_cards(&cids, 1, 1, order, false)
+        self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
     }
 
     fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn) -> Result<()> {
@@ -228,5 +238,14 @@ mod test {
             }
         }
         unreachable!("not random");
+    }
+}
+
+impl From<NewCardOrder> for NewCardSortOrder {
+    fn from(o: NewCardOrder) -> Self {
+        match o {
+            NewCardOrder::Due => NewCardSortOrder::NoteId,
+            NewCardOrder::Random => NewCardSortOrder::Random,
+        }
     }
 }
