@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ClozeButton from "./ClozeButton.svelte";
 
     import { wrap } from "./wrap";
+    import { appendInParentheses } from "./helpers";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     function onAttachment(): void {
@@ -28,72 +29,94 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onHtmlEdit(): void {
         bridgeCommand("htmlEdit");
     }
-
-    const mathjaxMenuId = "mathjaxMenu";
 </script>
 
 <ButtonGroup id="template">
     <WithShortcut shortcut="F3" let:createShortcut let:shortcutLabel>
         <IconButton
-            tooltip={tr.editingAttachPicturesaudiovideo}
+            tooltip={appendInParentheses(tr.editingAttachPicturesaudiovideo(), shortcutLabel)}
             on:click={onAttachment}>
             {@html paperclipIcon}
         </IconButton>
     </WithShortcut>
 
     <WithShortcut shortcut="F5" let:createShortcut let:shortcutLabel>
-        <IconButton tooltip={tr.editingRecordAudio} on:click={onRecord}>
+        <IconButton
+            tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
+            on:click={onRecord}>
             {@html micIcon}
         </IconButton>
     </WithShortcut>
 
     <ClozeButton />
 
-    <IconButton>
-        {@html functionIcon}
-    </IconButton>
+    <WithDropdownMenu let:menuId let:createDropdown>
+        <IconButton on:mount={createDropdown}>
+            {@html functionIcon}
+        </IconButton>
+
+        <DropdownMenu id={menuId}>
+            <WithShortcut
+                shortcut="Control+KeyM, KeyM"
+                let:createShortcut
+                let:shortcutLabel>
+                <DropdownItem on:click={() => wrap('\\(', '\\)')}>
+                    {tr.editingMathjaxInline()}
+                </DropdownItem>
+            </WithShortcut>
+
+            <WithShortcut
+                shortcut="Control+KeyM, KeyE"
+                let:createShortcut
+                let:shortcutLabel>
+                <DropdownItem on:click={() => wrap('\\[', '\\]')}>
+                    {tr.editingMathjaxBlock()}
+                </DropdownItem>
+            </WithShortcut>
+
+            <WithShortcut
+                shortcut="Control+KeyM, KeyC"
+                let:createShortcut
+                let:shortcutLabel>
+                <DropdownItem on:click={() => wrap('\\(\\ce{', '}\\)')}>
+                    {tr.editingMathjaxChemistry()}
+                </DropdownItem>
+            </WithShortcut>
+
+            <WithShortcut
+                shortcut="Control+KeyT, KeyT"
+                let:createShortcut
+                let:shortcutLabel>
+                <DropdownItem on:click={() => wrap('[latex]', '[/latex]')}>
+                    {tr.editingLatex()}
+                </DropdownItem>
+            </WithShortcut>
+
+            <WithShortcut
+                shortcut="Control+KeyT, KeyE"
+                let:createShortcut
+                let:shortcutLabel>
+                <DropdownItem on:click={() => wrap('[$]', '[/$]')}>
+                    {tr.editingLatexEquation()}
+                </DropdownItem>
+            </WithShortcut>
+
+            <WithShortcut
+                shortcut="Control+KeyT, KeyM"
+                let:createShortcut
+                let:shortcutLabel>
+                <DropdownItem on:click={() => wrap('[$$]', '[/$$]')}>
+                    {tr.editingLatexMathEnv()}
+                </DropdownItem>
+            </WithShortcut>
+        </DropdownMenu>
+    </WithDropdownMenu>
 
     <WithShortcut shortcut="Control+Shift+KeyX" let:createShortcut let:shortcutLabel>
-        <IconButton tooltip={tr.editingHtmlEditor} on:click={onHtmlEdit}>
+        <IconButton
+            tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
+            on:click={onHtmlEdit}>
             {@html xmlIcon}
         </IconButton>
     </WithShortcut>
 </ButtonGroup>
-
-<DropdownMenu id={mathjaxMenuId}>
-    <WithShortcut shortcut="Control+KeyM, KeyM" let:createShortcut let:shortcutLabel>
-        <DropdownItem on:click={() => wrap('\\(', '\\)')}>
-            {tr.editingMathjaxInline}
-        </DropdownItem>
-    </WithShortcut>
-
-    <WithShortcut shortcut="Control+KeyM, KeyE" let:createShortcut let:shortcutLabel>
-        <DropdownItem on:click={() => wrap('\\[', '\\]')}>
-            {tr.editingMathjaxBlock}
-        </DropdownItem>
-    </WithShortcut>
-
-    <WithShortcut shortcut="Control+KeyM, KeyC" let:createShortcut let:shortcutLabel>
-        <DropdownItem on:click={() => wrap('\\(\\ce{', '}\\)')}>
-            {tr.editingMathjaxChemistry}
-        </DropdownItem>
-    </WithShortcut>
-
-    <WithShortcut shortcut="Control+KeyT, KeyT" let:createShortcut let:shortcutLabel>
-        <DropdownItem on:click={() => wrap('[latex]', '[/latex]')}>
-            {tr.editingLatex}
-        </DropdownItem>
-    </WithShortcut>
-
-    <WithShortcut shortcut="Control+KeyT, KeyE" let:createShortcut let:shortcutLabel>
-        <DropdownItem on:click={() => wrap('[$]', '[/$]')}>
-            {tr.editingLatexEquation}
-        </DropdownItem>
-    </WithShortcut>
-
-    <WithShortcut shortcut="Control+KeyT, KeyM" let:createShortcut let:shortcutLabel>
-        <DropdownItem on:click={() => wrap('[$$]', '[/$$]')}>
-            {tr.editingLatexMathEnv}
-        </DropdownItem>
-    </WithShortcut>
-</DropdownMenu>
