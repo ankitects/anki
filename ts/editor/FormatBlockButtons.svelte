@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditingArea } from "./editingArea";
     import * as tr from "lib/i18n";
 
-    import CommandIconButton from "components/CommandIconButton.svelte";
     import IconButton from "components/IconButton.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonDropdown from "components/ButtonDropdown.svelte";
+    import WithState from "components/WithState.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
 
     import { getListItem } from "./helpers";
@@ -44,25 +44,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonDropdown id="listFormatting">
     <ButtonGroup id="justify" {api}>
-        <CommandIconButton command="justifyLeft" tooltip={tr.editingAlignLeft()}>
+        <IconButton command="justifyLeft" tooltip={tr.editingAlignLeft()}>
             {@html justifyLeftIcon}
-        </CommandIconButton>
+        </IconButton>
 
-        <CommandIconButton command="justifyCenter" tooltip={tr.editingCenter()}>
+        <IconButton command="justifyCenter" tooltip={tr.editingCenter()}>
             {@html justifyCenterIcon}
-        </CommandIconButton>
+        </IconButton>
 
-        <CommandIconButton command="justifyCenter" tooltip={tr.editingCenter()}>
+        <IconButton command="justifyCenter" tooltip={tr.editingCenter()}>
             {@html justifyCenterIcon}
-        </CommandIconButton>
+        </IconButton>
 
-        <CommandIconButton command="justifyRight" tooltip={tr.editingAlignRight()}>
+        <IconButton command="justifyRight" tooltip={tr.editingAlignRight()}>
             {@html justifyRightIcon}
-        </CommandIconButton>
+        </IconButton>
 
-        <CommandIconButton command="justifyFull" tooltip={tr.editingJustify()}>
+        <IconButton command="justifyFull" tooltip={tr.editingJustify()}>
             {@html justifyFullIcon}
-        </CommandIconButton>
+        </IconButton>
     </ButtonGroup>
 
     <ButtonGroup id="indentation" {api}>
@@ -77,15 +77,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </ButtonDropdown>
 
 <ButtonGroup id="blockFormatting" {api}>
-    <CommandIconButton
-        command="insertUnorderedList"
-        tooltip={tr.editingUnorderedList()}>
+    <IconButton command="insertUnorderedList" tooltip={tr.editingUnorderedList()}>
         {@html ulIcon}
-    </CommandIconButton>
+    </IconButton>
 
-    <CommandIconButton command="insertOrderedList" tooltip={tr.editingOrderedList()}>
+    <IconButton command="insertOrderedList" tooltip={tr.editingOrderedList()}>
         {@html olIcon}
-    </CommandIconButton>
+    </IconButton>
 
     <WithDropdownMenu menuId="listFormatting">
         <IconButton>

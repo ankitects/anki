@@ -19,7 +19,9 @@ filegroup(
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
-    deps = [],
+    deps = [
+        "//ts/components",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -66,13 +68,11 @@ ts_library(
     srcs = glob(["*.ts"]),
     tsconfig = "//ts:tsconfig.json",
     deps = [
-        "//ts:image_module_support",
         "//ts/lib",
         "//ts/sveltelib",
         "//ts/components",
         "//ts/html-filter",
-        # "svelte_components",
-        # "//ts/components:svelte_components",
+        "//ts:image_module_support",
         "@npm//svelte",
     ],
 )
