@@ -10,6 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     nav {
+        display: flex;
+        flex-wrap: wrap;
+
         position: sticky;
         top: 0;
         left: 0;

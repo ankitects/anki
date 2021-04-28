@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </WithShortcut>
 </ButtonGroup>
 
-<DropdownMenu id={matjaxMenuId}>
+<DropdownMenu id={mathjaxMenuId}>
     <WithShortcut shortcut="Control+KeyM, KeyM" let:createShortcut let:shortcutLabel>
         <DropdownItem on:click={() => wrap('\\(', '\\)')}>
             {tr.editingMathjaxInline}

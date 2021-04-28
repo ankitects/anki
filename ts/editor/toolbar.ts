@@ -36,7 +36,4 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
 // @ts-expect-error insufficient typing of svelte modules
 export { enableButtons, disableButtons } from "./EditorToolbar.svelte";
 // @ts-expect-error insufficient typing of svelte modules
-export {
-    updateActiveButtons,
-    clearActiveButtons,
-} from "components/CommandIconButton.svelte";
+export { updateActiveButtons, clearActiveButtons } from "components/CommandIconButton.svelte";
