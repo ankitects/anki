@@ -5,20 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
-    import { mergeTooltipAndShortcut } from "./helpers";
 
     export let id: string;
     export let className = "";
     export let tooltip: string | undefined;
-    export let shortcutLabel: string | undefined;
-
-    $: title = mergeTooltipAndShortcut(tooltip, shortcutLabel);
-
-    export let onChange: (event: Event) => void;
-
-    function extendClassName(className: string): string {
-        return `btn ${className}`;
-    }
 
     const nightMode = getContext(nightModeKey);
 
@@ -68,11 +58,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={buttonRef}
     tabindex="-1"
     {id}
-    class={extendClassName(className)}
+    class={`btn ${className}`}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
-    {title}
+    title={tooltip}
     on:click={delegateToInput}
     on:mousedown|preventDefault>
-    <input tabindex="-1" bind:this={inputRef} type="color" on:change={onChange} />
+    <input tabindex="-1" bind:this={inputRef} type="color" on:change />
 </button>

@@ -15,21 +15,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import "./color.css";
 
     const foregroundColorKeyword = "--foreground-color";
+    let color = "black";
 
-    function setForegroundColor(color: string): void {
+    $: {
         document.documentElement.style.setProperty(foregroundColorKeyword, color);
     }
 
-    function getForecolor(): string {
-        return document.documentElement.style.getPropertyValue(foregroundColorKeyword);
-    }
-
-    function wrapWithForecolor(color: string): void {
+    function wrapWithForecolor(): void {
         document.execCommand("forecolor", false, color);
     }
 
     function setWithCurrentColor({ currentTarget }: Event): void {
-        return setForegroundColor((currentTarget as HTMLInputElement).value);
+        color = (currentTarget as HTMLInputElement).value;
     }
 </script>
 
@@ -38,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="forecolor"
             tooltip={`${tr.editingSetForegroundColor} (${shortcutLabel})`}
-            on:click={() => wrapWithForecolor(getForecolor())}
+            on:click={wrapWithForecolor}
             on:mount={createShortcut}>
             {@html squareFillIcon}
         </IconButton>
