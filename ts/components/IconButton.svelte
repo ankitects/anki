@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Readable } from "svelte/store";
-    import { getContext, onMount, createEventDispatcher } from "svelte";
-    import { disabledKey, nightModeKey } from "./contextKeys";
+    import { hasContext, getContext, onMount, createEventDispatcher } from "svelte";
+    import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
 
     export let id: string;
     let className = "";
@@ -14,14 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let tooltip: string | undefined;
     export let active = false;
     export let disables = true;
-    export let dropdownToggle = false;
-
-    $: extraProps = dropdownToggle
-        ? {
-              "data-bs-toggle": "dropdown",
-              "aria-expanded": "false",
-          }
-        : {};
 
     let buttonRef: HTMLButtonElement;
 
@@ -29,6 +21,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: _disabled = disables && $disabled;
 
     const nightMode = getContext<boolean>(nightModeKey);
+
+    const dropdown = getContext(dropdownKey);
+    const dropdownProps = dropdown?.getDropdownTriggerProps() ?? {};
 
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
@@ -71,13 +66,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class={`btn ${className}`}
     class:active
-    class:dropdown-toggle={dropdownToggle}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     tabindex="-1"
     title={tooltip}
     disabled={_disabled}
-    {...extraProps}
+    class:dropdown-toggle={Boolean(dropdown)}
+    {...dropdownProps}
     on:click
     on:mousedown|preventDefault>
     <span class="p-1"><slot /></span>

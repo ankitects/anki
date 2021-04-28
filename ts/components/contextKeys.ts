@@ -4,3 +4,4 @@ export const nightModeKey = Symbol("nightMode");
 export const disabledKey = Symbol("disabled");
 
 export const buttonGroupKey = Symbol("buttonGroup");
+export const dropdownKey = Symbol("dropdown");

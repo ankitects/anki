@@ -3,17 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { ToolbarItem } from "./types";
+    import { setContext } from "svelte";
+    import { dropdownKey } from "./contextKeys";
+
     import ButtonGroup from "./ButtonGroup.svelte";
 
-    export let id: string;
-    export let className = "";
+    export let id: string | undefined;
+    let className = "";
+    export { className as class };
 
-    function extendClassName(className: string): string {
-        return `dropdown-menu btn-dropdown-menu ${className}`;
-    }
+    export let api = {};
 
-    export let items: ToolbarItem[];
+    setContext(dropdownKey, null);
 </script>
 
 <style>
@@ -28,4 +29,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<ButtonGroup {id} className={extendClassName(className)} {items} />
+<ButtonGroup {id} class={`dropdown-menu btn-dropdown-menu ${className}`} {api}>
+    <slot />
+</ButtonGroup>
