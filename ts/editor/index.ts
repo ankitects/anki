@@ -48,7 +48,7 @@ export function focusField(n: number): void {
     if (field) {
         field.editingArea.focusEditable();
         caretToEnd(field.editingArea);
-        updateActiveButtons();
+        updateActiveButtons(new Event("manualfocus"));
     }
 }
 
@@ -163,7 +163,7 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
-        updateActiveButtons();
+        updateActiveButtons(new Event(cmd));
     }
 }
 

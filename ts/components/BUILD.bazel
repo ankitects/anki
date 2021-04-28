@@ -41,7 +41,7 @@ ts_library(
         "@npm//@types/bootstrap",
         "@npm//bootstrap",
         "@npm//svelte",
-    ],
+    ] + svelte_names,
 )
 
 # Tests

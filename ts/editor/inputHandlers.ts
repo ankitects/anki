@@ -10,7 +10,7 @@ import { registerShortcut } from "lib/shortcuts";
 export function onInput(event: Event): void {
     // make sure IME changes get saved
     triggerChangeTimer(event.currentTarget as EditingArea);
-    updateActiveButtons();
+    updateActiveButtons(event);
 }
 
 export function onKey(evt: KeyboardEvent): void {
@@ -56,7 +56,7 @@ function updateFocus(evt: FocusEvent) {
     const newFocusTarget = evt.target;
     if (newFocusTarget instanceof EditingArea) {
         caretToEnd(newFocusTarget);
-        updateActiveButtons();
+        updateActiveButtons(evt);
     }
 }
 
