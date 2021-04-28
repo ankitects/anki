@@ -25,6 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBar from "components/StickyBar.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
+    import FormatInlineButtons from "./FormatInlineButtons.svelte";
+    import FormatBlockButtons from "./FormatBlockButtons.svelte";
+    import ColorButtons from "./ColorButtons.svelte";
+    import TemplateButtons from "./TemplateButtons.svelte";
 
     export let nightMode: boolean;
 
@@ -42,5 +46,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <WithTheming {style}>
     <StickyBar>
         <NoteTypeButtons />
+        <FormatInlineButtons />
+        <FormatBlockButtons />
+        <ColorButtons />
+        <TemplateButtons />
     </StickyBar>
 </WithTheming>

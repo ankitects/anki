@@ -48,22 +48,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string;
     export let className = "";
     export let tooltip: string;
-    export let shortcutLabel: string | undefined;
-    export let icon: string;
-
     export let command: string;
-    export let onClick = (_event: MouseEvent) => {
-        document.execCommand(command);
-    };
+
+    export let onClick: (event: Event) => void;
 
     function onClickWrapped(event: MouseEvent): void {
         onClick(event);
         updateButton(command, event);
     }
 
-    export let onUpdate = (_event: Event) => document.queryCommandState(command);
+    // document.queryCommandState(command);
+    export let update: (event: Event) => boolean;
 
-    updateMap.set(command, onUpdate);
+    updateMap.set(command, update);
 
     let active = false;
 
@@ -81,11 +78,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     {className}
     {tooltip}
-    {shortcutLabel}
     {active}
     {disables}
     {dropdownToggle}
-    onClick={onClickWrapped}
+    on:click
     on:mount>
-    {@html icon}
+    <slot />
 </SquareButton>
