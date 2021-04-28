@@ -11,7 +11,7 @@ use crate::{
     card::{Card, CardId},
     cloze::add_cloze_numbers_in_string,
     collection::Collection,
-    deckconfig::{DeckConfId, DeckConfig},
+    deckconfig::{DeckConfig, DeckConfigId},
     decks::DeckId,
     error::{AnkiError, Result},
     notes::{Note, NoteId},
@@ -304,7 +304,7 @@ impl Collection {
     fn due_for_deck(
         &mut self,
         did: DeckId,
-        dcid: DeckConfId,
+        dcid: DeckConfigId,
         cache: &mut CardGenCache,
     ) -> Result<u32> {
         if !cache.deck_configs.contains_key(&did) {
@@ -324,7 +324,7 @@ impl Collection {
     }
 
     /// If deck ID does not exist or points to a filtered deck, fall back on default.
-    fn deck_for_adding(&mut self, did: Option<DeckId>) -> Result<(DeckId, DeckConfId)> {
+    fn deck_for_adding(&mut self, did: Option<DeckId>) -> Result<(DeckId, DeckConfigId)> {
         if let Some(did) = did {
             if let Some(deck) = self.deck_conf_if_normal(did)? {
                 return Ok(deck);
@@ -334,14 +334,14 @@ impl Collection {
         self.default_deck_conf()
     }
 
-    fn default_deck_conf(&mut self) -> Result<(DeckId, DeckConfId)> {
+    fn default_deck_conf(&mut self) -> Result<(DeckId, DeckConfigId)> {
         // currently hard-coded to 1, we could create this as needed in the future
         self.deck_conf_if_normal(DeckId(1))?
             .ok_or_else(|| AnkiError::invalid_input("invalid default deck"))
     }
 
     /// If deck exists and and is a normal deck, return its ID and config
-    fn deck_conf_if_normal(&mut self, did: DeckId) -> Result<Option<(DeckId, DeckConfId)>> {
+    fn deck_conf_if_normal(&mut self, did: DeckId) -> Result<Option<(DeckId, DeckConfigId)>> {
         Ok(self.get_deck(did)?.and_then(|d| {
             if let Some(conf_id) = d.config_id() {
                 Some((did, conf_id))

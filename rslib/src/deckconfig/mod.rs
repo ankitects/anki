@@ -25,11 +25,11 @@ use crate::{
     types::Usn,
 };
 
-define_newtype!(DeckConfId, i64);
+define_newtype!(DeckConfigId, i64);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeckConfig {
-    pub id: DeckConfId,
+    pub id: DeckConfigId,
     pub name: String,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
@@ -39,7 +39,7 @@ pub struct DeckConfig {
 impl Default for DeckConfig {
     fn default() -> Self {
         DeckConfig {
-            id: DeckConfId(0),
+            id: DeckConfigId(0),
             name: "".to_string(),
             mtime_secs: Default::default(),
             usn: Default::default(),
@@ -85,12 +85,16 @@ impl DeckConfig {
 
 impl Collection {
     /// If fallback is true, guaranteed to return a deck config.
-    pub fn get_deck_config(&self, dcid: DeckConfId, fallback: bool) -> Result<Option<DeckConfig>> {
+    pub fn get_deck_config(
+        &self,
+        dcid: DeckConfigId,
+        fallback: bool,
+    ) -> Result<Option<DeckConfig>> {
         if let Some(conf) = self.storage.get_deck_config(dcid)? {
             return Ok(Some(conf));
         }
         if fallback {
-            if let Some(conf) = self.storage.get_deck_config(DeckConfId(1))? {
+            if let Some(conf) = self.storage.get_deck_config(DeckConfigId(1))? {
                 return Ok(Some(conf));
             }
             // if even the default deck config is missing, just return the defaults
@@ -156,7 +160,7 @@ impl Collection {
     }
 
     /// Remove a deck configuration. This will force a full sync.
-    pub(crate) fn remove_deck_config_inner(&mut self, dcid: DeckConfId) -> Result<()> {
+    pub(crate) fn remove_deck_config_inner(&mut self, dcid: DeckConfigId) -> Result<()> {
         if dcid.0 == 1 {
             return Err(AnkiError::invalid_input("can't delete default conf"));
         }

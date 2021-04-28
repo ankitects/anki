@@ -69,9 +69,9 @@ impl From<pb::NotetypeId> for NotetypeId {
     }
 }
 
-impl From<pb::DeckConfigId> for DeckConfId {
+impl From<pb::DeckConfigId> for DeckConfigId {
     fn from(dcid: pb::DeckConfigId) -> Self {
-        DeckConfId(dcid.dcid)
+        DeckConfigId(dcid.dcid)
     }
 }
 

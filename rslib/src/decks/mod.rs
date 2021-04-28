@@ -68,9 +68,9 @@ impl Deck {
     }
 
     /// Returns deck config ID if deck is a normal deck.
-    pub(crate) fn config_id(&self) -> Option<DeckConfId> {
+    pub(crate) fn config_id(&self) -> Option<DeckConfigId> {
         if let DeckKind::Normal(ref norm) = self.kind {
-            Some(DeckConfId(norm.config_id))
+            Some(DeckConfigId(norm.config_id))
         } else {
             None
         }

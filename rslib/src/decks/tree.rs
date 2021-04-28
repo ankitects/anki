@@ -94,7 +94,7 @@ fn apply_limits(
     node: &mut DeckTreeNode,
     today: u32,
     decks: &HashMap<DeckId, Deck>,
-    dconf: &HashMap<DeckConfId, DeckConfig>,
+    dconf: &HashMap<DeckConfigId, DeckConfig>,
     parent_limits: (u32, u32),
 ) {
     let (mut remaining_new, mut remaining_rev) =
@@ -128,7 +128,7 @@ fn apply_limits_v2_old(
     node: &mut DeckTreeNode,
     today: u32,
     decks: &HashMap<DeckId, Deck>,
-    dconf: &HashMap<DeckConfId, DeckConfig>,
+    dconf: &HashMap<DeckConfigId, DeckConfig>,
     parent_limits: (u32, u32),
 ) -> u32 {
     let original_rev_count = node.review_count;
@@ -161,15 +161,15 @@ fn remaining_counts_for_deck(
     did: DeckId,
     today: u32,
     decks: &HashMap<DeckId, Deck>,
-    dconf: &HashMap<DeckConfId, DeckConfig>,
+    dconf: &HashMap<DeckConfigId, DeckConfig>,
 ) -> (u32, u32) {
     if let Some(deck) = decks.get(&did) {
         match &deck.kind {
             DeckKind::Normal(norm) => {
                 let (new_today, rev_today) = deck.new_rev_counts(today);
                 if let Some(conf) = dconf
-                    .get(&DeckConfId(norm.config_id))
-                    .or_else(|| dconf.get(&DeckConfId(1)))
+                    .get(&DeckConfigId(norm.config_id))
+                    .or_else(|| dconf.get(&DeckConfigId(1)))
                 {
                     let new = (conf.inner.new_per_day as i32)
                         .saturating_sub(new_today)
@@ -355,7 +355,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconfig::DeckConfId, error::Result};
+    use crate::{collection::open_test_collection, deckconfig::DeckConfigId, error::Result};
 
     #[test]
     fn wellformed() -> Result<()> {
@@ -427,7 +427,7 @@ mod test {
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
         // set the limit to 4, which should mean 3 are left
-        let mut conf = col.get_deck_config(DeckConfId(1), false)?.unwrap();
+        let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
         conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf, false)?;
 
