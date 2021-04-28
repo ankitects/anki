@@ -15,6 +15,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function disableButtons(): void {
         disabled.set(true);
     }
+
+    import { updateAllState, resetAllState } from "components/WithState.svelte";
+
+    export function updateActiveButtons(event: Event) {
+        updateAllState(event)
+    }
+
+    export function clearActiveButtons() {
+        resetAllState(false);
+    }
 </script>
 
 <script lang="typescript">
