@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { updateAllState, resetAllState } from "components/WithState.svelte";
 
     export function updateActiveButtons(event: Event) {
-        updateAllState(event)
+        updateAllState(event);
     }
 
     export function clearActiveButtons() {
