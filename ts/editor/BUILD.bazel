@@ -141,6 +141,7 @@ esbuild(
         "editor_ts",
         "local_css",
         "svelte_components",
+        "//ts/components",
         "//ts/components:svelte_components",
     ],
 )
