@@ -14,6 +14,7 @@ use crate::{
     prelude::*,
 };
 
+#[derive(Debug, Clone)]
 pub struct UpdateDeckConfigsIn {
     pub target_deck_id: DeckId,
     /// Deck will be set to last provided deck config.
@@ -174,6 +175,94 @@ impl Collection {
                 }
             }
         }
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{collection::open_test_collection, deckconfig::NewCardOrder};
+
+    #[test]
+    fn updating() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note1 = nt.new_note();
+        col.add_note(&mut note1, DeckId(1))?;
+        let card1_id = col.storage.card_ids_of_notes(&[note1.id])?[0];
+        for _ in 0..9 {
+            let mut note = nt.new_note();
+            col.add_note(&mut note, DeckId(1))?;
+        }
+
+        let reset_card1_pos = |col: &mut Collection| {
+            let mut card = col.storage.get_card(card1_id).unwrap().unwrap();
+            // set it out of bounds, so we can be sure it has changed
+            card.due = 0;
+            col.storage.update_card(&card).unwrap();
+        };
+        let card1_pos = |col: &mut Collection| col.storage.get_card(card1_id).unwrap().unwrap().due;
+
+        // if nothing changed, no changes should be made
+        let output = col.get_deck_configs_for_update(DeckId(1))?;
+        let mut input = UpdateDeckConfigsIn {
+            target_deck_id: DeckId(1),
+            configs: output
+                .all_config
+                .into_iter()
+                .map(|c| c.config.unwrap().into())
+                .collect(),
+            removed_config_ids: vec![],
+            apply_to_children: false,
+        };
+        assert_eq!(
+            col.update_deck_configs(input.clone())?.changes.had_change(),
+            false
+        );
+
+        // modifying a value should update the config, but not the deck
+        input.configs[0].inner.new_per_day += 1;
+        let changes = col.update_deck_configs(input.clone())?.changes.changes;
+        assert_eq!(changes.deck, false);
+        assert_eq!(changes.deck_config, true);
+        assert_eq!(changes.card, false);
+
+        // adding a new config will update the deck as well
+        let new_config = DeckConfig {
+            id: DeckConfigId(0),
+            ..input.configs[0].clone()
+        };
+        input.configs.push(new_config);
+        let changes = col.update_deck_configs(input.clone())?.changes.changes;
+        assert_eq!(changes.deck, true);
+        assert_eq!(changes.deck_config, true);
+        assert_eq!(changes.card, false);
+        let allocated_id = col.get_deck(DeckId(1))?.unwrap().normal()?.config_id;
+        assert_ne!(allocated_id, 0);
+        assert_ne!(allocated_id, 1);
+
+        // changing the order will cause the cards to be re-sorted
+        assert_eq!(card1_pos(&mut col), 1);
+        reset_card1_pos(&mut col);
+        assert_eq!(card1_pos(&mut col), 0);
+        input.configs[1].inner.new_card_order = NewCardOrder::Random as i32;
+        assert_eq!(
+            col.update_deck_configs(input.clone())?.changes.changes.card,
+            true
+        );
+        assert_ne!(card1_pos(&mut col), 0);
+
+        // removing the config will assign the selected config (default in this case),
+        // and as default has normal sort order, that will reset the order again
+        reset_card1_pos(&mut col);
+        input.configs.remove(1);
+        input.removed_config_ids.push(DeckConfigId(allocated_id));
+        col.update_deck_configs(input)?;
+        let current_id = col.get_deck(DeckId(1))?.unwrap().normal()?.config_id;
+        assert_eq!(current_id, 1);
+        assert_eq!(card1_pos(&mut col), 1);
 
         Ok(())
     }
