@@ -7,12 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { nightModeKey } from "./contextKeys";
 
     export let id: string;
-    export let className = "";
-    export let tooltip: string;
-    export let label: string;
-    export let shortcutLabel: string | undefined;
+    let className = "";
+    export { className as class };
 
-    export let onClick: (event: MouseEvent) => void;
+    export let tooltip: string;
 
     let buttonRef: HTMLButtonElement;
 
@@ -28,6 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     button {
         display: flex;
         justify-content: space-between;
+
+        font-size: calc(var(--toolbar-size) / 2.3);
     }
 
     .btn-day {
@@ -52,15 +52,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             color: white;
         }
     }
-
-    span {
-        font-size: calc(var(--toolbar-size) / 2.3);
-        color: inherit;
-    }
-
-    .monospace {
-        font-family: monospace;
-    }
 </style>
 
 <button
@@ -70,8 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     title={tooltip}
-    on:click={onClick}
+    on:click
     on:mousedown|preventDefault>
-    <span class:me-3={shortcutLabel}>{label}</span>
-    {#if shortcutLabel}<span class="monospace">{shortcutLabel}</span>{/if}
+    <slot />
 </button>
