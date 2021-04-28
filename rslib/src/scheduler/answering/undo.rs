@@ -24,7 +24,7 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
 
         // turn burying and leech suspension on
-        let mut conf = col.storage.get_deck_config(DeckConfId(1))?.unwrap();
+        let mut conf = col.storage.get_deck_config(DeckConfigId(1))?.unwrap();
         conf.inner.bury_new = true;
         conf.inner.leech_action = LeechAction::Suspend as i32;
         col.storage.update_deck_conf(&conf)?;

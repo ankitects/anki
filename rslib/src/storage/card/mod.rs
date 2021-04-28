@@ -14,7 +14,7 @@ use rusqlite::{
 use super::ids_to_string;
 use crate::{
     card::{Card, CardId, CardQueue, CardType},
-    deckconfig::DeckConfId,
+    deckconfig::DeckConfigId,
     decks::{Deck, DeckId, DeckKind},
     error::Result,
     notes::NoteId,
@@ -487,7 +487,7 @@ impl super::SqliteStorage {
     /// 130% when the deck options were edited for the first time.
     pub(crate) fn fix_low_card_eases_for_configs(
         &self,
-        configs: &[DeckConfId],
+        configs: &[DeckConfigId],
         server: bool,
     ) -> Result<()> {
         let mut affected_decks = vec![];

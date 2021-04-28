@@ -354,7 +354,7 @@ impl Collection {
 
     fn home_deck_config(
         &self,
-        config_id: Option<DeckConfId>,
+        config_id: Option<DeckConfigId>,
         home_deck_id: DeckId,
     ) -> Result<DeckConfig> {
         let config_id = if let Some(config_id) = config_id {

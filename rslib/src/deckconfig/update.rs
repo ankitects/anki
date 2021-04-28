@@ -18,7 +18,7 @@ pub struct UpdateDeckConfigsIn {
     pub target_deck_id: DeckId,
     /// Deck will be set to last provided deck config.
     pub configs: Vec<DeckConfig>,
-    pub removed_config_ids: Vec<DeckConfId>,
+    pub removed_config_ids: Vec<DeckConfigId>,
     pub apply_to_children: bool,
 }
 
@@ -64,11 +64,11 @@ impl Collection {
             .collect())
     }
 
-    fn get_deck_config_use_counts(&self) -> Result<HashMap<DeckConfId, usize>> {
+    fn get_deck_config_use_counts(&self) -> Result<HashMap<DeckConfigId, usize>> {
         let mut counts = HashMap::new();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
-                *counts.entry(DeckConfId(normal.config_id)).or_default() += 1;
+                *counts.entry(DeckConfigId(normal.config_id)).or_default() += 1;
             }
         }
 
@@ -90,7 +90,7 @@ impl Collection {
     }
 
     /// Deck configs used by parent decks.
-    fn parent_config_ids(&self, deck: &Deck) -> Result<HashSet<DeckConfId>> {
+    fn parent_config_ids(&self, deck: &Deck) -> Result<HashSet<DeckConfigId>> {
         Ok(self
             .storage
             .parent_decks(deck)?
@@ -98,7 +98,7 @@ impl Collection {
             .filter_map(|deck| {
                 deck.normal()
                     .ok()
-                    .map(|normal| DeckConfId(normal.config_id))
+                    .map(|normal| DeckConfigId(normal.config_id))
             })
             .collect())
     }
@@ -146,7 +146,7 @@ impl Collection {
                 let deck_id = deck.id;
 
                 // previous order
-                let previous_config_id = DeckConfId(normal.config_id);
+                let previous_config_id = DeckConfigId(normal.config_id);
                 let previous_order = configs_before_update
                     .get(&previous_config_id)
                     .map(|c| c.inner.new_card_order())

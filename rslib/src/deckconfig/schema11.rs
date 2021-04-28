@@ -9,14 +9,16 @@ use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
 
-use super::{DeckConfId, DeckConfig, DeckConfigInner, NewCardOrder, INITIAL_EASE_FACTOR_THOUSANDS};
+use super::{
+    DeckConfig, DeckConfigId, DeckConfigInner, NewCardOrder, INITIAL_EASE_FACTOR_THOUSANDS,
+};
 use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DeckConfSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub(crate) id: DeckConfId,
+    pub(crate) id: DeckConfigId,
     #[serde(rename = "mod", deserialize_with = "deserialize_number_from_string")]
     pub(crate) mtime: TimestampSecs,
     pub(crate) name: String,
@@ -191,7 +193,7 @@ impl Default for LapseConfSchema11 {
 impl Default for DeckConfSchema11 {
     fn default() -> Self {
         DeckConfSchema11 {
-            id: DeckConfId(0),
+            id: DeckConfigId(0),
             mtime: TimestampSecs(0),
             name: "Default".to_string(),
             usn: Usn(0),
