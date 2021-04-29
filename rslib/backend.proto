@@ -167,7 +167,7 @@ service NotesService {
   rpc GetNote(NoteId) returns (Note);
   rpc RemoveNotes(RemoveNotesIn) returns (OpChangesWithCount);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
-  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChanges);
+  rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChangesWithCount);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
   rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
   rpc CardsOfNote(NoteId) returns (CardIds);

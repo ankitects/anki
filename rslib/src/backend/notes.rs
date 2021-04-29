@@ -97,7 +97,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::OpChanges> {
+    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.after_note_updates(
                 &to_note_ids(input.nids),
