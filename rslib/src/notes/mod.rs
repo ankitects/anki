@@ -49,6 +49,57 @@ pub struct Note {
     pub(crate) checksum: Option<u32>,
 }
 
+impl Note {
+    pub fn fields(&self) -> &Vec<String> {
+        &self.fields
+    }
+
+    pub fn set_field(&mut self, idx: usize, text: impl Into<String>) -> Result<()> {
+        if idx >= self.fields.len() {
+            return Err(AnkiError::invalid_input(
+                "field idx out of range".to_string(),
+            ));
+        }
+
+        self.fields[idx] = text.into();
+        self.mark_dirty();
+
+        Ok(())
+    }
+}
+
+impl Collection {
+    pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<()>> {
+        self.transact(Op::AddNote, |col| {
+            let nt = col
+                .get_notetype(note.notetype_id)?
+                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+            let ctx = CardGenContext::new(&nt, col.usn()?);
+            let norm = col.get_bool(BoolKey::NormalizeNoteText);
+            col.add_note_inner(&ctx, note, did, norm)
+        })
+    }
+
+    /// Remove provided notes, and any cards that use them.
+    pub fn remove_notes(&mut self, nids: &[NoteId]) -> Result<OpOutput<usize>> {
+        let usn = self.usn()?;
+        self.transact(Op::RemoveNote, |col| col.remove_notes_inner(nids, usn))
+    }
+
+    /// Update cards and field cache after notes modified externally.
+    /// If gencards is false, skip card generation.
+    pub fn after_note_updates(
+        &mut self,
+        nids: &[NoteId],
+        generate_cards: bool,
+        mark_notes_modified: bool,
+    ) -> Result<OpOutput<usize>> {
+        self.transact(Op::UpdateNote, |col| {
+            col.after_note_updates_inner(nids, generate_cards, mark_notes_modified)
+        })
+    }
+}
+
 /// Information required for updating tags while leaving note content alone.
 /// Tags are stored in their DB form, separated by spaces.
 #[derive(Debug, PartialEq, Clone)]
@@ -106,10 +157,6 @@ impl Note {
         }
     }
 
-    pub fn fields(&self) -> &Vec<String> {
-        &self.fields
-    }
-
     pub(crate) fn fields_mut(&mut self) -> &mut Vec<String> {
         self.mark_dirty();
         &mut self.fields
@@ -121,21 +168,8 @@ impl Note {
         self.checksum = None;
     }
 
-    pub fn set_field(&mut self, idx: usize, text: impl Into<String>) -> Result<()> {
-        if idx >= self.fields.len() {
-            return Err(AnkiError::invalid_input(
-                "field idx out of range".to_string(),
-            ));
-        }
-
-        self.fields[idx] = text.into();
-        self.mark_dirty();
-
-        Ok(())
-    }
-
     /// Prepare note for saving to the database. Does not mark it as modified.
-    pub fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
+    pub(crate) fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
         assert!(nt.id == self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
         if notetype_field_count != self.fields.len() {
@@ -292,17 +326,6 @@ impl Collection {
         Ok(())
     }
 
-    pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<()>> {
-        self.transact(Op::AddNote, |col| {
-            let nt = col
-                .get_notetype(note.notetype_id)?
-                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
-            let ctx = CardGenContext::new(&nt, col.usn()?);
-            let norm = col.get_bool(BoolKey::NormalizeNoteText);
-            col.add_note_inner(&ctx, note, did, norm)
-        })
-    }
-
     pub(crate) fn add_note_inner(
         &mut self,
         ctx: &CardGenContext,
@@ -402,42 +425,33 @@ impl Collection {
         self.update_note_undoable(note, original)
     }
 
-    /// Remove provided notes, and any cards that use them.
-    pub(crate) fn remove_notes(&mut self, nids: &[NoteId]) -> Result<OpOutput<usize>> {
-        let usn = self.usn()?;
-        self.transact(Op::RemoveNote, |col| {
-            let mut card_count = 0;
-            for nid in nids {
-                let nid = *nid;
-                if let Some(_existing_note) = col.storage.get_note(nid)? {
-                    for card in col.storage.all_cards_of_note(nid)? {
-                        card_count += 1;
-                        col.remove_card_and_add_grave_undoable(card, usn)?;
-                    }
-                    col.remove_note_only_undoable(nid, usn)?;
+    pub(crate) fn remove_notes_inner(&mut self, nids: &[NoteId], usn: Usn) -> Result<usize> {
+        let mut card_count = 0;
+        for nid in nids {
+            let nid = *nid;
+            if let Some(_existing_note) = self.storage.get_note(nid)? {
+                for card in self.storage.all_cards_of_note(nid)? {
+                    card_count += 1;
+                    self.remove_card_and_add_grave_undoable(card, usn)?;
                 }
+                self.remove_note_only_undoable(nid, usn)?;
             }
-            Ok(card_count)
-        })
+        }
+        Ok(card_count)
     }
 
-    /// Update cards and field cache after notes modified externally.
-    /// If gencards is false, skip card generation.
-    pub fn after_note_updates(
+    fn after_note_updates_inner(
         &mut self,
         nids: &[NoteId],
         generate_cards: bool,
         mark_notes_modified: bool,
-    ) -> Result<OpOutput<()>> {
-        self.transact(Op::UpdateNote, |col| {
-            col.transform_notes(nids, |_note, _nt| {
-                Ok(TransformNoteOutput {
-                    changed: true,
-                    generate_cards,
-                    mark_modified: mark_notes_modified,
-                })
+    ) -> Result<usize> {
+        self.transform_notes(nids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                generate_cards,
+                mark_modified: mark_notes_modified,
             })
-            .map(|_| ())
         })
     }
 
