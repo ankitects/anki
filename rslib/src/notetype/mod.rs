@@ -84,6 +84,121 @@ impl Default for Notetype {
 }
 
 impl Notetype {
+    pub fn new_note(&self) -> Note {
+        Note::new(&self)
+    }
+
+    /// Return the template for the given card ordinal. Cloze notetypes
+    /// always return the first and only template.
+    pub fn get_template(&self, card_ord: u16) -> Result<&CardTemplate> {
+        let template = if self.config.kind() == NotetypeKind::Cloze {
+            self.templates.get(0)
+        } else {
+            self.templates.get(card_ord as usize)
+        };
+
+        template.ok_or(AnkiError::NotFound)
+    }
+
+    pub fn target_deck_id(&self) -> DeckId {
+        DeckId(self.config.target_deck_id)
+    }
+}
+
+impl Collection {
+    /// Saves changes to a note type. This will force a full sync if templates
+    /// or fields have been added/removed/reordered.
+    pub fn update_notetype(&mut self, nt: &mut Notetype, preserve_usn: bool) -> Result<()> {
+        let existing = self.get_notetype(nt.id)?;
+        let norm = self.get_bool(BoolKey::NormalizeNoteText);
+        nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
+        self.transact_no_undo(|col| {
+            if let Some(existing_notetype) = existing {
+                if existing_notetype.mtime_secs > nt.mtime_secs {
+                    return Err(AnkiError::invalid_input("attempt to save stale notetype"));
+                }
+                col.update_notes_for_changed_fields(
+                    nt,
+                    existing_notetype.fields.len(),
+                    existing_notetype.config.sort_field_idx,
+                    norm,
+                )?;
+                col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
+            }
+
+            let usn = col.usn()?;
+            if !preserve_usn {
+                nt.set_modified(usn);
+            }
+            col.ensure_notetype_name_unique(nt, usn)?;
+
+            col.storage.update_notetype_config(&nt)?;
+            col.storage.update_notetype_fields(nt.id, &nt.fields)?;
+            col.storage
+                .update_notetype_templates(nt.id, &nt.templates)?;
+
+            // fixme: update cache instead of clearing
+            col.state.notetype_cache.remove(&nt.id);
+
+            Ok(())
+        })
+    }
+
+    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<Arc<Notetype>>> {
+        if let Some(ntid) = self.storage.get_notetype_id(name)? {
+            self.get_notetype(ntid)
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn get_notetype(&mut self, ntid: NotetypeId) -> Result<Option<Arc<Notetype>>> {
+        if let Some(nt) = self.state.notetype_cache.get(&ntid) {
+            return Ok(Some(nt.clone()));
+        }
+        if let Some(nt) = self.storage.get_notetype(ntid)? {
+            let nt = Arc::new(nt);
+            self.state.notetype_cache.insert(ntid, nt.clone());
+            Ok(Some(nt))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
+        self.storage
+            .get_all_notetype_names()?
+            .into_iter()
+            .map(|(ntid, _)| {
+                self.get_notetype(ntid)
+                    .transpose()
+                    .unwrap()
+                    .map(|nt| (ntid, nt))
+            })
+            .collect()
+    }
+
+    pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<()> {
+        // fixme: currently the storage layer is taking care of removing the notes and cards,
+        // but we need to do it in this layer in the future for undo handling
+        self.transact_no_undo(|col| {
+            col.set_schema_modified()?;
+            col.state.notetype_cache.remove(&ntid);
+            col.clear_aux_config_for_notetype(ntid)?;
+            col.storage.remove_notetype(ntid)?;
+            let all = col.storage.get_all_notetype_names()?;
+            if all.is_empty() {
+                let mut nt = all_stock_notetypes(&col.tr).remove(0);
+                col.add_notetype_inner(&mut nt, col.usn()?)?;
+                col.set_current_notetype_id(nt.id)
+            } else {
+                col.set_current_notetype_id(all[0].0)
+            }
+        })
+    }
+}
+
+impl Notetype {
     pub(crate) fn ensure_names_unique(&mut self) {
         let mut names = HashSet::new();
         for t in &mut self.templates {
@@ -107,18 +222,6 @@ impl Notetype {
                 t.name.push('+');
             }
         }
-    }
-
-    /// Return the template for the given card ordinal. Cloze notetypes
-    /// always return the first and only template.
-    pub fn get_template(&self, card_ord: u16) -> Result<&CardTemplate> {
-        let template = if self.config.kind() == NotetypeKind::Cloze {
-            self.templates.get(0)
-        } else {
-            self.templates.get(card_ord as usize)
-        };
-
-        template.ok_or(AnkiError::NotFound)
     }
 
     pub(crate) fn set_modified(&mut self, usn: Usn) {
@@ -330,14 +433,6 @@ impl Notetype {
             .collect()
     }
 
-    pub fn new_note(&self) -> Note {
-        Note::new(&self)
-    }
-
-    pub fn target_deck_id(&self) -> DeckId {
-        DeckId(self.config.target_deck_id)
-    }
-
     fn fix_field_names(&mut self) -> Result<()> {
         self.fields.iter_mut().try_for_each(NoteField::fix_name)
     }
@@ -417,96 +512,5 @@ impl Collection {
         }
 
         Ok(())
-    }
-
-    /// Saves changes to a note type. This will force a full sync if templates
-    /// or fields have been added/removed/reordered.
-    pub fn update_notetype(&mut self, nt: &mut Notetype, preserve_usn: bool) -> Result<()> {
-        let existing = self.get_notetype(nt.id)?;
-        let norm = self.get_bool(BoolKey::NormalizeNoteText);
-        nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
-        self.transact_no_undo(|col| {
-            if let Some(existing_notetype) = existing {
-                if existing_notetype.mtime_secs > nt.mtime_secs {
-                    return Err(AnkiError::invalid_input("attempt to save stale notetype"));
-                }
-                col.update_notes_for_changed_fields(
-                    nt,
-                    existing_notetype.fields.len(),
-                    existing_notetype.config.sort_field_idx,
-                    norm,
-                )?;
-                col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
-            }
-
-            let usn = col.usn()?;
-            if !preserve_usn {
-                nt.set_modified(usn);
-            }
-            col.ensure_notetype_name_unique(nt, usn)?;
-
-            col.storage.update_notetype_config(&nt)?;
-            col.storage.update_notetype_fields(nt.id, &nt.fields)?;
-            col.storage
-                .update_notetype_templates(nt.id, &nt.templates)?;
-
-            // fixme: update cache instead of clearing
-            col.state.notetype_cache.remove(&nt.id);
-
-            Ok(())
-        })
-    }
-
-    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<Arc<Notetype>>> {
-        if let Some(ntid) = self.storage.get_notetype_id(name)? {
-            self.get_notetype(ntid)
-        } else {
-            Ok(None)
-        }
-    }
-
-    pub fn get_notetype(&mut self, ntid: NotetypeId) -> Result<Option<Arc<Notetype>>> {
-        if let Some(nt) = self.state.notetype_cache.get(&ntid) {
-            return Ok(Some(nt.clone()));
-        }
-        if let Some(nt) = self.storage.get_notetype(ntid)? {
-            let nt = Arc::new(nt);
-            self.state.notetype_cache.insert(ntid, nt.clone());
-            Ok(Some(nt))
-        } else {
-            Ok(None)
-        }
-    }
-
-    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
-        self.storage
-            .get_all_notetype_names()?
-            .into_iter()
-            .map(|(ntid, _)| {
-                self.get_notetype(ntid)
-                    .transpose()
-                    .unwrap()
-                    .map(|nt| (ntid, nt))
-            })
-            .collect()
-    }
-
-    pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<()> {
-        // fixme: currently the storage layer is taking care of removing the notes and cards,
-        // but we need to do it in this layer in the future for undo handling
-        self.transact_no_undo(|col| {
-            col.set_schema_modified()?;
-            col.state.notetype_cache.remove(&ntid);
-            col.clear_aux_config_for_notetype(ntid)?;
-            col.storage.remove_notetype(ntid)?;
-            let all = col.storage.get_all_notetype_names()?;
-            if all.is_empty() {
-                let mut nt = all_stock_notetypes(&col.tr).remove(0);
-                col.add_notetype_inner(&mut nt, col.usn()?)?;
-                col.set_current_notetype_id(nt.id)
-            } else {
-                col.set_current_notetype_id(all[0].0)
-            }
-        })
     }
 }
