@@ -127,7 +127,8 @@ impl Collection {
                 .move_cards_for_repositioned_templates(nt.id, &changes.moved)?;
         }
 
-        let ctx = CardGenContext::new(nt, self.usn()?);
+        let last_deck = self.get_last_deck_added_to_for_notetype(nt.id);
+        let ctx = CardGenContext::new(nt, last_deck, self.usn()?);
         self.generate_cards_for_notetype(&ctx)?;
 
         Ok(())

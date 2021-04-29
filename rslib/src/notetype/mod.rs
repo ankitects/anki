@@ -35,16 +35,11 @@ pub use crate::backend_proto::{
     Notetype as NotetypeProto,
 };
 use crate::{
-    collection::Collection,
-    decks::DeckId,
     define_newtype,
-    error::{AnkiError, Result, TemplateSaveError},
-    notes::Note,
+    error::TemplateSaveError,
     prelude::*,
     template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
-    timestamp::TimestampSecs,
-    types::Usn,
 };
 
 define_newtype!(NotetypeId, i64);
@@ -98,10 +93,6 @@ impl Notetype {
         };
 
         template.ok_or(AnkiError::NotFound)
-    }
-
-    pub fn target_deck_id(&self) -> DeckId {
-        DeckId(self.config.target_deck_id)
     }
 }
 
@@ -320,14 +311,6 @@ impl Notetype {
         self.templates.push(CardTemplate::new(name, qfmt, afmt));
     }
 
-    pub(crate) fn prepare_for_adding(&mut self) -> Result<()> {
-        // defaults to 0
-        if self.config.target_deck_id == 0 {
-            self.config.target_deck_id = 1;
-        }
-        self.prepare_for_update(None)
-    }
-
     pub(crate) fn prepare_for_update(&mut self, existing: Option<&Notetype>) -> Result<()> {
         if self.fields.is_empty() {
             return Err(AnkiError::invalid_input("1 field required"));
@@ -489,7 +472,7 @@ impl Collection {
     }
 
     pub(crate) fn add_notetype_inner(&mut self, nt: &mut Notetype, usn: Usn) -> Result<()> {
-        nt.prepare_for_adding()?;
+        nt.prepare_for_update(None)?;
         self.ensure_notetype_name_unique(nt, usn)?;
         self.storage.add_new_notetype(nt)
     }

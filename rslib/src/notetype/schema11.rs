@@ -98,7 +98,7 @@ impl From<NotetypeSchema11> for Notetype {
                 kind: nt.kind as i32,
                 sort_field_idx: nt.sortf as u32,
                 css: nt.css,
-                target_deck_id: nt.did.unwrap_or(DeckId(0)).0,
+                target_deck_id_unused: nt.did.unwrap_or(DeckId(0)).0,
                 latex_pre: nt.latex_pre,
                 latex_post: nt.latex_post,
                 latex_svg: nt.latexsvg,
@@ -148,10 +148,10 @@ impl From<Notetype> for NotetypeSchema11 {
             mtime: p.mtime_secs,
             usn: p.usn,
             sortf: c.sort_field_idx as u16,
-            did: if c.target_deck_id == 0 {
+            did: if c.target_deck_id_unused == 0 {
                 None
             } else {
-                Some(DeckId(c.target_deck_id))
+                Some(DeckId(c.target_deck_id_unused))
             },
             tmpls: p.templates.into_iter().map(Into::into).collect(),
             flds: p.fields.into_iter().map(Into::into).collect(),
