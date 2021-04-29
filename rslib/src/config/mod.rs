@@ -117,9 +117,9 @@ impl Collection {
     }
 
     /// Remove all keys starting with provided prefix, which must end with '_'.
-    pub(crate) fn remove_config_prefix(&self, key: &str) -> Result<()> {
+    pub(crate) fn remove_config_prefix(&mut self, key: &str) -> Result<()> {
         for (key, _val) in self.storage.get_config_prefix(key)? {
-            self.storage.remove_config(&key)?;
+            self.remove_config(key.as_str())?;
         }
         Ok(())
     }
