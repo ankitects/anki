@@ -7,7 +7,7 @@ use crate::{
     error::{AnkiError, Result},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct NoteField {
     pub ord: Option<u32>,
     pub name: String,
@@ -20,6 +20,16 @@ impl From<NoteField> for NoteFieldProto {
             ord: f.ord.map(|n| OptionalUInt32 { val: n }),
             name: f.name,
             config: Some(f.config),
+        }
+    }
+}
+
+impl From<NoteFieldProto> for NoteField {
+    fn from(f: NoteFieldProto) -> Self {
+        NoteField {
+            ord: f.ord.map(|n| n.val),
+            name: f.name,
+            config: f.config.unwrap_or_default(),
         }
     }
 }

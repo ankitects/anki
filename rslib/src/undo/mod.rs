@@ -143,6 +143,7 @@ impl UndoManager {
                 UndoableChange::Config(_) => changes.config = true,
                 UndoableChange::DeckConfig(_) => changes.deck_config = true,
                 UndoableChange::Collection(_) => {}
+                UndoableChange::Notetype(_) => changes.notetype = true,
             }
         }
 

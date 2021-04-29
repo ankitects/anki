@@ -4,9 +4,9 @@
 use crate::{
     card::undo::UndoableCardChange, collection::undo::UndoableCollectionChange,
     config::undo::UndoableConfigChange, deckconfig::undo::UndoableDeckConfigChange,
-    decks::undo::UndoableDeckChange, notes::undo::UndoableNoteChange, prelude::*,
-    revlog::undo::UndoableRevlogChange, scheduler::queue::undo::UndoableQueueChange,
-    tags::undo::UndoableTagChange,
+    decks::undo::UndoableDeckChange, notes::undo::UndoableNoteChange,
+    notetype::undo::UndoableNotetypeChange, prelude::*, revlog::undo::UndoableRevlogChange,
+    scheduler::queue::undo::UndoableQueueChange, tags::undo::UndoableTagChange,
 };
 
 #[derive(Debug)]
@@ -20,6 +20,7 @@ pub(crate) enum UndoableChange {
     Queue(UndoableQueueChange),
     Config(UndoableConfigChange),
     Collection(UndoableCollectionChange),
+    Notetype(UndoableNotetypeChange),
 }
 
 impl UndoableChange {
@@ -34,6 +35,7 @@ impl UndoableChange {
             UndoableChange::Config(c) => col.undo_config_change(c),
             UndoableChange::DeckConfig(c) => col.undo_deck_config_change(c),
             UndoableChange::Collection(c) => col.undo_collection_change(c),
+            UndoableChange::Notetype(c) => col.undo_notetype_change(c),
         }
     }
 }
@@ -89,5 +91,11 @@ impl From<UndoableConfigChange> for UndoableChange {
 impl From<UndoableCollectionChange> for UndoableChange {
     fn from(c: UndoableCollectionChange) -> Self {
         UndoableChange::Collection(c)
+    }
+}
+
+impl From<UndoableNotetypeChange> for UndoableChange {
+    fn from(c: UndoableNotetypeChange) -> Self {
+        UndoableChange::Notetype(c)
     }
 }

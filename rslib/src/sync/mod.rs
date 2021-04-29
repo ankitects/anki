@@ -860,7 +860,7 @@ impl Collection {
             };
             if proceed {
                 self.ensure_notetype_name_unique(&mut nt, latest_usn)?;
-                self.storage.add_or_update_notetype(&nt)?;
+                self.storage.add_or_update_notetype_with_existing_id(&nt)?;
                 self.state.notetype_cache.remove(&nt.id);
             }
         }
@@ -1503,7 +1503,7 @@ mod test {
 
         let mut nt = col2.storage.get_notetype(nt.id)?.unwrap();
         nt.name = "newer".into();
-        col2.update_notetype(&mut nt, false)?;
+        col2.update_notetype(&mut nt)?;
 
         // sync the changes back
         let out = ctx.normal_sync(&mut col2).await;

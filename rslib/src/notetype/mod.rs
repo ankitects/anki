@@ -9,6 +9,7 @@ mod schema11;
 mod schemachange;
 mod stock;
 mod templates;
+pub(crate) mod undo;
 
 use std::{
     collections::{HashMap, HashSet},
@@ -48,7 +49,7 @@ pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Notetype {
     pub id: NotetypeId,
     pub name: String,
@@ -97,41 +98,39 @@ impl Notetype {
 }
 
 impl Collection {
+    /// Add a new notetype, and allocate it an ID.
+    pub fn add_notetype(&mut self, notetype: &mut Notetype) -> Result<OpOutput<()>> {
+        self.transact(Op::AddNotetype, |col| {
+            let usn = col.usn()?;
+            notetype.set_modified(usn);
+            col.add_notetype_inner(notetype, usn)
+        })
+    }
+
     /// Saves changes to a note type. This will force a full sync if templates
     /// or fields have been added/removed/reordered.
-    pub fn update_notetype(&mut self, nt: &mut Notetype, preserve_usn: bool) -> Result<()> {
-        let existing = self.get_notetype(nt.id)?;
-        let norm = self.get_bool(BoolKey::NormalizeNoteText);
-        nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
-        self.transact_no_undo(|col| {
-            if let Some(existing_notetype) = existing {
-                if existing_notetype.mtime_secs > nt.mtime_secs {
-                    return Err(AnkiError::invalid_input("attempt to save stale notetype"));
-                }
-                col.update_notes_for_changed_fields(
-                    nt,
-                    existing_notetype.fields.len(),
-                    existing_notetype.config.sort_field_idx,
-                    norm,
-                )?;
-                col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
-            }
-
+    pub fn update_notetype(&mut self, notetype: &mut Notetype) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateNotetype, |col| {
+            let original = col
+                .storage
+                .get_notetype(notetype.id)?
+                .ok_or(AnkiError::NotFound)?;
             let usn = col.usn()?;
-            if !preserve_usn {
-                nt.set_modified(usn);
-            }
-            col.ensure_notetype_name_unique(nt, usn)?;
+            notetype.set_modified(usn);
+            col.add_or_update_notetype_with_existing_id_inner(notetype, Some(original), usn)
+        })
+    }
 
-            col.storage.update_notetype_config(&nt)?;
-            col.storage.update_notetype_fields(nt.id, &nt.fields)?;
-            col.storage
-                .update_notetype_templates(nt.id, &nt.templates)?;
-
-            // fixme: update cache instead of clearing
-            col.state.notetype_cache.remove(&nt.id);
-
-            Ok(())
+    /// Used to support the current importing code; does not mark notetype as modified,
+    /// and does not support undo.
+    pub fn add_or_update_notetype_with_existing_id(
+        &mut self,
+        notetype: &mut Notetype,
+    ) -> Result<()> {
+        self.transact_no_undo(|col| {
+            let usn = col.usn()?;
+            let existing = col.storage.get_notetype(notetype.id)?;
+            col.add_or_update_notetype_with_existing_id_inner(notetype, existing, usn)
         })
     }
 
@@ -169,8 +168,8 @@ impl Collection {
             .collect()
     }
 
-    pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<()> {
-        self.transact_no_undo(|col| col.remove_notetype_inner(ntid))
+    pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<OpOutput<()>> {
+        self.transact(Op::RemoveNotetype, |col| col.remove_notetype_inner(ntid))
     }
 }
 
@@ -437,7 +436,7 @@ impl From<Notetype> for NotetypeProto {
         NotetypeProto {
             id: nt.id.0,
             name: nt.name,
-            mtime_secs: nt.mtime_secs.0 as u32,
+            mtime_secs: nt.mtime_secs.0,
             usn: nt.usn.0,
             config: Some(nt.config),
             fields: nt.fields.into_iter().map(Into::into).collect(),
@@ -447,21 +446,6 @@ impl From<Notetype> for NotetypeProto {
 }
 
 impl Collection {
-    /// Add a new notetype, and allocate it an ID.
-    pub fn add_notetype(&mut self, nt: &mut Notetype) -> Result<()> {
-        self.transact_no_undo(|col| {
-            let usn = col.usn()?;
-            nt.set_modified(usn);
-            col.add_notetype_inner(nt, usn)
-        })
-    }
-
-    pub(crate) fn add_notetype_inner(&mut self, nt: &mut Notetype, usn: Usn) -> Result<()> {
-        nt.prepare_for_update(None)?;
-        self.ensure_notetype_name_unique(nt, usn)?;
-        self.storage.add_new_notetype(nt)
-    }
-
     pub(crate) fn ensure_notetype_name_unique(
         &self,
         notetype: &mut Notetype,
@@ -482,7 +466,52 @@ impl Collection {
         Ok(())
     }
 
+    /// Caller must set notetype as modified if appropriate.
+    pub(crate) fn add_notetype_inner(&mut self, notetype: &mut Notetype, usn: Usn) -> Result<()> {
+        notetype.prepare_for_update(None)?;
+        self.ensure_notetype_name_unique(notetype, usn)?;
+        self.add_notetype_undoable(notetype)
+    }
+
+    /// - Caller must set notetype as modified if appropriate.
+    /// - This only supports undo when an existing notetype is passed in.
+    fn add_or_update_notetype_with_existing_id_inner(
+        &mut self,
+        notetype: &mut Notetype,
+        original: Option<Notetype>,
+        usn: Usn,
+    ) -> Result<()> {
+        let normalize = self.get_bool(BoolKey::NormalizeNoteText);
+        notetype.prepare_for_update(original.as_ref())?;
+        self.ensure_notetype_name_unique(notetype, usn)?;
+        self.state.notetype_cache.remove(&notetype.id);
+
+        if let Some(original) = original {
+            self.update_notes_for_changed_fields(
+                notetype,
+                original.fields.len(),
+                original.config.sort_field_idx,
+                normalize,
+            )?;
+            self.update_cards_for_changed_templates(notetype, original.templates.len())?;
+            self.update_notetype_undoable(notetype, original)?;
+        } else {
+            // adding with existing id for old undo code, bypass undo
+            self.storage
+                .add_or_update_notetype_with_existing_id(&notetype)?;
+        }
+
+        Ok(())
+    }
+
     fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
+        let notetype = if let Some(notetype) = self.storage.get_notetype(ntid)? {
+            notetype
+        } else {
+            // already removed
+            return Ok(());
+        };
+
         // remove associated cards/notes
         let usn = self.usn()?;
         let note_ids = self.search_notes_unordered(ntid)?;
@@ -492,7 +521,7 @@ impl Collection {
         self.set_schema_modified()?;
         self.state.notetype_cache.remove(&ntid);
         self.clear_aux_config_for_notetype(ntid)?;
-        self.storage.remove_notetype(ntid)?;
+        self.remove_notetype_only_undoable(notetype)?;
 
         // update last-used notetype
         let all = self.storage.get_all_notetype_names()?;

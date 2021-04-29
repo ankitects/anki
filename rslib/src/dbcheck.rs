@@ -259,7 +259,9 @@ impl Collection {
                 let ctx = genctx.get_or_insert_with(|| {
                     CardGenContext::new(&nt, self.get_last_deck_added_to_for_notetype(nt.id), usn)
                 });
-                self.update_note_inner_generating_cards(&ctx, &mut note, &original, false, norm)?;
+                self.update_note_inner_generating_cards(
+                    &ctx, &mut note, &original, false, norm, true,
+                )?;
             }
         }
 

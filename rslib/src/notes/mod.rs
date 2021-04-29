@@ -34,6 +34,7 @@ pub(crate) struct TransformNoteOutput {
     pub changed: bool,
     pub generate_cards: bool,
     pub mark_modified: bool,
+    pub update_tags: bool,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -387,7 +388,7 @@ impl Collection {
         let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
         let ctx = CardGenContext::new(&nt, last_deck, self.usn()?);
         let norm = self.get_bool(BoolKey::NormalizeNoteText);
-        self.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm)?;
+        self.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm, true)?;
         Ok(())
     }
 
@@ -398,6 +399,7 @@ impl Collection {
         original: &Note,
         mark_note_modified: bool,
         normalize_text: bool,
+        update_tags: bool,
     ) -> Result<()> {
         self.update_note_inner_without_cards(
             note,
@@ -406,10 +408,13 @@ impl Collection {
             ctx.usn,
             mark_note_modified,
             normalize_text,
+            update_tags,
         )?;
         self.generate_cards_for_existing_note(ctx, note)
     }
 
+    // TODO: refactor into struct
+    #[allow(clippy::clippy::too_many_arguments)]
     pub(crate) fn update_note_inner_without_cards(
         &mut self,
         note: &mut Note,
@@ -418,8 +423,11 @@ impl Collection {
         usn: Usn,
         mark_note_modified: bool,
         normalize_text: bool,
+        update_tags: bool,
     ) -> Result<()> {
-        self.canonify_note_tags(note, usn)?;
+        if update_tags {
+            self.canonify_note_tags(note, usn)?;
+        }
         note.prepare_for_update(nt, normalize_text)?;
         if mark_note_modified {
             note.set_modified(usn);
@@ -453,6 +461,7 @@ impl Collection {
                 changed: true,
                 generate_cards,
                 mark_modified: mark_notes_modified,
+                update_tags: true,
             })
         })
     }
@@ -499,6 +508,7 @@ impl Collection {
                         &original,
                         out.mark_modified,
                         norm,
+                        out.update_tags,
                     )?;
                 } else {
                     self.update_note_inner_without_cards(
@@ -508,6 +518,7 @@ impl Collection {
                         usn,
                         out.mark_modified,
                         norm,
+                        out.update_tags,
                     )?;
                 }
 
@@ -570,6 +581,7 @@ impl Collection {
                 changed,
                 generate_cards: false,
                 mark_modified: true,
+                update_tags: true,
             })
         })
         .map(|_| ())

@@ -7,6 +7,7 @@ use crate::prelude::*;
 pub enum Op {
     AddDeck,
     AddNote,
+    AddNotetype,
     AnswerCard,
     BuildFilteredDeck,
     Bury,
@@ -17,6 +18,7 @@ pub enum Op {
     RebuildFilteredDeck,
     RemoveDeck,
     RemoveNote,
+    RemoveNotetype,
     RemoveTag,
     RenameDeck,
     ReparentDeck,
@@ -35,6 +37,7 @@ pub enum Op {
     UpdateNote,
     UpdatePreferences,
     UpdateTag,
+    UpdateNotetype,
     SetCurrentDeck,
 }
 
@@ -72,6 +75,9 @@ impl Op {
             Op::ExpandCollapse => tr.undo_expand_collapse(),
             Op::SetCurrentDeck => tr.browsing_change_deck(),
             Op::UpdateDeckConfig => tr.deck_config_title(),
+            Op::AddNotetype => tr.undo_add_notetype(),
+            Op::RemoveNotetype => tr.undo_remove_notetype(),
+            Op::UpdateNotetype => tr.undo_update_notetype(),
         }
         .into()
     }
