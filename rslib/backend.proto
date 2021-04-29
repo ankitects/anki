@@ -466,7 +466,8 @@ message Notetype {
     Kind kind = 1;
     uint32 sort_field_idx = 2;
     string css = 3;
-    int64 target_deck_id = 4;  // moved into config var
+    /// This is now stored separately; retrieve with DefaultsForAdding()
+    int64 target_deck_id_unused = 4;
     string latex_pre = 5;
     string latex_post = 6;
     bool latex_svg = 7;

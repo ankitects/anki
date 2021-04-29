@@ -15,6 +15,7 @@ use crate::{
 impl SqliteStorage {
     pub(crate) fn add_stock_notetypes(&self, tr: &I18n) -> Result<()> {
         for (idx, mut nt) in all_stock_notetypes(tr).into_iter().enumerate() {
+            nt.prepare_for_update(None)?;
             self.add_new_notetype(&mut nt)?;
             if idx == Kind::Basic as usize {
                 self.set_config_entry(&ConfigEntry::boxed(
@@ -63,7 +64,6 @@ pub(crate) fn basic(tr: &I18n) -> Notetype {
             fieldref(back),
         ),
     );
-    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -79,7 +79,6 @@ pub(crate) fn basic_typing(tr: &I18n) -> Notetype {
         fieldref(front),
         back
     );
-    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -97,7 +96,6 @@ pub(crate) fn basic_forward_reverse(tr: &I18n) -> Notetype {
             fieldref(front),
         ),
     );
-    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -108,7 +106,6 @@ pub(crate) fn basic_optional_reverse(tr: &I18n) -> Notetype {
     nt.add_field(addrev.as_ref());
     let tmpl = &mut nt.templates[1].config;
     tmpl.q_format = format!("{{{{#{}}}}}{}{{{{/{}}}}}", addrev, tmpl.q_format, addrev);
-    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -134,6 +131,5 @@ pub(crate) fn cloze(tr: &I18n) -> Notetype {
  color: lightblue;
 }
 ";
-    nt.prepare_for_adding().unwrap();
     nt
 }

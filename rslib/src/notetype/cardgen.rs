@@ -8,16 +8,8 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 
 use super::Notetype;
 use crate::{
-    card::{Card, CardId},
-    cloze::add_cloze_numbers_in_string,
-    collection::Collection,
-    deckconfig::{DeckConfig, DeckConfigId},
-    decks::DeckId,
-    error::{AnkiError, Result},
-    notes::{Note, NoteId},
-    notetype::NotetypeKind,
+    cloze::add_cloze_numbers_in_string, notetype::NotetypeKind, prelude::*,
     template::ParsedTemplate,
-    types::Usn,
 };
 
 /// Info about an existing card required when generating new cards
@@ -49,6 +41,8 @@ pub(crate) struct SingleCardGenContext {
 pub(crate) struct CardGenContext<'a> {
     pub usn: Usn,
     pub notetype: &'a Notetype,
+    /// The last deck that was added to with this note type
+    pub last_deck: Option<DeckId>,
     cards: Vec<SingleCardGenContext>,
 }
 
@@ -60,9 +54,10 @@ pub(crate) struct CardGenCache {
 }
 
 impl CardGenContext<'_> {
-    pub(crate) fn new(nt: &Notetype, usn: Usn) -> CardGenContext<'_> {
+    pub(crate) fn new(nt: &Notetype, last_deck: Option<DeckId>, usn: Usn) -> CardGenContext<'_> {
         CardGenContext {
             usn,
+            last_deck,
             notetype: &nt,
             cards: nt
                 .templates
@@ -233,13 +228,7 @@ impl Collection {
         note: &Note,
     ) -> Result<()> {
         let existing = self.storage.existing_cards_for_note(note.id)?;
-        self.generate_cards_for_note(
-            ctx,
-            note,
-            &existing,
-            Some(ctx.notetype.target_deck_id()),
-            &mut Default::default(),
-        )
+        self.generate_cards_for_note(ctx, note, &existing, ctx.last_deck, &mut Default::default())
     }
 
     fn generate_cards_for_note(

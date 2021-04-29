@@ -256,7 +256,9 @@ impl Collection {
                 note.notetype_id = nt.id;
 
                 // write note, updating tags and generating missing cards
-                let ctx = genctx.get_or_insert_with(|| CardGenContext::new(&nt, usn));
+                let ctx = genctx.get_or_insert_with(|| {
+                    CardGenContext::new(&nt, self.get_last_deck_added_to_for_notetype(nt.id), usn)
+                });
                 self.update_note_inner_generating_cards(&ctx, &mut note, &original, false, norm)?;
             }
         }
