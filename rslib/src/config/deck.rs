@@ -19,7 +19,7 @@ impl DeckConfigKey {
 }
 
 impl Collection {
-    pub(crate) fn clear_aux_config_for_deck(&self, ntid: DeckId) -> Result<()> {
+    pub(crate) fn clear_aux_config_for_deck(&mut self, ntid: DeckId) -> Result<()> {
         self.remove_config_prefix(&build_aux_deck_key(ntid, ""))
     }
 

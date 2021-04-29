@@ -33,7 +33,7 @@ impl Collection {
             .map(|_| ())
     }
 
-    pub(crate) fn clear_aux_config_for_notetype(&self, ntid: NotetypeId) -> Result<()> {
+    pub(crate) fn clear_aux_config_for_notetype(&mut self, ntid: NotetypeId) -> Result<()> {
         self.remove_config_prefix(&build_aux_notetype_key(ntid, ""))
     }
 
