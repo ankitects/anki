@@ -114,11 +114,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn update_notetype_fields(
-        &self,
-        ntid: NotetypeId,
-        fields: &[NoteField],
-    ) -> Result<()> {
+    fn update_notetype_fields(&self, ntid: NotetypeId, fields: &[NoteField]) -> Result<()> {
         self.db
             .prepare_cached("delete from fields where ntid=?")?
             .execute(&[ntid])?;
@@ -166,7 +162,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn update_notetype_templates(
+    fn update_notetype_templates(
         &self,
         ntid: NotetypeId,
         templates: &[CardTemplate],
@@ -193,11 +189,14 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn update_notetype_config(&self, nt: &Notetype) -> Result<()> {
-        assert!(nt.id.0 != 0);
-        let mut stmt = self
-            .db
-            .prepare_cached(include_str!("update_notetype_core.sql"))?;
+    /// Notetype should have an existing id, and will be added if missing.
+    fn update_notetype_core(&self, nt: &Notetype) -> Result<()> {
+        if nt.id.0 == 0 {
+            return Err(AnkiError::invalid_input(
+                "notetype with id 0 passed in as existing",
+            ));
+        }
+        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         let mut config_bytes = vec![];
         nt.config.encode(&mut config_bytes)?;
         stmt.execute(params![nt.id, nt.name, nt.mtime_secs, nt.usn, config_bytes])?;
@@ -205,7 +204,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn add_new_notetype(&self, nt: &mut Notetype) -> Result<()> {
+    pub(crate) fn add_notetype(&self, nt: &mut Notetype) -> Result<()> {
         assert!(nt.id.0 == 0);
 
         let mut stmt = self.db.prepare_cached(include_str!("add_notetype.sql"))?;
@@ -226,30 +225,12 @@ impl SqliteStorage {
         Ok(())
     }
 
-    /// Used for syncing.
-    pub(crate) fn add_or_update_notetype(&self, nt: &Notetype) -> Result<()> {
-        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
-        let mut config_bytes = vec![];
-        nt.config.encode(&mut config_bytes)?;
-        stmt.execute(params![nt.id, nt.name, nt.mtime_secs, nt.usn, config_bytes])?;
-
+    /// Used for both regular updates, and for syncing/import.
+    pub(crate) fn add_or_update_notetype_with_existing_id(&self, nt: &Notetype) -> Result<()> {
+        self.update_notetype_core(nt)?;
         self.update_notetype_fields(nt.id, &nt.fields)?;
         self.update_notetype_templates(nt.id, &nt.templates)?;
 
-        Ok(())
-    }
-
-    pub(crate) fn remove_cards_for_deleted_templates(
-        &self,
-        ntid: NotetypeId,
-        ords: &[u32],
-    ) -> Result<()> {
-        let mut stmt = self
-            .db
-            .prepare(include_str!("delete_cards_for_template.sql"))?;
-        for ord in ords {
-            stmt.execute(params![ntid, ord])?;
-        }
         Ok(())
     }
 
@@ -264,29 +245,6 @@ impl SqliteStorage {
             .prepare_cached("delete from notetypes where id=?")?
             .execute(&[ntid])?;
 
-        Ok(())
-    }
-
-    pub(crate) fn move_cards_for_repositioned_templates(
-        &self,
-        ntid: NotetypeId,
-        changes: &[(u32, u32)],
-    ) -> Result<()> {
-        let case_clauses: Vec<_> = changes
-            .iter()
-            .map(|(old, new)| format!("when {} then {}", old, new))
-            .collect();
-        let mut sql = format!(
-            "update cards set ord = (case ord {} end) 
-where nid in (select id from notes where mid = ?)
-and ord in ",
-            case_clauses.join(" ")
-        );
-        ids_to_string(
-            &mut sql,
-            &changes.iter().map(|(old, _)| old).collect::<Vec<_>>(),
-        );
-        self.db.prepare(&sql)?.execute(&[ntid])?;
         Ok(())
     }
 
@@ -363,7 +321,7 @@ and ord in ",
                 }
                 nt.name.push('_');
             }
-            self.update_notetype_config(&nt)?;
+            self.update_notetype_core(&nt)?;
             self.update_notetype_fields(ntid, &nt.fields)?;
             self.update_notetype_templates(ntid, &nt.templates)?;
         }

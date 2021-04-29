@@ -200,6 +200,8 @@ service ConfigService {
 }
 
 service NotetypesService {
+  rpc AddNotetype(Notetype) returns (OpChangesWithId);
+  rpc UpdateNotetype(Notetype) returns (OpChanges);
   rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NotetypeId);
   rpc GetStockNotetypeLegacy(StockNotetype) returns (Json);
   rpc GetNotetype(NotetypeId) returns (Notetype);
@@ -207,7 +209,7 @@ service NotetypesService {
   rpc GetNotetypeNames(Empty) returns (NotetypeNames);
   rpc GetNotetypeNamesAndCounts(Empty) returns (NotetypeUseCounts);
   rpc GetNotetypeIdByName(String) returns (NotetypeId);
-  rpc RemoveNotetype(NotetypeId) returns (Empty);
+  rpc RemoveNotetype(NotetypeId) returns (OpChanges);
 }
 
 service CardRenderingService {
@@ -503,14 +505,14 @@ message Notetype {
 
     OptionalUInt32 ord = 1;
     string name = 2;
-    uint32 mtime_secs = 3;
+    int64 mtime_secs = 3;
     sint32 usn = 4;
     Config config = 5;
   }
 
   int64 id = 1;
   string name = 2;
-  uint32 mtime_secs = 3;
+  int64 mtime_secs = 3;
   sint32 usn = 4;
   Config config = 7;
   repeated Field fields = 8;

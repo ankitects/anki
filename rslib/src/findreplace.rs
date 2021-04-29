@@ -95,6 +95,7 @@ impl Collection {
                 changed,
                 generate_cards: true,
                 mark_modified: true,
+                update_tags: false,
             })
         })
     }

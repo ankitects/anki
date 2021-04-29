@@ -11,7 +11,7 @@ use crate::{
     types::Usn,
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct CardTemplate {
     pub ord: Option<u32>,
     pub mtime_secs: TimestampSecs,
@@ -58,10 +58,22 @@ impl From<CardTemplate> for CardTemplateProto {
     fn from(t: CardTemplate) -> Self {
         CardTemplateProto {
             ord: t.ord.map(|n| OptionalUInt32 { val: n }),
-            mtime_secs: t.mtime_secs.0 as u32,
+            mtime_secs: t.mtime_secs.0,
             usn: t.usn.0,
             name: t.name,
             config: Some(t.config),
+        }
+    }
+}
+
+impl From<CardTemplateProto> for CardTemplate {
+    fn from(t: CardTemplateProto) -> Self {
+        CardTemplate {
+            ord: t.ord.map(|n| n.val),
+            mtime_secs: t.mtime_secs.into(),
+            usn: t.usn.into(),
+            name: t.name,
+            config: t.config.unwrap_or_default(),
         }
     }
 }
