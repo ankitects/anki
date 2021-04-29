@@ -170,22 +170,7 @@ impl Collection {
     }
 
     pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<()> {
-        // fixme: currently the storage layer is taking care of removing the notes and cards,
-        // but we need to do it in this layer in the future for undo handling
-        self.transact_no_undo(|col| {
-            col.set_schema_modified()?;
-            col.state.notetype_cache.remove(&ntid);
-            col.clear_aux_config_for_notetype(ntid)?;
-            col.storage.remove_notetype(ntid)?;
-            let all = col.storage.get_all_notetype_names()?;
-            if all.is_empty() {
-                let mut nt = all_stock_notetypes(&col.tr).remove(0);
-                col.add_notetype_inner(&mut nt, col.usn()?)?;
-                col.set_current_notetype_id(nt.id)
-            } else {
-                col.set_current_notetype_id(all[0].0)
-            }
-        })
+        self.transact_no_undo(|col| col.remove_notetype_inner(ntid))
     }
 }
 
@@ -495,5 +480,28 @@ impl Collection {
         }
 
         Ok(())
+    }
+
+    fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
+        // remove associated cards/notes
+        let usn = self.usn()?;
+        let note_ids = self.search_notes(&format!("mid:{}", ntid))?;
+        self.remove_notes_inner(&note_ids, usn)?;
+
+        // remove notetype
+        self.set_schema_modified()?;
+        self.state.notetype_cache.remove(&ntid);
+        self.clear_aux_config_for_notetype(ntid)?;
+        self.storage.remove_notetype(ntid)?;
+
+        // update last-used notetype
+        let all = self.storage.get_all_notetype_names()?;
+        if all.is_empty() {
+            let mut nt = all_stock_notetypes(&self.tr).remove(0);
+            self.add_notetype_inner(&mut nt, self.usn()?)?;
+            self.set_current_notetype_id(nt.id)
+        } else {
+            self.set_current_notetype_id(all[0].0)
+        }
     }
 }
