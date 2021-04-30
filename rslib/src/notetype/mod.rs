@@ -470,7 +470,8 @@ impl Collection {
     pub(crate) fn add_notetype_inner(&mut self, notetype: &mut Notetype, usn: Usn) -> Result<()> {
         notetype.prepare_for_update(None)?;
         self.ensure_notetype_name_unique(notetype, usn)?;
-        self.add_notetype_undoable(notetype)
+        self.add_notetype_undoable(notetype)?;
+        self.set_current_notetype_id(notetype.id)
     }
 
     /// - Caller must set notetype as modified if appropriate.

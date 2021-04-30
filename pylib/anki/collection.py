@@ -310,7 +310,7 @@ class Collection:
         self._backend.before_upload()
         self.close(save=False, downgrade=True)
 
-    # Object creation helpers
+    # Object helpers
     ##########################################################################
 
     def get_card(self, id: CardId) -> Card:
@@ -346,6 +346,11 @@ class Collection:
     def get_notetype(self, id: NotetypeId) -> Notetype:
         """Get a new-style notetype object. This is not cached; avoid calling frequently."""
         return self._backend.get_notetype(id)
+
+    def update_notetype(self, notetype: Notetype) -> OpChanges:
+        "This may force a full sync; caller is responsible for notifying user."
+        self.models._remove_from_cache(NotetypeId(notetype.id))
+        return self._backend.update_notetype(notetype)
 
     getCard = get_card
     getNote = get_note

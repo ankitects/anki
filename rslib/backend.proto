@@ -202,6 +202,8 @@ service ConfigService {
 service NotetypesService {
   rpc AddNotetype(Notetype) returns (OpChangesWithId);
   rpc UpdateNotetype(Notetype) returns (OpChanges);
+  rpc AddNotetypeLegacy(Json) returns (OpChangesWithId);
+  rpc UpdateNotetypeLegacy(Json) returns (OpChanges);
   rpc AddOrUpdateNotetype(AddOrUpdateNotetypeIn) returns (NotetypeId);
   rpc GetStockNotetypeLegacy(StockNotetype) returns (Json);
   rpc GetNotetype(NotetypeId) returns (Notetype);

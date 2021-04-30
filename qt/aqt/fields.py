@@ -45,7 +45,6 @@ class FieldDialog(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
         self.currentIdx: Optional[int] = None
-        self.oldSortField = self.model["sortf"]
         self.fillFields()
         self.setupSignals()
         self.form.fieldList.setDragDropMode(QAbstractItemView.InternalMove)

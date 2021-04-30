@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import copy
 import pprint
-from typing import Any, List, NewType, Optional, Sequence, Tuple
+from typing import Any, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
@@ -30,12 +30,12 @@ class Note:
     def __init__(
         self,
         col: anki.collection.Collection,
-        model: Optional[NotetypeDict] = None,
+        model: Optional[Union[NotetypeDict, NotetypeId]] = None,
         id: Optional[NoteId] = None,
     ) -> None:
         assert not (model and id)
+        notetype_id = model["id"] if isinstance(model, dict) else model
         self.col = col.weakref()
-        # self.newlyAdded = False
 
         if id:
             # existing note
@@ -43,7 +43,7 @@ class Note:
             self.load()
         else:
             # new note for provided notetype
-            self._load_from_backend_note(self.col._backend.new_note(model["id"]))
+            self._load_from_backend_note(self.col._backend.new_note(notetype_id))
 
     def load(self) -> None:
         n = self.col._backend.get_note(self.id)
