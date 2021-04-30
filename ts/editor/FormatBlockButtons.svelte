@@ -76,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </WithState>
 
     <WithDropdownMenu let:createDropdown let:menuId>
-        <IconButton on:mount={(event) => createDropdown(event.detail.button)}>
+        <IconButton on:mount={createDropdown}>
             {@html listOptionsIcon}
         </IconButton>
 
@@ -148,11 +148,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </ButtonGroup>
 
             <ButtonGroup id="indentation" {api}>
-                <IconButton on:click={outdentListItem} tooltip={tr.editingOutdent}>
+                <IconButton on:click={outdentListItem} tooltip={tr.editingOutdent()}>
                     {@html outdentIcon}
                 </IconButton>
 
-                <IconButton on:click={indentListItem} tooltip={tr.editingIndent}>
+                <IconButton on:click={indentListItem} tooltip={tr.editingIndent()}>
                     {@html indentIcon}
                 </IconButton>
             </ButtonGroup>
