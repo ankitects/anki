@@ -12,6 +12,7 @@ from typing import Any, Dict, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
+from anki.collection import OpChanges, OpChangesWithId
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
@@ -232,8 +233,18 @@ class ModelManager:
         self._remove_from_cache(id)
         self.col._backend.remove_notetype(id)
 
-    def add(self, m: NotetypeDict) -> None:
-        self.save(m)
+    def add(self, m: NotetypeDict) -> OpChangesWithId:
+        "Replaced with add_dict()"
+        self.ensureNameUnique(m)
+        out = self.col._backend.add_notetype_legacy(to_json_bytes(m))
+        m["id"] = out.id
+        self._mutate_after_write(m)
+        return out
+
+    def add_dict(self, m: NotetypeDict) -> OpChangesWithId:
+        "Notetype needs to be fetched from DB after adding."
+        self.ensureNameUnique(m)
+        return self.col._backend.add_notetype_legacy(to_json_bytes(m))
 
     def ensureNameUnique(self, m: NotetypeDict) -> None:
         existing_id = self.id_for_name(m["name"])
@@ -241,7 +252,7 @@ class ModelManager:
             m["name"] += "-" + checksum(str(time.time()))[:5]
 
     def update(self, m: NotetypeDict, preserve_usn: bool = True) -> None:
-        "Add or update an existing model. Use .save() instead."
+        "Add or update an existing model. Use .update_dict() instead."
         self._remove_from_cache(m["id"])
         self.ensureNameUnique(m)
         m["id"] = self.col._backend.add_or_update_notetype(
@@ -249,6 +260,12 @@ class ModelManager:
         )
         self.setCurrent(m)
         self._mutate_after_write(m)
+
+    def update_dict(self, m: NotetypeDict) -> OpChanges:
+        "Update a NotetypeDict. Caller will need to re-load notetype if new fields/cards added."
+        self._remove_from_cache(m["id"])
+        self.ensureNameUnique(m)
+        return self.col._backend.update_notetype_legacy(to_json_bytes(m))
 
     def _mutate_after_write(self, nt: NotetypeDict) -> None:
         # existing code expects the note type to be mutated to reflect
@@ -273,14 +290,15 @@ class ModelManager:
     # Copying
     ##################################################
 
-    def copy(self, m: NotetypeDict) -> NotetypeDict:
+    def copy(self, m: NotetypeDict, add: bool = True) -> NotetypeDict:
         "Copy, save and return."
         m2 = copy.deepcopy(m)
         m2["name"] = without_unicode_isolation(
             self.col.tr.notetypes_copy(val=m2["name"])
         )
         m2["id"] = 0
-        self.add(m2)
+        if add:
+            self.add(m2)
         return m2
 
     # Fields

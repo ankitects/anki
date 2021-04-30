@@ -26,6 +26,24 @@ impl NotetypesService for Backend {
             .map(Into::into)
     }
 
+    fn add_notetype_legacy(&self, input: pb::Json) -> Result<pb::OpChangesWithId> {
+        let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
+        let mut notetype: Notetype = legacy.into();
+        self.with_col(|col| {
+            Ok(col
+                .add_notetype(&mut notetype)?
+                .map(|_| notetype.id.0)
+                .into())
+        })
+    }
+
+    fn update_notetype_legacy(&self, input: pb::Json) -> Result<pb::OpChanges> {
+        let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
+        let mut notetype: Notetype = legacy.into();
+        self.with_col(|col| col.update_notetype(&mut notetype))
+            .map(Into::into)
+    }
+
     fn add_or_update_notetype(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<pb::NotetypeId> {
         self.with_col(|col| {
             let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;

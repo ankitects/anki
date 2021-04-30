@@ -12,39 +12,15 @@ from anki.utils import from_json_bytes
 # pylint: disable=no-member
 StockNotetypeKind = _pb.StockNotetype.Kind
 
-# add-on authors can add ("note type name", function_like_addBasicModel)
+# add-on authors can add ("note type name", function)
 # to this list to have it shown in the add/clone note type screen
 models: List[Tuple] = []
 
 
-def _add_stock_notetype(
+def _get_stock_notetype(
     col: anki.collection.Collection, kind: StockNotetypeKind.V
 ) -> anki.models.NotetypeDict:
-    m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
-    col.models.add(m)
-    return m
-
-
-def addBasicModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
-    return _add_stock_notetype(col, StockNotetypeKind.BASIC)
-
-
-def addBasicTypingModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
-    return _add_stock_notetype(col, StockNotetypeKind.BASIC_TYPING)
-
-
-def addForwardReverse(col: anki.collection.Collection) -> anki.models.NotetypeDict:
-    return _add_stock_notetype(col, StockNotetypeKind.BASIC_AND_REVERSED)
-
-
-def addForwardOptionalReverse(
-    col: anki.collection.Collection,
-) -> anki.models.NotetypeDict:
-    return _add_stock_notetype(col, StockNotetypeKind.BASIC_OPTIONAL_REVERSED)
-
-
-def addClozeModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
-    return _add_stock_notetype(col, StockNotetypeKind.CLOZE)
+    return from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
 
 
 def get_stock_notetypes(
@@ -54,18 +30,21 @@ def get_stock_notetypes(
         Tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]
     ] = []
     # add standard
-    for (kind, func) in [
-        (StockNotetypeKind.BASIC, addBasicModel),
-        (StockNotetypeKind.BASIC_TYPING, addBasicTypingModel),
-        (StockNotetypeKind.BASIC_AND_REVERSED, addForwardReverse),
-        (
-            StockNotetypeKind.BASIC_OPTIONAL_REVERSED,
-            addForwardOptionalReverse,
-        ),
-        (StockNotetypeKind.CLOZE, addClozeModel),
+    for kind in [
+        StockNotetypeKind.BASIC,
+        StockNotetypeKind.BASIC_TYPING,
+        StockNotetypeKind.BASIC_AND_REVERSED,
+        StockNotetypeKind.BASIC_OPTIONAL_REVERSED,
+        StockNotetypeKind.CLOZE,
     ]:
         m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
-        out.append((m["name"], func))
+
+        def instance_getter(
+            col: anki.collection.Collection,
+        ) -> anki.models.NotetypeDict:
+            return m  # pylint:disable=cell-var-from-loop
+
+        out.append((m["name"], instance_getter))
     # add extras from add-ons
     for (name_or_func, func) in models:
         if not isinstance(name_or_func, str):
@@ -74,3 +53,40 @@ def get_stock_notetypes(
             name = name_or_func
         out.append((name, func))
     return out
+
+
+#
+# Legacy functions that added the notetype before returning it
+#
+
+
+def addBasicModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
+    nt = _get_stock_notetype(col, StockNotetypeKind.BASIC)
+    col.models.add(nt)
+    return nt
+
+
+def addBasicTypingModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
+    nt = _get_stock_notetype(col, StockNotetypeKind.BASIC_TYPING)
+    col.models.add(nt)
+    return nt
+
+
+def addForwardReverse(col: anki.collection.Collection) -> anki.models.NotetypeDict:
+    nt = _get_stock_notetype(col, StockNotetypeKind.BASIC_AND_REVERSED)
+    col.models.add(nt)
+    return nt
+
+
+def addForwardOptionalReverse(
+    col: anki.collection.Collection,
+) -> anki.models.NotetypeDict:
+    nt = _get_stock_notetype(col, StockNotetypeKind.BASIC_OPTIONAL_REVERSED)
+    col.models.add(nt)
+    return nt
+
+
+def addClozeModel(col: anki.collection.Collection) -> anki.models.NotetypeDict:
+    nt = _get_stock_notetype(col, StockNotetypeKind.CLOZE)
+    col.models.add(nt)
+    return nt

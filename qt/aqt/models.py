@@ -11,6 +11,7 @@ from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
+from aqt.operations.notetype import add_notetype_legacy
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
@@ -49,7 +50,7 @@ class Models(QDialog):
             self.form.buttonBox.helpRequested,
             lambda: openHelp(HelpPage.ADDING_A_NOTE_TYPE),
         )
-        self.models: List[NotetypeNameIdUseCount] = []
+        self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
         self.exec_()
@@ -100,6 +101,12 @@ class Models(QDialog):
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
         maybeHideClose(box)
 
+    def refresh_list(self) -> None:
+        self.mw.query_op(
+            self.col.models.all_use_counts,
+            success=self.updateModelsList,
+        )
+
     def onRename(self) -> None:
         nt = self.current_notetype()
         txt = getText(tr.actions_new_name(), default=nt["name"])
@@ -118,7 +125,7 @@ class Models(QDialog):
 
         self.mw.taskman.with_progress(save, on_done, self)
 
-    def updateModelsList(self, notetypes: List[NotetypeNameIdUseCount]) -> None:
+    def updateModelsList(self, notetypes: Sequence[NotetypeNameIdUseCount]) -> None:
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
@@ -138,10 +145,19 @@ class Models(QDialog):
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(tr.actions_name(), default=m["name"])[0].replace('"', "")
-            if txt:
-                m["name"] = txt
-            self.saveAndRefresh(m)
+            # if legacy add-ons already added the notetype, skip adding
+            if m["id"]:
+                return
+
+            # prompt for name
+            text, ok = getText(tr.actions_name(), default=m["name"])
+            if not ok or not text.strip():
+                return
+            m["name"] = text
+
+            add_notetype_legacy(parent=self, notetype=m).success(
+                lambda _: self.refresh_list()
+            ).run_in_background()
 
     def onDelete(self) -> None:
         if len(self.models) < 2:
@@ -258,11 +274,9 @@ class AddModel(QDialog):
     def accept(self) -> None:
         model = self.notetypes[self.dialog.models.currentRow()]
         if isinstance(model, dict):
-            # add copy to deck
-            self.model = self.mw.col.models.copy(model)
-            self.mw.col.models.setCurrent(self.model)
+            # clone existing
+            self.model = self.mw.col.models.copy(model, add=False)
         else:
-            # create
             self.model = model(self.col)
         QDialog.accept(self)
 
