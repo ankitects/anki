@@ -6,12 +6,13 @@ from concurrent.futures import Future
 from typing import Any, Dict, List, Match, Optional
 
 import aqt
+from anki.collection import OpChanges
 from anki.consts import *
-from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
 from aqt.forms.browserdisp import Ui_Dialog
+from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
@@ -29,7 +30,6 @@ from aqt.utils import (
     saveSplitter,
     shortcut,
     showInfo,
-    showWarning,
     tooltip,
     tr,
 )
@@ -784,22 +784,15 @@ class CardLayout(QDialog):
     ######################################################################
 
     def accept(self) -> None:
-        def save() -> None:
-            self.mm.save(self.model)
-
-        def on_done(fut: Future) -> None:
-            try:
-                fut.result()
-            except TemplateError as e:
-                showWarning(str(e))
-                return
-            self.mw.reset()
+        def on_done(changes: OpChanges) -> None:
             tooltip(tr.card_templates_changes_saved(), parent=self.parentWidget())
             self.cleanup()
             gui_hooks.sidebar_should_refresh_notetypes()
-            return QDialog.accept(self)
+            QDialog.accept(self)
 
-        self.mw.taskman.with_progress(save, on_done)
+        update_notetype_legacy(parent=self.mw, notetype=self.model).success(
+            on_done
+        ).run_in_background()
 
     def reject(self) -> None:
         if self.change_tracker.changed():

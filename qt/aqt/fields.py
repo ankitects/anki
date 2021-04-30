@@ -234,7 +234,7 @@ class FieldDialog(QDialog):
         self.saveField()
 
         def on_done(changes: OpChanges) -> None:
-            tooltip("Changes saved.", parent=self.mw)
+            tooltip(tr.card_templates_changes_saved(), parent=self.parentWidget())
             QDialog.accept(self)
 
         update_notetype_legacy(parent=self.mw, notetype=self.model).success(
