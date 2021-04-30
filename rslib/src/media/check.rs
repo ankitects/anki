@@ -564,12 +564,12 @@ pub(crate) mod test {
 
         let progress = |_n| true;
 
-        let (output, report) = col.transact_no_undo(|ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, progress);
+        let (output, report) = {
+            let mut checker = MediaChecker::new(&mut col, &mgr, progress);
             let output = checker.check()?;
             let summary = checker.summarize_output(&mut output.clone());
-            Ok((output, summary))
-        })?;
+            (output, summary)
+        };
 
         assert_eq!(
             output,
@@ -634,10 +634,8 @@ Unused: unused.jpg
 
         let progress = |_n| true;
 
-        col.transact_no_undo(|ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, progress);
-            checker.restore_trash()
-        })?;
+        let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+        checker.restore_trash()?;
 
         // file should have been moved to media folder
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
@@ -648,10 +646,10 @@ Unused: unused.jpg
 
         // if we repeat the process, restoring should do the same thing if the contents are equal
         fs::write(trash_folder.join("test.jpg"), "test")?;
-        col.transact_no_undo(|ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, progress);
-            checker.restore_trash()
-        })?;
+
+        let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+        checker.restore_trash()?;
+
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
         assert_eq!(
             files_in_dir(&mgr.media_folder),
@@ -660,10 +658,10 @@ Unused: unused.jpg
 
         // but rename if required
         fs::write(trash_folder.join("test.jpg"), "test2")?;
-        col.transact_no_undo(|ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, progress);
-            checker.restore_trash()
-        })?;
+
+        let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+        checker.restore_trash()?;
+
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
         assert_eq!(
             files_in_dir(&mgr.media_folder),
@@ -684,10 +682,10 @@ Unused: unused.jpg
 
         let progress = |_n| true;
 
-        let mut output = col.transact_no_undo(|ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, progress);
+        let mut output = {
+            let mut checker = MediaChecker::new(&mut col, &mgr, progress);
             checker.check()
-        })?;
+        }?;
 
         output.missing.sort();
 
