@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Readable } from "svelte/store";
-    import { hasContext, getContext, onMount, createEventDispatcher } from "svelte";
+    import { getContext, onMount, createEventDispatcher } from "svelte";
     import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
 
     export let id: string;

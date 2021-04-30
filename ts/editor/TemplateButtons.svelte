@@ -115,7 +115,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <WithShortcut shortcut="Control+Shift+KeyX" let:createShortcut let:shortcutLabel>
         <IconButton
             tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
-            on:click={onHtmlEdit}>
+            on:click={onHtmlEdit}
+            on:mount={createShortcut}>
             {@html xmlIcon}
         </IconButton>
     </WithShortcut>
