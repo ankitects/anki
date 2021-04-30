@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use nom::{
     branch::alt,
@@ -14,9 +15,8 @@ use nom::{
 use regex::{Captures, Regex};
 
 use crate::{
-    decks::DeckId,
     error::{ParseError, Result, SearchErrorKind as FailKind},
-    notetype::NotetypeId,
+    prelude::*,
 };
 
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
@@ -57,6 +57,28 @@ impl Node {
             vec![self]
         }
     }
+
+    pub fn all(iter: impl IntoIterator<Item = Node>) -> Node {
+        Node::Group(Itertools::intersperse(iter.into_iter(), Node::And).collect())
+    }
+
+    pub fn any(iter: impl IntoIterator<Item = Node>) -> Node {
+        Node::Group(Itertools::intersperse(iter.into_iter(), Node::Or).collect())
+    }
+}
+
+#[macro_export]
+macro_rules! match_all {
+    ($($param:expr),+ $(,)?) => {
+        Node::all(vec![$($param.into()),+])
+    };
+}
+
+#[macro_export]
+macro_rules! match_any {
+    ($($param:expr),+ $(,)?) => {
+        Node::any(vec![$($param.into()),+])
+    };
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -148,6 +170,42 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
         // unmatched ) is only char not consumed by any node parser
         Ok((remaining, _)) => Err(parse_failure(remaining, FailKind::UnopenedGroup).into()),
         Err(err) => Err(err.into()),
+    }
+}
+
+impl From<SearchNode> for Node {
+    fn from(n: SearchNode) -> Self {
+        Node::Search(n)
+    }
+}
+
+impl From<NotetypeId> for Node {
+    fn from(id: NotetypeId) -> Self {
+        Node::Search(SearchNode::NotetypeId(id))
+    }
+}
+
+impl From<TemplateKind> for Node {
+    fn from(k: TemplateKind) -> Self {
+        Node::Search(SearchNode::CardTemplate(k))
+    }
+}
+
+impl From<NoteId> for Node {
+    fn from(n: NoteId) -> Self {
+        Node::Search(SearchNode::NoteIds(format!("{}", n)))
+    }
+}
+
+impl From<DeckId> for Node {
+    fn from(id: DeckId) -> Self {
+        Node::Search(SearchNode::DeckId(id))
+    }
+}
+
+impl From<StateKind> for Node {
+    fn from(k: StateKind) -> Self {
+        Node::Search(SearchNode::State(k))
     }
 }
 

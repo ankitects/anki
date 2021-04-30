@@ -120,7 +120,7 @@ mod test {
         note2.set_field(0, "three aaa")?;
         col.add_note(&mut note2, DeckId(1))?;
 
-        let nids = col.search_notes("")?;
+        let nids = col.search_notes_unordered("")?;
         let out = col.find_and_replace(nids.clone(), "(?i)AAA", "BBB", None)?;
         assert_eq!(out.output, 2);
 

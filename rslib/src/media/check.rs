@@ -361,7 +361,7 @@ where
         let notetypes = self.ctx.get_all_notetypes()?;
         let mut collection_modified = false;
 
-        let nids = self.ctx.search_notes("")?;
+        let nids = self.ctx.search_notes_unordered("")?;
         let usn = self.ctx.usn()?;
         for nid in nids {
             self.checked += 1;

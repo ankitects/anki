@@ -21,7 +21,6 @@ use crate::{
     error::Result,
     notes::NoteId,
     prelude::AnkiError,
-    search::parser::parse,
 };
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -96,13 +95,62 @@ impl Column {
     }
 }
 
+pub trait TryIntoSearch {
+    fn try_into_search(self) -> Result<Node, AnkiError>;
+}
+
+impl TryIntoSearch for &str {
+    fn try_into_search(self) -> Result<Node, AnkiError> {
+        parser::parse(self).map(Node::Group)
+    }
+}
+
+impl TryIntoSearch for &String {
+    fn try_into_search(self) -> Result<Node, AnkiError> {
+        parser::parse(self).map(Node::Group)
+    }
+}
+
+impl<T> TryIntoSearch for T
+where
+    T: Into<Node>,
+{
+    fn try_into_search(self) -> Result<Node, AnkiError> {
+        Ok(self.into())
+    }
+}
+
 impl Collection {
-    pub fn search<T>(&mut self, search: &str, mode: SortMode) -> Result<Vec<T>>
+    pub fn search_cards<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<CardId>>
     where
+        N: TryIntoSearch,
+    {
+        self.search(search, mode)
+    }
+
+    pub fn search_notes<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<NoteId>>
+    where
+        N: TryIntoSearch,
+    {
+        self.search(search, mode)
+    }
+
+    pub fn search_notes_unordered<N>(&mut self, search: N) -> Result<Vec<NoteId>>
+    where
+        N: TryIntoSearch,
+    {
+        self.search(search, SortMode::NoOrder)
+    }
+}
+
+impl Collection {
+    fn search<T, N>(&mut self, search: N, mode: SortMode) -> Result<Vec<T>>
+    where
+        N: TryIntoSearch,
         T: FromSql + AsReturnItemType,
     {
         let item_type = T::as_return_item_type();
-        let top_node = Node::Group(parse(search)?);
+        let top_node = search.try_into_search()?;
         let writer = SqlWriter::new(self, item_type);
 
         let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
@@ -114,14 +162,6 @@ impl Collection {
             .collect::<std::result::Result<_, _>>()?;
 
         Ok(ids)
-    }
-
-    pub fn search_cards(&mut self, search: &str, mode: SortMode) -> Result<Vec<CardId>> {
-        self.search(search, mode)
-    }
-
-    pub fn search_notes(&mut self, search: &str) -> Result<Vec<NoteId>> {
-        self.search(search, SortMode::NoOrder)
     }
 
     fn add_order(
@@ -148,12 +188,11 @@ impl Collection {
     /// Place the matched card ids into a temporary 'search_cids' table
     /// instead of returning them. Use clear_searched_cards() to remove it.
     /// Returns number of added cards.
-    pub(crate) fn search_cards_into_table(
-        &mut self,
-        search: &str,
-        mode: SortMode,
-    ) -> Result<usize> {
-        let top_node = Node::Group(parse(search)?);
+    pub(crate) fn search_cards_into_table<N>(&mut self, search: N, mode: SortMode) -> Result<usize>
+    where
+        N: TryIntoSearch,
+    {
+        let top_node = search.try_into_search()?;
         let writer = SqlWriter::new(self, ReturnItemType::Cards);
         let want_order = mode != SortMode::NoOrder;
 

@@ -16,6 +16,7 @@ pub use crate::{
     notetype::{Notetype, NotetypeId},
     ops::{Op, OpChanges, OpOutput},
     revlog::RevlogId,
+    search::TryIntoSearch,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };

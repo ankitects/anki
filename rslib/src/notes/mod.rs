@@ -702,7 +702,7 @@ mod test {
             .unwrap();
 
         let assert_initial = |col: &mut Collection| -> Result<()> {
-            assert_eq!(col.search_notes("")?.len(), 0);
+            assert_eq!(col.search_notes_unordered("")?.len(), 0);
             assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
             assert_eq!(
                 col.storage.db_scalar::<u32>("select count() from graves")?,
@@ -713,7 +713,7 @@ mod test {
         };
 
         let assert_after_add = |col: &mut Collection| -> Result<()> {
-            assert_eq!(col.search_notes("")?.len(), 1);
+            assert_eq!(col.search_notes_unordered("")?.len(), 1);
             assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 2);
             assert_eq!(
                 col.storage.db_scalar::<u32>("select count() from graves")?,
@@ -740,7 +740,7 @@ mod test {
         assert_initial(&mut col)?;
 
         let assert_after_remove = |col: &mut Collection| -> Result<()> {
-            assert_eq!(col.search_notes("")?.len(), 0);
+            assert_eq!(col.search_notes_unordered("")?.len(), 0);
             assert_eq!(col.search_cards("", SortMode::NoOrder)?.len(), 0);
             // 1 note + 2 cards
             assert_eq!(
@@ -753,7 +753,7 @@ mod test {
 
         col.redo()?;
         assert_after_add(&mut col)?;
-        let nids = col.search_notes("")?;
+        let nids = col.search_notes_unordered("")?;
         col.remove_notes(&nids)?;
         assert_after_remove(&mut col)?;
         col.undo()?;
