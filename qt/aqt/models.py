@@ -11,8 +11,9 @@ from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
-from aqt.operations.notetype import add_notetype_legacy
+from aqt.operations.notetype import add_notetype_legacy, remove_notetype
 from aqt.qt import *
+from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
     HelpPage,
     askUser,
@@ -171,18 +172,14 @@ class Models(QDialog):
         if not askUser(msg, parent=self):
             return
 
-        self.col.modSchema(check=True)
+        tracker = ChangeTracker(self.mw)
+        if not tracker.mark_schema():
+            return
 
         nt = self.current_notetype()
-
-        def save() -> Sequence[NotetypeNameIdUseCount]:
-            self.mm.rem(nt)
-            return self.col.models.all_use_counts()
-
-        def on_done(fut: Future) -> None:
-            self.updateModelsList(fut.result())
-
-        self.mw.taskman.with_progress(save, on_done, self)
+        remove_notetype(parent=self, notetype_id=nt["id"]).success(
+            lambda _: self.refresh_list()
+        ).run_in_background()
 
     def onAdvanced(self) -> None:
         nt = self.current_notetype()

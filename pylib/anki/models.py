@@ -228,10 +228,10 @@ class ModelManager:
             self._remove_from_cache(NotetypeId(nt.id))
             self.col._backend.remove_notetype(nt.id)
 
-    def remove(self, id: NotetypeId) -> None:
+    def remove(self, id: NotetypeId) -> OpChanges:
         "Modifies schema."
         self._remove_from_cache(id)
-        self.col._backend.remove_notetype(id)
+        return self.col._backend.remove_notetype(id)
 
     def add(self, m: NotetypeDict) -> OpChangesWithId:
         "Replaced with add_dict()"
