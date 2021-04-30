@@ -61,7 +61,7 @@ impl Collection {
         if !ords_changed(&ords, previous_field_count) {
             if nt.config.sort_field_idx != previous_sort_idx {
                 // only need to update sort field
-                let nids = self.search_notes(&format!("mid:{}", nt.id))?;
+                let nids = self.search_notes_unordered(nt.id)?;
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
                     note.prepare_for_update(nt, normalize_text)?;
@@ -75,8 +75,7 @@ impl Collection {
         }
 
         self.set_schema_modified()?;
-
-        let nids = self.search_notes(&format!("mid:{}", nt.id))?;
+        let nids = self.search_notes_unordered(nt.id)?;
         let usn = self.usn()?;
         for nid in nids {
             let mut note = self.storage.get_note(nid)?.unwrap();
@@ -258,9 +257,7 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
 
         assert_eq!(
-            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)
-                .unwrap()
-                .len(),
+            col.search_cards(note.id, SortMode::NoOrder).unwrap().len(),
             1
         );
 
@@ -269,9 +266,7 @@ mod test {
         col.update_notetype(&mut nt, false)?;
 
         assert_eq!(
-            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)
-                .unwrap()
-                .len(),
+            col.search_cards(note.id, SortMode::NoOrder).unwrap().len(),
             2
         );
 

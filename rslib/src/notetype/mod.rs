@@ -485,7 +485,7 @@ impl Collection {
     fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
         // remove associated cards/notes
         let usn = self.usn()?;
-        let note_ids = self.search_notes(&format!("mid:{}", ntid))?;
+        let note_ids = self.search_notes_unordered(ntid)?;
         self.remove_notes_inner(&note_ids, usn)?;
 
         // remove notetype

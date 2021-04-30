@@ -8,8 +8,9 @@ use rand::seq::SliceRandom;
 use crate::{
     card::{CardQueue, CardType},
     deckconfig::NewCardOrder,
+    match_all,
     prelude::*,
-    search::SortMode,
+    search::{Node, SortMode, StateKind},
 };
 
 impl Card {
@@ -186,7 +187,7 @@ impl Collection {
         order: NewCardOrder,
         usn: Usn,
     ) -> Result<usize> {
-        let cids = self.search_cards(&format!("did:{} is:new", deck), SortMode::NoOrder)?;
+        let cids = self.search_cards(match_all![deck, StateKind::New], SortMode::NoOrder)?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
     }
 

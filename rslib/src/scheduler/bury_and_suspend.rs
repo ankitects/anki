@@ -155,7 +155,7 @@ mod test {
     use crate::{
         card::{Card, CardQueue},
         collection::{open_test_collection, Collection},
-        search::SortMode,
+        search::{SortMode, StateKind},
     };
 
     #[test]
@@ -168,7 +168,7 @@ mod test {
         col.add_card(&mut card).unwrap();
         let assert_count = |col: &mut Collection, cnt| {
             assert_eq!(
-                col.search_cards("is:buried", SortMode::NoOrder)
+                col.search_cards(StateKind::Buried, SortMode::NoOrder)
                     .unwrap()
                     .len(),
                 cnt
