@@ -8,9 +8,8 @@ use rand::seq::SliceRandom;
 use crate::{
     card::{CardQueue, CardType},
     deckconfig::NewCardOrder,
-    match_all,
     prelude::*,
-    search::{Node, SortMode, StateKind},
+    search::{SortMode, StateKind},
 };
 
 impl Card {

@@ -16,7 +16,7 @@ from anki.collection import (
 )
 from anki.decks import DeckId
 from anki.notes import NoteId
-from anki.scheduler import FilteredDeckForUpdate
+from anki.scheduler import FilteredDeckForUpdate, UnburyDeck
 from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import disable_help_button, getText, tooltip, tr
@@ -196,3 +196,14 @@ def add_or_update_filtered_deck(
     deck: FilteredDeckForUpdate,
 ) -> CollectionOp[OpChangesWithId]:
     return CollectionOp(parent, lambda col: col.sched.add_or_update_filtered_deck(deck))
+
+
+def unbury_deck(
+    *,
+    parent: QWidget,
+    deck_id: DeckId,
+    mode: UnburyDeck.Mode.V = UnburyDeck.ALL,
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(
+        parent, lambda col: col.sched.unbury_deck(deck_id=deck_id, mode=mode)
+    )

@@ -12,6 +12,7 @@ pub use crate::{
     decks::{Deck, DeckId, DeckKind, NativeDeckName},
     error::{AnkiError, Result},
     i18n::I18n,
+    match_all, match_any,
     notes::{Note, NoteId},
     notetype::{Notetype, NotetypeId},
     ops::{Op, OpChanges, OpOutput},

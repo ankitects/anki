@@ -7,9 +7,14 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aqt
 from anki.collection import OpChanges
+from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
-from aqt.operations.scheduling import empty_filtered_deck, rebuild_filtered_deck
+from aqt.operations.scheduling import (
+    empty_filtered_deck,
+    rebuild_filtered_deck,
+    unbury_deck,
+)
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
@@ -102,7 +107,7 @@ class Overview:
         elif url == "studymore" or url == "customStudy":
             self.onStudyMore()
         elif url == "unbury":
-            self.onUnbury()
+            self.on_unbury()
         elif url == "description":
             self.edit_description()
         elif url.lower().startswith("http"):
@@ -115,7 +120,7 @@ class Overview:
             ("r", self.rebuild_current_filtered_deck),
             ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),
-            ("u", self.onUnbury),
+            ("u", self.on_unbury),
         ]
 
     def _current_deck_is_filtered(self) -> int:
@@ -135,34 +140,33 @@ class Overview:
         if not self._current_deck_is_filtered():
             self.onStudyMore()
 
-    def onUnbury(self) -> None:
-        if self.mw.col.schedVer() == 1:
-            self.mw.col.sched.unburyCardsForDeck()
-            self.mw.reset()
-            return
+    def on_unbury(self) -> None:
+        mode = UnburyDeck.Mode.ALL
+        if self.mw.col.schedVer() != 1:
+            info = self.mw.col.sched.congratulations_info()
+            if info.have_sched_buried and info.have_user_buried:
+                opts = [
+                    tr.studying_manually_buried_cards(),
+                    tr.studying_buried_siblings(),
+                    tr.studying_all_buried_cards(),
+                    tr.actions_cancel(),
+                ]
 
-        info = self.mw.col.sched.congratulations_info()
-        if info.have_sched_buried and info.have_user_buried:
-            opts = [
-                tr.studying_manually_buried_cards(),
-                tr.studying_buried_siblings(),
-                tr.studying_all_buried_cards(),
-                tr.actions_cancel(),
-            ]
+                diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
+                diag.setDefault(0)
+                ret = diag.run()
+                if ret == opts[0]:
+                    mode = UnburyDeck.Mode.USER_ONLY
+                elif ret == opts[1]:
+                    mode = UnburyDeck.Mode.SCHED_ONLY
+                elif ret == opts[3]:
+                    return
 
-            diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
-            diag.setDefault(0)
-            ret = diag.run()
-            if ret == opts[0]:
-                self.mw.col.sched.unburyCardsForDeck(type="manual")
-            elif ret == opts[1]:
-                self.mw.col.sched.unburyCardsForDeck(type="siblings")
-            elif ret == opts[2]:
-                self.mw.col.sched.unburyCardsForDeck(type="all")
-        else:
-            self.mw.col.sched.unburyCardsForDeck(type="all")
+        unbury_deck(
+            parent=self.mw, deck_id=self.mw.col.decks.get_current_id(), mode=mode
+        ).run_in_background()
 
-        self.mw.reset()
+    onUnbury = on_unbury
 
     # HTML
     ############################################################

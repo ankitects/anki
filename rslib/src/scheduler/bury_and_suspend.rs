@@ -4,15 +4,12 @@
 use super::timing::SchedTimingToday;
 use crate::{
     backend_proto::{
-        bury_or_suspend_cards_in::Mode as BuryOrSuspendMode,
-        unbury_cards_in_current_deck_in::Mode as UnburyDeckMode,
+        bury_or_suspend_cards_in::Mode as BuryOrSuspendMode, unbury_deck_in::Mode as UnburyDeckMode,
     },
-    card::{Card, CardId, CardQueue},
-    collection::Collection,
+    card::CardQueue,
     config::SchedulerVersion,
-    error::Result,
     prelude::*,
-    search::SortMode,
+    search::{SortMode, StateKind},
 };
 
 impl Card {
@@ -73,14 +70,14 @@ impl Collection {
         })
     }
 
-    pub fn unbury_cards_in_current_deck(&mut self, mode: UnburyDeckMode) -> Result<()> {
-        let search = match mode {
-            UnburyDeckMode::All => "is:buried",
-            UnburyDeckMode::UserOnly => "is:buried-manually",
-            UnburyDeckMode::SchedOnly => "is:buried-sibling",
+    pub fn unbury_deck(&mut self, deck_id: DeckId, mode: UnburyDeckMode) -> Result<OpOutput<()>> {
+        let state = match mode {
+            UnburyDeckMode::All => StateKind::Buried,
+            UnburyDeckMode::UserOnly => StateKind::UserBuried,
+            UnburyDeckMode::SchedOnly => StateKind::SchedBuried,
         };
-        self.transact_no_undo(|col| {
-            col.search_cards_into_table(&format!("deck:current {}", search), SortMode::NoOrder)?;
+        self.transact(Op::UnburyUnsuspend, |col| {
+            col.search_cards_into_table(match_all![deck_id, state], SortMode::NoOrder)?;
             col.unsuspend_or_unbury_searched_cards()
         })
     }

@@ -4,13 +4,14 @@
 import copy
 import time
 
+from anki import Collection
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
 
-def getEmptyCol():
+def getEmptyCol() -> Collection:
     col = getEmptyColOrig()
     # only safe in test environment
     col.set_config("schedVer", 1)
@@ -505,7 +506,7 @@ def test_misc():
     col.sched.bury_notes([note.id])
     col.reset()
     assert not col.sched.getCard()
-    col.sched.unbury_cards_in_current_deck()
+    col.sched.unbury_deck(deck_id=col.decks.get_current_id())
     col.reset()
     assert col.sched.getCard()
 
