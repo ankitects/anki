@@ -916,7 +916,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         legacy_no_args=True,
     ),
     Hook(name="sidebar_should_refresh_decks", doc="Legacy, do not use."),
-    Hook(name="sidebar_should_refresh_notetypes"),
+    Hook(name="sidebar_should_refresh_notetypes", doc="Legacy, do not use."),
     Hook(
         name="deck_browser_will_show_options_menu",
         args=["menu: QMenu", "deck_id: int"],

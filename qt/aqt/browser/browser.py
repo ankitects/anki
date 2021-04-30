@@ -839,8 +839,6 @@ where id in %s"""
 
     def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
-        # fixme: remove this once all items are using `operation_did_execute`
-        gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
         gui_hooks.backend_will_block.append(self.table.on_backend_will_block)
         gui_hooks.backend_did_block.append(self.table.on_backend_did_block)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
@@ -848,14 +846,10 @@ where id in %s"""
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
-        gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
         gui_hooks.backend_will_block.remove(self.table.on_backend_will_block)
         gui_hooks.backend_did_block.remove(self.table.on_backend_will_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
-
-    def on_item_added(self, item: Any = None) -> None:
-        self.sidebar.refresh()
 
     # Undo
     ######################################################################
