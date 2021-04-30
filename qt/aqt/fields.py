@@ -1,14 +1,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from concurrent.futures import Future
-
 import aqt
+from anki.collection import OpChanges
 from anki.consts import *
-from anki.errors import TemplateError
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict
 from aqt import AnkiQt, gui_hooks
+from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
@@ -234,21 +233,13 @@ class FieldDialog(QDialog):
     def accept(self) -> None:
         self.saveField()
 
-        def save() -> None:
-            self.mm.save(self.model)
-
-        def on_done(fut: Future) -> None:
-            try:
-                fut.result()
-            except TemplateError as e:
-                # fixme: i18n
-                showWarning(f"Unable to save changes: {str(e)}")
-                return
-            self.mw.reset()
+        def on_done(changes: OpChanges) -> None:
             tooltip("Changes saved.", parent=self.mw)
             QDialog.accept(self)
 
-        self.mw.taskman.with_progress(save, on_done, self)
+        update_notetype_legacy(parent=self.mw, notetype=self.model).success(
+            on_done
+        ).run_in_background()
 
     def onHelp(self) -> None:
         openHelp(HelpPage.CUSTOMIZING_FIELDS)

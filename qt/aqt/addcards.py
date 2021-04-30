@@ -51,6 +51,7 @@ class AddCards(QDialog):
         self._load_new_note()
         self.history: List[NoteId] = []
         self._last_added_note: Optional[Note] = None
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         addCloseShortcut(self)
         gui_hooks.add_cards_did_init(self)
@@ -151,6 +152,18 @@ class AddCards(QDialog):
                         note.fields[n] = old_note.fields[n]
         self.setAndFocusNote(note)
 
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: Optional[object]
+    ) -> None:
+        if (changes.notetype or changes.deck) and handler is not self.editor:
+            self.on_notetype_change(
+                NotetypeId(
+                    self.col.defaults_for_adding(
+                        current_review_card=self.mw.reviewer.card
+                    ).notetype_id
+                )
+            )
+
     def _new_note(self) -> Note:
         return self.col.new_note(
             self.col.models.get(self.notetype_chooser.selected_notetype_id)
@@ -248,6 +261,7 @@ class AddCards(QDialog):
         av_player.stop_and_clear_queue()
         self.editor.cleanup()
         self.notetype_chooser.cleanup()
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.mw.maybeReset()
         saveGeom(self, "add")
         aqt.dialogs.markClosed("AddCards")

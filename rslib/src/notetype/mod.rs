@@ -485,7 +485,6 @@ impl Collection {
         let normalize = self.get_bool(BoolKey::NormalizeNoteText);
         notetype.prepare_for_update(original.as_ref())?;
         self.ensure_notetype_name_unique(notetype, usn)?;
-        self.state.notetype_cache.remove(&notetype.id);
 
         if let Some(original) = original {
             self.update_notes_for_changed_fields(
@@ -498,6 +497,7 @@ impl Collection {
             self.update_notetype_undoable(notetype, original)?;
         } else {
             // adding with existing id for old undo code, bypass undo
+            self.state.notetype_cache.remove(&notetype.id);
             self.storage
                 .add_or_update_notetype_with_existing_id(&notetype)?;
         }
