@@ -77,12 +77,9 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.unbury_or_unsuspend_cards(&cids).map(Into::into))
     }
 
-    fn unbury_cards_in_current_deck(
-        &self,
-        input: pb::UnburyCardsInCurrentDeckIn,
-    ) -> Result<pb::Empty> {
+    fn unbury_deck(&self, input: pb::UnburyDeckIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            col.unbury_cards_in_current_deck(input.mode())
+            col.unbury_deck(input.deck_id.into(), input.mode())
                 .map(Into::into)
         })
     }

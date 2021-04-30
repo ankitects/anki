@@ -119,7 +119,7 @@ service SchedulingService {
   rpc CountsForDeckToday(DeckId) returns (CountsForDeckTodayOut);
   rpc CongratsInfo(Empty) returns (CongratsInfoOut);
   rpc RestoreBuriedAndSuspendedCards(CardIds) returns (OpChanges);
-  rpc UnburyCardsInCurrentDeck(UnburyCardsInCurrentDeckIn) returns (Empty);
+  rpc UnburyDeck(UnburyDeckIn) returns (OpChanges);
   rpc BuryOrSuspendCards(BuryOrSuspendCardsIn) returns (OpChangesWithCount);
   rpc EmptyFilteredDeck(DeckId) returns (OpChanges);
   rpc RebuildFilteredDeck(DeckId) returns (OpChangesWithCount);
@@ -1333,13 +1333,14 @@ message CongratsInfoOut {
   string deck_description = 9;
 }
 
-message UnburyCardsInCurrentDeckIn {
+message UnburyDeckIn {
   enum Mode {
     ALL = 0;
     SCHED_ONLY = 1;
     USER_ONLY = 2;
   }
-  Mode mode = 1;
+  int64 deck_id = 1;
+  Mode mode = 2;
 }
 
 message BuryOrSuspendCardsIn {

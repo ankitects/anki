@@ -7,7 +7,7 @@ import sys
 
 import anki.scheduler.base as _base
 
-UnburyCurrentDeck = _base.UnburyCurrentDeck
+UnburyDeck = _base.UnburyDeck
 CongratsInfo = _base.CongratsInfo
 BuryOrSuspend = _base.BuryOrSuspend
 FilteredDeckForUpdate = _base.FilteredDeckForUpdate

@@ -70,14 +70,14 @@ impl Node {
 #[macro_export]
 macro_rules! match_all {
     ($($param:expr),+ $(,)?) => {
-        Node::all(vec![$($param.into()),+])
+        $crate::search::Node::all(vec![$($param.into()),+])
     };
 }
 
 #[macro_export]
 macro_rules! match_any {
     ($($param:expr),+ $(,)?) => {
-        Node::any(vec![$($param.into()),+])
+        $crate::search::Node::any(vec![$($param.into()),+])
     };
 }
 

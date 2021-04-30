@@ -8,7 +8,7 @@ ignored-classes=
   BrowserRow,
   FormatTimespanIn,
   AnswerCardIn,
-  UnburyCardsInCurrentDeckIn,
+  UnburyDeckIn,
   BuryOrSuspendCardsIn,
   NoteIsDuplicateOrEmptyOut,
   BackendError,

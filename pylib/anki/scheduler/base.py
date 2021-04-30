@@ -20,7 +20,7 @@ from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
 CongratsInfo = _pb.CongratsInfoOut
-UnburyCurrentDeck = _pb.UnburyCardsInCurrentDeckIn
+UnburyDeck = _pb.UnburyDeckIn
 BuryOrSuspend = _pb.BuryOrSuspendCardsIn
 FilteredDeckForUpdate = _pb.FilteredDeckForUpdate
 
@@ -118,11 +118,12 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def unbury_cards(self, ids: List[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
-    def unbury_cards_in_current_deck(
+    def unbury_deck(
         self,
-        mode: UnburyCurrentDeck.Mode.V = UnburyCurrentDeck.ALL,
-    ) -> None:
-        self.col._backend.unbury_cards_in_current_deck(mode)
+        deck_id: DeckId,
+        mode: UnburyDeck.Mode.V = UnburyDeck.ALL,
+    ) -> OpChanges:
+        return self.col._backend.unbury_deck(deck_id=deck_id, mode=mode)
 
     def suspend_cards(self, ids: Sequence[CardId]) -> OpChangesWithCount:
         return self.col._backend.bury_or_suspend_cards(

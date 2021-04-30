@@ -10,7 +10,8 @@ ignored-classes=
   BrowserRow,
   SearchNode,
   Config,
-  OpChanges
+  OpChanges,
+  UnburyDeckIn,
 
 [REPORTS]
 output-format=colorized

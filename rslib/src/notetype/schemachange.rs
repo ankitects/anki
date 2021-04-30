@@ -5,9 +5,7 @@ use std::collections::HashMap;
 
 use super::{CardGenContext, Notetype};
 use crate::{
-    collection::Collection,
-    error::Result,
-    match_all,
+    prelude::*,
     search::{Node, SortMode, TemplateKind},
 };
 

@@ -7,7 +7,7 @@ from anki.cards import Card, CardId
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
 from anki.decks import DeckConfigDict, DeckId
 from anki.notes import NoteId
-from anki.scheduler.base import SchedulerBase, UnburyCurrentDeck
+from anki.scheduler.base import SchedulerBase, UnburyDeck
 from anki.utils import from_json_bytes, ids2str
 
 
@@ -24,22 +24,18 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         self.bury_cards(note.card_ids())
 
     def unburyCards(self) -> None:
-        print(
-            "please use unbury_cards() or unbury_cards_in_current_deck instead of unburyCards()"
-        )
-        self.unbury_cards_in_current_deck()
+        print("please use unbury_cards() or unbury_deck() instead of unburyCards()")
+        self.unbury_deck(self.col.decks.get_current_id())
 
     def unburyCardsForDeck(self, type: str = "all") -> None:
-        print(
-            "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
-        )
+        print("please use unbury_deck() instead of unburyCardsForDeck()")
         if type == "all":
-            mode = UnburyCurrentDeck.ALL
+            mode = UnburyDeck.ALL
         elif type == "manual":
-            mode = UnburyCurrentDeck.USER_ONLY
+            mode = UnburyDeck.USER_ONLY
         else:  # elif type == "siblings":
-            mode = UnburyCurrentDeck.SCHED_ONLY
-        self.unbury_cards_in_current_deck(mode)
+            mode = UnburyDeck.SCHED_ONLY
+        self.unbury_deck(self.col.decks.get_current_id(), mode)
 
     def finishedMsg(self) -> str:
         print("finishedMsg() is obsolete")
