@@ -908,6 +908,8 @@ table.review-log {{ {revlog_style} }}
         If UndoEmpty is received, caller should try undo_legacy()."""
         out = self._backend.undo()
         self.clear_python_undo()
+        if out.changes.notetype:
+            self.models._clear_cache()
         return out
 
     def undo_legacy(self) -> LegacyUndoResult:

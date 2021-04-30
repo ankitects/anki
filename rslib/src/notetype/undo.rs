@@ -27,6 +27,7 @@ impl Collection {
     }
 
     pub(crate) fn remove_notetype_only_undoable(&mut self, notetype: Notetype) -> Result<()> {
+        self.state.notetype_cache.remove(&notetype.id);
         self.storage.remove_notetype(notetype.id)?;
         self.save_undo(UndoableNotetypeChange::Removed(Box::new(notetype)));
         Ok(())
@@ -46,6 +47,7 @@ impl Collection {
         notetype: &Notetype,
         original: Notetype,
     ) -> Result<()> {
+        self.state.notetype_cache.remove(&notetype.id);
         self.save_undo(UndoableNotetypeChange::Updated(Box::new(original)));
         self.storage
             .add_or_update_notetype_with_existing_id(notetype)
