@@ -3,7 +3,7 @@
 
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import List, Optional, Sequence
+from typing import Any, List, Optional, Sequence
 
 import aqt.clayout
 from anki import Collection, stdmodels
@@ -11,7 +11,11 @@ from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
-from aqt.operations.notetype import add_notetype_legacy, remove_notetype
+from aqt.operations.notetype import (
+    add_notetype_legacy,
+    remove_notetype,
+    update_notetype_legacy,
+)
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
@@ -102,7 +106,7 @@ class Models(QDialog):
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
         maybeHideClose(box)
 
-    def refresh_list(self) -> None:
+    def refresh_list(self, *ignored_args: Any) -> None:
         self.mw.query_op(
             self.col.models.all_use_counts,
             success=self.updateModelsList,
@@ -110,21 +114,13 @@ class Models(QDialog):
 
     def onRename(self) -> None:
         nt = self.current_notetype()
-        txt = getText(tr.actions_new_name(), default=nt["name"])
-        name = txt[0].replace('"', "")
-        if txt[1] and name:
-            nt["name"] = name
-            self.saveAndRefresh(nt)
+        text, ok = getText(tr.actions_new_name(), default=nt["name"])
+        if ok and text.strip():
+            nt["name"] = text
 
-    def saveAndRefresh(self, nt: NotetypeDict) -> None:
-        def save() -> Sequence[NotetypeNameIdUseCount]:
-            self.mm.save(nt)
-            return self.col.models.all_use_counts()
-
-        def on_done(fut: Future) -> None:
-            self.updateModelsList(fut.result())
-
-        self.mw.taskman.with_progress(save, on_done, self)
+            update_notetype_legacy(parent=self, notetype=nt).success(
+                self.refresh_list
+            ).run_in_background()
 
     def updateModelsList(self, notetypes: Sequence[NotetypeNameIdUseCount]) -> None:
         row = self.form.modelsList.currentRow()
@@ -157,7 +153,7 @@ class Models(QDialog):
             m["name"] = text
 
             add_notetype_legacy(parent=self, notetype=m).success(
-                lambda _: self.refresh_list()
+                self.refresh_list
             ).run_in_background()
 
     def onDelete(self) -> None:
@@ -201,7 +197,9 @@ class Models(QDialog):
         nt["latexsvg"] = frm.latexsvg.isChecked()
         nt["latexPre"] = str(frm.latexHeader.toPlainText())
         nt["latexPost"] = str(frm.latexFooter.toPlainText())
-        self.saveAndRefresh(nt)
+        update_notetype_legacy(parent=self, notetype=nt).success(
+            self.refresh_list
+        ).run_in_background()
 
     def _tmpNote(self) -> Note:
         nt = self.current_notetype()
