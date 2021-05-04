@@ -35,6 +35,8 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
 /* Exports for editor */
 export {
     // @ts-expect-error insufficient typing of svelte modules
+    editorToolbar,
+    // @ts-expect-error insufficient typing of svelte modules
     enableButtons,
     // @ts-expect-error insufficient typing of svelte modules
     disableButtons,
