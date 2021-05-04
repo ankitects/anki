@@ -25,6 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function clearActiveButtons() {
         resetAllState(false);
     }
+
+    /* Export components */
+    import LabelButton from "components/LabelButton.svelte";
+    import IconButton from "components/IconButton.svelte";
+
+    export const editorToolbar = { LabelButton, IconButton };
 </script>
 
 <script lang="typescript">
@@ -39,6 +45,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FormatBlockButtons from "./FormatBlockButtons.svelte";
     import ColorButtons from "./ColorButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
+
+    export const notetypeButtons = {};
 
     export let nightMode: boolean;
 
@@ -55,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithTheming {style}>
     <StickyBar>
-        <NoteTypeButtons />
+        <NoteTypeButtons api={notetypeButtons} />
         <FormatInlineButtons />
         <FormatBlockButtons />
         <ColorButtons />

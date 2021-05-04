@@ -19,8 +19,7 @@ import { initToolbar } from "./toolbar";
 export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
-
-// export * from "./addons";
+export { editorToolbar } from "./toolbar";
 
 declare global {
     interface Selection {

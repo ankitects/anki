@@ -4,34 +4,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Readable } from "svelte/store";
-    import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey, nightModeKey } from "./contextKeys";
 
-    export let id: string | undefined;
-    export let className = "";
+    export let id: string | undefined = undefined;
+    let className: string = "";
+    export { className as class };
 
     export let tooltip: string | undefined;
-    export let disables = true;
     export let dropdownToggle = false;
+    export let disables = true;
+    export let tabbable = false;
 
-    $: extraProps = dropdownToggle
+    $: dropdownProps = dropdownToggle
         ? {
               "data-bs-toggle": "dropdown",
               "aria-expanded": "false",
           }
         : {};
 
-    let buttonRef: HTMLButtonElement;
-
-    function extendClassName(className: string): string {
-        return `btn ${className}`;
-    }
-
     const disabled = getContext<Readable<boolean>>(disabledKey);
     $: _disabled = disables && $disabled;
 
     const nightMode = getContext<boolean>(nightModeKey);
+
+    let buttonRef: HTMLButtonElement;
 
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
@@ -45,27 +42,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: calc(var(--toolbar-size) / 2.3);
         width: auto;
         height: var(--toolbar-size);
+
+        border-radius: calc(var(--toolbar-size) / 7.5);
+
+        &:not(:nth-of-type(1)) {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        &:not(:nth-last-of-type(1)) {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
     }
 
     @include button.btn-day;
     @include button.btn-night;
 </style>
 
-<ButtonGroupItem let:order>
-    <button
-        bind:this={buttonRef}
-        {id}
-        class={extendClassName(className)}
-        class:dropdown-toggle={dropdownToggle}
-        class:btn-day={!nightMode}
-        class:btn-night={nightMode}
-        style={`order: ${order};`}
-        tabindex="-1"
-        disabled={_disabled}
-        title={tooltip}
-        {...extraProps}
-        on:click
-        on:mousedown|preventDefault>
-        <slot />
-    </button>
-</ButtonGroupItem>
+<button
+    bind:this={buttonRef}
+    {id}
+    class={`btn ${className}`}
+    class:dropdown-toggle={dropdownToggle}
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
+    title={tooltip}
+    {...dropdownProps}
+    disabled={_disabled}
+    tabindex={tabbable ? 0 : -1}
+    on:click
+    on:mousedown|preventDefault>
+    <slot />
+</button>

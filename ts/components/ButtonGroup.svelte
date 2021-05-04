@@ -3,32 +3,83 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { setContext, getContext } from "svelte";
-    import { nightModeKey, buttonGroupKey } from "./contextKeys";
+    import type { SvelteComponentTyped } from "svelte";
+    import { setContext } from "svelte";
+    import type { Writable } from "svelte/store";
+    import { writable } from "svelte/store";
+    import { buttonGroupKey } from "./contextKeys";
+    import type { Identifier } from "./identifier";
+    import { insert, add, update } from "./identifier";
 
     export let id: string | undefined = undefined;
-    let className = "";
-
+    let className: string = "";
     export { className as class };
-    const nightMode = getContext(nightModeKey);
 
     export let api = {};
-
-    let index = 0;
+    export let buttonGroupRef: HTMLDivElement;
+    $: root = buttonGroupRef?.getRootNode() as Document;
 
     interface ButtonRegistration {
-        order: number;
+        detach: Writable<boolean>;
     }
 
+    const items: ButtonRegistration[] = [];
+
     function registerButton(): ButtonRegistration {
-        index++;
-        return { order: index };
+        const detach = writable(false);
+        const registration = { detach };
+        items.push(registration);
+
+        return registration;
     }
+
+    let dynamic: SvelteComponentTyped[] = [];
+
+    function addButton(
+        button: SvelteComponentTyped,
+        add: (added: Element, parent: Element) => number
+    ): void {
+        const callback = (
+            mutations: MutationRecord[],
+            observer: MutationObserver
+        ): void => {
+            for (const mutation of mutations) {
+                const addedNode = mutation.addedNodes[0];
+
+                if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                    const index = add(addedNode as Element, buttonGroupRef);
+                }
+            }
+
+            observer.disconnect();
+        };
+
+        const observer = new MutationObserver(callback);
+        observer.observe(buttonGroupRef, { childList: true });
+
+        dynamic = [...dynamic, button];
+    }
+
+    const insertButton = (button: SvelteComponentTyped, id: Identifier = 0) =>
+        addButton(button, (added, parent) => insert(added, parent, id));
+    const appendButton = (button: SvelteComponentTyped, id: Identifier = -1) =>
+        addButton(button, (added, parent) => add(added, parent, id));
+    const showButton = (id: Identifier) =>
+        update((element) => element.removeAttribute("hidden"), buttonGroupRef, id);
+    const hideButton = (id: Identifier) =>
+        update((element) => element.setAttribute("hidden", ""), buttonGroupRef, id);
+    const toggleButton = (id: Identifier) =>
+        update((element) => element.toggleAttribute("hidden"), buttonGroupRef, id);
 
     setContext(
         buttonGroupKey,
         Object.assign(api, {
             registerButton,
+            insertButton,
+            appendButton,
+            showButton,
+            hideButton,
+            toggleButton,
         })
     );
 </script>
@@ -37,48 +88,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     div {
         display: flex;
         justify-items: start;
-
         flex-wrap: var(--toolbar-wrap);
 
         padding: calc(var(--toolbar-size) / 10);
         margin: 0;
-
-        > :global(button),
-        > :global(select) {
-            border-radius: calc(var(--toolbar-size) / 7.5);
-
-            &:not(:nth-of-type(1)) {
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
-            }
-
-            &:not(:nth-last-of-type(1)) {
-                border-top-right-radius: 0;
-                border-bottom-right-radius: 0;
-            }
-        }
-
-        &.border-overlap-group {
-            :global(button),
-            :global(select) {
-                margin-left: -1px;
-            }
-        }
-
-        &.gap-group {
-            :global(button),
-            :global(select) {
-                margin-left: 1px;
-            }
-        }
     }
 </style>
 
-<div
-    {id}
-    class={className}
-    class:border-overlap-group={!nightMode}
-    class:gap-group={nightMode}
-    div="ltr">
+<div bind:this={buttonGroupRef} {id} class={className} dir="ltr">
     <slot />
+    {#each dynamic as component}
+        <svelte:component this={component} />
+    {/each}
 </div>
