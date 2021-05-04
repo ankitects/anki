@@ -5,3 +5,4 @@ anki.prof
 target
 user.bazelrc
 .dmypy.json
+rust-project.json
