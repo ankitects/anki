@@ -6,11 +6,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import type { SvelteComponentTyped } from "svelte";
     import { setContext } from "svelte";
-    import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
     import { buttonGroupKey } from "./contextKeys";
     import type { Identifier } from "./identifier";
     import { insert, add, update, find } from "./identifier";
+    import type { ButtonRegistration } from "./buttons";
+    import { ButtonPosition } from "./buttons";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -19,15 +20,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let api = {};
     let buttonGroupRef: HTMLDivElement;
 
-    interface ButtonRegistration {
-        detach: Writable<boolean>;
-    }
+    let items: ButtonRegistration[] = [];
 
-    const items: ButtonRegistration[] = [];
+    $: {
+        for (const [index, item] of items.entries()) {
+            if (items.length === 1) {
+                item.position.set(ButtonPosition.Standalone);
+            } else if (index === 0) {
+                item.position.set(ButtonPosition.Leftmost);
+            } else if (index === items.length - 1) {
+                item.position.set(ButtonPosition.Rightmost);
+            } else {
+                item.position.set(ButtonPosition.Center);
+            }
+        }
+    }
 
     function makeRegistration(): ButtonRegistration {
         const detach = writable(false);
-        return { detach };
+        const position = writable(ButtonPosition.Standalone);
+        return { detach, position };
     }
 
     function registerButton(
@@ -35,6 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         registration = makeRegistration()
     ): ButtonRegistration {
         items.splice(index, 0, registration);
+        items = items;
         return registration;
     }
 
@@ -92,9 +105,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const showButton = (id: Identifier) =>
-        updateRegistration(({ detach }) => detach.update(() => false), id);
+        updateRegistration(({ detach }) => detach.set(false), id);
     const hideButton = (id: Identifier) =>
-        updateRegistration(({ detach }) => detach.update(() => true), id);
+        updateRegistration(({ detach }) => detach.set(true), id);
     const toggleButton = (id: Identifier) =>
         updateRegistration(({ detach }) => detach.update((old) => !old), id);
 
