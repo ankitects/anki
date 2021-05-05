@@ -6,21 +6,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
 
-    export let id: string;
-    export let className = "";
-    export let tooltip: string | undefined;
+    export let id: string | undefined = undefined;
+    let className = "";
+    export { className as class };
+
+    export let tooltip: string | undefined = undefined;
 
     const nightMode = getContext(nightModeKey);
-
-    let buttonRef: HTMLButtonElement;
-    let inputRef: HTMLInputElement;
 
     function delegateToInput() {
         inputRef.click();
     }
 
+    let buttonRef: HTMLButtonElement;
+    let inputRef: HTMLInputElement;
+
     const dispatch = createEventDispatcher();
-    onMount(() => dispatch("mount", { button: buttonRef }));
+    onMount(() => dispatch("mount", { button: buttonRef, input: inputRef }));
 </script>
 
 <style lang="scss">
@@ -30,13 +32,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @import "ts/sass/bootstrap/variables";
 
     button {
-        padding: 0;
-
         width: calc(var(--toolbar-size) - 0px);
         height: calc(var(--toolbar-size) - 0px);
 
         padding: 4px;
         overflow: hidden;
+
+        border-top-left-radius: var(--border-left-radius);
+        border-bottom-left-radius: var(--border-left-radius);
+
+        border-top-right-radius: var(--border-right-radius);
+        border-bottom-right-radius: var(--border-right-radius);
     }
 
     @include button.btn-day($with-disabled: false) using ($base) {

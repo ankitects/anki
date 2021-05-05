@@ -5,9 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
 
+    import ButtonGroup from "components/ButtonGroup.svelte";
+    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import IconButton from "components/IconButton.svelte";
     import ColorPicker from "components/ColorPicker.svelte";
-    import ButtonGroup from "components/ButtonGroup.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
 
     import { squareFillIcon } from "./icons";
@@ -31,20 +32,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup id="color">
-    <WithShortcut shortcut="F7" let:createShortcut let:shortcutLabel>
-        <IconButton
-            class="forecolor"
-            tooltip={`${tr.editingSetForegroundColor} (${shortcutLabel})`}
-            on:click={wrapWithForecolor}
-            on:mount={createShortcut}>
-            {@html squareFillIcon}
-        </IconButton>
-    </WithShortcut>
+    <ButtonGroupItem>
+        <WithShortcut shortcut="F7" let:createShortcut let:shortcutLabel>
+            <IconButton
+                class="forecolor"
+                tooltip={`${tr.editingSetForegroundColor} (${shortcutLabel})`}
+                on:click={wrapWithForecolor}
+                on:mount={createShortcut}>
+                {@html squareFillIcon}
+            </IconButton>
+        </WithShortcut>
+    </ButtonGroupItem>
 
-    <WithShortcut shortcut="F8" let:createShortcut let:shortcutLabel>
-        <ColorPicker
-            tooltip={`${tr.editingChangeColor()} (${shortcutLabel})`}
-            on:change={setWithCurrentColor}
-            on:mount={createShortcut} />
-    </WithShortcut>
+    <ButtonGroupItem>
+        <WithShortcut shortcut="F8" let:createShortcut let:shortcutLabel>
+            <ColorPicker
+                tooltip={`${tr.editingChangeColor()} (${shortcutLabel})`}
+                on:change={setWithCurrentColor}
+                on:mount={createShortcut} />
+        </WithShortcut>
+    </ButtonGroupItem>
 </ButtonGroup>
