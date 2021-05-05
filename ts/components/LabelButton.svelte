@@ -43,17 +43,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: auto;
         height: var(--toolbar-size);
 
-        border-radius: calc(var(--toolbar-size) / 7.5);
+        border-top-left-radius: var(--border-left-radius);
+        border-bottom-left-radius: var(--border-left-radius);
 
-        &:not(:nth-of-type(1)) {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        &:not(:nth-last-of-type(1)) {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
+        border-top-right-radius: var(--border-right-radius);
+        border-bottom-right-radius: var(--border-right-radius);
     }
 
     @include button.btn-day;
