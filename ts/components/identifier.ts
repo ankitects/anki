@@ -2,54 +2,86 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 export type Identifier = string | number;
 
-function find(collection: HTMLCollection, idOrIndex: Identifier): Element | null {
-    let element: Element | null = null;
+export function find(
+    collection: HTMLCollection,
+    idOrIndex: Identifier
+): [number, Element] | null {
+    let result: [number, Element] | null = null;
 
     if (typeof idOrIndex === "string") {
-        element = collection.namedItem(idOrIndex);
+        const element = collection.namedItem(idOrIndex);
+
+        if (element) {
+            const index = Array.prototype.indexOf.call(collection, element);
+            result = [index, element];
+        }
     } else if (idOrIndex < 0) {
-        const normalizedIndex = collection.length + idOrIndex;
-        element = collection.item(normalizedIndex);
+        const index = collection.length + idOrIndex;
+        const element = collection.item(index);
+
+        if (element) {
+            result = [index, element];
+        }
     } else {
-        element = collection.item(idOrIndex);
+        const index = idOrIndex;
+        const element = collection.item(index);
+
+        if (element) {
+            result = [index, element];
+        }
     }
 
-    return element;
+    return result;
 }
 
 export function insert(
     element: Element,
     collection: Element,
     idOrIndex: Identifier
-): void {
-    const reference = find(collection.children, idOrIndex);
+): number {
+    const match = find(collection.children, idOrIndex);
 
-    if (reference) {
-        collection.insertBefore(element, reference);
+    if (match) {
+        const [index, reference] = match;
+        collection.insertBefore(element, reference[0]);
+
+        return index;
     }
+
+    return -1;
 }
 
 export function add(
     element: Element,
     collection: Element,
     idOrIndex: Identifier
-): void {
-    const before = find(collection.children, idOrIndex);
+): number {
+    const match = find(collection.children, idOrIndex);
 
-    if (before) {
+    if (match) {
+        const [index, before] = match;
         const reference = before.nextElementSibling ?? null;
         collection.insertBefore(element, reference);
+
+        return index + 1;
     }
+
+    return -1;
 }
 
 export function update(
     f: (element: Element) => void,
     collection: Element,
     idOrIndex: Identifier
-): void {
-    const element = find(collection.children, idOrIndex);
+): number {
+    const match = find(collection.children, idOrIndex);
 
-    if (element) {
-        f(element);
+    if (match) {
+        const [index, element] = match;
+        f(element[0]);
+
+        return index;
     }
+
+    return -1;
 }

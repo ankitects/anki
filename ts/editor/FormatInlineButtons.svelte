@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
 
-    import IconButton from "components/IconButton.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
+    import IconButton from "components/IconButton.svelte";
     import WithState from "components/WithState.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
 
