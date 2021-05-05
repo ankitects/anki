@@ -10,7 +10,7 @@ members = ["rslib", "rslib/i18n", "pylib/rsbridge"]
 [lib]
 # dummy top level for tooling
 name = "anki"
-path = "src/lib.rs"
+path = "rslib/empty.rs"
 
 [package.metadata.raze]
 workspace_path = "//cargo"
