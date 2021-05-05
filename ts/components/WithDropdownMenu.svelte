@@ -9,10 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { dropdownKey } from "./contextKeys";
 
     setContext(dropdownKey, {
-        getDropdownTriggerProps: () => ({
-            "data-bs-toggle": "dropdown",
-            "aria-expanded": "false",
-        }),
+        dropdown: true,
+        "data-bs-toggle": "dropdown",
+        "aria-expanded": "false",
     });
 
     const menuId = Math.random().toString(36).substring(2);

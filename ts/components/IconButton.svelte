@@ -7,13 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext, onMount, createEventDispatcher } from "svelte";
     import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
 
-    export let id: string;
+    export let id: string | undefined = undefined;
     let className = "";
     export { className as class };
 
-    export let tooltip: string | undefined;
+    export let tooltip: string | undefined = undefined;
     export let active = false;
     export let disables = true;
+    export let tabbable = false;
 
     let buttonRef: HTMLButtonElement;
 
@@ -21,9 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: _disabled = disables && $disabled;
 
     const nightMode = getContext<boolean>(nightModeKey);
-
-    const dropdown = getContext(dropdownKey);
-    const dropdownProps = dropdown?.getDropdownTriggerProps() ?? {};
+    const dropdownProps = getContext(dropdownKey) ?? { dropdown: false };
 
     const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
@@ -34,6 +33,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     button {
         padding: 0;
+
+        border-top-left-radius: var(--border-left-radius);
+        border-bottom-left-radius: var(--border-left-radius);
+
+        border-top-right-radius: var(--border-right-radius);
+        border-bottom-right-radius: var(--border-right-radius);
     }
 
     @include button.btn-day;
@@ -66,13 +71,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class={`btn ${className}`}
     class:active
+    class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
-    tabindex="-1"
     title={tooltip}
-    disabled={_disabled}
-    class:dropdown-toggle={Boolean(dropdown)}
     {...dropdownProps}
+    disabled={_disabled}
+    tabindex={tabbable ? 0 : -1}
     on:click
     on:mousedown|preventDefault>
     <span class="p-1"><slot /></span>
