@@ -8,8 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
     import { buttonGroupKey } from "./contextKeys";
 
+    export let registration = undefined;
+
     const { registerButton } = getContext(buttonGroupKey);
-    const { detach } = registerButton();
+    const { detach } = registration ?? registerButton();
 </script>
 
 <Detachable detach={$detach}>

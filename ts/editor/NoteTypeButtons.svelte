@@ -7,27 +7,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
+    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import LabelButton from "components/LabelButton.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
 
     export let api = {};
 </script>
 
-<ButtonGroup id="notetype" class="" {api}>
-    <LabelButton
-        disables={false}
-        tooltip={tr.editingCustomizeFields()}
-        on:click={() => bridgeCommand('fields')}>
-        {tr.editingFields()}...
-    </LabelButton>
-
-    <WithShortcut shortcut="Control+KeyL" let:createShortcut let:shortcutLabel>
+<ButtonGroup id="notetype" {api}>
+    <ButtonGroupItem>
         <LabelButton
             disables={false}
-            tooltip={`${tr.editingCustomizeCardTemplates()} (${shortcutLabel})`}
-            on:click={() => bridgeCommand('cards')}
-            on:mount={createShortcut}>
-            {tr.editingCards()}...
+            tooltip={tr.editingCustomizeFields()}
+            on:click={() => bridgeCommand('fields')}>
+            {tr.editingFields()}...
         </LabelButton>
-    </WithShortcut>
+    </ButtonGroupItem>
+
+    <ButtonGroupItem>
+        <WithShortcut shortcut="Control+KeyL" let:createShortcut let:shortcutLabel>
+            <LabelButton
+                disables={false}
+                tooltip={`${tr.editingCustomizeCardTemplates()} (${shortcutLabel})`}
+                on:click={() => bridgeCommand('cards')}
+                on:mount={createShortcut}>
+                {tr.editingCards()}...
+            </LabelButton>
+        </WithShortcut>
+    </ButtonGroupItem>
 </ButtonGroup>
