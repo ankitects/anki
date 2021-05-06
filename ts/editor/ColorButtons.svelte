@@ -16,6 +16,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import "./color.css";
 
+    export let api = {};
+
     const foregroundColorKeyword = "--foreground-color";
     let color = "black";
 
@@ -32,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ButtonGroup id="color">
+<ButtonGroup id="color" {api}>
     <ButtonGroupItem>
         <WithShortcut shortcut="F7" let:createShortcut let:shortcutLabel>
             <IconButton
