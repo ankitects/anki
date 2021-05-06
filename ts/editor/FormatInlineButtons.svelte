@@ -137,7 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut shortcut="Control+KeyR" let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingRemoveFormatting(), shortcutLabel)}
-                on:click={(event) => {
+                on:click={() => {
                     document.execCommand('removeFormat');
                 }}
                 on:mount={createShortcut}>

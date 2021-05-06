@@ -29,17 +29,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function updateAllState(event: Event): void {
-        updateAllStateWithCallback((key: string): T => updaterMap.get(key)(event));
+        updateAllStateWithCallback((key: string): T => updaterMap.get(key)!(event));
     }
 
     export function resetAllState(state: T): void {
         updateAllStateWithCallback((): T => state);
     }
 
-    function updateStateByKey(key: string, event: MouseEvent): void {
+    function updateStateByKey(key: string, event: Event): void {
         stateStore.update(
             (map: StateMap): StateMap => {
-                map.set(key, updaterMap.get(key)(event));
+                map.set(key, updaterMap.get(key)!(event));
                 return map;
             }
         );
