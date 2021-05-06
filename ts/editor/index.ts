@@ -167,6 +167,6 @@ export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void
     }
 }
 
-const i18n = setupI18n({ modules: [ModuleName.EDITING] });
+const i18n = setupI18n({ modules: [ModuleName.EDITING, ModuleName.KEYBOARD] });
 
 export const $editorToolbar = initToolbar(i18n);
