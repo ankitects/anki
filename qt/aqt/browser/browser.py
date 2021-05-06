@@ -68,7 +68,6 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     saveState,
-    shortcut,
     showInfo,
     showWarning,
     skip_if_selection_is_empty,
@@ -383,7 +382,7 @@ class Browser(QMainWindow):
 
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
             editor.web.eval(
-                f"$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.appendButton({{ component: editorToolbar.PreviewButton }}, -1));"
+                "$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.appendButton({{ component: editorToolbar.PreviewButton }}, -1));"
             )
 
         gui_hooks.editor_did_init.append(add_preview_button)

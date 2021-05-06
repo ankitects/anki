@@ -4,19 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="typescript">
     import "./legacy.css";
-    import { writable } from "svelte/store";
-
-    const disabled = writable(false);
-
-    export function enableButtons(): void {
-        disabled.set(false);
-    }
-
-    export function disableButtons(): void {
-        disabled.set(true);
-    }
-
-    // @ts-expect-error insufficient typing of svelte modules
     import { updateAllState, resetAllState } from "components/WithState.svelte";
 
     export function updateActiveButtons(event: Event) {
@@ -42,9 +29,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import { setContext } from "svelte";
-    import { disabledKey, nightModeKey } from "components/contextKeys";
-
     import WithTheming from "components/WithTheming.svelte";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
@@ -62,11 +46,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const formatBlockButtons = {};
     export const colorButtons = {};
     export const templateButtons = {};
-
-    export let nightMode: boolean;
-
-    setContext(nightModeKey, nightMode);
-    setContext(disabledKey, disabled);
 
     export let size: number = 30;
     export let wraps: boolean = true;

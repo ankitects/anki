@@ -1,8 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { disabledKey, nightModeKey } from "components/contextKeys";
+import { writable } from "svelte/store";
+
 import EditorToolbar from "./EditorToolbar.svelte";
 import "./bootstrap.css";
+
+const disabled = writable(false);
 
 export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
     let toolbarResolve: (value: EditorToolbar) => void;
@@ -15,33 +20,30 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
             const target = document.body;
             const anchor = document.getElementById("fields")!;
 
-            toolbarResolve(
-                new EditorToolbar({
-                    target,
-                    anchor,
-                    props: {
-                        nightMode: document.documentElement.classList.contains(
-                            "night-mode"
-                        ),
-                    },
-                })
+            const context = new Map();
+            context.set(disabledKey, disabled);
+            context.set(
+                nightModeKey,
+                document.documentElement.classList.contains("night-mode")
             );
+
+            toolbarResolve(new EditorToolbar({ target, anchor, context } as any));
         });
     });
 
     return toolbarPromise;
 }
 
-/* Exports for editor */
+export function enableButtons(): void {
+    disabled.set(false);
+}
+
+export function disableButtons(): void {
+    disabled.set(true);
+}
+
 export {
-    // @ts-expect-error insufficient typing of svelte modules
-    editorToolbar,
-    // @ts-expect-error insufficient typing of svelte modules
-    enableButtons,
-    // @ts-expect-error insufficient typing of svelte modules
-    disableButtons,
-    // @ts-expect-error insufficient typing of svelte modules
     updateActiveButtons,
-    // @ts-expect-error insufficient typing of svelte modules
     clearActiveButtons,
+    editorToolbar,
 } from "./EditorToolbar.svelte";

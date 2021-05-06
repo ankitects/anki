@@ -74,7 +74,7 @@ ts_library(
         "//ts/html-filter",
         "//ts:image_module_support",
         "@npm//svelte",
-    ],
+    ] + svelte_names,
 )
 
 copy_bootstrap_icons(
@@ -173,7 +173,7 @@ svelte_check(
     ]) + [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
-        "@npm//@types/bootstrap",
         "//ts/components:svelte_components",
+        "@npm//@types/bootstrap",
     ],
 )
