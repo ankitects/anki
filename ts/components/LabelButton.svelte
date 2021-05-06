@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
+    import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -19,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: _disabled = disables && $disabled;
 
     const nightMode = getContext<boolean>(nightModeKey);
-    const dropdownProps = getContext(dropdownKey) ?? {};
+    const dropdownProps = getContext<DropdownProps>(dropdownKey) ?? { dropdown: false };
 
     let buttonRef: HTMLButtonElement;
 

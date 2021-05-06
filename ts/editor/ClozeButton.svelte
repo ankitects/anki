@@ -48,7 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:shortcutLabel>
     <IconButton
         tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
-        on:click={onCloze}>
+        on:click={onCloze}
+        on:mount={createShortcut}>
         {@html bracketsIcon}
     </IconButton>
 </WithShortcut>

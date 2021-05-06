@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import { buttonGroupKey } from "./contextKeys";
     import type { Identifier } from "./identifier";
-    import { insert, add, update, find } from "./identifier";
+    import { insert, add, find } from "./identifier";
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
 

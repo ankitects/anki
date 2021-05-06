@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         disabled.set(true);
     }
 
+    // @ts-expect-error insufficient typing of svelte modules
     import { updateAllState, resetAllState } from "components/WithState.svelte";
 
     export function updateActiveButtons(event: Event) {
