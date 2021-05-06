@@ -33,7 +33,7 @@ export class Editable extends HTMLElement {
             : this.innerHTML;
     }
 
-    connectedCallback() {
+    connectedCallback(): void {
         this.setAttribute("contenteditable", "");
     }
 }

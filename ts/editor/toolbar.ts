@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
 import { disabledKey, nightModeKey } from "components/contextKeys";
 import { writable } from "svelte/store";
 
@@ -27,7 +31,7 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
                 document.documentElement.classList.contains("night-mode")
             );
 
-            toolbarResolve(new EditorToolbar({ target, anchor, context } as any));
+            toolbarResolve(new EditorToolbar({ target, anchor, context }));
         });
     });
 
