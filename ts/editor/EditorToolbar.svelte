@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="typescript">
     import "./legacy.css";
+    // @ts-expect-error Insufficient typing
     import { updateAllState, resetAllState } from "components/WithState.svelte";
 
     export function updateActiveButtons(event: Event) {
