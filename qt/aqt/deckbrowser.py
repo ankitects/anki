@@ -23,7 +23,7 @@ from aqt.operations.deck import (
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import askUser, getOnlyText, openLink, shortcut, showInfo, tr
+from aqt.utils import getOnlyText, openLink, shortcut, showInfo, tr
 
 
 class DeckBrowserBottomBar:
@@ -376,15 +376,6 @@ class DeckBrowser:
     def _confirm_upgrade(self) -> None:
         self.mw.col.modSchema(check=True)
         self.mw.col.upgrade_to_v2_scheduler()
-
-        # not translated, as 2.15 should not be too far off
-        if askUser(
-            "Do you use AnkiDroid <= 2.14, or plan to use it in the near future? If unsure, choose No. You can adjust the setting later in the preferences screen.",
-            defaultno=True,
-        ):
-            prefs = self.mw.col.get_preferences()
-            prefs.scheduling.new_timezone = False
-            self.mw.col.set_preferences(prefs)
 
         showInfo(tr.scheduling_update_done())
         self.refresh()
