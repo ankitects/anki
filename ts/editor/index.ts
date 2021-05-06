@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
 import { filterHTML } from "html-filter";
 import { updateActiveButtons, disableButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
@@ -54,7 +58,7 @@ export function focusField(n: number): void {
 export function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
-        let elem = elements[i] as EditingArea;
+        const elem = elements[i] as EditingArea;
         if (elem instanceof EditingArea) {
             elem.focusEditable();
             return true;
@@ -158,7 +162,7 @@ export function setSticky(stickies: boolean[]): void {
     });
 }
 
-export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
+export function setFormat(cmd: string, arg?: string, nosave = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
