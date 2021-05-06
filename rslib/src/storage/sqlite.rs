@@ -12,7 +12,7 @@ use crate::{
     config::schema11::schema11_config_as_string,
     error::{AnkiError, DbErrorKind, Result},
     i18n::I18n,
-    scheduler::timing::v1_creation_date,
+    scheduler::timing::{local_minutes_west_for_stamp, v1_creation_date},
     text::without_combining,
     timestamp::TimestampMillis,
 };
@@ -168,13 +168,18 @@ impl SqliteStorage {
             db.execute_batch(include_str!("schema11.sql"))?;
             // start at schema 11, then upgrade below
             let crt = v1_creation_date();
+            let offset = if server {
+                None
+            } else {
+                Some(local_minutes_west_for_stamp(crt))
+            };
             db.execute(
                 "update col set crt=?, scm=?, ver=?, conf=?",
                 params![
                     crt,
                     TimestampMillis::now(),
                     SCHEMA_STARTING_VERSION,
-                    &schema11_config_as_string()
+                    &schema11_config_as_string(offset)
                 ],
             )?;
         }
