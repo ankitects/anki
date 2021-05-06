@@ -1,6 +1,14 @@
 @import "ts/sass/bootstrap/functions";
 @import "ts/sass/bootstrap/variables";
 
+@mixin btn-border-radius {
+    border-top-left-radius: var(--border-left-radius);
+    border-bottom-left-radius: var(--border-left-radius);
+
+    border-top-right-radius: var(--border-right-radius);
+    border-bottom-right-radius: var(--border-right-radius);
+}
+
 $btn-base-color-day: white;
 
 @mixin btn-day-base {

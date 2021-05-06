@@ -34,12 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     button {
         padding: 0;
-
-        border-top-left-radius: var(--border-left-radius);
-        border-bottom-left-radius: var(--border-left-radius);
-
-        border-top-right-radius: var(--border-right-radius);
-        border-bottom-right-radius: var(--border-right-radius);
+        @include button.btn-border-radius;
     }
 
     @include button.btn-day;
