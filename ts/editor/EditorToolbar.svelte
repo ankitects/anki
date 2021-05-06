@@ -28,16 +28,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /* Export components */
+    import AddonButtons from "./AddonButtons.svelte";
     import PreviewButton from "./PreviewButton.svelte";
     import LabelButton from "components/LabelButton.svelte";
     import IconButton from "components/IconButton.svelte";
-    import Raw from "components/Raw.svelte";
 
     export const editorToolbar = {
+        AddonButtons,
         PreviewButton,
         LabelButton,
         IconButton,
-        Raw,
     };
 </script>
 

@@ -38,10 +38,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             buttonToolbarRef
         );
 
-        const insertGroup = (button: SvelteComponent, position: Identifier = 0) =>
-            addComponent(button, (added, parent) => insert(added, parent, position));
-        const appendGroup = (button: SvelteComponent, position: Identifier = -1) =>
-            addComponent(button, (added, parent) => add(added, parent, position));
+        const insertGroup = (group: SvelteComponent, position: Identifier = 0) =>
+            addComponent(group, (added, parent) => insert(added, parent, position));
+        const appendGroup = (group: SvelteComponent, position: Identifier = -1) =>
+            addComponent(group, (added, parent) => add(added, parent, position));
 
         const showGroup = (id: Identifier) =>
             updateRegistration(({ detach }) => detach.set(false), id);

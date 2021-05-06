@@ -1,5 +1,8 @@
+@use "ts/sass/button_mixins" as button;
+
 .linkb {
     display: inline-block;
+    @include button.btn-border-radius;
 }
 
 .topbut {
