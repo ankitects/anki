@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         subscriptIcon,
         eraserIcon,
     } from "./icons";
+    import { appendInParentheses } from "./helpers";
 
     export let api = {};
 </script>
@@ -32,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:state={active}
                 let:updateState>
                 <IconButton
-                    tooltip={`${tr.editingBoldText()} (${shortcutLabel})`}
+                    tooltip={appendInParentheses(tr.editingBoldText(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
                         document.execCommand('bold');
@@ -53,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:state={active}
                 let:updateState>
                 <IconButton
-                    tooltip={`${tr.editingItalicText()} (${shortcutLabel})`}
+                    tooltip={appendInParentheses(tr.editingItalicText(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
                         document.execCommand('italic');
@@ -74,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:state={active}
                 let:updateState>
                 <IconButton
-                    tooltip={`${tr.editingUnderlineText()} (${shortcutLabel})`}
+                    tooltip={appendInParentheses(tr.editingUnderlineText(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
                         document.execCommand('underline');
@@ -98,7 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:state={active}
                 let:updateState>
                 <IconButton
-                    tooltip={tr.editingSuperscript()}
+                    tooltip={appendInParentheses(tr.editingSuperscript(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
                         document.execCommand('superscript');
@@ -119,7 +120,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:state={active}
                 let:updateState>
                 <IconButton
-                    tooltip={tr.editingSubscript()}
+                    tooltip={appendInParentheses(tr.editingSubscript(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
                         document.execCommand('subscript');
@@ -135,7 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithShortcut shortcut="Control+KeyR" let:createShortcut let:shortcutLabel>
             <IconButton
-                tooltip={tr.editingRemoveFormatting()}
+                tooltip={appendInParentheses(tr.editingRemoveFormatting(), shortcutLabel)}
                 on:click={(event) => {
                     document.execCommand('removeFormat');
                 }}

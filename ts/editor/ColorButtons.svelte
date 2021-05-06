@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithShortcut from "components/WithShortcut.svelte";
 
     import { squareFillIcon } from "./icons";
+    import { appendInParentheses } from "./helpers";
 
     import "./color.css";
 
@@ -36,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut shortcut="F7" let:createShortcut let:shortcutLabel>
             <IconButton
                 class="forecolor"
-                tooltip={`${tr.editingSetForegroundColor} (${shortcutLabel})`}
+                tooltip={appendInParentheses(tr.editingSetForegroundColor(), shortcutLabel)}
                 on:click={wrapWithForecolor}
                 on:mount={createShortcut}>
                 {@html squareFillIcon}
@@ -47,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithShortcut shortcut="F8" let:createShortcut let:shortcutLabel>
             <ColorPicker
-                tooltip={`${tr.editingChangeColor()} (${shortcutLabel})`}
+                tooltip={appendInParentheses(tr.editingChangeColor(), shortcutLabel)}
                 on:change={setWithCurrentColor}
                 on:mount={createShortcut} />
         </WithShortcut>

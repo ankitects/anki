@@ -7,10 +7,9 @@ $btn-base-color-day: white;
     color: var(--text-fg);
     background-color: $btn-base-color-day;
     border-color: var(--medium-border) !important;
-    margin-left: -1px;
 }
 
-@mixin btn-day($with-disabled: true) {
+@mixin btn-day($with-disabled: true, $with-margin: true) {
     .btn-day {
         @include btn-day-base;
         @content ($btn-base-color-day);
@@ -34,6 +33,10 @@ $btn-base-color-day: white;
                 box-shadow: none !important;
             }
         }
+
+        @if ($with-margin) {
+            margin-left: -1px;
+        }
     }
 }
 
@@ -43,10 +46,9 @@ $btn-base-color-night: #666;
     color: var(--text-fg);
     background-color: $btn-base-color-night;
     border-color: $btn-base-color-night;
-    margin-left: 1px;
 }
 
-@mixin btn-night($with-disabled: true) {
+@mixin btn-night($with-disabled: true, $with-margin: true) {
     .btn-night {
         @include btn-night-base;
         @content ($btn-base-color-night);
@@ -73,6 +75,10 @@ $btn-base-color-night: #666;
                 box-shadow: none !important;
                 border-color: $btn-base-color-night !important;
             }
+        }
+
+        @if ($with-margin) {
+            margin-left: 1px;
         }
     }
 }
