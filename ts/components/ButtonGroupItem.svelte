@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
+    import type { Register } from "./registration";
 
     import { getContext, hasContext } from "svelte";
     import { buttonGroupKey } from "./contextKeys";
@@ -43,8 +44,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         detach.subscribe((value: boolean) => (detach_ = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));
     } else if (hasContext(buttonGroupKey)) {
-        const { registerButton } = getContext(buttonGroupKey);
-        const { detach, position } = registerButton();
+        const registerComponent = getContext<Register<ButtonRegistration>>(
+            buttonGroupKey
+        );
+        const { detach, position } = registerComponent();
         detach.subscribe((value: boolean) => (detach_ = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));
     } else {

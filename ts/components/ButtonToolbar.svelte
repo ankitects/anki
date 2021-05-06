@@ -6,21 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     let className: string | undefined;
     export { className as class };
+
+    export let nowrap = false;
 </script>
 
-<style lang="scss">
-    nav {
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
-
-        background: var(--window-bg);
-        border-bottom: 1px solid var(--border);
-    }
-</style>
-
-<nav {id} class={`pb-1 ${className}`}>
+<div {id} class={`btn-toolbar ${className}`} class:flex-nowrap={nowrap} role="toolbar">
     <slot />
-</nav>
+</div>
