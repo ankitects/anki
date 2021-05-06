@@ -61,87 +61,87 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ClozeButton />
     </ButtonGroupItem>
 
-    <WithDropdownMenu let:menuId let:createDropdown>
-        <ButtonGroupItem>
+    <ButtonGroupItem>
+        <WithDropdownMenu let:menuId let:createDropdown>
             <IconButton on:mount={createDropdown}>
                 {@html functionIcon}
             </IconButton>
-        </ButtonGroupItem>
 
-        <DropdownMenu id={menuId}>
-            <WithShortcut
-                shortcut="Control+KeyM, KeyM"
-                let:createShortcut
-                let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => wrap('\\(', '\\)')}
-                    on:mount={createShortcut}>
-                    {tr.editingMathjaxInline()}
-                    <span class="ps-1 float-end">{shortcutLabel}</span>
-                </DropdownItem>
-            </WithShortcut>
+            <DropdownMenu id={menuId}>
+                <WithShortcut
+                    shortcut="Control+KeyM, KeyM"
+                    let:createShortcut
+                    let:shortcutLabel>
+                    <DropdownItem
+                        on:click={() => wrap('\\(', '\\)')}
+                        on:mount={createShortcut}>
+                        {tr.editingMathjaxInline()}
+                        <span class="ps-1 float-end">{shortcutLabel}</span>
+                    </DropdownItem>
+                </WithShortcut>
 
-            <WithShortcut
-                shortcut="Control+KeyM, KeyE"
-                let:createShortcut
-                let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => wrap('\\[', '\\]')}
-                    on:mount={createShortcut}>
-                    {tr.editingMathjaxBlock()}
-                    <span class="ps-1 float-end">{shortcutLabel}</span>
-                </DropdownItem>
-            </WithShortcut>
+                <WithShortcut
+                    shortcut="Control+KeyM, KeyE"
+                    let:createShortcut
+                    let:shortcutLabel>
+                    <DropdownItem
+                        on:click={() => wrap('\\[', '\\]')}
+                        on:mount={createShortcut}>
+                        {tr.editingMathjaxBlock()}
+                        <span class="ps-1 float-end">{shortcutLabel}</span>
+                    </DropdownItem>
+                </WithShortcut>
 
-            <WithShortcut
-                shortcut="Control+KeyM, KeyC"
-                let:createShortcut
-                let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => wrap('\\(\\ce{', '}\\)')}
-                    on:mount={createShortcut}>
-                    {tr.editingMathjaxChemistry()}
-                    <span class="ps-1 float-end">{shortcutLabel}</span>
-                </DropdownItem>
-            </WithShortcut>
+                <WithShortcut
+                    shortcut="Control+KeyM, KeyC"
+                    let:createShortcut
+                    let:shortcutLabel>
+                    <DropdownItem
+                        on:click={() => wrap('\\(\\ce{', '}\\)')}
+                        on:mount={createShortcut}>
+                        {tr.editingMathjaxChemistry()}
+                        <span class="ps-1 float-end">{shortcutLabel}</span>
+                    </DropdownItem>
+                </WithShortcut>
 
-            <WithShortcut
-                shortcut="Control+KeyT, KeyT"
-                let:createShortcut
-                let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => wrap('[latex]', '[/latex]')}
-                    on:mount={createShortcut}>
-                    {tr.editingLatex()}
-                    <span class="ps-1 float-end">{shortcutLabel}</span>
-                </DropdownItem>
-            </WithShortcut>
+                <WithShortcut
+                    shortcut="Control+KeyT, KeyT"
+                    let:createShortcut
+                    let:shortcutLabel>
+                    <DropdownItem
+                        on:click={() => wrap('[latex]', '[/latex]')}
+                        on:mount={createShortcut}>
+                        {tr.editingLatex()}
+                        <span class="ps-1 float-end">{shortcutLabel}</span>
+                    </DropdownItem>
+                </WithShortcut>
 
-            <WithShortcut
-                shortcut="Control+KeyT, KeyE"
-                let:createShortcut
-                let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => wrap('[$]', '[/$]')}
-                    on:mount={createShortcut}>
-                    {tr.editingLatexEquation()}
-                    <span class="ps-1 float-end">{shortcutLabel}</span>
-                </DropdownItem>
-            </WithShortcut>
+                <WithShortcut
+                    shortcut="Control+KeyT, KeyE"
+                    let:createShortcut
+                    let:shortcutLabel>
+                    <DropdownItem
+                        on:click={() => wrap('[$]', '[/$]')}
+                        on:mount={createShortcut}>
+                        {tr.editingLatexEquation()}
+                        <span class="ps-1 float-end">{shortcutLabel}</span>
+                    </DropdownItem>
+                </WithShortcut>
 
-            <WithShortcut
-                shortcut="Control+KeyT, KeyM"
-                let:createShortcut
-                let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => wrap('[$$]', '[/$$]')}
-                    on:mount={createShortcut}>
-                    {tr.editingLatexMathEnv()}
-                    <span class="ps-1 float-end">{shortcutLabel}</span>
-                </DropdownItem>
-            </WithShortcut>
-        </DropdownMenu>
-    </WithDropdownMenu>
+                <WithShortcut
+                    shortcut="Control+KeyT, KeyM"
+                    let:createShortcut
+                    let:shortcutLabel>
+                    <DropdownItem
+                        on:click={() => wrap('[$$]', '[/$$]')}
+                        on:mount={createShortcut}>
+                        {tr.editingLatexMathEnv()}
+                        <span class="ps-1 float-end">{shortcutLabel}</span>
+                    </DropdownItem>
+                </WithShortcut>
+            </DropdownMenu>
+        </WithDropdownMenu>
+    </ButtonGroupItem>
 
     <ButtonGroupItem>
         <WithShortcut
