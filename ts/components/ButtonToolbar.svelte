@@ -30,10 +30,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(buttonToolbarKey, registerComponent);
 
-    export let api = {};
+    export let api: Record<string, unknown> | undefined = undefined;
     let buttonToolbarRef: HTMLDivElement;
 
-    $: if (buttonToolbarRef) {
+    $: if (buttonToolbarRef && api) {
         const { addComponent, updateRegistration } = getDynamicInterface(
             buttonToolbarRef
         );

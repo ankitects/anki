@@ -45,10 +45,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(buttonGroupKey, registerComponent);
 
-    export let api = {};
+    export let api: Record<string, unknown> | undefined = undefined;
     let buttonGroupRef: HTMLDivElement;
 
-    $: if (buttonGroupRef) {
+    $: if (api && buttonGroupRef) {
         const { addComponent, updateRegistration } = getDynamicInterface(
             buttonGroupRef
         );
