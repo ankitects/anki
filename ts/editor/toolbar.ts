@@ -3,6 +3,7 @@
 
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
+@typescript-eslint/no-explicit-any: "off",
  */
 
 import { disabledKey, nightModeKey } from "components/contextKeys";
@@ -31,7 +32,7 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
                 document.documentElement.classList.contains("night-mode")
             );
 
-            toolbarResolve(new EditorToolbar({ target, anchor, context }));
+            toolbarResolve(new EditorToolbar({ target, anchor, context } as any));
         });
     });
 
