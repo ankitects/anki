@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ButtonGroup id="template" {api}>
+<ButtonGroup {api}>
     <ButtonGroupItem>
         <WithShortcut shortcut="F3" let:createShortcut let:shortcutLabel>
             <IconButton

@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ButtonGroup id="blockFormatting" {api}>
+<ButtonGroup {api}>
     <ButtonGroupItem>
         <WithState
             key="insertUnorderedList"

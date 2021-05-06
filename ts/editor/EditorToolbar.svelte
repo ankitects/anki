@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithTheming from "components/WithTheming.svelte";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
+    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
@@ -55,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorButtons from "./ColorButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
+    export const toolbar = {};
     export const notetypeButtons = {};
     export const formatInlineButtons = {};
     export const formatBlockButtons = {};
@@ -76,12 +78,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithTheming {style}>
     <StickyBar>
-        <ButtonToolbar>
-            <NoteTypeButtons api={notetypeButtons} />
-            <FormatInlineButtons api={formatInlineButtons} />
-            <FormatBlockButtons api={formatBlockButtons} />
-            <ColorButtons api={colorButtons} />
-            <TemplateButtons api={templateButtons} />
+        <ButtonToolbar api={toolbar}>
+            <ButtonToolbarItem id="notetype">
+                <NoteTypeButtons api={notetypeButtons} />
+            </ButtonToolbarItem>
+
+            <ButtonToolbarItem id="inlineFormatting">
+                <FormatInlineButtons api={formatInlineButtons} />
+            </ButtonToolbarItem>
+
+            <ButtonToolbarItem id="blockFormatting">
+                <FormatBlockButtons api={formatBlockButtons} />
+            </ButtonToolbarItem>
+
+            <ButtonToolbarItem id="color">
+                <ColorButtons api={colorButtons} />
+            </ButtonToolbarItem>
+
+            <ButtonToolbarItem id="template">
+                <TemplateButtons api={templateButtons} />
+            </ButtonToolbarItem>
         </ButtonToolbar>
     </StickyBar>
 </WithTheming>

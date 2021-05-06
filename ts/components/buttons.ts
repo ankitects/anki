@@ -13,3 +13,7 @@ export interface ButtonRegistration {
     detach: Writable<boolean>;
     position: Writable<ButtonPosition>;
 }
+
+export interface ButtonGroupRegistration {
+    detach: Writable<boolean>;
+}

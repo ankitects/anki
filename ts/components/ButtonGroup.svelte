@@ -63,7 +63,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const hideButton = (id: Identifier) =>
             updateRegistration(({ detach }) => detach.set(true), id);
         const toggleButton = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.update((old) => !old), id);
+            updateRegistration(
+                ({ detach }) => detach.update((old: boolean): boolean => !old),
+                id
+            );
 
         Object.assign(api, {
             insertButton,
