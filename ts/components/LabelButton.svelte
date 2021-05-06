@@ -12,7 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let tooltip: string | undefined;
+    export let tooltip: string | undefined = undefined;
+    export let active = false;
     export let disables = true;
     export let tabbable = false;
 
@@ -48,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={buttonRef}
     {id}
     class={`btn ${className}`}
+    class:active
     class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
