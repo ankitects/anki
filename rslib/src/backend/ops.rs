@@ -31,6 +31,7 @@ impl UndoStatus {
         pb::UndoStatus {
             undo: self.undo.map(|op| op.describe(tr)).unwrap_or_default(),
             redo: self.redo.map(|op| op.describe(tr)).unwrap_or_default(),
+            last_step: self.last_step as u32,
         }
     }
 }

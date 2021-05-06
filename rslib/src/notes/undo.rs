@@ -58,7 +58,7 @@ impl Collection {
     }
 
     /// If note is edited multiple times in quick succession, avoid creating extra undo entries.
-    pub(crate) fn maybe_coalesce_note_undo_entry(&mut self, changes: OpChanges) {
+    pub(crate) fn maybe_coalesce_note_undo_entry(&mut self, changes: &OpChanges) {
         if changes.op != Op::UpdateNote {
             return;
         }

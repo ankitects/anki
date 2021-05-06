@@ -21,17 +21,20 @@ pub(crate) struct UndoableOp {
     pub kind: Op,
     pub timestamp: TimestampSecs,
     pub changes: Vec<UndoableChange>,
+    pub counter: usize,
 }
 
 impl UndoableOp {
     /// True if changes empty, or only the collection mtime has changed.
+    /// Always true in the case of custom steps.
     fn has_changes(&self) -> bool {
-        !matches!(
-            &self.changes[..],
-            &[] | &[UndoableChange::Collection(
-                UndoableCollectionChange::Modified(_)
-            )]
-        )
+        matches!(self.kind, Op::Custom(_))
+            || !matches!(
+                &self.changes[..],
+                &[] | &[UndoableChange::Collection(
+                    UndoableCollectionChange::Modified(_)
+                )]
+            )
     }
 }
 
@@ -51,6 +54,7 @@ impl Default for UndoMode {
 pub struct UndoStatus {
     pub undo: Option<Op>,
     pub redo: Option<Op>,
+    pub last_step: usize,
 }
 
 pub struct UndoOutput {
@@ -68,6 +72,7 @@ pub(crate) struct UndoManager {
     redo_steps: Vec<UndoableOp>,
     mode: UndoMode,
     current_step: Option<UndoableOp>,
+    counter: usize,
 }
 
 impl UndoManager {
@@ -90,6 +95,10 @@ impl UndoManager {
             kind: op,
             timestamp: TimestampSecs::now(),
             changes: vec![],
+            counter: {
+                self.counter += 1;
+                self.counter
+            },
         });
     }
 
@@ -109,12 +118,12 @@ impl UndoManager {
         println!("ended, undo steps count now {}", self.undo_steps.len());
     }
 
-    fn can_undo(&self) -> Option<Op> {
-        self.undo_steps.front().map(|s| s.kind)
+    fn can_undo(&self) -> Option<&Op> {
+        self.undo_steps.front().map(|s| &s.kind)
     }
 
-    fn can_redo(&self) -> Option<Op> {
-        self.redo_steps.last().map(|s| s.kind)
+    fn can_redo(&self) -> Option<&Op> {
+        self.redo_steps.last().map(|s| &s.kind)
     }
 
     fn previous_op(&self) -> Option<&UndoableOp> {
@@ -131,35 +140,57 @@ impl UndoManager {
             .as_ref()
             .expect("current_changes() called when no op set");
 
-        let mut changes = StateChanges::default();
-        for change in &current_op.changes {
-            match change {
-                UndoableChange::Card(_) => changes.card = true,
-                UndoableChange::Note(_) => changes.note = true,
-                UndoableChange::Deck(_) => changes.deck = true,
-                UndoableChange::Tag(_) => changes.tag = true,
-                UndoableChange::Revlog(_) => {}
-                UndoableChange::Queue(_) => {}
-                UndoableChange::Config(_) => changes.config = true,
-                UndoableChange::DeckConfig(_) => changes.deck_config = true,
-                UndoableChange::Collection(_) => {}
-                UndoableChange::Notetype(_) => changes.notetype = true,
-            }
-        }
-
+        let changes = StateChanges::from(&current_op.changes[..]);
         OpChanges {
-            op: current_op.kind,
+            op: current_op.kind.clone(),
             changes,
         }
+    }
+
+    fn merge_undoable_ops(&mut self, starting_from: usize) -> Result<OpChanges> {
+        let target_idx = self
+            .undo_steps
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, op)| {
+                if op.counter == starting_from {
+                    Some(idx)
+                } else {
+                    None
+                }
+            })
+            .next()
+            .ok_or_else(|| AnkiError::invalid_input("target undo op not found"))?;
+        let mut removed = vec![];
+        for _ in 0..target_idx {
+            removed.push(self.undo_steps.pop_front().unwrap());
+        }
+        let target = self.undo_steps.front_mut().unwrap();
+        for step in removed.into_iter().rev() {
+            target.changes.extend(step.changes.into_iter());
+        }
+
+        Ok(OpChanges {
+            op: target.kind.clone(),
+            changes: StateChanges::from(&target.changes[..]),
+        })
+    }
+
+    /// Start a new step with a custom name, and return its associated
+    /// counter value, which can be used with `merge_undoable_ops`.
+    fn add_custom_step(&mut self, name: String) -> usize {
+        self.begin_step(Some(Op::Custom(name)));
+        self.end_step();
+        self.counter
     }
 }
 
 impl Collection {
-    pub fn can_undo(&self) -> Option<Op> {
+    pub fn can_undo(&self) -> Option<&Op> {
         self.state.undo.can_undo()
     }
 
-    pub fn can_redo(&self) -> Option<Op> {
+    pub fn can_redo(&self) -> Option<&Op> {
         self.state.undo.can_redo()
     }
 
@@ -180,11 +211,25 @@ impl Collection {
 
     pub fn undo_status(&self) -> UndoStatus {
         UndoStatus {
-            undo: self.can_undo(),
-            redo: self.can_redo(),
+            undo: self.can_undo().cloned(),
+            redo: self.can_redo().cloned(),
+            last_step: self.state.undo.counter,
         }
     }
 
+    /// Merge multiple undoable operations into one, and return the union of
+    /// their changes.
+    pub fn merge_undoable_ops(&mut self, starting_from: usize) -> Result<OpChanges> {
+        self.state.undo.merge_undoable_ops(starting_from)
+    }
+
+    /// Add an empty custom undo step, which subsequent changes can be merged into.
+    pub fn add_custom_undo_step(&mut self, name: String) -> usize {
+        self.state.undo.add_custom_step(name)
+    }
+}
+
+impl Collection {
     /// If op is None, clears the undo/redo queues.
     pub(crate) fn begin_undoable_operation(&mut self, op: Option<Op>) {
         self.state.undo.begin_step(op);
@@ -235,15 +280,13 @@ impl Collection {
     pub(crate) fn op_changes(&self) -> OpChanges {
         self.state.undo.op_changes()
     }
-}
 
-impl Collection {
     fn undo_inner(&mut self, step: UndoableOp, mode: UndoMode) -> Result<OpOutput<UndoOutput>> {
         let undone_op = step.kind;
         let reverted_to = step.timestamp;
         let changes = step.changes;
         self.state.undo.mode = mode;
-        let res = self.transact(step.kind, |col| {
+        let res = self.transact(undone_op.clone(), |col| {
             for change in changes.into_iter().rev() {
                 change.undo(col)?;
             }
@@ -258,8 +301,30 @@ impl Collection {
     }
 }
 
+impl From<&[UndoableChange]> for StateChanges {
+    fn from(changes: &[UndoableChange]) -> Self {
+        let mut out = StateChanges::default();
+        for change in changes {
+            match change {
+                UndoableChange::Card(_) => out.card = true,
+                UndoableChange::Note(_) => out.note = true,
+                UndoableChange::Deck(_) => out.deck = true,
+                UndoableChange::Tag(_) => out.tag = true,
+                UndoableChange::Revlog(_) => {}
+                UndoableChange::Queue(_) => {}
+                UndoableChange::Config(_) => out.config = true,
+                UndoableChange::DeckConfig(_) => out.deck_config = true,
+                UndoableChange::Collection(_) => {}
+                UndoableChange::Notetype(_) => out.notetype = true,
+            }
+        }
+        out
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use super::UndoableChange;
     use crate::{card::Card, collection::open_test_collection, prelude::*};
 
     #[test]
@@ -301,38 +366,38 @@ mod test {
         }
 
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
-        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_undo(), Some(&Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // undo a step
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
-        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_undo(), Some(&Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(&Op::UpdateCard));
 
         // and again
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 2);
         assert_eq!(col.can_undo(), None);
-        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(&Op::UpdateCard));
 
         // redo a step
         col.redo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
-        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_undo(), Some(&Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(&Op::UpdateCard));
 
         // and another
         col.redo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
-        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_undo(), Some(&Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and undo the redo
         col.undo().unwrap();
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
-        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
-        assert_eq!(col.can_redo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_undo(), Some(&Op::UpdateCard));
+        assert_eq!(col.can_redo(), Some(&Op::UpdateCard));
 
         // if any action is performed, it should clear the redo queue
         col.transact(Op::UpdateCard, |col| {
@@ -342,7 +407,7 @@ mod test {
             })
         })?;
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
-        assert_eq!(col.can_undo(), Some(Op::UpdateCard));
+        assert_eq!(col.can_undo(), Some(&Op::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and any action that doesn't support undoing will clear both queues
@@ -366,6 +431,70 @@ mod test {
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 15);
         col.undo()?;
         assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
+
+        Ok(())
+    }
+
+    #[test]
+    fn custom() -> Result<()> {
+        let mut col = open_test_collection();
+
+        // perform some actions in separate steps
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        assert_eq!(col.undo_status().last_step, 1);
+
+        let card = col.storage.all_cards_of_note(note.id)?.remove(0);
+
+        col.transact(Op::UpdateCard, |col| {
+            col.get_and_update_card(card.id, |card| {
+                card.due = 10;
+                Ok(())
+            })
+        })?;
+
+        let restore_point = col.add_custom_undo_step("hello".to_string());
+
+        col.transact(Op::UpdateCard, |col| {
+            col.get_and_update_card(card.id, |card| {
+                card.due = 20;
+                Ok(())
+            })
+        })?;
+        col.transact(Op::UpdateCard, |col| {
+            col.get_and_update_card(card.id, |card| {
+                card.due = 30;
+                Ok(())
+            })
+        })?;
+        // dummy op name
+        col.transact(Op::Bury, |col| col.set_current_notetype_id(NotetypeId(123)))?;
+
+        // merge subsequent changes into our restore point
+        let op = col.merge_undoable_ops(restore_point)?;
+        assert_eq!(op.changes.card, true);
+        assert_eq!(op.changes.config, true);
+
+        // the last undo action should be at the end of the step list,
+        // before the modtime bump
+        assert!(matches!(
+            col.state
+                .undo
+                .previous_op()
+                .unwrap()
+                .changes
+                .iter()
+                .rev()
+                .nth(1)
+                .unwrap(),
+            UndoableChange::Config(_)
+        ));
+
+        // if we then undo, we'll be back to before step 3
+        assert_eq!(col.storage.get_card(card.id)?.unwrap().due, 30);
+        col.undo()?;
+        assert_eq!(col.storage.get_card(card.id)?.unwrap().due, 10);
 
         Ok(())
     }

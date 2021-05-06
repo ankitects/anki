@@ -8,6 +8,8 @@ impl Collection {
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
+        let have_op = op.is_some();
+
         self.storage.begin_rust_trx()?;
         self.begin_undoable_operation(op);
 
@@ -23,10 +25,10 @@ impl Collection {
 
         match res {
             Ok(output) => {
-                let changes = if op.is_some() {
+                let changes = if have_op {
                     let changes = self.op_changes();
-                    self.maybe_clear_study_queues_after_op(changes);
-                    self.maybe_coalesce_note_undo_entry(changes);
+                    self.maybe_clear_study_queues_after_op(&changes);
+                    self.maybe_coalesce_note_undo_entry(&changes);
                     changes
                 } else {
                     self.clear_study_queues();

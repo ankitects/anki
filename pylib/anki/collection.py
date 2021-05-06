@@ -896,6 +896,28 @@ table.review-log {{ {revlog_style} }}
             assert_exhaustive(self._undo)
             assert False
 
+    def add_custom_undo_entry(self, name: str) -> int:
+        """Add an empty undo entry with the given name.
+        The return value can be used to merge subsequent changes
+        with `merge_undo_entries()`.
+
+        You should only use this with your own custom actions - when
+        extending default Anki behaviour, you should merge into an
+        existing undo entry instead, so the existing undo name is
+        preserved, and changes are processed correctly.
+        """
+        return self._backend.add_custom_undo_entry(name)
+
+    def merge_undo_entries(self, target: int) -> OpChanges:
+        """Combine multiple undoable operations into one.
+
+        After a standard Anki action, you can use col.undo_status().last_step
+        to retrieve the target to merge into. When defining your own custom
+        actions, you can use `add_custom_undo_entry()` to define a custom
+        undo name.
+        """
+        return self._backend.merge_undo_entries(target)
+
     def clear_python_undo(self) -> None:
         """Clear the Python undo state.
         The backend will automatically clear backend undo state when

@@ -96,4 +96,14 @@ impl CollectionService for Backend {
     fn redo(&self, _input: pb::Empty) -> Result<pb::OpChangesAfterUndo> {
         self.with_col(|col| col.redo().map(|out| out.into_protobuf(&col.tr)))
     }
+
+    fn add_custom_undo_entry(&self, input: pb::String) -> Result<pb::UInt32> {
+        self.with_col(|col| Ok(col.add_custom_undo_step(input.val).into()))
+    }
+
+    fn merge_undo_entries(&self, input: pb::UInt32) -> Result<pb::OpChanges> {
+        let starting_from = input.val as usize;
+        self.with_col(|col| col.merge_undoable_ops(starting_from))
+            .map(Into::into)
+    }
 }
