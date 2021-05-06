@@ -40,7 +40,7 @@ from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import Deck, DeckConfig, DeckConfigId, DeckId, DeckManager
-from anki.errors import AbortSchemaModification, DBError, InvalidInput
+from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, Notetype, NotetypeDict, NotetypeId
@@ -579,7 +579,10 @@ class Collection:
                 return _pb.SortOrder(
                     builtin=_pb.SortOrder.Builtin(column=order.key, reverse=reverse)
                 )
-        raise InvalidInput(f"{order} is not a valid sort order.")
+
+        # eg, user is ordering on an add-on field with the add-on not installed
+        print(f"{order} is not a valid sort order.")
+        return _pb.SortOrder(none=_pb.Empty())
 
     def find_and_replace(
         self,
