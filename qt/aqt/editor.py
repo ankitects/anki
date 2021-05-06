@@ -168,7 +168,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             else ""
         )
 
-        print(righttopbtns_js)
         self.web.eval(f"{lefttopbtns_js} {righttopbtns_js}")
 
     # Top buttons
