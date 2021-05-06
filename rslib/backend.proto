@@ -289,6 +289,8 @@ service CollectionService {
   rpc GetUndoStatus(Empty) returns (UndoStatus);
   rpc Undo(Empty) returns (OpChangesAfterUndo);
   rpc Redo(Empty) returns (OpChangesAfterUndo);
+  rpc AddCustomUndoEntry(String) returns (UInt32);
+  rpc MergeUndoEntries(UInt32) returns (OpChanges);
   rpc LatestProgress(Empty) returns (Progress);
   rpc SetWantsAbort(Empty) returns (Empty);
 }
@@ -1552,6 +1554,7 @@ message OpChanges {
 message UndoStatus {
   string undo = 1;
   string redo = 2;
+  uint32 last_step = 3;
 }
 
 message OpChangesAfterUndo {

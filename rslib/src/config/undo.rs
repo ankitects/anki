@@ -85,13 +85,13 @@ mod test {
         assert_eq!(col.get_bool(key), true);
 
         // first set adds the key
-        col.transact(op, |col| col.set_bool(key, false))?;
+        col.transact(op.clone(), |col| col.set_bool(key, false))?;
         assert_eq!(col.get_bool(key), false);
 
         // mutate it twice
-        col.transact(op, |col| col.set_bool(key, true))?;
+        col.transact(op.clone(), |col| col.set_bool(key, true))?;
         assert_eq!(col.get_bool(key), true);
-        col.transact(op, |col| col.set_bool(key, false))?;
+        col.transact(op.clone(), |col| col.set_bool(key, false))?;
         assert_eq!(col.get_bool(key), false);
 
         // when we remove it, it goes back to its default

@@ -3,8 +3,9 @@
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Op {
+    Custom(String),
     AddDeck,
     AddNote,
     AddNotetype,
@@ -42,7 +43,7 @@ pub enum Op {
 }
 
 impl Op {
-    pub fn describe(self, tr: &I18n) -> String {
+    pub fn describe(&self, tr: &I18n) -> String {
         match self {
             Op::AddDeck => tr.undo_add_deck(),
             Op::AddNote => tr.undo_add_note(),
@@ -78,6 +79,7 @@ impl Op {
             Op::AddNotetype => tr.undo_add_notetype(),
             Op::RemoveNotetype => tr.undo_remove_notetype(),
             Op::UpdateNotetype => tr.undo_update_notetype(),
+            Op::Custom(name) => name.into(),
         }
         .into()
     }
@@ -94,7 +96,7 @@ pub struct StateChanges {
     pub deck_config: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct OpChanges {
     pub op: Op,
     pub changes: StateChanges,
