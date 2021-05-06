@@ -51,11 +51,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return registration;
     }
 
+    interface SvelteComponent {
+        id: string | undefined;
+        component: SvelteComponentTyped;
+        props: Record<string, unknown>;
+    }
+
     const dynamicItems: ButtonRegistration[] = [];
-    let dynamic: SvelteComponentTyped[] = [];
+    let dynamic: SvelteComponent[] = [];
 
     function addButton(
-        button: SvelteComponentTyped,
+        button: SvelteComponent,
         add: (added: Element, parent: Element) => number
     ): void {
         const registration = makeRegistration();
@@ -86,10 +92,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dynamic = [...dynamic, button];
     }
 
-    const insertButton = (button: SvelteComponentTyped, id: Identifier = 0) =>
-        addButton(button, (added, parent) => insert(added, parent, id));
-    const appendButton = (button: SvelteComponentTyped, id: Identifier = -1) =>
-        addButton(button, (added, parent) => add(added, parent, id));
+    const insertButton = (button: SvelteComponent, position: Identifier = 0) =>
+        addButton(button, (added, parent) => insert(added, parent, position));
+    const appendButton = (button: SvelteComponent, position: Identifier = -1) =>
+        addButton(button, (added, parent) => add(added, parent, position));
 
     function updateRegistration(
         f: (registration: ButtonRegistration) => void,
@@ -137,9 +143,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div bind:this={buttonGroupRef} {id} class={className} dir="ltr">
     <slot />
-    {#each dynamic as component, i}
-        <ButtonGroupItem registration={dynamicItems[i]}>
-            <svelte:component this={component} />
+    {#each dynamic as item, i}
+        <ButtonGroupItem id={item.id} registration={dynamicItems[i]}>
+            <svelte:component this={item.component} {...item.props} />
         </ButtonGroupItem>
     {/each}
 </div>

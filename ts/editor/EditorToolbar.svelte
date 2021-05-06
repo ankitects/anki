@@ -28,10 +28,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /* Export components */
+    import PreviewButton from "./PreviewButton.svelte";
     import LabelButton from "components/LabelButton.svelte";
     import IconButton from "components/IconButton.svelte";
+    import Raw from "components/Raw.svelte";
 
-    export const editorToolbar = { LabelButton, IconButton };
+    export const editorToolbar = {
+        PreviewButton,
+        LabelButton,
+        IconButton,
+        Raw,
+    };
 </script>
 
 <script lang="typescript">
@@ -48,6 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TemplateButtons from "./TemplateButtons.svelte";
 
     export const notetypeButtons = {};
+    export const formatInlineButtons = {};
+    export const formatBlockButtons = {};
+    export const colorButtons = {};
+    export const templateButtons = {};
 
     export let nightMode: boolean;
 
@@ -65,9 +76,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <WithTheming {style}>
     <StickyBar>
         <NoteTypeButtons api={notetypeButtons} />
-        <FormatInlineButtons />
-        <FormatBlockButtons />
-        <ColorButtons />
-        <TemplateButtons />
+        <FormatInlineButtons api={formatInlineButtons} />
+        <FormatBlockButtons api={formatBlockButtons} />
+        <ColorButtons api={colorButtons} />
+        <TemplateButtons api={templateButtons} />
     </StickyBar>
 </WithTheming>

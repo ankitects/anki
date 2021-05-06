@@ -19,6 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { appendInParentheses } from "./helpers";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
+    export let api = {};
+
     function onAttachment(): void {
         bridgeCommand("attach");
     }
@@ -32,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ButtonGroup id="template">
+<ButtonGroup id="template" {api}>
     <ButtonGroupItem>
         <WithShortcut shortcut="F3" let:createShortcut let:shortcutLabel>
             <IconButton
@@ -55,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </WithShortcut>
     </ButtonGroupItem>
 
-    <ButtonGroupItem>
+    <ButtonGroupItem id="cloze">
         <ClozeButton />
     </ButtonGroupItem>
 

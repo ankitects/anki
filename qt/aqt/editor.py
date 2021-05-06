@@ -145,7 +145,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype', -1));"
+            f"$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.addButton({{ component: editorToolbar.Raw, props: {{ html: `{button}` }} }}, -1));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -156,10 +156,7 @@ class Editor:
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
 
         righttopbtns_defs = "\n".join(
-            [
-                f"editorToolbar.rawButton({{ html: `{button}` }}),"
-                for button in righttopbtns
-            ]
+            [f"editorToolbar.Raw({{ html: `{button}` }})," for button in righttopbtns]
         )
         righttopbtns_js = (
             f"""
@@ -172,7 +169,7 @@ $editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.buttonGroup({{
             else ""
         )
 
-        self.web.eval(f"{lefttopbtns_js} {righttopbtns_js}")
+        self.web.eval(f"{lefttopbtns_js}")
 
     # Top buttons
     ######################################################################
@@ -1268,11 +1265,11 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.model()["type"] == MODEL_CLOZE:
         editor.web.eval(
-            '$editorToolbar.then(({ showButton }) => showButton("template", "cloze")); '
+            '$editorToolbar.then(({ templateButtons }) => templateButtons.showButton("cloze")); '
         )
     else:
         editor.web.eval(
-            '$editorToolbar.then(({ hideButton }) => hideButton("template", "cloze")); '
+            '$editorToolbar.then(({ templateButtons }) => templateButtons.hideButton("cloze")); '
         )
 
 

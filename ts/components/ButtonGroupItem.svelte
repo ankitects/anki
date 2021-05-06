@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext, hasContext } from "svelte";
     import { buttonGroupKey } from "./contextKeys";
 
+    export let id: string | undefined = undefined;
     export let registration: ButtonRegistration | undefined = undefined;
 
     let detach_: boolean;
@@ -53,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <!-- div in WithTheming is necessary to preserve item position -->
-<WithTheming {style}>
+<WithTheming {id} {style}>
     <Detachable detach={detach_}>
         <slot />
     </Detachable>
