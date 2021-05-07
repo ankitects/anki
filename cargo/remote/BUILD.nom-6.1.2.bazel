@@ -117,7 +117,7 @@ rust_library(
         "@raze__bitvec__0_19_5//:bitvec",
         "@raze__funty__1_1_0//:funty",
         "@raze__lexical_core__0_7_6//:lexical_core",
-        "@raze__memchr__2_3_4//:memchr",
+        "@raze__memchr__2_4_0//:memchr",
     ],
 )
 

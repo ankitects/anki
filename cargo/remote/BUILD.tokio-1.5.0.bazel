@@ -127,7 +127,7 @@ rust_library(
     deps = [
         ":tokio_build_script",
         "@raze__bytes__1_0_1//:bytes",
-        "@raze__memchr__2_3_4//:memchr",
+        "@raze__memchr__2_4_0//:memchr",
         "@raze__mio__0_7_11//:mio",
         "@raze__num_cpus__1_13_0//:num_cpus",
         "@raze__pin_project_lite__0_2_6//:pin_project_lite",

@@ -25,7 +25,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -37,11 +37,13 @@ load(
 )
 
 cargo_build_script(
-    name = "openssl_build_script",
+    name = "crossbeam_utils_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "lazy_static",
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -53,22 +55,21 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.33",
+    version = "0.8.4",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__openssl_sys__0_9_61//:openssl_sys",
+        "@raze__autocfg__1_0_1//:autocfg",
     ],
 )
 
-# Unsupported target "mk_certs" with type "example" omitted
+# Unsupported target "atomic_cell" with type "bench" omitted
 
 rust_library(
-    name = "openssl",
+    name = "crossbeam_utils",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-        "@raze__openssl_sys__0_9_61//:openssl_sys": "ffi",
-    },
     crate_features = [
+        "lazy_static",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -81,15 +82,23 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.33",
+    version = "0.8.4",
     # buildifier: leave-alone
     deps = [
-        ":openssl_build_script",
-        "@raze__bitflags__1_2_1//:bitflags",
+        ":crossbeam_utils_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__foreign_types__0_3_2//:foreign_types",
-        "@raze__libc__0_2_94//:libc",
-        "@raze__once_cell__1_7_2//:once_cell",
-        "@raze__openssl_sys__0_9_61//:openssl_sys",
+        "@raze__lazy_static__1_4_0//:lazy_static",
     ],
 )
+
+# Unsupported target "atomic_cell" with type "test" omitted
+
+# Unsupported target "cache_padded" with type "test" omitted
+
+# Unsupported target "parker" with type "test" omitted
+
+# Unsupported target "sharded_lock" with type "test" omitted
+
+# Unsupported target "thread" with type "test" omitted
+
+# Unsupported target "wait_group" with type "test" omitted

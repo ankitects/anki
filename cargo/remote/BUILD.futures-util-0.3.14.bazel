@@ -76,7 +76,7 @@ rust_library(
         "@raze__futures_io__0_3_14//:futures_io",
         "@raze__futures_sink__0_3_14//:futures_sink",
         "@raze__futures_task__0_3_14//:futures_task",
-        "@raze__memchr__2_3_4//:memchr",
+        "@raze__memchr__2_4_0//:memchr",
         "@raze__pin_project_lite__0_2_6//:pin_project_lite",
         "@raze__pin_utils__0_1_0//:pin_utils",
         "@raze__proc_macro_nested__0_1_6//:proc_macro_nested",

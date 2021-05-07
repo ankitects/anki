@@ -63,7 +63,7 @@ rust_library(
         "@raze__fallible_streaming_iterator__0_1_9//:fallible_streaming_iterator",
         "@raze__hashlink__0_6_0//:hashlink",
         "@raze__libsqlite3_sys__0_20_1//:libsqlite3_sys",
-        "@raze__memchr__2_3_4//:memchr",
+        "@raze__memchr__2_4_0//:memchr",
         "@raze__smallvec__1_6_1//:smallvec",
     ],
 )

@@ -83,7 +83,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":proc_macro2_build_script",
-        "@raze__unicode_xid__0_2_1//:unicode_xid",
+        "@raze__unicode_xid__0_2_2//:unicode_xid",
     ],
 )
 
