@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const mounted: HTMLButtonElement = detail.button;
         deregister = registerShortcut(
             (event: KeyboardEvent) => {
-                mounted.dispatchEvent(new KeyboardEvent("click", event));
+                mounted.dispatchEvent(new MouseEvent("click", event));
                 event.preventDefault();
             },
             shortcut,
