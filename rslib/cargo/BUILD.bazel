@@ -77,7 +77,7 @@ alias(
 
 alias(
     name = "coarsetime",
-    actual = "@raze__coarsetime__0_1_18//:coarsetime",
+    actual = "@raze__coarsetime__0_1_19//:coarsetime",
     tags = [
         "cargo-raze",
         "manual",
@@ -275,7 +275,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_4_6//:regex",
+    actual = "@raze__regex__1_5_4//:regex",
     tags = [
         "cargo-raze",
         "manual",

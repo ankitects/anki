@@ -52,6 +52,6 @@ rust_library(
         "@raze__heck__0_3_2//:heck",
         "@raze__proc_macro2__1_0_26//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_70//:syn",
+        "@raze__syn__1_0_72//:syn",
     ],
 )

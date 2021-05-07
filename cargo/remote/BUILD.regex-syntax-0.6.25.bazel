@@ -30,18 +30,26 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "bench" with type "bench" omitted
+
 rust_library(
-    name = "ouroboros",
+    name = "regex_syntax",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "unicode",
+        "unicode-age",
+        "unicode-bool",
+        "unicode-case",
+        "unicode-gencat",
+        "unicode-perl",
+        "unicode-script",
+        "unicode-segment",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__ouroboros_macro__0_9_1//:ouroboros_macro",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -49,9 +57,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.9.1",
+    version = "0.6.25",
     # buildifier: leave-alone
     deps = [
-        "@raze__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )

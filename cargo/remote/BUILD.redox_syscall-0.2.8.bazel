@@ -25,23 +25,29 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
+alias(
+    name = "redox_syscall",
+    actual = ":syscall",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
 rust_library(
-    name = "futures_macro",
+    name = "syscall",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_type = "lib",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -49,11 +55,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.14",
+    version = "0.2.8",
     # buildifier: leave-alone
     deps = [
-        "@raze__proc_macro2__1_0_26//:proc_macro2",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_72//:syn",
+        "@raze__bitflags__1_2_1//:bitflags",
     ],
 )

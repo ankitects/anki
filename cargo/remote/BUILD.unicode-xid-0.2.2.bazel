@@ -30,6 +30,8 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "xid" with type "bench" omitted
+
 rust_library(
     name = "unicode_xid",
     srcs = glob(["**/*.rs"]),
@@ -47,7 +49,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.1",
+    version = "0.2.2",
     # buildifier: leave-alone
     deps = [
     ],

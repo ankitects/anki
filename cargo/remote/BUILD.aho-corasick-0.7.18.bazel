@@ -40,7 +40,7 @@ rust_library(
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,9 +48,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.15",
+    version = "0.7.18",
     # buildifier: leave-alone
     deps = [
-        "@raze__memchr__2_3_4//:memchr",
+        "@raze__memchr__2_4_0//:memchr",
     ],
 )
