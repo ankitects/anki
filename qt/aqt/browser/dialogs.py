@@ -311,7 +311,7 @@ class FindAndReplaceDialog(QDialog):
                 replacement=replace,
                 regex=regex,
                 match_case=match_case,
-            )
+            ).run_in_background()
         else:
             # fields
             if self.form.field.currentIndex() == 0:
@@ -327,7 +327,7 @@ class FindAndReplaceDialog(QDialog):
                 regex=regex,
                 field_name=field,
                 match_case=match_case,
-            )
+            ).run_in_background()
 
         super().accept()
 
