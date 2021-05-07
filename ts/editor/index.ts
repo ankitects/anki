@@ -171,7 +171,12 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
 }
 
 const i18n = setupI18n({
-    modules: [ModuleName.EDITING, ModuleName.KEYBOARD, ModuleName.ACTIONS, ModuleName.BROWSING],
+    modules: [
+        ModuleName.EDITING,
+        ModuleName.KEYBOARD,
+        ModuleName.ACTIONS,
+        ModuleName.BROWSING,
+    ],
 });
 
 import type EditorToolbar from "./EditorToolbar.svelte";
