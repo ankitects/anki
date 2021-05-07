@@ -12,7 +12,7 @@ attrs==21.1.0
     #   pytest
 beautifulsoup4==4.9.3
     # via -r requirements.in
-black==21.5b0
+black==20.8b1
     # via -r requirements.in
 certifi==2020.12.5
     # via requests
