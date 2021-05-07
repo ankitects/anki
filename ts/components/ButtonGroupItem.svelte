@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     export let registration: ButtonRegistration | undefined = undefined;
 
-    let detach_: boolean;
+    let detached: boolean;
     let position_: ButtonPosition;
     let style: string;
 
@@ -41,24 +41,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     if (registration) {
         const { detach, position } = registration;
-        detach.subscribe((value: boolean) => (detach_ = value));
+        detach.subscribe((value: boolean) => (detached = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));
     } else if (hasContext(buttonGroupKey)) {
         const registerComponent = getContext<Register<ButtonRegistration>>(
             buttonGroupKey
         );
         const { detach, position } = registerComponent();
-        detach.subscribe((value: boolean) => (detach_ = value));
+        detach.subscribe((value: boolean) => (detached = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));
     } else {
-        detach_ = false;
+        detached = false;
         position_ = ButtonPosition.Standalone;
     }
 </script>
 
 <!-- div in WithTheming is necessary to preserve item position -->
 <WithTheming {id} {style}>
-    <Detachable detach={detach_}>
+    <Detachable {detached}>
         <slot />
     </Detachable>
 </WithTheming>
