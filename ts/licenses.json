@@ -120,7 +120,7 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/node@13.13.49": {
+    "@types/node@15.0.2": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -133,7 +133,7 @@
         "path": "node_modules/bootstrap-icons",
         "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
     },
-    "bootstrap@5.0.0-beta3": {
+    "bootstrap@5.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
@@ -332,7 +332,7 @@
         "path": "node_modules/d3-scale-chromatic",
         "licenseFile": "node_modules/d3-scale-chromatic/LICENSE"
     },
-    "d3-scale@3.2.4": {
+    "d3-scale@3.3.0": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-scale",
         "publisher": "Mike Bostock",
@@ -396,7 +396,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@6.6.2": {
+    "d3@6.7.0": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
@@ -467,13 +467,13 @@
         "path": "node_modules/long",
         "licenseFile": "node_modules/long/LICENSE"
     },
-    "mathjax@3.1.2": {
+    "mathjax@3.1.4": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/mathjax/MathJax",
         "path": "node_modules/mathjax",
         "licenseFile": "node_modules/mathjax/LICENSE"
     },
-    "protobufjs@6.10.2": {
+    "protobufjs@6.11.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/protobufjs/protobuf.js",
         "publisher": "Daniel Wirtz",
