@@ -406,7 +406,7 @@ $editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.labelButton({{
     def onRowChanged(
         self, _current: Optional[QItemSelection], _previous: Optional[QItemSelection]
     ) -> None:
-        """Update current note and hide/show editor. """
+        """Update current note and hide/show editor."""
         if self._closeEventHasCleanedUp:
             return
 
