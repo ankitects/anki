@@ -8,7 +8,7 @@ import { find } from "./identifier";
 
 export interface SvelteComponent {
     component: SvelteComponentTyped;
-    id: string | undefined;
+    id: string;
     props: Record<string, unknown> | undefined;
 }
 
@@ -30,6 +30,10 @@ export interface DynamicRegistrationAPI<T> {
         update: (registration: T) => void,
         position: Identifier
     ) => void;
+}
+
+export function nodeIsElement(node: Node): node is Element {
+    return node.nodeType === Node.ELEMENT_NODE;
 }
 
 export function makeInterface<T>(makeRegistration: () => T): RegistrationAPI<T> {
@@ -60,18 +64,21 @@ export function makeInterface<T>(makeRegistration: () => T): RegistrationAPI<T> 
                 observer: MutationObserver
             ): void => {
                 for (const mutation of mutations) {
-                    const addedNode = mutation.addedNodes[0];
+                    for (const addedNode of mutation.addedNodes) {
+                        if (
+                            nodeIsElement(addedNode) &&
+                            (!component.id || addedNode.id === component.id)
+                        ) {
+                            const index = add(addedNode, elementRef);
 
-                    if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                        const index = add(addedNode as Element, elementRef);
+                            if (index >= 0) {
+                                registerComponent(index, registration);
+                            }
 
-                        if (index >= 0) {
-                            registerComponent(index, registration);
+                            return observer.disconnect();
                         }
                     }
                 }
-
-                observer.disconnect();
             };
 
             const observer = new MutationObserver(callback);
