@@ -145,7 +145,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: `{button}` }} }}, -1));"
+            f"$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -155,7 +155,7 @@ class Editor:
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
 
-        righttopbtns_defs = ", ".join([f"`{button}`" for button in righttopbtns])
+        righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
 $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
