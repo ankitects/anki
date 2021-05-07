@@ -5,16 +5,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript" context="module">
     import { writable } from "svelte/store";
 
-    type T = unknown;
-
-    type UpdaterMap = Map<string, (event: Event) => T>;
-    type StateMap = Map<string, T>;
+    type UpdaterMap = Map<string, (event: Event) => boolean>;
+    type StateMap = Map<string, boolean>;
 
     const updaterMap = new Map() as UpdaterMap;
     const stateMap = new Map() as StateMap;
     const stateStore = writable(stateMap);
 
-    function updateAllStateWithCallback(callback: (key: string) => T): void {
+    function updateAllStateWithCallback(callback: (key: string) => boolean): void {
         stateStore.update(
             (map: StateMap): StateMap => {
                 const newMap = new Map() as StateMap;
@@ -29,11 +27,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function updateAllState(event: Event): void {
-        updateAllStateWithCallback((key: string): T => updaterMap.get(key)!(event));
+        updateAllStateWithCallback((key: string): boolean =>
+            updaterMap.get(key)!(event)
+        );
     }
 
-    export function resetAllState(state: T): void {
-        updateAllStateWithCallback((): T => state);
+    export function resetAllState(state: boolean): void {
+        updateAllStateWithCallback((): boolean => state);
     }
 
     function updateStateByKey(key: string, event: Event): void {
@@ -48,8 +48,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="typescript">
     export let key: string;
-    export let update: (event: Event) => T;
-    export let state: T;
+    export let update: (event: Event) => boolean;
+
+    let state: boolean = false;
 
     updaterMap.set(key, update);
 

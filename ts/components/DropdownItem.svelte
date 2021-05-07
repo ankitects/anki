@@ -6,11 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "./contextKeys";
 
-    export let id: string;
+    export let id: string | undefined = undefined;
     let className = "";
     export { className as class };
 
-    export let tooltip: string;
+    export let tooltip: string | undefined = undefined;
 
     let buttonRef: HTMLButtonElement;
 
