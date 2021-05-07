@@ -7,11 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(rect) {
             fill: none;
             pointer-events: all;
+        }
 
-            &:hover {
-                fill: grey;
-                opacity: 0.05;
-            }
+        :global(rect:hover) {
+            fill: grey;
+            opacity: 0.05;
         }
     }
 </style>
