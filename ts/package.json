@@ -34,7 +34,7 @@
         "glob": "^7.1.6",
         "jest-cli": "^27.0.0-next.7",
         "jsdoc": "^3.6.6",
-        "license-checker-rseidelsohn": "=1.1.2",
+        "license-checker-rseidelsohn": "^1.2.2",
         "minimist": "^1.2.5",
         "prettier": "^2.1.2",
         "prettier-plugin-svelte": "^1.4.0",
