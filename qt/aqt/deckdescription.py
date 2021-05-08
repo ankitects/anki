@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import aqt
 from anki.decks import Deck
+from aqt.operations import QueryOp
 from aqt.operations.deck import update_deck
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
@@ -22,7 +23,11 @@ class DeckDescriptionDialog(QDialog):
         # set on success
         self.deck: Deck
 
-        mw.query_op(mw.col.decks.get_current, success=self._setup_and_show)
+        QueryOp(
+            parent=self.mw,
+            op=lambda col: col.decks.get_current(),
+            success=self._setup_and_show,
+        ).run_in_background()
 
     def _setup_and_show(self, deck: Deck) -> None:
         if deck.WhichOneof("kind") != "normal":

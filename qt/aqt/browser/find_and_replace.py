@@ -8,6 +8,7 @@ from typing import List, Sequence
 import aqt
 from anki.notes import NoteId
 from aqt import AnkiQt
+from aqt.operations import QueryOp
 from aqt.operations.note import find_and_replace
 from aqt.operations.tag import find_and_replace_tag
 from aqt.qt import *
@@ -40,10 +41,11 @@ class FindAndReplaceDialog(QDialog):
         self.field_names: List[str] = []
 
         # fetch field names and then show
-        mw.query_op(
-            lambda: mw.col.field_names_for_note_ids(note_ids),
+        QueryOp(
+            parent=mw,
+            op=lambda col: col.field_names_for_note_ids(note_ids),
             success=self._show,
-        )
+        ).run_in_background()
 
     def _show(self, field_names: Sequence[str]) -> None:
         # add "all fields" and "tags" to the top of the list

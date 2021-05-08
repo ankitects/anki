@@ -12,6 +12,7 @@ from anki.collection import OpChanges
 from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
+from aqt.operations import QueryOp
 from aqt.operations.deck import (
     add_deck_dialog,
     remove_decks,
@@ -284,7 +285,9 @@ class DeckBrowser:
                     parent=self.mw, deck_id=did, new_name=new_name
                 ).run_in_background()
 
-        self.mw.query_op(lambda: self.mw.col.get_deck(did), success=prompt)
+        QueryOp(
+            parent=self.mw, op=lambda col: col.get_deck(did), success=prompt
+        ).run_in_background()
 
     def _options(self, did: DeckId) -> None:
         # select the deck first, because the dyn deck conf assumes the deck
