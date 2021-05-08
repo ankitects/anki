@@ -67,6 +67,7 @@ impl OpOutput<UndoOutput> {
             operation: self.output.undone_op.describe(tr),
             reverted_to_timestamp: self.output.reverted_to.0,
             new_status: Some(self.output.new_undo_status.into_protobuf(tr)),
+            counter: self.output.counter as u32,
         }
     }
 }

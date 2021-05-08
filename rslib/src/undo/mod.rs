@@ -61,6 +61,7 @@ pub struct UndoOutput {
     pub undone_op: Op,
     pub reverted_to: TimestampSecs,
     pub new_undo_status: UndoStatus,
+    pub counter: usize,
 }
 
 #[derive(Debug, Default)]
@@ -285,6 +286,7 @@ impl Collection {
         let undone_op = step.kind;
         let reverted_to = step.timestamp;
         let changes = step.changes;
+        let counter = step.counter;
         self.state.undo.mode = mode;
         let res = self.transact(undone_op.clone(), |col| {
             for change in changes.into_iter().rev() {
@@ -294,6 +296,7 @@ impl Collection {
                 undone_op,
                 reverted_to,
                 new_undo_status: col.undo_status(),
+                counter,
             })
         });
         self.state.undo.mode = UndoMode::NormalOp;
