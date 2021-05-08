@@ -78,7 +78,7 @@ def compile_svelte(name, srcs, deps = [], visibility = ["//visibility:private"])
         visibility = visibility,
     )
 
-def svelte_check(name = "svelte_check", srcs = []):
+def svelte_check(name = "svelte_check", srcs = [], target_compatible_with = []):
     _svelte_check(
         name = name,
         args = [
@@ -95,4 +95,5 @@ def svelte_check(name = "svelte_check", srcs = []):
             "@npm//sass",
         ] + srcs,
         env = {"SASS_PATH": "$(rootpath //ts:tsconfig.json)/../.."},
+        target_compatible_with = target_compatible_with,
     )
