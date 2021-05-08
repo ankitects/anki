@@ -1562,6 +1562,7 @@ message OpChangesAfterUndo {
   string operation = 2;
   int64 reverted_to_timestamp = 3;
   UndoStatus new_status = 4;
+  uint32 counter = 5;
 }
 
 message DefaultsForAddingIn {

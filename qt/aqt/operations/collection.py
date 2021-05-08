@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from anki.collection import LegacyCheckpoint, LegacyReviewUndo
+from anki.collection import LegacyCheckpoint, LegacyReviewUndo, OpChangesAfterUndo
 from anki.errors import UndoEmpty
 from anki.types import assert_exhaustive
 from aqt import gui_hooks
@@ -15,6 +15,10 @@ from aqt.utils import showInfo, showWarning, tooltip, tr
 def undo(*, parent: QWidget) -> None:
     "Undo the last operation, and refresh the UI."
 
+    def on_success(out: OpChangesAfterUndo) -> None:
+        gui_hooks.state_did_undo(out)
+        tooltip(tr.undo_action_undone(action=out.operation), parent=parent)
+
     def on_failure(exc: Exception) -> None:
         if isinstance(exc, UndoEmpty):
             # backend has no undo, but there may be a checkpoint
@@ -23,9 +27,9 @@ def undo(*, parent: QWidget) -> None:
         else:
             showWarning(str(exc), parent=parent)
 
-    CollectionOp(parent, lambda col: col.undo()).success(
-        lambda out: tooltip(tr.undo_action_undone(action=out.operation), parent=parent)
-    ).failure(on_failure).run_in_background()
+    CollectionOp(parent, lambda col: col.undo()).success(on_success).failure(
+        on_failure
+    ).run_in_background()
 
 
 def _legacy_undo(*, parent: QWidget) -> None:

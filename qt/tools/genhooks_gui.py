@@ -27,6 +27,7 @@ from anki.cards import Card
 from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
 from anki.models import NotetypeDict
+from anki.collection import OpChangesAfterUndo
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
 """
@@ -475,7 +476,12 @@ hooks = [
         name="state_did_revert",
         args=["action: str"],
         legacy_hook="revertedState",
-        doc="Called when user used the undo option to restore to an earlier database state.",
+        doc="Legacy hook, called after undoing.",
+    ),
+    Hook(
+        name="state_did_undo",
+        args=["changes: OpChangesAfterUndo"],
+        doc="Called after backend undoes a change.",
     ),
     Hook(
         name="state_did_reset",
