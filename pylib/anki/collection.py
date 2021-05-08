@@ -608,7 +608,7 @@ class Collection:
         return self._backend.field_names_for_notes(nids)
 
     # returns array of ("dupestr", [nids])
-    def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
+    def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[str, list]]:
         nids = self.find_notes(
             self.build_search_string(search, SearchNode(field_name=fieldName))
         )
