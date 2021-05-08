@@ -36,8 +36,6 @@ from .table import (
 )
 
 # aliases for legacy pathnames
-sys.modules["aqt.find_and_replace"] = sys.modules["aqt.browser.dialogs"]
-aqt.find_and_replace = sys.modules["aqt.browser.dialogs"]  # type: ignore
 sys.modules["aqt.sidebar"] = sys.modules["aqt.browser.sidebar"]
 aqt.sidebar = sys.modules["aqt.browser.sidebar"]  # type: ignore
 sys.modules["aqt.previewer"] = sys.modules["aqt.browser.previewer"]
