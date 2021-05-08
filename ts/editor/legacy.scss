@@ -1,0 +1,13 @@
+@use "ts/sass/button_mixins" as button;
+
+.linkb {
+    display: inline-block;
+    @include button.btn-border-radius;
+}
+
+.topbut {
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(var(--toolbar-size) - 12px);
+    height: calc(var(--toolbar-size) - 12px);
+}

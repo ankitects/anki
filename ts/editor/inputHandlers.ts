@@ -1,7 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { updateActiveButtons } from "editor-toolbar";
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
+import { updateActiveButtons } from "./toolbar";
 import { EditingArea } from "./editingArea";
 import { caretToEnd, nodeIsElement, getBlockElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
@@ -10,7 +14,7 @@ import { registerShortcut } from "lib/shortcuts";
 export function onInput(event: Event): void {
     // make sure IME changes get saved
     triggerChangeTimer(event.currentTarget as EditingArea);
-    updateActiveButtons();
+    updateActiveButtons(event);
 }
 
 export function onKey(evt: KeyboardEvent): void {
@@ -56,7 +60,7 @@ function updateFocus(evt: FocusEvent) {
     const newFocusTarget = evt.target;
     if (newFocusTarget instanceof EditingArea) {
         caretToEnd(newFocusTarget);
-        updateActiveButtons();
+        updateActiveButtons(evt);
     }
 }
 

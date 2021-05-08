@@ -1,0 +1,77 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("//ts:esbuild.bzl", "esbuild")
+
+svelte_files = glob(["*.svelte"])
+
+svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+filegroup(
+    name = "svelte_components",
+    srcs = svelte_names,
+    visibility = ["//visibility:public"],
+)
+
+compile_svelte(
+    name = "svelte",
+    srcs = svelte_files,
+    deps = [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+ts_library(
+    name = "components",
+    module_name = "components",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.test.ts"],
+    ),
+    tsconfig = "//ts:tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "//ts/sveltelib",
+        "@npm//@popperjs/core",
+        "@npm//@types/bootstrap",
+        "@npm//bootstrap",
+        "@npm//svelte",
+    ] + svelte_names,
+)
+
+# Tests
+################
+
+prettier_test(
+    name = "format_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]),
+)
+
+eslint_test(
+    name = "eslint",
+    srcs = glob(
+        [
+            "*.ts",
+        ],
+    ),
+)
+
+svelte_check(
+    name = "svelte_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]) + [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
+        "@npm//@types/bootstrap",
+    ],
+)

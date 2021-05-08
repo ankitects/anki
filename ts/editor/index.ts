@@ -1,8 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
 import { filterHTML } from "html-filter";
-import { updateActiveButtons, disableButtons } from "editor-toolbar";
+import { updateActiveButtons, disableButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
@@ -19,8 +23,7 @@ import { initToolbar } from "./toolbar";
 export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
-
-export * from "./addons";
+export { editorToolbar } from "./toolbar";
 
 declare global {
     interface Selection {
@@ -48,14 +51,14 @@ export function focusField(n: number): void {
     if (field) {
         field.editingArea.focusEditable();
         caretToEnd(field.editingArea);
-        updateActiveButtons();
+        updateActiveButtons(new Event("manualfocus"));
     }
 }
 
 export function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
     for (let i = 0; i < elements.length; i++) {
-        let elem = elements[i] as EditingArea;
+        const elem = elements[i] as EditingArea;
         if (elem instanceof EditingArea) {
             elem.focusEditable();
             return true;
@@ -159,14 +162,23 @@ export function setSticky(stickies: boolean[]): void {
     });
 }
 
-export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
+export function setFormat(cmd: string, arg?: string, nosave = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
-        updateActiveButtons();
+        updateActiveButtons(new Event(cmd));
     }
 }
 
-const i18n = setupI18n({ modules: [ModuleName.EDITING, ModuleName.KEYBOARD] });
+const i18n = setupI18n({
+    modules: [
+        ModuleName.EDITING,
+        ModuleName.KEYBOARD,
+        ModuleName.ACTIONS,
+        ModuleName.BROWSING,
+    ],
+});
 
-export const $editorToolbar = initToolbar(i18n);
+import type EditorToolbar from "./EditorToolbar.svelte";
+
+export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);

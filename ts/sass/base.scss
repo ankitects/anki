@@ -9,6 +9,15 @@ $link-hover-decoration: none;
 @import "ts/sass/bootstrap/bootstrap-reboot";
 @import "ts/sass/bootstrap/bootstrap-utilities";
 
+/* Bootstrap "extensions" */
+.flex-basis-100 {
+    flex-basis: 100%;
+}
+
+.flex-basis-75 {
+    flex-basis: 75%;
+}
+
 body,
 html {
     overscroll-behavior: none;

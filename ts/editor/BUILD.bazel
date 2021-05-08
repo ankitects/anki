@@ -1,9 +1,29 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
+
+svelte_files = glob(["*.svelte"])
+
+svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+filegroup(
+    name = "svelte_components",
+    srcs = svelte_names,
+    visibility = ["//visibility:public"],
+)
+
+compile_svelte(
+    name = "svelte",
+    srcs = svelte_files,
+    deps = [
+        "//ts/components",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 compile_sass(
     srcs = [
@@ -30,18 +50,31 @@ compile_sass(
     ],
 )
 
+compile_sass(
+    srcs = [
+        "bootstrap.scss",
+        "legacy.scss",
+    ],
+    group = "local_css",
+    deps = [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 ts_library(
     name = "editor_ts",
     srcs = glob(["*.ts"]),
     tsconfig = "//ts:tsconfig.json",
     deps = [
-        "//ts:image_module_support",
         "//ts/lib",
         "//ts/sveltelib",
+        "//ts/components",
         "//ts/html-filter",
-        "//ts/editor-toolbar",
+        "//ts:image_module_support",
         "@npm//svelte",
-    ],
+    ] + svelte_names,
 )
 
 copy_bootstrap_icons(
@@ -106,8 +139,10 @@ esbuild(
         "bootstrap-icons",
         "mdi-icons",
         "editor_ts",
-        "//ts/editor-toolbar:local_css",
-        "//ts/editor-toolbar:svelte_components",
+        "local_css",
+        "svelte_components",
+        "//ts/components",
+        "//ts/components:svelte_components",
     ],
 )
 
@@ -121,11 +156,24 @@ prettier_test(
     ]),
 )
 
-# eslint_test(
-#     name = "eslint",
-#     srcs = glob(
-#         [
-#             "*.ts",
-#         ],
-#     ),
-# )
+eslint_test(
+    name = "eslint",
+    srcs = glob(
+        [
+            "*.ts",
+        ],
+    ),
+)
+
+svelte_check(
+    name = "svelte_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]) + [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
+        "//ts/components:svelte_components",
+        "@npm//@types/bootstrap",
+    ],
+)
