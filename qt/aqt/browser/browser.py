@@ -3,8 +3,7 @@
 
 from __future__ import annotations
 
-import html
-from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, Optional, Sequence, Tuple, Union
 
 import aqt
 import aqt.forms
@@ -18,19 +17,13 @@ from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
-from aqt.browser.dialogs import (
-    CardInfoDialog,
-    ChangeModel,
-    FindAndReplaceDialog,
-    FindDupesDialog,
-)
+from aqt.browser.dialogs import CardInfoDialog, ChangeModel, FindAndReplaceDialog
 from aqt.browser.previewer import BrowserPreviewer as PreviewDialog
 from aqt.browser.previewer import Previewer
 from aqt.browser.sidebar import SidebarTreeView
 from aqt.browser.table import Table
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
-from aqt.main import ResetReason
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import undo
 from aqt.operations.note import remove_notes
@@ -52,26 +45,20 @@ from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
     current_top_level_widget,
-    disable_help_button,
     ensure_editor_saved,
     getTag,
     no_arg_trigger,
     openHelp,
     qtMenuShortcutWorkaround,
-    restore_combo_history,
-    restore_combo_index_for_session,
     restoreGeom,
     restoreSplitter,
     restoreState,
-    save_combo_history,
-    save_combo_index_for_session,
     saveGeom,
     saveSplitter,
     saveState,
     showInfo,
     showWarning,
     skip_if_selection_is_empty,
-    tooltip,
     tr,
 )
 from aqt.webview import AnkiWebView
@@ -864,107 +851,9 @@ where id in %s"""
     @no_arg_trigger
     @ensure_editor_saved
     def onFindDupes(self) -> None:
-        import anki.find
+        from aqt.browser.find_duplicates import FindDuplicatesDialog
 
-        d = QDialog(self)
-        self.mw.garbage_collect_on_dialog_finish(d)
-        frm = aqt.forms.finddupes.Ui_Dialog()
-        frm.setupUi(d)
-        restoreGeom(d, "findDupes")
-        disable_help_button(d)
-        searchHistory = restore_combo_history(frm.search, "findDupesFind")
-
-        fields = sorted(
-            anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
-        )
-        frm.fields.addItems(fields)
-        restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
-        self._dupesButton: Optional[QPushButton] = None
-
-        # links
-        frm.webView.set_title("find duplicates")
-        web_context = FindDupesDialog(dialog=d, browser=self)
-        frm.webView.set_bridge_command(self.dupeLinkClicked, web_context)
-        frm.webView.stdHtml("", context=web_context)
-
-        def onFin(code: Any) -> None:
-            saveGeom(d, "findDupes")
-
-        qconnect(d.finished, onFin)
-
-        def onClick() -> None:
-            search_text = save_combo_history(frm.search, searchHistory, "findDupesFind")
-            save_combo_index_for_session(frm.fields, "findDupesFields")
-            field = fields[frm.fields.currentIndex()]
-            self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
-
-        search = frm.buttonBox.addButton(
-            tr.actions_search(), QDialogButtonBox.ActionRole
-        )
-        qconnect(search.clicked, onClick)
-        d.show()
-
-    def duplicatesReport(
-        self,
-        web: AnkiWebView,
-        fname: str,
-        search: str,
-        frm: aqt.forms.finddupes.Ui_Dialog,
-        web_context: FindDupesDialog,
-    ) -> None:
-        self.mw.progress.start()
-        try:
-            res = self.mw.col.findDupes(fname, search)
-        except Exception as e:
-            self.mw.progress.finish()
-            showWarning(str(e))
-            return
-        if not self._dupesButton:
-            self._dupesButton = b = frm.buttonBox.addButton(
-                tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
-            )
-            qconnect(b.clicked, lambda: self._onTagDupes(res))
-        t = ""
-        groups = len(res)
-        notes = sum(len(r[1]) for r in res)
-        part1 = tr.browsing_group(count=groups)
-        part2 = tr.browsing_note_count(count=notes)
-        t += tr.browsing_found_as_across_bs(part=part1, whole=part2)
-        t += "<p><ol>"
-        for val, nids in res:
-            t += (
-                """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
-                % (
-                    html.escape(
-                        self.col.build_search_string(
-                            SearchNode(nids=SearchNode.IdList(ids=nids))
-                        )
-                    ),
-                    tr.browsing_note_count(count=len(nids)),
-                    html.escape(val),
-                )
-            )
-        t += "</ol>"
-        web.stdHtml(t, context=web_context)
-        self.mw.progress.finish()
-
-    def _onTagDupes(self, res: List[Any]) -> None:
-        if not res:
-            return
-        self.begin_reset()
-        self.mw.checkpoint(tr.browsing_tag_duplicates())
-        nids = set()
-        for _, nidlist in res:
-            nids.update(nidlist)
-        self.col.tags.bulk_add(list(nids), tr.browsing_duplicate())
-        self.mw.progress.finish()
-        self.end_reset()
-        self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
-        tooltip(tr.browsing_notes_tagged())
-
-    def dupeLinkClicked(self, link: str) -> None:
-        self.search_for(link)
-        self.onNote()
+        FindDuplicatesDialog(browser=self, mw=self.mw)
 
     # Jumping
     ######################################################################

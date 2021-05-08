@@ -7,7 +7,7 @@ import sys
 import aqt
 
 from .browser import Browser
-from .dialogs import CardInfoDialog, ChangeModel, FindAndReplaceDialog, FindDupesDialog
+from .dialogs import CardInfoDialog, ChangeModel, FindAndReplaceDialog
 from .previewer import BrowserPreviewer, MultiCardPreviewer, Previewer
 from .sidebar import (
     SidebarItem,
