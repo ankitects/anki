@@ -176,4 +176,9 @@ svelte_check(
         "//ts/components:svelte_components",
         "@npm//@types/bootstrap",
     ],
+    target_compatible_with = select({
+        "@platforms//os:osx": [],
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//os:linux"],
+    }),
 )
