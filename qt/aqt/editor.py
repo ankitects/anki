@@ -76,18 +76,9 @@ audio = (
 )
 
 _html = """
-<style>
-:root {
-    --bg-color: %s;
-}
-</style>
-<div>
-    <div id="editorToolbar"></div>
-    <div id="fields">
-    </div>
-    <div id="dupes" class="is-inactive">
-        <a href="#" onclick="pycmd('dupes');return false;">%s</a>
-    </div>
+<div id="fields"></div>
+<div id="dupes" class="is-inactive">
+    <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
 """
 
@@ -135,10 +126,9 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
-        bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
-            _html % (bgcol, tr.editing_show_duplicates()),
+            _html % tr.editing_show_duplicates(),
             css=[
                 "css/editor.css",
             ],
@@ -155,7 +145,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.rawButton({{ html: `{button}` }}), 'notetype', -1));"
+            f"$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -165,20 +155,16 @@ class Editor:
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
 
-        righttopbtns_defs = "\n".join(
-            [
-                f"editorToolbar.rawButton({{ html: `{button}` }}),"
-                for button in righttopbtns
-            ]
-        )
+        righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
-$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.buttonGroup({{
-  id: "addons",
-  items: [ {righttopbtns_defs} ]
-}}), -1));
+$editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
+    component: editorToolbar.AddonButtons,
+    id: "addons",
+    props: {{ buttons: [ {righttopbtns_defs} ] }},
+}}));
 """
-            if righttopbtns_defs
+            if len(righttopbtns) > 0
             else ""
         )
 
@@ -1278,11 +1264,11 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.model()["type"] == MODEL_CLOZE:
         editor.web.eval(
-            '$editorToolbar.then(({ showButton }) => showButton("template", "cloze")); '
+            '$editorToolbar.then(({ templateButtons }) => templateButtons.showButton("cloze")); '
         )
     else:
         editor.web.eval(
-            '$editorToolbar.then(({ hideButton }) => hideButton("template", "cloze")); '
+            '$editorToolbar.then(({ templateButtons }) => templateButtons.hideButton("cloze")); '
         )
 
 

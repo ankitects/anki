@@ -7,9 +7,9 @@
         "baseUrl": ".",
         "paths": {
             "lib/*": ["../bazel-bin/ts/lib/*"],
-            "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"],
-            "html-filter/*": ["../bazel-bin/ts/html-filter/*"],
-            "editor-toolbar/*": ["../bazel-bin/ts/editor-toolbar/*"]
+            "html-filter/*": ["../bazel-bin/ts/html-filter/*"]
+            /* "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"], */
+            /* "components/*": ["../bazel-bin/ts/components/*"], */
         },
         "importsNotUsedAsValues": "error",
         "outDir": "dist",

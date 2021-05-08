@@ -68,7 +68,6 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     saveState,
-    shortcut,
     showInfo,
     showWarning,
     skip_if_selection_is_empty,
@@ -383,23 +382,11 @@ class Browser(QMainWindow):
 
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
             editor.web.eval(
-                f"""
-$editorToolbar.then(({{ addButton }}) => addButton(editorToolbar.labelButton({{
-    label: `{tr.actions_preview()}`,
-    tooltip: `{tr.browsing_preview_selected_card(val=shortcut(preview_shortcut))}`,
-    onClick: () => bridgeCommand("preview"),
-    disables: false,
-}}), "notetype", -1));
-"""
+                "$editorToolbar.then(({ notetypeButtons }) => notetypeButtons.appendButton({ component: editorToolbar.PreviewButton, id: 'preview' }));"
             )
 
-        def add_preview_shortcut(cuts: List[Tuple], editor: Editor) -> None:
-            cuts.append(("Ctrl+Shift+P", self.onTogglePreview, True))
-
         gui_hooks.editor_did_init.append(add_preview_button)
-        gui_hooks.editor_did_init_shortcuts.append(add_preview_shortcut)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
-        gui_hooks.editor_did_init_shortcuts.remove(add_preview_shortcut)
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved

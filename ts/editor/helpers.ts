@@ -110,3 +110,7 @@ const isBlockElement = (
 export const getListItem = getAnchorParent(isListItem);
 export const getParagraph = getAnchorParent(isParagraph);
 export const getBlockElement = getAnchorParent(isBlockElement);
+
+export function appendInParentheses(text: string, appendix: string): string {
+    return `${text} (${appendix})`;
+}
