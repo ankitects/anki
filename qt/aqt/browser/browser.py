@@ -13,15 +13,9 @@ from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.notes import NoteId
-from anki.stats import CardStats
 from anki.tags import MARKED_TAG
 from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
-from aqt.browser.dialogs import CardInfoDialog, ChangeModel, FindAndReplaceDialog
-from aqt.browser.previewer import BrowserPreviewer as PreviewDialog
-from aqt.browser.previewer import Previewer
-from aqt.browser.sidebar import SidebarTreeView
-from aqt.browser.table import Table
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
@@ -61,7 +55,14 @@ from aqt.utils import (
     skip_if_selection_is_empty,
     tr,
 )
-from aqt.webview import AnkiWebView
+
+from .card_info import CardInfoDialog
+from .change_notetype import ChangeModel
+from .find_and_replace import FindAndReplaceDialog
+from .previewer import BrowserPreviewer as PreviewDialog
+from .previewer import Previewer
+from .sidebar import SidebarTreeView
+from .table import Table
 
 
 class Browser(QMainWindow):
@@ -478,34 +479,7 @@ class Browser(QMainWindow):
         if not self.card:
             return
 
-        info, cs = self._cardInfoData()
-        reps = self._revlogData(cs)
-
-        card_info_dialog = CardInfoDialog(self)
-        l = QVBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        w = AnkiWebView(title="browser card info")
-        l.addWidget(w)
-        w.stdHtml(info + "<p>" + reps, context=card_info_dialog)
-        bb = QDialogButtonBox(QDialogButtonBox.Close)
-        l.addWidget(bb)
-        qconnect(bb.rejected, card_info_dialog.reject)
-        card_info_dialog.setLayout(l)
-        card_info_dialog.setWindowModality(Qt.WindowModal)
-        card_info_dialog.resize(500, 400)
-        restoreGeom(card_info_dialog, "revlog")
-        card_info_dialog.show()
-
-    def _cardInfoData(self) -> Tuple[str, CardStats]:
-        cs = CardStats(self.col, self.card)
-        rep = cs.report(include_revlog=True)
-        return rep, cs
-
-    # legacy - revlog used to be generated here, and some add-ons
-    # wrapped this function
-
-    def _revlogData(self, cs: CardStats) -> str:
-        return ""
+        CardInfoDialog(parent=self, mw=self.mw, card=self.card)
 
     # Menu helpers
     ######################################################################

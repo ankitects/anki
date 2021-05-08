@@ -7,8 +7,9 @@ import sys
 import aqt
 
 from .browser import Browser
-from .dialogs import CardInfoDialog, ChangeModel, FindAndReplaceDialog
-from .previewer import BrowserPreviewer, MultiCardPreviewer, Previewer
+
+# aliases for legacy pathnames
+from .change_notetype import ChangeModel
 from .sidebar import (
     SidebarItem,
     SidebarItemType,
@@ -35,7 +36,6 @@ from .table import (
     Table,
 )
 
-# aliases for legacy pathnames
 sys.modules["aqt.sidebar"] = sys.modules["aqt.browser.sidebar"]
 aqt.sidebar = sys.modules["aqt.browser.sidebar"]  # type: ignore
 sys.modules["aqt.previewer"] = sys.modules["aqt.browser.previewer"]
