@@ -32,7 +32,6 @@ class FieldDialog(QDialog):
         self.mm = self.mw.col.models
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
-        self.mw.checkpoint(tr.editing_fields())
         self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)

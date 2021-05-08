@@ -49,7 +49,6 @@ class Models(QDialog):
         self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
-        self.mw.checkpoint(tr.notetypes_note_types())
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         qconnect(

@@ -59,7 +59,6 @@ class CardLayout(QDialog):
         self.mobile_emulation_enabled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
-        self.mw.checkpoint(tr.card_templates_card_types())
         self.change_tracker = ChangeTracker(self.mw)
         self.setupTopArea()
         self.setupMainArea()
