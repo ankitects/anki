@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence
 
 import aqt
@@ -30,12 +29,6 @@ from aqt.utils import (
     saveGeom,
     tr,
 )
-
-
-@dataclass
-class FindDupesDialog:
-    dialog: QDialog
-    browser: aqt.browser.Browser
 
 
 class ChangeModel(QDialog):
