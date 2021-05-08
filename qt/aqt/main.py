@@ -695,47 +695,6 @@ class AnkiQt(QMainWindow):
     # Resetting state
     ##########################################################################
 
-    def query_op(
-        self,
-        op: Callable[[], T],
-        *,
-        success: Callable[[T], Any] = None,
-        failure: Optional[Callable[[Exception], Any]] = None,
-    ) -> None:
-        """Run an operation that queries the DB on a background thread.
-
-        Intended to be used for operations that do not change collection
-        state. Undo status will not be changed, and `operation_did_execute`
-        will not fire. No progress window will be shown either.
-
-        `operations_will|did_execute` will still fire, so the UI can defer
-        updates during a background task.
-        """
-
-        def wrapped_done(future: Future) -> None:
-            self._decrease_background_ops()
-            # did something go wrong?
-            if exception := future.exception():
-                if isinstance(exception, Exception):
-                    if failure:
-                        failure(exception)
-                    else:
-                        showWarning(str(exception))
-                    return
-                else:
-                    # BaseException like SystemExit; rethrow it
-                    future.result()
-
-            result = future.result()
-            if success:
-                success(result)
-
-        self._increase_background_ops()
-        self.taskman.run_in_background(op, wrapped_done)
-
-    # Resetting state
-    ##########################################################################
-
     def _increase_background_ops(self) -> None:
         if not self._background_op_count:
             gui_hooks.backend_will_block()

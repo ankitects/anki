@@ -30,6 +30,7 @@ from anki.httpclient import HttpClient
 from anki.notes import DuplicateOrEmptyResult, Note
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
+from aqt.operations import QueryOp
 from aqt.operations.note import update_note
 from aqt.qt import *
 from aqt.sound import av_player
@@ -496,7 +497,11 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
                 return
             self._update_duplicate_display(result)
 
-        self.mw.query_op(self.note.duplicate_or_empty, success=on_done)
+        QueryOp(
+            parent=self.parentWindow,
+            op=lambda _: self.note.duplicate_or_empty(),
+            success=on_done,
+        ).run_in_background()
 
     checkValid = _check_and_update_duplicate_display_async
 

@@ -11,6 +11,7 @@ from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
+from aqt.operations import QueryOp
 from aqt.operations.notetype import (
     add_notetype_legacy,
     remove_notetype,
@@ -107,10 +108,11 @@ class Models(QDialog):
         maybeHideClose(box)
 
     def refresh_list(self, *ignored_args: Any) -> None:
-        self.mw.query_op(
-            self.col.models.all_use_counts,
+        QueryOp(
+            parent=self,
+            op=lambda col: col.models.all_use_counts(),
             success=self.updateModelsList,
-        )
+        ).run_in_background()
 
     def onRename(self) -> None:
         nt = self.current_notetype()

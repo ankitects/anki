@@ -10,6 +10,7 @@ from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
 from anki.scheduler import FilteredDeckForUpdate
 from aqt import AnkiQt, colors, gui_hooks
+from aqt.operations import QueryOp
 from aqt.operations.scheduling import add_or_update_filtered_deck
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -56,11 +57,11 @@ class FilteredDeckConfigDialog(QDialog):
         # set on successful query
         self.deck: FilteredDeckForUpdate
 
-        mw.query_op(
-            lambda: mw.col.sched.get_or_create_filtered_deck(deck_id=deck_id),
+        QueryOp(
+            parent=self.mw,
+            op=lambda col: col.sched.get_or_create_filtered_deck(deck_id=deck_id),
             success=self.load_deck_and_show,
-            failure=self.on_fetch_error,
-        )
+        ).failure(self.on_fetch_error).run_in_background()
 
     def on_fetch_error(self, exc: Exception) -> None:
         showWarning(str(exc))

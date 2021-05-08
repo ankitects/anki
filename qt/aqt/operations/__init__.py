@@ -62,7 +62,7 @@ class CollectionOp(Generic[ResultWithChanges]):
     """
 
     _success: Optional[Callable[[ResultWithChanges], Any]] = None
-    _failure: Optional[Optional[Callable[[Exception], Any]]] = None
+    _failure: Optional[Callable[[Exception], Any]] = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
@@ -75,7 +75,7 @@ class CollectionOp(Generic[ResultWithChanges]):
         return self
 
     def failure(
-        self, failure: Optional[Optional[Callable[[Exception], Any]]]
+        self, failure: Optional[Callable[[Exception], Any]]
     ) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
         return self
@@ -140,3 +140,87 @@ class CollectionOp(Generic[ResultWithChanges]):
         # fire legacy hook so old code notices changes
         if mw.col.op_made_changes(changes):
             aqt.gui_hooks.state_did_reset()
+
+
+T = TypeVar("T")
+
+
+class QueryOp(Generic[T]):
+    """Helper to perform a non-mutating DB query on a background thread.
+
+    - Optionally shows progress popup for the duration of the op.
+    - Ensures the browser doesn't try to redraw during the operation, which can lead
+    to a frozen UI
+
+    Be careful not to call any UI routines in `op`, as that may crash Qt.
+    This includes things select .selectedCards() in the browse screen.
+
+    `success` will be called with the return value of op().
+
+    If op() throws an exception, it will be shown in a popup, or
+    passed to `failure` if it is provided.
+    """
+
+    _failure: Optional[Callable[[Exception], Any]] = None
+    _progress: Union[bool, str] = False
+
+    def __init__(
+        self,
+        *,
+        parent: QWidget,
+        op: Callable[[Collection], T],
+        success: Callable[[T], Any],
+    ):
+        self._parent = parent
+        self._op = op
+        self._success = success
+
+    def failure(self, failure: Optional[Callable[[Exception], Any]]) -> QueryOp[T]:
+        self._failure = failure
+        return self
+
+    def with_progress(self, label: Optional[str] = None) -> QueryOp[T]:
+        self._progress = label or True
+        return self
+
+    def run_in_background(self) -> None:
+        from aqt import mw
+
+        assert mw
+
+        mw._increase_background_ops()
+
+        def wrapped_op() -> T:
+            assert mw
+            if self._progress:
+                label: Optional[str]
+                if isinstance(self._progress, str):
+                    label = self._progress
+                else:
+                    label = None
+                mw.progress.start(label=label)
+            return self._op(mw.col)
+
+        def wrapped_done(future: Future) -> None:
+            assert mw
+            mw._decrease_background_ops()
+            # did something go wrong?
+            if exception := future.exception():
+                if isinstance(exception, Exception):
+                    if self._failure:
+                        self._failure(exception)
+                    else:
+                        showWarning(str(exception), self._parent)
+                    return
+                else:
+                    # BaseException like SystemExit; rethrow it
+                    future.result()
+
+            result = future.result()
+            try:
+                self._success(result)
+            finally:
+                if self._progress:
+                    mw.progress.finish()
+
+        mw.taskman.run_in_background(wrapped_op, wrapped_done)

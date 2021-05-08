@@ -20,6 +20,7 @@ from aqt.browser.sidebar.searchbar import SidebarSearchBar
 from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
 from aqt.models import Models
+from aqt.operations import QueryOp
 from aqt.operations.deck import (
     remove_decks,
     rename_deck,
@@ -163,7 +164,9 @@ class SidebarTreeView(QTreeView):
             # needs to be set after changing model
             qconnect(self.selectionModel().selectionChanged, self._on_selection_changed)
 
-        self.mw.query_op(self._root_tree, success=on_done)
+        QueryOp(
+            parent=self.browser, op=lambda _: self._root_tree(), success=on_done
+        ).run_in_background()
 
     def restore_current(self, current: SidebarItem) -> None:
         if current := self.find_item(current.has_same_id):
@@ -892,7 +895,11 @@ class SidebarTreeView(QTreeView):
                 new_name=full_name,
             ).run_in_background()
 
-        self.mw.query_op(lambda: self.mw.col.get_deck(deck_id), success=after_fetch)
+        QueryOp(
+            parent=self.browser,
+            op=lambda col: col.get_deck(deck_id),
+            success=after_fetch,
+        ).run_in_background()
 
     def delete_decks(self, _item: SidebarItem) -> None:
         remove_decks(parent=self, deck_ids=self._selected_decks()).run_in_background()
