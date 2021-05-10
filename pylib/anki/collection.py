@@ -169,6 +169,8 @@ class Collection:
 
     def set_2021_test_scheduler_enabled(self, enabled: bool) -> None:
         if self.is_2021_test_scheduler_enabled() != enabled:
+            if enabled and self.schedVer() != 2:
+                raise Exception("must upgrade to v2 scheduler first")
             self.set_config_bool(Config.Bool.SCHED_2021, enabled)
             self._loadScheduler()
 
