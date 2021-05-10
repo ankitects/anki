@@ -267,7 +267,6 @@ impl Collection {
         let timing = updater.timing;
         let mut card = updater.into_card();
         self.update_card_inner(&mut card, original, usn)?;
-        println!("fixme: add_leech calls update_note_tags() which creates a transaction");
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
         }
@@ -371,7 +370,8 @@ impl Collection {
     }
 
     fn add_leech_tag(&mut self, nid: NoteId) -> Result<()> {
-        self.update_note_tags(nid, |tags| tags.push("leech".into()))
+        self.add_tags_to_notes_inner(&[nid], "leech")?;
+        Ok(())
     }
 }
 
