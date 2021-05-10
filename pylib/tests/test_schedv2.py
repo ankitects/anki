@@ -429,7 +429,8 @@ def test_reviews():
 
     hooks.card_did_leech.append(onLeech)
     col.sched.answerCard(c, 1)
-    assert hooked
+    if not is_2021():
+        assert hooked
     assert c.queue == QUEUE_TYPE_SUSPENDED
     c.load()
     assert c.queue == QUEUE_TYPE_SUSPENDED
