@@ -18,7 +18,12 @@ from hookslib import Hook, write_file
 ######################################################################
 
 hooks = [
-    Hook(name="card_did_leech", args=["card: Card"], legacy_hook="leech"),
+    Hook(
+        name="card_did_leech",
+        args=["card: Card"],
+        legacy_hook="leech",
+        doc="Called by v1/v2 scheduler when a card is marked as a leech.",
+    ),
     Hook(name="card_odue_was_invalid"),
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(

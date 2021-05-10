@@ -14,7 +14,6 @@ from __future__ import annotations
 from typing import Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
-from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.scheduler.base import CongratsInfo
@@ -23,6 +22,7 @@ from anki.types import assert_exhaustive
 from anki.utils import intTime
 
 QueuedCards = _pb.GetQueuedCardsOut.QueuedCards
+SchedulingState = _pb.SchedulingState
 
 
 class Scheduler(SchedulerBaseWithLegacy):
@@ -101,9 +101,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
 
-        new_state = self._answerCard(card, ease)
-
-        self._handle_leech(card, new_state)
+        self._answerCard(card, ease)
 
         self.reps += 1
 
@@ -138,19 +136,9 @@ class Scheduler(SchedulerBaseWithLegacy):
 
         return new_state
 
-    def _handle_leech(self, card: Card, new_state: _pb.SchedulingState) -> bool:
-        "True if was leech."
-        if self.col._backend.state_is_leech(new_state):
-            if hooks.card_did_leech.count() > 0:
-                hooks.card_did_leech(card)
-                # leech hooks assumed that card mutations would be saved for them
-                card.mod = intTime()
-                card.usn = self.col.usn()
-                card.flush()
-
-            return True
-        else:
-            return False
+    def state_is_leech(self, new_state: SchedulingState) -> bool:
+        "True if new state marks the card as a leech."
+        return self.col._backend.state_is_leech(new_state)
 
     # Next times
     ##########################################################################
