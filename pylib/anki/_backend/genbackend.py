@@ -34,7 +34,12 @@ LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
 # messages we don't want to unroll in codegen
-SKIP_UNROLL_INPUT = {"TranslateString", "SetPreferences", "UpdateDeckConfigs"}
+SKIP_UNROLL_INPUT = {
+    "TranslateString",
+    "SetPreferences",
+    "UpdateDeckConfigs",
+    "AnswerCard",
+}
 SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
 SKIP_DECODE = {"Graphs", "GetGraphPreferences"}

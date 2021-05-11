@@ -28,6 +28,7 @@ from anki.sound import AVTag
 
 # types
 CardId = NewType("CardId", int)
+BackendCard = _pb.Card
 
 
 class Card:
@@ -43,7 +44,10 @@ class Card:
     type: CardType
 
     def __init__(
-        self, col: anki.collection.Collection, id: Optional[CardId] = None
+        self,
+        col: anki.collection.Collection,
+        id: Optional[CardId] = None,
+        backend_card: Optional[BackendCard] = None,
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None
@@ -52,6 +56,8 @@ class Card:
             # existing card
             self.id = id
             self.load()
+        elif backend_card:
+            self._load_from_backend_card(backend_card)
         else:
             # new card with defaults
             self._load_from_backend_card(_pb.Card())

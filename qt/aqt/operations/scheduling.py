@@ -9,6 +9,7 @@ import aqt
 from anki.cards import CardId
 from anki.collection import (
     CARD_TYPE_NEW,
+    Collection,
     Config,
     OpChanges,
     OpChangesWithCount,
@@ -17,6 +18,8 @@ from anki.collection import (
 from anki.decks import DeckId
 from anki.notes import NoteId
 from anki.scheduler import FilteredDeckForUpdate, UnburyDeck
+from anki.scheduler.v3 import CardAnswer
+from anki.scheduler.v3 import Scheduler as V3Scheduler
 from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import disable_help_button, getText, tooltip, tr
@@ -207,3 +210,15 @@ def unbury_deck(
     return CollectionOp(
         parent, lambda col: col.sched.unbury_deck(deck_id=deck_id, mode=mode)
     )
+
+
+def answer_card(
+    *,
+    parent: QWidget,
+    answer: CardAnswer,
+) -> CollectionOp[OpChanges]:
+    def answer_v3(col: Collection) -> OpChanges:
+        assert isinstance(col.sched, V3Scheduler)
+        return col.sched.answer_card(answer)
+
+    return CollectionOp(parent, answer_v3)

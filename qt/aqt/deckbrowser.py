@@ -81,7 +81,7 @@ class DeckBrowser:
     def op_executed(
         self, changes: OpChanges, handler: Optional[object], focused: bool
     ) -> bool:
-        if changes.study_queues and handler is not self:
+        if changes.reviewer and handler is not self:
             self._refresh_needed = True
 
         if focused:

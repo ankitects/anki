@@ -130,7 +130,7 @@ service SchedulingService {
   rpc GetNextCardStates(CardId) returns (NextCardStates);
   rpc DescribeNextStates(NextCardStates) returns (StringList);
   rpc StateIsLeech(SchedulingState) returns (Bool);
-  rpc AnswerCard(AnswerCardIn) returns (OpChanges);
+  rpc AnswerCard(CardAnswer) returns (OpChanges);
   rpc UpgradeScheduler(Empty) returns (Empty);
   rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
 }
@@ -1489,7 +1489,7 @@ message NextCardStates {
   SchedulingState easy = 5;
 }
 
-message AnswerCardIn {
+message CardAnswer {
   enum Rating {
     AGAIN = 0;
     HARD = 1;
@@ -1510,26 +1510,25 @@ message GetQueuedCardsIn {
   bool intraday_learning_only = 2;
 }
 
-message GetQueuedCardsOut {
+message QueuedCards {
   enum Queue {
-    New = 0;
-    Learning = 1;
-    Review = 2;
+    NEW = 0;
+    LEARNING = 1;
+    REVIEW = 2;
   }
-
   message QueuedCard {
     Card card = 1;
     Queue queue = 2;
     NextCardStates next_states = 3;
   }
 
-  message QueuedCards {
-    repeated QueuedCard cards = 1;
-    uint32 new_count = 2;
-    uint32 learning_count = 3;
-    uint32 review_count = 4;
-  }
+  repeated QueuedCard cards = 1;
+  uint32 new_count = 2;
+  uint32 learning_count = 3;
+  uint32 review_count = 4;
+}
 
+message GetQueuedCardsOut {
   oneof value {
     QueuedCards queued_cards = 1;
     CongratsInfoOut congrats_info = 2;
@@ -1548,7 +1547,7 @@ message OpChanges {
   bool browser_table = 7;
   bool browser_sidebar = 8;
   bool editor = 9;
-  bool study_queues = 10;
+  bool reviewer = 10;
 }
 
 message UndoStatus {

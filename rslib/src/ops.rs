@@ -150,7 +150,19 @@ impl OpChanges {
         c.note || c.notetype
     }
 
-    pub fn requires_study_queue_rebuild(&self) -> bool {
+    pub fn requires_reviewer_redraw(&self) -> bool {
+        let c = &self.changes;
+        c.card
+            || (c.deck && self.op != Op::ExpandCollapse)
+            || (c.config && matches!(self.op, Op::SetCurrentDeck))
+            || c.deck_config
+            || c.note
+            || c.notetype
+    }
+
+    /// Internal; allows us to avoid rebuilding queues after AnswerCard,
+    /// and a few other ops as an optimization.
+    pub(crate) fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
         if self.op == Op::AnswerCard {
             return false;

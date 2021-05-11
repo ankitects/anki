@@ -12,6 +12,8 @@ ignored-classes=
   Config,
   OpChanges,
   UnburyDeckIn,
+  CardAnswer,
+  QueuedCards,
 
 [REPORTS]
 output-format=colorized

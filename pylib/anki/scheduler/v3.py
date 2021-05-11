@@ -11,18 +11,21 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Literal, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
-from anki.cards import Card
+from anki.cards import Card, CardId
+from anki.collection import OpChanges
 from anki.consts import *
 from anki.scheduler.base import CongratsInfo
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.types import assert_exhaustive
 from anki.utils import intTime
 
-QueuedCards = _pb.GetQueuedCardsOut.QueuedCards
+QueuedCards = _pb.QueuedCards
 SchedulingState = _pb.SchedulingState
+NextStates = _pb.NextCardStates
+CardAnswer = _pb.CardAnswer
 
 
 class Scheduler(SchedulerBaseWithLegacy):
@@ -34,16 +37,13 @@ class Scheduler(SchedulerBaseWithLegacy):
     # Fetching the next card
     ##########################################################################
 
-    def reset(self) -> None:
-        # backend automatically resets queues as operations are performed
-        pass
-
     def get_queued_cards(
         self,
         *,
         fetch_limit: int = 1,
         intraday_learning_only: bool = False,
     ) -> Union[QueuedCards, CongratsInfo]:
+        "Returns one or more card ids, or the congratulations screen info."
         info = self.col._backend.get_queued_cards(
             fetch_limit=fetch_limit, intraday_learning_only=intraday_learning_only
         )
@@ -55,6 +55,57 @@ class Scheduler(SchedulerBaseWithLegacy):
         else:
             assert_exhaustive(kind)
             assert False
+
+    def next_states(self, card_id: CardId) -> NextStates:
+        "New states corresponding to each answer button press."
+        return self.col._backend.get_next_card_states(card_id)
+
+    def describe_next_states(self, next_states: NextStates) -> Sequence[str]:
+        "Labels for each of the answer buttons."
+        return self.col._backend.describe_next_states(next_states)
+
+    # Answering a card
+    ##########################################################################
+
+    def build_answer(
+        self, *, card: Card, states: NextStates, rating: CardAnswer.Rating.V
+    ) -> CardAnswer:
+        "Build input for answer_card()."
+        if rating == CardAnswer.AGAIN:
+            new_state = states.again
+        elif rating == CardAnswer.HARD:
+            new_state = states.hard
+        elif rating == CardAnswer.GOOD:
+            new_state = states.good
+        elif rating == CardAnswer.EASY:
+            new_state = states.easy
+        else:
+            assert False, "invalid rating"
+
+        return CardAnswer(
+            card_id=card.id,
+            current_state=states.current,
+            new_state=new_state,
+            rating=rating,
+            answered_at_millis=intTime(1000),
+            milliseconds_taken=card.timeTaken(),
+        )
+
+    def answer_card(self, input: CardAnswer) -> OpChanges:
+        "Update card to provided state, and remove it from queue."
+        self.reps += 1
+        return self.col._backend.answer_card(input=input)
+
+    def state_is_leech(self, new_state: SchedulingState) -> bool:
+        "True if new state marks the card as a leech."
+        return self.col._backend.state_is_leech(new_state)
+
+    # Fetching the next card (legacy API)
+    ##########################################################################
+
+    def reset(self) -> None:
+        # backend automatically resets queues as operations are performed
+        pass
 
     def getCard(self) -> Optional[Card]:
         """Fetch the next card from the queue. None if finished."""
@@ -94,53 +145,46 @@ class Scheduler(SchedulerBaseWithLegacy):
     def reviewCount(self) -> int:
         return self.counts()[2]
 
-    # Answering a card
+    def countIdx(self, card: Card) -> int:
+        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+            return QUEUE_TYPE_LRN
+        return card.queue
+
+    def answerButtons(self, card: Card) -> int:
+        return 4
+
+    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
+        "Return the next interval for CARD as a string."
+        states = self.col._backend.get_next_card_states(card.id)
+        return self.col._backend.describe_next_states(states)[ease - 1]
+
+    # Answering a card (legacy API)
     ##########################################################################
 
-    def answerCard(self, card: Card, ease: int) -> None:
-        assert 1 <= ease <= 4
-        assert 0 <= card.queue <= 4
-
-        self._answerCard(card, ease)
-
-        self.reps += 1
-
-    def _answerCard(self, card: Card, ease: int) -> _pb.SchedulingState:
-        states = self.col._backend.get_next_card_states(card.id)
+    def answerCard(self, card: Card, ease: Literal[1, 2, 3, 4]) -> OpChanges:
         if ease == BUTTON_ONE:
-            new_state = states.again
-            rating = _pb.AnswerCardIn.AGAIN
+            rating = CardAnswer.AGAIN
         elif ease == BUTTON_TWO:
-            new_state = states.hard
-            rating = _pb.AnswerCardIn.HARD
+            rating = CardAnswer.HARD
         elif ease == BUTTON_THREE:
-            new_state = states.good
-            rating = _pb.AnswerCardIn.GOOD
+            rating = CardAnswer.GOOD
         elif ease == BUTTON_FOUR:
-            new_state = states.easy
-            rating = _pb.AnswerCardIn.EASY
+            rating = CardAnswer.EASY
         else:
             assert False, "invalid ease"
 
-        self.col._backend.answer_card(
-            card_id=card.id,
-            current_state=states.current,
-            new_state=new_state,
-            rating=rating,
-            answered_at_millis=intTime(1000),
-            milliseconds_taken=card.timeTaken(),
+        changes = self.answer_card(
+            self.build_answer(
+                card=card, states=self.next_states(card_id=card.id), rating=rating
+            )
         )
 
-        # fixme: tests assume card will be mutated, so we need to reload it
+        # tests assume card will be mutated, so we need to reload it
         card.load()
 
-        return new_state
+        return changes
 
-    def state_is_leech(self, new_state: SchedulingState) -> bool:
-        "True if new state marks the card as a leech."
-        return self.col._backend.state_is_leech(new_state)
-
-    # Next times
+    # Next times (legacy API)
     ##########################################################################
     # fixme: move these into tests_schedv2 in the future
 
@@ -195,19 +239,3 @@ class Scheduler(SchedulerBaseWithLegacy):
             assert False, "invalid ease"
 
         return self._interval_for_state(new_state)
-
-    # Review-related UI helpers
-    ##########################################################################
-
-    def countIdx(self, card: Card) -> int:
-        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            return QUEUE_TYPE_LRN
-        return card.queue
-
-    def answerButtons(self, card: Card) -> int:
-        return 4
-
-    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
-        "Return the next interval for CARD as a string."
-        states = self.col._backend.get_next_card_states(card.id)
-        return self.col._backend.describe_next_states(states)[ease - 1]
