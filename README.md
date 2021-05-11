@@ -1,4 +1,4 @@
-## CodeQuiz
+## About
 This repo contains all the code for the computer version of [AnkiCode](https://ankicode.app).
 
 ### Downloads
