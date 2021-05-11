@@ -133,7 +133,7 @@
         "path": "node_modules/bootstrap-icons",
         "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
     },
-    "bootstrap@5.0.0": {
+    "bootstrap@5.0.0-beta3": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
