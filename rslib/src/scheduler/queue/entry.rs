@@ -39,8 +39,8 @@ impl QueueEntry {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) enum QueueEntryKind {
     New,
-    Review,
     Learning,
+    Review,
 }
 
 impl From<&Card> for QueueEntry {

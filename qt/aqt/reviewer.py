@@ -8,20 +8,25 @@ import html
 import json
 import re
 import unicodedata as ucd
+from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union, cast
 
 from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
+from anki.scheduler import CongratsInfo
+from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
+from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
+    answer_card,
     bury_cards,
     bury_notes,
     set_due_date_dialog,
@@ -58,9 +63,55 @@ def replay_audio(card: Card, question_side: bool) -> None:
         av_player.play_tags(tags)
 
 
-class Reviewer:
-    "Manage reviews.  Maintains a separate state."
+@dataclass
+class V3CardInfo:
+    """2021 test scheduler info.
 
+    next_states is copied from the top card on initialization, and can be
+    mutated to alter the default scheduling.
+    """
+
+    queued_cards: QueuedCards
+    next_states: NextStates
+
+    @staticmethod
+    def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
+        return V3CardInfo(
+            queued_cards=queued_cards, next_states=queued_cards.cards[0].next_states
+        )
+
+    def top_card(self) -> QueuedCards.QueuedCard:
+        return self.queued_cards.cards[0]
+
+    def counts(self) -> Tuple[int, List[int]]:
+        "Returns (idx, counts)."
+        counts = [
+            self.queued_cards.new_count,
+            self.queued_cards.learning_count,
+            self.queued_cards.review_count,
+        ]
+        card = self.top_card()
+        if card.queue == QueuedCards.NEW:
+            idx = 0
+        elif card.queue == QueuedCards.LEARNING:
+            idx = 1
+        else:
+            idx = 2
+        return idx, counts
+
+    @staticmethod
+    def rating_from_ease(ease: int) -> CardAnswer.Rating.V:
+        if ease == 1:
+            return CardAnswer.AGAIN
+        elif ease == 2:
+            return CardAnswer.HARD
+        elif ease == 3:
+            return CardAnswer.GOOD
+        else:
+            return CardAnswer.EASY
+
+
+class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
@@ -72,6 +123,7 @@ class Reviewer:
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
         self._refresh_needed: Optional[RefreshNeeded] = None
+        self._v3: Optional[V3CardInfo] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
@@ -83,6 +135,7 @@ class Reviewer:
         self._refresh_needed = RefreshNeeded.QUEUES
         self.refresh_if_needed()
 
+    # this is only used by add-ons
     def lastCard(self) -> Optional[Card]:
         if self._answeredIds:
             if not self.card or self._answeredIds[-1] != self.card.id:
@@ -112,7 +165,7 @@ class Reviewer:
         self, changes: OpChanges, handler: Optional[object], focused: bool
     ) -> bool:
         if handler is not self:
-            if changes.study_queues:
+            if changes.reviewer:
                 self._refresh_needed = RefreshNeeded.QUEUES
             elif changes.editor:
                 self._refresh_needed = RefreshNeeded.NOTE_TEXT
@@ -133,22 +186,32 @@ class Reviewer:
     ##########################################################################
 
     def nextCard(self) -> None:
-        elapsed = self.mw.col.timeboxReached()
-        if elapsed:
-            assert not isinstance(elapsed, bool)
-            part1 = tr.studying_card_studied_in(count=elapsed[1])
-            mins = int(round(elapsed[0] / 60))
-            part2 = tr.studying_minute(count=mins)
-            fin = tr.studying_finish()
-            diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
-            diag.setIcon(QMessageBox.Information)
-            if diag.run() == fin:
-                return self.mw.moveToState("deckBrowser")
-            self.mw.col.startTimebox()
+        if self.check_timebox():
+            return
+
+        self.card = None
+        self._v3 = None
+
+        if self.mw.col.sched.version < 3:
+            self._get_next_v1_v2_card()
+        else:
+            self._get_next_v3_card()
+
+        if not self.card:
+            self.mw.moveToState("overview")
+            return
+
+        if self._reps is None or self._reps % 100 == 0:
+            # we recycle the webview periodically so webkit can free memory
+            self._initWeb()
+
+        self._showQuestion()
+
+    def _get_next_v1_v2_card(self) -> None:
         if self.cardQueue:
             # undone/edited cards to show
-            c = self.cardQueue.pop()
-            c.startTimer()
+            card = self.cardQueue.pop()
+            card.startTimer()
             self.hadCardQueue = True
         else:
             if self.hadCardQueue:
@@ -156,15 +219,17 @@ class Reviewer:
                 # need to reset
                 self.mw.col.reset()
                 self.hadCardQueue = False
-            c = self.mw.col.sched.getCard()
-        self.card = c
-        if not c:
-            self.mw.moveToState("overview")
+            card = self.mw.col.sched.getCard()
+        self.card = card
+
+    def _get_next_v3_card(self) -> None:
+        assert isinstance(self.mw.col.sched, V3Scheduler)
+        output = self.mw.col.sched.get_queued_cards()
+        if isinstance(output, CongratsInfo):
             return
-        if self._reps is None or self._reps % 100 == 0:
-            # we recycle the webview periodically so webkit can free memory
-            self._initWeb()
-        self._showQuestion()
+        self._v3 = V3CardInfo.from_queue(output)
+        self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
+        self.card.startTimer()
 
     # Audio
     ##########################################################################
@@ -313,7 +378,20 @@ class Reviewer:
         )
         if not proceed:
             return
-        self.mw.col.sched.answerCard(self.card, ease)
+
+        if v3 := self._v3:
+            assert isinstance(self.mw.col.sched, V3Scheduler)
+            answer = self.mw.col.sched.build_answer(
+                card=self.card, states=v3.next_states, rating=v3.rating_from_ease(ease)
+            )
+            answer_card(parent=self.mw, answer=answer).success(
+                lambda _: self._after_answering(ease)
+            ).run_in_background(initiator=self)
+        else:
+            self.mw.col.sched.answerCard(self.card, ease)
+            self._after_answering(ease)
+
+    def _after_answering(self, ease: int) -> None:
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
@@ -648,18 +726,27 @@ time = %(time)d;
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
             return ""
-        if self.hadCardQueue:
-            # if it's come from the undo queue, don't count it separately
-            counts: List[Union[int, str]] = list(self.mw.col.sched.counts())
+
+        counts: List[Union[int, str]]
+        if v3 := self._v3:
+            idx, counts_ = v3.counts()
+            counts = cast(List[Union[int, str]], counts_)
         else:
-            counts = list(self.mw.col.sched.counts(self.card))
-        idx = self.mw.col.sched.countIdx(self.card)
+            # v1/v2 scheduler
+            if self.hadCardQueue:
+                # if it's come from the undo queue, don't count it separately
+                counts = list(self.mw.col.sched.counts())
+            else:
+                counts = list(self.mw.col.sched.counts(self.card))
+            idx = self.mw.col.sched.countIdx(self.card)
+
         counts[idx] = f"<u>{counts[idx]}</u>"
-        space = " + "
-        ctxt = f"<span class=new-count>{counts[0]}</span>"
-        ctxt += f"{space}<span class=learn-count>{counts[1]}</span>"
-        ctxt += f"{space}<span class=review-count>{counts[2]}</span>"
-        return ctxt
+
+        return f"""
+<span class=new-count>{counts[0]}</span> +
+<span class=learn-count>{counts[1]}</span> +
+<span class=review-count>{counts[2]}</span>
+"""
 
     def _defaultEase(self) -> int:
         if self.mw.col.sched.answerButtons(self.card) == 4:
@@ -695,12 +782,18 @@ time = %(time)d;
     def _answerButtons(self) -> str:
         default = self._defaultEase()
 
+        if v3 := self._v3:
+            assert isinstance(self.mw.col.sched, V3Scheduler)
+            labels = self.mw.col.sched.describe_next_states(v3.next_states)
+        else:
+            labels = None
+
         def but(i: int, label: str) -> str:
             if i == default:
                 extra = """id="defease" class="focus" """
             else:
                 extra = ""
-            due = self._buttonTime(i)
+            due = self._buttonTime(i, v3_labels=labels)
             return """
 <td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s</button></td>""" % (
@@ -718,10 +811,13 @@ time = %(time)d;
         buf += "</tr></table>"
         return buf
 
-    def _buttonTime(self, i: int) -> str:
+    def _buttonTime(self, i: int, v3_labels: Optional[Sequence[str]] = None) -> str:
         if not self.mw.col.conf["estTimes"]:
             return "<div class=spacer></div>"
-        txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
+        if v3_labels:
+            txt = v3_labels[i - 1]
+        else:
+            txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
         return f"<span class=nobold>{txt}</span><br>"
 
     # Leeches
@@ -733,6 +829,26 @@ time = %(time)d;
         if card.queue < 0:
             s += f" {tr.studying_it_has_been_suspended()}"
         tooltip(s)
+
+    # Timebox
+    ##########################################################################
+
+    def check_timebox(self) -> bool:
+        "True if answering should be aborted."
+        elapsed = self.mw.col.timeboxReached()
+        if elapsed:
+            assert not isinstance(elapsed, bool)
+            part1 = tr.studying_card_studied_in(count=elapsed[1])
+            mins = int(round(elapsed[0] / 60))
+            part2 = tr.studying_minute(count=mins)
+            fin = tr.studying_finish()
+            diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
+            diag.setIcon(QMessageBox.Information)
+            if diag.run() == fin:
+                self.mw.moveToState("deckBrowser")
+                return True
+            self.mw.col.startTimebox()
+        return False
 
     # Context menu
     ##########################################################################

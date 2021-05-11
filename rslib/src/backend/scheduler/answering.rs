@@ -10,8 +10,8 @@ use crate::{
     },
 };
 
-impl From<pb::AnswerCardIn> for CardAnswer {
-    fn from(answer: pb::AnswerCardIn) -> Self {
+impl From<pb::CardAnswer> for CardAnswer {
+    fn from(answer: pb::CardAnswer) -> Self {
         CardAnswer {
             card_id: CardId(answer.card_id),
             rating: answer.rating().into(),
@@ -23,28 +23,34 @@ impl From<pb::AnswerCardIn> for CardAnswer {
     }
 }
 
-impl From<pb::answer_card_in::Rating> for Rating {
-    fn from(rating: pb::answer_card_in::Rating) -> Self {
+impl From<pb::card_answer::Rating> for Rating {
+    fn from(rating: pb::card_answer::Rating) -> Self {
         match rating {
-            pb::answer_card_in::Rating::Again => Rating::Again,
-            pb::answer_card_in::Rating::Hard => Rating::Hard,
-            pb::answer_card_in::Rating::Good => Rating::Good,
-            pb::answer_card_in::Rating::Easy => Rating::Easy,
+            pb::card_answer::Rating::Again => Rating::Again,
+            pb::card_answer::Rating::Hard => Rating::Hard,
+            pb::card_answer::Rating::Good => Rating::Good,
+            pb::card_answer::Rating::Easy => Rating::Easy,
         }
     }
 }
 
-impl From<QueuedCard> for pb::get_queued_cards_out::QueuedCard {
+impl From<QueuedCard> for pb::queued_cards::QueuedCard {
     fn from(queued_card: QueuedCard) -> Self {
         Self {
             card: Some(queued_card.card.into()),
             next_states: Some(queued_card.next_states.into()),
-            queue: queued_card.kind as i32,
+            queue: match queued_card.kind {
+                crate::scheduler::queue::QueueEntryKind::New => pb::queued_cards::Queue::New,
+                crate::scheduler::queue::QueueEntryKind::Review => pb::queued_cards::Queue::Review,
+                crate::scheduler::queue::QueueEntryKind::Learning => {
+                    pb::queued_cards::Queue::Learning
+                }
+            } as i32,
         }
     }
 }
 
-impl From<QueuedCards> for pb::get_queued_cards_out::QueuedCards {
+impl From<QueuedCards> for pb::QueuedCards {
     fn from(queued_cards: QueuedCards) -> Self {
         Self {
             cards: queued_cards.cards.into_iter().map(Into::into).collect(),

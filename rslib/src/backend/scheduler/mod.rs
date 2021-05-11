@@ -166,7 +166,7 @@ impl SchedulingService for Backend {
         Ok(state.leeched().into())
     }
 
-    fn answer_card(&self, input: pb::AnswerCardIn) -> Result<pb::OpChanges> {
+    fn answer_card(&self, input: pb::CardAnswer) -> Result<pb::OpChanges> {
         self.with_col(|col| col.answer_card(&input.into()))
             .map(Into::into)
     }

@@ -21,7 +21,7 @@ impl From<OpChanges> for pb::OpChanges {
             browser_table: c.requires_browser_table_redraw(),
             browser_sidebar: c.requires_browser_sidebar_redraw(),
             editor: c.requires_editor_redraw(),
-            study_queues: c.requires_study_queue_rebuild(),
+            reviewer: c.requires_reviewer_redraw(),
         }
     }
 }
