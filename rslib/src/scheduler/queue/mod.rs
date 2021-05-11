@@ -25,16 +25,11 @@ use crate::{backend_proto as pb, prelude::*, timestamp::TimestampSecs};
 #[derive(Debug)]
 pub(crate) struct CardQueues {
     counts: Counts,
-
     /// Any undone items take precedence.
     undo: Vec<QueueEntry>,
-
     main: VecDeque<MainQueueEntry>,
-
     due_learning: VecDeque<LearningQueueEntry>,
-
     later_learning: BinaryHeap<Reverse<LearningQueueEntry>>,
-
     selected_deck: DeckId,
     current_day: u32,
     learn_ahead_secs: i64,
@@ -89,8 +84,8 @@ impl CardQueues {
         self.counts
     }
 
-    fn is_stale(&self, deck: DeckId, current_day: u32) -> bool {
-        self.selected_deck != deck || self.current_day != current_day
+    fn is_stale(&self, current_day: u32) -> bool {
+        self.current_day != current_day
     }
 
     fn update_after_answering_card(
@@ -164,7 +159,7 @@ impl Collection {
             .state
             .card_queues
             .as_ref()
-            .map(|q| q.is_stale(deck, timing.days_elapsed))
+            .map(|q| q.is_stale(timing.days_elapsed))
             .unwrap_or(true);
         if need_rebuild {
             self.state.card_queues = Some(self.build_queues(deck)?);
