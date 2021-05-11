@@ -7,7 +7,6 @@ This repo contains all the code for the computer version of [AnkiCode](https://a
 
 ### Docs
 For more information on building, please see [README.development](README.development).
-
 If you'd like to contribute code, please see [README.contributing](README.contributing).
 
 [![](../../workflows/Checks/badge.svg)](../../actions)
