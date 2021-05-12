@@ -10,4 +10,6 @@ For more information on building, please see [README.development](README.develop
 
 If you'd like to contribute code, please see [README.contributing](README.contributing).
 
-[![](../../workflows/Checks/badge.svg)](../../actions)
+
+### Videos
+- [AnkiCode Tutorial](https://www.youtube.com/watch?v=PBgS_lSh1Nw)
