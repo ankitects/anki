@@ -1,4 +1,4 @@
-Anki development
+AnkiCode development
 =================
 
 Packaged betas
@@ -7,11 +7,13 @@ Packaged betas
 For non-developers who want to try this development code, the easiest way is
 to use a packaged version - please see:
 
-https://betas.ankiweb.net/#/
+https://daveight.github.io/AnkiCode/
 
-You are welcome to run Anki from source instead, but it is expected that you
+You are welcome to run AnkiCode from source instead, but it is expected that you
 can sort out all dependencies and issues by yourself - we are not able to
 provide support for problems you encounter when running from source.
+
+AnkiCode is a fork of Anki. Below you will find the information on how to build it locally.
 
 Python wheels
 --------------
@@ -161,3 +163,20 @@ and automatic backups will be disabled - so please don't use this except on a te
 
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.
+
+Running AnkiCode Tests Locally
+------------------------------
+Create "testing/libs" directory in the project's root folder. Inside "libs" folder create a link to a language
+installation folder
+
+For Java it will look like this:
+    - $PROJECT_ROOT/testing/libs/jdk -> /Library/Java/JavaVirtualMachines/jdk-12.0.0.jdk
+For Python (3 version)
+    - $PROJECT_ROOT/testing/libs/python -> ~/.pyenv/versions/3.9.0
+For JS
+    - Download Windows (or MacOS) binary archive: https://nodejs.org/de/download/
+    - Extract it (or create link) to $PROJECT_ROOT/testing/libs/node
+For C++
+    - Download MinGW zip archive: https://sourceforge.net/projects/mingw-w64/
+    - Extract it (or create link) to $PROJECT_ROOT/testing/libs/cpp
+    - Copy a folder $PROJECT_ROOT/pylib/testing/framework/cpp/cpp_libs to $PROJECT_ROOT/testing/libs/cpp

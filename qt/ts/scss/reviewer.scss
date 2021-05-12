@@ -111,7 +111,10 @@ img {
     padding: 10px;
   }
 }
+.nightMode .editor {
+  border: solid 1px #555;
 
+}
 
 .hljs {
   .passed {
@@ -138,7 +141,17 @@ img {
   color: #e3342f;
 }
 
-#test-panel {
+#editor-controls {
+  position: relative;
+  top: -25px;
+  right: 0;
+  height: 30px;
+  margin-bottom: -20px;
+  box-sizing: border-box;
+}
+
+#editor-panel {
+  position: relative;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -148,24 +161,25 @@ button.disabled {
   cursor: not-allowed;
 }
 
-.inner {
+#editor-controls .inner {
   text-align: right;
-  margin-bottom: 10px;
+  margin: 0;
+  padding: 0;
 }
 
-.inner button {
+#editor-controls .inner button {
   margin: 0;
   display: inline;
   overflow: hidden;
   line-height: 18px;
 }
 
-.inner button.run {
+#editor-controls .inner button.run {
   padding-right: 18px;
   position: relative;
 }
 
-.inner button.run .icon {
+#editor-controls .inner button.run .icon {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -176,12 +190,20 @@ button.disabled {
   border-color: transparent transparent transparent #38c172;
 }
 
-.inner button.stop {
+body.nightMode #editor-controls .inner button.run .icon {
+  top: 7px;
+}
+
+body.nightMode #editor-controls .inner button.stop .icon {
+  top: 8px;
+}
+
+#editor-controls .inner button.stop {
   padding-right: 18px;
   position: relative;
 }
 
-.inner button.stop .icon {
+#editor-controls .inner button.stop .icon {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -190,11 +212,11 @@ button.disabled {
   background-color: #e3342f;
 }
 
-.inner button.run.disabled .icon {
+#editor-controls .inner button.run.disabled .icon {
   border-color: #a0a0a0;
 }
 
-.inner button.stop.disabled .icon {
+#editor-controls .inner button.stop.disabled .icon {
   background-color: #a0a0a0;
 }
 
@@ -204,13 +226,13 @@ button.disabled {
 
 #progressbar {
   width: 100%;
-  padding: 0;
   height: 5px;
   overflow: hidden;
   padding: 0 1px 0 1px;
   display: block;
   box-sizing: border-box;
 }
+
 
 #progressbar .inner-therm, #progressbar .outer-therm {
   box-sizing: border-box;
@@ -222,7 +244,7 @@ button.disabled {
 }
 
 #log {
-  height:21vh;
+  height:22vh;
   margin-top: 5px;
   padding-bottom: 0;
 }

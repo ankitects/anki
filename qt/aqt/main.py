@@ -65,6 +65,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
+from testing.framework.anki_testing_api import stop_tests
 
 install_pylib_legacy()
 
@@ -411,7 +412,7 @@ close the profile or restart Anki."""
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle(self.pm.name + " - CodeQuiz")
+        self.setWindowTitle(self.pm.name + " - AnkiCode")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -496,7 +497,7 @@ close the profile or restart Anki."""
         except Exception as e:
             if "FileTooNew" in str(e):
                 showWarning(
-                    "This profile requires a newer version of CodeQuiz to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
+                    "This profile requires a newer version of AnkiCode to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
                 )
             else:
                 showWarning(
@@ -685,6 +686,7 @@ from the profile screen."
     def _reviewCleanup(self, newState):
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
+        stop_tests()
 
     # Resetting state
     ##########################################################################
@@ -1195,7 +1197,7 @@ title="%s" %s>%s</button>""" % (
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
 
     def updateTitleBar(self) -> None:
-        self.setWindowTitle("CodeQuiz")
+        self.setWindowTitle("AnkiCode")
 
     # Auto update
     ##########################################################################

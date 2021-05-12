@@ -8,3 +8,5 @@ isort>=5.4.2
 stringcase==1.2.0
 throttle
 deepdiff
+Jinja2
+psutil

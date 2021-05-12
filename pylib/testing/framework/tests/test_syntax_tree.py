@@ -3,7 +3,7 @@ import unittest
 from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
-class GrammarTests(unittest.TestCase):
+class SyntaxTreeTests(unittest.TestCase):
 
     def test_int(self):
         tree = SyntaxTree.of(['int'])
@@ -109,4 +109,16 @@ root
       obj::SubNode
          arr::array
             int
+''')
+
+    def test_parse_grammer_double_typed_nested_objects(self):
+        tree = SyntaxTree.of(['object(object(array(int)[arr])[obj]<SubNode>)[obj1]<Node>', 'Node[obj2]'])
+        result = tree.to_string()
+        self.assertEqual(result, '''
+root
+   obj1::Node
+      obj::SubNode
+         arr::array
+            int
+   obj2::Node
 ''')

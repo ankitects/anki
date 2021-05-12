@@ -11,6 +11,7 @@ function CodeJar(editor, highlight, opt = {}) {
     const inner = document.createElement("div");
     inner.classList = editor.classList
     inner.innerHTML = editor.innerHTML
+    inner.style.boxSizing = 'border-box'
     inner.style.minHeight = opt.height || window.getComputedStyle(editor).height
     editor.style.height = opt.height;
     editor.innerHTML = ''
@@ -67,8 +68,9 @@ function CodeJar(editor, highlight, opt = {}) {
             return;
         if (event.isComposing)
             return;
-        if (prev !== toString())
+        if (prev !== toString()) {
             debounceHighlight();
+        }
         debounceRecordHistory(event);
         if (callback)
             callback(toString());

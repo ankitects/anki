@@ -46,3 +46,30 @@ body.nightMode {
         }
     }
 }
+
+body.nightMode .editor {
+    &::-webkit-scrollbar {
+        background: var(--window-bg);
+
+        &:horizontal {
+            height: 12px;
+        }
+
+        &:vertical {
+            width: 12px;
+        }
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: buttons.$fusion-button-hover-bg;
+        border-radius: 8px;
+
+        &:horizontal {
+            min-width: 50px;
+        }
+
+        &:vertical {
+            min-height: 50px;
+        }
+    }
+}

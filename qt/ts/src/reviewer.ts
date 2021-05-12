@@ -14,6 +14,7 @@ var codeans;
 var log;
 var codeansJar;
 var _updatingQA = false;
+var currlang;
 
 var qFade = 100;
 var aFade = 0;
@@ -101,7 +102,7 @@ function _initializeProgress() {
 }
 
 function _setProgress(raise) {
-    _displayProgressBar(raise, '#38c172')
+    _displayProgressBar(raise, '#38c172', '#8fddb0')
 }
 
 function _setProgressError() {
@@ -112,13 +113,18 @@ function _setProgressCancelled() {
     _displayProgressBar('100', '#fff403')
 }
 
-function _displayProgressBar(raise, bgColor) {
+function _displayProgressBar(raise, barColor, barColorAlt = null) {
+    const color = $('body').hasClass('nightMode') ? '#444' : '#dadada';
+    if (raise == 100) {
+        barColorAlt = null;
+    }
     (<any>$('#progressbar')).jQMeter({
         goal: '100',
         raised: raise,
         height: '5px',
-        barColor: bgColor,
-        bgColor:'#dadada',
+        barColor: barColor,
+        altBarColor: barColorAlt,
+        bgColor: color,
         animationSpeed: 0,
         displayTotal: false
     });
@@ -146,9 +152,11 @@ function _initalizeCodeEditor() {
     let options = {
         tab: " ".repeat(4), // default is '\t'
         indentOn: /[(\[]$/, // default is /{$/
-        height: '63vh'
+        height: '66vh'
     };
+
     codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
+    currlang = codeans.className.split(' ').find(it => it.indexOf('language-') >= 0).replace('language-', '')
 }
 
 function _switchSkin(name) {
@@ -170,7 +178,7 @@ function _switchSkin(name) {
     }, 50)
 }
 
-function _showAnswer(a, bodyclass, isCodingQuestion) {
+function _showAnswer(a, bodyclass, isCodingQuestion, currLang) {
     _updateQA(
         a,
         aFade,
@@ -200,6 +208,7 @@ function _reloadCode(src, lang) {
         }).addClass("language-" + lang);
     })
     codeansJar.updateCode(src);
+    currlang = lang
 }
 
 function _cleanConsoleLog() {
@@ -217,17 +226,24 @@ function _initializeCodeAnswers() {
         highlight: function (str, lang) {
             if (lang && hljs.getLanguage(lang)) {
                 try {
-                    return '<pre class="hljs"><code>' +
+                    return '<pre class="hljs"><code id="' + lang + '">' +
                             hljs.highlight(lang, str, true).value +
                             '</code></pre>';
-                } catch (__) { }
+                } catch (ignore) { }
             }
-            return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+            return '<pre class="hljs"><code id="' + lang + '">' + md.utils.escapeHtml(str) + '</code></pre>';
         }
     });
     let src = _extractSolutionMarkdownSrc($qa);
     $qa.addClass('markdown-body').html(md.render(src));
-    $(window).scrollTop(0);
+    _scrollTo(currlang)
+}
+
+function _scrollTo(lang) {
+    const el = document.querySelector('.hljs #' + lang);
+    if (el) {
+        el.scrollIntoView();
+    }
 }
 
 const _flagColours = {

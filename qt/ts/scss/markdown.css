@@ -14,6 +14,14 @@
 .markdown-body .anchor:focus {
   outline: none;
 }
+.nightMode .markdown-body h1 .octicon-link,
+.nightMode .markdown-body h2 .octicon-link,
+.nightMode .markdown-body h3 .octicon-link,
+.nightMode .markdown-body h4 .octicon-link,
+.nightMode .markdown-body h5 .octicon-link,
+.nightMode .markdown-body h6 .octicon-link {
+  color: #fff;
+}
 
 .markdown-body h1 .octicon-link,
 .markdown-body h2 .octicon-link,
@@ -55,7 +63,11 @@
   content: ' ';
   display: inline-block;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' width='16' height='16' aria-hidden='true'%3E%3Cpath fill-rule='evenodd' d='M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z'%3E%3C/path%3E%3C/svg%3E");
-}.markdown-body {
+}
+.nightMode .markdown-body {
+  color: #fff;
+}
+.markdown-body {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   line-height: 1.5;
@@ -391,6 +403,16 @@
   color: #6f42c1;
 }
 
+.nightMode .markdown-body .pl-s .pl-s1,
+.nightMode .markdown-body .pl-smi {
+  color: #fff;
+}
+
+.nightMode .markdown-body .pl-s .pl-s1,
+.nightMode .markdown-body .pl-smi {
+  color: #24292e;
+}
+
 .markdown-body .pl-s .pl-s1,
 .markdown-body .pl-smi {
   color: #24292e;
@@ -454,10 +476,17 @@
 }
 
 .markdown-body .pl-mi {
+  color: #fff;
+}
+
+.markdown-body .pl-mi {
   font-style: italic;
   color: #24292e;
 }
 
+.nightMode .markdown-body .pl-mb {
+  color: #fff;
+}
 .markdown-body .pl-mb {
   font-weight: 700;
   color: #24292e;
@@ -817,6 +846,10 @@
   overflow-y: auto;
 }
 
+.nightMode .markdown-body .blob-num {
+  color: #fff;
+}
+
 .markdown-body .blob-num {
   width: 1%;
   min-width: 50px;
@@ -836,6 +869,10 @@
   user-select: none;
 }
 
+.nightMode .markdown-body .blob-num:hover {
+  color: #fff;
+}
+
 .markdown-body .blob-num:hover {
   color: rgba(27,31,35,.6);
 }
@@ -852,6 +889,10 @@
   vertical-align: top;
 }
 
+.nightMode .markdown-body .blob-code-inner {
+  color: #fff;
+}
+
 .markdown-body .blob-code-inner {
   overflow: visible;
   font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
@@ -859,6 +900,10 @@
   color: #24292e;
   word-wrap: normal;
   white-space: pre;
+}
+
+.nightMode .markdown-body .blob-code-inner {
+  color: #fff;
 }
 
 .markdown-body .pl-token.active,

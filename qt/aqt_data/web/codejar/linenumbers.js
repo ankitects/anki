@@ -10,7 +10,8 @@ function withLineNumbers(highlight, options = {}) {
         }
         initColor(editor, gutter, opts)
         const code = editor.textContent || "";
-        const linesCount = code.replace(/\n+$/, "\n").split("\n").length + 1;
+        const linesCount = code.split("\n").length +
+            (((code.match(/\n+$/) || []).length > 0) ? 0 : 1);
         let text = "";
         for (let i = 1; i < linesCount; i++) {
             text += `${i}\n`;

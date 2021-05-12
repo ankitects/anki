@@ -94,10 +94,10 @@ def show(mw):
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
     abouttext += "<p>" + _(
-        "CodeQuiz is a fork of Anki. It's free and open source."
+        "AnkiCode is a fork of Anki. It's free and open source."
     )
     abouttext += "<p>" + _(
-        "CodeQuiz is licensed under the AGPL3 license. Please see "
+        "AnkiCode is licensed under the AGPL3 license. Please see "
         "the license file in the source distribution for more information."
     )
     abouttext += "<p>" + _("Version %s") % versionWithBuild() + "<br>"

@@ -244,7 +244,7 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = "CodeQuiz" + checksum(getpass.getuser())
+    KEY = "AnkiCode" + checksum(getpass.getuser())
     TMOUT = 30000
 
     def __init__(self, argv):
@@ -474,8 +474,8 @@ def _run(argv=None, exec=True):
         os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
 
     # create the app
-    QCoreApplication.setApplicationName("CodeQuiz")
-    QGuiApplication.setDesktopFileName("CodeQuiz.desktop")
+    QCoreApplication.setApplicationName("AnkiCode")
+    QGuiApplication.setDesktopFileName("AnkiCode.desktop")
     app = AnkiApp(argv)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close

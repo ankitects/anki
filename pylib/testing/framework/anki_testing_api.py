@@ -1,15 +1,19 @@
-import os
-import sys
-import tempfile
-from typing import Tuple, List, Callable
+# Copyright: Daveight and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+"""
+Facade API to the Testing framework which is accessed from ANKI
+"""
 
+import sys
+from typing import Tuple, List, Callable, Optional
 from anki.cards import Card
 from aqt.utils import run_async
-from testing.framework.dto.test_suite import TestSuite
-from testing.framework.langs.lang_factory import get_lang_factory
-from testing.framework.runners.console_logger import ConsoleLogger
+from testing.framework.lang_factory import get_lang_factory, AbstractLangFactory
+from testing.framework.test_runner import TestRunner
+from testing.framework.types import TestSuite, TestSuiteExecOpts
+from testing.framework.console_logger import ConsoleLogger
 from testing.framework.syntax.syntax_tree import SyntaxTree
-from testing.framework.syntax.utils import strip_html_tags, get_arg_declarations, get_class_declarations
+from testing.framework.string_utils import strip_html_tags
 
 
 def parse_anki_card(card: Card) -> Tuple[str, str, List[str]]:
@@ -20,11 +24,36 @@ def parse_anki_card(card: Card) -> Tuple[str, str, List[str]]:
     """
     note = card.note()
     model = card.model()['flds']
-    # todo: come up with better solution than indexes
-    description = strip_html_tags(note[model[1]['name']])
+    description = strip_html_tags(note[model[1]['name']])  # todo: come up with better solution than indexes
     fn_name = note[model[2]['name']]
     rows = strip_html_tags(note[model[4]['name']]).split('\n')
     return fn_name, description, rows
+
+
+def build_test_context(card: Card, lang: str) -> Tuple[SyntaxTree,
+                                                       TestSuite,
+                                                       TestSuiteExecOpts,
+                                                       AbstractLangFactory,
+                                                       List[str]]:
+    """
+    Builds testing context
+    :param card: target card
+    :param lang: target language
+    :return: tuple of syntax tree, test suite, language factory and list of rows
+    """
+    fn_name, description, rows = parse_anki_card(card)
+    factory = get_lang_factory(lang)
+    if factory is None:
+        raise Exception('Unknown language ' + lang)
+
+    tree = SyntaxTree.of(rows[0].split(';'))
+    ts = TestSuite()
+    ts.fn_name = fn_name
+    ts.description = description
+
+    opts = TestSuiteExecOpts(tree.nodes[-1].name)
+
+    return tree, ts, opts, factory, rows
 
 
 def get_solution_template(card: Card, lang: str) -> str:
@@ -34,17 +63,11 @@ def get_solution_template(card: Card, lang: str) -> str:
     :param lang: target programming language
     :return: solution template src
     """
-    fn_name, description, rows = parse_anki_card(card)
-    factory = get_lang_factory(lang)
-    if factory is None:
-        raise Exception('Unknown language ' + lang)
+    tree, ts, _, factory, _ = build_test_context(card, lang)
+    return factory.get_template_generator().get_template(tree, ts)
 
-    tree = SyntaxTree.of(rows[0].split(';'))
-    ts = TestSuite(fn_name)
-    ts.description = description
-    ts.classes = get_class_declarations(tree, factory.get_class_generator())
-    ts.test_args, ts.result_type = get_arg_declarations(tree, factory.get_type_generator())
-    return factory.get_template_generator().generate_solution_template(ts)
+
+runner: Optional[TestRunner] = None
 
 
 @run_async
@@ -57,44 +80,29 @@ def run_tests(card: Card, src: str, lang: str, logger: ConsoleLogger, fncomplete
     :param logger: console logger
     :param fncomplete: complete callback
     """
-    fn_name, _, rows = parse_anki_card(card)
-    factory = get_lang_factory(lang)
-    if factory is None:
-        raise Exception('Unknown language ' + lang)
+    global runner
+    if runner is not None:
+        raise Exception('Cannot run tests, while another execution is active')
 
-    tree = SyntaxTree.of(rows[0].split(';'))
-    ts = TestSuite(fn_name)
-    ts.test_cases_file = os.path.join(tempfile.mkdtemp(), 'data.csv')
-    ts.test_case_count = len(rows) - 1
+    logger.clear()
+    tree, ts, opts, factory, rows = build_test_context(card, lang)
+
     try:
-        file = open(ts.test_cases_file, 'w')
-        file.write('\n'.join(rows[1:]))
-        file.close()
-
         test_suite_gen = factory.get_test_suite_generator()
-        test_suite_src = test_suite_gen.generate_testing_src(src, ts, tree)
-
-        logger.setTotalCount(ts.test_case_count)
-        factory.get_code_runner().run(test_suite_src, logger, dict(
-            start_msg='''<span class='info'>Running tests...</span>''',
-            passed_msg='''Test <span class='passed'>PASSED</span> (%(index)s/%(total)s) - %(duration)s ms''',
-            failed_msg='''Test <span class='failed'>FAILED</span> (%(index)s/%(total)s)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;args: %(args)s<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;expected: %(expected)s<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;result: %(result)s<br/>''',
-            success_msg='''<br/><br/>All tests <span class='info'>PASSED</span>.<br/>''',
-            compilation_failed='''Compilation Error: <span class='failed'>$error</span>'''))
+        test_suite_src = test_suite_gen.generate_test_suite_src(ts, tree, src)
+        runner = factory.get_test_runner()
+        runner.run(test_suite_src, rows, opts, logger)
     except:
-        logger.log("<span class='failed'>Unexpected runtime error: " + str(sys.exc_info()) + "</span>")
+        logger.error("Unexpected runtime error: " + str(sys.exc_info()))
     finally:
-        os.remove(ts.test_cases_file)
         fncomplete()
+        runner = None
 
 
-def stop_tests(lang: str):
+def stop_tests():
     """
     Stop tests execution
-    :param lang: target programming language
     """
-    factory = get_lang_factory(lang)
-    factory.get_code_runner().stop()
+    global runner
+    if runner is not None:
+        runner.kill()

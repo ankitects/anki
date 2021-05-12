@@ -1,54 +1,71 @@
+import textwrap
 import unittest
 
-from testing.framework.dto.test_arg import TestArg
-from testing.framework.dto.test_suite import TestSuite
-from testing.framework.langs.java.java_template_gen import JavaTemplateGenerator
+from testing.framework.java.java_template_gen import JavaTemplateGenerator
+from testing.framework.types import TestSuite
+from testing.framework.syntax.syntax_tree import SyntaxTree
 
 
-class JavaTemplateGenTests(unittest.TestCase):
+class JavaTemplateGeneratorTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.generator = JavaTemplateGenerator()
 
-    def test_sum_template(self):
-        test_suite = TestSuite('sum')
-        test_suite.test_args = [TestArg('TypeA', 'a')]
-        test_suite.description = 'calc sum'
-        test_suite.result_type = 'int'
-        test_suite.user_types = {}
-        generator = JavaTemplateGenerator()
-        result = generator.generate_solution_template(test_suite)
-        self.assertEqual('''/**
-* calc sum
-*/
-public class Solution {
+    def test_simple_template_generation(self):
+        ts = TestSuite()
+        ts.fn_name = 'sum'
+        ts.description = 'calculate sum of 2 numbers'
+        tree = SyntaxTree.of(['int[a]', 'int[b]', 'int'])
+        self.assertEqual(textwrap.dedent('''
+            /**
+            * calculate sum of 2 numbers
+            */
+            public class Solution {
+                public int sum(int a, int b) {
+                    //Add code here
+                }
+            }
+            ''').lstrip(), self.generator.get_template(tree, ts))
 
-    public int sum(TypeA a) {
-        //Add code here
-    }
-}''', result)
+    def test_solution_with_custom_types_generation(self):
+        ts = TestSuite()
+        ts.fn_name = 'sum'
+        ts.description = 'calculate sum of 2 objects'
+        tree = SyntaxTree.of(['object(int[val])<TypeA>[a]', 'object(int[val])<TypeB>[b]', 'int'])
+        self.assertEqual(textwrap.dedent('''
+            /**
+            * calculate sum of 2 objects
+            */
+            class TypeA {
+                int val;
+            }
 
-    def test_sum_template_with_user_type(self):
-        test_suite = TestSuite('sum')
-        test_suite.test_args = [TestArg('TypeA', 'a')]
-        test_suite.description = 'calc sum'
-        test_suite.result_type = 'int'
-        test_suite.classes = {'TypeA': '''public static class TypeA {
-\tint a;
-\tpublic A(int a) {
-\t\tthis.a = a;
-\t}
-}'''}
-        generator = JavaTemplateGenerator()
-        result = generator.generate_solution_template(test_suite)
-        self.assertEqual('''/**
-* calc sum
-*/
-public class Solution {
-    public static class TypeA {
-        int a;
-        public A(int a) {
-            this.a = a;
-        }
-    }
-    public int sum(TypeA a) {
-        //Add code here
-    }
-}''', result)
+            class TypeB {
+                int val;
+            }
+
+            public class Solution {
+                public int sum(TypeA a, TypeB b) {
+                    //Add code here
+                }
+            }
+            ''').lstrip(), self.generator.get_template(tree, ts))
+
+    def test_solution_with_custom_types_double_generation(self):
+        ts = TestSuite()
+        ts.fn_name = 'sum'
+        ts.description = 'calculate sum of 2 objects'
+        tree = SyntaxTree.of(['object(int[val])<TypeA>[a]', 'TypeA[b]', 'int'])
+        self.assertEqual(textwrap.dedent('''
+            /**
+            * calculate sum of 2 objects
+            */
+            class TypeA {
+                int val;
+            }
+
+            public class Solution {
+                public int sum(TypeA a, TypeA b) {
+                    //Add code here
+                }
+            }
+            ''').lstrip(), self.generator.get_template(tree, ts))

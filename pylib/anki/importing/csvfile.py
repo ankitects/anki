@@ -75,13 +75,7 @@ class TextImporter(NoteImporter):
         self.dialect = None
         self.fileobj = open(self.file, "r", encoding="utf-8-sig")
         self.data = self.fileobj.read()
-
-        def sub(s):
-            return re.sub(r"^\#.*$", "__comment", s)
-
-        self.data = [
-            sub(x) + "\n" for x in self.data.split("\n") if sub(x) != "__comment"
-        ]
+        self.data = [x + '\n' for x in self.data.split('\n')]
         if self.data:
             if self.data[0].startswith("tags:"):
                 tags = str(self.data[0][5:]).strip()

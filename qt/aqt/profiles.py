@@ -399,16 +399,16 @@ and no other programs are accessing your profile folders, then try again."""
         if isWin:
             from aqt.winpaths import get_appdata
 
-            return os.path.join(get_appdata(), "CodeQuiz")
+            return os.path.join(get_appdata(), "AnkiCode")
         elif isMac:
-            return os.path.expanduser("~/Library/Application Support/CodeQuiz")
+            return os.path.expanduser("~/Library/Application Support/AnkiCode")
         else:
             dataDir = os.environ.get(
                 "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
             )
             if not os.path.exists(dataDir):
                 os.makedirs(dataDir)
-            return os.path.join(dataDir, "CodeQuiz")
+            return os.path.join(dataDir, "AnkiCode")
 
     def _loadMeta(self, retrying=False) -> LoadMetaResult:
         result = LoadMetaResult()
