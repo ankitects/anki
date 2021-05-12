@@ -10,7 +10,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
 
 use super::{
-    DeckConfig, DeckConfigId, DeckConfigInner, NewCardOrder, INITIAL_EASE_FACTOR_THOUSANDS,
+    DeckConfig, DeckConfigId, DeckConfigInner, NewCardFetchOrder, INITIAL_EASE_FACTOR_THOUSANDS,
 };
 use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
 
@@ -46,6 +46,8 @@ pub struct DeckConfSchema11 {
     interday_learning_mix: i32,
     #[serde(default)]
     review_order: i32,
+    #[serde(default)]
+    new_sort_order: i32,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -210,6 +212,7 @@ impl Default for DeckConfSchema11 {
             new_per_day_minimum: 0,
             interday_learning_mix: 0,
             review_order: 0,
+            new_sort_order: 0,
         }
     }
 }
@@ -260,10 +263,11 @@ impl From<DeckConfSchema11> for DeckConfig {
                 minimum_lapse_interval: c.lapse.min_int,
                 graduating_interval_good: c.new.ints.good as u32,
                 graduating_interval_easy: c.new.ints.easy as u32,
-                new_card_order: match c.new.order {
-                    NewCardOrderSchema11::Random => NewCardOrder::Random,
-                    NewCardOrderSchema11::Due => NewCardOrder::Due,
+                new_card_fetch_order: match c.new.order {
+                    NewCardOrderSchema11::Random => NewCardFetchOrder::Random,
+                    NewCardOrderSchema11::Due => NewCardFetchOrder::Due,
                 } as i32,
+                new_card_sort_order: c.new_sort_order,
                 review_order: c.review_order,
                 new_mix: c.new_mix,
                 interday_learning_mix: c.interday_learning_mix,
@@ -308,7 +312,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             }
         }
         let i = c.inner;
-        let new_order = i.new_card_order();
+        let new_order = i.new_card_fetch_order();
         DeckConfSchema11 {
             id: c.id,
             mtime: c.mtime_secs,
@@ -329,8 +333,8 @@ impl From<DeckConfig> for DeckConfSchema11 {
                     _unused: 0,
                 },
                 order: match new_order {
-                    NewCardOrder::Random => NewCardOrderSchema11::Random,
-                    NewCardOrder::Due => NewCardOrderSchema11::Due,
+                    NewCardFetchOrder::Random => NewCardOrderSchema11::Random,
+                    NewCardFetchOrder::Due => NewCardOrderSchema11::Due,
                 },
                 per_day: i.new_per_day,
                 other: new_other,
@@ -360,6 +364,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_per_day_minimum: i.new_per_day_minimum,
             interday_learning_mix: i.interday_learning_mix,
             review_order: i.review_order,
+            new_sort_order: i.new_card_sort_order,
         }
     }
 }
@@ -377,6 +382,7 @@ fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
         "newPerDayMinimum",
         "interdayLearningMix",
         "reviewOrder",
+        "newSortOrder",
     ] {
         top_other.remove(*key);
     }

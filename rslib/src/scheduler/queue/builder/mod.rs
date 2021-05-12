@@ -19,7 +19,7 @@ use super::{
     CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind,
 };
 use crate::{
-    deckconfig::{NewCardOrder, ReviewCardOrder, ReviewMix},
+    deckconfig::{NewCardSortOrder, ReviewCardOrder, ReviewMix},
     prelude::*,
 };
 
@@ -31,8 +31,8 @@ pub(crate) struct DueCard {
     pub mtime: TimestampSecs,
     pub due: i32,
     pub interval: u32,
-    pub hash: u64,
     pub original_deck_id: DeckId,
+    pub hash: u64,
 }
 
 /// Temporary holder for new cards that will be built into a queue.
@@ -43,8 +43,8 @@ pub(crate) struct NewCard {
     pub mtime: TimestampSecs,
     pub due: i32,
     pub original_deck_id: DeckId,
-    /// Used to store template_idx, and for shuffling
-    pub extra: u64,
+    pub template_index: u32,
+    pub hash: u64,
 }
 
 impl From<DueCard> for MainQueueEntry {
@@ -85,6 +85,14 @@ pub(super) struct BuryMode {
     bury_reviews: bool,
 }
 
+#[derive(Default, Clone, Debug)]
+pub(super) struct QueueSortOptions {
+    pub(super) new_order: NewCardSortOrder,
+    pub(super) review_order: ReviewCardOrder,
+    pub(super) day_learn_mix: ReviewMix,
+    pub(super) new_review_mix: ReviewMix,
+}
+
 #[derive(Default)]
 pub(super) struct QueueBuilder {
     pub(super) new: Vec<NewCard>,
@@ -92,13 +100,17 @@ pub(super) struct QueueBuilder {
     pub(super) learning: Vec<DueCard>,
     pub(super) day_learning: Vec<DueCard>,
     pub(super) seen_note_ids: HashMap<NoteId, BuryMode>,
-    pub(super) new_order: NewCardOrder,
-    pub(super) review_order: ReviewCardOrder,
-    pub(super) day_learn_mix: ReviewMix,
-    pub(super) new_review_mix: ReviewMix,
+    pub(super) sort_options: QueueSortOptions,
 }
 
 impl QueueBuilder {
+    pub(super) fn new(sort_options: QueueSortOptions) -> Self {
+        QueueBuilder {
+            sort_options,
+            ..Default::default()
+        }
+    }
+
     pub(super) fn build(
         mut self,
         top_deck_limits: RemainingLimits,
@@ -107,7 +119,7 @@ impl QueueBuilder {
         current_day: u32,
     ) -> CardQueues {
         self.sort_new();
-        self.sort_reviews();
+        self.sort_reviews(current_day);
 
         // split and sort learning
         let learn_ahead_secs = learn_ahead_secs as i64;
@@ -115,14 +127,18 @@ impl QueueBuilder {
         let learn_count = due_learning.len();
 
         // merge day learning in, and cap to parent review count
-        let main_iter = merge_day_learning(self.review, self.day_learning, self.day_learn_mix);
+        let main_iter = merge_day_learning(
+            self.review,
+            self.day_learning,
+            self.sort_options.day_learn_mix,
+        );
         let main_iter = main_iter.take(top_deck_limits.review as usize);
         let review_count = main_iter.len();
 
         // cap to parent new count, note down the new count, then merge new in
         self.new.truncate(top_deck_limits.new as usize);
         let new_count = self.new.len();
-        let main_iter = merge_new(main_iter, self.new, self.new_review_mix);
+        let main_iter = merge_new(main_iter, self.new, self.sort_options.new_review_mix);
 
         CardQueues {
             counts: Counts {
@@ -207,9 +223,27 @@ impl Collection {
         let (decks, parent_count) = self.storage.deck_with_parents_and_children(deck_id)?;
         let deck_map = self.storage.get_decks_map()?;
         let config = self.storage.get_deck_config_map()?;
+        let sort_options = decks
+            .get(parent_count)
+            .unwrap()
+            .config_id()
+            .and_then(|config_id| config.get(&config_id))
+            .map(|config| QueueSortOptions {
+                new_order: config.inner.new_card_sort_order(),
+                review_order: config.inner.review_order(),
+                day_learn_mix: config.inner.interday_learning_mix(),
+                new_review_mix: config.inner.new_mix(),
+            })
+            .unwrap_or_else(|| {
+                // filtered decks do not space siblings
+                QueueSortOptions {
+                    new_order: NewCardSortOrder::Due,
+                    ..Default::default()
+                }
+            });
         let limits = remaining_limits_capped_to_parents(&decks, &config, timing.days_elapsed);
         let selected_deck_limits = limits[parent_count];
-        let mut queues = QueueBuilder::default();
+        let mut queues = QueueBuilder::new(sort_options);
 
         for (deck, mut limit) in decks.iter().zip(limits).skip(parent_count) {
             if limit.review > 0 {

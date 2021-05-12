@@ -10,7 +10,7 @@ use crate::{
     backend_proto::{self as pb},
     prelude::*,
     scheduler::{
-        new::NewCardSortOrder,
+        new::NewCardDueOrder,
         states::{CardState, NextCardStates},
     },
     stats::studied_today,
@@ -132,9 +132,9 @@ impl SchedulingService for Backend {
             input.shift_existing,
         );
         let order = if random {
-            NewCardSortOrder::Random
+            NewCardDueOrder::Random
         } else {
-            NewCardSortOrder::Preserve
+            NewCardDueOrder::Preserve
         };
         self.with_col(|col| {
             col.sort_cards(&cids, start, step, order, shift)
