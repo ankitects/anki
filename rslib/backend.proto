@@ -309,15 +309,21 @@ service CardsService {
 
 message DeckConfig {
   message Config {
-    enum NewCardOrder {
-      NEW_CARD_ORDER_DUE = 0;
-      NEW_CARD_ORDER_RANDOM = 1;
+    enum NewCardFetchOrder {
+      NEW_CARD_FETCH_ORDER_DUE = 0;
+      NEW_CARD_FETCH_ORDER_RANDOM = 1;
+    }
+    enum NewCardSortOrder {
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_DUE = 0;
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM = 1;
+      NEW_CARD_SORT_ORDER_DUE = 2;
+      NEW_CARD_SORT_ORDER_RANDOM = 3;
     }
     enum ReviewCardOrder {
-      REVIEW_CARD_ORDER_SHUFFLED_BY_DAY = 0;
-      REVIEW_CARD_ORDER_SHUFFLED = 1;
-      REVIEW_CARD_ORDER_INTERVALS_ASCENDING = 2;
-      REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 3;
+      REVIEW_CARD_ORDER_DAY_THEN_RANDOM = 0;
+      REVIEW_CARD_ORDER_INTERVALS_ASCENDING = 1;
+      REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 2;
+      // REVIEW_CARD_ORDER_RELATIVE_OVERDUE = 3;
     }
     enum ReviewMix {
       REVIEW_MIX_MIX_WITH_REVIEWS = 0;
@@ -350,8 +356,9 @@ message DeckConfig {
     uint32 graduating_interval_good = 18;
     uint32 graduating_interval_easy = 19;
 
-    NewCardOrder new_card_order = 20;
-    ReviewCardOrder review_order = 32;
+    NewCardFetchOrder new_card_fetch_order = 20;
+    NewCardSortOrder new_card_sort_order = 32;
+    ReviewCardOrder review_order = 33;
 
     ReviewMix new_mix = 30;
     ReviewMix interday_learning_mix = 31;

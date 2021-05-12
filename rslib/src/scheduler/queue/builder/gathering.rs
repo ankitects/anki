@@ -70,7 +70,9 @@ impl QueueBuilder {
         let previous_card_was_sibling_with_higher_ordinal = self
             .new
             .last()
-            .map(|previous| previous.note_id == card.note_id && previous.extra > card.extra)
+            .map(|previous| {
+                previous.note_id == card.note_id && previous.template_index > card.template_index
+            })
             .unwrap_or(false);
 
         if previous_card_was_sibling_with_higher_ordinal {
@@ -87,7 +89,9 @@ impl QueueBuilder {
                     .enumerate()
                     .rev()
                     .filter_map(|(idx, queued_card)| {
-                        if queued_card.note_id != card.note_id || queued_card.extra < card.extra {
+                        if queued_card.note_id != card.note_id
+                            || queued_card.template_index < card.template_index
+                        {
                             Some(idx + 1)
                         } else {
                             None
@@ -147,26 +151,26 @@ mod test {
             NewCard {
                 id: CardId(1),
                 note_id: NoteId(1),
-                extra: 0,
+                template_index: 0,
                 ..Default::default()
             },
             NewCard {
                 id: CardId(2),
                 note_id: NoteId(2),
-                extra: 1,
+                template_index: 1,
                 ..Default::default()
             },
             NewCard {
                 id: CardId(3),
                 note_id: NoteId(2),
-                extra: 2,
+                template_index: 2,
                 ..Default::default()
             },
             NewCard {
                 id: CardId(4),
                 note_id: NoteId(2),
                 // lowest ordinal, should be used instead of card 2/3
-                extra: 0,
+                template_index: 0,
                 ..Default::default()
             },
         ];

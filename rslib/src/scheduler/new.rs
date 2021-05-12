@@ -7,7 +7,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
     card::{CardQueue, CardType},
-    deckconfig::NewCardOrder,
+    deckconfig::NewCardFetchOrder,
     prelude::*,
     search::{SortMode, StateKind},
 };
@@ -37,7 +37,7 @@ pub(crate) struct NewCardSorter {
 }
 
 #[derive(PartialEq)]
-pub enum NewCardSortOrder {
+pub enum NewCardDueOrder {
     NoteId,
     Random,
     Preserve,
@@ -48,7 +48,7 @@ impl NewCardSorter {
         cards: &[Card],
         starting_from: u32,
         step: u32,
-        order: NewCardSortOrder,
+        order: NewCardDueOrder,
     ) -> Self {
         let nids = nids_in_desired_order(cards, order);
 
@@ -69,20 +69,20 @@ impl NewCardSorter {
     }
 }
 
-fn nids_in_desired_order(cards: &[Card], order: NewCardSortOrder) -> Vec<NoteId> {
-    if order == NewCardSortOrder::Preserve {
+fn nids_in_desired_order(cards: &[Card], order: NewCardDueOrder) -> Vec<NoteId> {
+    if order == NewCardDueOrder::Preserve {
         nids_in_preserved_order(cards)
     } else {
         let nids: HashSet<_> = cards.iter().map(|c| c.note_id).collect();
         let mut nids: Vec<_> = nids.into_iter().collect();
         match order {
-            NewCardSortOrder::NoteId => {
+            NewCardDueOrder::NoteId => {
                 nids.sort_unstable();
             }
-            NewCardSortOrder::Random => {
+            NewCardDueOrder::Random => {
                 nids.shuffle(&mut rand::thread_rng());
             }
-            NewCardSortOrder::Preserve => unreachable!(),
+            NewCardDueOrder::Preserve => unreachable!(),
         }
         nids
     }
@@ -128,7 +128,7 @@ impl Collection {
         cids: &[CardId],
         starting_from: u32,
         step: u32,
-        order: NewCardSortOrder,
+        order: NewCardDueOrder,
         shift: bool,
     ) -> Result<OpOutput<usize>> {
         let usn = self.usn()?;
@@ -142,7 +142,7 @@ impl Collection {
         cids: &[CardId],
         starting_from: u32,
         step: u32,
-        order: NewCardSortOrder,
+        order: NewCardDueOrder,
         shift: bool,
         usn: Usn,
     ) -> Result<usize> {
@@ -171,9 +171,9 @@ impl Collection {
             col.sort_deck(
                 deck,
                 if random {
-                    NewCardOrder::Random
+                    NewCardFetchOrder::Random
                 } else {
-                    NewCardOrder::Due
+                    NewCardFetchOrder::Due
                 },
                 col.usn()?,
             )
@@ -183,7 +183,7 @@ impl Collection {
     pub(crate) fn sort_deck(
         &mut self,
         deck: DeckId,
-        order: NewCardOrder,
+        order: NewCardFetchOrder,
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(match_all![deck, StateKind::New], SortMode::NoOrder)?;
@@ -217,13 +217,13 @@ mod test {
         let cards = vec![c1.clone(), c2.clone(), c3.clone()];
 
         // Preserve
-        let sorter = NewCardSorter::new(&cards, 0, 1, NewCardSortOrder::Preserve);
+        let sorter = NewCardSorter::new(&cards, 0, 1, NewCardDueOrder::Preserve);
         assert_eq!(sorter.position(&c1), 0);
         assert_eq!(sorter.position(&c2), 1);
         assert_eq!(sorter.position(&c3), 2);
 
         // NoteId/step/starting
-        let sorter = NewCardSorter::new(&cards, 3, 2, NewCardSortOrder::NoteId);
+        let sorter = NewCardSorter::new(&cards, 3, 2, NewCardDueOrder::NoteId);
         assert_eq!(sorter.position(&c3), 3);
         assert_eq!(sorter.position(&c2), 5);
         assert_eq!(sorter.position(&c1), 7);
@@ -231,7 +231,7 @@ mod test {
         // Random
         let mut c1_positions = HashSet::new();
         for _ in 1..100 {
-            let sorter = NewCardSorter::new(&cards, 0, 1, NewCardSortOrder::Random);
+            let sorter = NewCardSorter::new(&cards, 0, 1, NewCardDueOrder::Random);
             c1_positions.insert(sorter.position(&c1));
             if c1_positions.len() == cards.len() {
                 return;
@@ -241,11 +241,11 @@ mod test {
     }
 }
 
-impl From<NewCardOrder> for NewCardSortOrder {
-    fn from(o: NewCardOrder) -> Self {
+impl From<NewCardFetchOrder> for NewCardDueOrder {
+    fn from(o: NewCardFetchOrder) -> Self {
         match o {
-            NewCardOrder::Due => NewCardSortOrder::NoteId,
-            NewCardOrder::Random => NewCardSortOrder::Random,
+            NewCardFetchOrder::Due => NewCardDueOrder::NoteId,
+            NewCardFetchOrder::Random => NewCardDueOrder::Random,
         }
     }
 }

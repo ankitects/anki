@@ -217,9 +217,10 @@ impl super::SqliteStorage {
                 id: row.get(0)?,
                 note_id: row.get(1)?,
                 due: row.get(2)?,
-                extra: row.get::<_, u32>(3)? as u64,
+                template_index: row.get(3)?,
                 mtime: row.get(4)?,
                 original_deck_id: row.get(5)?,
+                hash: 0,
             }) {
                 break;
             }

@@ -5,58 +5,75 @@ use std::{cmp::Ordering, hash::Hasher};
 
 use fnv::FnvHasher;
 
-use super::{DueCard, NewCard, NewCardOrder, QueueBuilder, ReviewCardOrder};
+use super::{DueCard, NewCard, NewCardSortOrder, QueueBuilder, ReviewCardOrder};
 
 impl QueueBuilder {
     pub(super) fn sort_new(&mut self) {
-        match self.new_order {
-            NewCardOrder::Random => {
-                self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
-                self.new.sort_unstable_by(shuffle_new_card);
+        match self.sort_options.new_order {
+            NewCardSortOrder::TemplateThenDue => {
+                self.new.sort_unstable_by(template_then_due);
             }
-            NewCardOrder::Due => {
-                self.new.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+            NewCardSortOrder::TemplateThenRandom => {
+                self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
+                self.new.sort_unstable_by(template_then_random);
+            }
+            NewCardSortOrder::Due => self.new.sort_unstable_by(new_position),
+            NewCardSortOrder::Random => {
+                self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
+                self.new.sort_unstable_by(new_hash)
             }
         }
     }
 
-    pub(super) fn sort_reviews(&mut self) {
-        self.review.iter_mut().for_each(DueCard::hash_id_and_mtime);
+    pub(super) fn sort_reviews(&mut self, _current_day: u32) {
         self.day_learning
             .iter_mut()
             .for_each(DueCard::hash_id_and_mtime);
+        self.day_learning.sort_unstable_by(day_then_hash);
 
-        match self.review_order {
-            ReviewCardOrder::ShuffledByDay => {
-                self.review.sort_unstable_by(shuffle_by_day);
-                self.day_learning.sort_unstable_by(shuffle_by_day);
-            }
-            ReviewCardOrder::Shuffled => {
-                self.review.sort_unstable_by(shuffle_due_card);
-                self.day_learning.sort_unstable_by(shuffle_due_card);
+        match self.sort_options.review_order {
+            ReviewCardOrder::DayThenRandom => {
+                self.review.iter_mut().for_each(DueCard::hash_id_and_mtime);
+                self.review.sort_unstable_by(day_then_hash);
             }
             ReviewCardOrder::IntervalsAscending => {
                 self.review.sort_unstable_by(intervals_ascending);
-                self.day_learning.sort_unstable_by(shuffle_due_card);
             }
             ReviewCardOrder::IntervalsDescending => {
                 self.review
                     .sort_unstable_by(|a, b| intervals_ascending(b, a));
-                self.day_learning.sort_unstable_by(shuffle_due_card);
-            }
+            } // ReviewCardOrder::RelativeOverdue => {
+              //     self.review
+              //         .iter_mut()
+              //         .for_each(|card| card.set_hash_to_relative_overdue(current_day));
+              //     self.review.sort_unstable_by(due_card_hash)
+              // }
         }
     }
 }
 
-fn shuffle_new_card(a: &NewCard, b: &NewCard) -> Ordering {
-    a.extra.cmp(&b.extra)
+fn template_then_due(a: &NewCard, b: &NewCard) -> Ordering {
+    (a.template_index, a.due).cmp(&(b.template_index, b.due))
 }
 
-fn shuffle_by_day(a: &DueCard, b: &DueCard) -> Ordering {
+fn template_then_random(a: &NewCard, b: &NewCard) -> Ordering {
+    (a.template_index, a.hash).cmp(&(b.template_index, b.hash))
+}
+
+fn new_position(a: &NewCard, b: &NewCard) -> Ordering {
+    a.due.cmp(&b.due)
+}
+
+fn new_hash(a: &NewCard, b: &NewCard) -> Ordering {
+    a.hash.cmp(&b.hash)
+}
+
+fn day_then_hash(a: &DueCard, b: &DueCard) -> Ordering {
     (a.due, a.hash).cmp(&(b.due, b.hash))
 }
 
-fn shuffle_due_card(a: &DueCard, b: &DueCard) -> Ordering {
+#[allow(dead_code)]
+fn due_card_hash(a: &DueCard, b: &DueCard) -> Ordering {
     a.hash.cmp(&b.hash)
 }
 
@@ -75,6 +92,11 @@ impl DueCard {
         hasher.write_i64(self.mtime.0);
         self.hash = hasher.finish();
     }
+
+    #[allow(dead_code)]
+    fn set_hash_to_relative_overdue(&mut self, _current_day: u32) {
+        todo!()
+    }
 }
 
 impl NewCard {
@@ -82,6 +104,6 @@ impl NewCard {
         let mut hasher = FnvHasher::default();
         hasher.write_i64(self.id.0);
         hasher.write_i64(self.mtime.0);
-        self.extra = hasher.finish();
+        self.hash = hasher.finish();
     }
 }

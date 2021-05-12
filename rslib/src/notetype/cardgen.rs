@@ -306,9 +306,15 @@ impl Collection {
         }
         let next_pos = cache.next_position.unwrap();
 
-        match cache.deck_configs.get(&did).unwrap().inner.new_card_order() {
-            crate::deckconfig::NewCardOrder::Random => Ok(random_position(next_pos)),
-            crate::deckconfig::NewCardOrder::Due => Ok(next_pos),
+        match cache
+            .deck_configs
+            .get(&did)
+            .unwrap()
+            .inner
+            .new_card_fetch_order()
+        {
+            crate::deckconfig::NewCardFetchOrder::Random => Ok(random_position(next_pos)),
+            crate::deckconfig::NewCardFetchOrder::Due => Ok(next_pos),
         }
     }
 

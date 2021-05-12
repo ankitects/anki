@@ -61,5 +61,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <EnumSelector
     label={tr.schedulingOrder()}
     choices={newOrderChoices}
-    defaultValue={defaults.newCardOrder}
-    bind:value={$config.newCardOrder} />
+    defaultValue={defaults.newCardFetchOrder}
+    bind:value={$config.newCardFetchOrder} />
