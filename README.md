@@ -1,5 +1,7 @@
 ## About
-This repo contains all the code for the computer version of [AnkiCode](https://ankicode.app).
+This repo contains all the code for the computer version of AnkiCode.
+
+Official website: [https://ankicode.app](https://ankicode.app)
 
 ### Downloads
 - [AnkiCode-1.1.0-mac.dmg](https://cutt.ly/sbS2uQA)
