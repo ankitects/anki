@@ -8,7 +8,7 @@ mod sorting;
 
 use std::{
     cmp::Reverse,
-    collections::{BinaryHeap, HashSet, VecDeque},
+    collections::{BinaryHeap, HashMap, VecDeque},
 };
 
 use intersperser::Intersperser;
@@ -32,6 +32,7 @@ pub(crate) struct DueCard {
     pub due: i32,
     pub interval: u32,
     pub hash: u64,
+    pub original_deck_id: DeckId,
 }
 
 /// Temporary holder for new cards that will be built into a queue.
@@ -41,6 +42,7 @@ pub(crate) struct NewCard {
     pub note_id: NoteId,
     pub mtime: TimestampSecs,
     pub due: i32,
+    pub original_deck_id: DeckId,
     /// Used to store template_idx, and for shuffling
     pub extra: u64,
 }
@@ -75,19 +77,25 @@ impl From<DueCard> for LearningQueueEntry {
     }
 }
 
+/// When we encounter a card with new or review burying enabled, all future
+/// siblings need to be buried, regardless of their own settings.
+#[derive(Default, Debug, Clone, Copy)]
+pub(super) struct BuryMode {
+    bury_new: bool,
+    bury_reviews: bool,
+}
+
 #[derive(Default)]
 pub(super) struct QueueBuilder {
     pub(super) new: Vec<NewCard>,
     pub(super) review: Vec<DueCard>,
     pub(super) learning: Vec<DueCard>,
     pub(super) day_learning: Vec<DueCard>,
-    pub(super) seen_note_ids: HashSet<NoteId>,
+    pub(super) seen_note_ids: HashMap<NoteId, BuryMode>,
     pub(super) new_order: NewCardOrder,
     pub(super) review_order: ReviewCardOrder,
     pub(super) day_learn_mix: ReviewMix,
     pub(super) new_review_mix: ReviewMix,
-    pub(super) bury_new: bool,
-    pub(super) bury_reviews: bool,
 }
 
 impl QueueBuilder {
@@ -197,10 +205,10 @@ impl Collection {
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
         let (decks, parent_count) = self.storage.deck_with_parents_and_children(deck_id)?;
+        let deck_map = self.storage.get_decks_map()?;
         let config = self.storage.get_deck_config_map()?;
         let limits = remaining_limits_capped_to_parents(&decks, &config, timing.days_elapsed);
         let selected_deck_limits = limits[parent_count];
-
         let mut queues = QueueBuilder::default();
 
         for (deck, mut limit) in decks.iter().zip(limits).skip(parent_count) {
@@ -209,12 +217,42 @@ impl Collection {
                     timing.days_elapsed,
                     timing.next_day_at,
                     deck.id,
-                    |queue, card| queues.add_due_card(&mut limit, queue, card),
+                    |queue, card| {
+                        let home_deck = if card.original_deck_id.0 == 0 {
+                            deck.id
+                        } else {
+                            card.original_deck_id
+                        };
+                        let bury = deck_map
+                            .get(&home_deck)
+                            .and_then(|deck| deck.config_id())
+                            .and_then(|config_id| config.get(&config_id))
+                            .map(|config| BuryMode {
+                                bury_new: config.inner.bury_new,
+                                bury_reviews: config.inner.bury_reviews,
+                            })
+                            .unwrap_or_default();
+                        queues.add_due_card(&mut limit, queue, card, bury)
+                    },
                 )?;
             }
             if limit.new > 0 {
                 self.storage.for_each_new_card_in_deck(deck.id, |card| {
-                    queues.add_new_card(&mut limit, card)
+                    let home_deck = if card.original_deck_id.0 == 0 {
+                        deck.id
+                    } else {
+                        card.original_deck_id
+                    };
+                    let bury = deck_map
+                        .get(&home_deck)
+                        .and_then(|deck| deck.config_id())
+                        .and_then(|config_id| config.get(&config_id))
+                        .map(|config| BuryMode {
+                            bury_new: config.inner.bury_new,
+                            bury_reviews: config.inner.bury_reviews,
+                        })
+                        .unwrap_or_default();
+                    queues.add_new_card(&mut limit, card, bury)
                 })?;
             }
         }

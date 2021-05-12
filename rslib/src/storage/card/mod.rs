@@ -194,6 +194,7 @@ impl super::SqliteStorage {
                     interval: row.get(4)?,
                     mtime: row.get(5)?,
                     hash: 0,
+                    original_deck_id: row.get(6)?,
                 },
             ) {
                 break;
@@ -218,6 +219,7 @@ impl super::SqliteStorage {
                 due: row.get(2)?,
                 extra: row.get::<_, u32>(3)? as u64,
                 mtime: row.get(4)?,
+                original_deck_id: row.get(5)?,
             }) {
                 break;
             }

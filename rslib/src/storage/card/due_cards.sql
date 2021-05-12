@@ -3,7 +3,8 @@ SELECT queue,
   nid,
   due,
   cast(ivl AS integer),
-  cast(mod AS integer)
+  cast(mod AS integer),
+  odid
 FROM cards
 WHERE did = ?1
   AND (
