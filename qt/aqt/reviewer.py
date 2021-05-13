@@ -379,13 +379,18 @@ class Reviewer:
         if not proceed:
             return
 
-        if v3 := self._v3:
-            assert isinstance(self.mw.col.sched, V3Scheduler)
-            answer = self.mw.col.sched.build_answer(
+        if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
+            answer = sched.build_answer(
                 card=self.card, states=v3.next_states, rating=v3.rating_from_ease(ease)
             )
+
+            def after_answer(changes: OpChanges) -> None:
+                self._after_answering(ease)
+                if sched.state_is_leech(answer.new_state):
+                    self.onLeech()
+
             answer_card(parent=self.mw, answer=answer).success(
-                lambda _: self._after_answering(ease)
+                after_answer
             ).run_in_background(initiator=self)
         else:
             self.mw.col.sched.answerCard(self.card, ease)
@@ -823,10 +828,11 @@ time = %(time)d;
     # Leeches
     ##########################################################################
 
-    def onLeech(self, card: Card) -> None:
+    def onLeech(self, card: Optional[Card] = None) -> None:
         # for now
         s = tr.studying_card_was_a_leech()
-        if card.queue < 0:
+        # v3 scheduler doesn't report this
+        if card and card.queue < 0:
             s += f" {tr.studying_it_has_been_suspended()}"
         tooltip(s)
 
