@@ -1134,7 +1134,7 @@ title="%s" %s>%s</button>""" % (
         if deck["dyn"]:
             aqt.dialogs.open("FilteredDeckConfigDialog", self, deck_id=deck["id"])
         else:
-            if KeyboardModifiersPressed().shift:
+            if KeyboardModifiersPressed().shift or self.col.schedVer() == 1:
                 aqt.deckconf.DeckConf(self, deck)
             else:
                 DeckOptionsDialog(self)

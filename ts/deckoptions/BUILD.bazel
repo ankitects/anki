@@ -57,6 +57,7 @@ ts_library(
         "icons.ts",
         "lib.ts",
         "steps.ts",
+        "strings.ts",
         "textInputModal.ts",
     ],
     module_name = "deckoptions",

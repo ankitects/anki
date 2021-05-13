@@ -5,17 +5,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import SpinBox from "./SpinBox.svelte";
-    import StepsInput from "./StepsInput.svelte";
+    import CheckBox from "./CheckBox.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import type { DeckOptionsState } from "./lib";
+    import { reviewMixChoices } from "./strings";
 
     export let state: DeckOptionsState;
     let config = state.currentConfig;
     let defaults = state.defaults;
 
-    const newOrderChoices = [
-        tr.schedulingShowNewCardsInOrderAdded(),
-        tr.schedulingShowNewCardsInRandomOrder(),
+    const newFetchOrderChoices = [
+        tr.deckConfigNewInsertionOrderSequential(),
+        tr.deckConfigNewInsertionOrderRandom(),
+    ];
+    const newSortOrderChoices = [
+        tr.deckConfigSortOrderCardTemplateThenPosition(),
+        tr.deckConfigSortOrderCardTemplateThenRandom(),
+        tr.deckConfigSortOrderPosition(),
+        tr.deckConfigSortOrderRandom(),
     ];
 
     let stepsExceedGraduatingInterval: string;
@@ -37,13 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <h2>{tr.schedulingNewCards()}</h2>
 
-<StepsInput
-    label={tr.deckConfigLearningSteps()}
-    tooltip={tr.deckConfigLearningStepsTooltip()}
-    defaultValue={defaults.learnSteps}
-    value={$config.learnSteps}
-    on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
-
 <SpinBox
     label={tr.schedulingGraduatingInterval()}
     tooltip={tr.deckConfigGraduatingIntervalTooltip()}
@@ -58,8 +58,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     defaultValue={defaults.graduatingIntervalEasy}
     bind:value={$config.graduatingIntervalEasy} />
 
-<EnumSelector
-    label={tr.schedulingOrder()}
-    choices={newOrderChoices}
-    defaultValue={defaults.newCardFetchOrder}
-    bind:value={$config.newCardFetchOrder} />
+{#if state.v3Scheduler}
+    <EnumSelector
+        label={tr.deckConfigNewInsertionOrder()}
+        tooltip={tr.deckConfigNewInsertionOrderTooltip()}
+        choices={newFetchOrderChoices}
+        defaultValue={defaults.newCardFetchOrder}
+        bind:value={$config.newCardFetchOrder} />
+
+    <EnumSelector
+        label={tr.deckConfigSortOrder()}
+        tooltip={tr.deckConfigSortOrderTooltip()}
+        choices={newSortOrderChoices}
+        defaultValue={defaults.newCardSortOrder}
+        bind:value={$config.newCardSortOrder} />
+
+    <EnumSelector
+        label={tr.deckConfigNewPriority()}
+        tooltip={tr.deckConfigNewPriorityTooltip()}
+        choices={reviewMixChoices()}
+        defaultValue={defaults.newMix}
+        bind:value={$config.newMix} />
+{/if}
+
+<CheckBox
+    label={tr.deckConfigBuryNewSiblings()}
+    tooltip={tr.deckConfigBuryTooltip()}
+    defaultValue={defaults.buryNew}
+    bind:value={$config.buryNew} />

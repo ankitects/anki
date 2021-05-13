@@ -55,16 +55,19 @@ class Preferences(QDialog):
         form = self.form
 
         scheduling = self.prefs.scheduling
+
+        version = scheduling.scheduler_version
+        form.dayLearnFirst.setVisible(version == 2)
+        # fixme: force on for v3
+        form.legacy_timezone.setVisible(version >= 2)
+        form.newSpread.setVisible(version < 3)
+
         form.lrnCutoff.setValue(int(scheduling.learn_ahead_secs / 60.0))
         form.newSpread.addItems(list(newCardSchedulingLabels(self.mw.col).values()))
         form.newSpread.setCurrentIndex(scheduling.new_review_mix)
         form.dayLearnFirst.setChecked(scheduling.day_learn_first)
         form.dayOffset.setValue(scheduling.rollover)
-        if scheduling.scheduler_version < 2:
-            form.dayLearnFirst.setVisible(False)
-            form.legacy_timezone.setVisible(False)
-        else:
-            form.legacy_timezone.setChecked(not scheduling.new_timezone)
+        form.legacy_timezone.setChecked(not scheduling.new_timezone)
 
         reviewing = self.prefs.reviewing
         form.timeLimit.setValue(int(reviewing.time_limit_secs / 60.0))
