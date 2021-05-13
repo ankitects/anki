@@ -4,10 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import DailyLimits from "./DailyLimits.svelte";
+    import LearningOptions from "./LearningOptions.svelte";
     import NewOptions from "./NewOptions.svelte";
-    import BuryingOptions from "./BuryingOptions.svelte";
     import AdvancedOptions from "./AdvancedOptions.svelte";
-    import LapseOptions from "./LapseOptions.svelte";
+    import ReviewOptions from "./ReviewOptions.svelte";
     import GeneralOptions from "./GeneralOptions.svelte";
     import Addons from "./Addons.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -27,9 +27,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div>
     <DailyLimits {state} />
+    <LearningOptions {state} />
     <NewOptions {state} />
-    <LapseOptions {state} />
-    <BuryingOptions {state} />
+    <ReviewOptions {state} />
     <GeneralOptions {state} />
     <Addons {state} />
     <AdvancedOptions {state} />

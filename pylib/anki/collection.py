@@ -142,7 +142,7 @@ class Collection:
 
     supportedSchedulerVersions = (1, 2)
 
-    def schedVer(self) -> Any:
+    def schedVer(self) -> Literal[1, 2]:
         ver = self.conf.get("schedVer", 1)
         if ver in self.supportedSchedulerVersions:
             return ver

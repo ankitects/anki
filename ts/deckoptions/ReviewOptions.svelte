@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import SpinBox from "./SpinBox.svelte";
-    import StepsInput from "./StepsInput.svelte";
+    import CheckBox from "./CheckBox.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -13,18 +13,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let config = state.currentConfig;
     let defaults = state.defaults;
 
+    const reviewOrderChoices = [
+        tr.deckConfigSortOrderDueDateThenRandom(),
+        tr.deckConfigSortOrderAscendingIntervals(),
+        tr.deckConfigSortOrderDescendingIntervals(),
+    ];
+
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
 <div>
-    <h2>{tr.schedulingLapses()}</h2>
+    <h2>{tr.schedulingReviews()}</h2>
 
-    <StepsInput
-        label={tr.deckConfigRelearningSteps()}
-        tooltip={tr.deckConfigRelearningStepsTooltip()}
-        defaultValue={defaults.relearnSteps}
-        value={$config.relearnSteps}
-        on:changed={(evt) => ($config.relearnSteps = evt.detail.value)} />
+    <EnumSelector
+        label={tr.deckConfigSortOrder()}
+        tooltip={tr.deckConfigReviewSortOrderTooltip()}
+        choices={reviewOrderChoices}
+        defaultValue={defaults.reviewOrder}
+        bind:value={$config.reviewOrder} />
 
     <SpinBox
         label={tr.schedulingLeechThreshold()}
@@ -39,4 +45,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         choices={leechChoices}
         defaultValue={defaults.leechAction}
         bind:value={$config.leechAction} />
+
+    <CheckBox
+        label={tr.deckConfigBuryReviewSiblings()}
+        tooltip={tr.deckConfigBuryTooltip()}
+        defaultValue={defaults.buryReviews}
+        bind:value={$config.buryReviews} />
 </div>

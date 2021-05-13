@@ -57,6 +57,7 @@ export class DeckOptionsState {
     readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
+    readonly v3Scheduler: boolean;
 
     private targetDeckId: number;
     private configs: ConfigWithCount[];
@@ -82,6 +83,7 @@ export class DeckOptionsState {
             0,
             this.configs.findIndex((c) => c.config.id === this.currentDeck.configId)
         );
+        this.v3Scheduler = data.v3Scheduler;
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time

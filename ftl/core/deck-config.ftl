@@ -21,8 +21,9 @@ deck-config-review-limit-tooltip =
     The maximum number of review cards to show in a day,
     if cards are ready for review.
 
-## New Cards section
+## Learning/Relearning section
 
+deck-config-learning-relearning-title = Learning/Relearning
 deck-config-learning-steps = Learning steps
 # Please don't translate '5m' or '2d'
 -deck-config-delay-hint = Delays can be in minutes (eg "5m"), or days (eg "2d").
@@ -32,21 +33,56 @@ deck-config-learning-steps-tooltip =
     The Good button will advance to the next step, which is 10 minutes by default.
     Once all steps have been passed, the card will become a review card, and
     will appear on a different day. { -deck-config-delay-hint }
-deck-config-graduating-interval-tooltip =
-    The number of days to wait before showing a card again, after the Good button
-    is pressed on the final learning step.
-deck-config-easy-interval-tooltip =
-    The number of days to wait before showing a card again, after the Easy button
-    is used to immediately remove a card from learning.
-
-## Lapses section
-
 deck-config-relearning-steps = Relearning steps
 deck-config-relearning-steps-tooltip =
     Zero or more delays, separated by spaces. By default, pressing the Again
     button on a review card will show it again 10 minutes later. If no delays
     are provided, the card will have its interval changed, without entering
     relearning. { -deck-config-delay-hint }
+deck-config-interday-step-priority = Interday step priority
+deck-config-interday-step-priority-tooltip = When to show (re)learning cards that cross a day boundary.
+deck-config-review-mix-mix-with-reviews = Mix with reviews
+deck-config-review-mix-show-after-reviews = Show after reviews
+deck-config-review-mix-show-before-reviews = Show before reviews
+
+## New Cards section
+
+deck-config-graduating-interval-tooltip =
+    The number of days to wait before showing a card again, after the Good button
+    is pressed on the final learning step.
+deck-config-easy-interval-tooltip =
+    The number of days to wait before showing a card again, after the Easy button
+    is used to immediately remove a card from learning.
+deck-config-new-insertion-order = Insertion order
+deck-config-new-insertion-order-tooltip =
+    Controls the position (due #) new cards are assigned when you add new cards.
+    Cards with a lower due # will be shown first when reviewing. Changing this
+    option will automatically update the existing position of new cards.
+deck-config-new-insertion-order-sequential = Sequential (show oldest cards first)
+deck-config-new-insertion-order-random = Random
+deck-config-sort-order = Sort order
+deck-config-sort-order-tooltip =
+    After today's new cards have been gathered, this option controls the order
+    they are then presented in. The default is to sort by card template first, to avoid
+    multiple cards of the same note from being shown in succession.
+deck-config-sort-order-card-template-then-position = Card template, then position
+deck-config-sort-order-card-template-then-random = Card template, then random
+deck-config-sort-order-position = Position (siblings together)
+deck-config-sort-order-random = Random
+deck-config-new-priority = Priority
+deck-config-new-priority-tooltip = When to show new cards in a study session.
+
+## Review section
+
+deck-config-review-sort-order-tooltip =
+    After today's review cards have been gathered, this option controls the order
+    they are then presented in. The default is to sort by due date, then shuffle, so
+    that if you have a backlog of reviews, the cards that have been waiting longest
+    will be shown first. The other choices can be useful when you have a large backlog
+    and want to tackle it in a different way.
+deck-config-sort-order-due-date-then-random = Due date, then random
+deck-config-sort-order-ascending-intervals = Ascending intervals
+deck-config-sort-order-descending-intervals = Descending intervals
 deck-config-leech-threshold-tooltip =
     The number of times Again needs to be pressed on a review card before it is
     marked as a leech. Leeches are cards that consume a lot of your time, and
@@ -60,7 +96,8 @@ deck-config-leech-action-tooltip =
 
 ## Burying section
 
-deck-config-burying-title = Burying
+deck-config-bury-new-siblings = Bury new siblings until the next day
+deck-config-bury-review-siblings = Bury review siblings until the next day
 deck-config-bury-tooltip =
     Whether other cards of the same note (eg reverse cards, adjacent
     cloze deletions) will be delayed until the next day.
