@@ -19,6 +19,10 @@ if __name__ == "__main__":
         os.chdir(folder)
         args = ["--diff", "--check"]
 
+    # work around issue with latest black
+    if sys.platform == "win32":
+        os.environ["USERPROFILE"] = os.environ["HOME"]
+
     retcode = subprocess.run(
         [
             sys.executable,
