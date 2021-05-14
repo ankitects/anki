@@ -41,3 +41,11 @@ pub mod timestamp;
 pub mod types;
 pub mod undo;
 pub mod version;
+
+use std::env;
+
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub(crate) static ref PYTHON_UNIT_TESTS: bool = env::var("ANKI_TEST_MODE").is_ok();
+}

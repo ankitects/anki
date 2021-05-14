@@ -1,13 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardQueues, LearningQueueEntry, QueueEntry, QueueEntryKind};
+use super::{LearningQueueEntry, QueueEntry};
 use crate::prelude::*;
 
 #[derive(Debug)]
 pub(crate) enum UndoableQueueChange {
     CardAnswered(Box<QueueUpdate>),
     CardAnswerUndone(Box<QueueUpdate>),
+    CutoffChange(Box<CutoffSnapshot>),
 }
 
 #[derive(Debug)]
@@ -16,13 +17,21 @@ pub(crate) struct QueueUpdate {
     pub learning_requeue: Option<LearningQueueEntry>,
 }
 
+/// Stores the old learning count and cutoff prior to the
+/// cutoff being adjusted after answering a card.
+#[derive(Debug)]
+pub(crate) struct CutoffSnapshot {
+    pub learning_count: usize,
+    pub learning_cutoff: TimestampSecs,
+}
+
 impl Collection {
     pub(crate) fn undo_queue_change(&mut self, change: UndoableQueueChange) -> Result<()> {
         match change {
             UndoableQueueChange::CardAnswered(update) => {
                 let queues = self.get_queues()?;
                 if let Some(learning) = &update.learning_requeue {
-                    queues.remove_requeued_learning_card_after_undo(learning.id);
+                    queues.remove_intraday_learning_card(learning.id);
                 }
                 queues.push_undo_entry(update.entry);
                 self.save_undo(UndoableQueueChange::CardAnswerUndone(update));
@@ -30,11 +39,19 @@ impl Collection {
                 Ok(())
             }
             UndoableQueueChange::CardAnswerUndone(update) => {
-                // don't try to update existing queue when redoing; just
-                // rebuild it instead
-                self.clear_study_queues();
-                // but preserve undo state for a subsequent undo
+                let queues = self.get_queues()?;
+                if let Some(learning) = update.learning_requeue {
+                    queues.insert_intraday_learning_card(learning);
+                }
+                queues.pop_entry(update.entry.card_id())?;
                 self.save_undo(UndoableQueueChange::CardAnswered(update));
+
+                Ok(())
+            }
+            UndoableQueueChange::CutoffChange(change) => {
+                let queues = self.get_queues()?;
+                let current = queues.restore_cutoff(&change);
+                self.save_cutoff_change(current);
 
                 Ok(())
             }
@@ -44,37 +61,9 @@ impl Collection {
     pub(super) fn save_queue_update_undo(&mut self, change: Box<QueueUpdate>) {
         self.save_undo(UndoableQueueChange::CardAnswered(change))
     }
-}
 
-impl CardQueues {
-    pub(super) fn next_undo_entry(&self) -> Option<QueueEntry> {
-        self.undo.last().copied()
-    }
-
-    pub(super) fn pop_undo_entry(&mut self, id: CardId) -> Option<QueueEntry> {
-        if let Some(last) = self.undo.last() {
-            if last.card_id() == id {
-                match last.kind() {
-                    QueueEntryKind::New => self.counts.new -= 1,
-                    QueueEntryKind::Review => self.counts.review -= 1,
-                    QueueEntryKind::Learning => self.counts.learning -= 1,
-                }
-                return self.undo.pop();
-            }
-        }
-
-        None
-    }
-
-    /// Add an undone card back to the 'front' of the list, and update
-    /// the counts.
-    pub(super) fn push_undo_entry(&mut self, entry: QueueEntry) {
-        match entry.kind() {
-            QueueEntryKind::New => self.counts.new += 1,
-            QueueEntryKind::Review => self.counts.review += 1,
-            QueueEntryKind::Learning => self.counts.learning += 1,
-        }
-        self.undo.push(entry);
+    pub(super) fn save_cutoff_change(&mut self, change: Box<CutoffSnapshot>) {
+        self.save_undo(UndoableQueueChange::CutoffChange(change))
     }
 }
 
@@ -188,11 +177,8 @@ mod test {
 
             let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 0);
-
             assert_eq!(col.next_card()?.is_some(), true);
-
-            let q = col.get_queue_single()?;
-            assert_eq!(&[q.new_count, q.learning_count, q.review_count], &[0, 0, 1]);
+            assert_eq!(col.counts(), [0, 0, 1]);
 
             Ok(())
         };
@@ -212,19 +198,23 @@ mod test {
     }
 
     #[test]
-    #[ignore = "undo code is currently broken"]
-    fn undo_counts1() -> Result<()> {
+    fn undo_counts() -> Result<()> {
         let mut col = open_test_collection();
 
         assert_eq!(col.counts(), [0, 0, 0]);
         add_note(&mut col, true)?;
         assert_eq!(col.counts(), [2, 0, 0]);
-        col.answer_good();
+        col.answer_again();
         assert_eq!(col.counts(), [1, 1, 0]);
         col.answer_good();
         assert_eq!(col.counts(), [0, 2, 0]);
+        col.answer_again();
+        assert_eq!(col.counts(), [0, 2, 0]);
+        // first card graduates
         col.answer_good();
         assert_eq!(col.counts(), [0, 1, 0]);
+        // other card is all that is left, so the
+        // last step is deferred
         col.answer_good();
         assert_eq!(col.counts(), [0, 0, 0]);
 
@@ -234,57 +224,26 @@ mod test {
         col.undo()?;
         assert_eq!(col.counts(), [0, 2, 0]);
         col.undo()?;
+        assert_eq!(col.counts(), [0, 2, 0]);
+        col.undo()?;
         assert_eq!(col.counts(), [1, 1, 0]);
         col.undo()?;
         assert_eq!(col.counts(), [2, 0, 0]);
         col.undo()?;
         assert_eq!(col.counts(), [0, 0, 0]);
 
-        Ok(())
-    }
-
-    #[test]
-    fn undo_counts2() -> Result<()> {
-        let mut col = open_test_collection();
-
-        assert_eq!(col.counts(), [0, 0, 0]);
-        add_note(&mut col, true)?;
+        // and forwards again
+        col.redo()?;
         assert_eq!(col.counts(), [2, 0, 0]);
-        col.answer_again();
+        col.redo()?;
         assert_eq!(col.counts(), [1, 1, 0]);
-        col.answer_again();
+        col.redo()?;
         assert_eq!(col.counts(), [0, 2, 0]);
-        col.answer_again();
+        col.redo()?;
         assert_eq!(col.counts(), [0, 2, 0]);
-        col.answer_again();
-        assert_eq!(col.counts(), [0, 2, 0]);
-        col.answer_good();
-        assert_eq!(col.counts(), [0, 2, 0]);
-        col.answer_easy();
+        col.redo()?;
         assert_eq!(col.counts(), [0, 1, 0]);
-        col.answer_good();
-        // last card, due in a minute
-        assert_eq!(col.counts(), [0, 0, 0]);
-
-        Ok(())
-    }
-
-    #[test]
-    fn undo_counts_relearn() -> Result<()> {
-        let mut col = open_test_collection();
-
-        add_note(&mut col, true)?;
-        col.storage
-            .db
-            .execute_batch("update cards set due=0,queue=2,type=2")?;
-        assert_eq!(col.counts(), [0, 0, 2]);
-        col.answer_again();
-        assert_eq!(col.counts(), [0, 1, 1]);
-        col.answer_again();
-        assert_eq!(col.counts(), [0, 2, 0]);
-        col.answer_easy();
-        assert_eq!(col.counts(), [0, 1, 0]);
-        col.answer_easy();
+        col.redo()?;
         assert_eq!(col.counts(), [0, 0, 0]);
 
         Ok(())

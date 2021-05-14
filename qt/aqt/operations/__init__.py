@@ -134,8 +134,6 @@ class CollectionOp(Generic[ResultWithChanges]):
             changes = result.changes
 
         # fire new hook
-        print("op changes:")
-        print(changes)
         aqt.gui_hooks.operation_did_execute(changes, handler)
         # fire legacy hook so old code notices changes
         if mw.col.op_made_changes(changes):

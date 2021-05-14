@@ -78,3 +78,15 @@ impl From<MainQueueEntry> for QueueEntry {
         Self::Main(e)
     }
 }
+
+impl From<&LearningQueueEntry> for QueueEntry {
+    fn from(e: &LearningQueueEntry) -> Self {
+        Self::IntradayLearning(*e)
+    }
+}
+
+impl From<&MainQueueEntry> for QueueEntry {
+    fn from(e: &MainQueueEntry) -> Self {
+        Self::Main(*e)
+    }
+}

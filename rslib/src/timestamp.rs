@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, time};
+use std::time;
 
 use chrono::prelude::*;
-use lazy_static::lazy_static;
 
 use crate::define_newtype;
 
@@ -69,12 +68,8 @@ impl TimestampMillis {
     }
 }
 
-lazy_static! {
-    pub(crate) static ref TESTING: bool = env::var("ANKI_TEST_MODE").is_ok();
-}
-
 fn elapsed() -> time::Duration {
-    if *TESTING {
+    if *crate::PYTHON_UNIT_TESTS {
         // shift clock around rollover time to accomodate Python tests that make bad assumptions.
         // we should update the tests in the future and remove this hack.
         let mut elap = time::SystemTime::now()

@@ -414,7 +414,7 @@ impl Collection {
 /// Return a consistent seed for a given card at a given number of reps.
 /// If in test environment, disable fuzzing.
 fn get_fuzz_seed(card: &Card) -> Option<u64> {
-    if *crate::timestamp::TESTING || cfg!(test) {
+    if *crate::PYTHON_UNIT_TESTS || cfg!(test) {
         None
     } else {
         Some((card.id.0 as u64).wrapping_add(card.reps as u64))
