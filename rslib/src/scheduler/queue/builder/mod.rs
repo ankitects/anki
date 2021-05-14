@@ -217,6 +217,18 @@ impl Collection {
         let selected_deck_limits = limits[parent_count];
         let mut queues = QueueBuilder::new(sort_options);
 
+        let get_bury_mode = |home_deck: DeckId| {
+            deck_map
+                .get(&home_deck)
+                .and_then(|deck| deck.config_id())
+                .and_then(|config_id| config.get(&config_id))
+                .map(|config| BuryMode {
+                    bury_new: config.inner.bury_new,
+                    bury_reviews: config.inner.bury_reviews,
+                })
+                .unwrap_or_default()
+        };
+
         for (deck, mut limit) in decks.iter().zip(limits).skip(parent_count) {
             if limit.review > 0 {
                 self.storage.for_each_due_card_in_deck(
@@ -224,40 +236,14 @@ impl Collection {
                     timing.next_day_at,
                     deck.id,
                     |queue, card| {
-                        let home_deck = if card.original_deck_id.0 == 0 {
-                            deck.id
-                        } else {
-                            card.original_deck_id
-                        };
-                        let bury = deck_map
-                            .get(&home_deck)
-                            .and_then(|deck| deck.config_id())
-                            .and_then(|config_id| config.get(&config_id))
-                            .map(|config| BuryMode {
-                                bury_new: config.inner.bury_new,
-                                bury_reviews: config.inner.bury_reviews,
-                            })
-                            .unwrap_or_default();
+                        let bury = get_bury_mode(card.original_deck_id.or(deck.id));
                         queues.add_due_card(&mut limit, queue, card, bury)
                     },
                 )?;
             }
             if limit.new > 0 {
                 self.storage.for_each_new_card_in_deck(deck.id, |card| {
-                    let home_deck = if card.original_deck_id.0 == 0 {
-                        deck.id
-                    } else {
-                        card.original_deck_id
-                    };
-                    let bury = deck_map
-                        .get(&home_deck)
-                        .and_then(|deck| deck.config_id())
-                        .and_then(|config_id| config.get(&config_id))
-                        .map(|config| BuryMode {
-                            bury_new: config.inner.bury_new,
-                            bury_reviews: config.inner.bury_reviews,
-                        })
-                        .unwrap_or_default();
+                    let bury = get_bury_mode(card.original_deck_id.or(deck.id));
                     queues.add_new_card(&mut limit, card, bury)
                 })?;
             }

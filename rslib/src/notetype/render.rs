@@ -135,11 +135,7 @@ impl Collection {
         map.entry("Tags").or_insert_with(|| tags.into());
         map.entry("Type").or_insert_with(|| nt.name.clone().into());
         let deck_name: Cow<str> = self
-            .get_deck(if card.original_deck_id.0 > 0 {
-                card.original_deck_id
-            } else {
-                card.deck_id
-            })?
+            .get_deck(card.original_deck_id.or(card.deck_id))?
             .map(|d| d.human_name().into())
             .unwrap_or_else(|| "(Deck)".into());
         let subdeck_name = deck_name.rsplit("::").next().unwrap();
