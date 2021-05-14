@@ -120,7 +120,8 @@ impl QueueBuilder {
 
         // intraday learning
         let learning = sort_learning(self.learning);
-        let cutoff = TimestampSecs::now().adding_secs(learn_ahead_secs);
+        let now = TimestampSecs::now();
+        let cutoff = now.adding_secs(learn_ahead_secs);
         let learn_count = learning.iter().take_while(|e| e.due <= cutoff).count();
 
         // merge interday learning into main, and cap to parent review count
@@ -143,12 +144,12 @@ impl QueueBuilder {
                 review: review_count,
                 learning: learn_count,
             },
-            undo: Vec::new(),
             main: main_iter.collect(),
-            learning,
+            intraday_learning: learning,
             learn_ahead_secs,
             selected_deck,
             current_day,
+            current_learning_cutoff: now,
         }
     }
 }

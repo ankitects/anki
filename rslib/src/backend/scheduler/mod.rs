@@ -177,7 +177,9 @@ impl SchedulingService for Backend {
     }
 
     fn get_queued_cards(&self, input: pb::GetQueuedCardsIn) -> Result<pb::GetQueuedCardsOut> {
-        self.with_col(|col| col.get_queued_cards(input.fetch_limit, input.intraday_learning_only))
+        self.with_col(|col| {
+            col.get_queued_cards(input.fetch_limit as usize, input.intraday_learning_only)
+        })
     }
 }
 

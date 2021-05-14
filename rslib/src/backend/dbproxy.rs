@@ -111,7 +111,7 @@ pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec
 
 fn update_state_after_modification(col: &mut Collection, sql: &str) {
     if !is_dql(sql) {
-        println!("clearing undo+study due to {}", sql);
+        // println!("clearing undo+study due to {}", sql);
         col.update_state_after_dbproxy_modification();
     }
 }

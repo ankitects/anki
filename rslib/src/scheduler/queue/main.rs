@@ -18,21 +18,23 @@ pub(crate) enum MainQueueEntryKind {
 }
 
 impl CardQueues {
-    pub(super) fn next_main_entry(&self) -> Option<MainQueueEntry> {
-        self.main.front().copied()
+    /// Remove the head of the main queue, and update counts.
+    pub(super) fn pop_main(&mut self) -> Option<MainQueueEntry> {
+        self.main.pop_front().map(|head| {
+            match head.kind {
+                MainQueueEntryKind::New => self.counts.new -= 1,
+                MainQueueEntryKind::Review => self.counts.review -= 1,
+            };
+            head
+        })
     }
 
-    pub(super) fn pop_main_entry(&mut self, id: CardId) -> Option<MainQueueEntry> {
-        if let Some(last) = self.main.front() {
-            if last.id == id {
-                match last.kind {
-                    MainQueueEntryKind::New => self.counts.new -= 1,
-                    MainQueueEntryKind::Review => self.counts.review -= 1,
-                }
-                return self.main.pop_front();
-            }
-        }
-
-        None
+    /// Add an undone entry to the top of the main queue.
+    pub(super) fn push_main(&mut self, entry: MainQueueEntry) {
+        match entry.kind {
+            MainQueueEntryKind::New => self.counts.new += 1,
+            MainQueueEntryKind::Review => self.counts.review += 1,
+        };
+        self.main.push_front(entry);
     }
 }

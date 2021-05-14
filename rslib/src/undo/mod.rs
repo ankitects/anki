@@ -84,7 +84,6 @@ impl UndoManager {
     }
 
     fn begin_step(&mut self, op: Option<Op>) {
-        println!("begin: {:?}", op);
         if op.is_none() {
             self.undo_steps.clear();
             self.redo_steps.clear();
@@ -116,7 +115,6 @@ impl UndoManager {
                 println!("no undo changes, discarding step");
             }
         }
-        println!("ended, undo steps count now {}", self.undo_steps.len());
     }
 
     fn can_undo(&self) -> Option<&Op> {
