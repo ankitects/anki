@@ -8,10 +8,7 @@ mod limits;
 mod main;
 pub(crate) mod undo;
 
-use std::{
-    cmp::Reverse,
-    collections::{BinaryHeap, VecDeque},
-};
+use std::collections::VecDeque;
 
 pub(crate) use builder::{DueCard, NewCard};
 pub(crate) use entry::{QueueEntry, QueueEntryKind};
@@ -28,8 +25,7 @@ pub(crate) struct CardQueues {
     /// Any undone items take precedence.
     undo: Vec<QueueEntry>,
     main: VecDeque<MainQueueEntry>,
-    due_learning: VecDeque<LearningQueueEntry>,
-    later_learning: BinaryHeap<Reverse<LearningQueueEntry>>,
+    learning: VecDeque<LearningQueueEntry>,
     selected_deck: DeckId,
     current_day: u32,
     learn_ahead_secs: i64,
@@ -208,11 +204,24 @@ impl Collection {
             }))
         }
     }
+}
 
-    #[cfg(test)]
+// test helpers
+#[cfg(test)]
+impl Collection {
     pub(crate) fn next_card(&mut self) -> Result<Option<QueuedCard>> {
         Ok(self
             .next_cards(1, false)?
             .map(|mut resp| resp.cards.pop().unwrap()))
+    }
+
+    pub(crate) fn get_queue_single(&mut self) -> Result<QueuedCards> {
+        self.next_cards(1, false)?.ok_or(AnkiError::NotFound)
+    }
+
+    pub(crate) fn counts(&mut self) -> [usize; 3] {
+        self.get_queue_single()
+            .map(|q| [q.new_count, q.learning_count, q.review_count])
+            .unwrap_or([0; 3])
     }
 }

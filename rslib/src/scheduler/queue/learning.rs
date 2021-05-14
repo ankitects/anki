@@ -1,10 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    cmp::{Ordering, Reverse},
-    collections::VecDeque,
-};
+use std::{cmp::Ordering, collections::VecDeque};
 
 use super::CardQueues;
 use crate::{prelude::*, scheduler::timing::SchedTimingToday};
@@ -34,24 +31,16 @@ impl CardQueues {
     /// Does not check for newly due cards, as that is already done by
     /// next_learning_entry_due_before_now()
     pub(super) fn next_learning_entry_learning_ahead(&self) -> Option<LearningQueueEntry> {
-        self.due_learning.front().copied()
+        self.learning.front().copied()
     }
 
     pub(super) fn pop_learning_entry(&mut self, id: CardId) -> Option<LearningQueueEntry> {
-        if let Some(top) = self.due_learning.front() {
+        if let Some(top) = self.learning.front() {
             if top.id == id {
-                self.counts.learning -= 1;
-                return self.due_learning.pop_front();
-            }
-        }
-
-        // fixme: remove this in the future
-        // the current python unit tests answer learning cards before they're due,
-        // so for now we also check the head of the later_due queue
-        if let Some(top) = self.later_learning.peek() {
-            if top.0.id == id {
-                // self.counts.learning -= 1;
-                return self.later_learning.pop().map(|c| c.0);
+                // under normal circumstances this should not go below 0, but currently
+                // the Python unit tests answer learning cards before they're due
+                self.counts.learning = self.counts.learning.saturating_sub(1);
+                return self.learning.pop_front();
             }
         }
 
@@ -85,30 +74,27 @@ impl CardQueues {
         mut entry: LearningQueueEntry,
         timing: SchedTimingToday,
     ) -> LearningQueueEntry {
-        let learn_ahead_limit = timing.now.adding_secs(self.learn_ahead_secs);
-
-        if entry.due < learn_ahead_limit {
-            if self.learning_collapsed() {
-                if let Some(next) = self.due_learning.front() {
-                    if next.due >= entry.due {
-                        // the earliest due card is due later than this one; make this one
-                        // due after that one
-                        entry.due = next.due.adding_secs(1);
+        let cutoff = timing.now.adding_secs(self.learn_ahead_secs);
+        if entry.due <= cutoff && self.learning_collapsed() {
+            if let Some(next) = self.learning.front() {
+                // ensure the card is scheduled after the next due card
+                if next.due >= entry.due {
+                    if next.due < cutoff {
+                        entry.due = next.due.adding_secs(1)
+                    } else {
+                        // or outside the cutoff, in cases where the next due
+                        // card is due later than the cutoff
+                        entry.due = cutoff.adding_secs(60);
                     }
-                    self.push_due_learning_card(entry);
-                } else {
-                    // nothing else waiting to review; make this due in a minute
-                    entry.due = learn_ahead_limit.adding_secs(60);
-                    self.later_learning.push(Reverse(entry));
                 }
             } else {
-                // not collapsed; can add normally
-                self.push_due_learning_card(entry);
+                // nothing else waiting to review; make this due a minute after
+                // cutoff
+                entry.due = cutoff.adding_secs(60);
             }
-        } else {
-            // due outside current learn ahead limit, but later today
-            self.later_learning.push(Reverse(entry));
         }
+
+        self.push_learning_card(entry);
 
         entry
     }
@@ -117,41 +103,39 @@ impl CardQueues {
         self.main.is_empty()
     }
 
-    /// Adds card, maintaining correct sort order, and increments learning count.
-    pub(super) fn push_due_learning_card(&mut self, entry: LearningQueueEntry) {
-        self.counts.learning += 1;
+    /// Adds card, maintaining correct sort order, and increments learning count if
+    /// card is due within cutoff.
+    pub(super) fn push_learning_card(&mut self, entry: LearningQueueEntry) {
         let target_idx =
-            binary_search_by(&self.due_learning, |e| e.due.cmp(&entry.due)).unwrap_or_else(|e| e);
-        self.due_learning.insert(target_idx, entry);
+            binary_search_by(&self.learning, |e| e.due.cmp(&entry.due)).unwrap_or_else(|e| e);
+        if target_idx < self.counts.learning {
+            self.counts.learning += 1;
+        }
+        self.learning.insert(target_idx, entry);
     }
 
     fn check_for_newly_due_learning_cards(&mut self, cutoff: TimestampSecs) {
-        while let Some(earliest) = self.later_learning.peek() {
-            if earliest.0.due > cutoff {
-                break;
-            }
-            let entry = self.later_learning.pop().unwrap().0;
-            self.push_due_learning_card(entry);
-        }
+        self.counts.learning += self
+            .learning
+            .iter()
+            .skip(self.counts.learning)
+            .take_while(|e| e.due <= cutoff)
+            .count();
     }
 
     pub(super) fn remove_requeued_learning_card_after_undo(&mut self, id: CardId) {
-        let due_idx = self
-            .due_learning
-            .iter()
-            .enumerate()
-            .find_map(|(idx, entry)| if entry.id == id { Some(idx) } else { None });
+        let due_idx = self.learning.iter().enumerate().find_map(|(idx, entry)| {
+            if entry.id == id {
+                Some(idx)
+            } else {
+                None
+            }
+        });
         if let Some(idx) = due_idx {
-            self.counts.learning -= 1;
-            self.due_learning.remove(idx);
-        } else {
-            // card may be in the later_learning binary heap - we can't remove
-            // it in place, so we have to rebuild it
-            self.later_learning = self
-                .later_learning
-                .drain()
-                .filter(|e| e.0.id != id)
-                .collect();
+            // FIXME: if we remove the saturating_sub from pop_learning(), maybe
+            // this can go too?
+            self.counts.learning = self.counts.learning.saturating_sub(1);
+            self.learning.remove(idx);
         }
     }
 }

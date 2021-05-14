@@ -7,7 +7,6 @@ mod preview;
 mod relearning;
 mod review;
 mod revlog;
-mod undo;
 
 use revlog::RevlogEntryPartial;
 
@@ -371,6 +370,43 @@ impl Collection {
 
     fn add_leech_tag(&mut self, nid: NoteId) -> Result<()> {
         self.add_tags_to_notes_inner(&[nid], "leech")?;
+        Ok(())
+    }
+}
+
+// test helpers
+#[cfg(test)]
+impl Collection {
+    pub(crate) fn answer_again(&mut self) {
+        self.answer(|states| states.again, Rating::Again).unwrap()
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn answer_hard(&mut self) {
+        self.answer(|states| states.hard, Rating::Hard).unwrap()
+    }
+
+    pub(crate) fn answer_good(&mut self) {
+        self.answer(|states| states.good, Rating::Good).unwrap()
+    }
+
+    pub(crate) fn answer_easy(&mut self) {
+        self.answer(|states| states.easy, Rating::Easy).unwrap()
+    }
+
+    fn answer<F>(&mut self, get_state: F, rating: Rating) -> Result<()>
+    where
+        F: FnOnce(&NextCardStates) -> CardState,
+    {
+        let queued = self.next_card()?.unwrap();
+        self.answer_card(&CardAnswer {
+            card_id: queued.card.id,
+            current_state: queued.next_states.current,
+            new_state: get_state(&queued.next_states),
+            rating,
+            answered_at: TimestampMillis::now(),
+            milliseconds_taken: 0,
+        })?;
         Ok(())
     }
 }
