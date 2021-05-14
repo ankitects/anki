@@ -6,10 +6,7 @@ pub(crate) mod intersperser;
 pub(crate) mod sized_chain;
 mod sorting;
 
-use std::{
-    cmp::Reverse,
-    collections::{BinaryHeap, HashMap, VecDeque},
-};
+use std::collections::{HashMap, VecDeque};
 
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
@@ -114,19 +111,19 @@ impl QueueBuilder {
     pub(super) fn build(
         mut self,
         top_deck_limits: RemainingLimits,
-        learn_ahead_secs: u32,
+        learn_ahead_secs: i64,
         selected_deck: DeckId,
         current_day: u32,
     ) -> CardQueues {
         self.sort_new();
         self.sort_reviews(current_day);
 
-        // split and sort learning
-        let learn_ahead_secs = learn_ahead_secs as i64;
-        let (due_learning, later_learning) = split_learning(self.learning, learn_ahead_secs);
-        let learn_count = due_learning.len();
+        // intraday learning
+        let learning = sort_learning(self.learning);
+        let cutoff = TimestampSecs::now().adding_secs(learn_ahead_secs);
+        let learn_count = learning.iter().take_while(|e| e.due <= cutoff).count();
 
-        // merge day learning in, and cap to parent review count
+        // merge interday learning into main, and cap to parent review count
         let main_iter = merge_day_learning(
             self.review,
             self.day_learning,
@@ -148,8 +145,7 @@ impl QueueBuilder {
             },
             undo: Vec::new(),
             main: main_iter.collect(),
-            due_learning,
-            later_learning,
+            learning,
             learn_ahead_secs,
             selected_deck,
             current_day,
@@ -186,34 +182,9 @@ fn merge_new(
     }
 }
 
-/// Split the learning queue into cards due within limit, and cards due later
-/// today. Learning does not need to be sorted in advance, as the sorting is
-/// done as the heaps/dequeues are built.
-fn split_learning(
-    learning: Vec<DueCard>,
-    learn_ahead_secs: i64,
-) -> (
-    VecDeque<LearningQueueEntry>,
-    BinaryHeap<Reverse<LearningQueueEntry>>,
-) {
-    let cutoff = TimestampSecs(TimestampSecs::now().0 + learn_ahead_secs);
-
-    // split learning into now and later
-    let (mut now, later): (Vec<_>, Vec<_>) = learning
-        .into_iter()
-        .map(LearningQueueEntry::from)
-        .partition(|c| c.due <= cutoff);
-
-    // sort due items in ascending order, as we pop the deque from the front
-    now.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    // partition() requires both outputs to be the same, so we need to create the deque
-    // separately
-    let now = VecDeque::from(now);
-
-    // build the binary min heap
-    let later: BinaryHeap<_> = later.into_iter().map(Reverse).collect();
-
-    (now, later)
+fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
+    learning.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+    learning.into_iter().map(LearningQueueEntry::from).collect()
 }
 
 impl Collection {
@@ -293,7 +264,7 @@ impl Collection {
 
         let queues = queues.build(
             selected_deck_limits,
-            self.learn_ahead_secs(),
+            self.learn_ahead_secs() as i64,
             deck_id,
             timing.days_elapsed,
         );
