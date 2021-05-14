@@ -36,6 +36,16 @@ use crate::{
 
 define_newtype!(DeckId, i64);
 
+impl DeckId {
+    pub(crate) fn or(self, other: DeckId) -> Self {
+        if self.0 == 0 {
+            other
+        } else {
+            self
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Deck {
     pub id: DeckId,
