@@ -475,8 +475,6 @@ def review_limits_setup() -> Tuple[anki.collection.Collection, Dict]:
 
 
 def test_review_limits():
-    if is_2021():
-        pytest.skip("old sched only")
     col, child = review_limits_setup()
 
     tree = col.sched.deck_due_tree().children
@@ -497,30 +495,6 @@ def test_review_limits():
     tree = col.sched.deck_due_tree().children
     assert tree[0].review_count == 4  # parent
     assert tree[0].children[0].review_count == 9  # child
-
-
-def test_review_limits_new():
-    if not is_2021():
-        pytest.skip("new sched only")
-    col, child = review_limits_setup()
-
-    tree = col.sched.deck_due_tree().children
-    assert tree[0].review_count == 5  # parent
-    assert tree[0].children[0].review_count == 5  # child capped by parent
-
-    # child .counts() are bound by parents
-    col.decks.select(child["id"])
-    col.sched.reset()
-    assert col.sched.counts() == (0, 0, 5)
-
-    # answering a card in the child should decrement both child and parent count
-    c = col.sched.getCard()
-    col.sched.answerCard(c, 3)
-    assert col.sched.counts() == (0, 0, 4)
-
-    tree = col.sched.deck_due_tree().children
-    assert tree[0].review_count == 4  # parent
-    assert tree[0].children[0].review_count == 4  # child
 
 
 def test_button_spacing():

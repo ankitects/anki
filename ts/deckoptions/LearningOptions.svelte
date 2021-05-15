@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<h2>{tr.deckConfigLearningRelearningTitle()}</h2>
+<h2>{tr.deckConfigLearningTitle()}</h2>
 
 <StepsInput
     label={tr.deckConfigLearningSteps()}
@@ -22,13 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     defaultValue={defaults.learnSteps}
     value={$config.learnSteps}
     on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
-
-<StepsInput
-    label={tr.deckConfigRelearningSteps()}
-    tooltip={tr.deckConfigRelearningStepsTooltip()}
-    defaultValue={defaults.relearnSteps}
-    value={$config.relearnSteps}
-    on:changed={(evt) => ($config.relearnSteps = evt.detail.value)} />
 
 {#if state.v3Scheduler}
     <EnumSelector

@@ -151,7 +151,7 @@ impl Collection {
                 let previous_config_id = DeckConfigId(normal.config_id);
                 let previous_order = configs_before_update
                     .get(&previous_config_id)
-                    .map(|c| c.inner.new_card_fetch_order())
+                    .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
 
                 // if a selected (sub)deck, or its old config was removed, update deck to point to new config
@@ -169,7 +169,7 @@ impl Collection {
                 // if new order differs, deck needs re-sorting
                 let current_order = configs_after_update
                     .get(&current_config_id)
-                    .map(|c| c.inner.new_card_fetch_order())
+                    .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
                 if previous_order != current_order {
                     self.sort_deck(deck_id, current_order, usn)?;
@@ -184,7 +184,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconfig::NewCardFetchOrder};
+    use crate::{collection::open_test_collection, deckconfig::NewCardInsertOrder};
 
     #[test]
     fn updating() -> Result<()> {
@@ -258,7 +258,7 @@ mod test {
         assert_eq!(card1_pos(&mut col), 1);
         reset_card1_pos(&mut col);
         assert_eq!(card1_pos(&mut col), 0);
-        input.configs[1].inner.new_card_fetch_order = NewCardFetchOrder::Random as i32;
+        input.configs[1].inner.new_card_insert_order = NewCardInsertOrder::Random as i32;
         assert_eq!(
             col.update_deck_configs(input.clone())?.changes.changes.card,
             true

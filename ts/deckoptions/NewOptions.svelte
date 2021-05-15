@@ -14,9 +14,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let config = state.currentConfig;
     let defaults = state.defaults;
 
-    const newFetchOrderChoices = [
+    const newInsertOrderChoices = [
         tr.deckConfigNewInsertionOrderSequential(),
         tr.deckConfigNewInsertionOrderRandom(),
+    ];
+    const newGatherPriorityChoices = [
+        tr.deckConfigNewGatherPriorityDeck(),
+        tr.deckConfigNewGatherPriorityPosition(),
     ];
     const newSortOrderChoices = [
         tr.deckConfigSortOrderCardTemplateThenPosition(),
@@ -62,9 +66,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <EnumSelector
         label={tr.deckConfigNewInsertionOrder()}
         tooltip={tr.deckConfigNewInsertionOrderTooltip()}
-        choices={newFetchOrderChoices}
-        defaultValue={defaults.newCardFetchOrder}
-        bind:value={$config.newCardFetchOrder} />
+        choices={newInsertOrderChoices}
+        defaultValue={defaults.newCardInsertOrder}
+        bind:value={$config.newCardInsertOrder} />
+
+    <EnumSelector
+        label={tr.deckConfigNewGatherPriority()}
+        tooltip={tr.deckConfigNewGatherPriorityTooltip()}
+        choices={newGatherPriorityChoices}
+        defaultValue={defaults.newCardGatherPriority}
+        bind:value={$config.newCardGatherPriority} />
 
     <EnumSelector
         label={tr.deckConfigSortOrder()}
@@ -74,8 +85,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bind:value={$config.newCardSortOrder} />
 
     <EnumSelector
-        label={tr.deckConfigNewPriority()}
-        tooltip={tr.deckConfigNewPriorityTooltip()}
+        label={tr.deckConfigReviewPriority()}
+        tooltip={tr.deckConfigReviewPriorityTooltip()}
         choices={reviewMixChoices()}
         defaultValue={defaults.newMix}
         bind:value={$config.newMix} />

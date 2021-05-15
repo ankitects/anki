@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    iter,
+};
 
 use prost::Message;
 use rusqlite::{named_params, params, Row, NO_PARAMS};
@@ -35,13 +38,24 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
     })
 }
 
-fn row_to_due_counts(row: &Row) -> Result<(DeckId, DueCounts)> {
+fn row_to_due_counts(row: &Row, v3: bool) -> Result<(DeckId, DueCounts)> {
+    let deck_id = row.get(0)?;
+    let new = row.get(1)?;
+    let mut review = row.get(2)?;
+    let interday: u32 = row.get(3)?;
+    let intraday: u32 = row.get(4)?;
+    let learning = if v3 {
+        review += interday;
+        intraday
+    } else {
+        intraday + interday
+    };
     Ok((
-        row.get(0)?,
+        deck_id,
         DueCounts {
-            new: row.get(1)?,
-            review: row.get(2)?,
-            learning: row.get(3)?,
+            new,
+            review,
+            learning,
         },
     ))
 }
@@ -193,24 +207,11 @@ impl SqliteStorage {
             .collect()
     }
 
-    /// Return the provided deck with its parents and children in an ordered list, and
-    /// the number of parent decks that need to be skipped to get to the chosen deck.
-    pub(crate) fn deck_with_parents_and_children(
-        &self,
-        deck_id: DeckId,
-    ) -> Result<(Vec<Deck>, usize)> {
+    pub(crate) fn deck_with_children(&self, deck_id: DeckId) -> Result<Vec<Deck>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
-        let mut parents = self.parent_decks(&deck)?;
-        parents.reverse();
-        let parent_count = parents.len();
-
         let prefix_start = format!("{}\x1f", deck.name);
         let prefix_end = format!("{}\x20", deck.name);
-        parents.push(deck);
-
-        let decks = parents
-            .into_iter()
-            .map(Result::Ok)
+        iter::once(Ok(deck))
             .chain(
                 self.db
                     .prepare_cached(concat!(
@@ -219,9 +220,7 @@ impl SqliteStorage {
                     ))?
                     .query_and_then(&[prefix_start, prefix_end], row_to_deck)?,
             )
-            .collect::<Result<_>>()?;
-
-        Ok((decks, parent_count))
+            .collect()
     }
 
     /// Return the parents of `child`, with the most immediate parent coming first.
@@ -252,6 +251,7 @@ impl SqliteStorage {
         day_cutoff: u32,
         learn_cutoff: u32,
         top_deck: Option<&str>,
+        v3: bool,
     ) -> Result<HashMap<DeckId, DueCounts>> {
         let sched_ver = sched as u8;
         let mut params = named_params! {
@@ -292,7 +292,7 @@ impl SqliteStorage {
 
         self.db
             .prepare_cached(sql)?
-            .query_and_then_named(&params, row_to_due_counts)?
+            .query_and_then_named(&params, |row| row_to_due_counts(row, v3))?
             .collect()
     }
 
@@ -323,7 +323,7 @@ impl SqliteStorage {
     /// Write active decks into temporary active_decks table.
     pub(crate) fn update_active_decks(&self, current: &Deck) -> Result<()> {
         self.db.execute_batch(concat!(
-            "drop table if exists temp.active_decks;",
+            "drop table if exists active_decks;",
             "create temporary table active_decks (id integer primary key not null);"
         ))?;
 

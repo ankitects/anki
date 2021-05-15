@@ -1,62 +1,58 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{super::limits::RemainingLimits, BuryMode, DueCard, NewCard, QueueBuilder};
+use super::{BuryMode, DueCard, NewCard, QueueBuilder};
 use crate::{card::CardQueue, prelude::*};
 
 impl QueueBuilder {
-    /// Assumes cards will arrive sorted in (queue, due) order, so learning
-    /// cards come first, and reviews come before day-learning and preview cards.
+    pub(in super::super) fn add_intraday_learning_card(
+        &mut self,
+        card: DueCard,
+        bury_mode: BuryMode,
+    ) {
+        self.get_and_update_bury_mode_for_note(card.note_id, bury_mode);
+        self.learning.push(card);
+    }
+
+    /// True if limit should be decremented.
     pub(in super::super) fn add_due_card(
         &mut self,
-        limit: &mut RemainingLimits,
         queue: CardQueue,
         card: DueCard,
         bury_mode: BuryMode,
     ) -> bool {
-        let bury_reviews = self
+        let bury_this_card = self
             .get_and_update_bury_mode_for_note(card.note_id, bury_mode)
             .map(|mode| mode.bury_reviews)
             .unwrap_or_default();
-
-        match queue {
-            CardQueue::Learn | CardQueue::PreviewRepeat => self.learning.push(card),
-            CardQueue::DayLearn => {
-                self.day_learning.push(card);
-            }
-            CardQueue::Review => {
-                if !bury_reviews {
-                    self.review.push(card);
-                    limit.review -= 1;
+        if bury_this_card {
+            false
+        } else {
+            match queue {
+                CardQueue::DayLearn => {
+                    self.day_learning.push(card);
                 }
+                CardQueue::Review => {
+                    self.review.push(card);
+                }
+                _ => unreachable!(),
             }
-            CardQueue::New
-            | CardQueue::Suspended
-            | CardQueue::SchedBuried
-            | CardQueue::UserBuried => {
-                unreachable!()
-            }
-        }
 
-        limit.review != 0
+            true
+        }
     }
 
-    pub(in super::super) fn add_new_card(
-        &mut self,
-        limit: &mut RemainingLimits,
-        card: NewCard,
-        bury_mode: BuryMode,
-    ) -> bool {
+    // True if limit should be decremented.
+    pub(in super::super) fn add_new_card(&mut self, card: NewCard, bury_mode: BuryMode) -> bool {
         let previous_bury_mode = self
             .get_and_update_bury_mode_for_note(card.note_id, bury_mode)
             .map(|mode| mode.bury_new);
         // no previous siblings seen?
         if previous_bury_mode.is_none() {
             self.new.push(card);
-            limit.new -= 1;
-            return limit.new != 0;
+            return true;
         }
-        let bury_new = previous_bury_mode.unwrap();
+        let bury_this_card = previous_bury_mode.unwrap();
 
         // Cards will be arriving in (due, card_id) order, with all
         // siblings sharing the same due number by default. In the
@@ -76,10 +72,12 @@ impl QueueBuilder {
             .unwrap_or(false);
 
         if previous_card_was_sibling_with_higher_ordinal {
-            if bury_new {
+            if bury_this_card {
                 // When burying is enabled, we replace the existing sibling
-                // with the lower ordinal one.
+                // with the lower ordinal one, and skip decrementing the limit.
                 *self.new.last_mut().unwrap() = card;
+
+                false
             } else {
                 // When burying disabled, we'll want to add this card as well, but we
                 // need to insert it in front of the later-ordinal card(s).
@@ -100,17 +98,19 @@ impl QueueBuilder {
                     .next()
                     .unwrap_or(0);
                 self.new.insert(target_idx, card);
-                limit.new -= 1;
+
+                true
             }
         } else {
             // card has arrived in expected order - add if burying disabled
-            if !bury_new {
+            if bury_this_card {
+                false
+            } else {
                 self.new.push(card);
-                limit.new -= 1;
+
+                true
             }
         }
-
-        limit.new != 0
     }
 
     /// If burying is enabled in `new_settings`, existing entry will be updated.
@@ -142,11 +142,6 @@ mod test {
     #[test]
     fn new_siblings() {
         let mut builder = QueueBuilder::default();
-        let mut limits = RemainingLimits {
-            review: 0,
-            new: 100,
-        };
-
         let cards = vec![
             NewCard {
                 id: CardId(1),
@@ -177,7 +172,6 @@ mod test {
 
         for card in &cards {
             builder.add_new_card(
-                &mut limits,
                 card.clone(),
                 BuryMode {
                     bury_new: true,
@@ -194,7 +188,7 @@ mod test {
         let mut builder = QueueBuilder::default();
 
         for card in &cards {
-            builder.add_new_card(&mut limits, card.clone(), Default::default());
+            builder.add_new_card(card.clone(), Default::default());
         }
 
         assert_eq!(builder.new[0].id, CardId(1));

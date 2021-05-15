@@ -67,10 +67,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     defaultValue={defaults.lapseMultiplier}
     value={$config.lapseMultiplier}
     on:changed={(evt) => ($config.lapseMultiplier = evt.detail.value)} />
-
-<SpinBox
-    label={tr.schedulingMinimumInterval()}
-    tooltip={tr.deckConfigMinimumIntervalTooltip()}
-    min={1}
-    defaultValue={defaults.minimumLapseInterval}
-    bind:value={$config.minimumLapseInterval} />

@@ -14,7 +14,7 @@ use rusqlite::{
 use super::ids_to_string;
 use crate::{
     card::{Card, CardId, CardQueue, CardType},
-    deckconfig::DeckConfigId,
+    deckconfig::{DeckConfigId, ReviewCardOrder},
     decks::{Deck, DeckId, DeckKind},
     error::Result,
     notes::NoteId,
@@ -164,25 +164,52 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    /// Call func() for each due card, stopping when it returns false
-    /// or no more cards found.
-    pub(crate) fn for_each_due_card_in_deck<F>(
+    pub(crate) fn for_each_intraday_card_in_active_decks<F>(
+        &self,
+        learn_cutoff: TimestampSecs,
+        mut func: F,
+    ) -> Result<()>
+    where
+        F: FnMut(DueCard),
+    {
+        let mut stmt = self.db.prepare_cached(include_str!("intraday_due.sql"))?;
+        let mut rows = stmt.query(params![learn_cutoff])?;
+        while let Some(row) = rows.next()? {
+            func(DueCard {
+                id: row.get(0)?,
+                note_id: row.get(1)?,
+                due: row.get(2).ok().unwrap_or_default(),
+                mtime: row.get(3)?,
+                current_deck_id: row.get(4)?,
+                original_deck_id: row.get(5)?,
+                interval: 0,
+                hash: 0,
+            })
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn for_each_review_card_in_active_decks<F>(
         &self,
         day_cutoff: u32,
-        learn_cutoff: TimestampSecs,
-        deck: DeckId,
+        order: ReviewCardOrder,
         mut func: F,
     ) -> Result<()>
     where
         F: FnMut(CardQueue, DueCard) -> bool,
     {
-        let mut stmt = self.db.prepare_cached(include_str!("due_cards.sql"))?;
-        let mut rows = stmt.query(params![
-            // with many subdecks, avoiding named params shaves off a few milliseconds
-            deck,
-            day_cutoff,
-            learn_cutoff
-        ])?;
+        let order_clause = match order {
+            ReviewCardOrder::DayThenRandom => "order by due",
+            ReviewCardOrder::IntervalsAscending => "order by ivl asc",
+            ReviewCardOrder::IntervalsDescending => "order by ivl desc",
+        };
+        let mut stmt = self.db.prepare_cached(&format!(
+            "{} {}",
+            include_str!("due_cards.sql"),
+            order_clause
+        ))?;
+        let mut rows = stmt.query(params![day_cutoff])?;
         while let Some(row) = rows.next()? {
             let queue: CardQueue = row.get(0)?;
             if !func(
@@ -193,8 +220,9 @@ impl super::SqliteStorage {
                     due: row.get(3).ok().unwrap_or_default(),
                     interval: row.get(4)?,
                     mtime: row.get(5)?,
+                    current_deck_id: row.get(6)?,
+                    original_deck_id: row.get(7)?,
                     hash: 0,
-                    original_deck_id: row.get(6)?,
                 },
             ) {
                 break;
@@ -408,6 +436,8 @@ impl super::SqliteStorage {
     }
 
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
+        // FIXME: when v1/v2 are dropped, this line will become obsolete, as it's run
+        // on queue build by v3
         self.update_active_decks(current)?;
         self.db
             .prepare(include_str!("congrats.sql"))?
