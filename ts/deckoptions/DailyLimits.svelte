@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let parentLimits = state.parentLimits;
 
     $: newCardsGreaterThanParent =
-        $config.newPerDay > $parentLimits.newCards
+        !state.v3Scheduler && $config.newPerDay > $parentLimits.newCards
             ? tr.deckConfigDailyLimitWillBeCapped({ cards: $parentLimits.newCards })
             : "";
 

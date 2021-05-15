@@ -7,7 +7,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
     card::{CardQueue, CardType},
-    deckconfig::NewCardFetchOrder,
+    deckconfig::NewCardInsertOrder,
     prelude::*,
     search::{SortMode, StateKind},
 };
@@ -171,9 +171,9 @@ impl Collection {
             col.sort_deck(
                 deck,
                 if random {
-                    NewCardFetchOrder::Random
+                    NewCardInsertOrder::Random
                 } else {
-                    NewCardFetchOrder::Due
+                    NewCardInsertOrder::Due
                 },
                 col.usn()?,
             )
@@ -183,7 +183,7 @@ impl Collection {
     pub(crate) fn sort_deck(
         &mut self,
         deck: DeckId,
-        order: NewCardFetchOrder,
+        order: NewCardInsertOrder,
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(match_all![deck, StateKind::New], SortMode::NoOrder)?;
@@ -241,11 +241,11 @@ mod test {
     }
 }
 
-impl From<NewCardFetchOrder> for NewCardDueOrder {
-    fn from(o: NewCardFetchOrder) -> Self {
+impl From<NewCardInsertOrder> for NewCardDueOrder {
+    fn from(o: NewCardInsertOrder) -> Self {
         match o {
-            NewCardFetchOrder::Due => NewCardDueOrder::NoteId,
-            NewCardFetchOrder::Random => NewCardDueOrder::Random,
+            NewCardInsertOrder::Due => NewCardDueOrder::NoteId,
+            NewCardInsertOrder::Random => NewCardDueOrder::Random,
         }
     }
 }

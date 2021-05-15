@@ -311,10 +311,10 @@ impl Collection {
             .get(&did)
             .unwrap()
             .inner
-            .new_card_fetch_order()
+            .new_card_insert_order()
         {
-            crate::deckconfig::NewCardFetchOrder::Random => Ok(random_position(next_pos)),
-            crate::deckconfig::NewCardFetchOrder::Due => Ok(next_pos),
+            crate::deckconfig::NewCardInsertOrder::Random => Ok(random_position(next_pos)),
+            crate::deckconfig::NewCardInsertOrder::Due => Ok(next_pos),
         }
     }
 

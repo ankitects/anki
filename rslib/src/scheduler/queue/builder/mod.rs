@@ -11,12 +11,10 @@ use std::collections::{HashMap, VecDeque};
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
 
-use super::{
-    limits::{remaining_limits_capped_to_parents, RemainingLimits},
-    CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind,
-};
+use super::{CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind};
 use crate::{
-    deckconfig::{NewCardSortOrder, ReviewCardOrder, ReviewMix},
+    deckconfig::{NewCardGatherPriority, NewCardSortOrder, ReviewCardOrder, ReviewMix},
+    decks::limits::{remaining_limits_map, RemainingLimits},
     prelude::*,
 };
 
@@ -28,8 +26,9 @@ pub(crate) struct DueCard {
     pub mtime: TimestampSecs,
     pub due: i32,
     pub interval: u32,
-    pub original_deck_id: DeckId,
     pub hash: u64,
+    pub current_deck_id: DeckId,
+    pub original_deck_id: DeckId,
 }
 
 /// Temporary holder for new cards that will be built into a queue.
@@ -85,6 +84,7 @@ pub(super) struct BuryMode {
 #[derive(Default, Clone, Debug)]
 pub(super) struct QueueSortOptions {
     pub(super) new_order: NewCardSortOrder,
+    pub(super) new_gather_priority: NewCardGatherPriority,
     pub(super) review_order: ReviewCardOrder,
     pub(super) day_learn_mix: ReviewMix,
     pub(super) new_review_mix: ReviewMix,
@@ -192,16 +192,17 @@ impl Collection {
     pub(crate) fn build_queues(&mut self, deck_id: DeckId) -> Result<CardQueues> {
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
-        let (decks, parent_count) = self.storage.deck_with_parents_and_children(deck_id)?;
+        let decks = self.storage.deck_with_children(deck_id)?;
+        // need full map, since filtered decks may contain cards from decks/
+        // outside tree
         let deck_map = self.storage.get_decks_map()?;
         let config = self.storage.get_deck_config_map()?;
-        let sort_options = decks
-            .get(parent_count)
-            .unwrap()
+        let sort_options = decks[0]
             .config_id()
             .and_then(|config_id| config.get(&config_id))
             .map(|config| QueueSortOptions {
                 new_order: config.inner.new_card_sort_order(),
+                new_gather_priority: config.inner.new_card_gather_priority(),
                 review_order: config.inner.review_order(),
                 day_learn_mix: config.inner.interday_learning_mix(),
                 new_review_mix: config.inner.new_mix(),
@@ -213,9 +214,18 @@ impl Collection {
                     ..Default::default()
                 }
             });
-        let limits = remaining_limits_capped_to_parents(&decks, &config, timing.days_elapsed);
-        let selected_deck_limits = limits[parent_count];
-        let mut queues = QueueBuilder::new(sort_options);
+
+        // fetch remaining limits, and cap to selected deck limits so that we don't
+        // do more work than necessary
+        let mut remaining = remaining_limits_map(decks.iter(), &config, timing.days_elapsed);
+        let selected_deck_limits_at_start = *remaining.get(&deck_id).unwrap();
+        let mut selected_deck_limits = selected_deck_limits_at_start;
+        for limit in remaining.values_mut() {
+            limit.cap_to(selected_deck_limits);
+        }
+
+        self.storage.update_active_decks(&decks[0])?;
+        let mut queues = QueueBuilder::new(sort_options.clone());
 
         let get_bury_mode = |home_deck: DeckId| {
             deck_map
@@ -229,28 +239,70 @@ impl Collection {
                 .unwrap_or_default()
         };
 
-        for (deck, mut limit) in decks.iter().zip(limits).skip(parent_count) {
-            if limit.review > 0 {
-                self.storage.for_each_due_card_in_deck(
-                    timing.days_elapsed,
-                    timing.next_day_at,
-                    deck.id,
-                    |queue, card| {
-                        let bury = get_bury_mode(card.original_deck_id.or(deck.id));
-                        queues.add_due_card(&mut limit, queue, card, bury)
-                    },
-                )?;
+        // intraday cards first, noting down any notes that will need burying
+        self.storage
+            .for_each_intraday_card_in_active_decks(timing.next_day_at, |card| {
+                let bury = get_bury_mode(card.current_deck_id);
+                queues.add_intraday_learning_card(card, bury)
+            })?;
+
+        // reviews and interday learning next
+        if selected_deck_limits.review != 0 {
+            self.storage.for_each_review_card_in_active_decks(
+                timing.days_elapsed,
+                sort_options.review_order,
+                |queue, card| {
+                    if selected_deck_limits.review == 0 {
+                        return false;
+                    }
+                    let bury = get_bury_mode(card.original_deck_id.or(card.current_deck_id));
+                    let limits = remaining.get_mut(&card.current_deck_id).unwrap();
+                    if limits.review != 0 && queues.add_due_card(queue, card, bury) {
+                        selected_deck_limits.review -= 1;
+                        limits.review -= 1;
+                    }
+
+                    true
+                },
+            )?;
+        }
+
+        // New cards last
+        for limit in remaining.values_mut() {
+            limit.new = limit.new.min(limit.review).min(selected_deck_limits.review);
+        }
+        selected_deck_limits.new = selected_deck_limits.new.min(selected_deck_limits.review);
+        let can_exit_early = sort_options.new_gather_priority == NewCardGatherPriority::Deck;
+        for deck in &decks {
+            if can_exit_early && selected_deck_limits.new == 0 {
+                break;
             }
+            let limit = remaining.get_mut(&deck.id).unwrap();
             if limit.new > 0 {
                 self.storage.for_each_new_card_in_deck(deck.id, |card| {
                     let bury = get_bury_mode(card.original_deck_id.or(deck.id));
-                    queues.add_new_card(&mut limit, card, bury)
+                    if limit.new != 0 {
+                        if queues.add_new_card(card, bury) {
+                            limit.new -= 1;
+                            selected_deck_limits.new = selected_deck_limits.new.saturating_sub(1);
+                        }
+
+                        true
+                    } else {
+                        false
+                    }
                 })?;
             }
         }
 
+        let final_limits = RemainingLimits {
+            new: selected_deck_limits_at_start
+                .new
+                .min(selected_deck_limits.review),
+            ..selected_deck_limits_at_start
+        };
         let queues = queues.build(
-            selected_deck_limits,
+            final_limits,
             self.learn_ahead_secs() as i64,
             deck_id,
             timing.days_elapsed,

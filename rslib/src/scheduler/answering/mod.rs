@@ -261,7 +261,7 @@ impl Collection {
         if let Some(revlog_partial) = updater.apply_study_state(current_state, answer.new_state)? {
             self.add_partial_revlog(revlog_partial, usn, &answer)?;
         }
-        self.update_deck_stats_from_answer(usn, &answer, &updater)?;
+        self.update_deck_stats_from_answer(usn, &answer, &updater, original.queue)?;
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
@@ -308,26 +308,22 @@ impl Collection {
         usn: Usn,
         answer: &CardAnswer,
         updater: &CardStateUpdater,
+        from_queue: CardQueue,
     ) -> Result<()> {
+        let mut new_delta = 0;
+        let mut review_delta = 0;
+        match from_queue {
+            CardQueue::New => new_delta += 1,
+            CardQueue::Review => review_delta += 1,
+            _ => {}
+        }
         self.update_deck_stats(
             updater.timing.days_elapsed,
             usn,
             backend_proto::UpdateStatsIn {
                 deck_id: updater.deck.id.0,
-                new_delta: if matches!(answer.current_state, CardState::Normal(NormalState::New(_)))
-                {
-                    1
-                } else {
-                    0
-                },
-                review_delta: if matches!(
-                    answer.current_state,
-                    CardState::Normal(NormalState::Review(_))
-                ) {
-                    1
-                } else {
-                    0
-                },
+                new_delta,
+                review_delta,
                 millisecond_delta: answer.milliseconds_taken as i32,
             },
         )

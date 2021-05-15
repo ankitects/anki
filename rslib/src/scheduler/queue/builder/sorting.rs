@@ -31,23 +31,10 @@ impl QueueBuilder {
             .for_each(DueCard::hash_id_and_mtime);
         self.day_learning.sort_unstable_by(day_then_hash);
 
-        match self.sort_options.review_order {
-            ReviewCardOrder::DayThenRandom => {
-                self.review.iter_mut().for_each(DueCard::hash_id_and_mtime);
-                self.review.sort_unstable_by(day_then_hash);
-            }
-            ReviewCardOrder::IntervalsAscending => {
-                self.review.sort_unstable_by(intervals_ascending);
-            }
-            ReviewCardOrder::IntervalsDescending => {
-                self.review
-                    .sort_unstable_by(|a, b| intervals_ascending(b, a));
-            } // ReviewCardOrder::RelativeOverdue => {
-              //     self.review
-              //         .iter_mut()
-              //         .for_each(|card| card.set_hash_to_relative_overdue(current_day));
-              //     self.review.sort_unstable_by(due_card_hash)
-              // }
+        // other sorting is done in SQL
+        if self.sort_options.review_order == ReviewCardOrder::DayThenRandom {
+            self.review.iter_mut().for_each(DueCard::hash_id_and_mtime);
+            self.review.sort_unstable_by(day_then_hash);
         }
     }
 }
@@ -70,15 +57,6 @@ fn new_hash(a: &NewCard, b: &NewCard) -> Ordering {
 
 fn day_then_hash(a: &DueCard, b: &DueCard) -> Ordering {
     (a.due, a.hash).cmp(&(b.due, b.hash))
-}
-
-#[allow(dead_code)]
-fn due_card_hash(a: &DueCard, b: &DueCard) -> Ordering {
-    a.hash.cmp(&b.hash)
-}
-
-fn intervals_ascending(a: &DueCard, b: &DueCard) -> Ordering {
-    (a.interval, a.hash).cmp(&(a.interval, b.hash))
 }
 
 // We sort based on a hash so that if the queue is rebuilt, remaining

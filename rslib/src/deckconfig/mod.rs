@@ -9,7 +9,10 @@ pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
 pub use update::UpdateDeckConfigsIn;
 
 pub use crate::backend_proto::deck_config::{
-    config::{LeechAction, NewCardFetchOrder, NewCardSortOrder, ReviewCardOrder, ReviewMix},
+    config::{
+        LeechAction, NewCardGatherPriority, NewCardInsertOrder, NewCardSortOrder, ReviewCardOrder,
+        ReviewMix,
+    },
     Config as DeckConfigInner,
 };
 
@@ -58,7 +61,8 @@ impl Default for DeckConfig {
                 minimum_lapse_interval: 1,
                 graduating_interval_good: 1,
                 graduating_interval_easy: 4,
-                new_card_fetch_order: NewCardFetchOrder::Due as i32,
+                new_card_insert_order: NewCardInsertOrder::Due as i32,
+                new_card_gather_priority: NewCardGatherPriority::Deck as i32,
                 new_card_sort_order: NewCardSortOrder::TemplateThenDue as i32,
                 review_order: ReviewCardOrder::DayThenRandom as i32,
                 new_mix: ReviewMix::MixWithReviews as i32,

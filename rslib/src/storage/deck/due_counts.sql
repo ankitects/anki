@@ -4,7 +4,12 @@ SELECT did,
     queue = :review_queue
     AND due <= :day_cutoff
   ),
-  -- learning
+  -- interday learning
+  sum(
+    queue = :daylearn_queue
+    AND due <= :day_cutoff
+  ),
+  -- intraday learning
   sum(
     (
       CASE
@@ -16,10 +21,6 @@ SELECT did,
             AND due < :learn_cutoff
           )
           OR (
-            queue = :daylearn_queue
-            AND due <= :day_cutoff
-          )
-          OR (
             queue = :preview_queue
             AND due <= :learn_cutoff
           )
@@ -29,8 +30,6 @@ SELECT did,
           CASE
             WHEN queue = :learn_queue
             AND due < :learn_cutoff THEN left / 1000
-            WHEN queue = :daylearn_queue
-            AND due <= :day_cutoff THEN 1
             ELSE 0
           END
         )

@@ -309,9 +309,13 @@ service CardsService {
 
 message DeckConfig {
   message Config {
-    enum NewCardFetchOrder {
-      NEW_CARD_FETCH_ORDER_DUE = 0;
-      NEW_CARD_FETCH_ORDER_RANDOM = 1;
+    enum NewCardInsertOrder {
+      NEW_CARD_INSERT_ORDER_DUE = 0;
+      NEW_CARD_INSERT_ORDER_RANDOM = 1;
+    }
+    enum NewCardGatherPriority {
+      NEW_CARD_GATHER_PRIORITY_DECK = 0;
+      NEW_CARD_GATHER_PRIORITY_POSITION = 1;
     }
     enum NewCardSortOrder {
       NEW_CARD_SORT_ORDER_TEMPLATE_THEN_DUE = 0;
@@ -356,11 +360,13 @@ message DeckConfig {
     uint32 graduating_interval_good = 18;
     uint32 graduating_interval_easy = 19;
 
-    NewCardFetchOrder new_card_fetch_order = 20;
+    NewCardInsertOrder new_card_insert_order = 20;
+    NewCardGatherPriority new_card_gather_priority = 34;
     NewCardSortOrder new_card_sort_order = 32;
+    ReviewMix new_mix = 30;
+
     ReviewCardOrder review_order = 33;
 
-    ReviewMix new_mix = 30;
     ReviewMix interday_learning_mix = 31;
 
     LeechAction leech_action = 21;
@@ -659,7 +665,6 @@ message DeckTreeIn {
 message DeckTreeNode {
   int64 deck_id = 1;
   string name = 2;
-  repeated DeckTreeNode children = 3;
   uint32 level = 4;
   bool collapsed = 5;
 
@@ -668,6 +673,10 @@ message DeckTreeNode {
   uint32 new_count = 8;
 
   bool filtered = 16;
+
+  // low index so key can be packed into a byte, but at bottom
+  // to make debug output easier to read
+  repeated DeckTreeNode children = 3;
 }
 
 message RenderExistingCardIn {
