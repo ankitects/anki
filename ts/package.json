@@ -57,6 +57,7 @@
         "@mdi/svg": "^5.9.55",
         "@popperjs/core": "^2.9.2",
         "@types/lodash-es": "^4.17.4",
+        "@types/marked": "^2.0.2",
         "bootstrap": "=5.0.0-beta3",
         "bootstrap-icons": "^1.4.0",
         "css-browser-selector": "^0.6.5",
@@ -65,6 +66,7 @@
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
+        "marked": "^2.0.3",
         "mathjax": "^3.1.2",
         "protobufjs": "^6.10.2"
     },

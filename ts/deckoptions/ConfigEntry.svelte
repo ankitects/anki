@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import marked from "marked";
     import { slide } from "svelte/transition";
     import RevertButton from "./RevertButton.svelte";
     import HelpPopup from "./HelpPopup.svelte";
@@ -15,6 +16,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let warnings: string[] = [];
     export let wholeLine = false;
     export let id: string | undefined = undefined;
+
+    let renderedTooltip: string;
+    $: renderedTooltip = marked(tooltip);
 </script>
 
 <style lang="scss">
@@ -59,8 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="table">
             <span class="vcenter">
                 {label}
-                {#if tooltip}
-                    <HelpPopup html={tooltip} />
+                {#if renderedTooltip}
+                    <HelpPopup html={renderedTooltip} />
                 {/if}
             </span>
         </div>

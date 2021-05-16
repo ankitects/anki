@@ -28,6 +28,7 @@ compile_svelte(
     deps = [
         "//ts/sveltelib",
         "@npm//@types/bootstrap",
+        "@npm//@types/marked",
     ],
 )
 
@@ -98,6 +99,7 @@ esbuild(
         "@npm//bootstrap",
         ":base_css",
         "//ts/sveltelib",
+        "@npm//marked",
     ] + svelte_names,
 )
 
@@ -129,6 +131,7 @@ svelte_check(
     ]) + [
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
+        "@npm//@types/marked",
     ],
 )
 

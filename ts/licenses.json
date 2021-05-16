@@ -120,6 +120,12 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
+    "@types/marked@2.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/@types/marked",
+        "licenseFile": "node_modules/@types/marked/LICENSE"
+    },
     "@types/node@15.0.2": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
@@ -466,6 +472,13 @@
         "email": "dcode@dcode.io",
         "path": "node_modules/long",
         "licenseFile": "node_modules/long/LICENSE"
+    },
+    "marked@2.0.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/markedjs/marked",
+        "publisher": "Christopher Jeffrey",
+        "path": "node_modules/marked",
+        "licenseFile": "node_modules/marked/LICENSE.md"
     },
     "mathjax@3.1.4": {
         "licenses": "Apache-2.0",
