@@ -41,3 +41,9 @@ html {
     max-width: 300px;
     text-align: left;
 }
+
+// the default code color in tooltips is difficult to read; we'll probably
+// want to add more of our own styling in the future
+code {
+    color: var(--flag1-bg);
+}
