@@ -34,7 +34,6 @@ pub enum SearchErrorKind {
     InvalidPositiveWholeNumber { provided: String, context: String },
     InvalidNegativeWholeNumber { provided: String, context: String },
     InvalidAnswerButton { provided: String, context: String },
-    Regex(String),
     Other(Option<String>),
 }
 
@@ -95,9 +94,6 @@ impl SearchErrorKind {
             }
             SearchErrorKind::InvalidPropOperator(ctx) => {
                 tr.search_invalid_prop_operator(ctx.as_str())
-            }
-            SearchErrorKind::Regex(text) => {
-                format!("<pre>`{}`</pre>", text.replace('`', "'")).into()
             }
             SearchErrorKind::Other(Some(info)) => info.into(),
             SearchErrorKind::Other(None) => tr.search_invalid_other(),
