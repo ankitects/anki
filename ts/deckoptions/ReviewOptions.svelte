@@ -22,12 +22,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div>
     <h2>{tr.schedulingReviews()}</h2>
 
-    <EnumSelector
-        label={tr.deckConfigSortOrder()}
-        tooltip={tr.deckConfigReviewSortOrderTooltip()}
-        choices={reviewOrderChoices}
-        defaultValue={defaults.reviewOrder}
-        bind:value={$config.reviewOrder} />
+    {#if state.v3Scheduler}
+        <EnumSelector
+            label={tr.deckConfigSortOrder()}
+            tooltip={tr.deckConfigReviewSortOrderTooltip()}
+            choices={reviewOrderChoices}
+            defaultValue={defaults.reviewOrder}
+            bind:value={$config.reviewOrder} />
+    {/if}
 
     <CheckBox
         label={tr.deckConfigBuryReviewSiblings()}
