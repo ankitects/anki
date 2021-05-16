@@ -178,11 +178,14 @@ class DeckBrowser:
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
-<tr><th colspan=5 align=start>%s</th><th class=count>%s</th>
-<th class=count>%s</th><th class=optscol></th></tr>""" % (
+<tr><th colspan=5 align=start>%s</th>
+<th class=count>%s</th>
+<th class=count></th>
+<th class=count>%s</th>
+<th class=optscol></th></tr>""" % (
             tr.decks_deck(),
-            tr.statistics_due_count(),
             tr.actions_new(),
+            tr.statistics_due_count(),
         )
         buf += self._topLevelDragRow()
 
@@ -198,8 +201,6 @@ class DeckBrowser:
             prefix = "+"
         else:
             prefix = "-"
-
-        due = node.review_count + node.learn_count
 
         def indent() -> str:
             return "&nbsp;" * 6 * (node.level - 1)
@@ -238,9 +239,13 @@ class DeckBrowser:
                 klass = "zero-count"
             return f'<span class="{klass}">{cnt}</span>'
 
-        buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, "review-count"),
+        review = nonzeroColour(node.review_count, "review-count")
+        learn = nonzeroColour(node.learn_count, "learn-count")
+
+        buf += ("<td align=right>%s</td>" * 3) % (
             nonzeroColour(node.new_count, "new-count"),
+            learn,
+            review,
         )
         # options
         buf += (
