@@ -33,11 +33,13 @@ NotetypeNameId = _pb.NotetypeNameId
 NotetypeNameIdUseCount = _pb.NotetypeNameIdUseCount
 
 
-# types
+# legacy types
 NotetypeDict = Dict[str, Any]
+NoteType = NotetypeDict
 FieldDict = Dict[str, Any]
 TemplateDict = Dict[str, Union[str, int, None]]
 NotetypeId = NewType("NotetypeId", int)
+sys.modules["anki.models"].NoteType = NotetypeDict  # type: ignore
 
 
 class ModelsDictProxy:
