@@ -121,21 +121,6 @@ impl<'a> StateContext<'a> {
         .round() as u32
     }
 
-    /// Add up to 25% increase to seconds, but no more than 5 minutes.
-    pub(crate) fn with_learning_fuzz(&self, secs: u32) -> u32 {
-        if let Some(seed) = self.fuzz_seed {
-            let mut rng = StdRng::seed_from_u64(seed);
-            let upper_exclusive = secs + ((secs as f32) * 0.25).min(300.0).floor() as u32;
-            if secs >= upper_exclusive {
-                secs
-            } else {
-                rng.gen_range(secs, upper_exclusive)
-            }
-        } else {
-            secs
-        }
-    }
-
     pub(crate) fn fuzzed_graduating_interval_good(&self) -> u32 {
         self.with_review_fuzz(self.graduating_interval_good as f32)
     }
