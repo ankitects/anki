@@ -223,14 +223,14 @@ impl Collection {
                     .search_terms
                     .get_mut(0)
                     .unwrap();
-                term1.search = format!(r#"{} AND "is:due""#, search);
+                term1.search = format!("{} is:due", search);
                 let term2 = deck
                     .filtered_mut()
                     .unwrap()
                     .search_terms
                     .get_mut(1)
                     .unwrap();
-                term2.search = format!(r#"{} AND "is:new""#, search);
+                term2.search = format!("{} is:new", search);
             }
         }
 
