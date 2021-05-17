@@ -4,7 +4,6 @@
 use super::{CardStateUpdater, RevlogEntryPartial};
 use crate::{
     card::{CardQueue, CardType},
-    prelude::*,
     scheduler::states::{CardState, IntervalKind, RelearnState},
 };
 
@@ -25,7 +24,7 @@ impl CardStateUpdater {
         match interval {
             IntervalKind::InSecs(secs) => {
                 self.card.queue = CardQueue::Learn;
-                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
+                self.card.due = self.fuzzed_next_learning_timestamp(secs);
             }
             IntervalKind::InDays(days) => {
                 self.card.queue = CardQueue::DayLearn;

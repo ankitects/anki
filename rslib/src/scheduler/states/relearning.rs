@@ -36,7 +36,7 @@ impl RelearnState {
             RelearnState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
-                    scheduled_secs: ctx.with_learning_fuzz(again_delay),
+                    scheduled_secs: again_delay,
                 },
                 review: ReviewState {
                     scheduled_days: self.review.failing_review_interval(ctx),
@@ -57,7 +57,7 @@ impl RelearnState {
         {
             RelearnState {
                 learning: LearnState {
-                    scheduled_secs: ctx.with_learning_fuzz(hard_delay),
+                    scheduled_secs: hard_delay,
                     ..self.learning
                 },
                 review: ReviewState {
@@ -78,7 +78,7 @@ impl RelearnState {
         {
             RelearnState {
                 learning: LearnState {
-                    scheduled_secs: ctx.with_learning_fuzz(good_delay),
+                    scheduled_secs: good_delay,
                     remaining_steps: ctx
                         .relearn_steps
                         .remaining_for_good(self.learning.remaining_steps),

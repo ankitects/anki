@@ -18,18 +18,18 @@ impl PreviewState {
         NextCardStates {
             current: self.into(),
             again: PreviewState {
-                scheduled_secs: ctx.with_learning_fuzz(ctx.preview_step * 60),
+                scheduled_secs: ctx.preview_step * 60,
                 ..self
             }
             .into(),
             hard: PreviewState {
                 // ~15 minutes with the default setting
-                scheduled_secs: ctx.with_learning_fuzz(ctx.preview_step * 90),
+                scheduled_secs: ctx.preview_step * 90,
                 ..self
             }
             .into(),
             good: PreviewState {
-                scheduled_secs: ctx.with_learning_fuzz(ctx.preview_step * 120),
+                scheduled_secs: ctx.preview_step * 120,
                 ..self
             }
             .into(),

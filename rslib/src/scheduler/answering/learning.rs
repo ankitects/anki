@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use rand::{prelude::*, rngs::StdRng};
+
 use super::{CardStateUpdater, RevlogEntryPartial};
 use crate::{
     card::{CardQueue, CardType},
@@ -35,7 +37,7 @@ impl CardStateUpdater {
         match interval {
             IntervalKind::InSecs(secs) => {
                 self.card.queue = CardQueue::Learn;
-                self.card.due = TimestampSecs::now().0 as i32 + secs as i32;
+                self.card.due = self.fuzzed_next_learning_timestamp(secs);
             }
             IntervalKind::InDays(days) => {
                 self.card.queue = CardQueue::DayLearn;
@@ -44,5 +46,25 @@ impl CardStateUpdater {
         }
 
         RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
+    }
+
+    /// Adds secs + fuzz to current time
+    pub(super) fn fuzzed_next_learning_timestamp(&self, secs: u32) -> i32 {
+        TimestampSecs::now().0 as i32 + self.with_learning_fuzz(secs) as i32
+    }
+
+    /// Add up to 25% increase to seconds, but no more than 5 minutes.
+    fn with_learning_fuzz(&self, secs: u32) -> u32 {
+        if let Some(seed) = self.fuzz_seed {
+            let mut rng = StdRng::seed_from_u64(seed);
+            let upper_exclusive = secs + ((secs as f32) * 0.25).min(300.0).floor() as u32;
+            if secs >= upper_exclusive {
+                secs
+            } else {
+                rng.gen_range(secs, upper_exclusive)
+            }
+        } else {
+            secs
+        }
     }
 }

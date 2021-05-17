@@ -32,14 +32,14 @@ impl LearnState {
     fn answer_again(self, ctx: &StateContext) -> LearnState {
         LearnState {
             remaining_steps: ctx.steps.remaining_for_failed(),
-            scheduled_secs: ctx.with_learning_fuzz(ctx.steps.again_delay_secs_learn()),
+            scheduled_secs: ctx.steps.again_delay_secs_learn(),
         }
     }
 
     fn answer_hard(self, ctx: &StateContext) -> CardState {
         if let Some(hard_delay) = ctx.steps.hard_delay_secs(self.remaining_steps) {
             LearnState {
-                scheduled_secs: ctx.with_learning_fuzz(hard_delay),
+                scheduled_secs: hard_delay,
                 ..self
             }
             .into()
@@ -56,7 +56,7 @@ impl LearnState {
         if let Some(good_delay) = ctx.steps.good_delay_secs(self.remaining_steps) {
             LearnState {
                 remaining_steps: ctx.steps.remaining_for_good(self.remaining_steps),
-                scheduled_secs: ctx.with_learning_fuzz(good_delay),
+                scheduled_secs: good_delay,
             }
             .into()
         } else {

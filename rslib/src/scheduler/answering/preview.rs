@@ -27,7 +27,7 @@ impl CardStateUpdater {
         let interval = next.interval_kind();
         match interval {
             IntervalKind::InSecs(secs) => {
-                self.card.due = self.now.0 as i32 + secs as i32;
+                self.card.due = self.fuzzed_next_learning_timestamp(secs);
             }
             IntervalKind::InDays(_days) => {
                 // unsupported
