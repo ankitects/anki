@@ -6,7 +6,7 @@ import sys
 
 import aqt
 
-from .browser import Browser
+from .browser import Browser, PreviewDialog
 
 # aliases for legacy pathnames
 from .change_notetype import ChangeModel
