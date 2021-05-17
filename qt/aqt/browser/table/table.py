@@ -255,6 +255,8 @@ class Table:
     def _restore_header(self) -> None:
         self._view.horizontalHeader().blockSignals(True)
         restoreHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+        self._set_column_sizes()
+        self._set_sort_indicator()
         self._view.horizontalHeader().blockSignals(False)
 
     # Setup
@@ -303,8 +305,6 @@ class Table:
         hh.setSectionsMovable(True)
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
         self._restore_header()
-        self._set_column_sizes()
-        self._set_sort_indicator()
         qconnect(hh.customContextMenuRequested, self._on_header_context)
         qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
         qconnect(hh.sectionMoved, self._on_column_moved)
