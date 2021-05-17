@@ -253,7 +253,9 @@ class Table:
         saveHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
 
     def _restore_header(self) -> None:
+        self._view.horizontalHeader().blockSignals(True)
         restoreHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+        self._view.horizontalHeader().blockSignals(False)
 
     # Setup
 
