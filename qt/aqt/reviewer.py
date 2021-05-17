@@ -6,6 +6,7 @@ from __future__ import annotations
 import difflib
 import html
 import json
+import random
 import re
 import unicodedata as ucd
 from dataclasses import dataclass
@@ -124,6 +125,7 @@ class Reviewer:
         self.state: Optional[str] = None
         self._refresh_needed: Optional[RefreshNeeded] = None
         self._v3: Optional[V3CardInfo] = None
+        self._state_mutation_key = str(random.randint(0, 2 ** 64 - 1))
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
@@ -131,6 +133,7 @@ class Reviewer:
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
+        self._state_mutation_js = self.mw.col.get_config("cardStateCustomizer")
         self._reps: int = None
         self._refresh_needed = RefreshNeeded.QUEUES
         self.refresh_if_needed()
@@ -231,6 +234,25 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.startTimer()
 
+    def get_next_states(self) -> Optional[NextStates]:
+        if v3 := self._v3:
+            return v3.next_states
+        else:
+            return None
+
+    def set_next_states(self, key: str, states: NextStates) -> None:
+        if key != self._state_mutation_key:
+            return
+
+        if v3 := self._v3:
+            v3.next_states = states
+
+    def _run_state_mutation_hook(self) -> None:
+        if self._v3 and (js := self._state_mutation_js):
+            self.web.eval(
+                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states) => {{ {js} }})"
+            )
+
     # Audio
     ##########################################################################
 
@@ -268,6 +290,8 @@ class Reviewer:
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
+                "js/vendor/protobuf.min.js",
+                "js/reviewer_extras.js",
             ],
             context=self,
         )
@@ -308,6 +332,7 @@ class Reviewer:
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
+        self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 

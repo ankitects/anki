@@ -1,0 +1,54 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
+load("//ts:esbuild.bzl", "esbuild")
+load("//ts:compile_sass.bzl", "compile_sass")
+
+ts_library(
+    name = "lib",
+    srcs = glob(["*.ts"]),
+    deps = [
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+    ],
+)
+
+esbuild(
+    name = "reviewer_extras",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
+    args = [
+        "--inject:$(location //ts:protobuf-shim.js)",
+        "--resolve-extensions=.mjs,.js",
+        "--log-level=warning",
+    ],
+    entry_point = "index.ts",
+    external = [
+        "protobufjs/light",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":lib",
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+    ],
+)
+
+# Tests
+################
+
+prettier_test(
+    name = "format_check",
+    srcs = glob([
+        "*.ts",
+    ]),
+)
+
+eslint_test(
+    name = "eslint",
+    srcs = glob([
+        "*.ts",
+    ]),
+)

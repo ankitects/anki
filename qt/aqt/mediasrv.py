@@ -22,6 +22,7 @@ import aqt
 from anki import hooks
 from anki.collection import GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
+from anki.scheduler.v3 import NextStates
 from anki.utils import devMode, from_json_bytes
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs
@@ -307,12 +308,29 @@ def update_deck_configs_request() -> bytes:
     return b""
 
 
+def next_card_states() -> bytes:
+    if states := aqt.mw.reviewer.get_next_states():
+        return states.SerializeToString()
+    else:
+        return b""
+
+
+def set_next_card_states() -> bytes:
+    key = request.headers.get("key", "")
+    input = NextStates()
+    input.ParseFromString(request.data)
+    aqt.mw.reviewer.set_next_states(key, input)
+    return b""
+
+
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
     "setGraphPreferences": set_graph_preferences,
     "deckConfigsForUpdate": deck_configs_for_update,
     "updateDeckConfigs": update_deck_configs_request,
+    "nextCardStates": next_card_states,
+    "setNextCardStates": set_next_card_states,
     # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,
