@@ -119,7 +119,13 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         # init rest of app
-        self.safeMode = (KeyboardModifiersPressed().shift) or self.opts.safemode
+        self.safeMode = (
+            bool(
+                cast(Qt.KeyboardModifier, self.app.queryKeyboardModifiers())
+                & Qt.ShiftModifier
+            )
+            or self.opts.safemode
+        )
         try:
             self.setupUI()
             self.setupAddons(args)
