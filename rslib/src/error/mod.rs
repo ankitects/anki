@@ -75,6 +75,7 @@ impl AnkiError {
             }
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
             AnkiError::FilteredDeckError(err) => err.localized_description(tr),
+            AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
             _ => format!("{:?}", self),
         }
     }
