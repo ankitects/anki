@@ -253,7 +253,11 @@ class Table:
         saveHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
 
     def _restore_header(self) -> None:
+        self._view.horizontalHeader().blockSignals(True)
         restoreHeader(self._view.horizontalHeader(), self._state.config_key_prefix)
+        self._set_column_sizes()
+        self._set_sort_indicator()
+        self._view.horizontalHeader().blockSignals(False)
 
     # Setup
 
@@ -301,8 +305,6 @@ class Table:
         hh.setSectionsMovable(True)
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
         self._restore_header()
-        self._set_column_sizes()
-        self._set_sort_indicator()
         qconnect(hh.customContextMenuRequested, self._on_header_context)
         qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
         qconnect(hh.sectionMoved, self._on_column_moved)
@@ -358,15 +360,14 @@ class Table:
             self._scroll_to_column(self._model.len_columns() - 1)
 
     def _on_sort_column_changed(self, section: int, order: int) -> None:
-        order = bool(order)
         column = self._model.column_at_section(section)
         if column.sorting == Columns.SORTING_NONE:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
-            sort_key = self._state.sort_column
-        else:
-            sort_key = column.key
-        if self._state.sort_column != sort_key:
-            self._state.sort_column = sort_key
+            self._set_sort_indicator()
+            return
+        order = bool(order)
+        if self._state.sort_column != column.key:
+            self._state.sort_column = column.key
             # default to descending for non-text fields
             if column.sorting == Columns.SORTING_REVERSED:
                 order = not order
