@@ -5,29 +5,6 @@
 @use 'fusion_vars';
 
 @mixin night-mode {
-    input,
-    select {
-        background-color: var(--frame-bg);
-        border-color: var(--border);
-
-        &:focus {
-            background-color: var(--window-bg);
-        }
-    }
-
-    .dropdown-menu {
-        background-color: var(--frame-bg);
-
-        .dropdown-item {
-            color: var(--text-fg);
-
-            &:hover,
-            &:active {
-                background-color: var(--window-bg);
-            }
-        }
-    }
-
     .modal-content {
         background-color: var(--window-bg);
         color: var(--text-fg);
