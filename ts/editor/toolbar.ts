@@ -20,7 +20,7 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
         toolbarResolve = resolve;
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () =>
         i18n.then(() => {
             const target = document.body;
             const anchor = document.getElementById("fields")!;
@@ -33,8 +33,8 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
             );
 
             toolbarResolve(new EditorToolbar({ target, anchor, context } as any));
-        });
-    });
+        })
+    );
 
     return toolbarPromise;
 }

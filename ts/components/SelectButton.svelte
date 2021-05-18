@@ -6,24 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
     import { disabledKey } from "./contextKeys";
-    import SelectOption from "./SelectOption.svelte";
 
-    interface Option {
-        label: string;
-        value: string;
-        selected?: false;
-    }
+    export let id: string | undefined = undefined;
+    let className = "";
+    export { className as class };
 
-    export let id: string;
-    export let className = "";
-    export let tooltip: string;
-
-    function extendClassName(classes: string) {
-        return `form-select ${classes}`;
-    }
+    export let tooltip: string | undefined = undefined;
 
     export let disables = true;
-    export let options: Option[];
 
     let buttonRef: HTMLSelectElement;
 
@@ -57,14 +47,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
+<!-- svelte-ignore a11y-no-onchange -->
+
 <select
     tabindex="-1"
     bind:this={buttonRef}
     disabled={_disabled}
     {id}
-    class={extendClassName(className)}
-    title={tooltip}>
-    {#each options as option}
-        <SelectOption {...option} />
-    {/each}
+    class={` ${className}`}
+    title={tooltip}
+    on:change>
+    <slot />
 </select>
