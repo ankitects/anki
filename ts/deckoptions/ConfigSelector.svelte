@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import type { DeckOptionsState, ConfigListEntry } from "./lib";
+    import StickyBar from "components/StickyBar.svelte";
     import OptionsDropdown from "./OptionsDropdown.svelte";
 
     export let state: DeckOptionsState;
@@ -21,16 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <style lang="scss">
-    .sticky-bar {
-        position: sticky;
-        z-index: 1;
-        top: 0;
-        color: var(--text-fg);
-        background: var(--window-bg);
-        padding-bottom: 0.5em;
-        padding-top: 0.5em;
-    }
-
     .selector-grid {
         display: grid;
         grid-template-columns: 6fr 1fr;
@@ -39,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<div class="sticky-bar">
+<StickyBar>
     <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
     <div class="selector-grid">
@@ -54,4 +45,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <OptionsDropdown {state} />
     </div>
-</div>
+</StickyBar>

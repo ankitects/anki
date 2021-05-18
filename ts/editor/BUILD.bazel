@@ -153,6 +153,7 @@ prettier_test(
     name = "format_check",
     srcs = glob([
         "*.ts",
+        "*.svelte",
     ]),
 )
 
