@@ -162,7 +162,7 @@ def write_file(path: str, hooks: List[Hook], prefix: str, suffix: str):
     code += "\n" + suffix
 
     # work around issue with latest black
-    if sys.platform == "win32":
+    if sys.platform == "win32" and "HOME" in os.environ:
         os.environ["USERPROFILE"] = os.environ["HOME"]
     with open(path, "wb") as file:
         file.write(code.encode("utf8"))

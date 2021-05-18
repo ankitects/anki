@@ -19,7 +19,7 @@ if __name__ == "__main__":
         args = ["--diff", "--check"]
 
     # work around issue with latest black
-    if sys.platform == "win32":
+    if sys.platform == "win32" and "HOME" in os.environ:
         os.environ["USERPROFILE"] = os.environ["HOME"]
 
     retcode = subprocess.run(
