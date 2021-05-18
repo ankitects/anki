@@ -25,8 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `${entry.name} (${count})`;
     }
 
-    function blur(this: HTMLSelectElement) {
-        state.setCurrentIndex(parseInt(this.value));
+    function blur(event: Event): void {
+        state.setCurrentIndex(parseInt((event.target! as HTMLSelectElement).value));
     }
 </script>
 
