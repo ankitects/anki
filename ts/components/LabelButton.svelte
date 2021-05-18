@@ -11,6 +11,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
+    export let theme = "anki";
+
+    function extendClassName(className: string, theme: string): string {
+        return `btn ${theme !== "anki" ? `btn-${theme}` : ""}${className}`;
+    }
 
     export let tooltip: string | undefined = undefined;
     export let active = false;
@@ -48,11 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class={`btn ${className}`}
+    class={extendClassName(className, theme)}
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
+    class:btn-day={theme === 'anki' && !nightMode}
+    class:btn-night={theme === 'anki' && nightMode}
     title={tooltip}
     {...dropdownProps}
     disabled={_disabled}

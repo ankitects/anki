@@ -48,6 +48,7 @@ ts_library(
         "DeckOptionsPage",
         "lib",
         "//ts/lib",
+        "//ts/components",
         "@npm//@popperjs",
         "@npm//svelte2tsx",
     ],

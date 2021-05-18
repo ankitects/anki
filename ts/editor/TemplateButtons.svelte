@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithDropdownMenu let:menuId let:createDropdown>
+        <WithDropdownMenu let:createDropdown let:menuId>
             <IconButton on:mount={createDropdown}>
                 {@html functionIcon}
             </IconButton>
