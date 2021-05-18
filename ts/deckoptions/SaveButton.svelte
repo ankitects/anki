@@ -75,8 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithDropdownMenu let:createDropdown let:menuId>
-            <LabelButton on:mount={createDropdown} />
+        <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
+            <LabelButton on:mount={createDropdown} on:click={activateDropdown} />
             <DropdownMenu id={menuId}>
                 <DropdownItem on:click={addConfig}>Add Config</DropdownItem>
                 <DropdownItem on:click={renameConfig}>Rename Config</DropdownItem>

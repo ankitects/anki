@@ -48,12 +48,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
+<ConfigSelector {state} />
+
 <div>
     <div id="modal">
         <!-- filled in later-->
     </div>
-
-    <ConfigSelector {state} />
 
     <div class="editor">
         <ConfigEditor {state} />

@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import SelectButton from "components/SelectButton.svelte";
     import SelectOption from "components/SelectOption.svelte";
-    import OptionsDropdown from "./OptionsDropdown.svelte";
+    import SaveButton from "./SaveButton.svelte";
 
     export let state: DeckOptionsState;
     let configList = state.configList;
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </ButtonToolbarItem>
 
             <ButtonToolbarItem>
-                <OptionsDropdown {state} />
+                <SaveButton {state} />
             </ButtonToolbarItem>
         </ButtonToolbar>
     </WithTheming>

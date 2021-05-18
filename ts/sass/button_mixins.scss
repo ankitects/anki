@@ -17,7 +17,12 @@ $btn-base-color-day: white;
     border-color: var(--medium-border) !important;
 }
 
-@mixin btn-day($with-hover: true, $with-active: true, $with-disabled: true, $with-margin: true) {
+@mixin btn-day(
+    $with-hover: true,
+    $with-active: true,
+    $with-disabled: true,
+    $with-margin: true
+) {
     .btn-day {
         @include btn-day-base;
         @content ($btn-base-color-day);
@@ -60,8 +65,12 @@ $btn-base-color-night: #666;
     border-color: $btn-base-color-night;
 }
 
-@mixin btn-night($with-hover: true, $with-active: true, $with-disabled: true, $with-margin: true) {
-
+@mixin btn-night(
+    $with-hover: true,
+    $with-active: true,
+    $with-disabled: true,
+    $with-margin: true
+) {
     .btn-night {
         @include btn-night-base;
         @content ($btn-base-color-night);
