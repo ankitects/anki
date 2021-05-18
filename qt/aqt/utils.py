@@ -12,6 +12,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Literal,
     Optional,
@@ -35,10 +36,12 @@ from PyQt5.QtWidgets import (
 
 import aqt
 from anki import Collection
+from anki.collection import SearchNode
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
+from aqt import colors
 from aqt.qt import *
-from aqt.theme import theme_manager
+from aqt.theme import ColoredIcon, theme_manager
 
 if TYPE_CHECKING:
     TextFormat = Union[Literal["plain", "rich"]]
@@ -1021,6 +1024,34 @@ def no_arg_trigger(func: Callable) -> Callable:
     """
 
     return pyqtSlot()(func)  # type: ignore
+
+
+def load_flags(col: Collection) -> List[Tuple[str, ColoredIcon, SearchNode]]:
+    labels = cast(Dict[str, str], col.get_config("flagLabels", {}))
+    icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
+
+    return [
+        (
+            labels["1"] if "1" in labels else tr.actions_red_flag(),
+            icon.with_color(colors.FLAG1_FG),
+            SearchNode(flag=SearchNode.FLAG_RED),
+        ),
+        (
+            labels["2"] if "2" in labels else tr.actions_orange_flag(),
+            icon.with_color(colors.FLAG2_FG),
+            SearchNode(flag=SearchNode.FLAG_ORANGE),
+        ),
+        (
+            labels["3"] if "3" in labels else tr.actions_green_flag(),
+            icon.with_color(colors.FLAG3_FG),
+            SearchNode(flag=SearchNode.FLAG_GREEN),
+        ),
+        (
+            labels["4"] if "4" in labels else tr.actions_blue_flag(),
+            icon.with_color(colors.FLAG4_FG),
+            SearchNode(flag=SearchNode.FLAG_BLUE),
+        ),
+    ]
 
 
 class KeyboardModifiersPressed:
