@@ -450,7 +450,7 @@ class Reviewer:
 
     def _shortcutKeys(
         self,
-    ) -> List[Union[Tuple[str, Callable], Tuple[Qt.Key, Callable]]]:
+    ) -> Sequence[Union[Tuple[str, Callable], Tuple[Qt.Key, Callable]]]:
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -459,10 +459,10 @@ class Reviewer:
             ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
-            ("Ctrl+1", lambda: self.set_flag_on_current_card(1)),
-            ("Ctrl+2", lambda: self.set_flag_on_current_card(2)),
-            ("Ctrl+3", lambda: self.set_flag_on_current_card(3)),
-            ("Ctrl+4", lambda: self.set_flag_on_current_card(4)),
+            *(
+                (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
+                for flag in load_flags(self.mw.col)
+            ),
             ("*", self.toggle_mark_on_current_note),
             ("=", self.bury_current_note),
             ("-", self.bury_current_card),
