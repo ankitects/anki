@@ -19,12 +19,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     :global(h2) {
         margin-top: 1em;
-        margin-left: 16px;
         font-weight: bold;
+    }
+    .outer {
+        // the right margin has an indent to allow for the undo
+        // buttons; add the same indent on the left for balance
+        padding-left: 16px;
     }
 </style>
 
-<div>
+<div class="outer">
     <DailyLimits {state} />
     <LearningOptions {state} />
     <NewOptions {state} />
