@@ -3,6 +3,12 @@
 .linkb {
     display: inline-block;
     @include button.btn-border-radius;
+    background-color: white;
+    border: 1px solid var(--medium-border);
+}
+
+.night-mode .linkb {
+    background-color: #666;
 }
 
 .topbut {
