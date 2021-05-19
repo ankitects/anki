@@ -53,7 +53,7 @@ from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
-from aqt.operations.collection import undo
+from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
@@ -61,6 +61,7 @@ from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import theme_manager
+from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -1070,44 +1071,31 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def undo(self) -> None:
-        "Call collection_ops.py:undo() directly instead."
+        "Call operations/collection.py:undo() directly instead."
         undo(parent=self)
 
-    def update_undo_actions(self, status: Optional[UndoStatus] = None) -> None:
-        """Update menu text and enable/disable menu item as appropriate.
-        Plural as this may handle redo in the future too."""
-        if self.col:
-            status = status or self.col.undo_status()
-            undo_action = status.undo or None
-        else:
-            undo_action = None
+    def redo(self) -> None:
+        "Call operations/collection.py:redo() directly instead."
+        redo(parent=self)
 
-        if undo_action:
-            undo_action = tr.undo_undo_action(val=undo_action)
-            self.form.actionUndo.setText(undo_action)
-            self.form.actionUndo.setEnabled(True)
-            gui_hooks.undo_state_did_change(True)
-        else:
-            self.form.actionUndo.setText(tr.undo_undo())
-            self.form.actionUndo.setEnabled(False)
-            gui_hooks.undo_state_did_change(False)
+    def undo_actions_info(self) -> UndoActionsInfo:
+        "Info about the current undo/redo state for updating menus."
+        status = self.col.undo_status() if self.col else UndoStatus()
+        return UndoActionsInfo.from_undo_status(status)
 
-    def _update_undo_actions_for_status_and_save(self, status: UndoStatus) -> None:
-        """Update menu text and enable/disable menu item as appropriate.
-        Plural as this may handle redo in the future too."""
-        undo_action = status.undo
+    def update_undo_actions(self) -> None:
+        """Tell the UI to redraw the undo/redo menu actions based on the current state.
 
-        if undo_action:
-            undo_action = tr.undo_undo_action(val=undo_action)
-            self.form.actionUndo.setText(undo_action)
-            self.form.actionUndo.setEnabled(True)
-            gui_hooks.undo_state_did_change(True)
-        else:
-            self.form.actionUndo.setText(tr.undo_undo())
-            self.form.actionUndo.setEnabled(False)
-            gui_hooks.undo_state_did_change(False)
-
-        self.col.autosave()
+        Usually you do not need to call this directly; it is called when a
+        CollectionOp is run, and will be called when the legacy .reset() or
+        .checkpoint() methods are used."""
+        info = self.undo_actions_info()
+        self.form.actionUndo.setText(info.undo_text)
+        self.form.actionUndo.setEnabled(info.can_undo)
+        self.form.actionRedo.setText(info.redo_text)
+        self.form.actionRedo.setEnabled(info.can_redo)
+        self.form.actionRedo.setVisible(info.show_redo)
+        gui_hooks.undo_state_did_change(info)
 
     def checkpoint(self, name: str) -> None:
         self.col.save(name)
@@ -1233,7 +1221,8 @@ title="%s" %s>%s</button>""" % (
         qconnect(m.actionExit.triggered, self.close)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
         qconnect(m.actionAbout.triggered, self.onAbout)
-        qconnect(m.actionUndo.triggered, self.onUndo)
+        qconnect(m.actionUndo.triggered, self.undo)
+        qconnect(m.actionRedo.triggered, self.redo)
         if qtminor < 11:
             m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
         qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)

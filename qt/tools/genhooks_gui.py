@@ -30,6 +30,7 @@ from anki.models import NotetypeDict
 from anki.collection import OpChangesAfterUndo
 from aqt.qt import QDialog, QEvent, QMenu, QWidget
 from aqt.tagedit import TagEdit
+from aqt.undo import UndoActionsInfo
 """
 
 # Hook list
@@ -675,9 +676,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["col: anki.collection.Collection"],
         legacy_hook="colLoading",
     ),
-    Hook(
-        name="undo_state_did_change", args=["can_undo: bool"], legacy_hook="undoState"
-    ),
+    Hook(name="undo_state_did_change", args=["info: UndoActionsInfo"]),
     Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
         name="style_did_init",

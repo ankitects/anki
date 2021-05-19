@@ -19,7 +19,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
-from aqt.operations.collection import undo
+from aqt.operations.collection import redo, undo
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
     forget_cards,
@@ -35,6 +35,7 @@ from aqt.operations.tag import (
 )
 from aqt.qt import *
 from aqt.switch import Switch
+from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -101,7 +102,8 @@ class Browser(QMainWindow):
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
-        self.onUndoState(self.mw.form.actionUndo.isEnabled())
+        # disable undo/redo
+        self.on_undo_state_change(mw.undo_actions_info())
         self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
         self.show()
@@ -139,6 +141,7 @@ class Browser(QMainWindow):
         f = self.form
         # edit
         qconnect(f.actionUndo.triggered, self.undo)
+        qconnect(f.actionRedo.triggered, self.redo)
         qconnect(f.actionInvertSelection.triggered, self.table.invert_selection)
         qconnect(f.actionSelectNotes.triggered, self.selectNotes)
         if not isMac:
@@ -786,14 +789,14 @@ where id in %s"""
     ######################################################################
 
     def setupHooks(self) -> None:
-        gui_hooks.undo_state_did_change.append(self.onUndoState)
+        gui_hooks.undo_state_did_change.append(self.on_undo_state_change)
         gui_hooks.backend_will_block.append(self.table.on_backend_will_block)
         gui_hooks.backend_did_block.append(self.table.on_backend_did_block)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_change)
 
     def teardownHooks(self) -> None:
-        gui_hooks.undo_state_did_change.remove(self.onUndoState)
+        gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
         gui_hooks.backend_will_block.remove(self.table.on_backend_will_block)
         gui_hooks.backend_did_block.remove(self.table.on_backend_will_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
@@ -805,10 +808,15 @@ where id in %s"""
     def undo(self) -> None:
         undo(parent=self)
 
-    def onUndoState(self, on: bool) -> None:
-        self.form.actionUndo.setEnabled(on)
-        if on:
-            self.form.actionUndo.setText(self.mw.form.actionUndo.text())
+    def redo(self) -> None:
+        redo(parent=self)
+
+    def on_undo_state_change(self, info: UndoActionsInfo) -> None:
+        self.form.actionUndo.setText(info.undo_text)
+        self.form.actionUndo.setEnabled(info.can_undo)
+        self.form.actionRedo.setText(info.redo_text)
+        self.form.actionRedo.setEnabled(info.can_redo)
+        self.form.actionRedo.setVisible(info.show_redo)
 
     # Edit: replacing
     ######################################################################

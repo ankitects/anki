@@ -32,6 +32,15 @@ def undo(*, parent: QWidget) -> None:
     ).run_in_background()
 
 
+def redo(*, parent: QWidget) -> None:
+    "Redo the last operation, and refresh the UI."
+
+    def on_success(out: OpChangesAfterUndo) -> None:
+        tooltip(tr.undo_action_redone(action=out.operation), parent=parent)
+
+    CollectionOp(parent, lambda col: col.redo()).success(on_success).run_in_background()
+
+
 def _legacy_undo(*, parent: QWidget) -> None:
     from aqt import mw
 
