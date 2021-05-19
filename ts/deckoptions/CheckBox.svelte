@@ -12,8 +12,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
 </script>
 
+<style lang="scss">
+    .checkbox-outer {
+        margin-top: 0.5em;
+    }
+</style>
+
 <ConfigEntry {id} label="" wholeLine={true} bind:value {defaultValue}>
-    <div>
+    <div class="checkbox-outer">
         <label> <input type="checkbox" bind:checked={value} /> {label} </label>
         {#if tooltip}
             <HelpPopup html={tooltip} />
