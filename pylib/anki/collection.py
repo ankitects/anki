@@ -47,7 +47,7 @@ from anki.models import ModelManager, Notetype, NotetypeDict, NotetypeId
 from anki.notes import Note, NoteId
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
-from anki.scheduler.v3 import Scheduler as V3TestScheduler
+from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
 from anki.types import assert_exhaustive
@@ -81,7 +81,7 @@ LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
 class Collection:
-    sched: Union[V1Scheduler, V2Scheduler]
+    sched: Union[V1Scheduler, V2Scheduler, V3Scheduler]
 
     def __init__(
         self,
@@ -155,7 +155,7 @@ class Collection:
             self.sched = V1Scheduler(self)
         elif ver == 2:
             if self.is_2021_test_scheduler_enabled():
-                self.sched = V3TestScheduler(self)  # type: ignore
+                self.sched = V3Scheduler(self)
             else:
                 self.sched = V2Scheduler(self)
 
