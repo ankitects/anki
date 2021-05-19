@@ -78,7 +78,7 @@ def compile_svelte(name, srcs, deps = [], visibility = ["//visibility:private"])
         visibility = visibility,
     )
 
-def svelte_check(name = "svelte_check", srcs = [], target_compatible_with = []):
+def svelte_check(name = "svelte_check", srcs = []):
     _svelte_check(
         name = name,
         args = [
@@ -95,5 +95,11 @@ def svelte_check(name = "svelte_check", srcs = [], target_compatible_with = []):
             "@npm//sass",
         ] + srcs,
         env = {"SASS_PATH": "$(rootpath //ts:tsconfig.json)/../.."},
-        target_compatible_with = target_compatible_with,
+        # a lack of sandboxing on Windows breaks the local svelte_check
+        # tests, so we need to disable them on Windows for now
+        target_compatible_with = select({
+            "@platforms//os:osx": [],
+            "@platforms//os:linux": [],
+            "//conditions:default": ["@platforms//os:linux"],
+        }),
     )
