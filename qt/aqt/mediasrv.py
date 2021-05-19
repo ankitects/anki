@@ -282,9 +282,9 @@ def i18n_resources() -> bytes:
 
 def deck_configs_for_update() -> bytes:
     args = from_json_bytes(request.data)
-    return aqt.mw.col.decks.get_deck_configs_for_update(
-        deck_id=args["deckId"]
-    ).SerializeToString()
+    msg = aqt.mw.col.decks.get_deck_configs_for_update(deck_id=args["deckId"])
+    msg.have_addons = aqt.mw.addonManager.dirty
+    return msg.SerializeToString()
 
 
 def update_deck_configs_request() -> bytes:
