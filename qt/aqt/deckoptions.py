@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import aqt
+from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
@@ -43,7 +44,9 @@ class DeckOptionsDialog(QDialog):
             f"""const $deckOptions = anki.deckOptions(
             document.getElementById('main'), {deck.id});"""
         )
-        self.setWindowTitle(tr.actions_options_for(val=deck.name))
+        self.setWindowTitle(
+            without_unicode_isolation(tr.actions_options_for(val=deck.name))
+        )
         gui_hooks.deck_options_did_load(self)
 
     def reject(self) -> None:
