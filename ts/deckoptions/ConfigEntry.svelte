@@ -24,13 +24,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .outer {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-column-gap: 0.5em;
+        grid-template-columns: 5fr 2fr;
         grid-row-gap: 0.5em;
     }
 
     .full-grid-width {
-        grid-column: 1 / 3;
+        grid-column: 1 / 6;
     }
 
     .table {
@@ -51,10 +50,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: grid;
         grid-column-gap: 0.5em;
         grid-template-columns: 10fr 16px;
-
-        :global(input) {
-            text-align: end;
-        }
     }
 </style>
 
