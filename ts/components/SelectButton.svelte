@@ -35,7 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: var(--toolbar-size);
         width: auto;
 
-        font-size: calc(var(--toolbar-size) / 2.3);
         user-select: none;
         box-shadow: none;
         border-radius: 0;
