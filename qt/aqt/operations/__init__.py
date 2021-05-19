@@ -111,9 +111,8 @@ class CollectionOp(Generic[ResultWithChanges]):
                 if self._success:
                     self._success(result)
             finally:
-                # update undo status
-                status = mw.col.undo_status()
-                mw._update_undo_actions_for_status_and_save(status)
+                mw.update_undo_actions()
+                mw.autosave()
                 # fire change hooks
                 self._fire_change_hooks_after_op_performed(result, initiator)
 

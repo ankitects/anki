@@ -30,5 +30,6 @@ qt-accel-support-anki = &Support Anki...
 qt-accel-switch-profile = &Switch Profile
 qt-accel-tools = &Tools
 qt-accel-undo = &Undo
+qt-accel-redo = &Redo
 qt-accel-set-due-date = Set &Due Date...
 qt-accel-forget = &Forget

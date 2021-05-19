@@ -885,7 +885,7 @@ table.review-log {{ {revlog_style} }}
     ##########################################################################
 
     def undo_status(self) -> UndoStatus:
-        "Return the undo status. At the moment, redo is not supported."
+        "Return the undo status."
         # check backend first
         if status := self._check_backend_undo_status():
             return status
@@ -934,6 +934,14 @@ table.review-log {{ {revlog_style} }}
         """Returns result of backend undo operation, or throws UndoEmpty.
         If UndoEmpty is received, caller should try undo_legacy()."""
         out = self._backend.undo()
+        self.clear_python_undo()
+        if out.changes.notetype:
+            self.models._clear_cache()
+        return out
+
+    def redo(self) -> OpChangesAfterUndo:
+        """Returns result of backend redo operation, or throws UndoEmpty."""
+        out = self._backend.redo()
         self.clear_python_undo()
         if out.changes.notetype:
             self.models._clear_cache()

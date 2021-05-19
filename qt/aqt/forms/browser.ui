@@ -144,11 +144,11 @@
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>false</bool>
           </attribute>
-          <attribute name="horizontalHeaderHighlightSections">
-           <bool>false</bool>
-          </attribute>
           <attribute name="horizontalHeaderMinimumSectionSize">
            <number>20</number>
+          </attribute>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
            <bool>true</bool>
@@ -209,7 +209,7 @@
      <x>0</x>
      <y>0</y>
      <width>750</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -217,6 +217,7 @@
      <string>qt_accel_edit</string>
     </property>
     <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="action_toggle_mode"/>
     <addaction name="separator"/>
@@ -319,7 +320,7 @@
     <string>qt_accel_undo</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Z</string>
+    <string notr="true">Ctrl+Z</string>
    </property>
   </action>
   <action name="actionInvertSelection">
@@ -611,6 +612,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Alt+T</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>qt_accel_redo</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+Z</string>
    </property>
   </action>
  </widget>
