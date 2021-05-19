@@ -252,3 +252,11 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self.col.db.list("select id from active_decks")
         except DBError:
             return []
+
+    # used by custom study; will likely be rolled into a separate routine
+    # in the future
+    def totalNewForCurrentDeck(self) -> int:
+        return self.col.db.scalar(
+            f"""
+select count() from cards where queue={QUEUE_TYPE_NEW} and did in (select id from active_decks)"""
+        )
