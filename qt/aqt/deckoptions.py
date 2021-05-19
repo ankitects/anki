@@ -6,7 +6,7 @@ from __future__ import annotations
 import aqt
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom
+from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
 
@@ -38,11 +38,12 @@ class DeckOptionsDialog(QDialog):
         layout.addWidget(self.web)
         self.setLayout(layout)
 
-        deck_id = self.mw.col.decks.get_current_id()
+        deck = self.mw.col.decks.get_current()
         self.web.eval(
             f"""const $deckOptions = anki.deckOptions(
-            document.getElementById('main'), {deck_id});"""
+            document.getElementById('main'), {deck.id});"""
         )
+        self.setWindowTitle(tr.actions_options_for(val=deck.name))
         gui_hooks.deck_options_did_load(self)
 
     def reject(self) -> None:

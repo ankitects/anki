@@ -21,6 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<nav {id} class={`pb-1 ${className}`}>
+<nav {id} class={`pb-1 pt-1 ${className}`}>
     <slot />
 </nav>
