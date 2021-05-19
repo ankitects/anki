@@ -15,6 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     const menuId = Math.random().toString(36).substring(2);
+    let dropdown: Dropdown;
+
+    function activateDropdown(_event: MouseEvent): void {
+        dropdown.toggle();
+    }
 
     /* Normally dropdown and trigger are associated with a
     /* common ancestor with .dropdown class */
@@ -31,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!menu) {
             console.log(`Could not find menu "${menuId}" for dropdown menu.`);
         } else {
-            const dropdown = new Dropdown(button);
+            dropdown = new Dropdown(button);
 
             /* Set custom menu without using common element with .dropdown */
             (dropdown as any)._menu = menu;
@@ -39,4 +44,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<slot {createDropdown} {menuId} />
+<slot {createDropdown} {activateDropdown} {menuId} />

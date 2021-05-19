@@ -7,6 +7,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { textInputModal } from "./textInputModal";
     import type { DeckOptionsState } from "./lib";
 
+    import ButtonGroup from "components/ButtonGroup.svelte";
+    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
+
+    import LabelButton from "components/LabelButton.svelte";
+    import DropdownMenu from "components/DropdownMenu.svelte";
+    import DropdownItem from "components/DropdownItem.svelte";
+    import DropdownDivider from "components/DropdownDivider.svelte";
+    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+
     export let state: DeckOptionsState;
 
     function addConfig(): void {
@@ -60,38 +69,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style>
-    :global(svg) {
-        vertical-align: text-bottom;
-    }
-</style>
+<ButtonGroup>
+    <ButtonGroupItem>
+        <LabelButton theme="primary" on:click={() => save(false)}>Save</LabelButton>
+    </ButtonGroupItem>
 
-<div class="btn-group" dir="ltr">
-    <button
-        type="button"
-        class="btn btn-primary"
-        on:click={() => save(false)}>Save</button>
-    <button
-        type="button"
-        class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
-        data-bs-toggle="dropdown"
-        aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-    </button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href={'#'} on:click={addConfig}>Add Config</a></li>
-        <li>
-            <a class="dropdown-item" href={'#'} on:click={renameConfig}>Rename Config</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href={'#'} on:click={removeConfig}>Remove Config</a>
-        </li>
-        <li>
-            <hr class="dropdown-divider" />
-        </li>
-        <li>
-            <a class="dropdown-item" href={'#'} on:click={() => save(true)}>Save to All
-                Children</a>
-        </li>
-    </ul>
-</div>
+    <ButtonGroupItem>
+        <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
+            <LabelButton on:mount={createDropdown} on:click={activateDropdown} />
+            <DropdownMenu id={menuId}>
+                <DropdownItem on:click={addConfig}>Add Config</DropdownItem>
+                <DropdownItem on:click={renameConfig}>Rename Config</DropdownItem>
+                <DropdownItem on:click={removeConfig}>Remove Config</DropdownItem>
+                <DropdownDivider />
+                <DropdownItem on:click={() => save(true)}>
+                    Save to All Children
+                </DropdownItem>
+            </DropdownMenu>
+        </WithDropdownMenu>
+    </ButtonGroupItem>
+</ButtonGroup>
