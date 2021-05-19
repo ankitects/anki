@@ -27,6 +27,7 @@ compile_svelte(
     srcs = svelte_files,
     deps = [
         "//ts/sveltelib",
+        "//ts/components",
         "@npm//@types/bootstrap",
         "@npm//@types/marked",
     ],
@@ -47,6 +48,7 @@ ts_library(
         "DeckOptionsPage",
         "lib",
         "//ts/lib",
+        "//ts/components",
         "@npm//@popperjs",
         "@npm//svelte2tsx",
     ],
@@ -100,6 +102,8 @@ esbuild(
         ":base_css",
         "//ts/sveltelib",
         "@npm//marked",
+        "//ts/components",
+        "//ts/components:svelte_components",
     ] + svelte_names,
 )
 
@@ -132,6 +136,7 @@ svelte_check(
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
         "@npm//@types/marked",
+        "//ts/components:svelte_components",
     ],
 )
 

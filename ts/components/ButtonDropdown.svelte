@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithTheming from "./WithTheming.svelte";
     import ButtonToolbar from "./ButtonToolbar.svelte";
 
-    export let id: string | undefined;
+    export let id: string;
     let className = "";
     export { className as class };
 

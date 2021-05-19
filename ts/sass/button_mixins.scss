@@ -17,22 +17,31 @@ $btn-base-color-day: white;
     border-color: var(--medium-border) !important;
 }
 
-@mixin btn-day($with-disabled: true, $with-margin: true) {
+@mixin btn-day(
+    $with-hover: true,
+    $with-active: true,
+    $with-disabled: true,
+    $with-margin: true
+) {
     .btn-day {
         @include btn-day-base;
         @content ($btn-base-color-day);
 
-        &:hover {
-            background-color: darken($btn-base-color-day, 8%);
+        @if ($with-hover) {
+            &:hover {
+                background-color: darken($btn-base-color-day, 8%);
+            }
         }
 
-        &:active,
-        &.active {
-            @include impressed-shadow(0.25);
-        }
+        @if ($with-active) {
+            &:active,
+            &.active {
+                @include impressed-shadow(0.25);
+            }
 
-        &:active.active {
-            box-shadow: none;
+            &:active.active {
+                box-shadow: none;
+            }
         }
 
         @if ($with-disabled) {
@@ -56,25 +65,34 @@ $btn-base-color-night: #666;
     border-color: $btn-base-color-night;
 }
 
-@mixin btn-night($with-disabled: true, $with-margin: true) {
+@mixin btn-night(
+    $with-hover: true,
+    $with-active: true,
+    $with-disabled: true,
+    $with-margin: true
+) {
     .btn-night {
         @include btn-night-base;
         @content ($btn-base-color-night);
 
-        &:hover {
-            background-color: lighten($btn-base-color-night, 8%);
-            border-color: lighten($btn-base-color-night, 8%);
+        @if ($with-hover) {
+            &:hover {
+                background-color: lighten($btn-base-color-night, 8%);
+                border-color: lighten($btn-base-color-night, 8%);
+            }
         }
 
-        &:active,
-        &.active {
-            @include impressed-shadow(0.35);
-            border-color: darken($btn-base-color-night, 8%);
-        }
+        @if ($with-disabled) {
+            &:active,
+            &.active {
+                @include impressed-shadow(0.35);
+                border-color: darken($btn-base-color-night, 8%);
+            }
 
-        &:active.active {
-            box-shadow: none;
-            border-color: $btn-base-color-night;
+            &:active.active {
+                box-shadow: none;
+                border-color: $btn-base-color-night;
+            }
         }
 
         @if ($with-disabled) {

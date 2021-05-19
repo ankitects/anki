@@ -5,7 +5,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import type { DeckOptionsState, ConfigListEntry } from "./lib";
-    import OptionsDropdown from "./OptionsDropdown.svelte";
+
+    import WithTheming from "components/WithTheming.svelte";
+    import StickyBar from "components/StickyBar.svelte";
+    import ButtonToolbar from "components/ButtonToolbar.svelte";
+    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
+    import ButtonGroup from "components/ButtonGroup.svelte";
+    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
+
+    import SelectButton from "components/SelectButton.svelte";
+    import SelectOption from "components/SelectOption.svelte";
+    import SaveButton from "./SaveButton.svelte";
 
     export let state: DeckOptionsState;
     let configList = state.configList;
@@ -15,43 +25,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `${entry.name} (${count})`;
     }
 
-    function blur(this: HTMLSelectElement) {
-        state.setCurrentIndex(parseInt(this.value));
+    function blur(event: Event): void {
+        state.setCurrentIndex(parseInt((event.target! as HTMLSelectElement).value));
     }
 </script>
 
-<style lang="scss">
-    .sticky-bar {
-        position: sticky;
-        z-index: 1;
-        top: 0;
-        color: var(--text-fg);
-        background: var(--window-bg);
-        padding-bottom: 0.5em;
-        padding-top: 0.5em;
-    }
-
-    .selector-grid {
-        display: grid;
-        grid-template-columns: 6fr 1fr;
-        grid-column-gap: 0.5em;
-        padding-right: 0.5em;
-    }
-</style>
-
-<div class="sticky-bar">
+<StickyBar>
     <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
 
-    <div class="selector-grid">
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" on:change={blur}>
-            {#each $configList as entry}
-                <option value={entry.idx} selected={entry.current}>
-                    {configLabel(entry)}
-                </option>
-            {/each}
-        </select>
+    <WithTheming style="--toolbar-size: 30px; --toolbar-wrap: nowrap">
+        <ButtonToolbar class="justify-content-between">
+            <ButtonToolbarItem>
+                <ButtonGroup class="flex-grow-1">
+                    <ButtonGroupItem>
+                        <SelectButton class="flex-grow-1" on:change={blur}>
+                            {#each $configList as entry}
+                                <SelectOption
+                                    value={String(entry.idx)}
+                                    selected={entry.current}>
+                                    {configLabel(entry)}
+                                </SelectOption>
+                            {/each}
+                        </SelectButton>
+                    </ButtonGroupItem>
+                </ButtonGroup>
+            </ButtonToolbarItem>
 
-        <OptionsDropdown {state} />
-    </div>
-</div>
+            <ButtonToolbarItem>
+                <SaveButton {state} />
+            </ButtonToolbarItem>
+        </ButtonToolbar>
+    </WithTheming>
+</StickyBar>
