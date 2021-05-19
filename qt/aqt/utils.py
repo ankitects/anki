@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 from typing import (
@@ -1026,30 +1027,43 @@ def no_arg_trigger(func: Callable) -> Callable:
     return pyqtSlot()(func)  # type: ignore
 
 
-def load_flags(col: Collection) -> List[Tuple[str, ColoredIcon, SearchNode, str]]:
+@dataclass
+class Flag:
+    index: int
+    label: str
+    icon: ColoredIcon
+    search_node: SearchNode
+    action: str
+
+
+def load_flags(col: Collection) -> List[Flag]:
     labels = cast(Dict[str, str], col.get_config("flagLabels", {}))
     icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
 
     return [
-        (
+        Flag(
+            1,
             labels["1"] if "1" in labels else tr.actions_red_flag(),
             icon.with_color(colors.FLAG1_FG),
             SearchNode(flag=SearchNode.FLAG_RED),
             "actionRed_Flag",
         ),
-        (
+        Flag(
+            2,
             labels["2"] if "2" in labels else tr.actions_orange_flag(),
             icon.with_color(colors.FLAG2_FG),
             SearchNode(flag=SearchNode.FLAG_ORANGE),
             "actionOrange_Flag",
         ),
-        (
+        Flag(
+            3,
             labels["3"] if "3" in labels else tr.actions_green_flag(),
             icon.with_color(colors.FLAG3_FG),
             SearchNode(flag=SearchNode.FLAG_GREEN),
             "actionGreen_Flag",
         ),
-        (
+        Flag(
+            4,
             labels["4"] if "4" in labels else tr.actions_blue_flag(),
             icon.with_color(colors.FLAG4_FG),
             SearchNode(flag=SearchNode.FLAG_BLUE),
