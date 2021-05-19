@@ -477,7 +477,8 @@ class DeckManager:
         self.col.reset()
 
     def active(self) -> List[DeckId]:
-        return self.col.sched.active_decks
+        # some add-ons assume this will always be non-empty
+        return self.col.sched.active_decks or [DeckId(1)]
 
     selected = get_current_id
 
