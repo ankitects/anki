@@ -31,8 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyBar>
-    <div>{tr.actionsOptionsFor({ val: state.currentDeck.name })}</div>
-
     <WithTheming style="--toolbar-size: 35px; --toolbar-wrap: nowrap">
         <ButtonToolbar class="justify-content-between">
             <ButtonToolbarItem>
