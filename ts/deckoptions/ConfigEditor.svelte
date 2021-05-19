@@ -19,6 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     :global(h2) {
         margin-top: 1em;
+        margin-left: 16px;
+        font-weight: bold;
     }
 
     :global(input, select) {
