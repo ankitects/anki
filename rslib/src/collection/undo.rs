@@ -21,7 +21,7 @@ impl Collection {
             }
             UndoableCollectionChange::Modified(modified) => {
                 let current = self.storage.get_collection_timestamps()?.collection_change;
-                self.set_schema_modified_time_undoable(modified, current)
+                self.set_modified_time_undoable(modified, current)
             }
         }
     }
