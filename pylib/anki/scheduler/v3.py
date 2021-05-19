@@ -11,12 +11,14 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import Literal, Sequence, Tuple, Union
+from typing import List, Literal, Sequence, Tuple, Union
 
 import anki._backend.backend_pb2 as _pb
 from anki.cards import Card, CardId
 from anki.collection import OpChanges
 from anki.consts import *
+from anki.decks import DeckId
+from anki.errors import DBError
 from anki.scheduler.base import CongratsInfo
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.types import assert_exhaustive
@@ -239,3 +241,14 @@ class Scheduler(SchedulerBaseWithLegacy):
             assert False, "invalid ease"
 
         return self._interval_for_state(new_state)
+
+    # Other legacy
+    ###################
+
+    # called by col.decks.active(), which add-ons are using
+    @property
+    def active_decks(self) -> List[DeckId]:
+        try:
+            return self.col.db.list("select id from active_decks")
+        except DBError:
+            return []
