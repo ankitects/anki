@@ -22,10 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-left: 16px;
         font-weight: bold;
     }
-
-    :global(input, select) {
-        font-size: 16px;
-    }
 </style>
 
 <div>
