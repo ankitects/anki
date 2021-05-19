@@ -39,7 +39,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     button {
         padding: 0 calc(var(--toolbar-size) / 3);
-        font-size: calc(var(--toolbar-size) / 2.3);
         width: auto;
         height: var(--toolbar-size);
 
