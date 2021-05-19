@@ -11,7 +11,18 @@ import re
 import unicodedata as ucd
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, List, Match, Optional, Sequence, Tuple, Union, cast
+from typing import (
+    Any,
+    Callable,
+    List,
+    Literal,
+    Match,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
 from PyQt5.QtCore import Qt
 
@@ -389,7 +400,7 @@ class Reviewer:
     # Answering a card
     ############################################################
 
-    def _answerCard(self, ease: int) -> None:
+    def _answerCard(self, ease: Literal[1, 2, 3, 4]) -> None:
         "Reschedule card and show next."
         if self.mw.state != "review":
             # showing resetRequired screen; ignore key
@@ -421,7 +432,7 @@ class Reviewer:
             self.mw.col.sched.answerCard(self.card, ease)
             self._after_answering(ease)
 
-    def _after_answering(self, ease: int) -> None:
+    def _after_answering(self, ease: Literal[1, 2, 3, 4]) -> None:
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
@@ -486,7 +497,8 @@ class Reviewer:
     def _onAnswerButton(self, val: str) -> None:
         # button selected?
         if val and val in "1234":
-            self._answerCard(int(val))
+            val2: Literal[1, 2, 3, 4] = int(val)  # type: ignore
+            self._answerCard(val2)
         else:
             self._answerCard(self._defaultEase())
 
@@ -494,7 +506,8 @@ class Reviewer:
         if url == "ans":
             self._getTypedAnswer()
         elif url.startswith("ease"):
-            self._answerCard(int(url[4:]))
+            val: Literal[1, 2, 3, 4] = int(url[4:])  # type: ignore
+            self._answerCard(val)
         elif url == "edit":
             self.mw.onEditCurrent()
         elif url == "more":
@@ -778,7 +791,7 @@ time = %(time)d;
 <span class=review-count>{counts[2]}</span>
 """
 
-    def _defaultEase(self) -> int:
+    def _defaultEase(self) -> Literal[2, 3]:
         if self.mw.col.sched.answerButtons(self.card) == 4:
             return 3
         else:

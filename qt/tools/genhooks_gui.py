@@ -19,7 +19,8 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Sequence, Tuple, Optional, Union
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Optional, \
+    Union, Literal
 
 import anki
 import aqt
@@ -101,11 +102,11 @@ hooks = [
     Hook(
         name="reviewer_will_answer_card",
         args=[
-            "ease_tuple: Tuple[bool, int]",
+            "ease_tuple: Tuple[bool, Literal[1, 2, 3, 4]]",
             "reviewer: aqt.reviewer.Reviewer",
             "card: Card",
         ],
-        return_type="Tuple[bool, int]",
+        return_type="Tuple[bool, Literal[1, 2, 3, 4]]",
         doc="""Used to modify the ease at which a card is rated or to bypass
         rating the card completely.
         
@@ -118,7 +119,11 @@ hooks = [
     ),
     Hook(
         name="reviewer_did_answer_card",
-        args=["reviewer: aqt.reviewer.Reviewer", "card: Card", "ease: int"],
+        args=[
+            "reviewer: aqt.reviewer.Reviewer",
+            "card: Card",
+            "ease: Literal[1, 2, 3, 4]",
+        ],
     ),
     Hook(
         name="reviewer_will_show_context_menu",
