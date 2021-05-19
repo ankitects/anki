@@ -26,9 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: grid;
         grid-template-columns: 7fr 3fr;
         grid-row-gap: 0.5em;
-        // the right margin has an indent to allow for the undo
-        // buttons; add the same indent on the left for balance
-        padding-left: 16px;
     }
 
     .full-grid-width {
