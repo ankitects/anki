@@ -19,10 +19,10 @@ filegroup(
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/components",
     ],
-    visibility = ["//visibility:public"],
 )
 
 compile_sass(
@@ -38,8 +38,8 @@ compile_sass(
 
 compile_sass(
     srcs = [
-        "fields.scss",
         "color.scss",
+        "fields.scss",
     ],
     group = "base_css",
     visibility = ["//visibility:public"],
@@ -56,11 +56,11 @@ compile_sass(
         "legacy.scss",
     ],
     group = "local_css",
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
-    visibility = ["//visibility:public"],
 )
 
 ts_library(
@@ -128,18 +128,18 @@ esbuild(
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
-    output_css = "editor.css",
+    entry_point = "index_wrapper.ts",
     external = [
         "protobufjs/light",
     ],
-    entry_point = "index_wrapper.ts",
+    output_css = "editor.css",
     visibility = ["//visibility:public"],
     deps = [
         "base_css",
         "bootstrap-icons",
-        "mdi-icons",
         "editor_ts",
         "local_css",
+        "mdi-icons",
         "svelte_components",
         "//ts/components",
         "//ts/components:svelte_components",
@@ -177,9 +177,4 @@ svelte_check(
         "//ts/components:svelte_components",
         "@npm//@types/bootstrap",
     ],
-    target_compatible_with = select({
-        "@platforms//os:osx": [],
-        "@platforms//os:linux": [],
-        "//conditions:default": ["@platforms//os:linux"],
-    }),
 )
