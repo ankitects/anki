@@ -875,6 +875,7 @@ class SidebarTreeView(QTreeView):
         labels[str(item.id)] = new_name
         self.col.set_config("flagLabels", labels)
         item.name = new_name
+        self.browser._update_flag_labels()
         self.refresh()
 
     # Decks
