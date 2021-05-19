@@ -609,14 +609,14 @@ class SidebarTreeView(QTreeView):
         )
         root.search_node = SearchNode(flag=SearchNode.FLAG_ANY)
 
-        for index, flag in enumerate(load_flags(self.col)):
+        for flag in load_flags(self.col):
             root.add_child(
                 SidebarItem(
-                    name=flag[0],
-                    icon=flag[1],
-                    search_node=flag[2],
+                    name=flag.label,
+                    icon=flag.icon,
+                    search_node=flag.search_node,
                     item_type=SidebarItemType.FLAG,
-                    id=index + 1,
+                    id=flag.index,
                 )
             )
 
