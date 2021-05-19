@@ -48,8 +48,3 @@ html {
 code {
     color: var(--flag1-bg);
 }
-
-// override the default form sizes
-input.form-control, select.form-select {
-    font-size: inherit;
-}
