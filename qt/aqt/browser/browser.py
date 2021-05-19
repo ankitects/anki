@@ -137,7 +137,6 @@ class Browser(QMainWindow):
             self.sidebar.refresh_if_needed()
 
     def setupMenus(self) -> None:
-        # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
         # edit
