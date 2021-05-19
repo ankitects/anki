@@ -42,6 +42,7 @@ from aqt.utils import (
     current_top_level_widget,
     ensure_editor_saved,
     getTag,
+    load_flags,
     no_arg_trigger,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -176,6 +177,7 @@ class Browser(QMainWindow):
         qconnect(
             f.actionBlue_Flag.triggered, lambda: self.set_flag_of_selected_cards(4)
         )
+        self._update_flag_labels()
         qconnect(f.actionExport.triggered, self._on_export_notes)
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
@@ -722,6 +724,10 @@ where id in %s"""
             act.setChecked(flag == c + 1)
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
+
+    def _update_flag_labels(self) -> None:
+        for flag in load_flags(self.col):
+            getattr(self.form, flag[3]).setText(flag[0])
 
     def toggle_mark_of_selected_notes(self, checked: bool) -> None:
         if checked:

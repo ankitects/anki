@@ -1026,7 +1026,7 @@ def no_arg_trigger(func: Callable) -> Callable:
     return pyqtSlot()(func)  # type: ignore
 
 
-def load_flags(col: Collection) -> List[Tuple[str, ColoredIcon, SearchNode]]:
+def load_flags(col: Collection) -> List[Tuple[str, ColoredIcon, SearchNode, str]]:
     labels = cast(Dict[str, str], col.get_config("flagLabels", {}))
     icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
 
@@ -1035,21 +1035,25 @@ def load_flags(col: Collection) -> List[Tuple[str, ColoredIcon, SearchNode]]:
             labels["1"] if "1" in labels else tr.actions_red_flag(),
             icon.with_color(colors.FLAG1_FG),
             SearchNode(flag=SearchNode.FLAG_RED),
+            "actionRed_Flag",
         ),
         (
             labels["2"] if "2" in labels else tr.actions_orange_flag(),
             icon.with_color(colors.FLAG2_FG),
             SearchNode(flag=SearchNode.FLAG_ORANGE),
+            "actionOrange_Flag",
         ),
         (
             labels["3"] if "3" in labels else tr.actions_green_flag(),
             icon.with_color(colors.FLAG3_FG),
             SearchNode(flag=SearchNode.FLAG_GREEN),
+            "actionGreen_Flag",
         ),
         (
             labels["4"] if "4" in labels else tr.actions_blue_flag(),
             icon.with_color(colors.FLAG4_FG),
             SearchNode(flag=SearchNode.FLAG_BLUE),
+            "actionBlue_Flag",
         ),
     ]
 
