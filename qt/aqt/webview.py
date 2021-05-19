@@ -443,7 +443,8 @@ div[contenteditable="true"]:focus {
             lang_dir = "ltr"
 
         return f"""
-body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
+body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; }}
+html {{ {font} }}
 {button_style}
 :root {{ --window-bg: {background} }}
 :root[class*=night-mode] {{ --window-bg: {background} }}
