@@ -40,6 +40,7 @@ class SidebarItemType(Enum):
 
     def is_editable(self) -> bool:
         return self in (
+            SidebarItemType.FLAG,
             SidebarItemType.SAVED_SEARCH,
             SidebarItemType.DECK,
             SidebarItemType.TAG,

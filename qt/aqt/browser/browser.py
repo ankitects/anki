@@ -42,6 +42,7 @@ from aqt.utils import (
     current_top_level_widget,
     ensure_editor_saved,
     getTag,
+    load_flags,
     no_arg_trigger,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -136,7 +137,6 @@ class Browser(QMainWindow):
             self.sidebar.refresh_if_needed()
 
     def setupMenus(self) -> None:
-        # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
         # edit
@@ -166,16 +166,15 @@ class Browser(QMainWindow):
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
         qconnect(f.action_forget.triggered, self.forget_cards)
         qconnect(f.actionToggle_Suspend.triggered, self.suspend_selected_cards)
-        qconnect(f.actionRed_Flag.triggered, lambda: self.set_flag_of_selected_cards(1))
-        qconnect(
-            f.actionOrange_Flag.triggered, lambda: self.set_flag_of_selected_cards(2)
-        )
-        qconnect(
-            f.actionGreen_Flag.triggered, lambda: self.set_flag_of_selected_cards(3)
-        )
-        qconnect(
-            f.actionBlue_Flag.triggered, lambda: self.set_flag_of_selected_cards(4)
-        )
+
+        def set_flag_func(desired_flag: int) -> Callable:
+            return lambda: self.set_flag_of_selected_cards(desired_flag)
+
+        for flag in load_flags(self.col):
+            qconnect(
+                getattr(self.form, flag.action).triggered, set_flag_func(flag.index)
+            )
+        self._update_flag_labels()
         qconnect(f.actionExport.triggered, self._on_export_notes)
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
@@ -711,17 +710,14 @@ where id in %s"""
         flag = self.card and self.card.user_flag()
         flag = flag or 0
 
-        flagActions = [
-            self.form.actionRed_Flag,
-            self.form.actionOrange_Flag,
-            self.form.actionGreen_Flag,
-            self.form.actionBlue_Flag,
-        ]
-
-        for c, act in enumerate(flagActions):
-            act.setChecked(flag == c + 1)
+        for f in load_flags(self.col):
+            getattr(self.form, f.action).setChecked(flag == f.index)
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
+
+    def _update_flag_labels(self) -> None:
+        for flag in load_flags(self.col):
+            getattr(self.form, flag.action).setText(flag.label)
 
     def toggle_mark_of_selected_notes(self, checked: bool) -> None:
         if checked:

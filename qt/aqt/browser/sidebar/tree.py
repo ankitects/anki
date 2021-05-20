@@ -35,7 +35,14 @@ from aqt.operations.tag import (
 )
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
-from aqt.utils import KeyboardModifiersPressed, askUser, getOnlyText, showWarning, tr
+from aqt.utils import (
+    KeyboardModifiersPressed,
+    askUser,
+    getOnlyText,
+    load_flags,
+    showWarning,
+    tr,
+)
 
 
 class SidebarStage(Enum):
@@ -361,6 +368,8 @@ class SidebarTreeView(QTreeView):
                 self.rename_saved_search(item, new_name)
             elif item.item_type == SidebarItemType.TAG:
                 self.rename_tag(item, new_name)
+            elif item.item_type == SidebarItemType.FLAG:
+                self.rename_flag(item, new_name)
         # renaming may be asynchronous so always return False
         return False
 
@@ -600,35 +609,21 @@ class SidebarTreeView(QTreeView):
         )
         root.search_node = SearchNode(flag=SearchNode.FLAG_ANY)
 
-        type = SidebarItemType.FLAG
-        root.add_simple(
-            tr.actions_red_flag(),
-            icon=icon.with_color(colors.FLAG1_FG),
-            type=type,
-            search_node=SearchNode(flag=SearchNode.FLAG_RED),
-        )
-        root.add_simple(
-            tr.actions_orange_flag(),
-            icon=icon.with_color(colors.FLAG2_FG),
-            type=type,
-            search_node=SearchNode(flag=SearchNode.FLAG_ORANGE),
-        )
-        root.add_simple(
-            tr.actions_green_flag(),
-            icon=icon.with_color(colors.FLAG3_FG),
-            type=type,
-            search_node=SearchNode(flag=SearchNode.FLAG_GREEN),
-        )
-        root.add_simple(
-            tr.actions_blue_flag(),
-            icon=icon.with_color(colors.FLAG4_FG),
-            type=type,
-            search_node=SearchNode(flag=SearchNode.FLAG_BLUE),
-        )
+        for flag in load_flags(self.col):
+            root.add_child(
+                SidebarItem(
+                    name=flag.label,
+                    icon=flag.icon,
+                    search_node=flag.search_node,
+                    item_type=SidebarItemType.FLAG,
+                    id=flag.index,
+                )
+            )
+
         root.add_simple(
             tr.browsing_no_flag(),
-            icon=icon.with_color(colors.DISABLED),
-            type=type,
+            icon=icon,
+            type=SidebarItemType.FLAG,
             search_node=SearchNode(flag=SearchNode.FLAG_NONE),
         )
 
@@ -871,6 +866,17 @@ class SidebarTreeView(QTreeView):
                 tr.browsing_sidebar_collapse_children(),
                 lambda: set_children_expanded(False),
             )
+
+    # Flags
+    ###########################
+
+    def rename_flag(self, item: SidebarItem, new_name: str) -> None:
+        labels = self.col.get_config("flagLabels", {})
+        labels[str(item.id)] = new_name
+        self.col.set_config("flagLabels", labels)
+        item.name = new_name
+        self.browser._update_flag_labels()
+        self.refresh()
 
     # Decks
     ###########################
