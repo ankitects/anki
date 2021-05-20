@@ -207,6 +207,17 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn deck_id_with_children(&self, parent: &Deck) -> Result<Vec<DeckId>> {
+        let prefix_start = format!("{}\x1f", parent.name);
+        let prefix_end = format!("{}\x20", parent.name);
+        self.db
+            .prepare_cached("select id from decks where id = ? or (name >= ? and name < ?)")?
+            .query_and_then(params![parent.id, prefix_start, prefix_end], |row| {
+                row.get(0).map_err(Into::into)
+            })?
+            .collect()
+    }
+
     pub(crate) fn deck_with_children(&self, deck_id: DeckId) -> Result<Vec<Deck>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         let prefix_start = format!("{}\x1f", deck.name);

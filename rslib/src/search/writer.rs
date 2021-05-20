@@ -87,7 +87,9 @@ fn write_search_node(node: &SearchNode) -> String {
         IntroducedInDays(u) => format!("introduced:{}", u),
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{}", s)),
-        DeckId(DeckIdType(i)) => format!("did:{}", i),
+        DeckIdWithoutChildren(DeckIdType(i)) => format!("did:{}", i),
+        // not exposed on the GUI end
+        DeckIdWithChildren(_) => "".to_string(),
         NotetypeId(NotetypeIdType(i)) => format!("mid:{}", i),
         Notetype(s) => maybe_quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),

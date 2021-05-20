@@ -9,7 +9,7 @@ use crate::{
     card::CardQueue,
     config::SchedulerVersion,
     prelude::*,
-    search::{SortMode, StateKind},
+    search::{SearchNode, SortMode, StateKind},
 };
 
 impl Card {
@@ -77,7 +77,10 @@ impl Collection {
             UnburyDeckMode::SchedOnly => StateKind::SchedBuried,
         };
         self.transact(Op::UnburyUnsuspend, |col| {
-            col.search_cards_into_table(match_all![deck_id, state], SortMode::NoOrder)?;
+            col.search_cards_into_table(
+                match_all![SearchNode::DeckIdWithChildren(deck_id), state],
+                SortMode::NoOrder,
+            )?;
             col.unsuspend_or_unbury_searched_cards()
         })
     }

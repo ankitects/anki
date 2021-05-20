@@ -95,7 +95,11 @@ pub enum SearchNode {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(String),
-    DeckId(DeckId),
+    /// Matches cards in a single deck (original_deck_id is not checked).
+    DeckIdWithoutChildren(DeckId),
+    /// Matches cards in a deck or its children (original_deck_id is not
+    /// checked).
+    DeckIdWithChildren(DeckId),
     IntroducedInDays(u32),
     NotetypeId(NotetypeId),
     Notetype(String),
@@ -194,12 +198,6 @@ impl From<TemplateKind> for Node {
 impl From<NoteId> for Node {
     fn from(n: NoteId) -> Self {
         Node::Search(SearchNode::NoteIds(format!("{}", n)))
-    }
-}
-
-impl From<DeckId> for Node {
-    fn from(id: DeckId) -> Self {
-        Node::Search(SearchNode::DeckId(id))
     }
 }
 
@@ -619,7 +617,7 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
 }
 
 fn parse_did(s: &str) -> ParseResult<SearchNode> {
-    parse_i64(s, "did:").map(|n| SearchNode::DeckId(n.into()))
+    parse_i64(s, "did:").map(|n| SearchNode::DeckIdWithoutChildren(n.into()))
 }
 
 fn parse_mid(s: &str) -> ParseResult<SearchNode> {
