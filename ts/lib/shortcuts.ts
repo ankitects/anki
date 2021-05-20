@@ -100,8 +100,6 @@ function check(
     );
 }
 
-const shortcutTimeoutMs = 400;
-
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
@@ -119,13 +117,11 @@ function innerShortcut(
             if (check(event, optionalModifiers, nextKey)) {
                 innerShortcut(event, callback, optionalModifiers, ...restKeys);
                 clearTimeout(interval);
+            } else if (event.location === 0) {
+                // Any non-modifier key will cancel the shortcut sequence
+                document.removeEventListener("keydown", handler);
             }
         };
-
-        interval = setTimeout(
-            (): void => document.removeEventListener("keydown", handler),
-            shortcutTimeoutMs
-        );
 
         document.addEventListener("keydown", handler, { once: true });
     }
