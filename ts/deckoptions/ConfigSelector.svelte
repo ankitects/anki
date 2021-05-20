@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyBar>
-    <WithTheming style="--toolbar-size: 35px; --toolbar-wrap: nowrap">
+    <WithTheming style="--toolbar-size: 2.3rem; --toolbar-wrap: nowrap">
         <ButtonToolbar class="justify-content-between">
             <ButtonToolbarItem>
                 <ButtonGroup class="flex-grow-1">

@@ -139,7 +139,7 @@ class Editor:
                 "js/editor.js",
             ],
             context=self,
-            default_css=False,
+            default_css=True,
         )
 
         lefttopbtns: List[str] = []

@@ -48,10 +48,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const colorButtons = {};
     export const templateButtons = {};
 
-    export let size: number = 30;
+    export let size: number = 2;
     export let wraps: boolean = true;
 
-    $: style = `--toolbar-size: ${size}px; --toolbar-wrap: ${
+    $: style = `--toolbar-size: ${size}rem; --toolbar-wrap: ${
         wraps ? "wrap" : "nowrap"
     }`;
 </script>
