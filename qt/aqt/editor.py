@@ -491,6 +491,8 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def _check_and_update_duplicate_display_async(self) -> None:
         note = self.note
+        if not note:
+            return
 
         def on_done(result: DuplicateOrEmptyResult.V) -> None:
             if self.note != note:
@@ -499,7 +501,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
         QueryOp(
             parent=self.parentWindow,
-            op=lambda _: self.note.duplicate_or_empty(),
+            op=lambda _: note.duplicate_or_empty(),
             success=on_done,
         ).run_in_background()
 
