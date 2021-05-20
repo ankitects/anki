@@ -66,7 +66,7 @@ function updateFocus(evt: FocusEvent) {
 
 registerShortcut(
     () => document.addEventListener("focusin", updateFocus, { once: true }),
-    "Tab",
+    [["Tab"]],
     ["Shift"]
 );
 
