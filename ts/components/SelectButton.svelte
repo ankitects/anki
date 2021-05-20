@@ -29,19 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "ts/sass/button_mixins" as button;
 
     select {
-        display: inline-block;
-        vertical-align: middle;
-
         height: var(--toolbar-size);
-        width: auto;
-
-        user-select: none;
-        box-shadow: none;
-        border-radius: 0;
-
-        &:focus {
-            outline: none;
-        }
     }
 
     @include button.btn-day($with-hover: false);
@@ -55,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={buttonRef}
     disabled={_disabled}
     {id}
-    class={className}
+    class="{className} form-select"
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     title={tooltip}
