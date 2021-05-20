@@ -385,10 +385,10 @@ impl ParsedTemplate {
     /// Replacements that use only standard filters will become part of
     /// a text node. If a non-standard filter is encountered, a partially
     /// rendered Replacement is returned for the calling code to complete.
-    fn render(&self, context: &RenderContext) -> TemplateResult<Vec<RenderedNode>> {
+    fn render(&self, context: &RenderContext, tr: &I18n) -> TemplateResult<Vec<RenderedNode>> {
         let mut rendered = vec![];
 
-        render_into(&mut rendered, self.0.as_ref(), context)?;
+        render_into(&mut rendered, self.0.as_ref(), context, tr)?;
 
         Ok(rendered)
     }
@@ -398,6 +398,7 @@ fn render_into(
     rendered_nodes: &mut Vec<RenderedNode>,
     nodes: &[ParsedNode],
     context: &RenderContext,
+    tr: &I18n,
 ) -> TemplateResult<()> {
     use ParsedNode::*;
     for node in nodes {
@@ -436,6 +437,7 @@ fn render_into(
                             .as_slice(),
                         key,
                         context,
+                        tr,
                     ),
                     None => {
                         // unknown field encountered
@@ -466,12 +468,12 @@ fn render_into(
             }
             Conditional { key, children } => {
                 if context.nonempty_fields.contains(key.as_str()) {
-                    render_into(rendered_nodes, children.as_ref(), context)?;
+                    render_into(rendered_nodes, children.as_ref(), context, tr)?;
                 }
             }
             NegatedConditional { key, children } => {
                 if !context.nonempty_fields.contains(key.as_str()) {
-                    render_into(rendered_nodes, children.as_ref(), context)?;
+                    render_into(rendered_nodes, children.as_ref(), context, tr)?;
                 }
             }
         };
@@ -551,7 +553,7 @@ pub fn render_card(
 
     // question side
     let (mut qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
-        .and_then(|tmpl| Ok((tmpl.render(&context)?, tmpl)))
+        .and_then(|tmpl| Ok((tmpl.render(&context, tr)?, tmpl)))
         .map_err(|e| template_error_to_anki_error(e, true, tr))?;
 
     // check if the front side was empty
@@ -580,7 +582,7 @@ pub fn render_card(
     // answer side
     context.question_side = false;
     let anodes = ParsedTemplate::from_text(afmt)
-        .and_then(|tmpl| tmpl.render(&context))
+        .and_then(|tmpl| tmpl.render(&context, tr))
         .map_err(|e| template_error_to_anki_error(e, false, tr))?;
 
     Ok((qnodes, anodes))
@@ -1021,8 +1023,9 @@ mod test {
 
         use crate::template::RenderedNode as FN;
         let mut tmpl = PT::from_text("{{B}}A{{F}}").unwrap();
+        let tr = I18n::template_only();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "bAf".to_owned()
             },]
@@ -1030,12 +1033,12 @@ mod test {
 
         // empty
         tmpl = PT::from_text("{{#E}}A{{/E}}").unwrap();
-        assert_eq!(tmpl.render(&ctx).unwrap(), vec![]);
+        assert_eq!(tmpl.render(&ctx, &tr).unwrap(), vec![]);
 
         // missing
         tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "A".to_owned()
             },]
@@ -1044,7 +1047,7 @@ mod test {
         // nested
         tmpl = PT::from_text("{{^E}}1{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}{{/E}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "12f".to_owned()
             },]
@@ -1053,7 +1056,7 @@ mod test {
         // unknown filters
         tmpl = PT::from_text("{{one:two:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Replacement {
                 field_name: "B".to_owned(),
                 filters: vec!["two".to_string(), "one".to_string()],
@@ -1065,7 +1068,7 @@ mod test {
         // excess colons are ignored
         tmpl = PT::from_text("{{one::text:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Replacement {
                 field_name: "B".to_owned(),
                 filters: vec!["one".to_string()],
@@ -1076,7 +1079,7 @@ mod test {
         // known filter
         tmpl = PT::from_text("{{text:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "b".to_owned()
             }]
@@ -1085,7 +1088,7 @@ mod test {
         // unknown field
         tmpl = PT::from_text("{{X}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap_err(),
+            tmpl.render(&ctx, &tr).unwrap_err(),
             TemplateError::FieldNotFound {
                 field: "X".to_owned(),
                 filters: "".to_owned()
@@ -1095,7 +1098,7 @@ mod test {
         // unknown field with filters
         tmpl = PT::from_text("{{foo:text:X}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap_err(),
+            tmpl.render(&ctx, &tr).unwrap_err(),
             TemplateError::FieldNotFound {
                 field: "X".to_owned(),
                 filters: "foo:text:".to_owned()
@@ -1105,7 +1108,7 @@ mod test {
         // a blank field is allowed if it has filters
         tmpl = PT::from_text("{{filter:}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx).unwrap(),
+            tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Replacement {
                 field_name: "".to_string(),
                 current_text: "".to_string(),
