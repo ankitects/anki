@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Tuple
 
 from aqt import colors
 from aqt.qt import *
@@ -21,6 +22,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
+        left_color: Tuple[str, str] = colors.FLAG4_BG,
+        right_color: Tuple[str, str] = colors.FLAG3_BG,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -29,6 +32,8 @@ class Switch(QAbstractButton):
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self._left_label = left_label
         self._right_label = right_label
+        self._left_color = left_color
+        self._right_color = right_color
         self._path_radius = radius
         self._knob_radius = radius - self._margin
         self._left_position = self._position = self._path_radius + self._margin
@@ -54,6 +59,11 @@ class Switch(QAbstractButton):
     @property
     def label(self) -> str:
         return self._right_label if self.isChecked() else self._left_label
+
+    @property
+    def knob_color(self) -> QColor:
+        color = self._right_color if self.isChecked() else self._left_color
+        return theme_manager.qcolor(color)
 
     def sizeHint(self) -> QSize:
         return QSize(
@@ -93,7 +103,7 @@ class Switch(QAbstractButton):
         )
 
     def _paint_knob(self, painter: QPainter) -> None:
-        painter.setBrush(QBrush(theme_manager.qcolor(colors.LINK)))
+        painter.setBrush(QBrush(self.knob_color))
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
