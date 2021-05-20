@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: 10;
 
         background: var(--window-bg);
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--medium-border);
     }
 </style>
 
