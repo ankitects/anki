@@ -151,7 +151,17 @@ async function writeJs(
     genDir: string
 ): Promise<void> {
     const preprocessOptions = preprocess({
-        scss: { includePaths: [binDir, genDir] },
+        scss: {
+            includePaths: [
+                binDir,
+                genDir,
+                // a nasty hack to ensure ts/sass/... resolves correctly
+                // when invoked from an external workspace
+                binDir + "/external/net_ankiweb_anki",
+                genDir + "/external/net_ankiweb_anki",
+                binDir + "/../../../external/net_ankiweb_anki",
+            ],
+        },
     });
     preprocessOptions.filename = inputFilename;
 
