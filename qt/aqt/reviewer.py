@@ -35,6 +35,7 @@ from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.flags import load_flags
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
@@ -51,14 +52,7 @@ from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import (
-    askUserDialog,
-    downArrow,
-    load_flags,
-    qtMenuShortcutWorkaround,
-    tooltip,
-    tr,
-)
+from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
 from aqt.webview import AnkiWebView
 
 

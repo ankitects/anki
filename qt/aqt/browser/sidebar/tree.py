@@ -19,6 +19,7 @@ from aqt.browser.sidebar.model import SidebarModel
 from aqt.browser.sidebar.searchbar import SidebarSearchBar
 from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
+from aqt.flags import load_flags
 from aqt.models import Models
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
@@ -35,14 +36,7 @@ from aqt.operations.tag import (
 )
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
-from aqt.utils import (
-    KeyboardModifiersPressed,
-    askUser,
-    getOnlyText,
-    load_flags,
-    showWarning,
-    tr,
-)
+from aqt.utils import KeyboardModifiersPressed, askUser, getOnlyText, showWarning, tr
 
 
 class SidebarStage(Enum):
