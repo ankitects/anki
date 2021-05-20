@@ -9,7 +9,7 @@ use crate::{
     card::{CardQueue, CardType},
     deckconfig::NewCardInsertOrder,
     prelude::*,
-    search::{SortMode, StateKind},
+    search::{SearchNode, SortMode, StateKind},
 };
 
 impl Card {
@@ -186,7 +186,10 @@ impl Collection {
         order: NewCardInsertOrder,
         usn: Usn,
     ) -> Result<usize> {
-        let cids = self.search_cards(match_all![deck, StateKind::New], SortMode::NoOrder)?;
+        let cids = self.search_cards(
+            match_all![SearchNode::DeckIdWithoutChildren(deck), StateKind::New],
+            SortMode::NoOrder,
+        )?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
     }
 

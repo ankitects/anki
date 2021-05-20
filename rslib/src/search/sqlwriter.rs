@@ -140,9 +140,10 @@ impl SqlWriter<'_> {
             SearchNode::NotetypeId(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
-            SearchNode::DeckId(did) => {
+            SearchNode::DeckIdWithoutChildren(did) => {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
+            SearchNode::DeckIdWithChildren(did) => self.write_deck_id_with_children(*did)?,
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
@@ -370,6 +371,19 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    fn write_deck_id_with_children(&mut self, deck_id: DeckId) -> Result<()> {
+        if let Some(parent) = self.col.get_deck(deck_id)? {
+            let ids = self.col.storage.deck_id_with_children(&parent)?;
+            let mut buf = String::new();
+            ids_to_string(&mut buf, &ids);
+            write!(self.sql, "c.did in {}", buf,).unwrap();
+        } else {
+            self.sql.push_str("false")
+        }
+
+        Ok(())
+    }
+
     fn write_template(&mut self, template: &TemplateKind) {
         match template {
             TemplateKind::Ordinal(n) => {
@@ -567,7 +581,8 @@ impl SearchNode {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
             SearchNode::IntroducedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
-            SearchNode::DeckId(_) => RequiredTable::Cards,
+            SearchNode::DeckIdWithoutChildren(_) => RequiredTable::Cards,
+            SearchNode::DeckIdWithChildren(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
             SearchNode::State(_) => RequiredTable::Cards,
             SearchNode::Flag(_) => RequiredTable::Cards,
