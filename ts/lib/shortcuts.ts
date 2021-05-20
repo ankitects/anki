@@ -18,10 +18,6 @@ const platformModifiers = isApplePlatform()
     ? ["Meta", "Alt", "Shift", "Control"]
     : ["Control", "Alt", "Shift", "OS"];
 
-function splitKeyCombinationString(keyCombinationString: string): string[][] {
-    return keyCombinationString.split(", ").map((segment) => segment.split("+"));
-}
-
 function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()
         ? ["^", "⌥", "⇧", "⌘"]
@@ -70,14 +66,12 @@ function toPlatformString(modifiersAndKey: string[]): string {
     )}${keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1])}`;
 }
 
-export function getPlatformString(keyCombinationString: string): string {
-    return splitKeyCombinationString(keyCombinationString)
-        .map(toPlatformString)
-        .join(", ");
+export function getPlatformString(keyCombination: string[][]): string {
+    return keyCombination.map(toPlatformString).join(", ");
 }
 
 function checkKey(event: KeyboardEvent, key: string): boolean {
-    return event.code === key;
+    return event.key === key;
 }
 
 function checkModifiers(
@@ -139,10 +133,9 @@ function innerShortcut(
 
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
-    keyCombinationString: string,
+    keyCombination: string[][],
     optionalModifiers: Modifier[] = []
 ): () => void {
-    const keyCombination = splitKeyCombinationString(keyCombinationString);
     const [firstKey, ...restKeys] = keyCombination;
 
     const handler = (event: KeyboardEvent): void => {

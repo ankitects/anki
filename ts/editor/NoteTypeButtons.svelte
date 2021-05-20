@@ -25,7 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+KeyL" let:createShortcut let:shortcutLabel>
+        <WithShortcut
+            shortcut={[['Control', 'l']]}
+            let:createShortcut
+            let:shortcutLabel>
             <LabelButton
                 disables={false}
                 tooltip={`${tr.editingCustomizeCardTemplates()} (${shortcutLabel})`}

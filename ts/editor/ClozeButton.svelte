@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithShortcut
-    shortcut="Control+Shift+KeyC"
+    shortcut={[['Control', 'Shift', 'C']]}
     optionalModifiers={['Alt']}
     let:createShortcut
     let:shortcutLabel>

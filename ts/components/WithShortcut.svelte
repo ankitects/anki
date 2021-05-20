@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onDestroy } from "svelte";
     import { registerShortcut, getPlatformString } from "lib/shortcuts";
 
-    export let shortcut: string;
+    export let shortcut: string[][];
     export let optionalModifiers: Modifier[] | undefined = [];
 
     const shortcutLabel = getPlatformString(shortcut);
