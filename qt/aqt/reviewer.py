@@ -51,7 +51,14 @@ from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
+from aqt.utils import (
+    askUserDialog,
+    downArrow,
+    load_flags,
+    qtMenuShortcutWorkaround,
+    tooltip,
+    tr,
+)
 from aqt.webview import AnkiWebView
 
 
@@ -443,7 +450,7 @@ class Reviewer:
 
     def _shortcutKeys(
         self,
-    ) -> List[Union[Tuple[str, Callable], Tuple[Qt.Key, Callable]]]:
+    ) -> Sequence[Union[Tuple[str, Callable], Tuple[Qt.Key, Callable]]]:
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -452,10 +459,10 @@ class Reviewer:
             ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
-            ("Ctrl+1", lambda: self.set_flag_on_current_card(1)),
-            ("Ctrl+2", lambda: self.set_flag_on_current_card(2)),
-            ("Ctrl+3", lambda: self.set_flag_on_current_card(3)),
-            ("Ctrl+4", lambda: self.set_flag_on_current_card(4)),
+            *(
+                (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
+                for flag in load_flags(self.mw.col)
+            ),
             ("*", self.toggle_mark_on_current_note),
             ("=", self.bury_current_note),
             ("-", self.bury_current_card),
@@ -905,29 +912,12 @@ time = %(time)d;
                 tr.studying_flag_card(),
                 [
                     [
-                        tr.actions_red_flag(),
-                        "Ctrl+1",
-                        lambda: self.set_flag_on_current_card(1),
-                        dict(checked=currentFlag == 1),
-                    ],
-                    [
-                        tr.actions_orange_flag(),
-                        "Ctrl+2",
-                        lambda: self.set_flag_on_current_card(2),
-                        dict(checked=currentFlag == 2),
-                    ],
-                    [
-                        tr.actions_green_flag(),
-                        "Ctrl+3",
-                        lambda: self.set_flag_on_current_card(3),
-                        dict(checked=currentFlag == 3),
-                    ],
-                    [
-                        tr.actions_blue_flag(),
-                        "Ctrl+4",
-                        lambda: self.set_flag_on_current_card(4),
-                        dict(checked=currentFlag == 4),
-                    ],
+                        flag.label,
+                        f"Ctrl+{flag.index}",
+                        self.set_flag_func(flag.index),
+                        dict(checked=currentFlag == flag.index),
+                    ]
+                    for flag in load_flags(self.mw.col)
                 ],
             ],
             [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
@@ -997,6 +987,9 @@ time = %(time)d;
         set_card_flag(parent=self.mw, card_ids=[self.card.id], flag=flag).success(
             redraw_flag
         ).run_in_background(initiator=self)
+
+    def set_flag_func(self, desired_flag: int) -> Callable:
+        return lambda: self.set_flag_on_current_card(desired_flag)
 
     def toggle_mark_on_current_note(self) -> None:
         def redraw_mark(out: OpChangesWithCount) -> None:
