@@ -20,6 +20,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(h2) {
         margin-top: 1em;
         font-weight: bold;
+        // adding a border decreases the default font size,
+        // so increase it again
+        font-size: 2em;
+        border-bottom: 1px solid var(--medium-border);
+        margin-right: 16px;
+        margin-bottom: 0.5em;
     }
     .outer {
         // the right margin has an indent to allow for the undo
