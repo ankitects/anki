@@ -18,6 +18,7 @@ from anki.utils import ids2str, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
+from aqt.flags import load_flags
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
 from aqt.operations.note import remove_notes
@@ -42,7 +43,6 @@ from aqt.utils import (
     current_top_level_widget,
     ensure_editor_saved,
     getTag,
-    load_flags,
     no_arg_trigger,
     openHelp,
     qtMenuShortcutWorkaround,
