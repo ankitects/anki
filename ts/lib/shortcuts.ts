@@ -60,10 +60,15 @@ function keyToPlatformString(key: string): string {
     }
 }
 
+function capitalize(key: string): string {
+    return key[0].toLocaleUpperCase() + key.slice(1);
+}
+
 function toPlatformString(modifiersAndKey: string[]): string {
-    return `${modifiersToPlatformString(
-        modifiersAndKey.slice(0, -1)
-    )}${keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1])}`;
+    return (
+        modifiersToPlatformString(modifiersAndKey.slice(0, -1)) +
+        capitalize(keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1]))
+    );
 }
 
 export function getPlatformString(keyCombination: string[][]): string {
