@@ -4,8 +4,6 @@ import * as tr from "./i18n";
 
 export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
 
-const modifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
-
 function isApplePlatform(): boolean {
     return (
         window.navigator.platform.startsWith("Mac") ||
@@ -64,10 +62,15 @@ function capitalize(key: string): string {
     return key[0].toLocaleUpperCase() + key.slice(1);
 }
 
+function isRequiredModifier(modifier: string): boolean {
+    return !modifier.endsWith("?");
+}
+
 function toPlatformString(modifiersAndKey: string[]): string {
     return (
-        modifiersToPlatformString(modifiersAndKey.slice(0, -1)) +
-        capitalize(keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1]))
+        modifiersToPlatformString(
+            modifiersAndKey.slice(0, -1).filter(isRequiredModifier)
+        ) + capitalize(keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1]))
     );
 }
 
@@ -75,33 +78,58 @@ export function getPlatformString(keyCombination: string[][]): string {
     return keyCombination.map(toPlatformString).join(", ");
 }
 
-function checkKey(event: KeyboardEvent, key: string): boolean {
-    return event.key === key;
+function checkKey(
+    getProperty: (event: KeyboardEvent) => string,
+    event: KeyboardEvent,
+    key: string
+): boolean {
+    return getProperty(event) === key;
 }
 
-function checkModifiers(
-    event: KeyboardEvent,
-    optionalModifiers: Modifier[],
-    activeModifiers: string[]
-): boolean {
-    return modifiers.reduce(
-        (matches: boolean, modifier: string, currentIndex: number): boolean =>
+const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
+
+function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {
+    const trueItems: T[] = [];
+    const falseItems: T[] = [];
+
+    items.forEach((t) => {
+        const target = predicate(t) ? trueItems : falseItems;
+        target.push(t);
+    });
+
+    return [trueItems, falseItems];
+}
+
+function removeTrailing(modifier: string): string {
+    return modifier.substring(0, modifier.length - 1);
+}
+
+function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
+    const [requiredModifiers, otherModifiers] = partition(
+        isRequiredModifier,
+        modifiers
+    );
+
+    const optionalModifiers = otherModifiers.map(removeTrailing);
+
+    return allModifiers.reduce(
+        (matches: boolean, currentModifier: string, currentIndex: number): boolean =>
             matches &&
-            (optionalModifiers.includes(modifier as Modifier) ||
+            (optionalModifiers.includes(currentModifier as Modifier) ||
                 event.getModifierState(platformModifiers[currentIndex]) ===
-                    activeModifiers.includes(modifier)),
+                    requiredModifiers.includes(currentModifier)),
         true
     );
 }
 
 function check(
+    getProperty: (event: KeyboardEvent) => string,
     event: KeyboardEvent,
-    optionalModifiers: Modifier[],
     modifiersAndKey: string[]
 ): boolean {
     return (
-        checkKey(event, modifiersAndKey[modifiersAndKey.length - 1]) &&
-        checkModifiers(event, optionalModifiers, modifiersAndKey.slice(0, -1))
+        checkModifiers(event, modifiersAndKey.slice(0, -1)) &&
+        checkKey(getProperty, event, modifiersAndKey[modifiersAndKey.length - 1])
     );
 }
 
@@ -111,7 +139,7 @@ const NUMPAD_KEY = 3;
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
-    optionalModifiers: Modifier[],
+    getProperty: (event: KeyboardEvent) => string,
     ...keyCombination: string[][]
 ): void {
     let interval: number;
@@ -122,10 +150,13 @@ function innerShortcut(
         const [nextKey, ...restKeys] = keyCombination;
 
         const handler = (event: KeyboardEvent): void => {
-            if (check(event, optionalModifiers, nextKey)) {
-                innerShortcut(event, callback, optionalModifiers, ...restKeys);
+            if (check(getProperty, event, nextKey)) {
+                innerShortcut(event, callback, getProperty, ...restKeys);
                 clearTimeout(interval);
-            } else if (event.location === GENERAL_KEY || event.location === NUMPAD_KEY) {
+            } else if (
+                event.location === GENERAL_KEY ||
+                event.location === NUMPAD_KEY
+            ) {
                 // Any non-modifier key will cancel the shortcut sequence
                 document.removeEventListener("keydown", handler);
             }
@@ -135,16 +166,25 @@ function innerShortcut(
     }
 }
 
+function byKey(event: KeyboardEvent): string {
+    return event.key;
+}
+
+function byCode(event: KeyboardEvent): string {
+    return event.code;
+}
+
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombination: string[][],
-    optionalModifiers: Modifier[] = []
+    useCode = false
 ): () => void {
     const [firstKey, ...restKeys] = keyCombination;
+    const getProperty = useCode ? byCode : byKey;
 
     const handler = (event: KeyboardEvent): void => {
-        if (check(event, optionalModifiers, firstKey)) {
-            innerShortcut(event, callback, optionalModifiers, ...restKeys);
+        if (check(getProperty, event, firstKey)) {
+            innerShortcut(event, callback, getProperty, ...restKeys);
         }
     };
 
