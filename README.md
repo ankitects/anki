@@ -6,6 +6,7 @@ Official website: [https://ankicode.app](https://ankicode.app)
 ### Downloads
 - [AnkiCode-1.1.0-mac.dmg](https://cutt.ly/sbS2uQA)
 - [AnkiCode-1.1.0-win.exe](https://cutt.ly/cbS0YAd)
+- AnkiCode for Linux is in progress
 
 ### Docs
 For more information on building, please see [README.development](README.development).
