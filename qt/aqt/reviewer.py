@@ -968,7 +968,7 @@ time = %(time)d;
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.current_deck_id()))
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
-        def redraw_flag(out: OpChanges) -> None:
+        def redraw_flag(out: OpChangesWithCount) -> None:
             self.card.load()
             self._update_flag_icon()
 

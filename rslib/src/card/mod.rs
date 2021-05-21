@@ -117,13 +117,20 @@ impl Card {
         self.deck_id = deck;
     }
 
-    fn set_flag(&mut self, flag: u8) {
+    /// True if flag changed.
+    fn set_flag(&mut self, flag: u8) -> bool {
         // we currently only allow 4 flags
         assert!(flag < 5);
 
         // but reserve space for 7, preserving the rest of
         // the flags (up to a byte)
-        self.flags = (self.flags & !0b111) | flag
+        let updated_flags = (self.flags & !0b111) | flag;
+        if self.flags != updated_flags {
+            self.flags = updated_flags;
+            true
+        } else {
+            false
+        }
     }
 
     /// Return the total number of steps left to do, ignoring the
@@ -237,7 +244,7 @@ impl Collection {
         Ok(())
     }
 
-    pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<()>> {
+    pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         if deck.is_filtered() {
             return Err(FilteredDeckError::CanNotMoveCardsInto.into());
@@ -246,19 +253,21 @@ impl Collection {
         let sched = self.scheduler_version();
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
+            let mut count = 0;
             for mut card in col.storage.all_searched_cards()? {
                 if card.deck_id == deck_id {
                     continue;
                 }
+                count += 1;
                 let original = card.clone();
                 card.set_deck(deck_id, sched);
                 col.update_card_inner(&mut card, original, usn)?;
             }
-            Ok(())
+            Ok(count)
         })
     }
 
-    pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<()>> {
+    pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<usize>> {
         if flag > 4 {
             return Err(AnkiError::invalid_input("invalid flag"));
         }
@@ -267,12 +276,15 @@ impl Collection {
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let usn = self.usn()?;
         self.transact(Op::SetFlag, |col| {
+            let mut count = 0;
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
-                card.set_flag(flag);
-                col.update_card_inner(&mut card, original, usn)?;
+                if card.set_flag(flag) {
+                    col.update_card_inner(&mut card, original, usn)?;
+                    count += 1;
+                }
             }
-            Ok(())
+            Ok(count)
         })
     }
 

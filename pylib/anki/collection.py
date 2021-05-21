@@ -470,7 +470,7 @@ class Collection:
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
-    def set_deck(self, card_ids: Sequence[CardId], deck_id: int) -> OpChanges:
+    def set_deck(self, card_ids: Sequence[CardId], deck_id: int) -> OpChangesWithCount:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
@@ -1137,7 +1137,9 @@ table.review-log {{ {revlog_style} }}
 
     ##########################################################################
 
-    def set_user_flag_for_cards(self, flag: int, cids: Sequence[CardId]) -> OpChanges:
+    def set_user_flag_for_cards(
+        self, flag: int, cids: Sequence[CardId]
+    ) -> OpChangesWithCount:
         return self._backend.set_flag(card_ids=cids, flag=flag)
 
     def set_wants_abort(self) -> None:
