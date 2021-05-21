@@ -16,9 +16,10 @@ If you'd like to contribute code, please see [README.contributing](README.contri
 ![AnkiCode](https://github.com/daveight/ankicode/raw/master/images/anki-editor.png "AnkiCode")
 
 ### Features
-- C++, Java, JavaScript, Python are supported
+- C++, Java, JavaScript, Python are supported.
 - Code execution runtime is bundled, no additional configuration needed.
-- Integrated code editor with syntax highlighting and theme selection
+- Anki memorization algorithm is applied to coding problems. The harder is challenge for you - more often you will see it.
+- Integrated code editor with syntax highlighting and theme selection.
 
 ### Videos
 - [AnkiCode Tutorial](https://www.youtube.com/watch?v=dB23wJ1b6Ik)
