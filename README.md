@@ -12,6 +12,8 @@ For more information on building, please see [README.development](README.develop
 
 If you'd like to contribute code, please see [README.contributing](README.contributing).
 
+### AnkiCode
+![AnkiCode][https://github.com/daveight/ankicode/raw/master/images/anki-editor.png]
 
 ### Videos
 - [AnkiCode Tutorial](https://www.youtube.com/watch?v=dB23wJ1b6Ik)
