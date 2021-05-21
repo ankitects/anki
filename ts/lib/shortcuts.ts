@@ -105,6 +105,9 @@ function check(
     );
 }
 
+const GENERAL_KEY = 0;
+const NUMPAD_KEY = 3;
+
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
@@ -122,7 +125,7 @@ function innerShortcut(
             if (check(event, optionalModifiers, nextKey)) {
                 innerShortcut(event, callback, optionalModifiers, ...restKeys);
                 clearTimeout(interval);
-            } else if (event.location === 0) {
+            } else if (event.location === GENERAL_KEY || event.location === NUMPAD_KEY) {
                 // Any non-modifier key will cancel the shortcut sequence
                 document.removeEventListener("keydown", handler);
             }
