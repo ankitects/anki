@@ -82,35 +82,35 @@ mod test {
         let key = BoolKey::NormalizeNoteText;
 
         // not set by default, but defaults to true
-        assert_eq!(col.get_bool(key), true);
+        assert_eq!(col.get_config_bool(key), true);
 
         // first set adds the key
-        col.transact(op.clone(), |col| col.set_bool(key, false))?;
-        assert_eq!(col.get_bool(key), false);
+        col.transact(op.clone(), |col| col.set_config_bool_inner(key, false))?;
+        assert_eq!(col.get_config_bool(key), false);
 
         // mutate it twice
-        col.transact(op.clone(), |col| col.set_bool(key, true))?;
-        assert_eq!(col.get_bool(key), true);
-        col.transact(op.clone(), |col| col.set_bool(key, false))?;
-        assert_eq!(col.get_bool(key), false);
+        col.transact(op.clone(), |col| col.set_config_bool_inner(key, true))?;
+        assert_eq!(col.get_config_bool(key), true);
+        col.transact(op.clone(), |col| col.set_config_bool_inner(key, false))?;
+        assert_eq!(col.get_config_bool(key), false);
 
         // when we remove it, it goes back to its default
-        col.transact(op, |col| col.remove_config(key))?;
-        assert_eq!(col.get_bool(key), true);
+        col.transact(op, |col| col.remove_config_inner(key))?;
+        assert_eq!(col.get_config_bool(key), true);
 
         // undo the removal
         col.undo()?;
-        assert_eq!(col.get_bool(key), false);
+        assert_eq!(col.get_config_bool(key), false);
 
         // undo the mutations
         col.undo()?;
-        assert_eq!(col.get_bool(key), true);
+        assert_eq!(col.get_config_bool(key), true);
         col.undo()?;
-        assert_eq!(col.get_bool(key), false);
+        assert_eq!(col.get_config_bool(key), false);
 
         // and undo the initial add
         col.undo()?;
-        assert_eq!(col.get_bool(key), true);
+        assert_eq!(col.get_config_bool(key), true);
 
         Ok(())
     }

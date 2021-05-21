@@ -482,7 +482,7 @@ impl Collection {
         original: Option<Notetype>,
         usn: Usn,
     ) -> Result<()> {
-        let normalize = self.get_bool(BoolKey::NormalizeNoteText);
+        let normalize = self.get_config_bool(BoolKey::NormalizeNoteText);
         notetype.prepare_for_update(original.as_ref())?;
         self.ensure_notetype_name_unique(notetype, usn)?;
 

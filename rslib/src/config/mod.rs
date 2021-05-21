@@ -68,6 +68,17 @@ pub enum SchedulerVersion {
     V1 = 1,
     V2 = 2,
 }
+
+impl Collection {
+    pub fn set_config_json<T: Serialize>(&mut self, key: &str, val: &T) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateConfig, |col| col.set_config(key, val).map(|_| ()))
+    }
+
+    pub fn remove_config(&mut self, key: &str) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateConfig, |col| col.remove_config_inner(key))
+    }
+}
+
 impl Collection {
     /// Get config item, returning None if missing/invalid.
     pub(crate) fn get_config_optional<'a, T, K>(&self, key: K) -> Option<T>
@@ -109,7 +120,7 @@ impl Collection {
         self.set_config_undoable(entry)
     }
 
-    pub(crate) fn remove_config<'a, K>(&mut self, key: K) -> Result<()>
+    pub(crate) fn remove_config_inner<'a, K>(&mut self, key: K) -> Result<()>
     where
         K: Into<&'a str>,
     {
@@ -119,7 +130,7 @@ impl Collection {
     /// Remove all keys starting with provided prefix, which must end with '_'.
     pub(crate) fn remove_config_prefix(&mut self, key: &str) -> Result<()> {
         for (key, _val) in self.storage.get_config_prefix(key)? {
-            self.remove_config(key.as_str())?;
+            self.remove_config_inner(key.as_str())?;
         }
         Ok(())
     }
@@ -134,7 +145,7 @@ impl Collection {
             self.set_config(ConfigKey::CreationOffset, &mins)
                 .map(|_| ())
         } else {
-            self.remove_config(ConfigKey::CreationOffset)
+            self.remove_config_inner(ConfigKey::CreationOffset)
         }
     }
 

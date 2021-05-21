@@ -77,7 +77,7 @@ impl Collection {
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
             let ctx = CardGenContext::new(&nt, last_deck, col.usn()?);
-            let norm = col.get_bool(BoolKey::NormalizeNoteText);
+            let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
             col.add_note_inner(&ctx, note, did, norm)
         })
     }
@@ -387,7 +387,7 @@ impl Collection {
             .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
         let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
         let ctx = CardGenContext::new(&nt, last_deck, self.usn()?);
-        let norm = self.get_bool(BoolKey::NormalizeNoteText);
+        let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
         self.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm, true)?;
         Ok(())
     }
@@ -475,7 +475,7 @@ impl Collection {
         F: FnMut(&mut Note, &Notetype) -> Result<TransformNoteOutput>,
     {
         let nids_by_notetype = self.storage.note_ids_by_notetype(nids)?;
-        let norm = self.get_bool(BoolKey::NormalizeNoteText);
+        let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
         let mut changed_notes = 0;
         let usn = self.usn()?;
 
@@ -531,7 +531,7 @@ impl Collection {
 
     pub(crate) fn note_is_duplicate_or_empty(&self, note: &Note) -> Result<DuplicateState> {
         if let Some(field1) = note.fields.get(0) {
-            let field1 = if self.get_bool(BoolKey::NormalizeNoteText) {
+            let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
                 normalize_to_nfc(field1)
             } else {
                 field1.into()

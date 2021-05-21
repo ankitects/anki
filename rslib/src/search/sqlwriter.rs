@@ -33,7 +33,7 @@ pub(crate) struct SqlWriter<'a> {
 
 impl SqlWriter<'_> {
     pub(crate) fn new(col: &mut Collection, item_type: ReturnItemType) -> SqlWriter<'_> {
-        let normalize_note_text = col.get_bool(BoolKey::NormalizeNoteText);
+        let normalize_note_text = col.get_config_bool(BoolKey::NormalizeNoteText);
         let sql = String::new();
         let args = vec![];
         SqlWriter {

@@ -281,7 +281,7 @@ impl Collection {
             let days_elapsed = self.timing_for_timestamp(now)?.days_elapsed;
             let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();
-            let v3 = self.get_bool(BoolKey::Sched2021);
+            let v3 = self.get_config_bool(BoolKey::Sched2021);
             let counts = self.due_counts(days_elapsed, learn_cutoff, limit, v3)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);

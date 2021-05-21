@@ -196,7 +196,7 @@ impl Collection {
     }
 
     pub fn browser_row_for_id(&mut self, id: i64) -> Result<pb::BrowserRow> {
-        let notes_mode = self.get_bool(BoolKey::BrowserTableShowNotesMode);
+        let notes_mode = self.get_config_bool(BoolKey::BrowserTableShowNotesMode);
         let columns = Arc::clone(
             self.state
                 .active_browser_columns

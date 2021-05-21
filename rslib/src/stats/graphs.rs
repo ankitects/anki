@@ -56,9 +56,10 @@ impl Collection {
     pub(crate) fn get_graph_preferences(&self) -> pb::GraphPreferences {
         pb::GraphPreferences {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
-            card_counts_separate_inactive: self.get_bool(BoolKey::CardCountsSeparateInactive),
+            card_counts_separate_inactive: self
+                .get_config_bool(BoolKey::CardCountsSeparateInactive),
             browser_links_supported: true,
-            future_due_show_backlog: self.get_bool(BoolKey::FutureDueShowBacklog),
+            future_due_show_backlog: self.get_config_bool(BoolKey::FutureDueShowBacklog),
         }
     }
 
@@ -69,11 +70,11 @@ impl Collection {
             6 => Weekday::Saturday,
             _ => Weekday::Sunday,
         })?;
-        self.set_bool(
+        self.set_config_bool_inner(
             BoolKey::CardCountsSeparateInactive,
             prefs.card_counts_separate_inactive,
         )?;
-        self.set_bool(BoolKey::FutureDueShowBacklog, prefs.future_due_show_backlog)?;
+        self.set_config_bool_inner(BoolKey::FutureDueShowBacklog, prefs.future_due_show_backlog)?;
         Ok(())
     }
 }

@@ -111,7 +111,7 @@ impl Collection {
             }
             col.storage.clear_searched_cards_table()?;
             if let Some(key) = context {
-                col.set_string(key, days)?;
+                col.set_config_string_inner(key, days)?;
             }
             Ok(())
         })

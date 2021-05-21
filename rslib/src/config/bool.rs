@@ -48,7 +48,7 @@ pub enum BoolKey {
 struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bool);
 
 impl Collection {
-    pub(crate) fn get_bool(&self, key: BoolKey) -> bool {
+    pub fn get_config_bool(&self, key: BoolKey) -> bool {
         match key {
             BoolKey::BrowserSortBackwards => {
                 // older clients were storing this as an int
@@ -70,7 +70,15 @@ impl Collection {
         }
     }
 
-    pub(crate) fn set_bool(&mut self, key: BoolKey, value: bool) -> Result<bool> {
+    pub fn set_config_bool(&mut self, key: BoolKey, value: bool) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateConfig, |col| {
+            col.set_config(key, &value).map(|_| ())
+        })
+    }
+}
+
+impl Collection {
+    pub(crate) fn set_config_bool_inner(&mut self, key: BoolKey, value: bool) -> Result<bool> {
         self.set_config(key, &value)
     }
 }

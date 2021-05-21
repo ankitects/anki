@@ -27,7 +27,7 @@ impl Collection {
     ) -> Result<DeckAndNotetype> {
         let deck_id;
         let notetype_id;
-        if self.get_bool(BoolKey::AddingDefaultsToCurrentDeck) {
+        if self.get_config_bool(BoolKey::AddingDefaultsToCurrentDeck) {
             deck_id = self
                 .get_current_deck_for_adding(home_deck_of_reviewer_card)?
                 .id;

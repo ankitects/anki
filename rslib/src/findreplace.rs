@@ -49,7 +49,7 @@ impl Collection {
         field_name: Option<String>,
     ) -> Result<OpOutput<usize>> {
         self.transact(Op::FindAndReplace, |col| {
-            let norm = col.get_bool(BoolKey::NormalizeNoteText);
+            let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
             let search = if norm {
                 normalize_to_nfc(search_re)
             } else {
