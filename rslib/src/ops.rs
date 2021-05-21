@@ -33,6 +33,7 @@ pub enum Op {
     Suspend,
     UnburyUnsuspend,
     UpdateCard,
+    UpdateConfig,
     UpdateDeck,
     UpdateDeckConfig,
     UpdateNote,
@@ -79,6 +80,7 @@ impl Op {
             Op::AddNotetype => tr.actions_add_notetype(),
             Op::RemoveNotetype => tr.actions_remove_notetype(),
             Op::UpdateNotetype => tr.actions_update_notetype(),
+            Op::UpdateConfig => tr.actions_update_config(),
             Op::Custom(name) => name.into(),
         }
         .into()
@@ -136,13 +138,14 @@ impl OpChanges {
         let c = &self.changes;
         c.card
             || c.notetype
+            || c.config
             || (c.note && self.op != Op::AddNote)
             || (c.deck && self.op != Op::ExpandCollapse)
     }
 
     pub fn requires_browser_sidebar_redraw(&self) -> bool {
         let c = &self.changes;
-        c.tag || c.deck || c.notetype
+        c.tag || c.deck || c.notetype || c.config
     }
 
     pub fn requires_editor_redraw(&self) -> bool {

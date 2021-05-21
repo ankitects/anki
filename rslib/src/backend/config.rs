@@ -62,19 +62,24 @@ impl ConfigService for Backend {
         })
     }
 
-    fn set_config_json(&self, input: pb::SetConfigJsonIn) -> Result<pb::Empty> {
+    fn set_config_json(&self, input: pb::SetConfigJsonIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            col.transact_no_undo(|col| {
-                // ensure it's a well-formed object
-                let val: Value = serde_json::from_slice(&input.value_json)?;
-                col.set_config(input.key.as_str(), &val).map(|_| ())
-            })
+            let val: Value = serde_json::from_slice(&input.value_json)?;
+            col.set_config_json(input.key.as_str(), &val)
         })
         .map(Into::into)
     }
 
-    fn remove_config(&self, input: pb::String) -> Result<pb::Empty> {
-        self.with_col(|col| col.transact_no_undo(|col| col.remove_config(input.val.as_str())))
+    fn set_config_json_no_undo(&self, input: pb::SetConfigJsonIn) -> Result<pb::Empty> {
+        self.with_col(|col| {
+            let val: Value = serde_json::from_slice(&input.value_json)?;
+            col.transact_no_undo(|col| col.set_config(input.key.as_str(), &val).map(|_| ()))
+        })
+        .map(Into::into)
+    }
+
+    fn remove_config(&self, input: pb::String) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.remove_config(input.val.as_str()))
             .map(Into::into)
     }
 
@@ -89,31 +94,27 @@ impl ConfigService for Backend {
     fn get_config_bool(&self, input: pb::config::Bool) -> Result<pb::Bool> {
         self.with_col(|col| {
             Ok(pb::Bool {
-                val: col.get_bool(input.key().into()),
+                val: col.get_config_bool(input.key().into()),
             })
         })
     }
 
-    fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact_no_undo(|col| col.set_bool(input.key().into(), input.value))
-        })
-        .map(|_| ().into())
+    fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.set_config_bool(input.key().into(), input.value))
+            .map(Into::into)
     }
 
     fn get_config_string(&self, input: pb::config::String) -> Result<pb::String> {
         self.with_col(|col| {
             Ok(pb::String {
-                val: col.get_string(input.key().into()),
+                val: col.get_config_string(input.key().into()),
             })
         })
     }
 
-    fn set_config_string(&self, input: pb::SetConfigStringIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact_no_undo(|col| col.set_string(input.key().into(), &input.value))
-        })
-        .map(|_| ().into())
+    fn set_config_string(&self, input: pb::SetConfigStringIn) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.set_config_string(input.key().into(), &input.value))
+            .map(Into::into)
     }
 
     fn get_preferences(&self, _input: pb::Empty) -> Result<pb::Preferences> {

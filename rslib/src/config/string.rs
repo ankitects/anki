@@ -13,7 +13,7 @@ pub enum StringKey {
 }
 
 impl Collection {
-    pub(crate) fn get_string(&self, key: StringKey) -> String {
+    pub fn get_config_string(&self, key: StringKey) -> String {
         let default = match key {
             StringKey::SetDueBrowser => "0",
             StringKey::SetDueReviewer => "1",
@@ -23,7 +23,15 @@ impl Collection {
             .unwrap_or_else(|| default.to_string())
     }
 
-    pub(crate) fn set_string(&mut self, key: StringKey, val: &str) -> Result<bool> {
+    pub fn set_config_string(&mut self, key: StringKey, val: &str) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateConfig, |col| {
+            col.set_config_string_inner(key, val).map(|_| ())
+        })
+    }
+}
+
+impl Collection {
+    pub(crate) fn set_config_string_inner(&mut self, key: StringKey, val: &str) -> Result<bool> {
         self.set_config(key, &val)
     }
 }

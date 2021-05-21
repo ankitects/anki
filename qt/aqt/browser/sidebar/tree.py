@@ -21,7 +21,7 @@ from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
 from aqt.flags import load_flags
 from aqt.models import Models
-from aqt.operations import QueryOp
+from aqt.operations import CollectionOp, QueryOp
 from aqt.operations.deck import (
     remove_decks,
     rename_deck,
@@ -444,7 +444,10 @@ class SidebarTreeView(QTreeView):
         type: Optional[SidebarItemType] = None,
     ) -> SidebarItem:
         def update(expanded: bool) -> None:
-            self.col.set_config_bool(collapse_key, not expanded)
+            CollectionOp(
+                self.browser,
+                lambda col: col.set_config_bool(collapse_key, not expanded),
+            ).run_in_background(initiator=self)
 
         top = SidebarItem(
             name,

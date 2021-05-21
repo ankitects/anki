@@ -58,6 +58,7 @@ from anki.utils import (
     intTime,
     splitFields,
     stripHTMLMedia,
+    to_json_bytes,
 )
 
 anki.latex.setup_hook()
@@ -788,11 +789,11 @@ class Collection:
         except KeyError:
             return default
 
-    def set_config(self, key: str, val: Any) -> None:
-        self.conf.set(key, val)
+    def set_config(self, key: str, val: Any) -> OpChanges:
+        return self._backend.set_config_json(key=key, value_json=to_json_bytes(val))
 
-    def remove_config(self, key: str) -> None:
-        self.conf.remove(key)
+    def remove_config(self, key: str) -> OpChanges:
+        return self.conf.remove(key)
 
     def all_config(self) -> Dict[str, Any]:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
@@ -801,14 +802,14 @@ class Collection:
     def get_config_bool(self, key: Config.Bool.Key.V) -> bool:
         return self._backend.get_config_bool(key)
 
-    def set_config_bool(self, key: Config.Bool.Key.V, value: bool) -> None:
-        self._backend.set_config_bool(key=key, value=value)
+    def set_config_bool(self, key: Config.Bool.Key.V, value: bool) -> OpChanges:
+        return self._backend.set_config_bool(key=key, value=value)
 
     def get_config_string(self, key: Config.String.Key.V) -> str:
         return self._backend.get_config_string(key)
 
-    def set_config_string(self, key: Config.String.Key.V, value: str) -> None:
-        self._backend.set_config_string(key=key, value=value)
+    def set_config_string(self, key: Config.String.Key.V, value: str) -> OpChanges:
+        return self._backend.set_config_string(key=key, value=value)
 
     # Stats
     ##########################################################################

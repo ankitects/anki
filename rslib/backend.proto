@@ -188,13 +188,14 @@ service SyncService {
 
 service ConfigService {
   rpc GetConfigJson(String) returns (Json);
-  rpc SetConfigJson(SetConfigJsonIn) returns (Empty);
-  rpc RemoveConfig(String) returns (Empty);
+  rpc SetConfigJson(SetConfigJsonIn) returns (OpChanges);
+  rpc SetConfigJsonNoUndo(SetConfigJsonIn) returns (Empty);
+  rpc RemoveConfig(String) returns (OpChanges);
   rpc GetAllConfig(Empty) returns (Json);
   rpc GetConfigBool(Config.Bool) returns (Bool);
-  rpc SetConfigBool(SetConfigBoolIn) returns (Empty);
+  rpc SetConfigBool(SetConfigBoolIn) returns (OpChanges);
   rpc GetConfigString(Config.String) returns (String);
-  rpc SetConfigString(SetConfigStringIn) returns (Empty);
+  rpc SetConfigString(SetConfigStringIn) returns (OpChanges);
   rpc GetPreferences(Empty) returns (Preferences);
   rpc SetPreferences(Preferences) returns (OpChanges);
 }

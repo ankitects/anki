@@ -14,6 +14,7 @@ For legacy reasons, the config is also exposed as a dict interface
 as col.conf.  To support old code that was mutating inner values,
 using col.conf["key"] needs to wrap lists and dicts when returning them.
 As this is less efficient, please use the col.*_config() API in new code.
+The legacy set also does not support the new undo handling.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from weakref import ref
 
 import anki
 from anki._backend import backend_pb2 as _pb
+from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, to_json_bytes
 
@@ -42,10 +44,12 @@ class ConfigManager:
             raise KeyError from exc
 
     def set(self, key: str, val: Any) -> None:
-        self.col._backend.set_config_json(key=key, value_json=to_json_bytes(val))
+        self.col._backend.set_config_json_no_undo(
+            key=key, value_json=to_json_bytes(val)
+        )
 
-    def remove(self, key: str) -> None:
-        self.col._backend.remove_config(key)
+    def remove(self, key: str) -> OpChanges:
+        return self.col._backend.remove_config(key)
 
     # Legacy dict interface
     #########################

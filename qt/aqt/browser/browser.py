@@ -115,7 +115,7 @@ class Browser(QMainWindow):
         focused = current_top_level_widget() == self
         self.table.op_executed(changes, handler, focused)
         self.sidebar.op_executed(changes, handler, focused)
-        if changes.note or changes.notetype:
+        if changes.editor:
             if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
@@ -129,7 +129,8 @@ class Browser(QMainWindow):
                     self.editor.set_note(note)
 
             self._renderPreview()
-        elif changes.card:
+
+        if changes.browser_table and changes.card:
             self.card = self.table.get_current_card()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
