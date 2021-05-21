@@ -42,8 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithShortcut
-    shortcut={[['Control', 'Shift', 'C']]}
-    optionalModifiers={['Alt']}
+    shortcut={[['Control', 'Alt?', 'Shift', 'C']]}
     let:createShortcut
     let:shortcutLabel>
     <IconButton

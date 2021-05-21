@@ -36,9 +36,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let registerCleanup: () => void;
     onMount(() => {
-        registerCleanup = registerShortcut(() => state.save(false), [
-            ["Control", "Enter"],
-        ]);
+        registerCleanup = registerShortcut(
+            () => state.save(false),
+            [["Control", "Enter"]],
+            true
+        );
     });
     onDestroy(() => registerCleanup?.());
 </script>

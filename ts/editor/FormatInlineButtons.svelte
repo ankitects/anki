@@ -99,7 +99,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithShortcut
-            shortcut={[['Control', '+']]}
+            shortcut={[['Control', 'Equal']]}
+            useCode={true}
             let:createShortcut
             let:shortcutLabel>
             <WithState
@@ -123,7 +124,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithShortcut
-            shortcut={[['Control', '=']]}
+            shortcut={[['Control', 'Shift', 'Equal']]}
+            useCode={true}
             let:createShortcut
             let:shortcutLabel>
             <WithState
