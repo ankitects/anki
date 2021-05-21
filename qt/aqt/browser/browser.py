@@ -129,6 +129,8 @@ class Browser(QMainWindow):
                     self.editor.set_note(note)
 
             self._renderPreview()
+        elif changes.card:
+            self.card = self.table.get_current_card()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_top_level_widget() == self:

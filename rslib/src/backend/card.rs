@@ -44,13 +44,13 @@ impl CardsService for Backend {
         })
     }
 
-    fn set_deck(&self, input: pb::SetDeckIn) -> Result<pb::OpChanges> {
+    fn set_deck(&self, input: pb::SetDeckIn) -> Result<pb::OpChangesWithCount> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
         let deck_id = input.deck_id.into();
         self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
     }
 
-    fn set_flag(&self, input: pb::SetFlagIn) -> Result<pb::OpChanges> {
+    fn set_flag(&self, input: pb::SetFlagIn) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.set_card_flag(&to_card_ids(input.card_ids), input.flag)
                 .map(Into::into)

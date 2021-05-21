@@ -299,8 +299,8 @@ service CardsService {
   rpc GetCard(CardId) returns (Card);
   rpc UpdateCard(UpdateCardIn) returns (OpChanges);
   rpc RemoveCards(RemoveCardsIn) returns (Empty);
-  rpc SetDeck(SetDeckIn) returns (OpChanges);
-  rpc SetFlag(SetFlagIn) returns (OpChanges);
+  rpc SetDeck(SetDeckIn) returns (OpChangesWithCount);
+  rpc SetFlag(SetFlagIn) returns (OpChangesWithCount);
 }
 
 // Protobuf stored in .anki2 files

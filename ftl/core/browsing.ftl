@@ -130,6 +130,11 @@ browsing-notes-updated =
         [one] { $count } note updated.
        *[other] { $count } notes updated.
     }
+browsing-cards-updated =
+    { $count ->
+        [one] { $count } card updated.
+       *[other] { $count } cards updated.
+    }
 browsing-window-title = Browse ({ $selected } of { $total } cards selected)
 browsing-sidebar-expand = Expand
 browsing-sidebar-collapse = Collapse
