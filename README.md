@@ -13,7 +13,12 @@ For more information on building, please see [README.development](README.develop
 If you'd like to contribute code, please see [README.contributing](README.contributing).
 
 ### AnkiCode
-![AnkiCode][https://github.com/daveight/ankicode/raw/master/images/anki-editor.png]
+![AnkiCode](https://github.com/daveight/ankicode/raw/master/images/anki-editor.png "AnkiCode")
+
+### Features
+- C++, Java, JavaScript, Python are supported
+- Code execution runtime is bundled, no additional configuration needed.
+- Integrated code editor with syntax highlighting and theme selection
 
 ### Videos
 - [AnkiCode Tutorial](https://www.youtube.com/watch?v=dB23wJ1b6Ik)
