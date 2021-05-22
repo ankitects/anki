@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithShortcut shortcut={[['F3']]} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'F3'} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingAttachPicturesaudiovideo(), shortcutLabel)}
                 on:click={onAttachment}
@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={[['F5']]} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'F5'} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
                 on:click={onRecord}
@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <DropdownMenu id={menuId}>
                 <WithShortcut
-                    shortcut={[['Control', 'm'], ['m']]}
+                    shortcut={'Control+M, M'}
                     let:createShortcut
                     let:shortcutLabel>
                     <DropdownItem
@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={[['Control', 'm'], ['e']]}
+                    shortcut={'Control+M, E'}
                     let:createShortcut
                     let:shortcutLabel>
                     <DropdownItem
@@ -93,7 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={[['Control', 'm'], ['c']]}
+                    shortcut={'Control+M, C'}
                     let:createShortcut
                     let:shortcutLabel>
                     <DropdownItem
@@ -105,7 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={[['Control', 't'], ['t']]}
+                    shortcut={'Control+T, T'}
                     let:createShortcut
                     let:shortcutLabel>
                     <DropdownItem
@@ -117,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={[['Control', 't'], ['e']]}
+                    shortcut={'Control+T, E'}
                     let:createShortcut
                     let:shortcutLabel>
                     <DropdownItem
@@ -129,7 +129,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={[['Control', 't'], ['m']]}
+                    shortcut={'Control+T, M'}
                     let:createShortcut
                     let:shortcutLabel>
                     <DropdownItem
@@ -144,10 +144,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut
-            shortcut={[['Control', 'Shift', 'X']]}
-            let:createShortcut
-            let:shortcutLabel>
+        <WithShortcut shortcut={'Control+Shift+X'} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
                 on:click={onHtmlEdit}
