@@ -30,60 +30,60 @@ function modifiersToPlatformString(modifiers: string[]): string {
     return result;
 }
 
-const alphabeticPrefix = "Key";
-const numericPrefix = "Digit";
-const keyToCharacterMap = {
-    Backslash: "\\",
-    Backquote: "`",
-    BracketLeft: "[",
-    BrackerRight: "]",
-    Quote: "'",
-    Semicolon: ";",
-    Minus: "-",
-    Equal: "=",
-    Comma: ",",
-    Period: ".",
-    Slash: "/",
+const keyCodeLookup = {
+    Backspace: 8,
+    Delete: 46,
+    Tab: 9,
+    Enter: 13,
+    F1: 112,
+    F2: 113,
+    F3: 114,
+    F4: 115,
+    F5: 116,
+    F6: 117,
+    F7: 118,
+    F8: 119,
+    F9: 120,
+    F10: 121,
+    F11: 122,
+    F12: 123,
+    "=": 187,
+    "-": 189,
+    "[": 219,
+    "]": 221,
+    "\\": 220,
+    ";": 186,
+    "'": 222,
+    ",": 188,
+    ".": 190,
+    "/": 191,
+    "`": 192,
 };
-
-function keyToPlatformString(key: string): string {
-    if (key.startsWith(alphabeticPrefix)) {
-        return key.slice(alphabeticPrefix.length);
-    } else if (key.startsWith(numericPrefix)) {
-        return key.slice(numericPrefix.length);
-    } else if (Object.prototype.hasOwnProperty.call(keyToCharacterMap, key)) {
-        return keyToCharacterMap[key];
-    } else {
-        return key;
-    }
-}
-
-function capitalize(key: string): string {
-    return key[0].toLocaleUpperCase() + key.slice(1);
-}
 
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");
 }
 
-function toPlatformString(modifiersAndKey: string[]): string {
+function splitKeyCombinationString(keyCombinationString: string): string[][] {
+    return keyCombinationString.split(", ").map((segment) => segment.split("+"));
+}
+
+function toPlatformString(keyCombination: string[]): string {
     return (
         modifiersToPlatformString(
-            modifiersAndKey.slice(0, -1).filter(isRequiredModifier)
-        ) + capitalize(keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1]))
+            keyCombination.slice(0, -1).filter(isRequiredModifier)
+        ) + keyCombination[keyCombination.length - 1]
     );
 }
 
-export function getPlatformString(keyCombination: string[][]): string {
-    return keyCombination.map(toPlatformString).join(", ");
+export function getPlatformString(keyCombinationString: string): string {
+    return splitKeyCombinationString(keyCombinationString)
+        .map(toPlatformString)
+        .join(", ");
 }
 
-function checkKey(
-    getProperty: (event: KeyboardEvent) => string,
-    event: KeyboardEvent,
-    key: string
-): boolean {
-    return getProperty(event) === key;
+function checkKey(event: KeyboardEvent, key: number): boolean {
+    return event.which === key;
 }
 
 const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
@@ -122,15 +122,23 @@ function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
     );
 }
 
-function check(
-    getProperty: (event: KeyboardEvent) => string,
-    event: KeyboardEvent,
-    modifiersAndKey: string[]
-): boolean {
-    return (
-        checkModifiers(event, modifiersAndKey.slice(0, -1)) &&
-        checkKey(getProperty, event, modifiersAndKey[modifiersAndKey.length - 1])
-    );
+const check = (keyCode: number, modifiers: string[]) => (
+    event: KeyboardEvent
+): boolean => {
+    return checkKey(event, keyCode) && checkModifiers(event, modifiers);
+};
+
+function keyToCode(key: string): number {
+    return keyCodeLookup[key] || key.toUpperCase().charCodeAt(0);
+}
+
+function keyCombinationToCheck(
+    keyCombination: string[]
+): (event: KeyboardEvent) => boolean {
+    const keyCode = keyToCode(keyCombination[keyCombination.length - 1]);
+    const modifiers = keyCombination.slice(0, -1);
+
+    return check(keyCode, modifiers);
 }
 
 const GENERAL_KEY = 0;
@@ -139,19 +147,17 @@ const NUMPAD_KEY = 3;
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
-    getProperty: (event: KeyboardEvent) => string,
-    ...keyCombination: string[][]
+    ...checks: ((event: KeyboardEvent) => boolean)[]
 ): void {
     let interval: number;
 
-    if (keyCombination.length === 0) {
+    if (checks.length === 0) {
         callback(lastEvent);
     } else {
-        const [nextKey, ...restKeys] = keyCombination;
-
+        const [nextCheck, ...restChecks] = checks;
         const handler = (event: KeyboardEvent): void => {
-            if (check(getProperty, event, nextKey)) {
-                innerShortcut(event, callback, getProperty, ...restKeys);
+            if (nextCheck(event)) {
+                innerShortcut(event, callback, ...restChecks);
                 clearTimeout(interval);
             } else if (
                 event.location === GENERAL_KEY ||
@@ -166,25 +172,17 @@ function innerShortcut(
     }
 }
 
-function byKey(event: KeyboardEvent): string {
-    return event.key;
-}
-
-function byCode(event: KeyboardEvent): string {
-    return event.code;
-}
-
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
-    keyCombination: string[][],
-    useCode = false
+    keyCombinationString: string
 ): () => void {
-    const [firstKey, ...restKeys] = keyCombination;
-    const getProperty = useCode ? byCode : byKey;
+    const [check, ...restChecks] = splitKeyCombinationString(keyCombinationString).map(
+        keyCombinationToCheck
+    );
 
     const handler = (event: KeyboardEvent): void => {
-        if (check(getProperty, event, firstKey)) {
-            innerShortcut(event, callback, getProperty, ...restKeys);
+        if (check(event)) {
+            innerShortcut(event, callback, ...restChecks);
         }
     };
 

@@ -66,8 +66,7 @@ function updateFocus(evt: FocusEvent) {
 
 registerShortcut(
     () => document.addEventListener("focusin", updateFocus, { once: true }),
-    [["Shift?", "Tab"]],
-    true
+    "Shift?+Tab"
 );
 
 export function onKeyUp(evt: KeyboardEvent): void {

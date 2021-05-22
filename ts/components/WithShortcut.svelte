@@ -6,8 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onDestroy } from "svelte";
     import { registerShortcut, getPlatformString } from "lib/shortcuts";
 
-    export let shortcut: string[][];
-    export let useCode = false;
+    export let shortcut: string;
 
     const shortcutLabel = getPlatformString(shortcut);
 
@@ -15,14 +14,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function createShortcut({ detail }: CustomEvent): void {
         const mounted: HTMLButtonElement = detail.button;
-        deregister = registerShortcut(
-            (event: KeyboardEvent) => {
-                mounted.dispatchEvent(new MouseEvent("click", event));
-                event.preventDefault();
-            },
-            shortcut,
-            useCode
-        );
+        deregister = registerShortcut((event: KeyboardEvent) => {
+            mounted.dispatchEvent(new MouseEvent("click", event));
+            event.preventDefault();
+        }, shortcut);
     }
 
     onDestroy(() => deregister());
