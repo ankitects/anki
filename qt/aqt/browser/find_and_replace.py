@@ -112,7 +112,7 @@ class FindAndReplaceDialog(QDialog):
             if self.form.field.currentIndex() == 0:
                 field = None
             else:
-                field = self.field_names[self.form.field.currentIndex() - 2]
+                field = self.field_names[self.form.field.currentIndex()]
 
             find_and_replace(
                 parent=self.parentWidget(),
