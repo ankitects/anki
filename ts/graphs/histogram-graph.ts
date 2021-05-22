@@ -140,7 +140,7 @@ export function histogramGraph(
             )
             .attr("direction", "ltr");
 
-        svg.select("path.area")
+        svg.select("path.cumulative-overlay")
             .datum(areaData as any)
             .attr(
                 "d",
