@@ -270,6 +270,8 @@ class Table:
             self._view.selectionModel().selectionChanged, self.browser.onRowChanged
         )
         self._view.setWordWrap(False)
+        self._view.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self._view.horizontalScrollBar().setSingleStep(10)
         self._update_font()
         if not theme_manager.night_mode:
             self._view.setStyleSheet(
