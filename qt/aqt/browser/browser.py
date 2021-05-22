@@ -528,7 +528,17 @@ where id in %s"""
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def onChangeModel(self) -> None:
-        ChangeModel(self, self.oneModelNotes())
+        ids = self.selected_notes()
+        if self._is_one_notetype(ids):
+            ChangeModel(self, ids)
+        else:
+            showInfo(tr.browsing_please_select_cards_from_only_one())
+
+    def _is_one_notetype(self, ids: Sequence[NoteId]) -> bool:
+        query = f"select count(distinct mid) from notes where id in {ids2str(ids)}"
+        if self.col.db.scalar(query) == 1:
+            return True
+        return False
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()
