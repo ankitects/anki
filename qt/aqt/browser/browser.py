@@ -132,6 +132,7 @@ class Browser(QMainWindow):
 
         if changes.browser_table and changes.card:
             self.card = self.table.get_current_card()
+            self._update_context_actions()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_top_level_widget() == self:
