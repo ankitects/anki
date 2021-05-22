@@ -17,3 +17,6 @@
     width: calc(var(--toolbar-size) - 12px);
     height: calc(var(--toolbar-size) - 12px);
 }
+.night-mode .topbut {
+    filter: invert(1);
+}
