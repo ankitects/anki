@@ -2,7 +2,7 @@
 
 .linkb {
     display: inline-block;
-    background-color: white;
+    background-color: var(--button-bg);
     border: 1px solid var(--medium-border);
     @include button.btn-border-radius;
     min-width: 28px;
@@ -37,7 +37,6 @@
 
 .nightMode {
     .linkb {
-        background-color: #666;
         margin-left: 1px;
     }
     
