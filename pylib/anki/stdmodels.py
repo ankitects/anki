@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
@@ -40,11 +40,11 @@ def get_stock_notetypes(
         m = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
 
         def instance_getter(
-            col: anki.collection.Collection,
-        ) -> anki.models.NotetypeDict:
-            return m  # pylint:disable=cell-var-from-loop
+            model: Any,
+        ) -> Callable[[anki.collection.Collection], anki.models.NotetypeDict]:
+            return lambda col: model
 
-        out.append((m["name"], instance_getter))
+        out.append((m["name"], instance_getter(m)))
     # add extras from add-ons
     for (name_or_func, func) in models:
         if not isinstance(name_or_func, str):
