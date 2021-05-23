@@ -18,6 +18,15 @@
     }
 }
 
+/* override .btn transition
+in favor of instant background change */
+button {
+    transition:
+        color .15s ease-in-out,
+        border-color .15s ease-in-out,
+        box-shadow .15s ease-in-out !important;
+}
+
 .nightMode {
     button {
         -webkit-appearance: none;
