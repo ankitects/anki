@@ -2,7 +2,7 @@
 
 .linkb {
     display: inline-block;
-    background-color: var(--button-bg);
+    background-color: white;
     border: 1px solid var(--medium-border);
     @include button.btn-border-radius;
     min-width: 28px;
