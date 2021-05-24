@@ -32,6 +32,12 @@ button {
         box-shadow .15s ease-in-out !important;
 }
 
+button.dropdown-item {
+    background: none;
+    box-shadow: none;
+    border: none;
+}
+
 .nightMode {
     button {
         -webkit-appearance: none;
