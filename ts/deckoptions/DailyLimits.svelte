@@ -12,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
     let parentLimits = state.parentLimits;
 
+    const v3Extra = state.v3Scheduler ? "\n\n" + tr.deckConfigLimitDeckV3() : "";
+
     $: newCardsGreaterThanParent =
         !state.v3Scheduler && $config.newPerDay > $parentLimits.newCards
             ? tr.deckConfigDailyLimitWillBeCapped({ cards: $parentLimits.newCards })
@@ -30,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <SpinBox
     label={tr.schedulingNewCardsday()}
-    tooltip={tr.deckConfigNewLimitTooltip()}
+    tooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
     min={0}
     warnings={[newCardsGreaterThanParent]}
     defaultValue={defaults.newPerDay}
@@ -38,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <SpinBox
     label={tr.schedulingMaximumReviewsday()}
-    tooltip={tr.deckConfigReviewLimitTooltip()}
+    tooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
     min={0}
     warnings={[reviewsTooLow]}
     defaultValue={defaults.reviewsPerDay}
