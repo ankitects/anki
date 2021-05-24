@@ -27,6 +27,11 @@ deck-config-limit-deck-v3 =
     When studying a deck that has subdecks inside it, the limits set on each
     subdeck control the maximum number of cards drawn from that particular deck.
     The selected deck's limits control the total cards that will be shown.
+deck-config-limit-new-bound-by-reviews =
+    The review limit affects the new limit. For example, if your review limit is
+    set to 200, and you have 190 reviews waiting, a maximum of 10 new cards will
+    be introduced. If your review limit has been reached, no new cards will be
+    shown.
 
 ## New Cards section
 
