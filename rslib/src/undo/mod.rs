@@ -182,6 +182,12 @@ impl UndoManager {
         self.end_step();
         self.counter
     }
+
+    fn clear_current_changes(&mut self) {
+        if let Some(op) = &mut self.current_step {
+            op.changes.clear();
+        }
+    }
 }
 
 impl Collection {
@@ -253,6 +259,12 @@ impl Collection {
     #[inline]
     pub(crate) fn save_undo(&mut self, item: impl Into<UndoableChange>) {
         self.state.undo.save(item.into());
+    }
+
+    /// Forget any recorded changes in the current transaction, allowing
+    /// a minor change like a config update to bypass undo.
+    pub(crate) fn clear_current_undo_step_changes(&mut self) {
+        self.state.undo.clear_current_changes()
     }
 
     pub(crate) fn current_undo_op(&self) -> Option<&UndoableOp> {

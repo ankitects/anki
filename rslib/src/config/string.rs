@@ -23,9 +23,18 @@ impl Collection {
             .unwrap_or_else(|| default.to_string())
     }
 
-    pub fn set_config_string(&mut self, key: StringKey, val: &str) -> Result<OpOutput<()>> {
+    pub fn set_config_string(
+        &mut self,
+        key: StringKey,
+        val: &str,
+        undoable: bool,
+    ) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateConfig, |col| {
-            col.set_config_string_inner(key, val).map(|_| ())
+            col.set_config_string_inner(key, val)?;
+            if !undoable {
+                col.clear_current_undo_step_changes();
+            }
+            Ok(())
         })
     }
 }
