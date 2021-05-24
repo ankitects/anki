@@ -443,6 +443,9 @@ mod test {
     #[test]
     fn state_application() -> Result<()> {
         let mut col = open_test_collection();
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
