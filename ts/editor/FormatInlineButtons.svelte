@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+KeyB" let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'Control+B'} let:createShortcut let:shortcutLabel>
             <WithState
                 key="bold"
                 update={() => document.queryCommandState('bold')}
@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+KeyI" let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'Control+I'} let:createShortcut let:shortcutLabel>
             <WithState
                 key="italic"
                 update={() => document.queryCommandState('italic')}
@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+KeyU" let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'Control+U'} let:createShortcut let:shortcutLabel>
             <WithState
                 key="underline"
                 update={() => document.queryCommandState('underline')}
@@ -89,10 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut
-            shortcut="Control+Shift+Equal"
-            let:createShortcut
-            let:shortcutLabel>
+        <WithShortcut shortcut={'Control+='} let:createShortcut let:shortcutLabel>
             <WithState
                 key="superscript"
                 update={() => document.queryCommandState('superscript')}
@@ -113,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+Equal" let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'Control+Shift+='} let:createShortcut let:shortcutLabel>
             <WithState
                 key="subscript"
                 update={() => document.queryCommandState('subscript')}
@@ -134,7 +131,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+KeyR" let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={'Control+R'} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingRemoveFormatting(), shortcutLabel)}
                 on:click={() => {
