@@ -694,7 +694,9 @@ class Reviewer:
                     res += good(txt)
                 else:
                     res += missed(txt)
-        res = f"<div><code id=typeans>{res}</code></div>"
+        given_escape = html.escape(given, quote=True)
+        data_attr = f'data-given="{given_escape}"'
+        res = f"<div><code id=typeans {data_attr}>{res}</code></div>"
         return res
 
     def _noLoneMarks(self, s: str) -> str:
