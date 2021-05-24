@@ -17,6 +17,7 @@ impl CardStateUpdater {
         self.card.remaining_steps = next.learning.remaining_steps;
         self.card.ctype = CardType::Relearn;
         self.card.lapses = next.review.lapses;
+        self.card.ease_factor = (next.review.ease_factor * 1000.0).round() as u16;
 
         let interval = next
             .interval_kind()

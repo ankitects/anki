@@ -370,40 +370,52 @@ impl Collection {
     }
 }
 
-// test helpers
 #[cfg(test)]
-impl Collection {
-    pub(crate) fn answer_again(&mut self) {
-        self.answer(|states| states.again, Rating::Again).unwrap()
+pub mod test_helpers {
+    use super::*;
+
+    pub struct PostAnswerState {
+        pub card_id: CardId,
+        pub new_state: CardState,
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn answer_hard(&mut self) {
-        self.answer(|states| states.hard, Rating::Hard).unwrap()
-    }
+    impl Collection {
+        pub(crate) fn answer_again(&mut self) -> PostAnswerState {
+            self.answer(|states| states.again, Rating::Again).unwrap()
+        }
 
-    pub(crate) fn answer_good(&mut self) {
-        self.answer(|states| states.good, Rating::Good).unwrap()
-    }
+        #[allow(dead_code)]
+        pub(crate) fn answer_hard(&mut self) -> PostAnswerState {
+            self.answer(|states| states.hard, Rating::Hard).unwrap()
+        }
 
-    pub(crate) fn answer_easy(&mut self) {
-        self.answer(|states| states.easy, Rating::Easy).unwrap()
-    }
+        pub(crate) fn answer_good(&mut self) -> PostAnswerState {
+            self.answer(|states| states.good, Rating::Good).unwrap()
+        }
 
-    fn answer<F>(&mut self, get_state: F, rating: Rating) -> Result<()>
-    where
-        F: FnOnce(&NextCardStates) -> CardState,
-    {
-        let queued = self.next_card()?.unwrap();
-        self.answer_card(&CardAnswer {
-            card_id: queued.card.id,
-            current_state: queued.next_states.current,
-            new_state: get_state(&queued.next_states),
-            rating,
-            answered_at: TimestampMillis::now(),
-            milliseconds_taken: 0,
-        })?;
-        Ok(())
+        pub(crate) fn answer_easy(&mut self) -> PostAnswerState {
+            self.answer(|states| states.easy, Rating::Easy).unwrap()
+        }
+
+        fn answer<F>(&mut self, get_state: F, rating: Rating) -> Result<PostAnswerState>
+        where
+            F: FnOnce(&NextCardStates) -> CardState,
+        {
+            let queued = self.next_card()?.unwrap();
+            let new_state = get_state(&queued.next_states);
+            self.answer_card(&CardAnswer {
+                card_id: queued.card.id,
+                current_state: queued.next_states.current,
+                new_state,
+                rating,
+                answered_at: TimestampMillis::now(),
+                milliseconds_taken: 0,
+            })?;
+            Ok(PostAnswerState {
+                card_id: queued.card.id,
+                new_state,
+            })
+        }
     }
 }
 
@@ -414,5 +426,130 @@ fn get_fuzz_seed(card: &Card) -> Option<u64> {
         None
     } else {
         Some((card.id.0 as u64).wrapping_add(card.reps as u64))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{card::CardType, collection::open_test_collection};
+
+    fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
+        col.get_next_card_states(card_id).unwrap().current
+    }
+
+    // make sure the 'current' state for a card matches the
+    // state we applied to it
+    #[test]
+    fn state_application() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        // new->learning
+        let post_answer = col.answer_again();
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Learn);
+        assert_eq!(card.remaining_steps, 2);
+
+        // learning step
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let post_answer = col.answer_good();
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Learn);
+        assert_eq!(card.remaining_steps, 1);
+
+        // graduation
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let mut post_answer = col.answer_good();
+        // compensate for shifting the due date
+        if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
+            state.elapsed_days = 1;
+        };
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Review);
+        assert_eq!(card.interval, 1);
+        assert_eq!(card.remaining_steps, 0);
+
+        // answering a review card again; easy boost
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let mut post_answer = col.answer_easy();
+        if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
+            state.elapsed_days = 4;
+        };
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Review);
+        assert_eq!(card.interval, 4);
+        assert_eq!(card.ease_factor, 2650);
+
+        // lapsing it
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let mut post_answer = col.answer_again();
+        if let CardState::Normal(NormalState::Relearning(state)) = &mut post_answer.new_state {
+            state.review.elapsed_days = 1;
+        };
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Learn);
+        assert_eq!(card.ctype, CardType::Relearn);
+        assert_eq!(card.interval, 1);
+        assert_eq!(card.ease_factor, 2450);
+        assert_eq!(card.lapses, 1);
+
+        // failed in relearning
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let mut post_answer = col.answer_again();
+        if let CardState::Normal(NormalState::Relearning(state)) = &mut post_answer.new_state {
+            state.review.elapsed_days = 1;
+        };
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Learn);
+        assert_eq!(card.lapses, 1);
+
+        // re-graduating
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let mut post_answer = col.answer_good();
+        if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
+            state.elapsed_days = 1;
+        };
+        assert_eq!(
+            post_answer.new_state,
+            current_state(&mut col, post_answer.card_id)
+        );
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        assert_eq!(card.queue, CardQueue::Review);
+        assert_eq!(card.interval, 1);
+
+        Ok(())
     }
 }
