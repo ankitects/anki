@@ -197,6 +197,18 @@ mod test {
 
     use super::*;
 
+    // test helper
+    impl SchedTimingToday {
+        /// Check if less than 25 minutes until the rollover
+        pub fn near_cutoff(&self) -> bool {
+            let near = TimestampSecs::now().adding_secs(60 * 25) > self.next_day_at;
+            if near {
+                println!("this would fail near the rollover time");
+            }
+            near
+        }
+    }
+
     // static timezone for tests
     const AEST_MINS_WEST: i32 = -600;
 
