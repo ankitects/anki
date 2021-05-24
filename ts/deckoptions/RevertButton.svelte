@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import { revertIcon } from "./icons";
     import { createEventDispatcher } from "svelte";
-    import { isEqual, cloneDeep } from "lodash-es";
+    import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
     // import { onMount } from "svelte";
     // import Tooltip from "bootstrap/js/dist/tooltip";
 
@@ -25,6 +25,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let defaultValue: any;
 
     const dispatch = createEventDispatcher();
+
+    function isEqual(a: unknown, b: unknown): boolean {
+        if (typeof a === "number" && typeof b === "number") {
+            // round to .01 precision before comparing,
+            // so the values coming out of the UI match
+            // the originals
+            return isEqualLodash(Math.round(a * 100) / 100, Math.round(b * 100) / 100);
+        } else {
+            return isEqualLodash(a, b);
+        }
+    }
 
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
