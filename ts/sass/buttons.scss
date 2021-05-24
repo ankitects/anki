@@ -15,16 +15,14 @@
 .isLin {
     button {
         font-size: 14px;
+        -webkit-appearance: none;
     }
-}
-
-/* override .btn transition
-in favor of instant background change */
-button {
-    transition:
-        color .15s ease-in-out,
-        border-color .15s ease-in-out,
-        box-shadow .15s ease-in-out !important;
+    
+    button:not(.btn-group button) {
+        border-radius: 3px;
+        padding: 5px;
+        border: 1px solid var(--border);
+    }
 }
 
 .nightMode {
@@ -41,7 +39,14 @@ button {
         box-shadow: 0 0 3px fusion_vars.$button-outline;
         border: 1px solid fusion_vars.$button-border;
     }
-
+    
+    button:not(.btn-group button) {
+        border-radius: 2px;
+        padding: 10px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+    
     button:hover {
         background: fusion_vars.$button-hover-bg;
     }
@@ -61,10 +66,4 @@ button {
     padding-left: 15px;
     padding-right: 15px;
     color: #e5e5e5;
-}
-
-button.dropdown-item {
-    background: none;
-    box-shadow: none;
-    border: none;
 }
