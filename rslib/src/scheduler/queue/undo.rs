@@ -200,6 +200,9 @@ mod test {
     #[test]
     fn undo_counts() -> Result<()> {
         let mut col = open_test_collection();
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
 
         assert_eq!(col.counts(), [0, 0, 0]);
         add_note(&mut col, true)?;

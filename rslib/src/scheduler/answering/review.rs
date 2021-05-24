@@ -19,6 +19,7 @@ impl CardStateUpdater {
         self.card.due = (self.timing.days_elapsed + next.scheduled_days) as i32;
         self.card.ease_factor = (next.ease_factor * 1000.0).round() as u16;
         self.card.lapses = next.lapses;
+        self.card.remaining_steps = 0;
 
         RevlogEntryPartial::maybe_new(
             current,

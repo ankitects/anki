@@ -65,7 +65,7 @@ impl ConfigService for Backend {
     fn set_config_json(&self, input: pb::SetConfigJsonIn) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
-            col.set_config_json(input.key.as_str(), &val)
+            col.set_config_json(input.key.as_str(), &val, input.undoable)
         })
         .map(Into::into)
     }
@@ -100,7 +100,7 @@ impl ConfigService for Backend {
     }
 
     fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> Result<pb::OpChanges> {
-        self.with_col(|col| col.set_config_bool(input.key().into(), input.value))
+        self.with_col(|col| col.set_config_bool(input.key().into(), input.value, input.undoable))
             .map(Into::into)
     }
 
@@ -113,7 +113,7 @@ impl ConfigService for Backend {
     }
 
     fn set_config_string(&self, input: pb::SetConfigStringIn) -> Result<pb::OpChanges> {
-        self.with_col(|col| col.set_config_string(input.key().into(), &input.value))
+        self.with_col(|col| col.set_config_string(input.key().into(), &input.value, input.undoable))
             .map(Into::into)
     }
 

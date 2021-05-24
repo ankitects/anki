@@ -180,7 +180,8 @@ class Table:
             SearchContext(search=last_search, browser=self.browser)
         )
         self.col.set_config_bool(
-            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, self.is_notes_mode()
+            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE,
+            self.is_notes_mode(),
         )
         self._restore_header()
         self._restore_selection(self._toggled_selection)

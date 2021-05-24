@@ -4,10 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import DailyLimits from "./DailyLimits.svelte";
-    import LearningOptions from "./LearningOptions.svelte";
+    import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
     import AdvancedOptions from "./AdvancedOptions.svelte";
-    import ReviewOptions from "./ReviewOptions.svelte";
+    import BuryOptions from "./BuryOptions.svelte";
     import LapseOptions from "./LapseOptions.svelte";
     import GeneralOptions from "./GeneralOptions.svelte";
     import Addons from "./Addons.svelte";
@@ -36,10 +36,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="outer">
     <DailyLimits {state} />
-    <LearningOptions {state} />
     <NewOptions {state} />
-    <ReviewOptions {state} />
     <LapseOptions {state} />
+    <BuryOptions {state} />
+    {#if state.v3Scheduler}
+        <DisplayOrder {state} />
+    {/if}
     <GeneralOptions {state} />
     <Addons {state} />
     <AdvancedOptions {state} />

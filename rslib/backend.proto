@@ -988,6 +988,7 @@ message RenameTagsIn {
 message SetConfigJsonIn {
   string key = 1;
   bytes value_json = 2;
+  bool undoable = 3;
 }
 
 message StockNotetype {
@@ -1441,11 +1442,13 @@ message Config {
 message SetConfigBoolIn {
   Config.Bool.Key key = 1;
   bool value = 2;
+  bool undoable = 3;
 }
 
 message SetConfigStringIn {
   Config.String.Key key = 1;
   string value = 2;
+  bool undoable = 3;
 }
 
 message RenderMarkdownIn {

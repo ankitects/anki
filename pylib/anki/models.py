@@ -170,7 +170,8 @@ class ModelManager:
         return self.get(NotetypeId(self.all_names_and_ids()[0].id))
 
     def setCurrent(self, m: NotetypeDict) -> None:
-        self.col.conf["curModel"] = m["id"]
+        """Legacy. The current notetype is now updated on note add."""
+        self.col.set_config("curModel", m["id"])
 
     # Retrieving and creating models
     #############################################################
