@@ -4,8 +4,6 @@ import * as tr from "./i18n";
 
 export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
 
-const modifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
-
 function isApplePlatform(): boolean {
     return (
         window.navigator.platform.startsWith("Mac") ||
@@ -17,10 +15,6 @@ function isApplePlatform(): boolean {
 const platformModifiers = isApplePlatform()
     ? ["Meta", "Alt", "Shift", "Control"]
     : ["Control", "Alt", "Shift", "OS"];
-
-function splitKeyCombinationString(keyCombinationString: string): string[][] {
-    return keyCombinationString.split(", ").map((segment) => segment.split("+"));
-}
 
 function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()
@@ -36,38 +30,50 @@ function modifiersToPlatformString(modifiers: string[]): string {
     return result;
 }
 
-const alphabeticPrefix = "Key";
-const numericPrefix = "Digit";
-const keyToCharacterMap = {
-    Backslash: "\\",
-    Backquote: "`",
-    BracketLeft: "[",
-    BrackerRight: "]",
-    Quote: "'",
-    Semicolon: ";",
-    Minus: "-",
-    Equal: "=",
-    Comma: ",",
-    Period: ".",
-    Slash: "/",
+const keyCodeLookup = {
+    Backspace: 8,
+    Delete: 46,
+    Tab: 9,
+    Enter: 13,
+    F1: 112,
+    F2: 113,
+    F3: 114,
+    F4: 115,
+    F5: 116,
+    F6: 117,
+    F7: 118,
+    F8: 119,
+    F9: 120,
+    F10: 121,
+    F11: 122,
+    F12: 123,
+    "=": 187,
+    "-": 189,
+    "[": 219,
+    "]": 221,
+    "\\": 220,
+    ";": 186,
+    "'": 222,
+    ",": 188,
+    ".": 190,
+    "/": 191,
+    "`": 192,
 };
 
-function keyToPlatformString(key: string): string {
-    if (key.startsWith(alphabeticPrefix)) {
-        return key.slice(alphabeticPrefix.length);
-    } else if (key.startsWith(numericPrefix)) {
-        return key.slice(numericPrefix.length);
-    } else if (Object.prototype.hasOwnProperty.call(keyToCharacterMap, key)) {
-        return keyToCharacterMap[key];
-    } else {
-        return key;
-    }
+function isRequiredModifier(modifier: string): boolean {
+    return !modifier.endsWith("?");
 }
 
-function toPlatformString(modifiersAndKey: string[]): string {
-    return `${modifiersToPlatformString(
-        modifiersAndKey.slice(0, -1)
-    )}${keyToPlatformString(modifiersAndKey[modifiersAndKey.length - 1])}`;
+function splitKeyCombinationString(keyCombinationString: string): string[][] {
+    return keyCombinationString.split(", ").map((segment) => segment.split("+"));
+}
+
+function toPlatformString(keyCombination: string[]): string {
+    return (
+        modifiersToPlatformString(
+            keyCombination.slice(0, -1).filter(isRequiredModifier)
+        ) + keyCombination[keyCombination.length - 1]
+    );
 }
 
 export function getPlatformString(keyCombinationString: string): string {
@@ -76,62 +82,91 @@ export function getPlatformString(keyCombinationString: string): string {
         .join(", ");
 }
 
-function checkKey(event: KeyboardEvent, key: string): boolean {
-    return event.code === key;
+function checkKey(event: KeyboardEvent, key: number): boolean {
+    return event.which === key;
 }
 
-function checkModifiers(
-    event: KeyboardEvent,
-    optionalModifiers: Modifier[],
-    activeModifiers: string[]
-): boolean {
-    return modifiers.reduce(
-        (matches: boolean, modifier: string, currentIndex: number): boolean =>
+const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
+
+function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {
+    const trueItems: T[] = [];
+    const falseItems: T[] = [];
+
+    items.forEach((t) => {
+        const target = predicate(t) ? trueItems : falseItems;
+        target.push(t);
+    });
+
+    return [trueItems, falseItems];
+}
+
+function removeTrailing(modifier: string): string {
+    return modifier.substring(0, modifier.length - 1);
+}
+
+function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
+    const [requiredModifiers, otherModifiers] = partition(
+        isRequiredModifier,
+        modifiers
+    );
+
+    const optionalModifiers = otherModifiers.map(removeTrailing);
+
+    return allModifiers.reduce(
+        (matches: boolean, currentModifier: string, currentIndex: number): boolean =>
             matches &&
-            (optionalModifiers.includes(modifier as Modifier) ||
+            (optionalModifiers.includes(currentModifier as Modifier) ||
                 event.getModifierState(platformModifiers[currentIndex]) ===
-                    activeModifiers.includes(modifier)),
+                    requiredModifiers.includes(currentModifier)),
         true
     );
 }
 
-function check(
-    event: KeyboardEvent,
-    optionalModifiers: Modifier[],
-    modifiersAndKey: string[]
-): boolean {
-    return (
-        checkKey(event, modifiersAndKey[modifiersAndKey.length - 1]) &&
-        checkModifiers(event, optionalModifiers, modifiersAndKey.slice(0, -1))
-    );
+const check = (keyCode: number, modifiers: string[]) => (
+    event: KeyboardEvent
+): boolean => {
+    return checkKey(event, keyCode) && checkModifiers(event, modifiers);
+};
+
+function keyToCode(key: string): number {
+    return keyCodeLookup[key] || key.toUpperCase().charCodeAt(0);
 }
 
-const shortcutTimeoutMs = 400;
+function keyCombinationToCheck(
+    keyCombination: string[]
+): (event: KeyboardEvent) => boolean {
+    const keyCode = keyToCode(keyCombination[keyCombination.length - 1]);
+    const modifiers = keyCombination.slice(0, -1);
+
+    return check(keyCode, modifiers);
+}
+
+const GENERAL_KEY = 0;
+const NUMPAD_KEY = 3;
 
 function innerShortcut(
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
-    optionalModifiers: Modifier[],
-    ...keyCombination: string[][]
+    ...checks: ((event: KeyboardEvent) => boolean)[]
 ): void {
     let interval: number;
 
-    if (keyCombination.length === 0) {
+    if (checks.length === 0) {
         callback(lastEvent);
     } else {
-        const [nextKey, ...restKeys] = keyCombination;
-
+        const [nextCheck, ...restChecks] = checks;
         const handler = (event: KeyboardEvent): void => {
-            if (check(event, optionalModifiers, nextKey)) {
-                innerShortcut(event, callback, optionalModifiers, ...restKeys);
+            if (nextCheck(event)) {
+                innerShortcut(event, callback, ...restChecks);
                 clearTimeout(interval);
+            } else if (
+                event.location === GENERAL_KEY ||
+                event.location === NUMPAD_KEY
+            ) {
+                // Any non-modifier key will cancel the shortcut sequence
+                document.removeEventListener("keydown", handler);
             }
         };
-
-        interval = setTimeout(
-            (): void => document.removeEventListener("keydown", handler),
-            shortcutTimeoutMs
-        );
 
         document.addEventListener("keydown", handler, { once: true });
     }
@@ -139,15 +174,15 @@ function innerShortcut(
 
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
-    keyCombinationString: string,
-    optionalModifiers: Modifier[] = []
+    keyCombinationString: string
 ): () => void {
-    const keyCombination = splitKeyCombinationString(keyCombinationString);
-    const [firstKey, ...restKeys] = keyCombination;
+    const [check, ...restChecks] = splitKeyCombinationString(keyCombinationString).map(
+        keyCombinationToCheck
+    );
 
     const handler = (event: KeyboardEvent): void => {
-        if (check(event, optionalModifiers, firstKey)) {
-            innerShortcut(event, callback, optionalModifiers, ...restKeys);
+        if (check(event)) {
+            innerShortcut(event, callback, ...restChecks);
         }
     };
 

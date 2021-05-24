@@ -45,7 +45,10 @@ class ConfigManager:
 
     def set(self, key: str, val: Any) -> None:
         self.col._backend.set_config_json_no_undo(
-            key=key, value_json=to_json_bytes(val)
+            key=key,
+            value_json=to_json_bytes(val),
+            # this argument is ignored
+            undoable=True,
         )
 
     def remove(self, key: str) -> OpChanges:

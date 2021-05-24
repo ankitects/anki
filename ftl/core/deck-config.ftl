@@ -23,10 +23,13 @@ deck-config-new-limit-tooltip =
 deck-config-review-limit-tooltip =
     The maximum number of review cards to show in a day,
     if cards are ready for review.
+deck-config-limit-deck-v3 =
+    When studying a deck that has subdecks inside it, the limits set on each
+    subdeck control the maximum number of cards drawn from that particular deck.
+    The selected deck's limits control the total cards that will be shown.
 
-## Learning section
+## New Cards section
 
-deck-config-learning-title = Learning
 deck-config-learning-steps = Learning steps
 # Please don't translate `5m` or `2d`
 -deck-config-delay-hint = Delays can be in minutes (eg `5m`), or days (eg `2d`).
@@ -36,14 +39,6 @@ deck-config-learning-steps-tooltip =
     The `Good` button will advance to the next step, which is 10 minutes by default.
     Once all steps have been passed, the card will become a review card, and
     will appear on a different day. { -deck-config-delay-hint }
-deck-config-interday-step-priority = Interday step priority
-deck-config-interday-step-priority-tooltip = When to show (re)learning cards that cross a day boundary.
-deck-config-review-mix-mix-with-reviews = Mix with reviews
-deck-config-review-mix-show-after-reviews = Show after reviews
-deck-config-review-mix-show-before-reviews = Show before reviews
-
-## New Cards section
-
 deck-config-graduating-interval-tooltip =
     The number of days to wait before showing a card again, after the `Good` button
     is pressed on the final learning step.
@@ -53,48 +48,10 @@ deck-config-easy-interval-tooltip =
 deck-config-new-insertion-order = Insertion order
 deck-config-new-insertion-order-tooltip =
     Controls the position (due #) new cards are assigned when you add new cards.
-    Cards with a lower due # will be shown first when studying. Changing this
-    option will automatically update the existing position of new cards.
+    Cards with a lower due number will be shown first when studying. Changing
+    this option will automatically update the existing position of new cards.
 deck-config-new-insertion-order-sequential = Sequential (oldest cards first)
 deck-config-new-insertion-order-random = Random
-deck-config-new-gather-priority = Gather priority
-deck-config-new-gather-priority-tooltip =
-    `Deck`: gathers cards from each subdeck in order, and stops when the
-    limit of the selected deck has been exceeded. This is faster, and allows you
-    to prioritize subdecks that are closer to the top.
-    
-    `Position`: gathers cards from all decks before they are sorted. This
-    ensures the oldest cards will be shown first, even if the parent limit is
-    not high enough to see cards from all decks.
-deck-config-new-gather-priority-deck = Deck
-deck-config-new-gather-priority-position = Position
-deck-config-sort-order = Sort order
-deck-config-sort-order-tooltip =
-    This option controls how cards are sorted after they have been gathered.
-    By default, Anki sorts by card template first, to avoid multiple cards of
-    the same note from being shown in succession.
-deck-config-sort-order-card-template-then-position = Card template, then position
-deck-config-sort-order-card-template-then-random = Card template, then random
-deck-config-sort-order-position = Position (siblings together)
-deck-config-sort-order-random = Random
-deck-config-review-priority = Review priority
-deck-config-review-priority-tooltip = When to show these cards in relation to review cards.
-
-## Review section
-
-deck-config-review-sort-order-tooltip =
-    The default order fetches cards from each subdeck in turn, stopping when the limit
-    of the selected deck has been reached. The gathered cards are then shuffled together,
-    and shown in due date order. Because gathering stops when the parent limit has been
-    reached, your child decks should have smaller limits if you wish to see cards from
-    multiple decks at once.
-    
-    The other sort options are mainly useful when catching up from a large backlog.
-    Because they have to sort all the cards first, they can be considerably slower
-    than the default sort order when many cards are due.
-deck-config-sort-order-due-date-then-random = Due date, then random
-deck-config-sort-order-ascending-intervals = Ascending intervals
-deck-config-sort-order-descending-intervals = Descending intervals
 
 ## Lapses section
 
@@ -118,11 +75,52 @@ deck-config-leech-action-tooltip =
 
 ## Burying section
 
+deck-config-bury-title = Burying
 deck-config-bury-new-siblings = Bury new siblings until the next day
 deck-config-bury-review-siblings = Bury review siblings until the next day
 deck-config-bury-tooltip =
     Whether other cards of the same note (eg reverse cards, adjacent
     cloze deletions) will be delayed until the next day.
+
+## Ordering section
+
+deck-config-ordering-title = Display Order
+deck-config-new-gather-priority = New card gather priority
+deck-config-new-gather-priority-tooltip =
+    `Deck`: gathers cards from each subdeck in order, and stops when the
+    limit of the selected deck has been exceeded. This is faster, and allows you
+    to prioritize subdecks that are closer to the top.
+    
+    `Position`: gathers cards from all decks before they are sorted. This
+    ensures the oldest cards will be shown first, even if the parent limit is
+    not high enough to see cards from all decks.
+deck-config-new-gather-priority-deck = Deck
+deck-config-new-gather-priority-position = Position
+deck-config-new-card-sort-order = New card sort order
+deck-config-new-card-sort-order-tooltip =
+    How cards are sorted after they have been gathered. By default, Anki sorts
+    by card template first, to avoid multiple cards of the same note from being
+    shown in succession.
+deck-config-sort-order-card-template-then-position = Card template, then position
+deck-config-sort-order-card-template-then-random = Card template, then random
+deck-config-sort-order-position = Position (siblings together)
+deck-config-sort-order-random = Random
+deck-config-new-review-priority = New/review priority
+deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
+deck-config-interday-step-priority = Interday learning/review priority
+deck-config-interday-step-priority-tooltip = When to show (re)learning cards that cross a day boundary.
+deck-config-review-mix-mix-with-reviews = Mix with reviews
+deck-config-review-mix-show-after-reviews = Show after reviews
+deck-config-review-mix-show-before-reviews = Show before reviews
+deck-config-review-sort-order = Review sort order
+deck-config-review-sort-order-tooltip =
+    The default order prioritizes cards that have been waiting longest, so that
+    if you have a backlog of reviews, the longest-waiting ones will appear
+    first. If you have a large backlog that will take more than a few days to
+    clear, you may find the alternate sort orders preferable.
+deck-config-sort-order-due-date-then-random = Due date, then random
+deck-config-sort-order-ascending-intervals = Ascending intervals
+deck-config-sort-order-descending-intervals = Descending intervals
 
 ## Timer section
 

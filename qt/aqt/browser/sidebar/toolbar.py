@@ -40,12 +40,11 @@ class SidebarToolbar(QToolBar):
             action.setCheckable(True)
             action.setShortcut(f"Alt+{row + 1}")
             self._action_group.addAction(action)
-        saved = self.sidebar.col.get_config("sidebarTool", 0)
-        active = saved if saved < len(self._tools) else 0
+        # always start with first tool
+        active = 0
         self._action_group.actions()[active].setChecked(True)
         self.sidebar.tool = self._tools[active][0]
 
     def _on_action_group_triggered(self, action: QAction) -> None:
         index = self._action_group.actions().index(action)
-        self.sidebar.col.set_config("sidebarTool", index)
         self.sidebar.tool = self._tools[index][0]

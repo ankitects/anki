@@ -70,9 +70,18 @@ impl Collection {
         }
     }
 
-    pub fn set_config_bool(&mut self, key: BoolKey, value: bool) -> Result<OpOutput<()>> {
+    pub fn set_config_bool(
+        &mut self,
+        key: BoolKey,
+        value: bool,
+        undoable: bool,
+    ) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateConfig, |col| {
-            col.set_config(key, &value).map(|_| ())
+            col.set_config(key, &value)?;
+            if !undoable {
+                col.clear_current_undo_step_changes();
+            }
+            Ok(())
         })
     }
 }
