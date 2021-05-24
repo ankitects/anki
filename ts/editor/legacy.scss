@@ -4,10 +4,16 @@
     display: inline-block;
     background-color: white;
     border: 1px solid var(--medium-border);
-    @include button.btn-border-radius;
+
+    /* !important cannot be used with @include */
+    border-top-left-radius: var(--border-left-radius) !important;
+    border-bottom-left-radius: var(--border-left-radius) !important;
+    border-top-right-radius: var(--border-right-radius) !important;
+    border-bottom-right-radius: var(--border-right-radius) !important;
+    
     min-width: 28px;
     margin-left: -1px;
-    padding: 3.5px;
+    padding: 3.5px !important;
 }
 
 .linkb:hover {
