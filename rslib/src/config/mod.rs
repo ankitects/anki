@@ -70,8 +70,19 @@ pub enum SchedulerVersion {
 }
 
 impl Collection {
-    pub fn set_config_json<T: Serialize>(&mut self, key: &str, val: &T) -> Result<OpOutput<()>> {
-        self.transact(Op::UpdateConfig, |col| col.set_config(key, val).map(|_| ()))
+    pub fn set_config_json<T: Serialize>(
+        &mut self,
+        key: &str,
+        val: &T,
+        undoable: bool,
+    ) -> Result<OpOutput<()>> {
+        self.transact(Op::UpdateConfig, |col| {
+            col.set_config(key, val)?;
+            if !undoable {
+                col.clear_current_undo_step_changes();
+            }
+            Ok(())
+        })
     }
 
     pub fn remove_config(&mut self, key: &str) -> Result<OpOutput<()>> {
