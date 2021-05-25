@@ -824,6 +824,40 @@ class Collection:
     ) -> OpChanges:
         return self._backend.set_config_string(key=key, value=value, undoable=undoable)
 
+    def get_aux_notetype_config(
+        self, id: NotetypeId, key: str, default: Any = None
+    ) -> Any:
+        key = self._backend.get_aux_notetype_config_key(id=id, key=key)
+        return self.get_config(key, default=default)
+
+    def set_aux_notetype_config(
+        self, id: NotetypeId, key: str, value: Any, *, undoable: bool = False
+    ) -> OpChanges:
+        key = self._backend.get_aux_notetype_config_key(id=id, key=key)
+        return self.set_config(key, value, undoable=undoable)
+
+    def get_aux_template_config(
+        self, id: NotetypeId, card_ordinal: int, key: str, default: Any = None
+    ) -> Any:
+        key = self._backend.get_aux_template_config_key(
+            notetype_id=id, card_ordinal=card_ordinal, key=key
+        )
+        return self.get_config(key, default=default)
+
+    def set_aux_template_config(
+        self,
+        id: NotetypeId,
+        card_ordinal: int,
+        key: str,
+        value: Any,
+        *,
+        undoable: bool = False,
+    ) -> OpChanges:
+        key = self._backend.get_aux_template_config_key(
+            notetype_id=id, card_ordinal=card_ordinal, key=key
+        )
+        return self.set_config(key, value, undoable=undoable)
+
     # Stats
     ##########################################################################
 

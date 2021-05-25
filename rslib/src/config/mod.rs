@@ -13,7 +13,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
 
-pub use self::{bool::BoolKey, string::StringKey};
+pub use self::{bool::BoolKey, notetype::get_aux_notetype_config_key, string::StringKey};
 use crate::prelude::*;
 
 /// Only used when updating/undoing.
