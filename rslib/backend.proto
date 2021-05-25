@@ -221,6 +221,8 @@ service CardRenderingService {
   rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
   rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
   rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
+  rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyIn)
+      returns (RenderCardOut);
   rpc StripAVTags(String) returns (String);
   rpc RenderMarkdown(RenderMarkdownIn) returns (String);
 }
@@ -686,6 +688,13 @@ message RenderExistingCardIn {
 }
 
 message RenderUncommittedCardIn {
+  Note note = 1;
+  uint32 card_ord = 2;
+  Notetype.Template template = 3;
+  bool fill_empty = 4;
+}
+
+message RenderUncommittedCardLegacyIn {
   Note note = 1;
   uint32 card_ord = 2;
   bytes template = 3;

@@ -238,7 +238,7 @@ class TemplateRenderContext:
     def _partially_render(self) -> PartiallyRenderedCard:
         if self._template:
             # card layout screen
-            out = self._col._backend.render_uncommitted_card(
+            out = self._col._backend.render_uncommitted_card_legacy(
                 note=self._note._to_backend_note(),
                 card_ord=self._card.ord,
                 template=to_json_bytes(self._template),
