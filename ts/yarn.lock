@@ -301,20 +301,20 @@
     "@babel/helper-validator-identifier" "^7.14.0"
     to-fast-properties "^2.0.0"
 
-"@bazel/typescript@=3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.4.0.tgz#031d989682ff8605ed8745f31448c2f76a1b653a"
-  integrity sha512-XlWrlQnsdQHTwsliUAf4mySHOgqRY2S57LKG2rKRjm+a015Lzlmxo6jRQaxjr68UmuhmlklRw0WfCFxdR81AvQ==
+"@bazel/typescript@=3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.5.1.tgz#c6027d683adeefa2c3cebfa3ed5efa17c405a63b"
+  integrity sha512-dU5sGgaGdFWV1dJ1B+9iFbttgcKtmob+BvlM8mY7Nxq4j7/wVbgPjiVLOBeOD7kpzYep8JHXfhAokHt486IG+Q==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "2.27.2"
 
-"@bazel/worker@=3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-3.4.0.tgz#cfa352c6457a5aaed0a80c6e6478444b163360b4"
-  integrity sha512-U5/fV92i/zPeOqTh1kCAvGwlNUhaohYdGMiSvJdC6MhZKrjNks9qmT712u+hvarhdLiDHzcIN6eE3Tz/qHRbjQ==
+"@bazel/worker@=3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-3.5.1.tgz#2bfa98eef3c463db87cc3e7b8d781de9620e8b85"
+  integrity sha512-191TNFaRlIp1zZCabS/tZ5xG5SvDAEWRvPwYVNRFlv5ojyELZG7o6nsrlUXTBeP/jN/aT1pj07DzCagb75yX9w==
   dependencies:
     protobufjs "6.8.8"
 
