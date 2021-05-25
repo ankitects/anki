@@ -61,11 +61,9 @@ ts_library(
         "lib.ts",
         "steps.ts",
         "strings.ts",
-        "textInputModal.ts",
     ],
     module_name = "deckoptions",
     deps = [
-        "TextInputModal",
         "//ts:image_module_support",
         "//ts/lib",
         "//ts/lib:backend_proto",
