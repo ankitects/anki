@@ -4,7 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import { getContext } from "svelte";
+    import { modalsKey } from "components/contextKeys";
     import type { DeckOptionsState, ConfigListEntry } from "./lib";
+    import type Modal from "bootstrap/js/dist/modal";
 
     import TextInputModal from "./TextInputModal.svelte";
     import StickyBar from "components/StickyBar.svelte";
@@ -20,9 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     let configList = state.configList;
-
-    let addModalKey: string;
-    let renameModalKey: string;
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
@@ -43,6 +43,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onRenameConfig(text: string): void {
         state.setCurrentName(text);
     }
+
+    const modals = getContext<Map<string, Modal>>(modalsKey);
+
+    let addModalKey: string;
+    let renameModalKey: string;
+    let oldName = "";
+
+    function onAdd() {
+        modals.get(addModalKey)!.show();
+    }
+
+    function onRename() {
+        oldName = state.getCurrentName();
+        modals.get(renameModalKey)!.show();
+    }
 </script>
 
 <TextInputModal
@@ -54,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     title="Rename Config"
     prompt="Name"
     onOk={onRenameConfig}
-    value={state.getCurrentName()}
+    value={oldName}
     bind:modalKey={renameModalKey} />
 
 <StickyBar>
@@ -77,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </ButtonToolbarItem>
 
             <ButtonToolbarItem>
-                <SaveButton {state} {addModalKey} {renameModalKey} />
+                <SaveButton {state} on:add={onAdd} on:rename={onRename} />
             </ButtonToolbarItem>
         </ButtonToolbar>
     </WithTheming>
