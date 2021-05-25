@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onOkClicked(): void {
         onOk(inputRef.value);
         modal.hide();
+        value = "";
     }
 
     function onShown(): void {
