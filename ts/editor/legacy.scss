@@ -10,10 +10,11 @@
     border-bottom-left-radius: var(--border-left-radius) !important;
     border-top-right-radius: var(--border-right-radius) !important;
     border-bottom-right-radius: var(--border-right-radius) !important;
-    
-    min-width: 28px;
+
+    min-width: calc(var(--toolbar-size) - 2px);
+    min-height: calc(var(--toolbar-size) - 2px);
     margin-left: -1px;
-    padding: 3.5px !important;
+    padding: 0 !important;
 }
 
 .linkb:hover,
@@ -45,7 +46,7 @@
     .linkb {
         margin-left: 1px;
     }
-    
+
     .linkb:hover {
         background-color: #7a7a7a;
         border-color: #7a7a7a;
@@ -59,7 +60,7 @@
             rgba(0, 0, 0, 0.35);
         border-color: #525252;
     }
-    
+
     img.topbut,
     .linkb:active:hover img.topbut {
         filter: invert(1);
