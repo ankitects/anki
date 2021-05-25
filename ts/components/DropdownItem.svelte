@@ -28,6 +28,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: space-between;
 
         font-size: calc(var(--toolbar-size) / 2.3);
+
+        background: none;
+        box-shadow: none;
+        border: none;
     }
 
     .btn-day {

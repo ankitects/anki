@@ -22,3 +22,8 @@ body,
 html {
     overscroll-behavior: none;
 }
+
+button {
+    /* override transition for instant hover response */
+    transition: color .15s ease-in-out, box-shadow .15s ease-in-out !important;
+}
