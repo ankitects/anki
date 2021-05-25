@@ -16,6 +16,8 @@ use crate::{
 pub struct RenderCardOutput {
     pub qnodes: Vec<RenderedNode>,
     pub anodes: Vec<RenderedNode>,
+    pub css: String,
+    pub latex_svg: bool,
 }
 
 impl Collection {
@@ -119,7 +121,12 @@ impl Collection {
             nt.is_cloze(),
             &self.tr,
         )?;
-        Ok(RenderCardOutput { qnodes, anodes })
+        Ok(RenderCardOutput {
+            qnodes,
+            anodes,
+            css: nt.config.css.clone(),
+            latex_svg: nt.config.latex_svg,
+        })
     }
 
     // Add special fields if they don't clobber note fields

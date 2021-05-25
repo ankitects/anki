@@ -61,13 +61,15 @@ TemplateReplacementList = List[Union[str, TemplateReplacement]]
 class PartiallyRenderedCard:
     qnodes: TemplateReplacementList
     anodes: TemplateReplacementList
+    css: str
+    latex_svg: bool
 
     @classmethod
     def from_proto(cls, out: _pb.RenderCardOut) -> PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 
-        return PartiallyRenderedCard(qnodes, anodes)
+        return PartiallyRenderedCard(qnodes, anodes, out.css, out.latex_svg)
 
     @staticmethod
     def nodes_from_proto(
@@ -151,6 +153,7 @@ class TemplateRenderContext:
         self._template = template
         self._fill_empty = fill_empty
         self._fields: Optional[Dict] = None
+        self._latex_svg = False
         if not notetype:
             self._note_type = note.model()
         else:
@@ -197,6 +200,9 @@ class TemplateRenderContext:
     def note_type(self) -> NotetypeDict:
         return self._note_type
 
+    def latex_svg(self) -> bool:
+        return self._latex_svg
+
     # legacy
     def qfmt(self) -> str:
         return templates_for_card(self.card(), self._browser)[0]
@@ -227,8 +233,10 @@ class TemplateRenderContext:
             answer_text=aout.text,
             question_av_tags=av_tags_to_native(qout.av_tags),
             answer_av_tags=av_tags_to_native(aout.av_tags),
-            css=self.note_type()["css"],
+            css=partial.css,
         )
+
+        self._latex_svg = partial.latex_svg
 
         if not self._browser:
             hooks.card_did_render(output, self)
