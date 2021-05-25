@@ -61,9 +61,14 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError(err) => tr
-                .card_templates_invalid_template_number(err.ordinal + 1, &err.notetype)
-                .into(),
+            AnkiError::TemplateSaveError(err) => {
+                let header =
+                    tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
+                let details = match err.details {
+                    TemplateSaveErrorDetails::TemplateError => tr.card_templates_see_preview(),
+                };
+                format!("{}<br>{}", header, details)
+            }
             AnkiError::DbError(err) => err.localized_description(tr),
             AnkiError::SearchError(kind) => kind.localized_description(&tr),
             AnkiError::InvalidInput(info) => {
@@ -135,4 +140,10 @@ impl From<regex::Error> for AnkiError {
 pub struct TemplateSaveError {
     pub notetype: String,
     pub ordinal: usize,
+    pub details: TemplateSaveErrorDetails,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum TemplateSaveErrorDetails {
+    TemplateError,
 }

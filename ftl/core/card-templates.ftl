@@ -21,6 +21,7 @@ card-templates-night-mode = Night Mode
 card-templates-add-mobile-class = Add Mobile Class
 card-templates-preview-settings = Options
 card-templates-invalid-template-number = Card template { $number } in notetype '{ $notetype }' has a problem.
+card-templates-see-preview = See the render preview for more information.
 card-templates-changes-saved = Changes saved.
 card-templates-discard-changes = Discard changes?
 card-templates-add-card-type = Add Card Type...

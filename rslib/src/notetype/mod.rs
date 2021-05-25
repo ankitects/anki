@@ -37,7 +37,7 @@ pub use crate::backend_proto::{
 };
 use crate::{
     define_newtype,
-    error::TemplateSaveError,
+    error::{TemplateSaveError, TemplateSaveErrorDetails},
     prelude::*,
     template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
@@ -330,6 +330,7 @@ impl Notetype {
             return Err(AnkiError::TemplateSaveError(TemplateSaveError {
                 notetype: self.name.clone(),
                 ordinal: idx,
+                details: TemplateSaveErrorDetails::TemplateError,
             }));
         }
         let reqs = self.updated_requirements(&parsed_templates);
