@@ -104,10 +104,9 @@ impl Card {
         if self.queue == CardQueue::Learn {
             Some(TimestampSecs(self.due as i64))
         } else if self.is_due_in_days() {
-            Some(
-                TimestampSecs::now()
-                    .adding_secs(((self.due - timing.days_elapsed as i32) * 86400) as i64),
-            )
+            Some(TimestampSecs::now().adding_secs(
+                ((self.due - timing.days_elapsed as i32).saturating_mul(86400)) as i64,
+            ))
         } else {
             None
         }
