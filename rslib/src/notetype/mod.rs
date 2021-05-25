@@ -272,6 +272,21 @@ impl Notetype {
             });
     }
 
+    fn ensure_template_fronts_unique(&self) -> Result<()> {
+        for i in 1..self.templates.len() {
+            for j in 0..i {
+                if self.templates[i].config.q_format == self.templates[j].config.q_format {
+                    return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                        notetype: self.name.clone(),
+                        ordinal: i,
+                        details: TemplateSaveErrorDetails::Duplicate(j + 1),
+                    }));
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub(crate) fn normalize_names(&mut self) {
         ensure_string_in_nfc(&mut self.name);
         for f in &mut self.fields {
@@ -314,6 +329,7 @@ impl Notetype {
         self.fix_template_names()?;
         self.ensure_names_unique();
         self.reposition_sort_idx();
+        self.ensure_template_fronts_unique()?;
 
         let parsed_templates = self.parsed_templates();
         let invalid_card_idx = parsed_templates
