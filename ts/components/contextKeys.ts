@@ -6,3 +6,4 @@ export const disabledKey = Symbol("disabled");
 export const buttonToolbarKey = Symbol("buttonToolbar");
 export const buttonGroupKey = Symbol("buttonGroup");
 export const dropdownKey = Symbol("dropdown");
+export const modalsKey = Symbol("modals");
