@@ -99,6 +99,23 @@ impl CardRenderingService for Backend {
         &self,
         input: pb::RenderUncommittedCardIn,
     ) -> Result<pb::RenderCardOut> {
+        let template = input.template.ok_or(AnkiError::NotFound)?.into();
+        let mut note = input
+            .note
+            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
+            .into();
+        let ord = input.card_ord as u16;
+        let fill_empty = input.fill_empty;
+        self.with_col(|col| {
+            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+                .map(Into::into)
+        })
+    }
+
+    fn render_uncommitted_card_legacy(
+        &self,
+        input: pb::RenderUncommittedCardLegacyIn,
+    ) -> Result<pb::RenderCardOut> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
         let template = schema11.into();
         let mut note = input
@@ -158,6 +175,8 @@ impl From<RenderCardOutput> for pb::RenderCardOut {
         pb::RenderCardOut {
             question_nodes: rendered_nodes_to_proto(o.qnodes),
             answer_nodes: rendered_nodes_to_proto(o.anodes),
+            css: o.css,
+            latex_svg: o.latex_svg,
         }
     }
 }

@@ -213,6 +213,8 @@ service NotetypesService {
   rpc GetNotetypeNamesAndCounts(Empty) returns (NotetypeUseCounts);
   rpc GetNotetypeIdByName(String) returns (NotetypeId);
   rpc RemoveNotetype(NotetypeId) returns (OpChanges);
+  rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyIn) returns (String);
+  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyIn) returns (String);
 }
 
 service CardRenderingService {
@@ -221,6 +223,8 @@ service CardRenderingService {
   rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
   rpc RenderExistingCard(RenderExistingCardIn) returns (RenderCardOut);
   rpc RenderUncommittedCard(RenderUncommittedCardIn) returns (RenderCardOut);
+  rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyIn)
+      returns (RenderCardOut);
   rpc StripAVTags(String) returns (String);
   rpc RenderMarkdown(RenderMarkdownIn) returns (String);
 }
@@ -688,6 +692,13 @@ message RenderExistingCardIn {
 message RenderUncommittedCardIn {
   Note note = 1;
   uint32 card_ord = 2;
+  Notetype.Template template = 3;
+  bool fill_empty = 4;
+}
+
+message RenderUncommittedCardLegacyIn {
+  Note note = 1;
+  uint32 card_ord = 2;
   bytes template = 3;
   bool fill_empty = 4;
 }
@@ -695,6 +706,8 @@ message RenderUncommittedCardIn {
 message RenderCardOut {
   repeated RenderedTemplateNode question_nodes = 1;
   repeated RenderedTemplateNode answer_nodes = 2;
+  string css = 3;
+  bool latex_svg = 4;
 }
 
 message RenderedTemplateNode {
@@ -1609,4 +1622,15 @@ message FilteredDeckForUpdate {
 message SetFlagIn {
   repeated int64 card_ids = 1;
   uint32 flag = 2;
+}
+
+message GetAuxConfigKeyIn {
+  int64 id = 1;
+  string key = 2;
+}
+
+message GetAuxTemplateConfigKeyIn {
+  int64 notetype_id = 1;
+  uint32 card_ordinal = 2;
+  string key = 3;
 }
