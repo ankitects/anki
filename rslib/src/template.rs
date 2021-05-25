@@ -260,7 +260,7 @@ fn template_error_to_anki_error(err: TemplateError, q_side: bool, tr: &I18n) -> 
     } else {
         tr.card_template_rendering_back_side_problem()
     };
-    let details = localized_template_error(tr, err);
+    let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
     let info = format!(
         "{}<br>{}<br><a href='{}'>{}</a>",
