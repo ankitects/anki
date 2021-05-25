@@ -84,4 +84,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {revlogRange}
     loading={$graphLoading || $prefsLoading}
     sourceData={$graphValue}
-    preferences={$prefsValue} />
+    preferences={$prefsValue}
+/>

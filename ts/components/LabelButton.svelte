@@ -34,6 +34,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
+<button
+    bind:this={buttonRef}
+    {id}
+    class={extendClassName(className, theme)}
+    class:active
+    class:dropdown-toggle={dropdownProps.dropdown}
+    class:btn-day={theme === "anki" && !nightMode}
+    class:btn-night={theme === "anki" && nightMode}
+    title={tooltip}
+    {...dropdownProps}
+    disabled={_disabled}
+    tabindex={tabbable ? 0 : -1}
+    on:click
+    on:mousedown|preventDefault
+>
+    <slot />
+</button>
+
 <style lang="scss">
     @use "ts/sass/button_mixins" as button;
 
@@ -48,20 +66,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @include button.btn-day;
     @include button.btn-night;
 </style>
-
-<button
-    bind:this={buttonRef}
-    {id}
-    class={extendClassName(className, theme)}
-    class:active
-    class:dropdown-toggle={dropdownProps.dropdown}
-    class:btn-day={theme === 'anki' && !nightMode}
-    class:btn-night={theme === 'anki' && nightMode}
-    title={tooltip}
-    {...dropdownProps}
-    disabled={_disabled}
-    tabindex={tabbable ? 0 : -1}
-    on:click
-    on:mousedown|preventDefault>
-    <slot />
-</button>

@@ -18,10 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     label={tr.deckConfigBuryNewSiblings()}
     tooltip={tr.deckConfigBuryTooltip()}
     defaultValue={defaults.buryNew}
-    bind:value={$config.buryNew} />
+    bind:value={$config.buryNew}
+/>
 
 <CheckBox
     label={tr.deckConfigBuryReviewSiblings()}
     tooltip={tr.deckConfigBuryTooltip()}
     defaultValue={defaults.buryReviews}
-    bind:value={$config.buryReviews} />
+    bind:value={$config.buryReviews}
+/>

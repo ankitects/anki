@@ -24,9 +24,8 @@ function showTooltipInner(msg: string, x: number, y: number): void {
     tooltip.$set({ html: msg, x, y, show: true });
 }
 
-export const showTooltip: DebouncedFunc<
-    (msg: string, x: number, y: number) => void
-> = throttle(showTooltipInner, 16);
+export const showTooltip: DebouncedFunc<(msg: string, x: number, y: number) => void> =
+    throttle(showTooltipInner, 16);
 
 export function hideTooltip(): void {
     const tooltip = getOrCreateTooltip();

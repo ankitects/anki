@@ -21,7 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={1}
     max={365 * 100}
     defaultValue={defaults.maximumReviewInterval}
-    bind:value={$config.maximumReviewInterval} />
+    bind:value={$config.maximumReviewInterval}
+/>
 
 <SpinBoxFloat
     label={tr.schedulingStartingEase()}
@@ -30,7 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     max={5}
     defaultValue={defaults.initialEase}
     value={$config.initialEase}
-    on:changed={(evt) => ($config.initialEase = evt.detail.value)} />
+    on:changed={(evt) => ($config.initialEase = evt.detail.value)}
+/>
 
 <SpinBoxFloat
     label={tr.schedulingEasyBonus()}
@@ -39,7 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     max={3}
     defaultValue={defaults.easyMultiplier}
     value={$config.easyMultiplier}
-    on:changed={(evt) => ($config.easyMultiplier = evt.detail.value)} />
+    on:changed={(evt) => ($config.easyMultiplier = evt.detail.value)}
+/>
 
 <SpinBoxFloat
     label={tr.schedulingIntervalModifier()}
@@ -48,7 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     max={2}
     defaultValue={defaults.intervalMultiplier}
     value={$config.intervalMultiplier}
-    on:changed={(evt) => ($config.intervalMultiplier = evt.detail.value)} />
+    on:changed={(evt) => ($config.intervalMultiplier = evt.detail.value)}
+/>
 
 <SpinBoxFloat
     label={tr.schedulingHardInterval()}
@@ -57,7 +61,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     max={1.3}
     defaultValue={defaults.hardMultiplier}
     value={$config.hardMultiplier}
-    on:changed={(evt) => ($config.hardMultiplier = evt.detail.value)} />
+    on:changed={(evt) => ($config.hardMultiplier = evt.detail.value)}
+/>
 
 <SpinBoxFloat
     label={tr.schedulingNewInterval()}
@@ -66,4 +71,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     max={1}
     defaultValue={defaults.lapseMultiplier}
     value={$config.lapseMultiplier}
-    on:changed={(evt) => ($config.lapseMultiplier = evt.detail.value)} />
+    on:changed={(evt) => ($config.lapseMultiplier = evt.detail.value)}
+/>

@@ -122,11 +122,11 @@ function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
     );
 }
 
-const check = (keyCode: number, modifiers: string[]) => (
-    event: KeyboardEvent
-): boolean => {
-    return checkKey(event, keyCode) && checkModifiers(event, modifiers);
-};
+const check =
+    (keyCode: number, modifiers: string[]) =>
+    (event: KeyboardEvent): boolean => {
+        return checkKey(event, keyCode) && checkModifiers(event, modifiers);
+    };
 
 function keyToCode(key: string): number {
     return keyCodeLookup[key] || key.toUpperCase().charCodeAt(0);
@@ -176,9 +176,8 @@ export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string
 ): () => void {
-    const [check, ...restChecks] = splitKeyCombinationString(keyCombinationString).map(
-        keyCombinationToCheck
-    );
+    const [check, ...restChecks] =
+        splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
 
     const handler = (event: KeyboardEvent): void => {
         if (check(event)) {

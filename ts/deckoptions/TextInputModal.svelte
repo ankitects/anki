@@ -47,6 +47,53 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
+<div
+    bind:this={modalRef}
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="modalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content" class:default-colors={nightMode}>
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">{title}</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    class:invert={nightMode}
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                />
+            </div>
+            <div class="modal-body">
+                <form on:submit|preventDefault={onOkClicked}>
+                    <div class="mb-3">
+                        <label for="prompt-input" class="col-form-label"
+                            >{prompt}:</label
+                        >
+                        <input
+                            id="prompt-input"
+                            bind:this={inputRef}
+                            type="text"
+                            class="form-control"
+                            bind:value
+                        />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    >Cancel</button
+                >
+                <button type="button" class="btn btn-primary" on:click={onOkClicked}
+                    >OK</button
+                >
+            </div>
+        </div>
+    </div>
+</div>
+
 <style lang="scss">
     .default-colors {
         background-color: var(--window-bg);
@@ -57,49 +104,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 </style>
-
-<div
-    bind:this={modalRef}
-    class="modal fade"
-    tabindex="-1"
-    aria-labelledby="modalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" class:default-colors={nightMode}>
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">{title}</h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    class:invert={nightMode}
-                    data-bs-dismiss="modal"
-                    aria-label="Close" />
-            </div>
-            <div class="modal-body">
-                <form on:submit|preventDefault={onOkClicked}>
-                    <div class="mb-3">
-                        <label
-                            for="prompt-input"
-                            class="col-form-label">{prompt}:</label>
-                        <input
-                            id="prompt-input"
-                            bind:this={inputRef}
-                            type="text"
-                            class="form-control"
-                            bind:value />
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">Cancel</button>
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    on:click={onOkClicked}>OK</button>
-            </div>
-        </div>
-    </div>
-</div>
