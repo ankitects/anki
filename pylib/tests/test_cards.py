@@ -77,8 +77,7 @@ def test_gendeck():
     assert note.cards()[0].did == 1
     # set the model to a new default col
     newId = col.decks.id("new")
-    # fixme: dedicated API for this
-    col.set_config(f"_nt_{cloze['id']}_lastDeck", newId)
+    col.set_aux_notetype_config(cloze["id"], "lastDeck", newId)
     col.models.save(cloze, updateReqs=False)
     # a newly generated card should share the first card's col
     note["Text"] += "{{c2::two}}"

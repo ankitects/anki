@@ -213,6 +213,8 @@ service NotetypesService {
   rpc GetNotetypeNamesAndCounts(Empty) returns (NotetypeUseCounts);
   rpc GetNotetypeIdByName(String) returns (NotetypeId);
   rpc RemoveNotetype(NotetypeId) returns (OpChanges);
+  rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyIn) returns (String);
+  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyIn) returns (String);
 }
 
 service CardRenderingService {
@@ -1620,4 +1622,15 @@ message FilteredDeckForUpdate {
 message SetFlagIn {
   repeated int64 card_ids = 1;
   uint32 flag = 2;
+}
+
+message GetAuxConfigKeyIn {
+  int64 id = 1;
+  string key = 2;
+}
+
+message GetAuxTemplateConfigKeyIn {
+  int64 notetype_id = 1;
+  uint32 card_ordinal = 2;
+  string key = 3;
 }

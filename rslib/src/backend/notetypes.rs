@@ -5,6 +5,7 @@ use super::Backend;
 pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesService;
 use crate::{
     backend_proto as pb,
+    config::get_aux_notetype_config_key,
     notetype::{all_stock_notetypes, Notetype, NotetypeSchema11},
     prelude::*,
 };
@@ -133,6 +134,24 @@ impl NotetypesService for Backend {
     fn remove_notetype(&self, input: pb::NotetypeId) -> Result<pb::OpChanges> {
         self.with_col(|col| col.remove_notetype(input.into()))
             .map(Into::into)
+    }
+
+    fn get_aux_notetype_config_key(&self, input: pb::GetAuxConfigKeyIn) -> Result<pb::String> {
+        Ok(get_aux_notetype_config_key(input.id.into(), &input.key).into())
+    }
+
+    fn get_aux_template_config_key(
+        &self,
+        input: pb::GetAuxTemplateConfigKeyIn,
+    ) -> Result<pb::String> {
+        self.with_col(|col| {
+            col.get_aux_template_config_key(
+                input.notetype_id.into(),
+                input.card_ordinal as usize,
+                &input.key,
+            )
+            .map(Into::into)
+        })
     }
 }
 
