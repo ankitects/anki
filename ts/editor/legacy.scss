@@ -1,7 +1,7 @@
 .linkb {
     display: inline-block;
-    width: calc(var(--toolbar-size) - 2px);
-    height: calc(var(--toolbar-size) - 2px);
+    min-width: calc(var(--toolbar-size) - 2px);
+    min-height: calc(var(--toolbar-size) - 2px);
 
     background-color: white;
     border: 1px solid var(--medium-border);
