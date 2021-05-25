@@ -30,6 +30,7 @@ from aqt.utils import (
     saveSplitter,
     shortcut,
     showInfo,
+    showWarning,
     tooltip,
     tr,
 )
@@ -791,7 +792,7 @@ class CardLayout(QDialog):
 
         update_notetype_legacy(parent=self.mw, notetype=self.model).success(
             on_done
-        ).run_in_background()
+        ).failure(lambda e: showWarning(str(e))).run_in_background()
 
     def reject(self) -> None:
         if self.change_tracker.changed():
