@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* eslint
     @typescript-eslint/no-non-null-assertion: "off",
     */
-    import { onMount, onDestroy } from "svelte";
+    import { onMount, onDestroy, getContext } from "svelte";
+    import { nightModeKey } from "components/contextKeys";
     import Modal from "bootstrap/js/dist/modal";
 
     export let title: string;
@@ -44,16 +45,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container.removeEventListener("shown.bs.modal", onShown);
         container.removeEventListener("hidden.bs.modal", onHidden);
     });
+
+    const nightMode = getContext<boolean>(nightModeKey);
 </script>
+
+<style lang="scss">
+    .default-colors {
+        background-color: var(--window-bg);
+        color: var(--text-fg);
+    }
+
+    .invert {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+</style>
 
 <div class="modal fade" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" class:default-colors={nightMode}>
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">{title}</h5>
                 <button
                     type="button"
                     class="btn-close"
+                    class:invert={nightMode}
                     data-bs-dismiss="modal"
                     aria-label="Close" />
             </div>
