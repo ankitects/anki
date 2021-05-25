@@ -4,8 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import { textInputModal } from "./textInputModal";
+    import { modalsKey } from "components/contextKeys";
+    import { getContext } from "svelte";
     import type { DeckOptionsState } from "./lib";
+    import type Modal from "bootstrap/js/dist/modal";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -18,29 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
 
-    function addConfig(): void {
-        textInputModal({
-            title: "Add Config",
-            prompt: "Name:",
-            onOk: (text: string) => {
-                const trimmed = text.trim();
-                if (trimmed.length) {
-                    state.addConfig(trimmed);
-                }
-            },
-        });
-    }
-
-    function renameConfig(): void {
-        textInputModal({
-            title: "Rename Config",
-            prompt: "Name:",
-            startingValue: state.getCurrentName(),
-            onOk: (text: string) => {
-                state.setCurrentName(text);
-            },
-        });
-    }
+    const modals = getContext<Map<string, Modal>>(modalsKey);
 
     function removeConfig(): void {
         // show pop-up after dropdown has gone away
@@ -67,6 +47,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function save(applyToChildDecks: boolean): void {
         state.save(applyToChildDecks);
     }
+
+    export let addModalKey: string;
+    export let renameModalKey: string;
+
+    function showAddModal() {
+        modals.get(addModalKey)!.show();
+    }
+
+    function showRenameModal() {
+        modals.get(renameModalKey)!.show();
+    }
 </script>
 
 <ButtonGroup>
@@ -78,8 +69,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
             <LabelButton on:mount={createDropdown} on:click={activateDropdown} />
             <DropdownMenu id={menuId}>
-                <DropdownItem on:click={addConfig}>Add Config</DropdownItem>
-                <DropdownItem on:click={renameConfig}>Rename Config</DropdownItem>
+                <DropdownItem on:click={showAddModal}>Add Config</DropdownItem>
+                <DropdownItem on:click={showRenameModal}>Rename Config</DropdownItem>
                 <DropdownItem on:click={removeConfig}>Remove Config</DropdownItem>
                 <DropdownDivider />
                 <DropdownItem on:click={() => save(true)}>

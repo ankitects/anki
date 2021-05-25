@@ -7,43 +7,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @typescript-eslint/no-non-null-assertion: "off",
     */
     import { onMount, onDestroy, getContext } from "svelte";
-    import { nightModeKey } from "components/contextKeys";
+    import { nightModeKey, modalsKey } from "components/contextKeys";
     import Modal from "bootstrap/js/dist/modal";
 
     export let title: string;
     export let prompt: string;
-    export let startingValue = "";
+    export let value = "";
     export let onOk: (text: string) => void;
 
-    let inputRef: HTMLInputElement;
+    export const modalKey: string = Math.random().toString(36).substring(2);
+
+    const modals = getContext<Map<string, Modal>>(modalsKey);
+
+    let modalRef: HTMLDivElement;
     let modal: Modal;
 
-    function onShown(): void {
-        inputRef.focus();
-    }
-
-    function onHidden(): void {
-        const container = document.getElementById("modal")!;
-        container.removeChild(container.firstElementChild!);
-    }
+    let inputRef: HTMLInputElement;
 
     function onOkClicked(): void {
         onOk(inputRef.value);
         modal.hide();
     }
 
+    function onShown(): void {
+        inputRef.focus();
+    }
+
     onMount(() => {
-        const container = document.getElementById("modal")!;
-        container.addEventListener("shown.bs.modal", onShown);
-        container.addEventListener("hidden.bs.modal", onHidden);
-        modal = new Modal(container.firstElementChild!, {});
-        modal.show();
+        modalRef.addEventListener("shown.bs.modal", onShown);
+        modal = new Modal(modalRef);
+        modals.set(modalKey, modal);
     });
 
     onDestroy(() => {
-        const container = document.getElementById("modal")!;
-        container.removeEventListener("shown.bs.modal", onShown);
-        container.removeEventListener("hidden.bs.modal", onHidden);
+        modalRef.removeEventListener("shown.bs.modal", onShown);
     });
 
     const nightMode = getContext<boolean>(nightModeKey);
@@ -60,7 +57,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </style>
 
-<div class="modal fade" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+<div
+    bind:this={modalRef}
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="modalLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" class:default-colors={nightMode}>
             <div class="modal-header">
@@ -77,13 +79,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <div class="mb-3">
                         <label
                             for="prompt-input"
-                            class="col-form-label">{prompt}</label>
+                            class="col-form-label">{prompt}:</label>
                         <input
                             id="prompt-input"
                             bind:this={inputRef}
                             type="text"
                             class="form-control"
-                            value={startingValue} />
+                            bind:value />
                     </div>
                 </form>
             </div>

@@ -41,21 +41,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => registerCleanup?.());
 </script>
 
-<style lang="scss">
-    .editor {
-        // without this, the initial viewport can be wrong
-        overflow-x: hidden;
-    }
-</style>
-
 <ConfigSelector {state} />
-
-<div>
-    <div id="modal">
-        <!-- filled in later-->
-    </div>
-
-    <div class="editor">
-        <ConfigEditor {state} />
-    </div>
-</div>
+<ConfigEditor {state} />

@@ -6,8 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import type { DeckOptionsState, ConfigListEntry } from "./lib";
 
-    import WithTheming from "components/WithTheming.svelte";
+    import TextInputModal from "./TextInputModal.svelte";
     import StickyBar from "components/StickyBar.svelte";
+    import WithTheming from "components/WithTheming.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
@@ -20,6 +21,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     let configList = state.configList;
 
+    let addModalKey: string;
+    let renameModalKey: string;
+
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
         return `${entry.name} (${count})`;
@@ -28,7 +32,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function blur(event: Event): void {
         state.setCurrentIndex(parseInt((event.target! as HTMLSelectElement).value));
     }
+
+    function onAddConfig(text: string): void {
+        const trimmed = text.trim();
+        if (trimmed.length) {
+            state.addConfig(trimmed);
+        }
+    }
+
+    function onRenameConfig(text: string): void {
+        state.setCurrentName(text);
+    }
 </script>
+
+<TextInputModal
+    title="Add Config"
+    prompt="Name"
+    onOk={onAddConfig}
+    bind:modalKey={addModalKey} />
+<TextInputModal
+    title="Rename Config"
+    prompt="Name"
+    onOk={onRenameConfig}
+    value={state.getCurrentName()}
+    bind:modalKey={renameModalKey} />
 
 <StickyBar>
     <WithTheming style="--toolbar-size: 2.3rem; --toolbar-wrap: nowrap">
@@ -50,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </ButtonToolbarItem>
 
             <ButtonToolbarItem>
-                <SaveButton {state} />
+                <SaveButton {state} {addModalKey} {renameModalKey} />
             </ButtonToolbarItem>
         </ButtonToolbar>
     </WithTheming>
