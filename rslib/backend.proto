@@ -704,6 +704,8 @@ message RenderUncommittedCardLegacyIn {
 message RenderCardOut {
   repeated RenderedTemplateNode question_nodes = 1;
   repeated RenderedTemplateNode answer_nodes = 2;
+  string css = 3;
+  bool latex_svg = 4;
 }
 
 message RenderedTemplateNode {

@@ -175,6 +175,8 @@ impl From<RenderCardOutput> for pb::RenderCardOut {
         pb::RenderCardOut {
             question_nodes: rendered_nodes_to_proto(o.qnodes),
             answer_nodes: rendered_nodes_to_proto(o.anodes),
+            css: o.css,
+            latex_svg: o.latex_svg,
         }
     }
 }
