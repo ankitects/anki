@@ -61,15 +61,14 @@ ts_library(
         "lib.ts",
         "steps.ts",
         "strings.ts",
-        "textInputModal.ts",
     ],
     module_name = "deckoptions",
     deps = [
-        "TextInputModal",
         "//ts:image_module_support",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/sveltelib",
+        "//ts/components",
         "@npm//lodash-es",
         "@npm//svelte",
     ],
@@ -133,10 +132,12 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
         "@npm//@types/marked",
-        "//ts/components:svelte_components",
+        "//ts/components",
     ],
 )
 
