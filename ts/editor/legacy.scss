@@ -1,37 +1,46 @@
-@use "ts/sass/button_mixins" as button;
-
 .linkb {
     display: inline-block;
+    min-width: calc(var(--toolbar-size) - 2px);
+    min-height: calc(var(--toolbar-size) - 2px);
+
     background-color: white;
     border: 1px solid var(--medium-border);
+    padding: 0 !important;
 
     /* !important cannot be used with @include */
     border-top-left-radius: var(--border-left-radius) !important;
     border-bottom-left-radius: var(--border-left-radius) !important;
     border-top-right-radius: var(--border-right-radius) !important;
     border-bottom-right-radius: var(--border-right-radius) !important;
-    
-    min-width: 28px;
+
     margin-left: -1px;
-    padding: 3.5px !important;
-}
 
-.linkb:hover,
-.linkb:active:hover {
-    background-color: #ebebeb;
-}
+    &:hover {
+        background-color: #ebebeb;
+    }
 
-.linkb:active,
-.linkb:active:hover {
-    background-color: white;
-    box-shadow: inset 0
-        calc(var(--toolbar-size) / 15)
-        calc(var(--toolbar-size) / 5)
-        rgba(0, 0, 0, 0.25);
-}
+    &:active,
+    &:active:hover {
+        background-color: white;
+        box-shadow: inset 0 calc(var(--toolbar-size) / 15) calc(var(--toolbar-size) / 5)
+            rgba(0, 0, 0, 0.25);
+    }
 
-.linkb:active:hover .topbut {
-    filter: invert(1) grayscale(1) brightness(100);
+    .nightMode & {
+        margin-left: 1px;
+
+        &:hover {
+            background-color: #7a7a7a;
+            border-color: #7a7a7a;
+        }
+
+        &:active,
+        &:active:hover {
+            box-shadow: inset 0 calc(var(--toolbar-size) / 15)
+                calc(var(--toolbar-size) / 5) rgba(0, 0, 0, 0.35);
+            border-color: #525252;
+        }
+    }
 }
 
 .topbut {
@@ -41,27 +50,6 @@
     height: calc(var(--toolbar-size) - 12px);
 }
 
-.nightMode {
-    .linkb {
-        margin-left: 1px;
-    }
-    
-    .linkb:hover {
-        background-color: #7a7a7a;
-        border-color: #7a7a7a;
-    }
-
-    .linkb:active,
-    .linkb:active:hover {
-        box-shadow: inset 0
-            calc(var(--toolbar-size) / 15)
-            calc(var(--toolbar-size) / 5)
-            rgba(0, 0, 0, 0.35);
-        border-color: #525252;
-    }
-    
-    img.topbut,
-    .linkb:active:hover img.topbut {
-        filter: invert(1);
-    }
+.nightMode img.topbut {
+    filter: invert(1);
 }
