@@ -132,10 +132,12 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
         "@npm//@types/marked",
-        "//ts/components:svelte_components",
+        "//ts/components",
     ],
 )
 
