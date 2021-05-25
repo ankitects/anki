@@ -14,13 +14,4 @@
             background-color: var(--window-bg);
         }
     }
-
-    .modal-content {
-        background-color: var(--window-bg);
-        color: var(--text-fg);
-    }
-
-    .btn-close {
-        filter: invert(1) grayscale(100%) brightness(200%);
-    }
 }

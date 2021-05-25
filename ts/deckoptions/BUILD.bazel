@@ -70,6 +70,7 @@ ts_library(
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/sveltelib",
+        "//ts/components",
         "@npm//lodash-es",
         "@npm//svelte",
     ],
