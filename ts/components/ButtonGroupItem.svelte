@@ -44,9 +44,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         detach.subscribe((value: boolean) => (detached = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));
     } else if (hasContext(buttonGroupKey)) {
-        const registerComponent = getContext<Register<ButtonRegistration>>(
-            buttonGroupKey
-        );
+        const registerComponent =
+            getContext<Register<ButtonRegistration>>(buttonGroupKey);
         const { detach, position } = registerComponent();
         detach.subscribe((value: boolean) => (detached = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));

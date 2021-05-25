@@ -16,6 +16,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
 </script>
 
+<div class="outer">
+    <DailyLimits {state} />
+    <NewOptions {state} />
+    <LapseOptions {state} />
+    <BuryOptions {state} />
+    {#if state.v3Scheduler}
+        <DisplayOrder {state} />
+    {/if}
+    <GeneralOptions {state} />
+    <Addons {state} />
+    <AdvancedOptions {state} />
+</div>
+
 <style lang="scss">
     :global(h2) {
         margin-top: 1em;
@@ -33,16 +46,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-left: 16px;
     }
 </style>
-
-<div class="outer">
-    <DailyLimits {state} />
-    <NewOptions {state} />
-    <LapseOptions {state} />
-    <BuryOptions {state} />
-    {#if state.v3Scheduler}
-        <DisplayOrder {state} />
-    {/if}
-    <GeneralOptions {state} />
-    <Addons {state} />
-    <AdvancedOptions {state} />
-</div>

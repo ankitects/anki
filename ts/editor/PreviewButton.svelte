@@ -10,12 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelButton from "components/LabelButton.svelte";
 </script>
 
-<WithShortcut shortcut={'Control+Shift+P'} let:createShortcut let:shortcutLabel>
+<WithShortcut shortcut={"Control+Shift+P"} let:createShortcut let:shortcutLabel>
     <LabelButton
         tooltip={tr.browsingPreviewSelectedCard({ val: shortcutLabel })}
         disables={false}
-        on:click={() => bridgeCommand('preview')}
-        on:mount={createShortcut}>
+        on:click={() => bridgeCommand("preview")}
+        on:mount={createShortcut}
+    >
         {tr.actionsPreview()}
     </LabelButton>
 </WithShortcut>

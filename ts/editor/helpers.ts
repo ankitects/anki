@@ -78,25 +78,25 @@ export function caretToEnd(currentField: EditingArea): void {
     selection.addRange(range);
 }
 
-const getAnchorParent = <T extends Element>(
-    predicate: (element: Element) => element is T
-) => (currentField: DocumentOrShadowRoot): T | null => {
-    const anchor = currentField.getSelection()?.anchorNode;
+const getAnchorParent =
+    <T extends Element>(predicate: (element: Element) => element is T) =>
+    (currentField: DocumentOrShadowRoot): T | null => {
+        const anchor = currentField.getSelection()?.anchorNode;
 
-    if (!anchor) {
-        return null;
-    }
+        if (!anchor) {
+            return null;
+        }
 
-    let anchorParent: T | null = null;
-    let element = nodeIsElement(anchor) ? anchor : anchor.parentElement;
+        let anchorParent: T | null = null;
+        let element = nodeIsElement(anchor) ? anchor : anchor.parentElement;
 
-    while (element) {
-        anchorParent = anchorParent || (predicate(element) ? element : null);
-        element = element.parentElement;
-    }
+        while (element) {
+            anchorParent = anchorParent || (predicate(element) ? element : null);
+            element = element.parentElement;
+        }
 
-    return anchorParent;
-};
+        return anchorParent;
+    };
 
 const isListItem = (element: Element): element is HTMLLIElement =>
     window.getComputedStyle(element).display === "list-item";

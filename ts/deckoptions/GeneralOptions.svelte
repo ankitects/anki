@@ -21,24 +21,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={30}
     max={600}
     defaultValue={defaults.capAnswerTimeToSecs}
-    bind:value={$config.capAnswerTimeToSecs} />
+    bind:value={$config.capAnswerTimeToSecs}
+/>
 
 <CheckBox
     id="showAnswerTimer"
     label={tr.schedulingShowAnswerTimer()}
     tooltip={tr.deckConfigShowAnswerTimerTooltip()}
     defaultValue={defaults.showTimer}
-    bind:value={$config.showTimer} />
+    bind:value={$config.showTimer}
+/>
 
 <h2>{tr.deckConfigAudioTitle()}</h2>
 
 <CheckBox
     label={tr.deckConfigDisableAutoplay()}
     defaultValue={defaults.disableAutoplay}
-    bind:value={$config.disableAutoplay} />
+    bind:value={$config.disableAutoplay}
+/>
 
 <CheckBox
     label={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
     tooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
     defaultValue={defaults.skipQuestionWhenReplayingAnswer}
-    bind:value={$config.skipQuestionWhenReplayingAnswer} />
+    bind:value={$config.skipQuestionWhenReplayingAnswer}
+/>

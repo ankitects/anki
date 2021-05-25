@@ -340,13 +340,9 @@ export function renderReviews(
             );
     }
 
-    const hoverData: [
-        Bin<number, number>,
-        number
-    ][] = bins.map((bin: Bin<number, number>, index: number) => [
-        bin,
-        areaData[index + 1],
-    ]);
+    const hoverData: [Bin<number, number>, number][] = bins.map(
+        (bin: Bin<number, number>, index: number) => [bin, areaData[index + 1]]
+    );
 
     // hover/tooltip
     svg.select("g.hover-columns")

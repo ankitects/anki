@@ -12,16 +12,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let button: ToolbarItem;
 </script>
 
-<style lang="scss">
-    label {
-        display: flex;
-        padding: 0 calc(var(--toolbar-size) / 10);
-    }
-</style>
-
 <!-- svelte-ignore a11y-label-has-associated-control -->
 
 <label {id} class={className}>
     <span class="me-1">{label}</span>
     <svelte:component this={button.component} {...button} />
 </label>
+
+<style lang="scss">
+    label {
+        display: flex;
+        padding: 0 calc(var(--toolbar-size) / 10);
+    }
+</style>

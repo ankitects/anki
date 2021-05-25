@@ -9,6 +9,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const noData = tr.statisticsNoData();
 </script>
 
+<g class="no-data">
+    <rect x="0" y="0" width={bounds.width} height={bounds.height} />
+    <text x="{bounds.width / 2}," y={bounds.height / 2}>{noData}</text>
+</g>
+
 <style lang="scss">
     .no-data {
         rect {
@@ -21,8 +26,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 </style>
-
-<g class="no-data">
-    <rect x="0" y="0" width={bounds.width} height={bounds.height} />
-    <text x="{bounds.width / 2}," y={bounds.height / 2}>{noData}</text>
-</g>

@@ -56,8 +56,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
             <LabelButton on:mount={createDropdown} on:click={activateDropdown} />
             <DropdownMenu id={menuId}>
-                <DropdownItem on:click={() => dispatch('add')}>Add Config</DropdownItem>
-                <DropdownItem on:click={() => dispatch('rename')}>
+                <DropdownItem on:click={() => dispatch("add")}>Add Config</DropdownItem>
+                <DropdownItem on:click={() => dispatch("rename")}>
                     Rename Config
                 </DropdownItem>
                 <DropdownItem on:click={removeConfig}>Remove Config</DropdownItem>

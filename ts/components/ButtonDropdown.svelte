@@ -18,6 +18,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(dropdownKey, null);
 </script>
 
+<WithTheming style="--toolbar-wrap: nowrap; ">
+    <ButtonToolbar
+        {id}
+        class={`dropdown-menu btn-dropdown-menu ${className}`}
+        nowrap={true}
+        {api}
+    >
+        <slot />
+    </ButtonToolbar>
+</WithTheming>
+
 <style lang="scss">
     :global(.dropdown-menu.btn-dropdown-menu) {
         display: none;
@@ -36,13 +47,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
     }
 </style>
-
-<WithTheming style="--toolbar-wrap: nowrap; ">
-    <ButtonToolbar
-        {id}
-        class={`dropdown-menu btn-dropdown-menu ${className}`}
-        nowrap={true}
-        {api}>
-        <slot />
-    </ButtonToolbar>
-</WithTheming>

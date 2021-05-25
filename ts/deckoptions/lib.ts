@@ -71,7 +71,8 @@ export class DeckOptionsState {
 
     constructor(targetDeckId: number, data: pb.BackendProto.DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
-        this.currentDeck = data.currentDeck as pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
+        this.currentDeck =
+            data.currentDeck as pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
         this.defaults = data.defaults!.config! as ConfigInner;
         this.configs = data.allConfig.map((config) => {
             const configInner = config.config as pb.BackendProto.DeckConfig;

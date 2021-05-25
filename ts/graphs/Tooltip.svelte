@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let y: number = 0;
     export let show = true;
 
-    let container = (null as unknown) as HTMLDivElement;
+    let container = null as unknown as HTMLDivElement;
 
     let adjustedX: number, adjustedY: number;
 
@@ -23,6 +23,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         adjustedY = y + 40;
     }
 </script>
+
+<div
+    bind:this={container}
+    class="tooltip"
+    style="left: {adjustedX}px; top: {adjustedY}px; opacity: {show ? 1 : 0}"
+>
+    {@html html}
+</div>
 
 <style lang="scss">
     .tooltip {
@@ -41,10 +49,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 </style>
-
-<div
-    bind:this={container}
-    class="tooltip"
-    style="left: {adjustedX}px; top: {adjustedY}px; opacity: {show ? 1 : 0}">
-    {@html html}
-</div>

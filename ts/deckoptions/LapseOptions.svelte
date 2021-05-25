@@ -35,7 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip={tr.deckConfigRelearningStepsTooltip()}
         defaultValue={defaults.relearnSteps}
         value={$config.relearnSteps}
-        on:changed={(evt) => ($config.relearnSteps = evt.detail.value)} />
+        on:changed={(evt) => ($config.relearnSteps = evt.detail.value)}
+    />
 
     <SpinBox
         label={tr.schedulingMinimumInterval()}
@@ -43,19 +44,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         warnings={[stepsExceedMinimumInterval]}
         min={1}
         defaultValue={defaults.minimumLapseInterval}
-        bind:value={$config.minimumLapseInterval} />
+        bind:value={$config.minimumLapseInterval}
+    />
 
     <SpinBox
         label={tr.schedulingLeechThreshold()}
         tooltip={tr.deckConfigLeechThresholdTooltip()}
         min={1}
         defaultValue={defaults.leechThreshold}
-        bind:value={$config.leechThreshold} />
+        bind:value={$config.leechThreshold}
+    />
 
     <EnumSelector
         label={tr.schedulingLeechAction()}
         tooltip={tr.deckConfigLeechActionTooltip()}
         choices={leechChoices}
         defaultValue={defaults.leechAction}
-        bind:value={$config.leechAction} />
+        bind:value={$config.leechAction}
+    />
 </div>

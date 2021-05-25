@@ -18,12 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style lang="scss">
-    .legend {
-        text-align: center;
-    }
-</style>
-
 {#if todayData}
     <Graph title={todayData.title}>
         <div class="legend">
@@ -33,3 +27,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
     </Graph>
 {/if}
+
+<style lang="scss">
+    .legend {
+        text-align: center;
+    }
+</style>

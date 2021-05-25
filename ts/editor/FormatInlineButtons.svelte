@@ -26,20 +26,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+B'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+B"} let:createShortcut let:shortcutLabel>
             <WithState
                 key="bold"
-                update={() => document.queryCommandState('bold')}
+                update={() => document.queryCommandState("bold")}
                 let:state={active}
-                let:updateState>
+                let:updateState
+            >
                 <IconButton
                     tooltip={appendInParentheses(tr.editingBoldText(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
-                        document.execCommand('bold');
+                        document.execCommand("bold");
                         updateState(event);
                     }}
-                    on:mount={createShortcut}>
+                    on:mount={createShortcut}
+                >
                     {@html boldIcon}
                 </IconButton>
             </WithState>
@@ -47,20 +49,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+I'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+I"} let:createShortcut let:shortcutLabel>
             <WithState
                 key="italic"
-                update={() => document.queryCommandState('italic')}
+                update={() => document.queryCommandState("italic")}
                 let:state={active}
-                let:updateState>
+                let:updateState
+            >
                 <IconButton
                     tooltip={appendInParentheses(tr.editingItalicText(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
-                        document.execCommand('italic');
+                        document.execCommand("italic");
                         updateState(event);
                     }}
-                    on:mount={createShortcut}>
+                    on:mount={createShortcut}
+                >
                     {@html italicIcon}
                 </IconButton>
             </WithState>
@@ -68,20 +72,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+U'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+U"} let:createShortcut let:shortcutLabel>
             <WithState
                 key="underline"
-                update={() => document.queryCommandState('underline')}
+                update={() => document.queryCommandState("underline")}
                 let:state={active}
-                let:updateState>
+                let:updateState
+            >
                 <IconButton
-                    tooltip={appendInParentheses(tr.editingUnderlineText(), shortcutLabel)}
+                    tooltip={appendInParentheses(
+                        tr.editingUnderlineText(),
+                        shortcutLabel
+                    )}
                     {active}
                     on:click={(event) => {
-                        document.execCommand('underline');
+                        document.execCommand("underline");
                         updateState(event);
                     }}
-                    on:mount={createShortcut}>
+                    on:mount={createShortcut}
+                >
                     {@html underlineIcon}
                 </IconButton>
             </WithState>
@@ -89,20 +98,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+='} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+="} let:createShortcut let:shortcutLabel>
             <WithState
                 key="superscript"
-                update={() => document.queryCommandState('superscript')}
+                update={() => document.queryCommandState("superscript")}
                 let:state={active}
-                let:updateState>
+                let:updateState
+            >
                 <IconButton
-                    tooltip={appendInParentheses(tr.editingSuperscript(), shortcutLabel)}
+                    tooltip={appendInParentheses(
+                        tr.editingSuperscript(),
+                        shortcutLabel
+                    )}
                     {active}
                     on:click={(event) => {
-                        document.execCommand('superscript');
+                        document.execCommand("superscript");
                         updateState(event);
                     }}
-                    on:mount={createShortcut}>
+                    on:mount={createShortcut}
+                >
                     {@html superscriptIcon}
                 </IconButton>
             </WithState>
@@ -110,20 +124,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+Shift+='} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+Shift+="} let:createShortcut let:shortcutLabel>
             <WithState
                 key="subscript"
-                update={() => document.queryCommandState('subscript')}
+                update={() => document.queryCommandState("subscript")}
                 let:state={active}
-                let:updateState>
+                let:updateState
+            >
                 <IconButton
                     tooltip={appendInParentheses(tr.editingSubscript(), shortcutLabel)}
                     {active}
                     on:click={(event) => {
-                        document.execCommand('subscript');
+                        document.execCommand("subscript");
                         updateState(event);
                     }}
-                    on:mount={createShortcut}>
+                    on:mount={createShortcut}
+                >
                     {@html subscriptIcon}
                 </IconButton>
             </WithState>
@@ -131,13 +147,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+R'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+R"} let:createShortcut let:shortcutLabel>
             <IconButton
-                tooltip={appendInParentheses(tr.editingRemoveFormatting(), shortcutLabel)}
+                tooltip={appendInParentheses(
+                    tr.editingRemoveFormatting(),
+                    shortcutLabel
+                )}
                 on:click={() => {
-                    document.execCommand('removeFormat');
+                    document.execCommand("removeFormat");
                 }}
-                on:mount={createShortcut}>
+                on:mount={createShortcut}
+            >
                 {@html eraserIcon}
             </IconButton>
         </WithShortcut>

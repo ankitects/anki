@@ -42,25 +42,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tooltip={tr.deckConfigLearningStepsTooltip()}
     defaultValue={defaults.learnSteps}
     value={$config.learnSteps}
-    on:changed={(evt) => ($config.learnSteps = evt.detail.value)} />
+    on:changed={(evt) => ($config.learnSteps = evt.detail.value)}
+/>
 
 <SpinBox
     label={tr.schedulingGraduatingInterval()}
     tooltip={tr.deckConfigGraduatingIntervalTooltip()}
     warnings={[stepsExceedGraduatingInterval]}
     defaultValue={defaults.graduatingIntervalGood}
-    bind:value={$config.graduatingIntervalGood} />
+    bind:value={$config.graduatingIntervalGood}
+/>
 
 <SpinBox
     label={tr.schedulingEasyInterval()}
     tooltip={tr.deckConfigEasyIntervalTooltip()}
     warnings={[goodExceedsEasy]}
     defaultValue={defaults.graduatingIntervalEasy}
-    bind:value={$config.graduatingIntervalEasy} />
+    bind:value={$config.graduatingIntervalEasy}
+/>
 
 <EnumSelector
     label={tr.deckConfigNewInsertionOrder()}
     tooltip={tr.deckConfigNewInsertionOrderTooltip()}
     choices={newInsertOrderChoices}
     defaultValue={defaults.newCardInsertOrder}
-    bind:value={$config.newCardInsertOrder} />
+    bind:value={$config.newCardInsertOrder}
+/>
