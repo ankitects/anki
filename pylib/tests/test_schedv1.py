@@ -811,7 +811,7 @@ def test_ordcycle():
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     t = mm.newTemplate("f2")
-    t["qfmt"] = "{{Front}}"
+    t["qfmt"] = "{{Front}}2"
     t["afmt"] = "{{Back}}"
     mm.addTemplate(m, t)
     mm.save(m)
