@@ -40,38 +40,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function onCloneConfig(text: string): void {
+        const trimmed = text.trim();
+        if (trimmed.length) {
+            state.cloneConfig(trimmed);
+        }
+    }
+
     function onRenameConfig(text: string): void {
         state.setCurrentName(text);
     }
 
     const modals = getContext<Map<string, Modal>>(modalsKey);
 
-    let addModalKey: string;
-    let renameModalKey: string;
-    let oldName = "";
+    let modalKey: string;
+    let modalStartingValue = "";
+    let modalTitle = "";
+    let modalSuccess = (_text: string) => {};
 
-    function onAdd() {
-        modals.get(addModalKey)!.show();
+    function promptToAdd() {
+        modalTitle = "Add Config";
+        modalSuccess = onAddConfig;
+        modalStartingValue = "";
+        modals.get(modalKey)!.show();
     }
 
-    function onRename() {
-        oldName = state.getCurrentName();
-        modals.get(renameModalKey)!.show();
+    function promptToClone() {
+        modalTitle = "Clone Config";
+        modalSuccess = onCloneConfig;
+        modalStartingValue = state.getCurrentName();
+        modals.get(modalKey)!.show();
+    }
+
+    function promptToRename() {
+        modalTitle = "Rename Config";
+        modalSuccess = onRenameConfig;
+        modalStartingValue = state.getCurrentName();
+        modals.get(modalKey)!.show();
     }
 </script>
 
 <TextInputModal
-    title="Add Config"
+    title={modalTitle}
     prompt="Name"
-    onOk={onAddConfig}
-    bind:modalKey={addModalKey}
-/>
-<TextInputModal
-    title="Rename Config"
-    prompt="Name"
-    onOk={onRenameConfig}
-    value={oldName}
-    bind:modalKey={renameModalKey}
+    value={modalStartingValue}
+    onOk={modalSuccess}
+    bind:modalKey
 />
 
 <StickyBar>
@@ -95,7 +109,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </ButtonToolbarItem>
 
             <ButtonToolbarItem>
-                <SaveButton {state} on:add={onAdd} on:rename={onRename} />
+                <SaveButton
+                    {state}
+                    on:add={promptToAdd}
+                    on:clone={promptToClone}
+                    on:rename={promptToRename}
+                />
             </ButtonToolbarItem>
         </ButtonToolbar>
     </WithTheming>
