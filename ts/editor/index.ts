@@ -6,17 +6,17 @@
  */
 
 import { filterHTML } from "html-filter";
-import { updateActiveButtons, disableButtons } from "./toolbar";
+import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
 
-import { caretToEnd } from "./helpers";
 import { saveField } from "./changeTimer";
 
 import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
 import { EditingArea } from "./editingArea";
+import { FieldsContainer, getCurrentField } from "./fieldsContainer";
 import { Editable } from "./editable";
 import { initToolbar } from "./toolbar";
 
@@ -24,6 +24,7 @@ export { setNoteId, getNoteId } from "./noteId";
 export { saveNow } from "./changeTimer";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
+export { getCurrentField } from "./fieldsContainer";
 
 declare global {
     interface Selection {
@@ -38,21 +39,10 @@ customElements.define("anki-editable", Editable);
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
 customElements.define("anki-editor-field", EditorField, { extends: "div" });
-
-export function getCurrentField(): EditingArea | null {
-    return document.activeElement instanceof EditingArea
-        ? document.activeElement
-        : null;
-}
+customElements.define("anki-fields-container", FieldsContainer, { extends: "div" });
 
 export function focusField(n: number): void {
-    const field = getEditorField(n);
-
-    if (field) {
-        field.editingArea.focusEditable();
-        caretToEnd(field.editingArea);
-        updateActiveButtons(new Event("manualfocus"));
-    }
+    getFieldsContainer().focusField(n);
 }
 
 export function focusIfField(x: number, y: number): boolean {
@@ -79,25 +69,12 @@ export function pasteHTML(
     }
 }
 
-function adjustFieldAmount(amount: number): void {
-    const fieldsContainer = document.getElementById("fields")!;
-
-    while (fieldsContainer.childElementCount < amount) {
-        const newField = document.createElement("div", {
-            is: "anki-editor-field",
-        }) as EditorField;
-        newField.ord = fieldsContainer.childElementCount;
-        fieldsContainer.appendChild(newField);
-    }
-
-    while (fieldsContainer.childElementCount > amount) {
-        fieldsContainer.removeChild(fieldsContainer.lastElementChild as Node);
-    }
+export function getEditorField(n: number): EditorField | null {
+    return getFieldsContainer().getEditorField(n);
 }
 
-export function getEditorField(n: number): EditorField | null {
-    const fields = document.getElementById("fields")!.children;
-    return (fields[n] as EditorField) ?? null;
+function getFieldsContainer(): FieldsContainer {
+    return document.getElementById("fields")! as FieldsContainer;
 }
 
 /// forEachEditorFieldAndProvidedValue:
@@ -108,31 +85,13 @@ export function forEditorField<T>(
     values: T[],
     func: (field: EditorField, value: T) => void
 ): void {
-    const fields = document.getElementById("fields")!.children;
-    for (let i = 0; i < fields.length; i++) {
-        const field = fields[i] as EditorField;
-        func(field, values[i]);
-    }
+    getFieldsContainer().forEditorField(values, func);
 }
 
 export function setFields(fields: [string, string][]): void {
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
-    const color = window
-        .getComputedStyle(document.documentElement)
-        .getPropertyValue("--text-fg");
-
-    adjustFieldAmount(fields.length);
-    forEditorField(
-        fields,
-        (field: EditorField, [name, fieldContent]: [string, string]): void =>
-            field.initialize(name, color, fieldContent)
-    );
-
-    if (!getCurrentField()) {
-        // when initial focus of the window is not on editor (e.g. browser)
-        disableButtons();
-    }
+    getFieldsContainer().setFields(fields);
 }
 
 export function setBackgrounds(cols: ("dupe" | "")[]): void {
@@ -157,9 +116,7 @@ export function setFonts(fonts: [string, number, boolean][]): void {
 }
 
 export function setSticky(stickies: boolean[]): void {
-    forEditorField(stickies, (field: EditorField, isSticky: boolean) => {
-        field.labelContainer.activateSticky(isSticky);
-    });
+    getFieldsContainer().setSticky(stickies);
 }
 
 export function setFormat(cmd: string, arg?: string, nosave = false): void {

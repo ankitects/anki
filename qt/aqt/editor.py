@@ -77,7 +77,7 @@ audio = (
 )
 
 _html = """
-<div id="fields"></div>
+<div id="fields" is="anki-fields-container"></div>
 <div id="dupes" class="is-inactive">
     <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
