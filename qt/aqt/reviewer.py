@@ -11,25 +11,13 @@ import re
 import unicodedata as ucd
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import (
-    Any,
-    Callable,
-    List,
-    Literal,
-    Match,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Any, Callable, List, Literal, Match, Optional, Sequence, Tuple, cast
 
 from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
-from anki.scheduler import CongratsInfo
 from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
@@ -240,7 +228,7 @@ class Reviewer:
     def _get_next_v3_card(self) -> None:
         assert isinstance(self.mw.col.sched, V3Scheduler)
         output = self.mw.col.sched.get_queued_cards()
-        if isinstance(output, CongratsInfo):
+        if not output.cards:
             return
         self._v3 = V3CardInfo.from_queue(output)
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)

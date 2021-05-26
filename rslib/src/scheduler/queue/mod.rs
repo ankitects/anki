@@ -16,7 +16,7 @@ pub(crate) use main::{MainQueueEntry, MainQueueEntryKind};
 
 use self::undo::QueueUpdate;
 use super::{states::NextCardStates, timing::SchedTimingToday};
-use crate::{backend_proto as pb, prelude::*, timestamp::TimestampSecs};
+use crate::{prelude::*, timestamp::TimestampSecs};
 
 #[derive(Debug)]
 pub(crate) struct CardQueues {
@@ -32,24 +32,79 @@ pub(crate) struct CardQueues {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct Counts {
+pub struct Counts {
     pub new: usize,
     pub learning: usize,
     pub review: usize,
 }
 
-#[derive(Debug)]
-pub(crate) struct QueuedCard {
+#[derive(Debug, Clone)]
+pub struct QueuedCard {
     pub card: Card,
     pub kind: QueueEntryKind,
     pub next_states: NextCardStates,
 }
 
-pub(crate) struct QueuedCards {
+#[derive(Debug)]
+pub struct QueuedCards {
     pub cards: Vec<QueuedCard>,
     pub new_count: usize,
     pub learning_count: usize,
     pub review_count: usize,
+}
+
+impl Collection {
+    pub fn get_next_card(&mut self) -> Result<Option<QueuedCard>> {
+        self.get_queued_cards(1, false)
+            .map(|queued| queued.cards.get(0).cloned())
+    }
+
+    pub fn get_queued_cards(
+        &mut self,
+        fetch_limit: usize,
+        intraday_learning_only: bool,
+    ) -> Result<QueuedCards> {
+        let queues = self.get_queues()?;
+        let counts = queues.counts();
+        let entries: Vec<_> = if intraday_learning_only {
+            queues
+                .intraday_now_iter()
+                .chain(queues.intraday_ahead_iter())
+                .map(Into::into)
+                .collect()
+        } else {
+            queues.iter().take(fetch_limit).collect()
+        };
+        let cards: Vec<_> = entries
+            .into_iter()
+            .map(|entry| {
+                let card = self
+                    .storage
+                    .get_card(entry.card_id())?
+                    .ok_or(AnkiError::NotFound)?;
+                if card.mtime != entry.mtime() {
+                    return Err(AnkiError::invalid_input(
+                        "bug: card modified without updating queue",
+                    ));
+                }
+
+                // fixme: pass in card instead of id
+                let next_states = self.get_next_card_states(card.id)?;
+
+                Ok(QueuedCard {
+                    card,
+                    next_states,
+                    kind: entry.kind(),
+                })
+            })
+            .collect::<Result<_>>()?;
+        Ok(QueuedCards {
+            cards,
+            new_count: counts.new,
+            learning_count: counts.learning,
+            review_count: counts.review,
+        })
+    }
 }
 
 impl CardQueues {
@@ -103,26 +158,6 @@ impl CardQueues {
 }
 
 impl Collection {
-    pub(crate) fn get_queued_cards(
-        &mut self,
-        fetch_limit: usize,
-        intraday_learning_only: bool,
-    ) -> Result<pb::GetQueuedCardsOut> {
-        if let Some(next_cards) = self.next_cards(fetch_limit, intraday_learning_only)? {
-            Ok(pb::GetQueuedCardsOut {
-                value: Some(pb::get_queued_cards_out::Value::QueuedCards(
-                    next_cards.into(),
-                )),
-            })
-        } else {
-            Ok(pb::GetQueuedCardsOut {
-                value: Some(pb::get_queued_cards_out::Value::CongratsInfo(
-                    self.congrats_info()?,
-                )),
-            })
-        }
-    }
-
     /// This is automatically done when transact() is called for everything
     /// except card answers, so unless you are modifying state outside of a
     /// transaction, you probably don't need this.
@@ -177,74 +212,13 @@ impl Collection {
 
         Ok(self.state.card_queues.as_mut().unwrap())
     }
-
-    fn next_cards(
-        &mut self,
-        fetch_limit: usize,
-        intraday_learning_only: bool,
-    ) -> Result<Option<QueuedCards>> {
-        let queues = self.get_queues()?;
-        let counts = queues.counts();
-        let entries: Vec<_> = if intraday_learning_only {
-            queues
-                .intraday_now_iter()
-                .chain(queues.intraday_ahead_iter())
-                .map(Into::into)
-                .collect()
-        } else {
-            queues.iter().take(fetch_limit).collect()
-        };
-        if entries.is_empty() {
-            Ok(None)
-        } else {
-            let cards: Vec<_> = entries
-                .into_iter()
-                .map(|entry| {
-                    let card = self
-                        .storage
-                        .get_card(entry.card_id())?
-                        .ok_or(AnkiError::NotFound)?;
-                    if card.mtime != entry.mtime() {
-                        return Err(AnkiError::invalid_input(
-                            "bug: card modified without updating queue",
-                        ));
-                    }
-
-                    // fixme: pass in card instead of id
-                    let next_states = self.get_next_card_states(card.id)?;
-
-                    Ok(QueuedCard {
-                        card,
-                        next_states,
-                        kind: entry.kind(),
-                    })
-                })
-                .collect::<Result<_>>()?;
-            Ok(Some(QueuedCards {
-                cards,
-                new_count: counts.new,
-                learning_count: counts.learning,
-                review_count: counts.review,
-            }))
-        }
-    }
 }
 
 // test helpers
 #[cfg(test)]
 impl Collection {
-    pub(crate) fn next_card(&mut self) -> Result<Option<QueuedCard>> {
-        Ok(self
-            .next_cards(1, false)?
-            .map(|mut resp| resp.cards.pop().unwrap()))
-    }
-
-    fn get_queue_single(&mut self) -> Result<QueuedCards> {
-        self.next_cards(1, false)?.ok_or(AnkiError::NotFound)
-    }
-
     pub(crate) fn counts(&mut self) -> [usize; 3] {
-        self.get_queue_single()
+        self.get_queued_cards(1, false)
             .map(|q| [q.new_count, q.learning_count, q.review_count])
             .unwrap_or([0; 3])
     }

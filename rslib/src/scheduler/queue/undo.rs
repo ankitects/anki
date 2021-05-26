@@ -102,7 +102,7 @@ mod test {
         col.storage.update_deck_conf(&conf)?;
 
         // get the first card
-        let queued = col.next_card()?.unwrap();
+        let queued = col.get_next_card()?.unwrap();
         let cid = queued.card.id;
         let sibling_cid = col.storage.all_card_ids_of_note_in_order(nid)?[1];
 
@@ -152,7 +152,7 @@ mod test {
             let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 1);
 
-            assert_eq!(col.next_card()?.is_some(), false);
+            assert_eq!(col.get_next_card()?.is_some(), false);
 
             Ok(())
         };
@@ -177,7 +177,7 @@ mod test {
 
             let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 0);
-            assert_eq!(col.next_card()?.is_some(), true);
+            assert_eq!(col.get_next_card()?.is_some(), true);
             assert_eq!(col.counts(), [0, 0, 1]);
 
             Ok(())
