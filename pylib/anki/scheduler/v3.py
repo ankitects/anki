@@ -15,7 +15,7 @@ from __future__ import annotations
 from typing import List, Literal, Sequence, Tuple
 
 import anki._backend.backend_pb2 as _pb
-from anki.cards import Card, CardId
+from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
 from anki.decks import DeckId
@@ -49,10 +49,6 @@ class Scheduler(SchedulerBaseWithLegacy):
         return self.col._backend.get_queued_cards(
             fetch_limit=fetch_limit, intraday_learning_only=intraday_learning_only
         )
-
-    def next_states(self, card_id: CardId) -> NextStates:
-        "New states corresponding to each answer button press."
-        return self.col._backend.get_next_card_states(card_id)
 
     def describe_next_states(self, next_states: NextStates) -> Sequence[str]:
         "Labels for each of the answer buttons."
@@ -161,10 +157,9 @@ class Scheduler(SchedulerBaseWithLegacy):
         else:
             assert False, "invalid ease"
 
+        states = self.col._backend.get_next_card_states(card.id)
         changes = self.answer_card(
-            self.build_answer(
-                card=card, states=self.next_states(card_id=card.id), rating=rating
-            )
+            self.build_answer(card=card, states=states, rating=rating)
         )
 
         # tests assume card will be mutated, so we need to reload it
