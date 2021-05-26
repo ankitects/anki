@@ -65,6 +65,12 @@ export class I18n {
             weekday: "narrow",
         });
     }
+
+    /// Treat text like HTML, merging multiple spaces and converting
+    /// newlines to spaces.
+    withCollapsedWhitespace(s: string): string {
+        return s.replace(/\s+/g, " ");
+    }
 }
 
 // global singleton
