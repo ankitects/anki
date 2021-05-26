@@ -21,6 +21,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: renderedTooltip = marked(tooltip);
 </script>
 
+<div {id} class="outer">
+    {#if label}
+        <div class="table">
+            <span class="vcenter">
+                {label}
+                {#if renderedTooltip}
+                    <HelpPopup html={renderedTooltip} />
+                {/if}
+            </span>
+        </div>
+    {/if}
+
+    <div class="input-grid" class:full-grid-width={wholeLine}>
+        <slot />
+        <RevertButton bind:value {defaultValue} on:revert />
+    </div>
+
+    <div class="full-grid-width">
+        {#each warnings as warning}
+            {#if warning}
+                <div class="alert alert-warning" in:slide out:slide>{warning}</div>
+            {/if}
+        {/each}
+    </div>
+</div>
+
 <style lang="scss">
     .outer {
         display: grid;
@@ -52,29 +78,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         grid-template-columns: 10fr 16px;
     }
 </style>
-
-<div {id} class="outer">
-    {#if label}
-        <div class="table">
-            <span class="vcenter">
-                {label}
-                {#if renderedTooltip}
-                    <HelpPopup html={renderedTooltip} />
-                {/if}
-            </span>
-        </div>
-    {/if}
-
-    <div class="input-grid" class:full-grid-width={wholeLine}>
-        <slot />
-        <RevertButton bind:value {defaultValue} on:revert />
-    </div>
-
-    <div class="full-grid-width">
-        {#each warnings as warning}
-            {#if warning}
-                <div class="alert alert-warning" in:slide out:slide>{warning}</div>
-            {/if}
-        {/each}
-    </div>
-</div>

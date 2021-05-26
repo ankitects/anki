@@ -29,5 +29,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {max}
         bind:value
         class="form-control"
-        on:blur={checkMinMax} />
+        on:blur={checkMinMax}
+    />
 </ConfigEntry>

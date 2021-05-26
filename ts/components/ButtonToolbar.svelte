@@ -24,9 +24,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return { detach };
     }
 
-    const { registerComponent, dynamicItems, getDynamicInterface } = makeInterface(
-        makeRegistration
-    );
+    const { registerComponent, dynamicItems, getDynamicInterface } =
+        makeInterface(makeRegistration);
 
     setContext(buttonToolbarKey, registerComponent);
 
@@ -34,9 +33,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let buttonToolbarRef: HTMLDivElement;
 
     $: if (buttonToolbarRef && api) {
-        const { addComponent, updateRegistration } = getDynamicInterface(
-            buttonToolbarRef
-        );
+        const { addComponent, updateRegistration } =
+            getDynamicInterface(buttonToolbarRef);
 
         const insertGroup = (group: SvelteComponent, position: Identifier = 0) =>
             addComponent(group, (added, parent) => insert(added, parent, position));
@@ -68,7 +66,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class={`btn-toolbar ${className}`}
     class:flex-nowrap={nowrap}
-    role="toolbar">
+    role="toolbar"
+>
     <slot />
     {#each $dynamicItems as item}
         <ButtonToolbarItem id={item[0].id} registration={item[1]}>

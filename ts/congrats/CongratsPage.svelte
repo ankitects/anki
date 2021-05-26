@@ -23,22 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<style>
-    .congrats-outer {
-        display: flex;
-        justify-content: center;
-    }
-
-    .congrats-inner {
-        max-width: 30em;
-    }
-
-    .description {
-        border: 1px solid var(--border);
-        padding: 1em;
-    }
-</style>
-
 <div class="congrats-outer">
     <div class="congrats-inner">
         <h3>{congrats}</h3>
@@ -74,3 +58,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
     </div>
 </div>
+
+<style>
+    .congrats-outer {
+        display: flex;
+        justify-content: center;
+    }
+
+    .congrats-inner {
+        max-width: 30em;
+    }
+
+    .description {
+        border: 1px solid var(--border);
+        padding: 1em;
+    }
+</style>

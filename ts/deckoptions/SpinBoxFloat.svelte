@@ -38,5 +38,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         step="0.01"
         value={stringValue}
         on:blur={update}
-        class="form-control" />
+        class="form-control"
+    />
 </ConfigEntry>

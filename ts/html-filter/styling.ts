@@ -27,27 +27,28 @@ const stylingInternal: BlockProperties = [
     "font-family",
 ];
 
-const allowPropertiesBlockValues = (
-    allowBlock: AllowPropertiesBlockValues
-): StylingPredicate => (property: string, value: string): boolean =>
-    Object.prototype.hasOwnProperty.call(allowBlock, property) &&
-    !allowBlock[property].includes(value);
+const allowPropertiesBlockValues =
+    (allowBlock: AllowPropertiesBlockValues): StylingPredicate =>
+    (property: string, value: string): boolean =>
+        Object.prototype.hasOwnProperty.call(allowBlock, property) &&
+        !allowBlock[property].includes(value);
 
-const blockProperties = (block: BlockProperties): StylingPredicate => (
-    property: string
-): boolean => !block.includes(property);
+const blockProperties =
+    (block: BlockProperties): StylingPredicate =>
+    (property: string): boolean =>
+        !block.includes(property);
 
-const filterStyling = (predicate: (property: string, value: string) => boolean) => (
-    element: HTMLElement
-): void => {
-    for (const property of [...element.style]) {
-        const value = element.style.getPropertyValue(property);
+const filterStyling =
+    (predicate: (property: string, value: string) => boolean) =>
+    (element: HTMLElement): void => {
+        for (const property of [...element.style]) {
+            const value = element.style.getPropertyValue(property);
 
-        if (!predicate(property, value)) {
-            element.style.removeProperty(property);
+            if (!predicate(property, value)) {
+                element.style.removeProperty(property);
+            }
         }
-    }
-};
+    };
 
 export const filterStylingNightMode = filterStyling(
     allowPropertiesBlockValues(stylingNightMode)

@@ -24,12 +24,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return { detach, position };
     }
 
-    const {
-        registerComponent,
-        items,
-        dynamicItems,
-        getDynamicInterface,
-    } = makeInterface(makeRegistration);
+    const { registerComponent, items, dynamicItems, getDynamicInterface } =
+        makeInterface(makeRegistration);
 
     $: for (const [index, item] of $items.entries()) {
         if ($items.length === 1) {
@@ -49,9 +45,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let buttonGroupRef: HTMLDivElement;
 
     $: if (api && buttonGroupRef) {
-        const { addComponent, updateRegistration } = getDynamicInterface(
-            buttonGroupRef
-        );
+        const { addComponent, updateRegistration } =
+            getDynamicInterface(buttonGroupRef);
 
         const insertButton = (button: SvelteComponent, position: Identifier = 0) =>
             addComponent(button, (added, parent) => insert(added, parent, position));
@@ -78,20 +73,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style lang="scss">
-    div {
-        flex-wrap: var(--toolbar-wrap);
-        padding: calc(var(--toolbar-size) / 10);
-        margin: 0;
-    }
-</style>
-
 <div
     bind:this={buttonGroupRef}
     {id}
     class={`btn-group ${className}`}
     dir="ltr"
-    role="group">
+    role="group"
+>
     <slot />
     {#each $dynamicItems as item}
         <ButtonGroupItem id={item[0].id} registration={item[1]}>
@@ -99,3 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonGroupItem>
     {/each}
 </div>
+
+<style lang="scss">
+    div {
+        flex-wrap: var(--toolbar-wrap);
+        padding: calc(var(--toolbar-size) / 10);
+        margin: 0;
+    }
+</style>

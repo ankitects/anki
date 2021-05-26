@@ -64,13 +64,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     title="Add Config"
     prompt="Name"
     onOk={onAddConfig}
-    bind:modalKey={addModalKey} />
+    bind:modalKey={addModalKey}
+/>
 <TextInputModal
     title="Rename Config"
     prompt="Name"
     onOk={onRenameConfig}
     value={oldName}
-    bind:modalKey={renameModalKey} />
+    bind:modalKey={renameModalKey}
+/>
 
 <StickyBar>
     <WithTheming style="--toolbar-size: 2.3rem; --toolbar-wrap: nowrap">
@@ -82,7 +84,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             {#each $configList as entry}
                                 <SelectOption
                                     value={String(entry.idx)}
-                                    selected={entry.current}>
+                                    selected={entry.current}
+                                >
                                     {configLabel(entry)}
                                 </SelectOption>
                             {/each}

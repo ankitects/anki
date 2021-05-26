@@ -8,6 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 </script>
 
+<nav {id} class={`pb-1 pt-1 ${className}`}>
+    <slot />
+</nav>
+
 <style lang="scss">
     nav {
         position: sticky;
@@ -20,7 +24,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-bottom: 1px solid var(--medium-border);
     }
 </style>
-
-<nav {id} class={`pb-1 pt-1 ${className}`}>
-    <slot />
-</nav>

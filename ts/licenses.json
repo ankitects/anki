@@ -108,7 +108,7 @@
         "path": "node_modules/@types/lodash-es",
         "licenseFile": "node_modules/@types/lodash-es/LICENSE"
     },
-    "@types/lodash@4.14.168": {
+    "@types/lodash@4.14.170": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash",
@@ -120,19 +120,19 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/marked@2.0.2": {
+    "@types/marked@2.0.3": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@15.0.2": {
+    "@types/node@15.6.1": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
         "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
-    "bootstrap-icons@1.4.1": {
+    "bootstrap-icons@1.5.0": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
@@ -473,7 +473,7 @@
         "path": "node_modules/long",
         "licenseFile": "node_modules/long/LICENSE"
     },
-    "marked@2.0.3": {
+    "marked@2.0.5": {
         "licenses": "MIT",
         "repository": "https://github.com/markedjs/marked",
         "publisher": "Christopher Jeffrey",

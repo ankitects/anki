@@ -48,16 +48,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithState
             key="insertUnorderedList"
-            update={() => document.queryCommandState('insertUnorderedList')}
+            update={() => document.queryCommandState("insertUnorderedList")}
             let:state={active}
-            let:updateState>
+            let:updateState
+        >
             <IconButton
                 tooltip={tr.editingUnorderedList()}
                 {active}
                 on:click={(event) => {
-                    document.execCommand('insertUnorderedList');
+                    document.execCommand("insertUnorderedList");
                     updateState(event);
-                }}>
+                }}
+            >
                 {@html ulIcon}
             </IconButton>
         </WithState>
@@ -66,16 +68,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithState
             key="insertOrderedList"
-            update={() => document.queryCommandState('insertOrderedList')}
+            update={() => document.queryCommandState("insertOrderedList")}
             let:state={active}
-            let:updateState>
+            let:updateState
+        >
             <IconButton
                 tooltip={tr.editingOrderedList()}
                 {active}
                 on:click={(event) => {
-                    document.execCommand('insertOrderedList');
+                    document.execCommand("insertOrderedList");
                     updateState(event);
-                }}>
+                }}
+            >
                 {@html olIcon}
             </IconButton>
         </WithState>
@@ -93,16 +97,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <ButtonGroupItem>
                             <WithState
                                 key="justifyLeft"
-                                update={() => document.queryCommandState('justifyLeft')}
+                                update={() => document.queryCommandState("justifyLeft")}
                                 let:state={active}
-                                let:updateState>
+                                let:updateState
+                            >
                                 <IconButton
                                     tooltip={tr.editingAlignLeft()}
                                     {active}
                                     on:click={(event) => {
-                                        document.execCommand('justifyLeft');
+                                        document.execCommand("justifyLeft");
                                         updateState(event);
-                                    }}>
+                                    }}
+                                >
                                     {@html justifyLeftIcon}
                                 </IconButton>
                             </WithState>
@@ -111,16 +117,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <ButtonGroupItem>
                             <WithState
                                 key="justifyCenter"
-                                update={() => document.queryCommandState('justifyCenter')}
+                                update={() =>
+                                    document.queryCommandState("justifyCenter")}
                                 let:state={active}
-                                let:updateState>
+                                let:updateState
+                            >
                                 <IconButton
                                     tooltip={tr.editingCenter()}
                                     {active}
                                     on:click={(event) => {
-                                        document.execCommand('justifyCenter');
+                                        document.execCommand("justifyCenter");
                                         updateState(event);
-                                    }}>
+                                    }}
+                                >
                                     {@html justifyCenterIcon}
                                 </IconButton>
                             </WithState>
@@ -129,16 +138,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <ButtonGroupItem>
                             <WithState
                                 key="justifyRight"
-                                update={() => document.queryCommandState('justifyRight')}
+                                update={() =>
+                                    document.queryCommandState("justifyRight")}
                                 let:state={active}
-                                let:updateState>
+                                let:updateState
+                            >
                                 <IconButton
                                     tooltip={tr.editingAlignRight()}
                                     {active}
                                     on:click={(event) => {
-                                        document.execCommand('justifyRight');
+                                        document.execCommand("justifyRight");
                                         updateState(event);
-                                    }}>
+                                    }}
+                                >
                                     {@html justifyRightIcon}
                                 </IconButton>
                             </WithState>
@@ -147,16 +159,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <ButtonGroupItem>
                             <WithState
                                 key="justifyFull"
-                                update={() => document.queryCommandState('justifyFull')}
+                                update={() => document.queryCommandState("justifyFull")}
                                 let:state={active}
-                                let:updateState>
+                                let:updateState
+                            >
                                 <IconButton
                                     tooltip={tr.editingJustify()}
                                     {active}
                                     on:click={(event) => {
-                                        document.execCommand('justifyFull');
+                                        document.execCommand("justifyFull");
                                         updateState(event);
-                                    }}>
+                                    }}
+                                >
                                     {@html justifyFullIcon}
                                 </IconButton>
                             </WithState>
@@ -169,7 +183,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <ButtonGroupItem>
                             <IconButton
                                 on:click={outdentListItem}
-                                tooltip={tr.editingOutdent()}>
+                                tooltip={tr.editingOutdent()}
+                            >
                                 {@html outdentIcon}
                             </IconButton>
                         </ButtonGroupItem>
@@ -177,7 +192,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <ButtonGroupItem>
                             <IconButton
                                 on:click={indentListItem}
-                                tooltip={tr.editingIndent()}>
+                                tooltip={tr.editingIndent()}
+                            >
                                 {@html indentIcon}
                             </IconButton>
                         </ButtonGroupItem>

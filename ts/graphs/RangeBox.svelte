@@ -67,6 +67,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const all = tr.statisticsRangeAllHistory();
 </script>
 
+<div class="range-box">
+    <div class="spin" class:loading>◐</div>
+
+    <InputBox>
+        <label>
+            <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
+            {deck}
+        </label>
+        <label>
+            <input
+                type="radio"
+                bind:group={searchRange}
+                value={SearchRange.Collection}
+            />
+            {collection}
+        </label>
+
+        <input
+            type="text"
+            bind:value={displayedSearch}
+            on:keyup={searchKeyUp}
+            on:focus={() => {
+                searchRange = SearchRange.Custom;
+            }}
+            placeholder={searchLabel}
+        />
+    </InputBox>
+
+    <InputBox>
+        <label>
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
+            {year}
+        </label>
+        <label>
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
+            {all}
+        </label>
+    </InputBox>
+</div>
+
+<div class="range-box-pad" />
+
 <style lang="scss">
     .range-box {
         position: fixed;
@@ -111,43 +153,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 2em;
     }
 </style>
-
-<div class="range-box">
-    <div class="spin" class:loading>◐</div>
-
-    <InputBox>
-        <label>
-            <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
-            {deck}
-        </label>
-        <label>
-            <input
-                type="radio"
-                bind:group={searchRange}
-                value={SearchRange.Collection} />
-            {collection}
-        </label>
-
-        <input
-            type="text"
-            bind:value={displayedSearch}
-            on:keyup={searchKeyUp}
-            on:focus={() => {
-                searchRange = SearchRange.Custom;
-            }}
-            placeholder={searchLabel} />
-    </InputBox>
-
-    <InputBox>
-        <label>
-            <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
-            {year}
-        </label>
-        <label>
-            <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
-            {all}
-        </label>
-    </InputBox>
-</div>
-
-<div class="range-box-pad" />
