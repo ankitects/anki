@@ -36,22 +36,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithShortcut shortcut={'F3'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"F3"} let:createShortcut let:shortcutLabel>
             <IconButton
-                tooltip={appendInParentheses(tr.editingAttachPicturesaudiovideo(), shortcutLabel)}
+                tooltip={appendInParentheses(
+                    tr.editingAttachPicturesaudiovideo(),
+                    shortcutLabel
+                )}
                 on:click={onAttachment}
-                on:mount={createShortcut}>
+                on:mount={createShortcut}
+            >
                 {@html paperclipIcon}
             </IconButton>
         </WithShortcut>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'F5'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"F5"} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
                 on:click={onRecord}
-                on:mount={createShortcut}>
+                on:mount={createShortcut}
+            >
                 {@html micIcon}
             </IconButton>
         </WithShortcut>
@@ -69,72 +74,84 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <DropdownMenu id={menuId}>
                 <WithShortcut
-                    shortcut={'Control+M, M'}
+                    shortcut={"Control+M, M"}
                     let:createShortcut
-                    let:shortcutLabel>
+                    let:shortcutLabel
+                >
                     <DropdownItem
-                        on:click={() => wrap('\\(', '\\)')}
-                        on:mount={createShortcut}>
+                        on:click={() => wrap("\\(", "\\)")}
+                        on:mount={createShortcut}
+                    >
                         {tr.editingMathjaxInline()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
                     </DropdownItem>
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={'Control+M, E'}
+                    shortcut={"Control+M, E"}
                     let:createShortcut
-                    let:shortcutLabel>
+                    let:shortcutLabel
+                >
                     <DropdownItem
-                        on:click={() => wrap('\\[', '\\]')}
-                        on:mount={createShortcut}>
+                        on:click={() => wrap("\\[", "\\]")}
+                        on:mount={createShortcut}
+                    >
                         {tr.editingMathjaxBlock()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
                     </DropdownItem>
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={'Control+M, C'}
+                    shortcut={"Control+M, C"}
                     let:createShortcut
-                    let:shortcutLabel>
+                    let:shortcutLabel
+                >
                     <DropdownItem
-                        on:click={() => wrap('\\(\\ce{', '}\\)')}
-                        on:mount={createShortcut}>
+                        on:click={() => wrap("\\(\\ce{", "}\\)")}
+                        on:mount={createShortcut}
+                    >
                         {tr.editingMathjaxChemistry()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
                     </DropdownItem>
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={'Control+T, T'}
+                    shortcut={"Control+T, T"}
                     let:createShortcut
-                    let:shortcutLabel>
+                    let:shortcutLabel
+                >
                     <DropdownItem
-                        on:click={() => wrap('[latex]', '[/latex]')}
-                        on:mount={createShortcut}>
+                        on:click={() => wrap("[latex]", "[/latex]")}
+                        on:mount={createShortcut}
+                    >
                         {tr.editingLatex()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
                     </DropdownItem>
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={'Control+T, E'}
+                    shortcut={"Control+T, E"}
                     let:createShortcut
-                    let:shortcutLabel>
+                    let:shortcutLabel
+                >
                     <DropdownItem
-                        on:click={() => wrap('[$]', '[/$]')}
-                        on:mount={createShortcut}>
+                        on:click={() => wrap("[$]", "[/$]")}
+                        on:mount={createShortcut}
+                    >
                         {tr.editingLatexEquation()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
                     </DropdownItem>
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={'Control+T, M'}
+                    shortcut={"Control+T, M"}
                     let:createShortcut
-                    let:shortcutLabel>
+                    let:shortcutLabel
+                >
                     <DropdownItem
-                        on:click={() => wrap('[$$]', '[/$$]')}
-                        on:mount={createShortcut}>
+                        on:click={() => wrap("[$$]", "[/$$]")}
+                        on:mount={createShortcut}
+                    >
                         {tr.editingLatexMathEnv()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
                     </DropdownItem>
@@ -144,11 +161,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'Control+Shift+X'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
                 on:click={onHtmlEdit}
-                on:mount={createShortcut}>
+                on:mount={createShortcut}
+            >
                 {@html xmlIcon}
             </IconButton>
         </WithShortcut>

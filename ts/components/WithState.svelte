@@ -13,17 +13,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const stateStore = writable(stateMap);
 
     function updateAllStateWithCallback(callback: (key: string) => boolean): void {
-        stateStore.update(
-            (map: StateMap): StateMap => {
-                const newMap = new Map() as StateMap;
+        stateStore.update((map: StateMap): StateMap => {
+            const newMap = new Map() as StateMap;
 
-                for (const key of map.keys()) {
-                    newMap.set(key, callback(key));
-                }
-
-                return newMap;
+            for (const key of map.keys()) {
+                newMap.set(key, callback(key));
             }
-        );
+
+            return newMap;
+        });
     }
 
     export function updateAllState(event: Event): void {
@@ -37,12 +35,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateStateByKey(key: string, event: Event): void {
-        stateStore.update(
-            (map: StateMap): StateMap => {
-                map.set(key, updaterMap.get(key)!(event));
-                return map;
-            }
-        );
+        stateStore.update((map: StateMap): StateMap => {
+            map.set(key, updaterMap.get(key)!(event));
+            return map;
+        });
     }
 </script>
 

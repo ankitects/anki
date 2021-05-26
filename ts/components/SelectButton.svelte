@@ -25,17 +25,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
-<style lang="scss">
-    @use "ts/sass/button_mixins" as button;
-
-    select {
-        height: var(--toolbar-size);
-    }
-
-    @include button.btn-day($with-hover: false);
-    @include button.btn-night($with-hover: false);
-</style>
-
 <!-- svelte-ignore a11y-no-onchange -->
 
 <select
@@ -47,6 +36,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     title={tooltip}
-    on:change>
+    on:change
+>
     <slot />
 </select>
+
+<style lang="scss">
+    @use "ts/sass/button_mixins" as button;
+
+    select {
+        height: var(--toolbar-size);
+    }
+
+    @include button.btn-day($with-hover: false);
+    @include button.btn-night($with-hover: false);
+</style>

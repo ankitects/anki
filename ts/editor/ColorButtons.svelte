@@ -36,23 +36,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithShortcut shortcut={'F7'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
             <IconButton
                 class="forecolor"
-                tooltip={appendInParentheses(tr.editingSetForegroundColor(), shortcutLabel)}
+                tooltip={appendInParentheses(
+                    tr.editingSetForegroundColor(),
+                    shortcutLabel
+                )}
                 on:click={wrapWithForecolor}
-                on:mount={createShortcut}>
+                on:mount={createShortcut}
+            >
                 {@html squareFillIcon}
             </IconButton>
         </WithShortcut>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={'F8'} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut={"F8"} let:createShortcut let:shortcutLabel>
             <ColorPicker
                 tooltip={appendInParentheses(tr.editingChangeColor(), shortcutLabel)}
                 on:change={setWithCurrentColor}
-                on:mount={createShortcut} />
+                on:mount={createShortcut}
+            />
         </WithShortcut>
     </ButtonGroupItem>
 </ButtonGroup>

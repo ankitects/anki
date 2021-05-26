@@ -48,6 +48,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
+{#if modified}
+    <div
+        class="img-div"
+        on:click={revert}
+        bind:this={ref}
+        title={tr.deckConfigRevertButtonTooltip()}
+    >
+        {@html revertIcon}
+    </div>
+{/if}
+
 <style lang="scss">
     .img-div {
         display: flex;
@@ -58,13 +69,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 </style>
-
-{#if modified}
-    <div
-        class="img-div"
-        on:click={revert}
-        bind:this={ref}
-        title={tr.deckConfigRevertButtonTooltip()}>
-        {@html revertIcon}
-    </div>
-{/if}
