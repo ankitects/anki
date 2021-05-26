@@ -140,11 +140,24 @@ export class DeckOptionsState {
 
     /// Adds a new config, making it current.
     addConfig(name: string): void {
+        this.addConfigFrom(name, this.defaults);
+    }
+
+    /// Clone the current config, making it current.
+    cloneConfig(name: string): void {
+        this.addConfigFrom(name, this.configs[this.selectedIdx].config.config!);
+    }
+
+    /// Clone the current config, making it current.
+    private addConfigFrom(
+        name: string,
+        source: pb.BackendProto.DeckConfig.IConfig
+    ): void {
         const uniqueName = this.ensureNewNameUnique(name);
         const config = pb.BackendProto.DeckConfig.create({
             id: 0,
             name: uniqueName,
-            config: cloneDeep(this.defaults),
+            config: cloneDeep(source),
         });
         const configWithCount = { config, useCount: 0 };
         this.configs.push(configWithCount);
