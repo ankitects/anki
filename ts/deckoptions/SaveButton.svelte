@@ -29,10 +29,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
             // fixme: move tr.qt_misc schema mod msg into core
             // fixme: include name of deck in msg
-            const msg = state.removalWilLForceFullSync()
-                ? "This will require a one-way sync. Are you sure?"
-                : "Are you sure?";
-            if (confirm(msg)) {
+            const msg =
+                (state.removalWilLForceFullSync()
+                    ? tr.deckConfigWillRequireFullSync() + " "
+                    : "") +
+                tr.deckConfigConfirmRemoveName({ name: state.getCurrentName() });
+            if (confirm(tr.i18n.withCollapsedWhitespace(msg))) {
                 try {
                     state.removeCurrentConfig();
                 } catch (err) {
@@ -49,24 +51,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup>
     <ButtonGroupItem>
-        <LabelButton theme="primary" on:click={() => save(false)}>Save</LabelButton>
+        <LabelButton theme="primary" on:click={() => save(false)}
+            >{tr.deckConfigSaveButton()}</LabelButton
+        >
     </ButtonGroupItem>
 
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
             <LabelButton on:mount={createDropdown} on:click={activateDropdown} />
             <DropdownMenu id={menuId}>
-                <DropdownItem on:click={() => dispatch("add")}>Add Config</DropdownItem>
+                <DropdownItem on:click={() => dispatch("add")}
+                    >{tr.deckConfigAddGroup()}</DropdownItem
+                >
                 <DropdownItem on:click={() => dispatch("clone")}
-                    >Clone Config</DropdownItem
+                    >{tr.deckConfigCloneGroup()}</DropdownItem
                 >
                 <DropdownItem on:click={() => dispatch("rename")}>
-                    Rename Config
+                    {tr.deckConfigRenameGroup()}
                 </DropdownItem>
-                <DropdownItem on:click={removeConfig}>Remove Config</DropdownItem>
+                <DropdownItem on:click={removeConfig}
+                    >{tr.deckConfigRemoveGroup()}</DropdownItem
+                >
                 <DropdownDivider />
                 <DropdownItem on:click={() => save(true)}>
-                    Save to All Children
+                    {tr.deckConfigSaveToAllSubdecks()}
                 </DropdownItem>
             </DropdownMenu>
         </WithDropdownMenu>

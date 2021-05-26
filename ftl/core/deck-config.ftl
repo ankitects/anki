@@ -170,24 +170,26 @@ deck-config-minimum-interval-tooltip = The minimum interval given to a review ca
 
 ## Adding/renaming
 
-deck-config-add-group = Add Group
-deck-config-name-prompt = Name:
-deck-config-rename-group = Rename Group
+deck-config-add-group = Add Preset
+deck-config-name-prompt = Name
+deck-config-rename-group = Rename Preset
+deck-config-clone-group = Clone Preset
 
 ## Removing
 
-deck-config-remove-group = Remove Group
+deck-config-remove-group = Remove Preset
 deck-config-confirm-normal = Remove { $name }?
--deck-config-will-require-full-sync = This will require a one-way sync.
-# You don't need to translate this
-deck-config-confirm-full =
-    { deck-config-confirm-normal }
-    { -deck-config-will-require-full-sync }
+deck-config-will-require-full-sync =
+    The requested change will require a full upload of the database when you
+    next synchronize your collection. If you have reviews or other changes
+    waiting on another device that haven't been synchronized here yet, they will
+    be lost.
+deck-config-confirm-remove-name = Remove { $name }?
 
 ## Other Buttons
 
 deck-config-save-button = Save
-deck-config-save-to-all-children = Save to All Children
+deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-revert-button-tooltip = Restore this setting to its default value.
 
 ## These strings are shown via the Description button at the bottom of the

@@ -59,21 +59,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modalSuccess = (_text: string) => {};
 
     function promptToAdd() {
-        modalTitle = "Add Config";
+        modalTitle = tr.deckConfigAddGroup();
         modalSuccess = onAddConfig;
         modalStartingValue = "";
         modals.get(modalKey)!.show();
     }
 
     function promptToClone() {
-        modalTitle = "Clone Config";
+        modalTitle = tr.deckConfigCloneGroup();
         modalSuccess = onCloneConfig;
         modalStartingValue = state.getCurrentName();
         modals.get(modalKey)!.show();
     }
 
     function promptToRename() {
-        modalTitle = "Rename Config";
+        modalTitle = tr.deckConfigRenameGroup();
         modalSuccess = onRenameConfig;
         modalStartingValue = state.getCurrentName();
         modals.get(modalKey)!.show();
@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <TextInputModal
     title={modalTitle}
-    prompt="Name"
+    prompt={tr.deckConfigNamePrompt()}
     value={modalStartingValue}
     onOk={modalSuccess}
     bind:modalKey
