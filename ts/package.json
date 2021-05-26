@@ -38,7 +38,7 @@
         "minimist": "^1.2.5",
         "prettier": "=2.3.0",
         "prettier-plugin-svelte": "=2.3.0",
-        "sass": "^1.32.6",
+        "sass": "=1.32.12",
         "semver": "^7.3.4",
         "svelte": "^3.25.0",
         "svelte-check": "^1.0.61",
