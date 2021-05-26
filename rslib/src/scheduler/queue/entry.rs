@@ -37,7 +37,7 @@ impl QueueEntry {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) enum QueueEntryKind {
+pub enum QueueEntryKind {
     New,
     Learning,
     Review,

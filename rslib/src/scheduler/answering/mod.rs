@@ -401,7 +401,7 @@ pub mod test_helpers {
         where
             F: FnOnce(&NextCardStates) -> CardState,
         {
-            let queued = self.next_card()?.unwrap();
+            let queued = self.get_next_card()?.unwrap();
             let new_state = get_state(&queued.next_states);
             self.answer_card(&CardAnswer {
                 card_id: queued.card.id,
