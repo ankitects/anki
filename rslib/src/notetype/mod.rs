@@ -287,6 +287,28 @@ impl Notetype {
         Ok(())
     }
 
+    fn ensure_cloze_if_and_only_if_cloze_notetype(
+        &self,
+        parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+    ) -> Result<()> {
+        if self.is_cloze() {
+            if missing_cloze_filter(parsed_templates) {
+                return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                    notetype: self.name.clone(),
+                    ordinal: 0,
+                    details: TemplateSaveErrorDetails::MissingCloze,
+                }));
+            }
+        } else if let Some(i) = find_cloze_filter(parsed_templates) {
+            return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: i,
+                details: TemplateSaveErrorDetails::ExtraneousCloze,
+            }));
+        }
+        Ok(())
+    }
+
     pub(crate) fn normalize_names(&mut self) {
         ensure_string_in_nfc(&mut self.name);
         for f in &mut self.fields {
@@ -349,6 +371,7 @@ impl Notetype {
                 details: TemplateSaveErrorDetails::TemplateError,
             }));
         }
+        self.ensure_cloze_if_and_only_if_cloze_notetype(&parsed_templates)?;
         let reqs = self.updated_requirements(&parsed_templates);
 
         // handle renamed+deleted fields
@@ -446,6 +469,35 @@ impl Notetype {
     pub(crate) fn is_cloze(&self) -> bool {
         matches!(self.config.kind(), NotetypeKind::Cloze)
     }
+}
+
+/// True if the slice is empty or either template of the first tuple doesn't have a cloze field.
+fn missing_cloze_filter(
+    parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+) -> bool {
+    parsed_templates
+        .get(0)
+        .map_or(true, |t| !has_cloze(&t.0) || !has_cloze(&t.1))
+}
+
+/// Return the index of the first tuple with a cloze field on either template.
+fn find_cloze_filter(
+    parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+) -> Option<usize> {
+    parsed_templates.iter().enumerate().find_map(|(i, t)| {
+        if has_cloze(&t.0) || has_cloze(&t.1) {
+            Some(i)
+        } else {
+            None
+        }
+    })
+}
+
+/// True if the template is non-empty and has a cloze field.
+fn has_cloze(template: &Option<ParsedTemplate>) -> bool {
+    template
+        .as_ref()
+        .map_or(false, |t| !t.cloze_fields().is_empty())
 }
 
 impl From<Notetype> for NotetypeProto {
