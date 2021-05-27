@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isApplePlatform } from "lib/platform";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
+    import SectionItem from "components/SectionItem.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
@@ -54,24 +54,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBar>
     <ButtonToolbar {size} {wrap} api={toolbar}>
-        <ButtonToolbarItem id="notetype">
+        <SectionItem id="notetype">
             <NoteTypeButtons api={notetypeButtons} />
-        </ButtonToolbarItem>
+        </SectionItem>
 
-        <ButtonToolbarItem id="inlineFormatting">
+        <SectionItem id="inlineFormatting">
             <FormatInlineButtons api={formatInlineButtons} />
-        </ButtonToolbarItem>
+        </SectionItem>
 
-        <ButtonToolbarItem id="blockFormatting">
+        <SectionItem id="blockFormatting">
             <FormatBlockButtons api={formatBlockButtons} />
-        </ButtonToolbarItem>
+        </SectionItem>
 
-        <ButtonToolbarItem id="color">
+        <SectionItem id="color">
             <ColorButtons api={colorButtons} />
-        </ButtonToolbarItem>
+        </SectionItem>
 
-        <ButtonToolbarItem id="template">
+        <SectionItem id="template">
             <TemplateButtons api={templateButtons} />
-        </ButtonToolbarItem>
+        </SectionItem>
     </ButtonToolbar>
 </StickyBar>
