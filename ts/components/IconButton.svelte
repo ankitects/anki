@@ -63,8 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         vertical-align: middle;
 
         /* constrain icon */
-        width: calc(var(--toolbar-size) - 2px);
-        height: calc(var(--toolbar-size) - 2px);
+        width: calc(var(--buttons-size) - 2px);
+        height: calc(var(--buttons-size) - 2px);
 
         & > :global(svg),
         & > :global(img) {

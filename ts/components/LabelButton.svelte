@@ -56,9 +56,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "ts/sass/button_mixins" as button;
 
     button {
-        padding: 0 calc(var(--toolbar-size) / 3);
+        padding: 0 calc(var(--buttons-size) / 3);
         width: auto;
-        height: var(--toolbar-size);
+        height: var(--buttons-size);
 
         @include button.btn-border-radius;
     }

@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "ts/sass/button_mixins" as button;
 
     select {
-        height: var(--toolbar-size);
+        height: var(--buttons-size);
     }
 
     @include button.btn-day($with-hover: false);
