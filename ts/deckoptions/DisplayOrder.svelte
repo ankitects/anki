@@ -4,7 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
+    import ConfigEntry from "./ConfigEntry.svelte";
+    import HelpPopup from "./HelpPopup.svelte";
     import EnumSelector from "./EnumSelector.svelte";
 
     import type { DeckOptionsState } from "./lib";
@@ -37,43 +40,73 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigOrderingTitle()}>
-    <EnumSelector
-        label={tr.deckConfigNewGatherPriority()}
-        tooltip={tr.deckConfigNewGatherPriorityTooltip()}
-        choices={newGatherPriorityChoices}
-        defaultValue={defaults.newCardGatherPriority}
-        bind:value={$config.newCardGatherPriority}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigNewGatherPriority()}
+            <HelpPopup html={marked(tr.deckConfigNewGatherPriorityTooltip())} />
+        </span>
+        <svelte:fragment slot="right">
+            <EnumSelector
+                choices={newGatherPriorityChoices}
+                defaultValue={defaults.newCardGatherPriority}
+                bind:value={$config.newCardGatherPriority}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <EnumSelector
-        label={tr.deckConfigNewCardSortOrder()}
-        tooltip={tr.deckConfigNewCardSortOrderTooltip()}
-        choices={newSortOrderChoices}
-        defaultValue={defaults.newCardSortOrder}
-        bind:value={$config.newCardSortOrder}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigNewCardSortOrder()}
+            <HelpPopup html={marked(tr.deckConfigNewCardSortOrderTooltip())} />
+        </span>
+        <svelte:fragment slot="right">
+            <EnumSelector
+                choices={newSortOrderChoices}
+                defaultValue={defaults.newCardSortOrder}
+                bind:value={$config.newCardSortOrder}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <EnumSelector
-        label={tr.deckConfigNewReviewPriority()}
-        tooltip={tr.deckConfigNewReviewPriorityTooltip()}
-        choices={reviewMixChoices()}
-        defaultValue={defaults.newMix}
-        bind:value={$config.newMix}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigNewReviewPriority()}
+            <HelpPopup html={marked(tr.deckConfigNewReviewPriorityTooltip())} />
+        </span>
+        <svelte:fragment slot="right">
+            <EnumSelector
+                choices={reviewMixChoices()}
+                defaultValue={defaults.newMix}
+                bind:value={$config.newMix}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <EnumSelector
-        label={tr.deckConfigInterdayStepPriority()}
-        tooltip={tr.deckConfigInterdayStepPriorityTooltip()}
-        choices={reviewMixChoices()}
-        defaultValue={defaults.interdayLearningMix}
-        bind:value={$config.interdayLearningMix}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigInterdayStepPriority()}
+            <HelpPopup html={marked(tr.deckConfigInterdayStepPriorityTooltip())} />
+        </span>
+        <svelte:fragment slot="right">
+            <EnumSelector
+                choices={reviewMixChoices()}
+                defaultValue={defaults.interdayLearningMix}
+                bind:value={$config.interdayLearningMix}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <EnumSelector
-        label={tr.deckConfigReviewSortOrder()}
-        tooltip={tr.deckConfigReviewSortOrderTooltip()}
-        choices={reviewOrderChoices}
-        defaultValue={defaults.reviewOrder}
-        bind:value={$config.reviewOrder}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigReviewSortOrder()}
+            <HelpPopup html={marked(tr.deckConfigReviewSortOrderTooltip())} />
+        </span>
+        <svelte:fragment slot="right">
+            <EnumSelector
+                choices={reviewOrderChoices}
+                defaultValue={defaults.reviewOrder}
+                bind:value={$config.reviewOrder}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 </TitledContainer>>

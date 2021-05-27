@@ -4,7 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
+    import ConfigEntryFull from "./ConfigEntryFull.svelte";
+    import HelpPopup from "./HelpPopup.svelte";
     import CheckBox from "./CheckBox.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -14,17 +17,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigBuryTitle()}>
-    <CheckBox
-        label={tr.deckConfigBuryNewSiblings()}
-        tooltip={tr.deckConfigBuryTooltip()}
-        defaultValue={defaults.buryNew}
-        bind:value={$config.buryNew}
-    />
+    <ConfigEntryFull>
+        <CheckBox defaultValue={defaults.buryNew} bind:value={$config.buryNew}>
+            {tr.deckConfigBuryNewSiblings()}
+            <HelpPopup html={marked(tr.deckConfigBuryTooltip())} />
+        </CheckBox>
+    </ConfigEntryFull>
 
-    <CheckBox
-        label={tr.deckConfigBuryReviewSiblings()}
-        tooltip={tr.deckConfigBuryTooltip()}
-        defaultValue={defaults.buryReviews}
-        bind:value={$config.buryReviews}
-    />
+    <ConfigEntryFull>
+        <CheckBox defaultValue={defaults.buryReviews} bind:value={$config.buryReviews}>
+            {tr.deckConfigBuryReviewSiblings()}
+            <HelpPopup html={marked(tr.deckConfigBuryTooltip())} />
+        </CheckBox>
+    </ConfigEntryFull>
 </TitledContainer>
