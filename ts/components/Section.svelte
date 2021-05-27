@@ -16,19 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let size: number | undefined = undefined;
-    export let wrap: boolean | undefined = undefined;
-
-    $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
-    let buttonWrap: string;
-    $: if (wrap === undefined) {
-        buttonWrap = "";
-    } else {
-        buttonWrap = wrap ? `--buttons-wrap: wrap; ` : `--buttons-wrap: nowrap; `;
-    }
-
-    $: style = buttonSize + buttonWrap;
-
     function makeRegistration(): Registration {
         const detach = writable(false);
         return { detach };
@@ -39,49 +26,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(sectionKey, registerComponent);
 
-    export let api: Record<string, unknown> | undefined = undefined;
-    let buttonToolbarRef: HTMLDivElement;
+    export let api: Record<string, never> | undefined = undefined;
+    let sectionRef: HTMLDivElement;
 
-    $: if (buttonToolbarRef && api) {
-        const { addComponent, updateRegistration } =
-            getDynamicInterface(buttonToolbarRef);
+    $: if (sectionRef && api) {
+        const { addComponent, updateRegistration } = getDynamicInterface(sectionRef);
 
-        const insertGroup = (group: SvelteComponent, position: Identifier = 0) =>
+        const insert = (group: SvelteComponent, position: Identifier = 0) =>
             addComponent(group, (added, parent) =>
                 insertElement(added, parent, position)
             );
-        const appendGroup = (group: SvelteComponent, position: Identifier = -1) =>
+        const append = (group: SvelteComponent, position: Identifier = -1) =>
             addComponent(group, (added, parent) =>
                 appendElement(added, parent, position)
             );
 
-        const showGroup = (id: Identifier) =>
+        const show = (id: Identifier) =>
             updateRegistration(({ detach }) => detach.set(false), id);
-        const hideGroup = (id: Identifier) =>
+        const hide = (id: Identifier) =>
             updateRegistration(({ detach }) => detach.set(true), id);
-        const toggleGroup = (id: Identifier) =>
+        const toggle = (id: Identifier) =>
             updateRegistration(
                 ({ detach }) => detach.update((old: boolean): boolean => !old),
                 id
             );
 
-        Object.assign(api, {
-            insertGroup,
-            appendGroup,
-            showGroup,
-            hideGroup,
-            toggleGroup,
-        });
+        Object.assign(api, { insert, append, show, hide, toggle });
     }
 </script>
 
-<div
-    bind:this={buttonToolbarRef}
-    {id}
-    class={`btn-toolbar wrap-variable ${className}`}
-    {style}
-    role="toolbar"
->
+<div bind:this={sectionRef} {id} class={className}>
     <slot />
     {#each $dynamicItems as item}
         <SectionItem id={item[0].id} registration={item[1]}>
@@ -89,9 +63,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </SectionItem>
     {/each}
 </div>
-
-<style lang="scss">
-    .wrap-variable {
-        flex-wrap: var(--buttons-wrap);
-    }
-</style>
