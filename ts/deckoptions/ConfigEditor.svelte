@@ -12,7 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AdvancedOptions from "./AdvancedOptions.svelte";
     import BuryOptions from "./BuryOptions.svelte";
     import LapseOptions from "./LapseOptions.svelte";
-    import GeneralOptions from "./GeneralOptions.svelte";
+    import TimerOptions from "./TimerOptions.svelte";
+    import AudioOptions from "./AudioOptions.svelte";
     import Addons from "./Addons.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -42,7 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 
     <SectionItem>
-        <GeneralOptions {state} />
+        <TimerOptions {state} />
+    </SectionItem>
+    <SectionItem>
+        <AudioOptions {state} />
     </SectionItem>
     <SectionItem>
         <Addons {state} />
@@ -59,7 +63,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // adding a border decreases the default font size,
         // so increase it again
         font-size: 2em;
-        border-bottom: 1px solid var(--medium-border);
         margin-right: 16px;
         margin-bottom: 0.5em;
     }
