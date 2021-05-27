@@ -180,10 +180,9 @@ deck-config-clone-group = Clone Preset
 deck-config-remove-group = Remove Preset
 deck-config-confirm-normal = Remove { $name }?
 deck-config-will-require-full-sync =
-    The requested change will require a full upload of the database when you
-    next synchronize your collection. If you have reviews or other changes
-    waiting on another device that haven't been synchronized here yet, they will
-    be lost.
+    The requested change will require a one-way sync. If you have made changes
+    on another device, and not synced them to this device yet, please do so before
+    you proceed.
 deck-config-confirm-remove-name = Remove { $name }?
 
 ## Other Buttons
