@@ -1,9 +1,10 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
-License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+    Copyright: Ankitects Pty Ltd and contributors
+    License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import TitledContainer from "./TitledContainer.svelte";
     import SpinBox from "./SpinBox.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -33,9 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 </script>
 
-<h2>{tr.deckConfigDailyLimits()}</h2>
-
-<div class="container">
+<TitledContainer title={tr.deckConfigDailyLimits()}>
     <SpinBox
         label={tr.schedulingNewCardsday()}
         tooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
@@ -53,4 +52,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         defaultValue={defaults.reviewsPerDay}
         bind:value={$config.reviewsPerDay}
     />
-</div>
+</TitledContainer>

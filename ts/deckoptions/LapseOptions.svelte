@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import TitledContainer from "./TitledContainer.svelte";
     import SpinBox from "./SpinBox.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import StepsInput from "./StepsInput.svelte";
@@ -27,9 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
-<div>
-    <h2>{tr.schedulingLapses()}</h2>
-
+<TitledContainer title={tr.schedulingLapses()}>
     <StepsInput
         label={tr.deckConfigRelearningSteps()}
         tooltip={tr.deckConfigRelearningStepsTooltip()}
@@ -62,4 +61,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         defaultValue={defaults.leechAction}
         bind:value={$config.leechAction}
     />
-</div>
+</TitledContainer>
