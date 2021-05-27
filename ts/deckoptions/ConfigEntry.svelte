@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div {id} class="row gx-0">
-    <div class="col-8">
+    <div class="col-8 d-flex align-items-center">
         {label}{#if renderedTooltip}<HelpPopup html={renderedTooltip} />{/if}
     </div>
 
@@ -30,13 +30,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <slot />
     </div>
 
-    <div class="col-1">
+    <div class="col-1 d-flex align-items-center">
         <RevertButton bind:value {defaultValue} on:revert />
     </div>
 </div>
 
 {#each warnings as warning}
     {#if warning}
-        <div class="col-12 alert alert-warning" in:slide out:slide>{warning}</div>
+        <div class="row gx-0">
+            <div class="col-11 alert alert-warning mb-0" in:slide out:slide>
+                {warning}
+            </div>
+        </div>
     {/if}
 {/each}
