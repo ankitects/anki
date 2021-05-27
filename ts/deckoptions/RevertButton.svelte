@@ -49,23 +49,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if modified}
-    <div
-        class="img-div"
-        on:click={revert}
+    <span
         bind:this={ref}
+        class="badge"
         title={tr.deckConfigRevertButtonTooltip()}
+        on:click={revert}
     >
         {@html revertIcon}
-    </div>
+    </span>
 {/if}
 
 <style lang="scss">
-    .img-div {
-        display: flex;
-
-        :global(svg) {
-            align-self: center;
-            opacity: 0.3;
-        }
+    span :global(svg) {
+        vertical-align: -0.125rem;
+        opacity: 0.3;
     }
 </style>

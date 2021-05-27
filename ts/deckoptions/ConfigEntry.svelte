@@ -23,9 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div {id} class="row gx-0">
     <div class="col-8">
-        <span
-            >{label}{#if renderedTooltip}<HelpPopup html={renderedTooltip} />{/if}</span
-        >
+        {label}{#if renderedTooltip}<HelpPopup html={renderedTooltip} />{/if}
     </div>
 
     <div class="col-3">
@@ -39,6 +37,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#each warnings as warning}
     {#if warning}
-        <div class="row alert alert-warning" in:slide out:slide>{warning}</div>
+        <div class="col-12 alert alert-warning" in:slide out:slide>{warning}</div>
     {/if}
 {/each}

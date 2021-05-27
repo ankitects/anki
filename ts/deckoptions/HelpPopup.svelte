@@ -20,13 +20,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<span bind:this={ref} title={html}>
+<span bind:this={ref} class="badge" title={html}>
     {@html infoCircle}
 </span>
 
 <style>
     span :global(svg) {
-        vertical-align: text-bottom;
+        vertical-align: -0.125rem;
         opacity: 0.3;
     }
 </style>
