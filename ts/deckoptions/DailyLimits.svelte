@@ -3,8 +3,12 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import marked from "marked";
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
+    import ConfigEntry from "./ConfigEntry.svelte";
+    import HelpPopup from "./HelpPopup.svelte";
+    import Warnings from "./Warnings.svelte";
     import SpinBox from "./SpinBox.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -35,21 +39,37 @@
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
-    <SpinBox
-        label={tr.schedulingNewCardsday()}
-        tooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-        min={0}
-        warnings={[newCardsGreaterThanParent]}
-        defaultValue={defaults.newPerDay}
-        bind:value={$config.newPerDay}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.schedulingNewCardsday()}<HelpPopup
+                html={marked(tr.deckConfigNewLimitTooltip() + v3Extra)}
+            />
+        </span>
+        <svelte:fragment slot="right">
+            <SpinBox
+                min={0}
+                defaultValue={defaults.newPerDay}
+                bind:value={$config.newPerDay}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <SpinBox
-        label={tr.schedulingMaximumReviewsday()}
-        tooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-        min={0}
-        warnings={[reviewsTooLow]}
-        defaultValue={defaults.reviewsPerDay}
-        bind:value={$config.reviewsPerDay}
-    />
+    <Warnings warnings={[newCardsGreaterThanParent]} />
+
+    <ConfigEntry>
+        <span slot="left">
+            {tr.schedulingMaximumReviewsday()}<HelpPopup
+                html={marked(tr.deckConfigReviewLimitTooltip() + v3Extra)}
+            />
+        </span>
+        <svelte:fragment slot="right">
+            <SpinBox
+                min={0}
+                defaultValue={defaults.reviewsPerDay}
+                bind:value={$config.reviewsPerDay}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
+
+    <Warnings warnings={[reviewsTooLow]} />
 </TitledContainer>
