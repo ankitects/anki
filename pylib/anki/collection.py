@@ -141,6 +141,7 @@ class Collection:
     # Scheduler
     ##########################################################################
 
+    # for backwards compatibility, v3 is represented as 2
     supportedSchedulerVersions = (1, 2)
 
     def schedVer(self) -> Literal[1, 2]:
@@ -155,7 +156,7 @@ class Collection:
         if ver == 1:
             self.sched = V1Scheduler(self)
         elif ver == 2:
-            if self.is_2021_test_scheduler_enabled():
+            if self.v3_scheduler():
                 self.sched = V3Scheduler(self)
             else:
                 self.sched = V2Scheduler(self)
@@ -165,11 +166,11 @@ class Collection:
         self.clear_python_undo()
         self._loadScheduler()
 
-    def is_2021_test_scheduler_enabled(self) -> bool:
+    def v3_scheduler(self) -> bool:
         return self.get_config_bool(Config.Bool.SCHED_2021)
 
-    def set_2021_test_scheduler_enabled(self, enabled: bool) -> None:
-        if self.is_2021_test_scheduler_enabled() != enabled:
+    def set_v3_scheduler(self, enabled: bool) -> None:
+        if self.v3_scheduler() != enabled:
             if enabled and self.schedVer() != 2:
                 raise Exception("must upgrade to v2 scheduler first")
             self.set_config_bool(Config.Bool.SCHED_2021, enabled)
