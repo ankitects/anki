@@ -27,7 +27,7 @@ def getEmptyCol():
     col = getEmptyColOrig()
     col.upgrade_to_v2_scheduler()
     if is_2021():
-        col.set_2021_test_scheduler_enabled(True)
+        col.set_v3_scheduler(True)
     return col
 
 

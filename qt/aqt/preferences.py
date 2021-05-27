@@ -58,9 +58,9 @@ class Preferences(QDialog):
 
         version = scheduling.scheduler_version
         form.dayLearnFirst.setVisible(version == 2)
-        # fixme: force on for v3
         form.legacy_timezone.setVisible(version >= 2)
         form.newSpread.setVisible(version < 3)
+        form.sched2021.setVisible(version >= 2)
 
         form.lrnCutoff.setValue(int(scheduling.learn_ahead_secs / 60.0))
         form.newSpread.addItems(list(newCardSchedulingLabels(self.mw.col).values()))
@@ -68,6 +68,7 @@ class Preferences(QDialog):
         form.dayLearnFirst.setChecked(scheduling.day_learn_first)
         form.dayOffset.setValue(scheduling.rollover)
         form.legacy_timezone.setChecked(not scheduling.new_timezone)
+        form.sched2021.setChecked(version == 3)
 
         reviewing = self.prefs.reviewing
         form.timeLimit.setValue(int(reviewing.time_limit_secs / 60.0))
@@ -107,6 +108,11 @@ class Preferences(QDialog):
 
         self.mw.col.set_preferences(self.prefs)
         self.mw.apply_collection_options()
+
+        if scheduling.scheduler_version > 1:
+            want_v3 = form.sched2021.isChecked()
+            if self.mw.col.v3_scheduler() != want_v3:
+                self.mw.col.set_v3_scheduler(want_v3)
 
     # Preferences stored in the profile
     ######################################################################

@@ -157,7 +157,7 @@ impl OpChanges {
         let c = &self.changes;
         c.card
             || (c.deck && self.op != Op::ExpandCollapse)
-            || (c.config && matches!(self.op, Op::SetCurrentDeck))
+            || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
             || c.deck_config
             || c.note
             || c.notetype
@@ -173,7 +173,7 @@ impl OpChanges {
 
         c.card
             || (c.deck && self.op != Op::ExpandCollapse)
-            || (c.config && matches!(self.op, Op::SetCurrentDeck))
+            || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
             || c.deck_config
     }
 }
