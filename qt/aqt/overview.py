@@ -10,6 +10,7 @@ from anki.collection import OpChanges
 from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
+from aqt.deckoptions import display_options_for_deck
 from aqt.operations.scheduling import (
     empty_filtered_deck,
     rebuild_filtered_deck,
@@ -93,7 +94,7 @@ class Overview:
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
-            self.mw.onDeckConf()
+            display_options_for_deck(self.mw.col.decks.get_current())
         elif url == "cram":
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw)
         elif url == "refresh":
@@ -116,7 +117,7 @@ class Overview:
 
     def _shortcutKeys(self) -> List[Tuple[str, Callable]]:
         return [
-            ("o", self.mw.onDeckConf),
+            ("o", lambda: display_options_for_deck(self.mw.col.decks.get_current())),
             ("r", self.rebuild_current_filtered_deck),
             ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),

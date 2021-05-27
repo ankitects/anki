@@ -213,3 +213,7 @@ deck-config-reviews-too-low =
 deck-config-learning-step-above-graduating-interval = The graduating interval should be at least as long as your final learning step.
 deck-config-good-above-easy = The easy interval should be at least as long as the graduating interval.
 deck-config-relearning-steps-above-minimum-interval = The minimum lapse interval should be at least as long as your final relearning step.
+
+## Selecting a deck
+
+deck-config-which-deck = Which deck would you like?

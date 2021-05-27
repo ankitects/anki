@@ -23,6 +23,7 @@ from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.deckoptions import confirm_deck_then_display_options
 from aqt.flags import load_flags
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
@@ -953,7 +954,7 @@ time = %(time)d;
             qconnect(a.triggered, func)
 
     def onOptions(self) -> None:
-        self.mw.onDeckConf(self.mw.col.decks.get(self.card.current_deck_id()))
+        confirm_deck_then_display_options(self.card)
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
         def redraw_flag(out: OpChangesWithCount) -> None:
