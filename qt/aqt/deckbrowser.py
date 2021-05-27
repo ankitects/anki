@@ -10,7 +10,6 @@ from typing import Any, Optional
 import aqt
 from anki.collection import OpChanges
 from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
-from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -117,9 +116,6 @@ class DeckBrowser:
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
             openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
-        elif cmd == "v2upgradelater":
-            self._v1_message_dismissed_at = intTime()
-            self.refresh()
         return False
 
     def set_current_deck(self, deck_id: DeckId) -> None:
@@ -355,8 +351,6 @@ class DeckBrowser:
     def _v1_upgrade_message(self) -> str:
         if self.mw.col.schedVer() == 2:
             return ""
-        if (intTime() - self._v1_message_dismissed_at) < 86_400:
-            return ""
 
         return f"""
 <center>
@@ -370,9 +364,6 @@ class DeckBrowser:
       </button>
       <button onclick='pycmd("v2upgradeinfo")'>
         {tr.scheduling_update_more_info_button()}
-      </button>
-      <button onclick='pycmd("v2upgradelater")'>
-        {tr.scheduling_update_later_button()}
       </button>
     </div>
 </div>
