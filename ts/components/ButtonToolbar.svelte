@@ -17,7 +17,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let nowrap = false;
+    export let size: number | undefined = undefined;
+    export let wrap: boolean | undefined = undefined;
+
+    $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
+    let buttonWrap: string;
+    $: if (wrap === undefined) {
+        buttonWrap = "";
+    } else {
+        buttonWrap = wrap ? `--buttons-wrap: wrap; ` : `--buttons-wrap: nowrap; `;
+    }
+
+    $: style = buttonSize + buttonWrap;
 
     function makeRegistration(): ButtonGroupRegistration {
         const detach = writable(false);
@@ -64,8 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class={`btn-toolbar ${className}`}
-    class:flex-nowrap={nowrap}
+    class={`btn-toolbar wrap-variable ${className}`}
+    {style}
     role="toolbar"
 >
     <slot />
@@ -75,3 +86,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonToolbarItem>
     {/each}
 </div>
+
+<style lang="scss">
+    .wrap-variable {
+        flex-wrap: var(--buttons-wrap);
+    }
+</style>

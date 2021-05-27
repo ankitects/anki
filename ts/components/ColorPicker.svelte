@@ -46,8 +46,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @import "ts/sass/bootstrap/variables";
 
     button {
-        width: calc(var(--toolbar-size) - 0px);
-        height: calc(var(--toolbar-size) - 0px);
+        width: calc(var(--buttons-size) - 0px);
+        height: calc(var(--buttons-size) - 0px);
 
         padding: 4px;
         overflow: hidden;
