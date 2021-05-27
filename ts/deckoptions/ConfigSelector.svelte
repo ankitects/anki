@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TextInputModal from "./TextInputModal.svelte";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
+    import SectionItem from "components/SectionItem.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
 
@@ -89,7 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBar>
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
-        <ButtonToolbarItem>
+        <SectionItem>
             <ButtonGroup class="flex-grow-1">
                 <ButtonGroupItem>
                     <SelectButton class="flex-grow-1" on:change={blur}>
@@ -104,15 +104,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SelectButton>
                 </ButtonGroupItem>
             </ButtonGroup>
-        </ButtonToolbarItem>
+        </SectionItem>
 
-        <ButtonToolbarItem>
+        <SectionItem>
             <SaveButton
                 {state}
                 on:add={promptToAdd}
                 on:clone={promptToClone}
                 on:rename={promptToRename}
             />
-        </ButtonToolbarItem>
+        </SectionItem>
     </ButtonToolbar>
 </StickyBar>

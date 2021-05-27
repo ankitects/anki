@@ -5,23 +5,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import Detachable from "components/Detachable.svelte";
 
-    import type { ButtonGroupRegistration } from "./buttons";
-    import type { Register } from "./registration";
+    import type { Register, Registration } from "./registration";
 
     import { getContext, hasContext } from "svelte";
-    import { buttonToolbarKey } from "./contextKeys";
+    import { sectionKey } from "./contextKeys";
 
     export let id: string | undefined = undefined;
-    export let registration: ButtonGroupRegistration | undefined = undefined;
+    export let registration: Registration | undefined = undefined;
 
     let detached: boolean;
 
     if (registration) {
         const { detach } = registration;
         detach.subscribe((value: boolean) => (detached = value));
-    } else if (hasContext(buttonToolbarKey)) {
-        const registerComponent =
-            getContext<Register<ButtonGroupRegistration>>(buttonToolbarKey);
+    } else if (hasContext(sectionKey)) {
+        const registerComponent = getContext<Register<Registration>>(sectionKey);
         const { detach } = registerComponent();
         detach.subscribe((value: boolean) => (detached = value));
     } else {

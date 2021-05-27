@@ -5,12 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import ButtonToolbarItem from "./ButtonToolbarItem.svelte";
-    import type { ButtonGroupRegistration } from "./buttons";
-    import { buttonToolbarKey } from "./contextKeys";
+    import SectionItem from "./SectionItem.svelte";
+    import { sectionKey } from "./contextKeys";
     import type { Identifier } from "./identifier";
     import { insert, add } from "./identifier";
-    import type { SvelteComponent } from "./registration";
+    import type { SvelteComponent, Registration } from "./registration";
     import { makeInterface } from "./registration";
 
     export let id: string | undefined = undefined;
@@ -30,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: style = buttonSize + buttonWrap;
 
-    function makeRegistration(): ButtonGroupRegistration {
+    function makeRegistration(): Registration {
         const detach = writable(false);
         return { detach };
     }
@@ -38,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { registerComponent, dynamicItems, getDynamicInterface } =
         makeInterface(makeRegistration);
 
-    setContext(buttonToolbarKey, registerComponent);
+    setContext(sectionKey, registerComponent);
 
     export let api: Record<string, unknown> | undefined = undefined;
     let buttonToolbarRef: HTMLDivElement;
@@ -81,9 +80,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <slot />
     {#each $dynamicItems as item}
-        <ButtonToolbarItem id={item[0].id} registration={item[1]}>
+        <SectionItem id={item[0].id} registration={item[1]}>
             <svelte:component this={item[0].component} {...item[0].props} />
-        </ButtonToolbarItem>
+        </SectionItem>
     {/each}
 </div>
 

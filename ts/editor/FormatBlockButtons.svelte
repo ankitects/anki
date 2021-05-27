@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import IconButton from "components/IconButton.svelte";
     import ButtonDropdown from "components/ButtonDropdown.svelte";
-    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
+    import SectionItem from "components/SectionItem.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
@@ -71,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </OnlyEditable>
 
             <ButtonDropdown id={menuId}>
-                <ButtonToolbarItem id="justify">
+                <SectionItem id="justify">
                     <ButtonGroup>
                         <ButtonGroupItem>
                             <CommandIconButton
@@ -109,9 +109,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             >
                         </ButtonGroupItem>
                     </ButtonGroup>
-                </ButtonToolbarItem>
+                </SectionItem>
 
-                <ButtonToolbarItem id="indentation">
+                <SectionItem id="indentation">
                     <ButtonGroup>
                         <ButtonGroupItem>
                             <OnlyEditable let:disabled>
@@ -137,7 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             </OnlyEditable>
                         </ButtonGroupItem>
                     </ButtonGroup>
-                </ButtonToolbarItem>
+                </SectionItem>
             </ButtonDropdown>
         </WithDropdownMenu>
     </ButtonGroupItem>
