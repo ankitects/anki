@@ -12,6 +12,7 @@ from anki.collection import OpChanges
 from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
 from anki.utils import intTime
 from aqt import AnkiQt, gui_hooks
+from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
     add_deck_dialog,
@@ -295,10 +296,7 @@ class DeckBrowser:
         ).run_in_background()
 
     def _options(self, did: DeckId) -> None:
-        # select the deck first, because the dyn deck conf assumes the deck
-        # we're editing is the current one
-        self.mw.col.decks.select(did)
-        self.mw.onDeckConf()
+        display_options_for_deck_id(did)
 
     def _collapse(self, did: DeckId) -> None:
         node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
