@@ -150,6 +150,8 @@ class AddCards(QDialog):
                 for n in range(min(len(note.fields), len(old_note.fields))):
                     if flds[n]["sticky"]:
                         note.fields[n] = old_note.fields[n]
+            # and tags
+            note.tags = old_note.tags
         self.setAndFocusNote(note)
 
     def on_operation_did_execute(
