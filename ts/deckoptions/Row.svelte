@@ -6,6 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
 </script>
 
-<div {id} class="row gx-0 gy-1 mt-0">
+<div {id} class="row gx-0 gy-2 mt-0">
     <slot />
 </div>
