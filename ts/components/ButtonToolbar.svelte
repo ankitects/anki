@@ -78,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class={`btn-toolbar wrap-variable ${className}`}
+    class={`btn-toolbar container wrap-variable ${className}`}
     {style}
     role="toolbar"
 >

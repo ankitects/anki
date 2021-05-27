@@ -4,11 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     export let id: string | undefined = undefined;
-    let className: string | undefined;
+    let className: string = "";
     export { className as class };
 </script>
 
-<nav {id} class={`pb-1 pt-1 ${className}`}>
+<nav {id} class={`container-fluid pb-1 pt-1 ${className}`}>
     <slot />
 </nav>
 

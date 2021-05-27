@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div bind:this={sectionRef} {id} class={className}>
+<div bind:this={sectionRef} {id} class={`container mb-1 ${className}`}>
     <slot />
     {#each $dynamicItems as item}
         <SectionItem id={item[0].id} registration={item[1]}>
