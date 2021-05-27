@@ -4,7 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
+    import ConfigEntry from "./ConfigEntry.svelte";
+    import ConfigEntryFull from "./ConfigEntryFull.svelte";
+    import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import CheckBox from "./CheckBox.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -15,20 +19,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigTimerTitle()}>
-    <SpinBox
-        label={tr.deckConfigMaximumAnswerSecs()}
-        tooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
-        min={30}
-        max={600}
-        defaultValue={defaults.capAnswerTimeToSecs}
-        bind:value={$config.capAnswerTimeToSecs}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigMaximumAnswerSecs()}
+            <HelpPopup html={marked(tr.deckConfigMaximumAnswerSecsTooltip())} />
+        </span>
+        <svelte:fragment slot="right">
+            <SpinBox
+                min={30}
+                max={600}
+                defaultValue={defaults.capAnswerTimeToSecs}
+                bind:value={$config.capAnswerTimeToSecs}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <CheckBox
-        id="showAnswerTimer"
-        label={tr.schedulingShowAnswerTimer()}
-        tooltip={tr.deckConfigShowAnswerTimerTooltip()}
-        defaultValue={defaults.showTimer}
-        bind:value={$config.showTimer}
-    />
+    <ConfigEntryFull>
+        <CheckBox defaultValue={defaults.showTimer} bind:value={$config.showTimer}>
+            {tr.schedulingShowAnswerTimer()}
+            <HelpPopup html={marked(tr.deckConfigShowAnswerTimerTooltip())} />
+        </CheckBox>
+    </ConfigEntryFull>
 </TitledContainer>
