@@ -31,7 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         ];
     }
+
+    export const options = {};
 </script>
 
 <ConfigSelector {state} />
-<ConfigEditor {state} />
+<ConfigEditor {state} {options} />

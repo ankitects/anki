@@ -41,15 +41,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorButtons from "./ColorButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
+    export let size = isApplePlatform() ? 1.6 : 2.0;
+    export let wrap = true;
+
     export const toolbar = {};
     export const notetypeButtons = {};
     export const formatInlineButtons = {};
     export const formatBlockButtons = {};
     export const colorButtons = {};
     export const templateButtons = {};
-
-    export let size = isApplePlatform() ? 1.6 : 2.0;
-    export let wrap = true;
 </script>
 
 <StickyBar>

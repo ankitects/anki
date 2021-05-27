@@ -3,6 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import Section from "components/Section.svelte";
+    import SectionItem from "components/SectionItem.svelte";
+
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
@@ -14,20 +17,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let options: Record<string, never> | undefined = undefined;
 </script>
 
-<div class="outer">
-    <DailyLimits {state} />
-    <NewOptions {state} />
-    <LapseOptions {state} />
-    <BuryOptions {state} />
+<Section api={options}>
+    <SectionItem>
+        <DailyLimits {state} />
+    </SectionItem>
+
+    <SectionItem>
+        <NewOptions {state} />
+    </SectionItem>
+    <SectionItem>
+        <LapseOptions {state} />
+    </SectionItem>
+    <SectionItem>
+        <BuryOptions {state} />
+    </SectionItem>
+
     {#if state.v3Scheduler}
-        <DisplayOrder {state} />
+        <SectionItem>
+            <DisplayOrder {state} />
+        </SectionItem>
     {/if}
-    <GeneralOptions {state} />
-    <Addons {state} />
-    <AdvancedOptions {state} />
-</div>
+
+    <SectionItem>
+        <GeneralOptions {state} />
+    </SectionItem>
+    <SectionItem>
+        <Addons {state} />
+    </SectionItem>
+    <SectionItem>
+        <AdvancedOptions {state} />
+    </SectionItem>
+</Section>
 
 <style lang="scss">
     :global(h2) {
@@ -40,9 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-right: 16px;
         margin-bottom: 0.5em;
     }
-    .outer {
-        // the right margin has an indent to allow for the undo
-        // buttons; add the same indent on the left for balance
-        padding-left: 16px;
-    }
+    /* .outer { */
+    /*     // the right margin has an indent to allow for the undo */
+    /*     // buttons; add the same indent on the left for balance */
+    /*     padding-left: 16px; */
+    /* } */
 </style>

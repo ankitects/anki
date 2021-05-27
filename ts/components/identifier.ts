@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 export type Identifier = string | number;
 
-export function find(
+export function findElement(
     collection: HTMLCollection,
     idOrIndex: Identifier
 ): [number, Element] | null {
@@ -34,12 +34,12 @@ export function find(
     return result;
 }
 
-export function insert(
+export function insertElement(
     element: Element,
     collection: Element,
     idOrIndex: Identifier
 ): number {
-    const match = find(collection.children, idOrIndex);
+    const match = findElement(collection.children, idOrIndex);
 
     if (match) {
         const [index, reference] = match;
@@ -51,12 +51,12 @@ export function insert(
     return -1;
 }
 
-export function add(
+export function appendElement(
     element: Element,
     collection: Element,
     idOrIndex: Identifier
 ): number {
-    const match = find(collection.children, idOrIndex);
+    const match = findElement(collection.children, idOrIndex);
 
     if (match) {
         const [index, before] = match;
@@ -69,12 +69,12 @@ export function add(
     return -1;
 }
 
-export function update(
+export function updateElement(
     f: (element: Element) => void,
     collection: Element,
     idOrIndex: Identifier
 ): number {
-    const match = find(collection.children, idOrIndex);
+    const match = findElement(collection.children, idOrIndex);
 
     if (match) {
         const [index, element] = match;

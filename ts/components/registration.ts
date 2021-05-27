@@ -4,7 +4,7 @@ import type { SvelteComponentTyped } from "svelte/internal";
 import type { Writable, Readable } from "svelte/store";
 import { writable } from "svelte/store";
 import type { Identifier } from "./identifier";
-import { find } from "./identifier";
+import { findElement } from "./identifier";
 
 export interface SvelteComponent {
     component: SvelteComponentTyped;
@@ -98,7 +98,7 @@ export function makeInterface<T extends Registration>(
             update: (registration: T) => void,
             position: Identifier
         ): void {
-            const match = find(elementRef.children, position);
+            const match = findElement(elementRef.children, position);
 
             if (match) {
                 const [index] = match;
