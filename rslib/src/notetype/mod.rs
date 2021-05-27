@@ -273,18 +273,21 @@ impl Notetype {
     }
 
     fn ensure_template_fronts_unique(&self) -> Result<()> {
-        for i in 1..self.templates.len() {
-            for j in 0..i {
-                if self.templates[i].config.q_format == self.templates[j].config.q_format {
-                    return Err(AnkiError::TemplateSaveError(TemplateSaveError {
-                        notetype: self.name.clone(),
-                        ordinal: i,
-                        details: TemplateSaveErrorDetails::Duplicate(j + 1),
-                    }));
-                }
-            }
+        let mut map = HashMap::new();
+        if let Some((index_1, index_2)) =
+            self.templates.iter().enumerate().find_map(|(index, card)| {
+                map.insert(&card.config.q_format, index)
+                    .map(|old_index| (old_index, index))
+            })
+        {
+            Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: index_2,
+                details: TemplateSaveErrorDetails::Duplicate(index_1),
+            }))
+        } else {
+            Ok(())
         }
-        Ok(())
     }
 
     fn ensure_cloze_if_and_only_if_cloze_notetype(
