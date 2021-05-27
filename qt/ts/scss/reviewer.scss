@@ -169,54 +169,41 @@ button.disabled {
 
 #editor-controls .inner button {
   margin: 0;
-  display: inline;
+  display: inline-block;
   overflow: hidden;
   line-height: 18px;
+  vertical-align: middle;
 }
 
-#editor-controls .inner button.run {
-  padding-right: 18px;
+#editor-controls .inner button {
   position: relative;
+  top: 0;
+  left: 0;
 }
 
-#editor-controls .inner button.run .icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
+#editor-controls .icon {
+  vertical-align: middle;
+  display: inline-block;
   width: 0;
   height: 0;
-  border-style: solid;
+  margin-left: 1px;
+  margin-top: -1px;
+}
+
+#editor-controls .icon-run {
   border-width: 5px 0 5px 8px;
   border-color: transparent transparent transparent #38c172;
+  border-style: solid;
 }
 
-body.nightMode #editor-controls .inner button.run .icon {
-  top: 7px;
-}
-
-body.nightMode #editor-controls .inner button.stop .icon {
-  top: 8px;
-}
-
-#editor-controls .inner button.stop {
-  padding-right: 18px;
-  position: relative;
-}
-
-#editor-controls .inner button.stop .icon {
-  position: absolute;
-  top: 6px;
-  right: 6px;
+#editor-controls .icon-stop {
   width: 8px;
   height: 8px;
   background-color: #e3342f;
+  border: none;
 }
 
-#editor-controls .inner button.run.disabled .icon {
-  border-color: #a0a0a0;
-}
-
-#editor-controls .inner button.stop.disabled .icon {
+#editor-controls button.disabled .icon-stop {
   background-color: #a0a0a0;
 }
 

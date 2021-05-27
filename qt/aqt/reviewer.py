@@ -422,8 +422,8 @@ class Reviewer:
             <div id="editor-pannel">
                 <div id="editor-controls">
                     <div class="inner">
-                        <button id="start-testing" class="run" onclick="pycmd('run')">Run <div class="icon"></div></button>
-                        <button id="stop-testing" class="stop disabled" onclick="pycmd('stop')" disabled="disabled">Stop <div class="icon"></div></button>
+                        <button id="start-testing" onclick="pycmd('run')">Run <div class="icon icon-run"></div></button>
+                        <button id="stop-testing" class="disabled" onclick="pycmd('stop')" disabled="disabled">Stop <div class="icon icon-stop"></div></button>
                         <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
                         <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
                     </div>

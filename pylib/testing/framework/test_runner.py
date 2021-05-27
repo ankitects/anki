@@ -26,6 +26,7 @@ import pathlib
 
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
+isLin = sys.platform.startswith("linux")
 
 ERROR_LINE_OUTPUT_LIMIT = 100
 
@@ -49,9 +50,11 @@ def get_resource_path():
     Returns the Resource's base path, depending on the current OS
     :return: the path of the Resources folder in the system
     """
+    if not isMac and not isWin and not isLin:
+        raise OSError('Unsupported OS')
     if isMac and 'RESOURCEPATH' in os.environ:
         result = os.environ['RESOURCEPATH']
-    elif isWin and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    elif (isWin or isLin) and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         result = sys._MEIPASS
     else:
         result = os.path.join(pathlib.Path(__file__).parents[3], 'testing')
