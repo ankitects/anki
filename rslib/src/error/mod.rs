@@ -66,7 +66,9 @@ impl AnkiError {
                     tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
                 let details = match err.details {
                     TemplateSaveErrorDetails::TemplateError => tr.card_templates_see_preview(),
-                    TemplateSaveErrorDetails::Duplicate(i) => tr.card_templates_identical_front(i),
+                    TemplateSaveErrorDetails::Duplicate(i) => {
+                        tr.card_templates_identical_front(i + 1)
+                    }
                     TemplateSaveErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
                     TemplateSaveErrorDetails::ExtraneousCloze => {
                         tr.card_templates_extraneous_cloze()
