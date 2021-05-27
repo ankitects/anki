@@ -67,6 +67,10 @@ impl AnkiError {
                 let details = match err.details {
                     TemplateSaveErrorDetails::TemplateError => tr.card_templates_see_preview(),
                     TemplateSaveErrorDetails::Duplicate(i) => tr.card_templates_identical_front(i),
+                    TemplateSaveErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
+                    TemplateSaveErrorDetails::ExtraneousCloze => {
+                        tr.card_templates_extraneous_cloze()
+                    }
                 };
                 format!("{}<br>{}", header, details)
             }
@@ -146,6 +150,8 @@ pub struct TemplateSaveError {
 
 #[derive(Debug, PartialEq)]
 pub enum TemplateSaveErrorDetails {
-    Duplicate(usize),
     TemplateError,
+    Duplicate(usize),
+    MissingCloze,
+    ExtraneousCloze,
 }
