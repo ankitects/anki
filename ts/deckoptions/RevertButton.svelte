@@ -48,16 +48,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-{#if modified}
-    <span
-        bind:this={ref}
-        class="badge"
-        title={tr.deckConfigRevertButtonTooltip()}
-        on:click={revert}
-    >
-        {@html revertIcon}
-    </span>
-{/if}
+<span
+    bind:this={ref}
+    class="badge"
+    class:invisible={!modified}
+    title={tr.deckConfigRevertButtonTooltip()}
+    on:click={revert}
+>
+    {@html revertIcon}
+</span>
 
 <style lang="scss">
     span :global(svg) {

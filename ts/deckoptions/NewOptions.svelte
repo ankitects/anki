@@ -4,7 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
+    import ConfigEntry from "./ConfigEntry.svelte";
+    import Warnings from "./Warnings.svelte";
+    import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import StepsInput from "./StepsInput.svelte";
     import EnumSelector from "./EnumSelector.svelte";
@@ -37,35 +41,65 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingNewCards()}>
-    <StepsInput
-        label={tr.deckConfigLearningSteps()}
-        tooltip={tr.deckConfigLearningStepsTooltip()}
-        defaultValue={defaults.learnSteps}
-        value={$config.learnSteps}
-        on:changed={(evt) => ($config.learnSteps = evt.detail.value)}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.deckConfigLearningSteps()}<HelpPopup
+                html={marked(tr.deckConfigLearningStepsTooltip())}
+            />
+        </span>
+        <svelte:fragment slot="right">
+            <StepsInput
+                defaultValue={defaults.learnSteps}
+                value={$config.learnSteps}
+                on:changed={(evt) => ($config.learnSteps = evt.detail.value)}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <SpinBox
-        label={tr.schedulingGraduatingInterval()}
-        tooltip={tr.deckConfigGraduatingIntervalTooltip()}
-        warnings={[stepsExceedGraduatingInterval]}
-        defaultValue={defaults.graduatingIntervalGood}
-        bind:value={$config.graduatingIntervalGood}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.schedulingGraduatingInterval()}<HelpPopup
+                html={marked(tr.deckConfigGraduatingIntervalTooltip())}
+            />
+        </span>
+        <svelte:fragment slot="right">
+            <SpinBox
+                defaultValue={defaults.graduatingIntervalGood}
+                bind:value={$config.graduatingIntervalGood}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 
-    <SpinBox
-        label={tr.schedulingEasyInterval()}
-        tooltip={tr.deckConfigEasyIntervalTooltip()}
-        warnings={[goodExceedsEasy]}
-        defaultValue={defaults.graduatingIntervalEasy}
-        bind:value={$config.graduatingIntervalEasy}
-    />
+    <Warnings warnings={[stepsExceedGraduatingInterval]} />
 
-    <EnumSelector
-        label={tr.deckConfigNewInsertionOrder()}
-        tooltip={tr.deckConfigNewInsertionOrderTooltip()}
-        choices={newInsertOrderChoices}
-        defaultValue={defaults.newCardInsertOrder}
-        bind:value={$config.newCardInsertOrder}
-    />
+    <ConfigEntry>
+        <span slot="left">
+            {tr.schedulingEasyInterval()}<HelpPopup
+                html={marked(tr.deckConfigEasyIntervalTooltip())}
+            />
+        </span>
+        <svelte:fragment slot="right">
+            <SpinBox
+                defaultValue={defaults.graduatingIntervalEasy}
+                bind:value={$config.graduatingIntervalEasy}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
+
+    <Warnings warnings={[goodExceedsEasy]} />
+
+    <ConfigEntry wrap={true}>
+        <span slot="left">
+            {tr.deckConfigNewInsertionOrder()}<HelpPopup
+                html={marked(tr.deckConfigNewInsertionOrderTooltip())}
+            />
+        </span>
+        <svelte:fragment slot="right">
+            <EnumSelector
+                choices={newInsertOrderChoices}
+                defaultValue={defaults.newCardInsertOrder}
+                bind:value={$config.newCardInsertOrder}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 </TitledContainer>
