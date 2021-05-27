@@ -26,11 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {label}{#if renderedTooltip}<HelpPopup html={renderedTooltip} />{/if}
     </div>
 
-    <div class="col-3">
+    <div class="col-sm-4 d-flex align-items-center">
         <slot />
-    </div>
-
-    <div class="col-1 d-flex align-items-center">
         <RevertButton bind:value {defaultValue} on:revert />
     </div>
 </div>
