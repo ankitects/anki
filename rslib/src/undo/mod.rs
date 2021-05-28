@@ -9,7 +9,6 @@ pub(crate) use changes::UndoableChange;
 
 pub use crate::ops::Op;
 use crate::{
-    collection::undo::UndoableCollectionChange,
     ops::{OpChanges, StateChanges},
     prelude::*,
 };
@@ -25,16 +24,9 @@ pub(crate) struct UndoableOp {
 }
 
 impl UndoableOp {
-    /// True if changes empty, or only the collection mtime has changed.
-    /// Always true in the case of custom steps.
+    /// True if changes non-empty, or a custom undo step.
     fn has_changes(&self) -> bool {
-        matches!(self.kind, Op::Custom(_))
-            || !matches!(
-                &self.changes[..],
-                &[] | &[UndoableChange::Collection(
-                    UndoableCollectionChange::Modified(_)
-                )]
-            )
+        !self.changes.is_empty() || matches!(self.kind, Op::Custom(_))
     }
 }
 
@@ -262,9 +254,14 @@ impl Collection {
     }
 
     /// Forget any recorded changes in the current transaction, allowing
-    /// a minor change like a config update to bypass undo.
-    pub(crate) fn clear_current_undo_step_changes(&mut self) {
-        self.state.undo.clear_current_changes()
+    /// a minor change like a config update to bypass undo. Bumps mtime if
+    /// there were pending changes.
+    pub(crate) fn clear_current_undo_step_changes(&mut self) -> Result<()> {
+        if self.current_undo_step_has_changes() {
+            self.set_modified()?;
+        }
+        self.state.undo.clear_current_changes();
+        Ok(())
     }
 
     pub(crate) fn current_undo_op(&self) -> Option<&UndoableOp> {
@@ -273,6 +270,18 @@ impl Collection {
 
     pub(crate) fn previous_undo_op(&self) -> Option<&UndoableOp> {
         self.state.undo.previous_op()
+    }
+
+    pub(crate) fn undoing_or_redoing(&self) -> bool {
+        self.state.undo.mode != UndoMode::NormalOp
+    }
+
+    pub(crate) fn current_undo_step_has_changes(&self) -> bool {
+        self.state
+            .undo
+            .current_op()
+            .map(|op| op.has_changes())
+            .unwrap_or_default()
     }
 
     /// Used for coalescing successive note updates.
@@ -317,6 +326,9 @@ impl Collection {
 impl From<&[UndoableChange]> for StateChanges {
     fn from(changes: &[UndoableChange]) -> Self {
         let mut out = StateChanges::default();
+        if !changes.is_empty() {
+            out.mtime = true;
+        }
         for change in changes {
             match change {
                 UndoableChange::Card(_) => out.card = true,
@@ -508,6 +520,44 @@ mod test {
         assert_eq!(col.storage.get_card(card.id)?.unwrap().due, 30);
         col.undo()?;
         assert_eq!(col.storage.get_card(card.id)?.unwrap().due, 10);
+
+        Ok(())
+    }
+
+    #[test]
+    fn undo_mtime_bump() -> Result<()> {
+        let mut col = open_test_collection();
+        let mtime = col.storage.get_collection_timestamps()?.collection_change;
+
+        // a no-op change should not bump mtime
+        let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, true, true)?;
+        assert_eq!(
+            mtime,
+            col.storage.get_collection_timestamps()?.collection_change
+        );
+        assert_eq!(out.changes.had_change(), false);
+
+        // if there is an undoable step, mtime should change
+        let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, false, true)?;
+        let new_mtime = col.storage.get_collection_timestamps()?.collection_change;
+        assert_ne!(mtime, new_mtime);
+        assert_eq!(out.changes.had_change(), true);
+
+        // when skipping undo, mtime should still only be bumped on a change
+        let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, false, false)?;
+        assert_eq!(
+            new_mtime,
+            col.storage.get_collection_timestamps()?.collection_change
+        );
+        assert_eq!(out.changes.had_change(), false);
+
+        // op output won't reflect changes were made
+        let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, true, false)?;
+        assert_ne!(
+            new_mtime,
+            col.storage.get_collection_timestamps()?.collection_change
+        );
+        assert_eq!(out.changes.had_change(), false);
 
         Ok(())
     }

@@ -96,6 +96,7 @@ pub struct StateChanges {
     pub notetype: bool,
     pub config: bool,
     pub deck_config: bool,
+    pub mtime: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -125,7 +126,7 @@ impl OpChanges {
     #[cfg(test)]
     pub fn had_change(&self) -> bool {
         let c = &self.changes;
-        c.card || c.config || c.deck || c.deck_config || c.note || c.notetype || c.tag
+        c.card || c.config || c.deck || c.deck_config || c.note || c.notetype || c.tag || c.mtime
     }
     // These routines should return true even if the GUI may have
     // special handling for an action, since we need to do the right

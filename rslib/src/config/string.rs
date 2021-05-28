@@ -32,7 +32,7 @@ impl Collection {
         self.transact(Op::UpdateConfig, |col| {
             col.set_config_string_inner(key, val)?;
             if !undoable {
-                col.clear_current_undo_step_changes();
+                col.clear_current_undo_step_changes()?;
             }
             Ok(())
         })
