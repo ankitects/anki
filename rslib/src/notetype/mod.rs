@@ -11,8 +11,10 @@ mod stock;
 mod templates;
 pub(crate) mod undo;
 
+use lazy_static::lazy_static;
 use std::{
     collections::{HashMap, HashSet},
+    iter::FromIterator,
     sync::Arc,
 };
 
@@ -48,16 +50,18 @@ define_newtype!(NotetypeId, i64);
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
-/// New entries must be handled in render.rs/add_special_fields().
-pub(crate) const SPECIAL_FIELDS: [&str; 7] = [
-    "FrontSide",
-    "Card",
-    "CardFlag",
-    "Deck",
-    "Subdeck",
-    "Tags",
-    "Type",
-];
+lazy_static! {
+    /// New entries must be handled in render.rs/add_special_fields().
+    static ref SPECIAL_FIELDS: HashSet<&'static str> = HashSet::from_iter(vec![
+        "FrontSide",
+        "Card",
+        "CardFlag",
+        "Deck",
+        "Subdeck",
+        "Tags",
+        "Type",
+    ]);
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Notetype {
