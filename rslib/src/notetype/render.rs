@@ -129,7 +129,9 @@ impl Collection {
         })
     }
 
-    // Add special fields if they don't clobber note fields
+    /// Add special fields if they don't clobber note fields.
+    /// The fields supported here must coincide with SPECIAL_FIELDS in
+    /// notetype/mod.rs, apart from FrontSide which is handled by Python.
     fn add_special_fields(
         &mut self,
         map: &mut HashMap<&str, Cow<str>>,
