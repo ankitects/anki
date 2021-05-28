@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBox from "./SpinBox.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import StepsInput from "./StepsInput.svelte";
+    import RevertButton from "./RevertButton.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -41,9 +42,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </span>
         <svelte:fragment slot="right">
             <StepsInput
-                defaultValue={defaults.relearnSteps}
                 value={$config.relearnSteps}
                 on:changed={(evt) => ($config.relearnSteps = evt.detail.value)}
+            />
+            <RevertButton
+                defaultValue={defaults.relearnSteps}
+                value={$config.relearnSteps}
             />
         </svelte:fragment>
     </ConfigEntry>
@@ -55,8 +59,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </span>
         <svelte:fragment slot="right">
-            <SpinBox
-                min={1}
+            <SpinBox min={1} bind:value={$config.minimumLapseInterval} />
+            <RevertButton
                 defaultValue={defaults.minimumLapseInterval}
                 bind:value={$config.minimumLapseInterval}
             />
@@ -72,8 +76,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </span>
         <svelte:fragment slot="right">
-            <SpinBox
-                min={1}
+            <SpinBox min={1} bind:value={$config.leechThreshold} />
+            <RevertButton
                 defaultValue={defaults.leechThreshold}
                 bind:value={$config.leechThreshold}
             />
@@ -87,8 +91,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </span>
         <svelte:fragment slot="right">
-            <EnumSelector
-                choices={leechChoices}
+            <EnumSelector choices={leechChoices} bind:value={$config.leechAction} />
+            <RevertButton
                 defaultValue={defaults.leechAction}
                 bind:value={$config.leechAction}
             />

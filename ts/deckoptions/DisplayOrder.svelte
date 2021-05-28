@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ConfigEntry from "./ConfigEntry.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import EnumSelector from "./EnumSelector.svelte";
+    import RevertButton from "./RevertButton.svelte";
 
     import type { DeckOptionsState } from "./lib";
     import { reviewMixChoices } from "./strings";
@@ -48,6 +49,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <svelte:fragment slot="right">
             <EnumSelector
                 choices={newGatherPriorityChoices}
+                bind:value={$config.newCardGatherPriority}
+            />
+            <RevertButton
                 defaultValue={defaults.newCardGatherPriority}
                 bind:value={$config.newCardGatherPriority}
             />
@@ -62,6 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <svelte:fragment slot="right">
             <EnumSelector
                 choices={newSortOrderChoices}
+                bind:value={$config.newCardSortOrder}
+            />
+            <RevertButton
                 defaultValue={defaults.newCardSortOrder}
                 bind:value={$config.newCardSortOrder}
             />
@@ -74,11 +81,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HelpPopup html={marked(tr.deckConfigNewReviewPriorityTooltip())} />
         </span>
         <svelte:fragment slot="right">
-            <EnumSelector
-                choices={reviewMixChoices()}
-                defaultValue={defaults.newMix}
-                bind:value={$config.newMix}
-            />
+            <EnumSelector choices={reviewMixChoices()} bind:value={$config.newMix} />
+            <RevertButton defaultValue={defaults.newMix} bind:value={$config.newMix} />
         </svelte:fragment>
     </ConfigEntry>
 
@@ -90,6 +94,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <svelte:fragment slot="right">
             <EnumSelector
                 choices={reviewMixChoices()}
+                bind:value={$config.interdayLearningMix}
+            />
+            <RevertButton
                 defaultValue={defaults.interdayLearningMix}
                 bind:value={$config.interdayLearningMix}
             />
@@ -104,6 +111,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <svelte:fragment slot="right">
             <EnumSelector
                 choices={reviewOrderChoices}
+                bind:value={$config.reviewOrder}
+            />
+            <RevertButton
                 defaultValue={defaults.reviewOrder}
                 bind:value={$config.reviewOrder}
             />
