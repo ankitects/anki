@@ -290,6 +290,63 @@ impl Notetype {
         }
     }
 
+    /// Ensure no templates are None, every front template contains at least one
+    /// field, and all used field names belong to a field of this notetype.
+    fn ensure_valid_parsed_templates(
+        &self,
+        templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+    ) -> Result<()> {
+        if let Some((invalid_index, details)) =
+            templates.iter().enumerate().find_map(|(index, sides)| {
+                if let (Some(q), Some(a)) = sides {
+                    let q_fields = q.fields();
+                    if q_fields.is_empty() {
+                        Some((index, TemplateSaveErrorDetails::NoFrontField))
+                    } else if self.unknown_field_name(q_fields.union(&a.fields())) {
+                        Some((index, TemplateSaveErrorDetails::NoSuchField))
+                    } else {
+                        None
+                    }
+                } else {
+                    Some((index, TemplateSaveErrorDetails::TemplateError))
+                }
+            })
+        {
+            Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: invalid_index,
+                details,
+            }))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// True if any name in names does not belong to a field of this notetype.
+    fn unknown_field_name<T, I>(&self, names: T) -> bool
+    where
+        T: IntoIterator<Item = I>,
+        I: AsRef<str>,
+    {
+        let special_fields = [
+            "FrontSide",
+            "Card",
+            "CardFlag",
+            "Deck",
+            "Subdeck",
+            "Tags",
+            "Type",
+        ];
+        names.into_iter().any(|name| {
+            !special_fields.contains(&name.as_ref())
+                && self
+                    .fields
+                    .iter()
+                    .map(|field| &field.name)
+                    .all(|field_name| field_name != name.as_ref())
+        })
+    }
+
     fn ensure_cloze_if_and_only_if_cloze_notetype(
         &self,
         parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
@@ -354,37 +411,21 @@ impl Notetype {
         self.fix_template_names()?;
         self.ensure_names_unique();
         self.reposition_sort_idx();
-        self.ensure_template_fronts_unique()?;
 
-        let parsed_templates = self.parsed_templates();
-        let invalid_card_idx = parsed_templates
-            .iter()
-            .enumerate()
-            .find_map(|(idx, (q, a))| {
-                if q.is_none() || a.is_none() {
-                    Some(idx)
-                } else {
-                    None
-                }
-            });
-        if let Some(idx) = invalid_card_idx {
-            return Err(AnkiError::TemplateSaveError(TemplateSaveError {
-                notetype: self.name.clone(),
-                ordinal: idx,
-                details: TemplateSaveErrorDetails::TemplateError,
-            }));
-        }
-        self.ensure_cloze_if_and_only_if_cloze_notetype(&parsed_templates)?;
+        let mut parsed_templates = self.parsed_templates();
         let reqs = self.updated_requirements(&parsed_templates);
 
         // handle renamed+deleted fields
         if let Some(existing) = existing {
             let fields = self.renamed_and_removed_fields(existing);
             if !fields.is_empty() {
-                self.update_templates_for_renamed_and_removed_fields(fields, parsed_templates);
+                self.update_templates_for_renamed_and_removed_fields(fields, &mut parsed_templates);
             }
         }
         self.config.reqs = reqs;
+        self.ensure_template_fronts_unique()?;
+        self.ensure_valid_parsed_templates(&parsed_templates)?;
+        self.ensure_cloze_if_and_only_if_cloze_notetype(&parsed_templates)?;
 
         Ok(())
     }
@@ -422,16 +463,16 @@ impl Notetype {
     fn update_templates_for_renamed_and_removed_fields(
         &mut self,
         fields: HashMap<String, Option<String>>,
-        parsed: Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)>,
+        parsed: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) {
-        for (idx, (q, a)) in parsed.into_iter().enumerate() {
-            if let Some(q) = q {
-                let updated = q.rename_and_remove_fields(&fields);
-                self.templates[idx].config.q_format = updated.template_to_string();
+        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+            if let Some(q) = q_opt {
+                q.rename_and_remove_fields(&fields);
+                self.templates[idx].config.q_format = q.template_to_string();
             }
-            if let Some(a) = a {
-                let updated = a.rename_and_remove_fields(&fields);
-                self.templates[idx].config.a_format = updated.template_to_string();
+            if let Some(a) = a_opt {
+                a.rename_and_remove_fields(&fields);
+                self.templates[idx].config.a_format = a.template_to_string();
             }
         }
     }

@@ -65,7 +65,9 @@ impl AnkiError {
                 let header =
                     tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
                 let details = match err.details {
-                    TemplateSaveErrorDetails::TemplateError => tr.card_templates_see_preview(),
+                    TemplateSaveErrorDetails::TemplateError
+                    | TemplateSaveErrorDetails::NoSuchField => tr.card_templates_see_preview(),
+                    TemplateSaveErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
                     TemplateSaveErrorDetails::Duplicate(i) => {
                         tr.card_templates_identical_front(i + 1)
                     }
@@ -154,6 +156,8 @@ pub struct TemplateSaveError {
 pub enum TemplateSaveErrorDetails {
     TemplateError,
     Duplicate(usize),
+    NoFrontField,
+    NoSuchField,
     MissingCloze,
     ExtraneousCloze,
 }
