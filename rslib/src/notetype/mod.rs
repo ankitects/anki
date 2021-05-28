@@ -48,6 +48,16 @@ define_newtype!(NotetypeId, i64);
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
+/// New entries must be handled in render.rs/add_special_fields().
+pub(crate) const SPECIAL_FIELDS: [&str; 7] = [
+    "FrontSide",
+    "Card",
+    "CardFlag",
+    "Deck",
+    "Subdeck",
+    "Tags",
+    "Type",
+];
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Notetype {
@@ -322,25 +332,17 @@ impl Notetype {
         }
     }
 
-    /// True if any name in names does not belong to a field of this notetype.
+    /// True if any non-empty name in names does not denote a special field or
+    /// a field of this notetype.
     fn unknown_field_name<T, I>(&self, names: T) -> bool
     where
         T: IntoIterator<Item = I>,
         I: AsRef<str>,
     {
-        let special_fields = [
-            "FrontSide",
-            "Card",
-            "CardFlag",
-            "Deck",
-            "Subdeck",
-            "Tags",
-            "Type",
-        ];
         names.into_iter().any(|name| {
             // The empty field name is allowed as it may be used by add-ons.
             !name.as_ref().is_empty()
-                && !special_fields.contains(&name.as_ref())
+                && !SPECIAL_FIELDS.contains(&name.as_ref())
                 && self.fields.iter().all(|field| field.name != name.as_ref())
         })
     }
