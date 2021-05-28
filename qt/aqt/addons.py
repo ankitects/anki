@@ -1160,9 +1160,8 @@ class ChooseAddonsToUpdateList(QListWidget):
         qconnect(self.customContextMenuRequested, self.on_context_menu)
 
     def setup(self) -> None:
-        header_item = QListWidgetItem("", self)
+        header_item = QListWidgetItem(tr.addons_choose_update_update_all(), self)
         header_item.setFlags(Qt.ItemFlag(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
-        header_item.setBackground(Qt.lightGray)
         self.header_item = header_item
         for update_info in self.updated_addons:
             addon_id = update_info.id
