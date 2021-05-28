@@ -79,7 +79,7 @@ impl Collection {
         self.transact(Op::UpdateConfig, |col| {
             col.set_config(key, &value)?;
             if !undoable {
-                col.clear_current_undo_step_changes();
+                col.clear_current_undo_step_changes()?;
             }
             Ok(())
         })

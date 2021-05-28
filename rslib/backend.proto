@@ -1571,6 +1571,7 @@ message OpChanges {
   bool notetype = 5;
   bool config = 6;
   bool deck_config = 11;
+  bool mtime = 12;
 
   bool browser_table = 7;
   bool browser_sidebar = 8;

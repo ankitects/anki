@@ -13,18 +13,22 @@ impl Collection {
         self.storage.begin_rust_trx()?;
         self.begin_undoable_operation(op);
 
-        let mut res = func(self);
-
-        if res.is_ok() {
-            if let Err(e) = self.set_modified() {
-                res = Err(e);
-            } else if let Err(e) = self.storage.commit_rust_trx() {
-                res = Err(e);
-            }
-        }
-
-        match res {
-            Ok(output) => {
+        func(self)
+            // any changes mean an mtime bump
+            .and_then(|out| {
+                if !have_op || (self.current_undo_step_has_changes() && !self.undoing_or_redoing())
+                {
+                    self.set_modified()?;
+                }
+                Ok(out)
+            })
+            // then commit
+            .and_then(|out| {
+                self.storage.commit_rust_trx()?;
+                Ok(out)
+            })
+            // finalize undo step
+            .map(|output| {
                 let changes = if have_op {
                     let changes = self.op_changes();
                     self.maybe_clear_study_queues_after_op(&changes);
@@ -32,22 +36,21 @@ impl Collection {
                     changes
                 } else {
                     self.clear_study_queues();
-                    // dummy value, not used by transact_no_undo(). only required
-                    // until we can migrate all the code to undoable ops
+                    // dummy value for transact_no_undo() case
                     OpChanges {
                         op: Op::SetFlag,
                         changes: StateChanges::default(),
                     }
                 };
                 self.end_undoable_operation();
-                Ok(OpOutput { output, changes })
-            }
-            Err(err) => {
+                OpOutput { output, changes }
+            })
+            // roll back on error
+            .or_else(|err| {
                 self.discard_undo_and_study_queues();
                 self.storage.rollback_rust_trx()?;
                 Err(err)
-            }
-        }
+            })
     }
 
     /// Execute the provided closure in a transaction, rolling back if

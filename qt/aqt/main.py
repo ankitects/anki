@@ -738,6 +738,9 @@ class AnkiQt(QMainWindow):
         if not focused and dirty:
             self.fade_out_webview()
 
+        if changes.mtime:
+            self.toolbar.update_sync_status()
+
     def on_focus_did_change(
         self, new_focus: Optional[QWidget], _old: Optional[QWidget]
     ) -> None:
