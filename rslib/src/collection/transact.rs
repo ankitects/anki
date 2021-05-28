@@ -14,21 +14,15 @@ impl Collection {
         self.begin_undoable_operation(op);
 
         func(self)
-            // any changes mean an mtime bump
-            .and_then(|out| {
+            .and_then(|output| {
+                // any changes mean an mtime bump
                 if !have_op || (self.current_undo_step_has_changes() && !self.undoing_or_redoing())
                 {
                     self.set_modified()?;
                 }
-                Ok(out)
-            })
-            // then commit
-            .and_then(|out| {
+                // then commit
                 self.storage.commit_rust_trx()?;
-                Ok(out)
-            })
-            // finalize undo step
-            .map(|output| {
+                // finalize undo
                 let changes = if have_op {
                     let changes = self.op_changes();
                     self.maybe_clear_study_queues_after_op(&changes);
@@ -43,7 +37,7 @@ impl Collection {
                     }
                 };
                 self.end_undoable_operation();
-                OpOutput { output, changes }
+                Ok(OpOutput { output, changes })
             })
             // roll back on error
             .or_else(|err| {
