@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
     import ConfigEntry from "./ConfigEntry.svelte";
-    import ConfigEntryFull from "./ConfigEntryFull.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import CheckBox from "./CheckBox.svelte";
@@ -34,14 +33,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </svelte:fragment>
     </ConfigEntry>
 
-    <ConfigEntryFull>
-        <CheckBox bind:value={$config.showTimer}>
-            {tr.schedulingShowAnswerTimer()}
-            <HelpPopup html={marked(tr.deckConfigShowAnswerTimerTooltip())} />
-        </CheckBox>
-        <RevertButton
-            defaultValue={defaults.showTimer}
-            bind:value={$config.showTimer}
-        />
-    </ConfigEntryFull>
+    <ConfigEntry>
+        <svelte:fragment slot="left">
+            <CheckBox bind:value={$config.showTimer}>
+                {tr.schedulingShowAnswerTimer()}
+                <HelpPopup html={marked(tr.deckConfigShowAnswerTimerTooltip())} />
+            </CheckBox>
+        </svelte:fragment>
+        <svelte:fragment slot="right">
+            <RevertButton
+                defaultValue={defaults.showTimer}
+                bind:value={$config.showTimer}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 </TitledContainer>

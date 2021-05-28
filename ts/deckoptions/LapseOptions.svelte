@@ -40,11 +40,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 html={marked(tr.deckConfigRelearningStepsTooltip())}
             />
         </span>
-        <svelte:fragment slot="right">
+        <svelte:fragment slot="center">
             <StepsInput
                 value={$config.relearnSteps}
                 on:changed={(evt) => ($config.relearnSteps = evt.detail.value)}
             />
+        </svelte:fragment>
+        <svelte:fragment slot="right">
             <RevertButton
                 defaultValue={defaults.relearnSteps}
                 value={$config.relearnSteps}
@@ -75,8 +77,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 html={marked(tr.deckConfigLeechThresholdTooltip())}
             />
         </span>
-        <svelte:fragment slot="right">
+        <svelte:fragment slot="center">
             <SpinBox min={1} bind:value={$config.leechThreshold} />
+        </svelte:fragment>
+        <svelte:fragment slot="right">
             <RevertButton
                 defaultValue={defaults.leechThreshold}
                 bind:value={$config.leechThreshold}
@@ -84,14 +88,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </svelte:fragment>
     </ConfigEntry>
 
-    <ConfigEntry wrap={true}>
+    <ConfigEntry>
         <span slot="left">
             {tr.schedulingLeechAction()}<HelpPopup
                 html={marked(tr.deckConfigLeechActionTooltip())}
             />
         </span>
-        <svelte:fragment slot="right">
+        <svelte:fragment slot="center">
             <EnumSelector choices={leechChoices} bind:value={$config.leechAction} />
+        </svelte:fragment>
+        <svelte:fragment slot="right">
             <RevertButton
                 defaultValue={defaults.leechAction}
                 bind:value={$config.leechAction}

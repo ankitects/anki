@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntryFull from "./ConfigEntryFull.svelte";
+    import ConfigEntry from "./ConfigEntry.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
@@ -18,26 +18,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigAudioTitle()}>
-    <ConfigEntryFull>
-        <CheckBox bind:value={$config.disableAutoplay}>
-            {tr.deckConfigDisableAutoplay()}
-        </CheckBox>
-        <RevertButton
-            defaultValue={defaults.disableAutoplay}
-            bind:value={$config.disableAutoplay}
-        />
-    </ConfigEntryFull>
-
-    <ConfigEntryFull>
-        <CheckBox bind:value={$config.skipQuestionWhenReplayingAnswer}>
-            {tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
-            <HelpPopup
-                html={marked(tr.deckConfigAlwaysIncludeQuestionAudioTooltip())}
+    <ConfigEntry>
+        <svelte:fragment slot="left">
+            <CheckBox bind:value={$config.disableAutoplay}>
+                {tr.deckConfigDisableAutoplay()}
+            </CheckBox>
+        </svelte:fragment>
+        <svelte:fragment slot="right">
+            <RevertButton
+                defaultValue={defaults.disableAutoplay}
+                bind:value={$config.disableAutoplay}
             />
-        </CheckBox>
-        <RevertButton
-            defaultValue={defaults.skipQuestionWhenReplayingAnswer}
-            bind:value={$config.skipQuestionWhenReplayingAnswer}
-        />
-    </ConfigEntryFull>
+        </svelte:fragment>
+    </ConfigEntry>
+
+    <ConfigEntry>
+        <svelte:fragment slot="left">
+            <CheckBox bind:value={$config.skipQuestionWhenReplayingAnswer}>
+                {tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
+                <HelpPopup
+                    html={marked(tr.deckConfigAlwaysIncludeQuestionAudioTooltip())}
+                />
+            </CheckBox>
+        </svelte:fragment>
+        <svelte:fragment slot="right">
+            <RevertButton
+                defaultValue={defaults.skipQuestionWhenReplayingAnswer}
+                bind:value={$config.skipQuestionWhenReplayingAnswer}
+            />
+        </svelte:fragment>
+    </ConfigEntry>
 </TitledContainer>
