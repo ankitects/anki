@@ -338,12 +338,10 @@ impl Notetype {
             "Type",
         ];
         names.into_iter().any(|name| {
-            !special_fields.contains(&name.as_ref())
-                && self
-                    .fields
-                    .iter()
-                    .map(|field| &field.name)
-                    .all(|field_name| field_name != name.as_ref())
+            // The empty field name is allowed as it may be used by add-ons.
+            !name.as_ref().is_empty()
+                && !special_fields.contains(&name.as_ref())
+                && self.fields.iter().all(|field| field.name != name.as_ref())
         })
     }
 
