@@ -6,7 +6,13 @@ from enum import Enum, auto
 from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import aqt
-from anki.collection import Config, OpChanges, SearchJoiner, SearchNode
+from anki.collection import (
+    Config,
+    OpChanges,
+    OpChangesWithCount,
+    SearchJoiner,
+    SearchNode,
+)
 from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
 from anki.models import NotetypeId
 from anki.notes import Note
@@ -36,7 +42,15 @@ from aqt.operations.tag import (
 )
 from aqt.qt import *
 from aqt.theme import ColoredIcon, theme_manager
-from aqt.utils import KeyboardModifiersPressed, askUser, getOnlyText, showWarning, tr
+from aqt.utils import (
+    KeyboardModifiersPressed,
+    askUser,
+    getOnlyText,
+    showInfo,
+    showWarning,
+    tooltip,
+    tr,
+)
 
 
 class SidebarStage(Enum):
@@ -922,19 +936,27 @@ class SidebarTreeView(QTreeView):
         if not new_name or new_name == item.name:
             return
 
-        new_name_base = new_name
+        old_name = item.name
+        old_full_name = item.full_name
+        new_full_name = item.name_prefix + new_name
 
-        old_name = item.full_name
-        new_name = item.name_prefix + new_name
+        item.name = new_name
+        item.full_name = new_full_name
 
-        item.name = new_name_base
-        item.full_name = new_name
+        def success(out: OpChangesWithCount) -> None:
+            if out.count:
+                tooltip(tr.browsing_notes_updated(count=out.count), parent=self)
+            else:
+                # revert renaming of sidebar item
+                item.full_name = old_full_name
+                item.name = old_name
+                showInfo(tr.browsing_tag_rename_warning_empty(), parent=self)
 
         rename_tag(
             parent=self.browser,
-            current_name=old_name,
-            new_name=new_name,
-        ).run_in_background()
+            current_name=old_full_name,
+            new_name=new_full_name,
+        ).success(success).run_in_background()
 
     # Saved searches
     ####################################
