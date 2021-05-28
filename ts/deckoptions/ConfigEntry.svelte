@@ -10,11 +10,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Row {id}>
-    <div class="col-7 d-flex align-items-center">
-        <slot name="left" />
-    </div>
+    {#if $$slots.center}
+        <div class="col-7 d-flex align-items-center">
+            <slot name="left" />
+        </div>
 
-    <div class:col-5={!wrap} class:col-sm-5={wrap} class="d-flex align-items-center">
+        <div class="col-4 d-flex align-items-center">
+            <slot name="center" />
+        </div>
+    {:else}
+        <div class="col-11 d-flex align-items-center">
+            <slot name="left" />
+        </div>
+    {/if}
+
+    <div class="col-1 d-flex align-items-center">
         <slot name="right" />
     </div>
 </Row>
