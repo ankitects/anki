@@ -527,35 +527,38 @@ mod test {
     #[test]
     fn undo_mtime_bump() -> Result<()> {
         let mut col = open_test_collection();
-        let mtime = col.storage.get_collection_timestamps()?.collection_change;
+        col.storage.db.execute_batch("update col set mod = 0")?;
 
         // a no-op change should not bump mtime
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, true, true)?;
         assert_eq!(
-            mtime,
-            col.storage.get_collection_timestamps()?.collection_change
+            col.storage.get_collection_timestamps()?.collection_change.0,
+            0
         );
         assert_eq!(out.changes.had_change(), false);
 
         // if there is an undoable step, mtime should change
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, false, true)?;
-        let new_mtime = col.storage.get_collection_timestamps()?.collection_change;
-        assert_ne!(mtime, new_mtime);
+        assert_ne!(
+            col.storage.get_collection_timestamps()?.collection_change.0,
+            0
+        );
         assert_eq!(out.changes.had_change(), true);
 
         // when skipping undo, mtime should still only be bumped on a change
+        col.storage.db.execute_batch("update col set mod = 0")?;
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, false, false)?;
         assert_eq!(
-            new_mtime,
-            col.storage.get_collection_timestamps()?.collection_change
+            col.storage.get_collection_timestamps()?.collection_change.0,
+            0
         );
         assert_eq!(out.changes.had_change(), false);
 
         // op output won't reflect changes were made
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, true, false)?;
         assert_ne!(
-            new_mtime,
-            col.storage.get_collection_timestamps()?.collection_change
+            col.storage.get_collection_timestamps()?.collection_change.0,
+            0
         );
         assert_eq!(out.changes.had_change(), false);
 
