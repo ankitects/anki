@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBox from "./SpinBox.svelte";
     import StepsInput from "./StepsInput.svelte";
     import EnumSelector from "./EnumSelector.svelte";
+    import RevertButton from "./RevertButton.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -48,10 +49,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </span>
         <svelte:fragment slot="right">
-            <StepsInput
+            <StepsInput bind:value={$config.learnSteps} />
+            <RevertButton
                 defaultValue={defaults.learnSteps}
-                value={$config.learnSteps}
-                on:changed={(evt) => ($config.learnSteps = evt.detail.value)}
+                bind:value={$config.learnSteps}
             />
         </svelte:fragment>
     </ConfigEntry>
@@ -63,7 +64,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </span>
         <svelte:fragment slot="right">
-            <SpinBox
+            <SpinBox bind:value={$config.graduatingIntervalGood} />
+            <RevertButton
                 defaultValue={defaults.graduatingIntervalGood}
                 bind:value={$config.graduatingIntervalGood}
             />
@@ -79,7 +81,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </span>
         <svelte:fragment slot="right">
-            <SpinBox
+            <SpinBox bind:value={$config.graduatingIntervalEasy} />
+            <RevertButton
                 defaultValue={defaults.graduatingIntervalEasy}
                 bind:value={$config.graduatingIntervalEasy}
             />
@@ -97,6 +100,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <svelte:fragment slot="right">
             <EnumSelector
                 choices={newInsertOrderChoices}
+                bind:value={$config.newCardInsertOrder}
+            />
+            <RevertButton
                 defaultValue={defaults.newCardInsertOrder}
                 bind:value={$config.newCardInsertOrder}
             />

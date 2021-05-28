@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import SpinBoxFloat from "./SpinBoxFloat.svelte";
+    import RevertButton from "./RevertButton.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -27,6 +28,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBox
                 min={1}
                 max={365 * 100}
+                bind:value={$config.maximumReviewInterval}
+            />
+            <RevertButton
                 defaultValue={defaults.maximumReviewInterval}
                 bind:value={$config.maximumReviewInterval}
             />
@@ -39,12 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HelpPopup html={marked(tr.deckConfigStartingEaseTooltip())} />
         </span>
         <svelte:fragment slot="right">
-            <SpinBoxFloat
-                min={1.31}
-                max={5}
+            <SpinBoxFloat min={1.31} max={5} bind:value={$config.initialEase} />
+            <RevertButton
                 defaultValue={defaults.initialEase}
-                value={$config.initialEase}
-                on:changed={(evt) => ($config.initialEase = evt.detail.value)}
+                bind:value={$config.initialEase}
             />
         </svelte:fragment>
     </ConfigEntry>
@@ -55,12 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HelpPopup html={marked(tr.deckConfigEasyBonusTooltip())} />
         </span>
         <svelte:fragment slot="right">
-            <SpinBoxFloat
-                min={1}
-                max={3}
+            <SpinBoxFloat min={1} max={3} bind:value={$config.easyMultiplier} />
+            <RevertButton
                 defaultValue={defaults.easyMultiplier}
-                value={$config.easyMultiplier}
-                on:changed={(evt) => ($config.easyMultiplier = evt.detail.value)}
+                bind:value={$config.easyMultiplier}
             />
         </svelte:fragment>
     </ConfigEntry>
@@ -71,12 +71,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HelpPopup html={marked(tr.deckConfigIntervalModifierTooltip())} />
         </span>
         <svelte:fragment slot="right">
-            <SpinBoxFloat
-                min={0.5}
-                max={2}
+            <SpinBoxFloat min={0.5} max={2} bind:value={$config.intervalMultiplier} />
+            <RevertButton
                 defaultValue={defaults.intervalMultiplier}
-                value={$config.intervalMultiplier}
-                on:changed={(evt) => ($config.intervalMultiplier = evt.detail.value)}
+                bind:value={$config.intervalMultiplier}
             />
         </svelte:fragment>
     </ConfigEntry>
@@ -87,12 +85,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HelpPopup html={marked(tr.deckConfigHardIntervalTooltip())} />
         </span>
         <svelte:fragment slot="right">
-            <SpinBoxFloat
-                min={0.5}
-                max={1.3}
+            <SpinBoxFloat min={0.5} max={1.3} bind:value={$config.hardMultiplier} />
+            <RevertButton
                 defaultValue={defaults.hardMultiplier}
-                value={$config.hardMultiplier}
-                on:changed={(evt) => ($config.hardMultiplier = evt.detail.value)}
+                bind:value={$config.hardMultiplier}
             />
         </svelte:fragment>
     </ConfigEntry>
@@ -100,15 +96,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ConfigEntry>
         <span slot="left">
             {tr.schedulingNewInterval()}
-            <HelpPopup html={tr.deckConfigNewIntervalTooltip()} />
+            <HelpPopup html={marked(tr.deckConfigNewIntervalTooltip())} />
         </span>
         <svelte:fragment slot="right">
-            <SpinBoxFloat
-                min={0}
-                max={1}
+            <SpinBoxFloat min={0} max={1} bind:value={$config.lapseMultiplier} />
+            <RevertButton
                 defaultValue={defaults.lapseMultiplier}
-                value={$config.lapseMultiplier}
-                on:changed={(evt) => ($config.lapseMultiplier = evt.detail.value)}
+                bind:value={$config.lapseMultiplier}
             />
         </svelte:fragment>
     </ConfigEntry>

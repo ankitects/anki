@@ -20,7 +20,8 @@
     @include bootstrap-dark.night-mode;
 }
 
-.form-control, .form-select{
+.form-control,
+.form-select {
     line-height: 1;
     // the unprefixed version wasn't added until Chrome 81
     -webkit-appearance: none;

@@ -10,6 +10,7 @@
     import HelpPopup from "./HelpPopup.svelte";
     import Warnings from "./Warnings.svelte";
     import SpinBox from "./SpinBox.svelte";
+    import RevertButton from "./RevertButton.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -46,8 +47,8 @@
             />
         </span>
         <svelte:fragment slot="right">
-            <SpinBox
-                min={0}
+            <SpinBox min={0} bind:value={$config.newPerDay} />
+            <RevertButton
                 defaultValue={defaults.newPerDay}
                 bind:value={$config.newPerDay}
             />
@@ -63,8 +64,8 @@
             />
         </span>
         <svelte:fragment slot="right">
-            <SpinBox
-                min={0}
+            <SpinBox min={0} bind:value={$config.reviewsPerDay} />
+            <RevertButton
                 defaultValue={defaults.reviewsPerDay}
                 bind:value={$config.reviewsPerDay}
             />
