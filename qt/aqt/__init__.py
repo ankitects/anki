@@ -34,11 +34,11 @@ except AttributeError:
     pass
 
 appVersion = _version
-appWebsite = "https://apps.ankiweb.net/"
-appChanges = "https://apps.ankiweb.net/docs/changes.html"
-appDonate = "https://apps.ankiweb.net/support/"
-appShared = "https://ankiweb.net/shared/"
-appUpdate = "https://ankiweb.net/update/desktop"
+appWebsite = "https://ankicode.app/"
+appChanges = "https://ankicode.app/"
+appDonate = "https://ankicode.app/"
+appShared = "https://ankicode.app/"
+appUpdate = "https://ankicode.app/"
 appHelpSite = HELP_SITE
 
 from aqt.main import AnkiQt  # isort:skip
