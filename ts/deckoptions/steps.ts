@@ -38,7 +38,7 @@ function minutesToString(step: number): string {
     if ([TimespanUnit.Months, TimespanUnit.Years].includes(unit)) {
         unit = TimespanUnit.Days;
     }
-    const amount = unitAmount(unit, secs);
+    const amount = Math.round(unitAmount(unit, secs));
 
     return `${amount}${unitSuffix(unit)}`;
 }

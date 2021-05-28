@@ -9,11 +9,17 @@ test("whole steps", () => {
     expect(stepsToString(steps)).toBe(string);
     expect(stringToSteps(string)).toStrictEqual(steps);
 });
+
 test("fractional steps", () => {
     const steps = [1 / 60, 5 / 60, 1.5, 400];
     const string = "1s 5s 90s 400m";
     expect(stepsToString(steps)).toBe(string);
     expect(stringToSteps(string)).toStrictEqual(steps);
+});
+
+test("rounding", () => {
+    const steps = [0.1666666716337204];
+    expect(stepsToString(steps)).toBe("10s");
 });
 
 test("parsing", () => {
