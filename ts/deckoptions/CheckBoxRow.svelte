@@ -7,22 +7,24 @@
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
-    import SpinBox from "./SpinBox.svelte";
+    import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: any;
-    export let defaultValue: any;
-    export let min = 0;
-    export let max: number | undefined = undefined;
-    export let markdownTooltip: string;
+    export let value: boolean;
+    export let defaultValue: boolean;
+    export let markdownTooltip: string | undefined = undefined;
 </script>
 
 <Row>
-    <Col size={7}>
-        <slot /><HelpPopup html={marked(markdownTooltip)} />
+    <Col>
+        <CheckBox bind:value
+            ><slot />
+            {#if markdownTooltip}<HelpPopup
+                    html={marked(markdownTooltip)}
+                />{/if}</CheckBox
+        >
     </Col>
-    <Col size={5}>
-        <SpinBox bind:value {min} {max} />
+    <Col grow={false}>
         <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

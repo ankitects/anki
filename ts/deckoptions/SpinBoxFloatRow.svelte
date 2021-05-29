@@ -7,7 +7,7 @@
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
-    import SpinBox from "./SpinBox.svelte";
+    import SpinBoxFloat from "./SpinBoxFloat.svelte";
     import RevertButton from "./RevertButton.svelte";
 
     export let value: any;
@@ -22,7 +22,7 @@
         <slot /><HelpPopup html={marked(markdownTooltip)} />
     </Col>
     <Col size={5}>
-        <SpinBox bind:value {min} {max} />
+        <SpinBoxFloat bind:value {min} {max} />
         <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>
