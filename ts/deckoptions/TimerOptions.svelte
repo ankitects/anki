@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Row from "./Row.svelte";
+    import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import CheckBox from "./CheckBox.svelte";
@@ -19,32 +20,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigTimerTitle()}>
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigMaximumAnswerSecs()}
             <HelpPopup html={marked(tr.deckConfigMaximumAnswerSecsTooltip())} />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <SpinBox min={30} max={600} bind:value={$config.capAnswerTimeToSecs} />
             <RevertButton
                 defaultValue={defaults.capAnswerTimeToSecs}
                 bind:value={$config.capAnswerTimeToSecs}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <svelte:fragment slot="left">
+    <Row>
+        <Col>
             <CheckBox bind:value={$config.showTimer}>
                 {tr.schedulingShowAnswerTimer()}
                 <HelpPopup html={marked(tr.deckConfigShowAnswerTimerTooltip())} />
             </CheckBox>
-        </svelte:fragment>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col grow={false}>
             <RevertButton
                 defaultValue={defaults.showTimer}
                 bind:value={$config.showTimer}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 </TitledContainer>

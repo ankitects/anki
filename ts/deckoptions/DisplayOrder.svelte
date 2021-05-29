@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Row from "./Row.svelte";
+    import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import RevertButton from "./RevertButton.svelte";
@@ -41,12 +42,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigOrderingTitle()}>
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigNewGatherPriority()}
             <HelpPopup html={marked(tr.deckConfigNewGatherPriorityTooltip())} />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <EnumSelector
                 choices={newGatherPriorityChoices}
                 bind:value={$config.newCardGatherPriority}
@@ -55,15 +56,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.newCardGatherPriority}
                 bind:value={$config.newCardGatherPriority}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigNewCardSortOrder()}
             <HelpPopup html={marked(tr.deckConfigNewCardSortOrderTooltip())} />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <EnumSelector
                 choices={newSortOrderChoices}
                 bind:value={$config.newCardSortOrder}
@@ -72,26 +73,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.newCardSortOrder}
                 bind:value={$config.newCardSortOrder}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigNewReviewPriority()}
             <HelpPopup html={marked(tr.deckConfigNewReviewPriorityTooltip())} />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <EnumSelector choices={reviewMixChoices()} bind:value={$config.newMix} />
             <RevertButton defaultValue={defaults.newMix} bind:value={$config.newMix} />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigInterdayStepPriority()}
             <HelpPopup html={marked(tr.deckConfigInterdayStepPriorityTooltip())} />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <EnumSelector
                 choices={reviewMixChoices()}
                 bind:value={$config.interdayLearningMix}
@@ -100,15 +101,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.interdayLearningMix}
                 bind:value={$config.interdayLearningMix}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigReviewSortOrder()}
             <HelpPopup html={marked(tr.deckConfigReviewSortOrderTooltip())} />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <EnumSelector
                 choices={reviewOrderChoices}
                 bind:value={$config.reviewOrder}
@@ -117,6 +118,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.reviewOrder}
                 bind:value={$config.reviewOrder}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 </TitledContainer>>

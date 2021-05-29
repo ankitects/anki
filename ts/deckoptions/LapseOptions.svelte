@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Row from "./Row.svelte";
+    import Col from "./Col.svelte";
     import Warnings from "./Warnings.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
@@ -34,74 +35,65 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingLapses()}>
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigRelearningSteps()}<HelpPopup
                 html={marked(tr.deckConfigRelearningStepsTooltip())}
             />
-        </span>
-        <svelte:fragment slot="center">
-            <StepsInput
-                value={$config.relearnSteps}
-                on:changed={(evt) => ($config.relearnSteps = evt.detail.value)}
-            />
-        </svelte:fragment>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col breakpoint={$config.relearnSteps.length > 2 ? "sm" : undefined} size={5}>
+            <StepsInput bind:value={$config.relearnSteps} />
             <RevertButton
                 defaultValue={defaults.relearnSteps}
                 value={$config.relearnSteps}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingMinimumInterval()}<HelpPopup
                 html={marked(tr.deckConfigMinimumIntervalTooltip())}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <SpinBox min={1} bind:value={$config.minimumLapseInterval} />
             <RevertButton
                 defaultValue={defaults.minimumLapseInterval}
                 bind:value={$config.minimumLapseInterval}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
     <Warnings warnings={[stepsExceedMinimumInterval]} />
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingLeechThreshold()}<HelpPopup
                 html={marked(tr.deckConfigLeechThresholdTooltip())}
             />
-        </span>
-        <svelte:fragment slot="center">
+        </Col>
+        <Col size={5}>
             <SpinBox min={1} bind:value={$config.leechThreshold} />
-        </svelte:fragment>
-        <svelte:fragment slot="right">
             <RevertButton
                 defaultValue={defaults.leechThreshold}
                 bind:value={$config.leechThreshold}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingLeechAction()}<HelpPopup
                 html={marked(tr.deckConfigLeechActionTooltip())}
             />
-        </span>
-        <svelte:fragment slot="center">
+        </Col>
+        <Col size={5}>
             <EnumSelector choices={leechChoices} bind:value={$config.leechAction} />
-        </svelte:fragment>
-        <svelte:fragment slot="right">
             <RevertButton
                 defaultValue={defaults.leechAction}
                 bind:value={$config.leechAction}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 </TitledContainer>

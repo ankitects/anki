@@ -6,7 +6,8 @@
     import marked from "marked";
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Row from "./Row.svelte";
+    import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import Warnings from "./Warnings.svelte";
     import SpinBox from "./SpinBox.svelte";
@@ -40,37 +41,37 @@
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingNewCardsday()}<HelpPopup
                 html={marked(tr.deckConfigNewLimitTooltip() + v3Extra)}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <SpinBox min={0} bind:value={$config.newPerDay} />
             <RevertButton
                 defaultValue={defaults.newPerDay}
                 bind:value={$config.newPerDay}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
     <Warnings warnings={[newCardsGreaterThanParent]} />
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingMaximumReviewsday()}<HelpPopup
                 html={marked(tr.deckConfigReviewLimitTooltip() + v3Extra)}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <SpinBox min={0} bind:value={$config.reviewsPerDay} />
             <RevertButton
                 defaultValue={defaults.reviewsPerDay}
                 bind:value={$config.reviewsPerDay}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
     <Warnings warnings={[reviewsTooLow]} />
 </TitledContainer>

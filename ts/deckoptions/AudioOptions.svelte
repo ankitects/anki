@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Row from "./Row.svelte";
+    import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
@@ -18,34 +19,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigAudioTitle()}>
-    <ConfigEntry>
-        <svelte:fragment slot="left">
+    <Row>
+        <Col>
             <CheckBox bind:value={$config.disableAutoplay}>
                 {tr.deckConfigDisableAutoplay()}
             </CheckBox>
-        </svelte:fragment>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col grow={false}>
             <RevertButton
                 defaultValue={defaults.disableAutoplay}
                 bind:value={$config.disableAutoplay}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <svelte:fragment slot="left">
+    <Row>
+        <Col>
             <CheckBox bind:value={$config.skipQuestionWhenReplayingAnswer}>
                 {tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
                 <HelpPopup
                     html={marked(tr.deckConfigAlwaysIncludeQuestionAudioTooltip())}
                 />
             </CheckBox>
-        </svelte:fragment>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col grow={false}>
             <RevertButton
                 defaultValue={defaults.skipQuestionWhenReplayingAnswer}
                 bind:value={$config.skipQuestionWhenReplayingAnswer}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 </TitledContainer>
