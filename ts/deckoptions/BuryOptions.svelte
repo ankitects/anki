@@ -4,48 +4,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import Col from "./Col.svelte";
-    import Row from "./Row.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
-    import CheckBox from "./CheckBox.svelte";
-    import RevertButton from "./RevertButton.svelte";
+    import CheckBoxRow from "./CheckBoxRow.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let api: Record<string, never>;
+
     let config = state.currentConfig;
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigBuryTitle()}>
-    <Row>
-        <Col>
-            <CheckBox bind:value={$config.buryNew}>
-                {tr.deckConfigBuryNewSiblings()}
-                <HelpPopup html={marked(tr.deckConfigBuryTooltip())} />
-            </CheckBox>
-        </Col>
-        <Col grow={false}>
-            <RevertButton
-                defaultValue={defaults.buryNew}
-                bind:value={$config.buryNew}
-            />
-        </Col>
-    </Row>
+<TitledContainer title={tr.deckConfigBuryTitle()} {api}>
+    <CheckBoxRow
+        bind:value={$config.buryNew}
+        defaultValue={defaults.buryNew}
+        markdownTooltip={tr.deckConfigBuryTitle()}
+    >
+        {tr.deckConfigBuryNewSiblings()}
+    </CheckBoxRow>
 
-    <Row>
-        <Col>
-            <CheckBox bind:value={$config.buryReviews}>
-                {tr.deckConfigBuryReviewSiblings()}
-                <HelpPopup html={marked(tr.deckConfigBuryTooltip())} />
-            </CheckBox>
-        </Col>
-        <Col grow={false}>
-            <RevertButton
-                defaultValue={defaults.buryReviews}
-                bind:value={$config.buryReviews}
-            />
-        </Col>
-    </Row>
+    <CheckBoxRow
+        bind:value={$config.buryReviews}
+        defaultValue={defaults.buryReviews}
+        markdownTooltip={tr.deckConfigBuryTooltip()}
+    >
+        {tr.deckConfigBuryReviewSiblings()}
+    </CheckBoxRow>
 </TitledContainer>

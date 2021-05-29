@@ -11,6 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { reviewMixChoices } from "./strings";
 
     export let state: DeckOptionsState;
+    export let api: Record<string, never>;
+
     let config = state.currentConfig;
     let defaults = state.defaults;
 
@@ -36,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 </script>
 
-<TitledContainer title={tr.deckConfigOrderingTitle()}>
+<TitledContainer title={tr.deckConfigOrderingTitle()} {api}>
     <EnumSelectorRow
         bind:value={$config.newCardGatherPriority}
         defaultValue={defaults.newCardGatherPriority}

@@ -12,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let api = {};
+
     let config = state.currentConfig;
     let defaults = state.defaults;
 
@@ -37,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 </script>
 
-<TitledContainer title={tr.schedulingNewCards()}>
+<TitledContainer title={tr.schedulingNewCards()} {api}>
     <StepsInputRow
         bind:value={$config.learnSteps}
         defaultValue={defaults.learnSteps}

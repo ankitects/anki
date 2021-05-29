@@ -4,7 +4,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
-    import ConfigEditor from "./ConfigEditor.svelte";
+    import Container from "components/Container.svelte";
+    import SectionItem from "components/SectionItem.svelte";
+    import DailyLimits from "./DailyLimits.svelte";
+    import DisplayOrder from "./DisplayOrder.svelte";
+    import NewOptions from "./NewOptions.svelte";
+    import AdvancedOptions from "./AdvancedOptions.svelte";
+    import BuryOptions from "./BuryOptions.svelte";
+    import LapseOptions from "./LapseOptions.svelte";
+    import TimerOptions from "./TimerOptions.svelte";
+    import AudioOptions from "./AudioOptions.svelte";
+    import Addons from "./Addons.svelte";
+
     import type { DeckOptionsState } from "./lib";
     import type { Writable } from "svelte/store";
     import HtmlAddon from "./HtmlAddon.svelte";
@@ -33,7 +44,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export const options = {};
+    export const dailyLimits = {};
+    export const newOptions = {};
+    export const lapseOptions = {};
+    export const buryOptions = {};
+    export const displayOrder = {};
+    export const timerOptions = {};
+    export const audioOptions = {};
+    export const addonOptions = {};
+    export const advancedOptions = {};
 </script>
 
 <ConfigSelector {state} />
-<ConfigEditor {state} {options} />
+
+<Container api={options}>
+    <SectionItem>
+        <DailyLimits {state} api={dailyLimits} />
+    </SectionItem>
+
+    <SectionItem>
+        <NewOptions {state} api={newOptions} />
+    </SectionItem>
+    <SectionItem>
+        <LapseOptions {state} api={lapseOptions} />
+    </SectionItem>
+    <SectionItem>
+        <BuryOptions {state} api={buryOptions} />
+    </SectionItem>
+
+    {#if state.v3Scheduler}
+        <SectionItem>
+            <DisplayOrder {state} api={displayOrder} />
+        </SectionItem>
+    {/if}
+
+    <SectionItem>
+        <TimerOptions {state} api={timerOptions} />
+    </SectionItem>
+    <SectionItem>
+        <AudioOptions {state} api={audioOptions} />
+    </SectionItem>
+    <SectionItem>
+        <Addons {state} api={addonOptions} />
+    </SectionItem>
+    <SectionItem>
+        <AdvancedOptions {state} api={advancedOptions} />
+    </SectionItem>
+</Container>
