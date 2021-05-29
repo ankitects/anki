@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
+    import Item from "components/Item.svelte";
     import CheckBoxRow from "./CheckBoxRow.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -16,19 +17,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigBuryTitle()} {api}>
-    <CheckBoxRow
-        bind:value={$config.buryNew}
-        defaultValue={defaults.buryNew}
-        markdownTooltip={tr.deckConfigBuryTitle()}
-    >
-        {tr.deckConfigBuryNewSiblings()}
-    </CheckBoxRow>
+    <Item>
+        <CheckBoxRow
+            bind:value={$config.buryNew}
+            defaultValue={defaults.buryNew}
+            markdownTooltip={tr.deckConfigBuryTitle()}
+        >
+            {tr.deckConfigBuryNewSiblings()}
+        </CheckBoxRow>
+    </Item>
 
-    <CheckBoxRow
-        bind:value={$config.buryReviews}
-        defaultValue={defaults.buryReviews}
-        markdownTooltip={tr.deckConfigBuryTooltip()}
-    >
-        {tr.deckConfigBuryReviewSiblings()}
-    </CheckBoxRow>
+    <Item>
+        <CheckBoxRow
+            bind:value={$config.buryReviews}
+            defaultValue={defaults.buryReviews}
+            markdownTooltip={tr.deckConfigBuryTooltip()}
+        >
+            {tr.deckConfigBuryReviewSiblings()}
+        </CheckBoxRow>
+    </Item>
 </TitledContainer>

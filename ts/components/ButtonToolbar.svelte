@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import SectionItem from "./SectionItem.svelte";
+    import Item from "./Item.svelte";
     import { sectionKey } from "./contextKeys";
     import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
@@ -84,9 +84,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <slot />
     {#each $dynamicItems as item}
-        <SectionItem id={item[0].id} registration={item[1]}>
+        <Item id={item[0].id} registration={item[1]}>
             <svelte:component this={item[0].component} {...item[0].props} />
-        </SectionItem>
+        </Item>
     {/each}
 </div>
 

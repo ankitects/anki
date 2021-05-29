@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
     import Container from "components/Container.svelte";
-    import SectionItem from "components/SectionItem.svelte";
+    import Item from "components/Item.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
@@ -58,36 +58,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ConfigSelector {state} />
 
 <Container api={options}>
-    <SectionItem>
+    <Item>
         <DailyLimits {state} api={dailyLimits} />
-    </SectionItem>
+    </Item>
 
-    <SectionItem>
+    <Item>
         <NewOptions {state} api={newOptions} />
-    </SectionItem>
-    <SectionItem>
+    </Item>
+    <Item>
         <LapseOptions {state} api={lapseOptions} />
-    </SectionItem>
-    <SectionItem>
+    </Item>
+    <Item>
         <BuryOptions {state} api={buryOptions} />
-    </SectionItem>
+    </Item>
 
     {#if state.v3Scheduler}
-        <SectionItem>
+        <Item>
             <DisplayOrder {state} api={displayOrder} />
-        </SectionItem>
+        </Item>
     {/if}
 
-    <SectionItem>
+    <Item>
         <TimerOptions {state} api={timerOptions} />
-    </SectionItem>
-    <SectionItem>
+    </Item>
+    <Item>
         <AudioOptions {state} api={audioOptions} />
-    </SectionItem>
-    <SectionItem>
+    </Item>
+    <Item>
         <Addons {state} api={addonOptions} />
-    </SectionItem>
-    <SectionItem>
+    </Item>
+    <Item>
         <AdvancedOptions {state} api={advancedOptions} />
-    </SectionItem>
+    </Item>
 </Container>

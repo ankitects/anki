@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
+    import Item from "components/Item.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
@@ -32,41 +33,49 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingLapses()} {api}>
-    <StepsInputRow
-        bind:value={$config.relearnSteps}
-        defaultValue={defaults.relearnSteps}
-        markdownTooltip={tr.deckConfigRelearningStepsTooltip()}
-    >
-        {tr.deckConfigRelearningSteps()}
-    </StepsInputRow>
+    <Item>
+        <StepsInputRow
+            bind:value={$config.relearnSteps}
+            defaultValue={defaults.relearnSteps}
+            markdownTooltip={tr.deckConfigRelearningStepsTooltip()}
+        >
+            {tr.deckConfigRelearningSteps()}
+        </StepsInputRow>
+    </Item>
 
-    <SpinBoxRow
-        bind:value={$config.minimumLapseInterval}
-        defaultValue={defaults.minimumLapseInterval}
-        min={1}
-        markdownTooltip={tr.deckConfigMinimumIntervalTooltip()}
-    >
-        {tr.schedulingMinimumInterval()}
-    </SpinBoxRow>
+    <Item>
+        <SpinBoxRow
+            bind:value={$config.minimumLapseInterval}
+            defaultValue={defaults.minimumLapseInterval}
+            min={1}
+            markdownTooltip={tr.deckConfigMinimumIntervalTooltip()}
+        >
+            {tr.schedulingMinimumInterval()}
+        </SpinBoxRow>
 
-    <Warning warning={stepsExceedMinimumInterval} />
+        <Warning warning={stepsExceedMinimumInterval} />
+    </Item>
 
-    <SpinBoxRow
-        bind:value={$config.leechThreshold}
-        defaultValue={defaults.leechThreshold}
-        min={1}
-        markdownTooltip={tr.deckConfigLeechThresholdTooltip()}
-    >
-        {tr.schedulingLeechThreshold()}
-    </SpinBoxRow>
+    <Item>
+        <SpinBoxRow
+            bind:value={$config.leechThreshold}
+            defaultValue={defaults.leechThreshold}
+            min={1}
+            markdownTooltip={tr.deckConfigLeechThresholdTooltip()}
+        >
+            {tr.schedulingLeechThreshold()}
+        </SpinBoxRow>
+    </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.leechAction}
-        defaultValue={defaults.leechAction}
-        choices={leechChoices}
-        breakpoint="sm"
-        markdownTooltip={tr.deckConfigLeechActionTooltip()}
-    >
-        {tr.schedulingLeechAction()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.leechAction}
+            defaultValue={defaults.leechAction}
+            choices={leechChoices}
+            breakpoint="sm"
+            markdownTooltip={tr.deckConfigLeechActionTooltip()}
+        >
+            {tr.schedulingLeechAction()}
+        </EnumSelectorRow>
+    </Item>
 </TitledContainer>
