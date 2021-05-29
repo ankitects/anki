@@ -11,7 +11,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import TextInputModal from "./TextInputModal.svelte";
     import StickyBar from "components/StickyBar.svelte";
-    import WithTheming from "components/WithTheming.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
@@ -89,33 +88,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <StickyBar>
-    <WithTheming style="--toolbar-size: 2.3rem; --toolbar-wrap: nowrap">
-        <ButtonToolbar class="justify-content-between">
-            <ButtonToolbarItem>
-                <ButtonGroup class="flex-grow-1">
-                    <ButtonGroupItem>
-                        <SelectButton class="flex-grow-1" on:change={blur}>
-                            {#each $configList as entry}
-                                <SelectOption
-                                    value={String(entry.idx)}
-                                    selected={entry.current}
-                                >
-                                    {configLabel(entry)}
-                                </SelectOption>
-                            {/each}
-                        </SelectButton>
-                    </ButtonGroupItem>
-                </ButtonGroup>
-            </ButtonToolbarItem>
+    <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
+        <ButtonToolbarItem>
+            <ButtonGroup class="flex-grow-1">
+                <ButtonGroupItem>
+                    <SelectButton class="flex-grow-1" on:change={blur}>
+                        {#each $configList as entry}
+                            <SelectOption
+                                value={String(entry.idx)}
+                                selected={entry.current}
+                            >
+                                {configLabel(entry)}
+                            </SelectOption>
+                        {/each}
+                    </SelectButton>
+                </ButtonGroupItem>
+            </ButtonGroup>
+        </ButtonToolbarItem>
 
-            <ButtonToolbarItem>
-                <SaveButton
-                    {state}
-                    on:add={promptToAdd}
-                    on:clone={promptToClone}
-                    on:rename={promptToRename}
-                />
-            </ButtonToolbarItem>
-        </ButtonToolbar>
-    </WithTheming>
+        <ButtonToolbarItem>
+            <SaveButton
+                {state}
+                on:add={promptToAdd}
+                on:clone={promptToClone}
+                on:rename={promptToRename}
+            />
+        </ButtonToolbarItem>
+    </ButtonToolbar>
 </StickyBar>

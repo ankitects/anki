@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext } from "svelte";
     import { dropdownKey } from "./contextKeys";
 
-    import WithTheming from "./WithTheming.svelte";
     import ButtonToolbar from "./ButtonToolbar.svelte";
 
     export let id: string;
@@ -18,22 +17,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(dropdownKey, null);
 </script>
 
-<WithTheming style="--toolbar-wrap: nowrap; ">
-    <ButtonToolbar
-        {id}
-        class={`dropdown-menu btn-dropdown-menu ${className}`}
-        nowrap={true}
-        {api}
-    >
-        <slot />
-    </ButtonToolbar>
-</WithTheming>
+<ButtonToolbar
+    {id}
+    class={`dropdown-menu btn-dropdown-menu ${className}`}
+    wrap={false}
+    {api}
+>
+    <slot />
+</ButtonToolbar>
 
 <style lang="scss">
     :global(.dropdown-menu.btn-dropdown-menu) {
         display: none;
         min-width: 0;
-        padding: calc(var(--toolbar-size) / 10) 0;
+        padding: calc(var(--buttons-size) / 10) 0;
 
         background-color: var(--window-bg);
         border-color: var(--medium-border);

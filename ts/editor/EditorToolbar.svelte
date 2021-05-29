@@ -30,7 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import WithTheming from "components/WithTheming.svelte";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
@@ -48,36 +47,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const colorButtons = {};
     export const templateButtons = {};
 
-    export let size: number = 2;
-    export let wraps: boolean = true;
-
-    $: style = `--toolbar-size: ${size}rem; --toolbar-wrap: ${
-        wraps ? "wrap" : "nowrap"
-    }`;
+    export let size = 2;
+    export let wrap = true;
 </script>
 
-<WithTheming {style}>
-    <StickyBar>
-        <ButtonToolbar api={toolbar}>
-            <ButtonToolbarItem id="notetype">
-                <NoteTypeButtons api={notetypeButtons} />
-            </ButtonToolbarItem>
+<StickyBar>
+    <ButtonToolbar {size} {wrap} api={toolbar}>
+        <ButtonToolbarItem id="notetype">
+            <NoteTypeButtons api={notetypeButtons} />
+        </ButtonToolbarItem>
 
-            <ButtonToolbarItem id="inlineFormatting">
-                <FormatInlineButtons api={formatInlineButtons} />
-            </ButtonToolbarItem>
+        <ButtonToolbarItem id="inlineFormatting">
+            <FormatInlineButtons api={formatInlineButtons} />
+        </ButtonToolbarItem>
 
-            <ButtonToolbarItem id="blockFormatting">
-                <FormatBlockButtons api={formatBlockButtons} />
-            </ButtonToolbarItem>
+        <ButtonToolbarItem id="blockFormatting">
+            <FormatBlockButtons api={formatBlockButtons} />
+        </ButtonToolbarItem>
 
-            <ButtonToolbarItem id="color">
-                <ColorButtons api={colorButtons} />
-            </ButtonToolbarItem>
+        <ButtonToolbarItem id="color">
+            <ColorButtons api={colorButtons} />
+        </ButtonToolbarItem>
 
-            <ButtonToolbarItem id="template">
-                <TemplateButtons api={templateButtons} />
-            </ButtonToolbarItem>
-        </ButtonToolbar>
-    </StickyBar>
-</WithTheming>
+        <ButtonToolbarItem id="template">
+            <TemplateButtons api={templateButtons} />
+        </ButtonToolbarItem>
+    </ButtonToolbar>
+</StickyBar>
