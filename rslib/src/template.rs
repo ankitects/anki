@@ -655,12 +655,9 @@ impl ParsedTemplate {
 impl ParsedTemplate {
     /// Given a map of old to new field names, update references to the new names.
     /// Returns true if any changes made.
-    pub(crate) fn rename_and_remove_fields(
-        self,
-        fields: &HashMap<String, Option<String>>,
-    ) -> ParsedTemplate {
-        let out = rename_and_remove_fields(self.0, fields);
-        ParsedTemplate(out)
+    pub(crate) fn rename_and_remove_fields(&mut self, fields: &HashMap<String, Option<String>>) {
+        let old_nodes = std::mem::replace(&mut self.0, vec![]);
+        self.0 = rename_and_remove_fields(old_nodes, fields);
     }
 }
 
@@ -765,25 +762,34 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
 //----------------------------------------
 
 impl ParsedTemplate {
+    /// A set of all field names. Field names may not be valid.
+    pub(crate) fn fields(&self) -> HashSet<&str> {
+        let mut set = HashSet::new();
+        find_fields_with_filter(&self.0, &mut set, None);
+        set
+    }
+
     /// A set of field names with a cloze filter attached.
     /// Field names may not be valid.
     pub(crate) fn cloze_fields(&self) -> HashSet<&str> {
         let mut set = HashSet::new();
-        find_fields_with_filter(&self.0, &mut set, "cloze");
+        find_fields_with_filter(&self.0, &mut set, Some("cloze"));
         set
     }
 }
 
+/// Insert all fields in 'nodes' with 'filter' into 'fields'. If 'filter' is None,
+/// all fields are collected.
 fn find_fields_with_filter<'a>(
     nodes: &'a [ParsedNode],
     fields: &mut HashSet<&'a str>,
-    filter: &str,
+    filter: Option<&str>,
 ) {
     for node in nodes {
         match node {
             ParsedNode::Text(_) => {}
             ParsedNode::Replacement { key, filters } => {
-                if filters.iter().any(|f| f == filter) {
+                if filter.is_none() || filters.iter().any(|f| f == filter.unwrap()) {
                     fields.insert(key);
                 }
             }

@@ -61,9 +61,23 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError(err) => tr
-                .card_templates_invalid_template_number(err.ordinal + 1, &err.notetype)
-                .into(),
+            AnkiError::TemplateSaveError(err) => {
+                let header =
+                    tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
+                let details = match err.details {
+                    TemplateSaveErrorDetails::TemplateError
+                    | TemplateSaveErrorDetails::NoSuchField => tr.card_templates_see_preview(),
+                    TemplateSaveErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
+                    TemplateSaveErrorDetails::Duplicate(i) => {
+                        tr.card_templates_identical_front(i + 1)
+                    }
+                    TemplateSaveErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
+                    TemplateSaveErrorDetails::ExtraneousCloze => {
+                        tr.card_templates_extraneous_cloze()
+                    }
+                };
+                format!("{}<br>{}", header, details)
+            }
             AnkiError::DbError(err) => err.localized_description(tr),
             AnkiError::SearchError(kind) => kind.localized_description(&tr),
             AnkiError::InvalidInput(info) => {
@@ -135,4 +149,15 @@ impl From<regex::Error> for AnkiError {
 pub struct TemplateSaveError {
     pub notetype: String,
     pub ordinal: usize,
+    pub details: TemplateSaveErrorDetails,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum TemplateSaveErrorDetails {
+    TemplateError,
+    Duplicate(usize),
+    NoFrontField,
+    NoSuchField,
+    MissingCloze,
+    ExtraneousCloze,
 }
