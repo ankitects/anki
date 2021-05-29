@@ -88,7 +88,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 html={marked(tr.deckConfigLeechActionTooltip())}
             />
         </Col>
-        <Col size={5}>
+        <Col breakpoint="sm" size={5}>
             <EnumSelector choices={leechChoices} bind:value={$config.leechAction} />
             <RevertButton
                 defaultValue={defaults.leechAction}
