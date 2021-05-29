@@ -5,7 +5,7 @@
 <script lang="ts">
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
-    import SectionItem from "components/SectionItem.svelte";
+    import Item from "components/Item.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -39,7 +39,7 @@
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()} {api}>
-    <SectionItem>
+    <Item>
         <SpinBoxRow
             bind:value={$config.newPerDay}
             defaultValue={defaults.newPerDay}
@@ -49,9 +49,9 @@
         </SpinBoxRow>
 
         <Warning warning={newCardsGreaterThanParent} />
-    </SectionItem>
+    </Item>
 
-    <SectionItem>
+    <Item>
         <SpinBoxRow
             bind:value={$config.reviewsPerDay}
             defaultValue={defaults.reviewsPerDay}
@@ -61,5 +61,5 @@
         </SpinBoxRow>
 
         <Warning warning={reviewsTooLow} />
-    </SectionItem>
+    </Item>
 </TitledContainer>

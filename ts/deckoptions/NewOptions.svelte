@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
+    import Item from "components/Item.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
@@ -40,41 +41,49 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingNewCards()} {api}>
-    <StepsInputRow
-        bind:value={$config.learnSteps}
-        defaultValue={defaults.learnSteps}
-        markdownTooltip={tr.deckConfigLearningStepsTooltip()}
-    >
-        {tr.deckConfigLearningSteps()}
-    </StepsInputRow>
+    <Item>
+        <StepsInputRow
+            bind:value={$config.learnSteps}
+            defaultValue={defaults.learnSteps}
+            markdownTooltip={tr.deckConfigLearningStepsTooltip()}
+        >
+            {tr.deckConfigLearningSteps()}
+        </StepsInputRow>
+    </Item>
 
-    <SpinBoxRow
-        bind:value={$config.graduatingIntervalGood}
-        defaultValue={defaults.graduatingIntervalGood}
-        markdownTooltip={tr.deckConfigGraduatingIntervalTooltip()}
-    >
-        {tr.schedulingGraduatingInterval()}
-    </SpinBoxRow>
+    <Item>
+        <SpinBoxRow
+            bind:value={$config.graduatingIntervalGood}
+            defaultValue={defaults.graduatingIntervalGood}
+            markdownTooltip={tr.deckConfigGraduatingIntervalTooltip()}
+        >
+            {tr.schedulingGraduatingInterval()}
+        </SpinBoxRow>
 
-    <Warning warning={stepsExceedGraduatingInterval} />
+        <Warning warning={stepsExceedGraduatingInterval} />
+    </Item>
 
-    <SpinBoxRow
-        bind:value={$config.graduatingIntervalEasy}
-        defaultValue={defaults.graduatingIntervalEasy}
-        markdownTooltip={tr.deckConfigEasyIntervalTooltip()}
-    >
-        {tr.schedulingEasyInterval()}
-    </SpinBoxRow>
+    <Item>
+        <SpinBoxRow
+            bind:value={$config.graduatingIntervalEasy}
+            defaultValue={defaults.graduatingIntervalEasy}
+            markdownTooltip={tr.deckConfigEasyIntervalTooltip()}
+        >
+            {tr.schedulingEasyInterval()}
+        </SpinBoxRow>
 
-    <Warning warning={goodExceedsEasy} />
+        <Warning warning={goodExceedsEasy} />
+    </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.newCardInsertOrder}
-        defaultValue={defaults.newCardInsertOrder}
-        choices={newInsertOrderChoices}
-        breakpoint={"md"}
-        markdownTooltip={tr.deckConfigNewInsertionOrderTooltip()}
-    >
-        {tr.deckConfigNewInsertionOrder()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.newCardInsertOrder}
+            defaultValue={defaults.newCardInsertOrder}
+            choices={newInsertOrderChoices}
+            breakpoint={"md"}
+            markdownTooltip={tr.deckConfigNewInsertionOrderTooltip()}
+        >
+            {tr.deckConfigNewInsertionOrder()}
+        </EnumSelectorRow>
+    </Item>
 </TitledContainer>

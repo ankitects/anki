@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
+    import Item from "components/Item.svelte";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
 
     import type { DeckOptionsState } from "./lib";
@@ -39,48 +40,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigOrderingTitle()} {api}>
-    <EnumSelectorRow
-        bind:value={$config.newCardGatherPriority}
-        defaultValue={defaults.newCardGatherPriority}
-        choices={newGatherPriorityChoices}
-        markdownTooltip={tr.deckConfigNewGatherPriorityTooltip()}
-    >
-        {tr.deckConfigNewGatherPriority()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.newCardGatherPriority}
+            defaultValue={defaults.newCardGatherPriority}
+            choices={newGatherPriorityChoices}
+            markdownTooltip={tr.deckConfigNewGatherPriorityTooltip()}
+        >
+            {tr.deckConfigNewGatherPriority()}
+        </EnumSelectorRow>
+    </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.newCardSortOrder}
-        defaultValue={defaults.newCardSortOrder}
-        choices={newSortOrderChoices}
-        markdownTooltip={tr.deckConfigNewCardSortOrderTooltip()}
-    >
-        {tr.deckConfigNewCardSortOrder()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.newCardSortOrder}
+            defaultValue={defaults.newCardSortOrder}
+            choices={newSortOrderChoices}
+            markdownTooltip={tr.deckConfigNewCardSortOrderTooltip()}
+        >
+            {tr.deckConfigNewCardSortOrder()}
+        </EnumSelectorRow>
+    </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.newMix}
-        defaultValue={defaults.newMix}
-        choices={reviewMixChoices()}
-        markdownTooltip={tr.deckConfigNewReviewPriorityTooltip()}
-    >
-        {tr.deckConfigNewReviewPriority()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.newMix}
+            defaultValue={defaults.newMix}
+            choices={reviewMixChoices()}
+            markdownTooltip={tr.deckConfigNewReviewPriorityTooltip()}
+        >
+            {tr.deckConfigNewReviewPriority()}
+        </EnumSelectorRow>
+    </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.interdayLearningMix}
-        defaultValue={defaults.interdayLearningMix}
-        choices={reviewMixChoices()}
-        markdownTooltip={tr.deckConfigInterdayStepPriorityTooltip()}
-    >
-        {tr.deckConfigInterdayStepPriority()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.interdayLearningMix}
+            defaultValue={defaults.interdayLearningMix}
+            choices={reviewMixChoices()}
+            markdownTooltip={tr.deckConfigInterdayStepPriorityTooltip()}
+        >
+            {tr.deckConfigInterdayStepPriority()}
+        </EnumSelectorRow>
+    </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.reviewOrder}
-        defaultValue={defaults.reviewOrder}
-        choices={reviewOrderChoices}
-        markdownTooltip={tr.deckConfigReviewSortOrderTooltip()}
-    >
-        {tr.deckConfigReviewSortOrder()}
-    </EnumSelectorRow>
+    <Item>
+        <EnumSelectorRow
+            bind:value={$config.reviewOrder}
+            defaultValue={defaults.reviewOrder}
+            choices={reviewOrderChoices}
+            markdownTooltip={tr.deckConfigReviewSortOrderTooltip()}
+        >
+            {tr.deckConfigReviewSortOrder()}
+        </EnumSelectorRow>
+    </Item>
 </TitledContainer>>
