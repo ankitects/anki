@@ -7,12 +7,11 @@
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
     import HelpPopup from "./HelpPopup.svelte";
-    import SpinBox from "./SpinBox.svelte";
+    import StepsInput from "./StepsInput.svelte";
     import RevertButton from "./RevertButton.svelte";
 
     export let value: any;
     export let defaultValue: any;
-    export let min = 0;
     export let markdownTooltip: string;
 </script>
 
@@ -21,7 +20,7 @@
         <slot /><HelpPopup html={marked(markdownTooltip)} />
     </Col>
     <Col size={5}>
-        <SpinBox bind:value {min} />
+        <StepsInput bind:value />
         <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

@@ -4,16 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
+    import StepsInputRow from "./StepsInputRow.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import Warning from "./Warning.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
-    import SpinBox from "./SpinBox.svelte";
-    import EnumSelector from "./EnumSelector.svelte";
-    import StepsInput from "./StepsInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -35,65 +30,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingLapses()}>
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigRelearningSteps()}<HelpPopup
-                html={marked(tr.deckConfigRelearningStepsTooltip())}
-            />
-        </Col>
-        <Col breakpoint={$config.relearnSteps.length > 2 ? "sm" : undefined} size={5}>
-            <StepsInput bind:value={$config.relearnSteps} />
-            <RevertButton
-                defaultValue={defaults.relearnSteps}
-                value={$config.relearnSteps}
-            />
-        </Col>
-    </Row>
+    <StepsInputRow
+        bind:value={$config.relearnSteps}
+        defaultValue={defaults.relearnSteps}
+        markdownTooltip={tr.deckConfigRelearningStepsTooltip()}
+    >
+        {tr.deckConfigRelearningSteps()}
+    </StepsInputRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.schedulingMinimumInterval()}<HelpPopup
-                html={marked(tr.deckConfigMinimumIntervalTooltip())}
-            />
-        </Col>
-        <Col size={5}>
-            <SpinBox min={1} bind:value={$config.minimumLapseInterval} />
-            <RevertButton
-                defaultValue={defaults.minimumLapseInterval}
-                bind:value={$config.minimumLapseInterval}
-            />
-        </Col>
-    </Row>
+    <SpinBoxRow
+        bind:value={$config.minimumLapseInterval}
+        defaultValue={defaults.minimumLapseInterval}
+        min={1}
+        markdownTooltip={tr.deckConfigMinimumIntervalTooltip()}
+    >
+        {tr.schedulingMinimumInterval()}
+    </SpinBoxRow>
 
     <Warning warning={stepsExceedMinimumInterval} />
 
-    <Row>
-        <Col size={7}>
-            {tr.schedulingLeechThreshold()}<HelpPopup
-                html={marked(tr.deckConfigLeechThresholdTooltip())}
-            />
-        </Col>
-        <Col size={5}>
-            <SpinBox min={1} bind:value={$config.leechThreshold} />
-            <RevertButton
-                defaultValue={defaults.leechThreshold}
-                bind:value={$config.leechThreshold}
-            />
-        </Col>
-    </Row>
+    <SpinBoxRow
+        bind:value={$config.leechThreshold}
+        defaultValue={defaults.leechThreshold}
+        min={1}
+        markdownTooltip={tr.deckConfigLeechThresholdTooltip()}
+    >
+        {tr.schedulingLeechThreshold()}
+    </SpinBoxRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.schedulingLeechAction()}<HelpPopup
-                html={marked(tr.deckConfigLeechActionTooltip())}
-            />
-        </Col>
-        <Col breakpoint="sm" size={5}>
-            <EnumSelector choices={leechChoices} bind:value={$config.leechAction} />
-            <RevertButton
-                defaultValue={defaults.leechAction}
-                bind:value={$config.leechAction}
-            />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.leechAction}
+        defaultValue={defaults.leechAction}
+        choices={leechChoices}
+        breakpoint="sm"
+        markdownTooltip={tr.deckConfigLeechActionTooltip()}
+    >
+        {tr.schedulingLeechAction()}
+    </EnumSelectorRow>
 </TitledContainer>

@@ -4,16 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
+    import StepsInputRow from "./StepsInputRow.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import Warning from "./Warning.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
-    import SpinBox from "./SpinBox.svelte";
-    import StepsInput from "./StepsInput.svelte";
-    import EnumSelector from "./EnumSelector.svelte";
-    import RevertButton from "./RevertButton.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -43,70 +38,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingNewCards()}>
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigLearningSteps()}<HelpPopup
-                html={marked(tr.deckConfigLearningStepsTooltip())}
-            />
-        </Col>
-        <Col size={5}>
-            <StepsInput bind:value={$config.learnSteps} />
-            <RevertButton
-                defaultValue={defaults.learnSteps}
-                bind:value={$config.learnSteps}
-            />
-        </Col>
-    </Row>
+    <StepsInputRow
+        bind:value={$config.learnSteps}
+        defaultValue={defaults.learnSteps}
+        markdownTooltip={tr.deckConfigLearningStepsTooltip()}
+    >
+        {tr.deckConfigLearningSteps()}
+    </StepsInputRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.schedulingGraduatingInterval()}<HelpPopup
-                html={marked(tr.deckConfigGraduatingIntervalTooltip())}
-            />
-        </Col>
-        <Col size={5}>
-            <SpinBox bind:value={$config.graduatingIntervalGood} />
-            <RevertButton
-                defaultValue={defaults.graduatingIntervalGood}
-                bind:value={$config.graduatingIntervalGood}
-            />
-        </Col>
-    </Row>
+    <SpinBoxRow
+        bind:value={$config.graduatingIntervalGood}
+        defaultValue={defaults.graduatingIntervalGood}
+        markdownTooltip={tr.deckConfigGraduatingIntervalTooltip()}
+    >
+        {tr.schedulingGraduatingInterval()}
+    </SpinBoxRow>
 
     <Warning warning={stepsExceedGraduatingInterval} />
 
-    <Row>
-        <Col size={7}>
-            {tr.schedulingEasyInterval()}<HelpPopup
-                html={marked(tr.deckConfigEasyIntervalTooltip())}
-            />
-        </Col>
-        <Col size={5}>
-            <SpinBox bind:value={$config.graduatingIntervalEasy} />
-            <RevertButton
-                defaultValue={defaults.graduatingIntervalEasy}
-                bind:value={$config.graduatingIntervalEasy}
-            />
-        </Col>
-    </Row>
+    <SpinBoxRow
+        bind:value={$config.graduatingIntervalEasy}
+        defaultValue={defaults.graduatingIntervalEasy}
+        markdownTooltip={tr.deckConfigEasyIntervalTooltip()}
+    >
+        {tr.schedulingEasyInterval()}
+    </SpinBoxRow>
 
     <Warning warning={goodExceedsEasy} />
 
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigNewInsertionOrder()}<HelpPopup
-                html={marked(tr.deckConfigNewInsertionOrderTooltip())}
-            />
-        </Col>
-        <Col breakpoint={"md"} size={5}>
-            <EnumSelector
-                choices={newInsertOrderChoices}
-                bind:value={$config.newCardInsertOrder}
-            />
-            <RevertButton
-                defaultValue={defaults.newCardInsertOrder}
-                bind:value={$config.newCardInsertOrder}
-            />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.newCardInsertOrder}
+        defaultValue={defaults.newCardInsertOrder}
+        choices={newInsertOrderChoices}
+        breakpoint={"md"}
+        markdownTooltip={tr.deckConfigNewInsertionOrderTooltip()}
+    >
+        {tr.deckConfigNewInsertionOrder()}
+    </EnumSelectorRow>
 </TitledContainer>
