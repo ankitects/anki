@@ -6,9 +6,9 @@ Official website: [https://ankicode.app](https://ankicode.app)
 ### Downloads
 - [AnkiCode for Mac OS X 10.13.4+](https://cutt.ly/knp4juZ)
 - [AnkiCode for Windows 7/8/10](https://cutt.ly/pnp4lN3)
-- [AnkiCode Ubuntu 20](https://cutt.ly/enp4vrg)
-- [AnkiCode Ubuntu 16](https://cutt.ly/enp4xEi)
-- [AnkiCode Debian 9](https://cutt.ly/wnp4mwJ)
+- [AnkiCode Ubuntu 20](https://cutt.ly/enp4vrg) (Ubuntu GLIBC 2.31-0ubuntu9.2)
+- [AnkiCode Ubuntu 16](https://cutt.ly/enp4xEi) (Ubuntu GLIBC 2.27-3ubuntu1.2)
+- [AnkiCode Debian 9](https://cutt.ly/wnp4mwJ) (Debian GLIBC 2.24-11+deb9u4)
 
 ### Installation
 For Debian/Ubuntu, before installation run:
