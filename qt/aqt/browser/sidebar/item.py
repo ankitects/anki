@@ -140,6 +140,11 @@ class SidebarItem:
                 return self.full_name == other.full_name
             elif self.item_type == SidebarItemType.SAVED_SEARCH:
                 return self.name == other.name
+            elif self.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
+                return (
+                    other.id == self.id
+                    and other._parent_item.id == self._parent_item.id
+                )
             else:
                 return other.id == self.id
 
