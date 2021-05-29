@@ -4,11 +4,15 @@ This repo contains all the code for the computer version of AnkiCode.
 Official website: [https://ankicode.app](https://ankicode.app)
 
 ### Downloads
-- [AnkiCode-1.1.0-mac.dmg](https://cutt.ly/knp4juZ)
-- [AnkiCode-1.1.0-win.exe](https://cutt.ly/pnp4lN3)
-- [AnkiCode-1.1.0-ubuntu-20.tar.xz](https://cutt.ly/enp4vrg)
-- [AnkiCode-1.1.0-ubuntu-16.tar.xz](https://cutt.ly/enp4xEi)
-- [AnkiCode-1.1.0-debian.tar.xz](https://cutt.ly/wnp4mwJ)
+- [AnkiCode for Mac OS X 10.13.4+](https://cutt.ly/knp4juZ)
+- [AnkiCode for Windows 7/8/10](https://cutt.ly/pnp4lN3)
+- [AnkiCode Ubuntu 20](https://cutt.ly/enp4vrg)
+- [AnkiCode Ubuntu 16](https://cutt.ly/enp4xEi)
+- [AnkiCode Debian 9](https://cutt.ly/wnp4mwJ)
+
+### Installation
+For Debian/Ubuntu, before installation run:
+`apt-get install build-essential`
 
 ### Docs
 For more information on building, please see [README.development](README.development).
