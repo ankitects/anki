@@ -5,11 +5,14 @@
 <script lang="ts">
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
+    import SectionItem from "components/SectionItem.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let api: Record<string, never>;
+
     let config = state.currentConfig;
     let defaults = state.defaults;
     let parentLimits = state.parentLimits;
@@ -35,24 +38,28 @@
             : "";
 </script>
 
-<TitledContainer title={tr.deckConfigDailyLimits()}>
-    <SpinBoxRow
-        bind:value={$config.newPerDay}
-        defaultValue={defaults.newPerDay}
-        markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-    >
-        {tr.schedulingNewCardsday()}
-    </SpinBoxRow>
+<TitledContainer title={tr.deckConfigDailyLimits()} {api}>
+    <SectionItem>
+        <SpinBoxRow
+            bind:value={$config.newPerDay}
+            defaultValue={defaults.newPerDay}
+            markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+        >
+            {tr.schedulingNewCardsday()}
+        </SpinBoxRow>
 
-    <Warning warning={newCardsGreaterThanParent} />
+        <Warning warning={newCardsGreaterThanParent} />
+    </SectionItem>
 
-    <SpinBoxRow
-        bind:value={$config.reviewsPerDay}
-        defaultValue={defaults.reviewsPerDay}
-        markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-    >
-        {tr.schedulingMaximumReviewsday()}
-    </SpinBoxRow>
+    <SectionItem>
+        <SpinBoxRow
+            bind:value={$config.reviewsPerDay}
+            defaultValue={defaults.reviewsPerDay}
+            markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+        >
+            {tr.schedulingMaximumReviewsday()}
+        </SpinBoxRow>
 
-    <Warning warning={reviewsTooLow} />
+        <Warning warning={reviewsTooLow} />
+    </SectionItem>
 </TitledContainer>

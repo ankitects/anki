@@ -10,11 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let api: Record<string, never>;
+
     let config = state.currentConfig;
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigTimerTitle()}>
+<TitledContainer title={tr.deckConfigTimerTitle()} {api}>
     <SpinBoxRow
         bind:value={$config.capAnswerTimeToSecs}
         defaultValue={defaults.capAnswerTimeToSecs}

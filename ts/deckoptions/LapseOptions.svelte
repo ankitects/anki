@@ -12,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let api = {};
+
     let config = state.currentConfig;
     let defaults = state.defaults;
 
@@ -29,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
-<TitledContainer title={tr.schedulingLapses()}>
+<TitledContainer title={tr.schedulingLapses()} {api}>
     <StepsInputRow
         bind:value={$config.relearnSteps}
         defaultValue={defaults.relearnSteps}
