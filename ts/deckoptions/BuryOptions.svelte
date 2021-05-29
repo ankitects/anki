@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Col from "./Col.svelte";
+    import Row from "./Row.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
@@ -18,33 +19,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigBuryTitle()}>
-    <ConfigEntry>
-        <svelte:fragment slot="left">
+    <Row>
+        <Col>
             <CheckBox bind:value={$config.buryNew}>
                 {tr.deckConfigBuryNewSiblings()}
                 <HelpPopup html={marked(tr.deckConfigBuryTooltip())} />
             </CheckBox>
-        </svelte:fragment>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col grow={false}>
             <RevertButton
                 defaultValue={defaults.buryNew}
                 bind:value={$config.buryNew}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <svelte:fragment slot="left">
+    <Row>
+        <Col>
             <CheckBox bind:value={$config.buryReviews}>
                 {tr.deckConfigBuryReviewSiblings()}
                 <HelpPopup html={marked(tr.deckConfigBuryTooltip())} />
             </CheckBox>
-        </svelte:fragment>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col grow={false}>
             <RevertButton
                 defaultValue={defaults.buryReviews}
                 bind:value={$config.buryReviews}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 </TitledContainer>

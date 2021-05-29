@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import Row from "./Row.svelte";
+    import Col from "./Col.svelte";
     import Warnings from "./Warnings.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
@@ -42,62 +43,62 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.schedulingNewCards()}>
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigLearningSteps()}<HelpPopup
                 html={marked(tr.deckConfigLearningStepsTooltip())}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <StepsInput bind:value={$config.learnSteps} />
             <RevertButton
                 defaultValue={defaults.learnSteps}
                 bind:value={$config.learnSteps}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingGraduatingInterval()}<HelpPopup
                 html={marked(tr.deckConfigGraduatingIntervalTooltip())}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <SpinBox bind:value={$config.graduatingIntervalGood} />
             <RevertButton
                 defaultValue={defaults.graduatingIntervalGood}
                 bind:value={$config.graduatingIntervalGood}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
     <Warnings warnings={[stepsExceedGraduatingInterval]} />
 
-    <ConfigEntry>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.schedulingEasyInterval()}<HelpPopup
                 html={marked(tr.deckConfigEasyIntervalTooltip())}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col size={5}>
             <SpinBox bind:value={$config.graduatingIntervalEasy} />
             <RevertButton
                 defaultValue={defaults.graduatingIntervalEasy}
                 bind:value={$config.graduatingIntervalEasy}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 
     <Warnings warnings={[goodExceedsEasy]} />
 
-    <ConfigEntry wrap={true}>
-        <span slot="left">
+    <Row>
+        <Col size={7}>
             {tr.deckConfigNewInsertionOrder()}<HelpPopup
                 html={marked(tr.deckConfigNewInsertionOrderTooltip())}
             />
-        </span>
-        <svelte:fragment slot="right">
+        </Col>
+        <Col breakpoint={"md"} size={5}>
             <EnumSelector
                 choices={newInsertOrderChoices}
                 bind:value={$config.newCardInsertOrder}
@@ -106,6 +107,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.newCardInsertOrder}
                 bind:value={$config.newCardInsertOrder}
             />
-        </svelte:fragment>
-    </ConfigEntry>
+        </Col>
+    </Row>
 </TitledContainer>
