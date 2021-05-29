@@ -93,14 +93,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <ButtonGroup class="flex-grow-1">
                 <ButtonGroupItem>
                     <SelectButton class="flex-grow-1" on:change={blur}>
-                         {#each $configList as entry}
-                             <SelectOption
-                                 value={String(entry.idx)}
-                                 selected={entry.current}
-                             >
-                                 {configLabel(entry)}
-                             </SelectOption>
-                         {/each}
+                        {#each $configList as entry}
+                            <SelectOption
+                                value={String(entry.idx)}
+                                selected={entry.current}
+                            >
+                                {configLabel(entry)}
+                            </SelectOption>
+                        {/each}
                     </SelectButton>
                 </ButtonGroupItem>
             </ButtonGroup>
