@@ -4,13 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import marked from "marked";
     import TitledContainer from "./TitledContainer.svelte";
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
-    import EnumSelector from "./EnumSelector.svelte";
-    import RevertButton from "./RevertButton.svelte";
+    import EnumSelectorRow from "./EnumSelectorRow.svelte";
 
     import type { DeckOptionsState } from "./lib";
     import { reviewMixChoices } from "./strings";
@@ -42,82 +37,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigOrderingTitle()}>
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigNewGatherPriority()}
-            <HelpPopup html={marked(tr.deckConfigNewGatherPriorityTooltip())} />
-        </Col>
-        <Col size={5}>
-            <EnumSelector
-                choices={newGatherPriorityChoices}
-                bind:value={$config.newCardGatherPriority}
-            />
-            <RevertButton
-                defaultValue={defaults.newCardGatherPriority}
-                bind:value={$config.newCardGatherPriority}
-            />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.newCardGatherPriority}
+        defaultValue={defaults.newCardGatherPriority}
+        choices={newGatherPriorityChoices}
+        markdownTooltip={tr.deckConfigNewGatherPriorityTooltip()}
+    >
+        {tr.deckConfigNewGatherPriority()}
+    </EnumSelectorRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigNewCardSortOrder()}
-            <HelpPopup html={marked(tr.deckConfigNewCardSortOrderTooltip())} />
-        </Col>
-        <Col size={5}>
-            <EnumSelector
-                choices={newSortOrderChoices}
-                bind:value={$config.newCardSortOrder}
-            />
-            <RevertButton
-                defaultValue={defaults.newCardSortOrder}
-                bind:value={$config.newCardSortOrder}
-            />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.newCardSortOrder}
+        defaultValue={defaults.newCardSortOrder}
+        choices={newSortOrderChoices}
+        markdownTooltip={tr.deckConfigNewCardSortOrderTooltip()}
+    >
+        {tr.deckConfigNewCardSortOrder()}
+    </EnumSelectorRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigNewReviewPriority()}
-            <HelpPopup html={marked(tr.deckConfigNewReviewPriorityTooltip())} />
-        </Col>
-        <Col size={5}>
-            <EnumSelector choices={reviewMixChoices()} bind:value={$config.newMix} />
-            <RevertButton defaultValue={defaults.newMix} bind:value={$config.newMix} />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.newMix}
+        defaultValue={defaults.newMix}
+        choices={reviewMixChoices()}
+        markdownTooltip={tr.deckConfigNewReviewPriorityTooltip()}
+    >
+        {tr.deckConfigNewReviewPriority()}
+    </EnumSelectorRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigInterdayStepPriority()}
-            <HelpPopup html={marked(tr.deckConfigInterdayStepPriorityTooltip())} />
-        </Col>
-        <Col size={5}>
-            <EnumSelector
-                choices={reviewMixChoices()}
-                bind:value={$config.interdayLearningMix}
-            />
-            <RevertButton
-                defaultValue={defaults.interdayLearningMix}
-                bind:value={$config.interdayLearningMix}
-            />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.interdayLearningMix}
+        defaultValue={defaults.interdayLearningMix}
+        choices={reviewMixChoices()}
+        markdownTooltip={tr.deckConfigInterdayStepPriorityTooltip()}
+    >
+        {tr.deckConfigInterdayStepPriority()}
+    </EnumSelectorRow>
 
-    <Row>
-        <Col size={7}>
-            {tr.deckConfigReviewSortOrder()}
-            <HelpPopup html={marked(tr.deckConfigReviewSortOrderTooltip())} />
-        </Col>
-        <Col size={5}>
-            <EnumSelector
-                choices={reviewOrderChoices}
-                bind:value={$config.reviewOrder}
-            />
-            <RevertButton
-                defaultValue={defaults.reviewOrder}
-                bind:value={$config.reviewOrder}
-            />
-        </Col>
-    </Row>
+    <EnumSelectorRow
+        bind:value={$config.reviewOrder}
+        defaultValue={defaults.reviewOrder}
+        choices={reviewOrderChoices}
+        markdownTooltip={tr.deckConfigReviewSortOrderTooltip()}
+    >
+        {tr.deckConfigReviewSortOrder()}
+    </EnumSelectorRow>
 </TitledContainer>>
