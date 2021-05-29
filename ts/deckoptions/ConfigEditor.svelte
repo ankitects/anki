@@ -55,20 +55,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <AdvancedOptions {state} />
     </SectionItem>
 </Section>
-
-<style lang="scss">
-    :global(h2) {
-        margin-top: 1em;
-        font-weight: bold;
-        // adding a border decreases the default font size,
-        // so increase it again
-        font-size: 2em;
-        margin-right: 16px;
-        margin-bottom: 0.5em;
-    }
-    /* .outer { */
-    /*     // the right margin has an indent to allow for the undo */
-    /*     // buttons; add the same indent on the left for balance */
-    /*     padding-left: 16px; */
-    /* } */
-</style>
