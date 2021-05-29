@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Section from "components/Section.svelte";
+    import Container from "components/Container.svelte";
     import SectionItem from "components/SectionItem.svelte";
 
     import DailyLimits from "./DailyLimits.svelte";
@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let options: Record<string, never>;
 </script>
 
-<Section api={options}>
+<Container api={options}>
     <SectionItem>
         <DailyLimits {state} />
     </SectionItem>
@@ -54,4 +54,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <SectionItem>
         <AdvancedOptions {state} />
     </SectionItem>
-</Section>
+</Container>
