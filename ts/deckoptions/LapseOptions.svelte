@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "./TitledContainer.svelte";
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
-    import Warnings from "./Warnings.svelte";
+    import Warning from "./Warning.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import EnumSelector from "./EnumSelector.svelte";
@@ -65,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Col>
     </Row>
 
-    <Warnings warnings={[stepsExceedMinimumInterval]} />
+    <Warning warning={stepsExceedMinimumInterval} />
 
     <Row>
         <Col size={7}>
