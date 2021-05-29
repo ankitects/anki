@@ -3,15 +3,10 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import marked from "marked";
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
-    import Warnings from "./Warnings.svelte";
-    import SpinBox from "./SpinBox.svelte";
-    import RevertButton from "./RevertButton.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import Warning from "./Warning.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -41,37 +36,23 @@
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
-    <Row>
-        <Col size={7}>
-            {tr.schedulingNewCardsday()}<HelpPopup
-                html={marked(tr.deckConfigNewLimitTooltip() + v3Extra)}
-            />
-        </Col>
-        <Col size={5}>
-            <SpinBox min={0} bind:value={$config.newPerDay} />
-            <RevertButton
-                defaultValue={defaults.newPerDay}
-                bind:value={$config.newPerDay}
-            />
-        </Col>
-    </Row>
+    <SpinBoxRow
+        bind:value={$config.newPerDay}
+        defaultValue={defaults.newPerDay}
+        markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+    >
+        {tr.schedulingNewCardsday()}
+    </SpinBoxRow>
 
-    <Warnings warnings={[newCardsGreaterThanParent]} />
+    <Warning warning={newCardsGreaterThanParent} />
 
-    <Row>
-        <Col size={7}>
-            {tr.schedulingMaximumReviewsday()}<HelpPopup
-                html={marked(tr.deckConfigReviewLimitTooltip() + v3Extra)}
-            />
-        </Col>
-        <Col size={5}>
-            <SpinBox min={0} bind:value={$config.reviewsPerDay} />
-            <RevertButton
-                defaultValue={defaults.reviewsPerDay}
-                bind:value={$config.reviewsPerDay}
-            />
-        </Col>
-    </Row>
+    <SpinBoxRow
+        bind:value={$config.reviewsPerDay}
+        defaultValue={defaults.reviewsPerDay}
+        markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+    >
+        {tr.schedulingMaximumReviewsday()}
+    </SpinBoxRow>
 
-    <Warnings warnings={[reviewsTooLow]} />
+    <Warning warning={reviewsTooLow} />
 </TitledContainer>

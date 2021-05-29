@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "./TitledContainer.svelte";
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
-    import Warnings from "./Warnings.svelte";
+    import Warning from "./Warning.svelte";
     import HelpPopup from "./HelpPopup.svelte";
     import SpinBox from "./SpinBox.svelte";
     import StepsInput from "./StepsInput.svelte";
@@ -73,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Col>
     </Row>
 
-    <Warnings warnings={[stepsExceedGraduatingInterval]} />
+    <Warning warning={stepsExceedGraduatingInterval} />
 
     <Row>
         <Col size={7}>
@@ -90,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Col>
     </Row>
 
-    <Warnings warnings={[goodExceedsEasy]} />
+    <Warning warning={goodExceedsEasy} />
 
     <Row>
         <Col size={7}>
