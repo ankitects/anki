@@ -1,7 +1,7 @@
 .linkb {
     display: inline-block;
-    min-width: calc(var(--toolbar-size) - 2px);
-    min-height: calc(var(--toolbar-size) - 2px);
+    min-width: calc(var(--buttons-size) - 2px);
+    min-height: calc(var(--buttons-size) - 2px);
 
     background-color: white;
     border: 1px solid var(--medium-border);
@@ -22,7 +22,7 @@
     &:active,
     &:active:hover {
         background-color: white;
-        box-shadow: inset 0 calc(var(--toolbar-size) / 15) calc(var(--toolbar-size) / 5)
+        box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
             rgba(0, 0, 0, 0.25);
     }
 
@@ -36,8 +36,8 @@
 
         &:active,
         &:active:hover {
-            box-shadow: inset 0 calc(var(--toolbar-size) / 15)
-                calc(var(--toolbar-size) / 5) rgba(0, 0, 0, 0.35);
+            box-shadow: inset 0 calc(var(--buttons-size) / 15)
+                calc(var(--buttons-size) / 5) rgba(0, 0, 0, 0.35);
             border-color: #525252;
         }
     }
@@ -46,8 +46,8 @@
 .topbut {
     display: inline-block;
     vertical-align: middle;
-    width: calc(var(--toolbar-size) - 12px);
-    height: calc(var(--toolbar-size) - 12px);
+    width: calc(var(--buttons-size) - 12px);
+    height: calc(var(--buttons-size) - 12px);
 }
 
 .nightMode img.topbut {

@@ -22,6 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     label {
         display: flex;
-        padding: 0 calc(var(--toolbar-size) / 10);
+        padding: 0 calc(var(--buttons-size) / 10);
     }
 </style>

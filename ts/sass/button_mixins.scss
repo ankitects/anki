@@ -113,7 +113,7 @@ $btn-base-color-night: #666;
 $focus-color: $blue;
 
 @mixin impressed-shadow($intensity) {
-    box-shadow: inset 0 calc(var(--toolbar-size) / 15) calc(var(--toolbar-size) / 5)
+    box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
         rgba(black, $intensity);
 }
 
