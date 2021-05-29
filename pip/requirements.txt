@@ -156,3 +156,5 @@ pip==21.1.1
     # via pip-tools
 setuptools==56.1.0
     # via jsonschema
+
+lxml

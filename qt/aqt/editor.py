@@ -892,6 +892,53 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     removeTags = ["script", "iframe", "object", "style"]
 
+    def _parse_math_from_mathjax(self, doc):
+        from lxml import etree
+        mathjax_elements = doc.find_all(None, {"class": "MathJax"})
+
+        if not mathjax_elements:
+            return
+
+        xslt_file = os.path.join(self.mw.pm.base, "mmltex.xsl")
+        if not os.path.exists(xslt_file):
+            # Download XML transformation rules to convert MathML into LaTeX:
+            filelist = ["cmarkup.xsl", "entities.xsl", "glayout.xsl",
+                        "mmltex.xsl", "scripts.xsl", "tables.xsl", "tokens.xsl"]
+            for filename in filelist:
+                r = requests.get(f"https://raw.githubusercontent.com/oerpub/mathconverter/master/xsl_yarosh/{filename}")
+                with open(os.path.join(self.mw.pm.base, filename), "wb") as f:
+                    f.write(r.content)
+
+        xslt = etree.parse(xslt_file)
+
+        for tag in mathjax_elements:
+            if 'data-mathml' not in tag.attrs:
+                continue
+            mathml_string = tag.attrs['data-mathml']
+            dom = etree.fromstring(mathml_string)
+            transform = etree.XSLT(xslt)
+            newdom = transform(dom)
+            latex_string = str(newdom).replace("\n", " ").replace("\t", " ").strip()
+            if latex_string.startswith("$$"):
+                latex_string = f"\\[{latex_string.replace('$$', '')}\\]"
+            elif latex_string.startswith("$"):
+                latex_string = f"\\({latex_string.replace('$', '')}\\)"
+            tag.clear()
+            tag.string = latex_string
+
+    @staticmethod
+    def _parse_math_from_wikipedia(doc):
+        spans = doc.find_all("span", attrs={"class": "mwe-math-element"})
+        for span in spans:
+            math = span.find("img")
+            if math is None:
+                continue
+            latex_string = math.attrs.get("alt", "")
+            latex_string = f"\\({latex_string}\\)"
+            span.clear()
+            span.string = latex_string
+        return
+
     def _pastePreFilter(self, html: str, internal: bool) -> str:
         # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
         if html.find(">") < 0:
@@ -910,6 +957,9 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             # convert p tags to divs
             for node in doc("p"):
                 node.name = "div"
+
+        self._parse_math_from_mathjax(doc)
+        self._parse_math_from_wikipedia(doc)
 
         for tag in doc("img"):
             try:
