@@ -8,10 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import IconButton from "components/IconButton.svelte";
-    import ColorPicker from "components/ColorPicker.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
+    import WithColorHelper from "./WithColorHelper.svelte";
 
-    import { squareFillIcon } from "./icons";
+    import { textColorIcon, highlightColorIcon } from "./icons";
     import { appendInParentheses } from "./helpers";
 
     import "./color.css";
@@ -25,8 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         document.documentElement.style.setProperty(foregroundColorKeyword, color);
     }
 
-    function wrapWithForecolor(): void {
+    const wrapWithForecolor = (color: string) => () => {
         document.execCommand("forecolor", false, color);
+    }
+
+    const wrapWithBackcolor = (color: string) => () => {
+        document.execCommand("backcolor", false, color);
     }
 
     function setWithCurrentColor({ currentTarget }: Event): void {
@@ -35,6 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup {api}>
+    <!--
     <ButtonGroupItem>
         <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
             <IconButton
@@ -60,4 +65,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </WithShortcut>
     </ButtonGroupItem>
+    -->
+
+    <WithColorHelper let:colorHelperIcon let:color>
+        <ButtonGroupItem>
+            <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingSetForegroundColor(),
+                        shortcutLabel
+                    )}
+                    on:click={wrapWithForecolor(color)}
+                    on:mount={createShortcut}
+                >
+                    {@html textColorIcon}
+                    {@html colorHelperIcon}
+                </IconButton>
+            </WithShortcut>
+        </ButtonGroupItem>
+    </WithColorHelper>
+
+    <WithColorHelper let:colorHelperIcon let:color>
+        <ButtonGroupItem>
+            <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingSetForegroundColor(),
+                        shortcutLabel
+                    )}
+                    on:click={wrapWithBackcolor(color)}
+                    on:mount={createShortcut}
+                >
+                    {@html highlightColorIcon}
+                    {@html colorHelperIcon}
+                </IconButton>
+            </WithShortcut>
+        </ButtonGroupItem>
+    </WithColorHelper>
 </ButtonGroup>

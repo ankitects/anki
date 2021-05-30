@@ -23,7 +23,7 @@ export { default as outdentIcon } from "./text-indent-right.svg";
 export { default as squareFillIcon } from "./square-fill.svg";
 export { default as textColorIcon } from "./format-color-text.svg";
 export { default as highlightColorIcon } from "./format-color-highlight.svg";
-export { default as colorHelper } from "./color-helper.svg";
+export { default as colorHelperIcon } from "./color-helper.svg";
 
 export { default as paperclipIcon } from "./paperclip.svg";
 export { default as micIcon } from "./mic.svg";

@@ -42,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     tr.editingAttachPicturesaudiovideo(),
                     shortcutLabel
                 )}
+                iconSize={70}
                 on:click={onAttachment}
                 on:mount={createShortcut}
             >
@@ -54,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut shortcut={"F5"} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
+                iconSize={70}
                 on:click={onRecord}
                 on:mount={createShortcut}
             >
@@ -164,6 +166,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
             <IconButton
                 tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
+                iconSize={70}
                 on:click={onHtmlEdit}
                 on:mount={createShortcut}
             >
