@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithShortcut from "components/WithShortcut.svelte";
     import WithColorHelper from "./WithColorHelper.svelte";
 
-    import { textColorIcon, highlightColorIcon } from "./icons";
+    import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
     import { appendInParentheses } from "./helpers";
 
     export let api = {};
@@ -52,7 +52,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         shortcutLabel
                     )}
                     disables={false}
+                    widthMultiplier={0.5}
                 >
+                    {@html arrowIcon}
                     <ColorPicker on:change={setColor} on:mount={createShortcut} />
                 </IconButton>
             </WithShortcut>
@@ -61,23 +63,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <WithColorHelper let:colorHelperIcon let:color let:setColor>
         <ButtonGroupItem>
-            <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
-                <IconButton
-                    tooltip={appendInParentheses(
-                        tr.editingSetForegroundColor(),
-                        shortcutLabel
-                    )}
-                    on:click={wrapWithBackcolor(color)}
-                    on:mount={createShortcut}
-                >
-                    {@html highlightColorIcon}
-                    {@html colorHelperIcon}
-                </IconButton>
-            </WithShortcut>
+            <IconButton on:click={wrapWithBackcolor(color)}>
+                {@html highlightColorIcon}
+                {@html colorHelperIcon}
+            </IconButton>
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <IconButton tooltip={tr.editingChangeColor()} disables={false}>
+            <IconButton
+                tooltip={tr.editingChangeColor()}
+                disables={false}
+                widthMultiplier={0.5}
+            >
+                {@html arrowIcon}
                 <ColorPicker on:change={setColor} />
             </IconButton>
         </ButtonGroupItem>
