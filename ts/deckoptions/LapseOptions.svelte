@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
-<div>
+<div class="grid-item-2">
     <h2>{tr.schedulingLapses()}</h2>
 
     <StepsInput
