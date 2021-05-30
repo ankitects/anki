@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
+    export let iconSize: number = 80;
     export let active = false;
     export let disables = true;
     export let tabbable = false;
@@ -37,6 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
+    style={`--icon-size: ${iconSize}%`}
     title={tooltip}
     {...dropdownProps}
     disabled={_disabled}
@@ -44,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click
     on:mousedown|preventDefault
 >
-    <span class="p-1"><slot /></span>
+    <span> <slot /> </span>
 </button>
 
 <style lang="scss">
@@ -60,6 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     span {
         display: inline-block;
+        position: relative;
         vertical-align: middle;
 
         /* constrain icon */
@@ -68,10 +71,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         & > :global(svg),
         & > :global(img) {
+            position: absolute;
+            width: var(--icon-size);
+            height: var(--icon-size);
+            top: calc((100% - var(--icon-size)) / 2);
+            bottom: calc((100% - var(--icon-size)) / 2);
+            left: calc((100% - var(--icon-size)) / 2);
+            right: calc((100% - var(--icon-size)) / 2);
+
             fill: currentColor;
             vertical-align: unset;
-            width: 100%;
-            height: 100%;
         }
     }
 
