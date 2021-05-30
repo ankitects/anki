@@ -42,8 +42,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     .outer {
         // the right margin has an indent to allow for the undo
-        // buttons; add the same indent on the left for balance
-        padding-left: 16px;
+        // buttons; add some indentation on the left for balance
+        padding-left: 6px;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(24em, 1fr));
         column-gap: 2em;
