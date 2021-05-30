@@ -146,15 +146,13 @@ class SidebarTreeView(QTreeView):
             self.refresh()
             self._refresh_needed = False
 
-    def refresh(self) -> None:
+    def refresh(self, new_current: SidebarItem = None) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return
 
-        if self.model() and (idx := self.currentIndex()):
-            current_item = self.model().item_for_index(idx)
-        else:
-            current_item = None
+        if not new_current and self.model() and (idx := self.currentIndex()):
+            new_current = self.model().item_for_index(idx)
 
         def on_done(root: SidebarItem) -> None:
             # user may have closed browser
@@ -171,8 +169,8 @@ class SidebarTreeView(QTreeView):
                 self.search_for(self.current_search)
             else:
                 self._expand_where_necessary(model)
-            if current_item:
-                self.restore_current(current_item)
+            if new_current:
+                self.restore_current(new_current)
 
             self.setUpdatesEnabled(True)
 
@@ -1017,7 +1015,7 @@ class SidebarTreeView(QTreeView):
                 return
         conf[name] = search
         self._set_saved_searches(conf)
-        self.refresh()
+        self.refresh(SidebarItem(name, "", item_type=SidebarItemType.SAVED_SEARCH))
 
     def remove_saved_searches(self, _item: SidebarItem) -> None:
         selected = self._selected_saved_searches()
