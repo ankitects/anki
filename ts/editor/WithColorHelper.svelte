@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let color = "black";
 
-    function setColor(newColor: string): void {
-        color = newColor;
+    function setColor({ currentTarget }: Event): void {
+        color = (currentTarget! as HTMLInputElement).value;
     }
 </script>
 
@@ -17,7 +17,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    div :global(#mdi-color-helper) {
-        fill: var(--color-helper-color);
+    div {
+        display: contents;
+
+        :global(#mdi-color-helper) {
+            fill: var(--color-helper-color);
+        }
     }
 </style>
