@@ -38,7 +38,6 @@ compile_sass(
 
 compile_sass(
     srcs = [
-        "color.scss",
         "fields.scss",
     ],
     group = "base_css",
