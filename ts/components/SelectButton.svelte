@@ -35,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="{className} form-select"
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
+    class:visible-down-arrow={nightMode}
     title={tooltip}
     on:change
 >
@@ -50,9 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow-x: hidden;
     }
 
-    .btn-night {
+    .visible-down-arrow {
         /* override the default down arrow */
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        @include button.select-night-mode;
     }
 
     @include button.btn-day($with-hover: false);
