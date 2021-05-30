@@ -306,19 +306,39 @@ class SidebarTreeView(QTreeView):
     ###########
 
     def _on_selection_changed(self, _new: QItemSelection, _old: QItemSelection) -> None:
-        selected_types = [item.item_type for item in self._selected_items()]
+        valid_drop_types = []
+        selected_items = self._selected_items()
+        selected_types = [item.item_type for item in selected_items]
+
+        # check if renaming is allowed
         if all(item_type == SidebarItemType.DECK for item_type in selected_types):
-            self.valid_drop_types = (SidebarItemType.DECK, SidebarItemType.DECK_ROOT)
+            valid_drop_types += [SidebarItemType.DECK, SidebarItemType.DECK_ROOT]
         elif all(item_type == SidebarItemType.TAG for item_type in selected_types):
-            self.valid_drop_types = (SidebarItemType.TAG, SidebarItemType.TAG_ROOT)
-        else:
-            self.valid_drop_types = ()
+            valid_drop_types += [SidebarItemType.TAG, SidebarItemType.TAG_ROOT]
+
+        # check if creating a saved search is allowed
+        if len(selected_items) == 1:
+            if (
+                selected_types[0] != SidebarItemType.SAVED_SEARCH
+                and selected_items[0].search_node is not None
+            ):
+                valid_drop_types += [
+                    SidebarItemType.SAVED_SEARCH_ROOT,
+                    SidebarItemType.SAVED_SEARCH,
+                ]
+
+        self.valid_drop_types = tuple(valid_drop_types)
 
     def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
         if target.item_type in (SidebarItemType.DECK, SidebarItemType.DECK_ROOT):
             return self._handle_drag_drop_decks(sources, target)
         if target.item_type in (SidebarItemType.TAG, SidebarItemType.TAG_ROOT):
             return self._handle_drag_drop_tags(sources, target)
+        if target.item_type in (
+            SidebarItemType.SAVED_SEARCH_ROOT,
+            SidebarItemType.SAVED_SEARCH,
+        ):
+            return self._handle_drag_drop_saved_search(sources, target)
         return False
 
     def _handle_drag_drop_decks(
@@ -360,6 +380,16 @@ class SidebarTreeView(QTreeView):
             parent=self.browser, tags=tags, new_parent=new_parent
         ).run_in_background()
 
+        return True
+
+    def _handle_drag_drop_saved_search(
+        self, sources: List[SidebarItem], _target: SidebarItem
+    ) -> bool:
+        if len(sources) != 1 or sources[0].search_node is None:
+            return False
+        self._save_search(
+            sources[0].name, self.col.build_search_string(sources[0].search_node)
+        )
         return True
 
     def _on_search(self, index: QModelIndex) -> None:
