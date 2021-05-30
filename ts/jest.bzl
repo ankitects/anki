@@ -39,7 +39,6 @@ def jest_test(deps, name = "jest", protobuf = False):
                 "--resolve-extensions=.mjs,.js",
                 "--log-level=warning",
                 "--platform=node",
-                "--external:protobufjs",
                 "--keep-names",
             ] + esbuild_extra_args,
             entry_point = ts_src,

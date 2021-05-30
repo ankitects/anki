@@ -25,6 +25,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { button: buttonRef, input: inputRef }));
 </script>
 
+<button
+    bind:this={buttonRef}
+    tabindex="-1"
+    {id}
+    class={`btn ${className}`}
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
+    title={tooltip}
+    on:click={delegateToInput}
+    on:mousedown|preventDefault
+>
+    <input tabindex="-1" bind:this={inputRef} type="color" on:change />
+</button>
+
 <style lang="scss">
     @use "ts/sass/button_mixins" as button;
 
@@ -32,8 +46,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @import "ts/sass/bootstrap/variables";
 
     button {
-        width: calc(var(--toolbar-size) - 0px);
-        height: calc(var(--toolbar-size) - 0px);
+        width: calc(var(--buttons-size) - 0px);
+        height: calc(var(--buttons-size) - 0px);
 
         padding: 4px;
         overflow: hidden;
@@ -59,16 +73,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0;
     }
 </style>
-
-<button
-    bind:this={buttonRef}
-    tabindex="-1"
-    {id}
-    class={`btn ${className}`}
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
-    title={tooltip}
-    on:click={delegateToInput}
-    on:mousedown|preventDefault>
-    <input tabindex="-1" bind:this={inputRef} type="color" on:change />
-</button>

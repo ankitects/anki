@@ -194,7 +194,6 @@ class FieldDialog(QDialog):
         f = self.form
         f.fontFamily.setCurrentFont(QFont(fld["font"]))
         f.fontSize.setValue(fld["size"])
-        f.sticky.setChecked(fld["sticky"])
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
 
@@ -212,10 +211,6 @@ class FieldDialog(QDialog):
         size = f.fontSize.value()
         if fld["size"] != size:
             fld["size"] = size
-            self.change_tracker.mark_basic()
-        sticky = f.sticky.isChecked()
-        if fld["sticky"] != sticky:
-            fld["sticky"] = sticky
             self.change_tracker.mark_basic()
         rtl = f.rtl.isChecked()
         if fld["rtl"] != rtl:

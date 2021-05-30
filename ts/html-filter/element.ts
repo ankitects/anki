@@ -32,8 +32,13 @@ function allowNone(element: Element): void {
     filterAttributes(() => false, element);
 }
 
-const allow = (attrs: string[]): FilterMethod => (element: Element): void =>
-    filterAttributes((attributeName: string) => attrs.includes(attributeName), element);
+const allow =
+    (attrs: string[]): FilterMethod =>
+    (element: Element): void =>
+        filterAttributes(
+            (attributeName: string) => attrs.includes(attributeName),
+            element
+        );
 
 function unwrapElement(element: Element): void {
     element.replaceWith(...element.childNodes);
@@ -88,19 +93,19 @@ const tagsAllowedExtended: TagsAllowed = {
     UL: allowNone,
 };
 
-const filterElementTagsAllowed = (tagsAllowed: TagsAllowed) => (
-    element: Element
-): void => {
-    const tagName = element.tagName;
+const filterElementTagsAllowed =
+    (tagsAllowed: TagsAllowed) =>
+    (element: Element): void => {
+        const tagName = element.tagName;
 
-    if (Object.prototype.hasOwnProperty.call(tagsAllowed, tagName)) {
-        tagsAllowed[tagName](element);
-    } else if (element.innerHTML) {
-        unwrapElement(element);
-    } else {
-        removeElement(element);
-    }
-};
+        if (Object.prototype.hasOwnProperty.call(tagsAllowed, tagName)) {
+            tagsAllowed[tagName](element);
+        } else if (element.innerHTML) {
+            unwrapElement(element);
+        } else {
+            removeElement(element);
+        }
+    };
 
 export const filterElementBasic = filterElementTagsAllowed(tagsAllowedBasic);
 export const filterElementExtended = filterElementTagsAllowed(tagsAllowedExtended);

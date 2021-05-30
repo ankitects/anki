@@ -1,3 +1,5 @@
+<path class="cumulative-overlay" />
+
 <!--
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
@@ -25,5 +27,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stroke-opacity: var(--area-stroke-opacity);
     }
 </style>
-
-<path class="cumulative-overlay" />

@@ -8,6 +8,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let tableData: TableDatum[];
 </script>
 
+<div>
+    <table dir={i18n.direction()}>
+        {#each tableData as { label, value }}
+            <tr>
+                <td class="align-end">{label}:</td>
+                <td class="align-start">{value}</td>
+            </tr>
+        {/each}
+    </table>
+</div>
+
 <style lang="scss">
     div {
         display: flex;
@@ -22,14 +33,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         text-align: start;
     }
 </style>
-
-<div>
-    <table dir={i18n.direction()}>
-        {#each tableData as { label, value }}
-            <tr>
-                <td class="align-end">{label}:</td>
-                <td class="align-start">{value}</td>
-            </tr>
-        {/each}
-    </table>
-</div>

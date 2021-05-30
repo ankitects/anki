@@ -7,6 +7,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let subtitle: string | null = null;
 </script>
 
+<div class="graph" tabindex="-1">
+    <h1>{title}</h1>
+
+    {#if subtitle}
+        <div class="subtitle">{subtitle}</div>
+    {/if}
+
+    <slot />
+</div>
+
 <style lang="scss">
     .graph {
         margin-left: auto;
@@ -65,13 +75,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-bottom: 1em;
     }
 </style>
-
-<div class="graph" tabindex="-1">
-    <h1>{title}</h1>
-
-    {#if subtitle}
-        <div class="subtitle">{subtitle}</div>
-    {/if}
-
-    <slot />
-</div>

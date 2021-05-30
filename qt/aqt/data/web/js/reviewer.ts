@@ -61,14 +61,17 @@ async function _updateQA(
     onShownHook = [onshown];
 
     const qa = document.getElementById("qa")!;
-    const renderError = (kind: string) => (error: Error): void => {
-        const errorMessage = String(error).substring(0, 2000);
-        const errorStack = String(error.stack).substring(0, 2000);
-        qa.innerHTML = `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(
-            /\n/g,
-            "<br>"
-        );
-    };
+    const renderError =
+        (kind: string) =>
+        (error: Error): void => {
+            const errorMessage = String(error).substring(0, 2000);
+            const errorStack = String(error.stack).substring(0, 2000);
+            qa.innerHTML =
+                `Invalid ${kind} on card: ${errorMessage}\n${errorStack}`.replace(
+                    /\n/g,
+                    "<br>"
+                );
+        };
 
     // hide current card
     qa.style.opacity = "0";

@@ -48,7 +48,6 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
-from aqt.deckoptions import DeckOptionsDialog
 from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
@@ -739,6 +738,9 @@ class AnkiQt(QMainWindow):
         if not focused and dirty:
             self.fade_out_webview()
 
+        if changes.mtime:
+            self.toolbar.update_sync_status()
+
     def on_focus_did_change(
         self, new_focus: Optional[QWidget], _old: Optional[QWidget]
     ) -> None:
@@ -1120,19 +1122,6 @@ title="%s" %s>%s</button>""" % (
     def onEditCurrent(self) -> None:
         aqt.dialogs.open("EditCurrent", self)
 
-    def onDeckConf(self, deck: Optional[DeckDict] = None) -> None:
-        import aqt.deckconf
-
-        if not deck:
-            deck = self.col.decks.current()
-        if deck["dyn"]:
-            aqt.dialogs.open("FilteredDeckConfigDialog", self, deck_id=deck["id"])
-        else:
-            if KeyboardModifiersPressed().shift or self.col.schedVer() == 1:
-                aqt.deckconf.DeckConf(self, deck)
-            else:
-                DeckOptionsDialog(self)
-
     def onOverview(self) -> None:
         self.col.reset()
         self.moveToState("overview")
@@ -1163,6 +1152,11 @@ title="%s" %s>%s</button>""" % (
 
     def onDocumentation(self) -> None:
         openHelp(HelpPage.INDEX)
+
+    # legacy
+
+    def onDeckConf(self, deck: Optional[DeckDict] = None) -> None:
+        pass
 
     # Importing & exporting
     ##########################################################################

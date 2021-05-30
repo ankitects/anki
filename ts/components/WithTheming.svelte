@@ -9,12 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let style: string;
 </script>
 
+<div {id} class={className} {style}>
+    <slot />
+</div>
+
 <style lang="scss">
     div {
         display: contents;
     }
 </style>
-
-<div {id} class={className} {style}>
-    <slot />
-</div>

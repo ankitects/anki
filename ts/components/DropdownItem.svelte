@@ -20,6 +20,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
+<button
+    {id}
+    bind:this={buttonRef}
+    class={`btn dropdown-item ${className}`}
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
+    title={tooltip}
+    on:click
+    on:mousedown|preventDefault
+>
+    <slot />
+</button>
+
 <style lang="scss">
     @use 'ts/sass/button_mixins' as button;
 
@@ -27,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: space-between;
 
-        font-size: calc(var(--toolbar-size) / 2.3);
+        font-size: calc(var(--buttons-size) / 2.3);
 
         background: none;
         box-shadow: none;
@@ -57,15 +70,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 </style>
-
-<button
-    {id}
-    bind:this={buttonRef}
-    class={`btn dropdown-item ${className}`}
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
-    title={tooltip}
-    on:click
-    on:mousedown|preventDefault>
-    <slot />
-</button>

@@ -311,7 +311,7 @@ mod test {
         );
 
         // add an extra card template
-        nt.add_template("card 2", "{{Front}}", "");
+        nt.add_template("card 2", "{{Front}}2", "");
         col.update_notetype(&mut nt)?;
 
         assert_eq!(

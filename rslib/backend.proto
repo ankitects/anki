@@ -132,7 +132,7 @@ service SchedulingService {
   rpc StateIsLeech(SchedulingState) returns (Bool);
   rpc AnswerCard(CardAnswer) returns (OpChanges);
   rpc UpgradeScheduler(Empty) returns (Empty);
-  rpc GetQueuedCards(GetQueuedCardsIn) returns (GetQueuedCardsOut);
+  rpc GetQueuedCards(GetQueuedCardsIn) returns (QueuedCards);
 }
 
 service DecksService {
@@ -1563,13 +1563,6 @@ message QueuedCards {
   uint32 review_count = 4;
 }
 
-message GetQueuedCardsOut {
-  oneof value {
-    QueuedCards queued_cards = 1;
-    CongratsInfoOut congrats_info = 2;
-  }
-}
-
 message OpChanges {
   bool card = 1;
   bool note = 2;
@@ -1578,6 +1571,7 @@ message OpChanges {
   bool notetype = 5;
   bool config = 6;
   bool deck_config = 11;
+  bool mtime = 12;
 
   bool browser_table = 7;
   bool browser_sidebar = 8;

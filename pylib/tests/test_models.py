@@ -115,6 +115,7 @@ def test_templates():
     assert stripHTML(c.q()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.newTemplate("template name")
+    t["qfmt"] = "{{Front}}2"
     mm.addTemplate(m, t)
     col.models.remTemplate(m, m["tmpls"][0])
     assert (
@@ -391,7 +392,7 @@ def test_req():
     mm.save(opt, templates=True)
     assert opt["req"][1] == [1, "any", [1, 2]]
     # testing None
-    opt["tmpls"][1]["qfmt"] = "{{^Add Reverse}}{{/Add Reverse}}"
+    opt["tmpls"][1]["qfmt"] = "{{^Add Reverse}}{{Tags}}{{/Add Reverse}}"
     mm.save(opt, templates=True)
     assert opt["req"][1] == [1, "none", []]
 

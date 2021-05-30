@@ -170,24 +170,25 @@ deck-config-minimum-interval-tooltip = The minimum interval given to a review ca
 
 ## Adding/renaming
 
-deck-config-add-group = Add Group
-deck-config-name-prompt = Name:
-deck-config-rename-group = Rename Group
+deck-config-add-group = Add Preset
+deck-config-name-prompt = Name
+deck-config-rename-group = Rename Preset
+deck-config-clone-group = Clone Preset
 
 ## Removing
 
-deck-config-remove-group = Remove Group
+deck-config-remove-group = Remove Preset
 deck-config-confirm-normal = Remove { $name }?
--deck-config-will-require-full-sync = This will require a one-way sync.
-# You don't need to translate this
-deck-config-confirm-full =
-    { deck-config-confirm-normal }
-    { -deck-config-will-require-full-sync }
+deck-config-will-require-full-sync =
+    The requested change will require a one-way sync. If you have made changes
+    on another device, and not synced them to this device yet, please do so before
+    you proceed.
+deck-config-confirm-remove-name = Remove { $name }?
 
 ## Other Buttons
 
 deck-config-save-button = Save
-deck-config-save-to-all-children = Save to All Children
+deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-revert-button-tooltip = Restore this setting to its default value.
 
 ## These strings are shown via the Description button at the bottom of the
@@ -211,3 +212,7 @@ deck-config-reviews-too-low =
 deck-config-learning-step-above-graduating-interval = The graduating interval should be at least as long as your final learning step.
 deck-config-good-above-easy = The easy interval should be at least as long as the graduating interval.
 deck-config-relearning-steps-above-minimum-interval = The minimum lapse interval should be at least as long as your final relearning step.
+
+## Selecting a deck
+
+deck-config-which-deck = Which deck would you like?

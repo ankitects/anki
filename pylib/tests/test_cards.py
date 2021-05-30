@@ -45,7 +45,7 @@ def test_genrem():
     mm = col.models
     # adding a new template should automatically create cards
     t = mm.newTemplate("rev")
-    t["qfmt"] = "{{Front}}"
+    t["qfmt"] = "{{Front}}2"
     t["afmt"] = ""
     mm.addTemplate(m, t)
     mm.save(m, templates=True)

@@ -20,9 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const { detach } = registration;
         detach.subscribe((value: boolean) => (detached = value));
     } else if (hasContext(buttonToolbarKey)) {
-        const registerComponent = getContext<Register<ButtonGroupRegistration>>(
-            buttonToolbarKey
-        );
+        const registerComponent =
+            getContext<Register<ButtonGroupRegistration>>(buttonToolbarKey);
         const { detach } = registerComponent();
         detach.subscribe((value: boolean) => (detached = value));
     } else {
@@ -30,15 +29,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style lang="scss">
-    div {
-        display: contents;
-    }
-</style>
-
 <!-- div is necessary to preserve item position -->
 <div {id}>
     <Detachable {detached}>
         <slot />
     </Detachable>
 </div>
+
+<style lang="scss">
+    div {
+        display: contents;
+    }
+</style>

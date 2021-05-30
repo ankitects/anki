@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let position_: ButtonPosition;
     let style: string;
 
-    const radius = "calc(var(--toolbar-size) / 7.5)";
+    const radius = "calc(var(--buttons-size) / 7.5)";
 
     $: {
         switch (position_) {
@@ -44,9 +44,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         detach.subscribe((value: boolean) => (detached = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));
     } else if (hasContext(buttonGroupKey)) {
-        const registerComponent = getContext<Register<ButtonRegistration>>(
-            buttonGroupKey
-        );
+        const registerComponent =
+            getContext<Register<ButtonRegistration>>(buttonGroupKey);
         const { detach, position } = registerComponent();
         detach.subscribe((value: boolean) => (detached = value));
         position.subscribe((value: ButtonPosition) => (position_ = value));

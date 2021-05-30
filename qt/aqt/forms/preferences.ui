@@ -206,6 +206,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="sched2021">
+         <property name="toolTip">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string notr="true">2021 scheduler (experimental)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="newSpread"/>
        </item>
        <item>
@@ -598,6 +608,7 @@
   <tabstop>showProgress</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>legacy_timezone</tabstop>
+  <tabstop>sched2021</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>

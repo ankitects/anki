@@ -85,11 +85,12 @@ def register_repos():
     #     ],
     # )
 
+    # when updating, remember to update pinned versions in package.json
     maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        sha256 = "a160d9ac88f2aebda2aa995de3fa3171300c076f06ad1d7c2e1385728b8442fa",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.4.1/rules_nodejs-3.4.1.tar.gz"],
+        sha256 = "4a5d654a4ccd4a4c24eca5d319d85a88a650edf119601550c95bf400c8cc897e",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.5.1/rules_nodejs-3.5.1.tar.gz"],
     )
 
     # native.local_repository(
@@ -100,9 +101,9 @@ def register_repos():
     maybe(
         http_archive,
         name = "esbuild_toolchain",
-        sha256 = "ac530f935b10e2e45f009ef0a8a2e3f4c95172c2548932fb7ca0d37ad95b6e9e",
-        urls = ["https://github.com/ankitects/esbuild_toolchain/archive/refs/tags/anki-2021-04-15.tar.gz"],
-        strip_prefix = "esbuild_toolchain-anki-2021-04-15",
+        sha256 = "3d0b5b669b106936f464578f178b3d8ceb96a80a5cf94903807241c96de19ffd",
+        urls = ["https://github.com/ankitects/esbuild_toolchain/archive/refs/tags/anki-2021-05-29.tar.gz"],
+        strip_prefix = "esbuild_toolchain-anki-2021-05-29",
     )
 
     # sass
@@ -127,12 +128,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "f0dc2323109e5989ad0657f36978542863aa32eb"
-    core_i18n_zip_csum = "0115b44b48e94b1ee0069b85ff305e204029e96ad94e308229d7341f739cab55"
+    core_i18n_commit = "001b8647793874e6abfa86c6bb8cb4574f4d35dd"
+    core_i18n_zip_csum = "d39eebc70166f07a1f6ecef37b631beb27d47ce0a3f461033bdd2cce574510a7"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "3920d268bff7215448e5ef8ff7441fcd04c33f53"
-    qtftl_i18n_zip_csum = "af0f9b10c4de924a4b7850893e4e3d7822059c9ee67b3b7d29d8624e1c79606f"
+    qtftl_i18n_commit = "bb0f33c4f79ba8864d17a4785e993c3c6785a05c"
+    qtftl_i18n_zip_csum = "99a15d0432a45f04b751184a5e2fc855cc71b72b92330346c0cb82c0d5755ac7"
 
     i18n_build_content = """
 filegroup(

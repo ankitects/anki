@@ -2,8 +2,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """
-This file contains experimental scheduler changes, and is not currently
-used by Anki.
+This file contains experimental scheduler changes:
+
+https://betas.ankiweb.net/2021-scheduler.html
 
 It uses the same DB schema as the V2 scheduler, and 'schedVer' remains
 as '2' internally.
@@ -11,15 +12,14 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import List, Literal, Sequence, Tuple, Union
+from typing import List, Literal, Sequence, Tuple
 
 import anki._backend.backend_pb2 as _pb
-from anki.cards import Card, CardId
+from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
 from anki.decks import DeckId
 from anki.errors import DBError
-from anki.scheduler.base import CongratsInfo
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.types import assert_exhaustive
 from anki.utils import intTime
@@ -44,23 +44,11 @@ class Scheduler(SchedulerBaseWithLegacy):
         *,
         fetch_limit: int = 1,
         intraday_learning_only: bool = False,
-    ) -> Union[QueuedCards, CongratsInfo]:
-        "Returns one or more card ids, or the congratulations screen info."
-        info = self.col._backend.get_queued_cards(
+    ) -> QueuedCards:
+        "Returns zero or more pending cards, and the remaining counts. Idempotent."
+        return self.col._backend.get_queued_cards(
             fetch_limit=fetch_limit, intraday_learning_only=intraday_learning_only
         )
-        kind = info.WhichOneof("value")
-        if kind == "queued_cards":
-            return info.queued_cards
-        elif kind == "congrats_info":
-            return info.congrats_info
-        else:
-            assert_exhaustive(kind)
-            assert False
-
-    def next_states(self, card_id: CardId) -> NextStates:
-        "New states corresponding to each answer button press."
-        return self.col._backend.get_next_card_states(card_id)
 
     def describe_next_states(self, next_states: NextStates) -> Sequence[str]:
         "Labels for each of the answer buttons."
@@ -111,29 +99,23 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def getCard(self) -> Optional[Card]:
         """Fetch the next card from the queue. None if finished."""
-        response = self.get_queued_cards()
-        if isinstance(response, QueuedCards):
-            backend_card = response.cards[0].card
-            card = Card(self.col)
-            card._load_from_backend_card(backend_card)
-            card.startTimer()
-            return card
-        else:
+        try:
+            queued_card = self.get_queued_cards().cards[0]
+        except IndexError:
             return None
+
+        card = Card(self.col)
+        card._load_from_backend_card(queued_card.card)
+        card.startTimer()
+        return card
 
     def _is_finished(self) -> bool:
         "Don't use this, it is a stop-gap until this code is refactored."
-        info = self.get_queued_cards()
-        return isinstance(info, CongratsInfo)
+        return not self.get_queued_cards().cards
 
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
         info = self.get_queued_cards()
-        if isinstance(info, CongratsInfo):
-            counts = [0, 0, 0]
-        else:
-            counts = [info.new_count, info.learning_count, info.review_count]
-
-        return tuple(counts)  # type: ignore
+        return (info.new_count, info.learning_count, info.review_count)
 
     @property
     def newCount(self) -> int:
@@ -175,10 +157,9 @@ class Scheduler(SchedulerBaseWithLegacy):
         else:
             assert False, "invalid ease"
 
+        states = self.col._backend.get_next_card_states(card.id)
         changes = self.answer_card(
-            self.build_answer(
-                card=card, states=self.next_states(card_id=card.id), rating=rating
-            )
+            self.build_answer(card=card, states=states, rating=rating)
         )
 
         # tests assume card will be mutated, so we need to reload it

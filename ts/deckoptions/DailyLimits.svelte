@@ -41,7 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0}
     warnings={[newCardsGreaterThanParent]}
     defaultValue={defaults.newPerDay}
-    bind:value={$config.newPerDay} />
+    bind:value={$config.newPerDay}
+/>
 
 <SpinBox
     label={tr.schedulingMaximumReviewsday()}
@@ -49,4 +50,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0}
     warnings={[reviewsTooLow]}
     defaultValue={defaults.reviewsPerDay}
-    bind:value={$config.reviewsPerDay} />
+    bind:value={$config.reviewsPerDay}
+/>

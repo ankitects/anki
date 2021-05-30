@@ -135,7 +135,7 @@ fn fuzz_range(interval: f32, factor: f32, minimum: f32) -> (f32, f32) {
     (interval - delta, interval + delta + 1.0)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NextCardStates {
     pub current: CardState,
     pub again: CardState,

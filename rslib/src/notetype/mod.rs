@@ -11,8 +11,10 @@ mod stock;
 mod templates;
 pub(crate) mod undo;
 
+use lazy_static::lazy_static;
 use std::{
     collections::{HashMap, HashSet},
+    iter::FromIterator,
     sync::Arc,
 };
 
@@ -37,7 +39,7 @@ pub use crate::backend_proto::{
 };
 use crate::{
     define_newtype,
-    error::TemplateSaveError,
+    error::{TemplateSaveError, TemplateSaveErrorDetails},
     prelude::*,
     template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
@@ -48,6 +50,18 @@ define_newtype!(NotetypeId, i64);
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
+lazy_static! {
+    /// New entries must be handled in render.rs/add_special_fields().
+    static ref SPECIAL_FIELDS: HashSet<&'static str> = HashSet::from_iter(vec![
+        "FrontSide",
+        "Card",
+        "CardFlag",
+        "Deck",
+        "Subdeck",
+        "Tags",
+        "Type",
+    ]);
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Notetype {
@@ -272,6 +286,93 @@ impl Notetype {
             });
     }
 
+    fn ensure_template_fronts_unique(&self) -> Result<()> {
+        let mut map = HashMap::new();
+        if let Some((index_1, index_2)) =
+            self.templates.iter().enumerate().find_map(|(index, card)| {
+                map.insert(&card.config.q_format, index)
+                    .map(|old_index| (old_index, index))
+            })
+        {
+            Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: index_2,
+                details: TemplateSaveErrorDetails::Duplicate(index_1),
+            }))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Ensure no templates are None, every front template contains at least one
+    /// field, and all used field names belong to a field of this notetype.
+    fn ensure_valid_parsed_templates(
+        &self,
+        templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+    ) -> Result<()> {
+        if let Some((invalid_index, details)) =
+            templates.iter().enumerate().find_map(|(index, sides)| {
+                if let (Some(q), Some(a)) = sides {
+                    let q_fields = q.fields();
+                    if q_fields.is_empty() {
+                        Some((index, TemplateSaveErrorDetails::NoFrontField))
+                    } else if self.unknown_field_name(q_fields.union(&a.fields())) {
+                        Some((index, TemplateSaveErrorDetails::NoSuchField))
+                    } else {
+                        None
+                    }
+                } else {
+                    Some((index, TemplateSaveErrorDetails::TemplateError))
+                }
+            })
+        {
+            Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: invalid_index,
+                details,
+            }))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// True if any non-empty name in names does not denote a special field or
+    /// a field of this notetype.
+    fn unknown_field_name<T, I>(&self, names: T) -> bool
+    where
+        T: IntoIterator<Item = I>,
+        I: AsRef<str>,
+    {
+        names.into_iter().any(|name| {
+            // The empty field name is allowed as it may be used by add-ons.
+            !name.as_ref().is_empty()
+                && !SPECIAL_FIELDS.contains(&name.as_ref())
+                && self.fields.iter().all(|field| field.name != name.as_ref())
+        })
+    }
+
+    fn ensure_cloze_if_and_only_if_cloze_notetype(
+        &self,
+        parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+    ) -> Result<()> {
+        if self.is_cloze() {
+            if missing_cloze_filter(parsed_templates) {
+                return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                    notetype: self.name.clone(),
+                    ordinal: 0,
+                    details: TemplateSaveErrorDetails::MissingCloze,
+                }));
+            }
+        } else if let Some(i) = find_cloze_filter(parsed_templates) {
+            return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                notetype: self.name.clone(),
+                ordinal: i,
+                details: TemplateSaveErrorDetails::ExtraneousCloze,
+            }));
+        }
+        Ok(())
+    }
+
     pub(crate) fn normalize_names(&mut self) {
         ensure_string_in_nfc(&mut self.name);
         for f in &mut self.fields {
@@ -315,33 +416,20 @@ impl Notetype {
         self.ensure_names_unique();
         self.reposition_sort_idx();
 
-        let parsed_templates = self.parsed_templates();
-        let invalid_card_idx = parsed_templates
-            .iter()
-            .enumerate()
-            .find_map(|(idx, (q, a))| {
-                if q.is_none() || a.is_none() {
-                    Some(idx)
-                } else {
-                    None
-                }
-            });
-        if let Some(idx) = invalid_card_idx {
-            return Err(AnkiError::TemplateSaveError(TemplateSaveError {
-                notetype: self.name.clone(),
-                ordinal: idx,
-            }));
-        }
+        let mut parsed_templates = self.parsed_templates();
         let reqs = self.updated_requirements(&parsed_templates);
 
         // handle renamed+deleted fields
         if let Some(existing) = existing {
             let fields = self.renamed_and_removed_fields(existing);
             if !fields.is_empty() {
-                self.update_templates_for_renamed_and_removed_fields(fields, parsed_templates);
+                self.update_templates_for_renamed_and_removed_fields(fields, &mut parsed_templates);
             }
         }
         self.config.reqs = reqs;
+        self.ensure_template_fronts_unique()?;
+        self.ensure_valid_parsed_templates(&parsed_templates)?;
+        self.ensure_cloze_if_and_only_if_cloze_notetype(&parsed_templates)?;
 
         Ok(())
     }
@@ -379,16 +467,16 @@ impl Notetype {
     fn update_templates_for_renamed_and_removed_fields(
         &mut self,
         fields: HashMap<String, Option<String>>,
-        parsed: Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)>,
+        parsed: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) {
-        for (idx, (q, a)) in parsed.into_iter().enumerate() {
-            if let Some(q) = q {
-                let updated = q.rename_and_remove_fields(&fields);
-                self.templates[idx].config.q_format = updated.template_to_string();
+        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+            if let Some(q) = q_opt {
+                q.rename_and_remove_fields(&fields);
+                self.templates[idx].config.q_format = q.template_to_string();
             }
-            if let Some(a) = a {
-                let updated = a.rename_and_remove_fields(&fields);
-                self.templates[idx].config.a_format = updated.template_to_string();
+            if let Some(a) = a_opt {
+                a.rename_and_remove_fields(&fields);
+                self.templates[idx].config.a_format = a.template_to_string();
             }
         }
     }
@@ -429,6 +517,35 @@ impl Notetype {
     pub(crate) fn is_cloze(&self) -> bool {
         matches!(self.config.kind(), NotetypeKind::Cloze)
     }
+}
+
+/// True if the slice is empty or either template of the first tuple doesn't have a cloze field.
+fn missing_cloze_filter(
+    parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+) -> bool {
+    parsed_templates
+        .get(0)
+        .map_or(true, |t| !has_cloze(&t.0) || !has_cloze(&t.1))
+}
+
+/// Return the index of the first tuple with a cloze field on either template.
+fn find_cloze_filter(
+    parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+) -> Option<usize> {
+    parsed_templates.iter().enumerate().find_map(|(i, t)| {
+        if has_cloze(&t.0) || has_cloze(&t.1) {
+            Some(i)
+        } else {
+            None
+        }
+    })
+}
+
+/// True if the template is non-empty and has a cloze field.
+fn has_cloze(template: &Option<ParsedTemplate>) -> bool {
+    template
+        .as_ref()
+        .map_or(false, |t| !t.cloze_fields().is_empty())
 }
 
 impl From<Notetype> for NotetypeProto {

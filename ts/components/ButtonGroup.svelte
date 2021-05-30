@@ -18,18 +18,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
+    export let size: number | undefined = undefined;
+    export let wrap: boolean | undefined = undefined;
+
+    $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
+    let buttonWrap: string;
+    $: if (wrap === undefined) {
+        buttonWrap = "";
+    } else {
+        buttonWrap = wrap ? `--buttons-wrap: wrap; ` : `--buttons-wrap: nowrap; `;
+    }
+
+    $: style = buttonSize + buttonWrap;
+
     function makeRegistration(): ButtonRegistration {
         const detach = writable(false);
         const position = writable(ButtonPosition.Standalone);
         return { detach, position };
     }
 
-    const {
-        registerComponent,
-        items,
-        dynamicItems,
-        getDynamicInterface,
-    } = makeInterface(makeRegistration);
+    const { registerComponent, items, dynamicItems, getDynamicInterface } =
+        makeInterface(makeRegistration);
 
     $: for (const [index, item] of $items.entries()) {
         if ($items.length === 1) {
@@ -49,9 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let buttonGroupRef: HTMLDivElement;
 
     $: if (api && buttonGroupRef) {
-        const { addComponent, updateRegistration } = getDynamicInterface(
-            buttonGroupRef
-        );
+        const { addComponent, updateRegistration } =
+            getDynamicInterface(buttonGroupRef);
 
         const insertButton = (button: SvelteComponent, position: Identifier = 0) =>
             addComponent(button, (added, parent) => insert(added, parent, position));
@@ -78,20 +86,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style lang="scss">
-    div {
-        flex-wrap: var(--toolbar-wrap);
-        padding: calc(var(--toolbar-size) / 10);
-        margin: 0;
-    }
-</style>
-
 <div
     bind:this={buttonGroupRef}
     {id}
     class={`btn-group ${className}`}
+    {style}
     dir="ltr"
-    role="group">
+    role="group"
+>
     <slot />
     {#each $dynamicItems as item}
         <ButtonGroupItem id={item[0].id} registration={item[1]}>
@@ -99,3 +101,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonGroupItem>
     {/each}
 </div>
+
+<style lang="scss">
+    div {
+        flex-wrap: var(--buttons-wrap);
+        padding: calc(var(--buttons-size) / 10);
+        margin: 0;
+    }
+</style>

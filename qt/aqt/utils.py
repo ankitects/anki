@@ -274,7 +274,6 @@ def askUser(
             default = QMessageBox.Yes
         r = msgfunc(parent, title, text, cast(QMessageBox.StandardButtons, sb), default)
         if r == QMessageBox.Help:
-
             openHelp(help)
         else:
             break

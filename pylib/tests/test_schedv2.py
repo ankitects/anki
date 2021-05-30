@@ -27,7 +27,7 @@ def getEmptyCol():
     col = getEmptyColOrig()
     col.upgrade_to_v2_scheduler()
     if is_2021():
-        col.set_2021_test_scheduler_enabled(True)
+        col.set_v3_scheduler(True)
     return col
 
 
@@ -885,7 +885,7 @@ def test_ordcycle():
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     t = mm.newTemplate("f2")
-    t["qfmt"] = "{{Front}}"
+    t["qfmt"] = "{{Front}}2"
     t["afmt"] = "{{Back}}"
     mm.addTemplate(m, t)
     mm.save(m)

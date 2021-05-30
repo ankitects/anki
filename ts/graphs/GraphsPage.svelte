@@ -25,14 +25,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<style lang="scss">
-    div {
-        @media only screen and (max-width: 600px) {
-            font-size: 12px;
-        }
-    }
-</style>
-
 <div>
     <WithGraphData
         {search}
@@ -40,7 +32,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:loading
         let:sourceData
         let:preferences
-        let:revlogRange>
+        let:revlogRange
+    >
         {#if controller}
             <svelte:component this={controller} {search} {days} {loading} />
         {/if}
@@ -53,8 +46,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {preferences}
                     {revlogRange}
                     {nightMode}
-                    on:search={browserSearch} />
+                    on:search={browserSearch}
+                />
             {/each}
         {/if}
     </WithGraphData>
 </div>
+
+<style lang="scss">
+    div {
+        @media only screen and (max-width: 600px) {
+            font-size: 12px;
+        }
+    }
+</style>

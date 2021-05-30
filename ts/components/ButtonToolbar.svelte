@@ -17,16 +17,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let nowrap = false;
+    export let size: number | undefined = undefined;
+    export let wrap: boolean | undefined = undefined;
+
+    $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
+    let buttonWrap: string;
+    $: if (wrap === undefined) {
+        buttonWrap = "";
+    } else {
+        buttonWrap = wrap ? `--buttons-wrap: wrap; ` : `--buttons-wrap: nowrap; `;
+    }
+
+    $: style = buttonSize + buttonWrap;
 
     function makeRegistration(): ButtonGroupRegistration {
         const detach = writable(false);
         return { detach };
     }
 
-    const { registerComponent, dynamicItems, getDynamicInterface } = makeInterface(
-        makeRegistration
-    );
+    const { registerComponent, dynamicItems, getDynamicInterface } =
+        makeInterface(makeRegistration);
 
     setContext(buttonToolbarKey, registerComponent);
 
@@ -34,9 +44,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let buttonToolbarRef: HTMLDivElement;
 
     $: if (buttonToolbarRef && api) {
-        const { addComponent, updateRegistration } = getDynamicInterface(
-            buttonToolbarRef
-        );
+        const { addComponent, updateRegistration } =
+            getDynamicInterface(buttonToolbarRef);
 
         const insertGroup = (group: SvelteComponent, position: Identifier = 0) =>
             addComponent(group, (added, parent) => insert(added, parent, position));
@@ -66,9 +75,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class={`btn-toolbar ${className}`}
-    class:flex-nowrap={nowrap}
-    role="toolbar">
+    class={`btn-toolbar wrap-variable ${className}`}
+    {style}
+    role="toolbar"
+>
     <slot />
     {#each $dynamicItems as item}
         <ButtonToolbarItem id={item[0].id} registration={item[1]}>
@@ -76,3 +86,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonToolbarItem>
     {/each}
 </div>
+
+<style lang="scss">
+    .wrap-variable {
+        flex-wrap: var(--buttons-wrap);
+    }
+</style>

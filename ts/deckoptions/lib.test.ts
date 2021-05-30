@@ -33,8 +33,7 @@ const exampleData = {
                     leechAction: "LEECH_ACTION_TAG_ONLY",
                     leechThreshold: 8,
                     capAnswerTimeToSecs: 60,
-                    other:
-                        "eyJuZXciOnsic2VwYXJhdGUiOnRydWV9LCJyZXYiOnsiZnV6eiI6MC4wNSwibWluU3BhY2UiOjF9fQ==",
+                    other: "eyJuZXciOnsic2VwYXJhdGUiOnRydWV9LCJyZXYiOnsiZnV6eiI6MC4wNSwibWluU3BhY2UiOjF9fQ==",
                 },
             },
             useCount: 1,

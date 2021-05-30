@@ -693,7 +693,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
-            assert_eq!(col.next_card()?.is_some(), false);
+            assert_eq!(col.get_next_card()?.is_some(), false);
             Ok(())
         };
 
@@ -704,7 +704,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
-            assert_eq!(col.next_card()?.is_some(), true);
+            assert_eq!(col.get_next_card()?.is_some(), true);
             Ok(())
         };
 
@@ -732,7 +732,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 3
             );
-            assert_eq!(col.next_card()?.is_some(), false);
+            assert_eq!(col.get_next_card()?.is_some(), false);
             Ok(())
         };
 

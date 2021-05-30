@@ -18,6 +18,7 @@ impl From<OpChanges> for pb::OpChanges {
             notetype: c.changes.notetype,
             config: c.changes.config,
             deck_config: c.changes.deck_config,
+            mtime: c.changes.mtime,
             browser_table: c.requires_browser_table_redraw(),
             browser_sidebar: c.requires_browser_sidebar_redraw(),
             editor: c.requires_editor_redraw(),
