@@ -1008,12 +1008,13 @@ class SidebarTreeView(QTreeView):
 
     def _save_search(self, name: str, search: str, update: bool = False) -> None:
         conf = self._get_saved_searches()
-        if (
-            not update
-            and name in conf
-            and not askUser(tr.browsing_confirm_saved_search_overwrite(name=name))
-        ):
-            return
+        if not update and name in conf:
+            if conf[name] == search:
+                # nothing to do
+                return
+            if not askUser(tr.browsing_confirm_saved_search_overwrite(name=name)):
+                # don't overwrite existing saved search
+                return
         conf[name] = search
         self._set_saved_searches(conf)
         self.refresh()
