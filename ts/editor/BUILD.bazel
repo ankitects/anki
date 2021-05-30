@@ -113,6 +113,10 @@ copy_mdi_icons(
         "function-variant.svg",
         "code-brackets.svg",
         "xml.svg",
+
+        "format-color-text.svg",
+        "format-color-highlight.svg",
+        "color-helper.svg",
     ],
     visibility = ["//visibility:public"],
 )
