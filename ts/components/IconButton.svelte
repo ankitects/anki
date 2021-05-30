@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let disables = true;
     export let tabbable = false;
 
-    export let iconSize: number = 80;
+    export let iconSize: number = 75;
     export let widthMultiplier: number = 1;
 
     let buttonRef: HTMLButtonElement;
