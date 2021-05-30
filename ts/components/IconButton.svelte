@@ -13,10 +13,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
-    export let iconSize: number = 80;
     export let active = false;
     export let disables = true;
     export let tabbable = false;
+
+    export let iconSize: number = 80;
+    export let widthMultiplier: number = 1;
 
     let buttonRef: HTMLButtonElement;
 
@@ -46,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click
     on:mousedown|preventDefault
 >
-    <span> <slot /> </span>
+    <span style={`--width-multiplier: ${widthMultiplier};`}> <slot /> </span>
 </button>
 
 <style lang="scss">
@@ -66,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         vertical-align: middle;
 
         /* constrain icon */
-        width: calc(var(--buttons-size) - 2px);
+        width: calc((var(--buttons-size) - 2px) * var(--width-multiplier));
         height: calc(var(--buttons-size) - 2px);
 
         & > :global(svg),
