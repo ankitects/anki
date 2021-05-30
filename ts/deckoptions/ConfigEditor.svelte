@@ -35,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-weight: bold;
         // adding a border decreases the default font size,
         // so increase it again
-        font-size: 2em;
+        font-size: 1.5em;
         border-bottom: 1px solid var(--medium-border);
         margin-right: 16px;
         margin-bottom: 0.5em;
