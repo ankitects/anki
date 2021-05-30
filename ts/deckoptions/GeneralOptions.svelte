@@ -14,7 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="grid-item-1">
-
     <h2>{tr.deckConfigTimerTitle()}</h2>
 
     <SpinBox
@@ -36,7 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="grid-item-1">
-    
     <h2>{tr.deckConfigAudioTitle()}</h2>
 
     <CheckBox

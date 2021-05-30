@@ -31,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="grid-item-2">
-    
     <h2>{tr.deckConfigOrderingTitle()}</h2>
 
     <EnumSelector

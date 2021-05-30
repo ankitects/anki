@@ -13,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="grid-item-1">
-    
     <h2>{tr.deckConfigBuryTitle()}</h2>
 
     <CheckBox
