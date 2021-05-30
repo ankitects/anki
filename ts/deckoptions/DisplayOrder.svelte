@@ -30,44 +30,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 </script>
 
-<h2>{tr.deckConfigOrderingTitle()}</h2>
+<div class="grid-item-2">
+    
+    <h2>{tr.deckConfigOrderingTitle()}</h2>
 
-<EnumSelector
-    label={tr.deckConfigNewGatherPriority()}
-    tooltip={tr.deckConfigNewGatherPriorityTooltip()}
-    choices={newGatherPriorityChoices}
-    defaultValue={defaults.newCardGatherPriority}
-    bind:value={$config.newCardGatherPriority}
-/>
+    <EnumSelector
+        label={tr.deckConfigNewGatherPriority()}
+        tooltip={tr.deckConfigNewGatherPriorityTooltip()}
+        choices={newGatherPriorityChoices}
+        defaultValue={defaults.newCardGatherPriority}
+        bind:value={$config.newCardGatherPriority}
+    />
 
-<EnumSelector
-    label={tr.deckConfigNewCardSortOrder()}
-    tooltip={tr.deckConfigNewCardSortOrderTooltip()}
-    choices={newSortOrderChoices}
-    defaultValue={defaults.newCardSortOrder}
-    bind:value={$config.newCardSortOrder}
-/>
+    <EnumSelector
+        label={tr.deckConfigNewCardSortOrder()}
+        tooltip={tr.deckConfigNewCardSortOrderTooltip()}
+        choices={newSortOrderChoices}
+        defaultValue={defaults.newCardSortOrder}
+        bind:value={$config.newCardSortOrder}
+    />
 
-<EnumSelector
-    label={tr.deckConfigNewReviewPriority()}
-    tooltip={tr.deckConfigNewReviewPriorityTooltip()}
-    choices={reviewMixChoices()}
-    defaultValue={defaults.newMix}
-    bind:value={$config.newMix}
-/>
+    <EnumSelector
+        label={tr.deckConfigNewReviewPriority()}
+        tooltip={tr.deckConfigNewReviewPriorityTooltip()}
+        choices={reviewMixChoices()}
+        defaultValue={defaults.newMix}
+        bind:value={$config.newMix}
+    />
 
-<EnumSelector
-    label={tr.deckConfigInterdayStepPriority()}
-    tooltip={tr.deckConfigInterdayStepPriorityTooltip()}
-    choices={reviewMixChoices()}
-    defaultValue={defaults.interdayLearningMix}
-    bind:value={$config.interdayLearningMix}
-/>
+    <EnumSelector
+        label={tr.deckConfigInterdayStepPriority()}
+        tooltip={tr.deckConfigInterdayStepPriorityTooltip()}
+        choices={reviewMixChoices()}
+        defaultValue={defaults.interdayLearningMix}
+        bind:value={$config.interdayLearningMix}
+    />
 
-<EnumSelector
-    label={tr.deckConfigReviewSortOrder()}
-    tooltip={tr.deckConfigReviewSortOrderTooltip()}
-    choices={reviewOrderChoices}
-    defaultValue={defaults.reviewOrder}
-    bind:value={$config.reviewOrder}
-/>
+    <EnumSelector
+        label={tr.deckConfigReviewSortOrder()}
+        tooltip={tr.deckConfigReviewSortOrderTooltip()}
+        choices={reviewOrderChoices}
+        defaultValue={defaults.reviewOrder}
+        bind:value={$config.reviewOrder}
+    />
+</div>

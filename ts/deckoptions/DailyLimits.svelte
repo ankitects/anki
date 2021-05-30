@@ -33,22 +33,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 </script>
 
-<h2>{tr.deckConfigDailyLimits()}</h2>
+<div class="grid-item-1">
+    
+    <h2>{tr.deckConfigDailyLimits()}</h2>
 
-<SpinBox
-    label={tr.schedulingNewCardsday()}
-    tooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-    min={0}
-    warnings={[newCardsGreaterThanParent]}
-    defaultValue={defaults.newPerDay}
-    bind:value={$config.newPerDay}
-/>
+    <SpinBox
+        label={tr.schedulingNewCardsday()}
+        tooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+        min={0}
+        warnings={[newCardsGreaterThanParent]}
+        defaultValue={defaults.newPerDay}
+        bind:value={$config.newPerDay}
+    />
 
-<SpinBox
-    label={tr.schedulingMaximumReviewsday()}
-    tooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-    min={0}
-    warnings={[reviewsTooLow]}
-    defaultValue={defaults.reviewsPerDay}
-    bind:value={$config.reviewsPerDay}
-/>
+    <SpinBox
+        label={tr.schedulingMaximumReviewsday()}
+        tooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+        min={0}
+        warnings={[reviewsTooLow]}
+        defaultValue={defaults.reviewsPerDay}
+        bind:value={$config.reviewsPerDay}
+    />
+</div>

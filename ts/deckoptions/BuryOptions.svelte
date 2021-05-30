@@ -12,18 +12,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<h2>{tr.deckConfigBuryTitle()}</h2>
+<div class="grid-item-1">
+    
+    <h2>{tr.deckConfigBuryTitle()}</h2>
 
-<CheckBox
-    label={tr.deckConfigBuryNewSiblings()}
-    tooltip={tr.deckConfigBuryTooltip()}
-    defaultValue={defaults.buryNew}
-    bind:value={$config.buryNew}
-/>
+    <CheckBox
+        label={tr.deckConfigBuryNewSiblings()}
+        tooltip={tr.deckConfigBuryTooltip()}
+        defaultValue={defaults.buryNew}
+        bind:value={$config.buryNew}
+    />
 
-<CheckBox
-    label={tr.deckConfigBuryReviewSiblings()}
-    tooltip={tr.deckConfigBuryTooltip()}
-    defaultValue={defaults.buryReviews}
-    bind:value={$config.buryReviews}
-/>
+    <CheckBox
+        label={tr.deckConfigBuryReviewSiblings()}
+        tooltip={tr.deckConfigBuryTooltip()}
+        defaultValue={defaults.buryReviews}
+        bind:value={$config.buryReviews}
+    />
+</div>

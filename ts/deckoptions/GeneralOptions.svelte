@@ -13,36 +13,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<h2>{tr.deckConfigTimerTitle()}</h2>
+<div class="grid-item-1">
 
-<SpinBox
-    label={tr.deckConfigMaximumAnswerSecs()}
-    tooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
-    min={30}
-    max={600}
-    defaultValue={defaults.capAnswerTimeToSecs}
-    bind:value={$config.capAnswerTimeToSecs}
-/>
+    <h2>{tr.deckConfigTimerTitle()}</h2>
 
-<CheckBox
-    id="showAnswerTimer"
-    label={tr.schedulingShowAnswerTimer()}
-    tooltip={tr.deckConfigShowAnswerTimerTooltip()}
-    defaultValue={defaults.showTimer}
-    bind:value={$config.showTimer}
-/>
+    <SpinBox
+        label={tr.deckConfigMaximumAnswerSecs()}
+        tooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
+        min={30}
+        max={600}
+        defaultValue={defaults.capAnswerTimeToSecs}
+        bind:value={$config.capAnswerTimeToSecs}
+    />
 
-<h2>{tr.deckConfigAudioTitle()}</h2>
+    <CheckBox
+        id="showAnswerTimer"
+        label={tr.schedulingShowAnswerTimer()}
+        tooltip={tr.deckConfigShowAnswerTimerTooltip()}
+        defaultValue={defaults.showTimer}
+        bind:value={$config.showTimer}
+    />
+</div>
 
-<CheckBox
-    label={tr.deckConfigDisableAutoplay()}
-    defaultValue={defaults.disableAutoplay}
-    bind:value={$config.disableAutoplay}
-/>
+<div class="grid-item-1">
+    
+    <h2>{tr.deckConfigAudioTitle()}</h2>
 
-<CheckBox
-    label={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
-    tooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
-    defaultValue={defaults.skipQuestionWhenReplayingAnswer}
-    bind:value={$config.skipQuestionWhenReplayingAnswer}
-/>
+    <CheckBox
+        label={tr.deckConfigDisableAutoplay()}
+        defaultValue={defaults.disableAutoplay}
+        bind:value={$config.disableAutoplay}
+    />
+
+    <CheckBox
+        label={tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
+        tooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
+        defaultValue={defaults.skipQuestionWhenReplayingAnswer}
+        bind:value={$config.skipQuestionWhenReplayingAnswer}
+    />
+</div>

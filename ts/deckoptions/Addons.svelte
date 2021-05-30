@@ -12,7 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if $components.length || state.haveAddons}
-    <div>
+    <div class="grid-item-1">
+        
         <h2>Add-ons</h2>
 
         <p>
