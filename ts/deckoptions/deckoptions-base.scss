@@ -23,7 +23,7 @@
 }
 
 body {
-    width: min(100vw, 35em);
+    width: 100vw;
     margin: 0 auto;
     // leave some space for rounded screens
     margin-bottom: 2em;
@@ -34,7 +34,7 @@ html {
 }
 
 #main {
-    padding: 0.5em;
+    padding: 1.5em;
     padding-top: 0;
 }
 
