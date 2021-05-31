@@ -65,4 +65,25 @@ def load_flags(col: Collection) -> List[Flag]:
             SearchNode(flag=SearchNode.FLAG_BLUE),
             "actionBlue_Flag",
         ),
+        Flag(
+            5,
+            labels["5"] if "5" in labels else tr.actions_violet_flag(),
+            icon.with_color(colors.FLAG5_FG),
+            SearchNode(flag=SearchNode.FLAG_VIOLET),
+            "actionViolet_Flag",
+        ),
+        Flag(
+            6,
+            labels["6"] if "6" in labels else tr.actions_turquoise_flag(),
+            icon.with_color(colors.FLAG6_FG),
+            SearchNode(flag=SearchNode.FLAG_TURQUOISE),
+            "actionTurquoise_Flag",
+        ),
+        Flag(
+            7,
+            labels["7"] if "7" in labels else tr.actions_purple_flag(),
+            icon.with_color(colors.FLAG7_FG),
+            SearchNode(flag=SearchNode.FLAG_PURPLE),
+            "actionPurple_Flag",
+        ),
     ]

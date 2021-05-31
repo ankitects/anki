@@ -858,6 +858,9 @@ message SearchNode {
     FLAG_ORANGE = 3;
     FLAG_GREEN = 4;
     FLAG_BLUE = 5;
+    FLAG_VIOLET = 6;
+    FLAG_TURQUOISE = 7;
+    FLAG_PURPLE = 8;
   }
   enum Rating {
     RATING_ANY = 0;
@@ -1130,6 +1133,9 @@ message BrowserRow {
     COLOR_FLAG_ORANGE = 4;
     COLOR_FLAG_GREEN = 5;
     COLOR_FLAG_BLUE = 6;
+    COLOR_FLAG_VIOLET = 7;
+    COLOR_FLAG_TURQUOISE = 8;
+    COLOR_FLAG_PURPLE = 9;
   }
   repeated Cell cells = 1;
   Color color = 2;

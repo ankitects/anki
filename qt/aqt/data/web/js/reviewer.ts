@@ -150,9 +150,12 @@ const _flagColours = {
     2: "#ff9900",
     3: "#77ff77",
     4: "#77aaff",
+    5: "#fc68e8",
+    6: "#00d3b7",
+    7: "#9e3bfa",
 };
 
-function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
+function _drawFlag(flag: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7): void {
     const elem = document.getElementById("_flag");
     if (flag === 0) {
         elem.setAttribute("hidden", "");
