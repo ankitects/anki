@@ -144,6 +144,7 @@ service DecksService {
   rpc GetDeckIdByName(String) returns (DeckId);
   rpc GetDeck(DeckId) returns (Deck);
   rpc UpdateDeck(Deck) returns (OpChanges);
+  rpc UpdateDeckLegacy(Json) returns (OpChanges);
   rpc SetDeckCollapsed(SetDeckCollapsedIn) returns (OpChanges);
   rpc GetDeckLegacy(DeckId) returns (Json);
   rpc GetDeckNames(GetDeckNamesIn) returns (DeckNames);

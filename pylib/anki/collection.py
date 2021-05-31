@@ -39,7 +39,7 @@ from anki.cards import Card, CardId
 from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
-from anki.decks import Deck, DeckId, DeckManager
+from anki.decks import DeckId, DeckManager
 from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
@@ -334,14 +334,6 @@ class Collection:
         return self._backend.update_note(
             note=note._to_backend_note(), skip_undo_entry=False
         )
-
-    def get_deck(self, id: DeckId) -> Deck:
-        "Get a new-style deck object."
-        return self._backend.get_deck(id)
-
-    def update_deck(self, deck: Deck) -> OpChanges:
-        "Save updates to an existing deck."
-        return self._backend.update_deck(deck)
 
     getCard = get_card
     getNote = get_note

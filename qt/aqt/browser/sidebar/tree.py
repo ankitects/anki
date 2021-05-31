@@ -13,7 +13,7 @@ from anki.collection import (
     SearchJoiner,
     SearchNode,
 )
-from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
+from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from anki.models import NotetypeId
 from anki.notes import Note
 from anki.tags import TagTreeNode
@@ -902,8 +902,8 @@ class SidebarTreeView(QTreeView):
         full_name = item.name_prefix + new_name
         deck_id = DeckId(item.id)
 
-        def after_fetch(deck: Deck) -> None:
-            if full_name == deck.name:
+        def after_fetch(name: str) -> None:
+            if full_name == name:
                 return
 
             rename_deck(
@@ -914,7 +914,7 @@ class SidebarTreeView(QTreeView):
 
         QueryOp(
             parent=self.browser,
-            op=lambda col: col.get_deck(deck_id),
+            op=lambda col: col.decks.name(deck_id),
             success=after_fetch,
         ).run_in_background()
 

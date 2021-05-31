@@ -8,7 +8,7 @@ from typing import List, Optional
 import aqt
 import aqt.deckconf
 from anki.cards import Card
-from anki.decks import Deck, DeckId
+from anki.decks import DeckDict, DeckId
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
@@ -29,7 +29,7 @@ class DeckOptionsDialog(QDialog):
     TITLE = "deckOptions"
     silentlyClose = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, deck: Deck) -> None:
+    def __init__(self, mw: aqt.main.AnkiQt, deck: DeckDict) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self._deck = deck
@@ -54,10 +54,10 @@ class DeckOptionsDialog(QDialog):
 
         self.web.eval(
             f"""const $deckOptions = anki.deckOptions(
-            document.getElementById('main'), {self._deck.id});"""
+            document.getElementById('main'), {self._deck["id"]});"""
         )
         self.setWindowTitle(
-            without_unicode_isolation(tr.actions_options_for(val=self._deck.name))
+            without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
         gui_hooks.deck_options_did_load(self)
 
@@ -68,28 +68,28 @@ class DeckOptionsDialog(QDialog):
 
 
 def confirm_deck_then_display_options(active_card: Optional[Card] = None) -> None:
-    decks = [aqt.mw.col.decks.get_current()]
+    decks = [aqt.mw.col.decks.current()]
     if card := active_card:
-        if card.odid and card.odid != decks[0].id:
-            decks.append(aqt.mw.col.get_deck(card.odid))
+        if card.odid and card.odid != decks[0]["id"]:
+            decks.append(aqt.mw.col.decks.get(card.odid))
 
-        if not any(d.id == card.did for d in decks):
-            decks.append(aqt.mw.col.get_deck(card.odid))
+        if not any(d["id"] == card.did for d in decks):
+            decks.append(aqt.mw.col.decks.get(card.odid))
 
     if len(decks) == 1:
         display_options_for_deck(decks[0])
     else:
-        decks.sort(key=lambda x: x.WhichOneof("kind") == "filtered")
+        decks.sort(key=lambda x: x["dyn"])
         _deck_prompt_dialog(decks)
 
 
-def _deck_prompt_dialog(decks: List[Deck]) -> None:
+def _deck_prompt_dialog(decks: List[DeckDict]) -> None:
     diag = QDialog(aqt.mw.app.activeWindow())
     diag.setWindowTitle("Anki")
     box = QVBoxLayout()
     box.addWidget(QLabel(tr.deck_config_which_deck()))
     for deck in decks:
-        button = QPushButton(deck.name)
+        button = QPushButton(deck["name"])
         qconnect(button.clicked, lambda _, deck=deck: display_options_for_deck(deck))
         qconnect(button.clicked, diag.close)
         box.addWidget(button)
@@ -101,15 +101,15 @@ def _deck_prompt_dialog(decks: List[Deck]) -> None:
 
 
 def display_options_for_deck_id(deck_id: DeckId) -> None:
-    display_options_for_deck(aqt.mw.col.get_deck(deck_id))
+    display_options_for_deck(aqt.mw.col.decks.get(deck_id))
 
 
-def display_options_for_deck(deck: Deck) -> None:
-    if deck.WhichOneof("kind") == "normal":
+def display_options_for_deck(deck: DeckDict) -> None:
+    if not deck["dyn"]:
         if KeyboardModifiersPressed().shift or aqt.mw.col.schedVer() == 1:
-            deck_legacy = aqt.mw.col.decks.get(DeckId(deck.id))
+            deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
             DeckOptionsDialog(aqt.mw, deck)
     else:
-        aqt.dialogs.open("FilteredDeckConfigDialog", aqt.mw, deck_id=deck.id)
+        aqt.dialogs.open("FilteredDeckConfigDialog", aqt.mw, deck_id=deck["id"])
