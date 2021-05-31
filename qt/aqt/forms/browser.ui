@@ -144,11 +144,11 @@
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>false</bool>
           </attribute>
-          <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>20</number>
-          </attribute>
           <attribute name="horizontalHeaderHighlightSections">
            <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>20</number>
           </attribute>
           <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
            <bool>true</bool>
@@ -209,7 +209,7 @@
      <x>0</x>
      <y>0</y>
      <width>750</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -262,6 +262,9 @@
      <addaction name="actionOrange_Flag"/>
      <addaction name="actionGreen_Flag"/>
      <addaction name="actionBlue_Flag"/>
+     <addaction name="actionViolet_Flag"/>
+     <addaction name="actionTurquoise_Flag"/>
+     <addaction name="actionPurple_Flag"/>
     </widget>
     <addaction name="actionChange_Deck"/>
     <addaction name="separator"/>
@@ -620,6 +623,39 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionViolet_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_violet_flag</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionTurquoise_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_turquoise_flag</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+6</string>
+   </property>
+  </action>
+  <action name="actionPurple_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_purple_flag</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+7</string>
    </property>
   </action>
  </widget>
