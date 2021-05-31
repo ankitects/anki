@@ -357,8 +357,9 @@ class DeckManager:
             return None
 
     def update_config(self, conf: DeckConfigDict, preserve_usn: bool = False) -> None:
+        "preserve_usn is ignored"
         conf["id"] = self.col._backend.add_or_update_deck_config_legacy(
-            config=to_json_bytes(conf), preserve_usn_and_mtime=preserve_usn
+            json=to_json_bytes(conf)
         )
 
     def add_config(

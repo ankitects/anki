@@ -230,8 +230,7 @@ service CardRenderingService {
 }
 
 service DeckConfigService {
-  rpc AddOrUpdateDeckConfigLegacy(AddOrUpdateDeckConfigLegacyIn)
-      returns (DeckConfigId);
+  rpc AddOrUpdateDeckConfigLegacy(Json) returns (DeckConfigId);
   rpc GetDeckConfig(DeckConfigId) returns (DeckConfig);
   rpc AllDeckConfigLegacy(Empty) returns (Json);
   rpc GetDeckConfigLegacy(DeckConfigId) returns (Json);
@@ -926,11 +925,6 @@ message ReplaceSearchNodeIn {
 
 message CloseCollectionIn {
   bool downgrade_to_schema11 = 1;
-}
-
-message AddOrUpdateDeckConfigLegacyIn {
-  bytes config = 1;
-  bool preserve_usn_and_mtime = 2;
 }
 
 message DeckConfigsForUpdate {

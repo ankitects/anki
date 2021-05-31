@@ -428,7 +428,7 @@ mod test {
         // set the limit to 4, which should mean 3 are left
         let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
         conf.inner.new_per_day = 4;
-        col.add_or_update_deck_config(&mut conf, false)?;
+        col.add_or_update_deck_config(&mut conf)?;
 
         let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
         assert_eq!(tree.children[0].new_count, 3);

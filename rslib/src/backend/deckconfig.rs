@@ -10,15 +10,12 @@ use crate::{
 };
 
 impl DeckConfigService for Backend {
-    fn add_or_update_deck_config_legacy(
-        &self,
-        input: pb::AddOrUpdateDeckConfigLegacyIn,
-    ) -> Result<pb::DeckConfigId> {
-        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
+    fn add_or_update_deck_config_legacy(&self, input: pb::Json) -> Result<pb::DeckConfigId> {
+        let conf: DeckConfSchema11 = serde_json::from_slice(&input.json)?;
         let mut conf: DeckConfig = conf.into();
         self.with_col(|col| {
             col.transact_no_undo(|col| {
-                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
+                col.add_or_update_deck_config_legacy(&mut conf)?;
                 Ok(pb::DeckConfigId { dcid: conf.id.0 })
             })
         })
