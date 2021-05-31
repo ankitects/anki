@@ -35,7 +35,6 @@ DeckConfigDict = Dict[str, Any]
 
 # currently only supports read-only access
 Deck = _pb.Deck
-DeckConfig = _pb.DeckConfig
 
 DeckId = NewType("DeckId", int)
 DeckConfigId = NewType("DeckConfigId", int)
