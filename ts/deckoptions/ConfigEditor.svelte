@@ -47,6 +47,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(24em, 1fr));
         column-gap: 2em;
-        row-gap: 1em;
+        row-gap: 1.5em;
     }
 </style>
