@@ -28,7 +28,6 @@ from anki.utils import (
 )
 
 # public exports
-Notetype = _pb.Notetype
 NotetypeNameId = _pb.NotetypeNameId
 NotetypeNameIdUseCount = _pb.NotetypeNameIdUseCount
 
