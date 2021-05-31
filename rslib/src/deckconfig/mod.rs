@@ -111,16 +111,8 @@ impl Collection {
 }
 
 impl Collection {
-    pub(crate) fn add_or_update_deck_config(
-        &mut self,
-        config: &mut DeckConfig,
-        preserve_usn_and_mtime: bool,
-    ) -> Result<()> {
-        let usn = if preserve_usn_and_mtime {
-            None
-        } else {
-            Some(self.usn()?)
-        };
+    pub(crate) fn add_or_update_deck_config(&mut self, config: &mut DeckConfig) -> Result<()> {
+        let usn = Some(self.usn()?);
 
         if config.id.0 == 0 {
             self.add_deck_config_inner(config, usn)
@@ -130,6 +122,23 @@ impl Collection {
                 .get_deck_config(config.id)?
                 .ok_or(AnkiError::NotFound)?;
             self.update_deck_config_inner(config, original, usn)
+        }
+    }
+
+    /// Used by the old import code; if provided id is non-zero, will add
+    /// instead of ignoring. Does not support undo.
+    pub(crate) fn add_or_update_deck_config_legacy(
+        &mut self,
+        config: &mut DeckConfig,
+    ) -> Result<()> {
+        let usn = Some(self.usn()?);
+
+        if config.id.0 == 0 {
+            self.add_deck_config_inner(config, usn)
+        } else {
+            config.set_modified(usn.unwrap());
+            self.storage
+                .add_or_update_deck_config_with_existing_id(config)
         }
     }
 
