@@ -101,9 +101,9 @@ def register_repos():
     maybe(
         http_archive,
         name = "esbuild_toolchain",
-        sha256 = "3d0b5b669b106936f464578f178b3d8ceb96a80a5cf94903807241c96de19ffd",
-        urls = ["https://github.com/ankitects/esbuild_toolchain/archive/refs/tags/anki-2021-05-29.tar.gz"],
-        strip_prefix = "esbuild_toolchain-anki-2021-05-29",
+        sha256 = "5f751df2e98e69c44ce7904d59ac46aac1fd7d48b96a34d170649305710b5766",
+        urls = ["https://github.com/ankitects/esbuild_toolchain/archive/refs/tags/anki-2021-05-31.tar.gz"],
+        strip_prefix = "esbuild_toolchain-anki-2021-05-31",
     )
 
     # sass
