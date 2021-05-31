@@ -27,39 +27,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
-<div>
-    <h2>{tr.schedulingLapses()}</h2>
+<h2>{tr.schedulingLapses()}</h2>
 
-    <StepsInput
-        label={tr.deckConfigRelearningSteps()}
-        tooltip={tr.deckConfigRelearningStepsTooltip()}
-        defaultValue={defaults.relearnSteps}
-        value={$config.relearnSteps}
-        on:changed={(evt) => ($config.relearnSteps = evt.detail.value)}
-    />
+<StepsInput
+    label={tr.deckConfigRelearningSteps()}
+    tooltip={tr.deckConfigRelearningStepsTooltip()}
+    defaultValue={defaults.relearnSteps}
+    value={$config.relearnSteps}
+    on:changed={(evt) => ($config.relearnSteps = evt.detail.value)}
+/>
 
-    <SpinBox
-        label={tr.schedulingMinimumInterval()}
-        tooltip={tr.deckConfigMinimumIntervalTooltip()}
-        warnings={[stepsExceedMinimumInterval]}
-        min={1}
-        defaultValue={defaults.minimumLapseInterval}
-        bind:value={$config.minimumLapseInterval}
-    />
+<SpinBox
+    label={tr.schedulingMinimumInterval()}
+    tooltip={tr.deckConfigMinimumIntervalTooltip()}
+    warnings={[stepsExceedMinimumInterval]}
+    min={1}
+    defaultValue={defaults.minimumLapseInterval}
+    bind:value={$config.minimumLapseInterval}
+/>
 
-    <SpinBox
-        label={tr.schedulingLeechThreshold()}
-        tooltip={tr.deckConfigLeechThresholdTooltip()}
-        min={1}
-        defaultValue={defaults.leechThreshold}
-        bind:value={$config.leechThreshold}
-    />
+<SpinBox
+    label={tr.schedulingLeechThreshold()}
+    tooltip={tr.deckConfigLeechThresholdTooltip()}
+    min={1}
+    defaultValue={defaults.leechThreshold}
+    bind:value={$config.leechThreshold}
+/>
 
-    <EnumSelector
-        label={tr.schedulingLeechAction()}
-        tooltip={tr.deckConfigLeechActionTooltip()}
-        choices={leechChoices}
-        defaultValue={defaults.leechAction}
-        bind:value={$config.leechAction}
-    />
-</div>
+<EnumSelector
+    label={tr.schedulingLeechAction()}
+    tooltip={tr.deckConfigLeechActionTooltip()}
+    choices={leechChoices}
+    defaultValue={defaults.leechAction}
+    bind:value={$config.leechAction}
+/>
