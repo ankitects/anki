@@ -94,7 +94,7 @@ class Overview:
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
-            display_options_for_deck(self.mw.col.decks.get_current())
+            display_options_for_deck(self.mw.col.decks.current())
         elif url == "cram":
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw)
         elif url == "refresh":
@@ -117,7 +117,7 @@ class Overview:
 
     def _shortcutKeys(self) -> List[Tuple[str, Callable]]:
         return [
-            ("o", lambda: display_options_for_deck(self.mw.col.decks.get_current())),
+            ("o", lambda: display_options_for_deck(self.mw.col.decks.current())),
             ("r", self.rebuild_current_filtered_deck),
             ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),

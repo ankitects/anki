@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import aqt
-from anki.decks import Deck
+from anki.decks import DeckDict
 from aqt.operations import QueryOp
-from aqt.operations.deck import update_deck
+from aqt.operations.deck import update_deck_dict
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 
@@ -21,16 +21,16 @@ class DeckDescriptionDialog(QDialog):
         self.mw = mw
 
         # set on success
-        self.deck: Deck
+        self.deck: DeckDict
 
         QueryOp(
             parent=self.mw,
-            op=lambda col: col.decks.get_current(),
+            op=lambda col: col.decks.current(),
             success=self._setup_and_show,
         ).run_in_background()
 
-    def _setup_and_show(self, deck: Deck) -> None:
-        if deck.WhichOneof("kind") != "normal":
+    def _setup_and_show(self, deck: DeckDict) -> None:
+        if deck["dyn"]:
             return
 
         self.deck = deck
@@ -53,11 +53,11 @@ class DeckDescriptionDialog(QDialog):
 
         self.enable_markdown = QCheckBox(tr.deck_config_description_markdown())
         self.enable_markdown.setToolTip(tr.deck_config_description_markdown_hint())
-        self.enable_markdown.setChecked(self.deck.normal.markdown_description)
+        self.enable_markdown.setChecked(self.deck.get("md", False))
         box.addWidget(self.enable_markdown)
 
         self.description = QPlainTextEdit()
-        self.description.setPlainText(self.deck.normal.description)
+        self.description.setPlainText(self.deck.get("desc", ""))
         box.addWidget(self.description)
 
         button_box = QDialogButtonBox()
@@ -69,10 +69,10 @@ class DeckDescriptionDialog(QDialog):
         self.show()
 
     def save_and_accept(self) -> None:
-        self.deck.normal.description = self.description.toPlainText()
-        self.deck.normal.markdown_description = self.enable_markdown.isChecked()
+        self.deck["desc"] = self.description.toPlainText()
+        self.deck["md"] = self.enable_markdown.isChecked()
 
-        update_deck(parent=self, deck=self.deck).success(
+        update_deck_dict(parent=self, deck=self.deck).success(
             lambda _: self.accept()
         ).run_in_background()
 

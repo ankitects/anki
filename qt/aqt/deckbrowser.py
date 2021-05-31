@@ -9,7 +9,7 @@ from typing import Any, Optional
 
 import aqt
 from anki.collection import OpChanges
-from anki.decks import Deck, DeckCollapseScope, DeckId, DeckTreeNode
+from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -278,9 +278,9 @@ class DeckBrowser:
         self.mw.onExport(did=did)
 
     def _rename(self, did: DeckId) -> None:
-        def prompt(deck: Deck) -> None:
-            new_name = getOnlyText(tr.decks_new_deck_name(), default=deck.name)
-            if not new_name or new_name == deck.name:
+        def prompt(name: str) -> None:
+            new_name = getOnlyText(tr.decks_new_deck_name(), default=name)
+            if not new_name or new_name == name:
                 return
             else:
                 rename_deck(
@@ -288,7 +288,7 @@ class DeckBrowser:
                 ).run_in_background()
 
         QueryOp(
-            parent=self.mw, op=lambda col: col.get_deck(did), success=prompt
+            parent=self.mw, op=lambda col: col.decks.name(did), success=prompt
         ).run_in_background()
 
     def _options(self, did: DeckId) -> None:
