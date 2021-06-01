@@ -66,7 +66,7 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     askUser,
     checkInvalidFilename,
-    current_top_level_widget,
+    current_window,
     disable_help_button,
     getFile,
     getOnlyText,
@@ -80,7 +80,6 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
-    top_level_widget,
     tr,
 )
 
@@ -725,7 +724,7 @@ class AnkiQt(QMainWindow):
         self, changes: OpChanges, handler: Optional[object]
     ) -> None:
         "Notify current screen of changes."
-        focused = current_top_level_widget() == self
+        focused = current_window() == self
         if self.state == "review":
             dirty = self.reviewer.op_executed(changes, handler, focused)
         elif self.state == "overview":
@@ -745,7 +744,7 @@ class AnkiQt(QMainWindow):
         self, new_focus: Optional[QWidget], _old: Optional[QWidget]
     ) -> None:
         "If main window has received focus, ensure current UI state is updated."
-        if new_focus and top_level_widget(new_focus) == self:
+        if new_focus and new_focus.window() == self:
             if self.state == "review":
                 self.reviewer.refresh_if_needed()
             elif self.state == "overview":
