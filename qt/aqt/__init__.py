@@ -461,11 +461,7 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
         profiler = cProfile.Profile()
         profiler.enable()
 
-    if (
-        isWin
-        and getattr(sys, "frozen", False)
-        and os.getenv("QT_QPA_PLATFORM") == "wayland"
-    ):
+    if getattr(sys, "frozen", False) and os.getenv("QT_QPA_PLATFORM") == "wayland":
         # the packaged builds currently do not support wayland natively
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 
