@@ -122,8 +122,11 @@ deck-config-review-sort-order-tooltip =
     The default order prioritizes cards that have been waiting longest, so that
     if you have a backlog of reviews, the longest-waiting ones will appear
     first. If you have a large backlog that will take more than a few days to
-    clear, you may find the alternate sort orders preferable.
+    clear, or wish to see cards in subdeck order, you may find the alternate
+    sort orders preferable.
 deck-config-sort-order-due-date-then-random = Due date, then random
+deck-config-sort-order-due-date-then-deck = Due date, then deck
+deck-config-sort-order-deck-then-due-date = Deck, then due date
 deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
 

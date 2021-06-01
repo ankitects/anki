@@ -32,7 +32,7 @@ impl QueueBuilder {
         self.day_learning.sort_unstable_by(day_then_hash);
 
         // other sorting is done in SQL
-        if self.sort_options.review_order == ReviewCardOrder::DayThenRandom {
+        if self.sort_options.review_order == ReviewCardOrder::Day {
             self.review.iter_mut().for_each(DueCard::hash_id_and_mtime);
             self.review.sort_unstable_by(day_then_hash);
         }
