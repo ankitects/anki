@@ -53,6 +53,6 @@ actions-red-flag = Red Flag
 actions-orange-flag = Orange Flag
 actions-green-flag = Green Flag
 actions-blue-flag = Blue Flag
-actions-violet-flag = Violet Flag
+actions-pink-flag = Pink Flag
 actions-turquoise-flag = Turquoise Flag
 actions-purple-flag = Purple Flag

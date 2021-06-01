@@ -527,7 +527,7 @@ impl RowContext {
                 2 => Color::FlagOrange,
                 3 => Color::FlagGreen,
                 4 => Color::FlagBlue,
-                5 => Color::FlagViolet,
+                5 => Color::FlagPink,
                 6 => Color::FlagTurquoise,
                 7 => Color::FlagPurple,
                 _ => {
