@@ -335,7 +335,7 @@ impl SqliteStorage {
     pub(crate) fn update_active_decks(&self, current: &Deck) -> Result<()> {
         self.db.execute_batch(concat!(
             "drop table if exists active_decks;",
-            "create temporary table active_decks (id integer primary key not null);"
+            "create temporary table active_decks (id integer not null unique);"
         ))?;
 
         let top = current.name.as_native_str();
