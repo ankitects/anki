@@ -10,54 +10,74 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "components/IconButton.svelte";
     import ColorPicker from "components/ColorPicker.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
+    import WithColorHelper from "./WithColorHelper.svelte";
 
-    import { squareFillIcon } from "./icons";
+    import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
     import { appendInParentheses } from "./helpers";
-
-    import "./color.css";
 
     export let api = {};
 
-    const foregroundColorKeyword = "--foreground-color";
-    let color = "black";
-
-    $: {
-        document.documentElement.style.setProperty(foregroundColorKeyword, color);
-    }
-
-    function wrapWithForecolor(): void {
+    const wrapWithForecolor = (color: string) => () => {
         document.execCommand("forecolor", false, color);
-    }
+    };
 
-    function setWithCurrentColor({ currentTarget }: Event): void {
-        color = (currentTarget as HTMLInputElement).value;
-    }
+    const wrapWithBackcolor = (color: string) => () => {
+        document.execCommand("backcolor", false, color);
+    };
 </script>
 
 <ButtonGroup {api}>
-    <ButtonGroupItem>
-        <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                class="forecolor"
-                tooltip={appendInParentheses(
-                    tr.editingSetForegroundColor(),
-                    shortcutLabel
-                )}
-                on:click={wrapWithForecolor}
-                on:mount={createShortcut}
-            >
-                {@html squareFillIcon}
-            </IconButton>
-        </WithShortcut>
-    </ButtonGroupItem>
+    <WithColorHelper let:colorHelperIcon let:color let:setColor>
+        <ButtonGroupItem>
+            <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingSetForegroundColor(),
+                        shortcutLabel
+                    )}
+                    on:click={wrapWithForecolor(color)}
+                    on:mount={createShortcut}
+                >
+                    {@html textColorIcon}
+                    {@html colorHelperIcon}
+                </IconButton>
+            </WithShortcut>
+        </ButtonGroupItem>
 
-    <ButtonGroupItem>
-        <WithShortcut shortcut={"F8"} let:createShortcut let:shortcutLabel>
-            <ColorPicker
-                tooltip={appendInParentheses(tr.editingChangeColor(), shortcutLabel)}
-                on:change={setWithCurrentColor}
-                on:mount={createShortcut}
-            />
-        </WithShortcut>
-    </ButtonGroupItem>
+        <ButtonGroupItem>
+            <WithShortcut shortcut={"F8"} let:createShortcut let:shortcutLabel>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingChangeColor(),
+                        shortcutLabel
+                    )}
+                    disables={false}
+                    widthMultiplier={0.5}
+                >
+                    {@html arrowIcon}
+                    <ColorPicker on:change={setColor} on:mount={createShortcut} />
+                </IconButton>
+            </WithShortcut>
+        </ButtonGroupItem>
+    </WithColorHelper>
+
+    <WithColorHelper let:colorHelperIcon let:color let:setColor>
+        <ButtonGroupItem>
+            <IconButton on:click={wrapWithBackcolor(color)}>
+                {@html highlightColorIcon}
+                {@html colorHelperIcon}
+            </IconButton>
+        </ButtonGroupItem>
+
+        <ButtonGroupItem>
+            <IconButton
+                tooltip={tr.editingChangeColor()}
+                disables={false}
+                widthMultiplier={0.5}
+            >
+                {@html arrowIcon}
+                <ColorPicker on:change={setColor} />
+            </IconButton>
+        </ButtonGroupItem>
+    </WithColorHelper>
 </ButtonGroup>

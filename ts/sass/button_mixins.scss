@@ -116,13 +116,3 @@ $focus-color: $blue;
     box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
         rgba(black, $intensity);
 }
-
-@mixin rainbow($base) {
-    background: content-box
-            linear-gradient(217deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0) 70.71%),
-        content-box
-            linear-gradient(127deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0) 70.71%),
-        content-box
-            linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%),
-        border-box $base;
-}
