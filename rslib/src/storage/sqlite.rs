@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, cmp::Ordering, path::Path, sync::Arc};
+use std::{borrow::Cow, cmp::Ordering, hash::Hasher, path::Path, sync::Arc};
 
+use fnv::FnvHasher;
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use unicase::UniCase;
@@ -51,6 +52,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
     add_without_combining_function(&db)?;
+    add_fnvhash_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -86,6 +88,16 @@ fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
             })
         },
     )
+}
+
+fn add_fnvhash_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function("fnvhash", -1, FunctionFlags::SQLITE_DETERMINISTIC, |ctx| {
+        let mut hasher = FnvHasher::default();
+        for idx in 0..ctx.len() {
+            hasher.write_i64(ctx.get(idx)?);
+        }
+        Ok(hasher.finish() as i64)
+    })
 }
 
 /// Adds sql function regexp(regex, string) -> is_match

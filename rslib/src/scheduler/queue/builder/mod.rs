@@ -116,7 +116,6 @@ impl QueueBuilder {
         current_day: u32,
     ) -> CardQueues {
         self.sort_new();
-        self.sort_reviews(current_day);
 
         // intraday learning
         let learning = sort_learning(self.learning);
