@@ -70,7 +70,7 @@ impl TryFrom<pb::SearchNode> for Node {
                     Flag::Orange => Node::Search(SearchNode::Flag(2)),
                     Flag::Green => Node::Search(SearchNode::Flag(3)),
                     Flag::Blue => Node::Search(SearchNode::Flag(4)),
-                    Flag::Violet => Node::Search(SearchNode::Flag(5)),
+                    Flag::Pink => Node::Search(SearchNode::Flag(5)),
                     Flag::Turquoise => Node::Search(SearchNode::Flag(6)),
                     Flag::Purple => Node::Search(SearchNode::Flag(7)),
                 },

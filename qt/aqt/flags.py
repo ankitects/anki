@@ -67,10 +67,10 @@ def load_flags(col: Collection) -> List[Flag]:
         ),
         Flag(
             5,
-            labels["5"] if "5" in labels else tr.actions_violet_flag(),
+            labels["5"] if "5" in labels else tr.actions_pink_flag(),
             icon.with_color(colors.FLAG5_FG),
-            SearchNode(flag=SearchNode.FLAG_VIOLET),
-            "actionViolet_Flag",
+            SearchNode(flag=SearchNode.FLAG_PINK),
+            "actionPink_Flag",
         ),
         Flag(
             6,

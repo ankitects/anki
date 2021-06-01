@@ -262,7 +262,7 @@
      <addaction name="actionOrange_Flag"/>
      <addaction name="actionGreen_Flag"/>
      <addaction name="actionBlue_Flag"/>
-     <addaction name="actionViolet_Flag"/>
+     <addaction name="actionPink_Flag"/>
      <addaction name="actionTurquoise_Flag"/>
      <addaction name="actionPurple_Flag"/>
     </widget>
@@ -625,12 +625,12 @@
     <string notr="true">Ctrl+Shift+Z</string>
    </property>
   </action>
-  <action name="actionViolet_Flag">
+  <action name="actionPink_Flag">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_violet_flag</string>
+    <string>actions_pink_flag</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+5</string>
