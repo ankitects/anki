@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>272</width>
+    <width>299</width>
     <height>229</height>
    </rect>
   </property>
@@ -33,10 +33,10 @@
      <item row="0" column="1">
       <widget class="QSpinBox" name="start">
        <property name="minimum">
-        <number>-20000000</number>
+        <number>0</number>
        </property>
        <property name="maximum">
-        <number>200000000</number>
+        <number>1000000</number>
        </property>
        <property name="value">
         <number>0</number>
