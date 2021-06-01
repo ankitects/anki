@@ -200,12 +200,18 @@ impl super::SqliteStorage {
         F: FnMut(CardQueue, DueCard) -> bool,
     {
         let order_clause = match order {
-            ReviewCardOrder::DayThenRandom => "order by due",
-            ReviewCardOrder::IntervalsAscending => "order by ivl asc",
-            ReviewCardOrder::IntervalsDescending => "order by ivl desc",
+            ReviewCardOrder::Day => "due",
+            ReviewCardOrder::DayThenDeck => {
+                "due, (select rowid from active_decks ad where ad.id = did)"
+            }
+            ReviewCardOrder::DeckThenDay => {
+                "(select rowid from active_decks ad where ad.id = did), due"
+            }
+            ReviewCardOrder::IntervalsAscending => "ivl asc",
+            ReviewCardOrder::IntervalsDescending => "ivl desc",
         };
         let mut stmt = self.db.prepare_cached(&format!(
-            "{} {}",
+            "{} order by {}",
             include_str!("due_cards.sql"),
             order_clause
         ))?;

@@ -64,7 +64,7 @@ impl Default for DeckConfig {
                 new_card_insert_order: NewCardInsertOrder::Due as i32,
                 new_card_gather_priority: NewCardGatherPriority::Deck as i32,
                 new_card_sort_order: NewCardSortOrder::TemplateThenDue as i32,
-                review_order: ReviewCardOrder::DayThenRandom as i32,
+                review_order: ReviewCardOrder::Day as i32,
                 new_mix: ReviewMix::MixWithReviews as i32,
                 interday_learning_mix: ReviewMix::MixWithReviews as i32,
                 leech_action: LeechAction::TagOnly as i32,
