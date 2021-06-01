@@ -15,10 +15,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "components/DropdownItem.svelte";
     import DropdownDivider from "components/DropdownDivider.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import WithShortcut from "components/WithShortcut.svelte";
 
     const dispatch = createEventDispatcher();
 
     export let state: DeckOptionsState;
+
+    function commitEditing(): void {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
+    }
 
     function removeConfig(): void {
         // show pop-up after dropdown has gone away
@@ -27,8 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 alert(tr.schedulingTheDefaultConfigurationCantBeRemoved());
                 return;
             }
-            // fixme: move tr.qt_misc schema mod msg into core
-            // fixme: include name of deck in msg
             const msg =
                 (state.removalWilLForceFullSync()
                     ? tr.deckConfigWillRequireFullSync() + " "
@@ -45,15 +50,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function save(applyToChildDecks: boolean): void {
+        commitEditing();
         state.save(applyToChildDecks);
     }
 </script>
 
 <ButtonGroup>
     <ButtonGroupItem>
-        <LabelButton theme="primary" on:click={() => save(false)}
-            >{tr.deckConfigSaveButton()}</LabelButton
-        >
+        <WithShortcut shortcut={"Control+Enter"} let:createShortcut let:shortcutLabel>
+            <LabelButton
+                theme="primary"
+                on:click={() => save(false)}
+                tooltip={shortcutLabel}
+                on:mount={createShortcut}>{tr.deckConfigSaveButton()}</LabelButton
+            >
+        </WithShortcut>
     </ButtonGroupItem>
 
     <ButtonGroupItem>

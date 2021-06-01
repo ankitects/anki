@@ -6,8 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ConfigSelector from "./ConfigSelector.svelte";
     import ConfigEditor from "./ConfigEditor.svelte";
     import type { DeckOptionsState } from "./lib";
-    import { onMount, onDestroy } from "svelte";
-    import { registerShortcut } from "lib/shortcuts";
     import type { Writable } from "svelte/store";
     import HtmlAddon from "./HtmlAddon.svelte";
     import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
@@ -33,12 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         ];
     }
-
-    let registerCleanup: () => void;
-    onMount(() => {
-        registerCleanup = registerShortcut(() => state.save(false), "Control+Enter");
-    });
-    onDestroy(() => registerCleanup?.());
 </script>
 
 <ConfigSelector {state} />
