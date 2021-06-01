@@ -146,15 +146,13 @@ class SidebarTreeView(QTreeView):
             self.refresh()
             self._refresh_needed = False
 
-    def refresh(self) -> None:
+    def refresh(self, new_current: SidebarItem = None) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return
 
-        if self.model() and (idx := self.currentIndex()):
-            current_item = self.model().item_for_index(idx)
-        else:
-            current_item = None
+        if not new_current and self.model() and (idx := self.currentIndex()):
+            new_current = self.model().item_for_index(idx)
 
         def on_done(root: SidebarItem) -> None:
             # user may have closed browser
@@ -171,8 +169,8 @@ class SidebarTreeView(QTreeView):
                 self.search_for(self.current_search)
             else:
                 self._expand_where_necessary(model)
-            if current_item:
-                self.restore_current(current_item)
+            if new_current:
+                self.restore_current(new_current)
 
             self.setUpdatesEnabled(True)
 
@@ -306,19 +304,39 @@ class SidebarTreeView(QTreeView):
     ###########
 
     def _on_selection_changed(self, _new: QItemSelection, _old: QItemSelection) -> None:
-        selected_types = [item.item_type for item in self._selected_items()]
+        valid_drop_types = []
+        selected_items = self._selected_items()
+        selected_types = [item.item_type for item in selected_items]
+
+        # check if renaming is allowed
         if all(item_type == SidebarItemType.DECK for item_type in selected_types):
-            self.valid_drop_types = (SidebarItemType.DECK, SidebarItemType.DECK_ROOT)
+            valid_drop_types += [SidebarItemType.DECK, SidebarItemType.DECK_ROOT]
         elif all(item_type == SidebarItemType.TAG for item_type in selected_types):
-            self.valid_drop_types = (SidebarItemType.TAG, SidebarItemType.TAG_ROOT)
-        else:
-            self.valid_drop_types = ()
+            valid_drop_types += [SidebarItemType.TAG, SidebarItemType.TAG_ROOT]
+
+        # check if creating a saved search is allowed
+        if len(selected_items) == 1:
+            if (
+                selected_types[0] != SidebarItemType.SAVED_SEARCH
+                and selected_items[0].search_node is not None
+            ):
+                valid_drop_types += [
+                    SidebarItemType.SAVED_SEARCH_ROOT,
+                    SidebarItemType.SAVED_SEARCH,
+                ]
+
+        self.valid_drop_types = tuple(valid_drop_types)
 
     def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
         if target.item_type in (SidebarItemType.DECK, SidebarItemType.DECK_ROOT):
             return self._handle_drag_drop_decks(sources, target)
         if target.item_type in (SidebarItemType.TAG, SidebarItemType.TAG_ROOT):
             return self._handle_drag_drop_tags(sources, target)
+        if target.item_type in (
+            SidebarItemType.SAVED_SEARCH_ROOT,
+            SidebarItemType.SAVED_SEARCH,
+        ):
+            return self._handle_drag_drop_saved_search(sources, target)
         return False
 
     def _handle_drag_drop_decks(
@@ -360,6 +378,16 @@ class SidebarTreeView(QTreeView):
             parent=self.browser, tags=tags, new_parent=new_parent
         ).run_in_background()
 
+        return True
+
+    def _handle_drag_drop_saved_search(
+        self, sources: List[SidebarItem], _target: SidebarItem
+    ) -> bool:
+        if len(sources) != 1 or sources[0].search_node is None:
+            return False
+        self._save_search(
+            sources[0].name, self.col.build_search_string(sources[0].search_node)
+        )
         return True
 
     def _on_search(self, index: QModelIndex) -> None:
@@ -978,15 +1006,16 @@ class SidebarTreeView(QTreeView):
 
     def _save_search(self, name: str, search: str, update: bool = False) -> None:
         conf = self._get_saved_searches()
-        if (
-            not update
-            and name in conf
-            and not askUser(tr.browsing_confirm_saved_search_overwrite(name=name))
-        ):
-            return
+        if not update and name in conf:
+            if conf[name] == search:
+                # nothing to do
+                return
+            if not askUser(tr.browsing_confirm_saved_search_overwrite(name=name)):
+                # don't overwrite existing saved search
+                return
         conf[name] = search
         self._set_saved_searches(conf)
-        self.refresh()
+        self.refresh(SidebarItem(name, "", item_type=SidebarItemType.SAVED_SEARCH))
 
     def remove_saved_searches(self, _item: SidebarItem) -> None:
         selected = self._selected_saved_searches()
