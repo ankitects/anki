@@ -5,7 +5,7 @@ use std::{cmp::Ordering, hash::Hasher};
 
 use fnv::FnvHasher;
 
-use super::{DueCard, NewCard, NewCardSortOrder, QueueBuilder, ReviewCardOrder};
+use super::{NewCard, NewCardSortOrder, QueueBuilder};
 
 impl QueueBuilder {
     pub(super) fn sort_new(&mut self) {
@@ -22,19 +22,6 @@ impl QueueBuilder {
                 self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
                 self.new.sort_unstable_by(new_hash)
             }
-        }
-    }
-
-    pub(super) fn sort_reviews(&mut self, _current_day: u32) {
-        self.day_learning
-            .iter_mut()
-            .for_each(DueCard::hash_id_and_mtime);
-        self.day_learning.sort_unstable_by(day_then_hash);
-
-        // other sorting is done in SQL
-        if self.sort_options.review_order == ReviewCardOrder::DayThenRandom {
-            self.review.iter_mut().for_each(DueCard::hash_id_and_mtime);
-            self.review.sort_unstable_by(day_then_hash);
         }
     }
 }
@@ -55,27 +42,9 @@ fn new_hash(a: &NewCard, b: &NewCard) -> Ordering {
     a.hash.cmp(&b.hash)
 }
 
-fn day_then_hash(a: &DueCard, b: &DueCard) -> Ordering {
-    (a.due, a.hash).cmp(&(b.due, b.hash))
-}
-
 // We sort based on a hash so that if the queue is rebuilt, remaining
 // cards come back in the same approximate order (mixing + due learning cards
 // may still result in a different card)
-
-impl DueCard {
-    fn hash_id_and_mtime(&mut self) {
-        let mut hasher = FnvHasher::default();
-        hasher.write_i64(self.id.0);
-        hasher.write_i64(self.mtime.0);
-        self.hash = hasher.finish();
-    }
-
-    #[allow(dead_code)]
-    fn set_hash_to_relative_overdue(&mut self, _current_day: u32) {
-        todo!()
-    }
-}
 
 impl NewCard {
     fn hash_id_and_mtime(&mut self) {

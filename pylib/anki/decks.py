@@ -33,10 +33,6 @@ defaultDynamicDeck = 1
 DeckDict = Dict[str, Any]
 DeckConfigDict = Dict[str, Any]
 
-# currently only supports read-only access
-Deck = _pb.Deck
-DeckConfig = _pb.DeckConfig
-
 DeckId = NewType("DeckId", int)
 DeckConfigId = NewType("DeckConfigId", int)
 
@@ -291,6 +287,9 @@ class DeckManager:
             deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
         )
 
+    def update_dict(self, deck: DeckDict) -> OpChanges:
+        return self.col._backend.update_deck_legacy(json=to_json_bytes(deck))
+
     def rename(self, deck: Union[DeckDict, DeckId], new_name: str) -> OpChanges:
         "Rename deck prefix to NAME if not exists. Updates children."
         if isinstance(deck, int):
@@ -357,8 +356,9 @@ class DeckManager:
             return None
 
     def update_config(self, conf: DeckConfigDict, preserve_usn: bool = False) -> None:
+        "preserve_usn is ignored"
         conf["id"] = self.col._backend.add_or_update_deck_config_legacy(
-            config=to_json_bytes(conf), preserve_usn_and_mtime=preserve_usn
+            json=to_json_bytes(conf)
         )
 
     def add_config(
@@ -455,15 +455,12 @@ class DeckManager:
     # Deck selection
     #############################################################
 
-    def get_current(self) -> Deck:
-        return self.col._backend.get_current_deck()
-
     def set_current(self, deck: DeckId) -> OpChanges:
         return self.col._backend.set_current_deck(deck)
 
     def get_current_id(self) -> DeckId:
         "The currently selected deck ID."
-        return DeckId(self.get_current().id)
+        return DeckId(self.col._backend.get_current_deck().id)
 
     # legacy
 
@@ -528,7 +525,7 @@ class DeckManager:
         )
 
     def deck_and_child_ids(self, deck_id: DeckId) -> List[DeckId]:
-        parent_name = self.col.get_deck(deck_id).name
+        parent_name = self.name(deck_id)
         out = [deck_id]
         out.extend(self.child_ids(parent_name))
         return out

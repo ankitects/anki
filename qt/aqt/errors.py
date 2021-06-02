@@ -78,9 +78,6 @@ class ErrorHandler(QObject):
         if "10013" in error:
             showWarning(tr.qt_misc_your_firewall_or_antivirus_program_is())
             return
-        if "no default input" in error.lower():
-            showWarning(tr.qt_misc_please_connect_a_microphone_and_ensure())
-            return
         if "invalidTempFolder" in error:
             showWarning(self.tempFolderMsg())
             return
@@ -93,7 +90,14 @@ class ErrorHandler(QObject):
             showWarning(markdown(tr.errors_accessing_db()))
             return
 
-        if self.mw.addonManager.dirty:
+        must_close = False
+        if "PanicException" in error:
+            must_close = True
+            txt = markdown(
+                "**A fatal error occurred, and Anki must close. Please report this message on the forums.**"
+            )
+            error = f"{supportText() + self._addonText(error)}\n{error}"
+        elif self.mw.addonManager.dirty:
             txt = markdown(tr.errors_addons_active_popup())
             error = f"{supportText() + self._addonText(error)}\n{error}"
         else:
@@ -103,6 +107,8 @@ class ErrorHandler(QObject):
         # show dialog
         txt = f"{txt}<div style='white-space: pre-wrap'>{error}</div>"
         showText(txt, type="html", copyBtn=True)
+        if must_close:
+            sys.exit(1)
 
     def _addonText(self, error: str) -> str:
         matches = re.findall(r"addons21/(.*?)/", error)

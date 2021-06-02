@@ -21,9 +21,15 @@ export { default as indentIcon } from "./text-indent-left.svg";
 export { default as outdentIcon } from "./text-indent-right.svg";
 
 export { default as squareFillIcon } from "./square-fill.svg";
+export { default as textColorIcon } from "./format-color-text.svg";
+export { default as highlightColorIcon } from "./format-color-highlight.svg";
+export { default as colorHelperIcon } from "./color-helper.svg";
 
 export { default as paperclipIcon } from "./paperclip.svg";
 export { default as micIcon } from "./mic.svg";
 export { default as bracketsIcon } from "./code-brackets.svg";
 export { default as functionIcon } from "./function-variant.svg";
 export { default as xmlIcon } from "./xml.svg";
+
+export const arrowIcon =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="transparent" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 5l6 6 6-6"/></svg>';

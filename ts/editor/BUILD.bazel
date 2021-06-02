@@ -38,7 +38,6 @@ compile_sass(
 
 compile_sass(
     srcs = [
-        "color.scss",
         "fields.scss",
     ],
     group = "base_css",
@@ -113,6 +112,10 @@ copy_mdi_icons(
         "function-variant.svg",
         "code-brackets.svg",
         "xml.svg",
+
+        "format-color-text.svg",
+        "format-color-highlight.svg",
+        "color-helper.svg",
     ],
     visibility = ["//visibility:public"],
 )

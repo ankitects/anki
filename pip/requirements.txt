@@ -6,19 +6,19 @@ atomicwrites==1.4.0 ; sys_platform == "win32"
     # via
     #   -r requirements.in
     #   pytest
-attrs==21.1.0
+attrs==21.2.0
     # via
     #   jsonschema
     #   pytest
 beautifulsoup4==4.9.3
     # via -r requirements.in
-black==21.5b0
+black==21.5b2
     # via -r requirements.in
-certifi==2020.12.5
+certifi==2021.5.30
     # via requests
 chardet==4.0.0
     # via requests
-click==7.1.2
+click==8.0.1
     # via
     #   black
     #   flask
@@ -26,17 +26,18 @@ click==7.1.2
 colorama==0.4.4 ; sys_platform == "win32"
     # via
     #   -r requirements.in
+    #   click
     #   pylint
     #   pytest
 compare-locales==8.1.0
     # via -r requirements.in
-decorator==5.0.7
+decorator==5.0.9
     # via -r requirements.in
 distro==1.5.0
     # via -r requirements.in
 flask-cors==3.0.10
     # via -r requirements.in
-flask==1.1.2
+flask==2.0.1
     # via
     #   -r requirements.in
     #   flask-cors
@@ -52,9 +53,9 @@ isort==5.8.0
     # via
     #   -r requirements.in
     #   pylint
-itsdangerous==1.1.0
+itsdangerous==2.0.1
     # via flask
-jinja2==2.11.3
+jinja2==3.0.1
     # via flask
 jsonschema==3.2.0
     # via -r requirements.in
@@ -62,7 +63,7 @@ lazy-object-proxy==1.6.0
     # via astroid
 markdown==3.3.4
     # via -r requirements.in
-markupsafe==1.1.1
+markupsafe==2.0.1
     # via jinja2
 mccabe==0.6.1
     # via pylint
@@ -76,7 +77,7 @@ mypy-protobuf==2.4
     # via -r requirements.in
 mypy==0.812
     # via -r requirements.in
-orjson==3.5.2
+orjson==3.5.3
     # via -r requirements.in
 packaging==20.9
     # via pytest
@@ -88,7 +89,7 @@ pip-tools==6.1.0
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest
-protobuf==3.16.0
+protobuf==3.17.1
     # via
     #   -r requirements.in
     #   mypy-protobuf
@@ -96,7 +97,7 @@ psutil==5.8.0 ; sys_platform == "win32"
     # via -r requirements.in
 py==1.10.0
     # via pytest
-pylint==2.8.2
+pylint==2.8.3
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
@@ -108,7 +109,7 @@ pytest==6.2.4
     # via -r requirements.in
 pytoml==0.1.21
     # via compare-locales
-pywin32==300 ; sys_platform == "win32"
+pywin32==301 ; sys_platform == "win32"
     # via -r requirements.in
 regex==2021.4.4
     # via black
@@ -140,11 +141,11 @@ typed-ast==1.4.3
     # via mypy
 typing-extensions==3.10.0.0
     # via mypy
-urllib3==1.26.4
+urllib3==1.26.5
     # via requests
 waitress==2.0.0
     # via -r requirements.in
-werkzeug==1.0.1
+werkzeug==2.0.1
     # via flask
 winrt==1.0.21033.1 ; sys_platform == "win32" and platform_release == "10"
     # via -r requirements.in
@@ -152,7 +153,7 @@ wrapt==1.12.1
     # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==21.1.1
+pip==21.1.2
     # via pip-tools
-setuptools==56.1.0
+setuptools==57.0.0
     # via jsonschema

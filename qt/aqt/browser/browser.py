@@ -40,7 +40,7 @@ from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
-    current_top_level_widget,
+    current_window,
     ensure_editor_saved,
     getTag,
     no_arg_trigger,
@@ -112,7 +112,7 @@ class Browser(QMainWindow):
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]
     ) -> None:
-        focused = current_top_level_widget() == self
+        focused = current_window() == self
         self.table.op_executed(changes, handler, focused)
         self.sidebar.op_executed(changes, handler, focused)
         if changes.editor:
@@ -135,7 +135,7 @@ class Browser(QMainWindow):
             self._update_context_actions()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
-        if current_top_level_widget() == self:
+        if current_window() == self:
             self.setUpdatesEnabled(True)
             self.table.redraw_cells()
             self.sidebar.refresh_if_needed()

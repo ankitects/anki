@@ -39,11 +39,11 @@ from anki.cards import Card, CardId
 from anki.config import Config, ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
-from anki.decks import Deck, DeckConfig, DeckConfigId, DeckId, DeckManager
+from anki.decks import DeckId, DeckManager
 from anki.errors import AbortSchemaModification, DBError
 from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
-from anki.models import ModelManager, Notetype, NotetypeDict, NotetypeId
+from anki.models import ModelManager, NotetypeDict, NotetypeId
 from anki.notes import Note, NoteId
 from anki.scheduler.v1 import Scheduler as V1Scheduler
 from anki.scheduler.v2 import Scheduler as V2Scheduler
@@ -334,27 +334,6 @@ class Collection:
         return self._backend.update_note(
             note=note._to_backend_note(), skip_undo_entry=False
         )
-
-    def get_deck(self, id: DeckId) -> Deck:
-        "Get a new-style deck object."
-        return self._backend.get_deck(id)
-
-    def update_deck(self, deck: Deck) -> OpChanges:
-        "Save updates to an existing deck."
-        return self._backend.update_deck(deck)
-
-    def get_deck_config(self, id: DeckConfigId) -> DeckConfig:
-        "Get a new-style deck config object. Currently read-only."
-        return self._backend.get_deck_config(id)
-
-    def get_notetype(self, id: NotetypeId) -> Notetype:
-        """Get a new-style notetype object. This is not cached; avoid calling frequently."""
-        return self._backend.get_notetype(id)
-
-    def update_notetype(self, notetype: Notetype) -> OpChanges:
-        "This may force a full sync; caller is responsible for notifying user."
-        self.models._remove_from_cache(NotetypeId(notetype.id))
-        return self._backend.update_notetype(notetype)
 
     getCard = get_card
     getNote = get_note

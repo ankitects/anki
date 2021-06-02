@@ -1378,7 +1378,7 @@ mod test {
             name: "new dconf".into(),
             ..Default::default()
         };
-        col1.add_or_update_deck_config(&mut dconf, false)?;
+        col1.add_or_update_deck_config(&mut dconf)?;
         if let DeckKind::Normal(deck) = &mut deck.kind {
             deck.config_id = dconf.id.0;
         }

@@ -25,6 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
     const reviewOrderChoices = [
         tr.deckConfigSortOrderDueDateThenRandom(),
+        tr.deckConfigSortOrderDueDateThenDeck(),
+        tr.deckConfigSortOrderDeckThenDueDate(),
         tr.deckConfigSortOrderAscendingIntervals(),
         tr.deckConfigSortOrderDescendingIntervals(),
     ];

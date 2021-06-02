@@ -199,13 +199,9 @@ impl super::SqliteStorage {
     where
         F: FnMut(CardQueue, DueCard) -> bool,
     {
-        let order_clause = match order {
-            ReviewCardOrder::DayThenRandom => "order by due",
-            ReviewCardOrder::IntervalsAscending => "order by ivl asc",
-            ReviewCardOrder::IntervalsDescending => "order by ivl desc",
-        };
+        let order_clause = review_order_sql(order);
         let mut stmt = self.db.prepare_cached(&format!(
-            "{} {}",
+            "{} order by {}",
             include_str!("due_cards.sql"),
             order_clause
         ))?;
@@ -544,6 +540,44 @@ impl super::SqliteStorage {
 
         Ok(())
     }
+}
+
+#[derive(Clone, Copy)]
+enum ReviewOrderSubclause {
+    Day,
+    Deck,
+    Random,
+    IntervalsAscending,
+    IntervalsDescending,
+}
+
+impl ReviewOrderSubclause {
+    fn to_str(self) -> &'static str {
+        match self {
+            ReviewOrderSubclause::Day => "due",
+            ReviewOrderSubclause::Deck => "(select rowid from active_decks ad where ad.id = did)",
+            ReviewOrderSubclause::Random => "fnvhash(id, mod)",
+            ReviewOrderSubclause::IntervalsAscending => "ivl asc",
+            ReviewOrderSubclause::IntervalsDescending => "ivl desc",
+        }
+    }
+}
+
+fn review_order_sql(order: ReviewCardOrder) -> String {
+    let mut subclauses = match order {
+        ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
+        ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
+        ReviewCardOrder::DeckThenDay => vec![ReviewOrderSubclause::Deck, ReviewOrderSubclause::Day],
+        ReviewCardOrder::IntervalsAscending => vec![ReviewOrderSubclause::IntervalsAscending],
+        ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
+    };
+    subclauses.push(ReviewOrderSubclause::Random);
+
+    let v: Vec<_> = subclauses
+        .into_iter()
+        .map(ReviewOrderSubclause::to_str)
+        .collect();
+    v.join(", ")
 }
 
 #[cfg(test)]

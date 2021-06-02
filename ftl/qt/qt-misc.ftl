@@ -29,7 +29,11 @@ qt-misc-manage-note-types = Manage Note Types
 qt-misc-name-exists = Name exists.
 qt-misc-non-unicode-text = <non-unicode text>
 qt-misc-optimizing = Optimizing...
-qt-misc-please-connect-a-microphone-and-ensure = Please connect a microphone, and ensure other programs are not using the audio device.
+qt-misc-unable-to-record =
+    Unable to record. Please ensure a microphone is connected, and Anki has permission to use the microphone.
+    If other programs are using your microphone, closing them may help.
+    
+    Original error: { $error }
 qt-misc-please-ensure-a-profile-is-open = Please ensure a profile is open and Anki is not busy, then try again.
 qt-misc-please-select-1-card = (please select 1 card)
 qt-misc-please-select-a-deck = Please select a deck.

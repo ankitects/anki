@@ -414,10 +414,10 @@ fn parse_template(s: &str) -> ParseResult<SearchNode> {
     }))
 }
 
-/// flag:0-4
+/// flag:0-7
 fn parse_flag(s: &str) -> ParseResult<SearchNode> {
     if let Ok(flag) = s.parse::<u8>() {
-        if flag > 4 {
+        if flag > 7 {
             Err(parse_failure(s, FailKind::InvalidFlag))
         } else {
             Ok(SearchNode::Flag(flag))
@@ -999,7 +999,7 @@ mod test {
         assert_err_kind(r#""flag: ""#, InvalidFlag);
         assert_err_kind("flag:-0", InvalidFlag);
         assert_err_kind("flag:", InvalidFlag);
-        assert_err_kind("flag:5", InvalidFlag);
+        assert_err_kind("flag:8", InvalidFlag);
         assert_err_kind("flag:1.1", InvalidFlag);
 
         for term in &["added", "edited", "rated", "resched"] {

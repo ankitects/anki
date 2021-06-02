@@ -97,6 +97,14 @@ impl DecksService for Backend {
         })
     }
 
+    fn update_deck_legacy(&self, input: pb::Json) -> Result<pb::OpChanges> {
+        self.with_col(|col| {
+            let deck: DeckSchema11 = serde_json::from_slice(&input.json)?;
+            let mut deck = deck.into();
+            col.update_deck(&mut deck).map(Into::into)
+        })
+    }
+
     fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
         self.with_col(|col| {
             let deck: DeckSchema11 = col

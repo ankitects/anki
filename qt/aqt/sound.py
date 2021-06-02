@@ -17,6 +17,8 @@ from concurrent.futures import Future
 from operator import itemgetter
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, cast
 
+from markdown import markdown
+
 import aqt
 from anki import hooks
 from anki.cards import Card
@@ -799,7 +801,11 @@ def record_audio(
         else:
             encode_mp3(mw, path, on_done)
 
-    _diag = RecordDialog(parent, mw, after_record)
+    try:
+        _diag = RecordDialog(parent, mw, after_record)
+    except Exception as e:
+        err_str = str(e)
+        showWarning(markdown(tr.qt_misc_unable_to_record(error=err_str)))
 
 
 # Legacy audio interface

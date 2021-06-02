@@ -121,7 +121,7 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut input.configs {
-            self.add_or_update_deck_config(conf, false)?;
+            self.add_or_update_deck_config(conf)?;
             configs_after_update.insert(conf.id, conf.clone());
         }
 
