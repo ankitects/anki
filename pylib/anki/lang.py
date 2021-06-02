@@ -211,3 +211,7 @@ def is_rtl(lang: str) -> bool:
 # for testing purposes
 def without_unicode_isolation(s: str) -> str:
     return s.replace("\u2068", "").replace("\u2069", "")
+
+
+def with_collapsed_whitespace(s: str) -> str:
+    return re.sub(r"\s+", " ", s)

@@ -3,10 +3,11 @@
 from typing import List, Optional
 
 import aqt
+from anki.lang import with_collapsed_whitespace
 from aqt.customstudy import CustomStudy
 from aqt.main import AnkiQt
 from aqt.qt import *
-from aqt.utils import disable_help_button, restoreGeom, saveGeom
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, showWarning, tr
 
 
 class TagLimit(QDialog):
@@ -73,7 +74,6 @@ class TagLimit(QDialog):
         QDialog.reject(self)
 
     def accept(self) -> None:
-        self.hide()
         # gather yes/no tags
         yes = []
         no = []
@@ -89,6 +89,10 @@ class TagLimit(QDialog):
             idx = self.dialog.inactiveList.indexFromItem(item)
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
                 no.append(self.tags_list[c])
+        if (len(yes) + len(no)) > 100:
+            showWarning(with_collapsed_whitespace(tr.errors_100_tags_max()))
+            return
+        self.hide()
         # save in the deck for future invocations
         self.deck["activeTags"] = yes
         self.deck["inactiveTags"] = no
