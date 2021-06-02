@@ -16,7 +16,7 @@ search-unclosed-quote = an opening double quote `"` was found, but there was no 
 search-missing-key = a colon `:` was found, but there was no keyword preceding it. If you want to search for a literal `:`, prepend a backslash: `\:`.
 search-unknown-escape = the escape sequence `{ $val }` is not defined. If you want to search for a literal backslash `\`, prepend another one: `\\`.
 search-invalid-argument = `{ $term }` was given an invalid argument '`{ $argument }`'.
-search-invalid-flag = `flag:` must be followed by a valid flag number: `1` (red), `2` (orange), `3` (green), `4` (blue), `5` (pink), `6` (turquoise), `7` (purple) or `0` (no flag).
+search-invalid-flag-2 = `flag:` must be followed by a valid flag number: `1` (red), `2` (orange), `3` (green), `4` (blue), `5` (pink), `6` (turquoise), `7` (purple) or `0` (no flag).
 search-invalid-prop-operator = `prop:{ $val }` must be followed by one of the following comparison operators: `=`, `!=`, `<`, `>`, `<=` or `>=`.
 search-invalid-other = please check for typing mistakes.
 
