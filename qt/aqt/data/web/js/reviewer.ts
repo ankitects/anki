@@ -146,13 +146,16 @@ function _showAnswer(a: string, bodyclass: string): void {
 }
 
 const _flagColours = {
-    1: "#ff6666",
-    2: "#ff9900",
-    3: "#77ff77",
-    4: "#77aaff",
+    1: "#e25252",
+    2: "#ffb347",
+    3: "#54c414",
+    4: "#578cff",
+    5: "#ff82ee",
+    6: "#00d1b5",
+    7: "#9649dd",
 };
 
-function _drawFlag(flag: 0 | 1 | 2 | 3 | 4): void {
+function _drawFlag(flag: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7): void {
     const elem = document.getElementById("_flag");
     if (flag === 0) {
         elem.setAttribute("hidden", "");

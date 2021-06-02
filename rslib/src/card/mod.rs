@@ -119,11 +119,8 @@ impl Card {
 
     /// True if flag changed.
     fn set_flag(&mut self, flag: u8) -> bool {
-        // we currently only allow 4 flags
-        assert!(flag < 5);
-
-        // but reserve space for 7, preserving the rest of
-        // the flags (up to a byte)
+        // The first 3 bits represent one of the 7 supported flags, the rest of
+        // the flag byte is preserved.
         let updated_flags = (self.flags & !0b111) | flag;
         if self.flags != updated_flags {
             self.flags = updated_flags;
@@ -268,7 +265,7 @@ impl Collection {
     }
 
     pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<usize>> {
-        if flag > 4 {
+        if flag > 7 {
             return Err(AnkiError::invalid_input("invalid flag"));
         }
         let flag = flag as u8;
