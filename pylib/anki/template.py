@@ -252,6 +252,9 @@ class TemplateRenderContext:
                 template=to_json_bytes(self._template),
                 fill_empty=self._fill_empty,
             )
+            # when rendering card layout, the css changes have not been
+            # committed; we need the current notetype instance instead
+            out.css = self._note_type["css"]
         else:
             # existing card (eg study mode)
             out = self._col._backend.render_existing_card(
