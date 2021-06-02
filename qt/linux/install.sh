@@ -2,6 +2,11 @@
 
 set -e
 
+if ! test -f install.sh; then
+  echo "Please run from the folder install.sh is in."
+  exit 1
+fi
+
 if [ "$PREFIX" = "" ]; then
 	PREFIX=/usr/local
 fi
