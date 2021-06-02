@@ -75,6 +75,15 @@ class DataModel(QAbstractTableModel):
             return CellRow.deleted(self.len_columns())
         except Exception as e:
             return CellRow.generic(self.len_columns(), str(e))
+        except BaseException as e:
+            # fatal error like a panic in the backend - dump it to the
+            # console so it gets picked up by the error handler
+            import traceback
+
+            traceback.print_exc()
+            # and prevent Qt from firing a storm of follow-up errors
+            self._block_updates = True
+            return CellRow.generic(self.len_columns(), "error")
 
         gui_hooks.browser_did_fetch_row(
             item, self._state.is_notes_mode(), row, self._state.active_columns
