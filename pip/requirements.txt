@@ -2,10 +2,6 @@ appdirs==1.4.4
     # via black
 astroid==2.5.6
     # via pylint
-atomicwrites==1.4.0 ; sys_platform == "win32"
-    # via
-    #   -r requirements.in
-    #   pytest
 attrs==21.1.0
     # via
     #   jsonschema
@@ -23,11 +19,6 @@ click==7.1.2
     #   black
     #   flask
     #   pip-tools
-colorama==0.4.4 ; sys_platform == "win32"
-    # via
-    #   -r requirements.in
-    #   pylint
-    #   pytest
 compare-locales==8.1.0
     # via -r requirements.in
 decorator==5.0.7
@@ -92,8 +83,6 @@ protobuf==3.16.0
     # via
     #   -r requirements.in
     #   mypy-protobuf
-psutil==5.8.0 ; sys_platform == "win32"
-    # via -r requirements.in
 py==1.10.0
     # via pytest
 pylint==2.8.2
@@ -108,8 +97,6 @@ pytest==6.2.4
     # via -r requirements.in
 pytoml==0.1.21
     # via compare-locales
-pywin32==300 ; sys_platform == "win32"
-    # via -r requirements.in
 regex==2021.4.4
     # via black
 requests[socks]==2.25.1
@@ -140,14 +127,12 @@ typed-ast==1.4.3
     # via mypy
 typing-extensions==3.10.0.0
     # via mypy
-urllib3==1.26.4
+urllib3==1.26.5
     # via requests
 waitress==2.0.0
     # via -r requirements.in
 werkzeug==1.0.1
     # via flask
-winrt==1.0.21033.1 ; sys_platform == "win32" and platform_release == "10"
-    # via -r requirements.in
 wrapt==1.12.1
     # via astroid
 
