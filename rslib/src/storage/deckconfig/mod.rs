@@ -162,7 +162,9 @@ impl SqliteStorage {
                         })
                         .map_err(Into::into)
                 })?;
-        for (_, mut conf) in conf.into_iter() {
+        for (id, mut conf) in conf.into_iter() {
+            // buggy clients may have failed to set inner id to match hash key
+            conf.id = id;
             self.add_deck_conf_schema14(&mut conf)?;
         }
         self.db.execute_batch("update col set dconf=''")?;
