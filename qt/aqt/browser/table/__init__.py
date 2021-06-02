@@ -88,6 +88,12 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str,
         return colors.FLAG3_BG
     if color == BrowserRow.COLOR_FLAG_BLUE:
         return colors.FLAG4_BG
+    if color == BrowserRow.COLOR_FLAG_PINK:
+        return colors.FLAG5_BG
+    if color == BrowserRow.COLOR_FLAG_TURQUOISE:
+        return colors.FLAG6_BG
+    if color == BrowserRow.COLOR_FLAG_PURPLE:
+        return colors.FLAG7_BG
     return None
 
 
