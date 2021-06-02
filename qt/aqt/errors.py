@@ -78,9 +78,6 @@ class ErrorHandler(QObject):
         if "10013" in error:
             showWarning(tr.qt_misc_your_firewall_or_antivirus_program_is())
             return
-        if "no default input" in error.lower():
-            showWarning(tr.qt_misc_please_connect_a_microphone_and_ensure())
-            return
         if "invalidTempFolder" in error:
             showWarning(self.tempFolderMsg())
             return
