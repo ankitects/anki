@@ -517,7 +517,7 @@ create table if not exists profiles
             file.write(
                 without_unicode_isolation(
                     tr.profiles_folder_readme(
-                        link=f"{appHelpSite}files?id=startup-options",
+                        link=f"{appHelpSite}files#startup-options",
                     )
                 )
             )

@@ -5,7 +5,7 @@
 For non-developers who want to try beta versions, the easiest way is to use a
 packaged version - please see:
 
-https://betas.ankiweb.net/#/
+https://betas.ankiweb.net/
 
 ## Pre-built Python wheels
 
@@ -61,7 +61,7 @@ were used on old Anki versions and will be automatically moved.
 
 Before contributing code, please see [Contributing](./contributing.md).
 
-If you'd like to contribute translations, please see <https://translating.ankiweb.net/#/>.
+If you'd like to contribute translations, please see <https://translating.ankiweb.net/>.
 
 ## Building redistributable wheels
 

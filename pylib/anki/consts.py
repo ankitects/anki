@@ -71,7 +71,7 @@ MODEL_CLOZE = 1
 
 STARTING_FACTOR = 2500
 
-HELP_SITE = "https://docs.ankiweb.net/#/"
+HELP_SITE = "https://docs.ankiweb.net/"
 
 # Leech actions
 LEECH_SUSPEND = 0

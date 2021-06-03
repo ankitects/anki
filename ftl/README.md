@@ -1,3 +1,3 @@
 Files related to Anki's translations.
 
-Please see https://translating.ankiweb.net/#/anki/developers
+Please see https://translating.ankiweb.net/anki/developers
