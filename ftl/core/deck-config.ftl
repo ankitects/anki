@@ -36,8 +36,8 @@ deck-config-limit-new-bound-by-reviews =
 ## New Cards section
 
 deck-config-learning-steps = Learning steps
-# Please don't translate `5m` or `2d`
--deck-config-delay-hint = Delays can be in minutes (eg `5m`), or days (eg `2d`).
+# Please don't translate `1m`, `2d`
+-deck-config-delay-hint = Delays are typically minutes (eg `1m`) or days (eg `2d`), but hours (eg `1h`) and seconds (eg `30s`) are also supported.
 deck-config-learning-steps-tooltip =
     One or more delays, separated by spaces. The first delay will be used
     when you press the `Again` button on a new card, and is 1 minute by default.
