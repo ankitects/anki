@@ -88,7 +88,7 @@ impl SearchErrorKind {
                 tr.search_invalid_argument("is:", state.replace('`', "'"))
             }
 
-            SearchErrorKind::InvalidFlag => tr.search_invalid_flag(),
+            SearchErrorKind::InvalidFlag => tr.search_invalid_flag_2(),
             SearchErrorKind::InvalidPropProperty(prop) => {
                 tr.search_invalid_argument("prop:", prop.replace('`', "'"))
             }
