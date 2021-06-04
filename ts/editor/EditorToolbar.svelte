@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const colorButtons = {};
     export const templateButtons = {};
 
-    export let size = 2;
+    export let size = 1.85;
     export let wrap = true;
 </script>
 
