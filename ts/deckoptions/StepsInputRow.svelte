@@ -17,7 +17,7 @@
 
 <Row>
     <Col size={7}>
-        <slot /><HelpPopup html={marked(markdownTooltip)} />
+        <span><slot /><HelpPopup html={marked(markdownTooltip)} /></span>
     </Col>
     <Col size={5}>
         <StepsInput bind:value />

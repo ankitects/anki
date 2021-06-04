@@ -21,7 +21,7 @@
 
 <Row>
     <Col size={7}>
-        <slot /><HelpPopup html={marked(markdownTooltip)} />
+        <span><slot /><HelpPopup html={marked(markdownTooltip)} /></span>
     </Col>
     <Col {breakpoint} size={5}>
         <EnumSelector bind:value {choices} />
