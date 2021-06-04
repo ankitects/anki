@@ -71,23 +71,23 @@ tr = tr_legacyglobal
 
 
 class HelpPage(Enum):
-    NOTE_TYPE = "getting-started?id=note-types"
+    NOTE_TYPE = "getting-started#note-types"
     BROWSING = "browsing"
-    BROWSING_FIND_AND_REPLACE = "browsing?id=find-and-replace"
-    BROWSING_OTHER_MENU_ITEMS = "browsing?id=other-menu-items"
-    KEYBOARD_SHORTCUTS = "studying?id=keyboard-shortcuts"
+    BROWSING_FIND_AND_REPLACE = "browsing#find-and-replace"
+    BROWSING_NOTES_MENU = "browsing#notes"
+    KEYBOARD_SHORTCUTS = "studying#keyboard-shortcuts"
     EDITING = "editing"
-    ADDING_CARD_AND_NOTE = "editing?id=adding-cards-and-notes"
-    ADDING_A_NOTE_TYPE = "editing?id=adding-a-note-type"
-    LATEX = "math?id=latex"
+    ADDING_CARD_AND_NOTE = "editing#adding-cards-and-notes"
+    ADDING_A_NOTE_TYPE = "editing#adding-a-note-type"
+    LATEX = "math#latex"
     PREFERENCES = "preferences"
     INDEX = ""
     TEMPLATES = "templates/intro"
     FILTERED_DECK = "filtered-decks"
     IMPORTING = "importing"
-    CUSTOMIZING_FIELDS = "editing?id=customizing-fields"
+    CUSTOMIZING_FIELDS = "editing#customizing-fields"
     DECK_OPTIONS = "deck-options"
-    EDITING_FEATURES = "editing?id=features"
+    EDITING_FEATURES = "editing#features"
 
 
 HelpPageArgument = Optional[Union[HelpPage, str]]

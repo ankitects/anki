@@ -1,7 +1,7 @@
 # Contributing Code
 
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see https://docs.ankiweb.net/#/contrib
+and add-ons, please see https://docs.ankiweb.net/contrib
 
 With most users now on 2.1, the past year has been focused on paying down some
 of the technical debt that Anki's codebase has built up over the years, and making
@@ -92,7 +92,7 @@ in one of those files will update the generated files.
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
-https://translating.ankiweb.net/#/anki/developers
+https://translating.ankiweb.net/anki/developers
 
 ## Tests Must Pass
 
