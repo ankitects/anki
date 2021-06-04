@@ -512,7 +512,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_red_flag</string>
+    <string>actions_flag_red</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+1</string>
@@ -523,7 +523,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_orange_flag</string>
+    <string>actions_flag_orange</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+2</string>
@@ -534,7 +534,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_green_flag</string>
+    <string>actions_flag_green</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+3</string>
@@ -545,7 +545,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_blue_flag</string>
+    <string>actions_flag_blue</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+4</string>
@@ -630,7 +630,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_pink_flag</string>
+    <string>actions_flag_pink</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+5</string>
@@ -641,7 +641,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_turquoise_flag</string>
+    <string>actions_flag_turquoise</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+6</string>
@@ -652,7 +652,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>actions_purple_flag</string>
+    <string>actions_flag_purple</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+7</string>
