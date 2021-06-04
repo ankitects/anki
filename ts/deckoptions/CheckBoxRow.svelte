@@ -18,10 +18,12 @@
 <Row>
     <Col>
         <CheckBox bind:value
-            ><slot />
-            {#if markdownTooltip}<HelpPopup
-                    html={marked(markdownTooltip)}
-                />{/if}</CheckBox
+            ><span
+                ><slot />
+                {#if markdownTooltip}<HelpPopup
+                        html={marked(markdownTooltip)}
+                    />{/if}</span
+            ></CheckBox
         >
     </Col>
     <Col grow={false}>
