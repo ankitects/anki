@@ -23,6 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .visible-down-arrow {
         /* override the default down arrow */
-        @include button.select-night-mode;
+        background-image: button.down-arrow(white);
     }
 </style>
