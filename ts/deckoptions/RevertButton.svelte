@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span
     bind:this={ref}
-    class="badge"
+    class="badge px-1"
     class:invisible={!modified}
     title={tr.deckConfigRevertButtonTooltip()}
     on:click={revert}
