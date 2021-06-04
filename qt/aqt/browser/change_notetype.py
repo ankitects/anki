@@ -204,4 +204,4 @@ class ChangeModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self) -> None:
-        openHelp(HelpPage.BROWSING_OTHER_MENU_ITEMS)
+        openHelp(HelpPage.BROWSING_NOTES_MENU)

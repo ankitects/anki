@@ -42,17 +42,21 @@ actions-update-note = Update Note
 actions-update-card = Update Card
 actions-update-deck = Update Deck
 actions-forget-card = Forget Card
-actions-set-flag = Set Flag
 actions-build-filtered-deck = Build Deck
 actions-expand-collapse = Expand/Collapse
 actions-add-notetype = Add Notetype
 actions-remove-notetype = Remove Notetype
 actions-update-notetype = Update Notetype
 actions-update-config = Update Config
-actions-red-flag = Red Flag
-actions-orange-flag = Orange Flag
-actions-green-flag = Green Flag
-actions-blue-flag = Blue Flag
-actions-pink-flag = Pink Flag
-actions-turquoise-flag = Turquoise Flag
-actions-purple-flag = Purple Flag
+
+## Flags
+
+actions-flag-number = Flag { $number }
+actions-flag-red = Red
+actions-flag-orange = Orange
+actions-flag-green = Green
+actions-flag-blue = Blue
+actions-flag-pink = Pink
+actions-flag-turquoise = Turquoise
+actions-flag-purple = Purple
+actions-set-flag = Set Flag
