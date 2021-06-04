@@ -41,6 +41,10 @@ html {
 .tooltip-inner {
     max-width: 300px;
     text-align: left;
+
+    p {
+        margin: 0.8em 0.4em 0.8em 0.8em;
+    }
 }
 
 // the default code color in tooltips is difficult to read; we'll probably
