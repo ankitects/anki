@@ -190,9 +190,6 @@ class Reviewer:
     ##########################################################################
 
     def nextCard(self) -> None:
-        if self.check_timebox():
-            return
-
         self.card = None
         self._v3 = None
 
@@ -210,6 +207,11 @@ class Reviewer:
             self._initWeb()
 
         self._showQuestion()
+
+        # Qt seems to get stuck if the timebox modal gets invoked when the
+        # webview is being loaded
+        # https://forums.ankiweb.net/t/anki-2-1-45-alpha/10061/96
+        self.mw.progress.timer(10, self.check_timebox, False)
 
     def _get_next_v1_v2_card(self) -> None:
         if self.cardQueue:
