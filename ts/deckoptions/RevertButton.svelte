@@ -59,6 +59,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </span>
 
 <style lang="scss">
+    .badge {
+        color: inherit;
+    }
+
     span :global(svg) {
         vertical-align: -0.125rem;
         opacity: 0.3;
