@@ -53,8 +53,7 @@ sass_library(
     visibility = ["//visibility:public"],
 )
 
-# qt package extracts colours from source file
 exports_files(
     ["_vars.scss"],
-    visibility = ["//qt:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
