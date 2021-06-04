@@ -190,10 +190,10 @@ class ImportDialog(QDialog):
         self.mw.pm.profile["allowHTML"] = self.importer.allowHTML
         self.importer.tagModified = self.frm.tagModified.text()
         self.mw.pm.profile["tagModified"] = self.importer.tagModified
-        did = self.deck.selected_deck_id
-        self.importer.model["did"] = did
+        self.mw.col.set_aux_notetype_config(
+            self.importer.model["id"], "lastDeck", self.deck.selected_deck_id
+        )
         self.mw.col.models.save(self.importer.model, updateReqs=False)
-        self.mw.col.decks.select(did)
         self.mw.progress.start()
         self.mw.checkpoint(tr.actions_import())
 
