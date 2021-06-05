@@ -18,6 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <input
     type="number"
+    pattern="[0-9]*"
+    inputmode="numeric"
     {min}
     {max}
     bind:value
