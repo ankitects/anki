@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <CheckBoxRow
             bind:value={$config.buryNew}
             defaultValue={defaults.buryNew}
-            markdownTooltip={tr.deckConfigBuryTitle()}
+            markdownTooltip={tr.deckConfigBuryTooltip()}
         >
             {tr.deckConfigBuryNewSiblings()}
         </CheckBoxRow>
