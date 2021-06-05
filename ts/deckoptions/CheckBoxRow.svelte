@@ -6,7 +6,8 @@
     import marked from "marked";
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
+    import WithTooltip from "./WithTooltip.svelte";
+    import Label from "./Label.svelte";
     import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
 
@@ -18,13 +19,15 @@
 <Row>
     <Col>
         <CheckBox bind:value
-            ><span
-                ><slot />
-                {#if markdownTooltip}<HelpPopup
-                        html={marked(markdownTooltip)}
-                    />{/if}</span
-            ></CheckBox
-        >
+            >{#if markdownTooltip}<WithTooltip
+                    tooltip={marked(markdownTooltip)}
+                    let:createTooltip
+                >
+                    <Label on:mount={(event) => createTooltip(event.detail.span)}
+                        ><slot /></Label
+                    >
+                </WithTooltip>{:else}<Label><slot /></Label>{/if}
+        </CheckBox>
     </Col>
     <Col grow={false}>
         <RevertButton bind:value {defaultValue} />

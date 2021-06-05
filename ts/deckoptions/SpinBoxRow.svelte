@@ -6,7 +6,9 @@
     import marked from "marked";
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
-    import HelpPopup from "./HelpPopup.svelte";
+    /* import HelpPopup from "./HelpPopup.svelte"; */
+    import WithTooltip from "./WithTooltip.svelte";
+    import Label from "./Label.svelte";
     import SpinBox from "./SpinBox.svelte";
     import RevertButton from "./RevertButton.svelte";
 
@@ -19,7 +21,11 @@
 
 <Row>
     <Col size={7}>
-        <span><slot /><HelpPopup html={marked(markdownTooltip)} /></span>
+        <WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip>
+            <Label on:mount={(event) => createTooltip(event.detail.span)}
+                ><slot /></Label
+            >
+        </WithTooltip>
     </Col>
     <Col size={5}>
         <SpinBox bind:value {min} {max} />
