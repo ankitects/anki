@@ -571,6 +571,14 @@ class SidebarTreeView(QTreeView):
             search_node=SearchNode(introduced_in_days=1),
         )
         root.add_simple(
+            name=tr.browsing_sidebar_rescheduled(),
+            icon=icon,
+            type=type,
+            search_node=SearchNode(
+                rated=SearchNode.Rated(days=1, rating=SearchNode.RATING_BY_RESCHEDULE)
+            ),
+        )
+        root.add_simple(
             name=tr.browsing_again_today(),
             icon=icon,
             type=type,
