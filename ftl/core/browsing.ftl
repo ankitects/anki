@@ -153,6 +153,7 @@ browsing-added-today = Added
 browsing-again-today = Again
 browsing-edited-today = Edited
 browsing-sidebar-first-review = First Review
+browsing-sidebar-rescheduled = Rescheduled
 browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
 browsing-sidebar-overdue = Overdue
