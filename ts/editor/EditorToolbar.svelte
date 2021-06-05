@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
+    import { isApplePlatform } from "lib/platform";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
@@ -47,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const colorButtons = {};
     export const templateButtons = {};
 
-    export let size = 1.85;
+    export let size = isApplePlatform() ? 1.6 : 2.0;
     export let wrap = true;
 </script>
 
