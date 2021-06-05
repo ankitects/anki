@@ -28,7 +28,7 @@
         </WithTooltip>
     </Col>
     <Col size={5}>
-        <SpinBox bind:value {min} {max} />
         <RevertButton bind:value {defaultValue} />
+        <SpinBox bind:value {min} {max} />
     </Col>
 </Row>

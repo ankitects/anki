@@ -25,7 +25,7 @@
         </WithTooltip>
     </Col>
     <Col size={5}>
-        <StepsInput bind:value />
         <RevertButton bind:value {defaultValue} />
+        <StepsInput bind:value />
     </Col>
 </Row>
