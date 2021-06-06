@@ -90,6 +90,7 @@ class MPVBase:
         "--audio-display=no",
         "--keep-open=no",
         "--autoload-files=no",
+        "--gapless-audio=no",
     ]
 
     def __init__(self, window_id=None, debug=False):
