@@ -89,7 +89,6 @@ class MPVBase:
         "--ontop",
         "--audio-display=no",
         "--keep-open=no",
-        "--reset-on-next-file=pause",
         "--autoload-files=no",
     ]
 

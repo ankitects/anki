@@ -402,7 +402,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         filename = hooks.media_file_filter(tag.filename)
         path = os.path.join(os.getcwd(), filename)
 
-        self.command("loadfile", path, "append-play")
+        self.command("loadfile", path, "append-play", "pause=no")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
     def stop(self) -> None:
