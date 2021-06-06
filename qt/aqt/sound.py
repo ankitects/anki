@@ -409,7 +409,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self.command("stop")
 
     def toggle_pause(self) -> None:
-        self.set_property("pause", not self.get_property("pause"))
+        self.command("cycle", "pause")
 
     def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, "relative")
