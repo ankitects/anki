@@ -80,8 +80,9 @@ class Browser(QMainWindow):
         search: Optional[Tuple[Union[str, SearchNode]]] = None,
     ) -> None:
         """
-        card  : try to search for its note and select it
-        search: set and perform search; caller must ensure validity
+        card -- try to select the provided card after executing "search" or
+                "deck:current" (if "search" was None)
+        search -- set and perform search; caller must ensure validity
         """
 
         QMainWindow.__init__(self, None, Qt.Window)
@@ -241,9 +242,12 @@ class Browser(QMainWindow):
         if search is not None:
             self.search_for_terms(*search)
             self.form.searchEdit.setFocus()
-        elif card:
-            self.show_single_card(card)
-            self.form.searchEdit.setFocus()
+        if card is not None:
+            if search is None:
+                # implicitly assume 'card' is in the current deck
+                self._default_search(card)
+                self.form.searchEdit.setFocus()
+            self.table.select_single_card(card.id)
 
     # Searching
     ######################################################################
@@ -261,13 +265,11 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
         if search is not None:
             self.search_for_terms(*search)
-        elif card:
-            self.show_single_card(card)
         else:
-            self.search_for(
-                self.col.build_search_string(SearchNode(deck="current")), ""
-            )
+            self._default_search(card)
         self.form.searchEdit.setFocus()
+        if card:
+            self.table.select_single_card(card.id)
 
     # search triggered by user
     @ensure_editor_saved
@@ -330,17 +332,11 @@ class Browser(QMainWindow):
         self.form.searchEdit.setEditText(search)
         self.onSearchActivated()
 
-    def show_single_card(self, card: Card) -> None:
-        if card.nid:
-
-            def on_show_single_card() -> None:
-                self.card = card
-                search = self.col.build_search_string(SearchNode(nid=card.nid))
-                search = gui_hooks.default_search(search, card)
-                self.search_for(search, "")
-                self.table.select_single_card(card.id)
-
-            self.editor.call_after_note_saved(on_show_single_card)
+    def _default_search(self, card: Optional[Card] = None) -> None:
+        search = self.col.build_search_string(SearchNode(deck="current"))
+        if card is not None:
+            search = gui_hooks.default_search(search, card)
+        self.search_for(search, "")
 
     def onReset(self) -> None:
         self.sidebar.refresh()
