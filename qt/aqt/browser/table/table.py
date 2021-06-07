@@ -129,6 +129,8 @@ class Table:
         self.clear_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
+            # editor may pop up and hide the row later on
+            QTimer.singleShot(100, lambda: self._scroll_to_row(row))
 
     # Reset
 
