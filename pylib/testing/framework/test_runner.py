@@ -180,7 +180,7 @@ class TestRunner(ABC):
                             break
                         tst_resp, msg = parse_response(line.decode('utf-8'))
                         if msg:
-                            logger.info(msg)
+                            test_logger.log(msg + '<br>')
                 if self.stopped:
                     test_logger.cancel()
                     return
