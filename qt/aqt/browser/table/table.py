@@ -129,7 +129,7 @@ class Table:
         self.clear_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
-            self._scroll_to_row(row)
+            self._scroll_to_row(row, scroll_even_if_visible=True)
 
     # Reset
 
@@ -451,12 +451,12 @@ class Table:
 
     # Move
 
-    def _scroll_to_row(self, row: int) -> None:
+    def _scroll_to_row(self, row: int, scroll_even_if_visible: bool = False) -> None:
         """Scroll vertically to row."""
         top_border = self._view.rowViewportPosition(row)
         bottom_border = top_border + self._view.rowHeight(0)
         visible = top_border >= 0 and bottom_border < self._view.viewport().height()
-        if not visible:
+        if not visible or scroll_even_if_visible:
             horizontal = self._view.horizontalScrollBar().value()
             self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtCenter)
             self._view.horizontalScrollBar().setValue(horizontal)
