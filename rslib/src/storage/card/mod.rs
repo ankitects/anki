@@ -229,12 +229,21 @@ impl super::SqliteStorage {
     }
 
     /// Call func() for each new card, stopping when it returns false
-    /// or no more cards found. Cards will arrive in (deck_id, due) order.
-    pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckId, mut func: F) -> Result<()>
+    /// or no more cards found.
+    pub(crate) fn for_each_new_card_in_deck<F>(
+        &self,
+        deck: DeckId,
+        reverse: bool,
+        mut func: F,
+    ) -> Result<()>
     where
         F: FnMut(NewCard) -> bool,
     {
-        let mut stmt = self.db.prepare_cached(include_str!("new_cards.sql"))?;
+        let mut stmt = self.db.prepare_cached(&format!(
+            "{}{}",
+            include_str!("new_cards.sql"),
+            if reverse { " order by due desc" } else { "" }
+        ))?;
         let mut rows = stmt.query(params![deck])?;
         while let Some(row) = rows.next()? {
             if !func(NewCard {

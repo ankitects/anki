@@ -97,18 +97,21 @@ deck-config-new-gather-priority-tooltip =
     to prioritize subdecks that are closer to the top.
     
     `Position`: gathers cards from all decks before they are sorted. This
-    ensures the oldest cards will be shown first, even if the parent limit is
+    ensures cards appear in strict position order, even if the parent limit is
     not high enough to see cards from all decks.
 deck-config-new-gather-priority-deck = Deck
-deck-config-new-gather-priority-position = Position
+deck-config-new-gather-priority-position-lowest-first = Position (lowest first)
+deck-config-new-gather-priority-position-highest-first = Position (highest first)
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip =
     How cards are sorted after they have been gathered. By default, Anki sorts
     by card template first, to avoid multiple cards of the same note from being
     shown in succession.
-deck-config-sort-order-card-template-then-position = Card template, then position
+deck-config-sort-order-card-template-then-lowest-position = Card template, then lowest position
+deck-config-sort-order-card-template-then-highest-position = Card template, then highest position
 deck-config-sort-order-card-template-then-random = Card template, then random
-deck-config-sort-order-position = Position (siblings together)
+deck-config-sort-order-lowest-position = Lowest position
+deck-config-sort-order-highest-position = Highest position
 deck-config-sort-order-random = Random
 deck-config-new-review-priority = New/review priority
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.

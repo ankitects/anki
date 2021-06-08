@@ -10,14 +10,18 @@ use super::{NewCard, NewCardSortOrder, QueueBuilder};
 impl QueueBuilder {
     pub(super) fn sort_new(&mut self) {
         match self.sort_options.new_order {
-            NewCardSortOrder::TemplateThenDue => {
-                self.new.sort_unstable_by(template_then_due);
+            NewCardSortOrder::TemplateThenLowestPosition => {
+                self.new.sort_unstable_by(template_then_lowest_position);
+            }
+            NewCardSortOrder::TemplateThenHighestPosition => {
+                self.new.sort_unstable_by(template_then_highest_position);
             }
             NewCardSortOrder::TemplateThenRandom => {
                 self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
                 self.new.sort_unstable_by(template_then_random);
             }
-            NewCardSortOrder::Due => self.new.sort_unstable_by(new_position),
+            NewCardSortOrder::LowestPosition => self.new.sort_unstable_by(lowest_position),
+            NewCardSortOrder::HighestPosition => self.new.sort_unstable_by(highest_position),
             NewCardSortOrder::Random => {
                 self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
                 self.new.sort_unstable_by(new_hash)
@@ -26,16 +30,24 @@ impl QueueBuilder {
     }
 }
 
-fn template_then_due(a: &NewCard, b: &NewCard) -> Ordering {
+fn template_then_lowest_position(a: &NewCard, b: &NewCard) -> Ordering {
     (a.template_index, a.due).cmp(&(b.template_index, b.due))
+}
+
+fn template_then_highest_position(a: &NewCard, b: &NewCard) -> Ordering {
+    (a.template_index, b.due).cmp(&(b.template_index, a.due))
 }
 
 fn template_then_random(a: &NewCard, b: &NewCard) -> Ordering {
     (a.template_index, a.hash).cmp(&(b.template_index, b.hash))
 }
 
-fn new_position(a: &NewCard, b: &NewCard) -> Ordering {
+fn lowest_position(a: &NewCard, b: &NewCard) -> Ordering {
     a.due.cmp(&b.due)
+}
+
+fn highest_position(a: &NewCard, b: &NewCard) -> Ordering {
+    b.due.cmp(&a.due)
 }
 
 fn new_hash(a: &NewCard, b: &NewCard) -> Ordering {
