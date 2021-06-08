@@ -23,6 +23,7 @@ from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.browser.card_info import CardInfoDialog
 from aqt.deckoptions import confirm_deck_then_display_options
 from aqt.flags import load_flags
 from aqt.operations.card import set_card_flag
@@ -458,6 +459,7 @@ class Reviewer:
             ("v", self.onReplayRecorded),
             ("Shift+v", self.onRecordVoice),
             ("o", self.onOptions),
+            ("i", self.on_card_info),
             ("1", lambda: self._answerCard(1)),
             ("2", lambda: self._answerCard(2)),
             ("3", lambda: self._answerCard(3)),
@@ -905,14 +907,16 @@ time = %(time)d;
                     for flag in load_flags(self.mw.col)
                 ],
             ],
-            [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
             [tr.studying_bury_card(), "-", self.bury_current_card],
-            [tr.studying_bury_note(), "=", self.bury_current_note],
             [tr.actions_set_due_date(), "Ctrl+Shift+D", self.on_set_due],
             [tr.actions_suspend_card(), "@", self.suspend_current_card],
+            [tr.actions_options(), "O", self.onOptions],
+            [tr.actions_card_info(), "I", self.on_card_info],
+            None,
+            [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
+            [tr.studying_bury_note(), "=", self.bury_current_note],
             [tr.studying_suspend_note(), "!", self.suspend_current_note],
             [tr.studying_delete_note(), "Ctrl+Delete", self.delete_current_note],
-            [tr.actions_options(), "O", self.onOptions],
             None,
             [tr.actions_replay_audio(), "R", self.replayAudio],
             [tr.studying_pause_audio(), "5", self.on_pause_audio],
@@ -957,6 +961,10 @@ time = %(time)d;
 
     def onOptions(self) -> None:
         confirm_deck_then_display_options(self.card)
+
+    def on_card_info(self) -> None:
+        if self.card:
+            CardInfoDialog(parent=self.mw, mw=self.mw, card=self.card)
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
         def redraw_flag(out: OpChangesWithCount) -> None:
