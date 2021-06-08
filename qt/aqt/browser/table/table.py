@@ -129,8 +129,7 @@ class Table:
         self.clear_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
-            # editor may pop up and hide the row later on
-            QTimer.singleShot(100, lambda: self._scroll_to_row(row))
+            self._scroll_to_row(row)
 
     # Reset
 
@@ -408,8 +407,7 @@ class Table:
             current = current or rows[0]
             self._select_rows(rows)
             self._set_current(current)
-            # editor may pop up and hide the row later on
-            QTimer.singleShot(100, lambda: self._scroll_to_row(current))
+            self._scroll_to_row(current)
         if self.len_selection() == 0:
             # no row change will fire
             self.browser.onRowChanged(QItemSelection(), QItemSelection())

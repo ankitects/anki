@@ -106,9 +106,9 @@ class Browser(QMainWindow):
         self.setupEditor()
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
-        self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
         self.show()
+        self.setupSearch(card, search)
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]
