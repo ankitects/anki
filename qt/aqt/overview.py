@@ -74,7 +74,7 @@ class Overview:
     def op_executed(
         self, changes: OpChanges, handler: Optional[object], focused: bool
     ) -> bool:
-        if changes.reviewer:
+        if changes.study_queues:
             self._refresh_needed = True
 
         if focused:
