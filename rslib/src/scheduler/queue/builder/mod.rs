@@ -209,7 +209,7 @@ impl Collection {
             .unwrap_or_else(|| {
                 // filtered decks do not space siblings
                 QueueSortOptions {
-                    new_order: NewCardSortOrder::Due,
+                    new_order: NewCardSortOrder::LowestPosition,
                     ..Default::default()
                 }
             });
@@ -272,25 +272,28 @@ impl Collection {
         }
         selected_deck_limits.new = selected_deck_limits.new.min(selected_deck_limits.review);
         let can_exit_early = sort_options.new_gather_priority == NewCardGatherPriority::Deck;
+        let reverse = sort_options.new_gather_priority == NewCardGatherPriority::HighestPosition;
         for deck in &decks {
             if can_exit_early && selected_deck_limits.new == 0 {
                 break;
             }
             let limit = remaining.get_mut(&deck.id).unwrap();
             if limit.new > 0 {
-                self.storage.for_each_new_card_in_deck(deck.id, |card| {
-                    let bury = get_bury_mode(card.original_deck_id.or(deck.id));
-                    if limit.new != 0 {
-                        if queues.add_new_card(card, bury) {
-                            limit.new -= 1;
-                            selected_deck_limits.new = selected_deck_limits.new.saturating_sub(1);
-                        }
+                self.storage
+                    .for_each_new_card_in_deck(deck.id, reverse, |card| {
+                        let bury = get_bury_mode(card.original_deck_id.or(deck.id));
+                        if limit.new != 0 {
+                            if queues.add_new_card(card, bury) {
+                                limit.new -= 1;
+                                selected_deck_limits.new =
+                                    selected_deck_limits.new.saturating_sub(1);
+                            }
 
-                        true
-                    } else {
-                        false
-                    }
-                })?;
+                            true
+                        } else {
+                            false
+                        }
+                    })?;
             }
         }
 
