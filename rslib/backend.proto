@@ -1578,8 +1578,10 @@ message OpChanges {
 
   bool browser_table = 7;
   bool browser_sidebar = 8;
-  bool editor = 9;
-  bool reviewer = 10;
+  // editor and displayed card in review screen
+  bool note_text = 9;
+  // whether to call .reset() and getCard()
+  bool study_queues = 10;
 }
 
 message UndoStatus {

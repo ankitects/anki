@@ -166,7 +166,7 @@ impl Collection {
     }
 
     pub(crate) fn maybe_clear_study_queues_after_op(&mut self, op: &OpChanges) {
-        if op.requires_study_queue_rebuild() {
+        if op.op != Op::AnswerCard && op.requires_study_queue_rebuild() {
             self.state.card_queues = None;
         }
     }

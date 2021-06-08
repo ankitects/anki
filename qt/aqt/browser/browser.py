@@ -116,7 +116,7 @@ class Browser(QMainWindow):
         focused = current_window() == self
         self.table.op_executed(changes, handler, focused)
         self.sidebar.op_executed(changes, handler, focused)
-        if changes.editor:
+        if changes.note_text:
             if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited

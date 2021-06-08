@@ -169,9 +169,9 @@ class Reviewer:
         self, changes: OpChanges, handler: Optional[object], focused: bool
     ) -> bool:
         if handler is not self:
-            if changes.reviewer:
+            if changes.study_queues:
                 self._refresh_needed = RefreshNeeded.QUEUES
-            elif changes.editor:
+            elif changes.note_text:
                 self._refresh_needed = RefreshNeeded.NOTE_TEXT
 
         if focused and self._refresh_needed:
