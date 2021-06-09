@@ -344,7 +344,25 @@ impl super::SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn all_card_ids_of_note_in_order(&self, nid: NoteId) -> Result<Vec<CardId>> {
+    pub(crate) fn all_cards_of_notes_above_ordinal(
+        &mut self,
+        note_ids: &[NoteId],
+        ordinal: usize,
+    ) -> Result<Vec<Card>> {
+        self.set_search_table_to_note_ids(note_ids)?;
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                " where nid in (select nid from search_nids) and ord > ?"
+            ))?
+            .query_and_then(&[ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
+            .collect()
+    }
+
+    pub(crate) fn all_card_ids_of_note_in_template_order(
+        &self,
+        nid: NoteId,
+    ) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached("select id from cards where nid = ? order by ord")?
             .query_and_then(&[nid], |r| Ok(CardId(r.get(0)?)))?

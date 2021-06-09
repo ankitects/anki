@@ -27,6 +27,7 @@ browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
 browsing-change-note-type2 = Change Note Type...
+browsing-change-notetype = Change Notetype
 browsing-change-to = Change { $val } to:
 browsing-clear-unused = Clear Unused
 browsing-clear-unused-tags = Clear Unused Tags

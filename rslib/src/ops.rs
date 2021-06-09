@@ -12,6 +12,7 @@ pub enum Op {
     AnswerCard,
     BuildFilteredDeck,
     Bury,
+    ChangeNotetype,
     ClearUnusedTags,
     EmptyFilteredDeck,
     ExpandCollapse,
@@ -82,6 +83,7 @@ impl Op {
             Op::UpdateNotetype => tr.actions_update_notetype(),
             Op::UpdateConfig => tr.actions_update_config(),
             Op::Custom(name) => name.into(),
+            Op::ChangeNotetype => tr.browsing_change_notetype(),
         }
         .into()
     }

@@ -21,19 +21,37 @@ use std::fmt::Write;
 pub(crate) use sqlite::SqliteStorage;
 pub(crate) use sync::open_and_check_sqlite_file;
 
-// Write a list of IDs as '(x,y,...)' into the provided string.
+/// Write a list of IDs as '(x,y,...)' into the provided string.
 pub(crate) fn ids_to_string<T>(buf: &mut String, ids: &[T])
 where
     T: std::fmt::Display,
 {
     buf.push('(');
+    write_comma_separated_ids(buf, ids);
+    buf.push(')');
+}
+
+/// Write a list of Ids as 'x,y,...' into the provided string.
+pub(crate) fn write_comma_separated_ids<T>(buf: &mut String, ids: &[T])
+where
+    T: std::fmt::Display,
+{
     if !ids.is_empty() {
         for id in ids.iter().skip(1) {
             write!(buf, "{},", id).unwrap();
         }
         write!(buf, "{}", ids[0]).unwrap();
     }
-    buf.push(')');
+}
+
+pub(crate) fn comma_separated_ids<T>(ids: &[T]) -> String
+where
+    T: std::fmt::Display,
+{
+    let mut buf = String::new();
+    write_comma_separated_ids(&mut buf, ids);
+
+    buf
 }
 
 #[cfg(test)]
