@@ -1,5 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
-// Lice removed: (), remapped: ()  removed: (), remapped: () nse: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 //! Updates to notes/cards when a note is moved to a different notetype.
 
