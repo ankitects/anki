@@ -458,7 +458,7 @@ class Table:
         visible = top_border >= 0 and bottom_border < self._view.viewport().height()
         if not visible or scroll_even_if_visible:
             horizontal = self._view.horizontalScrollBar().value()
-            self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtCenter)
+            self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtTop)
             self._view.horizontalScrollBar().setValue(horizontal)
 
     def _scroll_to_column(self, column: int) -> None:
