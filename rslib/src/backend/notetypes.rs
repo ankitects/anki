@@ -1,12 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::Backend;
+use super::{notes::to_note_ids, Backend};
 pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesService;
 use crate::{
     backend_proto as pb,
     config::get_aux_notetype_config_key,
-    notetype::{all_stock_notetypes, Notetype, NotetypeSchema11},
+    notetype::{
+        all_stock_notetypes, ChangeNotetypeInput, Notetype, NotetypeChangeInfo, NotetypeSchema11,
+    },
     prelude::*,
 };
 
@@ -153,6 +155,19 @@ impl NotetypesService for Backend {
             .map(Into::into)
         })
     }
+
+    fn get_change_notetype_info(
+        &self,
+        input: pb::GetChangeNotetypeInfoIn,
+    ) -> Result<pb::ChangeNotetypeInfo> {
+        self.with_col(|col| {
+            col.notetype_change_info(to_note_ids(input.note_ids), input.new_notetype_id.into())
+                .map(Into::into)
+        })
+    }
+    fn change_notetype(&self, input: pb::ChangeNotetypeIn) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
+    }
 }
 
 impl From<pb::Notetype> for Notetype {
@@ -165,6 +180,72 @@ impl From<pb::Notetype> for Notetype {
             fields: n.fields.into_iter().map(Into::into).collect(),
             templates: n.templates.into_iter().map(Into::into).collect(),
             config: n.config.unwrap_or_default(),
+        }
+    }
+}
+
+impl From<NotetypeChangeInfo> for pb::ChangeNotetypeInfo {
+    fn from(i: NotetypeChangeInfo) -> Self {
+        pb::ChangeNotetypeInfo {
+            old_field_names: i.old_field_names,
+            old_template_names: i.old_template_names,
+            new_field_names: i.new_field_names,
+            new_template_names: i.new_template_names,
+            input: Some(i.input.into()),
+        }
+    }
+}
+
+impl From<pb::ChangeNotetypeIn> for ChangeNotetypeInput {
+    fn from(i: pb::ChangeNotetypeIn) -> Self {
+        ChangeNotetypeInput {
+            current_schema: i.current_schema.into(),
+            note_ids: i.note_ids.into_newtype(NoteId),
+            old_notetype_id: i.old_notetype_id.into(),
+            new_notetype_id: i.new_notetype_id.into(),
+            new_fields: i
+                .new_fields
+                .into_iter()
+                .map(|wrapper| wrapper.inner.map(|v| v.val as usize))
+                .collect(),
+            new_templates: {
+                let v: Vec<_> = i
+                    .new_templates
+                    .into_iter()
+                    .map(|wrapper| wrapper.inner.map(|v| v.val as usize))
+                    .collect();
+                if v.is_empty() {
+                    None
+                } else {
+                    Some(v)
+                }
+            },
+        }
+    }
+}
+
+impl From<ChangeNotetypeInput> for pb::ChangeNotetypeIn {
+    fn from(i: ChangeNotetypeInput) -> Self {
+        pb::ChangeNotetypeIn {
+            current_schema: i.current_schema.into(),
+            note_ids: i.note_ids.into_iter().map(Into::into).collect(),
+            old_notetype_id: i.old_notetype_id.into(),
+            new_notetype_id: i.new_notetype_id.into(),
+            new_fields: i
+                .new_fields
+                .into_iter()
+                .map(|idx| pb::OptionalUInt32Wrapper {
+                    inner: idx.map(|idx| pb::OptionalUInt32 { val: idx as u32 }),
+                })
+                .collect(),
+            new_templates: i
+                .new_templates
+                .unwrap_or_default()
+                .into_iter()
+                .map(|idx| pb::OptionalUInt32Wrapper {
+                    inner: idx.map(|idx| pb::OptionalUInt32 { val: idx as u32 }),
+                })
+                .collect(),
         }
     }
 }

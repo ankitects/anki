@@ -4,6 +4,7 @@
 mod cardgen;
 mod emptycards;
 mod fields;
+mod notetypechange;
 mod render;
 mod schema11;
 mod schemachange;
@@ -11,7 +12,6 @@ mod stock;
 mod templates;
 pub(crate) mod undo;
 
-use lazy_static::lazy_static;
 use std::{
     collections::{HashMap, HashSet},
     iter::FromIterator,
@@ -20,6 +20,8 @@ use std::{
 
 pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;
+use lazy_static::lazy_static;
+pub use notetypechange::{ChangeNotetypeInput, NotetypeChangeInfo};
 pub(crate) use render::RenderCardOutput;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NotetypeSchema11};
 pub use stock::all_stock_notetypes;
@@ -123,6 +125,9 @@ impl Collection {
 
     /// Saves changes to a note type. This will force a full sync if templates
     /// or fields have been added/removed/reordered.
+    ///
+    /// This does not assign ordinals to the provided notetype, so if you wish
+    /// to make use of template_idx, the notetype must be fetched again.
     pub fn update_notetype(&mut self, notetype: &mut Notetype) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateNotetype, |col| {
             let original = col

@@ -225,7 +225,7 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    fn clear_searched_notes_table(&self) -> Result<()> {
+    pub(crate) fn clear_searched_notes_table(&self) -> Result<()> {
         self.db
             .execute("drop table if exists search_nids", NO_PARAMS)?;
         Ok(())
@@ -234,7 +234,8 @@ impl super::SqliteStorage {
     /// Injects the provided card IDs into the search_nids table, for
     /// when ids have arrived outside of a search.
     /// Clear with clear_searched_notes_table().
-    fn set_search_table_to_note_ids(&mut self, notes: &[NoteId]) -> Result<()> {
+    /// WARNING: the column name is nid, not id.
+    pub(crate) fn set_search_table_to_note_ids(&mut self, notes: &[NoteId]) -> Result<()> {
         self.setup_searched_notes_table()?;
         let mut stmt = self
             .db

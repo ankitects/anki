@@ -419,7 +419,7 @@ impl Collection {
         &mut self,
         note: &mut Note,
         original: &Note,
-        nt: &Notetype,
+        notetype: &Notetype,
         usn: Usn,
         mark_note_modified: bool,
         normalize_text: bool,
@@ -428,7 +428,7 @@ impl Collection {
         if update_tags {
             self.canonify_note_tags(note, usn)?;
         }
-        note.prepare_for_update(nt, normalize_text)?;
+        note.prepare_for_update(notetype, normalize_text)?;
         if mark_note_modified {
             note.set_modified(usn);
         }
