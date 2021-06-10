@@ -43,6 +43,8 @@ use crate::{
     define_newtype,
     error::{TemplateSaveError, TemplateSaveErrorDetails},
     prelude::*,
+    search::{Node, SearchNode},
+    storage::comma_separated_ids,
     template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
 };
@@ -189,6 +191,30 @@ impl Collection {
 
     pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<OpOutput<()>> {
         self.transact(Op::RemoveNotetype, |col| col.remove_notetype_inner(ntid))
+    }
+
+    /// Return the notetype used by `note_ids`, or an error if not exactly 1
+    /// notetype is in use.
+    pub fn get_single_notetype_of_notes(&mut self, note_ids: &[NoteId]) -> Result<NotetypeId> {
+        if note_ids.is_empty() {
+            return Err(AnkiError::NotFound);
+        }
+
+        let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(&note_ids)).into();
+        let note1 = self
+            .storage
+            .get_note(*note_ids.first().unwrap())?
+            .ok_or(AnkiError::NotFound)?;
+
+        if self
+            .search_notes_unordered(match_all![note1.notetype_id, nids_node])?
+            .len()
+            != note_ids.len()
+        {
+            Err(AnkiError::MultipleNotetypesSelected)
+        } else {
+            Ok(note1.notetype_id)
+        }
     }
 }
 

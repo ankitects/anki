@@ -9,7 +9,6 @@ import aqt
 from .browser import Browser, PreviewDialog
 
 # aliases for legacy pathnames
-from .change_notetype import ChangeModel
 from .sidebar import (
     SidebarItem,
     SidebarItemType,

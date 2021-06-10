@@ -4,6 +4,7 @@ _pages = [
     "graphs",
     "congrats",
     "deckoptions",
+    "ChangeNotetype",
 ]
 
 [copy_files_into_group(

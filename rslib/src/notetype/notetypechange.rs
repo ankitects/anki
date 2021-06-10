@@ -38,7 +38,7 @@ pub struct TemplateMap {
 }
 
 impl TemplateMap {
-    fn new(new_templates: Vec<Option<usize>>, old_template_count: usize) -> Result<Self> {
+    fn new(new_templates: Vec<Option<usize>>, old_template_count: usize) -> Self {
         let mut seen: HashSet<usize> = HashSet::new();
         let remapped: HashMap<_, _> = new_templates
             .iter()
@@ -58,23 +58,17 @@ impl TemplateMap {
         let removed: Vec<_> = (0..old_template_count)
             .filter(|idx| !seen.contains(&idx))
             .collect();
-        if removed.len() == new_templates.len() {
-            return Err(AnkiError::invalid_input(
-                "at least one template must be mapped",
-            ));
-        }
 
-        Ok(TemplateMap { removed, remapped })
+        TemplateMap { removed, remapped }
     }
 }
 
 impl Collection {
     pub fn notetype_change_info(
         &mut self,
-        note_ids: Vec<NoteId>,
+        old_notetype_id: NotetypeId,
         new_notetype_id: NotetypeId,
     ) -> Result<NotetypeChangeInfo> {
-        let old_notetype_id = self.get_single_notetype_of_notes(&note_ids)?;
         let old_notetype = self
             .get_notetype(old_notetype_id)?
             .ok_or(AnkiError::NotFound)?;
@@ -89,7 +83,7 @@ impl Collection {
         Ok(NotetypeChangeInfo {
             input: ChangeNotetypeInput {
                 current_schema,
-                note_ids,
+                note_ids: vec![],
                 old_notetype_id,
                 new_notetype_id,
                 new_fields,
@@ -207,30 +201,6 @@ fn default_field_map(current_notetype: &Notetype, new_notetype: &Notetype) -> Ve
 }
 
 impl Collection {
-    /// Return the notetype used by `note_ids`, or an error if not exactly 1
-    /// notetype is in use.
-    fn get_single_notetype_of_notes(&mut self, note_ids: &[NoteId]) -> Result<NotetypeId> {
-        if note_ids.is_empty() {
-            return Err(AnkiError::NotFound);
-        }
-
-        let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(&note_ids)).into();
-        let note1 = self
-            .storage
-            .get_note(*note_ids.first().unwrap())?
-            .ok_or(AnkiError::NotFound)?;
-
-        if self
-            .search_notes_unordered(match_all![note1.notetype_id, nids_node])?
-            .len()
-            != note_ids.len()
-        {
-            Err(AnkiError::MultipleNotetypesSelected)
-        } else {
-            Ok(note1.notetype_id)
-        }
-    }
-
     fn change_notetype_of_notes_inner(&mut self, input: ChangeNotetypeInput) -> Result<()> {
         if input.current_schema != self.storage.get_collection_timestamps()?.schema_change {
             return Err(AnkiError::invalid_input("schema changed"));
@@ -304,7 +274,7 @@ impl Collection {
         usn: Usn,
     ) -> Result<()> {
         let nids: Node = SearchNode::NoteIds(comma_separated_ids(note_ids)).into();
-        let map = TemplateMap::new(new_templates, old_template_count)?;
+        let map = TemplateMap::new(new_templates, old_template_count);
         self.remove_unmapped_cards(&map, nids.clone(), usn)?;
         self.rewrite_remapped_cards(&map, nids, usn)?;
 
@@ -454,11 +424,11 @@ mod test {
     }
 
     #[test]
-    fn template_map() -> Result<()> {
+    fn template_map() {
         let new_templates = vec![None, Some(0)];
 
         assert_eq!(
-            TemplateMap::new(new_templates.clone(), 1)?,
+            TemplateMap::new(new_templates.clone(), 1),
             TemplateMap {
                 removed: vec![],
                 remapped: vec![(0, 1)].into_iter().collect()
@@ -466,14 +436,12 @@ mod test {
         );
 
         assert_eq!(
-            TemplateMap::new(new_templates, 2)?,
+            TemplateMap::new(new_templates, 2),
             TemplateMap {
                 removed: vec![1],
                 remapped: vec![(0, 1)].into_iter().collect()
             }
         );
-
-        Ok(())
     }
 
     #[test]
@@ -488,14 +456,17 @@ mod test {
         let basic2 = col
             .get_notetype_by_name("Basic (and reversed card)")?
             .unwrap();
-        let mut info = col.notetype_change_info(vec![note.id], basic2.id)?;
 
-        // switch the existing card to ordinal 2
         let first_card = col.storage.all_cards_of_note(note.id)?[0].clone();
         assert_eq!(first_card.template_idx, 0);
-        let templates = info.input.new_templates.as_mut().unwrap();
-        *templates = vec![None, Some(0)];
-        col.change_notetype_of_notes(info.input)?;
+
+        // switch the existing card to ordinal 2
+        let input = ChangeNotetypeInput {
+            note_ids: vec![note.id],
+            new_templates: Some(vec![None, Some(0)]),
+            ..col.notetype_change_info(basic.id, basic2.id)?.input
+        };
+        col.change_notetype_of_notes(input)?;
 
         // cards arrive in creation order, so the existing card will come first
         let cards = col.storage.all_cards_of_note(note.id)?;
@@ -505,6 +476,27 @@ mod test {
         // a new forward card should also have been generated
         assert_eq!(cards[1].template_idx, 0);
         assert_ne!(cards[1].id, first_card.id);
+
+        Ok(())
+    }
+
+    #[test]
+    fn field_count_change() -> Result<()> {
+        let mut col = open_test_collection();
+        let basic = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = basic.new_note();
+        note.set_field(0, "1")?;
+        note.set_field(1, "2")?;
+        col.add_note(&mut note, DeckId(1))?;
+
+        let basic2 = col
+            .get_notetype_by_name("Basic (optional reversed card)")?
+            .unwrap();
+        let input = ChangeNotetypeInput {
+            note_ids: vec![note.id],
+            ..col.notetype_change_info(basic.id, basic2.id)?.input
+        };
+        col.change_notetype_of_notes(input)?;
 
         Ok(())
     }
@@ -523,24 +515,36 @@ mod test {
         let cloze = col.get_notetype_by_name("Cloze")?.unwrap();
 
         // changing to cloze should leave all the existing cards alone
-        let info = col.notetype_change_info(vec![note.id], cloze.id)?;
-        col.change_notetype_of_notes(info.input)?;
+        let input = ChangeNotetypeInput {
+            note_ids: vec![note.id],
+            ..col.notetype_change_info(basic.id, cloze.id)?.input
+        };
+        col.change_notetype_of_notes(input)?;
         let cards = col.storage.all_cards_of_note(note.id)?;
         assert_eq!(cards.len(), 2);
 
         // and back again should also work
-        let info = col.notetype_change_info(vec![note.id], basic.id)?;
-        col.change_notetype_of_notes(info.input)?;
+        let input = ChangeNotetypeInput {
+            note_ids: vec![note.id],
+            ..col.notetype_change_info(cloze.id, basic.id)?.input
+        };
+        col.change_notetype_of_notes(input)?;
         let cards = col.storage.all_cards_of_note(note.id)?;
         assert_eq!(cards.len(), 2);
 
         // but any cards above the available templates should be removed when converting from cloze->normal
-        let info = col.notetype_change_info(vec![note.id], cloze.id)?;
-        col.change_notetype_of_notes(info.input)?;
+        let input = ChangeNotetypeInput {
+            note_ids: vec![note.id],
+            ..col.notetype_change_info(basic.id, cloze.id)?.input
+        };
+        col.change_notetype_of_notes(input)?;
 
         let basic1 = col.get_notetype_by_name("Basic")?.unwrap();
-        let info = col.notetype_change_info(vec![note.id], basic1.id)?;
-        col.change_notetype_of_notes(info.input)?;
+        let input = ChangeNotetypeInput {
+            note_ids: vec![note.id],
+            ..col.notetype_change_info(cloze.id, basic1.id)?.input
+        };
+        col.change_notetype_of_notes(input)?;
         let cards = col.storage.all_cards_of_note(note.id)?;
         assert_eq!(cards.len(), 1);
 

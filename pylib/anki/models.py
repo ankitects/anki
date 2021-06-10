@@ -17,20 +17,14 @@ from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.stdmodels import StockNotetypeKind
-from anki.utils import (
-    checksum,
-    from_json_bytes,
-    ids2str,
-    intTime,
-    joinFields,
-    splitFields,
-    to_json_bytes,
-)
+from anki.utils import checksum, from_json_bytes, to_json_bytes
 
 # public exports
 NotetypeNameId = _pb.NotetypeNameId
 NotetypeNameIdUseCount = _pb.NotetypeNameIdUseCount
-
+NotetypeNames = _pb.NotetypeNames
+ChangeNotetypeInfo = _pb.ChangeNotetypeInfo
+ChangeNotetypeIn = _pb.ChangeNotetypeIn
 
 # legacy types
 NotetypeDict = Dict[str, Any]
@@ -436,89 +430,82 @@ and notes.mid = ? and cards.ord = ?""",
             ord,
         )
 
-    # Model changing
+    # Changing notetypes of notes
     ##########################################################################
-    # - maps are ord->ord, and there should not be duplicate targets
-    # - newModel should be self if model is not changing
+
+    def get_single_notetype_of_notes(
+        self, note_ids: Sequence[anki.notes.NoteId]
+    ) -> NotetypeId:
+        return NotetypeId(
+            self.col._backend.get_single_notetype_of_notes(note_ids=note_ids)
+        )
+
+    def change_notetype_info(
+        self, *, old_notetype_id: NotetypeId, new_notetype_id: NotetypeId
+    ) -> bytes:
+        return self.col._backend.get_change_notetype_info(
+            old_notetype_id=old_notetype_id, new_notetype_id=new_notetype_id
+        )
+
+    def change_notetype_of_notes(self, input: ChangeNotetypeIn) -> OpChanges:
+        """Assign a new notetype, optionally altering field/template order.
+
+        To get defaults, use
+
+        input = ChangeNotetypeIn()
+        input.ParseFromString(col.models.change_notetype_info(...))
+        input.note_ids.extend([...])
+
+        The new_fields and new_templates lists are relative to the new notetype's
+        field/template count. Each value represents the index in the previous
+        notetype. -1 indicates the original value will be discarded.
+        """
+        return self.col._backend.change_notetype(input)
+
+    # legacy API - used by unit tests and add-ons
 
     def change(
         self,
         m: NotetypeDict,
         nids: List[anki.notes.NoteId],
         newModel: NotetypeDict,
-        fmap: Optional[Dict[int, Union[None, int]]],
-        cmap: Optional[Dict[int, Union[None, int]]],
+        fmap: Dict[int, Optional[int]],
+        cmap: Optional[Dict[int, Optional[int]]],
     ) -> None:
+        # - maps are ord->ord, and there should not be duplicate targets
         self.col.modSchema(check=True)
-        assert newModel["id"] == m["id"] or (fmap and cmap)
-        if fmap:
-            self._changeNotes(nids, newModel, fmap)
-        if cmap:
-            self._changeCards(nids, m, newModel, cmap)
-        self.col.after_note_updates(nids, mark_modified=True)
+        assert fmap
+        field_map = self._convert_legacy_map(fmap, len(newModel["flds"]))
+        if not cmap or newModel["type"] == MODEL_CLOZE or m["type"] == MODEL_CLOZE:
+            template_map = []
+        else:
+            template_map = self._convert_legacy_map(cmap, len(newModel["tmpls"]))
 
-    def _changeNotes(
-        self,
-        nids: List[anki.notes.NoteId],
-        newModel: NotetypeDict,
-        map: Dict[int, Union[None, int]],
-    ) -> None:
-        d = []
-        nfields = len(newModel["flds"])
-        for (nid, flds) in self.col.db.execute(
-            f"select id, flds from notes where id in {ids2str(nids)}"
-        ):
-            newflds = {}
-            flds = splitFields(flds)
-            for old, new in list(map.items()):
-                newflds[new] = flds[old]
-            flds = []
-            for c in range(nfields):
-                flds.append(newflds.get(c, ""))
-            flds = joinFields(flds)
-            d.append(
-                (
-                    flds,
-                    newModel["id"],
-                    intTime(),
-                    self.col.usn(),
-                    nid,
-                )
+        self.col._backend.change_notetype(
+            ChangeNotetypeIn(
+                note_ids=nids,
+                new_fields=field_map,
+                new_templates=template_map,
+                old_notetype_id=m["id"],
+                new_notetype_id=newModel["id"],
+                current_schema=self.col.db.scalar("select scm from col"),
             )
-        self.col.db.executemany(
-            "update notes set flds=?,mid=?,mod=?,usn=? where id = ?", d
         )
 
-    def _changeCards(
-        self,
-        nids: List[anki.notes.NoteId],
-        oldModel: NotetypeDict,
-        newModel: NotetypeDict,
-        map: Dict[int, Union[None, int]],
-    ) -> None:
-        d = []
-        deleted = []
-        for (cid, ord) in self.col.db.execute(
-            f"select id, ord from cards where nid in {ids2str(nids)}"
-        ):
-            # if the src model is a cloze, we ignore the map, as the gui
-            # doesn't currently support mapping them
-            if oldModel["type"] == MODEL_CLOZE:
-                new = ord
-                if newModel["type"] != MODEL_CLOZE:
-                    # if we're mapping to a regular note, we need to check if
-                    # the destination ord is valid
-                    if len(newModel["tmpls"]) <= ord:
-                        new = None
-            else:
-                # mapping from a regular note, so the map should be valid
-                new = map[ord]
-            if new is not None:
-                d.append((new, self.col.usn(), intTime(), cid))
-            else:
-                deleted.append(cid)
-        self.col.db.executemany("update cards set ord=?,usn=?,mod=? where id=?", d)
-        self.col.remove_cards_and_orphaned_notes(deleted)
+    def _convert_legacy_map(
+        self, old_to_new: Dict[int, Optional[int]], new_count: int
+    ) -> List[int]:
+        "Convert old->new map to list of old indexes"
+        new_to_old = {v: k for k, v in old_to_new.items() if v is not None}
+        out = []
+        for idx in range(new_count):
+            try:
+                val = new_to_old[idx]
+            except KeyError:
+                val = -1
+
+            out.append(val)
+        return out
 
     # Schema hash
     ##########################################################################
