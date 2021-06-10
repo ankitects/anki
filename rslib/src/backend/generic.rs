@@ -69,6 +69,12 @@ impl From<pb::NotetypeId> for NotetypeId {
     }
 }
 
+impl From<NotetypeId> for pb::NotetypeId {
+    fn from(ntid: NotetypeId) -> Self {
+        pb::NotetypeId { ntid: ntid.0 }
+    }
+}
+
 impl From<pb::DeckConfigId> for DeckConfigId {
     fn from(dcid: pb::DeckConfigId) -> Self {
         DeckConfigId(dcid.dcid)

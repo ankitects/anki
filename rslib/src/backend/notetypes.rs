@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{notes::to_note_ids, Backend};
+use super::Backend;
 pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesService;
 use crate::{
     backend_proto as pb,
@@ -156,12 +156,19 @@ impl NotetypesService for Backend {
         })
     }
 
+    fn get_single_notetype_of_notes(&self, input: pb::NoteIds) -> Result<pb::NotetypeId> {
+        self.with_col(|col| {
+            col.get_single_notetype_of_notes(&input.note_ids.into_newtype(NoteId))
+                .map(Into::into)
+        })
+    }
+
     fn get_change_notetype_info(
         &self,
         input: pb::GetChangeNotetypeInfoIn,
     ) -> Result<pb::ChangeNotetypeInfo> {
         self.with_col(|col| {
-            col.notetype_change_info(to_note_ids(input.note_ids), input.new_notetype_id.into())
+            col.notetype_change_info(input.old_notetype_id.into(), input.new_notetype_id.into())
                 .map(Into::into)
         })
     }
@@ -206,13 +213,13 @@ impl From<pb::ChangeNotetypeIn> for ChangeNotetypeInput {
             new_fields: i
                 .new_fields
                 .into_iter()
-                .map(|wrapper| wrapper.inner.map(|v| v.val as usize))
+                .map(|v| if v == -1 { None } else { Some(v as usize) })
                 .collect(),
             new_templates: {
                 let v: Vec<_> = i
                     .new_templates
                     .into_iter()
-                    .map(|wrapper| wrapper.inner.map(|v| v.val as usize))
+                    .map(|v| if v == -1 { None } else { Some(v as usize) })
                     .collect();
                 if v.is_empty() {
                     None
@@ -234,17 +241,13 @@ impl From<ChangeNotetypeInput> for pb::ChangeNotetypeIn {
             new_fields: i
                 .new_fields
                 .into_iter()
-                .map(|idx| pb::OptionalUInt32Wrapper {
-                    inner: idx.map(|idx| pb::OptionalUInt32 { val: idx as u32 }),
-                })
+                .map(|idx| idx.map(|v| v as i32).unwrap_or(-1))
                 .collect(),
             new_templates: i
                 .new_templates
                 .unwrap_or_default()
                 .into_iter()
-                .map(|idx| pb::OptionalUInt32Wrapper {
-                    inner: idx.map(|idx| pb::OptionalUInt32 { val: idx as u32 }),
-                })
+                .map(|idx| idx.map(|v| v as i32).unwrap_or(-1))
                 .collect(),
         }
     }

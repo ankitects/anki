@@ -14,7 +14,7 @@ from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.notes import NoteId
 from anki.tags import MARKED_TAG
-from anki.utils import ids2str, isMac
+from anki.utils import isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -58,8 +58,8 @@ from aqt.utils import (
     tr,
 )
 
+from ..changenotetype import change_notetype_dialog
 from .card_info import CardInfoDialog
-from .change_notetype import ChangeModel
 from .find_and_replace import FindAndReplaceDialog
 from .previewer import BrowserPreviewer as PreviewDialog
 from .previewer import Previewer
@@ -511,16 +511,7 @@ class Browser(QMainWindow):
     @ensure_editor_saved
     def onChangeModel(self) -> None:
         ids = self.selected_notes()
-        if self._is_one_notetype(ids):
-            ChangeModel(self, ids)
-        else:
-            showInfo(tr.browsing_please_select_cards_from_only_one())
-
-    def _is_one_notetype(self, ids: Sequence[NoteId]) -> bool:
-        query = f"select count(distinct mid) from notes where id in {ids2str(ids)}"
-        if self.col.db.scalar(query) == 1:
-            return True
-        return False
+        change_notetype_dialog(parent=self, note_ids=ids)
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()

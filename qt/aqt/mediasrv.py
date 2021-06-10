@@ -22,8 +22,10 @@ import aqt
 from anki import hooks
 from anki.collection import GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
+from anki.models import NotetypeNames
 from anki.scheduler.v3 import NextStates
 from anki.utils import devMode, from_json_bytes
+from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs
 from aqt.qt import *
@@ -323,6 +325,30 @@ def set_next_card_states() -> bytes:
     return b""
 
 
+def notetype_names() -> bytes:
+    msg = NotetypeNames(entries=aqt.mw.col.models.all_names_and_ids())
+    return msg.SerializeToString()
+
+
+def change_notetype_info() -> bytes:
+    args = from_json_bytes(request.data)
+    return aqt.mw.col.models.change_notetype_info(
+        old_notetype_id=args["oldNotetypeId"], new_notetype_id=args["newNotetypeId"]
+    )
+
+
+def change_notetype() -> bytes:
+    data = request.data
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, ChangeNotetypeDialog):
+            window.save(data)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
@@ -331,6 +357,9 @@ post_handlers = {
     "updateDeckConfigs": update_deck_configs_request,
     "nextCardStates": next_card_states,
     "setNextCardStates": set_next_card_states,
+    "changeNotetypeInfo": change_notetype_info,
+    "notetypeNames": notetype_names,
+    "changeNotetype": change_notetype,
     # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,

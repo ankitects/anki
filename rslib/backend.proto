@@ -17,10 +17,6 @@ message OptionalUInt32 {
   uint32 val = 1;
 }
 
-message OptionalUInt32Wrapper {
-  OptionalUInt32 inner = 1;
-}
-
 message Int32 {
   sint32 val = 1;
 }
@@ -68,6 +64,10 @@ message NotetypeId {
 
 message NoteId {
   int64 nid = 1;
+}
+
+message NoteIds {
+  repeated int64 note_ids = 1;
 }
 
 message CardId {
@@ -220,6 +220,7 @@ service NotetypesService {
   rpc RemoveNotetype(NotetypeId) returns (OpChanges);
   rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyIn) returns (String);
   rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyIn) returns (String);
+  rpc GetSingleNotetypeOfNotes(NoteIds) returns (NotetypeId);
   rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoIn)
       returns (ChangeNotetypeInfo);
   rpc ChangeNotetype(ChangeNotetypeIn) returns (OpChanges);
@@ -1645,14 +1646,16 @@ message GetAuxTemplateConfigKeyIn {
 }
 
 message GetChangeNotetypeInfoIn {
-  repeated int64 note_ids = 1;
+  int64 old_notetype_id = 1;
   int64 new_notetype_id = 2;
 }
 
 message ChangeNotetypeIn {
   repeated int64 note_ids = 1;
-  repeated OptionalUInt32Wrapper new_fields = 2;
-  repeated OptionalUInt32Wrapper new_templates = 3;
+  // -1 is used to represent null, as nullable repeated fields
+  // are unwieldy in protobuf
+  repeated int32 new_fields = 2;
+  repeated int32 new_templates = 3;
   int64 old_notetype_id = 4;
   int64 new_notetype_id = 5;
   int64 current_schema = 6;

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from anki.collection import OpChanges, OpChangesWithId
-from anki.models import NotetypeDict, NotetypeId
+from anki.models import ChangeNotetypeIn, NotetypeDict, NotetypeId
 from aqt import QWidget
 from aqt.operations import CollectionOp
 
@@ -31,3 +31,9 @@ def remove_notetype(
     notetype_id: NotetypeId,
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.models.remove(notetype_id))
+
+
+def change_notetype_of_notes(
+    *, parent: QWidget, input: ChangeNotetypeIn
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.models.change_notetype_of_notes(input))
