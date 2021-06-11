@@ -4,67 +4,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import WithTooltip from "./WithTooltip.svelte";
+    import Badge from "./Badge.svelte";
     import { revertIcon } from "./icons";
-    import { createEventDispatcher } from "svelte";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
-    // import { onMount } from "svelte";
-    // import Tooltip from "bootstrap/js/dist/tooltip";
 
-    let ref: HTMLDivElement;
+    type T = unknown;
 
-    // fixme: figure out why this breaks halfway down the page
-    // onMount(() => {
-    //     new Tooltip(ref, {
-    //         placement: "bottom",
-    //         html: true,
-    //         offset: [0, 20],
-    //     });
-    // });
+    export let value: T;
+    export let defaultValue: T;
 
-    export let value: any;
-    export let defaultValue: any;
-
-    const dispatch = createEventDispatcher();
-
-    function isEqual(a: unknown, b: unknown): boolean {
+    function isEqual(a: T, b: T): boolean {
         if (typeof a === "number" && typeof b === "number") {
             // round to .01 precision before comparing,
             // so the values coming out of the UI match
             // the originals
-            return isEqualLodash(Math.round(a * 100) / 100, Math.round(b * 100) / 100);
-        } else {
-            return isEqualLodash(a, b);
+            a = Math.round(a * 100) / 100;
+            b = Math.round(b * 100) / 100;
         }
+
+        return isEqualLodash(a, b);
     }
 
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
 
-    /// This component can be used either with bind:value, or by listening
-    /// to the revert event.
     function revert(): void {
         value = cloneDeep(defaultValue);
-        dispatch("revert", { value });
     }
 </script>
 
-<span
-    bind:this={ref}
-    class="badge px-1"
-    class:invisible={!modified}
-    title={tr.deckConfigRevertButtonTooltip()}
-    on:click={revert}
->
-    {@html revertIcon}
+<span class:invisible={!modified}>
+    <WithTooltip tooltip={tr.deckConfigRevertButtonTooltip()} let:createTooltip>
+        <Badge on:mount={(event) => createTooltip(event.detail.span)} on:click={revert}
+            >{@html revertIcon}</Badge
+        >
+    </WithTooltip>
 </span>
-
-<style lang="scss">
-    .badge {
-        color: inherit;
-    }
-
-    span :global(svg) {
-        vertical-align: -0.125rem;
-        opacity: 0.3;
-    }
-</style>
