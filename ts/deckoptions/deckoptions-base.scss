@@ -28,16 +28,18 @@
 }
 
 .tooltip-inner {
-    max-width: 300px;
     text-align: left;
+    max-width: 300px;
 
-    p {
-        margin: 0.8em 0.4em 0.8em 0.8em;
+    // marked transpiles tooltips into multiple paragraphs
+    // where trailing <p>s cause a bottom margin
+    > p:last-child {
+        display: inline;
     }
-}
 
-// the default code color in tooltips is difficult to read; we'll probably
-// want to add more of our own styling in the future
-code {
-    color: #ffaaaa;
+    // the default code color in tooltips is difficult to read; we'll probably
+    // want to add more of our own styling in the future
+    code {
+        color: #ffaaaa;
+    }
 }
