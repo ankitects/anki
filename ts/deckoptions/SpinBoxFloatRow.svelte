@@ -21,7 +21,7 @@
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
     <Col size={5}>
-        <RevertButton bind:value {defaultValue} />
         <SpinBoxFloat bind:value {min} {max} />
+        <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

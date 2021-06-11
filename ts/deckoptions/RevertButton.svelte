@@ -36,8 +36,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span class:invisible={!modified}>
     <WithTooltip tooltip={tr.deckConfigRevertButtonTooltip()} let:createTooltip>
-        <Badge on:mount={(event) => createTooltip(event.detail.span)} on:click={revert}
-            >{@html revertIcon}</Badge
+        <Badge
+            class="px-1"
+            on:mount={(event) => createTooltip(event.detail.span)}
+            on:click={revert}>{@html revertIcon}</Badge
         >
     </WithTooltip>
 </span>

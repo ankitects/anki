@@ -23,7 +23,7 @@
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
     <Col {breakpoint} size={5}>
-        <RevertButton bind:value {defaultValue} />
         <EnumSelector bind:value {choices} />
+        <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

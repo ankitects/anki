@@ -5,6 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
 
+    let className = "";
+    export { className as class };
+
     const dispatch = createEventDispatcher();
 
     let spanRef: HTMLSpanElement;
@@ -14,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<span bind:this={spanRef} class="badge" on:click>
+<span bind:this={spanRef} class={`badge ${className}`} on:click>
     <slot />
 </span>
 
