@@ -288,9 +288,11 @@ class AnkiWebView(QWebEngineView):
 
     def onCopy(self) -> None:
         if not self.selectedText():
-            ctx = self._page.contextMenuData()
-            if ctx and ctx.mediaType() == QWebEngineContextMenuData.MediaTypeImage:
-                self.triggerPageAction(QWebEnginePage.CopyImageToClipboard)
+            if not isMac:
+                # crashes on a mac when clicking in the main window and pressing cmd+c
+                ctx = self._page.contextMenuData()
+                if ctx and ctx.mediaType() == QWebEngineContextMenuData.MediaTypeImage:
+                    self.triggerPageAction(QWebEnginePage.CopyImageToClipboard)
         else:
             self.triggerPageAction(QWebEnginePage.Copy)
 
