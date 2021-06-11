@@ -5,11 +5,9 @@
 <script lang="ts">
     import type { Breakpoint } from "./col";
 
-    import marked from "marked";
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
-    import WithTooltip from "./WithTooltip.svelte";
-    import Label from "./Label.svelte";
+    import TooltipLabel from "./TooltipLabel.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import RevertButton from "./RevertButton.svelte";
 
@@ -22,11 +20,7 @@
 
 <Row>
     <Col size={7}>
-        <WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip>
-            <Label on:mount={(event) => createTooltip(event.detail.span)}
-                ><slot /></Label
-            >
-        </WithTooltip>
+        <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
     <Col {breakpoint} size={5}>
         <RevertButton bind:value {defaultValue} />
