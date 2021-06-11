@@ -13,6 +13,7 @@
             placement: "bottom",
             html: true,
             offset: [0, 20],
+            delay: { show: 250, hide: 0 },
         });
     }
 </script>
