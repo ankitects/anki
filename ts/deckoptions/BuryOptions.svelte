@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
     import Item from "components/Item.svelte";
-    import CheckBoxRow from "./CheckBoxRow.svelte";
+    import SwitchRow from "./SwitchRow.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -18,22 +18,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <TitledContainer title={tr.deckConfigBuryTitle()} {api}>
     <Item>
-        <CheckBoxRow
+        <SwitchRow
             bind:value={$config.buryNew}
             defaultValue={defaults.buryNew}
             markdownTooltip={tr.deckConfigBuryTooltip()}
         >
             {tr.deckConfigBuryNewSiblings()}
-        </CheckBoxRow>
+        </SwitchRow>
     </Item>
 
     <Item>
-        <CheckBoxRow
+        <SwitchRow
             bind:value={$config.buryReviews}
             defaultValue={defaults.buryReviews}
             markdownTooltip={tr.deckConfigBuryTooltip()}
         >
             {tr.deckConfigBuryReviewSiblings()}
-        </CheckBoxRow>
+        </SwitchRow>
     </Item>
 </TitledContainer>

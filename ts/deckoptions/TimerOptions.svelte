@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "./TitledContainer.svelte";
     import Item from "components/Item.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import CheckBoxRow from "./CheckBoxRow.svelte";
+    import SwitchRow from "./SwitchRow.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -31,12 +31,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Item>
 
     <Item>
-        <CheckBoxRow
+        <SwitchRow
             bind:value={$config.showTimer}
             defaultValue={defaults.showTimer}
             markdownTooltip={tr.deckConfigShowAnswerTimerTooltip()}
         >
             {tr.schedulingShowAnswerTimer()}
-        </CheckBoxRow>
+        </SwitchRow>
     </Item>
 </TitledContainer>
