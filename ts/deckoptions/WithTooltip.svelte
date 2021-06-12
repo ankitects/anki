@@ -39,4 +39,4 @@
     });
 </script>
 
-<slot {createTooltip} />
+<slot {createTooltip} {tooltipObject} />

@@ -4,9 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import { getContext } from "svelte";
     import WithTooltip from "./WithTooltip.svelte";
     import Badge from "./Badge.svelte";
     import { revertIcon } from "./icons";
+    import { touchDeviceKey } from "components/contextKeys";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
 
     type T = unknown;
@@ -32,14 +34,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function revert(): void {
         value = cloneDeep(defaultValue);
     }
+
+    const touchDevice = getContext<boolean>(touchDeviceKey);
 </script>
 
 <span class:invisible={!modified}>
-    <WithTooltip tooltip={tr.deckConfigRevertButtonTooltip()} let:createTooltip>
-        <Badge
-            class="px-1"
-            on:mount={(event) => createTooltip(event.detail.span)}
-            on:click={revert}>{@html revertIcon}</Badge
+    {#if touchDevice}
+        <Badge class="px-1" on:click={revert}>{@html revertIcon}</Badge>
+    {:else}
+        <WithTooltip
+            trigger="hover"
+            tooltip={tr.deckConfigRevertButtonTooltip()}
+            let:createTooltip
         >
-    </WithTooltip>
+            <Badge
+                class="px-1"
+                on:mount={(event) => createTooltip(event.detail.span)}
+                on:click={revert}>{@html revertIcon}</Badge
+            >
+        </WithTooltip>
+    {/if}
 </span>
