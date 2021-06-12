@@ -6,10 +6,9 @@ from typing import Callable, List, Optional
 import aqt.editor
 import aqt.forms
 from anki.collection import OpChanges, SearchNode
-from anki.consts import MODEL_CLOZE
 from anki.decks import DeckId
 from anki.models import NotetypeId
-from anki.notes import DuplicateOrEmptyResult, Note, NoteId
+from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
@@ -231,9 +230,15 @@ class AddCards(QDialog):
         ).run_in_background()
 
     def _note_can_be_added(self, note: Note) -> bool:
-        result = note.duplicate_or_empty()
-        if result == DuplicateOrEmptyResult.EMPTY:
+        result = note.fields_check()
+        if result == NoteFieldsCheckResult.EMPTY:
             problem = tr.adding_the_first_field_is_empty()
+        elif result == NoteFieldsCheckResult.MISSING_CLOZE:
+            problem = tr.adding_missing_cloze()
+        elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
+            problem = tr.adding_cloze_outside_cloze_notetype()
+        elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
+            problem = tr.adding_cloze_outside_cloze_field()
         else:
             # duplicate entries are allowed these days
             problem = None
@@ -243,12 +248,6 @@ class AddCards(QDialog):
         if problem is not None:
             showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
             return False
-
-        # missing cloze deletion?
-        if note.model()["type"] == MODEL_CLOZE:
-            if not note.cloze_numbers_in_fields():
-                if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
-                    return False
 
         return True
 
