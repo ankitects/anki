@@ -14,7 +14,7 @@ import SpinBoxFloat from "./SpinBoxFloat.svelte";
 import EnumSelector from "./EnumSelector.svelte";
 import CheckBox from "./CheckBox.svelte";
 
-import { nightModeKey, modalsKey } from "components/contextKeys";
+import { nightModeKey, touchDeviceKey, modalsKey } from "components/contextKeys";
 
 export async function deckOptions(
     target: HTMLDivElement,
@@ -31,12 +31,15 @@ export async function deckOptions(
         }),
     ]);
 
-    const nightMode = checkNightMode();
     const context = new Map();
+    const nightMode = checkNightMode();
     context.set(nightModeKey, nightMode);
 
     const modals = new Map();
     context.set(modalsKey, modals);
+
+    const touchDevice = "ontouchstart" in document.documentElement;
+    context.set(touchDeviceKey, touchDevice);
 
     const state = new DeckOptionsState(deckId, info);
     return new DeckOptionsPage({
