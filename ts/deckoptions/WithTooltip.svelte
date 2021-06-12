@@ -6,7 +6,18 @@
     import { onDestroy } from "svelte";
     import Tooltip from "bootstrap/js/dist/tooltip";
 
+    type TriggerType =
+        | "hover focus"
+        | "click"
+        | "hover"
+        | "focus"
+        | "manual"
+        | "click hover"
+        | "click focus"
+        | "click hover focus";
+
     export let tooltip: string;
+    export let trigger: TriggerType = "hover focus";
 
     let tooltipObject: Tooltip;
 
@@ -17,6 +28,7 @@
             html: true,
             offset: [0, 20],
             delay: { show: 250, hide: 0 },
+            trigger,
         });
     }
 
