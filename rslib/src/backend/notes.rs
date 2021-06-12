@@ -120,11 +120,11 @@ impl NotesService for Backend {
         })
     }
 
-    fn note_is_duplicate_or_empty(&self, input: pb::Note) -> Result<pb::NoteIsDuplicateOrEmptyOut> {
+    fn note_fields_check(&self, input: pb::Note) -> Result<pb::NoteFieldsCheckOut> {
         let note: Note = input.into();
         self.with_col(|col| {
-            col.note_is_duplicate_or_empty(&note)
-                .map(|r| pb::NoteIsDuplicateOrEmptyOut { state: r as i32 })
+            col.note_fields_check(&note)
+                .map(|r| pb::NoteFieldsCheckOut { state: r as i32 })
         })
     }
 
