@@ -1,3 +1,7 @@
+$tooltip-padding-y: 0.45rem;
+$tooltip-padding-x: 0.65rem;
+$tooltip-max-width: 300px;
+
 @use "ts/sass/vars";
 @use "ts/sass/scrollbar";
 @use "ts/sass/bootstrap-dark";
@@ -29,7 +33,6 @@
 
 .tooltip-inner {
     text-align: left;
-    max-width: 300px;
 
     // marked transpiles tooltips into multiple paragraphs
     // where trailing <p>s cause a bottom margin
