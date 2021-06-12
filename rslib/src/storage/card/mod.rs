@@ -229,12 +229,21 @@ impl super::SqliteStorage {
     }
 
     /// Call func() for each new card, stopping when it returns false
-    /// or no more cards found. Cards will arrive in (deck_id, due) order.
-    pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckId, mut func: F) -> Result<()>
+    /// or no more cards found.
+    pub(crate) fn for_each_new_card_in_deck<F>(
+        &self,
+        deck: DeckId,
+        reverse: bool,
+        mut func: F,
+    ) -> Result<()>
     where
         F: FnMut(NewCard) -> bool,
     {
-        let mut stmt = self.db.prepare_cached(include_str!("new_cards.sql"))?;
+        let mut stmt = self.db.prepare_cached(&format!(
+            "{}{}",
+            include_str!("new_cards.sql"),
+            if reverse { " order by due desc" } else { "" }
+        ))?;
         let mut rows = stmt.query(params![deck])?;
         while let Some(row) = rows.next()? {
             if !func(NewCard {
@@ -335,7 +344,25 @@ impl super::SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn all_card_ids_of_note_in_order(&self, nid: NoteId) -> Result<Vec<CardId>> {
+    pub(crate) fn all_cards_of_notes_above_ordinal(
+        &mut self,
+        note_ids: &[NoteId],
+        ordinal: usize,
+    ) -> Result<Vec<Card>> {
+        self.set_search_table_to_note_ids(note_ids)?;
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                " where nid in (select nid from search_nids) and ord > ?"
+            ))?
+            .query_and_then(&[ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
+            .collect()
+    }
+
+    pub(crate) fn all_card_ids_of_note_in_template_order(
+        &self,
+        nid: NoteId,
+    ) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached("select id from cards where nid = ? order by ord")?
             .query_and_then(&[nid], |r| Ok(CardId(r.get(0)?)))?

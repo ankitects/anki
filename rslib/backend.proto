@@ -66,6 +66,10 @@ message NoteId {
   int64 nid = 1;
 }
 
+message NoteIds {
+  repeated int64 note_ids = 1;
+}
+
 message CardId {
   int64 cid = 1;
 }
@@ -216,6 +220,10 @@ service NotetypesService {
   rpc RemoveNotetype(NotetypeId) returns (OpChanges);
   rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyIn) returns (String);
   rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyIn) returns (String);
+  rpc GetSingleNotetypeOfNotes(NoteIds) returns (NotetypeId);
+  rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoIn)
+      returns (ChangeNotetypeInfo);
+  rpc ChangeNotetype(ChangeNotetypeIn) returns (OpChanges);
 }
 
 service CardRenderingService {
@@ -320,13 +328,16 @@ message DeckConfig {
     }
     enum NewCardGatherPriority {
       NEW_CARD_GATHER_PRIORITY_DECK = 0;
-      NEW_CARD_GATHER_PRIORITY_POSITION = 1;
+      NEW_CARD_GATHER_PRIORITY_LOWEST_POSITION = 1;
+      NEW_CARD_GATHER_PRIORITY_HIGHEST_POSITION = 2;
     }
     enum NewCardSortOrder {
-      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_DUE = 0;
-      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM = 1;
-      NEW_CARD_SORT_ORDER_DUE = 2;
-      NEW_CARD_SORT_ORDER_RANDOM = 3;
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_LOWEST_POSITION = 0;
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_HIGHEST_POSITION = 1;
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM = 2;
+      NEW_CARD_SORT_ORDER_LOWEST_POSITION = 3;
+      NEW_CARD_SORT_ORDER_HIGHEST_POSITION = 4;
+      NEW_CARD_SORT_ORDER_RANDOM = 5;
     }
     enum ReviewCardOrder {
       REVIEW_CARD_ORDER_DAY = 0;
@@ -1578,8 +1589,10 @@ message OpChanges {
 
   bool browser_table = 7;
   bool browser_sidebar = 8;
-  bool editor = 9;
-  bool reviewer = 10;
+  // editor and displayed card in review screen
+  bool note_text = 9;
+  // whether to call .reset() and getCard()
+  bool study_queues = 10;
 }
 
 message UndoStatus {
@@ -1630,4 +1643,28 @@ message GetAuxTemplateConfigKeyIn {
   int64 notetype_id = 1;
   uint32 card_ordinal = 2;
   string key = 3;
+}
+
+message GetChangeNotetypeInfoIn {
+  int64 old_notetype_id = 1;
+  int64 new_notetype_id = 2;
+}
+
+message ChangeNotetypeIn {
+  repeated int64 note_ids = 1;
+  // -1 is used to represent null, as nullable repeated fields
+  // are unwieldy in protobuf
+  repeated int32 new_fields = 2;
+  repeated int32 new_templates = 3;
+  int64 old_notetype_id = 4;
+  int64 new_notetype_id = 5;
+  int64 current_schema = 6;
+}
+
+message ChangeNotetypeInfo {
+  repeated string old_field_names = 1;
+  repeated string old_template_names = 2;
+  repeated string new_field_names = 3;
+  repeated string new_template_names = 4;
+  ChangeNotetypeIn input = 5;
 }

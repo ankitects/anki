@@ -14,6 +14,7 @@ ignored-classes=
   UnburyDeckIn,
   CardAnswer,
   QueuedCards,
+  ChangeNotetypeIn,
 
 [REPORTS]
 output-format=colorized

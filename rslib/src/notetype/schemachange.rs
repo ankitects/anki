@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+//! Updates to notes/cards when the structure of a notetype is changed.
+
 use std::collections::HashMap;
 
 use super::{CardGenContext, Notetype};

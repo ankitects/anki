@@ -301,6 +301,7 @@ def test_modelChange():
     col.addNote(note)
     # switch fields
     map = {0: 1, 1: 0}
+    noop = {0: 0, 1: 1}
     col.models.change(basic, [note.id], basic, map, None)
     note.load()
     assert note["Front"] == "b123"
@@ -312,7 +313,7 @@ def test_modelChange():
     assert "note" in c1.q()
     assert c0.ord == 0
     assert c1.ord == 1
-    col.models.change(basic, [note.id], basic, None, map)
+    col.models.change(basic, [note.id], basic, noop, map)
     note.load()
     c0.load()
     c1.load()
@@ -327,7 +328,7 @@ def test_modelChange():
     if isWin:
         # The low precision timer on Windows reveals a race condition
         time.sleep(0.05)
-    col.models.change(basic, [note.id], basic, None, map)
+    col.models.change(basic, [note.id], basic, noop, map)
     note.load()
     c0.load()
     # the card was deleted

@@ -1,0 +1,43 @@
+@use "ts/sass/vars";
+@use "ts/sass/scrollbar";
+@use "ts/sass/bootstrap-dark";
+
+@import "ts/sass/base";
+
+@import "ts/sass/bootstrap/alert";
+@import "ts/sass/bootstrap/forms";
+@import "ts/sass/bootstrap/buttons";
+@import "ts/sass/bootstrap/button-group";
+@import "ts/sass/bootstrap/close";
+@import "ts/sass/bootstrap/grid";
+
+.night-mode {
+    @include scrollbar.night-mode;
+    @include bootstrap-dark.night-mode;
+}
+
+// the unprefixed version wasn't added until Chrome 81
+.form-select {
+    -webkit-appearance: none;
+}
+
+body {
+    width: min(100vw, 35em);
+    margin: 0 auto;
+    // leave some space for rounded screens
+    margin-bottom: 2em;
+}
+
+html {
+    overflow-x: hidden;
+}
+
+#main {
+    padding: 0.5em;
+    padding-top: 0;
+}
+
+// override the default down arrow colour in <select> elements
+.night-mode select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}

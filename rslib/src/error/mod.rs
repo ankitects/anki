@@ -39,6 +39,7 @@ pub enum AnkiError {
     SearchError(SearchErrorKind),
     InvalidRegex(String),
     UndoEmpty,
+    MultipleNotetypesSelected,
 }
 
 impl Display for AnkiError {
@@ -90,7 +91,16 @@ impl AnkiError {
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
             AnkiError::FilteredDeckError(err) => err.localized_description(tr),
             AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
-            _ => format!("{:?}", self),
+            AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
+            AnkiError::IoError(_)
+            | AnkiError::JsonError(_)
+            | AnkiError::ProtoError(_)
+            | AnkiError::Interrupted
+            | AnkiError::CollectionNotOpen
+            | AnkiError::CollectionAlreadyOpen
+            | AnkiError::NotFound
+            | AnkiError::Existing
+            | AnkiError::UndoEmpty => format!("{:?}", self),
         }
     }
 }

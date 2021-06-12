@@ -129,6 +129,7 @@ class Table:
         self.clear_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
+            self._scroll_to_row(row, scroll_even_if_visible=True)
 
     # Reset
 
@@ -406,8 +407,7 @@ class Table:
             current = current or rows[0]
             self._select_rows(rows)
             self._set_current(current)
-            # editor may pop up and hide the row later on
-            QTimer.singleShot(100, lambda: self._scroll_to_row(current))
+            self._scroll_to_row(current)
         if self.len_selection() == 0:
             # no row change will fire
             self.browser.onRowChanged(QItemSelection(), QItemSelection())
@@ -451,14 +451,14 @@ class Table:
 
     # Move
 
-    def _scroll_to_row(self, row: int) -> None:
+    def _scroll_to_row(self, row: int, scroll_even_if_visible: bool = False) -> None:
         """Scroll vertically to row."""
         top_border = self._view.rowViewportPosition(row)
         bottom_border = top_border + self._view.rowHeight(0)
         visible = top_border >= 0 and bottom_border < self._view.viewport().height()
-        if not visible:
+        if not visible or scroll_even_if_visible:
             horizontal = self._view.horizontalScrollBar().value()
-            self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtCenter)
+            self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtTop)
             self._view.horizontalScrollBar().setValue(horizontal)
 
     def _scroll_to_column(self, column: int) -> None:

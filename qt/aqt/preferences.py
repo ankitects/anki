@@ -39,7 +39,6 @@ class Preferences(QDialog):
         self.update_profile()
         self.update_global()
         self.mw.pm.save()
-        self.mw.reset()
         self.done(0)
         aqt.dialogs.markClosed("Preferences")
 

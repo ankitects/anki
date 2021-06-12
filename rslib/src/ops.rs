@@ -12,6 +12,7 @@ pub enum Op {
     AnswerCard,
     BuildFilteredDeck,
     Bury,
+    ChangeNotetype,
     ClearUnusedTags,
     EmptyFilteredDeck,
     ExpandCollapse,
@@ -82,6 +83,7 @@ impl Op {
             Op::UpdateNotetype => tr.actions_update_notetype(),
             Op::UpdateConfig => tr.actions_update_config(),
             Op::Custom(name) => name.into(),
+            Op::ChangeNotetype => tr.browsing_change_notetype(),
         }
         .into()
     }
@@ -149,29 +151,13 @@ impl OpChanges {
         c.tag || c.deck || c.notetype || c.config
     }
 
-    pub fn requires_editor_redraw(&self) -> bool {
+    pub fn requires_note_text_redraw(&self) -> bool {
         let c = &self.changes;
         c.note || c.notetype
     }
 
-    pub fn requires_reviewer_redraw(&self) -> bool {
+    pub fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
-        c.card
-            || (c.deck && self.op != Op::ExpandCollapse)
-            || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
-            || c.deck_config
-            || c.note
-            || c.notetype
-    }
-
-    /// Internal; allows us to avoid rebuilding queues after AnswerCard,
-    /// and a few other ops as an optimization.
-    pub(crate) fn requires_study_queue_rebuild(&self) -> bool {
-        let c = &self.changes;
-        if self.op == Op::AnswerCard {
-            return false;
-        }
-
         c.card
             || (c.deck && self.op != Op::ExpandCollapse)
             || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))

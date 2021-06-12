@@ -8,7 +8,7 @@ from typing import List, Literal, TypedDict
 import stringcase
 
 strings_json, outfile = sys.argv[1:]
-modules = json.load(open(strings_json))
+modules = json.load(open(strings_json, encoding="utf8"))
 
 
 class Variable(TypedDict):

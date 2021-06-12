@@ -6,7 +6,9 @@ pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesServ
 use crate::{
     backend_proto as pb,
     config::get_aux_notetype_config_key,
-    notetype::{all_stock_notetypes, Notetype, NotetypeSchema11},
+    notetype::{
+        all_stock_notetypes, ChangeNotetypeInput, Notetype, NotetypeChangeInfo, NotetypeSchema11,
+    },
     prelude::*,
 };
 
@@ -153,6 +155,26 @@ impl NotetypesService for Backend {
             .map(Into::into)
         })
     }
+
+    fn get_single_notetype_of_notes(&self, input: pb::NoteIds) -> Result<pb::NotetypeId> {
+        self.with_col(|col| {
+            col.get_single_notetype_of_notes(&input.note_ids.into_newtype(NoteId))
+                .map(Into::into)
+        })
+    }
+
+    fn get_change_notetype_info(
+        &self,
+        input: pb::GetChangeNotetypeInfoIn,
+    ) -> Result<pb::ChangeNotetypeInfo> {
+        self.with_col(|col| {
+            col.notetype_change_info(input.old_notetype_id.into(), input.new_notetype_id.into())
+                .map(Into::into)
+        })
+    }
+    fn change_notetype(&self, input: pb::ChangeNotetypeIn) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
+    }
 }
 
 impl From<pb::Notetype> for Notetype {
@@ -165,6 +187,68 @@ impl From<pb::Notetype> for Notetype {
             fields: n.fields.into_iter().map(Into::into).collect(),
             templates: n.templates.into_iter().map(Into::into).collect(),
             config: n.config.unwrap_or_default(),
+        }
+    }
+}
+
+impl From<NotetypeChangeInfo> for pb::ChangeNotetypeInfo {
+    fn from(i: NotetypeChangeInfo) -> Self {
+        pb::ChangeNotetypeInfo {
+            old_field_names: i.old_field_names,
+            old_template_names: i.old_template_names,
+            new_field_names: i.new_field_names,
+            new_template_names: i.new_template_names,
+            input: Some(i.input.into()),
+        }
+    }
+}
+
+impl From<pb::ChangeNotetypeIn> for ChangeNotetypeInput {
+    fn from(i: pb::ChangeNotetypeIn) -> Self {
+        ChangeNotetypeInput {
+            current_schema: i.current_schema.into(),
+            note_ids: i.note_ids.into_newtype(NoteId),
+            old_notetype_id: i.old_notetype_id.into(),
+            new_notetype_id: i.new_notetype_id.into(),
+            new_fields: i
+                .new_fields
+                .into_iter()
+                .map(|v| if v == -1 { None } else { Some(v as usize) })
+                .collect(),
+            new_templates: {
+                let v: Vec<_> = i
+                    .new_templates
+                    .into_iter()
+                    .map(|v| if v == -1 { None } else { Some(v as usize) })
+                    .collect();
+                if v.is_empty() {
+                    None
+                } else {
+                    Some(v)
+                }
+            },
+        }
+    }
+}
+
+impl From<ChangeNotetypeInput> for pb::ChangeNotetypeIn {
+    fn from(i: ChangeNotetypeInput) -> Self {
+        pb::ChangeNotetypeIn {
+            current_schema: i.current_schema.into(),
+            note_ids: i.note_ids.into_iter().map(Into::into).collect(),
+            old_notetype_id: i.old_notetype_id.into(),
+            new_notetype_id: i.new_notetype_id.into(),
+            new_fields: i
+                .new_fields
+                .into_iter()
+                .map(|idx| idx.map(|v| v as i32).unwrap_or(-1))
+                .collect(),
+            new_templates: i
+                .new_templates
+                .unwrap_or_default()
+                .into_iter()
+                .map(|idx| idx.map(|v| v as i32).unwrap_or(-1))
+                .collect(),
         }
     }
 }

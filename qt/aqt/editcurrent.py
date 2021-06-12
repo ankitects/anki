@@ -34,7 +34,7 @@ class EditCurrent(QDialog):
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]
     ) -> None:
-        if changes.editor and handler is not self.editor:
+        if changes.note_text and handler is not self.editor:
             # reload note
             note = self.editor.note
             try:

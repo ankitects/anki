@@ -31,6 +31,7 @@ impl AnkiError {
             AnkiError::ParseNumError => Kind::InvalidInput,
             AnkiError::InvalidRegex(_) => Kind::InvalidInput,
             AnkiError::UndoEmpty => Kind::UndoEmpty,
+            AnkiError::MultipleNotetypesSelected => Kind::InvalidInput,
         };
 
         pb::BackendError {

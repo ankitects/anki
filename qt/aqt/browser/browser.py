@@ -14,7 +14,7 @@ from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.notes import NoteId
 from anki.tags import MARKED_TAG
-from anki.utils import ids2str, isMac
+from anki.utils import isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -58,8 +58,8 @@ from aqt.utils import (
     tr,
 )
 
+from ..changenotetype import change_notetype_dialog
 from .card_info import CardInfoDialog
-from .change_notetype import ChangeModel
 from .find_and_replace import FindAndReplaceDialog
 from .previewer import BrowserPreviewer as PreviewDialog
 from .previewer import Previewer
@@ -80,8 +80,9 @@ class Browser(QMainWindow):
         search: Optional[Tuple[Union[str, SearchNode]]] = None,
     ) -> None:
         """
-        card  : try to search for its note and select it
-        search: set and perform search; caller must ensure validity
+        card -- try to select the provided card after executing "search" or
+                "deck:current" (if "search" was None)
+        search -- set and perform search; caller must ensure validity
         """
 
         QMainWindow.__init__(self, None, Qt.Window)
@@ -105,9 +106,9 @@ class Browser(QMainWindow):
         self.setupEditor()
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
-        self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
         self.show()
+        self.setupSearch(card, search)
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]
@@ -115,7 +116,7 @@ class Browser(QMainWindow):
         focused = current_window() == self
         self.table.op_executed(changes, handler, focused)
         self.sidebar.op_executed(changes, handler, focused)
-        if changes.editor:
+        if changes.note_text:
             if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
@@ -241,9 +242,12 @@ class Browser(QMainWindow):
         if search is not None:
             self.search_for_terms(*search)
             self.form.searchEdit.setFocus()
-        elif card:
-            self.show_single_card(card)
-            self.form.searchEdit.setFocus()
+        if card is not None:
+            if search is None:
+                # implicitly assume 'card' is in the current deck
+                self._default_search(card)
+                self.form.searchEdit.setFocus()
+            self.table.select_single_card(card.id)
 
     # Searching
     ######################################################################
@@ -261,13 +265,11 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
         if search is not None:
             self.search_for_terms(*search)
-        elif card:
-            self.show_single_card(card)
         else:
-            self.search_for(
-                self.col.build_search_string(SearchNode(deck="current")), ""
-            )
+            self._default_search(card)
         self.form.searchEdit.setFocus()
+        if card:
+            self.table.select_single_card(card.id)
 
     # search triggered by user
     @ensure_editor_saved
@@ -330,17 +332,11 @@ class Browser(QMainWindow):
         self.form.searchEdit.setEditText(search)
         self.onSearchActivated()
 
-    def show_single_card(self, card: Card) -> None:
-        if card.nid:
-
-            def on_show_single_card() -> None:
-                self.card = card
-                search = self.col.build_search_string(SearchNode(nid=card.nid))
-                search = gui_hooks.default_search(search, card)
-                self.search_for(search, "")
-                self.table.select_single_card(card.id)
-
-            self.editor.call_after_note_saved(on_show_single_card)
+    def _default_search(self, card: Optional[Card] = None) -> None:
+        search = self.col.build_search_string(SearchNode(deck="current"))
+        if card is not None:
+            search = gui_hooks.default_search(search, card)
+        self.search_for(search, "")
 
     def onReset(self) -> None:
         self.sidebar.refresh()
@@ -515,16 +511,7 @@ class Browser(QMainWindow):
     @ensure_editor_saved
     def onChangeModel(self) -> None:
         ids = self.selected_notes()
-        if self._is_one_notetype(ids):
-            ChangeModel(self, ids)
-        else:
-            showInfo(tr.browsing_please_select_cards_from_only_one())
-
-    def _is_one_notetype(self, ids: Sequence[NoteId]) -> bool:
-        query = f"select count(distinct mid) from notes where id in {ids2str(ids)}"
-        if self.col.db.scalar(query) == 1:
-            return True
-        return False
+        change_notetype_dialog(parent=self, note_ids=ids)
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()
