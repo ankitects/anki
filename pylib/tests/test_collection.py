@@ -74,15 +74,15 @@ def test_noteAddDelete():
     c0 = note.cards()[0]
     assert "three" in c0.q()
     # it should not be a duplicate
-    assert not note.duplicate_or_empty()
+    assert not note.fields_check()
     # now let's make a duplicate
     note2 = col.newNote()
     note2["Front"] = "one"
     note2["Back"] = ""
-    assert note2.duplicate_or_empty()
+    assert note2.fields_check()
     # empty first field should not be permitted either
     note2["Front"] = " "
-    assert note2.duplicate_or_empty()
+    assert note2.fields_check()
 
 
 def test_fieldChecksum():
