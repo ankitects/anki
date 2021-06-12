@@ -27,7 +27,7 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.notes import DuplicateOrEmptyResult, Note
+from anki.notes import Note, NoteFieldsCheckResult
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
@@ -79,8 +79,10 @@ audio = (
 _html = """
 <div id="fields"></div>
 <div id="dupes" class="is-inactive">
-    <a href="#" onclick="pycmd('dupes');return false;">%s</a>
+    <a href="#" onclick="pycmd('dupes');return false;">{}</a>
 </div>
+<div id="not-a-cloze-notetype" class="is-inactive">{}</div>
+<div id="not-a-cloze-field" class="is-inactive">{}</div>
 """
 
 
@@ -129,7 +131,11 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            _html % tr.editing_show_duplicates(),
+            _html.format(
+                tr.editing_show_duplicates(),
+                tr.adding_cloze_outside_cloze_notetype(),
+                tr.adding_cloze_outside_cloze_field(),
+            ),
             css=[
                 "css/editor.css",
             ],
@@ -437,7 +443,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.widget.show()
         self.updateTags()
 
-        dupe_status = self.note.duplicate_or_empty()
+        note_fields_status = self.note.fields_check()
 
         def oncallback(arg: Any) -> None:
             if not self.note:
@@ -445,7 +451,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             self.setupForegroundButton()
             # we currently do this synchronously to ensure we load before the
             # sidebar on browser startup
-            self._update_duplicate_display(dupe_status)
+            self._update_duplicate_display(note_fields_status)
             if focusTo is not None:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
@@ -494,25 +500,31 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         if not note:
             return
 
-        def on_done(result: DuplicateOrEmptyResult.V) -> None:
+        def on_done(result: NoteFieldsCheckResult.V) -> None:
             if self.note != note:
                 return
             self._update_duplicate_display(result)
 
         QueryOp(
             parent=self.parentWindow,
-            op=lambda _: note.duplicate_or_empty(),
+            op=lambda _: note.fields_check(),
             success=on_done,
         ).run_in_background()
 
     checkValid = _check_and_update_duplicate_display_async
 
-    def _update_duplicate_display(self, result: DuplicateOrEmptyResult.V) -> None:
+    def _update_duplicate_display(self, result: NoteFieldsCheckResult.V) -> None:
         cols = [""] * len(self.note.fields)
-        if result == DuplicateOrEmptyResult.DUPLICATE:
+        wrong_notetype = wrong_field = "false"
+        if result == NoteFieldsCheckResult.DUPLICATE:
             cols[0] = "dupe"
+        elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
+            wrong_notetype = "true"
+        elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
+            wrong_field = "true"
 
         self.web.eval(f"setBackgrounds({json.dumps(cols)});")
+        self.web.eval(f"setClozeHints({wrong_notetype}, {wrong_field});")
 
     def showDupes(self) -> None:
         aqt.dialogs.open(

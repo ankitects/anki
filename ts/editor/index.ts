@@ -144,6 +144,15 @@ export function setBackgrounds(cols: ("dupe" | "")[]): void {
         .classList.toggle("is-inactive", !cols.includes("dupe"));
 }
 
+export function setClozeHints(wrong_notetype: boolean, wrong_field: boolean): void {
+    document
+        .getElementById("not-a-cloze-notetype")!
+        .classList.toggle("is-inactive", !wrong_notetype);
+    document
+        .getElementById("not-a-cloze-field")!
+        .classList.toggle("is-inactive", !wrong_field);
+}
+
 export function setFonts(fonts: [string, number, boolean][]): void {
     forEditorField(
         fonts,
