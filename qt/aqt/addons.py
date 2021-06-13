@@ -842,6 +842,7 @@ class AddonsDialog(QDialog):
 
     def onDelete(self) -> None:
         selected = self.selectedAddons()
+        gui_hooks.addons_dialog_will_delete_addon(self, selected)
         if not selected:
             return
         if not askUser(tr.addons_delete_the_numd_selected_addon(count=len(selected))):
