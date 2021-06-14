@@ -387,11 +387,11 @@ def legacy_func(sub: Optional[str] = None) -> Callable:
     else:
         hint = ""
 
-    def decorater(func: Callable) -> Callable:
+    def decorator(func: Callable) -> Callable:
         def decorated_func(*args: Any, **kwargs: Any) -> Any:
             print(f"'{func.__name__}' is deprecated{hint}.")
             return func(*args, **kwargs)
 
         return decorated_func
 
-    return decorater
+    return decorator
