@@ -203,14 +203,24 @@ mod test {
 
     #[test]
     fn normalizing() {
+        // remove redundant quotes
         assert_eq!(
             r#"foo "b a r""#,
             normalize_search(r#""foo" "b a r""#).unwrap()
         );
-        assert_eq!(r#""(" -"#, normalize_search(r"\( \-").unwrap());
-        assert_eq!("deck::", normalize_search(r"deck:\:").unwrap());
-        assert_eq!(r"\* OR \:", normalize_search(r"\* or \:").unwrap());
         assert_eq!("field:foo", normalize_search(r#"field:"foo""#).unwrap());
+        // escape by quoting where possible
+        assert_eq!(r#""(" ")""#, normalize_search(r"\( \)").unwrap());
+        assert_eq!(r#""-foo""#, normalize_search(r"\-foo").unwrap());
+        assert_eq!(r"\*\:\_", normalize_search(r"\*\:\_").unwrap());
+        // remove redundant escapes
+        assert_eq!("deck::", normalize_search(r"deck:\:").unwrap());
+        assert_eq!("-", normalize_search(r"\-").unwrap());
+        assert_eq!("--", normalize_search(r"-\-").unwrap());
+        // ANDs are implicit, ORs in upper case
+        assert_eq!("1 2 OR 3", normalize_search(r"1 and 2 or 3").unwrap());
+        assert_eq!(r#""f o o" bar"#, normalize_search(r#""f o o"bar"#).unwrap());
+        // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
     }
 
