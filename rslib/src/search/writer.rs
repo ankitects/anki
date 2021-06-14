@@ -117,7 +117,7 @@ fn maybe_quote(txt: &str) -> String {
 }
 
 fn needs_quotation(txt: &str) -> bool {
-    txt.len() > 1 && txt.starts_with("-") || txt.chars().any(|c| " \u{3000}()".contains(c))
+    txt.len() > 1 && txt.starts_with('-') || txt.chars().any(|c| " \u{3000}()".contains(c))
 }
 
 fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
