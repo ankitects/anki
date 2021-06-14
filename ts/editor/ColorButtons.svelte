@@ -51,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         tr.editingChangeColor(),
                         shortcutLabel
                     )}
-                    disables={false}
                     widthMultiplier={0.5}
                 >
                     {@html arrowIcon}
@@ -70,11 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <IconButton
-                tooltip={tr.editingChangeColor()}
-                disables={false}
-                widthMultiplier={0.5}
-            >
+            <IconButton tooltip={tr.editingChangeColor()} widthMultiplier={0.5}>
                 {@html arrowIcon}
                 <ColorPicker on:change={setColor} />
             </IconButton>
