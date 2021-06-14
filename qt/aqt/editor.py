@@ -81,8 +81,7 @@ _html = """
 <div id="dupes" class="is-inactive">
     <a href="#" onclick="pycmd('dupes');return false;">{}</a>
 </div>
-<div id="not-a-cloze-notetype" class="is-inactive">{}</div>
-<div id="not-a-cloze-field" class="is-inactive">{}</div>
+<div id="cloze-hint"></div>
 """
 
 
@@ -131,11 +130,7 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            _html.format(
-                tr.editing_show_duplicates(),
-                tr.adding_cloze_outside_cloze_notetype(),
-                tr.adding_cloze_outside_cloze_field(),
-            ),
+            _html.format(tr.editing_show_duplicates()),
             css=[
                 "css/editor.css",
             ],
@@ -515,16 +510,16 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def _update_duplicate_display(self, result: NoteFieldsCheckResult.V) -> None:
         cols = [""] * len(self.note.fields)
-        wrong_notetype = wrong_field = "false"
+        cloze_hint = ""
         if result == NoteFieldsCheckResult.DUPLICATE:
             cols[0] = "dupe"
         elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
-            wrong_notetype = "true"
+            cloze_hint = tr.adding_cloze_outside_cloze_notetype()
         elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
-            wrong_field = "true"
+            cloze_hint = tr.adding_cloze_outside_cloze_field()
 
         self.web.eval(f"setBackgrounds({json.dumps(cols)});")
-        self.web.eval(f"setClozeHints({wrong_notetype}, {wrong_field});")
+        self.web.eval(f"setClozeHint({json.dumps(cloze_hint)});")
 
     def showDupes(self) -> None:
         aqt.dialogs.open(
