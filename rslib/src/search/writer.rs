@@ -109,11 +109,15 @@ fn write_search_node(node: &SearchNode) -> String {
 
 /// Escape double quotes and wrap in double quotes if necessary.
 fn maybe_quote(txt: &str) -> String {
-    if txt.chars().any(|c| " \u{3000}()".contains(c)) {
+    if needs_quotation(txt) {
         format!("\"{}\"", txt.replace("\"", "\\\""))
     } else {
         txt.replace("\"", "\\\"")
     }
+}
+
+fn needs_quotation(txt: &str) -> bool {
+    txt.len() > 1 && txt.starts_with("-") || txt.chars().any(|c| " \u{3000}()".contains(c))
 }
 
 fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
