@@ -234,7 +234,8 @@ class AddCards(QDialog):
         if result == NoteFieldsCheckResult.EMPTY:
             problem = tr.adding_the_first_field_is_empty()
         elif result == NoteFieldsCheckResult.MISSING_CLOZE:
-            problem = tr.adding_missing_cloze()
+            if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
+                return False
         elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
             problem = tr.adding_cloze_outside_cloze_notetype()
         elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
