@@ -106,7 +106,7 @@ lazy_static! {
             \[/anki:tts\]
             "#).unwrap();
 
-    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new("<br>|<br />|<div>|\n").unwrap();
+    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
 
     static ref UNPRINTABLE_TAGS: Regex = Regex::new(
         r"(?xs)
