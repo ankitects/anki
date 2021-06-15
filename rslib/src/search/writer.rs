@@ -128,7 +128,7 @@ fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
         text.to_string()
     };
 
-    let colon = if !is_re && text == "" {
+    let colon = if !is_re && text.is_empty() {
         ""
     } else {
         ":"
