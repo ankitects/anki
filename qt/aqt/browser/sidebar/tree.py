@@ -711,12 +711,12 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
-        root.search_node = SearchNode(negated=SearchNode(tag="none"))
+        root.search_node = SearchNode(tag="_*")
         root.add_simple(
             name=tr.browsing_sidebar_untagged(),
             icon=icon,
             type=SidebarItemType.TAG_NONE,
-            search_node=SearchNode(tag="none"),
+            search_node=SearchNode(negated=SearchNode(tag="_*")),
         )
 
         render(root, tree.children)
@@ -763,7 +763,7 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
-        root.search_node = SearchNode(deck="*")
+        root.search_node = SearchNode(deck="_*")
         current = root.add_simple(
             name=tr.browsing_current_deck(),
             icon=icon,
@@ -786,6 +786,7 @@ class SidebarTreeView(QTreeView):
             collapse_key=Config.Bool.COLLAPSE_NOTETYPES,
             type=SidebarItemType.NOTETYPE_ROOT,
         )
+        root.search_node = SearchNode(note="_*")
 
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
             item = SidebarItem(
