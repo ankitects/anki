@@ -399,10 +399,14 @@ pub(crate) fn to_text(txt: &str) -> Cow<str> {
 
 /// Escape Anki wildcards and the backslash for escaping them: \*_
 pub(crate) fn escape_anki_wildcards(txt: &str) -> String {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
+    if txt == "_*" {
+        txt.to_string()
+    } else {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
+        }
+        RE.replace_all(&txt, r"\$0").into()
     }
-    RE.replace_all(&txt, r"\$0").into()
 }
 
 /// Compare text with a possible glob, folding case.

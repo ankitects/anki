@@ -23,11 +23,7 @@ impl TryFrom<pb::SearchNode> for Node {
         Ok(if let Some(filter) = msg.filter {
             match filter {
                 Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
-                Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
-                    s
-                } else {
-                    escape_anki_wildcards(&s)
-                })),
+                Filter::Deck(s) => Node::Search(SearchNode::Deck(escape_anki_wildcards(&s))),
                 Filter::Note(s) => Node::Search(SearchNode::Notetype(escape_anki_wildcards(&s))),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
