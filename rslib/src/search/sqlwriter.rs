@@ -448,7 +448,7 @@ impl SqlWriter<'_> {
         } else {
             cmp = "like";
             cmp_trailer = "escape '\\'";
-            self.args.push(to_sql(val).into())
+            self.args.push(format!("%{}%", &to_sql(val)))
         }
 
         let arg_idx = self.args.len();
