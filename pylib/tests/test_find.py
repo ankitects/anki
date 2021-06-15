@@ -219,12 +219,12 @@ def test_findCards():
     else:
         print("some find tests disabled near cutoff")
     # empty field
-    assert len(col.findCards("front:")) == 0
+    assert len(col.findCards("-front:_*")) == len(col.findCards("front:re:^$")) == 0
     note = col.newNote()
     note["Front"] = ""
     note["Back"] = "abc2"
     assert col.addNote(note) == 1
-    assert len(col.findCards("front:")) == 1
+    assert len(col.findCards("-front:_*")) == len(col.findCards("front:re:^$")) == 1
     # OR searches and nesting
     assert len(col.findCards("tag:monkey or tag:sheep")) == 2
     assert len(col.findCards("(tag:monkey OR tag:sheep)")) == 2
