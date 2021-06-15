@@ -678,7 +678,8 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _tag_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/tag.svg"
+        icon = ":/icons/tag-outline.svg"
+        icon_off = ":/icons/tag-off-outline.svg"
 
         def render(
             root: SidebarItem, nodes: Iterable[TagTreeNode], head: str = ""
@@ -714,7 +715,7 @@ class SidebarTreeView(QTreeView):
         root.search_node = SearchNode(tag="_*")
         root.add_simple(
             name=tr.browsing_sidebar_untagged(),
-            icon=icon,
+            icon=icon_off,
             type=SidebarItemType.TAG_NONE,
             search_node=SearchNode(negated=SearchNode(tag="_*")),
         )

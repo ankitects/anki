@@ -1,6 +1,14 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("compile.bzl", "compile_all")
 
+compile_all(
+    srcs = glob(["*.ui"]),
+    group = "forms",
+    visibility = [
+        "//qt/aqt:__pkg__",
+    ],
+)
+
 py_binary(
     name = "build_ui",
     srcs = ["build_ui.py"],
@@ -8,12 +16,11 @@ py_binary(
     deps = ["@pyqt5//:pkg"],
 )
 
-compile_all(
-    srcs = glob(["*.ui"]),
-    group = "forms",
-    visibility = [
-        "//qt/aqt:__pkg__",
-    ],
+py_binary(
+    name = "build_qrc",
+    srcs = ["build_qrc.py"],
+    legacy_create_init = False,
+    deps = ["@pyqt5//:pkg"],
 )
 
 py_binary(
@@ -24,10 +31,19 @@ py_binary(
 )
 
 genrule(
+    name = "icons_qrc",
+    srcs = ["//qt/aqt/forms/icons"],
+    outs = ["icons.qrc"],
+    cmd = "$(location build_qrc) $(location icons.qrc) $(SRCS)",
+    tools = ["build_qrc"],
+    visibility = ["//qt/aqt:__pkg__"],
+)
+
+genrule(
     name = "icons",
-    srcs = ["icons.qrc"] + glob(["icons/*"]),
+    srcs = ["icons_qrc", "//qt/aqt/forms/icons"],
     outs = ["icons_rc.py"],
-    cmd = "$(location build_rcc) $(location icons.qrc) $(location icons_rc.py)",
+    cmd = "$(location build_rcc) $(location icons_qrc) $(location icons_rc.py)",
     tools = ["build_rcc"],
     visibility = ["//qt/aqt:__pkg__"],
 )
