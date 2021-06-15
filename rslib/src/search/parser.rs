@@ -382,6 +382,7 @@ fn search_node_for_text_with_argument<'a>(
     val: &'a str,
 ) -> ParseResult<'a, SearchNode> {
     Ok(match key.to_ascii_lowercase().as_str() {
+        "field" => parse_field(val)?,
         "deck" => SearchNode::Deck(unescape(val)?),
         "note" => SearchNode::Notetype(unescape(val)?),
         "tag" => SearchNode::Tag(unescape(val)?),
@@ -659,6 +660,18 @@ fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
             s,
             FailKind::Other(Some("invalid 'dupe:' search".into())),
         ))
+    }
+}
+
+fn parse_field<'a>(s: &'a str) -> ParseResult<'a, SearchNode> {
+    let mut it = s.splitn(2, ':');
+    let key = it.next().unwrap();
+
+    if let Some(val) = it.next() {
+        parse_single_field(key, val)
+    } else {
+        // Searches for existence of field
+        parse_single_field(key, "")
     }
 }
 

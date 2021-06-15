@@ -127,7 +127,14 @@ fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
     } else {
         text.to_string()
     };
-    maybe_quote(&format!("{}:{}{}", field.replace(":", "\\:"), re, &text))
+
+    let colon = if text == "" {
+        ""
+    } else {
+        ":"
+    };
+
+    maybe_quote(&format!("field:{}{}{}{}", field.replace(":", "\\:"), colon, re, &text))
 }
 
 fn write_template(template: &TemplateKind) -> String {
