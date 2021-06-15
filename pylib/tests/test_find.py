@@ -109,7 +109,7 @@ def test_findCards():
     assert len(col.findCards("front:sheep")) == 0
     assert len(col.findCards("back:sheep")) == 2
     assert len(col.findCards("-back:sheep")) == 3
-    assert len(col.findCards("front:do")) == 0
+    assert len(col.findCards("front:do")) == 1
     assert len(col.findCards("front:*")) == 5
     # ordering
     col.conf["sortType"] = "noteCrt"

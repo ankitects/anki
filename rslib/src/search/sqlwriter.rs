@@ -674,7 +674,7 @@ mod test {
                     "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1 escape '\\')))"
                 )
                 .into(),
-                vec!["te%st".into()]
+                vec!["%te%st%".into()]
             )
         );
 
