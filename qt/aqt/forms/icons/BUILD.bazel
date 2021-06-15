@@ -1,0 +1,15 @@
+load("//ts:vendor.bzl", "copy_mdi_icons")
+
+copy_mdi_icons(
+    name = "mdi-icons",
+    icons = [
+        "tag-outline.svg",
+        "tag-off-outline.svg",
+    ],
+)
+
+filegroup(
+    name = "icons",
+    srcs = ["mdi-icons"] + glob(["*.svg", "*.png"]),
+    visibility = ["//visibility:public"],
+)
