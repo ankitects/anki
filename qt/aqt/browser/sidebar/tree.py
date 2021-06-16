@@ -852,7 +852,6 @@ class SidebarTreeView(QTreeView):
                         SearchNode(note=nt["name"]), SearchNode(field_name=fld["name"])
                     ),
                     item_type=SidebarItemType.NOTETYPE_FIELD,
-                    name_prefix=f"{nt['name']}::",
                     id=fld["ord"],
                 )
                 item.add_child(child)
