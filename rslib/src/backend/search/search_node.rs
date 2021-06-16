@@ -42,7 +42,7 @@ impl TryFrom<pb::SearchNode> for Node {
                 }),
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
                     field: escape_anki_wildcards_for_search_node(&s),
-                    text: "*".to_string(),
+                    text: "_*".to_string(),
                     is_re: false,
                 }),
                 Filter::Rated(rated) => Node::Search(SearchNode::Rated {
