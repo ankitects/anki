@@ -50,7 +50,7 @@ alias(
 
 alias(
     name = "blake3",
-    actual = "@raze__blake3__0_3_7//:blake3",
+    actual = "@raze__blake3__0_3_8//:blake3",
     tags = [
         "cargo-raze",
         "manual",
@@ -86,7 +86,7 @@ alias(
 
 alias(
     name = "env_logger",
-    actual = "@raze__env_logger__0_8_3//:env_logger",
+    actual = "@raze__env_logger__0_8_4//:env_logger",
     tags = [
         "cargo-raze",
         "manual",
@@ -131,7 +131,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_14//:futures",
+    actual = "@raze__futures__0_3_15//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -212,7 +212,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@raze__once_cell__1_7_2//:once_cell",
+    actual = "@raze__once_cell__1_8_0//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -311,7 +311,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_125//:serde",
+    actual = "@raze__serde__1_0_126//:serde",
     tags = [
         "cargo-raze",
         "manual",
@@ -329,7 +329,7 @@ alias(
 
 alias(
     name = "serde_derive",
-    actual = "@raze__serde_derive__1_0_125//:serde_derive",
+    actual = "@raze__serde_derive__1_0_126//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",
@@ -347,7 +347,7 @@ alias(
 
 alias(
     name = "serde_repr",
-    actual = "@raze__serde_repr__0_1_6//:serde_repr",
+    actual = "@raze__serde_repr__0_1_7//:serde_repr",
     tags = [
         "cargo-raze",
         "manual",
@@ -428,7 +428,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__1_5_0//:tokio",
+    actual = "@raze__tokio__1_7_0//:tokio",
     tags = [
         "cargo-raze",
         "manual",
@@ -437,7 +437,7 @@ alias(
 
 alias(
     name = "tokio_util",
-    actual = "@raze__tokio_util__0_6_6//:tokio_util",
+    actual = "@raze__tokio_util__0_6_7//:tokio_util",
     tags = [
         "cargo-raze",
         "manual",
@@ -464,7 +464,7 @@ alias(
 
 alias(
     name = "unicode_normalization",
-    actual = "@raze__unicode_normalization__0_1_17//:unicode_normalization",
+    actual = "@raze__unicode_normalization__0_1_19//:unicode_normalization",
     tags = [
         "cargo-raze",
         "manual",
@@ -482,7 +482,7 @@ alias(
 
 alias(
     name = "zip",
-    actual = "@raze__zip__0_5_12//:zip",
+    actual = "@raze__zip__0_5_13//:zip",
     tags = [
         "cargo-raze",
         "manual",

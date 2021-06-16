@@ -56,7 +56,7 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":fluent_syntax",
-        "@raze__thiserror__1_0_24//:thiserror",
+        "@raze__thiserror__1_0_25//:thiserror",
     ],
 )
 
@@ -82,7 +82,7 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":fluent_syntax",
-        "@raze__thiserror__1_0_24//:thiserror",
+        "@raze__thiserror__1_0_25//:thiserror",
     ],
 )
 
@@ -106,7 +106,7 @@ rust_library(
     version = "0.11.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__thiserror__1_0_24//:thiserror",
+        "@raze__thiserror__1_0_25//:thiserror",
     ],
 )
 

@@ -66,14 +66,14 @@ cargo_build_script(
     version = "0.20.1",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_67//:cc",
+        "@raze__cc__1_0_68//:cc",
         "@raze__pkg_config__0_3_19//:pkg_config",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__vcpkg__0_2_12//:vcpkg",
+            "@raze__vcpkg__0_2_13//:vcpkg",
         ],
         "//conditions:default": [],
     }),
