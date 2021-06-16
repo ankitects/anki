@@ -25,6 +25,7 @@ from aqt.browser.sidebar.model import SidebarModel
 from aqt.browser.sidebar.searchbar import SidebarSearchBar
 from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
+from aqt.fields import FieldDialog
 from aqt.flags import load_flags
 from aqt.models import Models
 from aqt.operations import CollectionOp, QueryOp
@@ -805,7 +806,7 @@ class SidebarTreeView(QTreeView):
         notetype_icon = ":/icons/newspaper-variant-outline.svg"
         notetype_multiple_icon = ":/icons/newspaper-variant-multiple-outline.svg"
         template_icon = ":/icons/card-bulleted-outline.svg"
-        # field_icon = ":/icons/form-textbox.svg"
+        field_icon = ":/icons/form-textbox.svg"
 
         root = self._section_root(
             root=root,
@@ -838,6 +839,19 @@ class SidebarTreeView(QTreeView):
                 )
                 item.add_child(child)
 
+            for c, fld in enumerate(nt["flds"]):
+                child = SidebarItem(
+                    fld["name"],
+                    field_icon,
+                    search_node=self.col.group_searches(
+                        SearchNode(note=nt["name"]), SearchNode(field_name=fld["name"])
+                    ),
+                    item_type=SidebarItemType.NOTETYPE_FIELD,
+                    name_prefix=f"{nt['name']}::",
+                    id=fld["ord"],
+                )
+                item.add_child(child)
+
             root.add_child(item)
 
     # Context menu
@@ -867,6 +881,8 @@ class SidebarTreeView(QTreeView):
             )
         elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
             menu.addAction(tr.notetypes_cards(), lambda: self.manage_template(item))
+        elif item.item_type == SidebarItemType.NOTETYPE_FIELD:
+            menu.addAction(tr.notetypes_fields(), lambda: self.manage_fields(item))
         elif item.item_type == SidebarItemType.SAVED_SEARCH_ROOT:
             menu.addAction(
                 tr.browsing_sidebar_save_current_search(), self.save_current_search
@@ -1107,6 +1123,10 @@ class SidebarTreeView(QTreeView):
     def manage_template(self, item: SidebarItem) -> None:
         note = Note(self.col, self.col.models.get(NotetypeId(item._parent_item.id)))
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
+
+    def manage_fields(self, item: SidebarItem) -> None:
+        notetype = self.mw.col.models.get(NotetypeId(item._parent_item.id))
+        FieldDialog(self.mw, notetype, parent=self, open_at=item.id)
 
     # Helpers
     ####################################
