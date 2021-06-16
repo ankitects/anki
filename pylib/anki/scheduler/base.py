@@ -168,7 +168,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
         key: Optional[Config.String]
-        if config_key:
+        if config_key is not None:
             key = Config.String(key=config_key)
         else:
             key = None
