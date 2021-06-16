@@ -802,10 +802,10 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _notetype_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/notetype.svg"
-        notetype_multiple_icon = icon
-        notetype_icon = icon
-        template_icon = icon
+        notetype_icon = ":/icons/newspaper-variant-outline.svg"
+        notetype_multiple_icon = ":/icons/newspaper-variant-multiple-outline.svg"
+        template_icon = ":/icons/card-bulleted-outline.svg"
+        # field_icon = ":/icons/form-textbox.svg"
 
         root = self._section_root(
             root=root,
