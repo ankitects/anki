@@ -3,11 +3,11 @@ load("//ts:vendor.bzl", "copy_mdi_icons", "copy_bootstrap_icons")
 copy_mdi_icons(
     name = "mdi-icons",
     icons = [
-        "bookmark-multiple-outline.svg",
         "bookmark-outline.svg",
+        "bookmark-multiple-outline.svg",
 
-        "flag-variant.svg",
         "flag-variant-outline.svg",
+        "flag-variant.svg",
 
         # state
         "circle.svg",

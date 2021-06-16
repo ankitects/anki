@@ -522,13 +522,14 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _saved_searches_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/heart.svg"
+        icon = ":/icons/bookmark-outline.svg"
+        icon_multiple = ":/icons/bookmark-multiple-outline.svg"
         saved = self._get_saved_searches()
 
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_saved_searches(),
-            icon=icon,
+            icon=icon_multiple,
             collapse_key=Config.Bool.COLLAPSE_SAVED_SEARCHES,
             type=SidebarItemType.SAVED_SEARCH_ROOT,
         )
