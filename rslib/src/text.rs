@@ -399,13 +399,18 @@ pub(crate) fn to_text(txt: &str) -> Cow<str> {
 
 /// Escape Anki wildcards and the backslash for escaping them: \*_
 pub(crate) fn escape_anki_wildcards(txt: &str) -> String {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
+    }
+    RE.replace_all(&txt, r"\$0").into()
+}
+
+/// Escape Anki wildcards unless it's _*
+pub(crate) fn escape_anki_wildcards_for_search_node(txt: &str) -> String {
     if txt == "_*" {
         txt.to_string()
     } else {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
-        }
-        RE.replace_all(&txt, r"\$0").into()
+        escape_anki_wildcards(txt)
     }
 }
 
