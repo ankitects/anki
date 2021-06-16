@@ -51,7 +51,7 @@ rust_library(
     version = "0.1.19",
     # buildifier: leave-alone
     deps = [
-        "@raze__once_cell__1_7_2//:once_cell",
+        "@raze__once_cell__1_8_0//:once_cell",
     ] + selects.with_or({
         # cfg(not(target_os = "wasi"))
         (
@@ -62,7 +62,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_94//:libc",
+            "@raze__libc__0_2_97//:libc",
         ],
         "//conditions:default": [],
     }),

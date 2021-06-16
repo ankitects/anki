@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__either__1_6_1//:either",
-        "@raze__libc__0_2_94//:libc",
+        "@raze__libc__0_2_97//:libc",
     ],
 )
 

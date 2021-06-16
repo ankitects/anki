@@ -1,0 +1,96 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "unencumbered",  # CC0-1.0 from expression "CC0-1.0 OR Apache-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "blake3_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "default",
+        "std",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.8",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@raze__cc__1_0_68//:cc",
+    ],
+)
+
+# Unsupported target "bench" with type "bench" omitted
+
+rust_library(
+    name = "blake3",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.8",
+    # buildifier: leave-alone
+    deps = [
+        ":blake3_build_script",
+        "@raze__arrayref__0_3_6//:arrayref",
+        "@raze__arrayvec__0_5_2//:arrayvec",
+        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__constant_time_eq__0_1_5//:constant_time_eq",
+        "@raze__crypto_mac__0_8_0//:crypto_mac",
+        "@raze__digest__0_9_0//:digest",
+    ],
+)

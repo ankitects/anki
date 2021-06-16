@@ -1,0 +1,105 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "futures_channel_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "alloc",
+        "default",
+        "futures-sink",
+        "sink",
+        "std",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.15",
+    visibility = ["//visibility:private"],
+    deps = [
+    ],
+)
+
+# Unsupported target "sync_mpsc" with type "bench" omitted
+
+rust_library(
+    name = "futures_channel",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "alloc",
+        "default",
+        "futures-sink",
+        "sink",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.15",
+    # buildifier: leave-alone
+    deps = [
+        ":futures_channel_build_script",
+        "@raze__futures_core__0_3_15//:futures_core",
+        "@raze__futures_sink__0_3_15//:futures_sink",
+    ],
+)
+
+# Unsupported target "channel" with type "test" omitted
+
+# Unsupported target "mpsc" with type "test" omitted
+
+# Unsupported target "mpsc-close" with type "test" omitted
+
+# Unsupported target "oneshot" with type "test" omitted

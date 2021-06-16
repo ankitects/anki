@@ -58,7 +58,7 @@ rust_library(
         "@raze__fluent_syntax__0_11_0//:fluent_syntax",
         "@raze__intl_memoizer__0_5_1//:intl_memoizer",
         "@raze__intl_pluralrules__7_0_1//:intl_pluralrules",
-        "@raze__ouroboros__0_9_2//:ouroboros",
+        "@raze__ouroboros__0_9_3//:ouroboros",
         "@raze__rustc_hash__1_1_0//:rustc_hash",
         "@raze__smallvec__1_6_1//:smallvec",
         "@raze__unic_langid__0_9_0//:unic_langid",

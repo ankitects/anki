@@ -1,0 +1,59 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "wasm_bindgen_macro_support",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "spans",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.2.74",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__proc_macro2__1_0_27//:proc_macro2",
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_73//:syn",
+        "@raze__wasm_bindgen_backend__0_2_74//:wasm_bindgen_backend",
+        "@raze__wasm_bindgen_shared__0_2_74//:wasm_bindgen_shared",
+    ],
+)

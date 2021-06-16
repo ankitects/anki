@@ -53,11 +53,11 @@ rust_library(
     version = "0.22.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__futures_util__0_3_14//:futures_util",
-        "@raze__hyper__0_14_7//:hyper",
+        "@raze__futures_util__0_3_15//:futures_util",
+        "@raze__hyper__0_14_9//:hyper",
         "@raze__log__0_4_14//:log",
         "@raze__rustls__0_19_1//:rustls",
-        "@raze__tokio__1_5_0//:tokio",
+        "@raze__tokio__1_7_0//:tokio",
         "@raze__tokio_rustls__0_22_0//:tokio_rustls",
         "@raze__webpki__0_21_4//:webpki",
     ],

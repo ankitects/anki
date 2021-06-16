@@ -57,7 +57,7 @@ rust_library(
         "@raze__markup5ever_rcdom__0_1_0//:markup5ever_rcdom",
         "@raze__matches__0_1_8//:matches",
         "@raze__tendril__0_4_2//:tendril",
-        "@raze__url__2_2_1//:url",
+        "@raze__url__2_2_2//:url",
     ],
 )
 

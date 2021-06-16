@@ -52,7 +52,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__rand__0_8_3//:rand",
+        "@raze__rand__0_8_4//:rand",
         "@raze__remove_dir_all__0_5_3//:remove_dir_all",
     ] + selects.with_or({
         # cfg(unix)
@@ -63,7 +63,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-ios",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_94//:libc",
+            "@raze__libc__0_2_97//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

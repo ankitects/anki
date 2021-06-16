@@ -51,9 +51,9 @@ rust_library(
     version = "0.4.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__hyper__0_14_7//:hyper",
+        "@raze__hyper__0_14_9//:hyper",
         "@raze__pin_project_lite__0_2_6//:pin_project_lite",
-        "@raze__tokio__1_5_0//:tokio",
+        "@raze__tokio__1_7_0//:tokio",
         "@raze__tokio_io_timeout__1_1_1//:tokio_io_timeout",
     ],
 )

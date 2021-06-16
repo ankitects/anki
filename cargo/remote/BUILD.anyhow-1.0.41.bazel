@@ -1,0 +1,113 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "anyhow_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "default",
+        "std",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "1.0.41",
+    visibility = ["//visibility:private"],
+    deps = [
+    ],
+)
+
+rust_library(
+    name = "anyhow",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "1.0.41",
+    # buildifier: leave-alone
+    deps = [
+        ":anyhow_build_script",
+    ],
+)
+
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test_autotrait" with type "test" omitted
+
+# Unsupported target "test_backtrace" with type "test" omitted
+
+# Unsupported target "test_boxed" with type "test" omitted
+
+# Unsupported target "test_chain" with type "test" omitted
+
+# Unsupported target "test_context" with type "test" omitted
+
+# Unsupported target "test_convert" with type "test" omitted
+
+# Unsupported target "test_downcast" with type "test" omitted
+
+# Unsupported target "test_ffi" with type "test" omitted
+
+# Unsupported target "test_fmt" with type "test" omitted
+
+# Unsupported target "test_macros" with type "test" omitted
+
+# Unsupported target "test_repr" with type "test" omitted
+
+# Unsupported target "test_source" with type "test" omitted
