@@ -742,7 +742,10 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _deck_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/deck.svg"
+        icon = ":/icons/book-outline.svg"
+        icon_multiple = ":/icons/book-multiple-outline.svg"
+        icon_current = ":/icons/book-clock-outline.svg"
+        icon_filtered = ":/icons/book-cog-outline.svg"
 
         def render(
             root: SidebarItem, nodes: Iterable[DeckTreeNode], head: str = ""
@@ -760,7 +763,11 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
                 item = SidebarItem(
                     name=node.name,
-                    icon=icon,
+                    icon=icon_filtered
+                    if node.filtered
+                    else icon_multiple
+                    if node.children
+                    else icon,
                     search_node=SearchNode(deck=head + node.name),
                     on_expanded=toggle_expand(node),
                     expanded=not node.collapsed,
@@ -776,14 +783,14 @@ class SidebarTreeView(QTreeView):
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_decks(),
-            icon=icon,
+            icon=icon_multiple,
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
         root.search_node = SearchNode(deck="_*")
         current = root.add_simple(
             name=tr.browsing_current_deck(),
-            icon=icon,
+            icon=icon_current,
             type=SidebarItemType.DECK_CURRENT,
             search_node=SearchNode(deck="current"),
         )
@@ -799,7 +806,6 @@ class SidebarTreeView(QTreeView):
         notetype_multiple_icon = icon
         notetype_icon = icon
         template_icon = icon
-
 
         root = self._section_root(
             root=root,
