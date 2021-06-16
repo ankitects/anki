@@ -12,7 +12,7 @@ attrs==21.2.0
     #   pytest
 beautifulsoup4==4.9.3
     # via -r requirements.in
-black==21.5b2
+black==21.6b0
     # via -r requirements.in
 certifi==2021.5.30
     # via requests
@@ -75,7 +75,7 @@ mypy-extensions==0.4.3
     #   mypy
 mypy-protobuf==2.4
     # via -r requirements.in
-mypy==0.812
+mypy==0.902
     # via -r requirements.in
 orjson==3.5.3
     # via -r requirements.in
@@ -89,7 +89,7 @@ pip-tools==6.1.0
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest
-protobuf==3.17.1
+protobuf==3.17.3
     # via
     #   -r requirements.in
     #   mypy-protobuf
@@ -132,13 +132,36 @@ stringcase==1.2.0
 toml==0.10.2
     # via
     #   black
+    #   mypy
     #   pep517
     #   pylint
     #   pytest
 tornado==6.1
     # via snakeviz
-typed-ast==1.4.3
-    # via mypy
+types-click==7.1.1
+    # via types-flask
+types-decorator==0.1.4
+    # via -r requirements.in
+types-flask==1.1.0
+    # via -r requirements.in
+types-futures==0.1.3
+    # via types-protobuf
+types-jinja2==2.11.1
+    # via types-flask
+types-markdown==0.1.4
+    # via -r requirements.in
+types-markupsafe==1.1.2
+    # via types-jinja2
+types-orjson==0.1.0
+    # via -r requirements.in
+types-protobuf==0.1.12
+    # via -r requirements.in
+types-requests==0.1.11
+    # via -r requirements.in
+types-waitress==0.1.6
+    # via -r requirements.in
+types-werkzeug==1.0.1
+    # via types-flask
 typing-extensions==3.10.0.0
     # via mypy
 urllib3==1.26.5

@@ -1,0 +1,42 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@py_deps//:requirements.bzl", "requirement")
+load(":stubs.bzl", "copy_stubs")
+
+_stubs = [
+    "requests",
+    "protobuf",
+    "decorator",
+    "flask",
+    "markdown",
+    "orjson",
+    "waitress",
+]
+
+py_binary(
+    name = "gatherstubs",
+    srcs = [
+        "gatherstubs.py",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        requirement("mypy"),
+    ] + [requirement("types-" + stub) for stub in _stubs],
+)
+
+py_binary(
+    name = "extendsitepkgs",
+    srcs = [
+        "extendsitepkgs.py",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        requirement("mypy"),
+    ],
+)
+
+copy_stubs(
+    name = "stubs",
+    pkgs = [requirement("types-" + stub) for stub in _stubs],
+    tool = ":gatherstubs",
+    visibility = ["//visibility:public"],
+)

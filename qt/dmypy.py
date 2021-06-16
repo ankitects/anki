@@ -32,9 +32,12 @@ if subprocess.run(
         "qt/mypy.ini",
         "bazel-bin/qt/dmypy.runfiles/net_ankiweb_anki/pylib/anki",
         "bazel-bin/qt/dmypy.runfiles/net_ankiweb_anki/qt/aqt",
+        "--python-executable",
+        os.path.abspath("pip/stubs/extendsitepkgs"),
     ],
     env={
         "MYPYPATH": "bazel-bin/qt/dmypy.runfiles/pyqt5",
+        "EXTRA_SITE_PACKAGES": os.path.abspath(os.getenv("EXTRA_SITE_PACKAGES")),
     },
     cwd=workspace,
 ).returncode:

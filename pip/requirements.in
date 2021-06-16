@@ -20,8 +20,15 @@ requests[socks]
 send2trash
 snakeviz
 stringcase
-waitress>=2.0.0b1
+waitress>=2.0.0
 fluent.syntax
+types-decorator
+types-flask
+types-markdown
+types-orjson
+types-protobuf
+types-requests
+types-waitress
 
 # windows only
 psutil; sys.platform == "win32"
