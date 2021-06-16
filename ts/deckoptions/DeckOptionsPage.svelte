@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ConfigSelector {state} />
 
-<Container api={options}>
+<Container api={options} class="g-1">
     <Item>
         <DailyLimits {state} api={dailyLimits} />
     </Item>
