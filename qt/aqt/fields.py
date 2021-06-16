@@ -28,7 +28,7 @@ class FieldDialog(QDialog):
         mw: AnkiQt,
         nt: NotetypeDict,
         parent: Optional[QWidget] = None,
-        open_at=0,
+        open_at: int = 0,
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
