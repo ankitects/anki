@@ -61,14 +61,17 @@
         "bootstrap": "=5.0.0-beta3",
         "bootstrap-icons": "^1.4.0",
         "css-browser-selector": "^0.6.5",
-        "d3": "^6.5.0",
+        "d3": "^7.0.0",
         "intl-pluralrules": "^1.2.2",
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
-        "marked": "^2.0.3",
+        "marked": "=2.0.5",
         "mathjax": "^3.1.2",
         "protobufjs": "^6.10.2"
+    },
+    "resolutions": {
+        "jsdoc/marked": "=2.0.5"
     },
     "files": [
         "dist/*"
