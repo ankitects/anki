@@ -6,10 +6,12 @@ import subprocess
 import sys
 
 if __name__ == "__main__":
-    (module, ini, pyqt_init) = sys.argv[1:]
+    (module, ini, pyqt_init, extendsitepkgs) = sys.argv[1:]
     ini = os.path.abspath(ini)
     pyqt_init = os.path.abspath(pyqt_init)
     pyqt_folder = os.path.dirname(pyqt_init)
+    extendsitepkgs = os.path.abspath(extendsitepkgs)
+    extra_site = os.path.abspath(os.getenv("EXTRA_SITE_PACKAGES"))
 
     folder = os.path.join(os.path.dirname(__file__), "..")
     os.chdir(folder)
@@ -20,8 +22,18 @@ if __name__ == "__main__":
         mypy_path = ".:../pylib:" + pyqt_folder
 
     os.environ["MYPYPATH"] = mypy_path
+    os.environ["EXTRA_SITE_PACKAGES"] = extra_site
 
-    args = [sys.executable, "-m", "mypy", module, "--config-file", ini]
+    args = [
+        sys.executable,
+        "-m",
+        "mypy",
+        module,
+        "--config-file",
+        ini,
+        "--python-executable",
+        extendsitepkgs,
+    ]
 
     if sys.platform.startswith("win32"):
         # bazel passes in \\?\c:\... path; mypy can't handle it, so we
