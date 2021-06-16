@@ -128,13 +128,15 @@ fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
         text.to_string()
     };
 
-    let colon = if !is_re && text.is_empty() {
-        ""
-    } else {
-        ":"
-    };
+    let colon = if !is_re && text.is_empty() { "" } else { ":" };
 
-    maybe_quote(&format!("field:{}{}{}{}", field.replace(":", "\\:"), colon, re, &text))
+    maybe_quote(&format!(
+        "field:{}{}{}{}",
+        field.replace(":", "\\:"),
+        colon,
+        re,
+        &text
+    ))
 }
 
 fn write_template(template: &TemplateKind) -> String {

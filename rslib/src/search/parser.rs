@@ -663,7 +663,7 @@ fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
     }
 }
 
-fn parse_field<'a>(s: &'a str) -> ParseResult<'a, SearchNode> {
+fn parse_field(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
     let key = it.next().unwrap();
 
@@ -834,9 +834,9 @@ mod test {
 
         // escaping is independent of quotation
         assert_eq!(
-            parse(r#""field:va\"lue""#)?,
+            parse(r#""fieldname:va\"lue""#)?,
             vec![Search(SingleField {
-                field: "field".into(),
+                field: "fieldname".into(),
                 text: "va\"lue".into(),
                 is_re: false
             })]
@@ -860,9 +860,9 @@ mod test {
         assert_eq!(parse(r#""\)\(""#), parse(r#"")(""#));
 
         // escaping : is optional if it is preceded by another :
-        assert_eq!(parse("field:val:ue"), parse(r"field:val\:ue"));
-        assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
-        assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
+        assert_eq!(parse("fieldname:val:ue"), parse(r"fieldname:val\:ue"));
+        assert_eq!(parse(r#""fieldname:val:ue""#), parse(r"fieldname:val\:ue"));
+        assert_eq!(parse(r#"fieldname:"val:ue""#), parse(r"fieldname:val\:ue"));
 
         // escaping - is optional if it cannot be mistaken for a negator
         assert_eq!(parse("-"), parse(r"\-"));
