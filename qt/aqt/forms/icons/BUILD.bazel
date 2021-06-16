@@ -1,15 +1,48 @@
-load("//ts:vendor.bzl", "copy_mdi_icons")
+load("//ts:vendor.bzl", "copy_mdi_icons", "copy_bootstrap_icons")
 
 copy_mdi_icons(
     name = "mdi-icons",
     icons = [
+        "bookmark-multiple-outline.svg",
+        "bookmark-outline.svg",
+
+        "flag-variant.svg",
+        "flag-variant-outline.svg",
+
+        # state
+        "circle.svg",
+        "circle-outline.svg",
+
+        # decks
+        "book-multiple-outline.svg",
+        "book-outline.svg",
+        "book-clock-outline.svg",
+
+        # notetypes
+        "newspaper-variant-outline.svg",
+        "newspaper-variant-multiple-outline.svg",
+        # cards
+        "card-bulleted-outline.svg",
+        # fields
+        "form-textbox.svg",
+
+        # tags
         "tag-outline.svg",
+        "tag-multiple-outline.svg",
         "tag-off-outline.svg",
+    ],
+)
+
+copy_bootstrap_icons(
+    name = "bootstrap-icons",
+    icons = [
+        "clock.svg",
+        "clock-history.svg",
     ],
 )
 
 filegroup(
     name = "icons",
-    srcs = ["mdi-icons"] + glob(["*.svg", "*.png"]),
+    srcs = ["mdi-icons", "bootstrap-icons"] + glob(["*.svg", "*.png"]),
     visibility = ["//visibility:public"],
 )

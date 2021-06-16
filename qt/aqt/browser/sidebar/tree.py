@@ -694,6 +694,7 @@ class SidebarTreeView(QTreeView):
 
     def _tag_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/tag-outline.svg"
+        icon_multiple = ":/icons/tag-multiple-outline.svg"
         icon_off = ":/icons/tag-off-outline.svg"
 
         def render(
@@ -708,7 +709,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
                 item = SidebarItem(
                     name=node.name,
-                    icon=icon,
+                    icon=icon_multiple if node.children else icon,
                     search_node=SearchNode(tag=head + node.name),
                     on_expanded=toggle_expand(node),
                     expanded=not node.collapsed,
@@ -723,7 +724,7 @@ class SidebarTreeView(QTreeView):
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_tags(),
-            icon=icon,
+            icon=icon_multiple,
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
@@ -795,10 +796,15 @@ class SidebarTreeView(QTreeView):
 
     def _notetype_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/notetype.svg"
+        notetype_multiple_icon = icon
+        notetype_icon = icon
+        template_icon = icon
+
+
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_notetypes(),
-            icon=icon,
+            icon=notetype_multiple_icon,
             collapse_key=Config.Bool.COLLAPSE_NOTETYPES,
             type=SidebarItemType.NOTETYPE_ROOT,
         )
@@ -807,7 +813,7 @@ class SidebarTreeView(QTreeView):
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
             item = SidebarItem(
                 nt["name"],
-                icon,
+                notetype_icon,
                 search_node=SearchNode(note=nt["name"]),
                 item_type=SidebarItemType.NOTETYPE,
                 id=nt["id"],
@@ -816,7 +822,7 @@ class SidebarTreeView(QTreeView):
             for c, tmpl in enumerate(nt["tmpls"]):
                 child = SidebarItem(
                     tmpl["name"],
-                    icon,
+                    template_icon,
                     search_node=self.col.group_searches(
                         SearchNode(note=nt["name"]), SearchNode(template=c)
                     ),
