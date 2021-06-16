@@ -195,6 +195,9 @@ impl SqlWriter<'_> {
             write!(self.sql, "false").unwrap();
         } else {
             match text {
+                "none" => {
+                    write!(self.sql, "n.tags = ''").unwrap();
+                }
                 "*" => {
                     write!(self.sql, "true").unwrap();
                 }
@@ -758,6 +761,7 @@ mod test {
                 vec![r"(?i).* o\S*n\*et%w%oth\Sre_e(::| ).*".into()]
             )
         );
+        assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
         assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
 
         // state
