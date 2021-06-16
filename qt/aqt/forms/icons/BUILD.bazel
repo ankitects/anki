@@ -14,9 +14,10 @@ copy_mdi_icons(
         "circle-outline.svg",
 
         # decks
-        "book-multiple-outline.svg",
         "book-outline.svg",
+        "book-multiple-outline.svg",
         "book-clock-outline.svg",
+        "book-cog-outline.svg",
 
         # notetypes
         "newspaper-variant-outline.svg",
