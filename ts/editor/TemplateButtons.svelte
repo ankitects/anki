@@ -13,10 +13,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "components/DropdownItem.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
+    import WithState from "components/WithState.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
     import { wrap } from "./wrap";
     import { appendInParentheses } from "./helpers";
+    import { toggleHtmlEdit } from "./codable";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     export let api = {};
@@ -27,10 +29,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onRecord(): void {
         bridgeCommand("record");
-    }
-
-    function onHtmlEdit(): void {
-        bridgeCommand("htmlEdit");
     }
 </script>
 
@@ -164,14 +162,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
-                iconSize={70}
-                on:click={onHtmlEdit}
-                on:mount={createShortcut}
+            <WithState
+                key="htmledit"
+                update={(event) => { console.log(event); return true }}
+                let:state={active}
+                let:updateState
             >
-                {@html xmlIcon}
-            </IconButton>
+                <IconButton
+                    tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
+                    iconSize={70}
+                    {active}
+                    on:click={(event) => {
+                        toggleHtmlEdit();
+                        updateState(event);
+                    }}
+                    on:mount={createShortcut}
+                >
+                    {@html xmlIcon}
+                </IconButton>
+            </WithState>
         </WithShortcut>
     </ButtonGroupItem>
 </ButtonGroup>
