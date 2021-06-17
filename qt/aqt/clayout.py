@@ -550,7 +550,8 @@ class CardLayout(QDialog):
             return
 
         def get_count() -> int:
-            return self.mm.template_use_count(self.model["id"], self.ord)
+            ord = self.current_template()["ord"]
+            return self.mm.template_use_count(self.model["id"], ord)
 
         def on_done(fut: Future) -> None:
             card_cnt = fut.result()
