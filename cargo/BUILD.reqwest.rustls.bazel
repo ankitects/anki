@@ -57,6 +57,7 @@ rust_library(
         "rustls",
         "rustls-tls",
         "rustls-tls-webpki-roots",
+        "rustls-tls-native-roots",
         "serde_json",
         "socks",
         "stream",
@@ -114,6 +115,7 @@ rust_library(
             "@raze__tokio_rustls__0_22_0//:tokio_rustls",
             "@raze__tokio_socks__0_5_1//:tokio_socks",
             "@raze__webpki_roots__0_21_1//:webpki_roots",
+            "@raze__rustls_native_certs__0_5_0//:rustls_native_certs",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
