@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { wrap } from "./wrap";
     import { appendInParentheses } from "./helpers";
-    import { forEditorField, getEditorField } from ".";
+    import { getCurrentField } from ".";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     export let api = {};
@@ -32,13 +32,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function checkHtmlEdit() {
-        return getEditorField(0)!.editingArea.codable.active;
+        const currentField = getCurrentField();
+        return currentField ? currentField.codable.active : false;
     }
 
     function onHtmlEdit() {
-        forEditorField([], (field) => {
-            field.editingArea.toggleHtmlEdit();
-        });
+        const currentField = getCurrentField();
+        if (currentField) {
+            currentField.toggleHtmlEdit();
+        }
     }
 </script>
 
@@ -187,7 +189,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         updateState(event);
                     }}
                     on:mount={createShortcut}
-                    disables={false}
                 >
                     {@html xmlIcon}
                 </IconButton>
