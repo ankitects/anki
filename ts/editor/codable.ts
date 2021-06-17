@@ -3,17 +3,32 @@
 
 import CodeMirror from "codemirror/src/codemirror"
 
-const codables: Codable[] = [];
-
-export function toggleHtmlEdit() {
-    for (const codable of codables) {
-        CodeMirror.fromTextArea(codable);
-    }
+const codeMirrorOptions = {
+    lineNumbers: true,
+    mode: "htmlmixed",
 }
 
 export class Codable extends HTMLTextAreaElement {
+    codeMirror: any;
+
     connectedCallback(): void {
         this.setAttribute("hidden", "");
-        codables.push(this);
+    }
+
+    toggle(html: string): string {
+        return this.codeMirror ?  this.teardown() : this.setup(html);
+    }
+
+    setup(html: string): string {
+        this.innerHTML = html;
+        this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
+        return html;
+    }
+
+    teardown(): string {
+        this.codeMirror.toTextArea();
+        this.codeMirror = undefined;
+        console.log(this.innerHTML)
+        return this.innerHTML;
     }
 }
