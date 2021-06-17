@@ -10,8 +10,16 @@ const codeMirrorOptions = {
     theme: "monokai",
 };
 
+const parser = new DOMParser();
+
 export class Codable extends HTMLTextAreaElement {
-    codeMirror: any;
+    codeMirror: CodeMirror | undefined;
+    active: boolean;
+
+    constructor() {
+        super();
+        this.active = false;
+    }
 
     connectedCallback(): void {
         this.setAttribute("hidden", "");
@@ -22,15 +30,18 @@ export class Codable extends HTMLTextAreaElement {
     }
 
     setup(html: string): string {
-        this.innerHTML = html;
+        this.active = true;
+        this.value = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
-        return html;
+        return "";
     }
 
     teardown(): string {
+        this.active = false;
         this.codeMirror.toTextArea();
         this.codeMirror = undefined;
-        console.log(this.innerHTML);
-        return this.innerHTML;
+
+        const doc = parser.parseFromString(this.value, "text/html");
+        return doc.documentElement.textContent!;
     }
 }
