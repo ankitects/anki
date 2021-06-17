@@ -12,6 +12,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    .form-switch {
+        // bootstrap adds a default 2.5em left pad, which causes
+        // text to wrap prematurely
+        padding-left: 0.5em;
+    }
     .form-check-input {
         -webkit-appearance: none;
         height: 1.6em;
