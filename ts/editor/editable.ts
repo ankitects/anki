@@ -3,6 +3,7 @@
 
 import { bridgeCommand } from "./lib";
 import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
+import { setEditableButtons } from "./toolbar";
 
 function containsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
@@ -36,6 +37,11 @@ export class Editable extends HTMLElement {
 
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
+    }
+
+    focus() {
+        super.focus();
+        setEditableButtons();
     }
 
     caretToEnd() {

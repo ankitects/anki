@@ -8,8 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import IconButton from "components/IconButton.svelte";
-    import WithState from "components/WithState.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
+    import WithContext from "components/WithContext.svelte";
+    import WithState from "components/WithState.svelte";
 
     import {
         boldIcon,
@@ -20,6 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         eraserIcon,
     } from "./icons";
     import { appendInParentheses } from "./helpers";
+    import { disabledKey } from "components/contextKeys";
+    import { inCodableKey } from "./contextKeys";
 
     export let api = {};
 </script>
@@ -27,24 +30,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup {api}>
     <ButtonGroupItem>
         <WithShortcut shortcut={"Control+B"} let:createShortcut let:shortcutLabel>
-            <WithState
-                key="bold"
-                update={() => document.queryCommandState("bold")}
-                let:state={active}
-                let:updateState
-            >
-                <IconButton
-                    tooltip={appendInParentheses(tr.editingBoldText(), shortcutLabel)}
-                    {active}
-                    on:click={(event) => {
-                        document.execCommand("bold");
-                        updateState(event);
-                    }}
-                    on:mount={createShortcut}
-                >
-                    {@html boldIcon}
-                </IconButton>
-            </WithState>
+            <WithContext key={disabledKey} let:context={disabled}>
+                <WithContext key={inCodableKey} let:context={inCodable}>
+                    <WithState
+                        key="bold"
+                        update={() => document.queryCommandState("bold")}
+                        let:state={active}
+                        let:updateState
+                    >
+                        <IconButton
+                            tooltip={appendInParentheses(
+                                tr.editingBoldText(),
+                                shortcutLabel
+                            )}
+                            {active}
+                            disabled={disabled || inCodable}
+                            on:click={(event) => {
+                                document.execCommand("bold");
+                                updateState(event);
+                            }}
+                            on:mount={createShortcut}
+                        >
+                            {@html boldIcon}
+                        </IconButton>
+                    </WithState>
+                </WithContext>
+            </WithContext>
         </WithShortcut>
     </ButtonGroupItem>
 
