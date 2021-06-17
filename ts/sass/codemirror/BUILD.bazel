@@ -6,10 +6,10 @@ vendor_js_lib(
     name = "sass-sources",
     include = [
         "lib/codemirror.css",
+        "theme",
     ],
     base = "external/npm/node_modules/codemirror/",
     pkg = pkg_from_name("codemirror"),
-    strip_prefix = "lib/",
     visibility = ["//visibility:private"],
 )
 

@@ -1,12 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import CodeMirror from "codemirror/src/codemirror"
+import CodeMirror from "codemirror/src/codemirror";
 
 const codeMirrorOptions = {
     lineNumbers: true,
+    lineWrapping: true,
     mode: "htmlmixed",
-}
+    theme: "monokai",
+};
 
 export class Codable extends HTMLTextAreaElement {
     codeMirror: any;
@@ -16,7 +18,7 @@ export class Codable extends HTMLTextAreaElement {
     }
 
     toggle(html: string): string {
-        return this.codeMirror ?  this.teardown() : this.setup(html);
+        return this.codeMirror ? this.teardown() : this.setup(html);
     }
 
     setup(html: string): string {
@@ -28,7 +30,7 @@ export class Codable extends HTMLTextAreaElement {
     teardown(): string {
         this.codeMirror.toTextArea();
         this.codeMirror = undefined;
-        console.log(this.innerHTML)
+        console.log(this.innerHTML);
         return this.innerHTML;
     }
 }

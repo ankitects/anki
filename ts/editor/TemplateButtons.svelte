@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onHtmlEdit() {
         forEditorField([], (field) => {
             field.editingArea.toggleHtmlEdit();
-        })
+        });
     }
 </script>
 
@@ -170,7 +170,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
             <WithState
                 key="htmledit"
-                update={(event) => { console.log(event); return true }}
+                update={(event) => {
+                    console.log(event);
+                    return true;
+                }}
                 let:state={active}
                 let:updateState
             >
