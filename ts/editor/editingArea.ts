@@ -10,6 +10,7 @@ import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
+import { caretToEnd } from "./helpers";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
 
@@ -126,10 +127,29 @@ export class EditingArea extends HTMLDivElement {
         this.editable.blur();
     }
 
+    hasFocus(): boolean {
+        return document.activeElement === this;
+    }
+
     toggleHtmlEdit(): void {
-        const output = this.codable.toggle(this.fieldHTML);
-        if (output) {
-            this.fieldHTML = output;
+        const hadFocus = this.hasFocus();
+
+        if (this.codable.active) {
+            const html = this.codable.teardown();
+            this.fieldHTML = html;
+
+            this.editable.hidden = false;
+            if (hadFocus) {
+                this.focusEditable();
+                caretToEnd(this);
+            }
+        } else {
+            this.editable.hidden = true;
+            this.codable.setup(this.fieldHTML);
+
+            if (hadFocus) {
+                this.codable.focus();
+            }
         }
     }
 }

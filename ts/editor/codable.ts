@@ -5,10 +5,10 @@ import * as CodeMirror from "codemirror/lib/codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
 
 const codeMirrorOptions = {
-    lineNumbers: true,
-    lineWrapping: true,
     mode: "htmlmixed",
     theme: "monokai",
+    lineNumbers: true,
+    lineWrapping: true,
 };
 
 const parser = new DOMParser();
@@ -26,15 +26,15 @@ export class Codable extends HTMLTextAreaElement {
         this.setAttribute("hidden", "");
     }
 
-    toggle(html: string): string {
-        return this.codeMirror ? this.teardown() : this.setup(html);
-    }
-
-    setup(html: string): string {
+    setup(html: string): void {
         this.active = true;
         this.value = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
-        return "";
+    }
+
+    focus(): void {
+        this.codeMirror.focus();
+        this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
     }
 
     teardown(): string {
