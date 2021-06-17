@@ -55,6 +55,13 @@ export class Codable extends HTMLTextAreaElement {
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
     }
 
+    teardown(): string {
+        this.active = false;
+        this.codeMirror.toTextArea();
+        this.codeMirror = undefined;
+        return parseHTML(this.value);
+    }
+
     focus(): void {
         this.codeMirror.focus();
     }
@@ -63,10 +70,7 @@ export class Codable extends HTMLTextAreaElement {
         this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
     }
 
-    teardown(): string {
-        this.active = false;
-        this.codeMirror.toTextArea();
-        this.codeMirror = undefined;
-        return parseHTML(this.value);
+    enterBehavior(): void {
+        /* default */
     }
 }

@@ -7,7 +7,7 @@
 
 import { updateActiveButtons } from "./toolbar";
 import { EditingArea } from "./editingArea";
-import { nodeIsElement, getBlockElement } from "./helpers";
+import { nodeIsElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
 import { registerShortcut } from "lib/shortcuts";
 
@@ -22,17 +22,12 @@ export function onKey(evt: KeyboardEvent): void {
 
     // esc clears focus, allowing dialog to close
     if (evt.code === "Escape") {
-        currentField.blurEditable();
-        return;
+        return currentField.blur();
     }
 
     // prefer <br> instead of <div></div>
-    if (
-        evt.code === "Enter" &&
-        !getBlockElement(currentField.shadowRoot!) !== evt.shiftKey
-    ) {
-        evt.preventDefault();
-        document.execCommand("insertLineBreak");
+    if (evt.code === "Enter") {
+        return currentField.enterBehavior(evt);
     }
 
     // // fix Ctrl+right/left handling in RTL fields

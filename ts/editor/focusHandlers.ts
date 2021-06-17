@@ -9,7 +9,7 @@ import { bridgeCommand } from "./lib";
 
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
-    currentField.focusEditable();
+    currentField.focus();
     bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
 }

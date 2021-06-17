@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsInline, caretToEnd } from "./helpers";
+import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
 
 function containsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
@@ -39,5 +39,15 @@ export class Editable extends HTMLElement {
 
     caretToEnd() {
         caretToEnd(this);
+    }
+
+    enterBehavior(event: KeyboardEvent): void {
+        if (
+            !getBlockElement(this.getRootNode() as Document | ShadowRoot) !==
+            event.shiftKey
+        ) {
+            event.preventDefault();
+            document.execCommand("insertLineBreak");
+        }
     }
 }

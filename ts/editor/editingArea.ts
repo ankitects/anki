@@ -130,20 +130,16 @@ export class EditingArea extends HTMLDivElement {
         this.activeInput.blur();
     }
 
-    /* legacy */
-    focusEditable(): void {
-        focus();
-    }
-    blurEditable(): void {
-        blur();
-    }
-
     caretToEnd(): void {
         this.activeInput.caretToEnd();
     }
 
     hasFocus(): boolean {
         return document.activeElement === this;
+    }
+
+    enterBehavior(event: KeyboardEvent): void {
+        this.activeInput.enterBehavior(event);
     }
 
     toggleHtmlEdit(): void {
@@ -162,5 +158,18 @@ export class EditingArea extends HTMLDivElement {
             this.focus();
             this.caretToEnd();
         }
+    }
+
+    /**
+     * @deprecated Use focus instead
+     */
+    focusEditable(): void {
+        focus();
+    }
+    /**
+     * @deprecated Use blur instead
+     */
+    blurEditable(): void {
+        blur();
     }
 }
