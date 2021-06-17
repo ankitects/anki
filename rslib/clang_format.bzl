@@ -16,6 +16,7 @@ alias(
     actual = select({
         "@net_ankiweb_anki//platforms:windows_x86_64": "@clang_format_windows_x86_64//:clang-format.exe",
         "@net_ankiweb_anki//platforms:macos_x86_64": "@clang_format_macos_x86_64//:clang-format",
+        "@net_ankiweb_anki//platforms:macos_darwin_arm64": "@clang_format_macos_arm64//:clang-format",
         "@net_ankiweb_anki//platforms:linux_x86_64": "@clang_format_linux_x86_64//:clang-format",
     }),
     visibility = ["//visibility:public"]
@@ -36,6 +37,16 @@ def setup_clang_format(name):
         sha256 = "238be68d9478163a945754f06a213483473044f5a004c4125d3d9d8d3556466e",
         urls = [
             "https://github.com/ankitects/clang-format-binaries/releases/download/anki-2021-01-09/clang-format_macos_x86_64.zip",
+        ],
+    )
+
+    maybe(
+        http_archive,
+        name = "clang_format_macos_arm64",
+        build_file_content = """exports_files(["clang-format"])""",
+        sha256 = "238be68d9478163a945754f06a213483473044f5a004c4125d3d9d8d3556466e",
+        urls = [
+            "https://github.com/ankitects/clang-format-binaries/releases/download/anki-2021-01-09/clang-format_macos_arm64.zip",
         ],
     )
 

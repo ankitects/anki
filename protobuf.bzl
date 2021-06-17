@@ -14,6 +14,7 @@ alias(
     actual = select({
         "@net_ankiweb_anki//platforms:windows_x86_64": "@protoc_bin_windows//:bin/protoc.exe",
         "@net_ankiweb_anki//platforms:macos_x86_64": "@protoc_bin_macos//:bin/protoc",
+        "@net_ankiweb_anki//platforms:macos_darwin_arm64": "@protoc_bin_macos_arm//:bin/protoc",
         "@net_ankiweb_anki//platforms:linux_x86_64": "@protoc_bin_linux_x86_64//:bin/protoc",
         "@net_ankiweb_anki//platforms:linux_arm64": "@protoc_bin_linux_arm64//:bin/protoc"
     }),
@@ -31,6 +32,16 @@ def setup_protobuf_binary(name):
     maybe(
         http_archive,
         name = "protoc_bin_macos",
+        urls = [
+            "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-osx-x86_64.zip",
+        ],
+        sha256 = "699ceee7ef0988ecf72bf1c146dee5d9d89351a19d4093d30ebea3c04008bb8c",
+        build_file_content = """exports_files(["bin/protoc"])""",
+    )
+
+    maybe(
+        http_archive,
+        name = "protoc_bin_macos_arm",
         urls = [
             "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-osx-x86_64.zip",
         ],
