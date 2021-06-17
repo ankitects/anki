@@ -44,7 +44,9 @@ export class EditingArea extends HTMLDivElement {
         this.editable = document.createElement("anki-editable") as Editable;
         this.shadowRoot!.appendChild(this.editable);
 
-        this.codable = document.createElement("textarea", { is: "anki-codable" }) as Codable;
+        this.codable = document.createElement("textarea", {
+            is: "anki-codable",
+        }) as Codable;
         this.shadowRoot!.appendChild(this.codable);
     }
 
