@@ -3,12 +3,19 @@
 
 import * as CodeMirror from "codemirror/lib/codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
+import "codemirror/addon/fold/foldcode";
+import "codemirror/addon/fold/foldgutter";
+import "codemirror/addon/fold/xml-fold";
+import "codemirror/addon/edit/matchtags.js";
 
 const codeMirrorOptions = {
     mode: "htmlmixed",
     theme: "monokai",
     lineNumbers: true,
     lineWrapping: true,
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    matchTags: { bothTags: true },
 };
 
 const parser = new DOMParser();

@@ -7,6 +7,7 @@ vendor_js_lib(
     include = [
         "lib/codemirror.css",
         "theme",
+        "addon/fold/foldgutter.css",
     ],
     base = "external/npm/node_modules/codemirror/",
     pkg = pkg_from_name("codemirror"),
