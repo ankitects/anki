@@ -73,6 +73,8 @@ ts_library(
         "//ts/html-filter",
         "//ts:image_module_support",
         "@npm//svelte",
+        "@npm//@types/codemirror",
+        "@npm//codemirror",
     ] + svelte_names,
 )
 
