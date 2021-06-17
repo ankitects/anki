@@ -14,7 +14,8 @@ from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import joinFields
 
-DuplicateOrEmptyResult = _pb.NoteIsDuplicateOrEmptyOut.State
+DuplicateOrEmptyResult = _pb.NoteFieldsCheckOut.State
+NoteFieldsCheckResult = _pb.NoteFieldsCheckOut.State
 
 # types
 NoteId = NewType("NoteId", int)
@@ -190,12 +191,10 @@ class Note:
     addTag = add_tag
     delTag = remove_tag
 
-    # Unique/duplicate check
+    # Unique/duplicate/cloze check
     ##################################################
 
-    def duplicate_or_empty(self) -> DuplicateOrEmptyResult.V:
-        return self.col._backend.note_is_duplicate_or_empty(
-            self._to_backend_note()
-        ).state
+    def fields_check(self) -> NoteFieldsCheckResult.V:
+        return self.col._backend.note_fields_check(self._to_backend_note()).state
 
-    dupeOrEmpty = duplicate_or_empty
+    dupeOrEmpty = duplicate_or_empty = fields_check

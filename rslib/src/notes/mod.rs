@@ -14,7 +14,8 @@ use num_integer::Integer;
 
 use crate::{
     backend_proto as pb,
-    backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState,
+    backend_proto::note_fields_check_out::State as NoteFieldsState,
+    cloze::contains_cloze,
     decks::DeckId,
     define_newtype,
     error::{AnkiError, Result},
@@ -529,35 +530,76 @@ impl Collection {
         Ok(changed_notes)
     }
 
-    pub(crate) fn note_is_duplicate_or_empty(&self, note: &Note) -> Result<DuplicateState> {
-        if let Some(field1) = note.fields.get(0) {
+    /// Check if the note's first field is empty or a duplicate. Then for cloze
+    /// notetypes, check if there is a cloze in a non-cloze field or if there's
+    /// no cloze at all. For other notetypes, just check if there's a cloze.
+    pub(crate) fn note_fields_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
+        Ok(if let Some(text) = note.fields.get(0) {
             let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
-                normalize_to_nfc(field1)
+                normalize_to_nfc(text)
             } else {
-                field1.into()
+                text.into()
             };
             let stripped = strip_html_preserving_media_filenames(&field1);
             if stripped.trim().is_empty() {
-                Ok(DuplicateState::Empty)
+                NoteFieldsState::Empty
             } else {
-                let csum = field_checksum(&stripped);
-                let have_dupe = self
-                    .storage
-                    .note_fields_by_checksum(note.notetype_id, csum)?
-                    .into_iter()
-                    .any(|(nid, field)| {
-                        nid != note.id && strip_html_preserving_media_filenames(&field) == stripped
-                    });
-
-                if have_dupe {
-                    Ok(DuplicateState::Duplicate)
+                let cloze_state = self.field_cloze_check(note)?;
+                if cloze_state != NoteFieldsState::Normal {
+                    cloze_state
+                } else if self.is_duplicate(&stripped, note)? {
+                    NoteFieldsState::Duplicate
                 } else {
-                    Ok(DuplicateState::Normal)
+                    NoteFieldsState::Normal
                 }
             }
         } else {
-            Ok(DuplicateState::Empty)
-        }
+            NoteFieldsState::Empty
+        })
+    }
+
+    fn is_duplicate(&self, first_field: &str, note: &Note) -> Result<bool> {
+        let csum = field_checksum(&first_field);
+        Ok(self
+            .storage
+            .note_fields_by_checksum(note.notetype_id, csum)?
+            .into_iter()
+            .any(|(nid, field)| {
+                nid != note.id && strip_html_preserving_media_filenames(&field) == first_field
+            }))
+    }
+
+    fn field_cloze_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
+        let notetype = self
+            .get_notetype(note.notetype_id)?
+            .ok_or(AnkiError::NotFound)?;
+        let cloze_fields = notetype.cloze_fields();
+        let mut has_cloze = false;
+        let extraneous_cloze = note.fields.iter().enumerate().find_map(|(i, field)| {
+            if notetype.is_cloze() {
+                if contains_cloze(field) {
+                    if cloze_fields.contains(&i) {
+                        has_cloze = true;
+                        None
+                    } else {
+                        Some(NoteFieldsState::FieldNotCloze)
+                    }
+                } else {
+                    None
+                }
+            } else if contains_cloze(field) {
+                Some(NoteFieldsState::NotetypeNotCloze)
+            } else {
+                None
+            }
+        });
+        Ok(if let Some(state) = extraneous_cloze {
+            state
+        } else if notetype.is_cloze() && !has_cloze {
+            NoteFieldsState::MissingCloze
+        } else {
+            NoteFieldsState::Normal
+        })
     }
 }
 

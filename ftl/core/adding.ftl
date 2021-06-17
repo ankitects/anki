@@ -6,4 +6,6 @@ adding-history = History
 adding-note-deleted = (Note deleted)
 adding-shortcut = Shortcut: { $val }
 adding-the-first-field-is-empty = The first field is empty.
-adding-you-have-a-cloze-deletion-note = You have a cloze deletion note type but have not made any cloze deletions. Proceed?
+adding-you-have-a-cloze-deletion-note = You have a cloze notetype but have not made any cloze deletions. Proceed?
+adding-cloze-outside-cloze-notetype = Cloze deletion can only be used on cloze notetypes.
+adding-cloze-outside-cloze-field = Cloze deletion can only be used in fields which use the 'cloze:' filter. This is typically the first field.
