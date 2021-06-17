@@ -13,11 +13,6 @@ import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
 
-function onPaste(evt: ClipboardEvent): void {
-    bridgeCommand("paste");
-    evt.preventDefault();
-}
-
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
 }
@@ -48,6 +43,8 @@ export class EditingArea extends HTMLDivElement {
             is: "anki-codable",
         }) as Codable;
         this.shadowRoot!.appendChild(this.codable);
+
+        this.onPaste = this.onPaste.bind(this);
     }
 
     get activeInput(): Editable | Codable {
@@ -72,7 +69,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("input", onInput);
         this.addEventListener("focus", onFocus);
         this.addEventListener("blur", onBlur);
-        this.addEventListener("paste", onPaste);
+        this.addEventListener("paste", this.onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
@@ -87,7 +84,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("input", onInput);
         this.removeEventListener("focus", onFocus);
         this.removeEventListener("blur", onBlur);
-        this.removeEventListener("paste", onPaste);
+        this.removeEventListener("paste", this.onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
         this.removeEventListener("mouseup", updateActiveButtons);
@@ -138,8 +135,12 @@ export class EditingArea extends HTMLDivElement {
         return document.activeElement === this;
     }
 
-    enterBehavior(event: KeyboardEvent): void {
-        this.activeInput.enterBehavior(event);
+    onEnter(event: KeyboardEvent): void {
+        this.activeInput.onEnter(event);
+    }
+
+    onPaste(event: ClipboardEvent): void {
+        this.activeInput.onPaste(event);
     }
 
     toggleHtmlEdit(): void {
