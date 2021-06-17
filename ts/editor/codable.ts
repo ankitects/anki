@@ -16,6 +16,7 @@ const codeMirrorOptions = {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     matchTags: { bothTags: true },
+    viewportMargin: Infinity,
 };
 
 const parser = new DOMParser();
