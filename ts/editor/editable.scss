@@ -40,3 +40,7 @@ img.drawing {
         filter: unquote("invert() hue-rotate(180deg)");
     }
 }
+
+[hidden] {
+    display: none;
+}
