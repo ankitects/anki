@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { wrap } from "./wrap";
     import { appendInParentheses } from "./helpers";
-    import { forEditorField } from ".";
+    import { forEditorField, getEditorField } from ".";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     export let api = {};
@@ -29,6 +29,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onRecord(): void {
         bridgeCommand("record");
+    }
+
+    function checkHtmlEdit() {
+        return getEditorField(0)!.editingArea.codable.active;
     }
 
     function onHtmlEdit() {
@@ -170,10 +174,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
             <WithState
                 key="htmledit"
-                update={(event) => {
-                    console.log(event);
-                    return true;
-                }}
+                update={checkHtmlEdit}
                 let:state={active}
                 let:updateState
             >
@@ -186,6 +187,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         updateState(event);
                     }}
                     on:mount={createShortcut}
+                    disables={false}
                 >
                     {@html xmlIcon}
                 </IconButton>
