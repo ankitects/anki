@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsInline } from "./helpers";
+import { nodeIsInline, caretToEnd } from "./helpers";
 
 function containsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
@@ -35,5 +35,9 @@ export class Editable extends HTMLElement {
 
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
+    }
+
+    caretToEnd() {
+        caretToEnd(this);
     }
 }

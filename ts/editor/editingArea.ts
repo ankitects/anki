@@ -10,7 +10,6 @@ import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
-import { caretToEnd } from "./helpers";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
 
@@ -51,16 +50,20 @@ export class EditingArea extends HTMLDivElement {
         this.shadowRoot!.appendChild(this.codable);
     }
 
+    get activeInput(): Editable | Codable {
+        return this.codable.active ? this.codable : this.editable;
+    }
+
     get ord(): number {
         return Number(this.getAttribute("ord"));
     }
 
     set fieldHTML(content: string) {
-        this.editable.fieldHTML = content;
+        this.activeInput.fieldHTML = content;
     }
 
     get fieldHTML(): string {
-        return this.editable.fieldHTML;
+        return this.activeInput.fieldHTML;
     }
 
     connectedCallback(): void {
@@ -119,12 +122,24 @@ export class EditingArea extends HTMLDivElement {
         return this.shadowRoot!.getSelection()!;
     }
 
-    focusEditable(): void {
-        this.editable.focus();
+    focus(): void {
+        this.activeInput.focus();
     }
 
+    blur(): void {
+        this.activeInput.blur();
+    }
+
+    /* legacy */
+    focusEditable(): void {
+        focus();
+    }
     blurEditable(): void {
-        this.editable.blur();
+        blur();
+    }
+
+    caretToEnd(): void {
+        this.activeInput.caretToEnd();
     }
 
     hasFocus(): boolean {
@@ -135,21 +150,17 @@ export class EditingArea extends HTMLDivElement {
         const hadFocus = this.hasFocus();
 
         if (this.codable.active) {
-            const html = this.codable.teardown();
-            this.fieldHTML = html;
-
+            this.fieldHTML = this.codable.teardown();
             this.editable.hidden = false;
-            if (hadFocus) {
-                this.focusEditable();
-                caretToEnd(this);
-            }
         } else {
             this.editable.hidden = true;
+            console.log("eyo", this.fieldHTML);
             this.codable.setup(this.fieldHTML);
+        }
 
-            if (hadFocus) {
-                this.codable.focus();
-            }
+        if (hadFocus) {
+            this.focus();
+            this.caretToEnd();
         }
     }
 }

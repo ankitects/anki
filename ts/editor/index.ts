@@ -11,7 +11,6 @@ import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
 
-import { caretToEnd } from "./helpers";
 import { saveField } from "./changeTimer";
 
 import { EditorField } from "./editorField";
@@ -52,7 +51,7 @@ export function focusField(n: number): void {
 
     if (field) {
         field.editingArea.focusEditable();
-        caretToEnd(field.editingArea);
+        field.editingArea.caretToEnd();
         updateActiveButtons(new Event("manualfocus"));
     }
 }

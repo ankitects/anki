@@ -21,6 +21,11 @@ const codeMirrorOptions = {
 
 const parser = new DOMParser();
 
+function parseHTML(html: string): string {
+    const doc = parser.parseFromString(html, "text/html");
+    return doc.documentElement.innerHTML;
+}
+
 export class Codable extends HTMLTextAreaElement {
     codeMirror: CodeMirror | undefined;
     active: boolean;
@@ -30,18 +35,29 @@ export class Codable extends HTMLTextAreaElement {
         this.active = false;
     }
 
+    set fieldHTML(content: string) {
+        this.value = content;
+    }
+
+    get fieldHTML(): string {
+        return parseHTML(this.codeMirror.getValue());
+    }
+
     connectedCallback(): void {
         this.setAttribute("hidden", "");
     }
 
     setup(html: string): void {
         this.active = true;
-        this.value = html;
+        this.fieldHTML = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
     }
 
     focus(): void {
         this.codeMirror.focus();
+    }
+
+    caretToEnd(): void {
         this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
     }
 
@@ -49,8 +65,6 @@ export class Codable extends HTMLTextAreaElement {
         this.active = false;
         this.codeMirror.toTextArea();
         this.codeMirror = undefined;
-
-        const doc = parser.parseFromString(this.value, "text/html");
-        return doc.documentElement.innerHTML;
+        return parseHTML(this.value);
     }
 }

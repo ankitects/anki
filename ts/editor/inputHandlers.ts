@@ -7,7 +7,7 @@
 
 import { updateActiveButtons } from "./toolbar";
 import { EditingArea } from "./editingArea";
-import { caretToEnd, nodeIsElement, getBlockElement } from "./helpers";
+import { nodeIsElement, getBlockElement } from "./helpers";
 import { triggerChangeTimer } from "./changeTimer";
 import { registerShortcut } from "lib/shortcuts";
 
@@ -59,7 +59,7 @@ export function onKey(evt: KeyboardEvent): void {
 function updateFocus(evt: FocusEvent) {
     const newFocusTarget = evt.target;
     if (newFocusTarget instanceof EditingArea) {
-        caretToEnd(newFocusTarget);
+        newFocusTarget.caretToEnd();
         updateActiveButtons(evt);
     }
 }
