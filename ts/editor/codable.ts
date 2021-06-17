@@ -42,6 +42,6 @@ export class Codable extends HTMLTextAreaElement {
         this.codeMirror = undefined;
 
         const doc = parser.parseFromString(this.value, "text/html");
-        return doc.documentElement.textContent!;
+        return doc.documentElement.innerHTML;
     }
 }

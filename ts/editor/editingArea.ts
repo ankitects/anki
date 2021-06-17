@@ -128,9 +128,7 @@ export class EditingArea extends HTMLDivElement {
 
     toggleHtmlEdit(): void {
         const output = this.codable.toggle(this.fieldHTML);
-        console.log("succ output", output, this.ord);
         if (output) {
-            console.log("writo");
             this.fieldHTML = output;
         }
     }
