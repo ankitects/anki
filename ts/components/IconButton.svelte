@@ -3,9 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Readable } from "svelte/store";
     import { getContext, onMount, createEventDispatcher } from "svelte";
-    import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
+    import { nightModeKey, dropdownKey } from "./contextKeys";
     import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
@@ -14,16 +13,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tooltip: string | undefined = undefined;
     export let active = false;
-    export let disables = true;
+    export let disabled = false;
+    export const disables = false; /* unused */
     export let tabbable = false;
 
     export let iconSize: number = 75;
     export let widthMultiplier: number = 1;
 
     let buttonRef: HTMLButtonElement;
-
-    const disabled = getContext<Readable<boolean>>(disabledKey);
-    $: _disabled = disables && $disabled;
 
     const nightMode = getContext<boolean>(nightModeKey);
     const dropdownProps = getContext<DropdownProps>(dropdownKey) ?? { dropdown: false };
@@ -43,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     style={`--icon-size: ${iconSize}%`}
     title={tooltip}
     {...dropdownProps}
-    disabled={_disabled}
+    {disabled}
     tabindex={tabbable ? 0 : -1}
     on:click
     on:mousedown|preventDefault
