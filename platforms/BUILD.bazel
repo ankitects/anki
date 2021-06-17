@@ -17,6 +17,14 @@ config_setting(
 )
 
 config_setting(
+    name = "macos_darwin_arm64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:darwin_arm64",
+    ],
+)
+
+config_setting(
     name = "linux_x86_64",
     constraint_values = [
         "@platforms//os:linux",
