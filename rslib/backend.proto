@@ -174,7 +174,7 @@ service NotesService {
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteOut);
   rpc AfterNoteUpdates(AfterNoteUpdatesIn) returns (OpChangesWithCount);
   rpc FieldNamesForNotes(FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
-  rpc NoteIsDuplicateOrEmpty(Note) returns (NoteIsDuplicateOrEmptyOut);
+  rpc NoteFieldsCheck(Note) returns (NoteFieldsCheckOut);
   rpc CardsOfNote(NoteId) returns (CardIds);
 }
 
@@ -1231,11 +1231,14 @@ message ReparentDecksIn {
   int64 new_parent = 2;
 }
 
-message NoteIsDuplicateOrEmptyOut {
+message NoteFieldsCheckOut {
   enum State {
     NORMAL = 0;
     EMPTY = 1;
     DUPLICATE = 2;
+    MISSING_CLOZE = 3;
+    NOTETYPE_NOT_CLOZE = 4;
+    FIELD_NOT_CLOZE = 5;
   }
   State state = 1;
 }

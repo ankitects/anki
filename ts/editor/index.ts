@@ -144,6 +144,10 @@ export function setBackgrounds(cols: ("dupe" | "")[]): void {
         .classList.toggle("is-inactive", !cols.includes("dupe"));
 }
 
+export function setClozeHint(cloze_hint: string): void {
+    document.getElementById("cloze-hint")!.innerHTML = cloze_hint;
+}
+
 export function setFonts(fonts: [string, number, boolean][]): void {
     forEditorField(
         fonts,
