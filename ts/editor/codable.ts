@@ -20,6 +20,7 @@ const codeMirrorOptions = {
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     matchTags: { bothTags: true },
     autoCloseTags: true,
+    extraKeys: { Tab: false, "Shift-Tab": false },
     viewportMargin: Infinity,
 };
 
