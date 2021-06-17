@@ -6,6 +6,7 @@
  */
 
 import type { Editable } from "./editable";
+import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
@@ -23,6 +24,7 @@ function onCutOrCopy(): void {
 
 export class EditingArea extends HTMLDivElement {
     editable: Editable;
+    codable: Codable;
     baseStyle: HTMLStyleElement;
 
     constructor() {
@@ -41,6 +43,9 @@ export class EditingArea extends HTMLDivElement {
 
         this.editable = document.createElement("anki-editable") as Editable;
         this.shadowRoot!.appendChild(this.editable);
+
+        this.codable = document.createElement("textarea", { is: "anki-codable" }) as Codable;
+        this.shadowRoot!.appendChild(this.codable);
     }
 
     get ord(): number {

@@ -18,6 +18,7 @@ import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
 import { EditingArea } from "./editingArea";
 import { Editable } from "./editable";
+import { Codable } from "./codable";
 import { initToolbar } from "./toolbar";
 
 export { setNoteId, getNoteId } from "./noteId";
@@ -35,6 +36,7 @@ declare global {
 }
 
 customElements.define("anki-editable", Editable);
+customElements.define("anki-codable", Codable, { extends: "textarea" });
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
 customElements.define("anki-editor-field", EditorField, { extends: "div" });
