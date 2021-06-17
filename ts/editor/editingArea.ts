@@ -123,4 +123,8 @@ export class EditingArea extends HTMLDivElement {
     blurEditable(): void {
         this.editable.blur();
     }
+
+    toggleHtmlEdit(): void {
+        this.fieldHTML = this.codable.toggle(this.fieldHTML);
+    }
 }

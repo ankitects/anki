@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { wrap } from "./wrap";
     import { appendInParentheses } from "./helpers";
-    import { toggleHtmlEdit } from "./codable";
+    import { forEditorField } from ".";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     export let api = {};
@@ -29,6 +29,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onRecord(): void {
         bridgeCommand("record");
+    }
+
+    function onHtmlEdit() {
+        forEditorField([], (field) => {
+            field.editingArea.toggleHtmlEdit();
+        })
     }
 </script>
 
@@ -173,7 +179,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     iconSize={70}
                     {active}
                     on:click={(event) => {
-                        toggleHtmlEdit();
+                        onHtmlEdit();
                         updateState(event);
                     }}
                     on:mount={createShortcut}
