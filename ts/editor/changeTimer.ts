@@ -41,6 +41,6 @@ export function saveNow(keepFocus: boolean): void {
         saveField(currentField, "key");
     } else {
         // triggers onBlur, which saves
-        currentField.blurEditable();
+        currentField.blur();
     }
 }
