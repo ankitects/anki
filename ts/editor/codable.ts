@@ -7,6 +7,7 @@ import "codemirror/addon/fold/foldcode";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/xml-fold";
 import "codemirror/addon/edit/matchtags.js";
+import "codemirror/addon/edit/closetag.js";
 
 const codeMirrorOptions = {
     mode: "htmlmixed",
@@ -16,6 +17,7 @@ const codeMirrorOptions = {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     matchTags: { bothTags: true },
+    autoCloseTags: true,
     viewportMargin: Infinity,
 };
 
