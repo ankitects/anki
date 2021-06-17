@@ -70,7 +70,11 @@ export class Codable extends HTMLTextAreaElement {
         this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
     }
 
-    enterBehavior(): void {
+    onEnter(): void {
+        /* default */
+    }
+
+    onPaste(): void {
         /* default */
     }
 }

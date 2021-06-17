@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { bridgeCommand } from "./lib";
 import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
 
 function containsInlineContent(field: Element): boolean {
@@ -41,7 +42,7 @@ export class Editable extends HTMLElement {
         caretToEnd(this);
     }
 
-    enterBehavior(event: KeyboardEvent): void {
+    onEnter(event: KeyboardEvent): void {
         if (
             !getBlockElement(this.getRootNode() as Document | ShadowRoot) !==
             event.shiftKey
@@ -49,5 +50,10 @@ export class Editable extends HTMLElement {
             event.preventDefault();
             document.execCommand("insertLineBreak");
         }
+    }
+
+    onPaste(event: ClipboardEvent): void {
+        bridgeCommand("paste");
+        event.preventDefault();
     }
 }
