@@ -2,6 +2,7 @@
 
 @import "ts/sass/codemirror/lib/codemirror";
 @import "ts/sass/codemirror/theme/monokai";
+@import "ts/sass/codemirror/addon/fold/foldgutter";
 
 anki-editable {
     display: block;
