@@ -7,12 +7,14 @@
  */
 
 import { disabledKey, nightModeKey } from "components/contextKeys";
+import { inCodableKey } from "./contextKeys";
 import { writable } from "svelte/store";
 
 import EditorToolbar from "./EditorToolbar.svelte";
 import "./bootstrap.css";
 
 const disabled = writable(false);
+const inCodable = writable(false);
 
 export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
     let toolbarResolve: (value: EditorToolbar) => void;
@@ -27,6 +29,7 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
 
             const context = new Map();
             context.set(disabledKey, disabled);
+            context.set(inCodableKey, inCodable);
             context.set(
                 nightModeKey,
                 document.documentElement.classList.contains("night-mode")
@@ -45,6 +48,14 @@ export function enableButtons(): void {
 
 export function disableButtons(): void {
     disabled.set(true);
+}
+
+export function setCodableButtons(): void {
+    inCodable.set(true);
+}
+
+export function setEditableButtons(): void {
+    inCodable.set(false);
 }
 
 export {

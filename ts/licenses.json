@@ -147,6 +147,15 @@
         "path": "node_modules/bootstrap",
         "licenseFile": "node_modules/bootstrap/LICENSE"
     },
+    "codemirror@5.61.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/CodeMirror",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijnh@gmail.com",
+        "url": "http://marijnhaverbeke.nl",
+        "path": "node_modules/codemirror",
+        "licenseFile": "node_modules/codemirror/LICENSE"
+    },
     "commander@7.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",

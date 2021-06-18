@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { EditingArea } from "./editingArea";
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
 
 export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
@@ -69,11 +71,11 @@ export function nodeIsInline(node: Node): boolean {
     return !nodeIsElement(node) || INLINE_TAGS.includes(node.tagName);
 }
 
-export function caretToEnd(currentField: EditingArea): void {
+export function caretToEnd(node: Node): void {
     const range = document.createRange();
-    range.selectNodeContents(currentField.editable);
+    range.selectNodeContents(node);
     range.collapse(false);
-    const selection = currentField.getSelection();
+    const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!;
     selection.removeAllRanges();
     selection.addRange(range);
 }
