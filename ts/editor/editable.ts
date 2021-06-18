@@ -40,12 +40,12 @@ export class Editable extends HTMLElement {
         this.setAttribute("contenteditable", "");
     }
 
-    focus() {
+    focus(): void {
         super.focus();
         setEditableButtons();
     }
 
-    caretToEnd() {
+    caretToEnd(): void {
         caretToEnd(this);
     }
 

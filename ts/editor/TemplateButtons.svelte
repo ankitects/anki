@@ -168,7 +168,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={(event) => wrapCurrent("[$$]", "[/$$]", event)}
+                        on:click={() => wrapCurrent("[$$]", "[/$$]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatexMathEnv()}

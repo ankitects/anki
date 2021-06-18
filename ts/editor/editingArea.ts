@@ -155,7 +155,6 @@ export class EditingArea extends HTMLDivElement {
             this.editable.hidden = false;
         } else {
             this.editable.hidden = true;
-            console.log("eyo", this.fieldHTML);
             this.codable.setup(this.fieldHTML);
         }
 
