@@ -55,7 +55,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.8",
+    version = "0.2.9",
     # buildifier: leave-alone
     deps = [
         "@raze__bitflags__1_2_1//:bitflags",

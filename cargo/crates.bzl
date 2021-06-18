@@ -1843,12 +1843,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__redox_syscall__0_2_8",
-        url = "https://crates.io/api/v1/crates/redox_syscall/0.2.8/download",
+        name = "raze__redox_syscall__0_2_9",
+        url = "https://crates.io/api/v1/crates/redox_syscall/0.2.9/download",
         type = "tar.gz",
-        sha256 = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc",
-        strip_prefix = "redox_syscall-0.2.8",
-        build_file = Label("//cargo/remote:BUILD.redox_syscall-0.2.8.bazel"),
+        sha256 = "5ab49abadf3f9e1c4bc499e8845e152ad87d2ad2d30371841171169e9d75feee",
+        strip_prefix = "redox_syscall-0.2.9",
+        build_file = Label("//cargo/remote:BUILD.redox_syscall-0.2.9.bazel"),
     )
 
     maybe(
@@ -2693,12 +2693,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__vcpkg__0_2_13",
-        url = "https://crates.io/api/v1/crates/vcpkg/0.2.13/download",
+        name = "raze__vcpkg__0_2_14",
+        url = "https://crates.io/api/v1/crates/vcpkg/0.2.14/download",
         type = "tar.gz",
-        sha256 = "025ce40a007e1907e58d5bc1a594def78e5573bb0b1160bc389634e8f12e4faa",
-        strip_prefix = "vcpkg-0.2.13",
-        build_file = Label("//cargo/remote:BUILD.vcpkg-0.2.13.bazel"),
+        sha256 = "70455df2fdf4e9bf580a92e443f1eb0303c390d682e2ea817312c9e81f8c3399",
+        strip_prefix = "vcpkg-0.2.14",
+        build_file = Label("//cargo/remote:BUILD.vcpkg-0.2.14.bazel"),
     )
 
     maybe(
