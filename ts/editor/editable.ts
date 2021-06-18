@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsInline } from "./helpers";
+import { bridgeCommand } from "./lib";
+import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
+import { setEditableButtons } from "./toolbar";
+import { wrap } from "./wrap";
 
 function containsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
@@ -35,5 +38,33 @@ export class Editable extends HTMLElement {
 
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
+    }
+
+    focus(): void {
+        super.focus();
+        setEditableButtons();
+    }
+
+    caretToEnd(): void {
+        caretToEnd(this);
+    }
+
+    surroundSelection(before: string, after: string): void {
+        wrap(before, after);
+    }
+
+    onEnter(event: KeyboardEvent): void {
+        if (
+            !getBlockElement(this.getRootNode() as Document | ShadowRoot) !==
+            event.shiftKey
+        ) {
+            event.preventDefault();
+            document.execCommand("insertLineBreak");
+        }
+    }
+
+    onPaste(event: ClipboardEvent): void {
+        bridgeCommand("paste");
+        event.preventDefault();
     }
 }

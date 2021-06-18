@@ -6,16 +6,12 @@
  */
 
 import type { Editable } from "./editable";
+import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./inputHandlers";
 import { onFocus, onBlur } from "./focusHandlers";
-
-function onPaste(evt: ClipboardEvent): void {
-    bridgeCommand("paste");
-    evt.preventDefault();
-}
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
@@ -23,6 +19,7 @@ function onCutOrCopy(): void {
 
 export class EditingArea extends HTMLDivElement {
     editable: Editable;
+    codable: Codable;
     baseStyle: HTMLStyleElement;
 
     constructor() {
@@ -41,6 +38,17 @@ export class EditingArea extends HTMLDivElement {
 
         this.editable = document.createElement("anki-editable") as Editable;
         this.shadowRoot!.appendChild(this.editable);
+
+        this.codable = document.createElement("textarea", {
+            is: "anki-codable",
+        }) as Codable;
+        this.shadowRoot!.appendChild(this.codable);
+
+        this.onPaste = this.onPaste.bind(this);
+    }
+
+    get activeInput(): Editable | Codable {
+        return this.codable.active ? this.codable : this.editable;
     }
 
     get ord(): number {
@@ -48,11 +56,11 @@ export class EditingArea extends HTMLDivElement {
     }
 
     set fieldHTML(content: string) {
-        this.editable.fieldHTML = content;
+        this.activeInput.fieldHTML = content;
     }
 
     get fieldHTML(): string {
-        return this.editable.fieldHTML;
+        return this.activeInput.fieldHTML;
     }
 
     connectedCallback(): void {
@@ -61,7 +69,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("input", onInput);
         this.addEventListener("focus", onFocus);
         this.addEventListener("blur", onBlur);
-        this.addEventListener("paste", onPaste);
+        this.addEventListener("paste", this.onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
@@ -76,7 +84,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("input", onInput);
         this.removeEventListener("focus", onFocus);
         this.removeEventListener("blur", onBlur);
-        this.removeEventListener("paste", onPaste);
+        this.removeEventListener("paste", this.onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
         this.removeEventListener("mouseup", updateActiveButtons);
@@ -107,15 +115,65 @@ export class EditingArea extends HTMLDivElement {
         return firstRule.style.direction === "rtl";
     }
 
+    focus(): void {
+        this.activeInput.focus();
+    }
+
+    blur(): void {
+        this.activeInput.blur();
+    }
+
+    caretToEnd(): void {
+        this.activeInput.caretToEnd();
+    }
+
+    hasFocus(): boolean {
+        return document.activeElement === this;
+    }
+
     getSelection(): Selection {
         return this.shadowRoot!.getSelection()!;
     }
 
-    focusEditable(): void {
-        this.editable.focus();
+    surroundSelection(before: string, after: string): void {
+        this.activeInput.surroundSelection(before, after);
     }
 
+    onEnter(event: KeyboardEvent): void {
+        this.activeInput.onEnter(event);
+    }
+
+    onPaste(event: ClipboardEvent): void {
+        this.activeInput.onPaste(event);
+    }
+
+    toggleHtmlEdit(): void {
+        const hadFocus = this.hasFocus();
+
+        if (this.codable.active) {
+            this.fieldHTML = this.codable.teardown();
+            this.editable.hidden = false;
+        } else {
+            this.editable.hidden = true;
+            this.codable.setup(this.fieldHTML);
+        }
+
+        if (hadFocus) {
+            this.focus();
+            this.caretToEnd();
+        }
+    }
+
+    /**
+     * @deprecated Use focus instead
+     */
+    focusEditable(): void {
+        focus();
+    }
+    /**
+     * @deprecated Use blur instead
+     */
     blurEditable(): void {
-        this.editable.blur();
+        blur();
     }
 }

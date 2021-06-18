@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { bridgeCommand } from "lib/bridgecommand";
+    import { disabledKey } from "components/contextKeys";
+    import { inCodableKey } from "./contextKeys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -13,10 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "components/DropdownItem.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
+    import WithContext from "components/WithContext.svelte";
+    import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
-    import { wrap } from "./wrap";
+    import { getCurrentField } from ".";
     import { appendInParentheses } from "./helpers";
+    import { wrapCurrent } from "./wrap";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     export let api = {};
@@ -29,38 +34,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    function onHtmlEdit(): void {
-        bridgeCommand("htmlEdit");
+    function onHtmlEdit() {
+        const currentField = getCurrentField();
+        if (currentField) {
+            currentField.toggleHtmlEdit();
+        }
     }
 </script>
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
         <WithShortcut shortcut={"F3"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(
-                    tr.editingAttachPicturesaudiovideo(),
-                    shortcutLabel
-                )}
-                iconSize={70}
-                on:click={onAttachment}
-                on:mount={createShortcut}
-            >
-                {@html paperclipIcon}
-            </IconButton>
+            <OnlyEditable let:disabled>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingAttachPicturesaudiovideo(),
+                        shortcutLabel
+                    )}
+                    iconSize={70}
+                    {disabled}
+                    on:click={onAttachment}
+                    on:mount={createShortcut}
+                >
+                    {@html paperclipIcon}
+                </IconButton>
+            </OnlyEditable>
         </WithShortcut>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
         <WithShortcut shortcut={"F5"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
-                iconSize={70}
-                on:click={onRecord}
-                on:mount={createShortcut}
-            >
-                {@html micIcon}
-            </IconButton>
+            <OnlyEditable let:disabled>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingRecordAudio(),
+                        shortcutLabel
+                    )}
+                    iconSize={70}
+                    {disabled}
+                    on:click={onRecord}
+                    on:mount={createShortcut}
+                >
+                    {@html micIcon}
+                </IconButton>
+            </OnlyEditable>
         </WithShortcut>
     </ButtonGroupItem>
 
@@ -70,9 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:menuId>
-            <IconButton on:mount={createDropdown}>
-                {@html functionIcon}
-            </IconButton>
+            <WithContext key={disabledKey} let:context={disabled}>
+                <IconButton {disabled} on:mount={createDropdown}>
+                    {@html functionIcon}
+                </IconButton>
+            </WithContext>
 
             <DropdownMenu id={menuId}>
                 <WithShortcut
@@ -81,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("\\(", "\\)")}
+                        on:click={() => wrapCurrent("\\(", "\\)")}
                         on:mount={createShortcut}
                     >
                         {tr.editingMathjaxInline()}
@@ -95,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("\\[", "\\]")}
+                        on:click={() => wrapCurrent("\\[", "\\]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingMathjaxBlock()}
@@ -109,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("\\(\\ce{", "}\\)")}
+                        on:click={() => wrapCurrent("\\(\\ce{", "}\\)")}
                         on:mount={createShortcut}
                     >
                         {tr.editingMathjaxChemistry()}
@@ -123,7 +142,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("[latex]", "[/latex]")}
+                        on:click={() => wrapCurrent("[latex]", "[/latex]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatex()}
@@ -137,7 +156,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("[$]", "[/$]")}
+                        on:click={() => wrapCurrent("[$]", "[/$]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatexEquation()}
@@ -151,7 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("[$$]", "[/$$]")}
+                        on:click={() => wrapCurrent("[$$]", "[/$$]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatexMathEnv()}
@@ -163,15 +182,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
-                iconSize={70}
-                on:click={onHtmlEdit}
-                on:mount={createShortcut}
-            >
-                {@html xmlIcon}
-            </IconButton>
-        </WithShortcut>
+        <WithContext key={disabledKey} let:context={disabled}>
+            <WithContext key={inCodableKey} let:context={inCodable}>
+                <WithShortcut
+                    shortcut={"Control+Shift+X"}
+                    let:createShortcut
+                    let:shortcutLabel
+                >
+                    <IconButton
+                        tooltip={appendInParentheses(
+                            tr.editingHtmlEditor(),
+                            shortcutLabel
+                        )}
+                        iconSize={70}
+                        active={!disabled && inCodable}
+                        {disabled}
+                        on:click={onHtmlEdit}
+                        on:mount={createShortcut}
+                    >
+                        {@html xmlIcon}
+                    </IconButton>
+                </WithShortcut>
+            </WithContext>
+        </WithContext>
     </ButtonGroupItem>
 </ButtonGroup>

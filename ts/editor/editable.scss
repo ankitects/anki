@@ -37,3 +37,16 @@ img.drawing {
         filter: unquote("invert() hue-rotate(180deg)");
     }
 }
+
+[hidden] {
+    display: none;
+}
+
+@import "ts/sass/codemirror/lib/codemirror";
+@import "ts/sass/codemirror/theme/monokai";
+@import "ts/sass/codemirror/addon/fold/foldgutter";
+
+.CodeMirror {
+    height: auto;
+    padding: 6px 0;
+}
