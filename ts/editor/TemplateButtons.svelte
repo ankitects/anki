@@ -19,9 +19,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
-    import { wrap } from "./wrap";
-    import { appendInParentheses } from "./helpers";
     import { getCurrentField } from ".";
+    import { appendInParentheses } from "./helpers";
+    import { wrapCurrent } from "./wrap";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
     export let api = {};
@@ -98,7 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("\\(", "\\)")}
+                        on:click={() => wrapCurrent("\\(", "\\)")}
                         on:mount={createShortcut}
                     >
                         {tr.editingMathjaxInline()}
@@ -112,7 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("\\[", "\\]")}
+                        on:click={() => wrapCurrent("\\[", "\\]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingMathjaxBlock()}
@@ -126,7 +126,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("\\(\\ce{", "}\\)")}
+                        on:click={() => wrapCurrent("\\(\\ce{", "}\\)")}
                         on:mount={createShortcut}
                     >
                         {tr.editingMathjaxChemistry()}
@@ -140,7 +140,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("[latex]", "[/latex]")}
+                        on:click={() => wrapCurrent("[latex]", "[/latex]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatex()}
@@ -154,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("[$]", "[/$]")}
+                        on:click={() => wrapCurrent("[$]", "[/$]")}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatexEquation()}
@@ -168,7 +168,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrap("[$$]", "[/$$]")}
+                        on:click={(event) => wrapCurrent("[$$]", "[/$$]", event)}
                         on:mount={createShortcut}
                     >
                         {tr.editingLatexMathEnv()}

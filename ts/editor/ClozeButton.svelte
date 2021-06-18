@@ -12,14 +12,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { bracketsIcon } from "./icons";
     import { forEditorField } from ".";
-    import { wrap } from "./wrap";
+    import { wrapCurrent } from "./wrap";
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
         let highest = 0;
 
         forEditorField([], (field) => {
-            const fieldHTML = field.editingArea.editable.fieldHTML;
+            const fieldHTML = field.editingArea.fieldHTML;
             const matches: number[] = [];
             let match: RegExpMatchArray | null = null;
 
@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onCloze(event: KeyboardEvent | MouseEvent): void {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
-        wrap(`{{c${highestCloze}::`, "}}");
+        wrapCurrent(`{{c${highestCloze}::`, "}}");
     }
 </script>
 

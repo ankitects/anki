@@ -4,6 +4,7 @@
 import { bridgeCommand } from "./lib";
 import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
 import { setEditableButtons } from "./toolbar";
+import { wrap } from "./wrap";
 
 function containsInlineContent(field: Element): boolean {
     if (field.childNodes.length === 0) {
@@ -46,6 +47,10 @@ export class Editable extends HTMLElement {
 
     caretToEnd() {
         caretToEnd(this);
+    }
+
+    surroundSelection(before: string, after: string): void {
+        wrap(before, after);
     }
 
     onEnter(event: KeyboardEvent): void {
