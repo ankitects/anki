@@ -1773,6 +1773,15 @@
     "description": "Rustls is a modern TLS library written in Rust."
   },
   {
+    "name": "rustls-native-certs",
+    "version": "0.5.0",
+    "authors": "Joseph Birr-Pixton <jpixton@gmail.com>",
+    "repository": "https://github.com/ctz/rustls-native-certs",
+    "license": "Apache-2.0 OR ISC OR MIT",
+    "license_file": null,
+    "description": "rustls-native-certs allows rustls to use the platform native certificate store"
+  },
+  {
     "name": "ryu",
     "version": "1.0.5",
     "authors": "David Tolnay <dtolnay@gmail.com>",
