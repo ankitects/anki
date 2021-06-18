@@ -115,10 +115,6 @@ export class EditingArea extends HTMLDivElement {
         return firstRule.style.direction === "rtl";
     }
 
-    getSelection(): Selection {
-        return this.shadowRoot!.getSelection()!;
-    }
-
     focus(): void {
         this.activeInput.focus();
     }
@@ -133,6 +129,14 @@ export class EditingArea extends HTMLDivElement {
 
     hasFocus(): boolean {
         return document.activeElement === this;
+    }
+
+    getSelection(): Selection {
+        return this.shadowRoot!.getSelection()!;
+    }
+
+    surroundSelection(before: string, after: string): void {
+        this.activeInput.surroundSelection(before, after);
     }
 
     onEnter(event: KeyboardEvent): void {

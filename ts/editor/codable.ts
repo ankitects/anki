@@ -74,6 +74,11 @@ export class Codable extends HTMLTextAreaElement {
         this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
     }
 
+    surroundSelection(before: string, after: string): void {
+        const selection = this.codeMirror.getSelection();
+        this.codeMirror.replaceSelection(before + selection + after);
+    }
+
     onEnter(): void {
         /* default */
     }
