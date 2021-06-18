@@ -1943,6 +1943,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__rustls_native_certs__0_5_0",
+        url = "https://crates.io/api/v1/crates/rustls-native-certs/0.5.0/download",
+        type = "tar.gz",
+        sha256 = "5a07b7c1885bd8ed3831c289b7870b13ef46fe0e856d288c30d9cc17d75a2092",
+        strip_prefix = "rustls-native-certs-0.5.0",
+        build_file = Label("//cargo/remote:BUILD.rustls-native-certs-0.5.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__ryu__1_0_5",
         url = "https://crates.io/api/v1/crates/ryu/1.0.5/download",
         type = "tar.gz",
