@@ -4,9 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import * as tr from "lib/i18n";
+    import { disabledKey } from "components/contextKeys";
 
     import IconButton from "components/IconButton.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
+    import WithContext from "components/WithContext.svelte";
 
     import { bracketsIcon } from "./icons";
     import { forEditorField } from ".";
@@ -42,11 +44,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithShortcut shortcut={"Control+Alt?+Shift+C"} let:createShortcut let:shortcutLabel>
-    <IconButton
-        tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
-        on:click={onCloze}
-        on:mount={createShortcut}
-    >
-        {@html bracketsIcon}
-    </IconButton>
+    <WithContext key={disabledKey} let:context={disabled}>
+        <IconButton
+            tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
+            {disabled}
+            on:click={onCloze}
+            on:mount={createShortcut}
+        >
+            {@html bracketsIcon}
+        </IconButton>
+    </WithContext>
 </WithShortcut>

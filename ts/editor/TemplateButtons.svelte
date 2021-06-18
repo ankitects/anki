@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { bridgeCommand } from "lib/bridgecommand";
+    import { disabledKey } from "components/contextKeys";
+    import { inCodableKey } from "./contextKeys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -13,7 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "components/DropdownItem.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
-    import WithState from "components/WithState.svelte";
+    import WithContext from "components/WithContext.svelte";
+    import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
     import { wrap } from "./wrap";
@@ -31,11 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    function checkHtmlEdit() {
-        const currentField = getCurrentField();
-        return currentField ? currentField.codable.active : false;
-    }
-
     function onHtmlEdit() {
         const currentField = getCurrentField();
         if (currentField) {
@@ -47,30 +45,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup {api}>
     <ButtonGroupItem>
         <WithShortcut shortcut={"F3"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(
-                    tr.editingAttachPicturesaudiovideo(),
-                    shortcutLabel
-                )}
-                iconSize={70}
-                on:click={onAttachment}
-                on:mount={createShortcut}
-            >
-                {@html paperclipIcon}
-            </IconButton>
+            <OnlyEditable let:disabled>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingAttachPicturesaudiovideo(),
+                        shortcutLabel
+                    )}
+                    iconSize={70}
+                    {disabled}
+                    on:click={onAttachment}
+                    on:mount={createShortcut}
+                >
+                    {@html paperclipIcon}
+                </IconButton>
+            </OnlyEditable>
         </WithShortcut>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
         <WithShortcut shortcut={"F5"} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
-                iconSize={70}
-                on:click={onRecord}
-                on:mount={createShortcut}
-            >
-                {@html micIcon}
-            </IconButton>
+            <OnlyEditable let:disabled>
+                <IconButton
+                    tooltip={appendInParentheses(
+                        tr.editingRecordAudio(),
+                        shortcutLabel
+                    )}
+                    iconSize={70}
+                    {disabled}
+                    on:click={onRecord}
+                    on:mount={createShortcut}
+                >
+                    {@html micIcon}
+                </IconButton>
+            </OnlyEditable>
         </WithShortcut>
     </ButtonGroupItem>
 
@@ -173,26 +180,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={"Control+Shift+X"} let:createShortcut let:shortcutLabel>
-            <WithState
-                key="htmledit"
-                update={checkHtmlEdit}
-                let:state={active}
-                let:updateState
-            >
-                <IconButton
-                    tooltip={appendInParentheses(tr.editingHtmlEditor(), shortcutLabel)}
-                    iconSize={70}
-                    {active}
-                    on:click={(event) => {
-                        onHtmlEdit();
-                        updateState(event);
-                    }}
-                    on:mount={createShortcut}
+        <WithContext key={disabledKey} let:context={disabled}>
+            <WithContext key={inCodableKey} let:context={inCodable}>
+                <WithShortcut
+                    shortcut={"Control+Shift+X"}
+                    let:createShortcut
+                    let:shortcutLabel
                 >
-                    {@html xmlIcon}
-                </IconButton>
-            </WithState>
-        </WithShortcut>
+                    <IconButton
+                        tooltip={appendInParentheses(
+                            tr.editingHtmlEditor(),
+                            shortcutLabel
+                        )}
+                        iconSize={70}
+                        active={!disabled && inCodable}
+                        {disabled}
+                        on:click={onHtmlEdit}
+                        on:mount={createShortcut}
+                    >
+                        {@html xmlIcon}
+                    </IconButton>
+                </WithShortcut>
+            </WithContext>
+        </WithContext>
     </ButtonGroupItem>
 </ButtonGroup>
