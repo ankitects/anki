@@ -3,7 +3,7 @@
 """
 Java Output Converter Implementation
 """
-
+from testing.framework.java.java_input_converter import wrap_array_declaration
 from testing.framework.string_utils import render_template
 from testing.framework.type_converter import TypeConverter
 from testing.framework.types import ConverterFn
@@ -19,27 +19,40 @@ class JavaOutputConverter(TypeConverter):
         """
         Array type has the same output format:
         [1,2,3] -> [1,2,3]
-        no conversion is needed
 
         :param node: source node
         :param context: generation context
         :return: dummy converter fn
         """
-        child = self.render(node.first_child(), context)
-        return ConverterFn(node.name, 'return value;', child.ret_type + '[]', child.ret_type + '[]')
+        child: ConverterFn = self.render(node.first_child(), context)
+        array_declaration = wrap_array_declaration(child.ret_type)
+
+        src = render_template('''
+            \t{{array_declaration}}
+            \tint i = 0;
+            \tfor ({{child.arg_type}} item : value) {
+            \t\tresult[i++] = {{child.fn_name}}(item);
+            \t}
+            \treturn result;''', child=child, array_declaration=array_declaration)
+        return ConverterFn(node.name, src, child.arg_type + '[]', child.ret_type + '[]')
 
     def visit_list(self, node: SyntaxTree, context):
         """
         List type has the same output format:
         [1,2,3] -> [1,2,3]
-        no conversion is needed
 
         :param node: source node
         :param context: generation context
         :return: dummy converter fn
         """
         child = self.render(node.first_child(), context)
-        return ConverterFn(node.name, 'return value;', 'List<' + child.ret_type + '>', 'List<' + child.ret_type + '>')
+        src = render_template('''
+            \tList<{{child.ret_type}}> result = new ArrayList<>();
+            \tfor ({{child.arg_type}} item : value) {
+            \t\tresult.add({{child.fn_name}}(item));
+            \t}
+            \treturn result;''', child=child)
+        return ConverterFn(node.name, src, 'List<' + child.arg_type + '>', 'List<' + child.ret_type + '>')
 
     def visit_map(self, node: SyntaxTree, context):
         """

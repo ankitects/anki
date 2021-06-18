@@ -10,6 +10,8 @@ import subprocess
 import sys
 import tempfile
 import re
+from json import JSONDecodeError
+
 import psutil
 import time
 
@@ -95,7 +97,7 @@ def parse_response(line: str) -> Tuple[Optional[TestResponse], str]:
         if line[i] == '{':
             try:
                 resp = json.loads(line[i:end], object_hook=lambda d: TestResponse(**d))
-            except Exception:
+            except JSONDecodeError:
                 pass
             if resp and isinstance(resp, TestResponse) and resp.duration is not None:
                 return resp, buf

@@ -10,6 +10,20 @@ from testing.framework.types import ConverterFn
 from testing.framework.syntax.syntax_tree import SyntaxTree, is_primitive_type
 
 
+def wrap_array_declaration(inner_type: str) -> str:
+    """
+    generates java array declaration
+    :param inner_type: type to be wrapped
+    :return: string containing the variable array declaration
+    """
+    if '[' in inner_type:
+        idx = inner_type.index('[')
+        initializer = inner_type[:idx] + '[value.size()]' + inner_type[idx:]
+    else:
+        initializer = inner_type + '[value.size()]'
+    return f'{inner_type} result[] = new {initializer};'
+
+
 class JavaInputConverter(TypeConverter):
     """
     Generates a Java converter functions which convert an input JSON arguments to a solution's typed arguments.
@@ -26,19 +40,14 @@ class JavaInputConverter(TypeConverter):
         :return: converter fn
         """
         child = self.render(node.first_child(), context)
-        ret_type = child.ret_type
-        if '[' in ret_type:
-            idx = ret_type.index('[')
-            ret_type = ret_type[:idx] + '[value.size()]' + ret_type[idx:]
-        else:
-            ret_type += '[value.size()]'
+        array_declaration: str = wrap_array_declaration(child.ret_type)
         src = render_template('''
-            \t{{child.ret_type}} result[] = new {{ret_type}};
+            \t{{array_declaration}}
             \tint i = 0;
             \tfor (JsonNode node : value) {
             \t\tresult[i++] = {{child.fn_name}}(node);
             \t}
-            \treturn result;''', child=child, ret_type=ret_type)
+            \treturn result;''', child=child, array_declaration=array_declaration)
         return ConverterFn(node.name, src, 'JsonNode', child.ret_type + '[]')
 
     def visit_list(self, node: SyntaxTree, context):

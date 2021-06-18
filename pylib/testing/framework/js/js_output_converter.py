@@ -25,8 +25,7 @@ class JsOutputConverter(TypeConverter):
         :param context: generation context
         :return: dummy converter fn
         """
-        self.render(node.first_child(), context)
-        return self.identity(node)
+        return self.visit_list(node, context)
 
     def visit_list(self, node: SyntaxTree, context):
         """
@@ -38,8 +37,12 @@ class JsOutputConverter(TypeConverter):
         :param context: generation context
         :return: dummy converter fn
         """
-        self.render(node.first_child(), context)
-        return self.identity(node)
+        child: ConverterFn = self.render(node.first_child(), context)
+        return ConverterFn(node.name, render_template('''
+            \tvar result = []
+            \tfor (var i = 0; i < value.length; i++) { result.push({{fn}}(value[i])) }
+            \treturn result
+            ''', fn=child.fn_name), '')
 
     def visit_map(self, node: SyntaxTree, context):
         """

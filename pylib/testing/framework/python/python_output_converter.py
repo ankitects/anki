@@ -3,6 +3,7 @@
 """
 Python Output Converter Implementation
 """
+from typing import List
 
 from testing.framework.string_utils import render_template
 from testing.framework.type_converter import TypeConverter
@@ -37,8 +38,9 @@ class PythonOutputConverter(TypeConverter):
         :param context: generation context
         :return: dummy converter fn
         """
-        child = self.render(node.first_child(), context)
-        return ConverterFn(node.name, '\treturn value', 'List[' + child.ret_type + ']', 'List[' + child.ret_type + ']')
+        child: ConverterFn = self.render(node.first_child(), context)
+        src: str = render_template('\treturn [{{fn}}(item) for item in value]', fn=child.fn_name)
+        return ConverterFn(node.name, src, 'List[' + child.ret_type + ']', 'List[' + child.ret_type + ']')
 
     def visit_map(self, node: SyntaxTree, context):
         """
@@ -49,8 +51,8 @@ class PythonOutputConverter(TypeConverter):
         :param context: generation context
         :return: converter fn which converts map value to array
         """
-        converters = [self.render(child, context) for child in node.nodes]
-        src = render_template('''
+        converters: List[ConverterFn] = [self.render(child, context) for child in node.nodes]
+        src: str = render_template('''
             \tresult = []
             \tfor k in value:
             \t\tresult.append({{converters[0].fn_name}}(k))
@@ -130,8 +132,8 @@ class PythonOutputConverter(TypeConverter):
         :param context: generation context
         :return: converter fn
         """
-        converters = [self.render(child, context) for child in node.nodes]
-        src = render_template('''
+        converters: List[ConverterFn] = [self.render(child, context) for child in node.nodes]
+        src: str = render_template('''
             \tresult = []
             {% for converter in converters %}
                 \tresult.append({{converter.fn_name}}(value.{{converter.prop_name}}))

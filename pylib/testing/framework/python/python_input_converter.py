@@ -38,7 +38,7 @@ class PythonInputConverter(TypeConverter):
         :return: converter fn
         """
         child: ConverterFn = self.render(node.first_child(), context)
-        src = render_template('\treturn [{{fn}}(item) for item in value]', fn=child.fn_name)
+        src: str = render_template('\treturn [{{fn}}(item) for item in value]', fn=child.fn_name)
         return ConverterFn(node.name, src, '', 'List[' + child.ret_type + ']')
 
     def visit_map(self, node: SyntaxTree, context):

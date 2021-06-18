@@ -3,6 +3,7 @@
 """
 Python Output Converter Implementation
 """
+from typing import List
 
 from testing.framework.string_utils import render_template
 from testing.framework.type_converter import TypeConverter
@@ -37,7 +38,7 @@ class JsInputConverter(TypeConverter):
         :param context: generation context
         :return: converter fn
         """
-        child = self.render(node.first_child(), context)
+        child: ConverterFn = self.render(node.first_child(), context)
         return ConverterFn(node.name, render_template('''
             \tvar result = []
             \tfor (var i = 0; i < value.length; i++) { result.push({{fn}}(value[i])) }
@@ -54,7 +55,7 @@ class JsInputConverter(TypeConverter):
         :param context: generation context
         :return: converter fn
         """
-        converters = [self.render(child, context) for child in node.nodes]
+        converters: List[ConverterFn] = [self.render(child, context) for child in node.nodes]
         return ConverterFn(node.name, render_template('''
             \tvar result = new Map()
             \tfor (var i = 0; i < value.length; i += 2) {

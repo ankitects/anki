@@ -15,14 +15,26 @@ class JavaOutputConverterTests(unittest.TestCase):
         _, converters = self.converter.get_converters(tree)
         self.assertEqual(3, len(converters))
         self.assertEqual(ConverterFn('', 'return value;', 'int', 'int'), converters[0])
-        self.assertEqual(ConverterFn('', 'return value;', 'int[]', 'int[]'), converters[1])
-        self.assertEqual(ConverterFn('a', 'return value;', 'int[][]', 'int[][]'), converters[2])
+        self.assertEqual(ConverterFn('', '''
+            int result[] = new int[value.size()];
+            int i = 0;
+            for (int item : value) {
+                result[i++] = converter1(item);
+            }
+            return result;''', 'int[]', 'int[]'), converters[1])
+        self.assertEqual(ConverterFn('a', '''
+            int[] result[] = new int[value.size()][];
+            int i = 0;
+            for (int[] item : value) {
+                result[i++] = converter2(item);
+            }
+            return result;''', 'int[][]', 'int[][]'), converters[2])
 
     def test_object_conversion(self):
         tree = SyntaxTree.of(['object(int[a],int[b])<Edge>[a]'])
         _, converters = self.converter.get_converters(tree)
         self.assertEqual(3, len(converters))
-        self.assertEqual(ConverterFn('a', 'return value;', 'int', 'int'), converters[0])
+        self.assertEqual(ConverterFn('a', '''return value;''', 'int', 'int'), converters[0])
         self.assertEqual(ConverterFn('b', 'return value;', 'int', 'int'), converters[1])
         self.assertEqual(ConverterFn('a', '''
             List<Object> result = new ArrayList<>();
@@ -36,7 +48,11 @@ class JavaOutputConverterTests(unittest.TestCase):
         self.assertEqual(1, len(arg_converters))
         self.assertEqual(4, len(converters))
         self.assertEqual(ConverterFn('', 'return value;', 'Integer', 'Integer'), converters[0])
-        self.assertEqual(ConverterFn('a', 'return value;', 'List<Integer>', 'List<Integer>'), converters[1])
+        self.assertEqual(ConverterFn('a', '''List<Integer> result = new ArrayList<>();
+            for (Integer item : value) {
+                result.add(converter1(item));
+            }
+            return result;''', 'List<Integer>', 'List<Integer>'), converters[1])
         self.assertEqual(ConverterFn('b', 'return value;', 'int', 'int'), converters[2])
         self.assertEqual(ConverterFn('a', '''
             List<Object> result = new ArrayList<>();
@@ -52,7 +68,12 @@ class JavaOutputConverterTests(unittest.TestCase):
         self.assertEqual(6, len(converters))
         self.assertEqual(ConverterFn('', 'return value;', 'String', 'String'), converters[0])
         self.assertEqual(ConverterFn('', 'return value;', 'Integer', 'Integer'), converters[1])
-        self.assertEqual(ConverterFn('a', 'return value;', 'List<Integer>', 'List<Integer>'), converters[2])
+        self.assertEqual(ConverterFn('a', '''
+            List<Integer> result = new ArrayList<>();
+            for (Integer item : value) {
+                result.add(converter2(item));
+            }
+            return result;''', 'List<Integer>', 'List<Integer>'), converters[2])
         self.assertEqual(ConverterFn('b', 'return value;', 'int', 'int'), converters[3])
         self.assertEqual(ConverterFn('', '''
             List<Object> result = new ArrayList<>();
