@@ -2,7 +2,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@esbuild_toolchain//:esbuild.bzl", esbuild = "esbuild_macro")
 load("@npm//jest-cli:index.bzl", _jest_test = "jest_test")
 
-def jest_test(deps, name = "jest", protobuf = False):
+def jest_test(deps, name = "jest", protobuf = False, env = "node"):
     "Build *.test.ts into a library, then test it with Jest."
 
     ts_sources = native.glob(["*.test.ts"])
@@ -61,6 +61,7 @@ def jest_test(deps, name = "jest", protobuf = False):
             "--colors",
             "--config",
             "$(location //ts:jest.config.js)",
+            "--env=" + env,
         ],
         data = bundled_srcs + [
             "//ts:jest.config.js",
