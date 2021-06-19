@@ -25,10 +25,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const wrapWithBackcolor = (color: string) => () => {
         document.execCommand("backcolor", false, color);
     };
+
+    const initialColor = "black";
+
+    let forecolorWrap = wrapWithForecolor(initialColor);
+    let backcolorWrap = wrapWithForecolor(initialColor);
 </script>
 
 <ButtonGroup {api}>
-    <WithColorHelper let:colorHelperIcon let:color let:setColor>
+    <WithColorHelper color={initialColor} let:colorHelperIcon let:setColor>
         <OnlyEditable let:disabled>
             <ButtonGroupItem>
                 <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
@@ -38,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             shortcutLabel
                         )}
                         {disabled}
-                        on:click={wrapWithForecolor(color)}
+                        on:click={forecolorWrap}
                         on:mount={createShortcut}
                     >
                         {@html textColorIcon}
@@ -58,17 +63,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         widthMultiplier={0.5}
                     >
                         {@html arrowIcon}
-                        <ColorPicker on:change={setColor} on:mount={createShortcut} />
+                        <ColorPicker
+                            on:change={(event) => {
+                                forecolorWrap = wrapWithForecolor(setColor(event));
+                                forecolorWrap();
+                            }}
+                            on:mount={createShortcut}
+                        />
                     </IconButton>
                 </WithShortcut>
             </ButtonGroupItem>
         </OnlyEditable>
     </WithColorHelper>
 
-    <WithColorHelper let:colorHelperIcon let:color let:setColor>
+    <WithColorHelper color={initialColor} let:colorHelperIcon let:setColor>
         <OnlyEditable let:disabled>
             <ButtonGroupItem>
-                <IconButton on:click={wrapWithBackcolor(color)} {disabled}>
+                <IconButton on:click={backcolorWrap} {disabled}>
                     {@html highlightColorIcon}
                     {@html colorHelperIcon}
                 </IconButton>
@@ -81,7 +92,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {disabled}
                 >
                     {@html arrowIcon}
-                    <ColorPicker on:change={setColor} />
+                    <ColorPicker
+                        on:change={(event) => {
+                            backcolorWrap = wrapWithBackcolor(setColor(event));
+                            backcolorWrap();
+                        }}
+                    />
                 </IconButton>
             </ButtonGroupItem>
         </OnlyEditable>
