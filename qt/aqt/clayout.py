@@ -344,6 +344,10 @@ class CardLayout(QDialog):
 
     def on_night_mode_action_toggled(self) -> None:
         self.night_mode_is_enabled = not self.night_mode_is_enabled
+        force = json.dumps(self.night_mode_is_enabled)
+        self.preview_web.eval(
+            f"document.documentElement.classList.toggle('night-mode', {force});"
+        )
         self.on_preview_toggled()
 
     def on_mobile_class_action_toggled(self) -> None:
