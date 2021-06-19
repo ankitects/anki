@@ -215,7 +215,10 @@ class AnkiWebView(QWebEngineView):
         QWebEngineView.__init__(self, parent=parent)
         self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
-        self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
+        # reduce flicker
+        self._page.setBackgroundColor(
+            self.get_window_bg_color(theme_manager.night_mode)
+        )
 
         # in new code, use .set_bridge_command() instead of setting this directly
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
@@ -388,16 +391,17 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
-    def _getWindowColor(self) -> QColor:
-        if theme_manager.night_mode:
-            return theme_manager.qcolor(colors.WINDOW_BG)
-        if isMac:
+    def get_window_bg_color(self, night_mode: bool) -> QColor:
+        if night_mode:
+            return QColor(colors.WINDOW_BG[1])
+        elif isMac:
             # standard palette does not return correct window color on macOS
             return QColor("#ececec")
-        return self.style().standardPalette().color(QPalette.Window)
+        else:
+            return theme_manager.default_palette.color(QPalette.Window)
 
     def standard_css(self) -> str:
-        palette = self.style().standardPalette()
+        palette = theme_manager.default_palette
         color_hl = palette.color(QPalette.Highlight).name()
 
         if isWin:
@@ -437,7 +441,10 @@ div[contenteditable="true"]:focus {
             }
 
         zoom = self.zoomFactor()
-        background = self._getWindowColor().name()
+
+        window_bg_day = self.get_window_bg_color(False).name()
+        window_bg_night = self.get_window_bg_color(True).name()
+        body_bg = window_bg_night if theme_manager.night_mode else window_bg_day
 
         if is_rtl(anki.lang.currentLang):
             lang_dir = "rtl"
@@ -445,11 +452,11 @@ div[contenteditable="true"]:focus {
             lang_dir = "ltr"
 
         return f"""
-body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; }}
+body {{ zoom: {zoom}; background-color: {body_bg}; direction: {lang_dir}; }}
 html {{ {font} }}
 {button_style}
-:root {{ --window-bg: {background} }}
-:root[class*=night-mode] {{ --window-bg: {background} }}
+:root {{ --window-bg: {window_bg_day} }}
+:root[class*=night-mode] {{ --window-bg: {window_bg_night} }}
 """
 
     def stdHtml(
