@@ -36,7 +36,9 @@ export enum IntervalRange {
     All = 3,
 }
 
-export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
+export function gatherIntervalData(
+    data: pb.BackendProto.GraphsResponse
+): IntervalGraphData {
     const intervals = (data.cards as pb.BackendProto.Card[])
         .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
         .map((c) => c.interval);

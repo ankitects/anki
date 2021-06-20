@@ -6,14 +6,14 @@ persistent = no
 ignored-classes=
   BrowserColumns,
   BrowserRow,
-  FormatTimespanIn,
+  FormatTimespanRequest,
   CardAnswer,
   QueuedCards,
-  UnburyDeckIn,
-  BuryOrSuspendCardsIn,
-  NoteFieldsCheckOut,
+  UnburyDeckRequest,
+  BuryOrSuspendCardsRequest,
+  NoteFieldsCheckResponse,
   BackendError,
-  SetDeckCollapsedIn,
+  SetDeckCollapsedRequest,
 
 [REPORTS]
 output-format=colorized

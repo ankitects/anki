@@ -21,9 +21,10 @@ export async function getDeckOptionsInfo(
 }
 
 export async function saveDeckOptions(
-    input: pb.BackendProto.UpdateDeckConfigsIn
+    input: pb.BackendProto.UpdateDeckConfigsRequest
 ): Promise<void> {
-    const data: Uint8Array = pb.BackendProto.UpdateDeckConfigsIn.encode(input).finish();
+    const data: Uint8Array =
+        pb.BackendProto.UpdateDeckConfigsRequest.encode(input).finish();
     await postRequest("/_anki/updateDeckConfigs", data);
     return;
 }
@@ -190,7 +191,7 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    dataForSaving(applyToChildren: boolean): pb.BackendProto.UpdateDeckConfigsIn {
+    dataForSaving(applyToChildren: boolean): pb.BackendProto.UpdateDeckConfigsRequest {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {
@@ -204,7 +205,7 @@ export class DeckOptionsState {
             // current must come last, even if unmodified
             this.configs[this.selectedIdx].config,
         ];
-        return pb.BackendProto.UpdateDeckConfigsIn.create({
+        return pb.BackendProto.UpdateDeckConfigsRequest.create({
             targetDeckId: this.targetDeckId,
             removedConfigIds: this.removedConfigs,
             configs,

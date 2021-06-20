@@ -8,7 +8,7 @@ import anki._backend.backend_pb2 as _pb
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
-SchedTimingToday = _pb.SchedTimingTodayOut
+SchedTimingToday = _pb.SchedTimingTodayResponse
 
 
 from typing import List, Optional, Sequence
@@ -19,9 +19,9 @@ from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
-CongratsInfo = _pb.CongratsInfoOut
-UnburyDeck = _pb.UnburyDeckIn
-BuryOrSuspend = _pb.BuryOrSuspendCardsIn
+CongratsInfo = _pb.CongratsInfoResponse
+UnburyDeck = _pb.UnburyDeckRequest
+BuryOrSuspend = _pb.BuryOrSuspendCardsRequest
 FilteredDeckForUpdate = _pb.FilteredDeckForUpdate
 
 

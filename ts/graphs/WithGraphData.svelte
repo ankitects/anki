@@ -21,8 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function getGraphData(
         search: string,
         days: number
-    ): Promise<pb.BackendProto.GraphsOut> {
-        return pb.BackendProto.GraphsOut.decode(
+    ): Promise<pb.BackendProto.GraphsResponse> {
+        return pb.BackendProto.GraphsResponse.decode(
             await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
         );
     }

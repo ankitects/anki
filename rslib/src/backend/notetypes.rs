@@ -47,7 +47,10 @@ impl NotetypesService for Backend {
             .map(Into::into)
     }
 
-    fn add_or_update_notetype(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<pb::NotetypeId> {
+    fn add_or_update_notetype(
+        &self,
+        input: pb::AddOrUpdateNotetypeRequest,
+    ) -> Result<pb::NotetypeId> {
         self.with_col(|col| {
             let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
             let mut nt: Notetype = legacy.into();
@@ -138,13 +141,13 @@ impl NotetypesService for Backend {
             .map(Into::into)
     }
 
-    fn get_aux_notetype_config_key(&self, input: pb::GetAuxConfigKeyIn) -> Result<pb::String> {
+    fn get_aux_notetype_config_key(&self, input: pb::GetAuxConfigKeyRequest) -> Result<pb::String> {
         Ok(get_aux_notetype_config_key(input.id.into(), &input.key).into())
     }
 
     fn get_aux_template_config_key(
         &self,
-        input: pb::GetAuxTemplateConfigKeyIn,
+        input: pb::GetAuxTemplateConfigKeyRequest,
     ) -> Result<pb::String> {
         self.with_col(|col| {
             col.get_aux_template_config_key(
@@ -165,14 +168,14 @@ impl NotetypesService for Backend {
 
     fn get_change_notetype_info(
         &self,
-        input: pb::GetChangeNotetypeInfoIn,
+        input: pb::GetChangeNotetypeInfoRequest,
     ) -> Result<pb::ChangeNotetypeInfo> {
         self.with_col(|col| {
             col.notetype_change_info(input.old_notetype_id.into(), input.new_notetype_id.into())
                 .map(Into::into)
         })
     }
-    fn change_notetype(&self, input: pb::ChangeNotetypeIn) -> Result<pb::OpChanges> {
+    fn change_notetype(&self, input: pb::ChangeNotetypeRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
     }
 }
@@ -203,8 +206,8 @@ impl From<NotetypeChangeInfo> for pb::ChangeNotetypeInfo {
     }
 }
 
-impl From<pb::ChangeNotetypeIn> for ChangeNotetypeInput {
-    fn from(i: pb::ChangeNotetypeIn) -> Self {
+impl From<pb::ChangeNotetypeRequest> for ChangeNotetypeInput {
+    fn from(i: pb::ChangeNotetypeRequest) -> Self {
         ChangeNotetypeInput {
             current_schema: i.current_schema.into(),
             note_ids: i.note_ids.into_newtype(NoteId),
@@ -231,9 +234,9 @@ impl From<pb::ChangeNotetypeIn> for ChangeNotetypeInput {
     }
 }
 
-impl From<ChangeNotetypeInput> for pb::ChangeNotetypeIn {
+impl From<ChangeNotetypeInput> for pb::ChangeNotetypeRequest {
     fn from(i: ChangeNotetypeInput) -> Self {
-        pb::ChangeNotetypeIn {
+        pb::ChangeNotetypeRequest {
             current_schema: i.current_schema.into(),
             note_ids: i.note_ids.into_iter().map(Into::into).collect(),
             old_notetype_id: i.old_notetype_id.into(),

@@ -14,7 +14,7 @@ use crate::{
 };
 
 impl I18nService for Backend {
-    fn translate_string(&self, input: pb::TranslateStringIn) -> Result<pb::String> {
+    fn translate_string(&self, input: pb::TranslateStringRequest) -> Result<pb::String> {
         let args = build_fluent_args(input.args);
 
         Ok(self
@@ -27,8 +27,8 @@ impl I18nService for Backend {
             .into())
     }
 
-    fn format_timespan(&self, input: pb::FormatTimespanIn) -> Result<pb::String> {
-        use pb::format_timespan_in::Context;
+    fn format_timespan(&self, input: pb::FormatTimespanRequest) -> Result<pb::String> {
+        use pb::format_timespan_request::Context;
         Ok(match input.context() {
             Context::Precise => time_span(input.seconds, &self.tr, true),
             Context::Intervals => time_span(input.seconds, &self.tr, false),
@@ -37,7 +37,7 @@ impl I18nService for Backend {
         .into())
     }
 
-    fn i18n_resources(&self, input: pb::I18nResourcesIn) -> Result<pb::Json> {
+    fn i18n_resources(&self, input: pb::I18nResourcesRequest) -> Result<pb::Json> {
         serde_json::to_vec(&self.tr.resources_for_js(&input.modules))
             .map(Into::into)
             .map_err(Into::into)

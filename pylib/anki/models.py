@@ -24,7 +24,7 @@ NotetypeNameId = _pb.NotetypeNameId
 NotetypeNameIdUseCount = _pb.NotetypeNameIdUseCount
 NotetypeNames = _pb.NotetypeNames
 ChangeNotetypeInfo = _pb.ChangeNotetypeInfo
-ChangeNotetypeIn = _pb.ChangeNotetypeIn
+ChangeNotetypeRequest = _pb.ChangeNotetypeRequest
 
 # legacy types
 NotetypeDict = Dict[str, Any]
@@ -447,12 +447,12 @@ and notes.mid = ? and cards.ord = ?""",
             old_notetype_id=old_notetype_id, new_notetype_id=new_notetype_id
         )
 
-    def change_notetype_of_notes(self, input: ChangeNotetypeIn) -> OpChanges:
+    def change_notetype_of_notes(self, input: ChangeNotetypeRequest) -> OpChanges:
         """Assign a new notetype, optionally altering field/template order.
 
         To get defaults, use
 
-        input = ChangeNotetypeIn()
+        input = ChangeNotetypeRequest()
         input.ParseFromString(col.models.change_notetype_info(...))
         input.note_ids.extend([...])
 
@@ -482,7 +482,7 @@ and notes.mid = ? and cards.ord = ?""",
             template_map = self._convert_legacy_map(cmap, len(newModel["tmpls"]))
 
         self.col._backend.change_notetype(
-            ChangeNotetypeIn(
+            ChangeNotetypeRequest(
                 note_ids=nids,
                 new_fields=field_map,
                 new_templates=template_map,

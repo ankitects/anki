@@ -5,8 +5,8 @@ import anki._backend.backend_pb2 as _pb
 
 # public exports
 SyncAuth = _pb.SyncAuth
-SyncOutput = _pb.SyncCollectionOut
-SyncStatus = _pb.SyncStatusOut
+SyncOutput = _pb.SyncCollectionResponse
+SyncStatus = _pb.SyncStatusResponse
 
 
 # Legacy attributes some add-ons may be using

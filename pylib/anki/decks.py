@@ -21,9 +21,9 @@ from anki.utils import from_json_bytes, ids2str, intTime, legacy_func, to_json_b
 DeckTreeNode = _pb.DeckTreeNode
 DeckNameId = _pb.DeckNameId
 FilteredDeckConfig = _pb.Deck.Filtered
-DeckCollapseScope = _pb.SetDeckCollapsedIn.Scope
+DeckCollapseScope = _pb.SetDeckCollapsedRequest.Scope
 DeckConfigsForUpdate = _pb.DeckConfigsForUpdate
-UpdateDeckConfigs = _pb.UpdateDeckConfigsIn
+UpdateDeckConfigs = _pb.UpdateDeckConfigsRequest
 
 # legacy code may pass this in as the type argument to .id()
 defaultDeck = 0

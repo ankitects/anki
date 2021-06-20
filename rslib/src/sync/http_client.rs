@@ -13,12 +13,12 @@ use tempfile::NamedTempFile;
 
 use super::{
     http::{
-        ApplyChangesIn, ApplyChunkIn, ApplyGravesIn, HostKeyIn, HostKeyOut, MetaIn, SanityCheckIn,
-        StartIn, SyncRequest,
+        ApplyChangesRequest, ApplyChunkRequest, ApplyGravesRequest, HostKeyRequest,
+        HostKeyResponse, MetaRequest, SanityCheckRequest, StartRequest, SyncRequest,
     },
     server::SyncServer,
-    Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckOut, SyncMeta, UnchunkedChanges,
-    SYNC_VERSION_MAX,
+    Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckResponse, SyncMeta,
+    UnchunkedChanges, SYNC_VERSION_MAX,
 };
 use crate::{error::SyncErrorKind, notes::guid, prelude::*, version::sync_client_version};
 
@@ -60,7 +60,7 @@ impl Timeouts {
 #[async_trait(?Send)]
 impl SyncServer for HttpSyncClient {
     async fn meta(&self) -> Result<SyncMeta> {
-        let input = SyncRequest::Meta(MetaIn {
+        let input = SyncRequest::Meta(MetaRequest {
             sync_version: SYNC_VERSION_MAX,
             client_version: sync_client_version().to_string(),
         });
@@ -73,7 +73,7 @@ impl SyncServer for HttpSyncClient {
         local_is_newer: bool,
         deprecated_client_graves: Option<Graves>,
     ) -> Result<Graves> {
-        let input = SyncRequest::Start(StartIn {
+        let input = SyncRequest::Start(StartRequest {
             client_usn,
             local_is_newer,
             deprecated_client_graves,
@@ -82,12 +82,12 @@ impl SyncServer for HttpSyncClient {
     }
 
     async fn apply_graves(&mut self, chunk: Graves) -> Result<()> {
-        let input = SyncRequest::ApplyGraves(ApplyGravesIn { chunk });
+        let input = SyncRequest::ApplyGraves(ApplyGravesRequest { chunk });
         self.json_request(input).await
     }
 
     async fn apply_changes(&mut self, changes: UnchunkedChanges) -> Result<UnchunkedChanges> {
-        let input = SyncRequest::ApplyChanges(ApplyChangesIn { changes });
+        let input = SyncRequest::ApplyChanges(ApplyChangesRequest { changes });
         self.json_request(input).await
     }
 
@@ -97,12 +97,12 @@ impl SyncServer for HttpSyncClient {
     }
 
     async fn apply_chunk(&mut self, chunk: Chunk) -> Result<()> {
-        let input = SyncRequest::ApplyChunk(ApplyChunkIn { chunk });
+        let input = SyncRequest::ApplyChunk(ApplyChunkRequest { chunk });
         self.json_request(input).await
     }
 
-    async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckOut> {
-        let input = SyncRequest::SanityCheck(SanityCheckIn { client });
+    async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckResponse> {
+        let input = SyncRequest::SanityCheck(SanityCheckRequest { client });
         self.json_request(input).await
     }
 
@@ -249,11 +249,11 @@ impl HttpSyncClient {
     }
 
     pub(crate) async fn login<S: Into<String>>(&mut self, username: S, password: S) -> Result<()> {
-        let input = SyncRequest::HostKey(HostKeyIn {
+        let input = SyncRequest::HostKey(HostKeyRequest {
             username: username.into(),
             password: password.into(),
         });
-        let output: HostKeyOut = self.json_request(input).await?;
+        let output: HostKeyResponse = self.json_request(input).await?;
         self.hkey = Some(output.key);
 
         Ok(())

@@ -11,7 +11,7 @@ from typing import Iterable, List, Optional, Sequence, TypeVar
 import aqt
 from anki.collection import SearchNode
 from anki.errors import Interrupted
-from anki.media import CheckMediaOut
+from anki.media import CheckMediaResponse
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -80,7 +80,7 @@ class MediaChecker:
 
         self.mw.taskman.run_on_main(lambda: self.mw.progress.update(label=label))
 
-    def _check(self) -> CheckMediaOut:
+    def _check(self) -> CheckMediaResponse:
         "Run the check on a background thread."
         return self.mw.col.media.check()
 
@@ -93,7 +93,7 @@ class MediaChecker:
         if isinstance(exc, Interrupted):
             return
 
-        output: CheckMediaOut = future.result()
+        output: CheckMediaResponse = future.result()
         report = output.report
 
         # show report and offer to delete

@@ -26,7 +26,7 @@ export interface GraphData {
     eases: number[];
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
     const eases = (data.cards as pb.BackendProto.Card[])
         .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
         .map((c) => c.easeFactor / 10);

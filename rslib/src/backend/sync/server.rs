@@ -11,10 +11,10 @@ use crate::{
     prelude::*,
     sync::{
         http::{
-            ApplyChangesIn, ApplyChunkIn, ApplyGravesIn, HostKeyIn, HostKeyOut, MetaIn,
-            SanityCheckIn, StartIn, SyncRequest,
+            ApplyChangesRequest, ApplyChunkRequest, ApplyGravesRequest, HostKeyRequest,
+            HostKeyResponse, MetaRequest, SanityCheckRequest, StartRequest, SyncRequest,
         },
-        Chunk, Graves, LocalServer, SanityCheckOut, SanityCheckStatus, SyncMeta, SyncServer,
+        Chunk, Graves, LocalServer, SanityCheckResponse, SanityCheckStatus, SyncMeta, SyncServer,
         UnchunkedChanges, SYNC_VERSION_MAX, SYNC_VERSION_MIN,
     },
 };
@@ -39,13 +39,13 @@ impl Backend {
     }
 
     /// Gives out a dummy hkey - auth should be implemented at a higher layer.
-    fn host_key(&self, _input: HostKeyIn) -> Result<HostKeyOut> {
-        Ok(HostKeyOut {
+    fn host_key(&self, _input: HostKeyRequest) -> Result<HostKeyResponse> {
+        Ok(HostKeyResponse {
             key: "unimplemented".into(),
         })
     }
 
-    fn meta(&self, input: MetaIn) -> Result<SyncMeta> {
+    fn meta(&self, input: MetaRequest) -> Result<SyncMeta> {
         if input.sync_version < SYNC_VERSION_MIN || input.sync_version > SYNC_VERSION_MAX {
             return Ok(SyncMeta {
                 server_message: "Your Anki version is either too old, or too new.".into(),
@@ -86,7 +86,7 @@ impl Backend {
             .ok_or_else(|| AnkiError::sync_error("", SyncErrorKind::SyncNotStarted))
     }
 
-    fn start(&self, input: StartIn) -> Result<Graves> {
+    fn start(&self, input: StartRequest) -> Result<Graves> {
         // place col into new server
         let server = self.col_into_server()?;
         let mut state_guard = self.state.lock().unwrap();
@@ -103,14 +103,14 @@ impl Backend {
         })
     }
 
-    fn apply_graves(&self, input: ApplyGravesIn) -> Result<()> {
+    fn apply_graves(&self, input: ApplyGravesRequest) -> Result<()> {
         self.with_sync_server(|server| {
             let rt = Runtime::new().unwrap();
             rt.block_on(server.apply_graves(input.chunk))
         })
     }
 
-    fn apply_changes(&self, input: ApplyChangesIn) -> Result<UnchunkedChanges> {
+    fn apply_changes(&self, input: ApplyChangesRequest) -> Result<UnchunkedChanges> {
         self.with_sync_server(|server| {
             let rt = Runtime::new().unwrap();
             rt.block_on(server.apply_changes(input.changes))
@@ -124,14 +124,14 @@ impl Backend {
         })
     }
 
-    fn apply_chunk(&self, input: ApplyChunkIn) -> Result<()> {
+    fn apply_chunk(&self, input: ApplyChunkRequest) -> Result<()> {
         self.with_sync_server(|server| {
             let rt = Runtime::new().unwrap();
             rt.block_on(server.apply_chunk(input.chunk))
         })
     }
 
-    fn sanity_check(&self, input: SanityCheckIn) -> Result<SanityCheckOut> {
+    fn sanity_check(&self, input: SanityCheckRequest) -> Result<SanityCheckResponse> {
         self.with_sync_server(|server| {
             let rt = Runtime::new().unwrap();
             rt.block_on(server.sanity_check(input.client))

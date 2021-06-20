@@ -14,7 +14,7 @@ use num_integer::Integer;
 
 use crate::{
     backend_proto as pb,
-    backend_proto::note_fields_check_out::State as NoteFieldsState,
+    backend_proto::note_fields_check_response::State as NoteFieldsState,
     cloze::contains_cloze,
     decks::DeckId,
     define_newtype,

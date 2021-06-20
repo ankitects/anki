@@ -23,7 +23,7 @@ impl Collection {
         &mut self,
         today: u32,
         usn: Usn,
-        input: pb::UpdateStatsIn,
+        input: pb::UpdateStatsRequest,
     ) -> Result<()> {
         let did = input.deck_id.into();
         let mutator = |c: &mut DeckCommon| {

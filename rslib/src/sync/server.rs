@@ -11,7 +11,7 @@ use crate::{
     prelude::*,
     storage::open_and_check_sqlite_file,
     sync::{
-        Chunk, Graves, SanityCheckCounts, SanityCheckOut, SanityCheckStatus, SyncMeta,
+        Chunk, Graves, SanityCheckCounts, SanityCheckResponse, SanityCheckStatus, SyncMeta,
         UnchunkedChanges, Usn,
     },
 };
@@ -29,7 +29,7 @@ pub trait SyncServer {
         -> Result<UnchunkedChanges>;
     async fn chunk(&mut self) -> Result<Chunk>;
     async fn apply_chunk(&mut self, client_chunk: Chunk) -> Result<()>;
-    async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckOut>;
+    async fn sanity_check(&mut self, client: SanityCheckCounts) -> Result<SanityCheckResponse>;
     async fn finish(&mut self) -> Result<TimestampMillis>;
     async fn abort(&mut self) -> Result<()>;
 
@@ -148,10 +148,10 @@ impl SyncServer for LocalServer {
         self.col.apply_chunk(client_chunk, self.client_usn)
     }
 
-    async fn sanity_check(&mut self, mut client: SanityCheckCounts) -> Result<SanityCheckOut> {
+    async fn sanity_check(&mut self, mut client: SanityCheckCounts) -> Result<SanityCheckResponse> {
         client.counts = Default::default();
         let server = self.col.storage.sanity_check_info()?;
-        Ok(SanityCheckOut {
+        Ok(SanityCheckResponse {
             status: if client == server {
                 SanityCheckStatus::Ok
             } else {

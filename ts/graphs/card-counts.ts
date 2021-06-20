@@ -127,7 +127,7 @@ function countCards(
 }
 
 export function gatherData(
-    data: pb.BackendProto.GraphsOut,
+    data: pb.BackendProto.GraphsResponse,
     separateInactive: boolean
 ): GraphData {
     const totalCards = data.cards.length;

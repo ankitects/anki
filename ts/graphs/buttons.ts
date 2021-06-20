@@ -39,7 +39,7 @@ export interface GraphData {
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 
 export function gatherData(
-    data: pb.BackendProto.GraphsOut,
+    data: pb.BackendProto.GraphsResponse,
     range: GraphRange
 ): GraphData {
     const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
@@ -99,7 +99,7 @@ interface TotalCorrect {
 export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    origData: pb.BackendProto.GraphsOut,
+    origData: pb.BackendProto.GraphsResponse,
     range: GraphRange
 ): void {
     const sourceData = gatherData(origData, range);

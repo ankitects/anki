@@ -6,7 +6,7 @@ pub(crate) mod undo;
 mod update;
 
 pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
-pub use update::UpdateDeckConfigsIn;
+pub use update::UpdateDeckConfigsRequest;
 
 pub use crate::backend_proto::deck_config::{
     config::{

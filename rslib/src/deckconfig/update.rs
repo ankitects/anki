@@ -15,7 +15,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct UpdateDeckConfigsIn {
+pub struct UpdateDeckConfigsRequest {
     pub target_deck_id: DeckId,
     /// Deck will be set to last provided deck config.
     pub configs: Vec<DeckConfig>,
@@ -43,7 +43,7 @@ impl Collection {
     }
 
     /// Information required for the deck options screen.
-    pub fn update_deck_configs(&mut self, input: UpdateDeckConfigsIn) -> Result<OpOutput<()>> {
+    pub fn update_deck_configs(&mut self, input: UpdateDeckConfigsRequest) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateDeckConfig, |col| {
             col.update_deck_configs_inner(input)
         })
@@ -106,7 +106,7 @@ impl Collection {
             .collect())
     }
 
-    fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsIn) -> Result<()> {
+    fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsRequest) -> Result<()> {
         if input.configs.is_empty() {
             return Err(AnkiError::invalid_input("config not provided"));
         }
@@ -219,7 +219,7 @@ mod test {
 
         // if nothing changed, no changes should be made
         let output = col.get_deck_configs_for_update(DeckId(1))?;
-        let mut input = UpdateDeckConfigsIn {
+        let mut input = UpdateDeckConfigsRequest {
             target_deck_id: DeckId(1),
             configs: output
                 .all_config
