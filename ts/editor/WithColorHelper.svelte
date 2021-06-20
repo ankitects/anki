@@ -5,15 +5,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { colorHelperIcon } from "./icons";
 
-    export let color = "black";
+    export let color: string;
 
-    function setColor({ currentTarget }: Event): void {
-        color = (currentTarget! as HTMLInputElement).value;
+    function setColor({ currentTarget }: Event): string {
+        return (color = (currentTarget! as HTMLInputElement).value);
     }
 </script>
 
 <div style={`--color-helper-color: ${color}`}>
-    <slot {colorHelperIcon} {color} {setColor} />
+    <slot {colorHelperIcon} {setColor} />
 </div>
 
 <style lang="scss">
