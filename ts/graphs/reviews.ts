@@ -53,7 +53,7 @@ export interface GraphData {
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 type BinType = Bin<Map<number, Reviews[]>, number>;
 
-export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
     const reviewCount = new Map<number, Reviews>();
     const reviewTime = new Map<number, Reviews>();
     const empty = { mature: 0, young: 0, learn: 0, relearn: 0, early: 0 };

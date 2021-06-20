@@ -18,8 +18,8 @@ from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.utils import ids2str, intTime
 
-CountsForDeckToday = _pb.CountsForDeckTodayOut
-SchedTimingToday = _pb.SchedTimingTodayOut
+CountsForDeckToday = _pb.CountsForDeckTodayResponse
+SchedTimingToday = _pb.SchedTimingTodayResponse
 
 # legacy type alias
 QueueConfig = Dict[str, Any]

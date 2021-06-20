@@ -45,7 +45,7 @@ class ExtractedLatexOutput:
     latex: List[ExtractedLatex]
 
     @staticmethod
-    def from_proto(proto: _pb.ExtractLatexOut) -> ExtractedLatexOutput:
+    def from_proto(proto: _pb.ExtractLatexResponse) -> ExtractedLatexOutput:
         return ExtractedLatexOutput(
             html=proto.text,
             latex=[

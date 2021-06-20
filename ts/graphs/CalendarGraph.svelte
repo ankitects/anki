@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, renderCalendar } from "./calendar";
     import type { GraphData } from "./calendar";
 
-    export let sourceData: pb.BackendProto.GraphsOut;
+    export let sourceData: pb.BackendProto.GraphsResponse;
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
     export let revlogRange: RevlogRange;
     import * as tr from "lib/i18n";

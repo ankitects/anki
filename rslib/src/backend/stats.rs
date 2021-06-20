@@ -11,7 +11,7 @@ impl StatsService for Backend {
             .map(Into::into)
     }
 
-    fn graphs(&self, input: pb::GraphsIn) -> Result<pb::GraphsOut> {
+    fn graphs(&self, input: pb::GraphsRequest) -> Result<pb::GraphsResponse> {
         self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
     }
 

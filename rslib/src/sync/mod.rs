@@ -16,7 +16,7 @@ use serde_tuple::Serialize_tuple;
 pub(crate) use server::{LocalServer, SyncServer};
 
 use crate::{
-    backend_proto::{sync_status_out, SyncStatusOut},
+    backend_proto::{sync_status_response, SyncStatusResponse},
     card::{Card, CardQueue, CardType},
     deckconfig::DeckConfSchema11,
     decks::DeckSchema11,
@@ -164,7 +164,7 @@ pub struct CardEntry {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SanityCheckOut {
+pub struct SanityCheckResponse {
     pub status: SanityCheckStatus,
     #[serde(rename = "c", default, deserialize_with = "default_on_invalid")]
     pub client: Option<SanityCheckCounts>,
@@ -545,7 +545,7 @@ where
             self.col.log,
             "gathered local counts; waiting for server reply"
         );
-        let out: SanityCheckOut = self.remote.sanity_check(local_counts).await?;
+        let out: SanityCheckResponse = self.remote.sanity_check(local_counts).await?;
         debug!(self.col.log, "got server reply");
         if out.status != SanityCheckStatus::Ok {
             Err(AnkiError::sync_error(
@@ -609,20 +609,20 @@ pub(crate) async fn get_remote_sync_meta(auth: SyncAuth) -> Result<SyncMeta> {
 }
 
 impl Collection {
-    pub fn get_local_sync_status(&mut self) -> Result<sync_status_out::Required> {
+    pub fn get_local_sync_status(&mut self) -> Result<sync_status_response::Required> {
         let stamps = self.storage.get_collection_timestamps()?;
         let required = if stamps.schema_changed_since_sync() {
-            sync_status_out::Required::FullSync
+            sync_status_response::Required::FullSync
         } else if stamps.collection_changed_since_sync() {
-            sync_status_out::Required::NormalSync
+            sync_status_response::Required::NormalSync
         } else {
-            sync_status_out::Required::NoChanges
+            sync_status_response::Required::NoChanges
         };
 
         Ok(required)
     }
 
-    pub fn get_sync_status(&self, remote: SyncMeta) -> Result<sync_status_out::Required> {
+    pub fn get_sync_status(&self, remote: SyncMeta) -> Result<sync_status_response::Required> {
         Ok(self.sync_meta()?.compared_to_remote(remote).required.into())
     }
 
@@ -1173,18 +1173,18 @@ impl From<SyncState> for SyncOutput {
     }
 }
 
-impl From<sync_status_out::Required> for SyncStatusOut {
-    fn from(r: sync_status_out::Required) -> Self {
-        SyncStatusOut { required: r.into() }
+impl From<sync_status_response::Required> for SyncStatusResponse {
+    fn from(r: sync_status_response::Required) -> Self {
+        SyncStatusResponse { required: r.into() }
     }
 }
 
-impl From<SyncActionRequired> for sync_status_out::Required {
+impl From<SyncActionRequired> for sync_status_response::Required {
     fn from(r: SyncActionRequired) -> Self {
         match r {
-            SyncActionRequired::NoChanges => sync_status_out::Required::NoChanges,
-            SyncActionRequired::FullSyncRequired { .. } => sync_status_out::Required::FullSync,
-            SyncActionRequired::NormalSyncRequired => sync_status_out::Required::NormalSync,
+            SyncActionRequired::NoChanges => sync_status_response::Required::NoChanges,
+            SyncActionRequired::FullSyncRequired { .. } => sync_status_response::Required::FullSync,
+            SyncActionRequired::NormalSyncRequired => sync_status_response::Required::NormalSync,
         }
     }
 }
@@ -1415,7 +1415,7 @@ mod test {
         // and sync our changes
         let remote_meta = ctx.server().meta().await.unwrap();
         let out = col1.get_sync_status(remote_meta)?;
-        assert_eq!(out, sync_status_out::Required::NormalSync);
+        assert_eq!(out, sync_status_response::Required::NormalSync);
 
         let out = ctx.normal_sync(&mut col1).await;
         assert_eq!(out.required, SyncActionRequired::NoChanges);

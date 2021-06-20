@@ -14,8 +14,8 @@ from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import joinFields
 
-DuplicateOrEmptyResult = _pb.NoteFieldsCheckOut.State
-NoteFieldsCheckResult = _pb.NoteFieldsCheckOut.State
+DuplicateOrEmptyResult = _pb.NoteFieldsCheckResponse.State
+NoteFieldsCheckResult = _pb.NoteFieldsCheckResponse.State
 
 # types
 NoteId = NewType("NoteId", int)

@@ -14,13 +14,13 @@ impl Collection {
         &mut self,
         search: &str,
         days: u32,
-    ) -> Result<pb::GraphsOut> {
+    ) -> Result<pb::GraphsResponse> {
         self.search_cards_into_table(search, SortMode::NoOrder)?;
         let all = search.trim().is_empty();
         self.graph_data(all, days)
     }
 
-    fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::GraphsOut> {
+    fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::GraphsResponse> {
         let timing = self.timing_today()?;
         let revlog_start = if days > 0 {
             timing
@@ -43,7 +43,7 @@ impl Collection {
 
         self.storage.clear_searched_cards_table()?;
 
-        Ok(pb::GraphsOut {
+        Ok(pb::GraphsResponse {
             cards: cards.into_iter().map(Into::into).collect(),
             revlog,
             days_elapsed: timing.days_elapsed,

@@ -19,18 +19,21 @@ impl NotesService for Backend {
         })
     }
 
-    fn add_note(&self, input: pb::AddNoteIn) -> Result<pb::AddNoteOut> {
+    fn add_note(&self, input: pb::AddNoteRequest) -> Result<pb::AddNoteResponse> {
         self.with_col(|col| {
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
             let changes = col.add_note(&mut note, DeckId(input.deck_id))?;
-            Ok(pb::AddNoteOut {
+            Ok(pb::AddNoteResponse {
                 note_id: note.id.0,
                 changes: Some(changes.into()),
             })
         })
     }
 
-    fn defaults_for_adding(&self, input: pb::DefaultsForAddingIn) -> Result<pb::DeckAndNotetype> {
+    fn defaults_for_adding(
+        &self,
+        input: pb::DefaultsForAddingRequest,
+    ) -> Result<pb::DeckAndNotetype> {
         self.with_col(|col| {
             let home_deck: DeckId = input.home_deck_of_current_review_card.into();
             col.defaults_for_adding(home_deck).map(Into::into)
@@ -46,7 +49,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn update_note(&self, input: pb::UpdateNoteIn) -> Result<pb::OpChanges> {
+    fn update_note(&self, input: pb::UpdateNoteRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
             col.update_note_maybe_undoable(&mut note, !input.skip_undo_entry)
@@ -63,7 +66,7 @@ impl NotesService for Backend {
         })
     }
 
-    fn remove_notes(&self, input: pb::RemoveNotesIn) -> Result<pb::OpChangesWithCount> {
+    fn remove_notes(&self, input: pb::RemoveNotesRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             if !input.note_ids.is_empty() {
                 col.remove_notes(
@@ -87,17 +90,20 @@ impl NotesService for Backend {
         })
     }
 
-    fn cloze_numbers_in_note(&self, note: pb::Note) -> Result<pb::ClozeNumbersInNoteOut> {
+    fn cloze_numbers_in_note(&self, note: pb::Note) -> Result<pb::ClozeNumbersInNoteResponse> {
         let mut set = HashSet::with_capacity(4);
         for field in &note.fields {
             add_cloze_numbers_in_string(field, &mut set);
         }
-        Ok(pb::ClozeNumbersInNoteOut {
+        Ok(pb::ClozeNumbersInNoteResponse {
             numbers: set.into_iter().map(|n| n as u32).collect(),
         })
     }
 
-    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::OpChangesWithCount> {
+    fn after_note_updates(
+        &self,
+        input: pb::AfterNoteUpdatesRequest,
+    ) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.after_note_updates(
                 &to_note_ids(input.nids),
@@ -110,21 +116,21 @@ impl NotesService for Backend {
 
     fn field_names_for_notes(
         &self,
-        input: pb::FieldNamesForNotesIn,
-    ) -> Result<pb::FieldNamesForNotesOut> {
+        input: pb::FieldNamesForNotesRequest,
+    ) -> Result<pb::FieldNamesForNotesResponse> {
         self.with_col(|col| {
             let nids: Vec<_> = input.nids.into_iter().map(NoteId).collect();
             col.storage
                 .field_names_for_notes(&nids)
-                .map(|fields| pb::FieldNamesForNotesOut { fields })
+                .map(|fields| pb::FieldNamesForNotesResponse { fields })
         })
     }
 
-    fn note_fields_check(&self, input: pb::Note) -> Result<pb::NoteFieldsCheckOut> {
+    fn note_fields_check(&self, input: pb::Note) -> Result<pb::NoteFieldsCheckResponse> {
         let note: Note = input.into();
         self.with_col(|col| {
             col.note_fields_check(&note)
-                .map(|r| pb::NoteFieldsCheckOut { state: r as i32 })
+                .map(|r| pb::NoteFieldsCheckResponse { state: r as i32 })
         })
     }
 

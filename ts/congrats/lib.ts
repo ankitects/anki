@@ -7,13 +7,13 @@ import { naturalUnit, unitAmount, unitName } from "lib/time";
 
 import * as tr from "lib/i18n";
 
-export async function getCongratsInfo(): Promise<pb.BackendProto.CongratsInfoOut> {
-    return pb.BackendProto.CongratsInfoOut.decode(
+export async function getCongratsInfo(): Promise<pb.BackendProto.CongratsInfoResponse> {
+    return pb.BackendProto.CongratsInfoResponse.decode(
         await postRequest("/_anki/congratsInfo", "")
     );
 }
 
-export function buildNextLearnMsg(info: pb.BackendProto.CongratsInfoOut): string {
+export function buildNextLearnMsg(info: pb.BackendProto.CongratsInfoResponse): string {
     const secsUntil = info.secsUntilNextLearn;
     // next learning card not due (/ until tomorrow)?
     if (secsUntil == 0 || secsUntil > 86_400) {

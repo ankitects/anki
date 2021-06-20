@@ -21,7 +21,7 @@ impl CardsService for Backend {
         })
     }
 
-    fn update_card(&self, input: pb::UpdateCardIn) -> Result<pb::OpChanges> {
+    fn update_card(&self, input: pb::UpdateCardRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let mut card: Card = input.card.ok_or(AnkiError::NotFound)?.try_into()?;
             col.update_card_maybe_undoable(&mut card, !input.skip_undo_entry)
@@ -29,7 +29,7 @@ impl CardsService for Backend {
         .map(Into::into)
     }
 
-    fn remove_cards(&self, input: pb::RemoveCardsIn) -> Result<pb::Empty> {
+    fn remove_cards(&self, input: pb::RemoveCardsRequest) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 col.remove_cards_and_orphaned_notes(
@@ -44,13 +44,13 @@ impl CardsService for Backend {
         })
     }
 
-    fn set_deck(&self, input: pb::SetDeckIn) -> Result<pb::OpChangesWithCount> {
+    fn set_deck(&self, input: pb::SetDeckRequest) -> Result<pb::OpChangesWithCount> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
         let deck_id = input.deck_id.into();
         self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
     }
 
-    fn set_flag(&self, input: pb::SetFlagIn) -> Result<pb::OpChangesWithCount> {
+    fn set_flag(&self, input: pb::SetFlagRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.set_card_flag(&to_card_ids(input.card_ids), input.flag)
                 .map(Into::into)

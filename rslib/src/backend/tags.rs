@@ -27,7 +27,7 @@ impl TagsService for Backend {
         self.with_col(|col| col.remove_tags(tags.val.as_str()).map(Into::into))
     }
 
-    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedIn) -> Result<pb::OpChanges> {
+    fn set_tag_collapsed(&self, input: pb::SetTagCollapsedRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             col.set_tag_collapsed(&input.name, input.collapsed)
                 .map(Into::into)
@@ -38,7 +38,7 @@ impl TagsService for Backend {
         self.with_col(|col| col.tag_tree())
     }
 
-    fn reparent_tags(&self, input: pb::ReparentTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn reparent_tags(&self, input: pb::ReparentTagsRequest) -> Result<pb::OpChangesWithCount> {
         let source_tags = input.tags;
         let target_tag = if input.new_parent.is_empty() {
             None
@@ -49,19 +49,19 @@ impl TagsService for Backend {
             .map(Into::into)
     }
 
-    fn rename_tags(&self, input: pb::RenameTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn rename_tags(&self, input: pb::RenameTagsRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| col.rename_tag(&input.current_prefix, &input.new_prefix))
             .map(Into::into)
     }
 
-    fn add_note_tags(&self, input: pb::NoteIdsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn add_note_tags(&self, input: pb::NoteIdsAndTagsRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.add_tags_to_notes(&to_note_ids(input.note_ids), &input.tags)
                 .map(Into::into)
         })
     }
 
-    fn remove_note_tags(&self, input: pb::NoteIdsAndTagsIn) -> Result<pb::OpChangesWithCount> {
+    fn remove_note_tags(&self, input: pb::NoteIdsAndTagsRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.remove_tags_from_notes(&to_note_ids(input.note_ids), &input.tags)
                 .map(Into::into)
@@ -70,7 +70,7 @@ impl TagsService for Backend {
 
     fn find_and_replace_tag(
         &self,
-        input: pb::FindAndReplaceTagIn,
+        input: pb::FindAndReplaceTagRequest,
     ) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.find_and_replace_tag(

@@ -13,7 +13,7 @@ impl MediaService for Backend {
     // media
     //-----------------------------------------------
 
-    fn check_media(&self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
+    fn check_media(&self, _input: pb::Empty) -> Result<pb::CheckMediaResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -25,7 +25,7 @@ impl MediaService for Backend {
 
                 let report = checker.summarize_output(&mut output);
 
-                Ok(pb::CheckMediaOut {
+                Ok(pb::CheckMediaResponse {
                     unused: output.unused,
                     missing: output.missing,
                     report,
@@ -35,7 +35,7 @@ impl MediaService for Backend {
         })
     }
 
-    fn trash_media_files(&self, input: pb::TrashMediaFilesIn) -> Result<pb::Empty> {
+    fn trash_media_files(&self, input: pb::TrashMediaFilesRequest) -> Result<pb::Empty> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
@@ -44,7 +44,7 @@ impl MediaService for Backend {
         .map(Into::into)
     }
 
-    fn add_media_file(&self, input: pb::AddMediaFileIn) -> Result<pb::String> {
+    fn add_media_file(&self, input: pb::AddMediaFileRequest) -> Result<pb::String> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();

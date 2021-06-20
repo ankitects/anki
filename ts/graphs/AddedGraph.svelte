@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, buildHistogram } from "./added";
     import type { GraphData } from "./added";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
     import * as tr from "lib/i18n";
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 

@@ -29,7 +29,7 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
     return (media_folder, media_db)
 
 
-CheckMediaOut = _pb.CheckMediaOut
+CheckMediaResponse = _pb.CheckMediaResponse
 
 
 # fixme: look into whether we can drop chdir() below
@@ -212,7 +212,7 @@ class MediaManager:
     # Checking media
     ##########################################################################
 
-    def check(self) -> CheckMediaOut:
+    def check(self) -> CheckMediaResponse:
         output = self.col._backend.check_media()
         # files may have been renamed on disk, so an undo at this point could
         # break file references

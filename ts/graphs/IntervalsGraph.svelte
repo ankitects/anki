@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { IntervalGraphData } from "./intervals";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
     import * as tr from "lib/i18n";
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 

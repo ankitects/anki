@@ -5,7 +5,7 @@ use super::Backend;
 pub(super) use crate::backend_proto::deckconfig_service::Service as DeckConfigService;
 use crate::{
     backend_proto as pb,
-    deckconfig::{DeckConfSchema11, DeckConfig, UpdateDeckConfigsIn},
+    deckconfig::{DeckConfSchema11, DeckConfig, UpdateDeckConfigsRequest},
     prelude::*,
 };
 
@@ -63,7 +63,7 @@ impl DeckConfigService for Backend {
         self.with_col(|col| col.get_deck_configs_for_update(input.into()))
     }
 
-    fn update_deck_configs(&self, input: pb::UpdateDeckConfigsIn) -> Result<pb::OpChanges> {
+    fn update_deck_configs(&self, input: pb::UpdateDeckConfigsRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.update_deck_configs(input.into()))
             .map(Into::into)
     }
@@ -81,9 +81,9 @@ impl From<DeckConfig> for pb::DeckConfig {
     }
 }
 
-impl From<pb::UpdateDeckConfigsIn> for UpdateDeckConfigsIn {
-    fn from(c: pb::UpdateDeckConfigsIn) -> Self {
-        UpdateDeckConfigsIn {
+impl From<pb::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
+    fn from(c: pb::UpdateDeckConfigsRequest) -> Self {
+        UpdateDeckConfigsRequest {
             target_deck_id: c.target_deck_id.into(),
             configs: c.configs.into_iter().map(Into::into).collect(),
             removed_config_ids: c.removed_config_ids.into_iter().map(Into::into).collect(),

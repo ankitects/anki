@@ -13,7 +13,7 @@ use super::{
     limits::{remaining_limits_map, RemainingLimits},
     DueCounts,
 };
-pub use crate::backend_proto::set_deck_collapsed_in::Scope as DeckCollapseScope;
+pub use crate::backend_proto::set_deck_collapsed_request::Scope as DeckCollapseScope;
 use crate::{
     backend_proto::DeckTreeNode, config::SchedulerVersion, ops::OpOutput, prelude::*, undo::Op,
 };

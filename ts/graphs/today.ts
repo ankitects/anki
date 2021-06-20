@@ -13,7 +13,7 @@ export interface TodayData {
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 
-export function gatherData(data: pb.BackendProto.GraphsOut): TodayData {
+export function gatherData(data: pb.BackendProto.GraphsResponse): TodayData {
     let answerCount = 0;
     let answerMillis = 0;
     let correctCount = 0;

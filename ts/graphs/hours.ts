@@ -39,7 +39,7 @@ interface Hour {
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 
-function gatherData(data: pb.BackendProto.GraphsOut, range: GraphRange): Hour[] {
+function gatherData(data: pb.BackendProto.GraphsResponse, range: GraphRange): Hour[] {
     const hours = [...Array(24)].map((_n, idx: number) => {
         return { hour: idx, totalCount: 0, correctCount: 0 } as Hour;
     });
@@ -74,7 +74,7 @@ function gatherData(data: pb.BackendProto.GraphsOut, range: GraphRange): Hour[] 
 export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    origData: pb.BackendProto.GraphsOut,
+    origData: pb.BackendProto.GraphsResponse,
     range: GraphRange
 ): void {
     const data = gatherData(origData, range);

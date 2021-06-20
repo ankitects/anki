@@ -44,11 +44,11 @@ impl Collection {
     pub(crate) fn counts_for_deck_today(
         &mut self,
         did: DeckId,
-    ) -> Result<pb::CountsForDeckTodayOut> {
+    ) -> Result<pb::CountsForDeckTodayResponse> {
         let today = self.current_due_day(0)?;
         let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
         deck.reset_stats_if_day_changed(today);
-        Ok(pb::CountsForDeckTodayOut {
+        Ok(pb::CountsForDeckTodayResponse {
             new: deck.common.new_studied,
             review: deck.common.review_studied,
         })

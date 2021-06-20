@@ -28,7 +28,7 @@ export interface GraphData {
     daysAdded: number[];
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
     const daysAdded = (data.cards as pb.BackendProto.Card[]).map((card) => {
         const elapsedSecs = (card.id as number) / 1000 - data.nextDayAtSecs;
         return Math.ceil(elapsedSecs / 86400);

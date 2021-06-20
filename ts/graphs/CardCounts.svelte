@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
 
-    export let sourceData: pb.BackendProto.GraphsOut;
+    export let sourceData: pb.BackendProto.GraphsResponse;
     import * as tr2 from "lib/i18n";
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 

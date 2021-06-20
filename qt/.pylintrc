@@ -11,10 +11,10 @@ ignored-classes=
   SearchNode,
   Config,
   OpChanges,
-  UnburyDeckIn,
+  UnburyDeckRequest,
   CardAnswer,
   QueuedCards,
-  ChangeNotetypeIn,
+  ChangeNotetypeRequest,
 
 [REPORTS]
 output-format=colorized
