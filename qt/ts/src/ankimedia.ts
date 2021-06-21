@@ -610,7 +610,8 @@ class AnkiMediaQueue {
             );
         }
 
-        this._answer_element = document.getElementById("answer");
+        let answerids = document.querySelectorAll('[id^=answer]');
+        this._answer_element = answerids ? answerids[0] as HTMLElement : null;
         this.is_setup = true;
         this.where = this._answer_element ? "back" : "front";
         this.delay = delay;
