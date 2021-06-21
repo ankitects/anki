@@ -16,10 +16,10 @@
 
 <Row>
     <Col size={7}>
+        <RevertButton bind:value {defaultValue} />
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
     <Col size={5}>
         <StepsInput bind:value />
-        <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

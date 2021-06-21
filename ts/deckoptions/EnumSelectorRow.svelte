@@ -20,10 +20,10 @@
 
 <Row>
     <Col size={7}>
+        <RevertButton bind:value {defaultValue} />
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
     <Col {breakpoint} size={5}>
         <EnumSelector bind:value {choices} />
-        <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

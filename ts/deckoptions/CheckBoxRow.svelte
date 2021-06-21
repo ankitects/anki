@@ -17,12 +17,10 @@
 
 <Row>
     <Col>
+        <RevertButton bind:value {defaultValue} />
         <CheckBox bind:value
             >{#if markdownTooltip}<TooltipLabel {markdownTooltip}><slot /></TooltipLabel
                 >{:else}<Label><slot /></Label>{/if}</CheckBox
         >
-    </Col>
-    <Col grow={false}>
-        <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

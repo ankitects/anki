@@ -19,12 +19,12 @@
 
 <Row>
     <Col>
+        <RevertButton bind:value {defaultValue} />
         {#if markdownTooltip}<TooltipLabel for={id} {markdownTooltip}
                 ><slot /></TooltipLabel
             >{:else}<Label for={id}><slot /></Label>{/if}
     </Col>
     <Col grow={false}>
         <Switch {id} bind:value />
-        <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>
